@@ -38,7 +38,10 @@ class User extends CI_Controller {
         $booking_id = $this->input->post('booking_id');
         $order_id = $this->input->post('order_id');
         $partner_code = $this->input->post('partner');
-        $phone_number = $this->input->post('phone_number');
+        
+        if($this->input->post('phone_number')){
+            $phone_number = $this->input->post('phone_number');
+        }
 
         if(!empty($order_id)){
             $this->search_by_OrderId($partner_code, $order_id);
