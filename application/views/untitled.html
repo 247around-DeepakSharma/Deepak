@@ -1,0 +1,766 @@
+
+<?php
+class Apis extends CI_Model{
+
+    private $db_location;
+  /**
+   * @desc load both db
+   */
+  function __construct(){
+     parent::__Construct();
+     $this->db_location = $this->load->database('default1', TRUE,TRUE);
+       $this->db = $this->load->database('default', TRUE,TRUE);
+
+  }
+  
+  function saveRequestData($headerData){
+          $this->db->insert("all_requests",$headerData);
+     }
+     
+     function saveDeviceinfo($deviceInfo, $email, $device_id) {
+        $deviceInfoArray = array();
+        $deviceInfoArray['user_email'] = $email;
+        $deviceInfoArray['device_id'] = $device_id;
+        $deviceInfoArray['update_time'] = date("Y-m-d H:i:s");
+        $deviceInfoArray['device_info'] = $deviceInfo;
+        $this->db->insert("deviceinfo",$deviceInfoArray);
+     }
+     
+     function userLogin($email, $password, $device_id) {
+        $sql = "SELECT user_email as email, user_country as country, user_token as token FROM users WHERE user_email = ? and user_password = ?"; 
+    $data = $this->db->query($sql, array($email, $password));     
+    $result = $data->result_array();
+    if($result) {
+        $this->updateDeviceId($email, $device_id);
+    }
+    return $result;
+     }
+     
+     function updateDeviceId($email, $device_id) {
+        $sql = "SELECT device_id FROM users WHERE user_email = ?"; 
+    $data = $this->db->query($sql, array($email));      
+    $result = $data->result_array();
+    if($result) {
+        return true;
+    }
+    else {
+        $updateData = array('device_id' => $device_id);
+            $this->db->where('user_email',$email);
+            $this->db->update('users',$updateData);
+    }
+     }
+     
+     /* @desc : this function get handyman id name service address
+   * @param : handyman id
+   * @return : array handyman information
+   */
+
+  function gethandyman($handymanid){
+    $this->db->select('*');
+    $this->db->where('id', $handymanid);
+        $query = $this->db->get('handyman');
+        return $query->result_array();
+
+  }
+  
+  function checkLocation($deviceId, $lat, $long) {
+        $locationLast = $this->getLocationByLatLong($deviceId, $lat, $long);
+        $location = $this->getLocation($deviceId);
+        if($locationLast) {
+            return true;
+        }
+        else if($location) {
+            $location = array('latitude' => $lat, 'longitude' => $long);
+            $this->updateLocation($deviceId, $location);
+        }
+        else {
+            $location = array('latitude' => $lat, 'longitude' => $long);
+            $this->saveLocation($deviceId, $location);
+        }
+  }
+  
+  function updateLocation($deviceId, $location) {
+      $locationInfo = array();
+        $locationInfo['latitude'] = $location['latitude'];
+        $locationInfo['longitude'] = $location['longitude'];
+        $locationInfo['update_time'] = date("Y-m-d H:i:s");
+        if(array_key_exists("email_id", $location)) {
+            $locationInfo['user_email'] = $location['email_id'];
+       }
+       $this->db->where('device_id', $deviceId);
+       $this->db->update("location",$locationInfo);
+  }
+  
+  function getLocation($deviceId) {
+      $this->db->select('latitude, longitude');
+    $this->db->where('device_id', $deviceId);
+        $query = $this->db->get('location');
+        return $query->result_array();
+  }
+  
+  function getLocationByLatLong($deviceId,$lat, $long) {
+      $this->db->select('latitude, longitude');
+    $this->db->where(array('device_id' => $deviceId, 'latitude' => $lat, 'longitude' => $long));
+        $query = $this->db->get('location');
+        return $query->result_array();
+  }
+  
+  function saveLocation($deviceId, $location) {
+      $locationInfo = array();
+      $locationInfo['device_id'] = $deviceId;
+      $locationInfo['latitude'] = $location['latitude'];
+      $locationInfo['longitude'] = $location['longitude'];
+      $locationInfo['update_time'] = date("Y-m-d H:i:s");
+      if(array_key_exists("email_id", $location)) {
+            $locationInfo['user_email'] = $location['email_id'];
+      }
+      $this->db->insert("location",$locationInfo);
+  }
+     
+     /**description* Post request to get authentication token
+      */
+  function getAuthToken($user){
+  
+    $sql = "select user_token from users where user_email = '$user'";
+    $data = $this->db->query($sql);
+    return $data->result_array();
+  }
+  
+  function resetPassword($email,$password) {
+      $uid = uniqid();
+    $id = base64_encode(hash_hmac('sha256', $uid, "authToken"));
+      $sql = "update users set user_password = '$password', user_token = '$id' where user_email = '$email'";
+    $this->db->query($sql);
+    if($this->db->affected_rows()){
+          $token['token'] = $uid;
+          $token['notify'] = true;
+          return $token;
+        }
+        else{
+          return false;
+        }
+  }
+  
+  /**description* Post request to update authentication token
+      */
+  function updateAuthToken($email){
+    
+    $uid = uniqid();
+    $id = base64_encode(hash_hmac('sha256', $uid, "authToken"));
+    $sql = "update users set user_token = '$id' where user_email = '$email'";
+    $data = $this->db->query($sql);
+    if($this->db->affected_rows()){
+          return $uid;
+        }
+        else{
+          return false;
+        }   
+  }
+     
+     function getDeviceInfo($device_id, $user_email) {
+        $array = array('device_id  =' => $device_id, 'user_email  =' => $user_email);
+        $query = $this->db->select('user_email')->where($array)->limit(1)->get('deviceinfo');
+        return $query->result_array();
+     }
+  
+  function logTable($activity) { 
+       $this->db->insert("log_table",$activity);
+    }
+   
+   function getIp2Location($ipno) {
+      $array = array('ip_to >=' => $ipno, 'ip_from  <=' => $ipno);
+      $query = $this->db_location->select('city_name, region_name, country_name, latitude, longitude')->where($array)->limit(1)->get('ip2location_db11');
+      return $query->result_array();
+   }
+   
+   function saveLocations($location, $email, $country_name) { 
+      $locationInfo = array();
+      $locationInfo['latitude'] = "";
+      $locationInfo['longitude'] = "";
+      $locationInfo['user_email'] = $email;
+      $locationInfo['country_name'] = $country_name;
+      $locationInfo['update_time'] = date("Y-m-d H:i:s");
+      if(array_key_exists("latitude", $location)) {
+            $locationInfo['latitude'] = $location['latitude'];
+      }
+      if(array_key_exists("longitude", $location)) {
+            $locationInfo['longitude'] = $location['longitude'];
+      }
+      $this->db->insert("location",$locationInfo);
+   }
+   
+   function getLastLocation($latitude, $longitude, $user_email) {
+      $array = array('latitude =' => $latitude, 'longitude  =' => $longitude, 'user_email  =' => $user_email);
+      $query = $this->db->select('user_email')->where($array)->limit(1)->get('location');
+      return $query->result_array();
+   }
+       
+    /**description* check if a user is registered or not
+    * @params String (Email)
+    * @return Array (User info)
+      */
+  function isAlreadyRegistered($email){
+    
+    $sql = "SELECT user_email FROM users WHERE user_email = ?"; 
+    $data = $this->db->query($sql, array($email));      
+    return $data->result_array();
+  }
+  
+  /**description* Post request to register a user
+      */
+  function insertRegisterData($data) {
+    
+    $uid = uniqid();
+    $id = base64_encode(hash_hmac('sha256', $uid, "authToken"));
+        $sql = "insert into users (user_email, user_password, user_country, is_active, user_token) values (?,?,?,?,?)";
+        $this->db->query($sql, array($data['email'], $data['password'], $data['country'], 1, $id));
+        
+        if($this->db->affected_rows()){
+          $token['token'] = $uid;
+          $token['notify'] = true;
+          return $token;
+        }
+  }
+ 
+ /**description* Post request to insert data
+  */
+  function addHandyman($insert, $deviceId){
+    $sql = "insert into  handyman(`name`,`phone`,`service_id`,`address`,`experience`,`age`,`profile_photo`, `action`) values (?,?,?,?,?,?,?,?)";
+    $this->db->query($sql,$insert);
+    $handyanid = $this->db->insert_id();
+    //echo $handyanid;
+    return $this->addUserHandyman(array($deviceId, $handyanid));
+  }
+  
+  /**description* Post request to insert data
+  */
+  function addUserHandyman($insert){
+    $sql = "insert into  user_handyman(`device_id`,`handyman_id`) values (?,?)";
+    $this->db->query($sql,$insert);
+    return $this->db->insert_id();
+  
+  }
+ 
+ /**description* Post request to insert data
+  */
+  function insertData($insert){
+
+
+    $sql = "insert into  handyman(`name`,`phone`,`service`,`address`,`experience`,`age`,`profile_photo`,`is_paid`,`passport`,`identity`,`marital_status`,`works_on_weekends`,`work_on_weekdays`,`service_on_call`) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    $this->db->query($sql,array($insert['name'],$insert['phone'],$insert['service'],$insert['address'],$insert['experience'],$insert['age'],$insert['profile_photo'],$insert['is_paid'],$insert['passport'],$insert['identity'],$insert['marital_status'],$insert['works_on_weekends'],$insert['work_on_weekdays'],$insert['service_on_call']));
+    return $this->db->insert_id();
+  
+  }
+
+ 
+
+ 
+ /**description*  This function for search handyman name & services from requested services 
+  * param : request input for serach service
+  * @return : name and service
+  */
+
+  function searchservice($searchservice) {
+    $this->db->select('id , name , service');
+    $this->db->like('service',$searchservice);
+    $query=$this->db->get("handyman");
+    return $query->result_array();
+
+  }
+
+ /**description*  This function is to insert/update user profile name and userid
+  * param : array request to insert user profile
+  * @return : store user detail on user frofile
+  */
+
+  function user_profile($userid,$name){
+    $checkUserId = $this->checkUserId($userid);
+    if($checkUserId == true){
+      $updateData = array('id' => $userid ,'name' => $name);
+      $this->db->where('id',$userid);
+      $this->db->update('user_profile',$updateData);
+
+    } else {
+
+      $this->db->set('id', $userid);
+      $this->db->set('name', $name);
+      $this->db->insert('user_profile');
+      
+    }
+   
+    
+
+  }
+
+
+  /**description*  This function is to insert/update user profile phone and userid
+  * param : array request to insert user profile
+  * @return : store user detail on user frofile
+  */
+
+  function userprofilePhone($userid,$phone){
+    $checkUserId = $this->checkUserId($userid);
+    if($checkUserId == true){
+      $updateData = array('id' => $userid ,'phone' => $phone);
+      $this->db->where('id',$userid);
+      $this->db->update('user_profile',$updateData);
+
+    } else {
+
+      $this->db->set('id', $userid);
+      $this->db->set('phone', $phone);
+      $this->db->insert('user_profile');
+      
+    }
+   
+    
+
+  }
+
+ /**description*  This function is to insert/update user profile Home Address and userid
+  * param : array request to insert user profile
+  * @return : store user detail on user frofile
+  */
+
+  function userprofileAddress($userid,$home_address){
+    $checkUserId = $this->checkUserId($userid);
+    if($checkUserId == true){
+      $updateData = array('id' => $userid ,'home_address' => $home_address);
+      $this->db->where('id',$userid);
+      $this->db->update('user_profile',$updateData);
+
+    } else {
+
+      $this->db->set('id', $userid);
+      $this->db->set('home_address', $home_address);
+      $this->db->insert('user_profile');
+      
+    }
+   
+    
+
+  }
+
+
+ /**description*  This function is to insert/update user profile Office  Address and userid
+  * param : array request to insert user profile
+  * @return : store user detail on user frofile
+  */
+
+  function userprofileOfficeAddress($userid,$office_address){
+    $checkUserId = $this->checkUserId($userid);
+    if($checkUserId == true){
+      $updateData = array('id' => $userid ,'office_address' => $office_address);
+      $this->db->where('id',$userid);
+      $this->db->update('user_profile',$updateData);
+
+    } else {
+
+      $this->db->set('id', $userid);
+      $this->db->set('office_address', $office_address);
+      $this->db->insert('user_profile');
+      
+    }
+   
+    
+
+  }
+
+
+ /**description*  This function is for check userid  is_already  insert or not
+  * param : user profile id
+  * @return : true
+  */
+
+  function checkUserId($userid){
+
+    $this->db->where('id',$userid);
+    $data =  $this->db->get('user_profile');
+   if($data->result_array()) {
+   return true;
+   }
+  }
+  
+  function getSharetext() {
+     $query = $this->db->get('sharetext');
+     $result = $query->result_array();
+     return $result[0]['sharetext'];
+  }
+
+
+ /**description*  This function is to insert handymanReview
+  * param : array request to insert handymanReview
+  * @return : store user detail on handymanReview
+  */
+
+  function handymanReview($insert){
+    $sql ="insert into handyman_review(`behaviour`,`expertise`,`review`,`handyman_id`,`user_id`) values (?,?,?,?,?)";
+    $this->db->query($sql,array($insert['behaviour'],$insert['expertise'],$insert['review'],$insert['handyman_id'],$insert['user_id']));
+    return $this->db->insert_id();
+
+  }
+ /**description*  This function for get All  user detail from database
+  * param : 
+  * @return :  user detail 
+  */
+
+  function getuserProfile(){
+    $this->db->select('*');
+    $query=$this->db->get("user_profile");
+    return $query->result_array();
+
+  }
+
+ /**description*  This function for update userProfile
+  * param :  userProfile id ,array requested input
+  * @return :  UserProfile
+  */
+
+  function updateUserProfile($deviceId, $updateData){
+    $checkUserId = $this->checkDeviceID($deviceId);
+    if($checkUserId == true){
+        $this->db->where('device_id', $deviceId);
+        $this->db->update('user_profile', $updateData);
+        
+        $this->db->select('id');
+        $this->db->where('device_id', $deviceId);
+        $query=$this->db->get("user_profile");
+        $result = $query->result_array();
+        return $result[0]['id'];
+    } 
+    else {
+        $user = $this->getUserIdByDeviceID($deviceId);
+        $user_id = $user[0]['user_id'];
+        $updateData['device_id'] = $deviceId;
+        $updateData['user_id'] = $user_id;
+        $this->db->insert('user_profile', $updateData);
+        return $this->db->insert_id();
+    }
+  }
+  
+  /**description*  This function is for check userid  is_already  insert or not
+  * param : user profile id
+  * @return : true
+  */
+
+  function checkDeviceID($deviceId){
+
+    $this->db->where('device_id',$deviceId);
+    $data =  $this->db->get('user_profile');
+    if($data->result_array()) {
+        return true;
+    }
+  }
+
+
+ /**description*  This function get userprofile for requested id
+  * param :  userProfile id
+  * @return :  userView
+  */
+
+  function getuserProfileid($user_id){
+    $this->db->select('*');
+    $this->db->where('id',$user_id);
+    $query = $this->db->get("user_profile");
+    return $query->result_array();
+
+  }
+  
+  /**description*  This function get userprofile for requested id
+  * param :  userProfile id
+  * @return :  userView
+  */
+
+  function getuserProfileByDeviceID($deviceId){
+    $this->db->select('*');
+    $this->db->where('device_id',$deviceId);
+    $query = $this->db->get("user_profile");
+    return $query->result_array();
+
+  }
+  
+  /**description*  This function get userprofile for requested id
+  * param :  userProfile id
+  * @return :  userView
+  */
+
+  function getUserIdByEmail($user_email){
+    $this->db->select('user_id,user_token');
+    $this->db->where('user_email',$user_email);
+    $query = $this->db->get("users");
+    return $query->result_array();
+
+  }
+  
+ /** @description*  This function get userprofile for requested id
+  *  @param :  userProfile id
+  *  @return :  userView
+  */
+
+  function getUserIdByDeviceID($devide_id) {
+    $this->db->select('user_id,user_token,user_email');
+    $this->db->where('device_id',$devide_id);
+    $query = $this->db->get("users");
+    return $query->result_array();
+
+  }
+  
+  /* @desc : this function check handyman and user review
+   * @param : handyman id and user_id
+   * @return : review
+   */
+
+    function checkreview($handyman_id,$user_id) {
+      $this->db->select('review');
+      $this->db->where('handyman_id',$handyman_id);
+      $this->db->where('user_id',$user_id);
+      $query = $this->db->get('handyman_review');
+      return $query->result_array();
+
+    }
+    
+    function deleteHandymans($saved_type,$deviceId,$handyman_id) {
+        $getHandymanSaveIds = $this->getSaveHandymanIds($saved_type,$deviceId,$handyman_id);
+        
+        $updateData = array('is_del' => 1);
+        $this->db->where_in('id', $getHandymanSaveIds[0]);
+        $this->db->update('save_used_handyman', $updateData);
+        return true;
+    }
+    
+    function getSaveHandymanIds($type,$deviceId,$handyman_id) {
+      $this->db->select('id');
+      $this->db->where('type',$type);
+      $this->db->where('device_id',$deviceId);
+      $this->db->where_in('handyman_id',$handyman_id);
+      $query = $this->db->get('save_used_handyman');
+      return $query->result_array();
+    }
+    
+    function saveUsedSavedHandyman($saved_type,$deviceId,$handyman_id) {
+        $array = array('handyman_id' => $handyman_id, 'device_id' => $deviceId, 'type' => $saved_type, 'is_del' => 0);
+        $this->db->insert('save_used_handyman',$array);
+        return $this->db->insert_id();
+    }
+    
+    function checkUsedSavedHandyman($saved_type,$deviceId,$handyman_id) {
+        $array = array('handyman_id' => $handyman_id, 'device_id' => $deviceId, 'type' => $saved_type);
+        $handymanStatus = $this->checkUsedSavedHandymanStatus($array);
+        
+        if($handymanStatus) {
+            $is_deleted = $handymanStatus[0]['is_del'];
+            if($is_deleted == 1) {
+                $updateData = array('is_del' => 0);
+                $this->db->where_in('id', $handymanStatus[0]['id']);
+                $this->db->update('save_used_handyman', $updateData);
+            }
+            return $handymanStatus;
+        }
+    }
+    
+    function checkUsedSavedHandymanStatus($array) {
+        $this->db->select('*');
+        $this->db->where($array);
+        $query = $this->db->get('save_used_handyman');
+        
+        return $query->result_array();
+    }
+    
+    function GetUsedSavedHandymans($saved_type,$deviceId) {
+      $search = array('save_used_handyman.type' => $saved_type,'save_used_handyman.device_id' => $deviceId, 'save_used_handyman.is_del' => 0);
+      $this->db->select('handyman_id,serial_no,name,phone,experience,age,profile_photo,is_paid,address,location,vendors_area_of_operation,Rating_by_Agent,id_proof_name,marital_status,passport,service_on_call,works_on_weekends,work_on_weekdays');
+      $this->db->from('save_used_handyman');
+      $this->db->where($search);
+      $this->db->join('handyman','handyman.id = save_used_handyman.handyman_id');
+      $this->db->order_by('save_used_handyman.create_date  desc'); 
+      $query = $this->db->get();
+      return $query->result_array();
+    }
+    
+    function getServiceRadius($service) {
+      $this->db->select('distance');
+      $this->db->like('services',$service);
+      $query = $this->db->get('services');
+      return $query->result_array();
+    }
+
+
+    /**description*  This function for api for review
+      * @return :  array(review,user_id,user_image,name)
+      */
+
+    function getreviewhandyman($handyman_id){
+      $this->db->select('review,handyman_review.user_id as user_id,name as user_name,user_image');
+      $this->db->from('handyman_review');
+      $this->db->where('handyman_id',$handyman_id);
+      $this->db->where('status', '0');
+      $this->db->join('user_profile','user_profile.user_id = handyman_review.user_id');
+      $query = $this->db->get();
+      $result = $query->result_array();
+      $i =0;
+      foreach ($result as $key => $value) {
+        $user_id = $value['user_id'];
+        $result[$i]['total_reviws'] = $this->countuser($user_id);
+        if(empty($value['user_image'])){
+          $result[$i]['user_image'] = 'user-31-03-2015-05-26-55pm-6ea9e5d18ea5839dae16a06d76c1fcf1.jpg';
+        }
+        $i =$i+1;
+     }
+    return $result;
+    }
+
+  function gereviewss($result){
+
+    $i=0;
+    foreach ($result as $value) {
+        $user_id = $value['user_id'];
+        $this->db->select('name,user_image');
+        $this->db->where('id',$user_id);
+        $query = $this->db->get('user_profile');
+        $result1 = $query->result_array();
+        $user = $this->countuser($user_id);
+        if($result1){
+            $result[$i]['name'] = $result1[0]['name'];
+            $result[$i]['user_image'] = $result1[0]['user_image'];
+        }
+        $result[$i]['total_review_by_user'] = $user;
+        $i = $i+1;
+
+
+    } 
+   return $result;  
+
+  }
+  function countuser($user_id){
+
+    $this->db->where('user_id',$user_id);
+    return  $this->db->count_all_results("handyman_review");
+ 
+  }
+  /** @description*  This function for search area,service , startid and lastid
+   *  @param :  area,service , startid and lastid
+   *  @return : array of handyman information
+   */
+
+  function searchApi($area,$service,$startid,$lastid,$searched_keyword){
+     if($searched_keyword) {
+        $sql = "select handyman.id, name,phone,experience, age,profile_photo, is_paid,address,location, vendors_area_of_operation, serial_no,Rating_by_Agent,id_proof_name,marital_status,passport,service_on_call,works_on_weekends,work_on_weekdays from handyman left join services on handyman.service_id = services.id where services.keywords like '%$searched_keyword%' and handyman.action = 1 order by handyman.is_paid desc";
+     }
+     else {
+        $sql = "select handyman.id, name,phone,experience, age,profile_photo, is_paid,address,location, vendors_area_of_operation, serial_no,Rating_by_Agent,id_proof_name,marital_status,passport,service_on_call,works_on_weekends,work_on_weekdays from handyman left join services on handyman.service_id = services.id where services.services like '%$service%' and handyman.action = 1 order by handyman.is_paid desc";
+     }
+    
+     $query = $this->db->query($sql);
+     return $query->result_array();
+      /*$this->db->select('id,name,phone,experience,age,profile_photo,is_paid,address,location,vendors_area_of_operation,serial_no,Rating_by_Agent,id_proof_name');
+      $this->db->order_by('is_paid  desc'); 
+      $this->db->like('service',$service);
+      if($area != "" && $area != "Enter Area") {
+        //$this->db->like('address',$area);
+        //echo $area;
+      }
+      $this->db->where('action',1);
+      $this->db->limit($lastid,$startid);
+      $query = $this->db->get("handyman");
+      //$this->output->enable_profiler(TRUE);
+      return $query->result_array();*/
+    }
+    
+    /* @desc : this function get handyman review
+   * @param : handyman id
+   * @return : array handyman information
+   */
+
+     function gethandymanreview($handyman_id){
+      $this->db->select_sum('behaviour');
+      $this->db->select_sum('expertise');
+      $this->db->where('handyman_id',$handyman_id);
+      $query = $this->db->get('handyman_review');
+      $result = $query->result_array();
+      $count = $this->counthandymanreview($handyman_id);
+      foreach ($result as $key => $value) 
+          $behaviour = $value['behaviour']/$count;
+          $expertise = $value['expertise']/$count;
+          $sum = ($behaviour + $expertise)/2;
+          return $sum;
+
+     }
+     
+     /* @desc : this function for count total no. handyman review for particular handyman
+      * @param : handyman id
+      * @return : array handyman information
+      */
+
+     function counthandymanreview($handyman_id){
+        $this->db->where('handyman_id',$handyman_id);
+        $count = $this->db->count_all_results('handyman_review');
+        if($count){
+          return $count;
+        } else {
+          return '1';
+        }
+     }
+     
+     /* @desc : this function get handyman details
+      * @param : handyman id
+      * @return : array handyman information
+      */
+
+     function getshandyman($handymanid){
+        $this->db->select('handyman.*, services.services');
+        $this->db->where('handyman.id',$handymanid);
+        $this->db->from('handyman');
+        $this->db->join('services', 'services.id = handyman.service_id');
+        $query = $this->db->get();
+        return $query->result_array();
+     }
+  
+  /** @description : get all services from database
+   *  @return : array (list of all services)
+   *  @params : void
+   */
+  function GetAllServiceNames(){
+    $sql = $this->db->select('services');
+    $query=$this->db->get("services");
+    return $query->result_array();
+  }
+  
+  /** @description : get all services from database
+   *  @return : array (list of all services)
+   *  @params : void
+   */
+  function getPopularKeywords(){
+    $sql = $this->db->select('searchkeyword');
+    $query=$this->db->get("popularSearch");
+    return $query->result_array();
+  }
+  
+  /** @description* get all service from database
+      *  @return : array (service) 
+      */
+      function GetAllServices(){
+        $this->db->select('*');
+        //$this->db->where('id %2=', 0);
+        //$this->db->limit(8,1);
+        $this->db->order_by("priority", "asc");
+        $query=$this->db->get("services");
+        
+        return $query->result_array();
+      }
+  
+  /** @description*  This function for search area,service , startid and lastid
+   * @param :  area,service , startid and lastid
+   * @return : array of handyman information
+   */
+  function searchHandyman($area,$service,$startid,$lastid) {
+    $this->db->select('*');
+      $this->db->where('action',1);
+      $this->db->order_by('is_paid  desc'); 
+      $this->db->like('address',$area);
+      $this->db->like('service',$service);
+      $this->db->limit($lastid,$startid);
+      $query = $this->db->get("handyman");
+      return $query->result_array();
+  }
+
+}
