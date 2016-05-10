@@ -230,7 +230,7 @@
                 <div class="form-group <?php if( form_error('quantity') ) { echo 'has-error';} ?>">
                   <label for="quantity" class="col-md-2">Units</label>
                   <div class="col-md-6">
-                    <input type="text" class="form-control"  name="quantity" value = "<?php if (isset($data1['quantity'])) {echo $data1['quantity']; }?>"  disabled>
+                    <input type="text" class="form-control"  name="quantity" value = "<?php if (isset($data1['quantity'])) {echo $data1['quantity']; }?>"  readonly>
                     <?php echo form_error('quantity'); ?>
                   </div>
                 </div>
