@@ -219,7 +219,7 @@ class Wp_blog extends CI_Controller {
 			//$dest_path = '/Applications/MAMP/htdocs/247Around/images/' . $file_name;
 
 			$cmd = "curl $src_path -o $dest_path";
-                        exec($cmd);
+			//exec($cmd);
 
 			$blog['alternate_text'] = $this->blogs_model->get_focus_keyword($new_blog['ID']);
 
@@ -273,7 +273,7 @@ class Wp_blog extends CI_Controller {
                     //$dest_path = '/Applications/MAMP/htdocs/247Around/images/' . $file_name;
 
 		    $cmd = "curl $src_path -o $dest_path";
-                    exec($cmd);
+		    //exec($cmd);
 
 		    $blog['alternate_text'] = $this->blogs_model->get_focus_keyword($new_blog['ID']);
 
@@ -361,7 +361,7 @@ class Wp_blog extends CI_Controller {
 		foreach ($matches[0] as $link) {
 		    //array_push($links, $link);
 		    //check for broken link
-		    if (check_url2($link)) {
+		    if ($this->check_url2($link)) {
 			//echo "Link Works" . "\n";
 		    } else {
 			//echo "Broken Link: " . $link . "\n";

@@ -124,9 +124,8 @@ class Reporting_utils extends CI_Model {
                         booking_details.booking_timeslot,
                         booking_details.booking_remarks,
                         booking_details.current_status,
-			(booking_details.discount_amount + booking_details.amount_due) as total,
                         booking_details.discount_amount AS discount,
-                        booking_details.amount_due AS final,
+                        booking_details.amount_due AS amount,
                         services.services AS service_name,
                         users.name AS user_name,
                         users.user_email AS user_email

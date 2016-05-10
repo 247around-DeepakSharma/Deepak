@@ -26,7 +26,7 @@
         		<td><?php echo $count; $count++;?>.</td>
         		<td><input type="text" class="form-control" value= "<?php echo $booking_id;?>" name="booking_id" placeholder="Please Enter Booking Id Here.." required></td>
         		<td>
-        		  <select type="text" class="form-control" id="service_center" name="service" value="<?php echo set_value('service_center'); ?>" onchange="assign(this.value)">
+        		  <select type="text" class="form-control" id="service_center" name="service" value="<?php echo set_value('service_center'); ?>">
         		  	<option>Select</option>
         			<?php foreach($service_centers as $key => $values) {?>
         			  <option  value=<?php echo $values->id;?>>

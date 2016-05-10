@@ -96,7 +96,7 @@
                     <td><?= $row->query_remarks; ?></td>
                     <td>
                         <?php echo "<a class='btn btn-sm btn-primary' "
-                        . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank'>View</a>";
+                        . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank'  title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
                         ?>
                     </td>
                     </tr>

@@ -138,7 +138,7 @@
             </div>
             <div style="width:100%;margin-left:10px;margine-right:5px;">
                 <h1 align="left">
-                    <b><?php if(isset($search)){echo "Searched Booking";} else { echo "Pending Bookings"; } ?> <?php if(isset($count)){ echo ' (' . $Count . ')'; } ?></b>
+                    <b><?php if(isset($search)){echo "Searched Booking";} else { echo "Pending Bookings"; } ?> <?php if(isset($Count)){ echo ' (' . $Count . ')'; } ?></b>
                 </h1>
 
                 <?php
@@ -167,6 +167,9 @@
                     <th>
                     <a href="<?php echo base_url();?>employee/booking/status_sorted_booking">Status</a>
                     </th>
+                    <th>
+                       <a href="<?php echo base_url();?>employee/booking/service_center_sorted_booking">Service Center</a>
+                    </th>
                     <th>View</th>
                     <th>Reschedule</th>
                     <th>Cancel</th>
@@ -177,11 +180,8 @@
                     <th>Edit Booking</th>
                     <th>Re-assign</th>
                     <th>Escalate</th>
-                    <th>
-                    <a href="<?php echo base_url();?>employee/booking/service_center_sorted_booking">Service Center</a>
-                    </th>
-                    <th>Contact Name</th>
-                    <th>Contact No.</th>
+                    
+
                     </tr>
 
                     </thead>
@@ -207,6 +207,7 @@
                     <td><?= $row->services; ?></td>
                     <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
                     <td id="status_<?php echo $row->booking_id; ?>"><?php echo $row->current_status; ?></td>
+                    <td><?php if(!empty($row->service_centre_name)){ echo $row->service_centre_name." / ".$row->primary_contact_name." / ".$row->primary_contact_phone_1 ; } ?> </td>
                     <td>
                         <?php echo "<a class='btn btn-sm btn-primary' "
                                 . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";?>
@@ -261,12 +262,12 @@
                       if ($row->current_status == 'Pending' || $row->current_status == 'Rescheduled')
                       {
                         echo "<a class='btn btn-sm btn-info' "
-                        . "href=" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$row->booking_id title='Job Card'> <i class='fa fa-envelope' aria-hidden='true'></i></a>";
+                        . "href=" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$row->booking_id title='Job Card'> <i class='fa fa-file-pdf-o' aria-hidden='true'></i></a>";
                       }
                       else
                       {
                         echo "<a class='btn btn-sm btn-info disabled' "
-                          . "href=" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$row->booking_id title='Job Card'> <i class='fa fa-envelope' aria-hidden='true'></i></a>";
+                          . "href=" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$row->booking_id title='Job Card'> <i class='fa fa-file-pdf-o' aria-hidden='true'></i></a>";
                       }
                       ?>
                     </td>
@@ -302,7 +303,7 @@
                         if(!is_null($row->assigned_vendor_id) && !is_null($row->booking_jobcard_filename)
                           && ($row->mail_to_vendor))
                         {
-                            echo "<a id='r_notes" . $count . "' class='btn btn-sm btn-success' onclick='show(this.id)' title='Remainder Mail' ><i class='fa fa-envelope' aria-hidden='true'></i></a>";
+                            echo "<a id='r_notes" . $count . "' class='btn btn-sm btn-warning' onclick='show(this.id)' title='Remainder Mail' ><i class='fa fa-clock-o' aria-hidden='true'></i></a>";
                             echo "<div class='dialog' id='reminderMailForm".$count."'>";
                             echo "<form class='remindermailform'>";
                             echo "<textarea style='width:200px;height:80px;' id='reminderMailButton".$count."' name='reminderMailButton".$count."' placeholder='Enter Additional Notes'></textarea>";
@@ -315,8 +316,8 @@
                         }
                         else
                         {
-                            echo "<a class='btn btn-sm btn-success disabled'"
-                                . "href=" . base_url() . "employee/bookingjobcard/send_reminder_mail_to_vendor/$row->booking_id Reminder Mail><i class='fa fa-envelope' aria-hidden='true'></i></a>";
+                            echo "<a class='btn btn-sm btn-warning disabled'"
+                                . "href=" . base_url() . "employee/bookingjobcard/send_reminder_mail_to_vendor/$row->booking_id Reminder Mail><i class='fa fa-clock-o' aria-hidden='true'></i></a>";
                         }
                         ?>
 
@@ -329,11 +330,8 @@
                         <a href="<?php echo base_url();?>employee/vendor/get_reassign_vendor_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-success' title="Re- assign"><i class="fa fa-repeat" aria-hidden="true"></i></a>
                     </td>
                     <td>
-                                <a href="<?php echo base_url(); ?>employee/vendor/get_vendor_escalation_form/<?php echo $row->booking_id; ?>" <?php if($row->assigned_vendor_id == null){ echo "disabled"; }?> class='btn btn-sm btn-primary' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
+                                <a href="<?php echo base_url(); ?>employee/vendor/get_vendor_escalation_form/<?php echo $row->booking_id; ?>" <?php if($row->assigned_vendor_id == null){ echo "disabled"; }?> class='btn btn-sm btn-danger' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
                         </td>
-                    <td><?=$row->service_centre_name;?></td>
-                    <td><?=$row->primary_contact_name;?></td>
-                    <td><?=$row->primary_contact_phone_1;?></td>
 
                 </tr>
                 <?php $count++;

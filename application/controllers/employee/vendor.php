@@ -83,13 +83,8 @@ class vendor extends CI_Controller {
      * @return : String (Service center code)
      */
     function generate_service_center_code($sc_name, $district){
-    	$sc_code = "";
-
-    	foreach(explode(' ', $sc_name) as $word){
-    	 $sc_code .= mb_substr($word, 0, 3, 'utf-8'); // get each first 3 letter after space  in vendor name 
-    	}
-    	$sc_code .= mb_substr($district, 0,3, 'utf-8'); // Add first 3 letter of district code in service center code
-    	$sc_code .=  rand(pow(10, 3) - 1, pow(10, 4) - 1); // Add 4 random number in service center code
+    	//generate 6 random  letter string
+    	$sc_code =  substr(str_shuffle("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 6); 
     	$final_sc_code = strtoupper($sc_code); // convert string in upper case
     	$status = $this->vendor_model->check_sc_code_exist($final_sc_code);  // check service center code is exist or not
     	if($status == true){   //if sc code exists

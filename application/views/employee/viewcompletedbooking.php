@@ -96,12 +96,12 @@
                     <td id="status_<?php echo $row->booking_id; ?>"><?php echo $row->current_status; ?></td>            
                     <td><?php            
                         echo "<a id='edit' class='btn btn-sm btn-success' "
-                            . "href=" . base_url() . "employee/booking/get_edit_completed_booking_form/$row->booking_id>Edit</a>";         
+                            . "href=" . base_url() . "employee/booking/get_edit_completed_booking_form/$row->booking_id title='Edit'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";         
                         ?>
                     </td>
                     <td>
                         <?php echo "<a class='btn btn-sm btn-primary' "
-                        . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank'>View</a>";
+                        . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>"; 
                         ?>
                     </td>
                     <td>
@@ -114,7 +114,7 @@
                         else 
                         {
                             echo "<a class='btn btn-sm btn-danger disabled' "
-                                . "href=" . base_url() . "employee/booking/get_rating_form/$row->booking_id>Rate</a>";
+                                . "href=" . base_url() . "employee/booking/get_rating_form/$row->booking_id title='Rate'><i class='fa fa-star-o' aria-hidden='true'></i></a>";
                         }
                         ?>
                     </td>            

@@ -135,16 +135,16 @@
                     
                     <td>
                         <?php echo "<a class='btn btn-sm btn-primary' "
-                        . "href=" . base_url() . "employee/booking/viewdetails/$row[booking_id] target='_blank'>View</a>";
+                        . "href=" . base_url() . "employee/booking/viewdetails/$row[booking_id] target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
                         ?>
                     </td>
                     <td><?php
-                        echo "<a class='btn btn-small btn-success btn-sm' href=".base_url()."employee/booking/get_update_query_form/$row[booking_id]>Update</a>";
+                        echo "<a class='btn btn-small btn-success btn-sm' href=".base_url()."employee/booking/get_update_query_form/$row[booking_id] title='Update'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
                         ?>
                     </td>
                     <td>
                         <?php            
-                        echo "<a class='btn btn-small btn-danger btn-sm' href=".base_url()."employee/booking/get_cancel_followup_form/$row[booking_id]>Cancel</a>";
+                        echo "<a class='btn btn-small btn-warning btn-sm' href=".base_url()."employee/booking/get_cancel_followup_form/$row[booking_id] title='Cancel'> <i class='fa fa-times' aria-hidden='true'></i></a>";
                         ?>
                     </td>            
                     </tr>
