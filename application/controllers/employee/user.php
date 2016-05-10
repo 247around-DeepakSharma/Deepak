@@ -38,7 +38,7 @@ class User extends CI_Controller {
         $booking_id = $this->input->post('booking_id');
         $order_id = $this->input->post('order_id');
         $partner_code = $this->input->post('partner');
-        
+
         if($this->input->post('phone_number')){
             $phone_number = $this->input->post('phone_number');
         }
@@ -183,7 +183,11 @@ class User extends CI_Controller {
      *  @return : user's details to view
      */
     function get_edit_user_form($phone_number ="") {
-        $phone_number = $this->input->post('phone_number');
+        if($this->input->post('phone_number')){
+            
+            $phone_number = $this->input->post('phone_number');
+        }
+        
         $data['user'] = $this->user_model->search_user($phone_number);
         $this->load->view('employee/header');
         //$this->load->view('employee/addbooking');
