@@ -125,3 +125,172 @@ RENAME TABLE  `247around_test`.`excel_file_name_uploaded_in_s3` TO  `247around_t
 ALTER TABLE  `excel_file_uploaded_in_s3` ADD  `create_date` TIMESTAMP NOT NULL AFTER  `file_name` ;
 ALTER TABLE  `excel_file_uploaded_in_s3` CHANGE  `create_date`  `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ;
 ALTER TABLE  `service_centres` ADD  `near_landmark` VARCHAR( 50 ) NOT NULL AFTER  `pincode` ;
+
+
+<!-- Anuj 18/04/16  -->
+
+ALTER TABLE  `vendor_escalation_log` ADD  `booking_date` DATE NOT NULL AFTER  `booking_id` ,
+ADD  `booking_time` VARCHAR( 50 ) NOT NULL AFTER  `booking_date` ;
+
+ALTER TABLE  `service_centres` ADD  `landmark` VARCHAR( 500 ) AFTER  `pincode`
+
+CREATE TABLE IF NOT EXISTS `escalation_policy` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `escalation_reason` varchar(255) NOT NULL,
+  `mail_to_owner` varchar(10) NOT NULL DEFAULT '0',
+  `mail_to_poc` varchar(10) NOT NULL DEFAULT '0',
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=7 ;
+
+INSERT INTO `escalation_policy` VALUES
+(1, 'Engineer has not contacted with customer.', '1', '1', '2016-04-11 02:28:00'),
+(2, 'Engineer did not visit on time.', '1', '1', '2016-04-11 02:28:00'),
+(3, 'Booking status is not updated.', '1', '1', '2016-04-11 02:36:39'),
+(4, 'Appliance has not been returned yet.', '1', '1', '2016-04-11 02:38:13'),
+(5, 'Follow up visit has not happened.', '1', '1', '2016-04-11 02:39:11'),
+(6, 'No reply received for Pending Bookings Summary mail.', '1', '1', '2016-04-11 02:44:03');
+
+CREATE TABLE IF NOT EXISTS `bookings_sources` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `source` varchar(25) NOT NULL,
+  `code` varchar(5) NOT NULL,
+  `partner_id` int(11) DEFAULT NULL,
+  `partner_email_for_to` text NOT NULL,
+  `partner_email_for_cc` text NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `code` (`code`),
+  UNIQUE KEY `source` (`source`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+
+
+CREATE TABLE IF NOT EXISTS `vendor_escalation_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `vendor_id` varchar(10) NOT NULL,
+  `booking_id` varchar(255) NOT NULL,
+  `booking_date` date NOT NULL,
+  `booking_time` varchar(50) NOT NULL,
+  `escalation_reason` varchar(255) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `pincode_mapping_s3_upload_details` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `bucket_name` varchar(50) NOT NULL,
+  `file_name` varchar(50) NOT NULL,
+    `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE  `escalation_policy` ADD  `sms_to_owner` VARCHAR( 1 ) NOT NULL AFTER  `mail_to_poc` ,
+ADD  `sms_to_poc` VARCHAR( 1 ) NOT NULL AFTER  `sms_to_owner` ;
+
+RENAME TABLE  `boloaaka`.`escalation_policy` TO  `boloaaka`.`vendor_escalation_policy` ;
+
+
+
+<!-- Abhay 19/04/16 -- >
+
+ALTER TABLE  `vendor_escalation_log` ADD  `escalation_policy_flag` VARCHAR( 100 ) NOT NULL AFTER  `escalation_reason` ;
+
+--
+-- Table structure for table `sms_template`
+--
+
+CREATE TABLE IF NOT EXISTS `sms_template` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tag` varchar(50) NOT NULL,
+  `template` text NOT NULL,
+  `active` varchar(10) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+<!-- Anuj 19/04/16 -- >
+
+ALTER TABLE  `vendor_escalation_policy` ADD  `active` VARCHAR( 1 ) NOT NULL AFTER  `sms_to_poc` ;
+
+ALTER TABLE `service_centres` ADD `sc_code` VARCHAR(10) NOT NULL AFTER `landmark`;
+
+
+<!-- Abhay 19/04/16   -->
+
+ALTER TABLE  `booking_details` ADD  `city` VARCHAR( 100 ) NOT NULL AFTER  `booking_address` ;
+ALTER TABLE  `booking_details` ADD  `state` VARCHAR( 50 ) NOT NULL AFTER  `city` ;
+
+ALTER TABLE  `users` ADD  `city` VARCHAR( 50 ) NOT NULL AFTER  `home_address` ,
+ADD  `state` VARCHAR( 50 ) NOT NULL AFTER  `city` ;
+
+<!-- Abhay 25/04/2016  -->
+
+--
+-- Table structure for table `booking_unit_details`
+--
+
+CREATE TABLE IF NOT EXISTS `booking_unit_details` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `booking_id` varchar(20) NOT NULL,
+  `appliance_brand` varchar(25) DEFAULT NULL,
+  `appliance_category` varchar(50) DEFAULT NULL,
+  `appliance_capacity` varchar(50) DEFAULT NULL,
+  `model_number` varchar(50) DEFAULT NULL,
+  `price_tags` varchar(100) DEFAULT NULL,
+  `appliance_tag` varchar(50) NOT NULL,
+  `vendor_svc_charge` varchar(10) NOT NULL,
+  `vendor_tax` varchar(10) NOT NULL,
+  `around_svc_charge` varchar(10) NOT NULL,
+  `around_tax` varchar(10) NOT NULL,
+  `customer_total` varchar(10) NOT NULL,
+  `partner_payment` varchar(10) NOT NULL,
+  `customer_charges` varchar(10) NOT NULL,
+  `discount_code` varchar(20) NOT NULL,
+  `discount_amount` varchar(10) NOT NULL,
+  `discount_offered_by` varchar(50) NOT NULL,
+  `product_or_service` varchar(10) NOT NULL,
+  `final_paid_by_customer` varchar(10) NOT NULL,
+  `purchase_year` varchar(10) DEFAULT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `booking_picture_file` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+
+-
+-- Table structure for table `service_centre_charges`
+--
+
+CREATE TABLE IF NOT EXISTS `service_centre_charges` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `partner_code` varchar(10) NOT NULL,
+  `city` varchar(25) NOT NULL,
+  `service_id` varchar(10) NOT NULL COMMENT 'appliance category like tv, ac, refrigerator etc',
+  `category` varchar(50) NOT NULL,
+  `capacity` varchar(50) DEFAULT NULL,
+  `service_category` varchar(100) NOT NULL,
+  `product_or_services` varchar(10) NOT NULL,
+  `tax_code` varchar(10) NOT NULL,
+  `active` varchar(2) DEFAULT NULL COMMENT 'Row is active or not',
+  `check_box` varchar(2) DEFAULT NULL COMMENT 'Displayed as CheckBox or not?',
+  `vendor_svc_charge` varchar(10) NOT NULL,
+  `vendor_tax` varchar(10) NOT NULL,
+  `around_svc_charge` varchar(10) NOT NULL,
+  `around_tax` varchar(10) NOT NULL,
+  `customer_total` varchar(10) NOT NULL,
+  `partner_payment` varchar(10) NOT NULL,
+  `customer_charges` varchar(10) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE  `bookings_sources` ADD  `price_mapping_code` VARCHAR( 10 ) NOT NULL AFTER  `code` ;
+
+<!-- Abhay 24-04-2016 --->
+
+ALTER TABLE  `booking_unit_details` ADD  `tax_code` VARCHAR( 10 ) NOT NULL AFTER  `product_or_service` ;
+
+ALTER TABLE  `booking_unit_details` CHANGE  `product_or_service`  `product_or_services` VARCHAR( 10 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
+
+
+<!-- Abhay 09-04-2016  -->
+
+ALTER TABLE  `service_centres` CHANGE  `sc_code`  `sc_code` VARCHAR( 20 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;

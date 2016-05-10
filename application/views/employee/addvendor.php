@@ -68,7 +68,7 @@
       <div class="form-group ">
       <label for="state" class="col-md-1">Pincode:</label>
       <div class="col-md-4">
-          <select class="pincode form-control" name ="pincode"  required>
+          <select class="pincode form-control" name ="pincode"  >
             <option selected disabled>Select Pincode</option>
             <option <?php if (isset($query[0]['pincode'])){ echo "selected";}?>><?php if (isset($query[0]['pincode'])){echo $query[0]['pincode'];}?></option>
          </select>
