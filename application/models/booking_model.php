@@ -346,7 +346,7 @@ class Booking_model extends CI_Model {
 	    "potential_value" => $booking['potential_value'],
 	    "amount_due" => $booking['amount_due']
 	);
-
+    // Added city coming from snapdeal
 	if($city !=""){
 		$booking_detail['city'] = $city;
 	}

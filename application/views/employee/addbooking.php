@@ -533,7 +533,7 @@ function service2()
                 <div class="form-group <?php if( form_error('appliance_category') ) { echo 'has-error';} ?>">
                   <label style="width:80px;" for="appliance_category" class="col-md-1">Category</label>
                       <div style="width:180px;" class="col-md-1">
-                        <select style="width:180px;" type="text" class="form-control"  id="<?php echo $category[0]; ?>" name="<?php echo $category[0]; ?>" value = "<?php echo set_value($category[0]); ?>" onChange="getCapacityForCategory(service_id,this.value,<?php echo $i;?>);" required>
+                        <select style="width:180px;" type="text" class="form-control"  id="<?php echo $category[0]; ?>" name="<?php echo $category[0]; ?>" value = "<?php echo set_value($category[0]); ?>" onChange="getCapacityForCategory(service_id,this.value,<?php echo $i;?>);" >
 
                             <option >
 
@@ -592,7 +592,7 @@ function service2()
                 <div class="form-group <?php if( form_error('appliance_category') ) { echo 'has-error';} ?>">
                   <label style="width:80px;" for="appliance_category" class="col-md-1">Category</label>
                       <div style="width:180px;" class="col-md-1">
-                        <select style="width:180px;" type="text" class="form-control"  id="<?php echo $category[1]; ?>" name="<?php echo $category[1]; ?>" value = "<?php echo set_value($category[1]); ?>" onChange="getCapacityForCategory(service_id,this.value,<?php echo $j;?>);" required>
+                        <select style="width:180px;" type="text" class="form-control"  id="<?php echo $category[1]; ?>" name="<?php echo $category[1]; ?>" value = "<?php echo set_value($category[1]); ?>" onChange="getCapacityForCategory(service_id,this.value,<?php echo $j;?>);" >
 
                             <option >
 
@@ -650,7 +650,7 @@ function service2()
                 <div class="form-group <?php if( form_error('appliance_category') ) { echo 'has-error';} ?>">
                   <label style="width:80px;" for="appliance_category" class="col-md-1">Category</label>
                       <div style="width:180px;" class="col-md-1">
-                        <select style="width:180px;" type="text" class="form-control"  id="<?php echo $category[2]; ?>" name="<?php echo $category[2]; ?>" value = "<?php echo set_value($category[2]); ?>" onChange="getCapacityForCategory(service_id,this.value,<?php echo $k;?>);" required>
+                        <select style="width:180px;" type="text" class="form-control"  id="<?php echo $category[2]; ?>" name="<?php echo $category[2]; ?>" value = "<?php echo set_value($category[2]); ?>" onChange="getCapacityForCategory(service_id,this.value,<?php echo $k;?>);" >
 
                             <option >
 
@@ -706,7 +706,7 @@ function service2()
                 <div class="form-group <?php if( form_error('appliance_category') ) { echo 'has-error';} ?>">
                   <label style="width:80px;" for="appliance_category" class="col-md-1">Category</label>
                       <div style="width:180px;" class="col-md-1">
-                        <select style="width:180px;" type="text" class="form-control"  id="<?php echo $category[3]; ?>" name="<?php echo $category[3]; ?>" value = "<?php echo set_value($category[3]); ?>" onChange="getCapacityForCategory(service_id,this.value,<?php echo $l;?>);" required>
+                        <select style="width:180px;" type="text" class="form-control"  id="<?php echo $category[3]; ?>" name="<?php echo $category[3]; ?>" value = "<?php echo set_value($category[3]); ?>" onChange="getCapacityForCategory(service_id,this.value,<?php echo $l;?>);" >
 
                             <option >
 
@@ -1033,6 +1033,20 @@ function service2()
                             <?php echo form_error('booking_address'); ?>
                         </div>
                     </div>
+
+                     <div class="form-group <?php
+                    if (form_error('booking_city')) {
+                        echo 'has-error';
+                    }
+                    ?>">
+                        <label id="booking_address" for="booking_address" class="col-md-2">Booking City</label>
+                       
+                        <div class="col-md-6">
+                            <input type="text" class="form-control"  name="booking_city" value = "<?php echo $city; ?>">
+                            <?php echo form_error('booking_city'); ?>
+                        </div>
+                    </div>
+
 
                     <div class="form-group <?php
                     if (form_error('booking_pincode')) {

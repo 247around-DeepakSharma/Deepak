@@ -169,6 +169,7 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
               <div style="">
                     <input type="hidden" name="user_id" value="<?php if(isset($data1[0]['user_id'])){echo $data1[0]['user_id'];}else{echo $data[0]['user_id'];}?>">
                     <input type="hidden" name="home_address" value="<?php if(isset($data1[0]['home_address'])){echo $data1[0]['home_address'];}else{echo $data[0]['home_address'];}?>">
+                      <input type="hidden" name="city" value="<?php if(isset($data1[0]['city'])){echo $data1[0]['city'];}else{echo $data[0]['city'];}?>">
                     <input type="hidden" name="user_email" value="<?php if(isset($data1[0]['user_email'])){echo $data1[0]['user_email'];}else{echo $data[0]['user_email'];}?>">
                     <input type="hidden" name="phone_number" value="<?php if(isset($data1[0]['phone_number'])){echo $data1[0]['phone_number'];}else{echo $data[0]['phone_number'];}?>">
                     <input type="hidden" name="alternate_phone_number" value="<?php if(isset($data1[0]['alternate_phone_number'])){echo $data1[0]['alternate_phone_number'];}?>">
