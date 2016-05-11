@@ -281,9 +281,10 @@ class bookings_excel extends CI_Controller {
 		$booking['booking_remarks'] = '';
 		$booking['query_remarks'] = '';
 
+
 		//Insert query
 		//echo print_r($booking, true) . "<br><br>";
-		$this->booking_model->addbooking($booking, $appliance_id);
+		$this->booking_model->addbooking($booking, $appliance_id, $lead_details['City']);
 
 		//Save this in SD leads table
 		$lead_details['CRM_Remarks_SR_No'] = $booking['booking_id'];

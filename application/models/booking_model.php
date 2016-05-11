@@ -324,7 +324,7 @@ class Booking_model extends CI_Model {
      *  @param : booking
      *  @return : array (booking)
      */
-    function addbooking($booking, $appliance_id) {
+    function addbooking($booking, $appliance_id, $city ="") {
 	$booking_detail = array(
 	    "user_id" => $booking['user_id'],
 	    "service_id" => $booking['service_id'],
@@ -346,6 +346,10 @@ class Booking_model extends CI_Model {
 	    "potential_value" => $booking['potential_value'],
 	    "amount_due" => $booking['amount_due']
 	);
+
+	if($city !=""){
+		$booking_detail['city'] = $city;
+	}
 
 	$this->db->insert('booking_details', $booking_detail);
 	return $this->db->insert_id();
