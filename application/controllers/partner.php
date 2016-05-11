@@ -145,8 +145,10 @@ class Partner extends CI_Controller {
 			    isset($requestData['landmark']) ?
 				    ($address = $requestData['address'] . ", " . $requestData['landmark']) :
 				    ($address = $requestData['address']);
-			    $address .= (", " . $requestData['pincode'] . " , " . $requestData['city']);
+
 			    $user['home_address'] = $address;
+			    $user['pincode'] = $requestData['pincode'];
+			    $user['city'] = $requestData['city'];
 
 			    $user_id = $this->user_model->add_user($user);
 
@@ -319,7 +321,7 @@ class Partner extends CI_Controller {
 
 			//Insert query
 			//echo print_r($booking, true) . "<br><br>";
-			$this->booking_model->addbooking($booking, $appliance_id);
+			$this->booking_model->addbooking($booking, $appliance_id, $requestData['city']);
 
 			//Save this in SD leads table
 			//echo print_r($lead_details, true) . "<br><br>";
