@@ -196,7 +196,11 @@ class vendor extends CI_Controller {
 	    //Setting mail to vendor flag to 0, once booking is re-assigned
 	    $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
 
-	    redirect(base_url() . 'employee/booking/view', 'refresh');
+	     log_message('info', "Reassigned - Booking id: " . $booking_id. "  By ". $this->session->userdata('employee_id'). " service center id ". $service_center);
+
+
+
+	    redirect(base_url() . 'employee/booking/view');
 	} else {
 
 

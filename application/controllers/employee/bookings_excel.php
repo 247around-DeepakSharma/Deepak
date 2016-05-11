@@ -101,8 +101,9 @@ class bookings_excel extends CI_Controller {
                 $user['name'] = $rowData[0]['Customer_Name'];
                 $user['phone_number'] = $rowData[0]['Phone'];
                 $user['user_email'] = "";
-                $user['home_address'] = $rowData[0]['Customer_Address'] .
-                    ", " . $rowData[0]['Pincode'] . ", " . $rowData[0]['CITY'];
+                $user['home_address'] = $rowData[0]['Customer_Address'];
+		$user['pincode'] = $rowData[0]['Pincode'];
+		$user['city'] = $rowData[0]['CITY'];
 
 		$user_id = $this->user_model->add_user($user);
 
@@ -281,9 +282,10 @@ class bookings_excel extends CI_Controller {
 		$booking['booking_remarks'] = '';
 		$booking['query_remarks'] = '';
 
+
 		//Insert query
 		//echo print_r($booking, true) . "<br><br>";
-		$this->booking_model->addbooking($booking, $appliance_id);
+		$this->booking_model->addbooking($booking, $appliance_id, $lead_details['City']);
 
 		//Save this in SD leads table
 		$lead_details['CRM_Remarks_SR_No'] = $booking['booking_id'];

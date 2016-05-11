@@ -59,6 +59,7 @@ class Booking extends CI_Controller {
 	$results['user_id'] = $this->input->post('user_id');
 	$results['home_address'] = $this->input->post('home_address');
 	$results['user_email'] = $this->input->post('user_email');
+	$results['city'] = $this->input->post('city');
 	$results['phone_number'] = $this->input->post('phone_number');
 	$results['alternate_phone_number'] = $this->input->post('alternate_phone_number');
 	$results['pincode'] = $this->input->post('pincode');
@@ -78,6 +79,7 @@ class Booking extends CI_Controller {
 	if ($validation) {
 	    $booking['type'] = $this->input->post('type');
 	    $booking['source'] = $this->input->post('source');
+	    $booking['city'] = $this->input->post('city');
 	    $booking['quantity'] = $this->input->post('quantity');
 	    $booking['appliance_brand1'] = $this->input->post('appliance_brand1');
 	    $booking['appliance_category1'] = $this->input->post('appliance_category1');
@@ -175,7 +177,7 @@ class Booking extends CI_Controller {
 	    $appliance_id = $this->booking_model->addappliancedetails($booking);
 	    $this->booking_model->addunitdetails($booking);
 
-	    $output = $this->booking_model->addbooking($booking, $appliance_id[0]['id']);
+	    $output = $this->booking_model->addbooking($booking, $appliance_id[0]['id'], $booking['city']);
 
 	    $query1 = $this->booking_model->booking_history_by_booking_id($booking['booking_id']);
 	    $query2 = $this->booking_model->get_unit_details($booking['booking_id']);
@@ -248,6 +250,7 @@ class Booking extends CI_Controller {
 	$foremail['phone_number'] = $this->input->post('booking_primary_contact_no');
 	$foremail['user_email'] = $this->input->post('user_email');
 	$foremail['name'] = $this->input->post('name');
+	$booking['city'] = $this->input->post('booking_city');
 
 	$booking['newbrand1'] = $this->input->post('newbrand1');
 	$booking['newbrand2'] = $this->input->post('newbrand2');
@@ -424,7 +427,7 @@ class Booking extends CI_Controller {
 	$result = $this->booking_model->service_name($booking['service_id']);
 
 	$booking_source = $this->booking_model->get_booking_source($booking['source']);
-
+    
 	$this->load->view('employee/header');
 	$this->load->view('employee/bookingconfirmation', array('booking' => $booking, 'result' => $result,
 	    'booking_source' => $booking_source[0]));
@@ -748,6 +751,8 @@ class Booking extends CI_Controller {
 
 	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
 
+    log_message('info','Booking Status Change- Booking id: '. $booking_id. " Completed By ". $this->session->userdata('employee_id'));
+
 	$message = "Booking Completion.<br>Customer name: " . $query1[0]['name'] . "<br>Customer phone number: " . $query1[0]['phone_number'] . "<br>Customer email: " . $query1[0]['user_email'] . "<br>Booking Id is: " . $query1[0]['booking_id'] . "<br>Your service name is:" . $query1[0]['services'] . "<br>Booking date: " . $query1[0]['booking_date'] . "<br>Booking completion date: " . $data['closed_date'] . "<br>Amount paid for the booking: " . $data['amount_paid'] . "<br>Your booking completion remark is: " . $data['closing_remarks'] . "<br> Thanks!!";
 
 	$to = "anuj@247around.com, nits@247around.com";
@@ -763,6 +768,7 @@ class Booking extends CI_Controller {
 	}
 
 	//-------End of send SMS-----------//
+
 
 	redirect(base_url() . 'employee/booking/view', 'refresh');
     }
@@ -862,13 +868,16 @@ class Booking extends CI_Controller {
 	$cc = "";
 	$bcc = "";
 	$subject = 'Booking Cancellation-AROUND';
-	$this->sendMail($subject, $message, $to, $cc, $bcc);
+	//$this->sendMail($subject, $message, $to, $cc, $bcc);
 	//------End of sending email--------//
 	//------------Send SMS for cancellation---------//
 	if ($is_sd == FALSE) {
 	    $smsBody = "Your request for " . $query1[0]['services'] . " Repair is cancelled. For discounts download app 247Around goo.gl/m0iAcS. Like us on Facebook goo.gl/Y4L6Hj. 011-39595200";
-	    $this->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
+	   // $this->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
 	}
+
+	log_message('info','Booking Status Change- Booking id: '. $booking_id. " Cancelled By ". $this->session->userdata('employee_id'));
+
 
 	//---------End of sending SMS----------//
 	redirect(base_url() . 'employee/booking/view', 'refresh');
@@ -999,6 +1008,9 @@ class Booking extends CI_Controller {
 
 	    //Setting mail to vendor flag to 0, once booking is rescheduled
 	    $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
+
+	    log_message('info', 'Rescheduled- Booking id: ' . $booking_id. " Rescheduled By ". $this->session->userdata('employee_id'). " data ".print_r($data));
+
 	    redirect(base_url() . 'employee/booking/view', 'refresh');
 	}
     }
@@ -1649,6 +1661,8 @@ class Booking extends CI_Controller {
 
 	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
 
+	log_message('info', 'Booking Status Change- Booking id: ' . $booking_id. " Cancelled By ". $this->session->userdata('employee_id'));
+
 	//------------Sending Email----------//
 
 	$message = "Booking Cancellation:<br>Customer name: " . $query1[0]['name'] . "<br>Customer phone number: " .
@@ -1662,6 +1676,7 @@ class Booking extends CI_Controller {
 
 	redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
     }
+    
 
     function jobcard($booking_id) {
 	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
