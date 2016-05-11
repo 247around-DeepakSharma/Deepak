@@ -98,7 +98,7 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
 
                     <td>
                         <?php echo "<a class='btn btn-sm btn-primary' "
-                        . "href=" . base_url() . "employee/booking/viewdetails/$row[booking_id] target='_blank'>View</a>";
+                        . "href=" . base_url() . "employee/booking/viewdetails/$row[booking_id] target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
                         ?>
                     </td>
 
@@ -108,11 +108,11 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
                     <?php 
                       if(substr($row['booking_id'],0,1) == "S"){ ?>
 
-                          <a href="<?php echo  base_url();?>employee/booking/view/0/0/<?php echo $row['booking_id'] ?>" class="btn btn-small btn-success btn-sm" >More Action</a>
+                          <a href="<?php echo  base_url();?>employee/booking/view/0/0/<?php echo $row['booking_id'] ?>" class="btn btn-small btn-success btn-sm" title="More Action"><i class="fa fa-bars" aria-hidden="true"></i></a>
 
                      <?php } else if(substr($row['booking_id'],0,1) == "Q") {?>
 
-                          <a href="<?php echo base_url(); ?>employee/booking/view_pending_queries/0/0/<?php echo $row['booking_id']?>" class="btn btn-small btn-success btn-sm" >More Action</a>
+                          <a href="<?php echo base_url(); ?>employee/booking/view_pending_queries/0/0/<?php echo $row['booking_id']?>" class="btn btn-small btn-success btn-sm" title="More Action"><i class="fa fa-bars" aria-hidden="true"></i></a>
                             
                      <?php } ?>
 
@@ -121,7 +121,7 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
                     <td>
                    <?php if ($row['current_status'] =='Cancelled' && strpos($row['booking_id'], "Q") !== FALSE) {?>
 
-                          <a class="btn btn-small btn-danger btn-sm" href="<?php echo base_url(); ?>employee/booking/cancelled_booking_re_book/<?php echo $row['booking_id'];?>/<?php echo $data[0]['phone_number'];?>">Un-Cancel</a>
+                          <a class="btn btn-small btn-danger btn-sm" href="<?php echo base_url(); ?>employee/booking/cancelled_booking_re_book/<?php echo $row['booking_id'];?>/<?php echo $data[0]['phone_number'];?>" title="More Action"><i class="fa fa-folder-open-o" aria-hidden="true"></i></a>
 
                      <?php } ?></td>
                     </tr>  
