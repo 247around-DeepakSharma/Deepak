@@ -48,6 +48,7 @@
           <tr><td>Booking time slot: </td><td><?php echo $query1[0]['booking_timeslot']; ?></td></tr>
       		<tr><td>Booking address: </td><td><?php echo $query1[0]['booking_address'];?></td></tr>
           <tr><td>Booking Pincode: </td><td><?php echo $query1[0]['booking_pincode']; ?></td></tr>
+          <tr><td>Booking City: </td><td><?php echo $query1[0]['city']; ?></td></tr>
           <tr><td>Booking Primary Contact No.: </td><td><?php echo $query1[0]['booking_primary_contact_no']; ?></td></tr>
           <tr><td>Booking Alternate Contact No.: </td><td><?php echo $query1[0]['booking_alternate_contact_no']; ?></td></tr>
           <tr><td>Booking Remarks: </td><td><?php echo $query1[0]['booking_remarks']; ?></td></tr>
