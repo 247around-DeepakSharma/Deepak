@@ -251,7 +251,7 @@ class User extends CI_Controller {
     }
 
      /**
-     * @desc : this function is used to load form to get number of user
+     * @desc : this function is used to load form to get user month wise
      * @param : void
      * @return : load view
      */
@@ -264,17 +264,17 @@ class User extends CI_Controller {
     }
     
     /**
-     * @desc : this function is used to count total user and completed user
+     * @desc : this function is used to count total user,  completed booking and cancelled booking
      * @param : void
-     * @return : count(total user & completed booking -> user)
+     * @return : load table
      */
     function getusercount(){
         $data['city'] = $this->input->post('city');
         $data['date_range'] = $this->input->post('date_range');
+        $data['type'] = $this->input->post('type');
 
-        $user = $this->user_model->get_count_user($data);
-        print_r(json_encode($user[0]));
-
+        $user['user'] = $this->user_model->get_count_user($data);
+        $this->load->view('employee/getusers', $user);
     }
 
 }
