@@ -139,7 +139,7 @@
         	    <td><?php echo $value['total_user'];  $total_user += $value['total_user']; ?></td>
         	    <td><?php echo $value['completed_booking_user']; $completed += $value['completed_booking_user']; ?></td>
         	    <td><?php echo $value['cancelled_booking_user']; $cancelled += $value['cancelled_booking_user']; ?></td>
-        	    <td><?php if(isset($value['month']))echo $value['month'];  ?></td>
+        	    <td><?php if(isset($value['month'])) { if(isset($value['year'])){ echo $value['month']."  ".$value['year'];} else {echo $value['month'];} }  ?></td>
 
         	</tr>
 

@@ -293,7 +293,7 @@ $this->db = $this->load->database('default', TRUE,TRUE);
 
         WHEN 4 THEN 'Oct - Dec'
 
-        END AS `month` , ";
+        END AS `month` ,  Year(create_date) as year, ";
     }
 
     //  city or date range not empty
