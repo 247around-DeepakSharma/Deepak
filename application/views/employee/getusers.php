@@ -35,6 +35,8 @@
 									<option  disabled>Select Any One</option>
 									<option value="Unique User" selected >Unique User</option>
 									<option value="All Month" >All Month</option>
+									<option value="All Year" >All Year</option>
+									<option value="Quater" >Quarter</option>
 									
 								</select>
 							</li>
@@ -128,7 +130,7 @@
             <th>Total User</th>
             <th>Total Booking Completed</th>
             <th>Total Booking Cancelled</th>
-            <th>Month</th>
+            <th>Month/Year</th>
         </tr>
 
         <tbody>

@@ -266,11 +266,36 @@ $this->db = $this->load->database('default', TRUE,TRUE);
     $where = "";
     $group_By = "";
     $month = "";
+    // Month Wise DataSet
     if($data['type'] == "All Month"){
          // get group by create date column.
          $group_By = " GROUP BY DATE_FORMAT(`create_date`, '%M, %Y') ORDER BY DATE_FORMAT(`create_date`,'%m, %Y') ASC";
          $month = "DATE_FORMAT(`create_date`,'%M, %Y') `month`,";
-       }
+    }
+    
+    // Year Wise Dataset
+    if($data['type'] == "All Year"){
+        // get group by create date column.
+        $group_By = " GROUP BY DATE_FORMAT(`create_date`, '%Y') ORDER BY DATE_FORMAT(`create_date`, '%Y') DESC";
+        $month = "DATE_FORMAT(`create_date`, '%Y') `month`,";
+    }
+    
+    //Quater Wise DataSet
+    if($data['type']== 'Quater'){
+        $group_By .= " GROUP BY Year(create_date) Desc, QUARTER(create_date) DESC";
+        $month = " CASE QUARTER(create_date) 
+
+        WHEN 1 THEN 'Jan - Mar'
+
+        WHEN 2 THEN 'Apr - Jun'
+ 
+        WHEN 3 THEN 'July - Sep'
+
+        WHEN 4 THEN 'Oct - Dec'
+
+        END AS `month` , ";
+    }
+
     //  city or date range not empty
     if($data['city'] !="" || $data['date_range'] !="" ){
         $where .=" where user_id !='' "; // user_id filed is not empty
@@ -299,6 +324,7 @@ $this->db = $this->load->database('default', TRUE,TRUE);
                FROM `booking_details` $where  $group_By";
 
       $query1 = $this->db->query($sql);
+
       return $query1->result_array();
 
 
