@@ -359,8 +359,35 @@ class vendor_model extends CI_Model {
 
       $group_By = "";
       $where = "";
-     // if($vendor['period'] == 'All Month')
+      $month = "";
+      if($vendor['period'] == 'All Month'){
           $group_By .= " GROUP BY DATE_FORMAT(`closed_date`, '%M, %Y') ORDER BY DATE_FORMAT(`closed_date`,'%m, %Y') ASC";
+          $month = " DATE_FORMAT(`closed_date`,'%M, %Y') `month`,";
+      }
+
+       // Year Wise Dataset
+    if($vendor['period'] == "All Year"){
+        // get group by create date column.
+        $group_By = " GROUP BY DATE_FORMAT(`create_date`, '%Y') ORDER BY DATE_FORMAT(`create_date`, '%Y') DESC";
+        $month = " DATE_FORMAT(`create_date`, '%Y') `month`,";
+    }
+    
+    //Quater Wise DataSet
+    if($vendor['period']== 'Quater'){
+        $group_By .= " GROUP BY Year(create_date) Desc, QUARTER(create_date) DESC";
+        $month = " CASE QUARTER(create_date) 
+
+        WHEN 1 THEN 'Jan - Mar'
+
+        WHEN 2 THEN 'Apr - Jun'
+ 
+        WHEN 3 THEN 'July - Sep'
+
+        WHEN 4 THEN 'Oct - Dec'
+
+        END AS `month` ,  Year(create_date) as year, ";
+    }
+
 
       if($vendor['date_range'] != ""){
 
@@ -379,7 +406,7 @@ class vendor_model extends CI_Model {
      
       foreach ($vendors as $key => $value) {
 
-          $sql = "SELECT DATE_FORMAT(`closed_date`,'%M, %Y') `month`,
+          $sql = "SELECT $month
                SUM(CASE WHEN `current_status` = 'Completed' THEN 1 ELSE 0 END) AS completed_booking,
                SUM(CASE WHEN `current_status` = 'Cancelled' THEN 1 ELSE 0 END) AS cancelled_booking
                FROM `booking_details` where assigned_vendor_id = $value[Vendor_ID] AND service_id = $value[Appliance_ID] $where $group_By";

@@ -80,7 +80,9 @@
 							<li class="col-md-2" style="border: 1px solid #bbb;" >
 								<select  onchange="getVendorPerformance()" class="form-control"  id="period" name="period" >
 									<option  disabled>Select Period</option>
-									<option selected>All Month</option>
+									<option value="All Year" selected>Year</option>
+									<option value="All Month" >Month</option>
+									<option >Quater</option>
 									
 								</select> 
  
@@ -156,21 +158,12 @@
 				<td><?php echo $variable[0]['Appliance']; ?></td>
 				<td><?php echo $value['completed_booking']; $completed +=  $value['completed_booking'];?></td>
 				<td><?php echo $value['cancelled_booking']; $cancelled +=  $value['cancelled_booking'];?></td>
-				<td><?php echo $value['month']; ?></td>
+				<td><?php if(isset($value['month'])) { if(isset($value['year'])){ echo $value['month']."  ".$value['year'];} else {echo $value['month'];} }  ?></td>
 			</tr>
 
 
 			<?php $i++; } ?>
 
-			<!-- <tr>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td>Total completed Booking:  <?php echo $completed; ?></td>
-				<td>Total cancelled Booking:  <?php echo $cancelled; ?></td>
-				<td></td>
-			</tr> -->
 			<tr style="height: 60px;">
 				<td></td>
 				<td></td>
