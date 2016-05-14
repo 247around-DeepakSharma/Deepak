@@ -1901,6 +1901,8 @@ class Booking extends CI_Controller {
 	$booking['user_id'] = $this->input->post('user_id');
 	$booking['service_id'] = $this->input->post('service_id');
 	$booking['user_email'] = $this->input->post('user_email');
+	$booking['city'] = $this->input->post('city');
+	$booking['state'] = $this->input->post('state');
 	$booking['user_name'] = $this->input->post('name');
 	$booking['phone_number'] = $this->input->post('phone_number'); //For pagination to user's detils page
 	$booking['appliance_id'] = $appliance_id;
@@ -1946,6 +1948,8 @@ class Booking extends CI_Controller {
 	$booking['service_name'] = $this->input->post('services');
 	$booking['user_email'] = $this->input->post('user_email');
 	$booking['user_name'] = $this->input->post('user_name');
+	$booking['city'] = $this->input->post('city');
+	$booking['state'] = $this->input->post('state');
 	$booking['phone_number'] = $this->input->post('phone_number');      //For pagination to user's detils page
 	$booking['appliance_id'] = $this->input->post('appliance_id');
 	$booking['appliance_brand'] = $this->input->post('appliance_brand');
@@ -1982,7 +1986,7 @@ class Booking extends CI_Controller {
 
 	$this->booking_model->addapplianceunitdetails($booking);
 
-	$output = $this->booking_model->addbooking($booking, $booking['appliance_id']);
+	$output = $this->booking_model->addbooking($booking, $booking['appliance_id'], $booking['city'], $booking['state']);
 
 	$months = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
 	$mm = $months[$mm - 1];

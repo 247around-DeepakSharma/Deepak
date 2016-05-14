@@ -215,13 +215,37 @@
                 </div>
               </div>
 
+               <div class="form-group <?php
+                if (form_error('booking_address')) {
+                   echo 'has-error';
+                    }
+                  ?>">
+                <label id="booking_address" for="booking_city" class="col-md-2">Booking City</label>
+                <div class="col-md-6">
+                  <input type="text" class="form-control"  name="city" value = "<?php echo $user_details[0]['city']; ?>">
+                  <?php echo form_error('city'); ?>
+                </div>
+              </div>
+
+              <div class="form-group <?php
+                if (form_error('booking_address')) {
+                   echo 'has-error';
+                    }
+                  ?>">
+                <label id="booking_address" for="booking_state" class="col-md-2">Booking State</label>
+                <div class="col-md-6">
+                  <input type="text" class="form-control"  name="state" value = "<?php echo $user_details[0]['state']; ?>">
+                  <?php echo form_error('state'); ?>
+                </div>
+              </div>
+
               <div class="form-group <?php
                 if (form_error('booking_pincode')) {
                   echo 'has-error';
                   } ?>">
                 <label id="booking_pincode" for="booking_pincode" class="col-md-2">Booking Pincode</label>
                 <div class="col-md-6">
-                  <input type="text" class="form-control"  name="booking_pincode" value = "<?php echo set_value('booking_pincode'); ?>" placeholder="Enter Area Pin" required>
+                  <input type="text" class="form-control"  name="booking_pincode" value = "<?php echo $user_details[0]['pincode']; ?>" placeholder="Enter Area Pin" required>
                   <?php echo form_error('booking_pincode'); ?>
                 </div>
               </div>
