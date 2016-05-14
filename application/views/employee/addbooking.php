@@ -1039,13 +1039,21 @@ function service2()
                         echo 'has-error';
                     }
                     ?>">
-                        <label id="booking_address" for="booking_address" class="col-md-2">Booking City</label>
+                        <label id="city" for="booking_city" class="col-md-2">Booking City</label>
                        
                         <div class="col-md-6">
                             <input type="text" class="form-control"  name="booking_city" value = "<?php echo $city; ?>">
                             <?php echo form_error('booking_city'); ?>
                         </div>
                     </div>
+
+                     <div class="form-group <?php if( form_error('state') ) { echo 'has-error';} ?>">
+                  <label for="home_address" class="col-md-2">Booking State</label>
+                      <div class="col-md-6">
+                        <input type="text" class="form-control"  name="booking_state" value = "<?php echo $state; ?>" placeholder="Enter  State.">
+                        <?php echo form_error('state'); ?>
+                      </div>  
+                 </div>
 
 
                     <div class="form-group <?php

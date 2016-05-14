@@ -60,6 +60,7 @@ class Booking extends CI_Controller {
 	$results['home_address'] = $this->input->post('home_address');
 	$results['user_email'] = $this->input->post('user_email');
 	$results['city'] = $this->input->post('city');
+	$results['state'] = $this->input->post('state');
 	$results['phone_number'] = $this->input->post('phone_number');
 	$results['alternate_phone_number'] = $this->input->post('alternate_phone_number');
 	$results['pincode'] = $this->input->post('pincode');
@@ -80,6 +81,7 @@ class Booking extends CI_Controller {
 	    $booking['type'] = $this->input->post('type');
 	    $booking['source'] = $this->input->post('source');
 	    $booking['city'] = $this->input->post('city');
+	    $booking['state'] = $this->input->post('state');
 	    $booking['quantity'] = $this->input->post('quantity');
 	    $booking['appliance_brand1'] = $this->input->post('appliance_brand1');
 	    $booking['appliance_category1'] = $this->input->post('appliance_category1');
@@ -177,7 +179,7 @@ class Booking extends CI_Controller {
 	    $appliance_id = $this->booking_model->addappliancedetails($booking);
 	    $this->booking_model->addunitdetails($booking);
 
-	    $output = $this->booking_model->addbooking($booking, $appliance_id[0]['id'], $booking['city']);
+	    $output = $this->booking_model->addbooking($booking, $appliance_id[0]['id'], $booking['city'], $booking['state']);
 
 	    $query1 = $this->booking_model->booking_history_by_booking_id($booking['booking_id']);
 	    $query2 = $this->booking_model->get_unit_details($booking['booking_id']);
@@ -251,6 +253,7 @@ class Booking extends CI_Controller {
 	$foremail['user_email'] = $this->input->post('user_email');
 	$foremail['name'] = $this->input->post('name');
 	$booking['city'] = $this->input->post('booking_city');
+    $booking['state'] = $this->input->post('booking_state');
 
 	$booking['newbrand1'] = $this->input->post('newbrand1');
 	$booking['newbrand2'] = $this->input->post('newbrand2');
@@ -2242,6 +2245,9 @@ class Booking extends CI_Controller {
 	$booking['purchase_year'] = $this->input->post('purchase_year');
 	$booking['appliance_tag'] = $this->input->post('appliance_tag');
 	$booking['model_number'] = $this->input->post('model_number');
+
+	$booking['city'] = $this->input->post('booking_city');
+	$booking['state'] = $this->input->post('booking_state');
 
 	$booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
 	$booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');

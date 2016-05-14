@@ -68,7 +68,7 @@ class User extends CI_Controller {
 
                 $offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
 
-                $config['base_url'] = base_url() . "employee/user/user_details/$phone_number";
+                $config['base_url'] = base_url() . "employee/user/finduser/$offset/$page/$phone_number";
                 $config['total_rows'] = $this->booking_model->total_user_booking($output[0]['user_id']);
                 $config['per_page'] = $page;
                 $config['uri_segment'] = 5;
@@ -157,9 +157,7 @@ class User extends CI_Controller {
 
         $data1 = $this->user_model->search_user($user['phone_number']);
         $appliance_details = $this->user_model->appliance_details($user['phone_number']);
-        $this->load->view('employee/header');
-        $this->load->view('employee/bookinghistory', array('data1' => $data1, 'appliance_details'
-            => $appliance_details));
+        redirect(base_url().'employee/user/finduser/0/0/'.$user['phone_number']);
     }
 
     public function checkValidation() {
@@ -210,11 +208,11 @@ class User extends CI_Controller {
         $edit['alternate_phone_number'] = $this->input->post('alternate_phone_number');
         $edit['pincode'] = $this->input->post('pincode');
         $output = $this->user_model->edit_user($edit);
-        redirect(base_url().'employee/user/user_details/'.$edit['phone_number'],'refresh');
+        redirect(base_url().'employee/user/finduser/0/0/'.$edit['phone_number']);
 
     }
 
-    function user_details($phone_number="", $offset = 0, $page = 0) {
+    function user_details($offset = 0, $page = 0, $phone_number="") {
 
         $output = $this->user_model->search_user($phone_number);
 
@@ -228,7 +226,7 @@ class User extends CI_Controller {
 
             $offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
 
-            $config['base_url'] = base_url() . "employee/user/user_details/$phone_number";
+            $config['base_url'] = base_url() . "employee/user/user_details/0/0/$phone_number";
             $config['total_rows'] = $this->booking_model->total_user_booking($output[0]['user_id']);
             $config['per_page'] = $page;
             $config['uri_segment'] = 5;
