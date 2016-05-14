@@ -68,7 +68,7 @@ class User extends CI_Controller {
 
                 $offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
 
-                $config['base_url'] = base_url() . "employee/user/finduser/$offset/$page/$phone_number";
+                $config['base_url'] = base_url() . "employee/user/finduser/".$offset."/".$page."/".$phone_number;
                 $config['total_rows'] = $this->booking_model->total_user_booking($output[0]['user_id']);
                 $config['per_page'] = $page;
                 $config['uri_segment'] = 5;

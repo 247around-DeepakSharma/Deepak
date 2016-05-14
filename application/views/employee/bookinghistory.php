@@ -135,8 +135,6 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
             }
             ?>
              
-
-                       
             </div>
             <div style="float:left;">
               <center>
