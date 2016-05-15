@@ -447,7 +447,7 @@ class Reporting_utils extends CI_Model {
 	    SELECT booking_details.booking_id,
 	    services.services AS service_name,
 	    booking_details.booking_date,
-	    booking_details.closed_date,
+	    Date_Format(booking_details.closed_date,'%d-%m-%Y') AS closed_date,
 	    booking_details.service_charge,
 	    booking_details.additional_service_charge,
 	    booking_details.parts_cost,
