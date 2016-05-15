@@ -375,6 +375,32 @@
                             <p>Enter booking address if its not same as home address.</p></div>
                     </div>
 
+                  <div class="form-group <?php if( form_error('booking_city') ) { echo 'has-error';} ?>">
+                  <label for="city" class="col-md-2">Booking City</label>
+                  <div class="col-md-6">
+                    <input type="text" class="form-control"  id="city" name="booking_city" 
+                            value = "<?php if (isset($data3['city']) && ($data3['city'] != "")) {
+                               echo $data3['city']; 
+                           } elseif(isset($data3['city'])){
+                               echo $data3['city'];
+                           }?>" placeholder="Enter city">
+                            <?php echo form_error('booking_city'); ?>
+                  </div>
+                </div>
+
+                 <div class="form-group <?php if( form_error('booking_city') ) { echo 'has-error';} ?>">
+                  <label for="city" class="col-md-2">Booking State</label>
+                  <div class="col-md-6">
+                    <input type="text" class="form-control"  id="state" name="booking_state" 
+                            value = "<?php if (isset($data3['state']) && ($data3['state'] != "")) {
+                               echo $data3['state']; 
+                           } elseif(isset($data3['state'])){
+                               echo $data3['state'];
+                           }?>" placeholder="Enter state">
+                            <?php echo form_error('booking_state'); ?>
+                  </div>
+                </div>
+
                 <div class="form-group <?php if( form_error('booking_pincode') ) { echo 'has-error';} ?>">
                   <label for="booking_pincode" class="col-md-2">Booking Pincode</label>
                   <div class="col-md-6">
@@ -414,7 +440,7 @@
                     
                         <label for="booking_remarks" class="col-md-2">Booking Desctiption</label>
                         <div class="col-md-6">
-                            <textarea class="form-control" name="ProductType" disabled><?php if (isset($description)) {echo $description[0]['description']; }?></textarea>
+                            <textarea class="form-control" name="ProductType" disabled><?php if (isset($description)) { if(!empty($description)){echo $description[0]['description']; } } ?></textarea>
                             <?php echo form_error('ProductType'); ?>
                         </div>
                     </div>

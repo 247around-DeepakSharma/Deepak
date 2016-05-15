@@ -61,6 +61,7 @@ class Booking extends CI_Controller {
 	$results['home_address'] = $this->input->post('home_address');
 	$results['user_email'] = $this->input->post('user_email');
 	$results['city'] = $this->input->post('city');
+	$results['state'] = $this->input->post('state');
 	$results['phone_number'] = $this->input->post('phone_number');
 	$results['alternate_phone_number'] = $this->input->post('alternate_phone_number');
 	$results['pincode'] = $this->input->post('pincode');
@@ -81,6 +82,7 @@ class Booking extends CI_Controller {
 	    $booking['type'] = $this->input->post('type');
 	    $booking['source'] = $this->input->post('source');
 	    $booking['city'] = $this->input->post('city');
+	    $booking['state'] = $this->input->post('state');
 	    $booking['quantity'] = $this->input->post('quantity');
 	    $booking['appliance_brand1'] = $this->input->post('appliance_brand1');
 	    $booking['appliance_category1'] = $this->input->post('appliance_category1');
@@ -178,7 +180,7 @@ class Booking extends CI_Controller {
 	    $appliance_id = $this->booking_model->addappliancedetails($booking);
 	    $this->booking_model->addunitdetails($booking);
 
-	    $output = $this->booking_model->addbooking($booking, $appliance_id[0]['id'], $booking['city']);
+	    $output = $this->booking_model->addbooking($booking, $appliance_id[0]['id'], $booking['city'], $booking['state']);
 
 	    $query1 = $this->booking_model->booking_history_by_booking_id($booking['booking_id']);
 	    $query2 = $this->booking_model->get_unit_details($booking['booking_id']);
@@ -252,6 +254,7 @@ class Booking extends CI_Controller {
 	$foremail['user_email'] = $this->input->post('user_email');
 	$foremail['name'] = $this->input->post('name');
 	$booking['city'] = $this->input->post('booking_city');
+    $booking['state'] = $this->input->post('booking_state');
 
 	$booking['newbrand1'] = $this->input->post('newbrand1');
 	$booking['newbrand2'] = $this->input->post('newbrand2');
@@ -1902,6 +1905,8 @@ class Booking extends CI_Controller {
 	$booking['user_id'] = $this->input->post('user_id');
 	$booking['service_id'] = $this->input->post('service_id');
 	$booking['user_email'] = $this->input->post('user_email');
+	$booking['city'] = $this->input->post('city');
+	$booking['state'] = $this->input->post('state');
 	$booking['user_name'] = $this->input->post('name');
 	$booking['phone_number'] = $this->input->post('phone_number'); //For pagination to user's detils page
 	$booking['appliance_id'] = $appliance_id;
@@ -1947,6 +1952,8 @@ class Booking extends CI_Controller {
 	$booking['service_name'] = $this->input->post('services');
 	$booking['user_email'] = $this->input->post('user_email');
 	$booking['user_name'] = $this->input->post('user_name');
+	$booking['city'] = $this->input->post('city');
+	$booking['state'] = $this->input->post('state');
 	$booking['phone_number'] = $this->input->post('phone_number');      //For pagination to user's detils page
 	$booking['appliance_id'] = $this->input->post('appliance_id');
 	$booking['appliance_brand'] = $this->input->post('appliance_brand');
@@ -1983,7 +1990,7 @@ class Booking extends CI_Controller {
 
 	$this->booking_model->addapplianceunitdetails($booking);
 
-	$output = $this->booking_model->addbooking($booking, $booking['appliance_id']);
+	$output = $this->booking_model->addbooking($booking, $booking['appliance_id'], $booking['city'], $booking['state']);
 
 	$months = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
 	$mm = $months[$mm - 1];
@@ -2246,6 +2253,9 @@ class Booking extends CI_Controller {
 	$booking['purchase_year'] = $this->input->post('purchase_year');
 	$booking['appliance_tag'] = $this->input->post('appliance_tag');
 	$booking['model_number'] = $this->input->post('model_number');
+
+	$booking['city'] = $this->input->post('booking_city');
+	$booking['state'] = $this->input->post('booking_state');
 
 	$booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
 	$booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');

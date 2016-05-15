@@ -98,6 +98,24 @@
                   		</div>	
             		 </div>
 
+                  <div class="form-group <?php if( form_error('city') ) { echo 'has-error';} ?>">
+                  <label for="home_address" class="col-md-2">Home City</label>
+                      <div class="col-md-6">
+                        <input type="text" class="form-control"  name="city" value = "<?php echo set_value('city');  ?>" placeholder="Enter user's home City.">
+                        <?php echo form_error('city'); ?>
+                      </div>  
+                 </div>
+
+                 <div class="form-group <?php if( form_error('state') ) { echo 'has-error';} ?>">
+                  <label for="home_address" class="col-md-2">Home State</label>
+                      <div class="col-md-6">
+                        <input type="text" class="form-control"  name="state" value = "<?php echo set_value('state');  ?>" placeholder="Enter user's home State.">
+                        <?php echo form_error('state'); ?>
+                      </div>  
+                 </div>
+
+
+
                  <div class="form-group <?php if( form_error('pincode') ) { echo 'has-error';} ?>">
                   <label for="pincode" class="col-md-2">Pincode</label>
                       <div class="col-md-6">

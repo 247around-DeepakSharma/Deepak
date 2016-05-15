@@ -76,8 +76,8 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
           
                   </tr>
               </thead>
-
-              <?php $count = 1; ?>
+             
+              <?php $count = 1; if(isset($data[0]['booking_id'])){ ?>
                     <?php foreach($data as $key =>$row){?>
                     
                     <tr>
@@ -126,67 +126,42 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
                      <?php } ?></td>
                     </tr>  
                      
-                    </tr>
+                  
                     <?php 
-                     } ?>
+                     } }?>
 
               </table>
               <?php 
             }
-            else {?>
-              <center><h2>Bookings history for :<?php echo $data1[0]['name'];?></h2></center>
-              <table>
-                <thead>
-                    <tr>
-                    <th>Ser. No.</th>
-
-                    <th>Booking Id</th>
-                   
-                    <th>User Name</th>
-
-                    <th>Service Name</th>
-
-                    <th>Booking Date</th>
-
-                    <th>Booking Timeslot</th>
-
-                    <th>Status</th>
-                    <th>Reschedule</th>
-                    <th>Cancel</th>
-                    <th>Complete</th>
-          
-                    <th>Closed Date</th>
-                  </tr>
-              </thead>
-              </table>
-              <?php } ?>
-
-                       
+            ?>
+             
             </div>
             <div style="float:left;">
               <center>
               <form action="<?php echo base_url()?>employee/booking/addbooking" method="POST" style="padding-left:200px;float:left;">
               <div style="">
-                    <input type="hidden" name="user_id" value="<?php if(isset($data1[0]['user_id'])){echo $data1[0]['user_id'];}else{echo $data[0]['user_id'];}?>">
-                    <input type="hidden" name="home_address" value="<?php if(isset($data1[0]['home_address'])){echo $data1[0]['home_address'];}else{echo $data[0]['home_address'];}?>">
-                      <input type="hidden" name="city" value="<?php if(isset($data1[0]['city'])){echo $data1[0]['city'];}else{echo $data[0]['city'];}?>">
-                    <input type="hidden" name="user_email" value="<?php if(isset($data1[0]['user_email'])){echo $data1[0]['user_email'];}else{echo $data[0]['user_email'];}?>">
-                    <input type="hidden" name="phone_number" value="<?php if(isset($data1[0]['phone_number'])){echo $data1[0]['phone_number'];}else{echo $data[0]['phone_number'];}?>">
-                    <input type="hidden" name="alternate_phone_number" value="<?php if(isset($data1[0]['alternate_phone_number'])){echo $data1[0]['alternate_phone_number'];}?>">
-                    <input type="hidden" name="pincode" value="<?php if(isset($data1[0]['pincode'])){echo $data1[0]['pincode'];}?>">
-                    <input type="hidden" name="name" value="<?php if(isset($data1[0]['name'])){echo $data1[0]['name'];}else{echo $data[0]['name'];}?>">
+                    <input type="hidden" name="user_id" value="<?php if(isset($data[0]['user_id'])){echo $data[0]['user_id'];}?>">
+                    <input type="hidden" name="home_address" value="<?php if(isset($data[0]['home_address'])){echo $data[0]['home_address'];}else{echo $data[0]['home_address'];}?>">
+                      <input type="hidden" name="city" value="<?php if(isset($data[0]['city'])){echo $data[0]['city'];}?>">
+                      <input type="hidden" name="state" value="<?php if(isset($data[0]['state'])){echo $data[0]['state'];}?>">
+                    <input type="hidden" name="user_email" value="<?php if(isset($data[0]['user_email'])){echo $data[0]['user_email'];}?>">
+                    <input type="hidden" name="phone_number" value="<?php if(isset($data[0]['phone_number'])){echo $data[0]['phone_number'];}?>">
+                    <input type="hidden" name="alternate_phone_number" value="<?php if(isset($data[0]['alternate_phone_number'])){echo $data[0]['alternate_phone_number'];}?>">
+                    <input type="hidden" name="pincode" value="<?php if(isset($data[0]['pincode'])){echo $data[0]['pincode'];}?>">
+                    <input type="hidden" name="name" value="<?php if(isset($data[0]['name'])){echo $data[0]['name'];}?>">
                 </div>
               <?php echo "<input type='submit' value='New Booking' class='btn btn-primary'></a>"?>
               </form>
               <form action="<?php echo base_url()?>employee/user/get_edit_user_form" method="POST" style="padding-left:100px;float:left;">
               <div>
-                <input type="hidden" name="user_id" value="<?php if(isset($data1[0]['user_id'])){echo $data1[0]['user_id'];}else{echo $data[0]['user_id'];}?>">
-                    <input type="hidden" name="home_address" value="<?php if(isset($data1[0]['home_address'])){echo $data1[0]['home_address'];}else{echo $data[0]['home_address'];}?>">
-                    <input type="hidden" name="user_email" value="<?php if(isset($data1[0]['user_email'])){echo $data1[0]['user_email'];}else{echo $data[0]['user_email'];}?>">
-                    <input type="hidden" name="phone_number" value="<?php if(isset($data1[0]['phone_number'])){echo $data1[0]['phone_number'];}else{echo $data[0]['phone_number'];}?>">
-                    <input type="hidden" name="alternate_phone_number" value="<?php if(isset($data1[0]['alternate_phone_number'])){echo $data1[0]['alternate_phone_number'];}?>">
-                    <input type="hidden" name="pincode" value="<?php if(isset($data1[0]['pincode'])){echo $data1[0]['pincode'];}?>">
-                    <input type="hidden" name="name" value="<?php if(isset($data1[0]['name'])){echo $data1[0]['name'];}else{echo $data[0]['name'];}?>">
+                <input type="hidden" name="user_id" value="<?php if(isset($data[0]['user_id'])){echo $data[0]['user_id'];}?>">
+
+                    <input type="hidden" name="home_address" value="<?php if(isset($data[0]['home_address'])){echo $data[0]['home_address'];}?>">
+                    <input type="hidden" name="user_email" value="<?php if(isset($data[0]['user_email'])){echo $data[0]['user_email'];}?>">
+                    <input type="hidden" name="phone_number" value="<?php if(isset($data[0]['phone_number'])){echo $data[0]['phone_number']; }?>">
+                    <input type="hidden" name="alternate_phone_number" value="<?php if(isset($data[0]['alternate_phone_number'])){echo $data[0]['alternate_phone_number'];}?>">
+                    <input type="hidden" name="pincode" value="<?php if(isset($data[0]['pincode'])){echo $data[0]['pincode'];}?>">
+                    <input type="hidden" name="name" value="<?php if(isset($data[0]['name'])){echo $data[0]['name'];}?>">
               </div>
               <?php echo " <input type='Submit' value='User Details' class='btn btn-primary'></a>"?>
               </form>
@@ -194,7 +169,7 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
               <div style="float:left;padding-left:100px;"></div>
               </center>
 
-              <div id="for_user_page" class="pagination" style="float:left;"> <?php echo $links; ?></div>
+              <div id="for_user_page" class="pagination" style="float:left;"> <?php if(isset($links)){ echo $links; }?></div>
 
             </div>
 

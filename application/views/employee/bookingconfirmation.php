@@ -57,6 +57,11 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
                 <td><?=$booking['city'];?></td>
             </tr>
 
+             <tr>
+                <td>Booking State</td>
+                <td><?=$booking['state'];?></td>
+            </tr>
+
             <tr>
             	<td>Booking Pincode</td>
                 <td><?=$booking['booking_pincode'];?></td>
@@ -87,6 +92,7 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
             <input type="hidden" name="booking_date" value="<?php echo $booking['booking_date'];?>">
             <input type="hidden" name="user_id" value="<?php echo $booking['user_id'];?>">
             <input type="hidden" name="city" value="<?php echo $booking['city'];?>">
+            <input type="hidden" name="state" value="<?php echo $booking['state'];?>">
             <input type="hidden" name="booking_timeslot" value="<?php echo $booking['booking_timeslot'];?>">
             <input type="hidden" name="appliance_brand1" value="<?php echo $booking['appliance_brand1'];?>">
             <input type="hidden" name="appliance_category1" value="<?php echo $booking['appliance_category1'];?>">

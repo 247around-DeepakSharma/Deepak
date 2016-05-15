@@ -32,8 +32,10 @@
       		<tr><td>Customer phone number: </td><td><?php echo $query1[0]['phone_number']; ?></td></tr>
           <tr><td>Alternate phone number: </td><td><?php echo $query1[0]['alternate_phone_number']; ?></td></tr>
       		<tr><td>Customer email address: </td><td><?php echo $query1[0]['user_email']; ?></td></tr>
-          <tr><td>Home address: </td><td><?php echo $query1[0]['home_address'];?>,</td></tr>
-          <tr><td>Home Pincode: </td><td><?php echo $query1[0]['pincode'];?>,</td></tr>
+          <tr><td>Home address: </td><td><?php echo $query1[0]['home_address'];?></td></tr>
+          <tr><td>Home City: </td><td><?php echo $query1[0]['city'];?></td></tr>
+          <tr><td>Home State: </td><td><?php echo $query1[0]['state'];?></td></tr>
+          <tr><td>Home Pincode: </td><td><?php echo $query1[0]['pincode'];?></td></tr>
           </table>
           <br>
           <br><b style="color:red;">Booking Details:-</b><br><br>
@@ -47,8 +49,10 @@
           <tr><td>Booking date: </td><td><?php echo $query1[0]['booking_date']; ?></td></tr>
           <tr><td>Booking time slot: </td><td><?php echo $query1[0]['booking_timeslot']; ?></td></tr>
       		<tr><td>Booking address: </td><td><?php echo $query1[0]['booking_address'];?></td></tr>
+           <tr><td>Booking City: </td><td><?php echo $query1[0]['city']; ?></td></tr>
+            <tr><td>Booking State: </td><td><?php echo $query1[0]['state']; ?></td></tr>
           <tr><td>Booking Pincode: </td><td><?php echo $query1[0]['booking_pincode']; ?></td></tr>
-          <tr><td>Booking City: </td><td><?php echo $query1[0]['city']; ?></td></tr>
+         
           <tr><td>Booking Primary Contact No.: </td><td><?php echo $query1[0]['booking_primary_contact_no']; ?></td></tr>
           <tr><td>Booking Alternate Contact No.: </td><td><?php echo $query1[0]['booking_alternate_contact_no']; ?></td></tr>
           <tr><td>Booking Remarks: </td><td><?php echo $query1[0]['booking_remarks']; ?></td></tr>
