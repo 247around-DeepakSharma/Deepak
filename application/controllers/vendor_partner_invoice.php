@@ -55,7 +55,7 @@ class vendor_partner_invoice extends CI_Controller {
      * on End_date (both dates inclusive).
      */
     public function generate_cash_invoices_for_vendors($start_date, $end_date) {
-	//log_message('info', __FUNCTION__);
+	log_message('info', __FUNCTION__ . '=> Start Date: ' . $start_date . ', End Date: ' . $end_date);
 	//echo $start_date, $end_date;
 
 	$file_names = array();
@@ -83,7 +83,7 @@ class vendor_partner_invoice extends CI_Controller {
 	    //log_message('info', "fetch pending bookings for service center id: " . $sc['id']);
 	    $bookings_completed = $this->reporting_utils->get_completed_bookings_by_sc($sc['id'], $s_date, $e_date);
 	    $count = count($bookings_completed);
-	    //log_message('info', "Count: " . $count);
+	    log_message('info', 'Service Centre: ' . $sc['id'] . ', Count: ' . $count);
 
 	    if ($count > 0) {
 		//Find total charges for these bookings
@@ -109,6 +109,8 @@ class vendor_partner_invoice extends CI_Controller {
 		'. Around royalty for this invoice is Rs. ' . $tot_ch_rat['r_total'] .
 		'. Your rating for completed bookings is ' . $tot_ch_rat['t_rating'] .
 		'. We look forward to your continued support in future. As next step, please deposit 247around royalty per the below details.';
+
+		log_message('info', 'Excel data: ' . print_r($excel_data, true));
 
 		$R->load(array(
 		    array(
@@ -140,7 +142,7 @@ class vendor_partner_invoice extends CI_Controller {
 
 		//convert excel to pdf
 		$output_file_pdf = $output_file_dir . $output_file . ".pdf";
-//		$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=" . CONVERTAPI_KEY . " -o " . $output_file_pdf;
+		//$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=" . CONVERTAPI_KEY . " -o " . $output_file_pdf;
 		putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
 		$tmp_path = '/home/around/libreoffice_tmp';
 		$tmp_output_file = '/home/around/libreoffice_tmp/output_' . __FUNCTION__ . '.txt';
@@ -158,11 +160,11 @@ class vendor_partner_invoice extends CI_Controller {
 		//Send report via email
 		$this->email->clear(TRUE);
 		$this->email->from('billing@247around.com', '247around Team');
-		//$to = $sc['owner_email'] . ", " . $sc['primary_contact_email'];
-		$to = 'anuj.aggarwal@gmail.com';
+		$to = $sc['owner_email'] . ", " . $sc['primary_contact_email'];
+		//$to = 'anuj.aggarwal@gmail.com';
 		$this->email->to($to);
 		$cc = "billing@247around.com, nits@247around.com, anuj@247around.com";
-		//$this->email->cc($cc);
+		$this->email->cc($cc);
 		//$this->email->bcc("anuj.aggarwal@gmail.com");
 
 		$subject = "247around - " . $sc['name'] . " - Invoice for period: " . $start_date . " To " . $end_date;
@@ -204,11 +206,10 @@ class vendor_partner_invoice extends CI_Controller {
 		$directory_xls = "invoices-excel/" . $output_file . ".xlsx";
 		$directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
 
-		//$this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PRIVATE);
-		//$this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PRIVATE);
+		$this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PRIVATE);
+		$this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PRIVATE);
+
 		//Save this invoice info in table
-//		$total_amount_collected = $tot_ch_rat['t_ap'];
-//		$around_royalty = $tot_ch_rat['r_total'];
 		$invoice_details = array(
 		    'invoice_id' => $invoice_id,
 		    'type' => 'Cash',
@@ -226,17 +227,17 @@ class vendor_partner_invoice extends CI_Controller {
 		    'rating' => $tot_ch_rat['t_rating'],
 		    'around_royalty' => $tot_ch_rat['r_total'],
 		);
-		//$this->invoices_model->insert_new_invoice($invoice_details);
+		$this->invoices_model->insert_new_invoice($invoice_details);
 
 		/*
 		 * Update booking-invoice table to capture this new invoice against these bookings.
 		 * Since this is a type 'Cash' invoice, it would be stored as a vendor-debit invoice.
 		 */
-		//$this->update_booking_invoice_mappings_repairs($bookings_completed, $invoice_id);
+		$this->update_booking_invoice_mappings_repairs($bookings_completed, $invoice_id);
 	    }
 
 	    //To test for 1 vendor, break
-	    break;
+	    //break;
 	}
 
 	//Delete XLS files now
