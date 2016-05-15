@@ -456,7 +456,7 @@ class Reporting_utils extends CI_Model {
 	    FROM booking_details, services
 	    WHERE booking_details.current_status =  'Completed'
 	    AND booking_details.closed_date >=  '$s_date'
-	    AND booking_details.closed_date <  '$e_date'
+	    AND booking_details.closed_date <=  '$e_date'
 	    AND
 		((booking_details.partner_id IS NULL) OR
 		(booking_details.partner_id = 1 AND booking_details.service_id IN (44,50)) OR

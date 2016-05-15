@@ -1,4 +1,4 @@
-            
+
 <table class="table table-bordered  table-hover table-striped data"  >
    <thead>
       <tr >
@@ -21,14 +21,14 @@
    </thead>
    <tbody>
       <?php
-       $count = 1; 
+       $count = 1;
        $sum_no_of_booking = 0;
        $sum_of_total_service_charges = 0;
        $sum_total_additional_service_charge = 0;
        $sum_total_parts_cost = 0;
        $total_amount_collected =0;
        $around_royalty = 0;
-       if(!empty($invoice_array)){ 
+       if(!empty($invoice_array)){
          foreach($invoice_array as $key =>$invoice) {?>
 
       <tr>
@@ -38,15 +38,14 @@
          <?php
             if($invoice['type'] == 'A'){
 
-               echo "Free of Cost (FOC)";
+               echo "Cash";
+	}  else if($invoice['type'] == 'B'){
 
-            }  else if($invoice['type'] == 'B'){
-
-                  echo "Repair";
-            }
+                  echo "Free of Cost (FOC)";
+	}
 
          ?></td>
-      
+
          <td><a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $invoice['invoice_file_excel']; ?>"><?php echo $invoice['invoice_file_excel']; ?></a></td>
          <td><a href="https://s3.amazonaws.com/bookings-collateral/invoices-pdf/<?php echo $invoice['invoice_file_pdf']; ?>"><?php echo $invoice['invoice_file_pdf']; ?></a></td>
          <td><?php echo date("jS F, Y", strtotime($invoice['from_date'])). " to ". date("jS F, Y", strtotime($invoice['to_date'])); ?></td>
@@ -60,18 +59,18 @@
          <td><?php echo date("jS F, Y", strtotime($invoice['create_date'])); ?></td>
          <?php  $count = $count+1;  ?>
 
-       
+
 
          <td class="col-md-6">
           <form class="form-horizontal" method="POST" action="<?php echo base_url()?>employee/invoice/sendInvoiceMail/<?php echo $invoice['invoice_id'].'/'.$invoice['vendor_partner_id'].'/'.$invoice['from_date'].'/'.$invoice['to_date'].'/'.$invoice['vendor_partner']; ?>" >
-            
+
             <input type="text" class="form-control"  name="email" >
             <input style ="margin-top:8px;" type="submit"  value="Send Mail" >
             </form>
 
          </td>
-         
-        
+
+
       </tr>
       <?php }} ?>
 
