@@ -21,6 +21,7 @@ class Booking extends CI_Controller {
 	$this->load->model('vendor_model');
 	$this->load->model('filter_model');
 	$this->load->model('partner_model');
+	$this->load->model('invoices_model');
 
 	$this->load->helper(array('form', 'url'));
 
@@ -427,7 +428,7 @@ class Booking extends CI_Controller {
 	$result = $this->booking_model->service_name($booking['service_id']);
 
 	$booking_source = $this->booking_model->get_booking_source($booking['source']);
-    
+
 	$this->load->view('employee/header');
 	$this->load->view('employee/bookingconfirmation', array('booking' => $booking, 'result' => $result,
 	    'booking_source' => $booking_source[0]));
@@ -712,6 +713,9 @@ class Booking extends CI_Controller {
 
 	$this->booking_model->complete_booking($booking_id, $data);
 
+	//Save this booking id in booking_invoices_mapping table as well now
+	$this->invoices_model->insert_booking_invoice_mapping(array('booking_id' => $booking_id));
+
 	//Is this SD booking?
 	if (strpos($booking_id, "SS") !== FALSE) {
 	    $is_sd = TRUE;
@@ -751,7 +755,7 @@ class Booking extends CI_Controller {
 
 	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
 
-    log_message('info','Booking Status Change- Booking id: '. $booking_id. " Completed By ". $this->session->userdata('employee_id'));
+	log_message('info', 'Booking Status Change- Booking id: ' . $booking_id . " Completed By " . $this->session->userdata('employee_id'));
 
 	$message = "Booking Completion.<br>Customer name: " . $query1[0]['name'] . "<br>Customer phone number: " . $query1[0]['phone_number'] . "<br>Customer email: " . $query1[0]['user_email'] . "<br>Booking Id is: " . $query1[0]['booking_id'] . "<br>Your service name is:" . $query1[0]['services'] . "<br>Booking date: " . $query1[0]['booking_date'] . "<br>Booking completion date: " . $data['closed_date'] . "<br>Amount paid for the booking: " . $data['amount_paid'] . "<br>Your booking completion remark is: " . $data['closing_remarks'] . "<br> Thanks!!";
 
@@ -1676,7 +1680,7 @@ class Booking extends CI_Controller {
 
 	redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
     }
-    
+
 
     function jobcard($booking_id) {
 	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
