@@ -95,16 +95,25 @@ class vendor_partner_invoice extends CI_Controller {
 		//Make sure it is unique
 		$invoice_id = $sc['sc_code'] . "-" . date("dMY") . "-A-" . rand(100, 999);
 
+		$excel_data = $tot_ch_rat;
+		$excel_data['invoice_id'] = $invoice_id;
+		$excel_data['vendor_name'] = $sc['name'];
+		$excel_data['vendor_address'] = $sc['address'];
+		$excel_data['sd'] = $start_date;
+		$excel_data['ed'] = $end_date;
+		$excel_data['today'] = date("d-M-Y");
+		$excel_data['count'] = $count;
+		$excel_data['msg'] = 'Thanks 247around Partner for your support, we completed ' . $count .
+		' bookings with you from ' . $start_date . ' till ' . $end_date .
+		'. Total transaction value for the bookings was Rs. ' . $tot_ch_rat['t_ap'] .
+		'. Around royalty for this invoice is Rs. ' . $tot_ch_rat['r_total'] .
+		'. Your rating for completed bookings is ' . $tot_ch_rat['t_rating'] .
+		'. We look forward to your continued support in future. As next step, please deposit 247around royalty per the below details.';
+
 		$R->load(array(
 		    array(
 			'id' => 'meta',
-			'data' => array('invoice_id' => $invoice_id,
-			    'vendor_name' => $sc['name'], 'vendor_address' => $sc['address'],
-			    'sd' => $start_date, 'ed' => $end_date, 'today' => date("d-M-Y"),
-			    'count' => $count, 't_sc' => $tot_ch_rat['t_sc'],
-			    't_asc' => $tot_ch_rat['t_asc'], 't_pc' => $tot_ch_rat['t_pc'],
-			    't_rating' => $tot_ch_rat['t_avg_rating']
-			),
+			'data' => $excel_data,
 			'format' => array(
 			    'date' => array('datetime' => 'd/M/Y')
 			)
@@ -198,9 +207,8 @@ class vendor_partner_invoice extends CI_Controller {
 		//$this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PRIVATE);
 		//$this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PRIVATE);
 		//Save this invoice info in table
-		$total_amount_collected = ($tot_ch_rat['t_sc'] + $tot_ch_rat['t_asc'] + $tot_ch_rat['t_pc']);
-		$around_royalty = round(($tot_ch_rat['t_sc'] * 0.3) + ($tot_ch_rat['t_asc'] * 0.15) +
-		    ($tot_ch_rat['t_pc'] * 0.05), 0);
+//		$total_amount_collected = $tot_ch_rat['t_ap'];
+//		$around_royalty = $tot_ch_rat['r_total'];
 		$invoice_details = array(
 		    'invoice_id' => $invoice_id,
 		    'type' => 'Cash',
@@ -214,9 +222,9 @@ class vendor_partner_invoice extends CI_Controller {
 		    'total_service_charge' => $tot_ch_rat['t_sc'],
 		    'total_additional_service_charge' => $tot_ch_rat['t_asc'],
 		    'parts_cost' => $tot_ch_rat['t_pc'],
-		    'total_amount_collected' => $total_amount_collected,
-		    'rating' => $tot_ch_rat['t_avg_rating'],
-		    'around_royalty' => $around_royalty,
+		    'total_amount_collected' => $tot_ch_rat['t_ap'],
+		    'rating' => $tot_ch_rat['t_rating'],
+		    'around_royalty' => $tot_ch_rat['r_total'],
 		);
 		//$this->invoices_model->insert_new_invoice($invoice_details);
 
@@ -228,7 +236,7 @@ class vendor_partner_invoice extends CI_Controller {
 	    }
 
 	    //To test for 1 vendor, break
-	    //break;
+	    break;
 	}
 
 	//Delete XLS files now
@@ -418,9 +426,10 @@ class vendor_partner_invoice extends CI_Controller {
     }
 
     function get_total_charges_rating_for_cash_bookings($bookings_completed) {
-	$t_sc = 0;
-	$t_asc = 0;
-	$t_pc = 0;
+	$t_sc = 0; //service charges
+	$t_asc = 0; //add service charges
+	$t_pc = 0; //parts
+	$t_ap = 0; //amount paid
 	$rating_count = 0;
 	$t_rating = 0;
 
@@ -428,6 +437,7 @@ class vendor_partner_invoice extends CI_Controller {
 	    $t_sc += intval($booking['service_charge']);
 	    $t_asc += intval($booking['additional_service_charge']);
 	    $t_pc += intval($booking['parts_cost']);
+	    $t_ap += intval($booking['amount_paid']);
 
 	    if (intval($booking['rating']) > 0) {
 		$rating_count++;
@@ -435,9 +445,16 @@ class vendor_partner_invoice extends CI_Controller {
 	    }
 	}
 
+	$r_sc = $t_sc * 0.3;     //around royalty for service charges
+	$r_asc = $t_asc * 0.15;     //around royalty for add service charges
+	$r_pc = $t_pc * 0.05;     //around royalty for parts
+	$r_total = round($r_sc + $r_asc + $r_pc, 0);
+
 	return array(
-	    't_sc' => $t_sc, 't_asc' => $t_asc,
-	    't_pc' => $t_pc, 't_avg_rating' => (round($t_rating / $rating_count, 1)));
+	    't_sc' => $t_sc, 't_asc' => $t_asc, 't_pc' => $t_pc,
+	    't_ap' => $t_ap, 'r_sc' => $r_sc, 'r_asc' => $r_asc,
+	    'r_pc' => $r_pc, 'r_total' => $r_total,
+	    't_rating' => (round($t_rating / $rating_count, 1)));
     }
 
     function get_total_charges_rating_for_foc_bookings($bookings_completed) {
