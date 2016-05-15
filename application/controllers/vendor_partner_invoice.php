@@ -12,7 +12,7 @@ ini_set('include_path', '/var/www/aroundhomzapp.com/public_html/system/libraries
 require_once('simple_html_dom.php');
 
 //define('CONVERTAPI_KEY', '110761630');     //test account
-define('CONVERTAPI_KEY', '278325305');    //247around account
+//define('CONVERTAPI_KEY', '278325305');    //247around account
 
 /**
  * Description of vendor_partner_invoice
@@ -43,24 +43,27 @@ class vendor_partner_invoice extends CI_Controller {
 
     /*
      * Two types of invoices are generated for vendors.
-     * One is for the jobs where they collected money.
+     * One is for the jobs where they collected money - Cash Jobs
      * Second is for the partner-provided jobs where partner will pay directly
      * to 247around and vendor did the job for free.
      * This function is for the 1st type of invoices.
      *
      * Start date format = DD-MM-YYYY
      * End date format = DD-MM-YYYY
+     *
+     * Invoice would be generated for period starting from Start_Date and ending
+     * on End_date (both dates inclusive).
      */
-    public function generate_non_partner_invoices_for_vendors($start_date, $end_date) {
+    public function generate_cash_invoices_for_vendors($start_date, $end_date) {
 	//log_message('info', __FUNCTION__);
 	//echo $start_date, $end_date;
 
 	$file_names = array();
 
 	//Type A invoices
-	$template = 'Vendor_Settlement_Template-A-v1.xlsx';
+	$template = 'Vendor_Settlement_Template-Cash-v1.xlsx';
 	//set absolute path to directory with template files
-	$templateDir = __DIR__ . "/";
+	$templateDir = __DIR__ . "/excel-templates/";
 
 	//set config for report
 	$config = array(
@@ -68,8 +71,9 @@ class vendor_partner_invoice extends CI_Controller {
 	    'templateDir' => $templateDir
 	);
 
-	$s_date = date("Y-m-d H:i:s", strtotime($start_date));
-	$e_date = date("Y-m-d H:i:s", strtotime($end_date));
+	//Cover entire start and end days by including time as well
+	$s_date = date("Y-m-d H:i:s", strtotime($start_date . '00:00:00'));
+	$e_date = date("Y-m-d H:i:s", strtotime($end_date . '23:59:59'));
 
 	//fetch all vendors (include inactive as well)
 	$service_centers = $this->reporting_utils->find_all_service_centers();
@@ -83,7 +87,7 @@ class vendor_partner_invoice extends CI_Controller {
 
 	    if ($count > 0) {
 		//Find total charges for these bookings
-		$tot_ch_rat = $this->get_total_charges_rating_for_non_partner_bookings($bookings_completed);
+		$tot_ch_rat = $this->get_total_charges_rating_for_cash_bookings($bookings_completed);
 
 		//load template
 		$R = new PHPReport($config);
@@ -120,7 +124,6 @@ class vendor_partner_invoice extends CI_Controller {
 
 		//Get populated XLS with data
 		$output_file_dir = "/tmp/";
-		//$output_file = "BookingsClosed-Repairs-" . $sc['sc_code'] . "-" . date('d-M-Y');
 		$output_file = $invoice_id;
 		$output_file_excel = $output_file_dir . $output_file . ".xlsx";
 		//for xlsx: excel, for xls: excel2003
@@ -128,20 +131,30 @@ class vendor_partner_invoice extends CI_Controller {
 
 		//convert excel to pdf
 		$output_file_pdf = $output_file_dir . $output_file . ".pdf";
-		$cmd = "curl -F file=@" . $output_file_excel .
-		    " http://do.convertapi.com/Excel2Pdf?apikey=" . CONVERTAPI_KEY . " -o " . $output_file_pdf;
-		exec($cmd);
+//		$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=" . CONVERTAPI_KEY . " -o " . $output_file_pdf;
+		putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+		$tmp_path = '/home/around/libreoffice_tmp';
+		$tmp_output_file = '/home/around/libreoffice_tmp/output_' . __FUNCTION__ . '.txt';
+		$cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+		    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+		    $output_file_excel . ' 2> ' . $tmp_output_file;
+
+		//echo $cmd;
+		$output = '';
+		$result_var = '';
+		exec($cmd, $output, $result_var);
 
 		//log_message('info', "Report generated with $count records");
 		echo PHP_EOL . "Report generated with $count records" . PHP_EOL;
 		//Send report via email
 		$this->email->clear(TRUE);
-		$this->email->from('booking@247around.com', '247around Team');
-		//$this->email->to('anuj.aggarwal@gmail.com');
-		$this->email->to($sc['owner_email']);
-		$cc = "sales@247around.com, nits@247around.com, anuj@247around.com";
-		$this->email->cc($cc);
-		$this->email->bcc("anuj.aggarwal@gmail.com");
+		$this->email->from('billing@247around.com', '247around Team');
+		//$to = $sc['owner_email'] . ", " . $sc['primary_contact_email'];
+		$to = 'anuj.aggarwal@gmail.com';
+		$this->email->to($to);
+		$cc = "billing@247around.com, nits@247around.com, anuj@247around.com";
+		//$this->email->cc($cc);
+		//$this->email->bcc("anuj.aggarwal@gmail.com");
 
 		$subject = "247around - " . $sc['name'] . " - Invoice for period: " . $start_date . " To " . $end_date;
 		$this->email->subject($subject);
@@ -149,10 +162,8 @@ class vendor_partner_invoice extends CI_Controller {
 		$message = "Dear Partner,<br/><br/>";
 		$message .= "Please find attached invoice for jobs completed between " . $start_date . " and " . $end_date . ". ";
 		$message .= "Details with breakup by job, service category is attached. Also the service rating as given by customers is shown.<br/><br/>";
-		$message .= "This invoice is for the jobs where payment was collected by " . $sc['name'] . ". Previous invoice sent on 5th April was for the jobs where 247around collected the payment.<br><br>";
-		$message .= "Please review all the invoices and let us know if there are any discrepancies. Do verify your bank details mentioned in the earlier invoice as well.<br><br>";
-		$message .= "Once we receive your confirmation, payments for jobs done till 29th Feb 2016 will be credited by 15th April 2016 by deducting 247around royalty charges towards you. ";
-		$message .= "Settlement for jobs done from 1st to 31st March 2016 will be done by 30th April 2016.<br><br>";
+		$message .= "This invoice is for the jobs where payment was collected by " . $sc['name'] . ".<br><br>";
+		$message .= "Please review all the invoices and let us know if there are any discrepancies.<br><br>";
 		$message .= "Hope to have a long lasting working relationship with you.";
 		$message .= "<br><br>With Regards,
                         <br>247around Team<br>
@@ -184,27 +195,39 @@ class vendor_partner_invoice extends CI_Controller {
 		$directory_xls = "invoices-excel/" . $output_file . ".xlsx";
 		$directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
 
-		$this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PRIVATE);
-		$this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PRIVATE);
+		//$this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PRIVATE);
+		//$this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PRIVATE);
 		//Save this invoice info in table
-		//TODO: Add other info in the table like period, amount, num of jobs etc
+		$total_amount_collected = ($tot_ch_rat['t_sc'] + $tot_ch_rat['t_asc'] + $tot_ch_rat['t_pc']);
+		$around_royalty = round(($tot_ch_rat['t_sc'] * 0.3) + ($tot_ch_rat['t_asc'] * 0.15) +
+		    ($tot_ch_rat['t_pc'] * 0.05), 0);
 		$invoice_details = array(
 		    'invoice_id' => $invoice_id,
+		    'type' => 'Cash',
+		    'vendor_partner' => 'vendor',
+		    'vendor_partner_id' => $sc['id'],
 		    'invoice_file_excel' => $output_file . '.xlsx',
 		    'invoice_file_pdf' => $output_file . '.pdf',
-		    'type' => 'A',
-		    'vendor_partner' => 'vendor',
-		    'vendor_partner_id' => $sc['id']
+		    'from_date' => $start_date,
+		    'to_date' => $end_date,
+		    'num_bookings' => $count,
+		    'total_service_charge' => $tot_ch_rat['t_sc'],
+		    'total_additional_service_charge' => $tot_ch_rat['t_asc'],
+		    'parts_cost' => $tot_ch_rat['t_pc'],
+		    'total_amount_collected' => $total_amount_collected,
+		    'rating' => $tot_ch_rat['t_avg_rating'],
+		    'around_royalty' => $around_royalty,
 		);
-		$this->invoices_model->insert_new_invoice($invoice_details);
+		//$this->invoices_model->insert_new_invoice($invoice_details);
 
 		/*
 		 * Update booking-invoice table to capture this new invoice against these bookings.
-		 * Since this is a type A invoice, it would be stored as a vendor-debit invoice.
+		 * Since this is a type 'Cash' invoice, it would be stored as a vendor-debit invoice.
 		 */
-		$this->update_booking_invoice_mappings_repairs($bookings_completed, $invoice_id);
+		//$this->update_booking_invoice_mappings_repairs($bookings_completed, $invoice_id);
 	    }
 
+	    //To test for 1 vendor, break
 	    //break;
 	}
 
@@ -220,22 +243,26 @@ class vendor_partner_invoice extends CI_Controller {
      * One is for the jobs where they collected money.
      * Second is for the partner-provided jobs where partner will pay directly
      * to 247around and vendor did the job for free.
+     * These are FOC (Free Of Cost) Jobs.
      * This function is for the 2nd type of invoices.
      *
      * Start date format = DD-MM-YYYY
      * End date format = DD-MM-YYYY
+     *
+     * Invoice would be generated for period starting from Start_Date and ending
+     * on End_date (both dates inclusive).
      */
 
-    public function generate_partner_invoices_for_vendors($start_date, $end_date) {
+    public function generate_foc_invoices_for_vendors($start_date, $end_date) {
 	//log_message('info', __FUNCTION__);
 	//echo $start_date, $end_date;
 
 	$file_names = array();
 
 	//Type B invoices
-	$template = 'Vendor_Settlement_Template-B-v1.xlsx';
+	$template = 'Vendor_Settlement_Template-FoC-v1.xlsx';
 	//set absolute path to directory with template files
-	$templateDir = __DIR__ . "/";
+	$templateDir = __DIR__ . "/excel-templates/";
 
 	//set config for report
 	$config = array(
@@ -258,7 +285,7 @@ class vendor_partner_invoice extends CI_Controller {
 
 	    if (($count > 0) && ($sc['id'] > 31)) {
 		//Find total charges for these bookings
-		$tot_ch_rat = $this->get_total_charges_rating_for_partner_bookings($bookings_completed);
+		$tot_ch_rat = $this->get_total_charges_rating_for_foc_bookings($bookings_completed);
 
 		//load template
 		$R = new PHPReport($config);
@@ -313,17 +340,16 @@ class vendor_partner_invoice extends CI_Controller {
 		echo PHP_EOL . "Report generated with $count records" . PHP_EOL;
 		//Send report via email
 		$this->email->clear(TRUE);
-		$this->email->from('booking@247around.com', '247around Team');
-		//$this->email->to('anuj.aggarwal@gmail.com');
-		$this->email->to($sc['owner_email']);
-		$cc = "sales@247around.com, nits@247around.com, anuj@247around.com";
+		$this->email->from('billing@247around.com', '247around Team');
+		$to = $sc['owner_email'] . ", " . $sc['primary_contact_email'];
+		$this->email->to($to);
+		$cc = "billing@247around.com, nits@247around.com, anuj@247around.com";
 		$this->email->cc($cc);
-		//$this->email->bcc("anuj.aggarwal@gmail.com");
+		$this->email->bcc("anuj.aggarwal@gmail.com");
 
 		$subject = "247around - " . $sc['name'] . " - Invoice for period: " . $start_date . " To " . $end_date;
 		$this->email->subject($subject);
 
-		//$message = "Dear " . $sc['owner_name'] . " Ji,<br/><br/>";
 		$message = "Dear Partner,<br/><br/>";
 		$message .= "Please find attached invoice for installations done between " . $start_date . " and " . $end_date . ".<br/><br/>";
 		$message .= "Details with breakup by job, service category is attached. Also the service rating as given by customers is attached.<br/><br/>";
@@ -391,7 +417,7 @@ class vendor_partner_invoice extends CI_Controller {
 	exit(0);
     }
 
-    function get_total_charges_rating_for_non_partner_bookings($bookings_completed) {
+    function get_total_charges_rating_for_cash_bookings($bookings_completed) {
 	$t_sc = 0;
 	$t_asc = 0;
 	$t_pc = 0;
@@ -414,7 +440,7 @@ class vendor_partner_invoice extends CI_Controller {
 	    't_pc' => $t_pc, 't_avg_rating' => (round($t_rating / $rating_count, 1)));
     }
 
-    function get_total_charges_rating_for_partner_bookings($bookings_completed) {
+    function get_total_charges_rating_for_foc_bookings($bookings_completed) {
 	$total = 0;
 	$rating_count = 0;
 	$t_rating = 0;
