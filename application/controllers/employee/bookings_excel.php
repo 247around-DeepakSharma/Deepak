@@ -248,6 +248,8 @@ class bookings_excel extends CI_Controller {
 
 		//Add source
 		$booking['source'] = "SS";
+		//Hardcoded partner ID as of now
+		$booking['partner_id'] = 1;
 		$booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
 		$lead_details['CRM_Remarks_SR_No'] = $booking['booking_id'];
 
