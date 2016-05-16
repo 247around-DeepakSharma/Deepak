@@ -1,6 +1,5 @@
  //var baseUrl = "http://localhost/around";
- var getUrl = window.location;
- var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+ var baseUrl = location.hostname;
  var brandServiceUrl = baseUrl + '/employee/booking/getBrandForService/';
  var categoryForServiceUrl = baseUrl + '/employee/booking/getCategoryForService/';
  var CapacityForCategoryUrl = baseUrl + '/employee/booking/getCapacityForCategory/';
