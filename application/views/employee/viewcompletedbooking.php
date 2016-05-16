@@ -89,7 +89,7 @@
                             ?>
                         </td>
 
-                    <td><a href="<?php echo base_url();?>employee/user/user_details/<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
+                    <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
                     <td><?= $row->booking_primary_contact_no; ?></td>
                     <td><?= $row->services; ?></td>
                     <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>

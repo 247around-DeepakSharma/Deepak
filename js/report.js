@@ -1,8 +1,9 @@
  var getUrl = window.location;
- var baseUrl = getUrl .protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
  var vendor_performanceUrl = baseUrl + '/employee/vendor/vendor_performance/';
  var getPricingDetailsUrl = baseUrl + '/employee/service_centre_charges/get_pricing_details';
  var EditPricingDetailsUrl = baseUrl + '/employee/service_centre_charges/editPriceTable';
+ var UserCountUrl = baseUrl + '/employee/user/getusercount';
 
 	function getVendorPerformance(){
 
@@ -19,33 +20,7 @@
 			sendAjaxRequest(postData, vendor_performanceUrl).done(function(data) {
 				$('#performance').html(data);
 
-				$('.pager').remove();
-
-				$('table.paginated').each(function() {
-                        $('#loader_gif').attr('src', "");
-						var currentPage = 0;
-						var numPerPage = 20;
-						var $table = $(this);
-						$table.bind('repaginate', function() {
-							$table.find('tbody tr').hide().slice(currentPage * numPerPage, (currentPage + 1) * numPerPage).show();
-						});
-						$table.trigger('repaginate');
-						var numRows = $table.find('tbody tr').length;
-						var numPages = Math.ceil(numRows / numPerPage);
-
-						var $pager = $('<div class="pager"></div>');
-						for (var page = 0; page < numPages; page++) {
-							$('<span class="page-number"></span>').text(page + 1).bind('click', {
-								newPage: page
-							}, function(event) {
-								currentPage = event.data['newPage'];
-								$table.trigger('repaginate');
-								$(this).addClass('active').siblings().removeClass('active');
-							}).appendTo($pager).addClass('clickable');
-						}
-						$pager.insertBefore($table).find('span.page-number:first').addClass('active');
-				});
-       
+			    table_pagination();
             });
 		}
 	}
@@ -268,5 +243,57 @@
          data: postData,
          url: url,
          type: 'post'
+        });
+    }
+
+    function getusercount(){
+
+        var postData = {};
+        $('#loader_gif').attr('src', baseUrl +"/images/loader.gif");
+        postData['city'] = $('#city').val();
+        postData['type'] = $('#mon_user').val();
+        postData['date_range'] = $('input[name="datefilter"]').val();
+        sendAjaxRequest(postData, UserCountUrl).done(function(data) {
+
+                $('#performance').html(data);
+                
+                $('#total_user').html("Total User:  " + $('#total_booking_user').val());
+                $('#completed_booking_user').html("Completed booking:  " + $('#total_booking_completed_booking_user').val());
+                $('#cancelled_booking_user').html("Cancelled booking:  " + $('#total_booking_cancelled').val());
+                $('#loader_gif').attr('src',"");
+                table_pagination();
+                   
+                
+        });
+        
+    }
+
+
+    function table_pagination(){
+        $('.pager').remove();
+
+        $('table.paginated').each(function() {
+            $('#loader_gif').attr('src', "");
+            var currentPage = 0;
+            var numPerPage = 20;
+            var $table = $(this);
+            $table.bind('repaginate', function() {
+                $table.find('tbody tr').hide().slice(currentPage * numPerPage, (currentPage + 1) * numPerPage).show();
+            });
+            $table.trigger('repaginate');
+            var numRows = $table.find('tbody tr').length;
+            var numPages = Math.ceil(numRows / numPerPage);
+
+            var $pager = $('<div class="pager"></div>');
+            for (var page = 0; page < numPages; page++) {
+                $('<span class="page-number"></span>').text(page + 1).bind('click', {
+                    newPage: page
+                }, function(event) {
+                    currentPage = event.data['newPage'];
+                    $table.trigger('repaginate');
+                    $(this).addClass('active').siblings().removeClass('active');
+                }).appendTo($pager).addClass('clickable');
+            }
+            $pager.insertBefore($table).find('span.page-number:first').addClass('active');
         });
     }

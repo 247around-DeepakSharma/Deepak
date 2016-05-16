@@ -324,7 +324,7 @@ class Booking_model extends CI_Model {
      *  @param : booking
      *  @return : array (booking)
      */
-    function addbooking($booking, $appliance_id, $city ="") {
+    function addbooking($booking, $appliance_id, $city ="", $state) {
 	$booking_detail = array(
 	    "user_id" => $booking['user_id'],
 	    "service_id" => $booking['service_id'],
@@ -349,6 +349,10 @@ class Booking_model extends CI_Model {
     // Added city coming from snapdeal
 	if($city !=""){
 		$booking_detail['city'] = $city;
+	}
+
+	if($state !=""){
+		$booking_detail['state'] = $state;
 	}
 
 	$this->db->insert('booking_details', $booking_detail);

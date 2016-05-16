@@ -386,12 +386,13 @@ class bookings_excel extends CI_Controller {
     }
 
   function post_confirm_sd_lead_form() {
-        $lead_id = $this->input->post('lead_id');
-        $booking['user_id'] = $this->input->post('user_id');
+        $lead_id = $this->input->post('lead_id'); $booking['user_id'] = $this->input->post('user_id');
         $booking['service_id'] = $this->input->post('service_id');
         $booking['service_name'] = $this->input->post('services');
         $booking['user_email'] = $this->input->post('user_email');
         $booking['user_name'] = $this->input->post('user_name');
+        $booking['city'] = $this->input->post('city');
+        $booking['state'] = $this->input->post('state');
 
         $booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
         $booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
@@ -401,8 +402,8 @@ class bookings_excel extends CI_Controller {
         $booking['appliance_category'] = $this->input->post('appliance_category');
         $booking['appliance_capacity'] = $this->input->post('appliance_capacity');
         $booking['model_number'] = $this->input->post('model_number');
-	$booking['description'] = $this->input->post('description');
-	$booking['items_selected'] = $this->input->post('items_selected');
+	    $booking['description'] = $this->input->post('description');
+	    $booking['items_selected'] = $this->input->post('items_selected');
         $booking['total_price'] = $this->input->post('total_price');
         $booking['amount_due'] = $booking['total_price'];
         $booking['potential_value'] = $booking['total_price'];
@@ -438,7 +439,7 @@ class bookings_excel extends CI_Controller {
 
         $this->booking_model->addapplianceunitdetails($booking);
 
-        $output = $this->booking_model->addbooking($booking, $appliance_id);
+        $output = $this->booking_model->addbooking($booking, $appliance_id, $booking['city'], $booking['state']);
 
         $months = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
         $mm = $months[$mm - 1];

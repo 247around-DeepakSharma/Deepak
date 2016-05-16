@@ -1,8 +1,8 @@
 <div id="page-wrapper">
   <div class="">
     <div class="row">
-      <div style="width:1000px;margin:50px;">
-        <h2 style="color:blue;">Please verify booking details</h2>
+      <div style="margin:50px;">
+        <h2>Please verify booking details</h2>
 
         <form class="form-horizontal" method="POST" action=<?php echo (isset($booking['appliance_id']))? base_url()."employee/booking/process_appliance_booking_form" : base_url()."employee/bookings_excel/post_confirm_sd_lead_form"?>>
         <table class="table table-striped table-bordered">
@@ -48,6 +48,16 @@
             </tr>
 
             <tr>
+                <td>Booking City</td>
+                <td><?=$booking['city'];?></td>
+            </tr>
+
+             <tr>
+                <td>Booking State</td>
+                <td><?=$booking['state'];?></td>
+            </tr>
+
+            <tr>
             	<td>Booking Pincode</td>
                 <td><?=$booking['booking_pincode'];?></td>
             </tr>
@@ -71,6 +81,8 @@
                 <input type="hidden" name="booking_primary_contact_no" value="<?php echo $booking['booking_primary_contact_no']; ?>">
                 <input type="hidden" name="booking_alternate_contact_no" value="<?php echo $booking['booking_alternate_contact_no']; ?>">
                 <input type="hidden" name="source" value="<?php echo $booking['source'];?>">
+                 <input type="hidden" name="city" value="<?php echo $booking['city'];?>">
+                <input type="hidden" name="state" value="<?php echo $booking['state'];?>">
 
               <input type="hidden" name="booking_date" value="<?php echo $booking['booking_date'];?>">
               <input type="hidden" name="booking_timeslot" value="<?php echo $booking['booking_timeslot'];?>">
