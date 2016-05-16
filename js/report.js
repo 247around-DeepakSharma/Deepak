@@ -1,4 +1,5 @@
- var baseUrl = location.hostname;
+ var getUrl = window.location;
+ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
  var vendor_performanceUrl = baseUrl + '/employee/vendor/vendor_performance/';
  var getPricingDetailsUrl = baseUrl + '/employee/service_centre_charges/get_pricing_details';
  var EditPricingDetailsUrl = baseUrl + '/employee/service_centre_charges/editPriceTable';
