@@ -209,6 +209,7 @@ class Booking extends CI_Controller {
 		    $booking['booking_date'] . "<br>Booking Timeslot: " . $booking['booking_timeslot'] .
 		    "<br>Amount Due: " . $booking['amount_due'] . "<br>Your Booking Remark is: " .
 		    $booking['booking_remarks'] . "<br>Booking address: " . $booking['booking_address'] .
+		    "<br>Booking city: " . $booking['city'] .
 		    "<br>Booking pincode: " . $booking['booking_pincode'] . "<br><br>
         Appliance Details:<br>";
 
@@ -1505,6 +1506,7 @@ class Booking extends CI_Controller {
 		    $booking['booking_date'] . "<br>Booking Timeslot: " . $booking['booking_timeslot'] .
 		    "<br>Amount Due: " . $query1[0]['amount_due'] . "<br>Your Booking Remark is: " .
 		    $booking['booking_remarks'] . "<br>Booking address: " . $booking['booking_address'] .
+		    "<br>Booking city: " . $booking['city'] .
 		    "<br>Booking pincode: " . $query1[0]['booking_pincode'] . "<br><br>
                               Appliance Details:<br>";
 
