@@ -34,18 +34,33 @@
 								<select onchange="getusercount()" class="form-control"  id="mon_user" >
 									<option  disabled>Select Any One</option>
 									<option value="Unique User" selected >Unique User</option>
-									<option value="All Month" >All Month</option>
-									<option value="All Year" >All Year</option>
+									<option value="All Month" >Month</option>
+									<option value="All Year" >Year</option>
 									<option value="Quater" >Quarter</option>
+									<option value="Week" >Week</option>
 									
+								</select>
+							</li>
+
+							<li class="col-md-2" style="border: 1px solid #bbb;">
+								<select onchange="getusercount()" class="form-control"  id="source" name="source" >
+									<option  disabled>Select Source</option>
+									<option value="" selected>All Source</option>
+									<?php 
+									foreach ($source as $key => $partner) { ?>
+
+									<option value="<?php echo $partner['code'] ?>"> <?php echo $partner['source']; ?></option>
+
+									<?php }
+									?>
 								</select>
 							</li>
 							
 							
-							<li class="col-md-2" style="border: 1px solid #bbb;" >
+							<!--<li class="col-md-2"  >
 							 <input type="text" class="form-control" style="height:29px;" placeholder="Custom Date Range" name="datefilter" value="" />
 								
-							</li>
+							</li>-->
 							<li class="col-md-2" style="border: 1px solid #bbb;" >
 							<p id="total_user"></p>
 							</li>
@@ -96,6 +111,7 @@
 	
 	$('#city').select2();
 	$('#mon_user').select2();
+	$('#source').select2();
     $(function() {
 
 	  $('input[name="datefilter"]').daterangepicker({

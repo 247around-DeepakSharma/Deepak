@@ -128,6 +128,7 @@ class Partner_model extends CI_Model {
 
     function get_all_partner_source(){
     	$this->db->select("partner_id,source,code");
+        $this->db->order_by('source','ASC');
         $this->db->where('partner_id !=', 'NULL');
     	$query = $this->db->get("bookings_sources");
     	return $query->result_array();

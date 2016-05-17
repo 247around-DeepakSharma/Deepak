@@ -600,7 +600,7 @@ class vendor extends CI_Controller {
     	$vendor['city'] = $this->input->post('city');
     	$vendor['service_id'] = $this->input->post('service_id');
     	$vendor['period'] = $this->input->post('period');
-    	$vendor['date_range'] = $this->input->post('date_range');
+    	//$vendor['date_range'] = $this->input->post('date_range');
     	$data['data'] = $this->vendor_model->get_vendor_performance($vendor);
     	$result = $this->load->view('employee/vendorperformance',$data);
     	print_r($result);

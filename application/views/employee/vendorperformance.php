@@ -80,18 +80,17 @@
 							<li class="col-md-2" style="border: 1px solid #bbb;" >
 								<select  onchange="getVendorPerformance()" class="form-control"  id="period" name="period" >
 									<option  disabled>Select Period</option>
+									<option  value = "" >All</option>
 									<option value="All Year" selected>Year</option>
 									<option value="All Month" >Month</option>
 									<option >Quater</option>
+									<option value="Week" >Week</option>
 									
 								</select> 
  
 
 							</li>
-							<li class="col-md-2" style="border: 1px solid #bbb;" >
-							 <input type="text" class="form-control" style="height:29px;" placeholder="Custom Date Range" name="datefilter" value="" />
-								
-							</li>
+							
 						</ul>
 					</div>
 					<div class="col-md-12 col-md-offset-3"><img src="" id="loader_gif"></div>
