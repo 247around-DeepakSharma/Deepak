@@ -259,38 +259,75 @@ $this->db = $this->load->database('default', TRUE,TRUE);
 
   /**
    * @desc : this function is used to get unique user or unique user in months, completed booking, cancelled booking
-   * @param : Array(city, date range, type(unique user in table or unique user month wise))
+   * @param : Array(city, source, type(unique user in table or unique user month wise))
    * @return : Array()
    */
   function get_count_user($data){
+
     $where = "";
-    $group_By = "";
-    $month = "";
+
+    $result = $this->GroupBYForUserCount($data);
+
+    //  city or date range not empty
+    if($data['city'] !="" || $data['source'] !="" ){
+        $where .=" where `user_id` !='' "; // user_id filed is not empty
+    }
+    
+    // Array key city is not empty
+    if($data['city'] != ''){ 
+
+      $where .= "AND `city` = '".$data['city']."'";
+    }
+
+    if($data['source'] !=""){
+        $where .= " AND source = '". $data['source']."'";
+    }
+   
+
+    $sql = "SELECT $result[month]  count(Distinct `booking_details`.`user_id`) as total_user, 
+
+               SUM( CASE WHEN `current_status` = 'Completed' THEN 1 ELSE 0 END) AS completed_booking_user,
+               SUM( CASE WHEN `current_status` = 'Cancelled' THEN 1 ELSE 0 END) AS cancelled_booking_user
+               
+
+               FROM `booking_details` $where  $result[group_By]";
+
+    $query1 = $this->db->query($sql);
+
+    return $query1->result_array();
+
+
+  }
+
+  function GroupBYForUserCount($data){
+  
+    $user['group_By'] = "";
+    $user['month'] = "";
     // Month Wise DataSet
     if($data['type'] == "All Month"){
          // get group by create date column.
-         $group_By = " GROUP BY DATE_FORMAT(`booking_details`.`create_date`, '%M, %Y') ORDER BY DATE_FORMAT(`booking_details`.`create_date`,'%Y') DESC , DATE_FORMAT(`booking_details`.`create_date`,'%m') DESC";
-         $month = "DATE_FORMAT(`booking_details`.`create_date`,'%M, %Y') `month`,";
+         $user['group_By'] = " GROUP BY DATE_FORMAT(`create_date`, '%M, %Y') ORDER BY DATE_FORMAT(`create_date`,'%Y') DESC , DATE_FORMAT(`create_date`,'%m') DESC";
+         $user['month'] = "DATE_FORMAT(`create_date`,'%M, %Y') `month`,";
     }
     
     // Year Wise Dataset
     if($data['type'] == "All Year"){
         // get group by create date column.
-        $group_By = " GROUP BY DATE_FORMAT(`booking_details`.`create_date`, '%Y') ORDER BY DATE_FORMAT(`booking_details`.`create_date`, '%Y') DESC";
-        $month = "DATE_FORMAT(`booking_details`.`create_date`, '%Y') `month`,";
+        $user['group_By'] = " GROUP BY DATE_FORMAT(`create_date`, '%Y') ORDER BY DATE_FORMAT(`create_date`, '%Y') DESC";
+        $user['month'] = "DATE_FORMAT(`create_date`, '%Y') `month`,";
     }
 
      // Week Wise Dataset
     if($data['type'] == "Week"){
         // get group by create date column.
-        $group_By = " GROUP BY WEEK(`create_date`)  ORDER BY DATE_FORMAT(`create_date`,'%Y') DESC , DATE_FORMAT(`create_date`,'%m') DESC";
-        $month = "  CONCAT(date(create_date), ' - ', date(create_date) + INTERVAL 7 DAY)   `month`,";
+        $user['group_By'] = " GROUP BY WEEK(`create_date`)  ORDER BY DATE_FORMAT(`create_date`,'%Y') DESC , DATE_FORMAT(`create_date`,'%m') DESC";
+        $user['month'] = "  CONCAT(date(create_date), ' - ', date(create_date) + INTERVAL 7 DAY)   `month`,";
     }
     
     //Quater Wise DataSet
     if($data['type']== 'Quater'){
-        $group_By .= " GROUP BY Year(`booking_details`.`create_date`) Desc, QUARTER(`booking_details`.`create_date`) DESC";
-        $month = " CASE QUARTER(`booking_details`.`create_date`) 
+        $user['group_By'] .= " GROUP BY Year(`create_date`) Desc, QUARTER(`create_date`) DESC";
+        $user['month'] = " CASE QUARTER(`create_date`) 
 
         WHEN 1 THEN 'Jan - Mar'
 
@@ -300,50 +337,13 @@ $this->db = $this->load->database('default', TRUE,TRUE);
 
         WHEN 4 THEN 'Oct - Dec'
 
-        END AS `month` ,  Year(`booking_details`.`create_date`) as year, ";
+        END AS `month` ,  Year(`create_date`) as year, ";
     }
 
-    //  city or date range not empty
-    if($data['city'] !="" || $data['source'] !="" ){
-        $where .=" where `booking_details`.`user_id` !='' "; // user_id filed is not empty
-    }
-    
-    // Array key city is not empty
-    if($data['city'] != ''){ 
-
-      $where .= "AND `booking_details`.`city` = '".$data['city']."'";
-    }
-     //Array key date range is not empty
-    /* if($data['date_range'] != "" ){
-
-          $date_range = explode("-", $data['date_range']);
-
-          $start_date = date('Y-m-d', strtotime($date_range[0]));
-           
-          $end_date = date('Y-m-d', strtotime($date_range[1]));
-
-          $where .= "AND create_date >= '".$start_date."' and create_date <= '". $end_date."'";
-      }*/
-
-      if($data['source'] !=""){
-        $where .= " AND source = '". $data['source']."'";
-      }
-
-
-      $sql = "SELECT $month  count(Distinct `booking_details`.`user_id`) as total_user, 
-
-               SUM( CASE WHEN `current_status` = 'Completed' THEN 1 ELSE 0 END) AS completed_booking_user,
-               SUM( CASE WHEN `current_status` = 'Cancelled' THEN 1 ELSE 0 END) AS cancelled_booking_user
-               
-
-               FROM `booking_details` $where  $group_By";
-
-      $query1 = $this->db->query($sql);
-
-      return $query1->result_array();
-
-
+    return $user;
   }
+
+    
   
   function getBookingId_by_orderId($partner_id, $order_id){
    
