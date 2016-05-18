@@ -361,7 +361,7 @@ class vendor_model extends CI_Model {
       $where = "";
       $month = "";
       if($vendor['period'] == 'All Month'){
-          $group_By .= " GROUP BY DATE_FORMAT(`closed_date`, '%M, %Y') ORDER BY DATE_FORMAT(`closed_date`,'%m, %Y') ASC";
+          $group_By .= " GROUP BY DATE_FORMAT(`closed_date`, '%M, %Y') ORDER BY DATE_FORMAT(`booking_details`.`create_date`, '%Y') DESC";
           $month = " DATE_FORMAT(`closed_date`,'%M, %Y') `month`,";
       }
 
@@ -370,6 +370,13 @@ class vendor_model extends CI_Model {
         // get group by create date column.
         $group_By = " GROUP BY DATE_FORMAT(`create_date`, '%Y') ORDER BY DATE_FORMAT(`create_date`, '%Y') DESC";
         $month = " DATE_FORMAT(`create_date`, '%Y') `month`,";
+    }
+
+     // Week Wise Dataset
+    if($vendor['period'] == "Week"){
+        // get group by create date column.
+        $group_By = " GROUP BY WEEK(`create_date`)  ORDER BY DATE_FORMAT(`create_date`,'%Y') DESC , DATE_FORMAT(`create_date`,'%m') DESC";
+        $month = "  CONCAT(date(create_date), ' - ', date(create_date) + INTERVAL 7 DAY)   `month`,";
     }
     
     //Quater Wise DataSet
@@ -387,18 +394,6 @@ class vendor_model extends CI_Model {
 
         END AS `month` ,  Year(create_date) as year, ";
     }
-
-
-      if($vendor['date_range'] != ""){
-
-          $date_range = explode("-", $vendor['date_range']);
-
-          $start_date = date('Y-m-d', strtotime($date_range[0]));
-           
-          $end_date = date('Y-m-d', strtotime($date_range[1]));
-
-          $where .= "AND closed_date >= '".$start_date."' and closed_date <= '". $end_date."'";
-      }
 
       $vendors = $this->getVendorFromMapping($vendor['vendor_id'], $vendor['city'], $vendor['service_id']);
 
