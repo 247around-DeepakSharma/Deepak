@@ -44,7 +44,7 @@
 									<?php 
 									foreach ($vendor as $key => $value) { ?>
 
-									<option value="<?php echo $value['Vendor_ID'] ?>"> <?php echo $value['Vendor_Name']; ?></option>
+									<option value="<?php echo $value['id'] ?>"> <?php echo $value['name']; ?></option>
 
 									<?php }
 									?>
@@ -145,18 +145,20 @@
 		<th>Appliances</th>
 		<th>Completed Booking</th>
 		<th>Cancelled Booking</th>
+		<th>% Completed Booking</th>
 		<th>Closed Date</th>
 	</tr>
 	<tbody>
 		<?php $i=1;foreach ($data as $key => $variable) {
-			$completed = 0 ; $cancelled =0 ; foreach ($variable as $keys => $value) { ?>
+			 foreach ($variable as $keys => $value) { $completed = 0 ; $cancelled =0 ; ?>
 			<tr>
 				<td><?php  echo $i; ?></td>
 				<td><?php echo $variable[0]['Vendor_Name']; ?></td>
 				<td><?php echo $variable[0]['City']; ?></td>
 				<td><?php echo $variable[0]['Appliance']; ?></td>
 				<td><?php echo $value['completed_booking']; $completed +=  $value['completed_booking'];?></td>
-				<td><?php echo $value['cancelled_booking']; $cancelled +=  $value['cancelled_booking'];?></td>
+				<td><?php echo $value['cancelled_booking']; $cancelled +=  $value['cancelled_booking']; $total_booking = $completed + $cancelled;?></td>
+				<td><?php if($total_booking >0){ $percentage = ($completed *100)/ ($completed + $cancelled); echo round($percentage,2);} else { echo "0"; }?></td>
 				<td><?php if(isset($value['month'])) { if(isset($value['year'])){ echo $value['month']."  ".$value['year'];} else {echo $value['month'];} }  ?></td>
 			</tr>
 
@@ -164,6 +166,7 @@
 			<?php $i++; } ?>
 
 			<tr style="height: 60px;">
+				<td></td>
 				<td></td>
 				<td></td>
 				<td></td>
