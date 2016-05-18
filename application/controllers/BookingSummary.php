@@ -561,9 +561,9 @@ EOD;
 	$this->email->from('booking@247around.com', '247around Team');
 	$this->email->to("alok.singh@snapdeal.com");
 	$cc = "dhananjay.shashidharan@snapdeal.com, sudhanshu.shukla@snapdeal.com, kaushal.kukreja@snapdeal.com, "
-	    . "james.tellis@snapdeal.com, ishan.saxena@snapdeal.com, seema.devi@snapdeal.com, "
-	    . "soumendra.choudhury@snapdeal.com, varun.tomar@snapdeal.com, saif.iqbal@snapdeal.com, "
-	    . "sidhant.sachdeva@snapdeal.com, gaurav.girotra@snapdeal.com, shivalini.verma@snapdeal.com, "
+	    . "james.tellis@snapdeal.com, seema.devi@snapdeal.com, "
+	    . "soumendra.choudhury@snapdeal.com, somya.kaila@snapdeal.com, "
+	    . "sidhant.sachdeva@snapdeal.com, shivalini.verma@snapdeal.com, "
 	    . "nits@247around.com, anuj@247around.com";
 	$this->email->cc($cc);
 	//$this->email->bcc("anuj.aggarwal@gmail.com");
