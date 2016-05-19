@@ -44,10 +44,11 @@ class Invoice extends CI_Controller {
     function getInvoicingData() {
         $data['source'] = $this->input->post('source');
         $data['vendor_partner_id'] = $this->input->post('vendor_partner_id');
-	
-	$data['invoice_array'] = $this->invoices_model->getInvoicingData($data);
-
-	$this->load->view('employee/invoicing_table', $data);
+    
+        $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
+        $invoice['bank_statement'] =$this->invoices_model->bank_statement_details($data);
+        $this->load->view('employee/invoicing_table', $invoice);
+        
     }
 
     // Send Invoice pdf file to vendor
@@ -139,5 +140,65 @@ class Invoice extends CI_Controller {
         
         return $to;
     }
+
+
+     /**
+     *  @desc : This function gets bank accounts/statements details
+     *  @param : Starting page & number of results per page
+     *  @return : pending bookings according to pagination
+     */
+    function get_add_new_transaction(){
+     $this->load->view('employee/header');
+     $this->load->view('employee/addnewtransaction');
+    }
+    
+    /**
+     *  @desc : This function inserts bank accounts/statements details
+     *  @param : Starting page & number of results per page
+     *  @return : pending bookings according to pagination
+     */
+    function post_add_new_transaction(){
+        $account_statement['partner_vendor'] = $this->input->post('partner_vendor');
+        $account_statement['name'] = $this->input->post('name');
+        $account_statement['invoice_id'] = $this->input->post('invoice_id');
+        $account_statement['bankname'] = $this->input->post('bankname');
+        $account_statement['credit_debit'] = $this->input->post('credit_debit');                        
+        $account_statement['transaction_mode'] = $this->input->post('transaction_mode');
+        $amount = $this->input->post('amount');
+        if($account_statement['credit_debit']=='Credit')
+        {
+            $account_statement['debit_of'] ='0';
+            $account_statement['credit_of'] = $amount;
+        }
+        else if($account_statement['credit_debit'] =='Debit')
+        {
+            $account_statement['credit_of'] ='0';
+            $account_statement['debit_of'] = $amount;
+        }
+        $account_statement['transaction_date'] = $this->input->post('tdate');
+        $account_statement['description'] = $this->input->post('description');
+        $account_statement['file'] = $this->input->post('file');
+        
+        $this->invoices_model->bankAccountStatement($account_statement);
+        //redirect(base_url() . 'employee/invoice/vendor_details', 'refresh');
+        redirect(base_url() . 'employee/invoice/get_bank_account_statement', 'refresh');
+    }
+    
+    function getPartnerOrVendor($par_ven="Partner"){
+        if($par_ven=='Partner'){
+            $all_partners= $this->partner_model->get_all_partner_source("not null");
+            print_r($all_partners);
+            foreach ($all_partners as $p_name) {
+            echo "<option>".$p_name['source']."</option>";
+            }
+        }
+        else{
+            $all_vendors= $this->vendor_model->getActiveVendor();
+            foreach ($all_vendors as $v_name) {
+            echo "<option>".$v_name['name']."</option>";
+            }
+        }
+    }
+    
 
 }

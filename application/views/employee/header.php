@@ -147,6 +147,10 @@
                   <li>
                      <a href="<?php echo base_url()?>employee/invoice"><i class="fa fa-fw fa-desktop "></i> <strong> Show Invoices</strong></a>
                   </li>
+                  <li class="divider"></li>
+                  <li>
+                     <a href="<?php echo base_url()?>employee/invoice/get_add_new_transaction"><i class="fa fa-fw fa-desktop "></i> <strong>Add New Transaction</strong></a>
+                  </li>
                </ul>
                <!-- /.dropdown-user -->
             </li>
