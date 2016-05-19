@@ -309,9 +309,10 @@ class vendor_model extends CI_Model {
       $query2['city'] = $this->get_city(); 
 
       $this->db->distinct();
-      $this->db->select('Vendor_ID, Vendor_Name');
+      $this->db->select('id, name');
+      $this->db->order_by('name', 'ASC');
       $this->db->where('active',1);
-      $query = $this->db->get('vendor_pincode_mapping');
+      $query = $this->db->get('service_centres');
 
 
       $query3['vendor'] = $query->result_array();
