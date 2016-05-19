@@ -1498,7 +1498,7 @@ class Booking extends CI_Controller {
 		}
 
 		//-------Sending Email On Booking--------//
-		$message = "Congratulations You have received new booking, details are mentioned below:
+		$message = "Congratulations! Query has been converted to Booking, details are mentioned below:
                             <br>Customer Name: " . $query1[0]['name'] . "<br>Customer Phone Number: " .
 		    $query1[0]['phone_number'] . "<br>Customer email address: " . $query1[0]['user_email'] .
 		    "<br>Booking Id: " . $booking['booking_id'] . "<br>Service name:" . $query1[0]['services'] .
@@ -1506,7 +1506,7 @@ class Booking extends CI_Controller {
 		    $booking['booking_date'] . "<br>Booking Timeslot: " . $booking['booking_timeslot'] .
 		    "<br>Amount Due: " . $query1[0]['amount_due'] . "<br>Your Booking Remark is: " .
 		    $booking['booking_remarks'] . "<br>Booking address: " . $booking['booking_address'] .
-		    "<br>Booking city: " . $booking['city'] .
+		    "<br>Booking city: " . $query1[0]['city'] .
 		    "<br>Booking pincode: " . $query1[0]['booking_pincode'] . "<br><br>
                               Appliance Details:<br>";
 
@@ -2008,10 +2008,17 @@ class Booking extends CI_Controller {
 
 	//-------Sending Email On Booking--------//
 	if ($booking['current_status'] != "FollowUp") {
-	    $message = "Congratulations You have received new booking, details are mentioned below:
+	    $message = "Congratulations You have received new booking from existing appliance, details are mentioned below:
           <br>Customer Name: " . $booking['user_name'] . "<br>Customer Phone Number: " .
 		$booking['booking_primary_contact_no'] . "<br>Customer email address: " .
-		$booking['user_email'] . "<br>Booking Id: " . $booking['booking_id'] . "<br>Service name:" . $booking['service_name'] . "<br>Number of appliance: " . $booking['quantity'] . "<br>Booking Date: " . $booking['booking_date'] . "<br>Booking Timeslot: " . $booking['booking_timeslot'] . "<br>Amount Due: " . $booking['amount_due'] . "<br>Your Booking Remark is: " . $booking['booking_remarks'] . "<br>Booking address: " . $booking['booking_address'] . "<br>Booking pincode: " . $booking['booking_pincode'] . "<br><br>
+		$booking['user_email'] . "<br>Booking Id: " . $booking['booking_id'] . "<br>Service name:" .
+		$booking['service_name'] . "<br>Number of appliance: " . $booking['quantity'] .
+		"<br>Booking Date: " . $booking['booking_date'] . "<br>Booking Timeslot: " .
+		$booking['booking_timeslot'] . "<br>Amount Due: " . $booking['amount_due'] .
+		"<br>Your Booking Remark is: " . $booking['booking_remarks'] . "<br>Booking address: " .
+		$booking['booking_address'] . "<br>Booking pincode: " . $booking['booking_pincode'] .
+		"<br>Booking city: " . $booking['city'] .
+		"<br><br>
             Appliance Details:<br>";
 
 	    $appliance = "";

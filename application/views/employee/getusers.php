@@ -34,18 +34,33 @@
 								<select onchange="getusercount()" class="form-control"  id="mon_user" >
 									<option  disabled>Select Any One</option>
 									<option value="Unique User" selected >Unique User</option>
-									<option value="All Month" >All Month</option>
-									<option value="All Year" >All Year</option>
+									<option value="All Month" >Month</option>
+									<option value="All Year" >Year</option>
 									<option value="Quater" >Quarter</option>
+									<option value="Week" >Week</option>
 									
+								</select>
+							</li>
+
+							<li class="col-md-2" style="border: 1px solid #bbb;">
+								<select onchange="getusercount()" class="form-control"  id="source" name="source" >
+									<option  disabled>Select Source</option>
+									<option value="" selected>All Source</option>
+									<?php 
+									foreach ($source as $key => $partner) { ?>
+
+									<option value="<?php echo $partner['code'] ?>"> <?php echo $partner['source']; ?></option>
+
+									<?php }
+									?>
 								</select>
 							</li>
 							
 							
-							<li class="col-md-2" style="border: 1px solid #bbb;" >
+							<!--<li class="col-md-2"  >
 							 <input type="text" class="form-control" style="height:29px;" placeholder="Custom Date Range" name="datefilter" value="" />
 								
-							</li>
+							</li>-->
 							<li class="col-md-2" style="border: 1px solid #bbb;" >
 							<p id="total_user"></p>
 							</li>
@@ -96,6 +111,7 @@
 	
 	$('#city').select2();
 	$('#mon_user').select2();
+	$('#source').select2();
     $(function() {
 
 	  $('input[name="datefilter"]').daterangepicker({
@@ -128,17 +144,20 @@
         <tr>
 
             <th>Total User</th>
-            <th>Total Booking Completed</th>
-            <th>Total Booking Cancelled</th>
+            <th>Total Completed Booking </th>
+            <th>Total Cancelled Booking </th>
+             <th>% Completed Booking</th>
             <th>Month/Year</th>
         </tr>
 
         <tbody>
-        <?php $total_user = 0; $completed = 0; $cancelled =0; foreach ($user as $value) { ?>
+        <?php $total_user = 0; $completed = 0; $cancelled =0; foreach ($user as $value) {  ?>
         	<tr>
         	    <td><?php echo $value['total_user'];  $total_user += $value['total_user']; ?></td>
         	    <td><?php echo $value['completed_booking_user']; $completed += $value['completed_booking_user']; ?></td>
         	    <td><?php echo $value['cancelled_booking_user']; $cancelled += $value['cancelled_booking_user']; ?></td>
+        	    <?php $total = $value['completed_booking_user'] + $value['cancelled_booking_user'];?>
+        	    <td><?php if($total>0){ $percantage = ($value['completed_booking_user'] *100)/($total); echo round($percantage,2);} else { echo "0"; } ?></td>
         	    <td><?php if(isset($value['month'])) { if(isset($value['year'])){ echo $value['month']."  ".$value['year'];} else {echo $value['month'];} }  ?></td>
 
         	</tr>

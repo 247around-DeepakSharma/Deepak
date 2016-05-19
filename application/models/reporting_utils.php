@@ -474,29 +474,51 @@ class Reporting_utils extends CI_Model {
      * These are the bookings for which vendor has NOT collected money and done the
      * job free of cost.
      */
+    /*
+      function get_completed_sd_bookings_by_sc($id, $s_date, $e_date) {
+      $query = $this->db->query("
+      SELECT SD.`CRM_Remarks_SR_No` as booking_id, SD.`Product` as service_name,
+      SD.`Scheduled_Appointment_DateDDMMYYYY` as booking_date, BD.`closed_date`,
+      SD.`Total` as total_ic, SD.`Rating_Stars` as rating
+      FROM `snapdeal_leads` SD, `booking_details` BD
+      WHERE `Status_by_247around`='Completed'
+      AND SD.`CRM_Remarks_SR_No`=BD.`booking_id`
+      AND SD.`Product` NOT IN ('Air Conditioner', 'Chimney')
+      AND BD.`closed_date` >=  '$s_date'
+      AND BD.`closed_date` <  '$e_date'
+      AND BD.`assigned_vendor_id`=$id");
 
-    function get_completed_sd_bookings_by_sc($id, $s_date, $e_date) {
+      return $query->result_array();
+      }
+     *
+     */
+
+    /*
+     * Get completed Partner (SS & SP) bookings to generate invoice for service center.
+     * These are the bookings for which vendor has NOT collected money and done the
+     * job free of cost.
+     */
+
+    function get_completed_partner_bookings_by_sc($id) {
+	/*
+	 *
+	 * SELECT partner_leads_for_foc_invoicing.*, booking_details.assigned_vendor_id
+	  FROM partner_leads_for_foc_invoicing, booking_details
+	  WHERE partner_leads_for_foc_invoicing.booking_id = booking_details.booking_id
+	  AND booking_details.assigned_vendor_id = $id
+	 */
+
 	$query = $this->db->query("
-	    SELECT SD.`CRM_Remarks_SR_No` as booking_id, SD.`Product` as service_name,
-	    SD.`Scheduled_Appointment_DateDDMMYYYY` as booking_date, BD.`closed_date`,
-	    SD.`Total` as total_ic, SD.`Rating_Stars` as rating
-	    FROM `snapdeal_leads` SD, `booking_details` BD
-	    WHERE `Status_by_247around`='Completed'
-	    AND SD.`CRM_Remarks_SR_No`=BD.`booking_id`
-	    AND SD.`Product` NOT IN ('Air Conditioner', 'Chimney')
-	    AND BD.`closed_date` >=  '$s_date'
-	    AND BD.`closed_date` <  '$e_date'
-	    AND BD.`assigned_vendor_id`=$id");
-
-	//$result = (bool) ($this->db->affected_rows() > 0);
-	//
-
+	    SELECT partner_leads_for_foc_invoicing.*, booking_details.assigned_vendor_id
+	  FROM partner_leads_for_foc_invoicing, booking_details
+	  WHERE partner_leads_for_foc_invoicing.booking_id = booking_details.booking_id
+	  AND booking_details.assigned_vendor_id = $id");
 
 	return $query->result_array();
     }
 
-    function get_email_for_partner($partner_id){
-        $this->db->select('partner_email_for_to, partner_email_for_cc');
+    function get_email_for_partner($partner_id) {
+	$this->db->select('partner_email_for_to, partner_email_for_cc');
         $this->db->where('partner_id',$partner_id);
         $query = $this->db->get('bookings_sources');
         return $query->result_array();

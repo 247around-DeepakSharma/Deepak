@@ -44,7 +44,7 @@
 									<?php 
 									foreach ($vendor as $key => $value) { ?>
 
-									<option value="<?php echo $value['Vendor_ID'] ?>"> <?php echo $value['Vendor_Name']; ?></option>
+									<option value="<?php echo $value['id'] ?>"> <?php echo $value['name']; ?></option>
 
 									<?php }
 									?>
@@ -80,18 +80,17 @@
 							<li class="col-md-2" style="border: 1px solid #bbb;" >
 								<select  onchange="getVendorPerformance()" class="form-control"  id="period" name="period" >
 									<option  disabled>Select Period</option>
+									<option  value = "" >All</option>
 									<option value="All Year" selected>Year</option>
 									<option value="All Month" >Month</option>
 									<option >Quater</option>
+									<option value="Week" >Week</option>
 									
 								</select> 
  
 
 							</li>
-							<li class="col-md-2" style="border: 1px solid #bbb;" >
-							 <input type="text" class="form-control" style="height:29px;" placeholder="Custom Date Range" name="datefilter" value="" />
-								
-							</li>
+							
 						</ul>
 					</div>
 					<div class="col-md-12 col-md-offset-3"><img src="" id="loader_gif"></div>
@@ -146,18 +145,20 @@
 		<th>Appliances</th>
 		<th>Completed Booking</th>
 		<th>Cancelled Booking</th>
+		<th>% Completed Booking</th>
 		<th>Closed Date</th>
 	</tr>
 	<tbody>
 		<?php $i=1;foreach ($data as $key => $variable) {
-			$completed = 0 ; $cancelled =0 ; foreach ($variable as $keys => $value) { ?>
+			 foreach ($variable as $keys => $value) { $completed = 0 ; $cancelled =0 ; ?>
 			<tr>
 				<td><?php  echo $i; ?></td>
 				<td><?php echo $variable[0]['Vendor_Name']; ?></td>
 				<td><?php echo $variable[0]['City']; ?></td>
 				<td><?php echo $variable[0]['Appliance']; ?></td>
 				<td><?php echo $value['completed_booking']; $completed +=  $value['completed_booking'];?></td>
-				<td><?php echo $value['cancelled_booking']; $cancelled +=  $value['cancelled_booking'];?></td>
+				<td><?php echo $value['cancelled_booking']; $cancelled +=  $value['cancelled_booking']; $total_booking = $completed + $cancelled;?></td>
+				<td><?php if($total_booking >0){ $percentage = ($completed *100)/ ($completed + $cancelled); echo round($percentage,2);} else { echo "0"; }?></td>
 				<td><?php if(isset($value['month'])) { if(isset($value['year'])){ echo $value['month']."  ".$value['year'];} else {echo $value['month'];} }  ?></td>
 			</tr>
 
@@ -165,6 +166,7 @@
 			<?php $i++; } ?>
 
 			<tr style="height: 60px;">
+				<td></td>
 				<td></td>
 				<td></td>
 				<td></td>

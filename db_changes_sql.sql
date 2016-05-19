@@ -294,3 +294,55 @@ ALTER TABLE  `booking_unit_details` CHANGE  `product_or_service`  `product_or_se
 <!-- Abhay 09-04-2016  -->
 
 ALTER TABLE  `service_centres` CHANGE  `sc_code`  `sc_code` VARCHAR( 20 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
+
+
+<!-- Abhay 18-04-2016 -->
+
+
+--
+-- Table structure for table `service_center_booking_action`
+--
+
+CREATE TABLE IF NOT EXISTS `service_center_booking_action` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `booking_id` varchar(50) NOT NULL,
+  `service_center_id` varchar(50) NOT NULL,
+  `service_charge` varchar(50) NOT NULL,
+  `additional_service_charge` varchar(50) NOT NULL,
+  `parts_cost` varchar(50) NOT NULL,
+  `closing_remarks` text NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+
+--
+-- Dumping data for table `service_center_booking_action`
+--
+
+INSERT INTO `service_center_booking_action` (`id`, `booking_id`, `service_center_id`, `service_charge`, `additional_service_charge`, `parts_cost`, `closing_remarks`, `create_date`) VALUES
+(1, 'SW-05381605141', '1', '120', '500', '120', 'test', '2016-05-18 11:17:03');
+
+
+
+--
+-- Table structure for table `service_centers_login`
+--
+
+CREATE TABLE IF NOT EXISTS `service_centers_login` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `email` varchar(100) NOT NULL,
+  `service_center_id` varchar(50) NOT NULL,
+  `user_name` varchar(100) NOT NULL,
+  `password` varchar(100) NOT NULL,
+  `active` varchar(10) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `reset_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+
+--
+-- Dumping data for table `service_centers_login`
+--
+
+INSERT INTO `service_centers_login` (`id`, `email`, `service_center_id`, `user_name`, `password`, `active`, `create_date`, `reset_date`) VALUES
+(1, 'abhaya@247around.com', '1', 'test', '25d55ad283aa400af464c76d713c07ad', '1', '2016-05-17 11:56:54', '0000-00-00 00:00:00');

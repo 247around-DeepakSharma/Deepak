@@ -12,7 +12,8 @@
 		postData['city'] = $('#city').val();
 		postData['service_id'] = $('#service').val();
 		postData['period'] = $('#period').val();
-		postData['date_range'] = $('input[name="datefilter"]').val();
+		//postData['date_range'] = $('input[name="datefilter"]').val();
+       // postData['source'] = $('#source').val();
 
 		if(postData['period'] != null || postData['date_range'] != ""){
             $('#loader_gif').attr('src', baseUrl +"/images/loader.gif");
@@ -45,7 +46,7 @@
                     $('#loader_gif').attr('src',"");
 
 						var currentPage = 0;
-						var numPerPage = 20;
+						var numPerPage = 40;
 						var $table = $(this);
 						$table.bind('repaginate', function() {
 							$table.find('tbody tr').hide().slice(currentPage * numPerPage, (currentPage + 1) * numPerPage).show();
@@ -252,7 +253,9 @@
         $('#loader_gif').attr('src', baseUrl +"/images/loader.gif");
         postData['city'] = $('#city').val();
         postData['type'] = $('#mon_user').val();
-        postData['date_range'] = $('input[name="datefilter"]').val();
+        postData['source'] = $('#source').val();
+        //postData['date_range'] = $('input[name="datefilter"]').val();
+    
         sendAjaxRequest(postData, UserCountUrl).done(function(data) {
 
                 $('#performance').html(data);
@@ -275,7 +278,7 @@
         $('table.paginated').each(function() {
             $('#loader_gif').attr('src', "");
             var currentPage = 0;
-            var numPerPage = 20;
+            var numPerPage = 40;
             var $table = $(this);
             $table.bind('repaginate', function() {
                 $table.find('tbody tr').hide().slice(currentPage * numPerPage, (currentPage + 1) * numPerPage).show();
