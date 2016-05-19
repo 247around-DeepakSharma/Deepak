@@ -14,7 +14,8 @@ class Invoice extends CI_Controller {
 	$this->load->helper(array('form', 'url'));
 
 	$this->load->model("invoices_model");
-        $this->load->model("partner_model");
+    $this->load->model("vendor_model");
+    $this->load->model("partner_model");
 	$this->load->library("notify");
 
 	$this->load->library('form_validation');
@@ -184,12 +185,13 @@ class Invoice extends CI_Controller {
         redirect(base_url() . 'employee/invoice/get_bank_account_statement', 'refresh');
     }
     
-    function getPartnerOrVendor($par_ven="Partner"){
+    function getPartnerOrVendor($par_ven){
         if($par_ven=='Partner'){
-            $all_partners= $this->partner_model->get_all_partner_source("not null");
-            print_r($all_partners);
+            $all_partners= $this->partner_model->get_all_partner_source("null");
+
             foreach ($all_partners as $p_name) {
             echo "<option>".$p_name['source']."</option>";
+
             }
         }
         else{
