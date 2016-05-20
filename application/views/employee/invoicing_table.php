@@ -114,7 +114,7 @@
        <?php foreach($bank_statement as $value){?>
        <td><?php echo $count;$count++;?></td>
        <td><?php echo $value['transaction_date']; ?></td>
-       <td><?php echo $value['description']; ?></</td>
+       <td><?php echo $value['description']; ?></td>
        <td><?php echo $value['debit_of']; $debit_of += $value['debit_of'];?></td>
        <td><?php echo $value['credit_of']; $credit_of += $value['credit_of']; ?></td>       
        <td><?php echo $value['bankname']; ?>/<?php echo $value['transaction_mode']; ?></td>                     

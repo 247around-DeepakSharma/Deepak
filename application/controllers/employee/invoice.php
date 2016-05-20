@@ -15,6 +15,7 @@ class Invoice extends CI_Controller {
 
 	$this->load->model("invoices_model");
     $this->load->model("vendor_model");
+        $this->load->model("booking_model");
     $this->load->model("partner_model");
 	$this->load->library("notify");
 
@@ -178,20 +179,18 @@ class Invoice extends CI_Controller {
         }
         $account_statement['transaction_date'] = $this->input->post('tdate');
         $account_statement['description'] = $this->input->post('description');
-        $account_statement['file'] = $this->input->post('file');
+        //$account_statement['file'] = $this->input->post('file');
         
         $this->invoices_model->bankAccountStatement($account_statement);
         //redirect(base_url() . 'employee/invoice/vendor_details', 'refresh');
-        redirect(base_url() . 'employee/invoice/get_bank_account_statement', 'refresh');
+        redirect(base_url() . 'employee/invoice/get_bank_account_statement');
     }
     
     function getPartnerOrVendor($par_ven){
         if($par_ven=='Partner'){
             $all_partners= $this->partner_model->get_all_partner_source("null");
-
             foreach ($all_partners as $p_name) {
             echo "<option>".$p_name['source']."</option>";
-
             }
         }
         else{

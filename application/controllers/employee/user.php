@@ -268,12 +268,26 @@ class User extends CI_Controller {
      */
     function getusercount(){
         $data['city'] = $this->input->post('city');
-        //$data['date_range'] = $this->input->post('date_range');
         $data['type'] = $this->input->post('type');
         $data['source'] = $this->input->post('source');
 
         $user['user'] = $this->user_model->get_count_user($data);
         $this->load->view('employee/getusers', $user);
     }
+    
+    /**
+     * 
+     */
+    function user_count(){
+        $data = $this->user_model->get_city_source();       
+        $this->load->view('employee/header');
+        $this->load->view('employee/transactionalusers',$data);
 
+    }
+    function post_transactional_users(){
+        $data['type'] = $this->input->post('type');
+        $data['source'] = $this->input->post('source');
+        $user['user'] = $this->user_model->get_count_transactional_user($data);
+        $this->load->view('employee/transactionalusers', $user);
+    }
 }

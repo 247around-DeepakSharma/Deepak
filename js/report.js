@@ -1,9 +1,13 @@
  var getUrl = window.location;
- var baseUrl = getUrl .protocol + "//" + getUrl.host;
+// var baseUrl = getUrl .protocol + "//" + getUrl.host  + "/" + getUrl.pathname.split('/')[1];
+var baseUrl = getUrl .protocol + "//" + getUrl.host ;
+
  var vendor_performanceUrl = baseUrl + '/employee/vendor/vendor_performance/';
+ var transactional_usersUrl = baseUrl + '/employee/users/post_transactional_users/';
  var getPricingDetailsUrl = baseUrl + '/employee/service_centre_charges/get_pricing_details';
  var EditPricingDetailsUrl = baseUrl + '/employee/service_centre_charges/editPriceTable';
  var UserCountUrl = baseUrl + '/employee/user/getusercount';
+ var transactional_usersUrl = baseUrl + '/employee/user/post_transactional_users';
 
 	function getVendorPerformance(){
 
@@ -263,6 +267,31 @@
                 $('#total_user').html("Total User:  " + $('#total_booking_user').val());
                 $('#completed_booking_user').html("Completed booking:  " + $('#total_booking_completed_booking_user').val());
                 $('#cancelled_booking_user').html("Cancelled booking:  " + $('#total_booking_cancelled').val());
+                $('#loader_gif').attr('src',"");
+                table_pagination();
+                   
+                
+        });
+        
+    }
+
+
+    function gettransactionalusercount(){
+
+        var postData = {};
+        $('#loader_gif').attr('src', baseUrl +"/images/loader.gif");
+        postData['type'] = $('#type').val();
+        postData['source'] = $('#user_source').val();
+    
+        //postData['date_range'] = $('input[name="datefilter"]').val();
+    
+        sendAjaxRequest(postData, transactional_usersUrl).done(function(data) {
+
+                $('#t_u_count').html(data);
+                
+                $('#total_user').html("Total User:  " + $('#total_booking_user').val());
+                //$('#completed_booking_user').html("Completed booking:  " + $('#total_booking_completed_booking_user').val());
+                //$('#cancelled_booking_user').html("Cancelled booking:  " + $('#total_booking_cancelled').val());
                 $('#loader_gif').attr('src',"");
                 table_pagination();
                    

@@ -194,7 +194,11 @@
 
                   <li class="divider"></li>
                   <li>
-                     <a href="<?php echo base_url()?>employee/user/get_user_count_view" ><i class="fa fa-fw fa-desktop"></i> <strong> Users</strong></a>
+                     <a href="<?php echo base_url()?>employee/user/get_user_count_view" ><i class="fa fa-fw fa-desktop"></i> <strong> Transactional Users</strong></a>
+                  </li>
+                  <li class="divider"></li>
+                  <li>
+                     <a href="<?php echo base_url()?>employee/user/user_count" ><i class="fa fa-fw fa-desktop"></i> <strong> Users</strong></a>
                   </li>
                </ul>
                <!-- /.dropdown-user -->

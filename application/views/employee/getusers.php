@@ -2,14 +2,11 @@
 <?php if(isset($city)) {?>
 <div id="page-wrapper" >
 <script src="<?php echo base_url()?>js/report.js"></script>
-<script src="<?php echo base_url()?>js/moment.min.js"></script>
-<script src="<?php echo base_url()?>js/daterangepicker.js"></script>
-<link href="<?php echo base_url()?>css/daterangepicker.css" rel="stylesheet" />
 
 	<div class="container-fluid" >
 		<div class="panel panel-info" style="margin-top:20px;">
 			<div class="panel-heading">
-				<h2>User</h2>
+				<h2>Transactional User</h2>
 			</div>
 			<div class="panel-body">
 				<div class="row">
@@ -114,24 +111,7 @@
 	$('#source').select2();
     $(function() {
 
-	  $('input[name="datefilter"]').daterangepicker({
-	      autoUpdateInput: false,
-	      locale: {
-	          cancelLabel: 'Clear'
-	      }
-	  });
-
 	  getusercount();
-
-	  $('input[name="datefilter"]').on('apply.daterangepicker', function(ev, picker) {
-	      $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
-	      getusercount();
-	  });
-
-	  $('input[name="datefilter"]').on('cancel.daterangepicker', function(ev, picker) {
-	      $(this).val('');
-	      getusercount();
-	  });
 
 	});
 	
