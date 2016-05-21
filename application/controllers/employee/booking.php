@@ -555,6 +555,22 @@ class Booking extends CI_Controller {
 	$this->load->view('employee/viewcompletedbooking', $data);
     }
 
+
+    //Function to view all cancelled bookings when you select All from pagination
+    function viewallcancelledbooking() {
+	$query = $this->booking_model->view_all_cancelled_booking();
+
+	$data['Bookings'] = null;
+
+	if ($query) {
+	    $data['Bookings'] = $query;
+	}
+
+	$this->load->view('employee/header');
+
+	$this->load->view('employee/viewcancelledbooking', $data);
+    }
+
     /**
      *  @desc : This function displays list of completed bookings according to pagination
      *  @param : Starting page & number of results per page
@@ -580,6 +596,34 @@ class Booking extends CI_Controller {
 	$this->load->view('employee/header');
 
 	$this->load->view('employee/viewcompletedbooking', $data);
+    }
+
+
+    /**
+     *  @desc : This function displays list of cancelled bookings according to pagination
+     *  @param : Starting page & number of results per page
+     *  @return : cancelled bookings according to pagination
+     */
+    function viewcancelledbooking($offset = 0, $page = 0) {
+	if ($page == 0) {
+	    $page = 50;
+	}
+
+	$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
+	$config['base_url'] = base_url() . 'employee/booking/viewcancelledbooking';
+	$config['total_rows'] = $this->booking_model->total_completed_booking();
+	$config['per_page'] = $page;
+	$config['uri_segment'] = 4;
+	$config['first_link'] = 'First';
+	$config['last_link'] = 'Last';
+
+	$this->pagination->initialize($config);
+	$data['links'] = $this->pagination->create_links();
+
+	$data['Bookings'] = $this->booking_model->view_cancelled_booking($config['per_page'], $offset);
+	$this->load->view('employee/header');
+
+	$this->load->view('employee/viewcancelledbooking', $data);
     }
 
     /**
@@ -2431,5 +2475,5 @@ class Booking extends CI_Controller {
         $city = $this->input->post('city');
         $state = $this->booking_model->selectSate($city);
         print_r($state);
-    }
+    }    
 }
