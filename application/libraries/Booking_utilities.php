@@ -134,7 +134,7 @@ class Booking_utilities {
 	//log_message('info', __FUNCTION__);
 
 	$getbooking = $this->My_CI->booking_model->getbooking($booking_id);
-
+	$booking_details = $this->My_CI->booking_model->search_bookings_by_booking_id($booking_id);
 	if ($getbooking) {
 	    $serviceName = $this->My_CI->booking_model->selectservicebyid($getbooking[0]['service_id']);
 	    $servicecentredetails = $this->My_CI->booking_model->selectservicecentre($booking_id);
@@ -214,8 +214,18 @@ class Booking_utilities {
 		$bookingdate = $dd . " " . $mm;
 	    }
 
-	    $smsBody = "Congrats! You Have New Booking For " . $bookingdate . " On Email From 247Around. Pls Assign Engineer. Dont Forget To Smile When You Meet Customer. 247Around - 8130572244";
+	    if ($booking_details[0]->booking_timeslot = '10AM-1PM') {
+	    	$booking_details[0]->booking_timeslot= '10AM';
+	    }elseif ($booking_details[0]->booking_timeslot = '1PM-4PM') {
+	    	$booking_details[0]->booking_timeslot= '1PM';
+	    }
+	    else {
+	    	$booking_details[0]->booking_timeslot= '4PM';	
+	    }
 
+
+	    $smsBody = "Booking - " . $booking_details[0]->customername . ", " . $booking_details[0]->phone_number . ", " . $serviceName[0]['services'] . ", " . $bookingdate ."/" . $booking_details[0]->booking_timeslot .  ", " . $getbooking[0]['booking_address'] . ", ". $booking_details[0]->booking_pincode . ". 247around";
+	    
 	    //Send SMS to vendor
 	    $this->sendTransactionalSms($servicecentredetails[0]['primary_contact_phone_1'], $smsBody);
 	    //Save email in database
