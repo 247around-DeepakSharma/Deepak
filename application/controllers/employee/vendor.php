@@ -25,6 +25,7 @@ class vendor extends CI_Controller {
 	//$this->load->library('../controllers/api');
 	$this->load->library('form_validation');
 	$this->load->model('vendor_model');
+	$this->load->model('partner_model');
 	$this->load->library('booking_utilities');
 	$this->load->library('notify');
 	$this->load->library("pagination");
@@ -192,6 +193,7 @@ class vendor extends CI_Controller {
 
 	if ($service_center != "Select") {
 	    $data = $this->booking_model->assign_booking($booking_id, $service_center);
+	    $this->vendor_model->delete_previous_service_center_action($booking_id);
 
 	    //Setting mail to vendor flag to 0, once booking is re-assigned
 	    $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
@@ -585,7 +587,7 @@ class vendor extends CI_Controller {
     	$this->notify->sendEmail("booking@247around.com", $to, '', '', 'Pincode Changes', $notes, $attachment);
     	 echo '<div class="alert alert-success alert-dismissible" role="alert">
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                        <span ;aria-hidden="true">&times;</span>
                     </button>
                     <strong> Mail Sent </strong>
                 </div>';
@@ -600,9 +602,17 @@ class vendor extends CI_Controller {
     	$vendor['city'] = $this->input->post('city');
     	$vendor['service_id'] = $this->input->post('service_id');
     	$vendor['period'] = $this->input->post('period');
-    	//$vendor['date_range'] = $this->input->post('date_range');
+    	$vendor['source'] = $this->input->post('source');
+    	$vendor['sort'] = $this->input->post('sort');
     	$data['data'] = $this->vendor_model->get_vendor_performance($vendor);
     	$result = $this->load->view('employee/vendorperformance',$data);
     	print_r($result);
     }
+
+    function review_service_charges(){
+    	$charges['charges'] = $this->vendor_model->getbooking_charges();
+    	$this->load->view('employee/header');
+    	$this->load->view('employee/review_service_charges', $charges);
+    }
 }
+

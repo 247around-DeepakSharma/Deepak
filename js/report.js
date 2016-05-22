@@ -9,74 +9,72 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
  var UserCountUrl = baseUrl + '/employee/user/getusercount';
  var transactional_usersUrl = baseUrl + '/employee/user/post_transactional_users';
 
-	function getVendorPerformance(){
+    function getVendorPerformance(){
+         $('#loader_gif').attr('src', baseUrl +"/images/loader.gif");
 
-		var postData = {};
-		postData['vendor_id'] = $('#vendor').val();
-		postData['city'] = $('#city').val();
-		postData['service_id'] = $('#service').val();
-		postData['period'] = $('#period').val();
-		//postData['date_range'] = $('input[name="datefilter"]').val();
-       // postData['source'] = $('#source').val();
+        var postData = {};
+        postData['vendor_id'] = $('#vendor').val();
+        postData['city'] = $('#city').val();
+        postData['service_id'] = $('#service').val();
+        postData['period'] = $('#period').val();
+        postData['source'] = $('#source').val();
+        postData['sort'] = $('#sort').val();
 
-		if(postData['period'] != null || postData['date_range'] != ""){
-            $('#loader_gif').attr('src', baseUrl +"/images/loader.gif");
+        sendAjaxRequest(postData, vendor_performanceUrl).done(function(data) {
+            $('#performance').html(data);
 
-			sendAjaxRequest(postData, vendor_performanceUrl).done(function(data) {
-				$('#performance').html(data);
-
-			    table_pagination();
-            });
-		}
-	}
+            table_pagination();
+        });
+    
+    }
 
 
-	function get_pricing_details(){
+    function get_pricing_details(){
 
-		var postData = {};
-		postData['source'] = $('#source').val();
-		postData['city'] = $('#city').val();
-		postData['service_id'] = $('#service').val();
-		postData['category'] = $('#category').val();
-		postData['capacity'] = $('#capacity').val();
-		postData['appliances'] = $('#appliances').val();
+        var postData = {};
+        postData['source'] = $('#source').val();
+        postData['city'] = $('#city').val();
+        postData['service_id'] = $('#service').val();
+        postData['category'] = $('#category').val();
+        postData['capacity'] = $('#capacity').val();
+        postData['appliances'] = $('#appliances').val();
         $('#loader_gif').attr('src', baseUrl +"/images/loader.gif");
-		
-		sendAjaxRequest(postData, getPricingDetailsUrl).done(function(data) {
-			    $('#mytable').html(data);
+        
+        sendAjaxRequest(postData, getPricingDetailsUrl).done(function(data) {
+                $('#mytable').html(data);
 
-				$('.pager').remove();
-				$('table.paginated').each(function() {
+                $('.pager').remove();
+                $('table.paginated').each(function() {
                     $('#loader_gif').attr('src',"");
 
-						var currentPage = 0;
-						var numPerPage = 40;
-						var $table = $(this);
-						$table.bind('repaginate', function() {
-							$table.find('tbody tr').hide().slice(currentPage * numPerPage, (currentPage + 1) * numPerPage).show();
-						});
-						$table.trigger('repaginate');
-						var numRows = $table.find('tbody tr').length;
-						var numPages = Math.ceil(numRows / numPerPage);
+                        var currentPage = 0;
+                        var numPerPage = 40;
+                        var $table = $(this);
+                        $table.bind('repaginate', function() {
+                            $table.find('tbody tr').hide().slice(currentPage * numPerPage, (currentPage + 1) * numPerPage).show();
+                        });
+                        $table.trigger('repaginate');
+                        var numRows = $table.find('tbody tr').length;
+                        var numPages = Math.ceil(numRows / numPerPage);
 
-						var $pager = $('<div class="pager"></div>');
-						for (var page = 0; page < numPages; page++) {
-							$('<span class="page-number"></span>').text(page + 1).bind('click', {
-								newPage: page
-							}, function(event) {
-								currentPage = event.data['newPage'];
-								$table.trigger('repaginate');
-								$(this).addClass('active').siblings().removeClass('active');
-							}).appendTo($pager).addClass('clickable');
-						}
-						$pager.insertBefore($table).find('span.page-number:first').addClass('active');
-				});
+                        var $pager = $('<div class="pager"></div>');
+                        for (var page = 0; page < numPages; page++) {
+                            $('<span class="page-number"></span>').text(page + 1).bind('click', {
+                                newPage: page
+                            }, function(event) {
+                                currentPage = event.data['newPage'];
+                                $table.trigger('repaginate');
+                                $(this).addClass('active').siblings().removeClass('active');
+                            }).appendTo($pager).addClass('clickable');
+                        }
+                        $pager.insertBefore($table).find('span.page-number:first').addClass('active');
+                });
        
         });
 
-	}
+    }
 
-	function editPriceTable(div, id){
+    function editPriceTable(div, id){
       var postData = {};
       postData['id'] = id;
       postData['check_box'] = $('#checkbox_input'+div).val();
@@ -93,15 +91,15 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
       sendAjaxRequest(postData, EditPricingDetailsUrl).done(function(data) {
           if(data == "success"){
 
-          	get_pricing_details();
+            get_pricing_details();
           }
       });
-	}
+    }
 
-	function displayPricetableInput(div){
-		if ( $('#checkbox_p'+div).hasClass('displaytrue') ){
+    function displayPricetableInput(div){
+        if ( $('#checkbox_p'+div).hasClass('displaytrue') ){
 
-			$('#active_p'+div).removeClass('displaytrue');
+            $('#active_p'+div).removeClass('displaytrue');
             $('#active_p' + div).addClass('displayfalse');
 
              $('#checkbox_p'+div).removeClass('displaytrue');
@@ -172,12 +170,12 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
 
 
 
-		} else {
+        } else {
 
-			$('#active_p'+div).removeClass('displayfalse');
+            $('#active_p'+div).removeClass('displayfalse');
             $('#active_p' + div).addClass('displaytrue'); 
 
-			 $('#checkbox_p'+div).removeClass('displayfalse');
+             $('#checkbox_p'+div).removeClass('displayfalse');
              $('#checkbox_p'+div).addClass('displaytrue');
 
              $('#vendor_svc_charge_p'+div).removeClass('displayfalse');
@@ -240,10 +238,10 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
 
 
 
-		}
-	}
+        }
+    }
 
-	function sendAjaxRequest(postData, url) {
+    function sendAjaxRequest(postData, url) {
         return $.ajax({
          data: postData,
          url: url,
