@@ -6,17 +6,17 @@
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <meta name="description" content="">
       <meta name="author" content="">
-      
+
       <title>Telecaller</title>
       <!-- Bootstrap Core CSS -->
       <link href="<?php echo base_url()?>css/bootstrap.min.css" rel="stylesheet">
       <!-- Custom CSS -->
       <link href="<?php echo base_url()?>css/sb-admin.css" rel="stylesheet">
-      
+
       <!-- Custom Fonts -->
       <link href="<?php echo base_url()?>font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
       <script src="<?php echo base_url()?>js/jquery.js"></script>
-      
+
       <!-- Bootstrap Core JavaScript -->
       <script src="<?php echo base_url()?>js/bootstrap.min.js"></script>
       <link href="<?php echo base_url()?>css/select2.min.css" rel="stylesheet" />
@@ -39,7 +39,7 @@
             <a class="navbar-brand" href="index.html"></a>
          </div>
          <!-- /.navbar-header -->
-         
+
          <ul class="nav navbar-top-links navbar-left">
             <li>
                <a href="<?php echo base_url()?>employee/user"><i class="fa fa-fw fa-edit"></i>Find User</a>
@@ -50,7 +50,7 @@
                </a>
                <ul class="dropdown-menu  ">
                   <li >
-                     <a  href="<?php echo base_url() ?>employee/booking/view_pending_queries"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Queries</a></strong>
+		      <a  href="<?php echo base_url() ?>employee/booking/view_all_pending_queries"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Queries</a></strong>
                   </li>
                   <li class="divider"></li>
                   <li <?php if($this->uri->uri_string()=='employee/signup_message'){ echo 'class="active"';}?>>
@@ -60,7 +60,7 @@
                <!-- /.dropdown-messages -->
             </li>
             <!-- /.dropdown -->
-            
+
             <li class="dropdown">
                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                <i class="fa fa-fw fa-arrows-v"></i> Bookings <i class="fa fa-caret-down"></i>
@@ -86,18 +86,18 @@
                      <a href="<?php echo base_url()?>employee/vendor/get_reassign_vendor_form"><i class="fa fa-fw fa-desktop"></i> <strong> Re-assign Vendor</strong></a>
                   </li>
 <!--
-                  
+
                   <li class="divider"></li>
                   <li>
                      <a href="<?php echo base_url() ?>employee/bookingjobcard"><i class="fa fa-fw fa-desktop"></i> <strong>Prepare Job Card </strong></a>
                   </li>
-                  
+
 -->
                </ul>
                <!-- /.dropdown-tasks -->
             </li>
             <!-- /.dropdown -->
-            
+
             <li class="dropdown">
                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                <i class="fa fa-fw fa-arrows-v"></i> Partners <i class="fa fa-caret-down"></i>
@@ -126,7 +126,7 @@
                <!-- /.dropdown-alerts -->
             </li>
             <!-- /.dropdown -->
-            
+
             <li class="dropdown">
                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                <i class="fa fa-fw fa-arrows-v"></i> Service Centres <i class="fa fa-caret-down"></i>
@@ -159,8 +159,8 @@
                <!-- /.dropdown-user -->
             </li>
             <!-- /.dropdown -->
-            
-            
+
+
             <li class="dropdown">
                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                <i class="fa fa-fw fa-arrows-v"></i> Appliances <i class="fa fa-caret-down"></i>
@@ -186,7 +186,7 @@
                <!-- /.dropdown-user -->
             </li>
             <!-- /.dropdown -->
-            
+
             <li class="dropdown">
                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                <i class="fa fa-fw fa-arrows-v"></i> Reports <i class="fa fa-caret-down"></i>
@@ -208,7 +208,7 @@
                <!-- /.dropdown-user -->
             </li>
             <!-- /.dropdown -->
-            
+
             <li class="dropdown">
                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                <i class="fa fa-fw fa-arrows-v"></i> Others <i class="fa fa-caret-down"></i>
@@ -221,7 +221,7 @@
                <!-- /.dropdown-user -->
             </li>
          </ul>
-         
+
          <ul class="nav navbar-top-links navbar-right">
             <li>
                <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="verifyby"><i class="fa fa-user"></i> <?php echo $this->session->userdata('employee_id'); ?> <b class="caret"></b></a>
