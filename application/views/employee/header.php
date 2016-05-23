@@ -74,6 +74,10 @@
                      <a href="<?php echo base_url() ?>employee/booking/viewcompletedbooking"><i class="fa fa-fw fa-desktop"></i> <strong>View Completed Booking</strong></a>
                   </li>
                   <li class="divider"></li>
+                  <li>
+                     <a href="<?php echo base_url() ?>employee/booking/viewcancelledbooking"><i class="fa fa-fw fa-desktop"></i> <strong>View Cancelled Booking</strong></a>
+                  </li>
+                  <li class="divider"></li>
                   <li >
                      <a href="<?php echo base_url() ?>employee/booking/get_assign_booking_form"><i class="fa fa-fw fa-desktop"></i> <strong>Assign Vendor</strong></a>
                   </li>
@@ -147,6 +151,10 @@
                   <li>
                      <a href="<?php echo base_url()?>employee/invoice"><i class="fa fa-fw fa-desktop "></i> <strong> Show Invoices</strong></a>
                   </li>
+                  <li class="divider"></li>
+                  <li>
+                     <a href="<?php echo base_url()?>employee/invoice/get_add_new_transaction"><i class="fa fa-fw fa-desktop "></i> <strong>Add New Transaction</strong></a>
+                  </li>
                </ul>
                <!-- /.dropdown-user -->
             </li>
@@ -190,7 +198,11 @@
 
                   <li class="divider"></li>
                   <li>
-                     <a href="<?php echo base_url()?>employee/user/get_user_count_view" ><i class="fa fa-fw fa-desktop"></i> <strong> Users</strong></a>
+                     <a href="<?php echo base_url()?>employee/user/get_user_count_view" ><i class="fa fa-fw fa-desktop"></i> <strong> Transactional Users</strong></a>
+                  </li>
+                  <li class="divider"></li>
+                  <li>
+                     <a href="<?php echo base_url()?>employee/user/user_count" ><i class="fa fa-fw fa-desktop"></i> <strong> Users</strong></a>
                   </li>
                </ul>
                <!-- /.dropdown-user -->

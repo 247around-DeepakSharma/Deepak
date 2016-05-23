@@ -93,7 +93,7 @@
         $("#reminderMailForm"+i).toggle(500);
     }
 
-
+    
 </script>
 <style type="text/css">
     table{
@@ -207,7 +207,7 @@
                     <td><?= $row->services; ?></td>
                     <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
                     <td id="status_<?php echo $row->booking_id; ?>"><?php echo $row->current_status; ?></td>
-                    <td><?php if(!empty($row->service_centre_name)){ echo $row->service_centre_name." / ".$row->primary_contact_name." / ".$row->primary_contact_phone_1 ; } ?> </td>
+                    <td><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?=$row->assigned_vendor_id;?>"><?php if(!empty($row->service_centre_name)){ echo $row->service_centre_name." / ".$row->primary_contact_name." / ".$row->primary_contact_phone_1 ; } ?></a></td>
                     <td>
                         <?php echo "<a class='btn btn-sm btn-primary' "
                                 . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";?>

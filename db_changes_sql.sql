@@ -346,3 +346,27 @@ CREATE TABLE IF NOT EXISTS `service_centers_login` (
 
 INSERT INTO `service_centers_login` (`id`, `email`, `service_center_id`, `user_name`, `password`, `active`, `create_date`, `reset_date`) VALUES
 (1, 'abhaya@247around.com', '1', 'test', '25d55ad283aa400af464c76d713c07ad', '1', '2016-05-17 11:56:54', '0000-00-00 00:00:00');
+
+
+<!-- Prashant 20/05/2016 -->
+--
+-- Table structure for table `bank_ac_statements`
+--
+
+CREATE TABLE IF NOT EXISTS `bank_ac_statements` (
+  `id` int(10) NOT NULL,
+  `partner_vendor` varchar(50) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `invoice_id` varchar(255) NOT NULL,
+  `bankname` varchar(255) NOT NULL,
+  `credit_debit` varchar(20) NOT NULL,
+  `credit_of` int(10) NOT NULL,
+  `debit_of` int(10) NOT NULL,
+  `transaction_mode` varchar(50) NOT NULL,
+  `transaction_date` date NOT NULL,
+  `description` varchar(1024) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `file` varchar(255) NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+--

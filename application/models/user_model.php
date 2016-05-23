@@ -266,7 +266,7 @@ $this->db = $this->load->database('default', TRUE,TRUE);
 
     $where = "";
 
-    $result = $this->GroupBYForUserCount($data);
+    $result = $this->GroupBYForUserCount($data, "booking_details");
 
     //  city or date range not empty
     if($data['city'] !="" || $data['source'] !="" ){
@@ -299,35 +299,35 @@ $this->db = $this->load->database('default', TRUE,TRUE);
 
   }
 
-  function GroupBYForUserCount($data){
+  function GroupBYForUserCount($data, $table){
   
     $user['group_By'] = "";
     $user['month'] = "";
     // Month Wise DataSet
     if($data['type'] == "All Month"){
          // get group by create date column.
-         $user['group_By'] = " GROUP BY DATE_FORMAT(`create_date`, '%M, %Y') ORDER BY DATE_FORMAT(`create_date`,'%Y') DESC , DATE_FORMAT(`create_date`,'%m') DESC";
-         $user['month'] = "DATE_FORMAT(`create_date`,'%M, %Y') `month`,";
+         $user['group_By'] = " GROUP BY DATE_FORMAT(".$table.".`create_date`, '%M, %Y') ORDER BY DATE_FORMAT(".$table.".`create_date`,'%Y') DESC , DATE_FORMAT(".$table.".`create_date`,'%m') DESC";
+         $user['month'] = "DATE_FORMAT(".$table.".`create_date`,'%M, %Y') `month`,";
     }
     
     // Year Wise Dataset
     if($data['type'] == "All Year"){
         // get group by create date column.
-        $user['group_By'] = " GROUP BY DATE_FORMAT(`create_date`, '%Y') ORDER BY DATE_FORMAT(`create_date`, '%Y') DESC";
-        $user['month'] = "DATE_FORMAT(`create_date`, '%Y') `month`,";
+        $user['group_By'] = " GROUP BY DATE_FORMAT(".$table.".`create_date`, '%Y') ORDER BY DATE_FORMAT(".$table.".`create_date`, '%Y') DESC";
+        $user['month'] = "DATE_FORMAT(".$table.".`create_date`, '%Y') `month`,";
     }
 
      // Week Wise Dataset
     if($data['type'] == "Week"){
         // get group by create date column.
-        $user['group_By'] = " GROUP BY WEEK(`create_date`)  ORDER BY DATE_FORMAT(`create_date`,'%Y') DESC , DATE_FORMAT(`create_date`,'%m') DESC";
-        $user['month'] = "  CONCAT(date(create_date), ' - ', date(create_date) + INTERVAL 7 DAY)   `month`,";
+        $user['group_By'] = " GROUP BY WEEK(".$table.".`create_date`)  ORDER BY DATE_FORMAT(".$table.".`create_date`,'%Y') DESC , DATE_FORMAT(".$table.".`create_date`,'%m') DESC";
+        $user['month'] = "  CONCAT(date(".$table.".create_date), ' - ', date(".$table.".create_date) + INTERVAL 7 DAY)   `month`,";
     }
     
     //Quater Wise DataSet
     if($data['type']== 'Quater'){
-        $user['group_By'] .= " GROUP BY Year(`create_date`) Desc, QUARTER(`create_date`) DESC";
-        $user['month'] = " CASE QUARTER(`create_date`) 
+        $user['group_By'] .= " GROUP BY Year(".$table.".`create_date`) Desc, QUARTER(".$table.".`create_date`) DESC";
+        $user['month'] = " CASE QUARTER(".$table.".`create_date`) 
 
         WHEN 1 THEN 'Jan - Mar'
 
@@ -337,7 +337,7 @@ $this->db = $this->load->database('default', TRUE,TRUE);
 
         WHEN 4 THEN 'Oct - Dec'
 
-        END AS `month` ,  Year(`create_date`) as year, ";
+        END AS `month` ,  Year(".$table.".`create_date`) as year, ";
     }
 
     return $user;
@@ -386,6 +386,35 @@ $this->db = $this->load->database('default', TRUE,TRUE);
     $query2['source'] = $this->partner_model->get_all_partner_source();
     return array_merge($query1, $query2);
   }
+
+  function get_count_transactional_user($data){
+
+
+    $where = "";
+    $join = "";
+
+    $result = $this->GroupBYForUserCount($data, "users");
+
+    if($data['source'] != ""){
+      if($data['source'] == "SA"){
+          $where .=" where user_token IS NOT NULL";
+        } else {
+            $where .= " where booking_details.source = '". $data['source']."'";
+            $join = "Join booking_details on booking_details.user_id =  users.user_id";
+        }
+    }
+
+    
+    
+    $sql = "SELECT $result[month]  count(Distinct `phone_number`) as total_user 
+               FROM `users` $join $where  $result[group_By]";
+    $query1 = $this->db->query($sql);
+
+    return $query1->result_array();
+
+
+  }
+
       // end of model
 }
 

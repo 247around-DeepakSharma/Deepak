@@ -40,7 +40,7 @@
 						<ul class="vendor_performance ">
 							<li class="col-md-2">
 								<select onchange="getVendorPerformance()" class="form-control"  id="vendor" >
-									<option>All</option>
+									<option value="">All Vendor</option>
 									<?php 
 									foreach ($vendor as $key => $value) { ?>
 
@@ -52,8 +52,8 @@
 							</li>
 							<li class="col-md-2">
 								<select onchange="getVendorPerformance()" class="form-control"  id="city" name="city" >
-									<option selected disabled>Select city</option>
-									<option value="">All</option>
+									<option  disabled>Select city</option>
+									<option value="" selected>All City</option>
 									<?php 
 									foreach ($city as $key => $City) { ?>
 
@@ -65,8 +65,8 @@
 							</li>
 							<li class="col-md-2" style="border: 1px solid #bbb;">
 								<select  onchange="getVendorPerformance()" class="form-control"  id="service" name="service" >
-									<option selected disabled>Select Appliances</option>
-									<option>All</option>
+									<option  disabled>Select Appliances</option>
+									<option value="" selected>All Appliances</option>
 									<?php 
 									foreach ($services as $key => $values) { ?>
 
@@ -76,12 +76,29 @@
 									?>
 								</select>
 							</li>
+
+							<li class="col-md-2" style="border: 1px solid #bbb;" >
+								<select  onchange="getVendorPerformance()" class="form-control"  id="source" name="source" >
+									<option  disabled>Select Source</option>
+									<option  value = "" selected>All Source</option>
+									<?php 
+									foreach ($source as $key => $partner) { ?>
+
+									<option value="<?php echo $partner['code'] ?>"> <?php echo $partner['source']; ?></option>
+
+									<?php }
+									?>
+									
+								</select> 
+ 
+
+							</li>
 							
 							<li class="col-md-2" style="border: 1px solid #bbb;" >
 								<select  onchange="getVendorPerformance()" class="form-control"  id="period" name="period" >
 									<option  disabled>Select Period</option>
-									<option  value = "" >All</option>
-									<option value="All Year" selected>Year</option>
+									<option  value = "" selected>All group By Date</option>
+									<option value="All Year" >Year</option>
 									<option value="All Month" >Month</option>
 									<option >Quater</option>
 									<option value="Week" >Week</option>
@@ -90,6 +107,18 @@
  
 
 							</li>
+
+							<li class="col-md-2" style="border: 1px solid #bbb;" >
+								<select  onchange="getVendorPerformance()" class="form-control"  id="sort" name="sort" >
+									<option  value = "DESC" selected>DESC</option>
+									<option  value = "ASC" selected>ASC</option>
+									
+								</select> 
+ 
+
+							</li>
+							
+							
 							
 						</ul>
 					</div>
@@ -107,6 +136,8 @@
 	$('#vendor').select2();
 	$('#city').select2();
 	$('#service').select2();
+	$('#source').select2();
+	$('#sort').select2();
 	$('#period').select2();
 </script>
 
@@ -143,6 +174,7 @@
 		<th>Vendor</th>
 		<th>City</th>
 		<th>Appliances</th>
+		<th>Source</th>
 		<th>Completed Booking</th>
 		<th>Cancelled Booking</th>
 		<th>% Completed Booking</th>
@@ -154,27 +186,19 @@
 			<tr>
 				<td><?php  echo $i; ?></td>
 				<td><?php echo $variable[0]['Vendor_Name']; ?></td>
-				<td><?php echo $variable[0]['City']; ?></td>
-				<td><?php echo $variable[0]['Appliance']; ?></td>
+				<td><?php if(isset($variable[0]['City'])) { echo $variable[0]['City']; }?></td>
+				<td><?php if(isset($variable[0]['Appliance'])) { echo $variable[0]['Appliance'];} ?></td>
+				<td><?php if(isset($variable[0]['source'])){ echo $variable[0]['source']; }?></td>
 				<td><?php echo $value['completed_booking']; $completed +=  $value['completed_booking'];?></td>
 				<td><?php echo $value['cancelled_booking']; $cancelled +=  $value['cancelled_booking']; $total_booking = $completed + $cancelled;?></td>
-				<td><?php if($total_booking >0){ $percentage = ($completed *100)/ ($completed + $cancelled); echo round($percentage,2);} else { echo "0"; }?></td>
+				<td><?php if($total_booking >0){ $percentage = ($completed *100)/ ($completed + $cancelled); echo sprintf ("%.2f", $percentage ); } else { echo "0"; }?></td>
 				<td><?php if(isset($value['month'])) { if(isset($value['year'])){ echo $value['month']."  ".$value['year'];} else {echo $value['month'];} }  ?></td>
 			</tr>
 
 
 			<?php $i++; } ?>
 
-			<tr style="height: 60px;">
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-			</tr>
+	
 
 			<?php }  ?>
 		</tbody>

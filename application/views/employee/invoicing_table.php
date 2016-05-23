@@ -1,4 +1,4 @@
-
+<?php if(isset($invoice_array)){ ?>
 <table class="table table-bordered  table-hover table-striped data"  >
    <thead>
       <tr >
@@ -95,3 +95,42 @@
    </tbody>
    </tbody>
 </table>
+<?php } if(isset($bank_statement)){ ?>
+    <?php //print_r($bank_statement);?>
+  <table class="table table-bordered  table-hover table-striped data"  >
+    <thead>
+      <tr>
+         <th>No #</th>
+         <th>Transaction Date</th>
+         <th>Description</th>
+         <th>Debit</th>
+         <th>Credit</th>         
+         <th>Bank Name/Mode</th>         
+      </tr>
+   </thead>
+   <tbody>
+       <tr>
+       <?php $count=1;?>
+       <?php foreach($bank_statement as $value){?>
+       <td><?php echo $count;$count++;?></td>
+       <td><?php echo $value['transaction_date']; ?></td>
+       <td><?php echo $value['description']; ?></td>
+       <td><?php echo $value['debit_of']; $debit_of += $value['debit_of'];?></td>
+       <td><?php echo $value['credit_of']; $credit_of += $value['credit_of']; ?></td>       
+       <td><?php echo $value['bankname']; ?>/<?php echo $value['transaction_mode']; ?></td>                     
+       <?php } ?>
+       </tr>
+       <tr>
+         <td>Total</td>
+         <td></td>
+         <td></td>
+         <td>- <?php echo $debit_of;?></td>
+         <td><?php echo $credit_of;?></td>
+         <td></td>
+   </tbody>
+  </table>
+<h2><u>Summary</u></h2>
+<p><h4>Vendor have to pay to 247around= Rs.<?php echo $credit_of;?></h4></p>
+<p><h4>247around have to pay to vendor= Rs.<?php echo $debit_of;?></h4></p>
+<?php } ?>
+

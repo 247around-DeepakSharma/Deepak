@@ -64,8 +64,8 @@
                     <th width="125px;">User Name</th>
                     <th width="125px;">Phone No.</th>
                     <th width="125px;">Service Name</th>
-                    <th width="165px;">Booking Date/Time</th>
-                    <th width="100px;">Status</th>
+                    <th width="170px;">Service Centre</th>
+                    <th width="150px;">Service Centre City</th>
                     <th width="60px;">Edit</th>
                     <th width="60px;">View</th>
                     <th width="60px;">Rate</th>
@@ -92,8 +92,8 @@
                     <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
                     <td><?= $row->booking_primary_contact_no; ?></td>
                     <td><?= $row->services; ?></td>
-                    <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
-                    <td id="status_<?php echo $row->booking_id; ?>"><?php echo $row->current_status; ?></td>            
+                    <td><?= $row->service_centre_name; ?></td>
+                    <td><?=$row->city; ?></td>
                     <td><?php            
                         echo "<a id='edit' class='btn btn-sm btn-success' "
                             . "href=" . base_url() . "employee/booking/get_edit_completed_booking_form/$row->booking_id title='Edit'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";         

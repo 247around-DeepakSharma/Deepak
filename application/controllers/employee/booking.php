@@ -533,7 +533,6 @@ class Booking extends CI_Controller {
 
 	$data['Count'] = $config['total_rows'];
 	$data['Bookings'] = $this->booking_model->date_sorted_booking($config['per_page'], $offset, $booking_id);
-
 	if ($this->session->flashdata('result') != '')
 	    $data['success'] = $this->session->flashdata('result');
 
@@ -554,6 +553,22 @@ class Booking extends CI_Controller {
 	$this->load->view('employee/header');
 
 	$this->load->view('employee/viewcompletedbooking', $data);
+    }
+
+
+    //Function to view all cancelled bookings when you select All from pagination
+    function viewallcancelledbooking() {
+	$query = $this->booking_model->view_all_cancelled_booking();
+
+	$data['Bookings'] = null;
+
+	if ($query) {
+	    $data['Bookings'] = $query;
+	}
+
+	$this->load->view('employee/header');
+
+	$this->load->view('employee/viewcancelledbooking', $data);
     }
 
     /**
@@ -581,6 +596,34 @@ class Booking extends CI_Controller {
 	$this->load->view('employee/header');
 
 	$this->load->view('employee/viewcompletedbooking', $data);
+    }
+
+
+    /**
+     *  @desc : This function displays list of cancelled bookings according to pagination
+     *  @param : Starting page & number of results per page
+     *  @return : cancelled bookings according to pagination
+     */
+    function viewcancelledbooking($offset = 0, $page = 0) {
+	if ($page == 0) {
+	    $page = 50;
+	}
+
+	$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
+	$config['base_url'] = base_url() . 'employee/booking/viewcancelledbooking';
+	$config['total_rows'] = $this->booking_model->total_completed_booking();
+	$config['per_page'] = $page;
+	$config['uri_segment'] = 4;
+	$config['first_link'] = 'First';
+	$config['last_link'] = 'Last';
+
+	$this->pagination->initialize($config);
+	$data['links'] = $this->pagination->create_links();
+
+	$data['Bookings'] = $this->booking_model->view_cancelled_booking($config['per_page'], $offset);
+	$this->load->view('employee/header');
+
+	$this->load->view('employee/viewcancelledbooking', $data);
     }
 
     /**
@@ -671,6 +714,7 @@ class Booking extends CI_Controller {
 
 	$getbooking = $this->booking_model->getbooking($booking_id);
 	$query2 = $this->booking_model->get_unit_details($booking_id);
+
 	if ($getbooking) {
 
 	    $data['booking_id'] = $getbooking;
@@ -678,13 +722,15 @@ class Booking extends CI_Controller {
 	    $query = $this->booking_model->booking_history_by_booking_id($booking_id);
 	    $page = "Complete";
 	    $internal_status = $this->booking_model->get_internal_status($page);
+	    $vendor_details = $this->booking_model->get_booking_vendor_details($getbooking[0]['assigned_vendor_id']);
 	    $data1['booking_id'] = $query;
 
 	    $this->load->view('employee/header');
 	    $this->load->view('employee/completebooking', array('data' => $data,
 		'data1' => $data1,
 		'internal_status' => $internal_status,
-		'query2' => $query2));
+		'query2' => $query2,
+		'vendor_details' => $vendor_details));
 	} else {
 	    echo "This Id doesn't Available";
 	}
@@ -707,8 +753,11 @@ class Booking extends CI_Controller {
 	$data['internal_status'] = $this->input->post('internal_status');
 	$data['rating_star'] = $this->input->post('rating_star');
 	$data['rating_comments'] = $this->input->post('rating_comments');
+	$data['vendor_name'] = $this->input->post('vendor_name');
+	$data['vendor_city'] = $this->input->post('vendor_city');
 	$data['vendor_rating_stars'] = $this->input->post('vendor_rating_star');
 	$data['vendor_rating_comments'] = $this->input->post('vendor_rating_comments');
+
 	if ($data['rating_star'] === "Select" && $data['rating_comments'] == '') {
 	    $data['rating_star'] = "";
 	    $data['rating_comments'] = "";
@@ -761,7 +810,7 @@ class Booking extends CI_Controller {
 
 	log_message('info', 'Booking Status Change- Booking id: ' . $booking_id . " Completed By " . $this->session->userdata('employee_id'));
 
-	$message = "Booking Completion.<br>Customer name: " . $query1[0]['name'] . "<br>Customer phone number: " . $query1[0]['phone_number'] . "<br>Customer email: " . $query1[0]['user_email'] . "<br>Booking Id is: " . $query1[0]['booking_id'] . "<br>Your service name is:" . $query1[0]['services'] . "<br>Booking date: " . $query1[0]['booking_date'] . "<br>Booking completion date: " . $data['closed_date'] . "<br>Amount paid for the booking: " . $data['amount_paid'] . "<br>Your booking completion remark is: " . $data['closing_remarks'] . "<br> Thanks!!";
+	$message = "Booking Completion.<br>Customer name: " . $query1[0]['name'] . "<br>Customer phone number: " . $query1[0]['phone_number'] . "<br>Customer email: " . $query1[0]['user_email'] . "<br>Booking Id is: " . $query1[0]['booking_id'] . "<br>Your service name is:" . $query1[0]['services'] . "<br>Booking date: " . $query1[0]['booking_date'] . "<br>Booking completion date: " . $data['closed_date'] . "<br>Amount paid for the booking: " . $data['amount_paid'] . "<br>Your booking completion remark is: " . $data['closing_remarks'] . "<br>Vendor name:" . $data['vendor_name'] . "<br>Vendor city:" . $data['vendor_city'] . "<br>Thanks!!";
 
 	$to = "anuj@247around.com, nits@247around.com";
 	$subject = 'Booking Completion-AROUND';
@@ -796,10 +845,11 @@ class Booking extends CI_Controller {
 
 	    $query = $this->booking_model->booking_history_by_booking_id($booking_id);
 	    $data1['booking_id'] = $query;
-
+	    $vendor_details = $this->booking_model->get_booking_vendor_details($getbooking[0]['assigned_vendor_id']);
 	    $reason = $this->booking_model->cancelreason();
 	    $this->load->view('employee/header');
-	    $this->load->view('employee/cancelbooking', array('data' => $data, 'data1' => $data1, 'reason' => $reason, "book_id" => $booking_id));
+	    $this->load->view('employee/cancelbooking', array('data' => $data, 'data1' => $data1,
+	    	'reason' => $reason, "book_id" => $booking_id, 'vendor_details' => $vendor_details));
 	} else {
 	    echo "This Id doesn't Available";
 	}
@@ -822,6 +872,9 @@ class Booking extends CI_Controller {
 	}
 	$data['current_status'] = "Cancelled";
 	$data['internal_status'] = "Cancelled";
+	$data['vendor_name'] = $this->input->post('vendor_name');
+	$data['vendor_city'] = $this->input->post('vendor_city');
+
 	$insertData = $this->booking_model->cancel_booking($booking_id, $data);
 
 	//Update SD leads table if required
@@ -870,7 +923,8 @@ class Booking extends CI_Controller {
 	    $query1[0]['booking_id'] . "<br>Service name is:" . $query1[0]['services'] . "<br>Booking date was: " .
 	    $query1[0]['booking_date'] . "<br>Booking timeslot was: " . $query1[0]['booking_timeslot'] .
 	    "<br>Booking cancellation date is: " . $data['update_date'] . "<br>Booking cancellation reason: " .
-	    $data['cancellation_reason'] . "<br> Thanks!!";
+	    $data['cancellation_reason'] . "<br>Vendor name:" . $data['vendor_name'] . "<br>Vendor city:" .
+	    $data['vendor_city'] ."<br> Thanks!!";
 
 	$to = "anuj@247around.com, nits@247around.com";
 	$cc = "";
@@ -1487,15 +1541,19 @@ class Booking extends CI_Controller {
 
 		$months = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
 		$mm = $months[$mm - 1];
-		$booking['booking_date'] = $dd . $mm;
+		$booking_date = $dd . $mm;
+		$booking_timeslot = $booking['booking_timeslot'];
 
-		if ($booking['booking_timeslot'] == "10AM-1PM") {
-		    $booking['booking_timeslot'] = "1PM";
-		} elseif ($booking['booking_timeslot'] == "1PM-4PM") {
-		    $booking['booking_timeslot'] = "4PM";
-		} elseif ($booking['booking_timeslot'] == "4PM-7PM") {
-		    $booking['booking_timeslot'] = "7PM";
-		}
+		/*
+		  if ($booking['booking_timeslot'] == "10AM-1PM") {
+		  $booking['booking_timeslot'] = "1PM";
+		  } elseif ($booking['booking_timeslot'] == "1PM-4PM") {
+		  $booking['booking_timeslot'] = "4PM";
+		  } elseif ($booking['booking_timeslot'] == "4PM-7PM") {
+		  $booking['booking_timeslot'] = "7PM";
+		  }
+		 *
+		 */
 
 		//-------Sending Email On Booking--------//
 		$message = "Congratulations! Query has been converted to Booking, details are mentioned below:
@@ -1503,7 +1561,7 @@ class Booking extends CI_Controller {
 		    $query1[0]['phone_number'] . "<br>Customer email address: " . $query1[0]['user_email'] .
 		    "<br>Booking Id: " . $booking['booking_id'] . "<br>Service name:" . $query1[0]['services'] .
 		    "<br>Number of appliance: " . $query1[0]['quantity'] . "<br>Booking Date: " .
-		    $booking['booking_date'] . "<br>Booking Timeslot: " . $booking['booking_timeslot'] .
+		    $booking_date . "<br>Booking Timeslot: " . $booking_timeslot .
 		    "<br>Amount Due: " . $query1[0]['amount_due'] . "<br>Your Booking Remark is: " .
 		    $booking['booking_remarks'] . "<br>Booking address: " . $booking['booking_address'] .
 		    "<br>Booking city: " . $query1[0]['city'] .
@@ -1526,7 +1584,15 @@ class Booking extends CI_Controller {
 
 		//TODO: Make it generic
 		if ($is_sd == FALSE) {
-		    $smsBody = "Got it! Request for " . $query1[0]['services'] . " Repair is confirmed for " . $booking['booking_date'] . ", " . $booking['booking_timeslot'] . ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";
+		    $sms_template = "Got it! Request for %s Repair is confirmed for %s, %s. 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";
+		    //$smsBody = "Got it! Request for " . $query1[0]['services'] . " Repair is confirmed for " . $booking_date . ", " . $booking_timeslot . ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";
+		    //e.g. Got it! Request for Television Repair is confirmed for 23May, 4PM-7PM. 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200
+		    $smsBody = sprintf($sms_template, $query1[0]['services'], $booking_date, $booking_timeslot);
+		    $this->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
+		} else {
+		    $sms_template = "Got it! Request for %s Installation is confirmed for %s,%s. 247around India's 1st Multibrand Appliance Care & Snapdeal Partner. 9555000247";
+		    //E.g. Got it! Request for Washing Machine Installation is confirmed for 31May,10AM-1PM. 247around India's 1st Multibrand Appliance Care & Snapdeal Partner. 9555000247
+		    $smsBody = sprintf($sms_template, $query1[0]['services'], $booking_date, $booking_timeslot);
 		    $this->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
 		}
 
@@ -2280,6 +2346,7 @@ class Booking extends CI_Controller {
 	$booking['current_booking_timeslot'] = $this->input->post('current_booking_timeslot');
 	$booking['new_booking_date'] = $this->input->post('new_booking_date');
 	$booking['new_booking_timeslot'] = $this->input->post('new_booking_timeslot');
+	$data['update_date'] = date("Y-m-d h:i:s");
 	$booking['booking_date'] = date('d-m-Y', strtotime($booking['booking_date']));
 	$yy = date("y", strtotime($booking['booking_date']));
 	$mm = date("m", strtotime($booking['booking_date']));

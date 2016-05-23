@@ -42,9 +42,10 @@
             </div>
          </div>
       </div>
+       <div class="col-md-12 col-md-offset-3"><img src="" id="loader_gif" /></div>
       <div class="row" style="margin-top: 20px;">
          <div class="col-md-12 ">
-            <table class="table table-bordered  table-hover table-striped data" id="invoicing_table"></table>
+             <div id="invoicing_table"></div>
          </div>
       </div>
    </div>
@@ -53,13 +54,15 @@
    $("#invoice_id").select2();
    
    function getInvoicingData(source){
-   	var vendor_partner_id = $('#invoice_id').val();
-   	$.ajax({
+       $('#loader_gif').attr('src', '<?php echo base_url() ?>images/loader.gif');
+    var vendor_partner_id = $('#invoice_id').val();
+    $.ajax({
           type: 'POST',
           url: '<?php echo base_url(); ?>employee/invoice/getInvoicingData',
           data: {vendor_partner_id: vendor_partner_id, source: source},
           success: function (data) {
             //console.log(data);
+            $('#loader_gif').attr('src', '');
             $("#invoicing_table").html(data);          
          }
        });

@@ -92,5 +92,18 @@ class invoices_model extends CI_Model {
         return $query->result_array();
 
     }
+    //Function to insert banks account/statement
+    function bankAccountStatement($account_statement){
+	$this->db->insert('bank_ac_statements', $account_statement);
+    }
 
+    function bank_statement_details($data){
+      $this->db->select('bank_ac_statements.*');
+      $this->db->from('vendor_partner_invoices');
+      $this->db->join('bank_ac_statements', 'bank_ac_statements.invoice_id = vendor_partner_invoices.invoice_id');
+      $this->db->where('vendor_partner_invoices.vendor_partner', $data['source']);
+      $this->db->where('vendor_partner_invoices.vendor_partner_id', $data['vendor_partner_id']);
+      $query = $this->db->get();
+      return $query->result_array();
+    }
 }

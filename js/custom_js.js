@@ -1,5 +1,6 @@
  var getUrl = window.location;
- var baseUrl = getUrl .protocol + "//" + getUrl.host ;
+ /*var baseUrl = getUrl .protocol + "//" + getUrl.host  + "/" + getUrl.pathname.split('/')[1];*/
+var baseUrl = getUrl .protocol + "//" + getUrl.host ;
  var brandServiceUrl = baseUrl + '/employee/booking/getBrandForService/';
  var categoryForServiceUrl = baseUrl + '/employee/booking/getCategoryForService/';
  var CapacityForCategoryUrl = baseUrl + '/employee/booking/getCapacityForCategory/';
