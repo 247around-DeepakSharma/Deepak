@@ -714,7 +714,6 @@ class Booking extends CI_Controller {
 
 	$getbooking = $this->booking_model->getbooking($booking_id);
 	$query2 = $this->booking_model->get_unit_details($booking_id);
-
 	if ($getbooking) {
 
 	    $data['booking_id'] = $getbooking;
@@ -835,24 +834,12 @@ class Booking extends CI_Controller {
      *  @param : booking id
      *  @return : user details and booking history to view
      */
-    function get_cancel_booking_form($booking_id) {
-	$getbooking = $this->booking_model->getbooking($booking_id);
+    function get_cancel_booking_form($booking_id) {	    
+	    $data['user_and_booking_details'] = $this->booking_model->booking_history_by_booking_id($booking_id);
 
-	if ($getbooking) {
-	    $employee_id = $this->session->userdata('employee_id');
-
-	    $data['booking_id'] = $getbooking;
-
-	    $query = $this->booking_model->booking_history_by_booking_id($booking_id);
-	    $data1['booking_id'] = $query;
-	    $vendor_details = $this->booking_model->get_booking_vendor_details($getbooking[0]['assigned_vendor_id']);
-	    $reason = $this->booking_model->cancelreason();
+	    $data['reason'] = $this->booking_model->cancelreason();
 	    $this->load->view('employee/header');
-	    $this->load->view('employee/cancelbooking', array('data' => $data, 'data1' => $data1, 
-	    	'reason' => $reason, "book_id" => $booking_id, 'vendor_details' => $vendor_details));
-	} else {
-	    echo "This Id doesn't Available";
-	}
+	    $this->load->view('employee/cancelbooking', $data);	
     }
 
     /**
@@ -861,7 +848,6 @@ class Booking extends CI_Controller {
      *  @return : cancels the booking and load view
      */
     function process_cancel_booking_form($booking_id) {
-	$data['closing_remarks'] = $this->input->post('closing_remarks');
 	$data['cancellation_reason'] = $this->input->post('cancellation_reason');
 
 	$data['update_date'] = date("Y-m-d h:i:s");
@@ -872,77 +858,76 @@ class Booking extends CI_Controller {
 	}
 	$data['current_status'] = "Cancelled";
 	$data['internal_status'] = "Cancelled";
-	$data['vendor_name'] = $this->input->post('vendor_name');
-	$data['vendor_city'] = $this->input->post('vendor_city');
-
+	
 	$insertData = $this->booking_model->cancel_booking($booking_id, $data);
 
-	//Update SD leads table if required
-	//$this->booking_model->update_sd_lead_status($booking_id, 'Cancelled');
-	//Is this SD booking?
-	if (strpos($booking_id, "SS") !== FALSE) {
-	    $is_sd = TRUE;
-	} else {
-	    $is_sd = FALSE;
-	}
+	 //Update SD leads table if required
+//$this->booking_model->update_sd_lead_status($booking_id, 'Cancelled');
+        //Is this SD booking?
+        if (strpos($booking_id, "SS") !== FALSE) {
+            $is_sd = TRUE;
+        } else {
+            $is_sd = FALSE;
+        }
 
-	if ($is_sd) {
-	    if ($this->booking_model->check_sd_lead_exists_by_booking_id($booking_id) === TRUE) {
-		$sd_where = array("CRM_Remarks_SR_No" => $booking_id);
-		$sd_data = array(
-		    "Status_by_247around" => $data['current_status'],
-		    "Remarks_by_247around" => $data['internal_status'],
-		    "update_date" => $data['update_date']
-		);
-		$this->booking_model->update_sd_lead($sd_where, $sd_data);
-	    } else {
-		if (Partner_Integ_Complete) {
-		    //Update Partner leads table
-		    $partner_where = array("247aroundBookingID" => $booking_id);
-		    $partner_data = array(
-			"247aroundBookingStatus" => $data['current_status'],
-			"247aroundBookingRemarks" => $data['internal_status'],
-			"update_date" => $data['update_date']
-		    );
-		    $this->partner_model->update_partner_lead($partner_where, $partner_data);
+        if ($is_sd) {
+            if ($this->booking_model->check_sd_lead_exists_by_booking_id($booking_id) === TRUE) {
+                $sd_where = array("CRM_Remarks_SR_No" => $booking_id);
+                $sd_data = array(
+                    "Status_by_247around" => $data['current_status'],
+                    "Remarks_by_247around" => $data['internal_status'],
+                    "update_date" => $data['update_date']
+                );
+                $this->booking_model->update_sd_lead($sd_where, $sd_data);
+            } else {
+                if (Partner_Integ_Complete) {
+                    //Update Partner leads table
+                    $partner_where = array("247aroundBookingID" => $booking_id);
+                    $partner_data = array(
+                        "247aroundBookingStatus" => $data['current_status'],
+                        "247aroundBookingRemarks" => $data['internal_status'],
+                        "update_date" => $data['update_date']
+                    );
+                $this->partner_model->update_partner_lead($partner_where, $partner_data);
 
-		    //Call relevant partner API
-		    //TODO: make it dynamic, use service object model (interfaces)
-		    $partner_cb_data = array_merge($partner_where, $partner_data);
-		    $this->partner_sd_cb->update_status_cancel_booking($partner_cb_data);
-		}
-	    }
-	}
+                    //Call relevant partner API
+                    //TODO: make it dynamic, use service object model (interfaces)
+                    $partner_cb_data = array_merge($partner_where, $partner_data);
+                $this->partner_sd_cb->update_status_cancel_booking($partner_cb_data);
+                }
+            }
+        }
 
-	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
+        $query1 = $this->booking_model->booking_history_by_booking_id($booking_id, "join");
 
-	//------------Sending Email----------//
+		//------------Sending Email----------//
 
 	$message = "Booking Cancellation:<br>Customer name: " . $query1[0]['name'] . "<br>Customer phone number: " .
 	    $query1[0]['phone_number'] . "<br>Customer email: " . $query1[0]['user_email'] . "<br>Booking Id: " .
 	    $query1[0]['booking_id'] . "<br>Service name is:" . $query1[0]['services'] . "<br>Booking date was: " .
 	    $query1[0]['booking_date'] . "<br>Booking timeslot was: " . $query1[0]['booking_timeslot'] .
 	    "<br>Booking cancellation date is: " . $data['update_date'] . "<br>Booking cancellation reason: " .
-	    $data['cancellation_reason'] . "<br>Vendor name:" . $data['vendor_name'] . "<br>Vendor city:" .
-	    $data['vendor_city'] ."<br> Thanks!!";
+	    $data['cancellation_reason'] . "<br>Vendor name:" . $query1[0]['vendor_name'] . "<br>Vendor city:" .
+	    $query1[0]['city'] ."<br> Thanks!!";
 	
 	$to = "anuj@247around.com, nits@247around.com";
+	//$to = "anand.abhay1910@gmail.com";
 	$cc = "";
 	$bcc = "";
 	$subject = 'Booking Cancellation-AROUND';
-	//$this->sendMail($subject, $message, $to, $cc, $bcc);
+	$this->sendMail($subject, $message, $to, $cc, $bcc);
 	//------End of sending email--------//
 	//------------Send SMS for cancellation---------//
 	if ($is_sd == FALSE) {
 	    $smsBody = "Your request for " . $query1[0]['services'] . " Repair is cancelled. For discounts download app 247Around goo.gl/m0iAcS. Like us on Facebook goo.gl/Y4L6Hj. 011-39595200";
-	   // $this->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
+	    $this->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
 	}
 
 	log_message('info','Booking Status Change- Booking id: '. $booking_id. " Cancelled By ". $this->session->userdata('employee_id'));
 
 
 	//---------End of sending SMS----------//
-	redirect(base_url() . 'employee/booking/view', 'refresh');
+	redirect(base_url() . 'employee/booking/view');
     }
 
     /**

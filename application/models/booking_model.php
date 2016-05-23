@@ -805,7 +805,7 @@ class Booking_model extends CI_Model {
      *  @param : $booking_id
      *  @return : array(userdetails,servicename and bookingdetails)
      */
-    function booking_history_by_booking_id($booking_id) {
+    function booking_history_by_booking_id($booking_id, $join= "") {
 
 	/*
 	  $sql = "Select services.services, users.*, booking_details.*"
@@ -813,13 +813,21 @@ class Booking_model extends CI_Model {
 	  . "where booking_details.booking_id='$booking_id' and "
 	  . "booking_details.user_id = users.user_id and services.id = booking_details.service_id";
 	 */
+      $service_centre = "";
+      $condition ="";
+	  $service_center_name ="";
+	  if($join !=""){
+	  	$service_center_name =",service_centres.name as vendor_name ";
+	  	$service_centre = ", service_centres ";
+	  	$condition = " and booking_details.assigned_vendor_id =  service_centres.id";
+	  }
 
-	$sql = "Select services.services, users.*, booking_details.*, appliance_details.description "
-	    . "from booking_details, users, services, appliance_details "
+	$sql = "Select services.services, users.*, booking_details.*, appliance_details.description  ". $service_center_name
+	    . "from booking_details, users, services, appliance_details ". $service_centre
 	    . "where booking_details.booking_id='$booking_id' and "
 	    . "booking_details.user_id = users.user_id and "
 	    . "services.id = booking_details.service_id and "
-	    . "booking_details.appliance_id = appliance_details.id";
+	    . "booking_details.appliance_id = appliance_details.id ". $condition;
 
 	$query = $this->db->query($sql);
 
