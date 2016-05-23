@@ -722,7 +722,7 @@ class Booking extends CI_Controller {
 	    $page = "Complete";
 	    $internal_status = $this->booking_model->get_internal_status($page);
 	    $vendor_details = $this->booking_model->get_booking_vendor_details($getbooking[0]['assigned_vendor_id']);
-	    $data1['booking_id'] = $query;
+	    $data1['booking_id'] = $query;	    
 
 	    $this->load->view('employee/header');
 	    $this->load->view('employee/completebooking', array('data' => $data,
@@ -756,7 +756,7 @@ class Booking extends CI_Controller {
 	$data['vendor_city'] = $this->input->post('vendor_city');
 	$data['vendor_rating_stars'] = $this->input->post('vendor_rating_star');
 	$data['vendor_rating_comments'] = $this->input->post('vendor_rating_comments');
-
+	
 	if ($data['rating_star'] === "Select" && $data['rating_comments'] == '') {
 	    $data['rating_star'] = "";
 	    $data['rating_comments'] = "";
@@ -839,15 +839,7 @@ class Booking extends CI_Controller {
 
 	    $data['reason'] = $this->booking_model->cancelreason();
 	    $this->load->view('employee/header');
-<<<<<<< HEAD
 	    $this->load->view('employee/cancelbooking', $data);	
-=======
-	    $this->load->view('employee/cancelbooking', array('data' => $data, 'data1' => $data1,
-	    	'reason' => $reason, "book_id" => $booking_id, 'vendor_details' => $vendor_details));
-	} else {
-	    echo "This Id doesn't Available";
-	}
->>>>>>> 7f32aee86f83db3945a072dd39132a3aac12bc38
     }
 
     /**
@@ -915,15 +907,9 @@ class Booking extends CI_Controller {
 	    $query1[0]['booking_id'] . "<br>Service name is:" . $query1[0]['services'] . "<br>Booking date was: " .
 	    $query1[0]['booking_date'] . "<br>Booking timeslot was: " . $query1[0]['booking_timeslot'] .
 	    "<br>Booking cancellation date is: " . $data['update_date'] . "<br>Booking cancellation reason: " .
-<<<<<<< HEAD
 	    $data['cancellation_reason'] . "<br>Vendor name:" . $query1[0]['vendor_name'] . "<br>Vendor city:" .
 	    $query1[0]['city'] ."<br> Thanks!!";
 	
-=======
-	    $data['cancellation_reason'] . "<br>Vendor name:" . $data['vendor_name'] . "<br>Vendor city:" .
-	    $data['vendor_city'] ."<br> Thanks!!";
-
->>>>>>> 7f32aee86f83db3945a072dd39132a3aac12bc38
 	$to = "anuj@247around.com, nits@247around.com";
 	//$to = "anand.abhay1910@gmail.com";
 	$cc = "";
@@ -1540,19 +1526,15 @@ class Booking extends CI_Controller {
 
 		$months = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
 		$mm = $months[$mm - 1];
-		$booking_date = $dd . $mm;
-		$booking_timeslot = $booking['booking_timeslot'];
+		$booking['booking_date'] = $dd . $mm;
 
-		/*
-		  if ($booking['booking_timeslot'] == "10AM-1PM") {
-		  $booking['booking_timeslot'] = "1PM";
-		  } elseif ($booking['booking_timeslot'] == "1PM-4PM") {
-		  $booking['booking_timeslot'] = "4PM";
-		  } elseif ($booking['booking_timeslot'] == "4PM-7PM") {
-		  $booking['booking_timeslot'] = "7PM";
-		  }
-		 *
-		 */
+		if ($booking['booking_timeslot'] == "10AM-1PM") {
+		    $booking['booking_timeslot'] = "1PM";
+		} elseif ($booking['booking_timeslot'] == "1PM-4PM") {
+		    $booking['booking_timeslot'] = "4PM";
+		} elseif ($booking['booking_timeslot'] == "4PM-7PM") {
+		    $booking['booking_timeslot'] = "7PM";
+		}
 
 		//-------Sending Email On Booking--------//
 		$message = "Congratulations! Query has been converted to Booking, details are mentioned below:
@@ -1560,7 +1542,7 @@ class Booking extends CI_Controller {
 		    $query1[0]['phone_number'] . "<br>Customer email address: " . $query1[0]['user_email'] .
 		    "<br>Booking Id: " . $booking['booking_id'] . "<br>Service name:" . $query1[0]['services'] .
 		    "<br>Number of appliance: " . $query1[0]['quantity'] . "<br>Booking Date: " .
-		    $booking_date . "<br>Booking Timeslot: " . $booking_timeslot .
+		    $booking['booking_date'] . "<br>Booking Timeslot: " . $booking['booking_timeslot'] .
 		    "<br>Amount Due: " . $query1[0]['amount_due'] . "<br>Your Booking Remark is: " .
 		    $booking['booking_remarks'] . "<br>Booking address: " . $booking['booking_address'] .
 		    "<br>Booking city: " . $query1[0]['city'] .
@@ -1583,15 +1565,7 @@ class Booking extends CI_Controller {
 
 		//TODO: Make it generic
 		if ($is_sd == FALSE) {
-		    $sms_template = "Got it! Request for %s Repair is confirmed for %s, %s. 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";
-		    //$smsBody = "Got it! Request for " . $query1[0]['services'] . " Repair is confirmed for " . $booking_date . ", " . $booking_timeslot . ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";
-		    //e.g. Got it! Request for Television Repair is confirmed for 23May, 4PM-7PM. 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200
-		    $smsBody = sprintf($sms_template, $query1[0]['services'], $booking_date, $booking_timeslot);
-		    $this->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
-		} else {
-		    $sms_template = "Got it! Request for %s Installation is confirmed for %s,%s. 247around India's 1st Multibrand Appliance Care & Snapdeal Partner. 9555000247";
-		    //E.g. Got it! Request for Washing Machine Installation is confirmed for 31May,10AM-1PM. 247around India's 1st Multibrand Appliance Care & Snapdeal Partner. 9555000247
-		    $smsBody = sprintf($sms_template, $query1[0]['services'], $booking_date, $booking_timeslot);
+		    $smsBody = "Got it! Request for " . $query1[0]['services'] . " Repair is confirmed for " . $booking['booking_date'] . ", " . $booking['booking_timeslot'] . ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";
 		    $this->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
 		}
 
@@ -2486,5 +2460,6 @@ class Booking extends CI_Controller {
         $city = $this->input->post('city');
         $state = $this->booking_model->selectSate($city);
         print_r($state);
-    }
+    }  
+      
 }
