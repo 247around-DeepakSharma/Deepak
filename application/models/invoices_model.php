@@ -47,23 +47,23 @@ class invoices_model extends CI_Model {
 	$this->db->insert('vendor_partner_invoices', $details);
     }
 
-        // Get Poc and owner email id for patticular vendor id
-    function getEmailIdForVendor($vendor_id){
-      $this->db->select('primary_contact_email, owner_email');
-      $this->db->where('id', $vendor_id);
-      $query = $this->db->get('service_centres');
-      return $query->result_array();
+    // Get Poc and owner email id for patticular vendor id
+    function getEmailIdForVendor($vendor_id) {
+	$this->db->select('primary_contact_email, owner_email');
+	$this->db->where('id', $vendor_id);
+	$query = $this->db->get('service_centres');
+	return $query->result_array();
     }
 
-     /**
+    /**
      * Get unique name and id of service center
      */
-    function getServiceCenter(){
-        $this->db->distinct();
-        $this->db->select('name, id');
+    function getServiceCenter() {
+	$this->db->distinct();
+	$this->db->select('name, id');
 	$this->db->order_by('name', 'ASC');
-        $query = $this->db->get('service_centres');
-        return $query->result_array();
+	$query = $this->db->get('service_centres');
+	return $query->result_array();
     }
 
     /**
@@ -71,39 +71,40 @@ class invoices_model extends CI_Model {
      * @param : vendor partner id
      * @return :Array
      */
-    function getInvoicingData($data){
-        $this->db->select('*');
+    function getInvoicingData($data) {
+	$this->db->select('*');
 	$this->db->order_by('create_date', 'ASC');
-        $this->db->where('vendor_partner', $data['source']);
-        $this->db->where('vendor_partner_id', $data['vendor_partner_id']);
+	$this->db->where('vendor_partner', $data['source']);
+	$this->db->where('vendor_partner_id', $data['vendor_partner_id']);
 
-        $query = $this->db->get('vendor_partner_invoices');
-        return $query->result_array();
+	$query = $this->db->get('vendor_partner_invoices');
+	return $query->result_array();
     }
 
     /**
      * Get partner Email id
      * @param type $partnerId
      */
-    function getEmailIdForPartner($partnerId){
-        $this->db->select('partner_email_for_to');
-        $this->db->where('partner_id', $partnerId);
-        $query = $this->db->get('bookings_sources');
-        return $query->result_array();
-
+    function getEmailIdForPartner($partnerId) {
+	$this->db->select('partner_email_for_to');
+	$this->db->where('partner_id', $partnerId);
+	$query = $this->db->get('bookings_sources');
+	return $query->result_array();
     }
+
     //Function to insert banks account/statement
-    function bankAccountStatement($account_statement){
-	$this->db->insert('bank_ac_statements', $account_statement);
+    function bankAccountTransaction($account_statement) {
+	$this->db->insert('bank_transactions', $account_statement);
     }
 
-    function bank_statement_details($data){
-      $this->db->select('bank_ac_statements.*');
-      $this->db->from('vendor_partner_invoices');
-      $this->db->join('bank_ac_statements', 'bank_ac_statements.invoice_id = vendor_partner_invoices.invoice_id');
-      $this->db->where('vendor_partner_invoices.vendor_partner', $data['source']);
-      $this->db->where('vendor_partner_invoices.vendor_partner_id', $data['vendor_partner_id']);
-      $query = $this->db->get();
-      return $query->result_array();
+    function bank_transactions_details($data) {
+	$this->db->select('bank_transactions.*');
+	$this->db->from('vendor_partner_invoices');
+	$this->db->join('bank_transactions', 'bank_transactions.invoice_id = vendor_partner_invoices.invoice_id');
+	$this->db->where('vendor_partner_invoices.vendor_partner', $data['source']);
+	$this->db->where('vendor_partner_invoices.vendor_partner_id', $data['vendor_partner_id']);
+	$query = $this->db->get();
+	return $query->result_array();
     }
+
 }
