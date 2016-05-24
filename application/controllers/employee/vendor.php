@@ -614,5 +614,17 @@ class vendor extends CI_Controller {
     	$this->load->view('employee/header');
     	$this->load->view('employee/review_service_charges', $charges);
     }
+
+    function test(){
+    	$vendor['city'] = "Delhi";
+    	$vendor['vendor_id'] = "";
+    	$vendor['service_id'] = "";
+    	$vendor['period'] = "";
+    	$vendor['source'] = "";
+    	$vendor['sort'] = "";
+    	$data['data'] = $this->vendor_model->get_vendor_performance($vendor);
+    	$result = $this->load->view('employee/vendorperformance',$data);
+
+    }
 }
 

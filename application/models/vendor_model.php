@@ -295,8 +295,11 @@ class vendor_model extends CI_Model {
       return $query->result_array();
     }
 
-    function getActiveVendor(){
+    function getActiveVendor($service_center_id = ""){
        $this->db->select("service_centres.name, service_centres.id ");
+       if($service_center_id !=""){
+          $this->db->where('id', $service_center_id);
+       }
        $this->db->where('active', 1);
        $sql = $this->db->get('service_centres');
        return $sql->result_array();
@@ -315,22 +318,20 @@ class vendor_model extends CI_Model {
       $query = $this->db->get('service_centres');
       $query3['vendor'] = $query->result_array();
 
-      $source['source'] = $this->partner_model->get_all_partner_source();
+      $source['source'] = $this->partner_model->get_all_partner_source("not null");
 
        return array_merge($query1, $query2, $query3, $source);
     }
 
-    function getVendorFromMapping($vendor_id ="", $city="", $Appliance_ID = ""){
-      $appliances = "";
+    function getVendorFromMapping($vendor_id ="", $city=""){
+  
       $cities = "";
-      if($Appliance_ID  !=""){
-        $appliances = ", Appliance";
-      }
+      
       if($city !=""){
         $cities = " , City";
       }
       $this->db->distinct();
-      $this->db->select('Vendor_Name, Vendor_ID'. $cities.$appliances);
+      $this->db->select('Vendor_Name as name, Vendor_ID as id, Appliance, Appliance_ID');
       $this->db->where('active',1);
       if($vendor_id !="" )
         $this->db->where('Vendor_ID', $vendor_id);
@@ -338,10 +339,7 @@ class vendor_model extends CI_Model {
       if($city !="")
         $this->db->where('City', $city);
 
-      if($Appliance_ID !="")
-        $this->db->where('Appliance_ID', $Appliance_ID);
-
-      //$this->db->order_by('Vendor_ID');
+      $this->db->order_by('Appliance', 'ASC');
       
       $query = $this->db->get('vendor_pincode_mapping');
 
@@ -364,35 +362,49 @@ class vendor_model extends CI_Model {
          return false;
       }
     }
+    
+    /**
+     * @desc: this function is used to get vendor performance .
+     **/
     function get_vendor_performance($vendor){
+      $group_By = ""; $where = ""; $month = ""; $source = ""; $services =""; $join = "" ;  $sources =""; $avg = ""; $city = "";
+        // it used to make group by source when service center id is not empty and source is empty.
+        if($vendor['vendor_id'] !="" && $vendor['source'] == "" ){
+          $sources = " , source ";
+        }        
+        // It is used to get dataset group by month- year and order by year desc 
+        if($vendor['period'] == 'All Month'){
+          $group_By .= " GROUP BY DATE_FORMAT(booking_details.`closed_date`, '%M, %Y') $sources ORDER BY DATE_FORMAT(`booking_details`.`create_date`, '%Y') DESC, completed_booking";
+          // it used to select month and year with dataset
+          $month = " DATE_FORMAT(booking_details.`closed_date`,'%M, %Y') `month`,";
+        }
 
-      $group_By = "";
-      $where = "";
-      $month = "";
-      if($vendor['period'] == 'All Month'){
-          $group_By .= " GROUP BY DATE_FORMAT(`closed_date`, '%M, %Y') ORDER BY DATE_FORMAT(`booking_details`.`create_date`, '%Y') DESC, completed_booking";
-          $month = " DATE_FORMAT(`closed_date`,'%M, %Y') `month`,";
-      }
+      // Year Wise Dataset
+   
+      // used to get dataset group by year date.
+        
+      if ($vendor['period'] == "All Year") {
+          $group_By = " GROUP BY DATE_FORMAT(booking_details.`create_date`, '%Y') $sources ORDER BY DATE_FORMAT(booking_details.`create_date`, '%Y') DESC, completed_booking";
+          
+          //used to select year  
+          $month = " DATE_FORMAT(booking_details.`create_date`, '%Y') `month`,";
 
-       // Year Wise Dataset
-    if($vendor['period'] == "All Year"){
-        // get group by create date column.
-        $group_By = " GROUP BY DATE_FORMAT(`create_date`, '%Y') ORDER BY DATE_FORMAT(`create_date`, '%Y') DESC, completed_booking";
-        $month = " DATE_FORMAT(`create_date`, '%Y') `month`,";
     }
 
      // Week Wise Dataset
     if($vendor['period'] == "Week"){
-        // get group by create date column.
-        $group_By = " GROUP BY WEEK(`create_date`)  ORDER BY DATE_FORMAT(`create_date`,'%Y') DESC , DATE_FORMAT(`create_date`,'%m') DESC, completed_booking";
-        $month = "  CONCAT(date(create_date), ' - ', date(create_date) + INTERVAL 7 DAY)   `month`,";
+        // get week wise dataset.
+        $group_By = " GROUP BY WEEK(booking_details.`create_date`) $sources ORDER BY DATE_FORMAT(booking_details`create_date`,'%Y') DESC , DATE_FORMAT(booking_details.`create_date`,'%m') DESC, completed_booking";
+        //used to select week  
+        $month = "  CONCAT(date(booking_details.create_date), ' - ', date(booking_details.create_date) + INTERVAL 7 DAY)   `month`,";
+
     }
     
     //Quater Wise DataSet
     if($vendor['period']== 'Quater'){
-        $group_By .= " GROUP BY Year(create_date) Desc, QUARTER(create_date) DESC";
-        $month = " CASE QUARTER(create_date) 
-
+       $group_By .= " GROUP BY Year(booking_details.create_date) Desc, QUARTER(booking_details.create_date) DESC $sources ";
+        $month = " CASE QUARTER(booking_details.create_date) 
+ 
         WHEN 1 THEN 'Jan - Mar'
 
         WHEN 2 THEN 'Apr - Jun'
@@ -401,59 +413,108 @@ class vendor_model extends CI_Model {
 
         WHEN 4 THEN 'Oct - Dec'
 
-        END AS `month` ,  Year(create_date) as year, ";
+        END AS `month` ,  Year(booking_details.create_date) as year, ";
     }
-
+    
+    // If service id is not empty then select service name by use join query to services table
     if($vendor['service_id'] !=""){
+        $services = " services.services as Appliance, ";
         $where .= " AND service_id = '".$vendor['service_id']."'";
+        $join = " JOIN services on services.id = booking_details.service_id ";
     }
-
+    // if city is not empty then Add where clause in booking details to get completed booking in custom city
+    if($vendor['city'] !=""){
+      $city = " city, ";
+      $where .=" AND city = '". $vendor['city']."' ";
+    }
+    // if source is not empty then Add where clause in booking details to get completed booking in custom source
     if($vendor['source'] !=""){
-        $where .= " AND source = '".$vendor['source']."'" ;
+         $source = "  source, ";
+         $where .= " AND source = '".$vendor['source']."'" ;
     }
-
-      $vendors = $this->getVendorFromMapping($vendor['vendor_id'], $vendor['city'], $vendor['service_id']);
-
-
-      $array =  array();
+    
+    // if vendor id is not empty and source is empty then get data group source wise
+    if($vendor['vendor_id'] !="" && $vendor['source'] == "" ){
+       if($group_By ==""){
+          $group_By .= " GROUP By source";
+       }
      
-      foreach ($vendors as $key => $value) {
-
-          $sql = "SELECT $month
-                  SUM(CASE WHEN `current_status` = 'Completed' THEN 1 ELSE 0 END) AS completed_booking,
-                  SUM(CASE WHEN `current_status` = 'Cancelled' THEN 1 ELSE 0 END) AS cancelled_booking
-                  from booking_details where assigned_vendor_id = $value[Vendor_ID]  $where $group_By";
-
-            $data = $this->db->query($sql);
-            $result = $data->result_array();
-           
-
-             if(!empty($result)){
-                 if($vendor['service_id'] !=""){
-                    $result[0]['Appliance'] = $value['Appliance'];
-                 }
-                 if($vendor['city'] !=""){
-                    $result[0]['City'] = $value['City'];
-                 }
-
-                 if($vendor['source'] !=""){
-                     $result[0]['source'] = $vendor['source'];
-                 }
-
-                 $result[0]['Vendor_Name'] = $value['Vendor_Name'];
-                 $result[0]['Vendor_ID'] = $value['Vendor_ID'];
-          
-                 array_push($array, $result);
-            }
-      }
-      if($vendor['sort'] == "ASC"){
-         arsort($array);
-      } else {
-        asort($array);
-      }
+     $source = "  source, ";
       
-     return $array;
+    }
+    // Only get vendor details from vendor mapping table, when vendor id and source are not empty and service id is empty.
+    // otherwise get vendor details from service centers table.
+    if($vendor['vendor_id'] !="" && $vendor['source'] != "" && $vendor['service_id'] =="" ){
+     
+        $service_center =$this->getVendorFromMapping($vendor['vendor_id']);
 
+       
+    } else {
+       $service_center = $this->getActiveVendor($vendor['vendor_id']);
+    }
+    // initialize empty array
+    $array = array();
+       foreach ($service_center as $key => $value) { 
+
+         $condition = "";
+         if(isset($value['Appliance_ID'])){
+            $condition = " AND service_id =  $value[Appliance_ID] ";
+            // Calculate avg as a subquery
+            $avg = " , AVG(amount_paid) AS amount_paid,
+                     (SELECT avg(amount_paid) 
+                       FROM `booking_details`
+                      WHERE booking_details.service_id = '$value[Appliance_ID]' AND source = 
+                      '$vendor[source]') as avg_amount_paid";
+         }
+      
+          $sql = "SELECT $month $source $services $city
+                SUM(CASE WHEN `current_status` = 'Completed' THEN 1 ELSE 0 END) AS completed_booking,
+                SUM(CASE WHEN `current_status` = 'Cancelled' THEN 1 ELSE 0 END) AS cancelled_booking
+                $avg
+
+                from booking_details $join where assigned_vendor_id = $value[id]  $condition  $where $group_By";
+                   
+          $data = $this->db->query($sql);
+          $result = $data->result_array();
+          
+            if(!empty($result)){
+              $result[0]['Vendor_Name'] = $value['name'];
+
+              foreach ($result as $keys => $center) {
+
+                if(isset($value['Appliance'])){
+                  $result[$keys]['Appliance'] = $value['Appliance'];
+              }
+              if($vendor['source'] !=""){
+                $result[$keys]['source'] = $vendor['source'];
+              
+              }
+              
+              if($center['completed_booking'] == ""){
+                 $result[$keys]['completed_booking'] = 0;
+              }
+
+               if($center['cancelled_booking'] == ""){
+                 $result[$keys]['cancelled_booking'] = 0;
+              }
+
+              if(($center['completed_booking'] + $center['cancelled_booking'] ) > 0){
+                  $result[$keys]['percentage'] = sprintf ("%.2f", (($center['completed_booking']*100) /($center['completed_booking'] + $center['cancelled_booking'] )));
+
+
+              } else {
+
+                   $result[$keys]['percentage'] = "0";
+              }
+
+            }
+            } 
+            //Array push
+            array_push($array, $result);
+       }
+
+       
+       return $array;
     }
 
     function insert_service_center_action($data){
