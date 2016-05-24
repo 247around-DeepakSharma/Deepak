@@ -237,7 +237,7 @@ class vendor_model extends CI_Model {
     }
     
     // update escalation policy flag in json in vendor escalation log table
-    function updateEscalationFlag($id, $flag){
+    function updateEscalationFlag($id, $flag, $booking_id){
       unset($flag[0]['escalation_reason']); 
       unset($flag[0]['id']);
       unset($flag[0]['sms_body']);
@@ -250,6 +250,7 @@ class vendor_model extends CI_Model {
       
       $this->db->where('id', $id);
       $this->db->update('vendor_escalation_log', $reason_flag);
+      return $this->getUserDetails($booking_id);
     }
 
     function get_city(){
