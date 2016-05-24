@@ -42,7 +42,7 @@ function check(){
                 <div class="form-group <?php if( form_error('cancellation_reason') ) { echo 'has-error';} ?>">                
                   <label for="cancellation_reason" class="col-md-2"> </label>
                   <div class="col-md-6">
-                    <textarea class="form-control"  id="cancellation_reason_text" name="cancellation_reason_text" value = "<?php echo set_value('cancellation_reason'); ?>" disabled></textarea>                            
+                    <textarea class="form-control"  id="cancellation_reason_text" name="cancellation_reason_text" value = "<?php echo set_value('cancellation_reason'); ?>" rows="8" disabled></textarea>                            
                   </div>
                 </div>
 

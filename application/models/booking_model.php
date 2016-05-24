@@ -1545,14 +1545,6 @@ class Booking_model extends CI_Model {
 	}
     }
 
-    function get_booking_vendor_details($vendor_id){
-    $this->db->select('name,district');
-	$this->db->where('id', $vendor_id);
-	$query = $this->db->get('service_centres');
-	return $query->result_array();
-
-    }
-
     /**
      * @desc; this function is used to get services charges to be filled by service centers
      * @param: booking id
@@ -1567,5 +1559,6 @@ class Booking_model extends CI_Model {
     	$query = $this->db->get('service_center_booking_action');
     	return $query->result_array();
     }
+
 
 }

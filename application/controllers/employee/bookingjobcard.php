@@ -29,6 +29,7 @@ class bookingjobcard extends CI_Controller {
         $this->load->library('form_validation');
         $this->load->library("pagination");
         $this->load->library("session");
+        $this->load->library("notify");
 
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') && ($this->session->userdata('add service') == '1')) {
             return TRUE;
@@ -317,7 +318,8 @@ class bookingjobcard extends CI_Controller {
             $smsBody = "Congrats! You Have New Booking For " . $bookingdate . " On Email From 247Around. Pls Assign Engineer. Dont Forget To Smile When You Meet Customer. 247Around - 8130572244";
 
             //Send SMS to vendor
-            $this->sendTransactionalSms($servicecentredetails[0]['primary_contact_phone_1'], $smsBody);
+//            $this->sendTransactionalSms($servicecentredetails[0]['primary_contact_phone_1'], $smsBody);
+            $this->notify->sendTransactionalSms($servicecentredetails[0]['primary_contact_phone_1'], $smsBody);
             //Save email in database
             $details = array("booking_id" => $booking_id, "subject" => $subject,
                 "body" => $message, "type" => "Booking",
@@ -409,39 +411,39 @@ class bookingjobcard extends CI_Controller {
         }
     }
 
-    function sendTransactionalSms($phone_number, $body) {
+    // function sendTransactionalSms($phone_number, $body) {
 
-        //log_message ('info', "Entering: " . __METHOD__ . ": Phone num: " . $phone_number);
+    //     //log_message ('info', "Entering: " . __METHOD__ . ": Phone num: " . $phone_number);
 
-        $post_data = array(
-            // 'From' doesn't matter; For transactional, this will be replaced with your SenderId;
-            // For promotional, this will be ignored by the SMS gateway
-            'From' => '01130017601',
-            'To' => $phone_number,
-            'Body' => $body,
-        );
+    //     $post_data = array(
+    //         // 'From' doesn't matter; For transactional, this will be replaced with your SenderId;
+    //         // For promotional, this will be ignored by the SMS gateway
+    //         'From' => '01130017601',
+    //         'To' => $phone_number,
+    //         'Body' => $body,
+    //     );
 
-        $exotel_sid = "aroundhomz";
-        $exotel_token = "a041058fa6b179ecdb9846ccf0e4fd8e09104612";
+    //     $exotel_sid = "aroundhomz";
+    //     $exotel_token = "a041058fa6b179ecdb9846ccf0e4fd8e09104612";
 
-        $url = "https://" . $exotel_sid . ":" . $exotel_token . "@twilix.exotel.in/v1/Accounts/" . $exotel_sid . "/Sms/send";
+    //     $url = "https://" . $exotel_sid . ":" . $exotel_token . "@twilix.exotel.in/v1/Accounts/" . $exotel_sid . "/Sms/send";
 
-        $ch = curl_init();
+    //     $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_VERBOSE, 1);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_FAILONERROR, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
+    //     curl_setopt($ch, CURLOPT_VERBOSE, 1);
+    //     curl_setopt($ch, CURLOPT_URL, $url);
+    //     curl_setopt($ch, CURLOPT_POST, 1);
+    //     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    //     curl_setopt($ch, CURLOPT_FAILONERROR, 0);
+    //     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+    //     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
 
-        $http_result = curl_exec($ch);
-        $error = curl_error($ch);
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        //print_r($ch);
-        //echo exit();
-        curl_close($ch);
-    }
+    //     $http_result = curl_exec($ch);
+    //     $error = curl_error($ch);
+    //     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    //     //print_r($ch);
+    //     //echo exit();
+    //     curl_close($ch);
+    // }
 
 }

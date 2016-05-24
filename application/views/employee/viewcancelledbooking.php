@@ -93,7 +93,7 @@
                     <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
                     <td><?= $row->booking_primary_contact_no; ?></td>
                     <td><?= $row->services; ?></td>
-                    <td><?= $row->service_centre_name; ?></td>
+                    <td><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $row->assigned_vendor_id;?>"><?= $row->service_centre_name; ?></a></td>
                     <td><?= $row->city;?></td>
                     <td><?php            
                         echo "<a id='edit' class='btn btn-sm btn-success' "
