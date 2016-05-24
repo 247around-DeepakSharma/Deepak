@@ -7,9 +7,9 @@ if (!defined('BASEPATH'))
 //ini_set('display_errors', '1');
 
 //ini_set('include_path', '/Applications/MAMP/htdocs/aroundlocalhost/system/libraries');
-ini_set('include_path', '/var/www/aroundhomzapp.com/public_html/system/libraries');
+//ini_set('include_path', '/var/www/aroundhomzapp.com/public_html/system/libraries');
 
-require_once('simple_html_dom.php');
+//require_once('simple_html_dom.php');
 
 class BookingSummary extends CI_Controller {
 
@@ -22,8 +22,9 @@ class BookingSummary extends CI_Controller {
         $this->load->model('booking_model');
 
         $this->load->library('PHPReport');
+        $this->load->library('notify');
         $this->load->library('email');
-	$this->load->library('s3');
+	    $this->load->library('s3');
     }
 
     public function test($a = "a", $b = "b") {
@@ -615,6 +616,66 @@ EOD;
 	exec("rm -rf " . escapeshellarg($output_file));
 
 	exit(0);
+    }
+
+    function booking_report(){
+        $data = $this->reporting_utils->booking_report();
+        $html = '
+                    <html xmlns="http://www.w3.org/1999/xhtml">
+                      <head>
+                        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">       
+                      </head>
+                      <body>
+                      <p>Today Booking Summary:</p>
+                        <div style="margin-top: 30px;">
+                          <table style="width: 100%;max-width: 100%;margin-bottom: 20px;border: 1px solid #ddd;">
+                            <thead>
+                              <tr style="padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd"> 
+                                  
+                                <th style="border: 1px solid #ddd;">Source</th>
+                                <th style="border: 1px solid #ddd;">Total</th>
+                                <th style="border: 1px solid #ddd;">Scheduled</th>
+                                <th style="border: 1px solid #ddd;">Follow Up</th>
+                                <th style="border: 1px solid #ddd;">Cancel</th>
+                              </tr>
+                            </thead>
+                            <tbody >';
+                            foreach ($data['data2'] as $key => $value) {
+                                $html .= "<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'><td style='border: 1px solid #ddd;'>".$value['source']."</td><td style='border: 1px solid #ddd;'>".$value['total']." </td><td style='border: 1px solid #ddd;'>".$value['scheduled']." </td></td><td style='border: 1px solid #ddd;'>".$value['queries']." </td></td><td style='border: 1px solid #ddd;'>".$value['cancelled']." </td></tr>";
+                            }
+           
+                            
+            $html  .= '</tbody>
+                          </table>
+                        </div>';
+
+             $html .= ' <p style="margin-top: 30px;" >Overall Booking Summary:</p>
+                        <div style="margin-top: 30px;" >
+                          <table style="width: 100%;max-width: 100%;margin-bottom: 20px;border: 1px solid #ddd;">
+                            <thead>
+                              <tr style="padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd"> 
+                                  
+                                <th style="border: 1px solid #ddd;">Source</th>
+                                <th style="border: 1px solid #ddd;">Total</th>
+                                <th style="border: 1px solid #ddd;">Scheduled</th>
+                                <th style="border: 1px solid #ddd;">Follow Up</th>
+                                <th style="border: 1px solid #ddd;">Cancel</th>
+                              </tr>
+                            </thead>
+                            <tbody >';
+                            foreach ($data['data1'] as $key => $value) {
+                                $html .= "<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'><td style='border: 1px solid #ddd;'>".$value['source']."</td><td style='border: 1px solid #ddd;'>".$value['total']." </td><td style='border: 1px solid #ddd;'>".$value['scheduled']." </td></td><td style='border: 1px solid #ddd;'>".$value['queries']." </td></td><td style='border: 1px solid #ddd;'>".$value['cancelled']." </td></tr>";
+                            }
+            $html  .= '</tbody>
+                          </table>
+                        </div>';
+
+
+            $html .= '</body>
+                    </html>';
+        $to = "abhaya@247around.com";
+
+        $this->notify->sendEmail("booking@247around.com", $to, "", "", "Booking Summary", $html, "");
     }
 
 }
