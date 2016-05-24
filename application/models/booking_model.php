@@ -1544,13 +1544,4 @@ class Booking_model extends CI_Model {
 	    return "";
 	}
     }
-
-    function get_booking_vendor_details($vendor_id){
-    $this->db->select('name,district');
-	$this->db->where('id', $vendor_id);
-	$query = $this->db->get('service_centres');
-	return $query->result_array();
-
-    }
-
 }

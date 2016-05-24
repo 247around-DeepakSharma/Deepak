@@ -20,6 +20,7 @@ class bookings_excel extends CI_Controller {
         $this->load->library('form_validation');
         $this->load->library('s3');
         $this->load->library('PHPReport');
+        $this->load->library('notify');
 
         $this->load->model('user_model');
         $this->load->model('booking_model');
@@ -471,11 +472,15 @@ class bookings_excel extends CI_Controller {
                 "<br>Selected service/s is/are: " . $booking['items_selected'] . "<br>Total price is: " . $booking['total_price'] . "<br>";
             $message = $message . $appliance . "<br> Thanks!!";
 
+            $from = "booking@247around.com";
             $to = "";
             $cc = "";
             $bcc = "";
             $subject = 'Booking Confirmation - Snapdeal - AROUND';
-            $this->sendMail($subject, $message, $to, $cc, $bcc); //Call to sendMail function
+            $attachment = "";
+//            $this->sendMail($subject, $message, $to, $cc, $bcc); 
+            //Call to sendMail function
+            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
         }
 
         //Update lead table with booking ID and new status
@@ -484,32 +489,32 @@ class bookings_excel extends CI_Controller {
         redirect(base_url() . 'employee/bookings_excel/get_unassigned_bookings', 'refresh');
     }
 
-    function sendMail($subject, $message, $to, $cc, $bcc) {
+ //    function sendMail($subject, $message, $to, $cc, $bcc) {
 
-        $this->load->library('email');
-        $this->email->initialize(array(
-            'useragent' => 'CodeIgniter',
-            'protocol' => 'smtp',
-            'smtp_host' => 'smtp.sendgrid.net',
-            'smtp_port' => '587',
-            'smtp_user' => 'nitinmalhotra',
-            'smtp_pass' => 'mandatory16',
-            'mailtype' => 'html',
-            'charset' => 'iso-8859-1',
-            'crlf' => "\r\n",
-            'newline' => "\r\n",
-            'wordwrap' => TRUE
-            )
-        );
+ //        $this->load->library('email');
+ //        $this->email->initialize(array(
+ //            'useragent' => 'CodeIgniter',
+ //            'protocol' => 'smtp',
+ //            'smtp_host' => 'smtp.sendgrid.net',
+ //            'smtp_port' => '587',
+ //            'smtp_user' => 'nitinmalhotra',
+ //            'smtp_pass' => 'mandatory16',
+ //            'mailtype' => 'html',
+ //            'charset' => 'iso-8859-1',
+ //            'crlf' => "\r\n",
+ //            'newline' => "\r\n",
+ //            'wordwrap' => TRUE
+ //            )
+ //        );
 
-        $this->email->from('booking@247around.com', '247around Team');
-	//$this->email->to($to);
-        //TODO: Uncomment before releasing
-        $this->email->bcc('anuj@247around.com, nits@247around.com');
-        //$this->email->bcc('anuj.aggarwal@gmail.com');
-        $this->email->subject($subject);
-        $this->email->message($message);
-        $this->email->send();
-    }
+ //        $this->email->from('booking@247around.com', '247around Team');
+	// //$this->email->to($to);
+ //        //TODO: Uncomment before releasing
+ //        $this->email->bcc('anuj@247around.com, nits@247around.com');
+ //        //$this->email->bcc('anuj.aggarwal@gmail.com');
+ //        $this->email->subject($subject);
+ //        $this->email->message($message);
+ //        $this->email->send();
+ //    }
 
 }
