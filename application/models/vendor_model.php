@@ -511,9 +511,7 @@ class vendor_model extends CI_Model {
             } 
             //Array push
             array_push($array, $result);
-       }
-
-       
+       }       
        return $array;
     }
 
