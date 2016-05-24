@@ -443,7 +443,7 @@ class vendor extends CI_Controller {
 	    if ($escalation_id) {
 		$escalation_policy_details = $this->vendor_model->getEscalationPolicyDetails($escalation['escalation_reason']);
 
-		$this->vendor_model->updateEscalationFlag($escalation_id, $escalation_policy_details);
+		$userDetails = $this->vendor_model->updateEscalationFlag($escalation_id, $escalation_policy_details, $escalation['booking_id']);
 
 		$vendorContact = $this->vendor_model->getVendorContact($escalation['vendor_id']);
 
@@ -454,12 +454,12 @@ class vendor extends CI_Controller {
 		    $this->notify->sendEmail('booking@247around.com', $return_mail_to, '', '', $escalation_policy_details[0]['mail_subject'], $escalation_policy_details[0]['mail_body'], '');
 		}
 
-		$this->sendSmsToVendor($escalation_policy_details, $vendorContact, $escalation['booking_id']);
+		$this->sendSmsToVendor($escalation_policy_details, $vendorContact, $escalation['booking_id'], $userDetails);
 
 		//$output = "Vendor Escalation Process Completed.";
 		//$userSession = array('success' => $output);
 		//$this->session->set_userdata($userSession);
-	    		redirect(base_url().'employee/booking/view');
+	    redirect(base_url().'employee/booking/view');
 	    }
 	} else {
 	    $this->vendor_escalation_form($booking_id);
@@ -469,10 +469,10 @@ class vendor extends CI_Controller {
     /**
      *  Send SMS to Vendor and Owner when flag of sms to owner and sms to vendor is 1.
      */
-    function sendSmsToVendor($escalation_policy, $contact, $booking_id) {
+    function sendSmsToVendor($escalation_policy, $contact, $booking_id, $userDetails) {
 	if ($escalation_policy[0]['sms_to_owner'] == 1 && $escalation_policy[0]['sms_to_poc'] == 1) {
 
-	    $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $contact, $booking_id);
+	    $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
 
 	    $this->notify->sendTransactionalSms($contact[0]['primary_contact_phone_1'], $smsBody);
 
@@ -480,20 +480,20 @@ class vendor extends CI_Controller {
 	    $this->notify->sendTransactionalSms($contact[0]['owner_phone_1'], $smsBody);
 	} else if ($escalation_policy[0]['sms_to_owner'] == 0 && $escalation_policy[0]['sms_to_poc'] == 1) {
 
-	    $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $contact, $booking_id);
+	    $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
 
 	    $this->notify->sendTransactionalSms($contact[0]['primary_contact_phone_1'], $smsBody);
 	} else if ($escalation_policy[0]['sms_to_owner'] == 1 && $escalation_policy[0]['sms_to_poc'] == 0) {
 
-	    $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $contact, $booking_id);
+	    $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
 
 	    $this->notify->sendTransactionalSms($contact[0]['owner_phone_1'], $smsBody);
 	}
     }
 
-    function replaceSms_body($template, $contact, $booking_id) {
+    function replaceSms_body($template, $booking_id, $userDetails) {
 
-	$smsBody = sprintf($template, $contact[0]['name'], $contact[0]['primary_contact_phone_1'], $booking_id);
+	$smsBody = sprintf($template, $userDetails[0]['name'], $userDetails[0]['phone_number'], $booking_id);
 
 	return $smsBody;
     }
@@ -613,6 +613,18 @@ class vendor extends CI_Controller {
     	$charges['charges'] = $this->vendor_model->getbooking_charges();
     	$this->load->view('employee/header');
     	$this->load->view('employee/review_service_charges', $charges);
+    }
+
+    function test(){
+    	$vendor['city'] = "Delhi";
+    	$vendor['vendor_id'] = "";
+    	$vendor['service_id'] = "";
+    	$vendor['period'] = "";
+    	$vendor['source'] = "";
+    	$vendor['sort'] = "";
+    	$data['data'] = $this->vendor_model->get_vendor_performance($vendor);
+    	$result = $this->load->view('employee/vendorperformance',$data);
+
     }
 }
 

@@ -383,7 +383,7 @@ $this->db = $this->load->database('default', TRUE,TRUE);
 
   function get_city_source(){
     $query1['city'] = $this->vendor_model->get_city();
-    $query2['source'] = $this->partner_model->get_all_partner_source();
+    $query2['source'] = $this->partner_model->get_all_partner_source("not null");
     return array_merge($query1, $query2);
   }
 

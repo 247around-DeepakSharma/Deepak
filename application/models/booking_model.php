@@ -1544,4 +1544,21 @@ class Booking_model extends CI_Model {
 	    return "";
 	}
     }
+
+    /**
+     * @desc; this function is used to get services charges to be filled by service centers
+     * @param: booking id
+     * @return: Array()
+     */
+    function getbooking_charges($booking_id =""){
+    	$array = array('current_status !=' => "Completed");
+    	$this->db->select('*');
+    	if($booking_id !="")
+    		$this->db->where('booking_id', $booking_id);
+    	$this->db->where($array);
+    	$query = $this->db->get('service_center_booking_action');
+    	return $query->result_array();
+    }
+
+
 }
