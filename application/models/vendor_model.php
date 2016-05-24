@@ -546,5 +546,4 @@ class vendor_model extends CI_Model {
         $this->db->where('booking_id', $booking_id);
         $this->db->delete("service_center_booking_action");
     }
-
 }

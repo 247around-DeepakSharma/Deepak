@@ -70,12 +70,7 @@
                            <option value="Week" >Week</option>
                         </select>
                      </li>
-                     <li class="col-md-2" style="border: 1px solid #bbb;" >
-                        <select  onchange="getVendorPerformance()" class="form-control"  id="sort" name="sort" >
-                           <option  value = "DESC" selected>DESC</option>
-                           <option  value = "ASC" selected>ASC</option>
-                        </select>
-                     </li>
+                    
                   </ul>
                </div>
                <div class="col-md-12 col-md-offset-3"><img src="" id="loader_gif"></div>
