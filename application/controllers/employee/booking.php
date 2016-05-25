@@ -236,9 +236,9 @@ class Booking extends CI_Controller {
 
 		$smsBody = "Got it! Request for " . $query1[0]['services'] . " Repair is confirmed for " .
 		    $booking['booking_date'] . ", " . $booking['booking_timeslot'] .
-		    ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";
+		    ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 9555000247";
 
-		    $this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
+		$this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
 	    }
 	    //------End of sending SMS--------//
 
