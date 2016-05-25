@@ -918,9 +918,9 @@ class Booking extends CI_Controller {
 	    $query1[0]['booking_date'] . "<br>Booking timeslot was: " . $query1[0]['booking_timeslot'] .
 	    "<br>Booking cancellation date is: " . $data['update_date'] . "<br>Booking cancellation reason: " .
 	    $data['cancellation_reason'] . "<br>Vendor name:" . $query1[0]['vendor_name'] . "<br>Vendor city:" .
-	    $query1[0]['city'] ."<br> Thanks!!";
+	    $query1[0]['district'] ."<br> Thanks!!";
 	$attachment ="";
-//	$this->sendMail($subject, $message, $to, $cc, $bcc);
+
 	$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
 	//------End of sending email--------//
 	//------------Send SMS for cancellation---------//

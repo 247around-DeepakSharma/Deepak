@@ -615,8 +615,14 @@ class vendor extends CI_Controller {
     	$this->load->view('employee/review_service_charges', $charges);
     }
 
-    function test(){
-    	$vendor['city'] = "Delhi";
+    function getcancellation_reason($vendor_id){
+    	$reason['reason'] = $this->vendor_model->getcancellation_reason($vendor_id);
+    	$this->load->view('employee/header');
+    	$this->load->view('employee/vendor_cancellation_reason', $reason);
+    }
+
+   /* function test(){
+    	/*$vendor['city'] = "Delhi";
     	$vendor['vendor_id'] = "";
     	$vendor['service_id'] = "";
     	$vendor['period'] = "";
@@ -624,7 +630,9 @@ class vendor extends CI_Controller {
     	$vendor['sort'] = "";
     	$data['data'] = $this->vendor_model->get_vendor_performance($vendor);
     	$result = $this->load->view('employee/vendorperformance',$data);
+    	//$this->vendor_model->booking_report();
+    	$this->load->view('employee/addservice');
 
-    }
+    }*/
 }
 
