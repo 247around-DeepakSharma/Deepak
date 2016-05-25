@@ -193,7 +193,7 @@
          foreach ($variable as $keys => $value) { ?>
       <tr>
          <td><?php  echo $i; ?></td>
-         <td><?php echo $variable[0]['Vendor_Name']; ?></td>
+         <td><a href="<?php echo base_url();?>employee/vendor/getcancellation_reason/<?php echo $variable[0]['Vendor_ID'] ?>" target='_blank' ><?php echo $variable[0]['Vendor_Name']; ?></td>
          <td><?php if(isset($variable[0]['City'])) { echo $variable[0]['City']; }?></td>
          <td><?php if(isset($variable[0]['Appliance'])) { echo $variable[0]['Appliance'];} ?></td>
          <td><?php if(isset($variable[0]['source'])){ echo $value['source']; }?></td>

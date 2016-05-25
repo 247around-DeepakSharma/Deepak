@@ -480,6 +480,7 @@ class vendor_model extends CI_Model {
           
             if(!empty($result)){
               $result[0]['Vendor_Name'] = $value['name'];
+              $result[0]['Vendor_ID'] = $value['id'];
 
               foreach ($result as $keys => $center) {
 
@@ -545,4 +546,17 @@ class vendor_model extends CI_Model {
         $this->db->where('booking_id', $booking_id);
         $this->db->delete("service_center_booking_action");
     }
+    
+    /**
+     * @desc: get cancellation reason for specific vendor
+     */
+    function getcancellation_reason($service_center_id){
+      $sql = "SELECT cancellation_reason, count(*) AS count FROM booking_details where assigned_vendor_id = '$service_center_id' GROUP BY cancellation_reason";
+
+      $data = $this->db->query($sql);
+      return $data->result_array();
+
+
+    }
+
 }
