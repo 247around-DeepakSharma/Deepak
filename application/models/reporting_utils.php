@@ -523,4 +523,29 @@ class Reporting_utils extends CI_Model {
         $query = $this->db->get('bookings_sources');
         return $query->result_array();
     }
+
+    function booking_report(){
+        for($i = 1; $i < 3; $i++){
+            $where = "" ;
+
+            if($i == 2){
+                $where = " where create_date >= CURDATE() AND create_date < CURDATE() + INTERVAL 1 DAY ";
+            }
+
+            $sql = "SELECT source,
+                 SUM(CASE WHEN `current_status` = 'FollowUp' THEN 1 ELSE 0 END) AS queries,
+                 SUM(CASE WHEN `current_status` = 'Cancelled' THEN 1 ELSE 0 END) AS cancelled,
+                 SUM(CASE WHEN `current_status` = 'Pending' OR `current_status` = 'Rescheduled' THEN 1 ELSE 0 END) as scheduled,
+                 SUM(CASE WHEN `current_status` = 'FollowUp' OR  `current_status` = 'Cancelled' OR `current_status` = 'Pending' OR `current_status` = 'Rescheduled' THEN 1 ELSE 0 END) AS total 
+  
+                from booking_details $where Group By source ;
+
+                 "; 
+                
+            $data = $this->db->query($sql);
+            $result['data'.$i] = $data->result_array();
+        }
+
+        return $result;
+    }
 }

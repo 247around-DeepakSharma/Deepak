@@ -817,7 +817,7 @@ class Booking_model extends CI_Model {
       $condition ="";
 	  $service_center_name ="";
 	  if($join !=""){
-	  	$service_center_name =",service_centres.name as vendor_name ";
+	  	$service_center_name =",service_centres.name as vendor_name, service_centres.district ";
 	  	$service_centre = ", service_centres ";
 	  	$condition = " and booking_details.assigned_vendor_id =  service_centres.id";
 	  }
@@ -1545,12 +1545,20 @@ class Booking_model extends CI_Model {
 	}
     }
 
-    function get_booking_vendor_details($vendor_id){
-    $this->db->select('name,district');
-	$this->db->where('id', $vendor_id);
-	$query = $this->db->get('service_centres');
-	return $query->result_array();
-
+    /**
+     * @desc; this function is used to get services charges to be filled by service centers
+     * @param: booking id
+     * @return: Array()
+     */
+    function getbooking_charges($booking_id =""){
+    	$array = array('current_status !=' => "Completed");
+    	$this->db->select('*');
+    	if($booking_id !="")
+    		$this->db->where('booking_id', $booking_id);
+    	$this->db->where($array);
+    	$query = $this->db->get('service_center_booking_action');
+    	return $query->result_array();
     }
+
 
 }

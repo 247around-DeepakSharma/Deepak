@@ -53,6 +53,9 @@
                 </select>
             </div>
             <?php } ?>
+            <div class="col-md-3 pull-right" style="margin-top:20px;">
+                 <input type="search" class="form-control pull-right"  id="search" placeholder="search">
+            </div>
             <div style="margin-left:10px;margine-right:5px;">
                 <h1 align="left"><b>Cancelled Bookings</b></h1>
                 <table >
@@ -93,7 +96,7 @@
                     <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
                     <td><?= $row->booking_primary_contact_no; ?></td>
                     <td><?= $row->services; ?></td>
-                    <td><?= $row->service_centre_name; ?></td>
+                    <td><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $row->assigned_vendor_id;?>"><?= $row->service_centre_name; ?></a></td>
                     <td><?= $row->city;?></td>
                     <td><?php            
                         echo "<a id='edit' class='btn btn-sm btn-success' "
@@ -130,3 +133,23 @@
     </div>
 </div>
 
+<script type="text/javascript">
+    $("#search").keyup(function () {
+    var value = this.value.toLowerCase().trim();
+
+    $("table tr").each(function (index) {
+        if (!index) return;
+        $(this).find("td").each(function () {
+            var id = $(this).text().toLowerCase().trim();
+            var not_found = (id.indexOf(value) == -1);
+            $(this).closest('tr').toggle(!not_found);
+            return not_found;
+        });
+    });
+});
+    $(document).ready(function() {
+        $('table').filterTable({ // apply filterTable to all tables on this page
+            inputSelector: '#input-filter' // use the existing input instead of creating a new one
+        });
+    });
+</script>
