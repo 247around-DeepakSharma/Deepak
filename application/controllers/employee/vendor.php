@@ -27,8 +27,10 @@ class vendor extends CI_Controller {
 	$this->load->model('vendor_model');
 	$this->load->model('partner_model');
 	$this->load->library('booking_utilities');
+	$this->load->library('partner_utilities');
 	$this->load->library('notify');
 	$this->load->library("pagination");
+	$this->load->library("asynchronous_lib");
 	$this->load->library("session");
 	$this->load->library('s3');
 	$this->load->library('email');
@@ -286,8 +288,12 @@ class vendor extends CI_Controller {
      *  @param : void
      *  @return : displays the view
      */
-    function get_pincode_excel_upload_form() {
+    function get_pincode_excel_upload_form($error = "") {
 	$mapping_file['pincode_mapping_file'] = $this->vendor_model->getLatestVendorPincodeMappingFile();
+	if($error != ""){
+		$mapping_file['error'] = $error;
+
+	}
 	$this->load->view('employee/header');
 	$this->load->view('employee/upload_pincode_excel', $mapping_file);
     }
@@ -298,114 +304,44 @@ class vendor extends CI_Controller {
     }
 
     /**
-     *  @desc : This function is to upload pincode through excel form
+     *  @desc : This function is to upload pincode through excel (asynchronously)
      *  @param : void
-     *  @return : all the charges added to view
+     *  @return : void
      */
-    public function process_pincode_excel_upload_form() {
-	if (!empty($_FILES['file']['name'])) {
-	    $pathinfo = pathinfo($_FILES["file"]["name"]);
 
-	    if ($pathinfo['extension'] == 'xlsx') {
-		if ($_FILES['file']['size'] > 0) {
-		    $inputFileName = $_FILES['file']['tmp_name'];
-		    $inputFileExtn = 'Excel2007';
-		}
+    function process_pincode_excel_upload_form(){
+    	$return = $this->partner_utilities->validate_file($_FILES);
+	    if ($return == "true") {
+
+	        $inputFileName = $_FILES['file']['tmp_name'];
+	        $details_pincode['file_name'] = "Consolidated_Pin_Code" . date('d-M-Y') . ".xlsx";
+	        // move excel file in tmp folder.
+	        move_uploaded_file($inputFileName, "/tmp/" . $details_pincode['file_name']);
+
+	        if (!empty($_POST['emailID'])) {
+	            $this->notify->sendEmail("booking@247around.com", $_POST['emailID'], '', '', 'Pincode Changes', $_POST['notes'], "/tmp/" . $details_pincode['file_name']);
+	        }
+
+
+	        $bucket = 'bookings-collateral';
+	        $details_pincode['bucket_name'] = "vendor-pincodes";
+	        $directory_xls = $details_pincode['bucket_name'] . "/" . $details_pincode['file_name'];
+
+	        // Insert file name and bucket name to S3
+	        $this->vendor_model->insertS3FileDetails($details_pincode);
+	       // Upload excel on S3
+	        $this->s3->putObjectFile(realpath("/tmp/" . $details_pincode['file_name']), $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+	        // Insert Pincode Mapping data into table by using Asynchronous
+	        $url = base_url() . "employee/do_background_process/upload_pincode_file";
+	        $this->asynchronous_lib->do_background_process($url, array());
+            
+	        redirect(base_url().'employee/booking/view');
+
 	    } else {
-		if ($pathinfo['extension'] == 'xls') {
-		    if ($_FILES['file']['size'] > 0) {
-			$inputFileName = $_FILES['file']['tmp_name'];
-			$inputFileExtn = 'Excel5';
-		    }
-		}
-	    }
-	}
-	//echo $inputFileName, EOL;
 
-	$reader = ReaderFactory::create(Type::XLSX);
-	$details_pincode['file_name'] = "Consolidated_Pin_Code" . date('d-M-Y') . ".xlsx";
-	// move excel file in tmp folder.
-	move_uploaded_file($inputFileName, "/tmp/" . $details_pincode['file_name']);
-	$reader->open("/tmp/" . $details_pincode['file_name']);
-	//echo "Inserting data from xls to db\n\n";
-	if (!empty($_POST['emailID'])) {
-	    $this->notify->sendEmail("booking@247around.com", $_POST['emailID'], '', '', 'Pincode Changes', $_POST['notes'], "/tmp/" . $details_pincode['file_name']);
-	}
-
-	$count = 1;
-	$pincodes_inserted = 0;
-	$err_count = 0;
-	$header_row = FALSE;
-
-	$rows = array();
-	foreach ($reader->getSheetIterator() as $sheet) {
-	    foreach ($sheet->getRowIterator() as $row) {
-		if ($count > 0) {
-		    if ($count % 1000 == 0) {
-			if (!$header_row) {
-			    //header row to be removed for the first iteration
-			    array_shift($rows);
-
-			    $header_row = TRUE;
-			}
-
-			//call insert_batch function for $rows..
-			$this->vendor_model->insert_vendor_pincode_mapping_temp($rows);
-			$pincodes_inserted += count($rows);
-			//echo date("Y-m-d H:i:s") . "=> " . $pincodes_inserted . " pincodes added\n";
-			unset($rows);
-			$rows = array();
-
-			//reset count
-			$count = 0;
-		    }
-
-		    $data['Vendor_Name'] = $row[0];
-		    $data['Vendor_ID'] = $row[1];
-		    $data['Appliance'] = $row[2];
-		    $data['Appliance_ID'] = $row[3];
-		    $data['Brand'] = $row[4];
-		    $data['Area'] = $row[5];
-		    $data['Pincode'] = $row[6];
-		    $data['Region'] = $row[7];
-		    $data['City'] = $row[8];
-		    $data['State'] = $row[9];
-
-		    array_push($rows, $data);
-		}
-		$count++;
+	        $this->get_pincode_excel_upload_form("Not valid File");
 	    }
 
-	    //insert remaining rows
-	    $this->vendor_model->insert_vendor_pincode_mapping_temp($rows);
-	    //echo date("Y-m-d H:i:s") . "=> " . ($count - 1) . " records added\n";
-	    $pincodes_inserted += count($rows);
-	}
-
-	$reader->close();
-
-	$data['error'] = $err_count;
-	$data['pincode'] = $pincodes_inserted;
-
-	if ($err_count === 0) {
-	    //Drop the original pincode mapping table and rename the temp table with new pincodes mapping
-	    $result = $this->vendor_model->switch_temp_pincode_table();
-
-	    if ($result)
-		$data['table_switched'] = TRUE;
-	}
-
-	$bucket = 'bookings-collateral';
-	$details_pincode['bucket_name'] = "vendor-pincodes";
-	$directory_xls = $details_pincode['bucket_name'] . "/" . $details_pincode['file_name'];
-
-	// Insert file name and bucket name to S3
-	$this->vendor_model->insertS3FileDetails($details_pincode);
-	// Upload excel on S3
-	$this->s3->putObjectFile(realpath("/tmp/" . $details_pincode['file_name']), $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-
-	$this->load->view('employee/header');
-	$this->load->view('employee/upload_pincode_excel_summary', $data);
     }
 
     /**
@@ -442,8 +378,11 @@ class vendor extends CI_Controller {
 
 	    if ($escalation_id) {
 		$escalation_policy_details = $this->vendor_model->getEscalationPolicyDetails($escalation['escalation_reason']);
-
+        // Update escalation flag and return userDeatils
 		$userDetails = $this->vendor_model->updateEscalationFlag($escalation_id, $escalation_policy_details, $escalation['booking_id']);
+
+		log_message('info', "User Details " . print_r($userDetails));
+		log_message('info', "Vendor_ID " . $escalation['vendor_id']);
 
 		$vendorContact = $this->vendor_model->getVendorContact($escalation['vendor_id']);
 
@@ -614,24 +553,49 @@ class vendor extends CI_Controller {
     	$this->load->view('employee/header');
     	$this->load->view('employee/review_service_charges', $charges);
     }
-
+    
+    /**
+     * @desc: get cancellation reation for specific vendor id
+     * @param: void
+     * @return: void
+     */
     function getcancellation_reason($vendor_id){
     	$reason['reason'] = $this->vendor_model->getcancellation_reason($vendor_id);
     	$this->load->view('employee/header');
     	$this->load->view('employee/vendor_cancellation_reason', $reason);
     }
 
-   /* function test(){
-    	/*$vendor['city'] = "Delhi";
-    	$vendor['vendor_id'] = "";
-    	$vendor['service_id'] = "";
-    	$vendor['period'] = "";
-    	$vendor['source'] = "";
-    	$vendor['sort'] = "";
-    	$data['data'] = $this->vendor_model->get_vendor_performance($vendor);
-    	$result = $this->load->view('employee/vendorperformance',$data);
-    	//$this->vendor_model->booking_report();
-    	$this->load->view('employee/addservice');
+    /*function test(){
+    	$post_data = array(
+            'From' => "9971634265",
+            'To' => "01139595200",
+            'CallerId' => "01130017601",
+		    //'TimeLimit' => "<time-in-seconds> (optional)",
+		    //'TimeOut' => "<time-in-seconds (optional)>",
+		    'CallType' => "trans" //Can be "trans" for transactional and "promo" for promotional content
+        );
+ 
+        $exotel_sid = "aroundhomz";
+	    $exotel_token = "a041058fa6b179ecdb9846ccf0e4fd8e09104612";
+
+        $url = "https://".$exotel_sid.":".$exotel_token."@twilix.exotel.in/v1/Accounts/".$exotel_sid."/Calls/connect";
+ 
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_VERBOSE, 1);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_FAILONERROR, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
+ 
+        $http_result = curl_exec($ch);
+        $error = curl_error($ch);
+        $http_code = curl_getinfo($ch ,CURLINFO_HTTP_CODE);
+ 
+        curl_close($ch);
+ 
+        print "Response = ".print_r($http_result);
 
     }*/
 }
