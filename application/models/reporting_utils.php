@@ -535,8 +535,9 @@ class Reporting_utils extends CI_Model {
             $sql = "SELECT source,
                  SUM(CASE WHEN `current_status` = 'FollowUp' THEN 1 ELSE 0 END) AS queries,
                  SUM(CASE WHEN `current_status` = 'Cancelled' THEN 1 ELSE 0 END) AS cancelled,
+                 SUM(CASE WHEN `current_status` = 'Completed' THEN 1 ELSE 0 END) AS completed,
                  SUM(CASE WHEN `current_status` = 'Pending' OR `current_status` = 'Rescheduled' THEN 1 ELSE 0 END) as scheduled,
-                 SUM(CASE WHEN `current_status` = 'FollowUp' OR  `current_status` = 'Cancelled' OR `current_status` = 'Pending' OR `current_status` = 'Rescheduled' THEN 1 ELSE 0 END) AS total 
+                 SUM(CASE WHEN `current_status` = 'FollowUp' OR `current_status` = 'Completed' OR `current_status` = 'Cancelled' OR `current_status` = 'Pending' OR `current_status` = 'Rescheduled' THEN 1 ELSE 0 END) AS total 
   
                 from booking_details $where Group By source ;
 

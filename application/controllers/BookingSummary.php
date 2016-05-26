@@ -7,9 +7,9 @@ if (!defined('BASEPATH'))
 //ini_set('display_errors', '1');
 
 //ini_set('include_path', '/Applications/MAMP/htdocs/aroundlocalhost/system/libraries');
-ini_set('include_path', '/var/www/aroundhomzapp.com/public_html/system/libraries');
+//ini_set('include_path', '/var/www/aroundhomzapp.com/public_html/system/libraries');
 
-require_once('simple_html_dom.php');
+//require_once('simple_html_dom.php');
 
 class BookingSummary extends CI_Controller {
 
@@ -636,12 +636,13 @@ EOD;
                                 <th style="border: 1px solid #ddd;">Total</th>
                                 <th style="border: 1px solid #ddd;">Scheduled</th>
                                 <th style="border: 1px solid #ddd;">Follow Up</th>
+                                <th style="border: 1px solid #ddd;">Completed</th>
                                 <th style="border: 1px solid #ddd;">Cancel</th>
                               </tr>
                             </thead>
                             <tbody >';
                             foreach ($data['data2'] as $key => $value) {
-                                $html .= "<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'><td style='border: 1px solid #ddd;'>".$value['source']."</td><td style='border: 1px solid #ddd;'>".$value['total']." </td><td style='border: 1px solid #ddd;'>".$value['scheduled']." </td></td><td style='border: 1px solid #ddd;'>".$value['queries']." </td></td><td style='border: 1px solid #ddd;'>".$value['cancelled']." </td></tr>";
+                                $html .= "<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'><td style='text-align: center;border: 1px solid #ddd;'>".$value['source']."</td><td style='text-align: center;border: 1px solid #ddd;'>".$value['total']." </td><td style='text-align: center;border: 1px solid #ddd;'>".$value['scheduled']." </td></td><td style='text-align: center;border: 1px solid #ddd;'>".$value['queries']." </td><td style='text-align: center;border: 1px solid #ddd;'>".$value['completed']." </td><td style='text-align: center;border: 1px solid #ddd;'>".$value['cancelled']." </td></tr>";
                             }
            
                             
@@ -659,12 +660,13 @@ EOD;
                                 <th style="border: 1px solid #ddd;">Total</th>
                                 <th style="border: 1px solid #ddd;">Scheduled</th>
                                 <th style="border: 1px solid #ddd;">Follow Up</th>
+                                <th style="border: 1px solid #ddd;">Completed</th>
                                 <th style="border: 1px solid #ddd;">Cancel</th>
                               </tr>
                             </thead>
                             <tbody >';
                             foreach ($data['data1'] as $key => $value) {
-                                $html .= "<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'><td style='border: 1px solid #ddd;'>".$value['source']."</td><td style='border: 1px solid #ddd;'>".$value['total']." </td><td style='border: 1px solid #ddd;'>".$value['scheduled']." </td></td><td style='border: 1px solid #ddd;'>".$value['queries']." </td></td><td style='border: 1px solid #ddd;'>".$value['cancelled']." </td></tr>";
+                                $html .= "<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'><td style='text-align: center;border: 1px solid #ddd;'>".$value['source']."</td><td style='text-align: center;border: 1px solid #ddd;'>".$value['total']." </td><td style='text-align: center;border: 1px solid #ddd;'>".$value['scheduled']." </td></td><td style='text-align: center;border: 1px solid #ddd;'>".$value['queries']." </td><td style='text-align: center;border: 1px solid #ddd;'>".$value['completed']." </td><td style='text-align: center;border: 1px solid #ddd;'>".$value['cancelled']." </td></tr>";
                             }
             $html  .= '</tbody>
                           </table>
@@ -673,7 +675,8 @@ EOD;
 
             $html .= '</body>
                     </html>';
-        $to = "abhaya@247around.com";
+            
+        $to = "anuj@247around.com, nits@247around.com";
 
         $this->notify->sendEmail("booking@247around.com", $to, "", "", "Booking Summary", $html, "");
     }
