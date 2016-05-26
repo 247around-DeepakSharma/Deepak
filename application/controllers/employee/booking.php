@@ -723,15 +723,14 @@ class Booking extends CI_Controller {
 	    $query = $this->booking_model->booking_history_by_booking_id($booking_id);
 	    $page = "Complete";
 	    $internal_status = $this->booking_model->get_internal_status($page);
-	    $vendor_details = $this->booking_model->get_booking_vendor_details($getbooking[0]['assigned_vendor_id']);
+	   // $vendor_details = $this->booking_model->get_booking_vendor_details($getbooking[0]['assigned_vendor_id']);
 	    $data1['booking_id'] = $query;
 
 	    $this->load->view('employee/header');
 	    $this->load->view('employee/completebooking', array('data' => $data,
 		'data1' => $data1,
 		'internal_status' => $internal_status,
-		'query2' => $query2,
-		'vendor_details' => $vendor_details));
+		'query2' => $query2));
 	} else {
 	    echo "This Id doesn't Available";
 	}
@@ -2162,10 +2161,8 @@ class Booking extends CI_Controller {
 	//$query = $this->booking_model->view_all_pending_queries();
 	$query = $this->booking_model->get_pending_queries(-1, 0, '');
 
-	$data['Bookings'] = null;
-	if ($query) {
-	    $data['Bookings'] = $query;
-	}
+	$data['Bookings'] = $query;
+	
 	$this->load->view('employee/header');
 	$this->load->view('employee/viewpendingqueries', $data);
     }

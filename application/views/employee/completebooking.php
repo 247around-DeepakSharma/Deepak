@@ -57,9 +57,9 @@
                     </div>
 
                     
-                <input type="hidden" class="form-control"  name="vendor_name" value = "<?php if (isset($vendor_details[0]['name'])) {echo $vendor_details[0]['name']; }?>">
+                <!--<input type="hidden" class="form-control"  name="vendor_name" value = "<?php if (isset($vendor_details[0]['name'])) {echo $vendor_details[0]['name']; }?>">
                             
-                <input type="hidden" class="form-control"  name="vendor_city" value = "<?php if (isset($vendor_details[0]['district'])) {echo $vendor_details[0]['district']; }?>">
+                <input type="hidden" class="form-control"  name="vendor_city" value = "<?php if (isset($vendor_details[0]['district'])) {echo $vendor_details[0]['district']; }?>">-->
                     
                     
                     <div class="form-group <?php if( form_error('name') ) { echo 'has-error';} ?>">
