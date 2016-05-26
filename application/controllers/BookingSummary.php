@@ -695,11 +695,10 @@ EOD;
 
             $html .= '</body>
                     </html>';
-            print_r($html);
-            
-        $to = "abahya@247around.com";
+                    
+        $to = "anuj@247around.com, nits@247around.com";
 
-        //$this->notify->sendEmail("booking@247around.com", $to, "", "", "Booking Summary", $html, "");
+        $this->notify->sendEmail("booking@247around.com", $to, "", "", "Booking Summary", $html, "");
     }
 
 }
