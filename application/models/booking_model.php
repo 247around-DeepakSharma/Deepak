@@ -817,7 +817,7 @@ class Booking_model extends CI_Model {
       $condition ="";
 	  $service_center_name ="";
 	  if($join !=""){
-	  	$service_center_name =",service_centres.name as vendor_name ";
+	  	$service_center_name =",service_centres.name as vendor_name, service_centres.district ";
 	  	$service_centre = ", service_centres ";
 	  	$condition = " and booking_details.assigned_vendor_id =  service_centres.id";
 	  }

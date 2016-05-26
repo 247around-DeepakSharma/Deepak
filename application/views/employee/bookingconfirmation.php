@@ -9,7 +9,7 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
       <div style="width:1100px;margin:50px;">
         <h3 style="color:blue;">Please verify all the booking details-</h3>
 
-        <form class="form-horizontal" method="POST" action="<?php echo base_url()?>employee/booking" >
+        <form id="myForm" name="myForm" class="form-horizontal" method="POST" action="<?php echo base_url()?>employee/booking" >
         <table class="table table-striped table-bordered">
 
             <tr>
@@ -190,3 +190,8 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
   </div>
 </div>
 
+<script type="text/javascript">
+    $('#myForm').one('submit', function() {
+    $(this).find('input[type="submit"]').attr('disabled','disabled');
+});
+</script>
