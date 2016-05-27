@@ -6,7 +6,7 @@
 	<div class="container-fluid" >
 		<div class="panel panel-info" style="margin-top:20px;">
 			<div class="panel-heading">
-				<h2>Transactional User</h2>
+				<h2>Booking</h2>
 			</div>
 			<div class="panel-body">
 				<div class="row">
@@ -30,7 +30,7 @@
 							<li class="col-md-2">
 								<select onchange="getusercount()" class="form-control"  id="mon_user" >
 									<option  disabled>Select Any One</option>
-									<option value="Unique User" selected >Unique User</option>
+									<option value="" selected >All</option>
 									<option value="All Month" >Month</option>
 									<option value="All Year" >Year</option>
 									<option value="Quater" >Quarter</option>
@@ -122,33 +122,45 @@
 
     <table class="table table-striped table-bordered" >
         <tr>
-
-            <th>Total User</th>
-            <th>Total Completed Booking </th>
-            <th>Total Cancelled Booking </th>
+            <th>Source</th>
+            <th>Booking</th>
+            <th>Pending</th>
+            <th>Completed Booking </th>
+            <th>Cancelled Booking </th>
              <th>% Completed Booking</th>
             <th>Month/Year</th>
         </tr>
 
         <tbody>
-        <?php $total_user = 0; $completed = 0; $cancelled =0; foreach ($user as $value) {  ?>
+        <?php $total_booking = 0; $scheduled = 0 ;$completed = 0; $cancelled =0; foreach ($user as $value) {  ?>
         	<tr>
-        	    <td><?php echo $value['total_user'];  $total_user += $value['total_user']; ?></td>
+        	    <td><?php echo $value['source'];  ?></td>
+        	    <td><?php echo $value['total_booking'];  $total_booking += $value['total_booking']; ?></td>
+        	    <td><?php echo $value['scheduled']; $scheduled += $value['scheduled'];  ?></td>
         	    <td><?php echo $value['completed_booking_user']; $completed += $value['completed_booking_user']; ?></td>
         	    <td><?php echo $value['cancelled_booking_user']; $cancelled += $value['cancelled_booking_user']; ?></td>
         	    <?php $total = $value['completed_booking_user'] + $value['cancelled_booking_user'];?>
-        	    <td><?php if($total>0){ $percantage = ($value['completed_booking_user'] *100)/($total); echo round($percantage,2);} else { echo "0"; } ?></td>
+        	    <td><?php if($total>0){ $percantage = ($value['completed_booking_user'] *100)/($total); echo round($percantage,2); } else { echo "0"; } ?></td>
         	    <td><?php if(isset($value['month'])) { if(isset($value['year'])){ echo $value['month']."  ".$value['year'];} else {echo $value['month'];} }  ?></td>
 
         	</tr>
 
         <?php  } ?>
+        <tr>
+        	<td><b>Total</b></td>
+        	<td><b><?php echo $total_booking; ?></b></td>
+        	<td><b><?php echo $scheduled; ?></b></td>
+        	<td><b><?php echo $completed; ?></b></td>
+        	<td><b><?php echo $cancelled; ?></b></td>
+        	<td><b><?php if($total_booking >0){ $total_percantage = ($completed *100)/($total_booking); echo round($total_percantage,2);} else { echo "0"; } ?></b></td>
+        	<td></td>
+        </tr>
       
         </input>
         </tbody>
 
     </table>
-      <input type="hidden" value="<?php  echo $total_user; ?>" id ="total_booking_user"></input>
+      <input type="hidden" value="<?php  echo $total_booking; ?>" id ="total_booking_user"></input>
         <input type="hidden" value="<?php echo $completed; ?>" id ="total_booking_completed_booking_user">
         <input type="hidden" value="<?php echo $cancelled; ?>" id ="total_booking_cancelled"></input>
 

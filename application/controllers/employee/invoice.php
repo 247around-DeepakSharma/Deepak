@@ -170,11 +170,14 @@ class Invoice extends CI_Controller {
 	    $account_statement['debit_amount'] = $amount;
 	}
 
-	$account_statement['transaction_date'] = $this->input->post('tdate');
+	$transaction_date = $this->input->post('tdate');
+	$account_statement['transaction_date'] = date("Y-m-d",strtotime($transaction_date));
 	$account_statement['description'] = $this->input->post('description');
 
 	$this->invoices_model->bankAccountTransaction($account_statement);
-
+    $output   = "Added successfully.";
+    $userSession = array('success' =>$output);
+    $this->session->set_userdata($userSession);
 	redirect(base_url() . 'employee/invoice/get_add_new_transaction');
     }
 
@@ -182,7 +185,7 @@ class Invoice extends CI_Controller {
 	if ($par_ven == 'partner') {
 	    $all_partners = $this->partner_model->get_all_partner_source("null");
 	    foreach ($all_partners as $p_name) {
-		echo "<option value='".$p_name['partner_id']."'>" . $p_name['source'] . "</option>";
+		echo "<option value='".$p_name['code']."'>" . $p_name['source'] . "</option>";
 	    }
 	} else {
 	    $all_vendors = $this->vendor_model->getActiveVendor();

@@ -6,6 +6,7 @@
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <meta name="description" content="">
       <meta name="author" content="">
+      <meta name="format-detection" content="telephone=no">
 
       <title>Telecaller</title>
       <!-- Bootstrap Core CSS -->
@@ -193,12 +194,12 @@
                </a>
                <ul class="dropdown-menu">
                    <li>
-                     <a href="<?php echo base_url()?>employee/vendor/vendor_performance_view"><i class="fa fa-fw fa-desktop "></i> <strong>Bookings</strong></a>
+                     <a href="<?php echo base_url()?>employee/vendor/vendor_performance_view"><i class="fa fa-fw fa-desktop "></i> <strong>Vendor Performance</strong></a>
                   </li>
 
                   <li class="divider"></li>
                   <li>
-                     <a href="<?php echo base_url()?>employee/user/get_user_count_view" ><i class="fa fa-fw fa-desktop"></i> <strong> Transactional Users</strong></a>
+                     <a href="<?php echo base_url()?>employee/user/get_user_count_view" ><i class="fa fa-fw fa-desktop"></i> <strong> Bookings</strong></a>
                   </li>
                   <li class="divider"></li>
                   <li>
