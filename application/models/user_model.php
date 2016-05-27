@@ -265,9 +265,15 @@ $this->db = $this->load->database('default', TRUE,TRUE);
   function get_count_user($data){
 
     $where = "";
-
-    $result = $this->GroupBYForUserCount($data, "booking_details");
-
+    $result['month']  = "";
+    $result['group_By']  = "";
+    
+    if($data['type'] !=""){
+        $result = $this->GroupBYForUserCount($data, "booking_details", "source, ");
+    } else {
+      $result['group_By'] = " Group By source";
+    }
+    
     //  city or date range not empty
     if($data['city'] !="" || $data['source'] !="" ){
         $where .=" where `user_id` !='' "; // user_id filed is not empty
@@ -282,15 +288,15 @@ $this->db = $this->load->database('default', TRUE,TRUE);
     if($data['source'] !=""){
         $where .= " AND source = '". $data['source']."'";
     }
-   
 
-    $sql = "SELECT $result[month]  count(Distinct `booking_details`.`user_id`) as total_user, 
+     $sql = "SELECT $result[month] source,
+                 SUM(CASE WHEN `current_status` LIKE '%Cancelled%'  THEN 1 ELSE 0 END) AS cancelled_booking_user,
+                 SUM(CASE WHEN `current_status` LIKE '%Completed%' THEN 1 ELSE 0 END) AS completed_booking_user,
+                 SUM(CASE WHEN `current_status` LIKE '%Pending%' OR `current_status`  LIKE '%Rescheduled%'  THEN 1 ELSE 0 END) as scheduled,
+                 SUM(CASE WHEN `current_status` LIKE '%FollowUp%' OR `current_status` LIKE '%Completed%' OR `current_status` LIKE '%Cancelled%' OR `current_status` LIKE '%Pending%' OR `current_status` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) AS total_booking 
+  
+                from booking_details $where $result[group_By] ; "; 
 
-               SUM( CASE WHEN `current_status` = 'Completed' THEN 1 ELSE 0 END) AS completed_booking_user,
-               SUM( CASE WHEN `current_status` = 'Cancelled' THEN 1 ELSE 0 END) AS cancelled_booking_user
-               
-
-               FROM `booking_details` $where  $result[group_By]";
 
     $query1 = $this->db->query($sql);
 
@@ -299,34 +305,34 @@ $this->db = $this->load->database('default', TRUE,TRUE);
 
   }
 
-  function GroupBYForUserCount($data, $table){
+  function GroupBYForUserCount($data, $table, $source=""){
   
     $user['group_By'] = "";
     $user['month'] = "";
     // Month Wise DataSet
     if($data['type'] == "All Month"){
          // get group by create date column.
-         $user['group_By'] = " GROUP BY DATE_FORMAT(".$table.".`create_date`, '%M, %Y') ORDER BY DATE_FORMAT(".$table.".`create_date`,'%Y') DESC , DATE_FORMAT(".$table.".`create_date`,'%m') DESC";
+         $user['group_By'] = " GROUP BY ".$source."  DATE_FORMAT(".$table.".`create_date`, '%M, %Y') ORDER BY DATE_FORMAT(".$table.".`create_date`,'%Y') DESC , DATE_FORMAT(".$table.".`create_date`,'%m') DESC";
          $user['month'] = "DATE_FORMAT(".$table.".`create_date`,'%M, %Y') `month`,";
     }
     
     // Year Wise Dataset
     if($data['type'] == "All Year"){
         // get group by create date column.
-        $user['group_By'] = " GROUP BY DATE_FORMAT(".$table.".`create_date`, '%Y') ORDER BY DATE_FORMAT(".$table.".`create_date`, '%Y') DESC";
+        $user['group_By'] = " GROUP BY ".$source." DATE_FORMAT(".$table.".`create_date`, '%Y') ORDER BY DATE_FORMAT(".$table.".`create_date`, '%Y') DESC";
         $user['month'] = "DATE_FORMAT(".$table.".`create_date`, '%Y') `month`,";
     }
 
      // Week Wise Dataset
     if($data['type'] == "Week"){
         // get group by create date column.
-        $user['group_By'] = " GROUP BY WEEK(".$table.".`create_date`)  ORDER BY DATE_FORMAT(".$table.".`create_date`,'%Y') DESC , DATE_FORMAT(".$table.".`create_date`,'%m') DESC";
+        $user['group_By'] = " GROUP BY  ".$source." WEEK(".$table.".`create_date`)  ORDER BY DATE_FORMAT(".$table.".`create_date`,'%Y') DESC , DATE_FORMAT(".$table.".`create_date`,'%m') DESC";
         $user['month'] = "  CONCAT(date(".$table.".create_date), ' - ', date(".$table.".create_date) + INTERVAL 7 DAY)   `month`,";
     }
     
     //Quater Wise DataSet
     if($data['type']== 'Quater'){
-        $user['group_By'] .= " GROUP BY Year(".$table.".`create_date`) Desc, QUARTER(".$table.".`create_date`) DESC";
+        $user['group_By'] .= " GROUP BY ".$source." Year(".$table.".`create_date`) Desc, QUARTER(".$table.".`create_date`) DESC";
         $user['month'] = " CASE QUARTER(".$table.".`create_date`) 
 
         WHEN 1 THEN 'Jan - Mar'
