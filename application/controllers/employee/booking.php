@@ -234,11 +234,16 @@ class Booking extends CI_Controller {
 		$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
 		//-------Sending SMS on booking--------//
 
-		$smsBody = "Got it! Request for " . $query1[0]['services'] . " Repair is confirmed for " .
-		    $booking['booking_date'] . ", " . $booking['booking_timeslot'] .
-		    ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 9555000247";
-
-		$this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
+		// $smsBody = "Got it! Request for " . $query1[0]['services'] . " Repair is confirmed for " .
+		//     $booking['booking_date'] . ", " . $booking['booking_timeslot'] .
+		//     ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 9555000247";
+		$tag = "add_new_booking";
+		$smsData['service'] = $query1[0]['services'];
+    	$smsData['booking_date']= $booking['booking_date'];
+    	$smsData['booking_timeslot'] = $booking['booking_timeslot'];
+    	$phone_no = $query1[0]['phone_number'];  
+    	$this->notify->sms_templates($tag, $smsData, $phone_no);
+//		$this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
 	    }
 	    //------End of sending SMS--------//
 
@@ -819,8 +824,12 @@ class Booking extends CI_Controller {
 	//------End of sending email--------//
 	//------Send SMS on Completion of booking-----//
 	if ($is_sd == FALSE) {
-	    $smsBody = "Your request for " . $query1[0]['services'] . " Repair completed. Like us on Facebook goo.gl/Y4L6Hj For discounts download app goo.gl/m0iAcS. For feedback call 011-39595200.";
-	    $this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
+//	    $smsBody = "Your request for " . $query1[0]['services'] . " Repair completed. Like us on Facebook goo.gl/Y4L6Hj For discounts download app goo.gl/m0iAcS. For feedback call 011-39595200.";
+//	    $this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
+		$tag = "complete_booking";
+		$phone_no = $query1[0]['phone_number'];
+		$smsData['service'] = $query1[0]['services'];    	
+    	$this->notify->sms_templates($tag, $smsData, $phone_no);
 
 	}
 
@@ -921,8 +930,14 @@ class Booking extends CI_Controller {
 	//------End of sending email--------//
 	//------------Send SMS for cancellation---------//
 	if ($is_sd == FALSE) {
-	    $smsBody = "Your request for " . $query1[0]['services'] . " Repair is cancelled. For discounts download app 247Around goo.gl/m0iAcS. Like us on Facebook goo.gl/Y4L6Hj. 011-39595200";
-	    $this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
+//	    $smsBody = "Your request for " . $query1[0]['services'] . " Repair is cancelled. For discounts download app 247Around goo.gl/m0iAcS. Like us on Facebook goo.gl/Y4L6Hj. 011-39595200";
+//	    $this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
+		$tag = "cancel_booking";    	
+    	$phone_no = $query1[0]['phone_number'];
+    	$smsData['service'] = $query1[0]['services'];
+    	
+    	$this->notify->sms_templates($tag, $smsData, $phone_no);
+
 	}
 
 	log_message('info','Booking Status Change- Booking id: '. $booking_id. " Cancelled By ". $this->session->userdata('employee_id'));
@@ -1056,8 +1071,16 @@ class Booking extends CI_Controller {
 	    }
 
 	    if ($is_sd == FALSE) {
-		$smsBody = "Your request for " . $query1[0]['services'] . " Repair is rescheduled to " . $data['booking_date'] . ", " . $data['booking_timeslot'] . ". To avail discounts book on App 247Around goo.gl/m0iAcS. 011-39595200";
-		$this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
+//		$smsBody = "Your request for " . $query1[0]['services'] . " Repair is rescheduled to " . $data['booking_date'] . ", " . $data['booking_timeslot'] . ". To avail discounts book on App 247Around goo.gl/m0iAcS. 011-39595200";
+//		$this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
+	    $tag = "reschedule_booking";
+    	$smsData['service'] = $query1[0]['services'];
+    	$smsData['booking_date'] = $data['booking_date'];
+    	$smsData['booking_timeslot'] = $data['booking_timeslot'];
+    	$phone_no = $query1[0]['phone_number'];
+
+    	$this->notify->sms_templates($tag, $smsData, $phone_no);
+
 	    }
 
 	    //Setting mail to vendor flag to 0, once booking is rescheduled
@@ -1569,7 +1592,7 @@ class Booking extends CI_Controller {
 		$message = $message . "<br> Thanks!!";
 
 		$from = 'booking@247around.com';
-		$to = "anuj@247around.com, nits@247around.com";
+		$to = "anuj@247around.com, nits@247around.com";		
 		$cc = "";
 		$bcc = "";
 		$subject = 'Booking Confirmation-AROUND';
@@ -1579,15 +1602,32 @@ class Booking extends CI_Controller {
 
 		//TODO: Make it generic
 		if ($is_sd == FALSE) {
-		    $sms_template = "Got it! Request for %s Repair is confirmed for %s, %s. 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";
-		    //e.g. Got it! Request for Television Repair is confirmed for 23May, 4PM-7PM. 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200
-		    $smsBody = sprintf($sms_template, $query1[0]['services'], $booking_date, $booking_timeslot);
-		    $this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
+		    // $sms_template = "Got it! Request for %s Repair is confirmed for %s, %s. 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";
+		    // //e.g. Got it! Request for Television Repair is confirmed for 23May, 4PM-7PM. 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200
+		    // $smsBody = sprintf($sms_template, $query1[0]['services'], $booking_date, $booking_timeslot);
+		    //$this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
+
+		    $tag = "add_new_booking";    		    		
+    		$smsData['service'] = $query1[0]['services'];
+    		$smsData['booking_date']= $booking_date;
+    		$smsData['booking_timeslot'] = $booking_timeslot;
+    		$phone_no = $query1[0]['phone_number'];
+
+    		$this->notify->sms_templates($tag, $smsData, $phone_no);
+		    
 		} else {
-		    $sms_template = "Got it! Request for %s Installation is confirmed for %s,%s. 247around India's 1st Multibrand Appliance Care & Snapdeal Partner. 9555000247";
-		    //E.g. Got it! Request for Washing Machine Installation is confirmed for 31May,10AM-1PM. 247around India's 1st Multibrand Appliance Care & Snapdeal Partner. 9555000247
-		    $smsBody = sprintf($sms_template, $query1[0]['services'], $booking_date, $booking_timeslot);
-		    $this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
+		    // $sms_template = "Got it! Request for %s Installation is confirmed for %s,%s. 247around India's 1st Multibrand Appliance Care & Snapdeal Partner. 9555000247";
+		    // //E.g. Got it! Request for Washing Machine Installation is confirmed for 31May,10AM-1PM. 247around India's 1st Multibrand Appliance Care & Snapdeal Partner. 9555000247
+		    // $smsBody = sprintf($sms_template, $query1[0]['services'], $booking_date, $booking_timeslot);
+		    //$this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
+
+		    $tag = "new_snapdeal_booking";
+		    $smsData['service'] = $query1[0]['services'];
+    		$smsData['booking_date']= $booking_date;
+    		$smsData['booking_timeslot'] = $booking_timeslot;
+    		$phone_no = $query1[0]['phone_number'];
+
+    		$this->notify->sms_templates($tag, $smsData, $phone_no);
 		}
 
 		//------End of sending SMS--------//
@@ -2107,8 +2147,17 @@ class Booking extends CI_Controller {
 	    //-------Sending SMS on booking--------//
 
 	    if (strstr($booking['booking_id'], "SS") == FALSE) {
-		$smsBody = "Got it! Request for " . $booking['service_name'] . " Repair is confirmed for " . $booking['booking_date'] . ", " . $booking['booking_timeslot'] . ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";
-		$this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
+		// $smsBody = "Got it! Request for " . $booking['service_name'] . " Repair is confirmed for " . $booking['booking_date'] . ", " . $booking['booking_timeslot'] . ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";
+		// $this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
+
+	    	$tag = "add_new_booking";    		    		
+    		$smsData['service'] = $booking['service_name'];
+    		$smsData['booking_date']= $booking['booking_date'];
+    		$smsData['booking_timeslot'] = $booking['booking_timeslot'];
+    		$phone_no = $booking['booking_primary_contact_no'];
+
+    	$this->notify->sms_templates($tag, $smsData, $phone_no);
+
 	    }
 	    //------End of sending SMS--------//
 	}
