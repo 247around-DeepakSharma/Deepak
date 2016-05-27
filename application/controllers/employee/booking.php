@@ -734,8 +734,7 @@ class Booking extends CI_Controller {
 	    $this->load->view('employee/completebooking', array('data' => $data,
 		'data1' => $data1,
 		'internal_status' => $internal_status,
-		'query2' => $query2,
-		'vendor_details' => $vendor_details));
+		'query2' => $query2));
 	} else {
 	    echo "This Id doesn't Available";
 	}
@@ -809,7 +808,7 @@ class Booking extends CI_Controller {
 	    }
 	}
 
-	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
+	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id, "join");
 
 	log_message('info', 'Booking Status Change- Booking id: ' . $booking_id . " Completed By " . $this->session->userdata('employee_id'));
 
@@ -818,7 +817,7 @@ class Booking extends CI_Controller {
 	$cc = "";
 	$bcc = "";
 	$subject = 'Booking Completion-AROUND';
-	$message = "Booking Completion.<br>Customer name: " . $query1[0]['name'] . "<br>Customer phone number: " . $query1[0]['phone_number'] . "<br>Customer email: " . $query1[0]['user_email'] . "<br>Booking Id is: " . $query1[0]['booking_id'] . "<br>Your service name is:" . $query1[0]['services'] . "<br>Booking date: " . $query1[0]['booking_date'] . "<br>Booking completion date: " . $data['closed_date'] . "<br>Amount paid for the booking: " . $data['amount_paid'] . "<br>Your booking completion remark is: " . $data['closing_remarks'] . "<br>Vendor name:" . $data['vendor_name'] . "<br>Vendor city:" . $data['vendor_city'] . "<br>Thanks!!";
+	$message = "Booking Completion.<br>Customer name: " . $query1[0]['name'] . "<br>Customer phone number: " . $query1[0]['phone_number'] . "<br>Customer email: " . $query1[0]['user_email'] . "<br>Booking Id is: " . $query1[0]['booking_id'] . "<br>Your service name is:" . $query1[0]['services'] . "<br>Booking date: " . $query1[0]['booking_date'] . "<br>Booking completion date: " . $data['closed_date'] . "<br>Amount paid for the booking: " . $data['amount_paid'] . "<br>Your booking completion remark is: " . $data['closing_remarks'] . "<br>Vendor name:" . $query1[0]['vendor_name'] . "<br>Vendor city:" . $query1[0]['district'] . "<br>Thanks!!";
 	$attachment ="";
 //	$this->sendMail($subject, $message, $to, $cc, $bcc);
 	$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
@@ -2208,10 +2207,8 @@ class Booking extends CI_Controller {
 	//$query = $this->booking_model->view_all_pending_queries();
 	$query = $this->booking_model->get_pending_queries(-1, 0, '');
 
-	$data['Bookings'] = null;
-	if ($query) {
-	    $data['Bookings'] = $query;
-	}
+	$data['Bookings'] = $query;
+	
 	$this->load->view('employee/header');
 	$this->load->view('employee/viewpendingqueries', $data);
     }
