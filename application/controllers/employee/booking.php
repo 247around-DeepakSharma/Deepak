@@ -1711,9 +1711,7 @@ class Booking extends CI_Controller {
      *  @param : booking id
      *  @return : cancel the query and load view
      */
-    function process_cancel_followup_form($booking_id) {
-	//$booking['booking_id'] = $this->input->post('booking_id');
-	$booking['closing_remarks'] = $this->input->post('closing_remarks');
+    function process_cancel_followup_form($booking_id) {	
 	$booking['current_status'] = "Cancelled";
 	$booking['internal_status'] = $this->input->post('internal_status');
 	$booking['cancellation_reason'] = $this->input->post('cancellation_reason');
@@ -1781,12 +1779,12 @@ class Booking extends CI_Controller {
 	    "<br>Booking cancellation date is: " . $booking['update_date'] . "<br>Booking cancellation reason: " .
 	    $booking['cancellation_reason'] . "<br> Thanks!!";
 	$from = 'booking@247around.com';
-	$to = "anuj@247around.com, nits@247around.com";
+	$to = "anuj@247around.com, nits@247around.com";	
 	$cc = "";
 	$bcc = "";
 	$subject = "Booking Cancellation-AROUND";
 	$attachment = "";
-//	$this->sendMail('Booking Cancellation-AROUND', $message, $to, '', '');
+
 	$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
 
 	redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
