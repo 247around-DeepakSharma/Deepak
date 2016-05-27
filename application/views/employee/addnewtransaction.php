@@ -87,15 +87,15 @@ color: red;
 	      <div class="form-group ">
                   <label class="col-md-2">Select Party<span class="red">*</span></label>
 		  <div class="col-md-6">
-		      <input type="radio" onclick="partner_vendor1();" name="partner_vendor" checked="checked" value = "ServiceCentre">    Service Centre &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		      <input type="radio" onclick="partner_vendor1();" name="partner_vendor" value = "Partner">    Partner &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		      <input type="radio" onclick="partner_vendor1();" name="partner_vendor" checked="checked" value = "vendor">    Service Centre &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		      <input type="radio" onclick="partner_vendor1();" name="partner_vendor" value = "partner">    Partner &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 </div>
               </div>
 
              <div class="form-group ">
               <label for="name" class="col-md-2">Name</label>
                 <div class="col-md-6">
-                  <select type="text" class="form-control"  id="name" name="name" required></select>
+                  <select type="text" class="form-control"  id="name" name="partner_vendor_id" required></select>
                 </div>
              </div>
 
