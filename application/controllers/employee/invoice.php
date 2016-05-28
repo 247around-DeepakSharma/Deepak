@@ -155,7 +155,7 @@ class Invoice extends CI_Controller {
      */
     function post_add_new_transaction() {
 	$account_statement['partner_vendor'] = $this->input->post('partner_vendor');
-	$account_statement['name'] = $this->input->post('name');
+	$account_statement['partner_vendor_id'] = $this->input->post('partner_vendor_id');
 	$account_statement['invoice_id'] = $this->input->post('invoice_id');
 	$account_statement['bankname'] = $this->input->post('bankname');
 	$account_statement['credit_debit'] = $this->input->post('credit_debit');
@@ -163,31 +163,34 @@ class Invoice extends CI_Controller {
 	$amount = $this->input->post('amount');
 
 	if ($account_statement['credit_debit'] == 'Credit') {
-	    $account_statement['debit_of'] = '0';
-	    $account_statement['credit_of'] = $amount;
+	    $account_statement['debit_amount'] = '0';
+	    $account_statement['credit_amount'] = $amount;
 	} else if ($account_statement['credit_debit'] == 'Debit') {
-	    $account_statement['credit_of'] = '0';
-	    $account_statement['debit_of'] = $amount;
+	    $account_statement['credit_amount'] = '0';
+	    $account_statement['debit_amount'] = $amount;
 	}
 
-	$account_statement['transaction_date'] = $this->input->post('tdate');
+	$transaction_date = $this->input->post('tdate');
+	$account_statement['transaction_date'] = date("Y-m-d",strtotime($transaction_date));
 	$account_statement['description'] = $this->input->post('description');
 
 	$this->invoices_model->bankAccountTransaction($account_statement);
-
+    $output   = "Added successfully.";
+    $userSession = array('success' =>$output);
+    $this->session->set_userdata($userSession);
 	redirect(base_url() . 'employee/invoice/get_add_new_transaction');
     }
-
+    
     function getPartnerOrVendor($par_ven) {
-	if ($par_ven == 'Partner') {
+	if ($par_ven == 'partner') {
 	    $all_partners = $this->partner_model->get_all_partner_source("null");
 	    foreach ($all_partners as $p_name) {
-		echo "<option>" . $p_name['source'] . "</option>";
+		echo "<option value='".$p_name['partner_id']."'>" . $p_name['source'] . "</option>";
 	    }
 	} else {
 	    $all_vendors = $this->vendor_model->getActiveVendor();
 	    foreach ($all_vendors as $v_name) {
-		echo "<option>" . $v_name['name'] . "</option>";
+		echo "<option value='".$v_name['id']."'>" . $v_name['name'] . "</option>";
 	    }
 	}
     }

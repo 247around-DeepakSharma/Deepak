@@ -17,6 +17,7 @@ class Notify {
 
 	$this->My_CI->load->helper(array('form', 'url'));
     $this->My_CI->load->library('email');
+    $this->My_CI->load->model('vendor_model');
     }
 
     /**
@@ -77,4 +78,18 @@ class Notify {
 	curl_close($ch);
     }
 
+
+     /**
+     *  @desc : This method is to use SMS templates
+     *  @param : SMS tag,parameters and phone no.
+     *  @return : if SMS send return true else false
+     */
+    function sms_templates($tag, $parameters, $phone_no){
+    	    	
+    $template[0]['template'] = $this->My_CI->vendor_model->getVendorSmsTemplate($tag); 
+    
+    $smsBody = vsprintf($template[0]['template'], $parameters);
+
+    $this->sendTransactionalSms($phone_no, $smsBody);
+    }
 }
