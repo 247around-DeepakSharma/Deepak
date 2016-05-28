@@ -274,8 +274,8 @@ $this->db = $this->load->database('default', TRUE,TRUE);
       $result['group_By'] = " Group By source";
     }
     
-    //  city or date range not empty
-    if($data['city'] !="" || $data['source'] !="" ){
+    //  city or date source not empty
+    if($data['city'] !="" || $data['source'] !="" || $data['type'] == "Today"){
         $where .=" where `user_id` !='' "; // user_id filed is not empty
     }
     
@@ -289,8 +289,18 @@ $this->db = $this->load->database('default', TRUE,TRUE);
         $where .= " AND source = '". $data['source']."'";
     }
 
+    if($data['type'] == "Today"){
+       $where .= " AND booking_details.create_date >= CURDATE() AND booking_details.create_date < CURDATE() + INTERVAL 1 DAY  ";
+       if($result['group_By'] == ""){
+
+         $result['group_By'] = " Group By source";
+       }
+
+    }
+
      $sql = "SELECT $result[month] source,
                  SUM(CASE WHEN `current_status` LIKE '%Cancelled%'  THEN 1 ELSE 0 END) AS cancelled_booking_user,
+                 SUM(CASE WHEN `current_status` LIKE '%FollowUp%'  THEN 1 ELSE 0 END) AS followup,
                  SUM(CASE WHEN `current_status` LIKE '%Completed%' THEN 1 ELSE 0 END) AS completed_booking_user,
                  SUM(CASE WHEN `current_status` LIKE '%Pending%' OR `current_status`  LIKE '%Rescheduled%'  THEN 1 ELSE 0 END) as scheduled,
                  SUM(CASE WHEN `current_status` LIKE '%FollowUp%' OR `current_status` LIKE '%Completed%' OR `current_status` LIKE '%Cancelled%' OR `current_status` LIKE '%Pending%' OR `current_status` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) AS total_booking 

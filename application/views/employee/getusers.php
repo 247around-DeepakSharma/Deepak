@@ -30,11 +30,12 @@
 							<li class="col-md-2">
 								<select onchange="getusercount()" class="form-control"  id="mon_user" >
 									<option  disabled>Select Any One</option>
-									<option value="" selected >All</option>
+									<option value=""  >All</option>
 									<option value="All Month" >Month</option>
 									<option value="All Year" >Year</option>
 									<option value="Quater" >Quarter</option>
 									<option value="Week" >Week</option>
+									<option value="Today" selected>Today</option>
 									
 								</select>
 							</li>
@@ -124,6 +125,7 @@
         <tr>
             <th>Source</th>
             <th>Booking</th>
+            <th>FollowUp</th>
             <th>Pending</th>
             <th>Completed Booking </th>
             <th>Cancelled Booking </th>
@@ -132,10 +134,11 @@
         </tr>
 
         <tbody>
-        <?php $total_booking = 0; $scheduled = 0 ;$completed = 0; $cancelled =0; foreach ($user as $value) {  ?>
+        <?php $total_booking = 0; $followup = 0; $scheduled = 0 ;$completed = 0; $cancelled =0; foreach ($user as $value) {  ?>
         	<tr>
         	    <td><?php echo $value['source'];  ?></td>
         	    <td><?php echo $value['total_booking'];  $total_booking += $value['total_booking']; ?></td>
+        	    <td><?php echo $value['followup']; $followup += $value['followup']; ?></td>
         	    <td><?php echo $value['scheduled']; $scheduled += $value['scheduled'];  ?></td>
         	    <td><?php echo $value['completed_booking_user']; $completed += $value['completed_booking_user']; ?></td>
         	    <td><?php echo $value['cancelled_booking_user']; $cancelled += $value['cancelled_booking_user']; ?></td>
@@ -149,6 +152,7 @@
         <tr>
         	<td><b>Total</b></td>
         	<td><b><?php echo $total_booking; ?></b></td>
+        	<td><?php echo $followup;?></td>
         	<td><b><?php echo $scheduled; ?></b></td>
         	<td><b><?php echo $completed; ?></b></td>
         	<td><b><?php echo $cancelled; ?></b></td>
