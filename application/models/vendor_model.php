@@ -231,8 +231,12 @@ class vendor_model extends CI_Model {
       $this->db->where('tag', $sms_tag);
       $this->db->where('active', 1);
       $query = $this->db->get('sms_template');
-      $template = $query->result_array();
-      return $template[0]['template'];
+      if($query->num_rows > 0){
+        $template = $query->result_array();
+        return $template[0]['template'];
+      } else {
+        return "";
+      }
 
     }
     

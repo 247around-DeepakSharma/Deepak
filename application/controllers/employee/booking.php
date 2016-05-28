@@ -225,25 +225,22 @@ class Booking extends CI_Controller {
 		$message = $message . "<br> Thanks!!";
 
 		$from = "booking@247around.com";
-		$to = "anuj@247around.com, nits@247around.com";
+		$to = "anuj@247around.com, nits@247around.com";		
 		$cc = "";
 		$bcc = "";
 		$subject = 'Booking Confirmation-AROUND';
 		$attachment ="";
-//		$this->sendMail($subject, $message, $to, $cc, $bcc);
 		$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
 		//-------Sending SMS on booking--------//
 
-		// $smsBody = "Got it! Request for " . $query1[0]['services'] . " Repair is confirmed for " .
-		//     $booking['booking_date'] . ", " . $booking['booking_timeslot'] .
-		//     ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 9555000247";
-		$tag = "add_new_booking";
-		$smsData['service'] = $query1[0]['services'];
-    	$smsData['booking_date']= $booking['booking_date'];
-    	$smsData['booking_timeslot'] = $booking['booking_timeslot'];
-    	$phone_no = $query1[0]['phone_number'];  
-    	$this->notify->sms_templates($tag, $smsData, $phone_no);
-//		$this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
+		$sms['tag'] = "add_new_booking";
+		$sms['smsData']['service'] = $query1[0]['services'];
+    	$sms['smsData']['booking_date']= $booking['booking_date'];
+    	$sms['smsData']['booking_timeslot'] = $booking['booking_timeslot'];
+    	$sms['phone_no'] = $query1[0]['phone_number'];
+    	$sms['booking_id'] = $booking['booking_id']; 
+
+    	$this->notify->send_sms($sms);
 	    }
 	    //------End of sending SMS--------//
 
@@ -819,18 +816,17 @@ class Booking extends CI_Controller {
 	$subject = 'Booking Completion-AROUND';
 	$message = "Booking Completion.<br>Customer name: " . $query1[0]['name'] . "<br>Customer phone number: " . $query1[0]['phone_number'] . "<br>Customer email: " . $query1[0]['user_email'] . "<br>Booking Id is: " . $query1[0]['booking_id'] . "<br>Your service name is:" . $query1[0]['services'] . "<br>Booking date: " . $query1[0]['booking_date'] . "<br>Booking completion date: " . $data['closed_date'] . "<br>Amount paid for the booking: " . $data['amount_paid'] . "<br>Your booking completion remark is: " . $data['closing_remarks'] . "<br>Vendor name:" . $query1[0]['vendor_name'] . "<br>Vendor city:" . $query1[0]['district'] . "<br>Thanks!!";
 	$attachment ="";
-//	$this->sendMail($subject, $message, $to, $cc, $bcc);
+
 	$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
 	//------End of sending email--------//
 	//------Send SMS on Completion of booking-----//
 	if ($is_sd == FALSE) {
-//	    $smsBody = "Your request for " . $query1[0]['services'] . " Repair completed. Like us on Facebook goo.gl/Y4L6Hj For discounts download app goo.gl/m0iAcS. For feedback call 011-39595200.";
-//	    $this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
-		$tag = "complete_booking";
-		$phone_no = $query1[0]['phone_number'];
-		$smsData['service'] = $query1[0]['services'];    	
-    	$this->notify->sms_templates($tag, $smsData, $phone_no);
+		$sms['tag'] = "complete_booking";
+		$sms['smsData']['service'] = $query1[0]['services'];    	
+    	$sms['phone_no'] = $query1[0]['phone_number'];
+    	$sms['booking_id'] =  $booking['booking_id']; 
 
+    	$this->notify->send_sms($sms);
 	}
 
 	//-------End of send SMS-----------//
@@ -930,18 +926,16 @@ class Booking extends CI_Controller {
 	//------End of sending email--------//
 	//------------Send SMS for cancellation---------//
 	if ($is_sd == FALSE) {
-//	    $smsBody = "Your request for " . $query1[0]['services'] . " Repair is cancelled. For discounts download app 247Around goo.gl/m0iAcS. Like us on Facebook goo.gl/Y4L6Hj. 011-39595200";
-//	    $this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
-		$tag = "cancel_booking";    	
-    	$phone_no = $query1[0]['phone_number'];
-    	$smsData['service'] = $query1[0]['services'];
-    	
-    	$this->notify->sms_templates($tag, $smsData, $phone_no);
+		$sms['tag'] = "cancel_booking";
+		$sms['smsData']['service'] = $query1[0]['services'];    	
+    	$sms['phone_no'] = $query1[0]['phone_number'];
+    	$sms['booking_id'] =  $booking['booking_id']; 
+
+    	$this->notify->send_sms($sms);		
 
 	}
 
 	log_message('info','Booking Status Change- Booking id: '. $booking_id. " Cancelled By ". $this->session->userdata('employee_id'));
-
 
 	//---------End of sending SMS----------//
 	redirect(base_url() . 'employee/booking/view');
@@ -1056,7 +1050,7 @@ class Booking extends CI_Controller {
 		"<br>Booking address is: " . $query1[0]['booking_address'] .
 		"<br> Thanks!!";
 		$attachment = "";
-	    //$this->sendMail('Booking Rescheduled-AROUND', $message, $to, '', '');
+
 	    $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
 
 	    $months = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
@@ -1071,16 +1065,14 @@ class Booking extends CI_Controller {
 	    }
 
 	    if ($is_sd == FALSE) {
-//		$smsBody = "Your request for " . $query1[0]['services'] . " Repair is rescheduled to " . $data['booking_date'] . ", " . $data['booking_timeslot'] . ". To avail discounts book on App 247Around goo.gl/m0iAcS. 011-39595200";
-//		$this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
-	    $tag = "reschedule_booking";
-    	$smsData['service'] = $query1[0]['services'];
-    	$smsData['booking_date'] = $data['booking_date'];
-    	$smsData['booking_timeslot'] = $data['booking_timeslot'];
-    	$phone_no = $query1[0]['phone_number'];
+	    	$sms['tag'] = "reschedule_booking";
+			$sms['smsData']['service'] = $query1[0]['services'];
+    		$sms['smsData']['booking_date']= $data['booking_date'];
+    		$sms['smsData']['booking_timeslot'] = $data['booking_timeslot'];
+    		$sms['phone_no'] = $query1[0]['phone_number'];
+    		$sms['booking_id'] =  $query1[0]['booking_id']; 
 
-    	$this->notify->sms_templates($tag, $smsData, $phone_no);
-
+    		$this->notify->send_sms($sms);	    
 	    }
 
 	    //Setting mail to vendor flag to 0, once booking is rescheduled
@@ -1092,43 +1084,13 @@ class Booking extends CI_Controller {
 	}
     }
 
-    //-------Send email function--------------//
-
- //    function sendMail($subject, $message, $to, $cc, $bcc) {
-
-	// $this->load->library('email');
-	// $this->email->initialize(array(
-	//     'useragent' => 'CodeIgniter',
-	//     'protocol' => 'smtp',
-	//     'smtp_host' => 'smtp.sendgrid.net',
-	//     'smtp_port' => '587',
-	//     'smtp_user' => 'nitinmalhotra',
-	//     'smtp_pass' => 'mandatory16',
-	//     'mailtype' => 'html',
-	//     'charset' => 'iso-8859-1',
-	//     'crlf' => "\r\n",
-	//     'newline' => "\r\n",
-	//     'wordwrap' => TRUE
-	//     )
-	// );
-
-	// $this->email->from('booking@247around.com', '247around Team');
-	// $this->email->to($to);
-	// $this->email->cc($cc);
-	// //$this->email->bcc('anuj@247around.com, nits@247around.com');
-	// //$this->email->bcc('anuj.aggarwal@gmail.com');
-	// $this->email->subject($subject);
-	// $this->email->message($message);
-	// $this->email->send();
- //    }
 
     function getBrandForService($service_id) {
 
 	$result = $this->booking_model->getBrandForService($service_id);
 	foreach ($result as $brand) {
 	    echo "<option>$brand[brand_name]</option>";
-	}
-	//echo $service_id;
+	}	
     }
 
     /**
@@ -1137,8 +1099,7 @@ class Booking extends CI_Controller {
      * @return : displays category
      */
     function getCategoryForService($service_id) {
-	//echo $service_id;
-
+	
 	$result = $this->booking_model->getCategoryForService($service_id);
 
 	foreach ($result as $category) {
@@ -1152,8 +1113,7 @@ class Booking extends CI_Controller {
      * @return : displays capacity
      */
     public function getCapacityForCategory($service_id, $category) {
-	//Return column "capacity", only unique results, as per the
-	//$category=str_replace('%20',' ',$category);
+	//Return column "capacity", only unique results
 	$category = urldecode($category);
 
 	$result = $this->booking_model->getCapacityForCategory($service_id, $category);
@@ -1189,45 +1149,6 @@ class Booking extends CI_Controller {
 	}
     }
 
-    /**
-     * @desc : This function sends SMS to users
-     * @param: user phone number and smsBody
-     * @return : sends the msg to the user
-     */
- //    function sendTransactionalSms($phone_number, $body) {
-
-	// //log_message ('info', "Entering: " . __METHOD__ . ": Phone num: " . $phone_number);
-
-	// $post_data = array(
-	//     // 'From' doesn't matter; For transactional, this will be replaced with your SenderId;
-	//     // For promotional, this will be ignored by the SMS gateway
-	//     'From' => '01130017601',
-	//     'To' => $phone_number,
-	//     'Body' => $body,
-	// );
-
-	// $exotel_sid = "aroundhomz";
-	// $exotel_token = "a041058fa6b179ecdb9846ccf0e4fd8e09104612";
-
-	// $url = "https://" . $exotel_sid . ":" . $exotel_token . "@twilix.exotel.in/v1/Accounts/" . $exotel_sid . "/Sms/send";
-
-	// $ch = curl_init();
-
-	// curl_setopt($ch, CURLOPT_VERBOSE, 1);
-	// curl_setopt($ch, CURLOPT_URL, $url);
-	// curl_setopt($ch, CURLOPT_POST, 1);
-	// curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-	// curl_setopt($ch, CURLOPT_FAILONERROR, 0);
-	// curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-	// curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
-
-	// $http_result = curl_exec($ch);
-	// $error = curl_error($ch);
-	// $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-	// //print_r($ch);
-	// //echo exit();
-	// curl_close($ch);
- //    }
 
     /**
      *  @desc : This function is to select all pending bookings to assign vendor(if not already assigned)
@@ -1237,8 +1158,7 @@ class Booking extends CI_Controller {
     function get_assign_booking_form() {
 	$results = array();
 	$bookings = $this->booking_model->pendingbookings();
-	//print_r($bookings);
-
+	
 	foreach ($bookings as $booking) {
 	   array_push($results, $this->booking_model->find_sc_by_pincode_and_appliance($booking['service_id'], $booking['booking_pincode']));
 	}
@@ -1257,8 +1177,7 @@ class Booking extends CI_Controller {
 	$service_center['service_center'] = $this->input->post('service_center');
 	$url = base_url() . "employee/do_background_process/assign_booking";
 	$this->asynchronous_lib->do_background_process($url, $service_center);
-
-	//$this->view_pending_queries();
+	
 	redirect(base_url() . 'employee/booking/view_pending_queries');
     }
 
@@ -1298,8 +1217,7 @@ class Booking extends CI_Controller {
      *  @param : booking id
      *  @return : rate for booking and load view
      */
-    function process_rating_form($booking_id) {
-	//$data['user_id'] = $this->input->post('user_id');
+    function process_rating_form($booking_id) {	
 
 	if ($this->input->post('rating_star') != "Select") {
 	    $data['rating_stars'] = $this->input->post('rating_star');
@@ -1450,7 +1368,7 @@ class Booking extends CI_Controller {
 
 	$booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
 	$booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
-	//echo print_r($this->input->post('booking_alternate_contact_no'), true);
+	
 	$booking['total_price'] = $this->input->post('total_price');
 	$booking['potential_value'] = $this->input->post('potential_value');
 	$booking['items_selected'] = $this->input->post('items_selected');
@@ -1597,41 +1515,34 @@ class Booking extends CI_Controller {
 		$bcc = "";
 		$subject = 'Booking Confirmation-AROUND';
 		$attachment = "";
-//		$this->sendMail($subject, $message, $to, $cc, $bcc);
+		//Send mail
 		$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
 
 		//TODO: Make it generic
 		if ($is_sd == FALSE) {
-		    // $sms_template = "Got it! Request for %s Repair is confirmed for %s, %s. 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";
-		    // //e.g. Got it! Request for Television Repair is confirmed for 23May, 4PM-7PM. 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200
-		    // $smsBody = sprintf($sms_template, $query1[0]['services'], $booking_date, $booking_timeslot);
-		    //$this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
-
-		    $tag = "add_new_booking";    		    		
-    		$smsData['service'] = $query1[0]['services'];
-    		$smsData['booking_date']= $booking_date;
-    		$smsData['booking_timeslot'] = $booking_timeslot;
-    		$phone_no = $query1[0]['phone_number'];
-
-    		$this->notify->sms_templates($tag, $smsData, $phone_no);
 		    
+			$sms['tag'] = "add_new_booking";
+			$sms['smsData']['service'] = $query1[0]['services'];
+    		$sms['smsData']['booking_date']= $booking_date;
+    		$sms['smsData']['booking_timeslot'] = $booking_timeslot;
+    		$sms['phone_no'] = $query1[0]['phone_number'];
+    		$sms['booking_id'] = $booking['booking_id'];
+
+    		$this->notify->send_sms($sms);
+
 		} else {
-		    // $sms_template = "Got it! Request for %s Installation is confirmed for %s,%s. 247around India's 1st Multibrand Appliance Care & Snapdeal Partner. 9555000247";
-		    // //E.g. Got it! Request for Washing Machine Installation is confirmed for 31May,10AM-1PM. 247around India's 1st Multibrand Appliance Care & Snapdeal Partner. 9555000247
-		    // $smsBody = sprintf($sms_template, $query1[0]['services'], $booking_date, $booking_timeslot);
-		    //$this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
+			$sms['tag'] = "new_snapdeal_booking";
+			$sms['smsData']['service'] = $query1[0]['services'];
+			$sms['smsData']['booking_date']= $booking_date;
+			$sms['smsData']['booking_timeslot'] = $booking_timeslot;
+			$sms['phone_no'] = $query1[0]['phone_number'];
+			$sms['booking_id'] =  $booking['booking_id'];
 
-		    $tag = "new_snapdeal_booking";
-		    $smsData['service'] = $query1[0]['services'];
-    		$smsData['booking_date']= $booking_date;
-    		$smsData['booking_timeslot'] = $booking_timeslot;
-    		$phone_no = $query1[0]['phone_number'];
-
-    		$this->notify->sms_templates($tag, $smsData, $phone_no);
+			$this->notify->send_sms($sms);
 		}
 
 		//------End of sending SMS--------//
-		//redirect(base_url() . 'employee/booking/view', 'refresh');
+
 		redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
 	    } else {
 		echo "Booking not inserted";
@@ -1816,54 +1727,7 @@ class Booking extends CI_Controller {
 	$this->load->view('employee/viewdetails', $data);
     }
 
-//
-//    /**
-//     *  @desc : This function is to select queries for editing
-//     *  @param : booking id
-//     *  @return : user's and booking details to view
-//     */
-//
-//  function get_edit_query_form($booking_id)
-//  {
-//    $getbooking = $this->booking_model->getbooking($booking_id);
-//        if ($getbooking) {
-//            $data= $getbooking;
-//            $query = $this->booking_model->booking_history_by_booking_id($booking_id);
-//            $data1 = $query;
-//            $this->load->view('employee/header');
-//            $this->load->view('employee/editquery', array('data' => $data, 'data1' => $data1));
-//        } else {
-//            echo "This Id doesn't Available";
-//        }
-//  }
-//
-//    /**
-//     *  @desc : This function is to edit the queries
-//     *  @param : booking id
-//     *  @return : edit the query and load view
-//     */
-//
-//  function process_edit_query_form($booking_id)
-//  {
-//    $data['booking_date']    = $this->input->post('booking_date');
-//    $data['query_remarks']    = $this->input->post('query_remarks');
-//    $data['booking_date'] = date('d-m-Y', strtotime($data['booking_date']));
-//      $yy = date("y", strtotime($data['booking_date']));
-//      $mm = date("m", strtotime($data['booking_date']));
-//      $dd = date("d", strtotime($data['booking_date']));
-//    $data['booking_timeslot'] = $this->input->post('booking_timeslot');
-//    $data['update_date'] = date("Y-m-d h:i:s");
-//    if($data['booking_timeslot']=="Select")
-//    {
-//      echo "Please Select Query Timeslot.";
-//    }
-//    else
-//    {
-//        $insertData = $this->booking_model->edit_query($booking_id, $data);
-//        redirect(base_url().'employee/booking/view_pending_queries','refresh');
-//
-//   }
-//  }
+
     //Function to sort pending bookings with current status
     function status_sorted_booking($offset = 0, $page = 0) {
 	if ($page == 0) {
@@ -2140,21 +2004,20 @@ class Booking extends CI_Controller {
 	    $bcc = "";
 	    $subject = 'Booking Confirmation-AROUND';
 	    $attachment = "";
-//	    $this->sendMail($subject, $message, $to, $cc, $bcc);
+
 	    $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
 	    //-------Sending SMS on booking--------//
 
 	    if (strstr($booking['booking_id'], "SS") == FALSE) {
-		// $smsBody = "Got it! Request for " . $booking['service_name'] . " Repair is confirmed for " . $booking['booking_date'] . ", " . $booking['booking_timeslot'] . ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";
-		// $this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
+		
+			$sms['tag'] = "add_new_booking";
+			$sms['smsData']['service'] = $booking['service_name'];
+			$sms['smsData']['booking_date']= $booking['booking_date'];
+			$sms['smsData']['booking_timeslot'] = $booking['booking_timeslot'];
+			$sms['phone_no'] = $booking['booking_primary_contact_no'];
+			$sms['booking_id'] =  $booking['booking_id'];
 
-	    	$tag = "add_new_booking";    		    		
-    		$smsData['service'] = $booking['service_name'];
-    		$smsData['booking_date']= $booking['booking_date'];
-    		$smsData['booking_timeslot'] = $booking['booking_timeslot'];
-    		$phone_no = $booking['booking_primary_contact_no'];
-
-    	$this->notify->sms_templates($tag, $smsData, $phone_no);
+			$this->notify->send_sms($sms);
 
 	    }
 	    //------End of sending SMS--------//
@@ -2444,7 +2307,7 @@ class Booking extends CI_Controller {
 		$bcc = "";
 		$subject = 'Booking Confirmation-AROUND';
 		$attachment = "";
-//		$this->sendMail($subject, $message, $to, $cc, $bcc);
+
 		$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
 		redirect(base_url() . 'employee/booking/view', 'refresh');
 	    } else {
@@ -2487,7 +2350,7 @@ class Booking extends CI_Controller {
 		$bcc = "";
 		$subject = 'Booking Confirmation-AROUND';
 		$attachment = "";
-//		$this->sendMail($subject, $message, $to, $cc, $bcc);
+
 		$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
 		redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
 	    } else {
