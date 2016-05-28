@@ -1,4 +1,14 @@
-<div id="page-wrapper"> 
+<script type="text/javascript">
+function check(){
+    var reason = document.myForm.cancellation_reason.value;    
+    if(reason =='Other'){
+  document.getElementById("cancellation_reason_text").disabled = false;
+  }else{
+    document.getElementById("cancellation_reason_text").disabled = true;
+  }
+}
+</script>
+<div id="page-wrapper">
    <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
@@ -7,7 +17,7 @@
                     Cancel Query
               </h1>
 
-              <form class="form-horizontal" action="<?php echo base_url()?>employee/booking/process_cancel_followup_form/<?php echo $query['booking_id']; ?>" method="POST" >
+              <form class="form-horizontal" name="myForm" action="<?php echo base_url()?>employee/booking/process_cancel_followup_form/<?php echo $query['booking_id']; ?>" method="POST" >
 
                 <div class="form-group <?php if( form_error('booking_id') ) { echo 'has-error';} ?>">
                   <label for="booking_id" class="col-md-2">Query ID</label>
@@ -22,8 +32,10 @@
                     <div class="form-group <?php if( form_error('cancellation_reason') ) { echo 'has-error';} ?>">
                       <label for="cancellation_reason" class="col-md-2">Cancelation Reason</label>
                       <div class="col-md-6">
-                        <?php foreach($reasons as $reason){?>
-                        <input style="width:100px;height:20px;" type="radio" class="form-control" name="cancellation_reason" value="<?php  echo $reason->reason;?>" required><?php  echo $reason->reason;?>
+                        <?php $count = 1;
+                        foreach($reasons as $reason){?>
+                         <input style="width:100px;height:20px;" type="radio" class="form-control" onclick="check()" name="cancellation_reason" id="<?php echo "cancellation_reason".$count; $count++;?>" value="<?php  echo $reason->reason;?>" required><?php  echo $reason->reason;?>
+                        <!-- <input style="width:100px;height:20px;" type="radio" class="form-control" onclick="check()" name="cancellation_reason" id="<?php echo "cancellation_reason".$count; $count++;?>" value="<?php  echo $reason->reason;?>" required ><?php  echo $reason->reason;?> -->
                         <?php } ?> 
                         <?php echo form_error('cancellation_reason'); ?>
                       </div>
@@ -33,25 +45,16 @@
                     <input type ="hidden" value = <?php echo $query['booking_id']; ?> name ="booking_id">
                       <label for="cancellation_reason_text" class="col-md-2"> </label>
                       <div class="col-md-6">
-                        <textarea class="form-control"  name="cancellation_reason_text" value = "<?php echo set_value('cancellation_reason'); ?>"></textarea>
-                        <?php echo form_error('cancellation_reason_text'); ?>
+                        <textarea class="form-control"  name="cancellation_reason_text" id="cancellation_reason_text" value = "<?php echo set_value('cancellation_reason'); ?>"></textarea>                        
                       </div>
                     </div>
                 <?php } else { ?>
                     <input type ="hidden" name ="cancellation_reason" value = "Other" >
                 <?php } ?>
                 
-
-                <div class="form-group <?php if( form_error('closing_remarks') ) { echo 'has-error';} ?>">
-                    <label for="closing_remarks" class="col-md-2">Closing Remarks</label>
-                    <div class="col-md-6">
-                        <textarea class="form-control"  name="closing_remarks" ></textarea>
-                        <?php echo form_error('closing_remarks'); ?>
-                    </div>
-                </div>
-
+                <?php if($query['source'] =="SS"){?>
                 <div class="form-group <?php if( form_error('internal_status') ) { echo 'has-error';} ?>">
-                  <label for="internal_status" class="col-md-2">Internal Status</label>
+                  <label for="internal_status" class="col-md-2">Internal Status</label> 
                   <div class="col-md-10">
                     <?php foreach($internal_status as $status){?>
                     <div style="float:left;">
@@ -63,6 +66,7 @@
                     <?php echo form_error('internal_status'); ?>
                   </div>
                 </div>
+                <?php } ?>
                 
                 <div>
                   <center>

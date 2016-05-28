@@ -301,6 +301,7 @@ class vendor_model extends CI_Model {
        if($service_center_id !=""){
           $this->db->where('id', $service_center_id);
        }
+
        $this->db->where('active', 1);
        $sql = $this->db->get('service_centres');
        return $sql->result_array();
@@ -453,6 +454,7 @@ class vendor_model extends CI_Model {
     } else {
        $service_center = $this->getActiveVendor($vendor['vendor_id']);
     }
+
     // initialize empty array
     $array = array();
        foreach ($service_center as $key => $value) { 
@@ -469,15 +471,15 @@ class vendor_model extends CI_Model {
          }
       
           $sql = "SELECT $month $source $services $city
-                SUM(CASE WHEN `current_status` = 'Completed' THEN 1 ELSE 0 END) AS completed_booking,
-                SUM(CASE WHEN `current_status` = 'Cancelled' THEN 1 ELSE 0 END) AS cancelled_booking
+                SUM(CASE WHEN `current_status` LIKE '%Completed%' THEN 1 ELSE 0 END) AS completed_booking,
+                SUM(CASE WHEN `current_status` LIKE '%Cancelled%' THEN 1 ELSE 0 END) AS cancelled_booking
                 $avg
 
                 from booking_details $join where assigned_vendor_id = $value[id]  $condition  $where $group_By";
                    
           $data = $this->db->query($sql);
           $result = $data->result_array();
-          
+
             if(!empty($result)){
               $result[0]['Vendor_Name'] = $value['name'];
               $result[0]['Vendor_ID'] = $value['id'];
