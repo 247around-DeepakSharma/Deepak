@@ -5,15 +5,19 @@
             <table class="table  table-striped table-bordered">
             <thead>
             	<th>Cancellation Reason </th>
-            	<th>Total</th>
+            	<th>count</th>
             </thead>
             <tbody>
-            	<?php foreach ($reason as $value) { ?>
+            	<?php $count = 0; foreach ($reason as $value) { ?>
             		<tr>
             		<td><?php echo $value['cancellation_reason'];?></td>
-            		<td><?php echo $value['count'];?></td>
+            		<td><?php echo $value['count']; $count += $value['count'];?></td>
             		</tr>
             	<?php } ?>
+                <tr>
+                    <td>Total</td>
+                    <td><?php echo $count; ?></td>
+                </tr>
             </tbody>	
             </table>
             </div>
