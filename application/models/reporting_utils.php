@@ -536,7 +536,7 @@ class Reporting_utils extends CI_Model {
                  SUM(CASE WHEN `current_status` LIKE '%FollowUp%' THEN 1 ELSE 0 END) AS queries,
                  SUM(CASE WHEN `current_status` LIKE '%Cancelled%' THEN 1 ELSE 0 END) AS cancelled,
                  SUM(CASE WHEN `current_status` LIKE '%Completed%' THEN 1 ELSE 0 END) AS completed,
-                 SUM(CASE WHEN `current_status` LIKE '%Pending%' OR `%current_status%` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) as scheduled,
+                 SUM(CASE WHEN `current_status` LIKE '%Pending%' OR `current_status` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) as scheduled,
                  SUM(CASE WHEN `current_status` LIKE '%FollowUp%' OR `current_status` LIKE '%Completed%' OR `current_status` LIKE '%Cancelled%' OR `current_status` LIKE '%Pending%' OR `current_status` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) AS total 
   
                 from booking_details $where Group By source ;
