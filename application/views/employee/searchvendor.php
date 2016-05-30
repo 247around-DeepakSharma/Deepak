@@ -8,7 +8,7 @@
 				<table class="table  table-striped table-bordered">
 					<tr>
 						<th style="width: 22%"> 
-							<select class="form-control"  id="service_id" name="services" >
+							<select class="form-control" onchange="checkVendor()" id="service_id" name="services" >
 								<option selected disabled>Select Services</option>
 								<?php 
                                    foreach ($services as $key => $value) { ?>
