@@ -46,7 +46,9 @@
 						</th>
 
 					</tr>
+					
 				</table>
+				<img id="loader_gif" src="" style="display: none;">
 				<table class="table table-striped table-bordered" id="vendor"></table>
 			</div>
 		</div>
@@ -69,13 +71,16 @@
     	postdata['service_id'] =  $("#service_id").val();
     	postdata['city'] =  $("#city").val();
     	postdata['pincode'] =  $("#pincode").val();
-
+    	$('#loader_gif').css('display','inherit');
+        $('#loader_gif').attr('src', "<?php echo base_url(); ?>images/loader.gif");
 	    	$.ajax({
 	        type: 'POST',
 	        url: '<?php echo base_url() ?>employee/vendor/check_availability_for_vendor',
 	        data: postdata,
 	        success: function (data) {
-	          console.log(data);
+	         
+              $('#loader_gif').attr('src', "");
+              $('#loader_gif').css('display','none');
 	          $("#vendor").html(data);   
 	        }
         });
