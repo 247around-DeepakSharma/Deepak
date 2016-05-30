@@ -115,6 +115,8 @@
           <tr><td>Booking Alternate Contact No.: </td><td><?php echo $query1[0]['booking_alternate_contact_no']; ?></td></tr>
           <tr><td>Booking Remarks: </td><td><?php echo $query1[0]['booking_remarks']; ?></td></tr>
           <tr><td>Query Remarks: </td><td><?php echo $query1[0]['query_remarks']; ?></td></tr>
+          <tr><td>Service Center Remarks: </td><td><?php echo $query3[0]['service_center_remarks']; ?></td></tr>
+          <tr><td>Admin Remarks: </td><td><?php echo $query3[0]['admin_remarks']; ?></td></tr>
          </table>
             </div>
             <div class="col-md-6">
