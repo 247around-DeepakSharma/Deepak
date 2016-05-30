@@ -248,6 +248,10 @@
                         {
                             echo "<a class='btn btn-sm btn-danger btn-sm' "
                             . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>";
+                        } else if ($row->current_status == 'Review')
+                        {
+                            echo "<a class='btn btn-sm btn-danger btn-sm' "
+                            . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Complete'><i class='fa fa-eye-slash' aria-hidden='true'></i></a>";
                         }
                         else
                         {

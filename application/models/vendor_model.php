@@ -262,18 +262,20 @@ class vendor_model extends CI_Model {
       $this->db->distinct();
       $this->db->select('City');
       $this->db->where('active', 1);
+      $this->db->order_by('City');
       $query = $this->db->get('vendor_pincode_mapping');
       return $query->result_array(); 
 
     }
 
     function get_services_category_city_pincode(){
-      $service = $this->db->query("Select id,services from services where isBookingActive='1'");
+      $service = $this->db->query("Select id,services from services where isBookingActive='1' Order By services");
       $query1['services'] = $service->result_array();
       $query2['city'] = $this->get_city(); 
 
       $this->db->distinct();
       $this->db->select('Pincode');
+      $this->db->order_by("Pincode");
       $this->db->where('active', 1);
       $query4 = $this->db->get('vendor_pincode_mapping');
 
@@ -309,7 +311,7 @@ class vendor_model extends CI_Model {
        if($service_center_id !=""){
           $this->db->where('id', $service_center_id);
        }
-
+       $this->db->order_by("name");
        $this->db->where('active', 1);
        $sql = $this->db->get('service_centres');
        return $sql->result_array();
@@ -533,6 +535,9 @@ class vendor_model extends CI_Model {
     }
 
     function update_service_center_action($data){
+      if(isset($data['closing_remarks'])){
+        unset($data['closing_remarks']);
+      }
       $this->db->where('booking_id', $data['booking_id']);
       $this->db->update('service_center_booking_action', $data);
     }

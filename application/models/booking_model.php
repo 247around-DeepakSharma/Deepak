@@ -579,12 +579,17 @@ class Booking_model extends CI_Model {
 	return $this->db->count_all_results("booking_details");
     }
 
-    public function total_pending_booking($booking_id = "") {
+    public function total_pending_booking($booking_id = "", $service_center_id="") {
 	$where = "";
 
 	if ($booking_id != "") {
 	    $where .= "AND `booking_details`.`booking_id` = '$booking_id'";
-	} else {
+
+	} if($service_center_id !=""){
+        $where .= " AND assigned_vendor_id = '".$service_center_id."'";
+        $where .= "AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
+
+    } else {
 	    $where .= "AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
 	}
 
@@ -600,11 +605,17 @@ class Booking_model extends CI_Model {
 	return $count[0]['count'];
     }
 
-    function date_sorted_booking($limit, $start, $booking_id = "") {
+    function date_sorted_booking($limit, $start, $booking_id = "", $service_center_id = "") {
 	$where = "";
 	if ($booking_id != "") {
 	    $where .= "AND `booking_details`.`booking_id` = '$booking_id'";
-	} else {
+
+	} if($service_center_id !=""){
+		
+        $where .= " AND assigned_vendor_id = '".$service_center_id."'";
+        //$where .= "AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
+
+    } else {
 	    $where .= "AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
 	}
 
@@ -621,6 +632,25 @@ class Booking_model extends CI_Model {
 	);
 
 	$temp = $query->result();
+    
+	foreach ($temp as $key => $value) {
+			
+		$this->db->select('*');
+		$this->db->where('booking_id', $value->booking_id);
+		$query2 = $this->db->get('service_center_booking_action');
+
+		if($query2->num_rows>0){
+			if($service_center_id !=""){
+				$result2 = $query2->result_array(); 
+				$temp[$key]->current_status = "In Process";
+				$temp[$key]->admin_remarks = $result2[0]['admin_remarks'];
+
+		    } else {
+                $temp[$key]->current_status = "Review";
+		    }
+			
+		}
+	}
 
 	usort($temp, array($this, 'date_compare_bookings'));
 

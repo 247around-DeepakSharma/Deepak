@@ -5,7 +5,101 @@
  */
 
 body {
-    background-color: #f8f8f8;
+    background-color: #fff;
+}
+
+.navbar-brand {
+  padding: 0px; /* firefox bug fix */
+}
+.navbar-brand>img {
+    height: 143%;
+    padding: 0px;
+    /* margin-top: 0px; */
+    margin-left: 66px;
+   
+}
+
+#bs-example-navbar-collapse-1{
+    margin-top: 14px;
+    margin-left: 140px;
+
+}
+
+.navbar-nav a{
+   color: #fff;
+}
+
+.navbar-nav a:hover, .open a{
+   color: #337ab7;
+}
+
+.navbar{
+    margin-bottom: 0px;
+}
+
+ .pageWrap{
+            width: 600px;
+            text-align: center;
+            height: auto;
+            float: none;
+            background-color: #2C9D9C;
+            padding: 20px;
+            margin-top:150px;
+            }  
+
+            .login_btn{
+               background-color:    #708090;
+               box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+               border: none;
+                display: inline-block;
+                outline: 0;
+                padding: 6px 16px;
+                vertical-align: middle;
+                overflow: hidden;
+                text-decoration: none!important;
+                color: #fff;
+               
+                text-align: center;
+                cursor: pointer;
+                white-space: nowrap;
+            }
+            .login_btn:hover{
+                background-color:#ffffff;
+                 color:#2C9D9C;
+                 box-shadow:0 8px 16px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+
+            }
+            #errmsg, #errmsg1{ color: red;} 
+            #login_form .form-group label.error {
+            color: #FB3A3A;
+            display: inline-block;
+            
+            padding: 0;
+            text-align: left;
+            }
+
+.navbar{
+   border-radius: 0px;
+}
+.navbar-toggle{
+    border: 1px solid #fff;
+    margin-top: 21px;
+}
+
+@media (max-width: 768px) {
+    .navbar-brand>img {
+        margin-left: 18px;
+    }
+
+
+    #bs-example-navbar-collapse-1{
+        margin-left: 0px;
+
+    }
+}
+.navbar-custom {
+    background-color: #2C9D9C;
+    border-color: #2C9D9C;
 }
 
 #wrapper {

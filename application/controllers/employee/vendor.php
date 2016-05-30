@@ -548,10 +548,10 @@ class vendor extends CI_Controller {
     	print_r($result);
     }
 
-    function review_service_charges(){
+    function review_bookings(){
     	$charges['charges'] = $this->vendor_model->getbooking_charges();
     	$this->load->view('employee/header');
-    	$this->load->view('employee/review_service_charges', $charges);
+    	$this->load->view('employee/review_booking', $charges);
     }
     
     /**
@@ -565,7 +565,7 @@ class vendor extends CI_Controller {
     	$this->load->view('employee/vendor_cancellation_reason', $reason);
     }
 
-    /*function test(){
+   /* function test(){
     	$post_data = array(
             'From' => "9971634265",
             'To' => "01139595200",
@@ -578,16 +578,17 @@ class vendor extends CI_Controller {
         $exotel_sid = "aroundhomz";
 	    $exotel_token = "a041058fa6b179ecdb9846ccf0e4fd8e09104612";
 
-        $url = "https://".$exotel_sid.":".$exotel_token."@twilix.exotel.in/v1/Accounts/".$exotel_sid."/Calls/connect";
+        $url = "https://".$exotel_sid.":".$exotel_token."@twilix.exotel.in/v1/Accounts/".$exotel_sid."/Calls/01130017601";
+
  
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, 1);
+       // curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_FAILONERROR, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
+        //curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query());
  
         $http_result = curl_exec($ch);
         $error = curl_error($ch);
