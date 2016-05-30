@@ -112,7 +112,7 @@
                         if ($row->current_status == 'Completed' && (empty($row->rating_stars) || empty($row->vendor_rating_stars))) 
                         {
                             echo "<a class='btn btn-sm btn-danger' "
-                                    . "href=" . base_url() . "employee/booking/get_rating_form/$row->booking_id>Rate</a>";
+                                    . "href=" . base_url() . "employee/booking/get_rating_form/$row->booking_id title='Rate'><i class='fa fa-star-o' aria-hidden='true'></i></a>";
                         }
                         else 
                         {
