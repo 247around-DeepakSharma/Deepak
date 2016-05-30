@@ -188,7 +188,7 @@ class Invoice extends CI_Controller {
 		echo "<option value='".$p_name['partner_id']."'>" . $p_name['source'] . "</option>";
 	    }
 	} else {
-	    $all_vendors = $this->vendor_model->getActiveVendor();
+	    $all_vendors = $this->vendor_model->getActiveVendor("", 0);
 	    foreach ($all_vendors as $v_name) {
 		echo "<option value='".$v_name['id']."'>" . $v_name['name'] . "</option>";
 	    }

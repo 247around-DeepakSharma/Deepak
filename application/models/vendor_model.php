@@ -305,14 +305,20 @@ class vendor_model extends CI_Model {
       $query = $this->db->get();
       return $query->result_array();
     }
-
-    function getActiveVendor($service_center_id = ""){
+    
+    /**
+     * @desc:  get vendor name and id. set flag 1 for active vendor and 0 or inactive vendor
+     * @param: service_center_id, flag
+     * @return : Array
+     */
+    function getActiveVendor($service_center_id = "", $active = 1){
        $this->db->select("service_centres.name, service_centres.id ");
        if($service_center_id !=""){
           $this->db->where('id', $service_center_id);
        }
        $this->db->order_by("name");
-       $this->db->where('active', 1);
+       if($active == 1)
+          $this->db->where('active', 1);
        $sql = $this->db->get('service_centres');
        return $sql->result_array();
 
