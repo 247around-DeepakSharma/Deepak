@@ -46,9 +46,8 @@
 						</th>
 
 					</tr>
-					
 				</table>
-				<img id="loader_gif" src="" style="display: none;">
+				<div class="col-md-12"><center><img id="loader_gif" src="" style="display: none;"></center></div>
 				<table class="table table-striped table-bordered" id="vendor"></table>
 			</div>
 		</div>
