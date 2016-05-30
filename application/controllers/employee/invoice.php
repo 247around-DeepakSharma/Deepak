@@ -183,12 +183,12 @@ class Invoice extends CI_Controller {
     
     function getPartnerOrVendor($par_ven) {
 	if ($par_ven == 'partner') {
-	    $all_partners = $this->partner_model->get_all_partner_source("null");
+	    $all_partners = $this->partner_model->get_all_partner_source("0");
 	    foreach ($all_partners as $p_name) {
 		echo "<option value='".$p_name['partner_id']."'>" . $p_name['source'] . "</option>";
 	    }
 	} else {
-	    $all_vendors = $this->vendor_model->getActiveVendor();
+	    $all_vendors = $this->vendor_model->getActiveVendor("", 0);
 	    foreach ($all_vendors as $v_name) {
 		echo "<option value='".$v_name['id']."'>" . $v_name['name'] . "</option>";
 	    }

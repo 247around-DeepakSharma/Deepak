@@ -162,7 +162,13 @@ class New_booking extends CI_Controller {
         $this->asynchronous_lib->do_background_process($url, $approve);
 
        
-        redirect(base_url() . 'employee/vendor/review_bookings');
+        redirect(base_url() . 'employee/new_booking/review_bookings');
+    }
+
+    function review_bookings($booking_id = ""){
+        $charges['charges'] = $this->booking_model->get_booking_for_review($booking_id);
+        $this->load->view('employee/header');
+        $this->load->view('employee/review_booking', $charges);
     }
      
 
