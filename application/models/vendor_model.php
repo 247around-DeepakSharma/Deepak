@@ -286,17 +286,21 @@ class vendor_model extends CI_Model {
 
     function getVendorFromVendorMapping($data){
       $this->db->distinct();
-      $this->db->select('Vendor_Name, Brand, Area, Region, Pincode');
+      $this->db->select('Vendor_Name, Brand, Area, Region, vendor_pincode_mapping.Pincode');
+      $this->db->from('vendor_pincode_mapping');
+      $this->db->join('service_centres','service_centres.id = vendor_pincode_mapping.Vendor_ID');
+
       $this->db->where('Appliance_ID', $data['service_id']);
       if($data['city'] != 'Select City')
-         $this->db->where('City', $data['city'] );
+         $this->db->where('vendor_pincode_mapping.City', $data['city'] );
 
        if($data['pincode'] != "Select Pincode")
-        $this->db->where('Pincode', $data['pincode']);
+        $this->db->where('vendor_pincode_mapping.Pincode', $data['pincode']);
 
-      $this->db->where('active', 1);
+      $this->db->where('vendor_pincode_mapping.active', 1);
+      $this->db->where('service_centres.active',1);
 
-      $query = $this->db->get('vendor_pincode_mapping');
+      $query = $this->db->get();
       return $query->result_array();
     }
 
