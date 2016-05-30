@@ -236,6 +236,17 @@
                     </select>
                 </div>
               </div>
+              
+                <div class="form-group <?php
+                if (form_error('ProductType')) {
+                    echo 'has-error';
+                } ?>">
+                    <label for="ProductType" class="col-md-2">Booking Desctiption</label>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" name="ProductType" value="<?php if (isset($description)) { if(!empty($description)){echo $description[0]['description']; } } ?>" >
+                        <?php echo form_error('ProductType'); ?>
+                    </div>
+                </div>              
 
               <div class="form-group <?php if (form_error('appliance_category')) { echo 'has-error';} ?>">
                 <label for="appliance_category" class="col-md-2">Category</label>
@@ -430,18 +441,6 @@
                         <div class="col-md-6">
                             <textarea class="form-control" name="booking_remarks"><?php if (isset($data1['booking_remarks'])) {echo $data1['booking_remarks']; }?></textarea>
                             <?php echo form_error('booking_remarks'); ?>
-                        </div>
-                    </div>
-
-                    <div class="form-group <?php
-                    if (form_error('booking_remarks')) {
-                        echo 'has-error';
-                    } ?>">
-                    
-                        <label for="booking_remarks" class="col-md-2">Booking Desctiption</label>
-                        <div class="col-md-6">
-                            <textarea class="form-control" name="ProductType" disabled><?php if (isset($description)) { if(!empty($description)){echo $description[0]['description']; } } ?></textarea>
-                            <?php echo form_error('ProductType'); ?>
                         </div>
                     </div>
 
