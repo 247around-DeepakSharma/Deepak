@@ -542,16 +542,6 @@ class vendor_model extends CI_Model {
       $this->db->update('service_center_booking_action', $data);
     }
 
-    function getbooking_charges(){
-      $charges = $this->booking_model->getbooking_charges();
-      foreach ($charges as $key => $value) {
-        $charges[$key]['service_centres']  = $this->getVendor($value['booking_id']);
-        $charges[$key]['query2'] = $this->booking_model->get_unit_details($value['booking_id']);
-        $charges[$key]['booking'] = $this->booking_model->booking_history_by_booking_id($value['booking_id']);
-      }
-
-      return $charges;
-    }
     /**
      * @desc:  when reassign service center, delete previous action perform by service center
      */

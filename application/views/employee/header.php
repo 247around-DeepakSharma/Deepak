@@ -88,7 +88,7 @@
                   </li>
                   <li class="divider"></li>
                   <li>
-                     <a href="<?php echo base_url()?>employee/vendor/review_bookings"><i class="fa fa-fw fa-desktop"></i> <strong> Review Bookings</strong></a>
+                     <a href="<?php echo base_url()?>employee/new_booking/review_bookings"><i class="fa fa-fw fa-desktop"></i> <strong> Review Bookings</strong></a>
                   </li>
 
 <!--
