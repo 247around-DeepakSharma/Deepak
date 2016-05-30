@@ -1,5 +1,6 @@
 <?php if(isset($invoice_array)){ ?>
-<table class="table table-bordered  table-hover table-striped data"  >
+<p><h2>Invoices Generated</h2></p>
+  <table class="table table-bordered  table-hover table-striped data"  >
    <thead>
       <tr >
          <th>No #</th>
@@ -9,11 +10,12 @@
          <th>Invoice PDF File</th>
          <th>Invoicing Range</th>
          <th>Number of Bookings</th>
-         <th>Total Service Charges</th>
-         <th>Total Additional Service Charges</th>
-         <th>Parts cost</th>
+         <th>Service Charges</th>
+         <th>Additional Service Charges</th>
+         <th>Parts / Stands</th>
          <th>Total Amount Collected</th>
          <th>Around Royalty</th>
+         <th>Amount to be Collected / Paid</th>
          <th>Rating</th>
          <th>Sent Date</th>
          <th>Send Email</th>
@@ -28,6 +30,7 @@
        $sum_total_parts_cost = 0;
        $total_amount_collected =0;
        $around_royalty = 0;
+       $amount_collected_paid = 0;
        if(!empty($invoice_array)){
          foreach($invoice_array as $key =>$invoice) {?>
 
@@ -37,12 +40,10 @@
          <td>
          <?php
             if($invoice['type'] == 'A'){
-
                echo "Cash";
-	}  else if($invoice['type'] == 'B'){
-
-                  echo "Free of Cost (FOC)";
-	}
+	       }  else if($invoice['type'] == 'B'){
+              echo "Free of Cost (FOC)";
+	       }
 
          ?></td>
 
@@ -55,6 +56,7 @@
          <td><?php echo $invoice['parts_cost']; $sum_total_parts_cost += $invoice['parts_cost']; ?></td>
          <td><?php echo $invoice['total_amount_collected']; $total_amount_collected += $invoice['total_amount_collected'];?></td>
          <td><?php echo $invoice['around_royalty']; $around_royalty += $invoice['around_royalty']; ?></td>
+         <td><?php echo $invoice['amount_collected_paid']; $amount_collected_paid += $invoice['amount_collected_paid']; ?></td>
          <td><?php echo $invoice['rating']; ?></td>
          <td><?php echo date("jS F, Y", strtotime($invoice['create_date'])); ?></td>
          <?php  $count = $count+1;  ?>
@@ -67,7 +69,6 @@
             <input type="text" class="form-control"  name="email" >
             <input style ="margin-top:8px;" type="submit"  value="Send Mail" >
             </form>
-
          </td>
 
 
@@ -75,7 +76,7 @@
       <?php }} ?>
 
       <tr>
-         <td>Total</td>
+         <td><b>Total</b></td>
          <td></td>
          <td></td>
          <td></td>
@@ -87,6 +88,7 @@
          <td><?php echo $sum_total_parts_cost; ?></td>
          <td><?php echo $total_amount_collected; ?></td>
          <td><?php echo $around_royalty; ?></td>
+         <td><?php echo $amount_collected_paid; ?></td>
          <td></td>
          <td></td>
          <td></td>
@@ -95,42 +97,51 @@
    </tbody>
    </tbody>
 </table>
-<?php } if(isset($bank_statement)){ ?>
-    <?php //print_r($bank_statement);?>
-  <table class="table table-bordered  table-hover table-striped data"  >
-    <thead>
-      <tr>
-         <th>No #</th>
-         <th>Transaction Date</th>
-         <th>Description</th>
-         <th>Debit</th>
-         <th>Credit</th>         
-         <th>Bank Name/Mode</th>         
-      </tr>
-   </thead>
-   <tbody>
-       <tr>
-       <?php $count=1;?>
-       <?php foreach($bank_statement as $value){?>
-       <td><?php echo $count;$count++;?></td>
-       <td><?php echo $value['transaction_date']; ?></td>
-       <td><?php echo $value['description']; ?></td>
-       <td><?php echo $value['debit_of']; $debit_of += $value['debit_of'];?></td>
-       <td><?php echo $value['credit_of']; $credit_of += $value['credit_of']; ?></td>       
-       <td><?php echo $value['bankname']; ?>/<?php echo $value['transaction_mode']; ?></td>                     
-       <?php } ?>
-       </tr>
-       <tr>
-         <td>Total</td>
-         <td></td>
-         <td></td>
-         <td>- <?php echo $debit_of;?></td>
-         <td><?php echo $credit_of;?></td>
-         <td></td>
-   </tbody>
-  </table>
-<h2><u>Summary</u></h2>
-<p><h4>Vendor have to pay to 247around= Rs.<?php echo $credit_of;?></h4></p>
-<p><h4>247around have to pay to vendor= Rs.<?php echo $debit_of;?></h4></p>
-<?php } ?>
-
+<?php } 
+    if(isset($bank_statement)) { ?>
+    <br>
+     <p><h2>Bank Transactions</h2></p>
+      <table class="table table-bordered  table-hover table-striped data"  >
+        <thead>
+          <tr>
+             <th>No #</th>
+             <th>Transaction Date</th>
+             <th>Description</th>
+             <th>Amt Received from Vendor</th>         
+             <th>Amt Transferred to Vendor</th>
+             <th>Bank Name / Mode</th>         
+          </tr>
+       </thead>
+       <tbody>
+           
+           <?php $count=1; $debit_amount=0; $credit_amount=0 ?>
+           <?php foreach($bank_statement as $value){?>
+               <tr>
+               <td><?php echo $count;$count++;?></td>
+               <td><?php echo $value['transaction_date']; ?></td>
+               <td><?php echo $value['description']; ?></td>
+               <td><?php echo $value['credit_amount']; $credit_amount += intval($value['credit_amount']); ?></td>       
+               <td><?php echo $value['debit_amount'];  $debit_amount += intval($value['debit_amount']); ?></td>
+               <td><?php echo $value['bankname']; ?> / <?php echo $value['transaction_mode']; ?></td>                     
+           <?php } ?>
+           </tr>
+           <tr>
+             <td><b>Total</b></td>
+             <td></td>
+             <td></td>
+             <td><?php echo $credit_amount;?></td>
+             <td><?php echo $debit_amount;?></td>
+             <td></td>
+       </tbody>
+      </table>
+    <br><br>  
+    <h2><u>Final Summary</u></h2>
+    <br>
+    <?php 
+        $final_settlement = 0;
+        $final_settlement = $amount_collected_paid + $debit_amount - $credit_amount;
+    ?>
+    <p><h4>Vendor has to pay to 247around = Rs. <?php if($final_settlement >= 0) echo $final_settlement; else echo 0; ?></h4></p>
+    <p><h4>247around has to pay to vendor = Rs. <?php if($final_settlement < 0) echo (0-$final_settlement); else echo 0; ?></h4></p>
+    
+    <?php } ?>
