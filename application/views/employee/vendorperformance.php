@@ -196,7 +196,7 @@
          <td><a href="<?php echo base_url();?>employee/vendor/getcancellation_reason/<?php echo $variable[0]['Vendor_ID'] ?>" target='_blank' ><?php echo $variable[0]['Vendor_Name']; ?></td>
          <td><?php if(isset($variable[0]['City'])) { echo $variable[0]['City']; }?></td>
          <td><?php if(isset($variable[0]['Appliance'])) { echo $variable[0]['Appliance'];} ?></td>
-         <td><?php if(isset($variable[0]['source'])){ echo $value['source']; }?></td>
+         <td><?php if(isset($value['source'])){ echo $value['source']; }?></td>
          <td><?php echo $value['completed_booking']; $completed += $value['completed_booking']?></td>
          <td><?php echo $value['cancelled_booking']; $cancelled +=  $value['cancelled_booking']; ?></td>
          <td><?php echo $value['percentage']; $per += $value['percentage'];?></td>

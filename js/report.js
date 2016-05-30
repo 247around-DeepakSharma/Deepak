@@ -262,7 +262,7 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
 
                 $('#performance').html(data);
                 
-                $('#total_user').html("Total User:  " + $('#total_booking_user').val());
+                $('#total_user').html("Total Booking:  " + $('#total_booking_user').val());
                 $('#completed_booking_user').html("Completed booking:  " + $('#total_booking_completed_booking_user').val());
                 $('#cancelled_booking_user').html("Cancelled booking:  " + $('#total_booking_cancelled').val());
                 $('#loader_gif').attr('src',"");

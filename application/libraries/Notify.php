@@ -84,12 +84,21 @@ class Notify {
      *  @param : SMS tag,parameters and phone no.
      *  @return : if SMS send return true else false
      */
-    function sms_templates($tag, $parameters, $phone_no){
-    	    	
-    $template[0]['template'] = $this->My_CI->vendor_model->getVendorSmsTemplate($tag); 
-    
-    $smsBody = vsprintf($template[0]['template'], $parameters);
+    function send_sms($sms){
+  
+    $template = $this->My_CI->vendor_model->getVendorSmsTemplate($sms['tag']); 
+    if(!empty($template)){
+        $smsBody = vsprintf($template, $sms['smsData']);
+        $this->sendTransactionalSms($sms['phone_no'], $smsBody);
+    } else {
 
-    $this->sendTransactionalSms($phone_no, $smsBody);
+        log_message('info', "Message Not Sent - Booking id: " . $sms['booking_id']. ", 
+        		please recheck tag: '".$sms['tag']."' & Phone Number - ". $sms['phone_no']);
+    	$subject = 'Booking SMS not sent';
+    	$message = "Please check SMS tag and phone number. Booking id is : ". 
+    		            $sms['booking_id']. " Tag is '".$sms['tag']."' & phone number is :".$sms['phone_no'];
+    	$to = "anuj@247around.com, nits@247around.com";
+    	$this->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+        }
     }
 }
