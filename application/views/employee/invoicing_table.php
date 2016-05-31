@@ -109,7 +109,8 @@
              <th>Description</th>
              <th>Amt Received from Vendor</th>         
              <th>Amt Paid to Vendor</th>
-             <th>Bank Name / Mode</th>         
+             <th>Invoices</th>
+             <th>Bank Name / Mode</th>
           </tr>
        </thead>
        <tbody>
@@ -122,6 +123,7 @@
                <td><?php echo $value['description']; ?></td>
                <td><?php echo $value['credit_amount']; $credit_amount += intval($value['credit_amount']); ?></td>       
                <td><?php echo $value['debit_amount'];  $debit_amount += intval($value['debit_amount']); ?></td>
+               <td><?php echo $value['invoice_id']; ?></td>
                <td><?php echo $value['bankname']; ?> / <?php echo $value['transaction_mode']; ?></td>                     
            <?php } ?>
            </tr>
