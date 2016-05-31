@@ -108,7 +108,7 @@
              <th>Transaction Date</th>
              <th>Description</th>
              <th>Amt Received from Vendor</th>         
-             <th>Amt Transferred to Vendor</th>
+             <th>Amt Paid to Vendor</th>
              <th>Bank Name / Mode</th>         
           </tr>
        </thead>
