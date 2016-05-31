@@ -138,5 +138,12 @@ class Partner_model extends CI_Model {
     function insert_data_in_batch($table_name, $rows){
         return $this->db->insert_batch($table_name, $rows);
     }
+    
+    function getpartner(){
+        $this->db->select('id,public_name as name');
+        $this->db->where('is_active','1');
+        $query = $this->db->get('partners');
+        return $query->result_array();
+    }
 
 }

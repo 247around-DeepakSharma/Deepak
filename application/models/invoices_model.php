@@ -90,39 +90,45 @@ class invoices_model extends CI_Model {
 	$query = $this->db->get('bank_transactions');
 	return $query->result_array();
     }
-
+    
+    /**
+     * @desc: This is used to get sum of credit amount and debit amount for specific vendor or partner
+     * @param: vendor_partner (vendor or partner) AND vendor or partner ID
+     * @return: array() 
+     */
     function getbank_transaction_summary($vendor_partner, $partner_vendor_id){
         $sql = " SELECT COALESCE(SUM(`credit_amount`),0) as credit_amount, COALESCE(SUM(`debit_amount`),0) as debit_amount  from bank_transactions where partner_vendor = '$vendor_partner' AND partner_vendor_id = '$partner_vendor_id' ";
         $data = $this->db->query($sql);
         return $data->result_array();
     }
+    
+    /**
+     * @desc: This funtion is used to get invoicing summary for vendor or partner.
+     * @param: String ( vendor or patner)
+     * @return: Array()
+     */
 
     function getsummary_of_invoice($vendor_partner){
         $array = array();
-        $where = "";
+        
         if($vendor_partner == "vendor"){
 
           $data = $this->vendor_model->getActiveVendor("", 0);
           
         } else if($vendor_partner == "partner") {
 
+            $data = $this->partner_model->getpartner();
         }
         foreach ($data as $key => $value) {
 
-            if($vendor_partner == "vendor"){
-                $where = " WHERE vendor_partner_id =  $value[id] AND vendor_partner =  'vendor'";
-                $vendor_partner_id = $value['id'];
-                $name = $value['name'];
-            }
-
-            $sql = "SELECT COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid FROM  `vendor_partner_invoices` $where AND `due_date` <= CURRENT_DATE()";
+            $sql = "SELECT COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid FROM  `vendor_partner_invoices` WHERE vendor_partner_id =  $value[id] AND vendor_partner =  '$vendor_partner'  AND `due_date` <= CURRENT_DATE()";
 
             $data = $this->db->query($sql);
             $result = $data->result_array();
-            $bank_transactions = $this->getbank_transaction_summary($vendor_partner, $vendor_partner_id);
+            $bank_transactions = $this->getbank_transaction_summary($vendor_partner, $value['id']);
             $result[0]['vendor_partner'] =  $vendor_partner;
-            $result[0]['name'] =  $name;
-            $result[0]['id'] = $vendor_partner_id;
+            $result[0]['name'] =  $value['name'];
+            $result[0]['id'] = $value['id'];
             $result[0]['final_amount'] = $result[0]['amount_collected_paid'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount'];
 
             array_push($array, $result[0]);

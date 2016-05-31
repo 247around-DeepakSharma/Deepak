@@ -99,6 +99,7 @@ class Invoice extends CI_Controller {
      */
     function invoice_partner_view() {
 	$data['partner'] = $this->partner_model->get_all_partner_source();
+	$data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner");
 
 	$this->load->view('employee/header');
 	$this->load->view('employee/invoice_list', $data);
