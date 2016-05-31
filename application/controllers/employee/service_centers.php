@@ -86,6 +86,7 @@ class Service_centers extends CI_Controller {
         $data['query1'] = $this->booking_model->booking_history_by_booking_id($booking_id);
         $data['query2'] = $this->booking_model->get_unit_details($booking_id);
         $data['query4'] = $this->booking_model->getdescription_about_booking($booking_id);
+        $data['query3'] = $this->booking_model->getbooking_charges($booking_id);
 
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/booking_details', $data);

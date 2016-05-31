@@ -1590,5 +1590,16 @@ class Booking_model extends CI_Model {
     	return $query->result_array();
     }
 
+    function get_booking_for_review(){
+      $charges = $this->getbooking_charges();
+      foreach ($charges as $key => $value) {
+        $charges[$key]['service_centres']  = $this->vendor_model->getVendor($value['booking_id']);
+        $charges[$key]['query2'] = $this->get_unit_details($value['booking_id']);
+        $charges[$key]['booking'] = $this->booking_history_by_booking_id($value['booking_id']);
+      }
+
+      return $charges;
+    }
+
 
 }

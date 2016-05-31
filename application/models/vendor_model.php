@@ -305,14 +305,20 @@ class vendor_model extends CI_Model {
       $query = $this->db->get();
       return $query->result_array();
     }
-
-    function getActiveVendor($service_center_id = ""){
+    
+    /**
+     * @desc:  get vendor name and id. set flag 1 for active vendor and 0 or inactive vendor
+     * @param: service_center_id, flag
+     * @return : Array
+     */
+    function getActiveVendor($service_center_id = "", $active = 1){
        $this->db->select("service_centres.name, service_centres.id ");
        if($service_center_id !=""){
           $this->db->where('id', $service_center_id);
        }
        $this->db->order_by("name");
-       $this->db->where('active', 1);
+       if($active == 1)
+          $this->db->where('active', 1);
        $sql = $this->db->get('service_centres');
        return $sql->result_array();
 
@@ -542,16 +548,6 @@ class vendor_model extends CI_Model {
       $this->db->update('service_center_booking_action', $data);
     }
 
-    function getbooking_charges(){
-      $charges = $this->booking_model->getbooking_charges();
-      foreach ($charges as $key => $value) {
-        $charges[$key]['service_centres']  = $this->getVendor($value['booking_id']);
-        $charges[$key]['query2'] = $this->booking_model->get_unit_details($value['booking_id']);
-        $charges[$key]['booking'] = $this->booking_model->booking_history_by_booking_id($value['booking_id']);
-      }
-
-      return $charges;
-    }
     /**
      * @desc:  when reassign service center, delete previous action perform by service center
      */
