@@ -33,7 +33,8 @@ class Invoice extends CI_Controller {
      * Load invoicing form
      */
     public function index() {
-	$data['service_center'] = $this->invoices_model->getServiceCenter();
+	$data['service_center'] = $this->vendor_model->getActiveVendor("",0);
+	$data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor");
 
 	$this->load->view('employee/header');
 	$this->load->view('employee/invoice_list', $data);
@@ -143,9 +144,11 @@ class Invoice extends CI_Controller {
      *  @desc : This function adds new transactions between vendor/partner and 247around.
      *  @return :
      */
-    function get_add_new_transaction() {
-	$this->load->view('employee/header');
-	$this->load->view('employee/addnewtransaction');
+    function get_add_new_transaction($vendor_partner ="",$id="") {
+        $data['vendor_partner'] = $vendor_partner;
+        $data['id'] =  $id;
+	    $this->load->view('employee/header');
+	    $this->load->view('employee/addnewtransaction', $data);
     }
 
     /**
@@ -182,17 +185,37 @@ class Invoice extends CI_Controller {
     }
     
     function getPartnerOrVendor($par_ven) {
-	if ($par_ven == 'partner') {
-	    $all_partners = $this->partner_model->get_all_partner_source("0");
-	    foreach ($all_partners as $p_name) {
-		echo "<option value='".$p_name['partner_id']."'>" . $p_name['source'] . "</option>";
+    	$vendor_partner_id = $this->input->post('vendor_partner_id');
+    	
+	    if ($par_ven == 'partner') {
+	        $all_partners = $this->partner_model->get_all_partner_source("0");
+	        foreach ($all_partners as $p_name) {
+	        	$option = "<option value='".$p_name['partner_id']."'";
+		        if($vendor_partner_id == $p_name['partner_id']){ 
+
+		        	$option .= "selected"  ;
+		        }
+		        $option .=" > ";
+		        $option .= $p_name['source'] . "</option>";
+		        echo $option;
+	        }
+	    } else {
+	        $all_vendors = $this->vendor_model->getActiveVendor("", 0);
+	        foreach ($all_vendors as $v_name) {
+	        	$option = "<option value='".$v_name['id']."'";
+		        if($vendor_partner_id == $v_name['id']){ 
+		        	
+		        	$option .= "selected "  ;
+		        }
+		        $option .=" > ";
+		        $option .= $v_name['name'] . "</option>";
+
+		        echo $option;
+
+
+	        }
+	        echo $vendor_partner_id;
 	    }
-	} else {
-	    $all_vendors = $this->vendor_model->getActiveVendor("", 0);
-	    foreach ($all_vendors as $v_name) {
-		echo "<option value='".$v_name['id']."'>" . $v_name['name'] . "</option>";
-	    }
-	}
     }
 
 }

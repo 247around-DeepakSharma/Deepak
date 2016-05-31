@@ -56,29 +56,15 @@ class invoices_model extends CI_Model {
     }
 
     /**
-     * Get unique name and id of service center
-     */
-    function getServiceCenter() {
-	$this->db->distinct();
-	$this->db->select('name, id');
-	$this->db->order_by('name', 'ASC');
-	$query = $this->db->get('service_centres');
-	return $query->result_array();
-    }
-
-    /**
      * Get data from vendor_partner_invoices table where vendor id
      * @param : vendor partner id
      * @return :Array
      */
     function getInvoicingData($data) {
-	$this->db->select('*');
-	$this->db->order_by('create_date', 'ASC');
-	$this->db->where('vendor_partner', $data['source']);
-	$this->db->where('vendor_partner_id', $data['vendor_partner_id']);
+        $sql = " SELECT * from vendor_partner_invoices where vendor_partner ='$data[source]' AND  vendor_partner_id = '$data[vendor_partner_id]' AND due_date <= CURRENT_DATE() Order By create_date ASC";
 
-	$query = $this->db->get('vendor_partner_invoices');
-	return $query->result_array();
+	   $data = $this->db->query($sql);
+       return $data->result_array();
     }
 
     /**
@@ -103,6 +89,46 @@ class invoices_model extends CI_Model {
 	$this->db->order_by('transaction_date DESC');
 	$query = $this->db->get('bank_transactions');
 	return $query->result_array();
+    }
+
+    function getbank_transaction_summary($vendor_partner, $partner_vendor_id){
+        $sql = " SELECT COALESCE(SUM(`credit_amount`),0) as credit_amount, COALESCE(SUM(`debit_amount`),0) as debit_amount  from bank_transactions where partner_vendor = '$vendor_partner' AND partner_vendor_id = '$partner_vendor_id' ";
+        $data = $this->db->query($sql);
+        return $data->result_array();
+    }
+
+    function getsummary_of_invoice($vendor_partner){
+        $array = array();
+        $where = "";
+        if($vendor_partner == "vendor"){
+
+          $data = $this->vendor_model->getActiveVendor("", 0);
+          
+        } else if($vendor_partner == "partner") {
+
+        }
+        foreach ($data as $key => $value) {
+
+            if($vendor_partner == "vendor"){
+                $where = " WHERE vendor_partner_id =  $value[id] AND vendor_partner =  'vendor'";
+                $vendor_partner_id = $value['id'];
+                $name = $value['name'];
+            }
+
+            $sql = "SELECT COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid FROM  `vendor_partner_invoices` $where AND `due_date` <= CURRENT_DATE()";
+
+            $data = $this->db->query($sql);
+            $result = $data->result_array();
+            $bank_transactions = $this->getbank_transaction_summary($vendor_partner, $vendor_partner_id);
+            $result[0]['vendor_partner'] =  $vendor_partner;
+            $result[0]['name'] =  $name;
+            $result[0]['id'] = $vendor_partner_id;
+            $result[0]['final_amount'] = $result[0]['amount_collected_paid'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount'];
+
+            array_push($array, $result[0]);
+        }
+
+        return $array;
     }
 
 }
