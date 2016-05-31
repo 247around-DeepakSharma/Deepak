@@ -32,8 +32,8 @@
                   <?php 
                      foreach ($partner as $partnerdetails) {    
                      ?>
-                  <option value = "<?php echo $partnerdetails['partner_id']?>">
-                     <?php echo $partnerdetails['source'];?>
+                  <option value = "<?php echo $partnerdetails['id']?>">
+                     <?php echo $partnerdetails['name'];?>
                   </option>
                   <?php } ?>
                </select>
