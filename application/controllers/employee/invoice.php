@@ -98,6 +98,7 @@ class Invoice extends CI_Controller {
      * @desc Load view to select patner to display invoices
      */
     function invoice_partner_view() {
+
 	$data['partner'] = $this->partner_model->getpartner();
 	$data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner");
 
