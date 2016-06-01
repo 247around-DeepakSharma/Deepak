@@ -88,7 +88,7 @@
          <td><?php echo $sum_total_parts_cost; ?></td>
          <td><?php echo $total_amount_collected; ?></td>
          <td><?php echo $around_royalty; ?></td>
-         <td><?php echo $amount_collected_paid; ?></td>
+         <td></td>
          <td></td>
          <td></td>
          <td></td>
