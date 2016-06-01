@@ -219,5 +219,15 @@ class Invoice extends CI_Controller {
 	        echo $vendor_partner_id;
 	    }
     }
+    
+    /**
+     * @desc: Delete Bank transaction
+     * @param: bank account transaction id, partner vender id
+     * @return: 
+     */
+    function delete_banktransaction($transaction_id){
+    	$this->invoices_model->delete_banktransaction($transaction_id);
+    	echo "success";
+    }
 
 }

@@ -244,7 +244,7 @@ class Booking extends CI_Controller {
 	    }
 	    //------End of sending SMS--------//
 
-	    redirect(base_url() . 'employee/booking/view', 'refresh');
+	    redirect(base_url() . 'employee/booking/view');
 	}
     }
 
@@ -1178,7 +1178,7 @@ class Booking extends CI_Controller {
 	$url = base_url() . "employee/do_background_process/assign_booking";
 	$this->asynchronous_lib->do_background_process($url, $service_center);
 	
-	redirect(base_url() . 'employee/booking/view_pending_queries');
+	redirect(base_url() . 'employee/booking/view');
     }
 
     /**

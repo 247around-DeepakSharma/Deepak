@@ -111,20 +111,23 @@
              <th>Amt Paid to Vendor</th>
              <th>Invoices</th>
              <th>Bank Name / Mode</th>
+             <th>Delete</th>
           </tr>
        </thead>
+       
        <tbody>
            
            <?php $count=1; $debit_amount=0; $credit_amount=0 ?>
            <?php foreach($bank_statement as $value){?>
-               <tr>
+               <tr id="<?php echo "row".$count;?>">
                <td><?php echo $count;$count++;?></td>
                <td><?php echo $value['transaction_date']; ?></td>
                <td><?php echo $value['description']; ?></td>
                <td><?php echo $value['credit_amount']; $credit_amount += intval($value['credit_amount']); ?></td>       
                <td><?php echo $value['debit_amount'];  $debit_amount += intval($value['debit_amount']); ?></td>
                <td><?php echo $value['invoice_id']; ?></td>
-               <td><?php echo $value['bankname']; ?> / <?php echo $value['transaction_mode']; ?></td>                     
+               <td><?php echo $value['bankname']; ?> / <?php echo $value['transaction_mode']; ?></td>   
+               <td><button onclick="delete_banktransaction(<?php echo $value['id']?>)" class="btn btn-sm btn-danger">Delete</button></td>                  
            <?php } ?>
            </tr>
            <tr>
@@ -133,6 +136,8 @@
              <td></td>
              <td><?php echo $credit_amount;?></td>
              <td><?php echo $debit_amount;?></td>
+             <td></td>
+             <td></td>
              <td></td>
        </tbody>
       </table>

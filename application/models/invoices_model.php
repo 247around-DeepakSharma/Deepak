@@ -136,5 +136,15 @@ class invoices_model extends CI_Model {
 
         return $array;
     }
+    
+    /**
+     * @desc: Delete Bank transaction 
+     * @param: bank account transaction id
+     * @return: 
+     */
+    function delete_banktransaction($transaction_id){
+       $this->db->where('id', $transaction_id);
+       $this->db->delete("bank_transactions");
+    }
 
 }

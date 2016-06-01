@@ -39,7 +39,7 @@
                          <td><?= $row->services; ?></td>
                          <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
                          <td><?php echo $row->current_status; ?></td>
-                         <td data-popover="true"  data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>"><div class="marquee"><div><span ><?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?></span></div>
+                         <td data-popover="true" style="position: absolute; border:0px;"  data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>"><div  class="marquee"><div><span ><?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?></span></div>
 </div></td>
                          <td><a class='btn btn-sm btn-primary'href="<?php echo base_url();?>service_center/booking_details/<?=$row->booking_id?>" target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a></td>
                          <td>
@@ -68,8 +68,8 @@
 
 <style type="text/css">
   .marquee {
-  height: 35px;
-  width: 100%;
+  height:50px;
+  width: 184px;
   color: red;
   overflow: hidden;
   position: relative;
@@ -78,7 +78,7 @@
 .marquee div {
   display: block;
   width: 200%;
-  height: 40px;
+  height: 50px;
 
   position: absolute;
   overflow: hidden;
