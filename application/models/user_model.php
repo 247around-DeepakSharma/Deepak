@@ -373,21 +373,24 @@ $this->db = $this->load->database('default', TRUE,TRUE);
 
                   SELECT CRM_Remarks_SR_No as booking from snapdeal_leads where Sub_Order_ID = '$order_id'";
     }
+    
+    $sql = "SELECT 247aroundBookingID  as booking from partner_leads where OrderID = '$order_id' And  PartnerID = '$partner_id'  ".$union;
      
-    $query = $this->db->query("SELECT 247aroundBookingID  as booking from partner_leads where OrderID = '$order_id' And  PartnerID = '$partner_id' $union");
+    $query = $this->db->query($sql);
 
     $data = $query->result_array();
     
     if (count($data) > 0) {
 
       foreach ($data as $value) {
-
-        $booking_data = $this->search_bookings_by_booking_id($value['booking']);
+        $string = preg_replace("/[^0-9,.]/", "", $value['booking']); //replace all character and symbol
+        $booking_data = $this->search_bookings_by_booking_id($string);
 
         if(count($booking_data) > 0 ){
           array_push($booking, $booking_data[0]);
         }
       }
+
       return $booking;
    
     } else {
@@ -396,6 +399,7 @@ $this->db = $this->load->database('default', TRUE,TRUE);
     }
     
   }
+
 
   function get_city_source(){
     $query1['city'] = $this->vendor_model->get_city();
