@@ -72,7 +72,7 @@
                     <th width="100px;">City</th>
                     <th width="60px;">Edit</th>
                     <th width="60px;">View</th>
-                    <th width="60px;">Rate</th>
+
                     </tr>
 
                     </thead>
@@ -108,20 +108,7 @@
                         . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>"; 
                         ?>
                     </td>
-                    <td>
-                        <?php
-                        if ($row->current_status == 'Completed' && (empty($row->rating_stars) || empty($row->vendor_rating_stars))) 
-                        {
-                            echo "<a class='btn btn-sm btn-danger' "
-                                    . "href=" . base_url() . "employee/booking/get_rating_form/$row->booking_id>Rate</a>";
-                        }
-                        else 
-                        {
-                            echo "<a class='btn btn-sm btn-danger disabled' "
-                                . "href=" . base_url() . "employee/booking/get_rating_form/$row->booking_id title='Rate'><i class='fa fa-star-o' aria-hidden='true'></i></a>";
-                        }
-                        ?>
-                    </td>            
+          
                     </tr>
                     <?php
                     }?>
