@@ -4,8 +4,9 @@
 	function validate()
 	{
 		var us_em=document.forms["myForm1"]["user_email"].value;
+    var state=document.forms["myForm1"]["state"].value;
+    var city=document.forms["myForm1"]["city"].value;
 		var name=document.forms["myForm1"]["name"].value;
-		var ho_ad=document.forms["myForm1"]["home_address"].value;
     var pin=document.forms["myForm1"]["pincode"].value;
     var alt_ph_no=document.forms["myForm1"]["alternate_phone_number"].value;
 		var exp1 = /^\w+([\.-]?\w+)*@\w+([\.-]?(\w)+)*\.(\w{2}|(com|net|org|edu|int|mil|gov|arpa|biz|aero|name|coop|info|pro|museum))$/;
@@ -19,11 +20,6 @@
 		if (name.match(exp2)) 
 		{
 			alert("Please enter only letters in name");
-			return false;
-		}
-		if (ho_ad=="") 
-		{
-			alert("Please enter home address");
 			return false;
 		}
 		if(us_em!="" && !us_em.match(exp1))
@@ -61,7 +57,7 @@
       	<div class="row">
         	<div class="col-lg-12">
         		
-               	<h1 class="page-header" style="color:blue;">
+               	<h1 class="page-header">
                		Register User 
             	</h1>
             	<center><strong><div><p style="color:red;"><?php echo 'User Does Not Exists'; ?></p></div></strong></center>
@@ -97,24 +93,29 @@
                      		<?php echo form_error('home_address'); ?>
                   		</div>	
             		 </div>
+            
+                  <div class="form-group ">
+                  <label for="home_address"  class="col-md-2">Home State</label>
+                      <div class="col-md-6">
+                        <select name="state" id="state" onchange="getcity()" class="form-control" >
+                          <option value="" >Select State</option>
+                          <?php foreach ($state as $value) { ?>
+                          <option value="<?php echo $value['state']; ?>"><?php echo $value['state']; ?></option>
+                        <?php  } ?>
+                          
+                        </select>
+                      </div>  
+                 </div>
 
                   <div class="form-group <?php if( form_error('city') ) { echo 'has-error';} ?>">
                   <label for="home_address" class="col-md-2">Home City</label>
                       <div class="col-md-6">
-                        <input type="text" class="form-control"  name="city" value = "<?php echo set_value('city');  ?>" placeholder="Enter user's home City.">
-                        <?php echo form_error('city'); ?>
+                       <select name="city" id="city"  class="form-control" >
+                          <option value="" >Select City</option>
+                        
+                        </select>
                       </div>  
                  </div>
-
-                 <div class="form-group <?php if( form_error('state') ) { echo 'has-error';} ?>">
-                  <label for="home_address" class="col-md-2">Home State</label>
-                      <div class="col-md-6">
-                        <input type="text" class="form-control"  name="state" value = "<?php echo set_value('state');  ?>" placeholder="Enter user's home State.">
-                        <?php echo form_error('state'); ?>
-                      </div>  
-                 </div>
-
-
 
                  <div class="form-group <?php if( form_error('pincode') ) { echo 'has-error';} ?>">
                   <label for="pincode" class="col-md-2">Pincode</label>
@@ -137,5 +138,24 @@
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+  $('#state').select2();
+
+  function getcity(){
+     var state = $("#state").val();
+    
+     $.ajax({
+       type: 'POST',
+       url: '<?php echo base_url(); ?>employee/vendor/getDistrict',
+       data: {state: state},
+       success: function (data) {
+      
+         $("#city").html(data);
+                   
+       }
+     });
+   }
+</script>
 
 </html>
