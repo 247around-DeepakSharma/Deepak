@@ -113,7 +113,9 @@
                         </select>
                       </div>  
                  </div>
-
+                 <div class="col-md-12">
+                    <center><img src="" id="loader_gif"></center>
+                 </div>
                   <div class="form-group <?php if( form_error('city') ) { echo 'has-error';} ?>">
                   <label for="home_address" class="col-md-2">Home City</label>
                       <div class="col-md-6">
@@ -151,6 +153,8 @@
 
   function getcity(){
      var state = $("#state").val();
+     $('#loader_gif').css('display','inherit');
+     $('#loader_gif').attr('src', "<?php echo base_url(); ?>/images/loader.gif");
     
      $.ajax({
        type: 'POST',
@@ -158,8 +162,9 @@
        data: {state: state},
        success: function (data) {
       
-         $("#city").html(data);
-                   
+         $("#city").html(data);          
+         $('#loader_gif').attr('src', "");
+         $('#loader_gif').css('display','none');
        }
      });
    }

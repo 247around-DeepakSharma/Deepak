@@ -53,7 +53,9 @@
                         </select>    
                 </div>
             </div>
-
+            <div class="col-md-12">
+                    <center><img src="" id="loader_gif"></center>
+            </div>
             <div class="form-group">
                 <label for="city" class="col-md-2">City</label>
                 <div class="col-md-4">
@@ -92,7 +94,9 @@
 
     function getcity(city = ""){
      var state = $("#state").val();
-    
+     $('#loader_gif').css('display','inherit');
+     $('#loader_gif').attr('src', "<?php echo base_url(); ?>/images/loader.gif");
+
      $.ajax({
        type: 'POST',
        url: '<?php echo base_url(); ?>employee/vendor/getDistrict',
@@ -100,6 +104,8 @@
        success: function (data) {
       
          $("#city").html(data);
+         $('#loader_gif').attr('src', "");
+         $('#loader_gif').css('display','none');
                    
        }
      });
