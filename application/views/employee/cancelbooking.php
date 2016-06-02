@@ -2,10 +2,19 @@
 function check(){
     var reason = document.myForm.cancellation_reason.value;
     if(reason =='Other'){
-  document.getElementById("cancellation_reason_text").disabled = false;
-  }else{
+      document.getElementById("cancellation_reason_text").disabled = false;            
+    }else{
     document.getElementById("cancellation_reason_text").disabled = true;
-  }
+    }
+}
+
+function check_text(){
+  var reason = document.myForm.cancellation_reason.value;
+  var cancel_text = document.myForm.cancellation_reason_text.value;  
+    if(reason == 'Other' && cancel_text == ""){
+      alert("Please enter cancellation reason in other's option");
+      return false;
+    }
 }
 </script>
 
@@ -48,7 +57,7 @@ function check(){
 
                 <div>
                   <center>
-                  <input type="submit" value="Cancel Booking" class="btn btn-danger">
+                  <input type="submit" value="Cancel Booking" onclick="return(check_text())" class="btn btn-danger">
                   <a href="<?php echo base_url();?>employee/booking/view"><input type="Button" value="Back" class="btn btn-primary"></a>
                   </center>
                 </div>

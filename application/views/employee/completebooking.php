@@ -5,6 +5,11 @@
         var servicecharge = $('#service_charge').val();
         var additionalservicecharge = $('#additional_service_charge').val();
         var partscost = $('#parts_cost').val();
+        if(isNaN(servicecharge) || isNaN(additionalservicecharge) || isNaN(partscost))
+        {
+            alert("Please enter only digits in Service Charge, Additional Service Charge & Parts Cost");
+            return false;            
+        }
         if(servicecharge == 0 && additionalservicecharge == 0 && partscost == 0)
         {
             alert("Service Charge, Additional Service Charge & Parts Cost are filled as 0. Is it ok! ");
