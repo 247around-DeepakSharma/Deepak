@@ -171,16 +171,16 @@ class vendor_model extends CI_Model {
       $this->db->order_by('state');
       if($city !="")
          $this->db->where('city', $city);
-      $query = $this->db->get('india_pincode');
+      $query = $this->db->get('state_city');
       return $query->result_array();
     }
 
     function getDistrict($state){
       $this->db->distinct();
-      $this->db->select('district');
-      $this->db->order_by('district');
+      $this->db->select('city as district');
+      $this->db->order_by('city');
       $this->db->where('state',$state);
-      $query = $this->db->get('india_pincode');
+      $query = $this->db->get('state_city');
       return $query->result_array();
     }
 

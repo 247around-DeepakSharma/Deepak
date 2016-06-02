@@ -4,7 +4,7 @@
 	function validate()
 	{
 		var us_em=document.forms["myForm1"]["user_email"].value;
-    var state=document.forms["myForm1"]["state"].value;
+    var pincode=document.forms["myForm1"]["pincode"].value;
     var city=document.forms["myForm1"]["city"].value;
 		var name=document.forms["myForm1"]["name"].value;
     var pin=document.forms["myForm1"]["pincode"].value;
@@ -46,6 +46,13 @@
     {
       alert("Please enter 10 digits alternate phone number.");
       return false;
+    }
+
+    if(city ==""){
+      alert("Please Select City");
+    }
+    if(pincode == ""){
+       alert("Please fill pincode");
     }
 	}
 
@@ -120,7 +127,7 @@
                  <div class="form-group <?php if( form_error('pincode') ) { echo 'has-error';} ?>">
                   <label for="pincode" class="col-md-2">Pincode</label>
                       <div class="col-md-6">
-                        <input type="text" class="form-control"  name="pincode" value = "<?php echo set_value('pincode');  ?>" placeholder="Please enter user's pincode.(optional)">
+                        <input type="text" class="form-control"  id="pincode" name="pincode" value = "<?php echo set_value('pincode');  ?>" placeholder="Please enter user's pincode." required>
                         <?php echo form_error('pincode'); ?>
                       </div>  
                  </div>
