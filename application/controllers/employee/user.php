@@ -136,6 +136,7 @@ class User extends CI_Controller {
     function loadViews($output) {
 
         $results['user'] = $output;
+        $results['state'] = $this->vendor_model->selectSate();
         $this->load->view('employee/header');
         $this->load->view('employee/adduser', $results);
     }
@@ -187,6 +188,7 @@ class User extends CI_Controller {
         }
         
         $data['user'] = $this->user_model->search_user($phone_number);
+        $data['state'] = $this->vendor_model->selectSate();
         $this->load->view('employee/header');
         //$this->load->view('employee/addbooking');
         $this->load->view('employee/edituser', $data);

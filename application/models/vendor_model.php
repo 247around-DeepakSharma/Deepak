@@ -167,29 +167,43 @@ class vendor_model extends CI_Model {
 
     function selectSate($city=""){
       $this->db->distinct();
-      $this->db->select('state');
-      $this->db->order_by('state');
+      $this->db->select('vendor_pincode_mapping.State as state');
+      $this->db->from('vendor_pincode_mapping');
+      $this->db->order_by('vendor_pincode_mapping.State');
+      $this->db->where('vendor_pincode_mapping.active',1);
+      $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
+      $this->db->where('service_centres.active','1');
+
       if($city !="")
-         $this->db->where('city', $city);
-      $query = $this->db->get('india_pincode');
+         $this->db->where('vendor_pincode_mapping.City', $city);
+      $query = $this->db->get();
       return $query->result_array();
     }
 
     function getDistrict($state){
       $this->db->distinct();
-      $this->db->select('district');
-      $this->db->order_by('district');
-      $this->db->where('state',$state);
-      $query = $this->db->get('india_pincode');
+      $this->db->select('vendor_pincode_mapping.City as district');
+      $this->db->from('vendor_pincode_mapping');
+      $this->db->order_by('vendor_pincode_mapping.City');
+      $this->db->where('vendor_pincode_mapping.State',$state);
+      $this->db->where('vendor_pincode_mapping.active',1);
+      $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
+      $this->db->where('service_centres.active','1');
+
+      $query = $this->db->get();
       return $query->result_array();
     }
 
     function getPincode($district){
       $this->db->distinct();
-      $this->db->select('pincode');
-      $this->db->order_by('pincode');
-      $this->db->where('district', $district);
-      $query = $this->db->get('india_pincode');
+      $this->db->select('vendor_pincode_mapping.Pincode as pincode');
+      $this->db->from('vendor_pincode_mapping');
+      $this->db->order_by('vendor_pincode_mapping.Pincode');
+      $this->db->where('vendor_pincode_mapping.City', $district);
+      $this->db->where('vendor_pincode_mapping.active',1);
+      $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
+      $this->db->where('service_centres.active','1');
+      $query = $this->db->get();
       return $query->result_array();
     }
     

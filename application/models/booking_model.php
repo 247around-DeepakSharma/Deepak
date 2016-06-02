@@ -324,7 +324,7 @@ class Booking_model extends CI_Model {
      *  @param : booking
      *  @return : array (booking)
      */
-    function addbooking($booking, $appliance_id, $city ="", $state) {
+    function addbooking($booking, $appliance_id, $city ="", $state="") {
 	$booking_detail = array(
 	    "user_id" => $booking['user_id'],
 	    "service_id" => $booking['service_id'],

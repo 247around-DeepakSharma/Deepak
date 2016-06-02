@@ -477,7 +477,9 @@ class vendor extends CI_Controller {
 	$dis = $this->input->post('district');
 	$data = $this->vendor_model->getDistrict($state);
 	if ($dis == "") {
-	    echo "<option selected='selected' disabled='disabled'>Select District</option>";
+	    echo "<option selected='selected' value=''>Select City</option>";
+	} else {
+		echo "<option value=''>Select City</option>";
 	}
 	foreach ($data as $district) {
 	    if ($dis == $district['district']) {

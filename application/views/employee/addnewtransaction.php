@@ -5,21 +5,22 @@
   
 <script>
   $(function() {
-     partner_vendor1();
+     partner_vendor1(<?php echo $id; ?>);
      $( "#datepicker" ).datepicker({  maxDate: new Date });
 
   });
 
-function partner_vendor1(){
+function partner_vendor1(vendor_partner_id){
      var par_ven = $('input[name=partner_vendor]:checked', '#myForm1').val();
      $('#loader_gif').css("display", "inline-block");
      $('#loader_gif').attr('src',  "<?php echo base_url(); ?>images/loader.gif");
-
+     
       $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/invoice/getPartnerOrVendor/' + par_ven,
+                data: {vendor_partner_id: vendor_partner_id},
                 success: function (data) {
-                    //console.log(data);
+                    console.log(data);
                     $("#name").html(data);
                     $('#loader_gif').attr('src',  "");
                     $('#loader_gif').css("display", "none");
@@ -105,8 +106,8 @@ color: red;
 	      <div class="form-group ">
                   <label class="col-md-2">Select Party<span class="red">*</span></label>
 		  <div class="col-md-6">
-		      <input type="radio" onclick="partner_vendor1();" name="partner_vendor" checked="checked" value = "vendor">    Service Centre &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		      <input type="radio" onclick="partner_vendor1();" name="partner_vendor" value = "partner" >    Partner &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		      <input type="radio" onclick="partner_vendor1(<?php echo $id; ?>);"  name="partner_vendor" <?php if($vendor_partner ==""){ echo "checked"; } else if($vendor_partner == "vendor"){ echo "checked"; }?> value = "vendor">    Service Centre &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		      <input type="radio" <?php if($vendor_partner == "partner"){ echo "checked"; } ?>onclick="partner_vendor1(<?php echo $id; ?>);" name="partner_vendor" value = "partner" >    Partner &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 </div>
               </div>
               <center><img id="loader_gif" src=""></center>
