@@ -40,19 +40,31 @@
                     <?php echo form_error('home_address'); ?>
                 </div>
             </div>
-            <div class="form-group <?php if( form_error('city') ) { echo 'has-error';} ?>">
-                <label for="city" class="col-md-2">City</label>
-                <div class="col-md-4">
-                    <input type="text" class="form-control"  name="city" value = "<?php echo $user[0]['city']; ?>">
-                    <?php echo form_error('city'); ?>
-                </div>
-            </div>
 
-             <div class="form-group <?php if( form_error('city') ) { echo 'has-error';} ?>">
+            <div class="form-group ">
                 <label for="city" class="col-md-2">State</label>
                 <div class="col-md-4">
-                    <input type="text" class="form-control"  name="state" value = "<?php echo $user[0]['state']; ?>">
-                    <?php echo form_error('state'); ?>
+                 <select name="state" id="state" onchange="getcity()" class="form-control" >
+                          <option value="" >Select State</option>
+                          <?php foreach ($state as $value) { ?>
+                          <option value="<?php echo $value['state']; ?>" <?php if($user[0]['state'] == $value['state']){ echo "selected";}?> ><?php echo $value['state']; ?></option>
+                        <?php  } ?>
+                          
+                        </select>    
+                </div>
+            </div>
+            <div class="col-md-12">
+                    <center><img src="" id="loader_gif"></center>
+            </div>
+            <div class="form-group">
+                <label for="city" class="col-md-2">City</label>
+                <div class="col-md-4">
+                  <select name="city" id="city"  class="form-control" >
+                        <option value="">Select City</option>
+                        
+                    </select>
+                    <input type="hidden" class="form-control" id="city1" value = "<?php echo $user[0]['city']; ?>">
+                    
                 </div>
             </div>
 
@@ -75,4 +87,28 @@
     </div>
   </div>
 </div>
+<script type="text/javascript">
+    $('#state').select2();
+    var city1 = $("#city1").val();
+    getcity(city1);
+
+    function getcity(city = ""){
+     var state = $("#state").val();
+     $('#loader_gif').css('display','inherit');
+     $('#loader_gif').attr('src', "<?php echo base_url(); ?>/images/loader.gif");
+
+     $.ajax({
+       type: 'POST',
+       url: '<?php echo base_url(); ?>employee/vendor/getDistrict',
+       data: {state: state, district:city},
+       success: function (data) {
+      
+         $("#city").html(data);
+         $('#loader_gif').attr('src', "");
+         $('#loader_gif').css('display','none');
+                   
+       }
+     });
+   }
+</script>
 
