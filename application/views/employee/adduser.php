@@ -50,9 +50,11 @@
 
     if(city ==""){
       alert("Please Select City");
+      return false;
     }
     if(pincode == ""){
        alert("Please fill pincode");
+       return false;
     }
 	}
 
