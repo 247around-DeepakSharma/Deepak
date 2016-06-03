@@ -11,7 +11,7 @@
     var alt_ph_no=document.forms["myForm1"]["alternate_phone_number"].value;
 		var exp1 = /^\w+([\.-]?\w+)*@\w+([\.-]?(\w)+)*\.(\w{2}|(com|net|org|edu|int|mil|gov|arpa|biz|aero|name|coop|info|pro|museum))$/;
 		var exp2=/^[0-9]+$/;
-    var exp3 = /^[A-Za-z]+$/;
+    var exp3 = /^[A-Za-z _]+$/;
 		
 		if(name=="")
 		{
