@@ -177,10 +177,10 @@ class Partner extends CI_Controller {
 			if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
 			    $lead_details['Product'] = 'Washing Machine';
 			}
-			if (stristr($prod, "Television") || stristr($prod, "TV") || stristr($prod, "Monitor")) {
+			if (stristr($prod, "Television") || stristr($prod, "Monitor")) {
 			    $lead_details['Product'] = 'Television';
 			}
-			if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner") || stristr($prod, "AC")) {
+			if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
 			    $lead_details['Product'] = 'Air Conditioner';
 			}
 			if (stristr($prod, "Refrigerator")) {
@@ -195,47 +195,7 @@ class Partner extends CI_Controller {
 			if (stristr($prod, "Chimney")) {
 			    $lead_details['Product'] = 'Chimney';
 			}
-
-			/*
-			//TODO: Add other products after discussing with SD
-			//Move this to DB later
-			switch ($requestData['product']) {
-			    case 'Washing Machines & Dryers':
-				$lead_details['Product'] = 'Washing Machine';
-				break;
-
-			    case 'Televisions':
-				$lead_details['Product'] = 'Television';
-				break;
-
-			    case 'Air Conditioner':
-				$lead_details['Product'] = 'Air Conditioner';
-				break;
-
-			    case 'Refrigerator':
-				$lead_details['Product'] = 'Refrigerator';
-				break;
-
-			    case 'Microwave Ovens & OTGs':
-				$lead_details['Product'] = 'Microwave';
-				break;
-
-			    case 'Water Purifiers':
-				$lead_details['Product'] = 'Water Purifier';
-				break;
-
-			    case 'Chimney & Hoods':
-				$lead_details['Product'] = 'Chimney';
-				break;
-
-			    default:
-				//Invalide product type
-				log_message('info', $requestData['product'] . ': Invalide product type');
-				$lead_details['Product'] = '';
-				break;
-			}
-			 *
-			 */
+			log_message('info', 'Product type matched: ' . $lead_details['Product']);
 
 			//Product description
 			$lead_details['ProductType'] = $requestData['productType'];
