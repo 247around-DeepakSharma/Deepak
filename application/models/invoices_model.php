@@ -90,18 +90,62 @@ class invoices_model extends CI_Model {
 	$query = $this->db->get('bank_transactions');
 	return $query->result_array();
     }
-    
+
+    /*
+     * @desc: Show all bank transactions
+     * @param: party type (vendor, partner, all)
+     */
+    function get_all_bank_transactions($type) {
+	switch ($type) {
+	    case 'vendor':
+		$sql = "SELECT service_centres.name, bank_transactions . *
+			FROM service_centres, bank_transactions
+			WHERE bank_transactions.partner_vendor =  'vendor'
+			AND bank_transactions.partner_vendor_id = service_centres.id
+			ORDER BY bank_transactions.transaction_date DESC";
+		$query = $this->db->query($sql);
+		break;
+
+	    case 'partner':
+		$sql = "SELECT partners.public_name as name, bank_transactions . *
+			FROM partners, bank_transactions
+			WHERE bank_transactions.partner_vendor =  'partner'
+			AND bank_transactions.partner_vendor_id = partners.id
+			ORDER BY bank_transactions.transaction_date DESC";
+		$query = $this->db->query($sql);
+		break;
+
+	    case 'all':
+		//TODO: This is not sorted on transaction date
+		$sql = "SELECT partners.public_name, bank_transactions. *
+			FROM partners, bank_transactions
+			WHERE bank_transactions.partner_vendor =  'partner'
+			AND bank_transactions.partner_vendor_id = partners.id
+
+			UNION
+
+			SELECT service_centres.name, bank_transactions. *
+			FROM service_centres, bank_transactions
+			WHERE bank_transactions.partner_vendor =  'vendor'
+			AND bank_transactions.partner_vendor_id = service_centres.id";
+		$query = $this->db->query($sql);
+		break;
+	}
+
+	return $query->result_array();
+    }
+
     /**
      * @desc: This is used to get sum of credit amount and debit amount for specific vendor or partner
      * @param: vendor_partner (vendor or partner) AND vendor or partner ID
-     * @return: array() 
+     * @return: array()
      */
     function getbank_transaction_summary($vendor_partner, $partner_vendor_id){
         $sql = " SELECT COALESCE(SUM(`credit_amount`),0) as credit_amount, COALESCE(SUM(`debit_amount`),0) as debit_amount  from bank_transactions where partner_vendor = '$vendor_partner' AND partner_vendor_id = '$partner_vendor_id' ";
         $data = $this->db->query($sql);
         return $data->result_array();
     }
-    
+
     /**
      * @desc: This funtion is used to get invoicing summary for vendor or partner.
      * @param: String ( vendor or patner)
@@ -110,11 +154,11 @@ class invoices_model extends CI_Model {
 
     function getsummary_of_invoice($vendor_partner){
         $array = array();
-        
+
         if($vendor_partner == "vendor"){
 
           $data = $this->vendor_model->getActiveVendor("", 0);
-          
+
         } else if($vendor_partner == "partner") {
 
             $data = $this->partner_model->getpartner();
@@ -136,11 +180,11 @@ class invoices_model extends CI_Model {
 
         return $array;
     }
-    
+
     /**
-     * @desc: Delete Bank transaction 
+     * @desc: Delete Bank transaction
      * @param: bank account transaction id
-     * @return: 
+     * @return:
      */
     function delete_banktransaction($transaction_id){
        $this->db->where('id', $transaction_id);

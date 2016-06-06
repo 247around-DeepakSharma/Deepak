@@ -185,15 +185,15 @@ class Invoice extends CI_Controller {
     $this->session->set_userdata($userSession);
 	redirect(base_url() . 'employee/invoice/get_add_new_transaction');
     }
-    
+
     function getPartnerOrVendor($par_ven) {
     	$vendor_partner_id = $this->input->post('vendor_partner_id');
-    	
+
 	    if ($par_ven == 'partner') {
 	        $all_partners = $this->partner_model->get_all_partner_source("0");
 	        foreach ($all_partners as $p_name) {
 	        	$option = "<option value='".$p_name['partner_id']."'";
-		        if($vendor_partner_id == $p_name['partner_id']){ 
+		        if($vendor_partner_id == $p_name['partner_id']){
 
 		        	$option .= "selected"  ;
 		        }
@@ -205,8 +205,8 @@ class Invoice extends CI_Controller {
 	        $all_vendors = $this->vendor_model->getActiveVendor("", 0);
 	        foreach ($all_vendors as $v_name) {
 	        	$option = "<option value='".$v_name['id']."'";
-		        if($vendor_partner_id == $v_name['id']){ 
-		        	
+		        if($vendor_partner_id == $v_name['id']){
+
 		        	$option .= "selected "  ;
 		        }
 		        $option .=" > ";
@@ -219,15 +219,39 @@ class Invoice extends CI_Controller {
 	        echo $vendor_partner_id;
 	    }
     }
-    
+
     /**
      * @desc: Delete Bank transaction
      * @param: bank account transaction id, partner vender id
-     * @return: 
+     * @return:
      */
     function delete_banktransaction($transaction_id){
     	$this->invoices_model->delete_banktransaction($transaction_id);
     	echo "success";
+    }
+
+    /*
+     * @desc: Show all bank transactions
+     * @param: party type (vendor, partner, all)
+     * 'vendor' => show vendor transactios
+     * 'partner' => show partner transactios
+     * 'all' => show all transactios
+     *
+     * default: Show vendor transactions
+     *
+     * @return: list of transactions
+     *
+     */
+    function show_all_transactions($type = 'vendor') {
+	//Reset type to vendor if some other value is there
+	$possible_type = array('vendor', 'partner', 'all');
+	if (!in_array($type, $possible_type))
+	    $type = 'vendor';
+
+	$invoice['bank_statement'] = $this->invoices_model->get_all_bank_transactions($type);
+
+	$this->load->view('employee/header');
+	$this->load->view('employee/view_transactions', $invoice);
     }
 
 }
