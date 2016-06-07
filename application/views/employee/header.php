@@ -128,6 +128,10 @@
                   <li >
                      <a href="<?php echo base_url() ?>employee/invoice/invoice_partner_view"><i class="fa fa-fw fa-desktop"></i> <strong> Partner Invoices</strong></a>
                   </li>
+                  <li class="divider"></li>
+                  <li>
+                     <a href="<?php echo base_url()?>employee/invoice/show_all_transactions/partner"><i class="fa fa-fw fa-desktop "></i> <strong>Show All Transactions</strong></a>
+                  </li>
                </ul>
                <!-- /.dropdown-alerts -->
             </li>
@@ -160,6 +164,10 @@
                   <li class="divider"></li>
                   <li>
                      <a href="<?php echo base_url()?>employee/invoice/get_add_new_transaction"><i class="fa fa-fw fa-desktop "></i> <strong>Add New Transaction</strong></a>
+                  </li>
+                  <li class="divider"></li>
+                  <li>
+                     <a href="<?php echo base_url()?>employee/invoice/show_all_transactions/vendor"><i class="fa fa-fw fa-desktop "></i> <strong>Show All Transactions</strong></a>
                   </li>
                </ul>
                <!-- /.dropdown-user -->
