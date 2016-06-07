@@ -1184,7 +1184,8 @@ class Api extends CI_Controller {
      * This table is checked again and again in processUserVerificationCode() to see if valid entry
      * is there or not. Once the entry is found, it is parsed and appropriate code is returned.
      *
-     * After saving call details, it marks the calling no as Verified in DB and set 200 OK in header.
+     * After saving call details, it marks the calling no as Verified in DB only if call was made
+     * to app verification no 30017601 and set 200 OK in header.
      *
      * @output: None
      */
@@ -1214,9 +1215,13 @@ class Api extends CI_Controller {
         //fetches only the 10 digits of the mobile no without the country code
         $num = substr($callDetails['from_number'], '-10');
         //var_dump($num);
-        //verify the user no in the database
-        $this->apis->verifyUserNumber($num);
-        $this->output->set_header("HTTP/1.1 200 OK");
+
+	//If user has given a missed call on 011-30017601 to verify the App,
+	//verify the user no in the database. Else skip this step
+	if ($callDetails['To'] == '01130017601')
+	    $this->apis->verifyUserNumber($num);
+
+	$this->output->set_header("HTTP/1.1 200 OK");
     }
 
     /**
