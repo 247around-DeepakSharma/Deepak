@@ -33,7 +33,7 @@
       alert("Please enter 6 digts pincode.");
       return false;
     }
-    if(pin != "" && isNaN(pin))
+    if(pin != "" && isNaN(pin) && !pin.match(exp2))
     {
       alert("Please enter only digits in pincode.");
       return false;
