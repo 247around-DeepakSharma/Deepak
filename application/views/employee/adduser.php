@@ -73,7 +73,7 @@
             	<center><strong><div><p style="color:red;"><?php echo 'User Does Not Exists'; ?></p></div></strong></center>
             	<form name="myForm1" class="form-horizontal" action="<?php echo base_url()?>employee/user/adduser" method="POST" onSubmit="return(validate());">
             		<div class="form-group <?php if( form_error('phone_number') ) { echo 'has-error';} ?>">
-                  <label for="phone_number" class="col-md-2">User Phone</label>
+                  <label for="phone_number" class="col-md-2">User Phone<span class="red">*</span></label>
                       <div class="col-md-6">
                         <input type="text" class="form-control"  name="phone_number" value = "<?php echo $user['phone_number'];?>">
                         <?php echo form_error('phone_number'); ?>
@@ -81,7 +81,7 @@
                  </div>
             
                 	<div class="form-group <?php if( form_error('name') ) { echo 'has-error';} ?>">
-            			<label for="name" class="col-md-2">User Name</label>
+            		<label for="name" class="col-md-2">User Name<span class="red">*</span></label>
                   		<div class="col-md-6">
                   			<input type="text" class="form-control"  name="name" value = "<?php echo set_value('name');  ?>" placeholder="Enter user's name.">
                      		<?php echo form_error('name'); ?>
@@ -105,7 +105,7 @@
             		 </div>
             
                   <div class="form-group ">
-                  <label for="home_address"  class="col-md-2">Home State</label>
+                  <label for="home_address"  class="col-md-2">Home State<span class="red">*</span></label>
                       <div class="col-md-6">
                         <select name="state" id="state" onchange="getcity()" class="form-control" >
                           <option value="" >Select State</option>
@@ -120,7 +120,7 @@
                     <center><img src="" id="loader_gif"></center>
                  </div>
                   <div class="form-group <?php if( form_error('city') ) { echo 'has-error';} ?>">
-                  <label for="home_address" class="col-md-2">Home City</label>
+                  <label for="home_address" class="col-md-2">Home City<span class="red">*</span></label>
                       <div class="col-md-6">
                        <select name="city" id="city"  class="form-control" >
                           <option value="" >Select City</option>
@@ -130,7 +130,7 @@
                  </div>
 
                  <div class="form-group <?php if( form_error('pincode') ) { echo 'has-error';} ?>">
-                  <label for="pincode" class="col-md-2">Pincode</label>
+                  <label for="pincode" class="col-md-2">Pincode<span class="red">*</span></label>
                       <div class="col-md-6">
                         <input type="text" class="form-control"  id="pincode" name="pincode" value = "<?php echo set_value('pincode');  ?>" placeholder="Please enter user's pincode." required>
                         <?php echo form_error('pincode'); ?>
@@ -172,5 +172,11 @@
      });
    }
 </script>
+<style>
+.red{
+    color:red;
+    font-size: 18px;
+}
+</style>
 
 </html>
