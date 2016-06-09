@@ -307,7 +307,7 @@ class Booking_model extends CI_Model {
 	return $id;
     }
 
-    function addapplianceunitdetails($booking) {
+    function addapplianceunitdetails($booking, $appliance_size="") {
 	$unit_detail = array("booking_id" => $booking['booking_id'],
 	    "appliance_brand" => $booking['appliance_brand'],
 	    "appliance_category" => $booking['appliance_category'],
@@ -317,6 +317,10 @@ class Booking_model extends CI_Model {
 	    "purchase_year" => $booking['purchase_year'],
 	    "total_price" => $booking['total_price'],
 	    "appliance_tag" => $booking['appliance_tags']);
+
+	if($appliance_size !=""){
+		$unit_detail['appliance_size'] = $appliance_size;
+	}
 	return $this->db->insert('booking_unit_details', $unit_detail);
     }
 
@@ -882,21 +886,31 @@ class Booking_model extends CI_Model {
 	return $query->result_array();
     }
 
-    function getCategoryForService($service_id) {
-	$sql = "Select distinct category from service_centre_charges where service_id=
-                '$service_id' and active='1'";
-	$query = $this->db->query($sql);
-	return $query->result_array();
+    function getCategoryForService($service_id, $state ="", $partner_id="") {
+        $where = "";
+        if($state != ""){
+           $where .= "And state = '$state' AND partner_id = '$partner_id'";
+
+        }
+    	$sql = "Select distinct category from service_centre_charges where service_id=
+    	'$service_id' $where and active='1' AND check_box ='1' ";
+
+     	$query = $this->db->query($sql);
+    	return $query->result_array();
     }
 
-    function getCapacityForCategory($service_id, $category) {
-	//echo $category;
-	$sql = "Select distinct capacity from service_centre_charges where service_id='$service_id'
-                and category='$category' and active='1'";
+    function getCapacityForCategory($service_id, $category, $state="", $partner_id="") {
+        $where = "";
+        if($state !=""){
+            $where .= "And state = '$state' AND partner_id ='$partner_id' ";
+        }
 
-	$query = $this->db->query($sql);
+    	$sql = "Select distinct capacity from service_centre_charges where service_id='$service_id'
+    	and category='$category' and active='1' AND check_box ='1' $where";
 
-	return $query->result_array();
+    	$query = $this->db->query($sql);
+
+    	return $query->result_array();
     }
 
     function getCapacityForAppliance($service_id) {
@@ -908,19 +922,29 @@ class Booking_model extends CI_Model {
 	return $query->result_array();
     }
 
-    function getPricesForCategoryCapacity($service_id, $category, $capacity) {
-	if ($capacity != "NULL") {
-	    $sql = "Select service_category,total_charges from service_centre_charges
-            where service_id='$service_id' and category='$category' and capacity='$capacity'
-            and active='1'";
-	} else {
-	    $sql = "Select service_category,total_charges from service_centre_charges
-              where service_id='$service_id' and category='$category' and active='1'";
-	}
-	$query = $this->db->query($sql);
+    function getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id ="", $state="") {
+     
+        $this->db->distinct();
+        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable');
+        $this->db->where('service_id',$service_id);
+        $this->db->where('category', $category);
+        $this->db->where('active', 1);
+        $this->db->where('check_box',1);
+        if($partner_id !=""){
+            $this->db->where('partner_id', $partner_id);
+            $this->db->where('state', $state);
+        }
+        
+    	if (!empty($capacity)) {
+    		$this->db->where('capacity', $capacity);
+    		
+    	}
 
-	return $query->result_array();
+    	$query = $this->db->get('service_centre_charges');
+    	
+    	return $query->result_array();
     }
+
 
     function select_service_center() {
 	$query = $this->db->query("Select id, non_working_days, primary_contact_email, owner_email, name
@@ -1564,12 +1588,12 @@ class Booking_model extends CI_Model {
      *  @return : true
      */
     function get_price_mapping_partner_code($partner_code) {
-	$this->db->select('price_mapping_code');
+	$this->db->select('price_mapping_id');
 	$this->db->where('code', $partner_code);
 	$query = $this->db->get('bookings_sources');
 	if ($query->num_rows() > 0) {
 	    $result = $query->result_array();
-	    return $result[0]['price_mapping_code'];
+	    return $result[0]['price_mapping_id'];
 	} else {
 	    return "";
 	}

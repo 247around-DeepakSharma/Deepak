@@ -268,11 +268,20 @@ class bookings_excel extends CI_Controller {
 		$booking['total_price'] = '';
 		$booking['potential_value'] = '';
 		$booking['last_service_date'] = date('d-m-Y');
+        
+        $tv_size = "";
+		if($lead_details['Product'] == 'Television'){
+		    preg_match('#\((.*?)\)#', $lead_details['Product_Type'], $appliance_size);
+		    if (is_numeric(trim($appliance_size[1]))) {
+	            $tv_size = $appliance_size[1];
+            } 
+        }
+
 
 		//echo print_r($booking, true) . "<br><br>";
 		$appliance_id = $this->booking_model->addexcelappliancedetails($booking);
 		//echo print_r($appliance_id, true) . "<br><br>";
-		$this->booking_model->addapplianceunitdetails($booking);
+		$this->booking_model->addapplianceunitdetails($booking, $tv_size);
 
 		$booking['current_status'] = "FollowUp";
 		$booking['internal_status'] = "FollowUp";

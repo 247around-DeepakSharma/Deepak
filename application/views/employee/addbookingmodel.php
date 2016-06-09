@@ -31,8 +31,8 @@
                      <td id="b_city" ></td>
                   </tr>
                   <tr>
-                     <th >Booking state</th>
-                     <td id="b_state" ></td>
+                     <th >Booking Pincode</th>
+                     <td id="b_pincode" ></td>
                      <th>Booking Type</th>
                      <td id="b_type" ></td>
                   </tr>
@@ -85,8 +85,6 @@
 
                                  <tr>
                                    
-                                    <th>Discount</th>
-                                    <td id="bdiscount_1"></td>
                                     <th>Purchase Month</th>
                                     <td id="bpurchase_month_1"></td>
                                  </tr>

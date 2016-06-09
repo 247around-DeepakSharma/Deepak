@@ -51,14 +51,12 @@
                 alert("Enter Only digits..");
                 return false;
             }
-            if (ph_no != "" && ph_no.length != 10) {
-                alert("Enter 10 digits in Phone Number");
-                return false;
-            }
+
             if (user_name != "" && !user_name.match(exp2)){
                 alert("Enter only alphabates in user name");
                 return false;
             }
+
         }
 
     </script>

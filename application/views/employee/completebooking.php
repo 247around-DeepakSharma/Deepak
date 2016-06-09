@@ -1,273 +1,233 @@
-
-<script>
-    function total_amount_check()
-    {
-        var servicecharge = $('#service_charge').val();
-        var additionalservicecharge = $('#additional_service_charge').val();
-        var partscost = $('#parts_cost').val();
-        if(isNaN(servicecharge) || isNaN(additionalservicecharge) || isNaN(partscost))
-        {
-            alert("Please enter only digits in Service Charge, Additional Service Charge & Parts Cost");
-            return false;            
-        }
-        if(servicecharge == 0 && additionalservicecharge == 0 && partscost == 0)
-        {
-            alert("Service Charge, Additional Service Charge & Parts Cost are filled as 0. Is it ok! ");
-        }
-    }
-</script>
-<div id="page-wrapper"> 
-   <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-12">
-
-            <?php if (isset($data['booking_id'])) {
-               foreach ($data['booking_id'] as $key => $data) 
-                    $booking = $data['booking_id'];
-                   
-               
-               }?>
-               <?php if (isset($data1['booking_id'])) {
-                    foreach ($data1['booking_id'] as $key => $data1) 
-                    $booking1 = $data1['booking_id'];
-                    }?>
-
-                <?php 
-                if (isset($query2)) 
-                {
-                  $brand  ="";
-                  $category="";
-                  $capacity="";
-                  
-                  for($i=0; $i<$data['quantity']; $i++)
-                  {
-                    $brand .=$query2[$i]['appliance_brand'].",";
-                    $category .=$query2[$i]['appliance_category'].",";
-                    $capacity .=$query2[$i]['appliance_capacity'].",";
-
-                  }
-                } 
-                ?>
-               
-                <h1 class="page-header"> 
-                    Complete Booking 
-                </h1>
-                <form class="form-horizontal" action="<?php echo base_url()?>employee/booking/process_complete_booking_form/<?php echo $booking ?>" method="POST" >
-
-                <div class="form-group <?php if( form_error('user_id') ) { echo 'has-error';} ?>">
-                        <div class="col-md-6">
-                            <input type="hidden" class="form-control"  name="user_id" value = "<?php if (isset($data['user_id'])) {echo $data['user_id']; }?>"  disabled>
-                            <?php echo form_error('user_id'); ?>
+<div id="page-wrapper" >
+   <div class="container" >
+      <div class="panel panel-info" style="margin-top:20px;">
+         <div class="panel-heading">Complete Booking</div>
+         <div class="panel-body">
+            <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url()?>employee/new_booking/process_complete_booking/<?php echo $booking_id;?>"  method="POST" enctype="multipart/form-data">
+               <div class="row">
+                  <div class="col-md-12">
+                     <div class="col-md-6">
+                        <div class="form-group">
+                           <label for="name" class="col-md-4">User Name</label>
+                           <div class="col-md-6">
+                              <input type="text" class="form-control" id="name" name="user_name" value = "<?php if (isset($booking_history[0]['name'])) {echo $booking_history[0]['name']; } ?>" readonly="readonly">
+                           </div>
                         </div>
-                    </div>
-                    
-                    
-                    <div class="form-group <?php if( form_error('name') ) { echo 'has-error';} ?>">
-                        <label for="name" class="col-md-2">User Name</label>
-                        <div class="col-md-6">
-                            <input type="text" class="form-control"  name="name" value = "<?php if (isset($data1['name'])) {echo $data1['name']; }?>"  disabled>
-                            <?php echo form_error('name'); ?>
+                        <div class="form-group ">
+                           <label for="booking_city" class="col-md-4">Booking City *</label>
+                           <div class="col-md-6">
+                              <select type="text" onchange= "select_state()" class="form-control"  id="booking_city" name="city" required>
+                                 <option value="<?php if (isset($booking_history[0]['city'])) {echo $booking_history[0]['city']; } ?>" selected="selected" disabled="disabled"><?php if (isset($booking_history[0]['city'])) {echo $booking_history[0]['city']; } ?></option>
+                              </select>
+                           </div>
                         </div>
-                    </div>
-
-                    <div class="form-group <?php if( form_error('phone_number') ) { echo 'has-error';} ?>">
-                        <label for="phone_number" class="col-md-2">User Phone No:</label>
-                        <div class="col-md-6">
-                            <input type="text" class="form-control"  name="phone_number" value = "<?php if (isset($data1['phone_number'])) {echo $data1['phone_number']; }?>"  disabled>
-                            <?php echo form_error('phone_number'); ?>
+                        <div class="form-group <?php if (form_error('service_id')) { echo 'has-error';} ?>">
+                           <label for="service_name" class="col-md-4">Service Name *</label>
+                           <div class="col-md-6">
+                              <input type="hidden" name="service" id="services"/>
+                              <select type="text" class="form-control"  id="service_id" name="service_id" required>
+                                 <option value="<?php if (isset($booking_history[0]['service_id'])) {echo $booking_history[0]['service_id']; } ?>" selected="selected" disabled="disabled"><?php if (isset($booking_history[0]['services'])) {echo $booking_history[0]['services']; } ?></option>
+                              </select>
+                           </div>
                         </div>
-                    </div>
-
-                    <div class="form-group <?php if( form_error('appliance_brand') ) { echo 'has-error';} ?>">
-                        <label for="appliance_brand" class="col-md-2">Brand</label>
-                        <div class="col-md-6">
-                            <input type="text" class="form-control"  name="appliance_brand" value = "<?php echo $brand;?>"  disabled>
-                            <?php echo form_error('appliance_brand'); ?>
+                        <!--  end col-md-6  -->
+                     </div>
+                     <!--  start col-md-6  -->
+                     <div class="col-md-6">
+                        <div class="form-group ">
+                           <label for="booking_primary_contact_no" class="col-md-4">Primary Contact Number *</label>
+                           <div class="col-md-6">
+                              <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php if (isset($booking_history[0]['booking_primary_contact_no'])) {echo $booking_history[0]['booking_primary_contact_no']; } ?>" readonly="readonly">
+                           </div>
                         </div>
-                    </div>
-
-                    <div class="form-group <?php if( form_error('appliance_category') ) { echo 'has-error';} ?>">
-                        <label for="appliance_category" class="col-md-2">Category</label>
-                        <div class="col-md-6">
-                            <input type="text" class="form-control"  name="appliance_category" value = "<?php echo $category;?>"  disabled>
-                            <?php echo form_error('appliance_category'); ?>
+                        <div class="form-group ">
+                           <label for="source_name" class="col-md-4">Booking Source *</label>
+                           <div class="col-md-6">
+                              <select type="text" class="booking_source form-control"  id="source_code" name="source_code" required>
+                                 <option value="<?php if (isset($booking_history[0]['source'])) {echo $booking_history[0]['source']; } ?>" selected="selected" disabled="disabled"><?php if (isset($booking_history[0]['source'])) {echo $booking_history[0]['source_name']; } ?></option>
+                              </select>
+                           </div>
                         </div>
-                    </div>
-
-                    <div class="form-group <?php if( form_error('appliance_capacity') ) { echo 'has-error';} ?>">
-                        <label for="capacity" class="col-md-2">Capacity</label>
-                        <div class="col-md-6">
-                            <input type="text" class="form-control"  name="appliance_capacity" value = "<?php echo $capacity;?>"  disabled>
-                            <?php echo form_error('appliance_capacity'); ?>
-                        </div>
-                    </div>
-
-                    <div class="form-group <?php if( form_error('quantity') ) { echo 'has-error';} ?>">
-                        <label for="quantity" class="col-md-2">Quantity</label>
-                        <div class="col-md-6">
-                            <input type="text" class="form-control"  name="quantity" value = "<?php if (isset($data['quantity'])) {echo $data['quantity']; }?>" disabled>
-                           <?php echo form_error('quantity'); ?>
-                        </div>
-                    </div>
-
-                    <div class="form-group <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
-                        <label for="booking_date" class="col-md-2">Booking Date</label>
-                        <div class="col-md-6">
-                            <input type="text" class="form-control"  name="booking_date" value = "<?php if (isset($data['booking_date'])) {echo $data['booking_date']; }?>"  disabled>
-                            <?php echo form_error('booking_date'); ?>
-                        </div>
-                    </div>
-
-                    <div class="form-group <?php if( form_error('booking_timeslot') ) { echo 'has-error';} ?>">
-                        <label for="booking_timeslot" class="col-md-2">Booking Time</label>
-                        <div class="col-md-6">
-                            <input type="text" class="form-control"  name="booking_timeslot" value = "<?php if (isset($data['booking_timeslot'])) {echo $data['booking_timeslot']; }?>"  disabled>    
-                            <?php echo form_error('booking_timeslot'); ?>
-                        </div>
-                    </div>
-
-                    <div>
-                    <div class="form-group <?php if( form_error('booking_remarks') ) { echo 'has-error';} ?>">
-                <label style="width:200px;" for="booking_remarks" class="col-md-2">Booking Remark:</label>
-                <div class="col-md-2">
-                <textarea style="height:100px;width:600px;" type="text" class="form-control"  name="booking_remarks" value = "<?php if (isset($data['booking_remarks'])){echo $data['booking_remarks'];}?>" disabled><?php if (isset($data['booking_remarks'])){echo $data['booking_remarks'];}?></textarea>
-                            <?php echo form_error('booking_remarks'); ?>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group <?php if( form_error('amount_due') ) { echo 'has-error';} ?>">
-                        <label for="amount_due" class="col-md-2">Amount Due</label>
-                        <div class="col-md-6">
-                            <input type="text" class="form-control"  name="amount_due" value = "<?php if (isset($data['amount_due'])) {echo $data['amount_due']; }?>"  disabled>    
-                            <?php echo form_error('amount_due'); ?>
-                        </div>
-                    </div>
-
-                 <?php if (strstr($booking, "SS") == TRUE) { ?>
-                  <div class="form-group <?php if( form_error('internal_status') ) { echo 'has-error';} ?>">
-                  <label for="internal_status" class="col-md-2">Internal Status</label>
-                  <div class="col-md-10">
-                    <?php foreach($internal_status as $status){?>
-                    <div style="float:left;">
-                        <input type="radio" class="form-control" name="internal_status" id="internal_status"
-                            value="<?php  echo $status->status;?>" style="height:20px;width:20px;margin-left:20px;" required>
-                        <?php  echo $status->status;?>&nbsp;&nbsp;&nbsp;&nbsp;
-                    </div>
-                    <?php } ?> 
-                    <?php echo form_error('internal_status'); ?>
-                  </div>
-                </div>  
-                <?php } else { ?>
-                    <input type ="hidden" name ="internal_status" value = "Completed" >
-                <?php } ?>
-                                     
-                <div class="form-group <?php if( form_error('service_charge') ) { echo 'has-error';} ?>">
-                        <label for="service_charge" class="col-md-2">Service Charge</label>
-                        <div class="col-md-2">
-                            <input type="text" class="form-control"  id="service_charge" name="service_charge" value ="<?php echo set_value('service_charge'); ?>"  placeholder="Enter Service Charge" required>
-                            <?php echo form_error('service_charge'); ?>
-                        </div>
-                        <label for="service_charge" class="col-md-2">Collected By</label>
-                        <div class="col-md-4">
-                            <input type="radio" id="vendor" name="service_charge_collected_by" value="Vendor" required>Vendor &nbsp;
-                            <input type="radio" id="around" name="service_charge_collected_by" value="Around" required>Around &nbsp;
-                            <input type="radio" id="snapdeal" name="service_charge_collected_by" value="Snapdeal" required>Snapdeal &nbsp;
-                        </div>
-                </div>
-                
-
-                    <div class="form-group <?php if( form_error('additional_service_charge') ) { echo 'has-error';} ?>">
-                        <label for="additional_service_charge" class="col-md-2">Additional Service Charge</label>
-                        <div class="col-md-2">
-                            <input type="text" class="form-control" id="additional_service_charge" name="additional_service_charge" value ="<?php echo set_value('additional_service_charge'); ?>"  placeholder="Enter Additional Service Charge" required>
-                            <?php echo form_error('additional_service_charge'); ?>
-                        </div>
-                        <label for="service_charge" class="col-md-2">Collected By</label>
-                        <div class="col-md-4">
-                            <input type="radio" id="vendor" name="additional_service_charge_collected_by" value="Vendor" required>Vendor &nbsp;
-                            <input type="radio" id="around" name="additional_service_charge_collected_by" value="Around" required>Around &nbsp;
-                            <input type="radio" id="snapdeal" name="additional_service_charge_collected_by" value="Snapdeal" required>Snapdeal &nbsp;
-                        </div>
-                    </div>
-
-                    <div class="form-group <?php if( form_error('parts_cost') ) { echo 'has-error';} ?>">
-                        <label for="parts_cost" class="col-md-2">Parts Cost</label>
-                        <div class="col-md-2">
-                            <input type="text" class="form-control" id="parts_cost" name="parts_cost" value ="<?php echo set_value('parts_cost'); ?>"  placeholder="Enter Parts Cost">
-                            <?php echo form_error('parts_cost'); ?>
-                        </div>
-                        <label for="service_charge" class="col-md-2">Collected By</label>
-                        <div class="col-md-4">
-                            <input type="radio" id="vendor" name="parts_cost_collected_by" value="Vendor" required>Vendor &nbsp;
-                            <input type="radio" id="around" name="parts_cost_collected_by" value="Around" required>Around &nbsp;
-                            <input type="radio" id="snapdeal" name="parts_cost_collected_by" value="Snapdeal" required>Snapdeal &nbsp;
-                        </div>
-                    </div>
-
-                    <div class="form-group <?php if( form_error('amount_paid') ) { echo 'has-error';} ?>">
-                        <div class="col-md-6">
-                            <input type="hidden" class="form-control"  name="amount_paid" value ="<?php echo set_value('amount_paid'); ?>">
-                            <?php echo form_error('amount_paid'); ?>
-                        </div>
-                    </div>
-
-                    <div class="form-group <?php if( form_error('closing_remarks') ) { echo 'has-error';} ?>">
-                        <label for="description" class="col-md-2">Closing Remarks</label>
-                        <div class="col-md-6">
-                            <textarea class="form-control"  name="closing_remarks" ></textarea>
-                            <?php echo form_error('closing_remarks'); ?>
-                        </div>
-                    </div>
-
-                    <div class="form-group <?php if( form_error('rating_star') ) { echo 'has-error';} ?>">
-                        <label for="rating_star" class="col-md-2">Star Rating</label>
-                        <div class="col-md-4">
-                            <Select type="text" class="form-control"  name="rating_star" value="<?php echo set_value('rating_star'); ?>">
-                            <option>Select</option>
-                            <option>0</option>
-                            <option>1</option>
-                            <option>2</option>
-                            <option>3</option>
-                            <option>4</option>
-                            <option>5</option>
-                            </Select>
-                        </div>
-                        <label for="rating_star" class="col-md-2">Vendor Star Rating</label>
-                        <div class="col-md-3" style="width:300px;">
-                            <Select type="text" class="form-control"  name="vendor_rating_star" value="<?php echo set_value('vendor_rating_star'); ?>">
-                            <option>Select</option>
-                            <option>0</option>
-                            <option>1</option>
-                            <option>2</option>
-                            <option>3</option>
-                            <option>4</option>
-                            <option>5</option>
-                            </Select>
-                        </div>
-
-
-                    </div>
-                    <div class="form-group <?php if( form_error('name') ) { echo 'has-error';} ?>">
-                        <label for="remark" class="col-md-2">Rating Comment</label>
-                        <div class="col-md-4">
-                            <textarea class="form-control"  name="rating_comments"></textarea>
-                            <?php echo form_error('rating_comments'); ?>
-                        </div>
-
-                        <label for="remark" class="col-md-2">Vendor Rating Comment</label>
-                        <div class="col-md-3" style="width:300px;">
-                            <textarea class="form-control"  name="vendor_rating_comments"></textarea>
-                            <?php echo form_error('vendor_rating_comments'); ?>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                  <div class="col-md-10">
-                     <center><input type= "submit" name="submit" onclick="total_amount_check();" class="btn btn-danger btn-lg" value ="Save" style="width:33%"></center>
+                        <!-- end col-md-6 -->
+                     </div>
                   </div>
                </div>
-                </form>
-            </div>
-        </div>
-    </div>
+               <!-- row End  -->
+               <?php foreach ($bookng_unit_details as $key => $unit_details) { ?>
+               <div class="clonedInput panel panel-info " id="clonedInput1">
+                  <!--  <i class="fa fa-plus addsection pull-right fa-3x" aria-hidden="true" style ="margin-top:15px; margin-bottom: 15px; margin-right:40px; "></i>
+                     <i class="fa fa-times pull-right deletesection  fa-3x"  style ="margin-top:15px; margin-bottom: 15px; margin-right:20px; " aria-hidden="true"></i>-->
+                  <div class="panel-body">
+                     <div class="row">
+                        <div class="col-md-4">
+                           <div class="form-group ">
+                              <div class="col-md-8 ">
+                                 <select type="text" class="form-control appliance_brand"    name="appliance_brand[]" id="appliance_brand_1" required>
+                                    <option selected disabled><?php echo $unit_details['brand']; ?></option>
+                                 </select>
+                              </div>
+                           </div>
+                           <div class="form-group">
+                              <div class="col-md-8 ">
+                                 <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  required>
+                                    <option selected disabled><?php echo $unit_details['category']; ?></option>
+                                 </select>
+                              </div>
+                           </div>
+                           <?php  if(!empty($unit_details['capacity'])){ ?>
+                           <div class="form-group">
+                              <div class="col-md-8">
+                                 <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]" >
+                                    <option selected disabled><?php echo $unit_details['capacity']; ?></option>
+                                 </select>
+                              </div>
+                           </div>
+                           <?php } ?>
+                        </div>
+                        <div class="col-md-8">
+                           <table class="table priceList table-striped table-bordered" name="priceList" >
+                              <tr>
+                                 <th>Service Category</th>
+                                 <th>Amount Due</th>
+                                 <th>Customer Basic Charge</th>
+                                 <th>Additional Charge</th>
+                                 <th>Parts Cost</th>
+                                 <?php if (strstr($booking_id, "SS") == TRUE) { ?>
+                                 <th style="width:265px;">Status</th>
+                                 <?php } ?>
+                              </tr>
+                              <tbody>
+                                 <?php foreach ($unit_details['qunatity'] as $key => $price) { ?>
+                                 <tr>
+                                    <td><?php echo $price['price_tags'] ?></td>
+                                    <td><?php echo $price['customer_net_payable']; ?></td>
+                                    <td>  <input  type="text" class="form-control cost"  name="<?php echo "customer_basic_charge[". $price['unit_id'] . "]"?>"  value = "0"></td>
+                                    <td>  <input  type="text" class="form-control cost"  name="<?php echo "additional_charge[". $price['unit_id'] . "]"?>"  value = "0"></td>
+                                    <td>  <input  type="text" class="form-control cost"  name="<?php echo "parts_cost[". $price['unit_id'] . "]"?>"  value = "0"></td>
+                                    <td>
+                                       <div class="row">
+                                          <div class="col-md-12">
+                                             <?php if (strstr($booking_id, "SS") == TRUE) { ?>
+                                             <div class="form-group ">
+                                                <div class="col-md-10">
+                                                   <?php foreach($internal_status as $status){?>
+                                                   <div class="radio">
+                                                      <label><input type="radio"  name="internal_status" value="<?php  echo $status->status;?>" required><?php  echo $status->status;?></label>
+                                                   </div>
+                                                   <?php } ?> 
+                                                </div>
+                                             </div>
+                                             <?php } else { ?>
+                                             <input type ="hidden" name ="internal_status" value = "Completed" >
+                                             <?php } ?>
+                                          </div>
+                                       </div>
+                                    </td>
+                                 </tr>
+                                 <?php  } ?>
+                              </tbody>
+                           </table>
+                           <span class="error_msg" style="color: red"></span>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <?php } ?>
+               <div class="row">
+                  <div class ="col-md-10">
+                     <div class="form-group col-md-offset-1">
+                        <label for="type" class="col-sm-2">Total Customer Paid</label>
+                        <div class="col-md-4">
+                           <div class="input-group">
+                              <div class="input-group-addon">Rs.</div>
+                              <input  type="text" class="form-control"  name="grand_total_price" id="grand_total_price" value="0" placeholder="Total Price" readonly>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="col-md-12">
+                     <div class="form-group">
+                        <label for="rating_star" class="col-md-2">Star Rating</label>
+                        <div class="col-md-4">
+                           <Select type="text" class="form-control"  name="rating_stars" value="">
+                              <option>Select</option>
+                              <option>0</option>
+                              <option>1</option>
+                              <option>2</option>
+                              <option>3</option>
+                              <option>4</option>
+                              <option>5</option>
+                           </Select>
+                        </div>
+                        <label for="rating_star" class="col-md-2">Vendor Star Rating</label>
+                        <div class="col-md-4" >
+                           <Select type="text" class="form-control"  name="vendor_rating_stars" value="">
+                              <option>Select</option>
+                              <option>0</option>
+                              <option>1</option>
+                              <option>2</option>
+                              <option>3</option>
+                              <option>4</option>
+                              <option>5</option>
+                           </Select>
+                        </div>
+                     </div>
+                     <div class="form-group">
+                        <label for="remark" class="col-md-2">Rating Comment</label>
+                        <div class="col-md-4">
+                           <textarea class="form-control" rows="5" name="rating_comments"></textarea>
+                        </div>
+                        <label for="remark" class="col-md-2">Vendor Rating Comment</label>
+                        <div class="col-md-4" >
+                           <textarea class="form-control"  rows="5" name="vendor_rating_comments"></textarea>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="form-group  col-md-12" >
+                  <center>
+                     <input type="submit" id="submitform" class="btn btn-info" value="submit">
+               </div>
+               </center>
+         </div>
+         </form>
+         <!-- end Panel Body  -->
+      </div>
+   </div>
 </div>
+</div>
+<script>
+   $(".booking_source").select2();
+</script>
+<script>
+   $("#service_id").select2();
+   $("#booking_city").select2();
+   
+   
+   $(document).ready(function () {
+   //called when key is pressed in textbox
+   $(".cost").keypress(function (e) {
+     //if the letter is not digit then display error and don't type anything
+     if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+        //display error message
+        $(".error_msg").html("Digits Only").show().fadeOut("slow");
+               return false;
+    }
+   });
+   });
+   
+   
+     $(document).on('keyup', '.cost', function(e) {
+   
+    var price = 0;
+    $("input.cost").each(function(){
+          price += Number($(this).val());
+        
+    });
+    
+   
+    $("#grand_total_price").val(price);
+   });
+</script>

@@ -47,19 +47,17 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
 
 <div id="page-wrapper" style="width:100%;"> 
    <div class="">
-      	<div class="row">
-        	<div id="for_user" style="width:90%;margin:50px;">
-          <?php 
-          if (isset($data)) { 
-            ?>
-                <center><h2>Booking History: <?php echo $data[0]['name'];?></h2></center>
+        <div class="row">
+          <div id="for_user" style="width:90%;margin:50px;">
+
+              <center><h2>Booking History: <?php echo $data[0]['name'];?></h2></center>
                 
               <table>
                 <thead>
                     <tr>
                     <th>No.</th>
 
-                    <th>Booking ID</th>
+                    <th>Booking Id</th>
                    
                     <th>Name</th>
 
@@ -73,11 +71,12 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
                     <th>View</th>
                     <th>Go To Booking </th>
                     <th>Un-Cancel</th>
-          
+                    
                   </tr>
+          
               </thead>
-             
-              <?php $count = 1; if(isset($data[0]['booking_id'])){ ?>
+
+              <?php if(isset($data[0]['booking_id'])){ $count = 1; ?>
                     <?php foreach($data as $key =>$row){?>
                     
                     <tr>
@@ -98,12 +97,10 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
 
                     <td>
                         <?php echo "<a class='btn btn-sm btn-primary' "
-                        . "href=" . base_url() . "employee/booking/viewdetails/$row[booking_id] target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
+                        . "href=" . base_url() . "employee/booking/viewdetails/$row[booking_id] target='_blank'title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
                         ?>
                     </td>
 
-
-                   
                     <td>
                     <?php 
                       if(substr($row['booking_id'],0,1) == "S"){ ?>
@@ -113,63 +110,35 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
                      <?php } else if(substr($row['booking_id'],0,1) == "Q") {?>
 
                           <a href="<?php echo base_url(); ?>employee/booking/view_pending_queries/0/0/<?php echo $row['booking_id']?>" class="btn btn-small btn-success btn-sm" title="More Action"><i class="fa fa-bars" aria-hidden="true"></i></a>
-                            
+
                      <?php } ?>
-
-
                     </td>
                     <td>
-                   <?php if ($row['current_status'] =='Cancelled' && strpos($row['booking_id'], "Q") !== FALSE) {?>
+                    <?php if ($row['current_status'] =='Cancelled' && strpos($row['booking_id'], "Q") !== FALSE) {?>
 
-                          <a class="btn btn-small btn-danger btn-sm" href="<?php echo base_url(); ?>employee/booking/cancelled_booking_re_book/<?php echo $row['booking_id'];?>/<?php echo $data[0]['phone_number'];?>" title="More Action"><i class="fa fa-folder-open-o" aria-hidden="true"></i></a>
+                          <a class="btn btn-small btn-danger btn-sm" href="<?php echo base_url(); ?>employee/booking/cancelled_booking_re_book/<?php echo $row['booking_id'];?>/<?php echo $data[0]['phone_number'];?>" title="uncancel"><i class="fa fa-folder-open-o" aria-hidden="true"></i></a>
 
                      <?php } ?></td>
-                    </tr>  
                      
-                  
+                    </tr>
                     <?php 
                      } }?>
 
               </table>
-              <?php 
-            }
-            ?>
-             
+                       
             </div>
             <div style="float:left;">
               <center>
-              <form action="<?php echo base_url()?>employee/booking/addbooking" method="POST" style="padding-left:200px;float:left;">
-              <div style="">
-                    <input type="hidden" name="user_id" value="<?php if(isset($data[0]['user_id'])){echo $data[0]['user_id'];}?>">
-                    <input type="hidden" name="home_address" value="<?php if(isset($data[0]['home_address'])){echo $data[0]['home_address'];}else{echo $data[0]['home_address'];}?>">
-                      <input type="hidden" name="city" value="<?php if(isset($data[0]['city'])){echo $data[0]['city'];}?>">
-                      <input type="hidden" name="state" value="<?php if(isset($data[0]['state'])){echo $data[0]['state'];}?>">
-                    <input type="hidden" name="user_email" value="<?php if(isset($data[0]['user_email'])){echo $data[0]['user_email'];}?>">
-                    <input type="hidden" name="phone_number" value="<?php if(isset($data[0]['phone_number'])){echo $data[0]['phone_number'];}?>">
-                    <input type="hidden" name="alternate_phone_number" value="<?php if(isset($data[0]['alternate_phone_number'])){echo $data[0]['alternate_phone_number'];}?>">
-                    <input type="hidden" name="pincode" value="<?php if(isset($data[0]['pincode'])){echo $data[0]['pincode'];}?>">
-                    <input type="hidden" name="name" value="<?php if(isset($data[0]['name'])){echo $data[0]['name'];}?>">
-                </div>
-              <?php echo "<input type='submit' value='New Booking' class='btn btn-primary'></a>"?>
-              </form>
-              <form action="<?php echo base_url()?>employee/user/get_edit_user_form" method="POST" style="padding-left:100px;float:left;">
-              <div>
-                <input type="hidden" name="user_id" value="<?php if(isset($data[0]['user_id'])){echo $data[0]['user_id'];}?>">
+                <a class="btn btn-primary" href="<?php echo base_url(); ?>employee/new_booking/addbooking/<?php echo $data[0]['phone_number'];?>">New Booking</a>
 
-                    <input type="hidden" name="home_address" value="<?php if(isset($data[0]['home_address'])){echo $data[0]['home_address'];}?>">
-                    <input type="hidden" name="user_email" value="<?php if(isset($data[0]['user_email'])){echo $data[0]['user_email'];}?>">
-                    <input type="hidden" name="phone_number" value="<?php if(isset($data[0]['phone_number'])){echo $data[0]['phone_number']; }?>">
-                    <input type="hidden" name="alternate_phone_number" value="<?php if(isset($data[0]['alternate_phone_number'])){echo $data[0]['alternate_phone_number'];}?>">
-                    <input type="hidden" name="pincode" value="<?php if(isset($data[0]['pincode'])){echo $data[0]['pincode'];}?>">
-                    <input type="hidden" name="name" value="<?php if(isset($data[0]['name'])){echo $data[0]['name'];}?>">
-              </div>
-              <?php echo " <input type='Submit' value='User Details' class='btn btn-primary'></a>"?>
-              </form>
-              <div style="float:left;padding-left:100px;"><input id="appliance_toogle_button" type="Button" value="Appliance Details" class='btn btn-primary'></div>
-              <div style="float:left;padding-left:100px;"></div>
+              <a style="margin-left: 90px;"href="<?php echo base_url();?>employee/user/get_edit_user_form/<?php echo $data[0]['phone_number']?>" class='btn btn-primary'>User Details</a>
+
+              <div style="float:left;margin-left:100px;"><input id="appliance_toogle_button" type="Button" value="Appliance Details" class='btn btn-primary'></div>
+
+              <div style="float:left;margin-left:100px;"></div>
               </center>
 
-              <div id="for_user_page" class="pagination" style="float:left;"> <?php if(isset($links)){ echo $links; }?></div>
+              <?php if(!empty($links)) { ?><div id="for_user_page" class="pagination" style="float:left;"> <?php echo $links; ?></div> <?php } ?>
 
             </div>
 
@@ -207,5 +176,5 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
             </div>
         </div>
     </div>
-</div>            	
+</div>              
 </html>

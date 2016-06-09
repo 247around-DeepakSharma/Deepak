@@ -43,11 +43,6 @@
       alert("Please enter only digits in alternate phone number.");
       return false;
     }
-    if(alt_ph_no!="" && alt_ph_no.length !=10)
-    {
-      alert("Please enter 10 digits alternate phone number.");
-      return false;
-    }
 
     if(city ==""){
       alert("Please Select City");

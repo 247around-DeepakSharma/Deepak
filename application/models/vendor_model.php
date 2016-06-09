@@ -180,15 +180,38 @@ class vendor_model extends CI_Model {
       return $query->result_array();
     }
 
-    function getDistrict($state){
+    function getall_state(){
+      $this->db->distinct();
+      $this->db->select('state');
+      $this->db->order_by('state');
+      $query = $this->db->get('india_pincode');
+
+      return $query->result_array();
+    }
+
+    function getDistrict_from_india_pincode($state=""){
+      $this->db->distinct();
+      $this->db->select('district');
+      if($state !=""){
+        $this->db->where('LOWER(state)', strtolower($state));
+      }
+      $this->db->order_by('district');
+      $query = $this->db->get('india_pincode');
+
+      return $query->result_array();
+    }
+
+    function getDistrict($state = ""){
       $this->db->distinct();
       $this->db->select('vendor_pincode_mapping.City as district');
       $this->db->from('vendor_pincode_mapping');
       $this->db->order_by('vendor_pincode_mapping.City');
-      $this->db->where('vendor_pincode_mapping.State',$state);
       $this->db->where('vendor_pincode_mapping.active',1);
       $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
       $this->db->where('service_centres.active','1');
+
+      if($state !="")
+        $this->db->where('vendor_pincode_mapping.State',$state);
 
       $query = $this->db->get();
       return $query->result_array();
@@ -206,6 +229,17 @@ class vendor_model extends CI_Model {
       $query = $this->db->get();
       return $query->result_array();
     }
+
+    function getPincode_from_india_pincode($district){
+       $this->db->distinct();
+       $this->db->select('pincode');
+       $this->db->where('LOWER(district)', strtolower($district));
+       $this->db->order_by('pincode');
+       $query = $this->db->get('india_pincode');
+
+       return $query->result_array();
+    }
+
     
     /**
      * Get POC and owner email for Active Service Center. 

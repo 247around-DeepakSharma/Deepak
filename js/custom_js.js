@@ -16,35 +16,28 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
     var service = $("#service_id option:selected").text();
     $("#services").val(service);
 
-    //var partner_code = $("#source_code option:selected").val();
-    
-   // var city = $('#booking_city').val();
-
-   /* if(partner_code =="Select Booking Source" || city == ""){
-      
-       alert("Please Select Booking Source and city");
-       $("#service_id").val("");
-       return false;
-    }*/
-
     sendAjaxRequest(postData, brandServiceUrl).done(function(data) {
+     
       $(".appliance_brand").html(data);
 
     });
   }
     
-  function getCategoryForService(service_id) {
+  function getCategoryForService(service_id="") {
 
     var postData = {};
     
     postData['service_id'] = $("#service_id").val();
     postData['city'] = $('#booking_city').val();
+    postData['partner_code'] = $("#source_code option:selected").val();
 
     sendAjaxRequest(postData, categoryForServiceUrl).done(function(data) {
+     
        $(".appliance_category").html(data);   
     });
 
   }
+
     
   function getCapacityForCategory(service_id, category, div_id) {
 
@@ -58,6 +51,7 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
     var div_no = div_id.split('_');
 
     sendAjaxRequest(postData, CapacityForCategoryUrl).done(function(data) {
+      
 
         $("#appliance_capacity_"+div_no[2]).html(data);
     
@@ -93,11 +87,12 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
 
     } else {
 
-       postData['capacity'] = "NULL";
+       postData['capacity'] = "";
     }
 
+
     sendAjaxRequest(postData, pricesForCategoryCapacityUrl).done(function(data) {
-     
+    
         $("#priceList_"+div_no[2]).html(data);
         final_price();
 
@@ -133,6 +128,7 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
     price = get_selected_price();
     
     var final_price = Number(price) - Number(discount);
+
     $("#grand_total_price").val(final_price);
 });
 
@@ -160,7 +156,6 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
      var service = $("#service_id option:selected").text();
      var pincode = $("#booking_pincode").val();
      var city = $("#booking_city").val();
-     var state = $("#booking_state").val();
      var booking_date = $("#booking_date").val();
      var timeslot = $('#booking_timeslot').val();
      var source = $("#source_code option:selected").text();
@@ -228,7 +223,7 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
      document.getElementById("b_email").innerHTML = email;
      document.getElementById("b_source").innerHTML = source;
      document.getElementById("b_service").innerHTML = service;
-     document.getElementById("b_state").innerHTML = state +" - " + pincode;
+     document.getElementById("b_pincode").innerHTML =  pincode;
      document.getElementById("b_city").innerHTML = city;
      document.getElementById("b_date").innerHTML = booking_date;
      document.getElementById("b_timeslot").innerHTML = timeslot;
@@ -300,7 +295,7 @@ function setAppliances(i){
 
   var appliance_tags =$("#appliance_tags_"+i).val();
   var purchase_year =$("#purchase_year_"+i).val();
-  var discount =$("#discount_"+i).val();
+
   var month = $("#purchase_month_"+i).val();
 
 
@@ -310,7 +305,6 @@ function setAppliances(i){
   document.getElementById("bmodel_"+i).innerHTML = model_number;
   document.getElementById("btags_"+i).innerHTML = appliance_tags;  
   document.getElementById("bpurchase_year_"+i).innerHTML = purchase_year;
-  document.getElementById("bdiscount_"+i).innerHTML = discount; 
   document.getElementById("bpurchase_month_"+i).innerHTML = month;
 }  
 
@@ -367,16 +361,6 @@ function setAppliances(i){
      });
  }
 
- function select_state(){
-   var postData = {};
-  postData['city'] = $('#booking_city').val();
-
-   sendAjaxRequest(postData, SelectStateUrl).done(function(data) {
-       $("#booking_state").val(data);
-    });
-
- }
-
 function enable_discount(div_id){
 
   var div_no = div_id.split('_');;
@@ -406,90 +390,6 @@ function enable_discount(div_id){
    });
 });
 
-   (function($,W,D)
-{
-    var JQUERY4U = {};
-
-    JQUERY4U.UTIL =
-    {
-        setupFormValidation: function()
-        {
-            //form validation rules
-            $("#booking_form").validate({
-                rules: {
-                    name: "required",
-                    address: "required",
-                    district: "required",
-                    phone_1: {
-                        required: true,
-                        minlength: 10
-                    },
-                    phone_2: {
-                        minlength: 10
-                    },
-                    primary_contact_phone_1: {
-                        required: true,
-                        minlength: 10
-                    },
-                    primary_contact_phone_2: {
-                        minlength: 10
-                    },
-                    owner_phone_1: {
-                        required: true,
-                        minlength: 10
-                    },
-                    owner_phone_2: {
-                        minlength: 10
-                    },
-                    state: "required",
-                    primary_contact_name: "required",
-                    owner_name: "required",
-                    email: {
-                    
-                        email: true
-                    },
-                    primary_contact_email: {
-                    
-                        email: true
-                    },
-                    owner_email: {
-                    
-                        email: true
-                    }
-                },
-                messages: {
-                    name: "Please enter your Vendor Name",
-                    address: "Please enter Address",
-                    district: "Please Select District",
-                    state: "Please Select State",
-                    phone_1: "Please enter Phone Number",
-                    phone_2: "Please fill correct phone number",
-                    primary_contact_phone_1: "Please fill correct phone number",
-                    primary_contact_phone_2: "Please fill correct phone number",
-                    owner_phone_1: "Please fill correct phone number",
-                    owner_phone_2: "Please fill correct phone number",
-                    primary_contact_name: "Please fill Name",
-                    owner_name: "Please fill Name",
-                    email: "Please fill correct email",
-                    primary_contact_email: "Please fill correct email",
-                    owner_email: "Please fill correct email"
-                },
-                submitHandler: function(form) {
-                    form.submit();
-                }
-            });
-        }
-    }
-
-    //when the dom has loaded setup form validation rules
-    $(D).ready(function($) {
-        JQUERY4U.UTIL.setupFormValidation();
-    });
-
-})(jQuery, window, document);
-
-
- 
 
 
        

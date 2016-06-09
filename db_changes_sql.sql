@@ -450,3 +450,113 @@ ALTER TABLE  `booking_details` CHANGE  `closing_remarks`  `closing_remarks` TEXT
 
 
 ALTER TABLE  `bank_transactions` CHANGE  `invoice_id`  `invoice_id` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
+
+
+
+
+<!-- Abhay 2 June -- >
+
+ALTER TABLE  `booking_unit_details` ADD  `service_id` VARCHAR( 10 ) NOT NULL AFTER  ` booking_id` ;
+
+ALTER TABLE  `booking_unit_details` ADD  `appliance_id` VARCHAR( 10 ) NOT NULL AFTER  `service_id` ;
+ALTER TABLE  `booking_unit_details` ADD  `customer_total` VARCHAR( 50 ) NOT NULL AFTER  `appliance_tag` ,
+ADD  `customer_net_payable` VARCHAR( 10 ) NOT NULL AFTER  `customer_total` ,
+ADD  `partner_net_payable` VARCHAR( 10 ) NOT NULL AFTER  `customer_net_payable` ,
+ADD  `around_net_payable` VARCHAR( 10 ) NOT NULL AFTER  `partner_net_payable` ,
+ADD  `customer_paid_basic_charges` VARCHAR( 10 ) NOT NULL COMMENT  'what customer finally paid' AFTER  `around_net_payable` ,
+ADD  `partner_paid_basic_charges` VARCHAR( 10 ) NOT NULL AFTER  `customer_paid_basic_charges` ,
+ADD  `around_paid_basic_charges` VARCHAR( 10 ) NOT NULL AFTER  `partner_paid_basic_charges` ,
+ADD  `around_comm_basic_charges` VARCHAR( 10 ) NOT NULL AFTER  `around_paid_basic_charges` ,
+ADD  `around_st_basic_charges` VARCHAR( 10 ) NOT NULL AFTER  `around_comm_basic_charges` ,
+ADD  `around_vat_basic_charges` VARCHAR( 10 ) NOT NULL AFTER  `around_st_basic_charges` ;
+
+ALTER TABLE  `booking_unit_details` ADD  `vendor_basic_charges` VARCHAR( 10 ) NOT NULL AFTER  `around_vat_basic_charges` ,
+ADD  `vendor_to_around - type A` VARCHAR( 10 ) NOT NULL AFTER  `vendor_basic_charges` ,
+ADD  `around_to_vendor - type B` VARCHAR( 10 ) NOT NULL AFTER  `vendor_to_around - type A` ,
+ADD  `vendor_st_basic_charges` VARCHAR( 10 ) NOT NULL AFTER  `around_to_vendor - type B` ,
+ADD  `vendor_vat_basic_charges` VARCHAR( 10 ) NOT NULL AFTER  `vendor_st_basic_charges` ,
+ADD  `customer_paid_extra_charges` VARCHAR( 10 ) NOT NULL AFTER  `vendor_vat_basic_charges` ,
+ADD  `around_comm_extra_charges` VARCHAR( 10 ) NOT NULL AFTER  `customer_paid_extra_charges` ,
+ADD  `around_st_extra_charges` VARCHAR( 10 ) NOT NULL AFTER  `around_comm_extra_charges` ,
+ADD  `vendor_extra_charges` VARCHAR( 10 ) NOT NULL AFTER  `around_st_extra_charges` ,
+ADD  `vendor_st_extra_charges` VARCHAR( 10 ) NOT NULL AFTER  `vendor_extra_charges` ;
+
+ALTER TABLE  `booking_unit_details` ADD  `customer_paid_parts` VARCHAR( 10 ) NOT NULL AFTER  `vendor_st_extra_charges` ,
+ADD  `around_comm_parts` VARCHAR( 10 ) NOT NULL AFTER  `customer_paid_parts` ,
+ADD  `around_st_parts` VARCHAR( 10 ) NOT NULL AFTER  `around_comm_parts` ,
+ADD  `vendor_parts` VARCHAR( 10 ) NOT NULL AFTER  `around_st_parts` ,
+ADD  `vendor_st_parts` VARCHAR( 10 ) NOT NULL AFTER  `vendor_parts` ;
+
+
+ALTER TABLE  `booking_unit_details` CHANGE  `vendor_to_around - type A`  `vendor_to_around` VARCHAR( 10 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL COMMENT  'type A';
+ALTER TABLE  `booking_unit_details` CHANGE  `around_to_vendor - type B`  `around_to_vendor` VARCHAR( 10 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL COMMENT  'type B';
+ALTER TABLE  `booking_unit_details` ADD  `tax_code` VARCHAR( 10 ) NOT NULL AFTER  `appliance_tag` ;
+ALTER TABLE  `booking_unit_details` ADD  `product_or_services` VARCHAR( 50 ) NOT NULL AFTER  `appliance_tag` ;
+ALTER TABLE  `booking_unit_details` ADD  `partner_id` INT( 10 ) NOT NULL AFTER  `booking_id` ;
+
+ALTER TABLE  `service_centre_charges` CHANGE  `partner_payment`  `partner_net_payable` VARCHAR( 10 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
+ALTER TABLE  `booking_unit_details` ADD  `purchase_month` VARCHAR( 20 ) NOT NULL AFTER  `purchase_year` ;
+
+
+<!-- Abhay 3 June -->
+
+ALTER TABLE  `bookings_sources` CHANGE  `price_mapping_code`  `price_mapping_id` VARCHAR( 10 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
+
+<!-- Abhay 7 June -->
+
+ALTER TABLE  `booking_details` ADD  `order_id` VARCHAR( 25 ) NOT NULL AFTER  `booking_id` ;
+
+ALTER TABLE  `booking_details` ADD  `product_type` VARCHAR( 250 ) NOT NULL AFTER  `order_id` ,
+ADD  `delivery_date` DATETIME NOT NULL AFTER  `product_type` ,
+ADD  `request_type` VARCHAR( 25 ) NOT NULL AFTER  `delivery_date` ;
+ALTER TABLE  `booking_details` CHANGE  `appliance_id`  `appliance_id` VARCHAR( 10 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
+
+--
+-- Table structure for table `booking_unit_details`
+--
+
+CREATE TABLE IF NOT EXISTS `booking_unit_details` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `booking_id` varchar(20) NOT NULL,
+  `partner_id` int(10) DEFAULT NULL,
+  `service_id` varchar(10) NOT NULL,
+  `appliance_id` varchar(10) NOT NULL,
+  `appliance_brand` varchar(25) DEFAULT NULL,
+  `appliance_category` varchar(50) DEFAULT NULL,
+  `appliance_capacity` varchar(50) DEFAULT NULL,
+  `appliance_size` varchar(10) DEFAULT NULL,
+  `model_number` varchar(50) DEFAULT NULL,
+  `price_tags` varchar(100) DEFAULT NULL,
+  `appliance_tag` varchar(50) NOT NULL,
+  `product_or_services` varchar(50) NOT NULL,
+  `tax_rate` varchar(10) NOT NULL,
+  `customer_total` varchar(50) NOT NULL,
+  `customer_net_payable` varchar(50) NOT NULL,
+  `partner_net_payable` varchar(50) NOT NULL,
+  `around_net_payable` varchar(50) NOT NULL,
+  `customer_paid_basic_charges` varchar(50) NOT NULL COMMENT 'what customer finally paid',
+  `partner_paid_basic_charges` varchar(50) NOT NULL,
+  `around_paid_basic_charges` varchar(50) NOT NULL,
+  `around_comm_basic_charges` varchar(50) NOT NULL,
+  `around_st_or_vat_basic_charges` varchar(50) NOT NULL,
+  `vendor_basic_charges` varchar(50) NOT NULL,
+  `vendor_to_around` varchar(50) NOT NULL COMMENT 'type A',
+  `around_to_vendor` varchar(50) NOT NULL COMMENT 'type B',
+  `vendor_st_or_vat_basic_charges` varchar(50) NOT NULL,
+  `customer_paid_extra_charges` varchar(50) NOT NULL,
+  `around_comm_extra_charges` varchar(50) NOT NULL,
+  `around_st_extra_charges` varchar(50) NOT NULL,
+  `vendor_extra_charges` varchar(50) NOT NULL,
+  `vendor_st_extra_charges` varchar(50) NOT NULL,
+  `customer_paid_parts` varchar(50) NOT NULL,
+  `around_comm_parts` varchar(50) NOT NULL,
+  `around_st_parts` varchar(50) NOT NULL,
+  `vendor_parts` varchar(50) NOT NULL,
+  `vendor_st_parts` varchar(50) NOT NULL,
+  `purchase_year` varchar(10) DEFAULT NULL,
+  `purchase_month` varchar(20) DEFAULT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `booking_picture_file` varchar(50) DEFAULT NULL,
+  `total_price` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;

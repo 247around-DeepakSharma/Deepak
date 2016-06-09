@@ -245,23 +245,29 @@ class service_centre_charges extends CI_Controller {
      *  @return : array
      */
     function set_price_rows_data($row) {
-	$data['partner_code'] = $row[0];
-	$data['city'] = $row[1];
-	$data['service_id'] = $row[2];
-	$data['category'] = $row[3];
-	$data['capacity'] = $row[4];
-	$data['service_category'] = $row[5];
-	$data['product_or_services'] = $row[6];
-	$data['tax_code'] = $row[7];
-	$data['active'] = $row[8];
-	$data['check_box'] = $row[9];
-	$data['vendor_svc_charge'] = $row[10];
-	$data['vendor_tax'] = $row[11];
-	$data['around_svc_charge'] = $row[12];
-	$data['around_tax'] = $row[13];
-	$data['customer_total'] = $row[14];
-	$data['partner_payment'] = $row[15];
-	$data['customer_charges'] = $row[16];
+	$data['partner_id'] = $row[1];
+	$data['state'] = $row[2];
+	$data['service_id'] = $row[4];
+	$data['category'] = $row[5];
+	$data['capacity'] = $row[6];
+	$data['service_category'] = $row[7];
+	$data['product_or_services'] = $row[8];
+	$data['product_type'] = $row[9];
+	$data['tax_code'] = $row[10];
+	$data['active'] = $row[12];
+	$data['check_box'] = $row[13];
+	$data['vendor_basic_charges'] = $row[14];
+	$data['vendor_tax_basic_charges'] = $row[15];
+	$data['vendor_total'] = $row[16];
+	$data['around_basic_charge'] = $row[17];
+	$data['around_tax_basic_charges'] = $row[18];
+	$data['around_total'] = $row[19];
+	$data['customer_total'] = $row[20];
+	$data['partner_payable_basic'] = $row[21];
+	$data['partner_payable_tax'] = $row[22];
+	$data['partner_net_payable'] = $row[23];
+	$data['customer_net_payable'] = $row[24];
+
 	return $data;
     }
 

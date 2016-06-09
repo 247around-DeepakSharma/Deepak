@@ -17,6 +17,7 @@ class Booking extends CI_Controller {
 	parent::__Construct();
 	$this->load->model('employee_model');
 	$this->load->model('booking_model');
+	$this->load->model('new_booking_model');
 	$this->load->model('user_model');
 	$this->load->model('vendor_model');
 	$this->load->model('filter_model');
@@ -716,25 +717,17 @@ class Booking extends CI_Controller {
      */
     function get_complete_booking_form($booking_id) {
 
-	$getbooking = $this->booking_model->getbooking($booking_id);
-	$query2 = $this->booking_model->get_unit_details($booking_id);
-	if ($getbooking) {
+	    $data['booking_id'] = $booking_id;
 
-	    $data['booking_id'] = $getbooking;
+	    $data['booking_history'] = $this->new_booking_model->getbooking_history($booking_id);
+	    $data['bookng_unit_details'] = $this->new_booking_model->getunit_details($booking_id);
+	    $source = $this->partner_model->get_all_partner_source("0", $data['booking_history'][0]['source']);
+	    $data['booking_history'][0]['source_name'] = $source[0]['source'];
 
-	    $query = $this->booking_model->booking_history_by_booking_id($booking_id);
-	    $page = "Complete";
-	    $internal_status = $this->booking_model->get_internal_status($page);
-	    $data1['booking_id'] = $query;
-
+	    $data['internal_status'] = $this->booking_model->get_internal_status("Complete");
+	    
 	    $this->load->view('employee/header');
-	    $this->load->view('employee/completebooking', array('data' => $data,
-		'data1' => $data1,
-		'internal_status' => $internal_status,
-		'query2' => $query2));
-	} else {
-	    echo "This Id doesn't Available";
-	}
+	    $this->load->view('employee/completebooking',$data);
     }
 
     /**
@@ -1085,12 +1078,15 @@ class Booking extends CI_Controller {
     }
 
 
-    function getBrandForService($service_id) {
+    function getBrandForService() {
 
-	$result = $this->booking_model->getBrandForService($service_id);
-	foreach ($result as $brand) {
-	    echo "<option>$brand[brand_name]</option>";
-	}	
+        $service_id = $this->input->post('service_id');
+
+        $result = $this->booking_model->getBrandForService($service_id);
+        echo "<option selected disabled> Select Brand</option>";
+        foreach ($result as $brand) {
+            echo "<option>$brand[brand_name]</option>";
+        }
     }
 
     /**
@@ -1098,13 +1094,20 @@ class Booking extends CI_Controller {
      * @param: service_id of booking
      * @return : displays category
      */
-    function getCategoryForService($service_id) {
-	
-	$result = $this->booking_model->getCategoryForService($service_id);
+    function getCategoryForService() {
 
-	foreach ($result as $category) {
-	    echo "<option>$category[category]</option>";
-	}
+        $service_id = $this->input->post('service_id');
+        $city = $this->input->post('city');
+        $partner = $this->input->post('partner_code');
+
+        $partner_id = $this->booking_model->get_price_mapping_partner_code($partner);
+
+        $state = $this->vendor_model->selectSate($city);
+        $result = $this->booking_model->getCategoryForService($service_id, $state[0]['state'], $partner_id);
+        echo "<option selected disabled>Select Appliance Category</option>";
+        foreach ($result as $category) {
+            echo "<option>$category[category]</option>";
+        }
     }
 
     /**
@@ -1112,43 +1115,74 @@ class Booking extends CI_Controller {
      * @param: Category and service_id of booking
      * @return : displays capacity
      */
-    public function getCapacityForCategory($service_id, $category) {
-	//Return column "capacity", only unique results
-	$category = urldecode($category);
+    function getCapacityForCategory() {
+        $service_id = $this->input->post('service_id');
+        $category = $this->input->post('category');
+        $city = $this->input->post('city');
+        $parter_code = $this->input->post('partner_code');
 
-	$result = $this->booking_model->getCapacityForCategory($service_id, $category);
+        $partner_id = $this->booking_model->get_price_mapping_partner_code($parter_code);
 
-	foreach ($result as $capacity) {
-	    echo "<option>$capacity[capacity]</option>";
-	}
+        $state = $this->vendor_model->selectSate($city);
+
+        $result = $this->booking_model->getCapacityForCategory($service_id, $category, $state[0]['state'], $partner_id);
+
+        foreach ($result as $capacity) {
+            echo "<option>$capacity[capacity]</option>";
+        }
     }
 
-    /**
+   /**
      * @desc : This function will show the price and services for ajax call
      * @param: service_id,category and capacity of the booking
      * @return : services name and there prices
      */
-    public function getPricesForCategoryCapacity($service_id, $category, $capacity) {
-	//Return columns "service_category" and "total_charges",
-	if ($capacity != "NULL") {
-	    $capacity = urldecode($capacity);
-	} else {
-	    $capacity = "";
-	}
-	$category = urldecode($category);
+    public function getPricesForCategoryCapacity() {
 
-	$result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity);
+        $service_id = $this->input->post('service_id');
+        $category = $this->input->post('category');
+        $capacity = $this->input->post('capacity');
+        $brand = $this->input->post('brand');
+        $parter_code = $this->input->post('partner_code');
+        $city = $this->input->post('city');
+        $clone_number = $this->input->post('clone_number');
+        $state = $this->vendor_model->selectSate($city);
 
-	echo "<tr><th>Service Category</th><th>Total Charges</th><th>Selected Services</th></tr>";
-	foreach ($result as $prices) {
-	    echo "<tr><td>" . $prices['service_category'] . "</td><td>" .
-	    $prices['total_charges'] .
-	    "</td><td><input id='Checkbox1' class='Checkbox1' type='checkbox' " .
-	    "name='" . str_replace(" ", "", $prices['service_category']) . "'" .
-	    "value=" . $prices['total_charges'] . "></td><tr>";
-	}
+        $partner_id = $this->booking_model->get_price_mapping_partner_code($parter_code);
+
+        $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $state[0]['state']);
+        if (!empty($result)) {
+
+            echo "<tr><th>Service Category</th><th>Charges</th><th>Partner Offer</th><th>Total Charges</th><th>Discount</th><th>Selected Services</th></tr>";
+            $html = "";
+
+            $i = 0;
+
+            foreach ($result as $prices) {
+                $service_category = $prices['service_category'];
+
+                $html .="<tr><td>" . $prices['service_category'] . "</td>";
+                $html .= "<td>" . intval($prices['customer_total']) . "</td>";
+                $html .= "<td>" . intval($prices['partner_net_payable']) . "</td>";
+                $html .= "<td>" . intval($prices['customer_net_payable']) . "</td>";
+                $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '0' placeholder='Enter discount' readonly></td>";
+                $html .= "<td><input class='price_checkbox'";
+                if ($prices['service_category'] == 'Repair') {
+                    $html .= "checked";
+                }
+
+                $html .=" type='checkbox' id='checkbox_" . $i . "_" . $clone_number . "'";
+                $html .= "name='prices[$brand][]'";
+                $html .= "  onclick='final_price(), enable_discount(this.id)'" .
+                        "value=" . $prices['id'] . "_" . intval($prices['customer_net_payable']) . "></td><tr>";
+
+                $i++;
+            }
+            echo $html;
+        } else {
+            echo "Price Table Not Found";
+        }
     }
-
 
     /**
      *  @desc : This function is to select all pending bookings to assign vendor(if not already assigned)
@@ -2402,7 +2436,7 @@ class Booking extends CI_Controller {
 
     function get_state_by_city() {
         $city = $this->input->post('city');
-        $state = $this->booking_model->selectSate($city);
+        $state = $this->vendor_model->selectSate($city);
         print_r($state);
     }
 

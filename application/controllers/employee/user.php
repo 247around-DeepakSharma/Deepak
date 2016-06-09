@@ -136,7 +136,7 @@ class User extends CI_Controller {
     function loadViews($output) {
 
         $results['user'] = $output;
-        $results['state'] = $this->vendor_model->selectSate();
+        $results['state'] = $this->vendor_model->getall_state();
         $this->load->view('employee/header');
         $this->load->view('employee/adduser', $results);
     }
