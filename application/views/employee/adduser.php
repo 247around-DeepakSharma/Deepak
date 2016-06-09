@@ -156,7 +156,7 @@
     
      $.ajax({
        type: 'POST',
-       url: '<?php echo base_url(); ?>employee/vendor/getDistrict',
+       url: '<?php echo base_url(); ?>employee/vendor/getDistrict/1',
        data: {state: state},
        success: function (data) {
       
