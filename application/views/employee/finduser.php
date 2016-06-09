@@ -9,6 +9,7 @@
             var order_id = document.forms["myForm"]["order_id"].value;
 
             var exp1 = /^[0-9]+$/;
+            var exp2 = /^[A-Za-z _]+$/;
 
             if (ph_no == "" && booking_id == "" && user_name =="" && order_id == "" ) {
                 alert("Please enter atleast one detail to search..");
@@ -50,6 +51,12 @@
                 alert("Enter Only digits..");
                 return false;
             }
+
+            if (user_name != "" && !user_name.match(exp2)){
+                alert("Enter only alphabates in user name");
+                return false;
+            }
+
         }
 
     </script>

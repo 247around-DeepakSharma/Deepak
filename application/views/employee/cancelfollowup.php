@@ -7,6 +7,15 @@ function check(){
     document.getElementById("cancellation_reason_text").disabled = true;
   }
 }
+
+function check_text(){
+  var reason = document.myForm.cancellation_reason.value;
+  var cancel_text = document.myForm.cancellation_reason_text.value;  
+    if(reason == 'Other' && cancel_text == ""){
+      alert("Please enter cancellation reason in other's option");
+      return false;
+    }
+}
 </script>
 <div id="page-wrapper">
    <div class="container-fluid">
@@ -70,7 +79,7 @@ function check(){
                 
                 <div>
                   <center>
-                    <input type="submit" value="Save" class="btn btn-danger">
+                    <input type="submit" value="Save" onclick="return(check_text())" class="btn btn-danger">
                     <?php echo "<a id='edit' class='btn btn-small btn-primary' href=".base_url()."employee/booking/view_pending_queries>Back</a>";?>
                     
                   </center>

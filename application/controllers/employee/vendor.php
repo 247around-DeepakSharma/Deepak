@@ -401,7 +401,7 @@ class vendor extends CI_Controller {
 	    redirect(base_url().'employee/booking/view');
 	    }
 	} else {
-	    $this->vendor_escalation_form($booking_id);
+	    $this->get_vendor_escalation_form($escalation['booking_id']);
 	}
     }
 
