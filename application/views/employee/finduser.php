@@ -50,10 +50,6 @@
                 alert("Enter Only digits..");
                 return false;
             }
-            if (ph_no != "" && ph_no.length != 10) {
-                alert("Enter 10 digits in Phone Number");
-                return false;
-            }
         }
 
     </script>

@@ -42,11 +42,6 @@
       alert("Please enter only digits in alternate phone number.");
       return false;
     }
-    if(alt_ph_no!="" && alt_ph_no.length !=10)
-    {
-      alert("Please enter 10 digits alternate phone number.");
-      return false;
-    }
 
     if(city ==""){
       alert("Please Select City");
@@ -109,7 +104,7 @@
                         <select name="state" id="state" onchange="getcity()" class="form-control" >
                           <option value="" >Select State</option>
                           <?php foreach ($state as $value) { ?>
-                          <option value="<?php echo $value['state']; ?>"><?php echo $value['state']; ?></option>
+                          <option value="<?php echo $value['state']; ?>" ><?php echo $value['state']; ?></option>
                         <?php  } ?>
                           
                         </select>
@@ -160,10 +155,10 @@
     
      $.ajax({
        type: 'POST',
-       url: '<?php echo base_url(); ?>employee/vendor/getDistrict',
+       url: '<?php echo base_url(); ?>employee/vendor/getDistrict/1',
        data: {state: state},
        success: function (data) {
-      
+
          $("#city").html(data);          
          $('#loader_gif').attr('src', "");
          $('#loader_gif').css('display','none');

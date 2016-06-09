@@ -119,7 +119,7 @@ class vendor extends CI_Controller {
     function add_vendor() {
 	$results['services'] = $this->vendor_model->selectservice();
 	$results['brands'] = $this->vendor_model->selectbrand();
-	$results['select_state'] = $this->vendor_model->selectSate();
+	$results['select_state'] = $this->vendor_model->getall_state();
 	$days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 	$this->load->view('employee/header');
 	$this->load->view('employee/addvendor', array('results' => $results, 'days' => $days));
@@ -131,7 +131,7 @@ class vendor extends CI_Controller {
 
 	$results['services'] = $this->vendor_model->selectservice();
 	$results['brands'] = $this->vendor_model->selectbrand();
-	$results['select_state'] = $this->vendor_model->selectSate();
+	$results['select_state'] = $this->vendor_model->getall_state();
 
 	$appliances = $query[0]['appliances'];
 	$selected_appliance_list = explode(",", $appliances);
@@ -472,17 +472,26 @@ class vendor extends CI_Controller {
     /**
      * Get District of custom State and echo in 'select option value' to load in a form
      */
-    function getDistrict() {
+    function getDistrict($flag="") {
+
 	$state = $this->input->post('state');
 	$dis = $this->input->post('district');
-	$data = $this->vendor_model->getDistrict($state);
+
+	if($flag ==""){
+		$data = $this->vendor_model->getDistrict($state);
+
+	} else {
+       $data = $this->vendor_model->getDistrict_from_india_pincode($state);
+      
+	}
+	
 	if ($dis == "") {
 	    echo "<option selected='selected' value=''>Select City</option>";
 	} else {
 		echo "<option value=''>Select City</option>";
 	}
 	foreach ($data as $district) {
-	    if ($dis == $district['district']) {
+	    if (strtolower(trim($dis)) == strtolower(trim($district['district']))) {
 		echo "<option selected value='$district[district]'>$district[district]</option>";
 	    } else {
 		echo "<option value='$district[district]'>$district[district]</option>";
@@ -493,10 +502,14 @@ class vendor extends CI_Controller {
     /**
      * Get Pincode of Custom District and print 'select option value with data' to load in a form
      */
-    function getPincode() {
+    function getPincode($flag="") {
 	$district = $this->input->post('district');
 	$pin = $this->input->post('pincode');
-	$data = $this->vendor_model->getPincode($district);
+	if($flag == ""){
+	    $data = $this->vendor_model->getPincode($district);
+    } else {
+    	 $data = $this->vendor_model->getPincode_from_india_pincode($district);
+    }
 	if (empty($pin)) {
 	    echo "<option selected='selected' disabled='disabled'>Select Pincode</option>";
 	}
@@ -539,10 +552,10 @@ class vendor extends CI_Controller {
     	$this->load->view('employee/vendorperformance',$data);
     }
     function vendor_performance(){
-    	$vendor['vendor_id'] = $this->input->post('vendor_id');
+    	$vendor['vendor_id'] = "5";
     	$vendor['city'] = $this->input->post('city');
     	$vendor['service_id'] = $this->input->post('service_id');
-    	$vendor['period'] = $this->input->post('period');
+    	$vendor['period'] = "All Month";
     	$vendor['source'] = $this->input->post('source');
     	$vendor['sort'] = $this->input->post('sort');
     	$data['data'] = $this->vendor_model->get_vendor_performance($vendor);
