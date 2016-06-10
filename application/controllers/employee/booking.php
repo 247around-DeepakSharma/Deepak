@@ -225,7 +225,7 @@ class Booking extends CI_Controller {
 		$message = $message . "<br> Thanks!!";
 
 		$from = "booking@247around.com";
-		$to = "anuj@247around.com, nits@247around.com";		
+		$to = "anuj@247around.com, nits@247around.com";
 		$cc = "";
 		$bcc = "";
 		$subject = 'Booking Confirmation-AROUND';
@@ -238,7 +238,7 @@ class Booking extends CI_Controller {
     	$sms['smsData']['booking_date']= $booking['booking_date'];
     	$sms['smsData']['booking_timeslot'] = $booking['booking_timeslot'];
     	$sms['phone_no'] = $query1[0]['phone_number'];
-    	$sms['booking_id'] = $booking['booking_id']; 
+    	$sms['booking_id'] = $booking['booking_id'];
 
     	$this->notify->send_sms($sms);
 	    }
@@ -822,9 +822,9 @@ class Booking extends CI_Controller {
 	//------Send SMS on Completion of booking-----//
 	if ($is_sd == FALSE) {
 		$sms['tag'] = "complete_booking";
-		$sms['smsData']['service'] = $query1[0]['services'];    	
+		$sms['smsData']['service'] = $query1[0]['services'];
     	$sms['phone_no'] = $query1[0]['phone_number'];
-    	$sms['booking_id'] =  $booking['booking_id']; 
+    	$sms['booking_id'] =  $booking['booking_id'];
 
     	$this->notify->send_sms($sms);
 	}
@@ -927,11 +927,11 @@ class Booking extends CI_Controller {
 	//------------Send SMS for cancellation---------//
 	if ($is_sd == FALSE) {
 		$sms['tag'] = "cancel_booking";
-		$sms['smsData']['service'] = $query1[0]['services'];    	
+		$sms['smsData']['service'] = $query1[0]['services'];
     	$sms['phone_no'] = $query1[0]['phone_number'];
-    	$sms['booking_id'] =  $booking['booking_id']; 
+    	$sms['booking_id'] =  $booking['booking_id'];
 
-    	$this->notify->send_sms($sms);		
+    	$this->notify->send_sms($sms);
 
 	}
 
@@ -1070,9 +1070,9 @@ class Booking extends CI_Controller {
     		$sms['smsData']['booking_date']= $data['booking_date'];
     		$sms['smsData']['booking_timeslot'] = $data['booking_timeslot'];
     		$sms['phone_no'] = $query1[0]['phone_number'];
-    		$sms['booking_id'] =  $query1[0]['booking_id']; 
+    		$sms['booking_id'] =  $query1[0]['booking_id'];
 
-    		$this->notify->send_sms($sms);	    
+    		$this->notify->send_sms($sms);
 	    }
 
 	    //Setting mail to vendor flag to 0, once booking is rescheduled
@@ -1090,7 +1090,7 @@ class Booking extends CI_Controller {
 	$result = $this->booking_model->getBrandForService($service_id);
 	foreach ($result as $brand) {
 	    echo "<option>$brand[brand_name]</option>";
-	}	
+	}
     }
 
     /**
@@ -1099,7 +1099,7 @@ class Booking extends CI_Controller {
      * @return : displays category
      */
     function getCategoryForService($service_id) {
-	
+
 	$result = $this->booking_model->getCategoryForService($service_id);
 
 	foreach ($result as $category) {
@@ -1158,7 +1158,7 @@ class Booking extends CI_Controller {
     function get_assign_booking_form() {
 	$results = array();
 	$bookings = $this->booking_model->pendingbookings();
-	
+
 	foreach ($bookings as $booking) {
 	   array_push($results, $this->booking_model->find_sc_by_pincode_and_appliance($booking['service_id'], $booking['booking_pincode']));
 	}
@@ -1177,7 +1177,7 @@ class Booking extends CI_Controller {
 	$service_center['service_center'] = $this->input->post('service_center');
 	$url = base_url() . "employee/do_background_process/assign_booking";
 	$this->asynchronous_lib->do_background_process($url, $service_center);
-	
+
 	redirect(base_url() . 'employee/booking/view');
     }
 
@@ -1217,7 +1217,7 @@ class Booking extends CI_Controller {
      *  @param : booking id
      *  @return : rate for booking and load view
      */
-    function process_rating_form($booking_id) {	
+    function process_rating_form($booking_id) {
 
 	if ($this->input->post('rating_star') != "Select") {
 	    $data['rating_stars'] = $this->input->post('rating_star');
@@ -1368,7 +1368,7 @@ class Booking extends CI_Controller {
 
 	$booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
 	$booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
-	
+
 	$booking['total_price'] = $this->input->post('total_price');
 	$booking['potential_value'] = $this->input->post('potential_value');
 	$booking['items_selected'] = $this->input->post('items_selected');
@@ -1510,7 +1510,7 @@ class Booking extends CI_Controller {
 		$message = $message . "<br> Thanks!!";
 
 		$from = 'booking@247around.com';
-		$to = "anuj@247around.com, nits@247around.com";		
+		$to = "anuj@247around.com, nits@247around.com";
 		$cc = "";
 		$bcc = "";
 		$subject = 'Booking Confirmation-AROUND';
@@ -1520,7 +1520,7 @@ class Booking extends CI_Controller {
 
 		//TODO: Make it generic
 		if ($is_sd == FALSE) {
-		    
+
 			$sms['tag'] = "add_new_booking";
 			$sms['smsData']['service'] = $query1[0]['services'];
     		$sms['smsData']['booking_date']= $booking_date;
@@ -1622,7 +1622,7 @@ class Booking extends CI_Controller {
      *  @param : booking id
      *  @return : cancel the query and load view
      */
-    function process_cancel_followup_form($booking_id) {	
+    function process_cancel_followup_form($booking_id) {
 	$booking['current_status'] = "Cancelled";
 	$booking['internal_status'] = $this->input->post('internal_status');
 	$booking['cancellation_reason'] = $this->input->post('cancellation_reason');
@@ -1690,7 +1690,7 @@ class Booking extends CI_Controller {
 	    "<br>Booking cancellation date is: " . $booking['update_date'] . "<br>Booking cancellation reason: " .
 	    $booking['cancellation_reason'] . "<br> Thanks!!";
 	$from = 'booking@247around.com';
-	$to = "anuj@247around.com, nits@247around.com";	
+	$to = "anuj@247around.com, nits@247around.com";
 	$cc = "";
 	$bcc = "";
 	$subject = "Booking Cancellation-AROUND";
@@ -2009,7 +2009,7 @@ class Booking extends CI_Controller {
 	    //-------Sending SMS on booking--------//
 
 	    if (strstr($booking['booking_id'], "SS") == FALSE) {
-		
+
 			$sms['tag'] = "add_new_booking";
 			$sms['smsData']['service'] = $booking['service_name'];
 			$sms['smsData']['booking_date']= $booking['booking_date'];
@@ -2069,7 +2069,7 @@ class Booking extends CI_Controller {
 	$query = $this->booking_model->get_pending_queries(-1, 0, '');
 
 	$data['Bookings'] = $query;
-	
+
 	$this->load->view('employee/header');
 	$this->load->view('employee/viewpendingqueries', $data);
     }
