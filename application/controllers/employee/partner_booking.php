@@ -23,6 +23,7 @@ class Partner_booking extends CI_Controller {
 	$this->load->model('booking_model');
 	$this->load->model('partner_model');
 	$this->load->model('user_model');
+	$this->load->model('vendor_model');
 
 	$this->load->helper(array('form', 'url'));
 	$this->load->library('form_validation');
@@ -70,6 +71,110 @@ class Partner_booking extends CI_Controller {
 
 	    $this->index();
 	}
+    }
+
+    /**
+     *  @desc  : Use to get form to upload partner's excel
+     *  @param : void
+     *  @return : void
+     */
+    function get_upload_partners_cancelled_booking(){
+    $source['source'] = $this->partner_model->get_all_partner_source();
+	if (!empty($error)) {
+	    $source['error'] = $error;
+	}
+	$this->load->view('employee/header');
+	$this->load->view('employee/upload_partners_cancelled_bookings', $source);	
+    }
+
+    /**
+     *  @desc  : Use to enter partner's excel's data in booking_details table
+     *  @param : void
+     *  @return : void
+     */
+    public function post_upload_partners_cancelled_booking(){
+
+       $return = $this->partner_utilities->validate_file($_FILES);
+	   if ($return == "true") {
+	    $inputFileName = $_FILES['file']['tmp_name'];
+	     $reader = ReaderFactory::create(Type::XLSX);
+	$reader->open($inputFileName);
+	$count = 1;
+	$rows = array();
+	foreach ($reader->getSheetIterator() as $sheet) {
+	    foreach ($sheet->getRowIterator() as $row) {
+	    	// if($count>1){
+	    			$output = $this->user_model->search_user(trim($row[3]));         
+		$user = "";
+		$user['state'] = "";
+          if(empty($output)){
+          	$state = "";
+          	//User doesn't exist
+                $user['name'] = $row[1];
+                $user['phone_number'] = $row[3];
+                $user['user_email'] = "";
+				$user['city'] = $row[4];
+				$state= $this->vendor_model->getall_state($row[4]);
+                				 
+				if(!empty($state)){
+					$user['state']= $state[0]['state'];	
+				} else {
+					$user['state'] = "";
+				}
+				
+		$user_id = $this->user_model->add_user($user);
+	      $data = $this->set_price_rows_data($row, $user_id);
+          
+        //For adding unit and appliance details
+        //$appliance_id = $this->booking_model->addappliancedetails($data);
+	    //$this->booking_model->addunitdetails($data);
+        
+	    $output = $this->booking_model->addbooking($data, "", $row[4], $user['state']);
+	    
+	    	}		
+	    }	    
+	}
+	redirect(base_url() . 'employee/booking/view');
+	$reader->close();
+	   } else {	    
+	    $this->get_upload_partners_cancelled_booking();
+	   }
+	   
+    }
+
+    /**
+     *  @desc  : Use to enter partner's excel's data in booking_details table
+     *  @param : excel's data and user_id
+     *  @return : booking_details array
+     */
+    function set_price_rows_data($row, $user_id) {
+    $booking['user_id'] =  $user_id;
+	$booking['booking_primary_contact_no'] = $row[3];
+    $service_id = $this->booking_model->getServiceId($row[7]);
+    
+    if(!empty($service_id)){    	
+    	$booking['service_id'] = $service_id;
+    }
+	$booking['booking_date'] = date_format($row[6], 'Y-m-d');
+	$booking['source'] = 'SQ';
+	$booking_id = $this->create_booking_id($booking['user_id'], $booking['source']);
+	$split_booking_id = explode("Q", $booking_id);
+	$booking['booking_id'] = "SQ".$split_booking_id[2];	
+	$booking['type'] = "Booking";
+	$booking['current_status'] = "Cancelled";
+	$booking['internal_status'] = "Cancelled";	
+	$booking['quantity'] = 1;
+	$booking['booking_primary_contact_no'] = $row[3];
+	$booking['booking_address'] = $row[5];
+	$booking['booking_alternate_contact_no'] = "";
+	$booking['booking_timeslot'] = "";
+	$booking['booking_pincode'] = 000000;
+	$booking['booking_remarks'] = "NULL";
+	$booking['query_remarks'] = "NULL";
+	$booking['potential_value'] = "NULL";
+	$booking['amount_due'] = "NULL";
+	
+	return $booking;
     }
 
     /**

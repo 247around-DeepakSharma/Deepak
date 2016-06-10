@@ -228,8 +228,21 @@
                <i class="fa fa-fw fa-arrows-v"></i> Others <i class="fa fa-caret-down"></i>
                </a>
                <ul class="dropdown-menu">
+                   <li>
+                     <a href="<?php echo base_url()?>employee/"><i class="fa fa-fw fa-desktop "></i> <strong>Blogs</strong></a>
+                  </li>
+
+                  <li class="divider"></li>
                   <li>
-                     <a href="<?php echo base_url()?>employee/blogs/viewblogs" ><i class="fa fa-fw fa-desktop"></i> <strong> Blogs</strong></a>
+                     <a href="<?php echo base_url()?>employee/partner_booking/get_upload_partners_cancelled_booking" ><i class="fa fa-fw fa-desktop"></i> <strong>Upload Quikr Excel</strong></a>
+                  </li>
+                  <li class="divider"></li>
+                  <li>
+                     <a href="<?php echo base_url()?>employee/" ><i class="fa fa-fw fa-desktop"></i> <strong>Upload Snapdeal Excel</strong></a>
+                  </li>
+                  <li class="divider"></li>
+                  <li>
+                     <a href="<?php echo base_url()?>employee/" ><i class="fa fa-fw fa-desktop"></i> <strong>Upload Paytm Excel</strong></a>
                   </li>
                </ul>
                <!-- /.dropdown-user -->

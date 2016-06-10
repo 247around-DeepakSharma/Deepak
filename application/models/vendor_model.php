@@ -180,9 +180,12 @@ class vendor_model extends CI_Model {
       return $query->result_array();
     }
 
-    function getall_state(){
+    function getall_state($city=""){
       $this->db->distinct();
       $this->db->select('state');
+      if($city !=""){
+        $this->db->where('district', $city);
+      }
       $this->db->order_by('state');
       $query = $this->db->get('india_pincode');
 
