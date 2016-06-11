@@ -450,3 +450,7 @@ ALTER TABLE  `booking_details` CHANGE  `closing_remarks`  `closing_remarks` TEXT
 
 
 ALTER TABLE  `bank_transactions` CHANGE  `invoice_id`  `invoice_id` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
+
+-- Anuj 31 May
+ALTER TABLE  `vendor_partner_invoices` ADD  `to_be_paid_date` DATE NOT NULL COMMENT 'Date by which this invoice needs to be settled';
+ALTER TABLE  `vendor_partner_invoices` CHANGE  `to_be_paid_date`  `due_date` DATE NOT NULL COMMENT 'Date by which this invoice needs to be settled';
