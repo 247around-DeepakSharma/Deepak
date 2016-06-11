@@ -43,7 +43,7 @@
                          <td data-popover="true" style="position: absolute; border:0px;"  data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>"><div  class="marquee"><div><span ><?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?></span></div></div></td>
                          <td><a class='btn btn-sm btn-primary'href="<?php echo base_url();?>service_center/booking_details/<?=$row->booking_id?>" target='_blank' title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>
                          <td>
-                             <a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
+                             <a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-danger disabled' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
                         </td>
                          <td>
                              <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-success' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
