@@ -387,7 +387,7 @@ class Booking_model extends CI_Model {
 	return $query->result();
     }
 
-    function finduser() {
+    function finduser($phone) {
 	$query = $this->db->query("Select user_id,name,user_email from users
                                 where phone_number='$phone' AND is_verified='1'");
 	return $query->result();
