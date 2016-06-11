@@ -129,6 +129,35 @@ class Service_centers extends CI_Controller {
 	redirect(base_url() . "service_center/pending_booking");
     }
 
+    function cancel_booking_form($booking_id) {
+	$this->checkUserSession();
+	$data['user_and_booking_details'] = $this->booking_model->booking_history_by_booking_id($booking_id);
+	$data['reason'] = $this->booking_model->cancelreason();
+
+	$this->load->view('service_centers/header');
+	$this->load->view('service_centers/cancel_booking_form', $data);
+    }
+
+    function process_cancel_booking($booking_id) {
+	$this->checkUserSession();
+
+	$cancellation_reason = $this->input->post('cancellation_reason');
+	if ($cancellation_reason === 'Other') {
+	    $cancellation_reason = "Other : " . $cancellation_reason;
+	}
+
+	$data['service_center_id'] = $this->session->userdata('service_center_id');
+	$data['booking_id'] = $booking_id;
+	$data['current_status'] = "Cancelled";
+	$data['internal_status'] = "Cancelled";
+	$data['service_charge'] = $data['additional_service_charge'] = $data['parts_cost'] = $data['amount_paid'] = 0;
+	$data['service_center_remarks'] = date("F j") . ":- " . $cancellation_reason;
+
+	$this->vendor_model->insert_service_center_action($data);
+
+	redirect(base_url() . "service_center/pending_booking");
+    }
+
     /**
      *  @desc : This function Set Session
      *  param : Service center id

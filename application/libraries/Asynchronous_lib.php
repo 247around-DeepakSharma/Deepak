@@ -14,7 +14,7 @@ class Asynchronous_lib {
      */
     function do_background_process($url, $params) {
 	log_message('info', "Entering: " . __METHOD__);
-	log_message('info', "URL: " . $url . ", Params: " . $params);
+	log_message('info', "URL: " . $url . ", Params: " . print_r($params, TRUE));
 
 	$post_string = http_build_query($params);
 	$parts = parse_url($url);

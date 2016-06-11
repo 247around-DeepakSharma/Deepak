@@ -20,8 +20,9 @@
 	                    <th>Service Name</th>
 	                    <th>Booking Date</th>
 	                    <th>Status</th>
-                        <th>247 Around Remarks</th>
+                        <th>247around Remarks</th>
 	                    <th>View</th>
+	                    <th>Cancel</th>
 	                    <th>Complete</th>
 	                    <th>Job Card</th>
                     
@@ -39,13 +40,14 @@
                          <td><?= $row->services; ?></td>
                          <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
                          <td><?php echo $row->current_status; ?></td>
-                         <td data-popover="true" style="position: absolute; border:0px;"  data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>"><div  class="marquee"><div><span ><?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?></span></div>
-</div></td>
-                         <td><a class='btn btn-sm btn-primary'href="<?php echo base_url();?>service_center/booking_details/<?=$row->booking_id?>" target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a></td>
+                         <td data-popover="true" style="position: absolute; border:0px;"  data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>"><div  class="marquee"><div><span ><?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?></span></div></div></td>
+                         <td><a class='btn btn-sm btn-primary'href="<?php echo base_url();?>service_center/booking_details/<?=$row->booking_id?>" target='_blank' title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>
                          <td>
-                         <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-success btn-sm' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
-                       
-                    </td>
+                             <a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
+                        </td>
+                         <td>
+                             <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-success' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
+                        </td>
                     <td><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm' download ><i class="fa fa-download" aria-hidden="true"></i></a></td>
 
 

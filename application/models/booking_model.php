@@ -579,12 +579,15 @@ class Booking_model extends CI_Model {
 	return $this->db->count_all_results("booking_details");
     }
 
+    //Returns count of total pending bookings
     public function total_pending_booking($booking_id = "", $service_center_id = "") {
 	$where = "";
 
 	if ($booking_id != "") {
 	    $where .= "AND `booking_details`.`booking_id` = '$booking_id'";
-	} if ($service_center_id != "") {
+	}
+
+	if ($service_center_id != "") {
 	    $where .= " AND assigned_vendor_id = '" . $service_center_id . "'";
 	    $where .= "AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
 	} else {
@@ -598,6 +601,7 @@ class Booking_model extends CI_Model {
             `booking_id` NOT LIKE 'Q-%' $where AND
             (booking_details.current_status='Pending' OR booking_details. current_status='Rescheduled')"
 	);
+
 	$count = $query->result_array();
 
 	return $count[0]['count'];
@@ -605,14 +609,16 @@ class Booking_model extends CI_Model {
 
     function date_sorted_booking($limit, $start, $booking_id = "", $service_center_id = "") {
 	$where = "";
+
 	if ($booking_id != "") {
 	    $where .= "AND `booking_details`.`booking_id` = '$booking_id'";
-	} if ($service_center_id != "") {
+	}
 
+	if ($service_center_id != "") {
 	    $where .= " AND assigned_vendor_id = '" . $service_center_id . "'";
-	    //$where .= "AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
+	    $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
 	} else {
-	    $where .= "AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
+	    $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
 	}
 
 	$query = $this->db->query("Select services.services,
@@ -630,9 +636,10 @@ class Booking_model extends CI_Model {
 	$temp = $query->result();
 
 	foreach ($temp as $key => $value) {
-
 	    $this->db->select('*');
 	    $this->db->where('booking_id', $value->booking_id);
+	    $status = array('Pending', 'Rescheduled');
+	    $this->db->where_in('current_status', $status);
 	    $query2 = $this->db->get('service_center_booking_action');
 
 	    if ($query2->num_rows > 0) {
@@ -961,7 +968,8 @@ class Booking_model extends CI_Model {
                 ='$booking_id'");
     }
 
-    function rate($booking_id, $data) {
+    //TODO: Merge with update_booking_details function
+    function update_booking($booking_id, $data) {
 	$this->db->where(array("booking_id" => $booking_id));
 	$this->db->update("booking_details", $data);
 
