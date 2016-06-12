@@ -42,7 +42,7 @@ class Login extends CI_Controller {
 	    $login = $this->employeelogin->login($employee_id, md5($employee_password));
 	    if ($login) {
 		$this->session->unset_userdata('email');
-		$this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['right_for_add_handyman'], $login[0]['right_for_add_service'], $login[0]['right_for_activate_deactivate_handyman'], $login[0]['right_for_activate_deactivate_service'], $login[0]['right_for_xls_for_handyman'], $login[0]['right_for_add_employee'], $login[0]['right_for_update_employee'], $login[0]['right_for_report_messgae'], $login[0]['right_for_signup_message'], $login[0]['right_for_review_message'], $login[0]['right_for_approve_handyman'], $login[0]['right_for_delete'], $login[0]['right_for_verifyhandyman'], $login[0]['right_for_popularsearch'], $login[0]['right_for_review']);
+		$this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone'], $login[0]['right_for_add_handyman'], $login[0]['right_for_add_service'], $login[0]['right_for_activate_deactivate_handyman'], $login[0]['right_for_activate_deactivate_service'], $login[0]['right_for_xls_for_handyman'], $login[0]['right_for_add_employee'], $login[0]['right_for_update_employee'], $login[0]['right_for_report_messgae'], $login[0]['right_for_signup_message'], $login[0]['right_for_review_message'], $login[0]['right_for_approve_handyman'], $login[0]['right_for_delete'], $login[0]['right_for_verifyhandyman'], $login[0]['right_for_popularsearch'], $login[0]['right_for_review']);
 		$this->dashboard();
 	    } else {
 		$output = "Employee Name/ID or password is incorrect.";
@@ -85,12 +85,13 @@ class Login extends CI_Controller {
      *  @desc : This function Set Session
      *  param : Email and user id
      */
-    function setSession($employee_id, $id, $addhandyman, $addservice, $activate_deactivate, $active_service, $xls_for_handyman, $create_employee, $update_employee, $report, $signup, $review_messgae, $approvehandyman, $delete, $verify, $popularsearch, $review) {
+    function setSession($employee_id, $id, $phone, $addhandyman, $addservice, $activate_deactivate, $active_service, $xls_for_handyman, $create_employee, $update_employee, $report, $signup, $review_messgae, $approvehandyman, $delete, $verify, $popularsearch, $review) {
 
 	$userSession = array(
 	    'session_id' => md5(uniqid(mt_rand(), true)),
 	    'employee_id' => $employee_id,
 	    'id' => $id,
+	    'phone' => $phone,
 	    'add handyman' => $addhandyman,
 	    'add service' => $addservice,
 	    'activate/deactivate' => $activate_deactivate,

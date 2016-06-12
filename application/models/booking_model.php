@@ -1,7 +1,6 @@
 <?php
 
 class Booking_model extends CI_Model {
-
     /**
      * @desc load both db
      */
@@ -1605,6 +1604,10 @@ class Booking_model extends CI_Model {
 	}
 
 	return $charges;
+    }
+
+    function insert_outbound_call_log($details) {
+	$this->db->insert('agent_outbound_call_log', $details);
     }
 
 }

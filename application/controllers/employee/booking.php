@@ -2392,4 +2392,77 @@ class Booking extends CI_Controller {
 	print_r($state);
     }
 
+    /**
+     *  @desc : This function is used to call customer from admin panel
+     *  @param : Phone Number
+     *  @return : none
+     */
+    function call_customer($cust_phone, $redirect_page) {
+	$this->checkUserSession();
+
+	//Get customer id
+	$cust_id = '';
+	$user = $this->user_model->search_user($cust_phone);
+	if ($user) {
+	    $cust_id = $user[0]['user_id'];
+	}
+
+	//Find agent phone from session
+	$agent_id = $this->session->userdata('id');
+	$agent_phone = $this->session->userdata('phone');
+
+	//Save call log
+	$this->booking_model->insert_outbound_call_log(array(
+	    'agent_id' => $agent_id, 'customer_id' => $cust_id,
+	    'customer_phone' => $cust_phone
+	));
+
+	//Make call to customer now
+	$this->notify->make_outbound_call($agent_phone, $cust_phone);
+
+	//Redirect to the page from where you landed in this function
+	switch ($redirect_page) {
+	    case 'pending_bookings':
+		redirect(base_url() . 'employee/booking/view', 'refresh');
+
+		break;
+
+	    default:
+		redirect(base_url() . 'employee/booking/view', 'refresh');
+
+		break;
+	}
+    }
+
+    /**
+     *  @desc : Callback fn called after agent finishes customer call
+     *  @param : Phone Number
+     *  @return : none
+     */
+    function call_customer_status_callback() {
+	log_message('info', "Entering: " . __METHOD__);
+
+	//http://support.exotel.in/support/solutions/articles/48259-outbound-call-to-connect-an-agent-to-a-customer-
+	$callDetails['call_sid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
+	$callDetails['status'] = (isset($_GET['Status'])) ? $_GET['Status'] : null;
+	$callDetails['recording_url'] = (isset($_GET['RecordingUrl'])) ? $_GET['RecordingUrl'] : null;
+	$callDetails['date_updated'] = (isset($_GET['DateUpdated'])) ? $_GET['DateUpdated'] : null;
+
+	log_message('info', print_r($callDetails, true));
+//	//insert in database
+//	$this->apis->insertPassthruCall($callDetails);
+    }
+
+    /**
+     * @desc :This funtion will check user session for an eemplouee.
+     */
+    function checkUserSession() {
+	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+	    return TRUE;
+	} else {
+	    $this->session->sess_destroy();
+	    redirect(base_url() . "employee/login");
+	}
+    }
+
 }

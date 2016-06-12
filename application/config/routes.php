@@ -48,6 +48,7 @@ $route['service_center/pending_booking'] = 'employee/service_centers/pending_boo
 $route['service_center/booking_details/(:any)'] = 'employee/service_centers/booking_details/$1';
 $route['service_center/cancel_booking_form/(:any)'] = 'employee/service_centers/cancel_booking_form/$1';
 $route['service_center/complete_booking_form/(:any)'] = 'employee/service_centers/complete_booking_form/$1';
+$route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';
 
 //$route['api/(:any)'] = 'partner/$2';
 
