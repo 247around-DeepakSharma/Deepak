@@ -48,7 +48,7 @@
                 }
               ?>
             </td>
-            <td><?php  echo "<a id='edit' class='btn btn-small btn-danger' "
+            <td><?php  echo "<a onClick=\"javascript: return confirm('Please confirm, want to delete vendor');\" id='edit' class='btn btn-small btn-danger' "
                                     . "href=" . base_url() . "employee/vendor/delete/$row[id]>Delete</a>";                ?></td>
           </tr>
           <?php } ?>

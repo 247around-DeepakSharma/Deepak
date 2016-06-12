@@ -66,7 +66,7 @@ class vendor extends CI_Controller {
 		redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
 	    } else {
         // get service center code by calling generate_service_center_code() method
-	    $_POST['sc_code'] =	$this->generate_service_center_code($_POST['name'], $_POST['district']); 
+	    $_POST['sc_code'] =	$this->generate_service_center_code($_POST['name'], $_POST['district']);
 
 		$this->vendor_model->add_vendor($_POST);
 		$this->sendWelcomeSms($_POST['primary_contact_phone_1'], $_POST['name']);
@@ -87,7 +87,7 @@ class vendor extends CI_Controller {
      */
     function generate_service_center_code($sc_name, $district){
     	//generate 6 random  letter string
-    	$sc_code =  substr(str_shuffle("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 6); 
+    	$sc_code =  substr(str_shuffle("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 6);
     	$final_sc_code = strtoupper($sc_code); // convert string in upper case
     	$status = $this->vendor_model->check_sc_code_exist($final_sc_code);  // check service center code is exist or not
     	if($status == true){   //if sc code exists
@@ -119,7 +119,7 @@ class vendor extends CI_Controller {
     function add_vendor() {
 	$results['services'] = $this->vendor_model->selectservice();
 	$results['brands'] = $this->vendor_model->selectbrand();
-	$results['select_state'] = $this->vendor_model->selectSate();
+	$results['select_state'] = $this->vendor_model->getall_state();
 	$days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 	$this->load->view('employee/header');
 	$this->load->view('employee/addvendor', array('results' => $results, 'days' => $days));
@@ -131,7 +131,7 @@ class vendor extends CI_Controller {
 
 	$results['services'] = $this->vendor_model->selectservice();
 	$results['brands'] = $this->vendor_model->selectbrand();
-	$results['select_state'] = $this->vendor_model->selectSate();
+	$results['select_state'] = $this->vendor_model->getall_state();
 
 	$appliances = $query[0]['appliances'];
 	$selected_appliance_list = explode(",", $appliances);
@@ -334,7 +334,7 @@ class vendor extends CI_Controller {
 	        // Insert Pincode Mapping data into table by using Asynchronous
 	        $url = base_url() . "employee/do_background_process/upload_pincode_file";
 	        $this->asynchronous_lib->do_background_process($url, array());
-            
+
 	        redirect(base_url().'employee/booking/view');
 
 	    } else {
@@ -472,17 +472,26 @@ class vendor extends CI_Controller {
     /**
      * Get District of custom State and echo in 'select option value' to load in a form
      */
-    function getDistrict() {
+    function getDistrict($flag="") {
+
 	$state = $this->input->post('state');
 	$dis = $this->input->post('district');
-	$data = $this->vendor_model->getDistrict($state);
+
+	if($flag ==""){
+		$data = $this->vendor_model->getDistrict($state);
+
+	} else {
+       $data = $this->vendor_model->getDistrict_from_india_pincode($state);
+
+	}
+
 	if ($dis == "") {
 	    echo "<option selected='selected' value=''>Select City</option>";
 	} else {
 		echo "<option value=''>Select City</option>";
 	}
 	foreach ($data as $district) {
-	    if ($dis == $district['district']) {
+	    if (strtolower(trim($dis)) == strtolower(trim($district['district']))) {
 		echo "<option selected value='$district[district]'>$district[district]</option>";
 	    } else {
 		echo "<option value='$district[district]'>$district[district]</option>";
@@ -493,10 +502,14 @@ class vendor extends CI_Controller {
     /**
      * Get Pincode of Custom District and print 'select option value with data' to load in a form
      */
-    function getPincode() {
+    function getPincode($flag="") {
 	$district = $this->input->post('district');
 	$pin = $this->input->post('pincode');
-	$data = $this->vendor_model->getPincode($district);
+	if($flag == ""){
+	    $data = $this->vendor_model->getPincode($district);
+    } else {
+    	 $data = $this->vendor_model->getPincode_from_india_pincode($district);
+    }
 	if (empty($pin)) {
 	    echo "<option selected='selected' disabled='disabled'>Select Pincode</option>";
 	}
@@ -510,7 +523,7 @@ class vendor extends CI_Controller {
     }
 
     function vendor_availability_form(){
-        $data = $this->vendor_model->get_services_category_city_pincode(); 
+        $data = $this->vendor_model->get_services_category_city_pincode();
     	$this->load->view('employee/header');
     	$this->load->view('employee/searchvendor', $data);
     }
@@ -540,10 +553,10 @@ class vendor extends CI_Controller {
     }
     function vendor_performance(){
     	$vendor['vendor_id'] = $this->input->post('vendor_id');
-    	$vendor['city'] = $this->input->post('city');
+	$vendor['city'] = $this->input->post('city');
     	$vendor['service_id'] = $this->input->post('service_id');
     	$vendor['period'] = $this->input->post('period');
-    	$vendor['source'] = $this->input->post('source');
+	$vendor['source'] = $this->input->post('source');
     	$vendor['sort'] = $this->input->post('sort');
     	$data['data'] = $this->vendor_model->get_vendor_performance($vendor);
     	$result = $this->load->view('employee/vendorperformance',$data);
@@ -555,7 +568,7 @@ class vendor extends CI_Controller {
     	$this->load->view('employee/header');
     	$this->load->view('employee/review_booking', $charges);
     }
-    
+
     /**
      * @desc: get cancellation reation for specific vendor id
      * @param: void
@@ -576,13 +589,13 @@ class vendor extends CI_Controller {
 		    //'TimeOut' => "<time-in-seconds (optional)>",
 		    'CallType' => "trans" //Can be "trans" for transactional and "promo" for promotional content
         );
- 
+
         $exotel_sid = "aroundhomz";
 	    $exotel_token = "a041058fa6b179ecdb9846ccf0e4fd8e09104612";
 
         $url = "https://".$exotel_sid.":".$exotel_token."@twilix.exotel.in/v1/Accounts/".$exotel_sid."/Calls/01130017601";
 
- 
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -591,13 +604,13 @@ class vendor extends CI_Controller {
         curl_setopt($ch, CURLOPT_FAILONERROR, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         //curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query());
- 
+
         $http_result = curl_exec($ch);
         $error = curl_error($ch);
         $http_code = curl_getinfo($ch ,CURLINFO_HTTP_CODE);
- 
+
         curl_close($ch);
- 
+
         print "Response = ".print_r($http_result);
 
     }*/

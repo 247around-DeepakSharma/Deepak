@@ -180,15 +180,42 @@ class vendor_model extends CI_Model {
       return $query->result_array();
     }
 
-    function getDistrict($state){
+    function getall_state($city=""){
+      $this->db->distinct();
+      $this->db->select('state');
+      if($city !=""){
+        $this->db->where('district', $city);
+      }
+      $this->db->order_by('state');
+      $query = $this->db->get('india_pincode');
+
+      return $query->result_array();
+    }
+
+    function getDistrict_from_india_pincode($state=""){
+      $this->db->distinct();
+      $this->db->select('district');
+      if($state !=""){
+        $this->db->where('LOWER(state)', strtolower($state));
+      }
+      $this->db->order_by('district');
+      $query = $this->db->get('india_pincode');
+
+      return $query->result_array();
+    }
+
+    function getDistrict($state = ""){
       $this->db->distinct();
       $this->db->select('vendor_pincode_mapping.City as district');
       $this->db->from('vendor_pincode_mapping');
       $this->db->order_by('vendor_pincode_mapping.City');
-      $this->db->where('vendor_pincode_mapping.State',$state);
+      
       $this->db->where('vendor_pincode_mapping.active',1);
       $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
       $this->db->where('service_centres.active','1');
+
+      if($state !="")
+        $this->db->where('vendor_pincode_mapping.State',$state);
 
       $query = $this->db->get();
       return $query->result_array();
@@ -206,6 +233,17 @@ class vendor_model extends CI_Model {
       $query = $this->db->get();
       return $query->result_array();
     }
+
+    function getPincode_from_india_pincode($district){
+       $this->db->distinct();
+       $this->db->select('pincode');
+       $this->db->where('LOWER(district)', strtolower($district));
+       $this->db->order_by('pincode');
+       $query = $this->db->get('india_pincode');
+
+       return $query->result_array();
+    }
+
     
     /**
      * Get POC and owner email for Active Service Center. 
@@ -406,9 +444,9 @@ class vendor_model extends CI_Model {
         }        
         // It is used to get dataset group by month- year and order by year desc 
         if($vendor['period'] == 'All Month'){
-          $group_By .= " GROUP BY DATE_FORMAT(booking_details.`closed_date`, '%M, %Y') $sources ORDER BY DATE_FORMAT(`booking_details`.`create_date`, '%Y') DESC, completed_booking";
+          $group_By .= " GROUP BY DATE_FORMAT(booking_details.`create_date`, '%M, %Y') $sources ORDER BY DATE_FORMAT(`booking_details`.`create_date`, '%Y') DESC, completed_booking";
           // it used to select month and year with dataset
-          $month = " DATE_FORMAT(booking_details.`closed_date`,'%M, %Y') `month`,";
+          $month = " DATE_FORMAT(booking_details.`create_date`,'%M, %Y') `month`,";
         }
 
       // Year Wise Dataset
@@ -548,7 +586,6 @@ class vendor_model extends CI_Model {
        }       
        return $array;
     }
-
     function insert_service_center_action($data){
       $this->db->insert('service_center_booking_action', $data);
 

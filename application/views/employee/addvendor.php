@@ -42,7 +42,7 @@
                ?>
             <option value = "<?php echo $state['state']?>"
             <?php if (isset($query[0]['state'])){ 
-                if($query[0]['state'] == $state['state']){
+                if(strtolower(trim($query[0]['state']))  == strtolower(trim($state['state']))){
                   echo "selected";
                 }
              } ?>
@@ -307,7 +307,7 @@
     // alert(district);
      $.ajax({
        type: 'POST',
-       url: '<?php echo base_url(); ?>employee/vendor/getDistrict',
+       url: '<?php echo base_url(); ?>employee/vendor/getDistrict/1',
        data: {state: state, district: district},
        success: function (data) {
         // console.log(data);
@@ -323,7 +323,7 @@
       var pincode = $(".pincode").val();
       $.ajax({
         type: 'POST',
-        url: '<?php echo base_url(); ?>employee/vendor/getPincode',
+        url: '<?php echo base_url(); ?>employee/vendor/getPincode/1',
         data: {pincode: pincode, district: district},
         success: function (data) {
           //console.log(data);
@@ -355,3 +355,91 @@
     width: 220px;
 }
 </style>
+
+<script type="text/javascript">
+  
+   (function($,W,D)
+{
+    var JQUERY4U = {};
+
+    JQUERY4U.UTIL =
+    {
+        setupFormValidation: function()
+        {
+            //form validation rules
+            $("#booking_form").validate({
+                rules: {
+                    name: "required",
+                    address: "required",
+                    district: "required",
+                    phone_1: {
+                        required: true,
+                        minlength: 10
+                    },
+                    phone_2: {
+                        minlength: 10
+                    },
+                    primary_contact_phone_1: {
+                        required: true,
+                        minlength: 10
+                    },
+                    primary_contact_phone_2: {
+                        minlength: 10
+                    },
+                    owner_phone_1: {
+                        required: true,
+                        minlength: 10
+                    },
+                    owner_phone_2: {
+                        minlength: 10
+                    },
+                    state: "required",
+                    primary_contact_name: "required",
+                    owner_name: "required",
+                    email: {
+                    
+                        email: true
+                    },
+                    primary_contact_email: {
+                    
+                        email: true
+                    },
+                    owner_email: {
+                    
+                        email: true
+                    }
+                },
+                messages: {
+                    name: "Please enter your Vendor Name",
+                    address: "Please enter Address",
+                    district: "Please Select District",
+                    state: "Please Select State",
+                    phone_1: "Please enter Phone Number",
+                    phone_2: "Please fill correct phone number",
+                    primary_contact_phone_1: "Please fill correct phone number",
+                    primary_contact_phone_2: "Please fill correct phone number",
+                    owner_phone_1: "Please fill correct phone number",
+                    owner_phone_2: "Please fill correct phone number",
+                    primary_contact_name: "Please fill Name",
+                    owner_name: "Please fill Name",
+                    email: "Please fill correct email",
+                    primary_contact_email: "Please fill correct email",
+                    owner_email: "Please fill correct email"
+                },
+                submitHandler: function(form) {
+                    form.submit();
+                }
+            });
+        }
+    }
+
+    //when the dom has loaded setup form validation rules
+    $(D).ready(function($) {
+        JQUERY4U.UTIL.setupFormValidation();
+    });
+
+})(jQuery, window, document);
+
+
+ 
+</script>
