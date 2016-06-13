@@ -169,7 +169,7 @@
                     <th>
                        <a href="<?php echo base_url();?>employee/booking/service_center_sorted_booking">Service Center</a>
                     </th>
-		    <th>Call</th>
+		            <th>Call</th>
                     <th>View Jobcard</th>
                     <th>Reschedule</th>
                     <th>Cancel</th>
