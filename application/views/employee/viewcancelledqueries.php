@@ -67,6 +67,7 @@
                     <th width="180px;">Booking Date/Time</th>
                     <th width="100px;">Status</th>
                     <th width="250px;">Query Remarks</th>
+                    <th width="80px;">Call</th>
                     <th width="80px;">View</th>
                     </tr>
 
@@ -94,6 +95,15 @@
                     <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
                     <td id="status_<?php echo $row->booking_id; ?>"><?php echo $row->current_status; ?></td>            
                     <td><?= $row->query_remarks; ?></td>
+                        
+                    <td>
+                        <a class="btn btn-sm btn-info"
+				   href="<?php echo base_url(); ?>employee/booking/call_customer/<?= $row->booking_primary_contact_no; ?>/pending_queries"
+    				   title = "call" onclick = "return confirm('Call Customer ?');">
+    				    <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
+    				    </a>
+                    </td>
+                    
                     <td>
                         <?php echo "<a class='btn btn-sm btn-primary' "
                         . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank'  title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";

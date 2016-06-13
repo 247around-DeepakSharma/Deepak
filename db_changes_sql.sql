@@ -454,3 +454,18 @@ ALTER TABLE  `bank_transactions` CHANGE  `invoice_id`  `invoice_id` TEXT CHARACT
 -- Anuj 31 May
 ALTER TABLE  `vendor_partner_invoices` ADD  `to_be_paid_date` DATE NOT NULL COMMENT 'Date by which this invoice needs to be settled';
 ALTER TABLE  `vendor_partner_invoices` CHANGE  `to_be_paid_date`  `due_date` DATE NOT NULL COMMENT 'Date by which this invoice needs to be settled';
+
+-- Anuj 12 June
+
+CREATE TABLE `agent_outbound_call_log` (
+  `id` int(11) NOT NULL,
+  `agent_id` int(11) NOT NULL,
+  `customer_id` int(11) NOT NULL,
+  `customer_phone` varchar(15) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `agent_outbound_call_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `agent_outbound_call_log` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE  `employee` ADD  `phone` VARCHAR (15) NOT NULL AFTER `employee_password`;

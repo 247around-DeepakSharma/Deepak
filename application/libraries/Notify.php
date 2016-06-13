@@ -145,7 +145,7 @@ class Notify {
 
 	curl_close($ch);
 
-	log_message('info', __FUNCTION__ . print_r(array($http_result, $error, $http_code), TRUE));
+	log_message('info', __FUNCTION__ . "=> " . print_r(array($http_result, $error, $http_code), TRUE));
 
 	//print_r(array($http_result, $error, $http_code));
 	//echo "Response = " . print_r($http_result);

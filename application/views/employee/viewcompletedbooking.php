@@ -69,6 +69,7 @@
                     <th width="125px;">Service Name</th>
                     <th width="170px;">Service Centre</th>
                     <th width="150px;">Service Centre City</th>
+                    <th width="60px;">Call</th>
                     <th width="60px;">Edit</th>
                     <th width="60px;">View</th>
                     <th width="60px;">Rate</th>
@@ -97,16 +98,27 @@
                     <td><?= $row->services; ?></td>
                     <td><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $row->assigned_vendor_id;?>"><?= $row->service_centre_name; ?></a></td>
                     <td><?=$row->city; ?></td>
+                        
+                    <td>
+                        <a class="btn btn-sm btn-info"
+				   href="<?php echo base_url(); ?>employee/booking/call_customer/<?= $row->booking_primary_contact_no; ?>/completed_bookings"
+    				   title = "call" onclick = "return confirm('Call Customer ?');">
+    				    <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
+    				    </a>
+                    </td>
+                    
                     <td><?php            
                         echo "<a id='edit' class='btn btn-sm btn-success' "
                             . "href=" . base_url() . "employee/booking/get_edit_completed_booking_form/$row->booking_id title='Edit'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";         
                         ?>
                     </td>
+                        
                     <td>
                         <?php echo "<a class='btn btn-sm btn-primary' "
                         . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>"; 
                         ?>
                     </td>
+                        
                     <td>
                         <?php
                         if ($row->current_status == 'Completed' && (empty($row->rating_stars) || empty($row->vendor_rating_stars))) 
@@ -120,7 +132,8 @@
                                 . "href=" . base_url() . "employee/booking/get_rating_form/$row->booking_id title='Rate'><i class='fa fa-star-o' aria-hidden='true'></i></a>";
                         }
                         ?>
-                    </td>            
+                    </td>  
+                        
                     </tr>
                     <?php
                     }?>

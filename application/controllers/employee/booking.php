@@ -2398,6 +2398,8 @@ class Booking extends CI_Controller {
      *  @return : none
      */
     function call_customer($cust_phone, $redirect_page) {
+	log_message('info', __FUNCTION__);
+
 	$this->checkUserSession();
 
 	//Get customer id
@@ -2412,6 +2414,7 @@ class Booking extends CI_Controller {
 	$agent_phone = $this->session->userdata('phone');
 
 	//Save call log
+
 	$this->booking_model->insert_outbound_call_log(array(
 	    'agent_id' => $agent_id, 'customer_id' => $cust_id,
 	    'customer_phone' => $cust_phone
@@ -2424,12 +2427,18 @@ class Booking extends CI_Controller {
 	switch ($redirect_page) {
 	    case 'pending_bookings':
 		redirect(base_url() . 'employee/booking/view', 'refresh');
+		break;
 
+	    case 'pending_queries':
+		redirect(base_url() . 'employee/booking/view_all_pending_queries', 'refresh');
+		break;
+
+	    case 'completed_bookings':
+		redirect(base_url() . 'employee/booking/viewcompletedbooking', 'refresh');
 		break;
 
 	    default:
 		redirect(base_url() . 'employee/booking/view', 'refresh');
-
 		break;
 	}
     }

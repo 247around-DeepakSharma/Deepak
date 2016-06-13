@@ -71,6 +71,7 @@
                     <th width="100px;">City</th>
                     <th width="100px;">Vendor Status</th>
                     <th width="250px;">Query Remarks</th>
+                    <th width="60px;">Call</th>
                     <th width="60px;">View</th>
                     <th width="60px;">Update</th>
                     <th width="60px;">Cancel</th>
@@ -132,12 +133,21 @@
                    <?php  } ?>
                     
                     <td><?= $row['query_remarks']; ?></td>
+                        
+                    <td>
+                        <a class="btn btn-sm btn-info"
+				   href="<?php echo base_url(); ?>employee/booking/call_customer/<?= $row['booking_primary_contact_no']; ?>/pending_queries"
+    				   title = "call" onclick = "return confirm('Call Customer ?');">
+    				    <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
+    				    </a>
+                    </td>
                     
                     <td>
                         <?php echo "<a class='btn btn-sm btn-primary' "
                         . "href=" . base_url() . "employee/booking/viewdetails/$row[booking_id] target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
                         ?>
                     </td>
+                        
                     <td><?php
                         echo "<a class='btn btn-small btn-success btn-sm' href=".base_url()."employee/booking/get_update_query_form/$row[booking_id] title='Update'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
                         ?>
