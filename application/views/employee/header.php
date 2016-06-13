@@ -51,7 +51,7 @@
                </a>
                <ul class="dropdown-menu  ">
                   <li >
-		      <a  href="<?php echo base_url() ?>employee/booking/view_all_pending_queries"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Queries</a></strong>
+		      <a  href="<?php echo base_url() ?>employee/booking/view_pending_queries"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Queries</a></strong>
                   </li>
                   <li class="divider"></li>
                   <li <?php if($this->uri->uri_string()=='employee/signup_message'){ echo 'class="active"';}?>>
@@ -110,7 +110,11 @@
                </a>
                <ul class="dropdown-menu ">
                   <li >
-                     <a href="<?php echo base_url() ?>employee/bookings_excel"><i class="fa fa-fw fa-desktop"></i> <strong> Upload Snapdeal Bookings</strong></a>
+                     <a href="<?php echo base_url() ?>employee/bookings_excel"><i class="fa fa-fw fa-desktop"></i> <strong> Upload Snapdeal Products - Delivered</strong></a>
+                  </li>
+                  <li class="divider"></li>
+                  <li >
+                     <a href="<?php echo base_url() ?>employee/bookings_excel/upload_shipped_products_excel"><i class="fa fa-fw fa-desktop"></i> <strong> Upload Snapdeal Products - Shipped</strong></a>
                   </li>
                   <li class="divider"></li>
                   <li >

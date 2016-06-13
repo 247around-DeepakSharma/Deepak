@@ -1225,6 +1225,13 @@ class Booking_model extends CI_Model {
 	    return FALSE;
     }
 
+    function get_sd_lead_by_order_id($sub_order_id) {
+	$this->db->where(array("Sub_Order_ID" => $sub_order_id));
+	$query = $this->db->get('snapdeal_leads');
+
+	return $query->result_array();
+    }
+
     /**
      *  @desc : Save(Insert) mail sent to vendor regarding bookings
      *  @param : Email details
@@ -1280,8 +1287,10 @@ class Booking_model extends CI_Model {
 	if ($booking_id != "") {
 	    $where .= "AND `booking_details`.`booking_id` = '$booking_id'";
 	} else {
-	    $where .= "AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR
-	    booking_details.booking_date='')";
+	    if ($limit != -1) {
+		$where .= "AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR
+			    booking_details.booking_date='')";
+	    }
 	}
 
 	//TODO: Use standard SQL here

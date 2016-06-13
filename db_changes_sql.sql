@@ -469,3 +469,9 @@ ALTER TABLE `agent_outbound_call_log` ADD PRIMARY KEY (`id`);
 ALTER TABLE `agent_outbound_call_log` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE  `employee` ADD  `phone` VARCHAR (15) NOT NULL AFTER `employee_password`;
+
+ALTER TABLE `snapdeal_leads` ADD `Expected_Delivery_Date` VARCHAR(20) NULL AFTER `Delivery_Date`;
+
+INSERT INTO `boloaaka_test`.`sms_template` (`id`, `tag`, `template`, `active`, `create_date`) VALUES (NULL, 'sd_shipped_free', 'Congratulations for buying %s from Snapdeal, your product has been shipped. Please call 9555000247 for %s. 247around.', '1', CURRENT_TIMESTAMP), (NULL, 'sd_shipped_ac', 'Congratulations for buying Air Conditioner from Snapdeal, your product has been shipped. Please call 9555000247 for installation @ %s. 247around. T&C apply.', '1', CURRENT_TIMESTAMP);
+ALTER TABLE `sms_template` ADD `comments` VARCHAR(1024) NULL AFTER `template`;
+
