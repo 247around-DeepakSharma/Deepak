@@ -4,11 +4,11 @@
 <script type="text/javascript" src="<?php echo base_url();?>js/jquery-ui-1.7.1.custom.min.js"></script>
 <script>
     $(function(){
-    
+
       $('#dynamic_select').bind('change', function () {
-          var url = $(this).val(); 
+          var url = $(this).val();
           if (url) {
-              window.location = url; 
+              window.location = url;
           }
           return false;
       });
@@ -17,15 +17,15 @@
 </script>
 <style type="text/css">
     table{
-          
+
     }
     th,td{
         border: 1px #f2f2f2 solid;
         text-align:center;
-        vertical-align: center;    
+        vertical-align: center;
         padding: 2px;
     }
-    
+
     th{
         height: 50px;
         background-color: #4CBA90;
@@ -98,42 +98,42 @@
                     <td><?= $row->services; ?></td>
                     <td><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $row->assigned_vendor_id;?>"><?= $row->service_centre_name; ?></a></td>
                     <td><?=$row->city; ?></td>
-                        
+
                     <td>
                         <a class="btn btn-sm btn-info"
-				   href="<?php echo base_url(); ?>employee/booking/call_customer/<?= $row->booking_primary_contact_no; ?>/completed_bookings"
+				   href="<?php echo base_url(); ?>employee/booking/call_customer/<?= $row->booking_primary_contact_no; ?>"
     				   title = "call" onclick = "return confirm('Call Customer ?');">
     				    <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
     				    </a>
                     </td>
-                    
-                    <td><?php            
+
+                    <td><?php
                         echo "<a id='edit' class='btn btn-sm btn-success' "
-                            . "href=" . base_url() . "employee/booking/get_edit_completed_booking_form/$row->booking_id title='Edit'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";         
+                            . "href=" . base_url() . "employee/booking/get_edit_completed_booking_form/$row->booking_id title='Edit'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
                         ?>
                     </td>
-                        
+
                     <td>
                         <?php echo "<a class='btn btn-sm btn-primary' "
-                        . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>"; 
+                        . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
                         ?>
                     </td>
-                        
+
                     <td>
                         <?php
-                        if ($row->current_status == 'Completed' && (empty($row->rating_stars) || empty($row->vendor_rating_stars))) 
+                        if ($row->current_status == 'Completed' && (empty($row->rating_stars) || empty($row->vendor_rating_stars)))
                         {
                             echo "<a class='btn btn-sm btn-danger' "
                                     . "href=" . base_url() . "employee/booking/get_rating_form/$row->booking_id title='Rate'><i class='fa fa-star-o' aria-hidden='true'></i></a>";
                         }
-                        else 
+                        else
                         {
                             echo "<a class='btn btn-sm btn-danger disabled' "
                                 . "href=" . base_url() . "employee/booking/get_rating_form/$row->booking_id title='Rate'><i class='fa fa-star-o' aria-hidden='true'></i></a>";
                         }
                         ?>
-                    </td>  
-                        
+                    </td>
+
                     </tr>
                     <?php
                     }?>
@@ -169,7 +169,7 @@
     /* generic table styling */
     table { border-collapse: collapse; }
     td { padding: 5px; }
-    
+
     td { border-bottom: 1px solid #ccc; }
     /* filter-table specific styling */
     td.alt { background-color: #ffc; background-color: rgba(255, 255, 0, 0.2); }
