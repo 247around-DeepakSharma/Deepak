@@ -2397,8 +2397,12 @@ class Booking extends CI_Controller {
      *  @param : Phone Number
      *  @return : none
      */
-    function call_customer($cust_phone, $redirect_page) {
+    function call_customer($cust_phone) {
 	log_message('info', __FUNCTION__);
+
+	$s1 = $_SERVER['HTTP_REFERER'];
+	$s2 = "https://aroundhomzapp.com/";
+	$redirect_url = substr($s1, strlen($s2));
 
 	$this->checkUserSession();
 
@@ -2414,7 +2418,6 @@ class Booking extends CI_Controller {
 	$agent_phone = $this->session->userdata('phone');
 
 	//Save call log
-
 	$this->booking_model->insert_outbound_call_log(array(
 	    'agent_id' => $agent_id, 'customer_id' => $cust_id,
 	    'customer_phone' => $cust_phone
@@ -2424,23 +2427,7 @@ class Booking extends CI_Controller {
 	$this->notify->make_outbound_call($agent_phone, $cust_phone);
 
 	//Redirect to the page from where you landed in this function
-	switch ($redirect_page) {
-	    case 'pending_bookings':
-		redirect(base_url() . 'employee/booking/view', 'refresh');
-		break;
-
-	    case 'pending_queries':
-		redirect(base_url() . 'employee/booking/view_all_pending_queries', 'refresh');
-		break;
-
-	    case 'completed_bookings':
-		redirect(base_url() . 'employee/booking/viewcompletedbooking', 'refresh');
-		break;
-
-	    default:
-		redirect(base_url() . 'employee/booking/view', 'refresh');
-		break;
-	}
+	redirect(base_url() . $redirect_url, 'refresh');
     }
 
     /**

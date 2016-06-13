@@ -209,7 +209,7 @@
                     <td id="status_<?php echo $row->booking_id; ?>"><?php echo $row->current_status; ?></td>
                     <td><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?=$row->assigned_vendor_id;?>"><?php if(!empty($row->service_centre_name)){ echo $row->service_centre_name." / ".$row->primary_contact_name." / ".$row->primary_contact_phone_1 ; } ?></a></td>
                             <td><a class="btn btn-sm btn-info"
-				   href="<?php echo base_url(); ?>employee/booking/call_customer/<?= $row->phone_number; ?>/pending_bookings"
+				   href="<?php echo base_url(); ?>employee/booking/call_customer/<?= $row->phone_number; ?>"
     				   title = "call" onclick = "return confirm('Call Customer ?');">
     				    <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
     				</a>

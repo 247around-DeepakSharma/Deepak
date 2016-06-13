@@ -4,11 +4,11 @@
 <script type="text/javascript" src="<?php echo base_url();?>js/jquery-ui-1.7.1.custom.min.js"></script>
 <script>
     $(function(){
-    
+
       $('#dynamic_select').bind('change', function () {
-          var url = $(this).val(); 
+          var url = $(this).val();
           if (url) {
-              window.location = url; 
+              window.location = url;
           }
           return false;
       });
@@ -17,15 +17,15 @@
 </script>
 <style type="text/css">
     table{
-          
+
     }
     th,td{
         border: 1px #f2f2f2 solid;
         text-align:center;
-        vertical-align: center;    
+        vertical-align: center;
         padding: 2px;
     }
-    
+
     th{
         height: 50px;
         background-color: #4CBA90;
@@ -93,17 +93,17 @@
                     <td><?= $row->booking_primary_contact_no; ?></td>
                     <td><?= $row->services; ?></td>
                     <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
-                    <td id="status_<?php echo $row->booking_id; ?>"><?php echo $row->current_status; ?></td>            
+                    <td id="status_<?php echo $row->booking_id; ?>"><?php echo $row->current_status; ?></td>
                     <td><?= $row->query_remarks; ?></td>
-                        
+
                     <td>
                         <a class="btn btn-sm btn-info"
-				   href="<?php echo base_url(); ?>employee/booking/call_customer/<?= $row->booking_primary_contact_no; ?>/pending_queries"
+				   href="<?php echo base_url(); ?>employee/booking/call_customer/<?= $row->booking_primary_contact_no; ?>"
     				   title = "call" onclick = "return confirm('Call Customer ?');">
     				    <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
     				    </a>
                     </td>
-                    
+
                     <td>
                         <?php echo "<a class='btn btn-sm btn-primary' "
                         . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank'  title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
