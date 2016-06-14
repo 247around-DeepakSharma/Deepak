@@ -101,8 +101,8 @@ class bookings_excel extends CI_Controller {
                 //User doesn't exist
                 $user['name'] = $rowData[0]['Customer_Name'];
                 $user['phone_number'] = $rowData[0]['Phone'];
-                $user['user_email'] = "";
-                $user['home_address'] = $rowData[0]['Customer_Address'];
+                $user['user_email'] = (isset($rowData[0]['Email_ID']) ? $rowData[0]['Email_ID'] : "");
+		$user['home_address'] = $rowData[0]['Customer_Address'];
 		$user['pincode'] = $rowData[0]['Pincode'];
 		$user['city'] = $rowData[0]['CITY'];
 
@@ -396,7 +396,7 @@ class bookings_excel extends CI_Controller {
 		//User doesn't exist
 		$user['name'] = $rowData[0]['Customer_Name'];
 		$user['phone_number'] = $rowData[0]['Phone'];
-		$user['user_email'] = "";
+		$user['user_email'] = (isset($rowData[0]['Email_ID']) ? $rowData[0]['Email_ID'] : "");
 		$user['home_address'] = $rowData[0]['Customer_Address'];
 		$user['pincode'] = $rowData[0]['Pincode'];
 		$user['city'] = $rowData[0]['CITY'];
