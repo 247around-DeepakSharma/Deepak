@@ -106,7 +106,7 @@
                 </table>
                 <?php if(!empty($charges)){?>
                 <div class"col-md-12">
-                <center><input type="submit" value="Complete Booking" class="btn btn-md btn-success"></input></center>
+                <center><input type="submit" value="Save Bookings" class="btn btn-md btn-success"></input></center>
                 </div>
                  <?php } ?>
                 </form>

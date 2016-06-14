@@ -450,3 +450,28 @@ ALTER TABLE  `booking_details` CHANGE  `closing_remarks`  `closing_remarks` TEXT
 
 
 ALTER TABLE  `bank_transactions` CHANGE  `invoice_id`  `invoice_id` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
+
+-- Anuj 31 May
+ALTER TABLE  `vendor_partner_invoices` ADD  `to_be_paid_date` DATE NOT NULL COMMENT 'Date by which this invoice needs to be settled';
+ALTER TABLE  `vendor_partner_invoices` CHANGE  `to_be_paid_date`  `due_date` DATE NOT NULL COMMENT 'Date by which this invoice needs to be settled';
+
+-- Anuj 12 June
+
+CREATE TABLE `agent_outbound_call_log` (
+  `id` int(11) NOT NULL,
+  `agent_id` int(11) NOT NULL,
+  `customer_id` int(11) NOT NULL,
+  `customer_phone` varchar(15) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `agent_outbound_call_log` ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `agent_outbound_call_log` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE  `employee` ADD  `phone` VARCHAR (15) NOT NULL AFTER `employee_password`;
+
+ALTER TABLE `snapdeal_leads` ADD `Expected_Delivery_Date` VARCHAR(20) NULL AFTER `Delivery_Date`;
+
+INSERT INTO `boloaaka_test`.`sms_template` (`id`, `tag`, `template`, `active`, `create_date`) VALUES (NULL, 'sd_shipped_free', 'Congratulations for buying %s from Snapdeal, your product has been shipped. Please call 9555000247 for %s. 247around.', '1', CURRENT_TIMESTAMP), (NULL, 'sd_shipped_ac', 'Congratulations for buying Air Conditioner from Snapdeal, your product has been shipped. Please call 9555000247 for installation @ %s. 247around. T&C apply.', '1', CURRENT_TIMESTAMP);
+ALTER TABLE `sms_template` ADD `comments` VARCHAR(1024) NULL AFTER `template`;
+

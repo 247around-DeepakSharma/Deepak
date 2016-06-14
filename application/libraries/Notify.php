@@ -102,7 +102,6 @@ class Notify {
         }
     }
 
-
     /**
      *  @desc : This method is to use email templates
      *  @param : email tag and other booking details.
@@ -133,4 +132,54 @@ class Notify {
     	$this->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
         }
     }
+
+    /**
+     *  @desc : This method is used to make an outbound call to a customer.
+     * This API will connect the two numbers given for the agent and customer. It will connect ‘From’ number
+     * first. Once the person at ‘From’ end picks up the phone, it will connect to the number provided in the ‘To’.
+     * You can choose which number to be connected first by giving that number in the ‘From’ field.
+     *
+     * http://support.exotel.in/support/solutions/articles/48259-outbound-call-to-connect-an-agent-to-a-customer-
+     *
+     *  @param :
+     *
+     *  @return :
+     */
+    function make_outbound_call($agent_phone, $customer_phone) {
+
+	$post_data = array(
+	    'From' => $agent_phone,
+	    'To' => $customer_phone,
+	    'CallerId' => '01139595200', //247around call centre exophone number
+	    'CallType' => 'trans',
+	    'StatusCallback' => 'https://aroundhomzapp.com/call-customer-status-callback'
+	);
+
+	$exotel_sid = "aroundhomz";
+	$exotel_token = "a041058fa6b179ecdb9846ccf0e4fd8e09104612";
+
+	$url = "https://" . $exotel_sid . ":" . $exotel_token . "@twilix.exotel.in/v1/Accounts/" . $exotel_sid . "/Calls/connect";
+
+	$ch = curl_init();
+
+	curl_setopt($ch, CURLOPT_VERBOSE, 1);
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_POST, 1);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($ch, CURLOPT_FAILONERROR, 0);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
+
+	$http_result = curl_exec($ch);
+	$error = curl_error($ch);
+	$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+	curl_close($ch);
+
+	log_message('info', __FUNCTION__ . "=> " . print_r(array($http_result, $error, $http_code), TRUE));
+
+	//print_r(array($http_result, $error, $http_code));
+	//echo "Response = " . print_r($http_result);
+    }
+
 }

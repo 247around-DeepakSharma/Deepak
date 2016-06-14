@@ -30,12 +30,13 @@ class Booking extends CI_Controller {
 	$this->load->library("session");
 	$this->load->library('s3');
 	$this->load->library('email');
-    $this->load->library('notify');
+	$this->load->library('notify');
 	$this->load->library('booking_utilities');
 	$this->load->library('partner_sd_cb');
 	$this->load->library('asynchronous_lib');
 
-	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') && ($this->session->userdata('add service') == '1')) {
+	if (($this->session->userdata('loggedIn') == TRUE) &&
+	    ($this->session->userdata('userType') == 'employee')) {
 	    return TRUE;
 	} else {
 	    redirect(base_url() . "employee/login");
@@ -50,9 +51,7 @@ class Booking extends CI_Controller {
     function addbooking() {
 	//$results['service'] = $this->filter_model->getserviceforfilter();
 	//$results['agent'] = $this->filter_model->getagent();
-
 	//$employee_id = $this->session->userdata('employee_id');
-
 	//$results['one'] = $this->employee_model->verifylist($employee_id, '0');
 	//$results['three'] = $this->employee_model->verifylist($employee_id, '2');
 	//$results['forteen'] = $this->employee_model->verifylist($employee_id, '14');
@@ -229,18 +228,18 @@ class Booking extends CI_Controller {
 		$cc = "";
 		$bcc = "";
 		$subject = 'Booking Confirmation-AROUND';
-		$attachment ="";
+		$attachment = "";
 		$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
 		//-------Sending SMS on booking--------//
 
 		$sms['tag'] = "add_new_booking";
 		$sms['smsData']['service'] = $query1[0]['services'];
-    	$sms['smsData']['booking_date']= $booking['booking_date'];
-    	$sms['smsData']['booking_timeslot'] = $booking['booking_timeslot'];
-    	$sms['phone_no'] = $query1[0]['phone_number'];
-    	$sms['booking_id'] = $booking['booking_id']; 
+		$sms['smsData']['booking_date'] = $booking['booking_date'];
+		$sms['smsData']['booking_timeslot'] = $booking['booking_timeslot'];
+		$sms['phone_no'] = $query1[0]['phone_number'];
+		$sms['booking_id'] = $booking['booking_id'];
 
-    	$this->notify->send_sms($sms);
+		$this->notify->send_sms($sms);
 	    }
 	    //------End of sending SMS--------//
 
@@ -259,7 +258,7 @@ class Booking extends CI_Controller {
 	$foremail['user_email'] = $this->input->post('user_email');
 	$foremail['name'] = $this->input->post('name');
 	$booking['city'] = $this->input->post('booking_city');
-    $booking['state'] = $this->input->post('booking_state');
+	$booking['state'] = $this->input->post('booking_state');
 
 	$booking['newbrand1'] = $this->input->post('newbrand1');
 	$booking['newbrand2'] = $this->input->post('newbrand2');
@@ -518,7 +517,7 @@ class Booking extends CI_Controller {
      *  @param : Starting page & number of results per page
      *  @return : pending bookings according to pagination
      */
-    function view($offset = 0, $page = 0, $booking_id ="") {
+    function view($offset = 0, $page = 0, $booking_id = "") {
 	if ($page == 0) {
 	    $page = 50;
 	}
@@ -558,7 +557,6 @@ class Booking extends CI_Controller {
 
 	$this->load->view('employee/viewcompletedbooking', $data);
     }
-
 
     //Function to view all cancelled bookings when you select All from pagination
     function viewallcancelledbooking() {
@@ -601,7 +599,6 @@ class Booking extends CI_Controller {
 
 	$this->load->view('employee/viewcompletedbooking', $data);
     }
-
 
     /**
      *  @desc : This function displays list of cancelled bookings according to pagination
@@ -810,6 +807,7 @@ class Booking extends CI_Controller {
 
 	log_message('info', 'Booking Status Change- Booking id: ' . $booking_id . " Completed By " . $this->session->userdata('employee_id'));
 
+
 	// $from = "booking@247around.com";
 	// $to = "anuj@247around.com, nits@247around.com";
 	// $cc = "";
@@ -836,18 +834,15 @@ class Booking extends CI_Controller {
 	$this->notify->send_email($email);
 
 	//------End of sending email--------//
-	//------Send SMS on Completion of booking-----//
+	//------Send SMS on Completion of booking-----//	
 	if ($is_sd == FALSE) {
-		$sms['tag'] = "complete_booking";
-		$sms['smsData']['service'] = $query1[0]['services'];    	
-    	$sms['phone_no'] = $query1[0]['phone_number'];
-    	$sms['booking_id'] =  $booking['booking_id']; 
+	    $sms['tag'] = "complete_booking";
+	    $sms['smsData']['service'] = $query1[0]['services'];
+	    $sms['phone_no'] = $query1[0]['phone_number'];
+	    $sms['booking_id'] = $booking['booking_id'];
 
-    	$this->notify->send_sms($sms);
+	    $this->notify->send_sms($sms);
 	}
-
-	//-------End of send SMS-----------//
-
 
 	redirect(base_url() . 'employee/booking/view', 'refresh');
     }
@@ -858,11 +853,11 @@ class Booking extends CI_Controller {
      *  @return : user details and booking history to view
      */
     function get_cancel_booking_form($booking_id) {
-	    $data['user_and_booking_details'] = $this->booking_model->booking_history_by_booking_id($booking_id);
+	$data['user_and_booking_details'] = $this->booking_model->booking_history_by_booking_id($booking_id);
 
-	    $data['reason'] = $this->booking_model->cancelreason();
-	    $this->load->view('employee/header');
-	    $this->load->view('employee/cancelbooking', $data);
+	$data['reason'] = $this->booking_model->cancelreason();
+	$this->load->view('employee/header');
+	$this->load->view('employee/cancelbooking', $data);
     }
 
     /**
@@ -961,16 +956,15 @@ class Booking extends CI_Controller {
 	//------End of sending email--------//
 	//------------Send SMS for cancellation---------//
 	if ($is_sd == FALSE) {
-		$sms['tag'] = "cancel_booking";
-		$sms['smsData']['service'] = $query1[0]['services'];    	
-    	$sms['phone_no'] = $query1[0]['phone_number'];
-    	$sms['booking_id'] =  $booking['booking_id']; 
+	    $sms['tag'] = "cancel_booking";
+	    $sms['smsData']['service'] = $query1[0]['services'];
+	    $sms['phone_no'] = $query1[0]['phone_number'];
+	    $sms['booking_id'] = $booking['booking_id'];
 
-    	$this->notify->send_sms($sms);		
-
+	    $this->notify->send_sms($sms);
 	}
 
-	log_message('info','Booking Status Change- Booking id: '. $booking_id. " Cancelled By ". $this->session->userdata('employee_id'));
+	log_message('info', 'Booking Status Change- Booking id: ' . $booking_id . " Cancelled By " . $this->session->userdata('employee_id'));
 
 	//---------End of sending SMS----------//
 	redirect(base_url() . 'employee/booking/view');
@@ -1067,6 +1061,7 @@ class Booking extends CI_Controller {
 		}
 	    }
 
+
 	    $query1 = $this->booking_model->booking_history_by_booking_id($booking_id);	    
 
 // 	    $from = 'booking@247around.com';
@@ -1099,7 +1094,7 @@ class Booking extends CI_Controller {
 
 	    //$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
 		$this->notify->send_email($email);
-		
+
 	    $months = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
 	    $mm = $months[$mm - 1];
 	    $data['booking_date'] = $dd . $mm;
@@ -1112,32 +1107,31 @@ class Booking extends CI_Controller {
 	    }
 
 	    if ($is_sd == FALSE) {
-	    	$sms['tag'] = "reschedule_booking";
-			$sms['smsData']['service'] = $query1[0]['services'];
-    		$sms['smsData']['booking_date']= $data['booking_date'];
-    		$sms['smsData']['booking_timeslot'] = $data['booking_timeslot'];
-    		$sms['phone_no'] = $query1[0]['phone_number'];
-    		$sms['booking_id'] =  $query1[0]['booking_id']; 
+		$sms['tag'] = "reschedule_booking";
+		$sms['smsData']['service'] = $query1[0]['services'];
+		$sms['smsData']['booking_date'] = $data['booking_date'];
+		$sms['smsData']['booking_timeslot'] = $data['booking_timeslot'];
+		$sms['phone_no'] = $query1[0]['phone_number'];
+		$sms['booking_id'] = $query1[0]['booking_id'];
 
-    		$this->notify->send_sms($sms);	    
+		$this->notify->send_sms($sms);
 	    }
 
 	    //Setting mail to vendor flag to 0, once booking is rescheduled
 	    $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
 
-	    log_message('info', 'Rescheduled- Booking id: ' . $booking_id. " Rescheduled By ". $this->session->userdata('employee_id'). " data ".print_r($data));
+	    log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $this->session->userdata('employee_id') . " data " . print_r($data));
 
 	    redirect(base_url() . 'employee/booking/view', 'refresh');
 	}
     }
-
 
     function getBrandForService($service_id) {
 
 	$result = $this->booking_model->getBrandForService($service_id);
 	foreach ($result as $brand) {
 	    echo "<option>$brand[brand_name]</option>";
-	}	
+	}
     }
 
     /**
@@ -1146,7 +1140,7 @@ class Booking extends CI_Controller {
      * @return : displays category
      */
     function getCategoryForService($service_id) {
-	
+
 	$result = $this->booking_model->getCategoryForService($service_id);
 
 	foreach ($result as $category) {
@@ -1196,7 +1190,6 @@ class Booking extends CI_Controller {
 	}
     }
 
-
     /**
      *  @desc : This function is to select all pending bookings to assign vendor(if not already assigned)
      *  @param : void
@@ -1205,9 +1198,9 @@ class Booking extends CI_Controller {
     function get_assign_booking_form() {
 	$results = array();
 	$bookings = $this->booking_model->pendingbookings();
-	
+
 	foreach ($bookings as $booking) {
-	   array_push($results, $this->booking_model->find_sc_by_pincode_and_appliance($booking['service_id'], $booking['booking_pincode']));
+	    array_push($results, $this->booking_model->find_sc_by_pincode_and_appliance($booking['service_id'], $booking['booking_pincode']));
 	}
 
 	$this->load->view('employee/header');
@@ -1224,7 +1217,7 @@ class Booking extends CI_Controller {
 	$service_center['service_center'] = $this->input->post('service_center');
 	$url = base_url() . "employee/do_background_process/assign_booking";
 	$this->asynchronous_lib->do_background_process($url, $service_center);
-	
+
 	redirect(base_url() . 'employee/booking/view');
     }
 
@@ -1264,7 +1257,7 @@ class Booking extends CI_Controller {
      *  @param : booking id
      *  @return : rate for booking and load view
      */
-    function process_rating_form($booking_id) {	
+    function process_rating_form($booking_id) {
 
 	if ($this->input->post('rating_star') != "Select") {
 	    $data['rating_stars'] = $this->input->post('rating_star');
@@ -1282,7 +1275,7 @@ class Booking extends CI_Controller {
 	    $data['vendor_rating_comments'] = '';
 	}
 
-	$this->booking_model->rate($booking_id, $data);
+	$this->booking_model->update_booking($booking_id, $data);
 
 	//Is this SD booking?
 	if (strpos($booking_id, "SS") !== FALSE) {
@@ -1384,7 +1377,7 @@ class Booking extends CI_Controller {
 	}
 
 	$this->load->view('employee/header');
-	$this->load->view('employee/followup', array(
+	$this->load->view('employee/update_query', array(
 	    'query1' => $query1,
 	    'unit_details' => $query2[0],
 	    'internal_status' => $internal_status,
@@ -1415,7 +1408,7 @@ class Booking extends CI_Controller {
 
 	$booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
 	$booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
-	
+
 	$booking['total_price'] = $this->input->post('total_price');
 	$booking['potential_value'] = $this->input->post('potential_value');
 	$booking['items_selected'] = $this->input->post('items_selected');
@@ -1525,13 +1518,13 @@ class Booking extends CI_Controller {
 		$booking_timeslot = $booking['booking_timeslot'];
 
 		/*
-		if ($booking['booking_timeslot'] == "10AM-1PM") {
-		    $booking['booking_timeslot'] = "1PM";
-		} elseif ($booking['booking_timeslot'] == "1PM-4PM") {
-		    $booking['booking_timeslot'] = "4PM";
-		} elseif ($booking['booking_timeslot'] == "4PM-7PM") {
-		    $booking['booking_timeslot'] = "7PM";
-		}
+		  if ($booking['booking_timeslot'] == "10AM-1PM") {
+		  $booking['booking_timeslot'] = "1PM";
+		  } elseif ($booking['booking_timeslot'] == "1PM-4PM") {
+		  $booking['booking_timeslot'] = "4PM";
+		  } elseif ($booking['booking_timeslot'] == "4PM-7PM") {
+		  $booking['booking_timeslot'] = "7PM";
+		  }
 		 *
 		 */
 
@@ -1557,7 +1550,7 @@ class Booking extends CI_Controller {
 		$message = $message . "<br> Thanks!!";
 
 		$from = 'booking@247around.com';
-		$to = "anuj@247around.com, nits@247around.com";		
+		$to = "anuj@247around.com, nits@247around.com";
 		$cc = "";
 		$bcc = "";
 		$subject = 'Booking Confirmation-AROUND';
@@ -1567,25 +1560,24 @@ class Booking extends CI_Controller {
 
 		//TODO: Make it generic
 		if ($is_sd == FALSE) {
-		    
-			$sms['tag'] = "add_new_booking";
-			$sms['smsData']['service'] = $query1[0]['services'];
-    		$sms['smsData']['booking_date']= $booking_date;
-    		$sms['smsData']['booking_timeslot'] = $booking_timeslot;
-    		$sms['phone_no'] = $query1[0]['phone_number'];
-    		$sms['booking_id'] = $booking['booking_id'];
 
-    		$this->notify->send_sms($sms);
+		    $sms['tag'] = "add_new_booking";
+		    $sms['smsData']['service'] = $query1[0]['services'];
+		    $sms['smsData']['booking_date'] = $booking_date;
+		    $sms['smsData']['booking_timeslot'] = $booking_timeslot;
+		    $sms['phone_no'] = $query1[0]['phone_number'];
+		    $sms['booking_id'] = $booking['booking_id'];
 
+		    $this->notify->send_sms($sms);
 		} else {
-			$sms['tag'] = "new_snapdeal_booking";
-			$sms['smsData']['service'] = $query1[0]['services'];
-			$sms['smsData']['booking_date']= $booking_date;
-			$sms['smsData']['booking_timeslot'] = $booking_timeslot;
-			$sms['phone_no'] = $query1[0]['phone_number'];
-			$sms['booking_id'] =  $booking['booking_id'];
+		    $sms['tag'] = "new_snapdeal_booking";
+		    $sms['smsData']['service'] = $query1[0]['services'];
+		    $sms['smsData']['booking_date'] = $booking_date;
+		    $sms['smsData']['booking_timeslot'] = $booking_timeslot;
+		    $sms['phone_no'] = $query1[0]['phone_number'];
+		    $sms['booking_id'] = $booking['booking_id'];
 
-			$this->notify->send_sms($sms);
+		    $this->notify->send_sms($sms);
 		}
 
 		//------End of sending SMS--------//
@@ -1669,7 +1661,7 @@ class Booking extends CI_Controller {
      *  @param : booking id
      *  @return : cancel the query and load view
      */
-    function process_cancel_followup_form($booking_id) {	
+    function process_cancel_followup_form($booking_id) {
 	$booking['current_status'] = "Cancelled";
 	$booking['internal_status'] = $this->input->post('internal_status');
 	$booking['cancellation_reason'] = $this->input->post('cancellation_reason');
@@ -1726,7 +1718,7 @@ class Booking extends CI_Controller {
 
 	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
 
-	log_message('info', 'Booking Status Change- Booking id: ' . $booking_id. " Cancelled By ". $this->session->userdata('employee_id'));
+	log_message('info', 'Booking Status Change- Booking id: ' . $booking_id . " Cancelled By " . $this->session->userdata('employee_id'));
 
 	//------------Sending Email----------//
 
@@ -1757,11 +1749,9 @@ class Booking extends CI_Controller {
 	$email['subject'] = "Booking Cancellation-AROUND";
 
 	$this->notify->send_email($email);
-	
 
 	redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
     }
-
 
     function jobcard($booking_id) {
 	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
@@ -1787,7 +1777,6 @@ class Booking extends CI_Controller {
 	$this->load->view('employee/header');
 	$this->load->view('employee/viewdetails', $data);
     }
-
 
     //Function to sort pending bookings with current status
     function status_sorted_booking($offset = 0, $page = 0) {
@@ -1969,7 +1958,7 @@ class Booking extends CI_Controller {
 	$booking['current_status'] = 'Pending';
 	$booking['internal_status'] = 'Scheduled';
 	$booking['create_date'] = date("Y-m-d h:i:s");
-    $booking['source'] = $this->input->post('source_code');
+	$booking['source'] = $this->input->post('source_code');
 
 	$result = $this->booking_model->service_name($booking['service_id']);
 
@@ -2070,16 +2059,15 @@ class Booking extends CI_Controller {
 	    //-------Sending SMS on booking--------//
 
 	    if (strstr($booking['booking_id'], "SS") == FALSE) {
-		
-			$sms['tag'] = "add_new_booking";
-			$sms['smsData']['service'] = $booking['service_name'];
-			$sms['smsData']['booking_date']= $booking['booking_date'];
-			$sms['smsData']['booking_timeslot'] = $booking['booking_timeslot'];
-			$sms['phone_no'] = $booking['booking_primary_contact_no'];
-			$sms['booking_id'] =  $booking['booking_id'];
 
-			$this->notify->send_sms($sms);
+		$sms['tag'] = "add_new_booking";
+		$sms['smsData']['service'] = $booking['service_name'];
+		$sms['smsData']['booking_date'] = $booking['booking_date'];
+		$sms['smsData']['booking_timeslot'] = $booking['booking_timeslot'];
+		$sms['phone_no'] = $booking['booking_primary_contact_no'];
+		$sms['booking_id'] = $booking['booking_id'];
 
+		$this->notify->send_sms($sms);
 	    }
 	    //------End of sending SMS--------//
 	}
@@ -2130,7 +2118,7 @@ class Booking extends CI_Controller {
 	$query = $this->booking_model->get_pending_queries(-1, 0, '');
 
 	$data['Bookings'] = $query;
-	
+
 	$this->load->view('employee/header');
 	$this->load->view('employee/viewpendingqueries', $data);
     }
@@ -2140,7 +2128,7 @@ class Booking extends CI_Controller {
      *  @param : void
      *  @return : list of pending queries according to pagination
      */
-    function view_pending_queries($offset = 0, $page = 0, $booking_id="") {
+    function view_pending_queries($offset = 0, $page = 0, $booking_id = "") {
 	if ($page == 0) {
 	    $page = 50;
 	}
@@ -2456,15 +2444,84 @@ class Booking extends CI_Controller {
      *  @param : String(Phone Number)
      *  @return : refirect user controller
      */
-    function cancelled_booking_re_book($booking_id, $phone){
-        $this->booking_model->change_booking_status($booking_id);
-        redirect(base_url() . 'employee/user/finduser/0/0/' . $phone, 'refresh');
+    function cancelled_booking_re_book($booking_id, $phone) {
+	$this->booking_model->change_booking_status($booking_id);
+	redirect(base_url() . 'employee/user/finduser/0/0/' . $phone, 'refresh');
     }
 
     function get_state_by_city() {
-        $city = $this->input->post('city');
-        $state = $this->booking_model->selectSate($city);
-        print_r($state);
+	$city = $this->input->post('city');
+	$state = $this->booking_model->selectSate($city);
+	print_r($state);
+    }
+
+    /**
+     *  @desc : This function is used to call customer from admin panel
+     *  @param : Phone Number
+     *  @return : none
+     */
+    function call_customer($cust_phone) {
+	log_message('info', __FUNCTION__);
+
+	$s1 = $_SERVER['HTTP_REFERER'];
+	$s2 = "https://aroundhomzapp.com/";
+	$redirect_url = substr($s1, strlen($s2));
+
+	$this->checkUserSession();
+
+	//Get customer id
+	$cust_id = '';
+	$user = $this->user_model->search_user($cust_phone);
+	if ($user) {
+	    $cust_id = $user[0]['user_id'];
+	}
+
+	//Find agent phone from session
+	$agent_id = $this->session->userdata('id');
+	$agent_phone = $this->session->userdata('phone');
+
+	//Save call log
+	$this->booking_model->insert_outbound_call_log(array(
+	    'agent_id' => $agent_id, 'customer_id' => $cust_id,
+	    'customer_phone' => $cust_phone
+	));
+
+	//Make call to customer now
+	$this->notify->make_outbound_call($agent_phone, $cust_phone);
+
+	//Redirect to the page from where you landed in this function
+	redirect(base_url() . $redirect_url, 'refresh');
+    }
+
+    /**
+     *  @desc : Callback fn called after agent finishes customer call
+     *  @param : Phone Number
+     *  @return : none
+     */
+    function call_customer_status_callback() {
+	log_message('info', "Entering: " . __METHOD__);
+
+	//http://support.exotel.in/support/solutions/articles/48259-outbound-call-to-connect-an-agent-to-a-customer-
+	$callDetails['call_sid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
+	$callDetails['status'] = (isset($_GET['Status'])) ? $_GET['Status'] : null;
+	$callDetails['recording_url'] = (isset($_GET['RecordingUrl'])) ? $_GET['RecordingUrl'] : null;
+	$callDetails['date_updated'] = (isset($_GET['DateUpdated'])) ? $_GET['DateUpdated'] : null;
+
+	log_message('info', print_r($callDetails, true));
+//	//insert in database
+//	$this->apis->insertPassthruCall($callDetails);
+    }
+
+    /**
+     * @desc :This funtion will check user session for an eemplouee.
+     */
+    function checkUserSession() {
+	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+	    return TRUE;
+	} else {
+	    $this->session->sess_destroy();
+	    redirect(base_url() . "employee/login");
+	}
     }
 
 }

@@ -110,7 +110,7 @@ class User extends CI_Controller {
     function search_by_OrderId($partner_code, $order_id){
        $data['Bookings'] = $this->user_model->getBookingId_by_orderId($partner_code, $order_id);
        $data['search'] = "Search";
-    
+
        $this->load->view('employee/header');
        $this->load->view('employee/booking', $data);
     }
@@ -183,13 +183,13 @@ class User extends CI_Controller {
      */
     function get_edit_user_form($phone_number ="") {
         if($this->input->post('phone_number')){
-            
+
             $phone_number = $this->input->post('phone_number');
         }
-        
+
         $data['user'] = $this->user_model->search_user($phone_number);
-        $data['state'] = $this->vendor_model->selectSate();
-        $this->load->view('employee/header');
+        $data['state'] = $this->vendor_model->getall_state();
+	$this->load->view('employee/header');
         //$this->load->view('employee/addbooking');
         $this->load->view('employee/edituser', $data);
     }
@@ -262,7 +262,7 @@ class User extends CI_Controller {
         $this->load->view('employee/header');
         $this->load->view('employee/getusers', $data);
     }
-    
+
     /**
      * @desc : this function is used to count total user,  completed booking and cancelled booking
      * @param : void
@@ -276,12 +276,12 @@ class User extends CI_Controller {
         $user['user'] = $this->user_model->get_count_user($data);
         $this->load->view('employee/getusers', $user);
     }
-    
+
     /**
-     * 
+     *
      */
     function user_count(){
-        $data = $this->user_model->get_city_source();       
+        $data = $this->user_model->get_city_source();
         $this->load->view('employee/header');
         $this->load->view('employee/transactionalusers',$data);
 

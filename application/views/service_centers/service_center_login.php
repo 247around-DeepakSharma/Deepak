@@ -92,7 +92,7 @@
                     },
                     password: {
                         required: true,
-                        minlength: 8
+                        //minlength: 8
                     }
                 },
                 messages: {
