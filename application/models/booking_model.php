@@ -835,8 +835,8 @@ class Booking_model extends CI_Model {
      *  @param : $booking_id
      *  @return : array(userdetails,servicename and bookingdetails)
      */
-    function booking_history_by_booking_id($booking_id, $join= "") {
-
+    function booking_history_by_booking_id($booking_id, $join= "") {    	
+    	
 	/*
 	  $sql = "Select services.services, users.*, booking_details.*"
 	  . "from booking_details, users, services "
@@ -860,7 +860,7 @@ class Booking_model extends CI_Model {
 	    . "booking_details.appliance_id = appliance_details.id ". $condition;
 
 	$query = $this->db->query($sql);
-
+		
 	return $query->result_array();
     }
 
@@ -1599,6 +1599,19 @@ class Booking_model extends CI_Model {
       }
 
       return $charges;
+    }
+
+    function get_booking_email_template($email_tag){
+    	$this->db->select("template, to, from");
+      	$this->db->where('tag', $email_tag);
+      	$this->db->where('active', 1);
+      	$query = $this->db->get('email_template');      	
+      	if($query->num_rows > 0){
+        	$template = $query->result_array();
+        	return array($template[0]['template'], $template[0]['to'], $template[0]['from']);
+      	} else {
+        return "";
+      	}
     }
 
 }
