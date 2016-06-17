@@ -41,7 +41,13 @@ class New_booking extends CI_Controller {
      * @return; void
      */
     function complete_review_booking() {
+	log_message('info', "Entering: " . __METHOD__);
+
+
 	$booking_id = $this->input->post('booking_id');
+	log_message('info', "booking_id: " . $booking_id);
+
+
 	$data['service_charge'] = $this->input->post('service_charge');
 	$data['additional_service_charge'] = $this->input->post('additional_charge');
 	$data['parts_cost'] = $this->input->post('parts_cost');
@@ -52,10 +58,14 @@ class New_booking extends CI_Controller {
 	$admin_remarks = $this->input->post('admin_remarks');
 
 	$service_charges = $this->booking_model->getbooking_charges($booking_id);
-	$data['closing_remarks'] = "Service Center Remarks:- " . $service_charges[0]['service_center_remarks'] . " <br/> Admin:-  " . date("F j") . ":- " . $admin_remarks . "<br/>" . $service_charges[0]['admin_remarks'];
-	$this->booking_model->update_booking($booking_id, $data);
-	$data['booking_id'] = $booking_id;
+	log_message('info', "service_charges: " . print_r($service_charges, TRUE));
 
+	$data['closing_remarks'] = "Service Center Remarks:- " . $service_charges[0]['service_center_remarks'] . " <br/> Admin:-  " . date("F j") . ":- " . $admin_remarks . "<br/>" . $service_charges[0]['admin_remarks'];
+
+	log_message('info', "update data: " . print_r($data, TRUE));
+	$this->booking_model->update_booking($booking_id, $data);
+
+	$data['booking_id'] = $booking_id;
 	$this->vendor_model->update_service_center_action($data);
 
 	//Save this booking id in booking_invoices_mapping table as well now
@@ -78,6 +88,8 @@ class New_booking extends CI_Controller {
 		    "Rating_Stars" => "",
 		    "update_date" => $data['closed_date']
 		);
+
+		log_message('info', "update sd lead");
 		$this->booking_model->update_sd_lead($sd_where, $sd_data);
 	    } else {
 		//Update Partner leads table
@@ -88,6 +100,7 @@ class New_booking extends CI_Controller {
 			"247aroundBookingRemarks" => $data['internal_status'],
 			"update_date" => $data['closed_date']
 		    );
+		    log_message('info', "update partner lead");
 		    $this->partner_model->update_partner_lead($partner_where, $partner_data);
 
 		    //Call relevant partner API
