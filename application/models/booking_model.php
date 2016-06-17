@@ -637,8 +637,8 @@ class Booking_model extends CI_Model {
 	foreach ($temp as $key => $value) {
 	    $this->db->select('*');
 	    $this->db->where('booking_id', $value->booking_id);
-	    $status = array('Pending', 'Rescheduled');
-	    $this->db->where_in('current_status', $status);
+	    //$status = array('Pending', 'Rescheduled');
+	    //$this->db->where_in('current_status', $status);
 	    $query2 = $this->db->get('service_center_booking_action');
 
 	    if ($query2->num_rows > 0) {
@@ -835,6 +835,7 @@ class Booking_model extends CI_Model {
      *  @param : $booking_id
      *  @return : array(userdetails,servicename and bookingdetails)
      */
+
     function booking_history_by_booking_id($booking_id, $join = "") {
 
 	/*
@@ -860,7 +861,7 @@ class Booking_model extends CI_Model {
 	    . "booking_details.appliance_id = appliance_details.id " . $condition;
 
 	$query = $this->db->query($sql);
-
+		
 	return $query->result_array();
     }
 
@@ -1617,6 +1618,19 @@ class Booking_model extends CI_Model {
 
     function insert_outbound_call_log($details) {
 	$this->db->insert('agent_outbound_call_log', $details);
+    }
+
+    function get_booking_email_template($email_tag){
+    	$this->db->select("template, to, from");
+      	$this->db->where('tag', $email_tag);
+      	$this->db->where('active', 1);
+      	$query = $this->db->get('email_template');      	
+      	if($query->num_rows > 0){
+        	$template = $query->result_array();
+        	return array($template[0]['template'], $template[0]['to'], $template[0]['from']);
+      	} else {
+        return "";
+      	}
     }
 
 }

@@ -138,14 +138,14 @@ class Do_background_process extends CI_Controller {
 	    log_message('info', ": " . "data " . print_r($data));
 
 	    if ($data[0]['current_status'] == "Completed") {
-		$this->save_completed_booking($data);
+		$this->save_completed_booking($data, $value);
 	    } else if ($data[0]['current_status'] == "Cancelled") {
-		$this->save_cancelled_booking($data);
+		$this->save_cancelled_booking($data, $value);
 	    }
 	}
     }
 
-    function save_completed_booking($data) {
+    function save_completed_booking($data, $value) {
 	//unset id of service center action table
 	$data[0]['closed_date'] = date('Y-m-d h:i:s');
 	unset($data[0]['id']);
@@ -162,6 +162,7 @@ class Do_background_process extends CI_Controller {
 	unset($data[0]['service_center_remarks']);
 
 	//update booking_details table
+	log_message('info', __FUNCTION__ . "Update data " . print_r($data));
 	$this->booking_model->update_booking($data[0]['booking_id'], $data[0]);
 
 	//Save this booking id in booking_invoices_mapping table as well now
@@ -228,7 +229,7 @@ class Do_background_process extends CI_Controller {
 	}
     }
 
-    function save_cancelled_booking($data) {
+    function save_cancelled_booking($data, $value) {
 
     }
 
