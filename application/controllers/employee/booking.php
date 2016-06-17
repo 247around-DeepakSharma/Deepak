@@ -802,44 +802,33 @@ class Booking extends CI_Controller {
 	    }
 	}
 
-//	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id, "join");
-	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
+	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id, "join");
 
 	log_message('info', 'Booking Status Change- Booking id: ' . $booking_id . " Completed By " . $this->session->userdata('employee_id'));
 
-
-	// $from = "booking@247around.com";
-	// $to = "anuj@247around.com, nits@247around.com";
-	// $cc = "";
-	// $bcc = "";
-	// $subject = 'Booking Completion-AROUND';
-	// $message = "Booking Completion.<br>Customer name: " . $query1[0]['name'] . "<br>Customer phone number: " . $query1[0]['phone_number'] . "<br>Customer email: " . $query1[0]['user_email'] . "<br>Booking Id is: " . $query1[0]['booking_id'] . "<br>Your service name is:" . $query1[0]['services'] . "<br>Booking date: " . $query1[0]['booking_date'] . "<br>Booking completion date: " . $data['closed_date'] . "<br>Amount paid for the booking: " . $data['amount_paid'] . "<br>Your booking completion remark is: " . $data['closing_remarks'] . "<br>Vendor name:" . $query1[0]['vendor_name'] . "<br>Vendor city:" . $query1[0]['district'] . "<br>Thanks!!";
-	// $attachment ="";
-
-	// $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
 	$email['name'] = $query1[0]['name'];
-	$email['phone_no'] = $query1[0]['phone_number'];    	
-    $email['user_email'] = $query1[0]['user_email'];
-    $email['booking_id'] =  $query1[0]['booking_id'];
-    $email['service'] = $query1[0]['services'];    	
-    $email['booking_date']= $query1[0]['booking_date'];
-    $email['closed_date'] = $data['closed_date'];
-    $email['amount_paid'] = $data['amount_paid'];
-    $email['closing_remarks'] = $data['closing_remarks']; 	    	    	
-    $email['vendor_name'] =  $query1[0]['vendor_name'];
-    $email['district'] =  $query1[0]['district'];
-	$email['tag'] = "complete_booking";		
+	$email['phone_no'] = $query1[0]['phone_number'];
+	$email['user_email'] = $query1[0]['user_email'];
+	$email['booking_id'] = $query1[0]['booking_id'];
+	$email['service'] = $query1[0]['services'];
+	$email['booking_date'] = $query1[0]['booking_date'];
+	$email['closed_date'] = $data['closed_date'];
+	$email['amount_paid'] = $data['amount_paid'];
+	$email['closing_remarks'] = $data['closing_remarks'];
+	$email['vendor_name'] = $query1[0]['vendor_name'];
+	$email['district'] = $query1[0]['district'];
+	$email['tag'] = "complete_booking";
 	$email['subject'] = "Booking Completion-AROUND";
-	
+
 	$this->notify->send_email($email);
 
 	//------End of sending email--------//
-	//------Send SMS on Completion of booking-----//	
+	//------Send SMS on Completion of booking-----//
 	if ($is_sd == FALSE) {
 	    $sms['tag'] = "complete_booking";
 	    $sms['smsData']['service'] = $query1[0]['services'];
 	    $sms['phone_no'] = $query1[0]['phone_number'];
-	    $sms['booking_id'] = $booking['booking_id'];
+	    $sms['booking_id'] = $query1[0]['booking_id'];
 
 	    $this->notify->send_sms($sms);
 	}
@@ -875,82 +864,63 @@ class Booking extends CI_Controller {
 	    $data['cancellation_reason'] = "Other : " . $this->input->post("cancellation_reason_text");
 	}
 	$data['current_status'] = "Cancelled";
-	$data['internal_status'] = "Cancelled";	
+	$data['internal_status'] = "Cancelled";
 
 	$insertData = $this->booking_model->cancel_booking($booking_id, $data);
 
-	 //Update SD leads table if required
-//$this->booking_model->update_sd_lead_status($booking_id, 'Cancelled');
-        //Is this SD booking?
-        if (strpos($booking_id, "SS") !== FALSE) {
-            $is_sd = TRUE;
-        } else {
-            $is_sd = FALSE;
-        }
+	//Update SD leads table if required
+	//$this->booking_model->update_sd_lead_status($booking_id, 'Cancelled');
+	//Is this SD booking?
+	if (strpos($booking_id, "SS") !== FALSE) {
+	    $is_sd = TRUE;
+	} else {
+	    $is_sd = FALSE;
+	}
 
-        if ($is_sd) {
-            if ($this->booking_model->check_sd_lead_exists_by_booking_id($booking_id) === TRUE) {
-                $sd_where = array("CRM_Remarks_SR_No" => $booking_id);
-                $sd_data = array(
-                    "Status_by_247around" => $data['current_status'],
-                    "Remarks_by_247around" => $data['internal_status'],
-                    "update_date" => $data['update_date']
-                );
-                $this->booking_model->update_sd_lead($sd_where, $sd_data);
-            } else {
-                if (Partner_Integ_Complete) {
-                    //Update Partner leads table
-                    $partner_where = array("247aroundBookingID" => $booking_id);
-                    $partner_data = array(
-                        "247aroundBookingStatus" => $data['current_status'],
-                        "247aroundBookingRemarks" => $data['internal_status'],
-                        "update_date" => $data['update_date']
-                    );
-                $this->partner_model->update_partner_lead($partner_where, $partner_data);
+	if ($is_sd) {
+	    if ($this->booking_model->check_sd_lead_exists_by_booking_id($booking_id) === TRUE) {
+		$sd_where = array("CRM_Remarks_SR_No" => $booking_id);
+		$sd_data = array(
+		    "Status_by_247around" => $data['current_status'],
+		    "Remarks_by_247around" => $data['internal_status'],
+		    "update_date" => $data['update_date']
+		);
+		$this->booking_model->update_sd_lead($sd_where, $sd_data);
+	    } else {
+		if (Partner_Integ_Complete) {
+		    //Update Partner leads table
+		    $partner_where = array("247aroundBookingID" => $booking_id);
+		    $partner_data = array(
+			"247aroundBookingStatus" => $data['current_status'],
+			"247aroundBookingRemarks" => $data['internal_status'],
+			"update_date" => $data['update_date']
+		    );
+		    $this->partner_model->update_partner_lead($partner_where, $partner_data);
 
-                    //Call relevant partner API
-                    //TODO: make it dynamic, use service object model (interfaces)
-                    $partner_cb_data = array_merge($partner_where, $partner_data);
-                $this->partner_sd_cb->update_status_cancel_booking($partner_cb_data);
-                }
-            }
-        }        
+		    //Call relevant partner API
+		    //TODO: make it dynamic, use service object model (interfaces)
+		    $partner_cb_data = array_merge($partner_where, $partner_data);
+		    $this->partner_sd_cb->update_status_cancel_booking($partner_cb_data);
+		}
+	    }
+	}
 
-//        $query1 = $this->booking_model->booking_history_by_booking_id($booking_id, "join");        
-        $query1 = $this->booking_model->booking_history_by_booking_id($booking_id);        
+        $query1 = $this->booking_model->booking_history_by_booking_id($booking_id, "join");
 
-		//------------Sending Email----------//
-
-	// $from = "booking@247around.com";
-	// $to = "anuj@247around.com, nits@247around.com";
-	// $cc = "";
-	// $bcc = "";
-	// $subject = 'Booking Cancellation-AROUND';
-	// $message = "Booking Cancellation:<br>Customer name: " . $query1[0]['name'] . "<br>Customer phone number: " .
-	//     $query1[0]['phone_number'] . "<br>Customer email: " . $query1[0]['user_email'] . "<br>Booking Id: " .
-	//     $query1[0]['booking_id'] . "<br>Service name is:" . $query1[0]['services'] . "<br>Booking date was: " .
-	//     $query1[0]['booking_date'] . "<br>Booking timeslot was: " . $query1[0]['booking_timeslot'] .
-	//     "<br>Booking cancellation date is: " . $data['update_date'] . "<br>Booking cancellation reason: " .
-	//     $data['cancellation_reason'] . "<br>Vendor name:" . $query1[0]['vendor_name'] . "<br>Vendor city:" .
-	//     $query1[0]['district'] ."<br> Thanks!!";
-	// $attachment ="";
-
-	// $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
-
-    $email['name'] = $query1[0]['name'];
-	$email['phone_no'] = $query1[0]['phone_number'];    	
-    $email['user_email'] = $query1[0]['user_email'];
-    $email['booking_id'] =  $query1[0]['booking_id'];
-    $email['service'] = $query1[0]['services'];    	
-    $email['booking_date']= $query1[0]['booking_date'];
-    $email['booking_timeslot'] = $query1[0]['booking_timeslot'];    	
-    $email['update_date'] = $data['update_date'];    	    	    	    	
-    $email['cancellation_reason'] =  $data['cancellation_reason'];
-    $email['vendor_name'] =  $query1[0]['vendor_name'];
-    $email['district'] =  $query1[0]['district'];
-	$email['tag'] = "cancel_booking";		
+	$email['name'] = $query1[0]['name'];
+	$email['phone_no'] = $query1[0]['phone_number'];
+	$email['user_email'] = $query1[0]['user_email'];
+	$email['booking_id'] = $query1[0]['booking_id'];
+	$email['service'] = $query1[0]['services'];
+	$email['booking_date'] = $query1[0]['booking_date'];
+	$email['booking_timeslot'] = $query1[0]['booking_timeslot'];
+	$email['update_date'] = $data['update_date'];
+	$email['cancellation_reason'] = $data['cancellation_reason'];
+	$email['vendor_name'] = $query1[0]['vendor_name'];
+	$email['district'] = $query1[0]['district'];
+	$email['tag'] = "cancel_booking";
 	$email['subject'] = "Booking Cancellation-AROUND";
-	
+
 	$this->notify->send_email($email);
 
 	//------End of sending email--------//
@@ -959,7 +929,7 @@ class Booking extends CI_Controller {
 	    $sms['tag'] = "cancel_booking";
 	    $sms['smsData']['service'] = $query1[0]['services'];
 	    $sms['phone_no'] = $query1[0]['phone_number'];
-	    $sms['booking_id'] = $booking['booking_id'];
+	    $sms['booking_id'] = $query1[0]['booking_id'];
 
 	    $this->notify->send_sms($sms);
 	}
@@ -1000,9 +970,6 @@ class Booking extends CI_Controller {
      *  @return : reschedules the booking and load view
      */
     function process_reschedule_booking_form($booking_id) {
-	//$data = $this->booking_model->getbooking($booking_id);
-	//$data['user_id'] = $this->input->post('user_id');
-	//$data['booking_date'] = $this->input->post('booking_date');
 	$data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
 
 	$yy = date("y", strtotime($data['booking_date']));
@@ -1062,38 +1029,22 @@ class Booking extends CI_Controller {
 	    }
 
 
-	    $query1 = $this->booking_model->booking_history_by_booking_id($booking_id);	    
+	    $query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
 
-// 	    $from = 'booking@247around.com';
-// //	    $to = "anuj@247around.com, nits@247around.com";
-// 	    $to = "ppandey2191@gmail.com";
-// 	    $cc = "";
-// 	    $bcc = "";
-// 	    $subject = 'Booking Rescheduled-AROUND';
-	 //    $message = "Booking Rescheduled:<br>Customer name: " . $query1[0]['name'] .
-		// "<br>Customer phone number: " . $query1[0]['phone_number'] .
-		// "<br>Customer email address: " . $query1[0]['user_email'] .
-		// "<br>Booking Id is: " . $query1[0]['booking_id'] .
-		// "<br>Service name is:" . $query1[0]['services'] .
-		// "<br>New booking Date is: " . $data['booking_date'] .
-		// "<br>New booking timeslot is: " . $data['booking_timeslot'] .
-		// "<br>Booking updation date is: " . $data['update_date'] .
-		// "<br>Booking address is: " . $query1[0]['booking_address'] .
-		// "<br> Thanks!!";
 	    $email['name'] = $query1[0]['name'];
-	    $email['phone_no'] = $query1[0]['phone_number'];    	
-    	$email['user_email'] = $query1[0]['user_email'];
-    	$email['booking_id'] =  $query1[0]['booking_id'];
-    	$email['service'] = $query1[0]['services'];    	
-    	$email['booking_date']= $data['booking_date'];
-    	$email['booking_timeslot'] = $data['booking_timeslot'];    	
-    	$email['update_date'] = $data['update_date'];    	    	    	    	
-    	$email['booking_address'] =  $query1[0]['booking_address'];
-		$email['tag'] = "reschedule_booking";		
-		$email['subject'] = "Booking Rescheduled-AROUND";
+	    $email['phone_no'] = $query1[0]['phone_number'];
+	    $email['user_email'] = $query1[0]['user_email'];
+	    $email['booking_id'] = $query1[0]['booking_id'];
+	    $email['service'] = $query1[0]['services'];
+	    $email['booking_date'] = $data['booking_date'];
+	    $email['booking_timeslot'] = $data['booking_timeslot'];
+	    $email['update_date'] = $data['update_date'];
+	    $email['booking_address'] = $query1[0]['booking_address'];
+	    $email['tag'] = "reschedule_booking";
+	    $email['subject'] = "Booking Rescheduled-AROUND";
 
 	    //$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
-		$this->notify->send_email($email);
+	    $this->notify->send_email($email);
 
 	    $months = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
 	    $mm = $months[$mm - 1];
@@ -1720,32 +1671,16 @@ class Booking extends CI_Controller {
 
 	log_message('info', 'Booking Status Change- Booking id: ' . $booking_id . " Cancelled By " . $this->session->userdata('employee_id'));
 
-	//------------Sending Email----------//
-
-	// $message = "Booking Cancellation:<br>Customer name: " . $query1[0]['name'] . "<br>Customer phone number: " .
-	//     $query1[0]['phone_number'] . "<br>Customer email: " . $query1[0]['user_email'] . "<br>Booking Id: " .
-	//     $query1[0]['booking_id'] . "<br>Service name is:" . $query1[0]['services'] . "<br>Booking date was: " .
-	//     $query1[0]['booking_date'] . "<br>Booking timeslot was: " . $query1[0]['booking_timeslot'] .
-	//     "<br>Booking cancellation date is: " . $booking['update_date'] . "<br>Booking cancellation reason: " .
-	//     $booking['cancellation_reason'] . "<br> Thanks!!";
-	// $from = 'booking@247around.com';
-	// $to = "anuj@247around.com, nits@247around.com";	
-	// $cc = "";
-	// $bcc = "";
-	// $subject = "Booking Cancellation-AROUND";
-	// $attachment = "";	
-	
-//	$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
 	$email['name'] = $query1[0]['name'];
-	$email['phone_no'] = $query1[0]['phone_number'];    	
-    $email['user_email'] = $query1[0]['user_email'];
-    $email['booking_id'] =  $query1[0]['booking_id'];
-    $email['service'] = $query1[0]['services'];    	
-    $email['booking_date']= $query1[0]['booking_date'];
-    $email['booking_timeslot'] = $query1[0]['booking_timeslot'];
-    $email['update_date'] = $booking['update_date'];
-    $email['cancellation_reason'] =  $booking['cancellation_reason'];
-	$email['tag'] = "cancel_booking";		
+	$email['phone_no'] = $query1[0]['phone_number'];
+	$email['user_email'] = $query1[0]['user_email'];
+	$email['booking_id'] = $query1[0]['booking_id'];
+	$email['service'] = $query1[0]['services'];
+	$email['booking_date'] = $query1[0]['booking_date'];
+	$email['booking_timeslot'] = $query1[0]['booking_timeslot'];
+	$email['update_date'] = $booking['update_date'];
+	$email['cancellation_reason'] = $booking['cancellation_reason'];
+	$email['tag'] = "cancel_booking";
 	$email['subject'] = "Booking Cancellation-AROUND";
 
 	$this->notify->send_email($email);
