@@ -228,7 +228,7 @@ class bookings_excel extends CI_Controller {
 		$lead_details['Status_by_247around'] = "FollowUp";
 		$lead_details['Scheduled_Appointment_DateDDMMYYYY'] = "";
 		$lead_details['Scheduled_Appointment_Time'] = "";
-		$lead_details['Remarks_by_247around'] = "";
+		$lead_details['Remarks_by_247around'] = "FollowUp";
 		$lead_details['Rating_Stars'] = "";
 		$lead_details['Status_by_Snapdeal'] = "";
 		$lead_details['Remarks_by_Snapdeal'] = "";
@@ -312,12 +312,16 @@ class bookings_excel extends CI_Controller {
 		log_message('info', __FUNCTION__ . 'Update SD Lead: ' . print_r(array($arr_where, $arr_data), true));
 		$this->booking_model->update_sd_lead($arr_where, $arr_data);
 
-		//Clear the booking date so that it starts reflecting on our panel & update booking
-		//Find booking ID first for this Order ID
+		//Clear the booking date so that it starts reflecting on our panel & update booking.
+		//This should be done only if the booking has not been updated in the meanwhile.
+		//If the booking has already been scheduled or cancelled, leave this as it is.
+		//If the booking query remarks or internal status has been changed, then also leave it.
 		$sd_leads = $this->booking_model->get_sd_lead_by_order_id($rowData[0]['Sub_Order_ID']);
-		if (count($sd_leads) > 0) {
-		    $booking_id = $sd_leads[0]['CRM_Remarks_SR_No'];
+		$booking_id = $sd_leads[0]['CRM_Remarks_SR_No'];
+		$status = $sd_leads[0]['Status_by_247around'];
+		$int_status = $sd_leads[0]['Remarks_by_247around'];
 
+		if ($status == 'FollowUp' && $int_status == 'FollowUp') {
 		    $data['booking_date'] = '';
 		    $data['booking_timeslot'] = '';
 		    log_message('info', __FUNCTION__ . 'Update Booking: ' . print_r(array($booking_id, $data), true));
@@ -469,8 +473,8 @@ class bookings_excel extends CI_Controller {
 		$dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Expected_Delivery_Date']);
 
 		if ($dateObj2->format('d') == date('d')) {
-		    $dateObj2 = date_create('+2days');
-		}
+		    $dateObj2  =  date_create('+1days');
+	    }
 		log_message('info', print_r($dateObj2, true));
 
 		$lead_details['Expected_Delivery_Date'] = $dateObj2->format('d/m/Y');
@@ -480,7 +484,7 @@ class bookings_excel extends CI_Controller {
 		$lead_details['Status_by_247around'] = "FollowUp";
 		$lead_details['Scheduled_Appointment_DateDDMMYYYY'] = "";
 		$lead_details['Scheduled_Appointment_Time'] = "";
-		$lead_details['Remarks_by_247around'] = "";
+		$lead_details['Remarks_by_247around'] = "FollowUp";
 		$lead_details['Rating_Stars'] = "";
 		$lead_details['Status_by_Snapdeal'] = "";
 		$lead_details['Remarks_by_Snapdeal'] = "";
