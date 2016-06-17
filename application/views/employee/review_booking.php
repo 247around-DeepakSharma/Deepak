@@ -88,15 +88,14 @@
 					    <td><p id="<?php echo "parts_cost".$count;?>"><?php echo $value['parts_cost']; ?></p></td>
 					     <td><?php echo ($value['parts_cost'] + $value['additional_service_charge'] + $value['service_charge']); ?></td>
                          <input type="hidden" id="<?php echo "admin_remarks".$count;?>" value="<?php echo $value['admin_remarks'];?>"></input>
-                <td><p id="<?php echo "internal_status".$count; ?>"><?php echo $value['internal_status']; ?></p></td>
+                        <td><p id="<?php echo "internal_status".$count; ?>"><?php echo $value['internal_status']; ?></p></td>
 
-               <td data-popover="true" style="position: absolute; border:0px;" data-html=true data-content="<?php if(isset($value['service_center_remarks'])){ echo $value['service_center_remarks'];}?>"><div class="marquee"><div><span ><?php echo $value['service_center_remarks']; ?></span></div></div></td>
-               
-               
-					     
-                <td><input type="checkbox"  class="checkbox1" name="approve[]" value="<?php echo $value['booking_id']; ?>"></input></td>
-                <td><button type="button" id="<?php echo $count;?>" class="btn btn-info btn-sm open-AddBookingDialog" data-toggle="modal" data-target="#myModal">Edit</button></td>
-                <td><button type="button" id="<?php echo "remarks_".$count;?>" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Reject</button></td>
+                       <td data-popover="true" style="position: absolute; border:0px;" data-html=true data-content="<?php if(isset($value['service_center_remarks'])){ echo $value['service_center_remarks'];}?>"><div class="marquee"><div><span ><?php echo $value['service_center_remarks']; ?></span></div></div></td>
+	     
+                        <td><input type="checkbox"  class="checkbox1" name="approve[]" value="<?php echo $value['booking_id']; ?>"></input></td>
+                        
+                        <td><button type="button" id="<?php echo $count;?>" class="btn btn-info btn-sm open-AddBookingDialog" data-toggle="modal" data-target="#myModal">Edit</button></td>
+                        <td><button type="button" id="<?php echo "remarks_".$count;?>" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Reject</button></td>
                     		
                     	</tr>
                     	<?php $count++; } ?>

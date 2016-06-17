@@ -637,8 +637,8 @@ class Booking_model extends CI_Model {
 	foreach ($temp as $key => $value) {
 	    $this->db->select('*');
 	    $this->db->where('booking_id', $value->booking_id);
-	    $status = array('Pending', 'Rescheduled');
-	    $this->db->where_in('current_status', $status);
+	    //$status = array('Pending', 'Rescheduled');
+	    //$this->db->where_in('current_status', $status);
 	    $query2 = $this->db->get('service_center_booking_action');
 
 	    if ($query2->num_rows > 0) {
