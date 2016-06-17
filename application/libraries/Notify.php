@@ -103,6 +103,37 @@ class Notify {
     }
 
     /**
+     *  @desc : This method is to use email templates
+     *  @param : email tag and other booking details.
+     *  @return : if Email send return true else false
+     */
+    function send_email($email){
+  
+    $template = $this->My_CI->booking_model->get_booking_email_template($email['tag']);
+    
+    if(!empty($template)){
+        $emailBody = vsprintf($template[0], $email);
+        $from = $template[2];
+        $to = $template[1];
+        $cc = "";
+        $bcc = "";
+        $subject = $email['subject'];
+        $message = $emailBody;
+        $attachment = "";
+        $this->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
+    } else {
+
+        log_message('info', "Email Not Sent - Booking id: " . $email['booking_id']. ", 
+        		please recheck tag: '".$email['tag']."' & Phone Number - ". $email['phone_no']);
+    	$subject = 'Booking Email not sent';
+    	$message = "Please check email tag and phone number. Booking id is : ". 
+    		            $email['booking_id']. " Tag is '".$email['tag']."' & phone number is :".$email['phone_no'];
+    	$to = "anuj@247around.com, nits@247around.com";
+    	$this->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+        }
+    }
+
+    /**
      *  @desc : This method is used to make an outbound call to a customer.
      * This API will connect the two numbers given for the agent and customer. It will connect ‘From’ number
      * first. Once the person at ‘From’ end picks up the phone, it will connect to the number provided in the ‘To’.
