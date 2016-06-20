@@ -16,8 +16,8 @@ class Notify {
 	$this->My_CI = & get_instance();
 
 	$this->My_CI->load->helper(array('form', 'url'));
-    $this->My_CI->load->library('email');
-    $this->My_CI->load->model('vendor_model');
+	$this->My_CI->load->library('email');
+	$this->My_CI->load->model('vendor_model');
     }
 
     /**
@@ -78,28 +78,27 @@ class Notify {
 	curl_close($ch);
     }
 
-
-     /**
+    /**
      *  @desc : This method is to use SMS templates
      *  @param : SMS tag,parameters and phone no.
      *  @return : if SMS send return true else false
      */
-    function send_sms($sms){
-  
-    $template = $this->My_CI->vendor_model->getVendorSmsTemplate($sms['tag']); 
-    if(!empty($template)){
-        $smsBody = vsprintf($template, $sms['smsData']);
-        $this->sendTransactionalSms($sms['phone_no'], $smsBody);
-    } else {
+    function send_sms($sms) {
 
-        log_message('info', "Message Not Sent - Booking id: " . $sms['booking_id']. ", 
-        		please recheck tag: '".$sms['tag']."' & Phone Number - ". $sms['phone_no']);
-    	$subject = 'Booking SMS not sent';
-    	$message = "Please check SMS tag and phone number. Booking id is : ". 
-    		            $sms['booking_id']. " Tag is '".$sms['tag']."' & phone number is :".$sms['phone_no'];
-    	$to = "anuj@247around.com, nits@247around.com";
-    	$this->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
-        }
+	$template = $this->My_CI->vendor_model->getVendorSmsTemplate($sms['tag']);
+	if (!empty($template)) {
+	    $smsBody = vsprintf($template, $sms['smsData']);
+	    $this->sendTransactionalSms($sms['phone_no'], $smsBody);
+	} else {
+
+	    log_message('info', "Message Not Sent - Booking id: " . $sms['booking_id'] . ",
+        		please recheck tag: '" . $sms['tag'] . "' & Phone Number - " . $sms['phone_no']);
+	    $subject = 'Booking SMS not sent';
+	    $message = "Please check SMS tag and phone number. Booking id is : " .
+		$sms['booking_id'] . " Tag is '" . $sms['tag'] . "' & phone number is :" . $sms['phone_no'];
+	    $to = "anuj@247around.com, nits@247around.com";
+	    $this->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+	}
     }
 
     /**
@@ -107,30 +106,29 @@ class Notify {
      *  @param : email tag and other booking details.
      *  @return : if Email send return true else false
      */
-    function send_email($email){
-  
-    $template = $this->My_CI->booking_model->get_booking_email_template($email['tag']);
-    
-    if(!empty($template)){
-        $emailBody = vsprintf($template[0], $email);
-        $from = $template[2];
-        $to = $template[1];
-        $cc = "";
-        $bcc = "";
-        $subject = $email['subject'];
-        $message = $emailBody;
-        $attachment = "";
-        $this->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
-    } else {
+    function send_email($email) {
+	$template = $this->My_CI->booking_model->get_booking_email_template($email['tag']);
 
-        log_message('info', "Email Not Sent - Booking id: " . $email['booking_id']. ", 
-        		please recheck tag: '".$email['tag']."' & Phone Number - ". $email['phone_no']);
-    	$subject = 'Booking Email not sent';
-    	$message = "Please check email tag and phone number. Booking id is : ". 
-    		            $email['booking_id']. " Tag is '".$email['tag']."' & phone number is :".$email['phone_no'];
-    	$to = "anuj@247around.com, nits@247around.com";
-    	$this->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
-        }
+	if (!empty($template)) {
+	    $emailBody = vsprintf($template[0], $email);
+	    $from = $template[2];
+	    $to = $template[1];
+	    $cc = "";
+	    $bcc = "";
+	    $subject = $email['subject'];
+	    $message = $emailBody;
+	    $attachment = "";
+	    $this->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
+	} else {
+
+	    log_message('info', "Email Not Sent - Booking id: " . $email['booking_id'] . ",
+        		please recheck tag: '" . $email['tag'] . "' & Phone Number - " . $email['phone_no']);
+	    $subject = 'Booking Email not sent';
+	    $message = "Please check email tag and phone number. Booking id is : " .
+		$email['booking_id'] . " Tag is '" . $email['tag'] . "' & phone number is :" . $email['phone_no'];
+	    $to = "anuj@247around.com, nits@247around.com";
+	    $this->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+	}
     }
 
     /**
