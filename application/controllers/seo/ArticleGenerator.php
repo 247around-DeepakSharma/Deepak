@@ -381,7 +381,10 @@ class ArticleGenerator extends CI_Controller {
 <?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 	<sitemap>
-		<loc>http://www.247around.com/fixed-sitemap.xml</loc>
+		<loc>http://www.247around.com/sitemap-fixed.xml</loc>
+	</sitemap>
+	<sitemap>
+		<loc>http://www.247around.com/sitemap-blogs.xml</loc>
 	</sitemap>
 	<sitemap>
 		<loc>http://www.247around.com/sitemap-0.xml</loc>
