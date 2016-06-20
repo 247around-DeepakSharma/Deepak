@@ -31,6 +31,13 @@ class Blogs_model extends CI_Model {
 	return $results;
     }
 
+    function get_blog_by_keyword($kw) {
+	$this->db->where('keyword', $kw);
+	$query = $this->db->get('blogs');
+
+	return $query->result_array();
+    }
+
     function add_blog($blog) {
 	$this->db->insert('blogs', $blog);
 

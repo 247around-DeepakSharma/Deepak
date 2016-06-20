@@ -861,7 +861,7 @@ class Booking_model extends CI_Model {
 	    . "booking_details.appliance_id = appliance_details.id " . $condition;
 
 	$query = $this->db->query($sql);
-		
+
 	return $query->result_array();
     }
 
@@ -878,8 +878,11 @@ class Booking_model extends CI_Model {
     }
 
     function getBrandForService($service_id) {
-	$sql = "Select  brand_name from appliance_brands where service_id='$service_id'";
-	$query = $this->db->query($sql);
+	$this->db->where(array('service_id' => $service_id, 'seo' => 1));
+	$this->db->select('brand_name');
+	//$sql = "Select  brand_name from appliance_brands where service_id='$service_id'";
+	//$query = $this->db->query($sql);
+	$query = $this->db->get('appliance_brands');
 	return $query->result_array();
     }
 
@@ -1356,6 +1359,21 @@ class Booking_model extends CI_Model {
 	return $temp;
     }
 
+    /**
+     *  @desc : Function to get distinct area/pincode/city/state
+     *  @param : String place type
+     *  @return : Array Distinct places
+     */
+    function get_distinct_place($place_type) {
+	$this->db->distinct($place_type);
+	$this->db->group_by($place_type);
+	$query = $this->db->get('vendor_pincode_mapping');
+
+	//log_message('info', __METHOD__ . '=> Last query: ' . $this->db->last_query());
+
+	return $query->result_array();
+    }
+
 //    /**
 //     *  @desc : Function to get all pending queries
 //     *  @param : void
@@ -1382,6 +1400,7 @@ class Booking_model extends CI_Model {
 //
 //	return $temp;
 //    }
+//
 //Function to get cancelled queries according to pagination
     function get_cancelled_queries($limit, $start) {
 	$sql = "SELECT services.services,
@@ -1624,7 +1643,7 @@ class Booking_model extends CI_Model {
     	$this->db->select("template, to, from");
       	$this->db->where('tag', $email_tag);
       	$this->db->where('active', 1);
-      	$query = $this->db->get('email_template');      	
+      	$query = $this->db->get('email_template');
       	if($query->num_rows > 0){
         	$template = $query->result_array();
         	return array($template[0]['template'], $template[0]['to'], $template[0]['from']);
