@@ -68,7 +68,6 @@ function approve_booking() {
     console.log(postData);
     sendAjaxRequest(postData, review_completeUrl).done(function (data) {
 	location.reload();
-
     });
 }
 

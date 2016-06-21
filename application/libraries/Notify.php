@@ -125,7 +125,7 @@ class Notify {
             $this->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
         } else {
 
-            log_message('info', "Email Not Sent - Booking id: " . $email['booking_id'] . ", 
+            log_message('info', "Email Not Sent - Booking id: " . $email['booking_id'] . ",
         		please recheck tag: '" . $email['tag'] . "' & Phone Number - " . $email['phone_no']);
             $subject = 'Booking Email not sent';
             $message = "Please check email tag and phone number. Booking id is : " .
