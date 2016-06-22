@@ -78,11 +78,11 @@ class Booking extends CI_Controller {
     /**
      *  @desc : This method is used to add booking for a user.
      *
-     * This function will get all the booking details from confirmation booking page, 
+     * This function will get all the booking details from confirmation booking page,
      *      and then insert all the booking details in booking details table.
 
      * These booking details are the details which are filled in add new booking form while taking the actual booking.
-     * 
+     *
      * After insertion of booking details, if it is not a query then an email and SMS will be sent to the user for booking confirmation.
 
      *  @param : void
@@ -478,7 +478,7 @@ class Booking extends CI_Controller {
 
     /**
      *  @desc : This method is for checking validation.
-     * 
+     *
      * This method will check the validity for various fields in the booking form.
      *
      * Few of the validations are for user_id, service_id, booking date, etc.
@@ -529,7 +529,7 @@ class Booking extends CI_Controller {
 
     /**
      *  @desc : This method is to view all pending bookings.
-     * 
+     *
      * This method will be called when you select all from the pagination option present on the top of the page.
      *
      *
@@ -630,7 +630,7 @@ class Booking extends CI_Controller {
 
     /**
      *  @desc : This function displays list of completed bookings according to pagination
-     * 	
+     *
      * This method will show only that number of bookings which are being selected from the pagination section(50/100/200).
      *
      *  @param : Starting page & number of results per page
@@ -925,7 +925,7 @@ class Booking extends CI_Controller {
      * Atleast one booking cancellation reason must be selected.
      *
      * If others option is choosen, then the cancellation reason must be entered in the textarea.
-     *     
+     *
      *  @param : booking id
      *  @return : user details and booking history to view
      */
@@ -1037,8 +1037,8 @@ class Booking extends CI_Controller {
      *
      * Opens a form with user's name and current date and timeslot.
      *
-     * Select the new date and timeslot for current booking.        
-     *          
+     * Select the new date and timeslot for current booking.
+     *
      *  @param : booking id
      *  @return : user details and booking history to view
      */
@@ -1064,7 +1064,7 @@ class Booking extends CI_Controller {
     /**
      *  @desc : This function is to reschedule the booking.
      *
-     * Accepts the new booking date and timeslot povided in form and then reschedules booking 
+     * Accepts the new booking date and timeslot povided in form and then reschedules booking
      * accordingly.
      *
      *  @param : booking id
@@ -1256,7 +1256,7 @@ class Booking extends CI_Controller {
      *  @desc : This function is to select all pending bookings to assign vendor(if not already assigned)
      *
      * This form displays all the pending bookings for which still no vendor is assigned in a tabular form.
-     *     
+     *
      * Vendors can be assigned for more than one booking simultaneously.
      *
      *  @param : void
@@ -1279,7 +1279,7 @@ class Booking extends CI_Controller {
      *  it send a Post server request.
      *
      * We can select vendors available corresponding to each booking present and can assign that particular booking to vendor.
-     *     
+     *
      *  @param : void
      *  @return : load pending booking view
      */
@@ -1841,7 +1841,7 @@ class Booking extends CI_Controller {
      *  @desc : This function is to create jobcard
      *
      * 	Jobcard is created and attached in mail when we reschedule booking and is sent to the vendor to whome we assign this booking.
-     *      
+     *
      *  @param : booking id
      *  @return : void
      */
@@ -1857,7 +1857,7 @@ class Booking extends CI_Controller {
      *  @desc : This function is to view deatils of any particular booking.
      *
      * 	We get all the details like User's details, booking details, and also the appliance's unit details.
-     *      
+     *
      *  @param : booking id
      *  @return : booking details and load view
      */
@@ -1882,7 +1882,7 @@ class Booking extends CI_Controller {
      *  @desc : Function to sort pending bookings with current status
      *
      * 	This will display all the bookings present in sorted manner according to there booking status.
-     *      
+     *
      *  @param : start booking and bookings per page
      *  @return : bookings and load view
      */
@@ -1912,7 +1912,7 @@ class Booking extends CI_Controller {
      *  @desc : Function to sort pending and rescheduled bookings with booking date
      *
      * 	This method will display all the pending and rescheduled bookings present in sorted manner according to there booking date.
-     *      
+     *
      *  @param : start booking and bookings per page
      *  @return : sorted bookings and load view
      */
@@ -1941,11 +1941,11 @@ class Booking extends CI_Controller {
     /**
      *  @desc : Function to sort pending and rescheduled bookings with service center's name
      *
-     * 	This method will display all the pending and rescheduled bookings present in 
+     * 	This method will display all the pending and rescheduled bookings present in
      *      sorted manner according to service centre's name assigned for the booking.
      *
      * 	This function is usefull to get all the bookings assigned to particular vendor together.
-     *      
+     *
      *  @param : start booking and bookings per page
      *  @return : assigned vendor sorted bookings and load view
      */
@@ -1977,7 +1977,7 @@ class Booking extends CI_Controller {
       and also collected by.
      *
      * 	We can also edit the closing remarks entered during completing the booking earliar with wrong details(remarks).
-     *      
+     *
      *  @param : booking id
      *  @return : user's and booking details to view
      */
@@ -2006,11 +2006,11 @@ class Booking extends CI_Controller {
 
     /**
      *  @desc : This method will edit the completed booking details
-     *          
+     *
      * 	Through this the prices(service charge, parts cost, etc) and collected by is edited(if changed).
      *
      * 	Closing remarks also get edited if changed.
-     *      
+     *
      *  @param : booking id
      *  @return : edits the completed booking and load view
      */
@@ -2033,9 +2033,9 @@ class Booking extends CI_Controller {
 
     /**
      *  @desc : This function is to select particular appliance for booking.
-     *          
-     * 	Through this we get a form with the appliance details for a appliance which is already registered with us under a particular user.     
-     *      
+     *
+     * 	Through this we get a form with the appliance details for a appliance which is already registered with us under a particular user.
+     *
      *  @param : appliance id
      *  @return : user's and appliance details to view
      */
@@ -2060,11 +2060,11 @@ class Booking extends CI_Controller {
 
     /**
      *  @desc : This function is to get appliance booking confirmation page
-     *          
+     *
      * 	This method will show all the entered details in form for that particular appliance's booking.
      *
      * 	This will help us to re-check the entered details before making it a booking.
-     *      
+     *
      *  @param : appliance id
      *  @return : user and appliance details and load view
      */
@@ -2115,9 +2115,9 @@ class Booking extends CI_Controller {
 
     /**
      *  @desc : This function is to enter booking for particular appliance.
-     *          
+     *
      * 	The booking will be inserted for the particular appliance of the particular user with the services selected.
-     *      
+     *
      *  @param : void
      *  @return : loads the pending booking view
      */
@@ -2649,8 +2649,8 @@ class Booking extends CI_Controller {
         log_message('info', __FUNCTION__);
 
         $s1 = $_SERVER['HTTP_REFERER'];
-        $s2 = "https://aroundhomzapp.com/";
-        $redirect_url = substr($s1, strlen($s2));
+        $s2 = "https://www.aroundhomzapp.com/";
+	$redirect_url = substr($s1, strlen($s2));
 
         $this->checkUserSession();
 
