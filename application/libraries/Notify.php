@@ -1,7 +1,8 @@
 <?php
 
-if (!defined('BASEPATH'))
+if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
+}
 
 /**
  * Notify library to send Mails and SMSs
@@ -13,11 +14,11 @@ class Notify {
     var $My_CI;
 
     function __Construct() {
-	$this->My_CI = & get_instance();
+        $this->My_CI = & get_instance();
 
-	$this->My_CI->load->helper(array('form', 'url'));
-	$this->My_CI->load->library('email');
-	$this->My_CI->load->model('vendor_model');
+        $this->My_CI->load->helper(array('form', 'url'));
+        $this->My_CI->load->library('email');
+        $this->My_CI->load->model('vendor_model');
     }
 
     /**
@@ -26,56 +27,56 @@ class Notify {
      *  @return : if mail send return true else false
      */
     function sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment) {
-	//Clear previous email
-	$this->My_CI->email->clear(TRUE);
+        //Clear previous email
+        $this->My_CI->email->clear(TRUE);
 
-	//Attach file with mail
-	if (!empty($attachment))
-	    $this->My_CI->email->attach($attachment, 'attachment');
+        //Attach file with mail
+        if (!empty($attachment))
+            $this->My_CI->email->attach($attachment, 'attachment');
 
-	$this->My_CI->email->from($from, '247around Team');
-	$this->My_CI->email->to($to);
-	$this->My_CI->email->bcc($bcc);
-	$this->My_CI->email->cc($cc);
-	$this->My_CI->email->subject($subject);
-	$this->My_CI->email->message($message);
+        $this->My_CI->email->from($from, '247around Team');
+        $this->My_CI->email->to($to);
+        $this->My_CI->email->bcc($bcc);
+        $this->My_CI->email->cc($cc);
+        $this->My_CI->email->subject($subject);
+        $this->My_CI->email->message($message);
 
-	if ($this->My_CI->email->send())
-	    return true;
-	else
-	    return false;
+        if ($this->My_CI->email->send())
+            return true;
+        else
+            return false;
     }
 
     function sendTransactionalSms($phone_number, $body) {
-	$post_data = array(
-	    // 'From' doesn't matter; For transactional, this will be replaced with your SenderId;
-	    // For promotional, this will be ignored by the SMS gateway
-	    'From' => '01130017601',
-	    'To' => $phone_number,
-	    'Body' => $body,
-	);
+        $post_data = array(
+            // 'From' doesn't matter; For transactional, this will be replaced with your SenderId;
+            // For promotional, this will be ignored by the SMS gateway
+            'From' => '01130017601',
+            'To' => $phone_number,
+            'Body' => $body,
+        );
 
-	$exotel_sid = "aroundhomz";
-	$exotel_token = "a041058fa6b179ecdb9846ccf0e4fd8e09104612";
+        $exotel_sid = "aroundhomz";
+        $exotel_token = "a041058fa6b179ecdb9846ccf0e4fd8e09104612";
 
-	$url = "https://" . $exotel_sid . ":" . $exotel_token . "@twilix.exotel.in/v1/Accounts/" . $exotel_sid . "/Sms/send";
+        $url = "https://" . $exotel_sid . ":" . $exotel_token . "@twilix.exotel.in/v1/Accounts/" . $exotel_sid . "/Sms/send";
 
-	$ch = curl_init();
+        $ch = curl_init();
 
-	curl_setopt($ch, CURLOPT_VERBOSE, 1);
-	curl_setopt($ch, CURLOPT_URL, $url);
-	curl_setopt($ch, CURLOPT_POST, 1);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-	curl_setopt($ch, CURLOPT_FAILONERROR, 0);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
+        curl_setopt($ch, CURLOPT_VERBOSE, 1);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_FAILONERROR, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
 
-	$http_result = curl_exec($ch);
-	$error = curl_error($ch);
-	$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-	//print_r($ch);
-	//echo exit();
-	curl_close($ch);
+        $http_result = curl_exec($ch);
+        $error = curl_error($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        //print_r($ch);
+        //echo exit();
+        curl_close($ch);
     }
 
     /**
@@ -85,20 +86,22 @@ class Notify {
      */
     function send_sms($sms) {
 
-	$template = $this->My_CI->vendor_model->getVendorSmsTemplate($sms['tag']);
-	if (!empty($template)) {
-	    $smsBody = vsprintf($template, $sms['smsData']);
-	    $this->sendTransactionalSms($sms['phone_no'], $smsBody);
-	} else {
+        $template = $this->My_CI->vendor_model->getVendorSmsTemplate($sms['tag']);
+        if (!empty($template)) {
+            $smsBody = vsprintf($template, $sms['smsData']);
+            $this->sendTransactionalSms($sms['phone_no'], $smsBody);
+        } elseif ($sms['smsData'] == "") {        //As we have to use complete sms data from DB, nothing to edit/replace.
+            $this->sendTransactionalSms($sms['phone_no'], $template);
+        } else {
 
-	    log_message('info', "Message Not Sent - Booking id: " . $sms['booking_id'] . ",
+            log_message('info', "Message Not Sent - Booking id: " . $sms['booking_id'] . ", 
         		please recheck tag: '" . $sms['tag'] . "' & Phone Number - " . $sms['phone_no']);
-	    $subject = 'Booking SMS not sent';
-	    $message = "Please check SMS tag and phone number. Booking id is : " .
-		$sms['booking_id'] . " Tag is '" . $sms['tag'] . "' & phone number is :" . $sms['phone_no'];
-	    $to = "anuj@247around.com, nits@247around.com";
-	    $this->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
-	}
+            $subject = 'Booking SMS not sent';
+            $message = "Please check SMS tag and phone number. Booking id is : " .
+                    $sms['booking_id'] . " Tag is '" . $sms['tag'] . "' & phone number is :" . $sms['phone_no'];
+            $to = "anuj@247around.com, nits@247around.com";
+            $this->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+        }
     }
 
     /**
@@ -107,28 +110,29 @@ class Notify {
      *  @return : if Email send return true else false
      */
     function send_email($email) {
-	$template = $this->My_CI->booking_model->get_booking_email_template($email['tag']);
 
-	if (!empty($template)) {
-	    $emailBody = vsprintf($template[0], $email);
-	    $from = $template[2];
-	    $to = $template[1];
-	    $cc = "";
-	    $bcc = "";
-	    $subject = $email['subject'];
-	    $message = $emailBody;
-	    $attachment = "";
-	    $this->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
-	} else {
+        $template = $this->My_CI->booking_model->get_booking_email_template($email['tag']);
 
-	    log_message('info', "Email Not Sent - Booking id: " . $email['booking_id'] . ",
+        if (!empty($template)) {
+            $emailBody = vsprintf($template[0], $email);
+            $from = $template[2];
+            $to = $template[1];
+            $cc = "";
+            $bcc = "";
+            $subject = $email['subject'];
+            $message = $emailBody;
+            $attachment = "";
+            $this->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
+        } else {
+
+            log_message('info', "Email Not Sent - Booking id: " . $email['booking_id'] . ",
         		please recheck tag: '" . $email['tag'] . "' & Phone Number - " . $email['phone_no']);
-	    $subject = 'Booking Email not sent';
-	    $message = "Please check email tag and phone number. Booking id is : " .
-		$email['booking_id'] . " Tag is '" . $email['tag'] . "' & phone number is :" . $email['phone_no'];
-	    $to = "anuj@247around.com, nits@247around.com";
-	    $this->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
-	}
+            $subject = 'Booking Email not sent';
+            $message = "Please check email tag and phone number. Booking id is : " .
+                    $email['booking_id'] . " Tag is '" . $email['tag'] . "' & phone number is :" . $email['phone_no'];
+            $to = "anuj@247around.com, nits@247around.com";
+            $this->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+        }
     }
 
     /**
@@ -145,39 +149,39 @@ class Notify {
      */
     function make_outbound_call($agent_phone, $customer_phone) {
 
-	$post_data = array(
-	    'From' => $agent_phone,
-	    'To' => $customer_phone,
-	    'CallerId' => '01139595200', //247around call centre exophone number
-	    'CallType' => 'trans',
-	    'StatusCallback' => 'https://aroundhomzapp.com/call-customer-status-callback'
-	);
+        $post_data = array(
+            'From' => $agent_phone,
+            'To' => $customer_phone,
+            'CallerId' => '01139595200', //247around call centre exophone number
+            'CallType' => 'trans',
+            'StatusCallback' => 'https://aroundhomzapp.com/call-customer-status-callback'
+        );
 
-	$exotel_sid = "aroundhomz";
-	$exotel_token = "a041058fa6b179ecdb9846ccf0e4fd8e09104612";
+        $exotel_sid = "aroundhomz";
+        $exotel_token = "a041058fa6b179ecdb9846ccf0e4fd8e09104612";
 
-	$url = "https://" . $exotel_sid . ":" . $exotel_token . "@twilix.exotel.in/v1/Accounts/" . $exotel_sid . "/Calls/connect";
+        $url = "https://" . $exotel_sid . ":" . $exotel_token . "@twilix.exotel.in/v1/Accounts/" . $exotel_sid . "/Calls/connect";
 
-	$ch = curl_init();
+        $ch = curl_init();
 
-	curl_setopt($ch, CURLOPT_VERBOSE, 1);
-	curl_setopt($ch, CURLOPT_URL, $url);
-	curl_setopt($ch, CURLOPT_POST, 1);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-	curl_setopt($ch, CURLOPT_FAILONERROR, 0);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
+        curl_setopt($ch, CURLOPT_VERBOSE, 1);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_FAILONERROR, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
 
-	$http_result = curl_exec($ch);
-	$error = curl_error($ch);
-	$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $http_result = curl_exec($ch);
+        $error = curl_error($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-	curl_close($ch);
+        curl_close($ch);
 
-	log_message('info', __FUNCTION__ . "=> " . print_r(array($http_result, $error, $http_code), TRUE));
+        log_message('info', __FUNCTION__ . "=> " . print_r(array($http_result, $error, $http_code), TRUE));
 
-	//print_r(array($http_result, $error, $http_code));
-	//echo "Response = " . print_r($http_result);
+        //print_r(array($http_result, $error, $http_code));
+        //echo "Response = " . print_r($http_result);
     }
 
 }
