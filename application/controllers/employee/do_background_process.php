@@ -47,15 +47,18 @@ class Do_background_process extends CI_Controller {
 
                 //Assign service centre
                 $this->booking_model->assign_booking($booking_id, $service);
-                $query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
-                $sms['tag'] = "service_center_assigned";
-                $sms['phone_no'] = $query1[0]['phone_number'];
+
+		//Send SMS to customer
+		$query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
+                $sms['tag'] = "service_centre_assigned";
+		$sms['phone_no'] = $query1[0]['phone_number'];
                 $sms['smsData'] = "";
-                //$sms['smsData']['service'] = $query1[0]['services'];                
-                $sms_sent = $this->notify->send_sms($sms);
+
+		$sms_sent = $this->notify->send_sms($sms);
                 if ($sms_sent === FALSE) {
-                    log_message('info', "SMS not sent to user while assign vendor. User's Phone: " . $query1[0]['phone_number']);
-                }
+                    log_message('info', "SMS not sent to user while assigning vendor. User's Phone: " .
+			$query1[0]['phone_number']);
+		}
 
                 //Prepare job card
                 $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
@@ -236,11 +239,11 @@ class Do_background_process extends CI_Controller {
     }
 
     function save_completed_booking() {
-        
+
     }
 
     function save_cancelled_booking() {
-        
+
     }
 
 }

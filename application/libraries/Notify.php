@@ -85,15 +85,11 @@ class Notify {
      *  @return : if SMS send return true else false
      */
     function send_sms($sms) {
-
         $template = $this->My_CI->vendor_model->getVendorSmsTemplate($sms['tag']);
         if (!empty($template)) {
             $smsBody = vsprintf($template, $sms['smsData']);
             $this->sendTransactionalSms($sms['phone_no'], $smsBody);
-        } elseif ($sms['smsData'] == "") {        //As we have to use complete sms data from DB, nothing to edit/replace.
-            $this->sendTransactionalSms($sms['phone_no'], $template);
         } else {
-
             log_message('info', "Message Not Sent - Booking id: " . $sms['booking_id'] . ", 
         		please recheck tag: '" . $sms['tag'] . "' & Phone Number - " . $sms['phone_no']);
             $subject = 'Booking SMS not sent';

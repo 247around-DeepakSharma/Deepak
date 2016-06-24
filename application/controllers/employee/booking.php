@@ -1680,7 +1680,7 @@ class Booking extends CI_Controller {
         }
         //booking not confirmed
         else {
-            $booking['current_status'] = "FollowUp";
+	    $booking['current_status'] = "FollowUp";
             $booking['potential_value'] = $this->input->post('potential_value');
             $booking['booking_id'] = $booking_id;
 
@@ -1694,14 +1694,19 @@ class Booking extends CI_Controller {
 
             //Updating booking details
             $result = $this->booking_model->update_booking_details($booking_id, $booking);
-            $query1 = $this->booking_model->booking_history_by_booking_id($booking['booking_id']);
-            $sms['tag'] = "call_not_picked";
-            $sms['smsData']['service'] = $query1[0]['services'];
-            $sms['phone_no'] = $query1[0]['phone_number'];
 
-            $this->notify->send_sms($sms);
+	    //Send SMS if customer didn't pick the call
+	    if ($this->input->post('internal_status') == INT_STATUS_CUSTOMER_NOT_REACHABLE) {
+		$query1 = $this->booking_model->booking_history_by_booking_id($booking['booking_id']);
+		$sms['tag'] = "call_not_picked";
+		$sms['smsData']['name'] = $query1[0]['name'];
+		$sms['smsData']['service'] = $query1[0]['services'];
+		$sms['phone_no'] = $query1[0]['phone_number'];
 
-            if ($result) {
+		$this->notify->send_sms($sms);
+	    }
+
+	    if ($result) {
                 //Update SD leads table if required
                 if ($is_sd) {
                     if ($this->booking_model->check_sd_lead_exists_by_booking_id($booking_id) === TRUE) {
