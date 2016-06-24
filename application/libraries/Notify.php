@@ -144,13 +144,15 @@ class Notify {
      *  @return :
      */
     function make_outbound_call($agent_phone, $customer_phone) {
+	//Callback fn called by Exotel
+	$cb = base_url() . 'call-customer-status-callback';
 
         $post_data = array(
             'From' => $agent_phone,
             'To' => $customer_phone,
             'CallerId' => '01139595200', //247around call centre exophone number
             'CallType' => 'trans',
-            'StatusCallback' => 'https://aroundhomzapp.com/call-customer-status-callback'
+            'StatusCallback' => $cb
         );
 
         $exotel_sid = "aroundhomz";
