@@ -1,21 +1,21 @@
-<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 
 
-<?php 
-   if (isset($query2)) 
+<?php
+   if (isset($query2))
    {
      $brand  ="";
      $category="";
      $capacity="";
-     
+
      for($i=0; $i< $booking[0]['quantity']; $i++)
      {
        $brand .=$query2[$i]['appliance_brand'].",";
        $category .=$query2[$i]['appliance_category'].",";
        $capacity .=$query2[$i]['appliance_capacity'].",";
-   
+
      }
-   } 
+   }
    ?>
 <div class="container-fluid">
    <div class="row" style="margin-top: 40px;">
@@ -27,19 +27,19 @@
             <div class="panel-body">
                <form class="form-horizontal" id="complete_booking_form" action="<?php echo base_url()?>employee/service_centers/process_complete_booking/<?php echo $booking_id ?>" method="POST" >
                   <div class="col-md-6">
-                    
+
                      <div class="form-group ">
                         <label for="name" class="col-md-3">User Name</label>
                         <div class="col-md-6">
                            <input type="text" class="form-control"  name="name" value = "<?php if (isset($booking[0]['name'])) {echo $booking[0]['name']; }?>"  disabled>
-                          
+
                         </div>
                      </div>
                      <div class="form-group ">
                         <label for="phone_number" class="col-md-3">User Phone No:</label>
                         <div class="col-md-6">
                            <input type="text" class="form-control"  name="phone_number" value = "<?php if (isset($booking[0]['phone_number'])) {echo $booking[0]['phone_number']; }?>"  disabled>
-                           
+
                         </div>
                      </div>
                      <div class="form-group ">
@@ -80,14 +80,14 @@
                      <div class="form-group <?php if( form_error('booking_timeslot') ) { echo 'has-error';} ?>">
                         <label for="booking_timeslot" class="col-md-3">Booking Time</label>
                         <div class="col-md-6">
-                           <input type="text" class="form-control"  name="booking_timeslot" value = "<?php if (isset($booking[0]['booking_timeslot'])) {echo $booking[0]['booking_timeslot']; }?>"  disabled>    
+                           <input type="text" class="form-control"  name="booking_timeslot" value = "<?php if (isset($booking[0]['booking_timeslot'])) {echo $booking[0]['booking_timeslot']; }?>"  disabled>
                            <?php echo form_error('booking_timeslot'); ?>
                         </div>
                      </div>
                      <div class="form-group <?php if( form_error('amount_due') ) { echo 'has-error';} ?>">
                         <label for="amount_due" class="col-md-3">Amount Due</label>
                         <div class="col-md-6">
-                           <input type="text" class="form-control"  name="amount_due" value = "<?php if (isset($booking[0]['amount_due'])) {echo $booking[0]['amount_due']; }?>"  disabled>    
+                           <input type="text" class="form-control"  name="amount_due" value = "<?php if (isset($booking[0]['amount_due'])) {echo $booking[0]['amount_due']; }?>"  disabled>
                            <?php echo form_error('amount_due'); ?>
                         </div>
                      </div>
@@ -142,14 +142,14 @@
                            value="<?php  echo $status->status;?>" style="height:20px;width:20px;margin-left:20px;" required>
                         <?php  echo $status->status;?>&nbsp;&nbsp;&nbsp;&nbsp;
                      </div>
-                     <?php } ?> 
+                     <?php } ?>
                      <?php echo form_error('internal_status'); ?>
                   </div>
                </div>
                <?php } else { ?>
                <input type ="hidden" name ="internal_status" value = "Completed" >
                <?php } ?>
-                     
+
                      <div class="form-group <?php if( form_error('service_center_remarks') ) { echo 'has-error';} ?>">
                         <label for="description" class="col-md-2">Closing Remarks</label>
                         <div class="col-md-6">
@@ -169,7 +169,7 @@
    </div>
 </div>
 <script type="text/javascript">
-   
+
  $(document).ready(function () {
    sum_service_charges();
   //called when key is pressed in textbox
@@ -181,7 +181,7 @@
                return false;
     }
     sum_service_charges();
-    
+
 
    });
 
@@ -255,11 +255,11 @@
             $("#complete_booking_form").validate({
                 rules: {
                     closing_remarks: "required"
-                    
+
                 },
                 messages: {
                     closing_remarks: "Please enter Closing Remarks"
-                    
+
                 },
                 submitHandler: function(form) {
                     form.submit();
