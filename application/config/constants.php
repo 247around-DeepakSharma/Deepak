@@ -36,5 +36,8 @@ define('FOPEN_READ_WRITE_CREATE',				'a+b');
 define('FOPEN_WRITE_CREATE_STRICT',				'xb');
 define('FOPEN_READ_WRITE_CREATE_STRICT',		'x+b');
 
+define('INT_STATUS_CUSTOMER_NOT_REACHABLE', 'Customer Not Reachable');
+
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

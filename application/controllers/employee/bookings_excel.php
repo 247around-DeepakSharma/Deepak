@@ -8,6 +8,11 @@ if (!defined('BASEPATH'))
 //ini_set('display_errors', TRUE);
 //ini_set('display_startup_errors', TRUE);
 
+//For infinite memory
+ini_set('memory_limit', '-1');
+//3600 seconds = 60 minutes
+ini_set('max_execution_time', 3600);
+
 define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
 
 class bookings_excel extends CI_Controller {
@@ -156,60 +161,6 @@ class bookings_excel extends CI_Controller {
 		if (stristr($prod, "Chimney")) {
 		    $lead_details['Product'] = 'Chimney';
 		}
-
-
-		/*
-		  switch (trim($rowData[0]['Product'])) {
-		  case 'Washing Machines & Dryers':
-		  $lead_details['Product'] = 'Washing Machine';
-		  break;
-
-		  case 'Television':
-		  $lead_details['Product'] = 'Television';
-		  break;
-
-		  case 'Televisions':
-		  $lead_details['Product'] = 'Television';
-		  break;
-
-		  case 'Airconditioner':
-		  $lead_details['Product'] = 'Air Conditioner';
-		  break;
-
-		  case 'Air Conditioner':
-		  $lead_details['Product'] = 'Air Conditioner';
-		  break;
-
-		  case 'Air Conditioners Window AC':
-		  $lead_details['Product'] = 'Air Conditioner';
-		  break;
-
-		  case 'Air Conditioners Split AC':
-		  $lead_details['Product'] = 'Air Conditioner';
-		  break;
-
-		  case 'Refrigerator':
-		  $lead_details['Product'] = 'Refrigerator';
-		  break;
-
-		  case 'Microwave Ovens & OTGs':
-		  $lead_details['Product'] = 'Microwave';
-		  break;
-
-		  case 'Water Purifiers':
-		  $lead_details['Product'] = 'Water Purifier';
-		  break;
-
-		  case 'Chimney & Hoods':
-		  $lead_details['Product'] = 'Chimney';
-		  break;
-
-		  default:
-		  $lead_details['Product'] = '';
-		  break;
-		  }
-		 *
-		 */
 
 		$lead_details['Product_Type'] = $rowData[0]['Product_Type'];
 		$lead_details['Customer_Name'] = $rowData[0]['Customer_Name'];
@@ -577,6 +528,12 @@ class bookings_excel extends CI_Controller {
 			$sms['tag'] = "sd_shipped_free";
 			$sms['smsData']['service'] = 'TV';
 			$sms['smsData']['message'] = 'free installation and wall-mounted stand';
+			break;
+
+		    case 'Water Purifier':
+			$sms['tag'] = "sd_shipped_free";
+			$sms['smsData']['service'] = 'Water Purifier';
+			$sms['smsData']['message'] = 'free installation';
 			break;
 
 		    case 'Air Conditioner':

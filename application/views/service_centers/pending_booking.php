@@ -6,13 +6,13 @@
                 <div class="panel-heading">
                     <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Pending Booking (<?php echo $count; ?>)</h2>
                 </div>
-           
+
              <div class="panel-body">
                   <div class="table-responsive">
                      <table class="table table-bordered table-hover table-striped" >
                         <thead>
                         <tr>
-                    
+
 	                    <th>S No.</th>
 	                    <th>Booking Id</th>
 	                    <th>User Name</th>
@@ -22,10 +22,10 @@
 	                    <th>Status</th>
                         <th>247around Remarks</th>
 	                    <th>View</th>
-	                    <th>Cancel</th>
-	                    <th>Complete</th>
+			<!--<th>Cancel</th>-->
+			    <th>Complete</th>
 	                    <th>Job Card</th>
-                    
+
 
                        </tr>
                         </thead>
@@ -70,18 +70,18 @@
 
 <style type="text/css">
   .marquee {
-  height:50px;
-  width: 184px;
-  color: red;
+      height:100%;
+      width: 100%;
+      color: red;
   overflow: hidden;
   position: relative;
 }
 
 .marquee div {
   display: block;
-  width: 200%;
+  width: 100%;
   height: 50px;
-
+  z-index: -1;
   position: absolute;
   overflow: hidden;
 

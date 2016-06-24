@@ -1,4 +1,4 @@
-<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 
 <script type="text/javascript">
     function check() {
@@ -27,7 +27,7 @@
             <div class="col-lg-12">
 
                 <h1 class="page-header">
-                    Cancel Booking 
+                    Cancel Booking
               </h1>
 
                 <form class="form-horizontal" name="myForm" action="<?php echo base_url()?>employee/service_centers/process_cancel_booking/<?php echo $user_and_booking_details[0]['booking_id']; ?>" method="POST">
@@ -43,7 +43,7 @@
                     <div class="form-group <?php if( form_error('cancellation_reason') ) { echo 'has-error';} ?>">
                         <label for="cancellation_reason" class="col-md-2">Cancelation Reason</label>
                         <div class="col-md-6">
-                            <?php 
+                            <?php
                     $count = 1;
                     foreach($reason as $key =>$data1){?>
                                 <input style="width:100px;height:20px;" type="radio" class="form-control" onclick="check()" name="cancellation_reason" id="<?php echo " cancellation_reason ".$count; $count++;?>" value="<?php  echo $data1->reason;?>" required>

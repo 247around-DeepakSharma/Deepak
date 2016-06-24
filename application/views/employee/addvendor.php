@@ -1,4 +1,4 @@
-<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 <script src="<?php echo base_url()?>js/custom_js.js"></script>
 
 
@@ -37,11 +37,11 @@
       <div class="col-md-4">
          <select class=" form-control" name ="state" id="state" onChange="getDistrict()" placeholder="Select State">
             <option disabled="disabled" selected="selected"> Select State</option>
-            <?php 
-               foreach ($results['select_state'] as $state) {    
+            <?php
+               foreach ($results['select_state'] as $state) {
                ?>
             <option value = "<?php echo $state['state']?>"
-            <?php if (isset($query[0]['state'])){ 
+            <?php if (isset($query[0]['state'])){
                 if(strtolower(trim($query[0]['state']))  == strtolower(trim($state['state']))){
                   echo "selected";
                 }
@@ -58,7 +58,7 @@
       <label for="state" class="col-md-1">District:</label>
       <div class="col-md-4">
          <select class="district form-control" name ="district" onChange="getPincode()">
-            <option selected disabled>Select District</option> 
+            <option selected disabled>Select District</option>
 
             <option <?php if (isset($query[0]['district'])){ echo "selected";}?>><?php if (isset($query[0]['district'])){echo $query[0]['district'];}?></option>
          </select>
@@ -173,8 +173,8 @@
               <?php echo form_error('primary_contact_phone_1'); ?>
             </div>
           </div>
-          
-          
+
+
           <div style="float:left;width:33%;" class="form-group <?php if( form_error('primary_contact_phone_2') ) { echo 'has-error';} ?>">
             <label style="width:150px;" for="primary_contact_phone_2" class="col-md-2">Primary Contact Ph.No. 2:</label>
             <div class="col-md-2">
@@ -193,7 +193,7 @@
               <?php echo form_error('owner_name'); ?>
             </div>
           </div>
-          
+
 
 
           <div style="float:left;width:33%;" class="form-group <?php if( form_error('owner_email') ) { echo 'has-error';} ?>">
@@ -203,7 +203,7 @@
               <?php echo form_error('owner_email'); ?>
             </div>
           </div>
-          
+
 
           <div style="float:left;width:33%;" class="form-group <?php if( form_error('owner_phone_1') ) { echo 'has-error';} ?>">
             <label style="width:150px;" for="owner_phone_1" class="col-md-2">Owner Ph. No. 1:</label>
@@ -230,7 +230,7 @@
               <?php echo form_error('bank_name'); ?>
             </div>
           </div>
-          
+
           <div>
           <div style="float:left;width:33%;" class="form-group <?php if( form_error('bank_account') ) { echo 'has-error';} ?>">
             <label style="width:150px;" for="bank_account" class="col-md-2">Bank Account:</label>
@@ -271,14 +271,14 @@
           <?php } ?>
             </div>
           </div>
-          
+
           <div style="float:left;width:90%;" class="form-group <?php if( form_error('brand') ) { echo 'has-error';} ?>">
             <label for="brand" class="col-md-2" style="color:blue;">Brands:</label>
             <div class="col-md-12">
             <?php foreach($results['brands'] as $key => $brands){
                ?>
             <label for="Brand" >
-            <input type="checkbox" name="brands[]" value ="<?php 
+            <input type="checkbox" name="brands[]" value ="<?php
            echo $brands->brand_name;?>"
            <?php if(isset($selected_brands_list)){if(in_array($brands->brand_name, $selected_brands_list))echo "checked";}
             ?>>
@@ -303,7 +303,7 @@
 }); */
   function getDistrict(){
      var state = $("#state").val();
-     var district = $(".district").val();     
+     var district = $(".district").val();
     // alert(district);
      $.ajax({
        type: 'POST',
@@ -314,7 +314,7 @@
          $(".district").html(data);
          if(district !=""){
            getPincode();
-         }           
+         }
        }
      });
    }
@@ -327,7 +327,7 @@
         data: {pincode: pincode, district: district},
         success: function (data) {
           //console.log(data);
-          $(".pincode").html(data);          
+          $(".pincode").html(data);
        }
      });
    }
@@ -357,7 +357,7 @@
 </style>
 
 <script type="text/javascript">
-  
+
    (function($,W,D)
 {
     var JQUERY4U = {};
@@ -397,15 +397,15 @@
                     primary_contact_name: "required",
                     owner_name: "required",
                     email: {
-                    
+
                         email: true
                     },
                     primary_contact_email: {
-                    
+
                         email: true
                     },
                     owner_email: {
-                    
+
                         email: true
                     }
                 },
@@ -441,5 +441,5 @@
 })(jQuery, window, document);
 
 
- 
+
 </script>

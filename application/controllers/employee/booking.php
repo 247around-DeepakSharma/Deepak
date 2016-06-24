@@ -78,11 +78,11 @@ class Booking extends CI_Controller {
     /**
      *  @desc : This method is used to add booking for a user.
      *
-     * This function will get all the booking details from confirmation booking page, 
+     * This function will get all the booking details from confirmation booking page,
      *      and then insert all the booking details in booking details table.
 
      * These booking details are the details which are filled in add new booking form while taking the actual booking.
-     * 
+     *
      * After insertion of booking details, if it is not a query then an email and SMS will be sent to the user for booking confirmation.
 
      *  @param : void
@@ -478,7 +478,7 @@ class Booking extends CI_Controller {
 
     /**
      *  @desc : This method is for checking validation.
-     * 
+     *
      * This method will check the validity for various fields in the booking form.
      *
      * Few of the validations are for user_id, service_id, booking date, etc.
@@ -529,7 +529,7 @@ class Booking extends CI_Controller {
 
     /**
      *  @desc : This method is to view all pending bookings.
-     * 
+     *
      * This method will be called when you select all from the pagination option present on the top of the page.
      *
      *
@@ -630,7 +630,7 @@ class Booking extends CI_Controller {
 
     /**
      *  @desc : This function displays list of completed bookings according to pagination
-     * 	
+     *
      * This method will show only that number of bookings which are being selected from the pagination section(50/100/200).
      *
      *  @param : Starting page & number of results per page
@@ -813,7 +813,7 @@ class Booking extends CI_Controller {
     /**
      *  @desc : This function is to complete the booking.
      *
-     * Accepts all the inputs provided in complete booking form and then completes the 			booking with the details provided.
+     * Accepts all the inputs provided in complete booking form and then completes the booking with the details provided.
      *
      *  @param : booking id
      *  @return : completes the booking and load view
@@ -882,39 +882,38 @@ class Booking extends CI_Controller {
         }
 
 
-	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id, "join");
+        $query1 = $this->booking_model->booking_history_by_booking_id($booking_id, "join");
 
-	log_message('info', 'Booking Status Change- Booking id: ' . $booking_id . " Completed By " . $this->session->userdata('employee_id'));
+        log_message('info', 'Booking Status Change- Booking id: ' . $booking_id . " Completed By " . $this->session->userdata('employee_id'));
 
-	$email['name'] = $query1[0]['name'];
-	$email['phone_no'] = $query1[0]['phone_number'];
-	$email['user_email'] = $query1[0]['user_email'];
-	$email['booking_id'] = $query1[0]['booking_id'];
-	$email['service'] = $query1[0]['services'];
-	$email['booking_date'] = $query1[0]['booking_date'];
-	$email['closed_date'] = $data['closed_date'];
-	$email['amount_paid'] = $data['amount_paid'];
-	$email['closing_remarks'] = $data['closing_remarks'];
-	$email['vendor_name'] = $query1[0]['vendor_name'];
-	$email['district'] = $query1[0]['district'];
-	$email['tag'] = "complete_booking";
-	$email['subject'] = "Booking Completion-AROUND";
+        $email['name'] = $query1[0]['name'];
+        $email['phone_no'] = $query1[0]['phone_number'];
+        $email['user_email'] = $query1[0]['user_email'];
+        $email['booking_id'] = $query1[0]['booking_id'];
+        $email['service'] = $query1[0]['services'];
+        $email['booking_date'] = $query1[0]['booking_date'];
+        $email['closed_date'] = $data['closed_date'];
+        $email['amount_paid'] = $data['amount_paid'];
+        $email['closing_remarks'] = $data['closing_remarks'];
+        $email['vendor_name'] = $query1[0]['vendor_name'];
+        $email['district'] = $query1[0]['district'];
+        $email['tag'] = "complete_booking";
+        $email['subject'] = "Booking Completion-AROUND";
 
-	$this->notify->send_email($email);
+        $this->notify->send_email($email);
 
-	//------End of sending email--------//
-	//------Send SMS on Completion of booking-----//
-	if ($is_sd == FALSE) {
-	    $sms['tag'] = "complete_booking";
-	    $sms['smsData']['service'] = $query1[0]['services'];
-	    $sms['phone_no'] = $query1[0]['phone_number'];
-	    $sms['booking_id'] = $query1[0]['booking_id'];
+        //------End of sending email--------//
+        //------Send SMS on Completion of booking-----//
+        if ($is_sd == FALSE) {
+            $sms['tag'] = "complete_booking";
+            $sms['smsData']['service'] = $query1[0]['services'];
+            $sms['phone_no'] = $query1[0]['phone_number'];
+            $sms['booking_id'] = $query1[0]['booking_id'];
 
-	    $this->notify->send_sms($sms);
-	}
+            $this->notify->send_sms($sms);
+        }
 
-	redirect(base_url() . 'employee/booking/view', 'refresh');
-
+        redirect(base_url() . 'employee/booking/view', 'refresh');
     }
 
     /**
@@ -925,7 +924,7 @@ class Booking extends CI_Controller {
      * Atleast one booking cancellation reason must be selected.
      *
      * If others option is choosen, then the cancellation reason must be entered in the textarea.
-     *     
+     *
      *  @param : booking id
      *  @return : user details and booking history to view
      */
@@ -951,85 +950,85 @@ class Booking extends CI_Controller {
         $data['update_date'] = date("Y-m-d h:i:s");
         $data['closed_date'] = date("Y-m-d h:i:s");
 
-	if ($data['cancellation_reason'] === 'Other') {
-	    $data['cancellation_reason'] = "Other : " . $this->input->post("cancellation_reason_text");
-	}
-	$data['current_status'] = "Cancelled";
-	$data['internal_status'] = "Cancelled";
+        if ($data['cancellation_reason'] === 'Other') {
+            $data['cancellation_reason'] = "Other : " . $this->input->post("cancellation_reason_text");
+        }
+        $data['current_status'] = "Cancelled";
+        $data['internal_status'] = "Cancelled";
 
 //	$insertData = $this->booking_model->cancel_booking($booking_id, $data);
         $this->booking_model->cancel_booking($booking_id, $data);
 
-	//Update SD leads table if required
-	//$this->booking_model->update_sd_lead_status($booking_id, 'Cancelled');
-	//Is this SD booking?
-	if (strpos($booking_id, "SS") !== FALSE) {
-	    $is_sd = TRUE;
-	} else {
-	    $is_sd = FALSE;
-	}
+        //Update SD leads table if required
+        //$this->booking_model->update_sd_lead_status($booking_id, 'Cancelled');
+        //Is this SD booking?
+        if (strpos($booking_id, "SS") !== FALSE) {
+            $is_sd = TRUE;
+        } else {
+            $is_sd = FALSE;
+        }
 
-	if ($is_sd) {
-	    if ($this->booking_model->check_sd_lead_exists_by_booking_id($booking_id) === TRUE) {
-		$sd_where = array("CRM_Remarks_SR_No" => $booking_id);
-		$sd_data = array(
-		    "Status_by_247around" => $data['current_status'],
-		    "Remarks_by_247around" => $data['internal_status'],
-		    "update_date" => $data['update_date']
-		);
-		$this->booking_model->update_sd_lead($sd_where, $sd_data);
-	    } else {
-		if (Partner_Integ_Complete) {
-		    //Update Partner leads table
-		    $partner_where = array("247aroundBookingID" => $booking_id);
-		    $partner_data = array(
-			"247aroundBookingStatus" => $data['current_status'],
-			"247aroundBookingRemarks" => $data['internal_status'],
-			"update_date" => $data['update_date']
-		    );
-		    $this->partner_model->update_partner_lead($partner_where, $partner_data);
+        if ($is_sd) {
+            if ($this->booking_model->check_sd_lead_exists_by_booking_id($booking_id) === TRUE) {
+                $sd_where = array("CRM_Remarks_SR_No" => $booking_id);
+                $sd_data = array(
+                    "Status_by_247around" => $data['current_status'],
+                    "Remarks_by_247around" => $data['internal_status'],
+                    "update_date" => $data['update_date']
+                );
+                $this->booking_model->update_sd_lead($sd_where, $sd_data);
+            } else {
+                if (Partner_Integ_Complete) {
+                    //Update Partner leads table
+                    $partner_where = array("247aroundBookingID" => $booking_id);
+                    $partner_data = array(
+                        "247aroundBookingStatus" => $data['current_status'],
+                        "247aroundBookingRemarks" => $data['internal_status'],
+                        "update_date" => $data['update_date']
+                    );
+                    $this->partner_model->update_partner_lead($partner_where, $partner_data);
 
-		    //Call relevant partner API
-		    //TODO: make it dynamic, use service object model (interfaces)
-		    $partner_cb_data = array_merge($partner_where, $partner_data);
-		    $this->partner_sd_cb->update_status_cancel_booking($partner_cb_data);
-		}
-	    }
-	}
+                    //Call relevant partner API
+                    //TODO: make it dynamic, use service object model (interfaces)
+                    $partner_cb_data = array_merge($partner_where, $partner_data);
+                    $this->partner_sd_cb->update_status_cancel_booking($partner_cb_data);
+                }
+            }
+        }
 
         $query1 = $this->booking_model->booking_history_by_booking_id($booking_id, "join");
 
-	$email['name'] = $query1[0]['name'];
-	$email['phone_no'] = $query1[0]['phone_number'];
-	$email['user_email'] = $query1[0]['user_email'];
-	$email['booking_id'] = $query1[0]['booking_id'];
-	$email['service'] = $query1[0]['services'];
-	$email['booking_date'] = $query1[0]['booking_date'];
-	$email['booking_timeslot'] = $query1[0]['booking_timeslot'];
-	$email['update_date'] = $data['update_date'];
-	$email['cancellation_reason'] = $data['cancellation_reason'];
-	$email['vendor_name'] = $query1[0]['vendor_name'];
-	$email['district'] = $query1[0]['district'];
-	$email['tag'] = "cancel_booking";
-	$email['subject'] = "Booking Cancellation-AROUND";
+        $email['name'] = $query1[0]['name'];
+        $email['phone_no'] = $query1[0]['phone_number'];
+        $email['user_email'] = $query1[0]['user_email'];
+        $email['booking_id'] = $query1[0]['booking_id'];
+        $email['service'] = $query1[0]['services'];
+        $email['booking_date'] = $query1[0]['booking_date'];
+        $email['booking_timeslot'] = $query1[0]['booking_timeslot'];
+        $email['update_date'] = $data['update_date'];
+        $email['cancellation_reason'] = $data['cancellation_reason'];
+        $email['vendor_name'] = $query1[0]['vendor_name'];
+        $email['district'] = $query1[0]['district'];
+        $email['tag'] = "cancel_booking";
+        $email['subject'] = "Booking Cancellation-AROUND";
 
-	$this->notify->send_email($email);
+        $this->notify->send_email($email);
 
-	//------End of sending email--------//
-	//------------Send SMS for cancellation---------//
-	if ($is_sd == FALSE) {
-	    $sms['tag'] = "cancel_booking";
-	    $sms['smsData']['service'] = $query1[0]['services'];
-	    $sms['phone_no'] = $query1[0]['phone_number'];
-	    $sms['booking_id'] = $query1[0]['booking_id'];
+        //------End of sending email--------//
+        //------------Send SMS for cancellation---------//
+        if ($is_sd == FALSE) {
+            $sms['tag'] = "cancel_booking";
+            $sms['smsData']['service'] = $query1[0]['services'];
+            $sms['phone_no'] = $query1[0]['phone_number'];
+            $sms['booking_id'] = $query1[0]['booking_id'];
 
-	    $this->notify->send_sms($sms);
-	}
+            $this->notify->send_sms($sms);
+        }
 
-	log_message('info', 'Booking Status Change- Booking id: ' . $booking_id . " Cancelled By " . $this->session->userdata('employee_id'));
+        log_message('info', 'Booking Status Change- Booking id: ' . $booking_id . " Cancelled By " . $this->session->userdata('employee_id'));
 
-	//---------End of sending SMS----------//
-	redirect(base_url() . 'employee/booking/view');
+        //---------End of sending SMS----------//
+        redirect(base_url() . 'employee/booking/view');
     }
 
     /**
@@ -1037,8 +1036,8 @@ class Booking extends CI_Controller {
      *
      * Opens a form with user's name and current date and timeslot.
      *
-     * Select the new date and timeslot for current booking.        
-     *          
+     * Select the new date and timeslot for current booking.
+     *
      *  @param : booking id
      *  @return : user details and booking history to view
      */
@@ -1064,118 +1063,118 @@ class Booking extends CI_Controller {
     /**
      *  @desc : This function is to reschedule the booking.
      *
-     * Accepts the new booking date and timeslot povided in form and then reschedules booking 
+     * Accepts the new booking date and timeslot povided in form and then reschedules booking
      * accordingly.
      *
      *  @param : booking id
      *  @return : reschedules the booking and load view
      */
     function process_reschedule_booking_form($booking_id) {
-	$data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
+        $data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
 
-	$yy = date("y", strtotime($data['booking_date']));
-	$mm = date("m", strtotime($data['booking_date']));
-	$dd = date("d", strtotime($data['booking_date']));
+        $yy = date("y", strtotime($data['booking_date']));
+        $mm = date("m", strtotime($data['booking_date']));
+        $dd = date("d", strtotime($data['booking_date']));
 
-	$data['booking_timeslot'] = $this->input->post('booking_timeslot');
-	$data['current_status'] = 'Rescheduled';
-	$data['internal_status'] = 'Rescheduled';
-	$data['update_date'] = date("Y-m-d h:i:s");
+        $data['booking_timeslot'] = $this->input->post('booking_timeslot');
+        $data['current_status'] = 'Rescheduled';
+        $data['internal_status'] = 'Rescheduled';
+        $data['update_date'] = date("Y-m-d h:i:s");
 
-	//Is this SD booking?
-	if (strpos($booking_id, "SS") !== FALSE) {
-	    $is_sd = TRUE;
-	} else {
-	    $is_sd = FALSE;
-	}
+        //Is this SD booking?
+        if (strpos($booking_id, "SS") !== FALSE) {
+            $is_sd = TRUE;
+        } else {
+            $is_sd = FALSE;
+        }
 
-	if ($data['booking_timeslot'] == "Select") {
-	    echo "Please Select Booking Timeslot.";
-	} else {
-	    //$insertData = $this->booking_model->reschedule_booking($booking_id, $data);
-	    $this->booking_model->reschedule_booking($booking_id, $data);
+        if ($data['booking_timeslot'] == "Select") {
+            echo "Please Select Booking Timeslot.";
+        } else {
+            //$insertData = $this->booking_model->reschedule_booking($booking_id, $data);
+            $this->booking_model->reschedule_booking($booking_id, $data);
 
-	    //Update SD leads table if required
-	    if ($is_sd) {
-		if ($this->booking_model->check_sd_lead_exists_by_booking_id($booking_id) === TRUE) {
-		    $sd_where = array("CRM_Remarks_SR_No" => $booking_id);
-		    $sd_data = array(
-			"Status_by_247around" => $data['current_status'],
-			"Remarks_by_247around" => $data['internal_status'],
-			"Scheduled_Appointment_DateDDMMYYYY" => $data['booking_date'],
-			"Scheduled_Appointment_Time" => $data['booking_timeslot'],
-			"update_date" => $data['update_date']
-		    );
-		    $this->booking_model->update_sd_lead($sd_where, $sd_data);
-		} else {
-		    if (Partner_Integ_Complete) {
-			//Update Partner leads table
-			$sch_date = date_format(date_create($yy . "-" . $mm . "-" . $dd), "Y-m-d H:i:s");
-			$partner_where = array("247aroundBookingID" => $booking_id);
-			$partner_data = array(
-			    "247aroundBookingStatus" => $data['current_status'],
-			    "247aroundBookingRemarks" => $data['internal_status'],
-			    "ScheduledAppointmentDate" => $sch_date,
-			    "ScheduledAppointmentTime" => $data['booking_timeslot'],
-			    "update_date" => $data['update_date']
-			);
-			$this->partner_model->update_partner_lead($partner_where, $partner_data);
+            //Update SD leads table if required
+            if ($is_sd) {
+                if ($this->booking_model->check_sd_lead_exists_by_booking_id($booking_id) === TRUE) {
+                    $sd_where = array("CRM_Remarks_SR_No" => $booking_id);
+                    $sd_data = array(
+                        "Status_by_247around" => $data['current_status'],
+                        "Remarks_by_247around" => $data['internal_status'],
+                        "Scheduled_Appointment_DateDDMMYYYY" => $data['booking_date'],
+                        "Scheduled_Appointment_Time" => $data['booking_timeslot'],
+                        "update_date" => $data['update_date']
+                    );
+                    $this->booking_model->update_sd_lead($sd_where, $sd_data);
+                } else {
+                    if (Partner_Integ_Complete) {
+                        //Update Partner leads table
+                        $sch_date = date_format(date_create($yy . "-" . $mm . "-" . $dd), "Y-m-d H:i:s");
+                        $partner_where = array("247aroundBookingID" => $booking_id);
+                        $partner_data = array(
+                            "247aroundBookingStatus" => $data['current_status'],
+                            "247aroundBookingRemarks" => $data['internal_status'],
+                            "ScheduledAppointmentDate" => $sch_date,
+                            "ScheduledAppointmentTime" => $data['booking_timeslot'],
+                            "update_date" => $data['update_date']
+                        );
+                        $this->partner_model->update_partner_lead($partner_where, $partner_data);
 
-			//Call relevant partner API
-			//TODO: make it dynamic, use service object model (interfaces)
-			$partner_cb_data = array_merge($partner_where, $partner_data);
-			$this->partner_sd_cb->update_status_reschedule_booking($partner_cb_data);
-		    }
-		}
-	    }
+                        //Call relevant partner API
+                        //TODO: make it dynamic, use service object model (interfaces)
+                        $partner_cb_data = array_merge($partner_where, $partner_data);
+                        $this->partner_sd_cb->update_status_reschedule_booking($partner_cb_data);
+                    }
+                }
+            }
 
 
-	    $query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
+            $query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
 
-	    $email['name'] = $query1[0]['name'];
-	    $email['phone_no'] = $query1[0]['phone_number'];
-	    $email['user_email'] = $query1[0]['user_email'];
-	    $email['booking_id'] = $query1[0]['booking_id'];
-	    $email['service'] = $query1[0]['services'];
-	    $email['booking_date'] = $data['booking_date'];
-	    $email['booking_timeslot'] = $data['booking_timeslot'];
-	    $email['update_date'] = $data['update_date'];
-	    $email['booking_address'] = $query1[0]['booking_address'];
-	    $email['tag'] = "reschedule_booking";
-	    $email['subject'] = "Booking Rescheduled-AROUND";
+            $email['name'] = $query1[0]['name'];
+            $email['phone_no'] = $query1[0]['phone_number'];
+            $email['user_email'] = $query1[0]['user_email'];
+            $email['booking_id'] = $query1[0]['booking_id'];
+            $email['service'] = $query1[0]['services'];
+            $email['booking_date'] = $data['booking_date'];
+            $email['booking_timeslot'] = $data['booking_timeslot'];
+            $email['update_date'] = $data['update_date'];
+            $email['booking_address'] = $query1[0]['booking_address'];
+            $email['tag'] = "reschedule_booking";
+            $email['subject'] = "Booking Rescheduled-AROUND";
 
-	    //$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
-	    $this->notify->send_email($email);
+            //$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
+            $this->notify->send_email($email);
 
-	    $months = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
-	    $mm = $months[$mm - 1];
-	    $data['booking_date'] = $dd . $mm;
-	    if ($data['booking_timeslot'] == "10AM-1PM") {
-		$data['booking_timeslot'] = "1PM";
-	    } elseif ($data['booking_timeslot'] == "1PM-4PM") {
-		$data['booking_timeslot'] = "4PM";
-	    } elseif ($data['booking_timeslot'] == "4PM-7PM") {
-		$data['booking_timeslot'] = "7PM";
-	    }
+            $months = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
+            $mm = $months[$mm - 1];
+            $data['booking_date'] = $dd . $mm;
+            if ($data['booking_timeslot'] == "10AM-1PM") {
+                $data['booking_timeslot'] = "1PM";
+            } elseif ($data['booking_timeslot'] == "1PM-4PM") {
+                $data['booking_timeslot'] = "4PM";
+            } elseif ($data['booking_timeslot'] == "4PM-7PM") {
+                $data['booking_timeslot'] = "7PM";
+            }
 
-	    if ($is_sd == FALSE) {
-		$sms['tag'] = "reschedule_booking";
-		$sms['smsData']['service'] = $query1[0]['services'];
-		$sms['smsData']['booking_date'] = $data['booking_date'];
-		$sms['smsData']['booking_timeslot'] = $data['booking_timeslot'];
-		$sms['phone_no'] = $query1[0]['phone_number'];
-		$sms['booking_id'] = $query1[0]['booking_id'];
+            if ($is_sd == FALSE) {
+                $sms['tag'] = "reschedule_booking";
+                $sms['smsData']['service'] = $query1[0]['services'];
+                $sms['smsData']['booking_date'] = $data['booking_date'];
+                $sms['smsData']['booking_timeslot'] = $data['booking_timeslot'];
+                $sms['phone_no'] = $query1[0]['phone_number'];
+                $sms['booking_id'] = $query1[0]['booking_id'];
 
-		$this->notify->send_sms($sms);
-	    }
+                $this->notify->send_sms($sms);
+            }
 
-	    //Setting mail to vendor flag to 0, once booking is rescheduled
-	    $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
+            //Setting mail to vendor flag to 0, once booking is rescheduled
+            $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
 
-	    log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $this->session->userdata('employee_id') . " data " . print_r($data));
+            log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $this->session->userdata('employee_id') . " data " . print_r($data));
 
-	    redirect(base_url() . 'employee/booking/view', 'refresh');
-	}
+            redirect(base_url() . 'employee/booking/view', 'refresh');
+        }
     }
 
     /**
@@ -1256,7 +1255,7 @@ class Booking extends CI_Controller {
      *  @desc : This function is to select all pending bookings to assign vendor(if not already assigned)
      *
      * This form displays all the pending bookings for which still no vendor is assigned in a tabular form.
-     *     
+     *
      * Vendors can be assigned for more than one booking simultaneously.
      *
      *  @param : void
@@ -1279,7 +1278,7 @@ class Booking extends CI_Controller {
      *  it send a Post server request.
      *
      * We can select vendors available corresponding to each booking present and can assign that particular booking to vendor.
-     *     
+     *
      *  @param : void
      *  @return : load pending booking view
      */
@@ -1681,7 +1680,7 @@ class Booking extends CI_Controller {
         }
         //booking not confirmed
         else {
-            $booking['current_status'] = "FollowUp";
+	    $booking['current_status'] = "FollowUp";
             $booking['potential_value'] = $this->input->post('potential_value');
             $booking['booking_id'] = $booking_id;
 
@@ -1695,7 +1694,19 @@ class Booking extends CI_Controller {
 
             //Updating booking details
             $result = $this->booking_model->update_booking_details($booking_id, $booking);
-            if ($result) {
+
+	    //Send SMS if customer didn't pick the call
+	    if ($this->input->post('internal_status') == INT_STATUS_CUSTOMER_NOT_REACHABLE) {
+		$query1 = $this->booking_model->booking_history_by_booking_id($booking['booking_id']);
+		$sms['tag'] = "call_not_picked";
+		$sms['smsData']['name'] = $query1[0]['name'];
+		$sms['smsData']['service'] = $query1[0]['services'];
+		$sms['phone_no'] = $query1[0]['phone_number'];
+
+		$this->notify->send_sms($sms);
+	    }
+
+	    if ($result) {
                 //Update SD leads table if required
                 if ($is_sd) {
                     if ($this->booking_model->check_sd_lead_exists_by_booking_id($booking_id) === TRUE) {
@@ -1762,86 +1773,86 @@ class Booking extends CI_Controller {
      *  @return : cancel the query and load view
      */
     function process_cancel_followup_form($booking_id) {
-	$booking['current_status'] = "Cancelled";
-	$booking['internal_status'] = $this->input->post('internal_status');
-	$booking['cancellation_reason'] = $this->input->post('cancellation_reason');
-	$booking['closed_date'] = date("Y-m-d h:i:s");
-	$booking['update_date'] = $booking['closed_date'];
+        $booking['current_status'] = "Cancelled";
+        $booking['internal_status'] = $this->input->post('internal_status');
+        $booking['cancellation_reason'] = $this->input->post('cancellation_reason');
+        $booking['closed_date'] = date("Y-m-d h:i:s");
+        $booking['update_date'] = $booking['closed_date'];
 
-	//Is this SD booking?
-	if (strpos($booking_id, "SS") !== FALSE) {
-	    $is_sd = TRUE;
-	} else {
-	    $is_sd = FALSE;
-	}
+        //Is this SD booking?
+        if (strpos($booking_id, "SS") !== FALSE) {
+            $is_sd = TRUE;
+        } else {
+            $is_sd = FALSE;
+        }
 
-	if ($booking['cancellation_reason'] == 'Other') {
-	    if ($is_sd) {
-		//For SD bookings, save internal status as cancellation reason
-		$booking['cancellation_reason'] = "Other : " . $booking['internal_status'];
-	    } else {
-		//For other bookings, save other reason text
-		$booking['cancellation_reason'] = "Other : " . $this->input->post("cancellation_reason_text");
-	    }
-	}
+        if ($booking['cancellation_reason'] == 'Other') {
+            if ($is_sd) {
+                //For SD bookings, save internal status as cancellation reason
+                $booking['cancellation_reason'] = "Other : " . $booking['internal_status'];
+            } else {
+                //For other bookings, save other reason text
+                $booking['cancellation_reason'] = "Other : " . $this->input->post("cancellation_reason_text");
+            }
+        }
 
-	$this->booking_model->cancel_followup($booking_id, $booking);
+        $this->booking_model->cancel_followup($booking_id, $booking);
 
-	//Update SD bookings if required
-	if ($is_sd) {
-	    if ($this->booking_model->check_sd_lead_exists_by_booking_id($booking_id) === TRUE) {
-		$sd_where = array("CRM_Remarks_SR_No" => $booking_id);
-		$sd_data = array(
-		    "Status_by_247around" => "Cancelled",
-		    "Remarks_by_247around" => $booking['internal_status'],
-		    "update_date" => $booking['closed_date']
-		);
-		$this->booking_model->update_sd_lead($sd_where, $sd_data);
-	    } else {
-		if (Partner_Integ_Complete) {
-		    //Update Partner leads table
-		    $partner_where = array("247aroundBookingID" => $booking_id);
-		    $partner_data = array(
-			"247aroundBookingStatus" => "Cancelled",
-			"247aroundBookingRemarks" => $booking['internal_status'],
-			"update_date" => $booking['closed_date']
-		    );
-		    $this->partner_model->update_partner_lead($partner_where, $partner_data);
+        //Update SD bookings if required
+        if ($is_sd) {
+            if ($this->booking_model->check_sd_lead_exists_by_booking_id($booking_id) === TRUE) {
+                $sd_where = array("CRM_Remarks_SR_No" => $booking_id);
+                $sd_data = array(
+                    "Status_by_247around" => "Cancelled",
+                    "Remarks_by_247around" => $booking['internal_status'],
+                    "update_date" => $booking['closed_date']
+                );
+                $this->booking_model->update_sd_lead($sd_where, $sd_data);
+            } else {
+                if (Partner_Integ_Complete) {
+                    //Update Partner leads table
+                    $partner_where = array("247aroundBookingID" => $booking_id);
+                    $partner_data = array(
+                        "247aroundBookingStatus" => "Cancelled",
+                        "247aroundBookingRemarks" => $booking['internal_status'],
+                        "update_date" => $booking['closed_date']
+                    );
+                    $this->partner_model->update_partner_lead($partner_where, $partner_data);
 
-		    //Call relevant partner API
-		    //TODO: make it dynamic, use service object model (interfaces)
-		    $partner_cb_data = array_merge($partner_where, $partner_data);
-		    $this->partner_sd_cb->update_status_cancel_booking($partner_cb_data);
-		}
-	    }
-	}
+                    //Call relevant partner API
+                    //TODO: make it dynamic, use service object model (interfaces)
+                    $partner_cb_data = array_merge($partner_where, $partner_data);
+                    $this->partner_sd_cb->update_status_cancel_booking($partner_cb_data);
+                }
+            }
+        }
 
-	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
+        $query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
 
-	log_message('info', 'Booking Status Change- Booking id: ' . $booking_id . " Cancelled By " . $this->session->userdata('employee_id'));
+        log_message('info', 'Booking Status Change- Booking id: ' . $booking_id . " Cancelled By " . $this->session->userdata('employee_id'));
 
-	$email['name'] = $query1[0]['name'];
-	$email['phone_no'] = $query1[0]['phone_number'];
-	$email['user_email'] = $query1[0]['user_email'];
-	$email['booking_id'] = $query1[0]['booking_id'];
-	$email['service'] = $query1[0]['services'];
-	$email['booking_date'] = $query1[0]['booking_date'];
-	$email['booking_timeslot'] = $query1[0]['booking_timeslot'];
-	$email['update_date'] = $booking['update_date'];
-	$email['cancellation_reason'] = $booking['cancellation_reason'];
-	$email['tag'] = "cancel_booking";
-	$email['subject'] = "Booking Cancellation-AROUND";
+        $email['name'] = $query1[0]['name'];
+        $email['phone_no'] = $query1[0]['phone_number'];
+        $email['user_email'] = $query1[0]['user_email'];
+        $email['booking_id'] = $query1[0]['booking_id'];
+        $email['service'] = $query1[0]['services'];
+        $email['booking_date'] = $query1[0]['booking_date'];
+        $email['booking_timeslot'] = $query1[0]['booking_timeslot'];
+        $email['update_date'] = $booking['update_date'];
+        $email['cancellation_reason'] = $booking['cancellation_reason'];
+        $email['tag'] = "cancel_booking";
+        $email['subject'] = "Booking Cancellation-AROUND";
 
-	$this->notify->send_email($email);
+        $this->notify->send_email($email);
 
-	redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
+        redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
     }
 
     /**
      *  @desc : This function is to create jobcard
      *
      * 	Jobcard is created and attached in mail when we reschedule booking and is sent to the vendor to whome we assign this booking.
-     *      
+     *
      *  @param : booking id
      *  @return : void
      */
@@ -1857,7 +1868,7 @@ class Booking extends CI_Controller {
      *  @desc : This function is to view deatils of any particular booking.
      *
      * 	We get all the details like User's details, booking details, and also the appliance's unit details.
-     *      
+     *
      *  @param : booking id
      *  @return : booking details and load view
      */
@@ -1882,7 +1893,7 @@ class Booking extends CI_Controller {
      *  @desc : Function to sort pending bookings with current status
      *
      * 	This will display all the bookings present in sorted manner according to there booking status.
-     *      
+     *
      *  @param : start booking and bookings per page
      *  @return : bookings and load view
      */
@@ -1912,7 +1923,7 @@ class Booking extends CI_Controller {
      *  @desc : Function to sort pending and rescheduled bookings with booking date
      *
      * 	This method will display all the pending and rescheduled bookings present in sorted manner according to there booking date.
-     *      
+     *
      *  @param : start booking and bookings per page
      *  @return : sorted bookings and load view
      */
@@ -1941,11 +1952,11 @@ class Booking extends CI_Controller {
     /**
      *  @desc : Function to sort pending and rescheduled bookings with service center's name
      *
-     * 	This method will display all the pending and rescheduled bookings present in 
+     * 	This method will display all the pending and rescheduled bookings present in
      *      sorted manner according to service centre's name assigned for the booking.
      *
      * 	This function is usefull to get all the bookings assigned to particular vendor together.
-     *      
+     *
      *  @param : start booking and bookings per page
      *  @return : assigned vendor sorted bookings and load view
      */
@@ -1977,7 +1988,7 @@ class Booking extends CI_Controller {
       and also collected by.
      *
      * 	We can also edit the closing remarks entered during completing the booking earliar with wrong details(remarks).
-     *      
+     *
      *  @param : booking id
      *  @return : user's and booking details to view
      */
@@ -2006,11 +2017,11 @@ class Booking extends CI_Controller {
 
     /**
      *  @desc : This method will edit the completed booking details
-     *          
+     *
      * 	Through this the prices(service charge, parts cost, etc) and collected by is edited(if changed).
      *
      * 	Closing remarks also get edited if changed.
-     *      
+     *
      *  @param : booking id
      *  @return : edits the completed booking and load view
      */
@@ -2033,9 +2044,9 @@ class Booking extends CI_Controller {
 
     /**
      *  @desc : This function is to select particular appliance for booking.
-     *          
-     * 	Through this we get a form with the appliance details for a appliance which is already registered with us under a particular user.     
-     *      
+     *
+     * 	Through this we get a form with the appliance details for a appliance which is already registered with us under a particular user.
+     *
      *  @param : appliance id
      *  @return : user's and appliance details to view
      */
@@ -2060,11 +2071,11 @@ class Booking extends CI_Controller {
 
     /**
      *  @desc : This function is to get appliance booking confirmation page
-     *          
+     *
      * 	This method will show all the entered details in form for that particular appliance's booking.
      *
      * 	This will help us to re-check the entered details before making it a booking.
-     *      
+     *
      *  @param : appliance id
      *  @return : user and appliance details and load view
      */
@@ -2115,9 +2126,9 @@ class Booking extends CI_Controller {
 
     /**
      *  @desc : This function is to enter booking for particular appliance.
-     *          
+     *
      * 	The booking will be inserted for the particular appliance of the particular user with the services selected.
-     *      
+     *
      *  @param : void
      *  @return : loads the pending booking view
      */
@@ -2649,8 +2660,8 @@ class Booking extends CI_Controller {
         log_message('info', __FUNCTION__);
 
         $s1 = $_SERVER['HTTP_REFERER'];
-        $s2 = "https://aroundhomzapp.com/";
-        $redirect_url = substr($s1, strlen($s2));
+        $s2 = "https://www.aroundhomzapp.com/";
+	$redirect_url = substr($s1, strlen($s2));
 
         $this->checkUserSession();
 
