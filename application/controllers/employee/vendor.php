@@ -1,7 +1,7 @@
 <?php
 
 if (!defined('BASEPATH')){
-    exit('No direct script access allowed');   
+    exit('No direct script access allowed');
 }
 
 error_reporting(E_ALL);
@@ -39,13 +39,13 @@ class vendor extends CI_Controller {
 
     /**
      * @desc : This function is used to add/edit vendor details
-     * 
+     *
      * Vendor details like- vendor's name, owner's name, phone no., email, POC(point of contact) details
      *      are added/edited.
-     * 
+     *
      * Few more details like- appliance(s), brand(s) they handle and there non-working days
      *      can also be added/edited.
-     * 
+     *
      * @param : void
      * @return : void
      */
@@ -110,12 +110,12 @@ class vendor extends CI_Controller {
     		return $final_sc_code; // if sc code does not  exit, return sc code.
     	}
     }
-    
+
     /**
      * @desc: Sends sms to owner and point of contact of service center on new creation vendor
-     * 
+     *
      * SMS is sent only while adding new vendor not while editing an existing one.
-     * 
+     *
      * @param: String(Service center name)
      * @param: String(District)
      * @return : String (Service center code)
@@ -129,7 +129,7 @@ class vendor extends CI_Controller {
 
     /**
      * @desc: This function is used to check validation of the entered data
-     * 
+     *
      * @param: void
      * @return : If validation ok returns true else false
      */
@@ -147,9 +147,9 @@ class vendor extends CI_Controller {
 
     /**
      * @desc: This function is used to get add/edit vendor form
-     * 
+     *
      * This form shows all our active services, brands and all the states of India
-     * 
+     *
      * @param: void
      * @return : array(result) to view
      */
@@ -164,10 +164,10 @@ class vendor extends CI_Controller {
 
     /**
      * @desc: This function is to edit vendor's details
-     * 
-     * Existing details will be be displayed in respective fields(allowed to edit) 
+     *
+     * Existing details will be be displayed in respective fields(allowed to edit)
      *      and rest of the fields will be displayed blank.
-     * 
+     *
      * @param: vendor id
      * @return : array(of details) to view
      */
@@ -195,12 +195,12 @@ class vendor extends CI_Controller {
 
     /**
      * @desc: This function is to view particular vendor's details
-     * 
+     *
      * Will display all the details of a particular vendor
-     * 
+     *
      * @param: vendor id
      * @return : array(of details) to view
-     */    
+     */
     function viewvendor($vendor_id = "") {
 	$query = $this->vendor_model->viewvendor($vendor_id);
 
@@ -211,12 +211,12 @@ class vendor extends CI_Controller {
 
     /**
      * @desc: This function is to activate a particular vendor
-     * 
+     *
      * For this the vendor must be already registered with us and should be non-active(Active = 0)
-     * 
+     *
      * @param: vendor id
      * @return : void
-     */    
+     */
     function activate($id) {
 //	$query = $this->vendor_model->activate($id);    //$query is not used here, can be deleted
         $this->vendor_model->activate($id);
@@ -226,12 +226,12 @@ class vendor extends CI_Controller {
 
     /**
      * @desc: This function is to deactivate a particular vendor
-     * 
+     *
      * For this the vendor must be already registered with us and should be active(Active = 1)
-     * 
+     *
      * @param: vendor id
      * @return : void
-     */        
+     */
     function deactivate($id) {
 //	$query = $this->vendor_model->deactivate($id);      //$query is not used here, can be deleted
         $this->vendor_model->deactivate($id);
@@ -241,12 +241,12 @@ class vendor extends CI_Controller {
 
     /**
      * @desc: This function to delete a particular vendor
-     * 
+     *
      * For this the vendor must be already registered with us
-     * 
+     *
      * @param: vendor id
      * @return : void
-     */        
+     */
     function delete($id) {
 //	$query = $this->vendor_model->delete($id);      //$query is not used here, can be deleted
         $this->vendor_model->delete($id);
@@ -256,12 +256,12 @@ class vendor extends CI_Controller {
 
     /**
      * @desc: This function is to get the reassign vendor page
-     * 
+     *
      * Its mainly done if already assigned vendor do not covers the pincode taken while entering booking.
-     * 
+     *
      * @param: booking id
      * @return : void
-     */        
+     */
     function get_reassign_vendor_form($booking_id = "") {
 	$service_centers = $this->booking_model->select_service_center();
 
@@ -273,25 +273,25 @@ class vendor extends CI_Controller {
 
     /**
      * @desc: This function reassigns vendor for a particular booking.
-     * 
+     *
      * This is done if the assigned vendor is not able to finish his job due to any reason
-     * 
+     *
      * @param: void
      * @return : void
-     */        
+     */
     function process_reassign_vendor_form() {
 	$booking_id = $this->input->post('booking_id');
 	$service_center = $this->input->post('service');
 
 	if ($service_center != "Select") {
-//	    $data = $this->booking_model->assign_booking($booking_id, $service_center); //$data not used
             $this->booking_model->assign_booking($booking_id, $service_center);
 	    $this->vendor_model->delete_previous_service_center_action($booking_id);
 
 	    //Setting mail to vendor flag to 0, once booking is re-assigned
 	    $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
 
-	     log_message('info', "Reassigned - Booking id: " . $booking_id. "  By ". $this->session->userdata('employee_id'). " service center id ". $service_center);
+	     log_message('info', "Reassigned - Booking id: " . $booking_id . "  By " .
+		$this->session->userdata('employee_id') . " service center id " . $service_center);
 
 	    redirect(base_url() . 'employee/booking/view');
 	} else {
@@ -306,7 +306,7 @@ class vendor extends CI_Controller {
      * @desc: This function to get form to broadcast mail to all vendors
      * @param: void
      * @return : void
-     */        
+     */
     function get_broadcast_mail_to_vendors_form() {
 	//$service_centers = $this->booking_model->select_service_center();
 	$this->load->view('employee/header');
@@ -315,13 +315,13 @@ class vendor extends CI_Controller {
 
     /**
      * @desc: This function sends broadcast mail to vendors
-     * 
-     * Sends mail to all the owner and POC of the vendors, if we want to send some information to 
+     *
+     * Sends mail to all the owner and POC of the vendors, if we want to send some information to
      *      all the service centers simultaniously.
-     * 
+     *
      * @param: void
      * @return : void
-     */        
+     */
     function process_broadcast_mail_to_vendors_form() {
 	$bcc_poc = $this->input->post('bcc_poc');
 	$bcc_owner = $this->input->post('bcc_owner');
@@ -359,7 +359,7 @@ class vendor extends CI_Controller {
      * @param: $service_centers
      *         Point of Contact's and Owner's Email which are active
      * @param: $bcc_poc
-     *          to check if POC checkbox is checked, if checked will have some value          
+     *          to check if POC checkbox is checked, if checked will have some value
      * @param: $bcc_owner
      *          to check if owners checkbox is checked,if checked will have some value
      * @return : if true bcc_string else empty
@@ -390,9 +390,9 @@ class vendor extends CI_Controller {
 
     /**
      *  @desc : This function is to get upload pincode through excel form
-     * 
+     *
      *  Stores the latest vendor pincode mapping file
-     * 
+     *
      *  @param : error
      *  @return : displays the view
      */
@@ -408,9 +408,9 @@ class vendor extends CI_Controller {
 
     /**
      *  @desc : This function get upload master pincode through excel form
-     * 
+     *
      *  This is to store all the pincodes available(i.e master pincode)
-     * 
+     *
      *  @param : void
      *  @return : displays the view
      */
@@ -462,10 +462,10 @@ class vendor extends CI_Controller {
 
     /**
      * @desc: Load Vendor Escalation form and get escalation reason and vendor details from table.
-     * 
+     *
      * This will send notification to vendor if he/she didn't call the customer or
      *      engeineer didn't reached on time to customer's place.
-     * 
+     *
      * @param : Booking Id
      * @return : Takes to view
      */
@@ -481,9 +481,9 @@ class vendor extends CI_Controller {
 
     /**
      * @desc: Insert Vendor Escalation reason in database
-     * 
+     *
      * And also requests a method to send sms and email to vendor
-     *      
+     *
      * @param : void
      * @return : Takes to view
      */
@@ -533,7 +533,7 @@ class vendor extends CI_Controller {
 
     /**
      * @desc: Send SMS to Vendor and Owner when flag of sms to owner and sms to vendor is 1.
-     * 
+     *
      * @param : escalation policy details
      * @param : vendor contact
      * @param : booking id
@@ -564,7 +564,7 @@ class vendor extends CI_Controller {
 
     /**
      * @desc: Send SMS to Vendor and Owner when flag of sms to owner and sms to vendor is 1.
-     * 
+     *
      * @param : sms template
      * @param : booking id
      * @param : user's details
@@ -579,7 +579,7 @@ class vendor extends CI_Controller {
 
     /**
      * @desc: Get Email id of owner and vendor when flag is 1.
-     * 
+     *
      * @param : escalation policy details(mail to owner, mail to poc, etc)
      * @param : email details(primary contact email, owner email, etc)
      * @return : mailto(to whome the mail is to be sent)
@@ -603,7 +603,7 @@ class vendor extends CI_Controller {
 
     /**
      * @desc: This function is to check validation on escalation reason
-     * 
+     *
      * @param : void
      * @return : true if validation is true else false
      */
@@ -620,12 +620,12 @@ class vendor extends CI_Controller {
 
     /**
      * @desc: Get District of custom State and echo in 'select option value' to load in a form
-     * 
-     * Function also called through Ajax 
-     * 
+     *
+     * Function also called through Ajax
+     *
      * @param : flag (its value determines weather a disrtict is covered by our service centers or not)
      * @return : displays districts to the view
-     */    
+     */
     function getDistrict($flag="") {
 
 	$state = $this->input->post('state');
@@ -655,12 +655,12 @@ class vendor extends CI_Controller {
 
     /**
      * @desc: Get Pincode of Custom District and print 'select option value with data' to load in a form
-     * 
+     *
      * Function also called through Ajax.
-     * 
-     * If flag is empty it will give all the pincodes where we have active vendors 
+     *
+     * If flag is empty it will give all the pincodes where we have active vendors
      *      else it will give all the pincodes of India.
-     * 
+     *
      * @param : flag (its value determines the pincode)
      * @return : displays pincode to the view
      */
@@ -685,8 +685,8 @@ class vendor extends CI_Controller {
     }
 
     /**
-     * @desc: Function checks the availability of vendors active in that pincode 
-     *  
+     * @desc: Function checks the availability of vendors active in that pincode
+     *
      * @param : void
      * @return : Array of pincode to the view
      */
@@ -695,11 +695,11 @@ class vendor extends CI_Controller {
     	$this->load->view('employee/header');
     	$this->load->view('employee/searchvendor', $data);
     }
-    
+
     /**
-     * @desc: Function checks the availability of vendors in pincodes where we 
+     * @desc: Function checks the availability of vendors in pincodes where we
      *        are active and vendors are active as well.
-     *  
+     *
      *  Function called through AJAX.
      * @param : void
      * @return : Array of active vendor names
@@ -715,7 +715,7 @@ class vendor extends CI_Controller {
     }
     /**
      * @desc: Function sends email with the excel sheet with latest pincode list.
-     *  
+     *
      * @param : void
      * @return : displays the view with message as mail sent.
      */
@@ -731,10 +731,10 @@ class vendor extends CI_Controller {
                     <strong> Mail Sent </strong>
                 </div>';
     }
-    
+
     /**
      * @desc: Function loads a view to check vendors performance
-     *  
+     *
      * @param : void
      * @return : loads the view
      */
@@ -743,16 +743,16 @@ class vendor extends CI_Controller {
     	$this->load->view('employee/header');
     	$this->load->view('employee/vendorperformance',$data);
     }
-    
+
     /**
      * @desc: Function displays the vendors performance.
-     * 
+     *
      * This shows the total bookings assigned to a particular vendor, and what is the booking
      *      completion and cancelation reason for the particular vendor.
-     * 
+     *
      * We can select vendor's city, source of booking, and the time period for which we
      *      want to view vvendors performance.
-     *  
+     *
      * @param : void
      * @return : loads the results to view(Array of data)
      */
@@ -770,10 +770,10 @@ class vendor extends CI_Controller {
 
     /**
      * @desc: This function helps to review the bookings
-     * 
-     * Shows mainly the charges collected by vendors on completing the booking and 
+     *
+     * Shows mainly the charges collected by vendors on completing the booking and
      *      closing remarks mentioned by vendors.
-     *  
+     *
      * @param : void
      * @return : loads the view with booking charges(Array of charges)
      */
