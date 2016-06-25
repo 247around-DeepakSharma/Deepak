@@ -56,12 +56,12 @@ class vendor_partner_invoice extends CI_Controller {
      */
     public function generate_cash_invoices_for_vendors($start_date, $end_date) {
 	log_message('info', __FUNCTION__ . '=> Start Date: ' . $start_date . ', End Date: ' . $end_date);
-	//echo $start_date, $end_date;
+	echo $start_date, $end_date;
 
 	$file_names = array();
 
 	//Type A invoices
-	$template = 'Vendor_Settlement_Template-Cash-v1.xlsx';
+	$template = 'Vendor_Settlement_Template-Cash-v2.xlsx';
 	//set absolute path to directory with template files
 	$templateDir = __DIR__ . "/excel-templates/";
 
@@ -74,16 +74,20 @@ class vendor_partner_invoice extends CI_Controller {
 	//Cover entire start and end days by including time as well
 	$s_date = date("Y-m-d H:i:s", strtotime($start_date . '00:00:00'));
 	$e_date = date("Y-m-d H:i:s", strtotime($end_date . '23:59:59'));
+	log_message('info', __FUNCTION__ . '=> Start Time: ' . $s_date . ', End Time: ' . $e_date);
 
 	//fetch all vendors (include inactive as well)
 	$service_centers = $this->reporting_utils->find_all_service_centers();
 	//echo print_r($service_centers, true);
 
 	foreach ($service_centers as $sc) {
-	    //log_message('info', "fetch pending bookings for service center id: " . $sc['id']);
+	    log_message('info', "fetch pending bookings for service center id: " . $sc['id']);
+	    echo 'Processing Service Centre: ' . $sc['name'] . PHP_EOL;
+
 	    $bookings_completed = $this->reporting_utils->get_completed_bookings_by_sc($sc['id'], $s_date, $e_date);
 	    $count = count($bookings_completed);
 	    log_message('info', 'Service Centre: ' . $sc['id'] . ', Count: ' . $count);
+	    echo 'Bookings completed: ' . $count . PHP_EOL;
 
 	    if ($count > 0) {
 		//Find total charges for these bookings
@@ -108,7 +112,8 @@ class vendor_partner_invoice extends CI_Controller {
 		'. Total transaction value for the bookings was Rs. ' . $tot_ch_rat['t_ap'] .
 		'. Around royalty for this invoice is Rs. ' . $tot_ch_rat['r_total'] .
 		'. Your rating for completed bookings is ' . $tot_ch_rat['t_rating'] .
-		'. We look forward to your continued support in future. As next step, please deposit 247around royalty per the below details.';
+		'. We look forward to your continued support in future. As next step, please deposit '
+		    . '247around royalty per the below details.';
 
 		log_message('info', 'Excel data: ' . print_r($excel_data, true));
 
@@ -150,7 +155,8 @@ class vendor_partner_invoice extends CI_Controller {
 		    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
 		    $output_file_excel . ' 2> ' . $tmp_output_file;
 
-		//echo $cmd;
+		log_message('info', 'Command: ' . $cmd);
+
 		$output = '';
 		$result_var = '';
 		exec($cmd, $output, $result_var);
@@ -193,12 +199,21 @@ class vendor_partner_invoice extends CI_Controller {
 
 		$mail_ret = $this->email->send();
 		if ($mail_ret) {
-		    //log_message('info', __METHOD__ . ": Mail sent successfully");
+		    log_message('info', __METHOD__ . ": Mail sent successfully");
 		    echo "Mail sent successfully...............\n\n";
 		} else {
 		    log_message('error', __METHOD__ . ": Mail could not be sent");
 		    echo "Mail could not be sent" . PHP_EOL;
 		}
+
+		//Send SMS to PoC/Owner
+		$sms['tag'] = "vendor_invoice_mailed";
+		$sms['smsData']['type'] = 'Cash';
+		$sms['smsData']['month'] = date('M Y', strtotime($start_date));
+		$sms['smsData']['amount'] = $tot_ch_rat['t_ap'];
+		$sms['phone_no'] = $sc['owner_phone_1'];
+
+		$this->notify->send_sms($sms);
 
 		//Upload Excel files to AWS
 		//$bucket = 'bookings-collateral-test';
@@ -217,15 +232,22 @@ class vendor_partner_invoice extends CI_Controller {
 		    'vendor_partner_id' => $sc['id'],
 		    'invoice_file_excel' => $output_file . '.xlsx',
 		    'invoice_file_pdf' => $output_file . '.pdf',
-		    'from_date' => date("Y-m-d", strtotime($start_date)), //??? Check this next time, format should be YYYY-MM-DD
-		    'to_date' => $end_date,
+		    'from_date' => date("Y-m-d", strtotime($start_date)), //Check this next time, format should be YYYY-MM-DD
+		    'to_date' => date("Y-m-d", strtotime($end_date)),
 		    'num_bookings' => $count,
 		    'total_service_charge' => $tot_ch_rat['t_sc'],
 		    'total_additional_service_charge' => $tot_ch_rat['t_asc'],
 		    'parts_cost' => $tot_ch_rat['t_pc'],
+		    'vat' => 0, //No VAT here in Cash invoice
 		    'total_amount_collected' => $tot_ch_rat['t_ap'],
 		    'rating' => $tot_ch_rat['t_rating'],
 		    'around_royalty' => $tot_ch_rat['r_total'],
+		    //Service tax which needs to be paid
+		    'service_tax' => $tot_ch_rat['r_st'],
+		    //Amount needs to be collected from Vendor
+		    'amount_collected_paid' => $tot_ch_rat['r_total'],
+		    //Add 1 month to end date to calculate due date
+		    'due_date' => date("Y-m-d", strtotime($end_date . "+1 month"))
 		);
 		$this->invoices_model->insert_new_invoice($invoice_details);
 
@@ -462,6 +484,7 @@ class vendor_partner_invoice extends CI_Controller {
     }
 
     function get_total_charges_rating_for_cash_bookings($bookings_completed) {
+	$service_tax_rate = 0.145; //To be changed for June invoices onwards
 	$t_sc = 0; //service charges
 	$t_asc = 0; //add service charges
 	$t_pc = 0; //parts
@@ -484,12 +507,13 @@ class vendor_partner_invoice extends CI_Controller {
 	$r_sc = $t_sc * 0.3;     //around royalty for service charges
 	$r_asc = $t_asc * 0.15;     //around royalty for add service charges
 	$r_pc = $t_pc * 0.05;     //around royalty for parts
-	$r_total = round($r_sc + $r_asc + $r_pc, 0);
+	$r_total = round($r_sc + $r_asc + $r_pc, 0); //Total royalty
+	$r_st = round($r_total * $service_tax_rate, 0); //service tax calculated on royalty
 
 	return array(
 	    't_sc' => $t_sc, 't_asc' => $t_asc, 't_pc' => $t_pc,
 	    't_ap' => $t_ap, 'r_sc' => $r_sc, 'r_asc' => $r_asc,
-	    'r_pc' => $r_pc, 'r_total' => $r_total,
+	    'r_pc' => $r_pc, 'r_total' => $r_total, 'r_st' => $r_st,
 	    't_rating' => (round($t_rating / $rating_count, 1)));
     }
 
