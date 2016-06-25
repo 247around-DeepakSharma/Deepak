@@ -136,7 +136,7 @@ class vendor_model extends CI_Model {
     }
 
     function insertVendorEscalationDetails($details){
-      
+
       $this->db->insert('vendor_escalation_log', $details);
       return   $this->db->insert_id();
     }
@@ -153,7 +153,7 @@ class vendor_model extends CI_Model {
       $this->db->where('id', $escalation_reason_id);
       $query = $this->db->get('vendor_escalation_policy');
       return $query->result_array();
-          
+
     }
 
     function getUserDetails($booking_id){
@@ -209,7 +209,7 @@ class vendor_model extends CI_Model {
       $this->db->select('vendor_pincode_mapping.City as district');
       $this->db->from('vendor_pincode_mapping');
       $this->db->order_by('vendor_pincode_mapping.City');
-      
+
       $this->db->where('vendor_pincode_mapping.active',1);
       $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
       $this->db->where('service_centres.active','1');
@@ -244,16 +244,16 @@ class vendor_model extends CI_Model {
        return $query->result_array();
     }
 
-    
+
     /**
-     * Get POC and owner email for Active Service Center. 
+     * Get POC and owner email for Active Service Center.
      */
     function select_active_service_center_email(){
       $this->db->select('primary_contact_email, owner_email');
       $this->db->where('active',1);
       $query = $this->db->get('service_centres');
       return $query->result_array();
-        
+
     }
 
     function getBookingDateFromBookingID($booking_id){
@@ -291,10 +291,10 @@ class vendor_model extends CI_Model {
       }
 
     }
-    
+
     // update escalation policy flag in json in vendor escalation log table
     function updateEscalationFlag($id, $flag, $booking_id){
-      unset($flag[0]['escalation_reason']); 
+      unset($flag[0]['escalation_reason']);
       unset($flag[0]['id']);
       unset($flag[0]['sms_body']);
       unset($flag[0]['mail_subject']);
@@ -303,7 +303,7 @@ class vendor_model extends CI_Model {
       unset($flag[0]['create_date']);
 
       $reason_flag['escalation_policy_flag'] = json_encode($flag);
-      
+
       $this->db->where('id', $id);
       $this->db->update('vendor_escalation_log', $reason_flag);
       return $this->getUserDetails($booking_id);
@@ -316,14 +316,14 @@ class vendor_model extends CI_Model {
       $this->db->where('active', 1);
       $this->db->order_by('City');
       $query = $this->db->get('vendor_pincode_mapping');
-      return $query->result_array(); 
+      return $query->result_array();
 
     }
 
     function get_services_category_city_pincode(){
       $service = $this->db->query("Select id,services from services where isBookingActive='1' Order By services");
       $query1['services'] = $service->result_array();
-      $query2['city'] = $this->get_city(); 
+      $query2['city'] = $this->get_city();
 
       $this->db->distinct();
       $this->db->select('Pincode');
@@ -331,10 +331,10 @@ class vendor_model extends CI_Model {
       $this->db->where('active', 1);
       $query4 = $this->db->get('vendor_pincode_mapping');
 
-      $query3['pincode'] = $query4->result_array(); 
+      $query3['pincode'] = $query4->result_array();
 
       return array_merge($query1, $query2, $query3);
-     
+
 
     }
 
@@ -357,7 +357,7 @@ class vendor_model extends CI_Model {
       $query = $this->db->get();
       return $query->result_array();
     }
-    
+
     /**
      * @desc:  get vendor name and id. set flag 1 for active vendor and 0 or inactive vendor
      * @param: service_center_id, flag
@@ -379,7 +379,7 @@ class vendor_model extends CI_Model {
     function get_vendor_city_appliance(){
       $service = $this->db->query("Select id,services from services where isBookingActive='1'");
       $query1['services'] = $service->result_array();
-      $query2['city'] = $this->get_city(); 
+      $query2['city'] = $this->get_city();
 
       $this->db->distinct();
       $this->db->select('id, name');
@@ -394,9 +394,9 @@ class vendor_model extends CI_Model {
     }
 
     function getVendorFromMapping($vendor_id ="", $city=""){
-  
+
       $cities = "";
-      
+
       if($city !=""){
         $cities = " , City";
       }
@@ -410,7 +410,7 @@ class vendor_model extends CI_Model {
         $this->db->where('City', $city);
 
       $this->db->order_by('Appliance', 'ASC');
-      
+
       $query = $this->db->get('vendor_pincode_mapping');
 
       return $query->result_array();
@@ -432,7 +432,7 @@ class vendor_model extends CI_Model {
          return false;
       }
     }
-    
+
     /**
      * @desc: this function is used to get vendor performance .
      **/
@@ -441,8 +441,8 @@ class vendor_model extends CI_Model {
         // it used to make group by source when service center id is not empty and source is empty.
         if($vendor['vendor_id'] !="" && $vendor['source'] == "" ){
           $sources = " , source ";
-        }        
-        // It is used to get dataset group by month- year and order by year desc 
+        }
+        // It is used to get dataset group by month- year and order by year desc
         if($vendor['period'] == 'All Month'){
           $group_By .= " GROUP BY DATE_FORMAT(booking_details.`create_date`, '%M, %Y') $sources ORDER BY DATE_FORMAT(`booking_details`.`create_date`, '%Y') DESC, completed_booking";
           // it used to select month and year with dataset
@@ -450,13 +450,13 @@ class vendor_model extends CI_Model {
         }
 
       // Year Wise Dataset
-   
+
       // used to get dataset group by year date.
-        
+
       if ($vendor['period'] == "All Year") {
           $group_By = " GROUP BY DATE_FORMAT(booking_details.`create_date`, '%Y') $sources ORDER BY DATE_FORMAT(booking_details.`create_date`, '%Y') DESC, completed_booking";
-          
-          //used to select year  
+
+          //used to select year
           $month = " DATE_FORMAT(booking_details.`create_date`, '%Y') `month`,";
 
     }
@@ -465,27 +465,27 @@ class vendor_model extends CI_Model {
     if($vendor['period'] == "Week"){
         // get week wise dataset.
         $group_By = " GROUP BY WEEK(booking_details.`create_date`) $sources ORDER BY DATE_FORMAT(booking_details`create_date`,'%Y') DESC , DATE_FORMAT(booking_details.`create_date`,'%m') DESC, completed_booking";
-        //used to select week  
+        //used to select week
         $month = "  CONCAT(date(booking_details.create_date), ' - ', date(booking_details.create_date) + INTERVAL 7 DAY)   `month`,";
 
     }
-    
+
     //Quater Wise DataSet
     if($vendor['period']== 'Quater'){
        $group_By .= " GROUP BY Year(booking_details.create_date) Desc, QUARTER(booking_details.create_date) DESC $sources ";
-        $month = " CASE QUARTER(booking_details.create_date) 
- 
+        $month = " CASE QUARTER(booking_details.create_date)
+
         WHEN 1 THEN 'Jan - Mar'
 
         WHEN 2 THEN 'Apr - Jun'
- 
+
         WHEN 3 THEN 'July - Sep'
 
         WHEN 4 THEN 'Oct - Dec'
 
         END AS `month` ,  Year(booking_details.create_date) as year, ";
     }
-    
+
     // If service id is not empty then select service name by use join query to services table
     if($vendor['service_id'] !=""){
         $services = " services.services as Appliance, ";
@@ -502,49 +502,49 @@ class vendor_model extends CI_Model {
          $source = "  source, ";
          $where .= " AND source = '".$vendor['source']."'" ;
     }
-    
+
     // if vendor id is not empty and source is empty then get data group source wise
     if($vendor['vendor_id'] !="" && $vendor['source'] == "" ){
        if($group_By ==""){
           $group_By .= " GROUP By source";
        }
-     
+
      $source = "  source, ";
-      
+
     }
     // Only get vendor details from vendor mapping table, when vendor id and source are not empty and service id is empty.
     // otherwise get vendor details from service centers table.
     if($vendor['vendor_id'] !="" && $vendor['source'] != "" && $vendor['service_id'] =="" ){
-     
+
         $service_center =$this->getVendorFromMapping($vendor['vendor_id']);
 
-       
+
     } else {
        $service_center = $this->getActiveVendor($vendor['vendor_id']);
     }
 
     // initialize empty array
     $array = array();
-       foreach ($service_center as $key => $value) { 
+       foreach ($service_center as $key => $value) {
 
          $condition = "";
          if(isset($value['Appliance_ID'])){
             $condition = " AND service_id =  $value[Appliance_ID] ";
             // Calculate avg as a subquery
             $avg = " , AVG(amount_paid) AS amount_paid,
-                     (SELECT avg(amount_paid) 
+                     (SELECT avg(amount_paid)
                        FROM `booking_details`
-                      WHERE booking_details.service_id = '$value[Appliance_ID]' AND source = 
+                      WHERE booking_details.service_id = '$value[Appliance_ID]' AND source =
                       '$vendor[source]') as avg_amount_paid";
          }
-      
+
           $sql = "SELECT $month $source $services $city
                 SUM(CASE WHEN `current_status` LIKE '%Completed%' THEN 1 ELSE 0 END) AS completed_booking,
                 SUM(CASE WHEN `current_status` LIKE '%Cancelled%' THEN 1 ELSE 0 END) AS cancelled_booking
                 $avg
 
                 from booking_details $join where assigned_vendor_id = $value[id]  $condition  $where $group_By";
-                   
+
           $data = $this->db->query($sql);
           $result = $data->result_array();
 
@@ -559,9 +559,9 @@ class vendor_model extends CI_Model {
               }
               if($vendor['source'] !=""){
                 $result[$keys]['source'] = $vendor['source'];
-              
+
               }
-              
+
               if($center['completed_booking'] == ""){
                  $result[$keys]['completed_booking'] = 0;
               }
@@ -580,10 +580,10 @@ class vendor_model extends CI_Model {
               }
 
             }
-            } 
+            }
             //Array push
             array_push($array, $result);
-       }       
+       }
        return $array;
     }
     function insert_service_center_action($data){
@@ -603,12 +603,12 @@ class vendor_model extends CI_Model {
      * @desc:  when reassign service center, delete previous action perform by service center
      */
     function delete_previous_service_center_action($booking_id){
-        $charges = $this->booking_model->getbooking_charges(); 
-        log_message('info', "Entering: " . __METHOD__."  ". print_r($charges));
-        $this->db->where('booking_id', $booking_id);
+        $charges = $this->booking_model->getbooking_charges();
+        log_message('info', "Entering: " . __METHOD__ . "  " . print_r($charges, true));
+	$this->db->where('booking_id', $booking_id);
         $this->db->delete("service_center_booking_action");
     }
-    
+
     /**
      * @desc: get cancellation reason for specific vendor
      */
