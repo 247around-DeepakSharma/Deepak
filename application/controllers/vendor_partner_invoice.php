@@ -3,16 +3,13 @@
 if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
+//error_reporting(E_ALL);
+//ini_set('display_errors', '1');
 
 //ini_set('include_path', '/Applications/MAMP/htdocs/aroundlocalhost/system/libraries');
 ini_set('include_path', '/var/www/aroundhomzapp.com/public_html/system/libraries');
 
 require_once('simple_html_dom.php');
-
-//define('CONVERTAPI_KEY', '110761630');     //test account
-//define('CONVERTAPI_KEY', '278325305');    //247around account
 
 /**
  * Description of vendor_partner_invoice
@@ -30,6 +27,7 @@ class vendor_partner_invoice extends CI_Controller {
 	$this->load->library('PHPReport');
 	$this->load->library('email');
 	$this->load->library('s3');
+	$this->load->library('notify');
     }
 
     /**
@@ -56,7 +54,7 @@ class vendor_partner_invoice extends CI_Controller {
      */
     public function generate_cash_invoices_for_vendors($start_date, $end_date) {
 	log_message('info', __FUNCTION__ . '=> Start Date: ' . $start_date . ', End Date: ' . $end_date);
-	echo $start_date, $end_date;
+	echo 'Start Date: ' . $start_date . ', End Date: ' . $end_date . PHP_EOL;
 
 	$file_names = array();
 
@@ -161,17 +159,19 @@ class vendor_partner_invoice extends CI_Controller {
 		$result_var = '';
 		exec($cmd, $output, $result_var);
 
-		//log_message('info', "Report generated with $count records");
+		log_message('info', "Report generated with $count records");
 		echo PHP_EOL . "Report generated with $count records" . PHP_EOL;
-		//Send report via email
+
+		//Send invoice via email
 		$this->email->clear(TRUE);
 		$this->email->from('billing@247around.com', '247around Team');
+
 		$to = $sc['owner_email'] . ", " . $sc['primary_contact_email'];
 		//$to = 'anuj.aggarwal@gmail.com';
 		$this->email->to($to);
+
 		$cc = "billing@247around.com, nits@247around.com, anuj@247around.com";
 		$this->email->cc($cc);
-		//$this->email->bcc("anuj.aggarwal@gmail.com");
 
 		$subject = "247around - " . $sc['name'] . " - Invoice for period: " . $start_date . " To " . $end_date;
 		$this->email->subject($subject);
@@ -232,7 +232,7 @@ class vendor_partner_invoice extends CI_Controller {
 		    'vendor_partner_id' => $sc['id'],
 		    'invoice_file_excel' => $output_file . '.xlsx',
 		    'invoice_file_pdf' => $output_file . '.pdf',
-		    'from_date' => date("Y-m-d", strtotime($start_date)), //Check this next time, format should be YYYY-MM-DD
+		    'from_date' => date("Y-m-d", strtotime($start_date)),
 		    'to_date' => date("Y-m-d", strtotime($end_date)),
 		    'num_bookings' => $count,
 		    'total_service_charge' => $tot_ch_rat['t_sc'],
