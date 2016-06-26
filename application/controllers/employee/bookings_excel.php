@@ -686,6 +686,7 @@ class bookings_excel extends CI_Controller {
         $dd = date("d", strtotime($booking['booking_date']));
 
         $booking['source'] = 'SS';
+	$booking['partner_id'] = 1;
         $booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
         $booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
         $booking['booking_id'] = $booking['source'] . "-" . $booking['booking_id'];
