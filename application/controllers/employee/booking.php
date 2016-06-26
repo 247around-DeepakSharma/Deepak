@@ -95,7 +95,9 @@ class Booking extends CI_Controller {
         if ($validation) {
             $booking['type'] = $this->input->post('type');
             $booking['source'] = $this->input->post('source');
-            $booking['city'] = $this->input->post('city');
+	    //Find Partner ID for this Source
+	    $booking['partner_id'] = $this->partner_model->get_partner_id_from_booking_source_code($booking['source']);
+	    $booking['city'] = $this->input->post('city');
             $booking['state'] = $this->input->post('state');
             $booking['quantity'] = $this->input->post('quantity');
             $booking['appliance_brand1'] = $this->input->post('appliance_brand1');
@@ -2146,7 +2148,9 @@ class Booking extends CI_Controller {
         $booking['appliance_capacity'] = $this->input->post('appliance_capacity');
         $booking['appliance_category'] = $this->input->post('appliance_category');
         $booking['source'] = $this->input->post('source');
-        $booking['model_number'] = $this->input->post('model_number');
+	//Find Partner ID for this Source
+	$booking['partner_id'] = $this->partner_model->get_partner_id_from_booking_source_code($booking['source']);
+	$booking['model_number'] = $this->input->post('model_number');
         $booking['purchase_year'] = $this->input->post('purchase_year');
         $booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
         $booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
@@ -2173,11 +2177,9 @@ class Booking extends CI_Controller {
         $booking['create_date'] = date("Y-m-d h:i:s");
         $booking['potential_value'] = 0;
 
-
         $this->booking_model->addapplianceunitdetails($booking);
 
-//	$output = $this->booking_model->addbooking($booking, $booking['appliance_id'], $booking['city'], $booking['state']);
-        $this->booking_model->addbooking($booking, $booking['appliance_id'], $booking['city'], $booking['state']);
+	$this->booking_model->addbooking($booking, $booking['appliance_id'], $booking['city'], $booking['state']);
 
         $months = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
         $mm = $months[$mm - 1];

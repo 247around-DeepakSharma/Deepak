@@ -475,3 +475,7 @@ ALTER TABLE `snapdeal_leads` ADD `Expected_Delivery_Date` VARCHAR(20) NULL AFTER
 INSERT INTO `boloaaka_test`.`sms_template` (`id`, `tag`, `template`, `active`, `create_date`) VALUES (NULL, 'sd_shipped_free', 'Congratulations for buying %s from Snapdeal, your product has been shipped. Please call 9555000247 for %s. 247around.', '1', CURRENT_TIMESTAMP), (NULL, 'sd_shipped_ac', 'Congratulations for buying Air Conditioner from Snapdeal, your product has been shipped. Please call 9555000247 for installation @ %s. 247around. T&C apply.', '1', CURRENT_TIMESTAMP);
 ALTER TABLE `sms_template` ADD `comments` VARCHAR(1024) NULL AFTER `template`;
 
+ALTER TABLE  `workbook2` ADD  `service_name` VARCHAR( 128 ) NOT NULL AFTER  `title` ;
+ALTER TABLE  `workbook2` ADD  `active` INT( 1 ) NOT NULL DEFAULT  '0' AFTER  `service_name` ;
+
+INSERT INTO `boloaaka_test`.`sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'vendor_invoice_mailed', 'Dear Partner, %s Invoice for %s, Amount Rs. %s was sent to your email id. Kindly review and let us know if any issue. 247around Team', 'SMS sent after generating monthly invoices', '1', CURRENT_TIMESTAMP);

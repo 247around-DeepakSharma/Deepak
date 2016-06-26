@@ -84,7 +84,7 @@ class Partner_booking extends CI_Controller {
 	    $source['error'] = $error;
 	}
 	$this->load->view('employee/header');
-	$this->load->view('employee/upload_partners_cancelled_bookings', $source);	
+	$this->load->view('employee/upload_partners_cancelled_bookings', $source);
     }
 
     /**
@@ -104,7 +104,7 @@ class Partner_booking extends CI_Controller {
 	foreach ($reader->getSheetIterator() as $sheet) {
 	    foreach ($sheet->getRowIterator() as $row) {
 	    	// if($count>1){
-	    			$output = $this->user_model->search_user(trim($row[3]));         
+	    			$output = $this->user_model->search_user(trim($row[3]));
 		$user = "";
 		$user['state'] = "";
           if(empty($output)){
@@ -115,31 +115,31 @@ class Partner_booking extends CI_Controller {
                 $user['user_email'] = "";
 				$user['city'] = $row[4];
 				$state= $this->vendor_model->getall_state($row[4]);
-                				 
+
 				if(!empty($state)){
-					$user['state']= $state[0]['state'];	
+					$user['state']= $state[0]['state'];
 				} else {
 					$user['state'] = "";
 				}
-				
+
 		$user_id = $this->user_model->add_user($user);
 	      $data = $this->set_price_rows_data($row, $user_id);
-          
+
         //For adding unit and appliance details
         //$appliance_id = $this->booking_model->addappliancedetails($data);
 	    //$this->booking_model->addunitdetails($data);
-        
+
 	    $output = $this->booking_model->addbooking($data, "", $row[4], $user['state']);
-	    
-	    	}		
-	    }	    
+
+	    	}
+	    }
 	}
 	redirect(base_url() . 'employee/booking/view');
 	$reader->close();
-	   } else {	    
+	   } else {
 	    $this->get_upload_partners_cancelled_booking();
 	   }
-	   
+
     }
 
     /**
@@ -151,18 +151,18 @@ class Partner_booking extends CI_Controller {
     $booking['user_id'] =  $user_id;
 	$booking['booking_primary_contact_no'] = $row[3];
     $service_id = $this->booking_model->getServiceId($row[7]);
-    
-    if(!empty($service_id)){    	
+
+    if(!empty($service_id)){
     	$booking['service_id'] = $service_id;
     }
 	$booking['booking_date'] = date_format($row[6], 'Y-m-d');
 	$booking['source'] = 'SQ';
 	$booking_id = $this->create_booking_id($booking['user_id'], $booking['source']);
 	$split_booking_id = explode("Q", $booking_id);
-	$booking['booking_id'] = "SQ".$split_booking_id[2];	
+	$booking['booking_id'] = "SQ".$split_booking_id[2];
 	$booking['type'] = "Booking";
 	$booking['current_status'] = "Cancelled";
-	$booking['internal_status'] = "Cancelled";	
+	$booking['internal_status'] = "Cancelled";
 	$booking['quantity'] = 1;
 	$booking['booking_primary_contact_no'] = $row[3];
 	$booking['booking_address'] = $row[5];
@@ -173,7 +173,7 @@ class Partner_booking extends CI_Controller {
 	$booking['query_remarks'] = "NULL";
 	$booking['potential_value'] = "NULL";
 	$booking['amount_due'] = "NULL";
-	
+
 	return $booking;
     }
 
