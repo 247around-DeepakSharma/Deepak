@@ -510,7 +510,7 @@ class Reporting_utils extends CI_Model {
 
 	$query = $this->db->query("
 	    SELECT partner_leads_for_foc_invoicing_may.*, booking_details.assigned_vendor_id
-	  FROM partner_leads_for_foc_invoicing, booking_details
+	  FROM partner_leads_for_foc_invoicing_may, booking_details
 	  WHERE partner_leads_for_foc_invoicing_may.booking_id = booking_details.booking_id
 	  AND booking_details.assigned_vendor_id = $id");
 
