@@ -440,6 +440,15 @@ class vendor_partner_invoice extends CI_Controller {
 		    echo "Mail could not be sent" . PHP_EOL;
 		}
 
+		//Send SMS to PoC/Owner
+		$sms['tag'] = "vendor_invoice_mailed";
+		$sms['smsData']['type'] = 'FOC';
+		$sms['smsData']['month'] = date('M Y', strtotime($start_date));
+		$sms['smsData']['amount'] = $tot_ch_rat['t_total'];
+		$sms['phone_no'] = $sc['owner_phone_1'];
+
+		$this->notify->send_sms($sms);
+
 		//Upload Excel files to AWS
 		//$bucket = 'bookings-collateral-test';
 		$bucket = 'bookings-collateral';
