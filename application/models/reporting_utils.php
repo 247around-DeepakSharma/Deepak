@@ -430,7 +430,7 @@ class Reporting_utils extends CI_Model {
         return $query->result_array();
     }
     /*
-     * Get completed bookings to generate invoice for service center.
+     * Get completed bookings to generate CASH invoice for service center.
      * These are the bookings for which vendor has collected money on 247around behalf.
      * These could be partner bookings where partner doesn't pay us or general
      * repair bookings which 247around gets from non-partner channels.
@@ -509,7 +509,7 @@ class Reporting_utils extends CI_Model {
 	 */
 
 	$query = $this->db->query("
-	    SELECT partner_leads_for_foc_invoicing.*, booking_details.assigned_vendor_id
+	    SELECT partner_leads_for_foc_invoicing_may.*, booking_details.assigned_vendor_id
 	  FROM partner_leads_for_foc_invoicing, booking_details
 	  WHERE partner_leads_for_foc_invoicing.booking_id = booking_details.booking_id
 	  AND booking_details.assigned_vendor_id = $id");
@@ -540,7 +540,7 @@ class Reporting_utils extends CI_Model {
                  SUM(CASE WHEN `current_status` LIKE '%FollowUp%' OR `current_status` LIKE '%Completed%' OR `current_status` LIKE '%Cancelled%' OR `current_status` LIKE '%Pending%' OR `current_status` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) AS total
                 from booking_details $where Group By source ;
                  ";
-                
+
             $data = $this->db->query($sql);
             $result['data'.$i] = $data->result_array();
         }
