@@ -8,7 +8,7 @@ if (!defined('BASEPATH'))
 //ini_set('display_errors', TRUE);
 //ini_set('display_startup_errors', TRUE);
 
-define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
+define('EOL', (PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
 
 class bookings_excel extends CI_Controller {
 
@@ -32,34 +32,46 @@ class bookings_excel extends CI_Controller {
         }
     }
 
+    /*
+     * @desc: This function gets the page to upload booking excel 
+     * @param: void
+     * @return: void
+     */
+
     public function index() {
         $this->load->view('employee/header');
         $this->load->view('employee/upload_bookings_excel');
     }
+
+    /*
+     * @desc: This function is to add bookings from excel
+     * @param: void          
+     * @return: list of transactions
+     */
 
     public function add_booking_from_excel() {
         if (!empty($_FILES['file']['name'])) {
             $pathinfo = pathinfo($_FILES["file"]["name"]);
 
             if ($pathinfo['extension'] == 'xlsx') {
-		if ($_FILES['file']['size'] > 0) {
-		    $inputFileName = $_FILES['file']['tmp_name'];
-		    $inputFileExtn = 'Excel2007';
-		}
-	    } else {
-		if ($pathinfo['extension'] == 'xls') {
-		    if ($_FILES['file']['size'] > 0) {
-			$inputFileName = $_FILES['file']['tmp_name'];
-			$inputFileExtn = 'Excel5';
-		    }
-		}
-	    }
-	}
+                if ($_FILES['file']['size'] > 0) {
+                    $inputFileName = $_FILES['file']['tmp_name'];
+                    $inputFileExtn = 'Excel2007';
+                }
+            } else {
+                if ($pathinfo['extension'] == 'xls') {
+                    if ($_FILES['file']['size'] > 0) {
+                        $inputFileName = $_FILES['file']['tmp_name'];
+                        $inputFileExtn = 'Excel5';
+                    }
+                }
+            }
+        }
 
-	try {
+        try {
             $inputFileType = PHPExcel_IOFactory::identify($inputFileName);
             $objReader = PHPExcel_IOFactory::createReader($inputFileExtn);
-	    $objPHPExcel = $objReader->load($inputFileName);
+            $objPHPExcel = $objReader->load($inputFileName);
         } catch (Exception $e) {
             die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
         }
@@ -79,9 +91,9 @@ class bookings_excel extends CI_Controller {
 
         $headings_new = array();
         foreach ($headings as $heading) {
-	    $heading = str_replace(array("/", "(", ")", "."), "", $heading);
-	    array_push($headings_new, str_replace(array(" "), "_", $heading));
-	}
+            $heading = str_replace(array("/", "(", ")", "."), "", $heading);
+            array_push($headings_new, str_replace(array(" "), "_", $heading));
+        }
 
         for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
             //  Read a row of data into an array
@@ -89,24 +101,24 @@ class bookings_excel extends CI_Controller {
             $rowData[0] = array_combine($headings_new[0], $rowData[0]);
 
             //echo print_r($rowData[0], true), EOL;
-	    if ($rowData[0]['Phone'] == "") {
-		//echo print_r("Phone number null, break from this loop", true), EOL;
-		break;
-	    }
+            if ($rowData[0]['Phone'] == "") {
+                //echo print_r("Phone number null, break from this loop", true), EOL;
+                break;
+            }
 
-	    //Insert user if phone number doesn't exist
+            //Insert user if phone number doesn't exist
             $output = $this->user_model->search_user(trim($rowData[0]['Phone']));
 
-	    if (empty($output)) {
+            if (empty($output)) {
                 //User doesn't exist
                 $user['name'] = $rowData[0]['Customer_Name'];
                 $user['phone_number'] = $rowData[0]['Phone'];
                 $user['user_email'] = (isset($rowData[0]['Email_ID']) ? $rowData[0]['Email_ID'] : "");
-		$user['home_address'] = $rowData[0]['Customer_Address'];
-		$user['pincode'] = $rowData[0]['Pincode'];
-		$user['city'] = $rowData[0]['CITY'];
+                $user['home_address'] = $rowData[0]['Customer_Address'];
+                $user['pincode'] = $rowData[0]['Pincode'];
+                $user['city'] = $rowData[0]['CITY'];
 
-		$user_id = $this->user_model->add_user($user);
+                $user_id = $this->user_model->add_user($user);
 
                 //echo print_r($user, true), EOL;
                 //Add sample appliances for this user
@@ -121,502 +133,526 @@ class bookings_excel extends CI_Controller {
             }
 
             //Add this lead into the leads table
-	    //Check whether this is a new Lead or Not
-	    if ($this->booking_model->check_sd_lead_exists_by_order_id($rowData[0]['Sub_Order_ID']) == FALSE) {
-		$lead_details['Sub_Order_ID'] = $rowData[0]['Sub_Order_ID'];
-		$lead_details['Unique_id'] = $rowData[0]['Unique_id'];
+            //Check whether this is a new Lead or Not
+            if ($this->booking_model->check_sd_lead_exists_by_order_id($rowData[0]['Sub_Order_ID']) == FALSE) {
+                $lead_details['Sub_Order_ID'] = $rowData[0]['Sub_Order_ID'];
+                $lead_details['Unique_id'] = $rowData[0]['Unique_id'];
 
-		$dateObj1 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Referred_Date_and_Time']);
-		$lead_details['Referred_Date_and_Time'] = $dateObj1->format('d/m/Y');
+                $dateObj1 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Referred_Date_and_Time']);
+                $lead_details['Referred_Date_and_Time'] = $dateObj1->format('d/m/Y');
 
-		$lead_details['Brand'] = $rowData[0]['Brand'];
-		$lead_details['Model'] = $rowData[0]['Model'];
-		$lead_details['Product'] = '';
+                $lead_details['Brand'] = $rowData[0]['Brand'];
+                $lead_details['Model'] = $rowData[0]['Model'];
+                $lead_details['Product'] = '';
 
-		$prod = trim($rowData[0]['Product']);
+                $prod = trim($rowData[0]['Product']);
 
-		if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
-		    $lead_details['Product'] = 'Washing Machine';
-		}
-		if (stristr($prod, "Television")) {
-		    $lead_details['Product'] = 'Television';
-		}
-		if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
-		    $lead_details['Product'] = 'Air Conditioner';
-		}
-		if (stristr($prod, "Refrigerator")) {
-		    $lead_details['Product'] = 'Refrigerator';
-		}
-		if (stristr($prod, "Microwave")) {
-		    $lead_details['Product'] = 'Microwave';
-		}
-		if (stristr($prod, "Purifier")) {
-		    $lead_details['Product'] = 'Water Purifier';
-		}
-		if (stristr($prod, "Chimney")) {
-		    $lead_details['Product'] = 'Chimney';
-		}
-
-
-		/*
-		  switch (trim($rowData[0]['Product'])) {
-		  case 'Washing Machines & Dryers':
-		  $lead_details['Product'] = 'Washing Machine';
-		  break;
-
-		  case 'Television':
-		  $lead_details['Product'] = 'Television';
-		  break;
-
-		  case 'Televisions':
-		  $lead_details['Product'] = 'Television';
-		  break;
-
-		  case 'Airconditioner':
-		  $lead_details['Product'] = 'Air Conditioner';
-		  break;
-
-		  case 'Air Conditioner':
-		  $lead_details['Product'] = 'Air Conditioner';
-		  break;
-
-		  case 'Air Conditioners Window AC':
-		  $lead_details['Product'] = 'Air Conditioner';
-		  break;
-
-		  case 'Air Conditioners Split AC':
-		  $lead_details['Product'] = 'Air Conditioner';
-		  break;
-
-		  case 'Refrigerator':
-		  $lead_details['Product'] = 'Refrigerator';
-		  break;
-
-		  case 'Microwave Ovens & OTGs':
-		  $lead_details['Product'] = 'Microwave';
-		  break;
-
-		  case 'Water Purifiers':
-		  $lead_details['Product'] = 'Water Purifier';
-		  break;
-
-		  case 'Chimney & Hoods':
-		  $lead_details['Product'] = 'Chimney';
-		  break;
-
-		  default:
-		  $lead_details['Product'] = '';
-		  break;
-		  }
-		 *
-		 */
-
-		$lead_details['Product_Type'] = $rowData[0]['Product_Type'];
-		$lead_details['Customer_Name'] = $rowData[0]['Customer_Name'];
-		$lead_details['Customer_Address'] = $rowData[0]['Customer_Address'];
-		$lead_details['Pincode'] = $rowData[0]['Pincode'];
-		$lead_details['City'] = $rowData[0]['CITY'];
-		$lead_details['Phone'] = $rowData[0]['Phone'];
-
-		$dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Delivery_Date']);
-		$lead_details['Delivery_Date'] = $dateObj2->format('d/m/Y');
-		//since product is already delivered
-		$lead_details['Expected_Delivery_Date'] = $dateObj2->format('d/m/Y');
-
-		//$lead_details['user_id'] = $user_id;
-		$lead_details['Call_Type_Installation_Table_Top_InstallationDemo_Service'] = "";
-		$lead_details['Status_by_247around'] = "FollowUp";
-		$lead_details['Scheduled_Appointment_DateDDMMYYYY'] = "";
-		$lead_details['Scheduled_Appointment_Time'] = "";
-		$lead_details['Remarks_by_247around'] = "FollowUp";
-		$lead_details['Rating_Stars'] = "";
-		$lead_details['Status_by_Snapdeal'] = "";
-		$lead_details['Remarks_by_Snapdeal'] = "";
-		$lead_details['Final_Status'] = "";
-
-		//Add this as a Query now
-		$booking['booking_id'] = '';
-		$booking['user_id'] = $user_id;
-		$booking['service_id'] = $this->booking_model->getServiceId($lead_details['Product']);
-		//echo "Service ID: " . $booking['service_id'] . PHP_EOL;
-
-		$booking['booking_primary_contact_no'] = $lead_details['Phone'];
-		$booking['booking_alternate_contact_no'] = '';
-
-		$yy = date("y");
-		$mm = date("m");
-		$dd = date("d");
-		$booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
-		$booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
-
-		//Add source
-		$booking['source'] = "SS";
-		//Hardcoded partner ID as of now
-		$booking['partner_id'] = 1;
-		$booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
-		$lead_details['CRM_Remarks_SR_No'] = $booking['booking_id'];
-
-		$booking['quantity'] = '1';
-		$booking['appliance_brand'] = $lead_details['Brand'];
-		$booking['appliance_category'] = '';
-		$booking['appliance_capacity'] = '';
-		$booking['description'] = $lead_details['Product_Type'];
-		$booking['model_number'] = $lead_details['Model'];
-		$booking['appliance_tags'] = $lead_details['Brand'] . " " . $lead_details['Product'];
-		$booking['purchase_month'] = date('m');
-		$booking['purchase_year'] = date('Y');
-
-		$booking['items_selected'] = '';
-		$booking['total_price'] = '';
-		$booking['potential_value'] = '';
-		$booking['last_service_date'] = date('d-m-Y');
-
-		//echo print_r($booking, true) . "<br><br>";
-		$appliance_id = $this->booking_model->addexcelappliancedetails($booking);
-		//echo print_r($appliance_id, true) . "<br><br>";
-		$this->booking_model->addapplianceunitdetails($booking);
-
-		$booking['current_status'] = "FollowUp";
-		$booking['internal_status'] = "FollowUp";
-		$booking['type'] = "Query";
-		$booking['booking_date'] = '';
-		$booking['booking_timeslot'] = '';
-		$booking['booking_address'] = $lead_details['Customer_Address'];
-		$booking['booking_pincode'] = $lead_details['Pincode'];
-		$booking['amount_due'] = '';
-		$booking['booking_remarks'] = '';
-		$booking['query_remarks'] = '';
+                if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
+                    $lead_details['Product'] = 'Washing Machine';
+                }
+                if (stristr($prod, "Television")) {
+                    $lead_details['Product'] = 'Television';
+                }
+                if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
+                    $lead_details['Product'] = 'Air Conditioner';
+                }
+                if (stristr($prod, "Refrigerator")) {
+                    $lead_details['Product'] = 'Refrigerator';
+                }
+                if (stristr($prod, "Microwave")) {
+                    $lead_details['Product'] = 'Microwave';
+                }
+                if (stristr($prod, "Purifier")) {
+                    $lead_details['Product'] = 'Water Purifier';
+                }
+                if (stristr($prod, "Chimney")) {
+                    $lead_details['Product'] = 'Chimney';
+                }
 
 
-		//Insert query
-		//echo print_r($booking, true) . "<br><br>";
-		$this->booking_model->addbooking($booking, $appliance_id, $lead_details['City']);
+                /*
+                  switch (trim($rowData[0]['Product'])) {
+                  case 'Washing Machines & Dryers':
+                  $lead_details['Product'] = 'Washing Machine';
+                  break;
 
-		//Save this in SD leads table
-		$lead_details['CRM_Remarks_SR_No'] = $booking['booking_id'];
-		$lead_details['Status_by_247around'] = 'FollowUp';
-		//echo print_r($lead_details, true) . "<br><br>";
-		$this->booking_model->insert_sd_lead($lead_details);
+                  case 'Television':
+                  $lead_details['Product'] = 'Television';
+                  break;
 
-		//Reset
-		unset($booking);
-		unset($lead_details);
-	    } else {
-		//Check if we already have this as a Shipped Order
-		//If it is there, update the Delivery Date in SD leads table
-		$dateObj = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Delivery_Date']);
+                  case 'Televisions':
+                  $lead_details['Product'] = 'Television';
+                  break;
 
-		$arr_where = array('Sub_Order_ID' => $rowData[0]['Sub_Order_ID']);
-		$arr_data = array('Delivery_Date' => $dateObj->format('d/m/Y'));
+                  case 'Airconditioner':
+                  $lead_details['Product'] = 'Air Conditioner';
+                  break;
 
-		log_message('info', __FUNCTION__ . 'Update SD Lead: ' . print_r(array($arr_where, $arr_data), true));
-		$this->booking_model->update_sd_lead($arr_where, $arr_data);
+                  case 'Air Conditioner':
+                  $lead_details['Product'] = 'Air Conditioner';
+                  break;
 
-		//Clear the booking date so that it starts reflecting on our panel & update booking.
-		//This should be done only if the booking has not been updated in the meanwhile.
-		//If the booking has already been scheduled or cancelled, leave this as it is.
-		//If the booking query remarks or internal status has been changed, then also leave it.
-		$sd_leads = $this->booking_model->get_sd_lead_by_order_id($rowData[0]['Sub_Order_ID']);
-		$booking_id = $sd_leads[0]['CRM_Remarks_SR_No'];
-		$status = $sd_leads[0]['Status_by_247around'];
-		$int_status = $sd_leads[0]['Remarks_by_247around'];
+                  case 'Air Conditioners Window AC':
+                  $lead_details['Product'] = 'Air Conditioner';
+                  break;
 
-		if ($status == 'FollowUp' && $int_status == 'FollowUp') {
-		    $data['booking_date'] = '';
-		    $data['booking_timeslot'] = '';
-		    log_message('info', __FUNCTION__ . 'Update Booking: ' . print_r(array($booking_id, $data), true));
-		    $this->booking_model->update_booking($booking_id, $data);
-		}
-	    }
-	}
+                  case 'Air Conditioners Split AC':
+                  $lead_details['Product'] = 'Air Conditioner';
+                  break;
 
-	redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
+                  case 'Refrigerator':
+                  $lead_details['Product'] = 'Refrigerator';
+                  break;
+
+                  case 'Microwave Ovens & OTGs':
+                  $lead_details['Product'] = 'Microwave';
+                  break;
+
+                  case 'Water Purifiers':
+                  $lead_details['Product'] = 'Water Purifier';
+                  break;
+
+                  case 'Chimney & Hoods':
+                  $lead_details['Product'] = 'Chimney';
+                  break;
+
+                  default:
+                  $lead_details['Product'] = '';
+                  break;
+                  }
+                 *
+                 */
+
+                $lead_details['Product_Type'] = $rowData[0]['Product_Type'];
+                $lead_details['Customer_Name'] = $rowData[0]['Customer_Name'];
+                $lead_details['Customer_Address'] = $rowData[0]['Customer_Address'];
+                $lead_details['Pincode'] = $rowData[0]['Pincode'];
+                $lead_details['City'] = $rowData[0]['CITY'];
+                $lead_details['Phone'] = $rowData[0]['Phone'];
+
+                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Delivery_Date']);
+                $lead_details['Delivery_Date'] = $dateObj2->format('d/m/Y');
+                //since product is already delivered
+                $lead_details['Expected_Delivery_Date'] = $dateObj2->format('d/m/Y');
+
+                //$lead_details['user_id'] = $user_id;
+                $lead_details['Call_Type_Installation_Table_Top_InstallationDemo_Service'] = "";
+                $lead_details['Status_by_247around'] = "FollowUp";
+                $lead_details['Scheduled_Appointment_DateDDMMYYYY'] = "";
+                $lead_details['Scheduled_Appointment_Time'] = "";
+                $lead_details['Remarks_by_247around'] = "FollowUp";
+                $lead_details['Rating_Stars'] = "";
+                $lead_details['Status_by_Snapdeal'] = "";
+                $lead_details['Remarks_by_Snapdeal'] = "";
+                $lead_details['Final_Status'] = "";
+
+                //Add this as a Query now
+                $booking['booking_id'] = '';
+                $booking['user_id'] = $user_id;
+                $booking['service_id'] = $this->booking_model->getServiceId($lead_details['Product']);
+                //echo "Service ID: " . $booking['service_id'] . PHP_EOL;
+
+                $booking['booking_primary_contact_no'] = $lead_details['Phone'];
+                $booking['booking_alternate_contact_no'] = '';
+
+                $yy = date("y");
+                $mm = date("m");
+                $dd = date("d");
+                $booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
+                $booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
+
+                //Add source
+                $booking['source'] = "SS";
+                //Hardcoded partner ID as of now
+                $booking['partner_id'] = 1;
+                $booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
+                $lead_details['CRM_Remarks_SR_No'] = $booking['booking_id'];
+
+                $booking['quantity'] = '1';
+                $booking['appliance_brand'] = $lead_details['Brand'];
+                $booking['appliance_category'] = '';
+                $booking['appliance_capacity'] = '';
+                $booking['description'] = $lead_details['Product_Type'];
+                $booking['model_number'] = $lead_details['Model'];
+                $booking['appliance_tags'] = $lead_details['Brand'] . " " . $lead_details['Product'];
+                $booking['purchase_month'] = date('m');
+                $booking['purchase_year'] = date('Y');
+
+                $booking['items_selected'] = '';
+                $booking['total_price'] = '';
+                $booking['potential_value'] = '';
+                $booking['last_service_date'] = date('d-m-Y');
+
+                //echo print_r($booking, true) . "<br><br>";
+                $appliance_id = $this->booking_model->addexcelappliancedetails($booking);
+                //echo print_r($appliance_id, true) . "<br><br>";
+                $this->booking_model->addapplianceunitdetails($booking);
+
+                $booking['current_status'] = "FollowUp";
+                $booking['internal_status'] = "FollowUp";
+                $booking['type'] = "Query";
+                $booking['booking_date'] = '';
+                $booking['booking_timeslot'] = '';
+                $booking['booking_address'] = $lead_details['Customer_Address'];
+                $booking['booking_pincode'] = $lead_details['Pincode'];
+                $booking['amount_due'] = '';
+                $booking['booking_remarks'] = '';
+                $booking['query_remarks'] = '';
+
+
+                //Insert query
+                //echo print_r($booking, true) . "<br><br>";
+                $this->booking_model->addbooking($booking, $appliance_id, $lead_details['City']);
+
+                //Save this in SD leads table
+                $lead_details['CRM_Remarks_SR_No'] = $booking['booking_id'];
+                $lead_details['Status_by_247around'] = 'FollowUp';
+                //echo print_r($lead_details, true) . "<br><br>";
+                $this->booking_model->insert_sd_lead($lead_details);
+
+                //Reset
+                unset($booking);
+                unset($lead_details);
+            } else {
+                //Check if we already have this as a Shipped Order
+                //If it is there, update the Delivery Date in SD leads table
+                $dateObj = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Delivery_Date']);
+
+                $arr_where = array('Sub_Order_ID' => $rowData[0]['Sub_Order_ID']);
+                $arr_data = array('Delivery_Date' => $dateObj->format('d/m/Y'));
+
+                log_message('info', __FUNCTION__ . 'Update SD Lead: ' . print_r(array($arr_where, $arr_data), true));
+                $this->booking_model->update_sd_lead($arr_where, $arr_data);
+
+                //Clear the booking date so that it starts reflecting on our panel & update booking.
+                //This should be done only if the booking has not been updated in the meanwhile.
+                //If the booking has already been scheduled or cancelled, leave this as it is.
+                //If the booking query remarks or internal status has been changed, then also leave it.
+                $sd_leads = $this->booking_model->get_sd_lead_by_order_id($rowData[0]['Sub_Order_ID']);
+                $booking_id = $sd_leads[0]['CRM_Remarks_SR_No'];
+                $status = $sd_leads[0]['Status_by_247around'];
+                $int_status = $sd_leads[0]['Remarks_by_247around'];
+
+                if ($status == 'FollowUp' && $int_status == 'FollowUp') {
+                    $data['booking_date'] = '';
+                    $data['booking_timeslot'] = '';
+                    log_message('info', __FUNCTION__ . 'Update Booking: ' . print_r(array($booking_id, $data), true));
+                    $this->booking_model->update_booking($booking_id, $data);
+                }
+            }
+        }
+
+        redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
     }
+
+    /*
+     * @desc: This function is to upload the products that have been shipped from our partners
+     * @param: void
+     * @return: void
+     */
 
     public function upload_shipped_products_excel() {
-	$this->load->view('employee/header');
-	$this->load->view('employee/upload_shippings_excel');
+        $this->load->view('employee/header');
+        $this->load->view('employee/upload_shippings_excel');
     }
+
+    /*
+     * @desc: This function is to add the uploaded products that have been shipped from our partners
+     * @param: void
+     * @return: void
+     */
 
     public function add_snapdeal_shipped_products_from_excel() {
-	log_message('info', __FUNCTION__);
+        log_message('info', __FUNCTION__);
 
-	if (!empty($_FILES['file']['name'])) {
-	    $pathinfo = pathinfo($_FILES["file"]["name"]);
+        if (!empty($_FILES['file']['name'])) {
+            $pathinfo = pathinfo($_FILES["file"]["name"]);
 
-	    if ($pathinfo['extension'] == 'xlsx') {
-		if ($_FILES['file']['size'] > 0) {
-		    $inputFileName = $_FILES['file']['tmp_name'];
-		    $inputFileExtn = 'Excel2007';
-		}
-	    } else {
-		if ($pathinfo['extension'] == 'xls') {
-		    if ($_FILES['file']['size'] > 0) {
-			$inputFileName = $_FILES['file']['tmp_name'];
-			$inputFileExtn = 'Excel5';
-		    }
-		}
-	    }
-	}
+            if ($pathinfo['extension'] == 'xlsx') {
+                if ($_FILES['file']['size'] > 0) {
+                    $inputFileName = $_FILES['file']['tmp_name'];
+                    $inputFileExtn = 'Excel2007';
+                }
+            } else {
+                if ($pathinfo['extension'] == 'xls') {
+                    if ($_FILES['file']['size'] > 0) {
+                        $inputFileName = $_FILES['file']['tmp_name'];
+                        $inputFileExtn = 'Excel5';
+                    }
+                }
+            }
+        }
 
-	try {
-	    $inputFileType = PHPExcel_IOFactory::identify($inputFileName);
-	    $objReader = PHPExcel_IOFactory::createReader($inputFileExtn);
-	    $objPHPExcel = $objReader->load($inputFileName);
-	} catch (Exception $e) {
-	    die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
-	}
+        try {
+            $inputFileType = PHPExcel_IOFactory::identify($inputFileName);
+            $objReader = PHPExcel_IOFactory::createReader($inputFileExtn);
+            $objPHPExcel = $objReader->load($inputFileName);
+        } catch (Exception $e) {
+            die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
+        }
 
-	//  Get worksheet dimensions
-	$sheet = $objPHPExcel->setActiveSheetIndexbyName('Sheet1');
-	$highestRow = $sheet->getHighestRow();
-	$highestColumn = $sheet->getHighestColumn();
-	$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
+        //  Get worksheet dimensions
+        $sheet = $objPHPExcel->setActiveSheetIndexbyName('Sheet1');
+        $highestRow = $sheet->getHighestRow();
+        $highestColumn = $sheet->getHighestColumn();
+        $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
 
-	$sheet = $objPHPExcel->getSheet(0);
-	$headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
+        $sheet = $objPHPExcel->getSheet(0);
+        $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
 
-	$headings_new = array();
-	foreach ($headings as $heading) {
-	    $heading = str_replace(array("/", "(", ")", "."), "", $heading);
-	    array_push($headings_new, str_replace(array(" "), "_", $heading));
-	}
+        $headings_new = array();
+        foreach ($headings as $heading) {
+            $heading = str_replace(array("/", "(", ")", "."), "", $heading);
+            array_push($headings_new, str_replace(array(" "), "_", $heading));
+        }
 
-	for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
-	    //  Read a row of data into an array
-	    $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
-	    $rowData[0] = array_combine($headings_new[0], $rowData[0]);
+        for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
+            //  Read a row of data into an array
+            $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
+            $rowData[0] = array_combine($headings_new[0], $rowData[0]);
 
-	    //echo print_r($rowData[0], true), EOL;
-	    if ($rowData[0]['Phone'] == "") {
-		//echo print_r("Phone number null, break from this loop", true), EOL;
-		break;
-	    }
+            //echo print_r($rowData[0], true), EOL;
+            if ($rowData[0]['Phone'] == "") {
+                //echo print_r("Phone number null, break from this loop", true), EOL;
+                break;
+            }
 
-	    //Insert user if phone number doesn't exist
-	    $output = $this->user_model->search_user(trim($rowData[0]['Phone']));
+            //Insert user if phone number doesn't exist
+            $output = $this->user_model->search_user(trim($rowData[0]['Phone']));
 
-	    if (empty($output)) {
-		//User doesn't exist
-		$user['name'] = $rowData[0]['Customer_Name'];
-		$user['phone_number'] = $rowData[0]['Phone'];
-		$user['user_email'] = (isset($rowData[0]['Email_ID']) ? $rowData[0]['Email_ID'] : "");
-		$user['home_address'] = $rowData[0]['Customer_Address'];
-		$user['pincode'] = $rowData[0]['Pincode'];
-		$user['city'] = $rowData[0]['CITY'];
+            if (empty($output)) {
+                //User doesn't exist
+                $user['name'] = $rowData[0]['Customer_Name'];
+                $user['phone_number'] = $rowData[0]['Phone'];
+                $user['user_email'] = (isset($rowData[0]['Email_ID']) ? $rowData[0]['Email_ID'] : "");
+                $user['home_address'] = $rowData[0]['Customer_Address'];
+                $user['pincode'] = $rowData[0]['Pincode'];
+                $user['city'] = $rowData[0]['CITY'];
 
-		$user_id = $this->user_model->add_user($user);
+                $user_id = $this->user_model->add_user($user);
 
-		//echo print_r($user, true), EOL;
-		//Add sample appliances for this user
-		$count = $this->booking_model->getApplianceCountByUser($user_id);
-		//Add sample appliances if user has < 5 appliances in wallet
-		if ($count < 5) {
-		    $this->booking_model->addSampleAppliances($user_id, 5 - intval($count));
-		}
-	    } else {
-		//User exists
-		$user_id = $output[0]['user_id'];
-	    }
+                //echo print_r($user, true), EOL;
+                //Add sample appliances for this user
+                $count = $this->booking_model->getApplianceCountByUser($user_id);
+                //Add sample appliances if user has < 5 appliances in wallet
+                if ($count < 5) {
+                    $this->booking_model->addSampleAppliances($user_id, 5 - intval($count));
+                }
+            } else {
+                //User exists
+                $user_id = $output[0]['user_id'];
+            }
 
-	    //Add this lead into the leads table
-	    //Check whether this is a new Lead or Not
-	    if ($this->booking_model->check_sd_lead_exists_by_order_id($rowData[0]['Sub_Order_ID']) == FALSE) {
-		$lead_details['Sub_Order_ID'] = $rowData[0]['Sub_Order_ID'];
-		$lead_details['Unique_id'] = $rowData[0]['Unique_id'];
+            //Add this lead into the leads table
+            //Check whether this is a new Lead or Not
+            if ($this->booking_model->check_sd_lead_exists_by_order_id($rowData[0]['Sub_Order_ID']) == FALSE) {
+                $lead_details['Sub_Order_ID'] = $rowData[0]['Sub_Order_ID'];
+                $lead_details['Unique_id'] = $rowData[0]['Unique_id'];
 
-		$dateObj1 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Referred_Date_and_Time']);
-		$lead_details['Referred_Date_and_Time'] = $dateObj1->format('d/m/Y');
+                $dateObj1 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Referred_Date_and_Time']);
+                $lead_details['Referred_Date_and_Time'] = $dateObj1->format('d/m/Y');
 
-		$lead_details['Brand'] = $rowData[0]['Brand'];
-		$lead_details['Model'] = $rowData[0]['Model'];
-		$lead_details['Product'] = '';
+                $lead_details['Brand'] = $rowData[0]['Brand'];
+                $lead_details['Model'] = $rowData[0]['Model'];
+                $lead_details['Product'] = '';
 
-		$prod = trim($rowData[0]['Product']);
+                $prod = trim($rowData[0]['Product']);
 
-		//Initialize Air Conditioner type as Split
-		$ac_type = 'Split';
+                //Initialize Air Conditioner type as Split
+                $ac_type = 'Split';
 
-		if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
-		    $lead_details['Product'] = 'Washing Machine';
-		}
-		if (stristr($prod, "Television")) {
-		    $lead_details['Product'] = 'Television';
-		}
-		if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
-		    $lead_details['Product'] = 'Air Conditioner';
+                if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
+                    $lead_details['Product'] = 'Washing Machine';
+                }
+                if (stristr($prod, "Television")) {
+                    $lead_details['Product'] = 'Television';
+                }
+                if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
+                    $lead_details['Product'] = 'Air Conditioner';
 
-		    if (stristr($rowData[0]['Product_Type'], "Window")) {
-			$ac_type = 'Window';
-		    }
-		}
-		if (stristr($prod, "Refrigerator")) {
-		    $lead_details['Product'] = 'Refrigerator';
-		}
-		if (stristr($prod, "Microwave")) {
-		    $lead_details['Product'] = 'Microwave';
-		}
-		if (stristr($prod, "Purifier")) {
-		    $lead_details['Product'] = 'Water Purifier';
-		}
-		if (stristr($prod, "Chimney")) {
-		    $lead_details['Product'] = 'Chimney';
-		}
+                    if (stristr($rowData[0]['Product_Type'], "Window")) {
+                        $ac_type = 'Window';
+                    }
+                }
+                if (stristr($prod, "Refrigerator")) {
+                    $lead_details['Product'] = 'Refrigerator';
+                }
+                if (stristr($prod, "Microwave")) {
+                    $lead_details['Product'] = 'Microwave';
+                }
+                if (stristr($prod, "Purifier")) {
+                    $lead_details['Product'] = 'Water Purifier';
+                }
+                if (stristr($prod, "Chimney")) {
+                    $lead_details['Product'] = 'Chimney';
+                }
 
-		$lead_details['Product_Type'] = $rowData[0]['Product_Type'];
-		$lead_details['Customer_Name'] = $rowData[0]['Customer_Name'];
-		$lead_details['Customer_Address'] = $rowData[0]['Customer_Address'];
-		$lead_details['Pincode'] = $rowData[0]['Pincode'];
-		$lead_details['City'] = $rowData[0]['CITY'];
-		$lead_details['Phone'] = $rowData[0]['Phone'];
+                $lead_details['Product_Type'] = $rowData[0]['Product_Type'];
+                $lead_details['Customer_Name'] = $rowData[0]['Customer_Name'];
+                $lead_details['Customer_Address'] = $rowData[0]['Customer_Address'];
+                $lead_details['Pincode'] = $rowData[0]['Pincode'];
+                $lead_details['City'] = $rowData[0]['CITY'];
+                $lead_details['Phone'] = $rowData[0]['Phone'];
 
-		$dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Expected_Delivery_Date']);
+                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Expected_Delivery_Date']);
 
-		if ($dateObj2->format('d') == date('d')) {
-		    $dateObj2  =  date_create('+1days');
-	    }
-		log_message('info', print_r($dateObj2, true));
+                if ($dateObj2->format('d') == date('d')) {
+                    $dateObj2 = date_create('+1days');
+                }
+                log_message('info', print_r($dateObj2, true));
 
-		$lead_details['Expected_Delivery_Date'] = $dateObj2->format('d/m/Y');
+                $lead_details['Expected_Delivery_Date'] = $dateObj2->format('d/m/Y');
 
-		//$lead_details['user_id'] = $user_id;
-		$lead_details['Call_Type_Installation_Table_Top_InstallationDemo_Service'] = "";
-		$lead_details['Status_by_247around'] = "FollowUp";
-		$lead_details['Scheduled_Appointment_DateDDMMYYYY'] = "";
-		$lead_details['Scheduled_Appointment_Time'] = "";
-		$lead_details['Remarks_by_247around'] = "FollowUp";
-		$lead_details['Rating_Stars'] = "";
-		$lead_details['Status_by_Snapdeal'] = "";
-		$lead_details['Remarks_by_Snapdeal'] = "";
-		$lead_details['Final_Status'] = "";
+                //$lead_details['user_id'] = $user_id;
+                $lead_details['Call_Type_Installation_Table_Top_InstallationDemo_Service'] = "";
+                $lead_details['Status_by_247around'] = "FollowUp";
+                $lead_details['Scheduled_Appointment_DateDDMMYYYY'] = "";
+                $lead_details['Scheduled_Appointment_Time'] = "";
+                $lead_details['Remarks_by_247around'] = "FollowUp";
+                $lead_details['Rating_Stars'] = "";
+                $lead_details['Status_by_Snapdeal'] = "";
+                $lead_details['Remarks_by_Snapdeal'] = "";
+                $lead_details['Final_Status'] = "";
 
-		//Add this as a Query now
-		$booking['booking_id'] = '';
-		$booking['user_id'] = $user_id;
-		$booking['service_id'] = $this->booking_model->getServiceId($lead_details['Product']);
-		log_message('info', __FUNCTION__ . "=> Service ID: " . $booking['service_id']);
+                //Add this as a Query now
+                $booking['booking_id'] = '';
+                $booking['user_id'] = $user_id;
+                $booking['service_id'] = $this->booking_model->getServiceId($lead_details['Product']);
+                log_message('info', __FUNCTION__ . "=> Service ID: " . $booking['service_id']);
 
-		$booking['booking_primary_contact_no'] = $lead_details['Phone'];
-		$booking['booking_alternate_contact_no'] = '';
+                $booking['booking_primary_contact_no'] = $lead_details['Phone'];
+                $booking['booking_alternate_contact_no'] = '';
 
-		$yy = $dateObj2->format('y');
-		$mm = $dateObj2->format('m');
-		$dd = $dateObj2->format('d');
-		$booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
-		$booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
+                $yy = $dateObj2->format('y');
+                $mm = $dateObj2->format('m');
+                $dd = $dateObj2->format('d');
+                $booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
+                $booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
 
-		//Add source
-		$booking['source'] = "SS";
-		//Hardcoded partner ID as of now
-		$booking['partner_id'] = 1;
-		$booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
-		$lead_details['CRM_Remarks_SR_No'] = $booking['booking_id'];
+                //Add source
+                $booking['source'] = "SS";
+                //Hardcoded partner ID as of now
+                $booking['partner_id'] = 1;
+                $booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
+                $lead_details['CRM_Remarks_SR_No'] = $booking['booking_id'];
 
-		$booking['quantity'] = '1';
-		$booking['appliance_brand'] = $lead_details['Brand'];
-		$booking['appliance_category'] = '';
-		$booking['appliance_capacity'] = '';
-		$booking['description'] = $lead_details['Product_Type'];
-		$booking['model_number'] = $lead_details['Model'];
-		$booking['appliance_tags'] = $lead_details['Brand'] . " " . $lead_details['Product'];
-		$booking['purchase_month'] = date('m');
-		$booking['purchase_year'] = date('Y');
+                $booking['quantity'] = '1';
+                $booking['appliance_brand'] = $lead_details['Brand'];
+                $booking['appliance_category'] = '';
+                $booking['appliance_capacity'] = '';
+                $booking['description'] = $lead_details['Product_Type'];
+                $booking['model_number'] = $lead_details['Model'];
+                $booking['appliance_tags'] = $lead_details['Brand'] . " " . $lead_details['Product'];
+                $booking['purchase_month'] = date('m');
+                $booking['purchase_year'] = date('Y');
 
-		$booking['items_selected'] = '';
-		$booking['total_price'] = '';
-		$booking['potential_value'] = '';
-		$booking['last_service_date'] = date('d-m-Y');
+                $booking['items_selected'] = '';
+                $booking['total_price'] = '';
+                $booking['potential_value'] = '';
+                $booking['last_service_date'] = date('d-m-Y');
 
-		//echo print_r($booking, true) . "<br><br>";
-		$appliance_id = $this->booking_model->addexcelappliancedetails($booking);
-		//echo print_r($appliance_id, true) . "<br><br>";
-		$this->booking_model->addapplianceunitdetails($booking);
+                //echo print_r($booking, true) . "<br><br>";
+                $appliance_id = $this->booking_model->addexcelappliancedetails($booking);
+                //echo print_r($appliance_id, true) . "<br><br>";
+                $this->booking_model->addapplianceunitdetails($booking);
 
-		$booking['current_status'] = "FollowUp";
-		$booking['internal_status'] = "FollowUp";
-		$booking['type'] = "Query";
-		$booking['booking_date'] = $dateObj2->format('d-m-Y');
-		$booking['booking_timeslot'] = '10AM-1PM';
-		$booking['booking_address'] = $lead_details['Customer_Address'];
-		$booking['booking_pincode'] = $lead_details['Pincode'];
-		$booking['amount_due'] = '';
-		$booking['booking_remarks'] = '';
-		$booking['query_remarks'] = 'Product Shipped, Call Customer For Booking';
+                $booking['current_status'] = "FollowUp";
+                $booking['internal_status'] = "FollowUp";
+                $booking['type'] = "Query";
+                $booking['booking_date'] = $dateObj2->format('d-m-Y');
+                $booking['booking_timeslot'] = '10AM-1PM';
+                $booking['booking_address'] = $lead_details['Customer_Address'];
+                $booking['booking_pincode'] = $lead_details['Pincode'];
+                $booking['amount_due'] = '';
+                $booking['booking_remarks'] = '';
+                $booking['query_remarks'] = 'Product Shipped, Call Customer For Booking';
 
-		//Insert query
-		//echo print_r($booking, true) . "<br><br>";
-		$this->booking_model->addbooking($booking, $appliance_id, $lead_details['City']);
+                //Insert query
+                //echo print_r($booking, true) . "<br><br>";
+                $this->booking_model->addbooking($booking, $appliance_id, $lead_details['City']);
 
-		//Save this in SD leads table
-		$lead_details['CRM_Remarks_SR_No'] = $booking['booking_id'];
-		$lead_details['Status_by_247around'] = 'FollowUp';
-		//echo print_r($lead_details, true) . "<br><br>";
-		$this->booking_model->insert_sd_lead($lead_details);
+                //Save this in SD leads table
+                $lead_details['CRM_Remarks_SR_No'] = $booking['booking_id'];
+                $lead_details['Status_by_247around'] = 'FollowUp';
+                //echo print_r($lead_details, true) . "<br><br>";
+                $this->booking_model->insert_sd_lead($lead_details);
 
-		//Send SMS to customer about free installation
-		switch ($lead_details['Product']) {
-		    case 'Washing Machine':
-			$sms['tag'] = "sd_shipped_free";
-			$sms['smsData']['service'] = 'Washing Machine';
-			$sms['smsData']['message'] = 'free installation';
-			break;
+                //Send SMS to customer about free installation
+                switch ($lead_details['Product']) {
+                    case 'Washing Machine':
+                        $sms['tag'] = "sd_shipped_free";
+                        $sms['smsData']['service'] = 'Washing Machine';
+                        $sms['smsData']['message'] = 'free installation';
+                        break;
 
-		    case 'Refrigerator':
-			$sms['tag'] = "sd_shipped_free";
-			$sms['smsData']['service'] = 'Refrigerator';
-			$sms['smsData']['message'] = 'free installation';
-			break;
+                    case 'Refrigerator':
+                        $sms['tag'] = "sd_shipped_free";
+                        $sms['smsData']['service'] = 'Refrigerator';
+                        $sms['smsData']['message'] = 'free installation';
+                        break;
 
-		    case 'Microwave':
-			$sms['tag'] = "sd_shipped_free";
-			$sms['smsData']['service'] = 'Microwave';
-			$sms['smsData']['message'] = 'free installation';
-			break;
+                    case 'Microwave':
+                        $sms['tag'] = "sd_shipped_free";
+                        $sms['smsData']['service'] = 'Microwave';
+                        $sms['smsData']['message'] = 'free installation';
+                        break;
 
-		    case 'Television':
-			$sms['tag'] = "sd_shipped_free";
-			$sms['smsData']['service'] = 'TV';
-			$sms['smsData']['message'] = 'free installation and wall-mounted stand';
-			break;
+                    case 'Television':
+                        $sms['tag'] = "sd_shipped_free";
+                        $sms['smsData']['service'] = 'TV';
+                        $sms['smsData']['message'] = 'free installation and wall-mounted stand';
+                        break;
 
-		    case 'Air Conditioner':
-			$sms['tag'] = "sd_shipped_ac";
+                    case 'Air Conditioner':
+                        $sms['tag'] = "sd_shipped_ac";
 
-			if ($ac_type == 'Window') {
-			    $sms['smsData']['message'] = 'Rs550';
-			} else {
-			    $sms['smsData']['message'] = 'Rs1400';
-			}
+                        if ($ac_type == 'Window') {
+                            $sms['smsData']['message'] = 'Rs550';
+                        } else {
+                            $sms['smsData']['message'] = 'Rs1400';
+                        }
 
-			break;
+                        break;
 
-		    default:
-			break;
-		}
+                    default:
+                        break;
+                }
 
-		$sms['phone_no'] = $lead_details['Phone'];
-		$sms['booking_id'] = $booking['booking_id'];
-		$this->notify->send_sms($sms);
+                $sms['phone_no'] = $lead_details['Phone'];
+                $sms['booking_id'] = $booking['booking_id'];
+                $this->notify->send_sms($sms);
 
-		//Reset
-		unset($booking);
-		unset($lead_details);
-	    } else {
-		//Skip this request as it already exists
-	    }
-	}
+                //Reset
+                unset($booking);
+                unset($lead_details);
+            } else {
+                //Skip this request as it already exists
+            }
+        }
 
-	redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
+        redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
     }
 
+    /*
+     * @desc: Shows all unassigned bookings from Snapdeal
+     * @param: void
+     * @return: void
+     */
+
     function get_unassigned_bookings() {
-	$bookings = $this->booking_model->get_sd_unassigned_bookings();
+        $bookings = $this->booking_model->get_sd_unassigned_bookings();
 
         $data['booking'] = $bookings;
 
         $this->load->view('employee/header');
         $this->load->view('employee/sd_booking_summary', $data);
     }
+
+    /*
+     * @desc: Shows all details of all the SD bookings in create date sorted manner.
+     * @param: void
+     * @return: void
+     */
 
     function get_all_sd_bookings() {
         $bookings = $this->booking_model->get_all_sd_bookings();
@@ -626,6 +662,13 @@ class bookings_excel extends CI_Controller {
         $this->load->view('employee/header');
         $this->load->view('employee/sd_booking_summary', $data);
     }
+
+    /*
+     * @desc: This function helps to get booking form to add booking.
+     * @param: $lead_id
+     *          - This lead id is used to get all the booking details.
+     * @return: void
+     */
 
     function get_booking_form($lead_id) {
         $lead = $this->booking_model->get_sd_lead($lead_id);
@@ -643,7 +686,13 @@ class bookings_excel extends CI_Controller {
             'category' => $category));
     }
 
-  function get_confirm_sd_lead_form() {
+    /*
+     * @desc: This function is to get confirm SD leads form i.e. to confirm booking
+     * @param: void
+     * @return: view with lead_id and booking details
+     */
+
+    function get_confirm_sd_lead_form() {
         $lead_id = $this->input->post('lead_id');
         $booking['user_id'] = $this->input->post('user_id');
         $booking['service_id'] = $this->input->post('service_id');
@@ -658,9 +707,9 @@ class bookings_excel extends CI_Controller {
         $booking['appliance_category'] = $this->input->post('appliance_category');
         $booking['appliance_capacity'] = $this->input->post('appliance_capacity');
         $booking['model_number'] = $this->input->post('model_number');
-	$booking['description'] = $this->input->post('description');
+        $booking['description'] = $this->input->post('description');
 
-	$booking['items_selected'] = $this->input->post('items_selected');
+        $booking['items_selected'] = $this->input->post('items_selected');
         $booking['total_price'] = $this->input->post('total_price');
 
         $booking['booking_date'] = $this->input->post('booking_date');
@@ -688,8 +737,16 @@ class bookings_excel extends CI_Controller {
             'result' => $result));
     }
 
-  function post_confirm_sd_lead_form() {
-        $lead_id = $this->input->post('lead_id'); $booking['user_id'] = $this->input->post('user_id');
+    /*
+     * @desc: This function is to confirm SD leads and make it as booking with status 
+     *          as pending i.e. to confirm booking 
+     * @param: void
+     * @return: void
+     */
+
+    function post_confirm_sd_lead_form() {
+        $lead_id = $this->input->post('lead_id');
+        $booking['user_id'] = $this->input->post('user_id');
         $booking['service_id'] = $this->input->post('service_id');
         $booking['service_name'] = $this->input->post('services');
         $booking['user_email'] = $this->input->post('user_email');
@@ -705,8 +762,8 @@ class bookings_excel extends CI_Controller {
         $booking['appliance_category'] = $this->input->post('appliance_category');
         $booking['appliance_capacity'] = $this->input->post('appliance_capacity');
         $booking['model_number'] = $this->input->post('model_number');
-	    $booking['description'] = $this->input->post('description');
-	    $booking['items_selected'] = $this->input->post('items_selected');
+        $booking['description'] = $this->input->post('description');
+        $booking['items_selected'] = $this->input->post('items_selected');
         $booking['total_price'] = $this->input->post('total_price');
         $booking['amount_due'] = $booking['total_price'];
         $booking['potential_value'] = $booking['total_price'];
@@ -714,7 +771,7 @@ class bookings_excel extends CI_Controller {
         $booking['purchase_month'] = date('m');
         $booking['purchase_year'] = date('Y');
         $booking['appliance_tags'] = $booking['appliance_brand'] .
-            " " . $booking['service_name'];
+                " " . $booking['service_name'];
         $booking['last_service_date'] = date('d-m-Y');
 
         $booking['booking_date'] = $this->input->post('booking_date');
@@ -760,18 +817,18 @@ class bookings_excel extends CI_Controller {
         if ($booking['current_status'] != "FollowUp") {
             $message = "Congratulations You have received new booking, details are mentioned below:
                 <br>Customer Name: " . $booking['user_name'] . "<br>Customer Phone Number: " .
-                $booking['booking_primary_contact_no'] . "<br>Customer email address: " .
-                $booking['user_email'] . "<br>Booking Id: " . $booking['booking_id'] .
-                "<br>Service name:" . $booking['service_name'] . "<br>Number of appliance: " .
-                $booking['quantity'] . "<br>Booking Date: " . $booking['booking_date'] .
-                "<br>Booking Timeslot: " . $booking['booking_timeslot'] . "<br>Amount Due: " .
-                $booking['amount_due'] . "<br>Your Booking Remark is: " . $booking['booking_remarks'] .
-                "<br>Booking address: " . $booking['booking_address'] . "<br>Booking pincode: " .
-                $booking['booking_pincode'] . "<br><br>
+                    $booking['booking_primary_contact_no'] . "<br>Customer email address: " .
+                    $booking['user_email'] . "<br>Booking Id: " . $booking['booking_id'] .
+                    "<br>Service name:" . $booking['service_name'] . "<br>Number of appliance: " .
+                    $booking['quantity'] . "<br>Booking Date: " . $booking['booking_date'] .
+                    "<br>Booking Timeslot: " . $booking['booking_timeslot'] . "<br>Amount Due: " .
+                    $booking['amount_due'] . "<br>Your Booking Remark is: " . $booking['booking_remarks'] .
+                    "<br>Booking address: " . $booking['booking_address'] . "<br>Booking pincode: " .
+                    $booking['booking_pincode'] . "<br><br>
                 Appliance Details:<br>";
 
             $appliance = "<br>Brand : " . $booking['appliance_brand'] . "<br>Category : " . $booking['appliance_category'] . "<br>Capacity : " . $booking['appliance_capacity'] .
-                "<br>Selected service/s is/are: " . $booking['items_selected'] . "<br>Total price is: " . $booking['total_price'] . "<br>";
+                    "<br>Selected service/s is/are: " . $booking['items_selected'] . "<br>Total price is: " . $booking['total_price'] . "<br>";
             $message = $message . $appliance . "<br> Thanks!!";
 
             $from = "booking@247around.com";
@@ -791,32 +848,29 @@ class bookings_excel extends CI_Controller {
         redirect(base_url() . 'employee/bookings_excel/get_unassigned_bookings', 'refresh');
     }
 
- //    function sendMail($subject, $message, $to, $cc, $bcc) {
-
- //        $this->load->library('email');
- //        $this->email->initialize(array(
- //            'useragent' => 'CodeIgniter',
- //            'protocol' => 'smtp',
- //            'smtp_host' => 'smtp.sendgrid.net',
- //            'smtp_port' => '587',
- //            'smtp_user' => 'nitinmalhotra',
- //            'smtp_pass' => 'mandatory16',
- //            'mailtype' => 'html',
- //            'charset' => 'iso-8859-1',
- //            'crlf' => "\r\n",
- //            'newline' => "\r\n",
- //            'wordwrap' => TRUE
- //            )
- //        );
-
- //        $this->email->from('booking@247around.com', '247around Team');
-	// //$this->email->to($to);
- //        //TODO: Uncomment before releasing
- //        $this->email->bcc('anuj@247around.com, nits@247around.com');
- //        //$this->email->bcc('anuj.aggarwal@gmail.com');
- //        $this->email->subject($subject);
- //        $this->email->message($message);
- //        $this->email->send();
- //    }
-
+    //    function sendMail($subject, $message, $to, $cc, $bcc) {
+    //        $this->load->library('email');
+    //        $this->email->initialize(array(
+    //            'useragent' => 'CodeIgniter',
+    //            'protocol' => 'smtp',
+    //            'smtp_host' => 'smtp.sendgrid.net',
+    //            'smtp_port' => '587',
+    //            'smtp_user' => 'nitinmalhotra',
+    //            'smtp_pass' => 'mandatory16',
+    //            'mailtype' => 'html',
+    //            'charset' => 'iso-8859-1',
+    //            'crlf' => "\r\n",
+    //            'newline' => "\r\n",
+    //            'wordwrap' => TRUE
+    //            )
+    //        );
+    //        $this->email->from('booking@247around.com', '247around Team');
+    // //$this->email->to($to);
+    //        //TODO: Uncomment before releasing
+    //        $this->email->bcc('anuj@247around.com, nits@247around.com');
+    //        //$this->email->bcc('anuj.aggarwal@gmail.com');
+    //        $this->email->subject($subject);
+    //        $this->email->message($message);
+    //        $this->email->send();
+    //    }
 }

@@ -1,7 +1,8 @@
 <?php
 
-if (!defined('BASEPATH'))
+if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
+}
 
 //error_reporting(E_ALL);
 //ini_set('display_errors', '1');
@@ -163,6 +164,8 @@ class New_booking extends CI_Controller {
      * @desc: This funtion is used to review bookings (All selected checkbox) which are
      * completed/cancelled by our vendors.
      * It completes/cancels these bookings in the background and returns immediately.
+     * @param : void
+     * @return : void
      */
     function complete_booking() {
 	$approve['approve'] = $this->input->post('approve');
@@ -174,6 +177,13 @@ class New_booking extends CI_Controller {
 	redirect(base_url() . 'employee/new_booking/review_bookings');
     }
 
+    /**
+     * @desc: This funtion is used to review booking which is completed/cancelled by our vendors.
+     * Sends the charges filled by vendor while completing the booking to review booking page
+     * It completes/cancels the particular booking in the background and returns immediately.
+     * @param : $booking_id
+     * @return : array of charges to view
+     */
     function review_bookings($booking_id = "") {
 	$charges['charges'] = $this->booking_model->get_booking_for_review($booking_id);
 	$this->load->view('employee/header');
