@@ -457,7 +457,7 @@ class Invoice extends CI_Controller {
 
         $template = 'around_to_vendor_invoices.xlsx';
 	        //set absolute path to directory with template files
-	    $templateDir = "/usr/share/nginx/html/around/application/controllers/";
+	    $templateDir = __DIR__ . "/../";
 
         for($i=0; $i < count($data); $i++){
         	 $total_inst_charge =0;
