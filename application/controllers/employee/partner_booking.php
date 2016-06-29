@@ -84,13 +84,13 @@ class Partner_booking extends CI_Controller {
      *  @param : void
      *  @return : void
      */
-    function get_upload_partners_cancelled_booking() {
-        $source['source'] = $this->partner_model->get_all_partner_source();
-        if (!empty($error)) {
-            $source['error'] = $error;
-        }
-        $this->load->view('employee/header');
-        $this->load->view('employee/upload_partners_cancelled_bookings', $source);
+    function get_upload_partners_cancelled_booking(){
+    $source['source'] = $this->partner_model->get_all_partner_source();
+	if (!empty($error)) {
+	    $source['error'] = $error;
+	}
+	$this->load->view('employee/header');
+	$this->load->view('employee/upload_partners_cancelled_bookings', $source);
     }
 
     /**
@@ -99,7 +99,6 @@ class Partner_booking extends CI_Controller {
      *  @return : void
      */
     public function post_upload_partners_cancelled_booking() {
-
         $return = $this->partner_utilities->validate_file($_FILES);
         if ($return == "true") {
             $inputFileName = $_FILES['file']['tmp_name'];

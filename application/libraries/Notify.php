@@ -4,6 +4,12 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
+
+//Define to execute few scripts in trial mode where no actual emails and SMSes
+//would be sent.
+//It should be 0 for Production Code.
+define('TRIAL_RUN', 0);
+
 /**
  * Notify library to send Mails and SMSs
  *
@@ -35,11 +41,18 @@ class Notify {
             $this->My_CI->email->attach($attachment, 'attachment');
 
         $this->My_CI->email->from($from, '247around Team');
-        $this->My_CI->email->to($to);
-        $this->My_CI->email->bcc($bcc);
-        $this->My_CI->email->cc($cc);
-        $this->My_CI->email->subject($subject);
-        $this->My_CI->email->message($message);
+
+	if (!TRIAL_RUN) {
+	    $this->My_CI->email->to($to);
+	    $this->My_CI->email->bcc($bcc);
+	    $this->My_CI->email->cc($cc);
+	} else {
+	    //Trial mode
+	    $this->My_CI->email->to('anuj.aggarwal@gmail.com');
+	}
+
+	$this->My_CI->email->subject($subject);
+	$this->My_CI->email->message($message);
 
         if ($this->My_CI->email->send())
             return true;
@@ -48,7 +61,12 @@ class Notify {
     }
 
     function sendTransactionalSms($phone_number, $body) {
-        $post_data = array(
+	if (TRIAL_RUN) {
+	    //Trial mode, replace phone number
+	    $phone_number = '8826423424';
+	}
+
+	$post_data = array(
             // 'From' doesn't matter; For transactional, this will be replaced with your SenderId;
             // For promotional, this will be ignored by the SMS gateway
             'From' => '01130017601',
@@ -85,16 +103,12 @@ class Notify {
      *  @return : if SMS send return true else false
      */
     function send_sms($sms) {
-
         $template = $this->My_CI->vendor_model->getVendorSmsTemplate($sms['tag']);
         if (!empty($template)) {
             $smsBody = vsprintf($template, $sms['smsData']);
             $this->sendTransactionalSms($sms['phone_no'], $smsBody);
-        } elseif ($sms['smsData'] == "") {        //As we have to use complete sms data from DB, nothing to edit/replace.
-            $this->sendTransactionalSms($sms['phone_no'], $template);
         } else {
-
-            log_message('info', "Message Not Sent - Booking id: " . $sms['booking_id'] . ", 
+            log_message('info', "Message Not Sent - Booking id: " . $sms['booking_id'] . ",
         		please recheck tag: '" . $sms['tag'] . "' & Phone Number - " . $sms['phone_no']);
             $subject = 'Booking SMS not sent';
             $message = "Please check SMS tag and phone number. Booking id is : " .
@@ -148,14 +162,16 @@ class Notify {
      *  @return :
      */
     function make_outbound_call($agent_phone, $customer_phone) {
+	//Callback fn called by Exotel
+	$cb = base_url() . 'call-customer-status-callback';
 
-        $post_data = array(
+	$post_data = array(
             'From' => $agent_phone,
             'To' => $customer_phone,
             'CallerId' => '01139595200', //247around call centre exophone number
             'CallType' => 'trans',
-            'StatusCallback' => 'https://aroundhomzapp.com/call-customer-status-callback'
-        );
+            'StatusCallback' => $cb
+	);
 
         $exotel_sid = "aroundhomz";
         $exotel_token = "a041058fa6b179ecdb9846ccf0e4fd8e09104612";

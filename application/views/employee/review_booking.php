@@ -44,6 +44,7 @@
                     <th>Internal Status</th>
                     <th>Closing Remarks</th>
                     <th  ><input type="checkbox" id="selecctall" />  Approve</th>
+                    <th>View</th>
                     <th>Edit</th>
                     <th>Reject</th>
                     
@@ -93,6 +94,12 @@
                        <td data-popover="true" style="position: absolute; border:0px;" data-html=true data-content="<?php if(isset($value['service_center_remarks'])){ echo $value['service_center_remarks'];}?>"><div class="marquee"><div><span ><?php echo $value['service_center_remarks']; ?></span></div></div></td>
 	     
                         <td><input type="checkbox"  class="checkbox1" name="approve[]" value="<?php echo $value['booking_id']; ?>"></input></td>
+                        
+                        <td>
+                            <?php echo "<a class='btn btn-sm btn-primary' "
+                            . "href=" . base_url() . "employee/booking/viewdetails/$value[booking_id] target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
+                            ?>
+                        </td>
                         
                         <td><button type="button" id="<?php echo $count;?>" class="btn btn-info btn-sm open-AddBookingDialog" data-toggle="modal" data-target="#myModal">Edit</button></td>
                         <td><button type="button" id="<?php echo "remarks_".$count;?>" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Reject</button></td>

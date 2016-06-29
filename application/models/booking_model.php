@@ -361,38 +361,44 @@ class Booking_model extends CI_Model {
      *  @return : insert_id after inserting booking
      */
     function addbooking($booking, $appliance_id, $city = "", $state = "") {
-        $booking_detail = array(
-            "user_id" => $booking['user_id'],
-            "service_id" => $booking['service_id'],
-            "booking_id" => $booking['booking_id'],
-            "appliance_id" => $appliance_id,
-            "booking_address" => $booking['booking_address'],
-            "booking_pincode" => $booking['booking_pincode'],
-            "booking_primary_contact_no" => $booking['booking_primary_contact_no'],
-            "booking_alternate_contact_no" => $booking['booking_alternate_contact_no'],
-            "booking_date" => $booking['booking_date'],
-            "booking_timeslot" => $booking['booking_timeslot'],
-            "booking_remarks" => $booking['booking_remarks'],
-            "query_remarks" => $booking['query_remarks'],
-            "current_status" => $booking['current_status'],
-            "internal_status" => $booking['internal_status'],
-            "type" => $booking['type'],
-            "source" => $booking['source'],
-            "quantity" => $booking['quantity'],
-            "potential_value" => $booking['potential_value'],
-            "amount_due" => $booking['amount_due']
-        );
-        // Added city coming from snapdeal
-        if ($city != "") {
-            $booking_detail['city'] = $city;
-        }
+	//TODO: Fix this, array should not be initialized here
+	$booking_detail = array(
+	    "user_id" => $booking['user_id'],
+	    "service_id" => $booking['service_id'],
+	    "booking_id" => $booking['booking_id'],
+	    "appliance_id" => $appliance_id,
+	    "type" => $booking['type'],
+	    "source" => $booking['source'],
+	    "partner_id" => $booking['partner_id'],
+	    "booking_address" => $booking['booking_address'],
+	    "booking_pincode" => $booking['booking_pincode'],
+	    //city
+	    //state
+	    "booking_primary_contact_no" => $booking['booking_primary_contact_no'],
+	    "booking_alternate_contact_no" => $booking['booking_alternate_contact_no'],
+	    "booking_date" => $booking['booking_date'],
+	    "booking_timeslot" => $booking['booking_timeslot'],
+	    "booking_remarks" => $booking['booking_remarks'],
+	    "query_remarks" => $booking['query_remarks'],
+	    "quantity" => $booking['quantity'],
+	    "current_status" => $booking['current_status'],
+	    "internal_status" => $booking['internal_status'],
+	    "amount_due" => $booking['amount_due'],
+	    "potential_value" => $booking['potential_value'],
+	);
 
-        if ($state != "") {
-            $booking_detail['state'] = $state;
-        }
+	//TODO: Fix this, signature should not have default city/state
+	// Added city coming from snapdeal
+	if ($city != "") {
+	    $booking_detail['city'] = $city;
+	}
 
-        $this->db->insert('booking_details', $booking_detail);
-        return $this->db->insert_id();
+	if ($state != "") {
+	    $booking_detail['state'] = $state;
+	}
+
+	$this->db->insert('booking_details', $booking_detail);
+	return $this->db->insert_id();
     }
 
     /**

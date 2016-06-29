@@ -115,19 +115,29 @@ class Partner_model extends CI_Model {
 
     //return booking source code
     function get_source_code_for_partner($partner_id) {
-    	$this->db->where(array("partner_id" => $partner_id));
-    	$query = $this->db->get('bookings_sources');
-    	$results = $query->result_array();
+	$this->db->where(array("partner_id" => $partner_id));
+	$query = $this->db->get('bookings_sources');
+	$results = $query->result_array();
 
-    	if (count($results) > 0) {
-    		return $results[0]['code'];
-    	} else {
-    		return "SO";
-    	}
+	if (count($results) > 0) {
+	    return $results[0]['code'];
+	} else {
+	    return "SO";
+	}
     }
 
-    function get_all_partner_source($flag=""){
-    	$this->db->select("partner_id,source,code");
+    //Return Partner ID from Booking Source
+    //Default 'Other'
+    function get_partner_id_from_booking_source_code($source) {
+	$this->db->where(array("code" => $source));
+	$query = $this->db->get('bookings_sources');
+	$results = $query->result_array();
+
+	return $results[0]['partner_id'];
+    }
+
+    function get_all_partner_source($flag = "") {
+	$this->db->select("partner_id,source,code");
         $this->db->order_by('source','ASC');
         if($flag =="")
         $this->db->where('partner_id !=', 'NULL');
@@ -138,7 +148,7 @@ class Partner_model extends CI_Model {
     function insert_data_in_batch($table_name, $rows){
         return $this->db->insert_batch($table_name, $rows);
     }
-    
+
     function getpartner(){
         $this->db->select('id,public_name as name');
         $this->db->where('is_active','1');

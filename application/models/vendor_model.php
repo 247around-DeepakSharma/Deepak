@@ -120,7 +120,6 @@ class vendor_model extends CI_Model {
      */
     function activate($id) {
         $sql = "Update service_centres set active= 1 where id='$id'";
-//  $query = $this->db->query($sql);    // Looks unused, please check and then remove
         $this->db->query($sql);
     }
 
@@ -133,7 +132,6 @@ class vendor_model extends CI_Model {
      */
     function deactivate($id) {
         $sql = "Update service_centres set active= 0 where id='$id'";
-//  $query = $this->db->query($sql);    // Looks unused, please check and then remove
         $this->db->query($sql);
     }
 
@@ -148,7 +146,6 @@ class vendor_model extends CI_Model {
      */
     function delete($id) {
         $sql = "Delete from service_centres where id='$id'";
-//  $query = $this->db->query($sql);    // Looks unused, please check and then remove
         $this->db->query($sql);
     }
 
@@ -254,7 +251,6 @@ class vendor_model extends CI_Model {
      *  @return : insert_id(id genetated while inserting details)
      */
     function insertVendorEscalationDetails($details) {
-
         $this->db->insert('vendor_escalation_log', $details);
         return $this->db->insert_id();
     }
@@ -266,7 +262,6 @@ class vendor_model extends CI_Model {
      *  @return : array of contact details
      */
     function getVendorContact($vendor_id) {
-        $this->db->select('name, primary_contact_phone_1, primary_contact_email, primary_contact_phone_1, owner_email, owner_phone_1');
         $this->db->where('id', $vendor_id);
         $query = $this->db->get('service_centres');
         return $query->result_array();
@@ -279,7 +274,6 @@ class vendor_model extends CI_Model {
      *  @return : array of all the details of escalation policy
      */
     function getEscalationPolicyDetails($escalation_reason_id) {
-        $this->db->select('*');
         $this->db->where('id', $escalation_reason_id);
         $query = $this->db->get('vendor_escalation_policy');
         return $query->result_array();
@@ -534,7 +528,6 @@ class vendor_model extends CI_Model {
      *  @return : array of cities
      */
     function get_city() {
-
         $this->db->distinct();
         $this->db->select('City');
         $this->db->where('active', 1);
@@ -709,7 +702,6 @@ class vendor_model extends CI_Model {
 
         // Year Wise Dataset
         // used to get dataset group by year date.
-
         if ($vendor['period'] == "All Year") {
             $group_By = " GROUP BY DATE_FORMAT(booking_details.`create_date`, '%Y') $sources ORDER BY DATE_FORMAT(booking_details.`create_date`, '%Y') DESC, completed_booking";
 
@@ -733,7 +725,7 @@ class vendor_model extends CI_Model {
         WHEN 1 THEN 'Jan - Mar'
 
         WHEN 2 THEN 'Apr - Jun'
- 
+
         WHEN 3 THEN 'July - Sep'
 
         WHEN 4 THEN 'Oct - Dec'
@@ -786,7 +778,7 @@ class vendor_model extends CI_Model {
                 $avg = " , AVG(amount_paid) AS amount_paid,
                      (SELECT avg(amount_paid) 
                        FROM `booking_details`
-                      WHERE booking_details.service_id = '$value[Appliance_ID]' AND source = 
+                      WHERE booking_details.service_id = '$value[Appliance_ID]' AND source =
                       '$vendor[source]') as avg_amount_paid";
             }
 
