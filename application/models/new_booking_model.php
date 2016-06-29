@@ -23,6 +23,7 @@ class New_booking_model extends CI_Model {
      */
 
     function addbooking($booking){
+        log_message ('info', __METHOD__ . "booking_unit_details data". print_r($booking));
         $this->db->insert('booking_details', $booking);
         return $this->db->insert_id();
     }

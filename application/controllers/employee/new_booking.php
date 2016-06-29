@@ -115,13 +115,19 @@ class New_booking extends CI_Controller {
         $booking_timeslot = explode("-", $booking_timeslot);
         $booking['booking_timeslot'] = $booking_timeslot[1];
 
-
+        // All brand comming in array eg-- array([0]=> LG, [1]=> BPL)
         $appliance_brand = $this->input->post('appliance_brand');
+        // All category comming in array eg-- array([0]=> TV-LCD, [1]=> TV-LED)
         $appliance_category = $this->input->post('appliance_category');
+        // All capacity comming in array eg-- array([0]=> 19-30, [1]=> 31-42)
         $appliance_capacity = $this->input->post('appliance_capacity');
+        // All model number comming in array eg-- array([0]=> ABC123, [1]=> CDE1478)
         $model_number = $this->input->post('model_number');
+        // All price tag comming in array  eg-- array([0]=> Appliance tag1, [1]=> Appliance tag1)
         $appliance_tags = $this->input->post('appliance_tags');
+        // All purchase year comming in array eg-- array([0]=> 2016, [1]=> 2002)
         $purchase_year = $this->input->post('purchase_year');
+        // All purchase month comming in array eg-- array([0]=> Jan, [1]=> Feb)
         $months = $this->input->post('purchase_month');
         $booking['quantity'] = count($appliance_brand);
 
@@ -131,9 +137,25 @@ class New_booking extends CI_Controller {
             $booking['partner_id'] = $partner_id[0]['partner_id'];
         }
         
-
+        // All discount comming in array.  Array ( [BPL] => Array ( [100] => Array ( [0] => 200 ) [102] => Array ( [0] => 100 ) [103] => Array ( [0] => 0 ) ) .. Key is Appliance brand, unit id and discount value. 
         $discount = $this->input->post('discount');
+         // All prices comming in array with pricing table id
+        /*Array(
+            [BPL] => Array
+                (
+                    [0] => 100_300
+                    [1] => 102_250
+                )
+
+            [Micromax] => Array
+                (
+                    [0] => 100_300
+                )
+
+        )*/
+        //Array ( ['brand'] => Array ( [0] => id_price ) )
         $pricesWithId = $this->input->post("prices");
+
         $user['user_email'] = $this->input->post('user_email');
 
         $message = "";
@@ -158,6 +180,7 @@ class New_booking extends CI_Controller {
         } else if ($booking['type'] == 'Query') {
 
             $booking['current_status'] = "FollowUp";
+            $booking['internal_status'] = "FollowUp";
             $booking['query_remarks'] = $booking_remarks;
         }
 
@@ -165,13 +188,19 @@ class New_booking extends CI_Controller {
         foreach ($appliance_brand as $key => $value) {
             
             $services_details = "";
-            $services_details['appliance_brand'] = $value;
-            $services_details['appliance_category'] = $appliance_category[$key];
+            $services_details['appliance_brand'] = $value; // brand
+            // get category from appiance category array for only specific key. 
+            $services_details['appliance_category'] = $appliance_category[$key]; 
+            // get appliance_capacity from appliance_capacity array for only specific key. 
             $services_details['appliance_capacity'] = $appliance_capacity[$key];
+            // get model_number from appliance_capacity array for only specific key such as $model_number[0]. 
             $services_details['model_number'] = $model_number[$key];
+             // get appliance tag from appliance_tag array for only specific key such as $appliance_tag[0]. 
             $services_details['appliance_tag'] = $appliance_tags[$key];
+             // get purchase year from purchase year array for only specific key such as $purchase_year[0]. 
             $services_details['purchase_year'] = $purchase_year[$key];
             $services_details['booking_id'] = $booking['booking_id'];
+            // get purchase months from months array for only specific key such as $months[0]. 
             $services_details['purchase_month'] = $months[$key];
             $services_details['service_id'] = $booking['service_id'];
             if(!empty($partner_id)){
@@ -182,11 +211,13 @@ class New_booking extends CI_Controller {
             $services_details['appliance_id'] = $this->new_booking_model->addappliance($services_details, $user_id);
 
             log_message ('info', __METHOD__ . "Appliance details data". print_r($services_details));
-
+            //Array ( ['brand'] => Array ( [0] => id_price ) )
             foreach ($pricesWithId[$value] as $keys => $values) {
-                $prices = explode("_", $values);  // split string 
+
+                $prices = explode("_", $values);  // split string.. 
                 $services_details['id'] = $prices[0]; // This is id of service_centre_charges table. 
-                $services_details['around_net_payable'] = $discount[$value][$services_details['id']][0];  // discount for appliances
+                // discount for appliances. Array ( [BPL] => Array ( [100] => Array ( [0] => 200 ) [102] => Array ( [0] => 100 ) [103] => Array ( [0] => 0 ) ) 
+                $services_details['around_net_payable'] = $discount[$value][$services_details['id']][0];  
                 $services_details['around_paid_basic_charges'] = $services_details['around_net_payable'];
                 $result = $this->new_booking_model->insert_data_in_booking_unit_details($services_details);
 
@@ -393,8 +424,12 @@ class New_booking extends CI_Controller {
      * @return :void
      */
     function process_complete_booking($booking_id){
+        // customer paid basic charge is comming in array
+       // Array ( [100] =>  500 , [102] =>  300 )  
        $customer_basic_charge = $this->input->post('customer_basic_charge');
+        // Additional service charge is comming in array
        $additional_charge =  $this->input->post('additional_charge');
+        // Parts cost is comming in array
        $parts_cost =  $this->input->post('parts_cost');
        $internal_status = $this->input->post('internal_status');
        
@@ -421,5 +456,39 @@ class New_booking extends CI_Controller {
        // rate function is used to update booking details table
        $this->booking_model->rate($booking_id, $booking);
        redirect(base_url() . 'employee/booking/view');
+    }
+
+     /**
+     * @desc: load update booking form to update booking
+     * @param: booking id
+     * @return : void
+     */
+    function get_edit_booking_form($booking_id){
+       $booking_history = $this->new_booking_model->getbooking_history($booking_id);
+      
+       $booking = $this->new_booking_model->get_city_booking_source_services($booking_history[0]['phone_number']);
+       $booking['booking_history'] = $booking_history;
+       $booking['unit_details'] =  $this->new_booking_model->getunit_details($booking_id);
+       $booking['brand'] = $this->booking_model->getBrandForService($booking_history[0]['service_id']);
+       $partner_id = $this->booking_model->get_price_mapping_partner_code($booking_history[0]['source']);
+       $booking['category'] = $this->booking_model->getCategoryForService($booking_history[0]['service_id'], $booking_history[0]['state'], $partner_id);
+       $booking['capacity'] = array(); 
+       $booking['prices'] = array();
+
+       foreach ($booking['unit_details'] as $key => $value) {
+
+          $capacity =  $this->booking_model->getCapacityForCategory($booking_history[0]['service_id'], $booking['unit_details'][$key]['category'], $booking_history[0]['state'], $partner_id);
+
+          $prices = $this->booking_model->getPricesForCategoryCapacity($booking_history[0]['service_id'], $booking['unit_details'][$key]['category'], $booking['unit_details'][$key]['capacity'], $partner_id, $booking_history[0]['state']);
+
+          array_push($booking['capacity'], $capacity);
+          array_push($booking['prices'], $prices);
+       }
+
+       $this->load->view('employee/header');
+        $this->load->view('employee/addbookingmodel');
+       $this->load->view('employee/update_booking', $booking);
+
+      // print_r($booking);
     }
 }
