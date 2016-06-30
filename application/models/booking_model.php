@@ -2225,7 +2225,7 @@ class Booking_model extends CI_Model {
 	$this->db->where_not_in('current_status', $status);
 	$query = $this->db->get('service_center_booking_action');
 
-	log_message('info', __METHOD__ . $this->db->last_query());
+	log_message('info', __METHOD__ . "=> " . $this->db->last_query());
 
 	return $query->result_array();
     }

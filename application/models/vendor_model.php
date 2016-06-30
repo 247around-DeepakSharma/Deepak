@@ -18,7 +18,7 @@ class vendor_model extends CI_Model {
      * If vendor_id is given then the details of the specific vendor will come else
      *  the details of all the vendors will be be returned
      *
-     * @param: $vendor_id     
+     * @param: $vendor_id
      * @return: array of vendor details
      */
     function viewvendor($vendor_id = "") {
@@ -38,7 +38,7 @@ class vendor_model extends CI_Model {
     /**
      * @desc: This function is to get the edit vendor form with vendor details
      *
-     * The details of vendor entered while adding them will be displayed in editable fields 
+     * The details of vendor entered while adding them will be displayed in editable fields
      *      so that details can be modified.
      *
      * @param: $id(vendor_id)
@@ -100,7 +100,7 @@ class vendor_model extends CI_Model {
      * @desc: This function is to get all distinct brands
      *
      *  Will show all the brands we are working on.
-     * 
+     *
      * @param: void
      * @return: array of all brands
      */
@@ -137,7 +137,7 @@ class vendor_model extends CI_Model {
 
     /**
      * @desc: This function is to activate vendor who is already registered with us.
-     * 
+     *
      *  The vendor could be in activated or deactivated status.
      *
      * @param: $id
@@ -188,7 +188,7 @@ class vendor_model extends CI_Model {
     /**
      *  @desc : This function drops original pincode mapping table and renames the "vendor_pincode_mapping_temp" table to
      *  "vendor_pincode_mapping"
-     * 
+     *
      *  @param : void
      *  @return : void
      */
@@ -210,9 +210,9 @@ class vendor_model extends CI_Model {
 
     /**
      *  @desc : This function is used get the escalation reasons.
-     * 
+     *
      *  The escalation reasons which are active only those are returned.
-     * 
+     *
      *  @param : void
      *  @return : array of id and escalation reasons
      */
@@ -225,9 +225,9 @@ class vendor_model extends CI_Model {
 
     /**
      *  @desc : This function is used get the escalation reasons.
-     * 
+     *
      *  The escalation reasons which are active only those are returned.
-     * 
+     *
      *  @param : void
      *  @return : array of id and escalation reasons
      */
@@ -243,9 +243,9 @@ class vendor_model extends CI_Model {
 
     /**
      *  @desc : This function is used insert escalation details.
-     * 
+     *
      *  The escalation details are inserted for particular vendor.
-     * 
+     *
      *  @param : $details
      *          - Vendor's id, booking id, escalation reason, etc.
      *  @return : insert_id(id genetated while inserting details)
@@ -257,7 +257,7 @@ class vendor_model extends CI_Model {
 
     /**
      *  @desc : This function is used to get contact details of a particular vendor
-     *     
+     *
      *  @param : $vendor_id
      *  @return : array of contact details
      */
@@ -269,7 +269,7 @@ class vendor_model extends CI_Model {
 
     /**
      *  @desc : This function is used to get all the details of escalation policy
-     *     
+     *
      *  @param : $escalation_reason_id
      *  @return : array of all the details of escalation policy
      */
@@ -281,9 +281,9 @@ class vendor_model extends CI_Model {
 
     /**
      *  @desc : This function is used to get user details.
-     *     
+     *
      *  Here user details are found with the help boooking id
-     * 
+     *
      *  @param : $booking_id
      *  @return : array of user details
      */
@@ -298,9 +298,9 @@ class vendor_model extends CI_Model {
 
     /**
      *  @desc : This function is used to select state
-     *     
+     *
      *  The states which are active and also where our vendors are active.
-     * 
+     *
      *  @param : $city
      *  @return : array of states
      */
@@ -321,9 +321,9 @@ class vendor_model extends CI_Model {
 
     /**
      *  @desc : This function is to get all states.
-     *     
+     *
      *  All the distinct states of India in Ascending order
-     * 
+     *
      *  @param : $city
      *  @return : array of states
      */
@@ -341,9 +341,9 @@ class vendor_model extends CI_Model {
 
     /**
      *  @desc : This function is to select district from India pincode
-     *     
+     *
      *  All the distinct districts of India(if state is given then according to state)
-     * 
+     *
      *  @param : $state
      *  @return : array of districts
      */
@@ -362,7 +362,7 @@ class vendor_model extends CI_Model {
     /**
      *  @desc : This function is to select district where our vendors are active and also active for
      *          particular pincode
-     *     
+     *
      *  @param : $state
      *  @return : array of districts
      */
@@ -386,7 +386,7 @@ class vendor_model extends CI_Model {
     /**
      *  @desc : This function is to select the active pincode and service centers active in this pincode
      *          of a particular district.
-     *     
+     *
      *  @param : $district
      *  @return : array of pincodes
      */
@@ -405,7 +405,7 @@ class vendor_model extends CI_Model {
 
     /**
      *  @desc : This function is to get all the pincodes for a particular district in India.
-     *     
+     *
      *  @param : $district
      *  @return : array of pincodes
      */
@@ -421,9 +421,9 @@ class vendor_model extends CI_Model {
 
     /**
      *  @desc : Get POC and owner email for Active Service Center.
-     * 
-     *  The email id of owner and primary contact. 
-     *     
+     *
+     *  The email id of owner and primary contact.
+     *
      *  @param : void
      *  @return : array of emails
      */
@@ -436,7 +436,7 @@ class vendor_model extends CI_Model {
 
     /**
      *  @desc : To get booking date and timeslot of a particular booking
-     *     
+     *
      *  @param : $booking_id
      *  @return : array of booking date and timeslot
      */
@@ -451,7 +451,7 @@ class vendor_model extends CI_Model {
 
     /**
      *  @desc : To insert filename and bucketname while uploading pincode excel
-     *     
+     *
      *  @param : $data
      *  @return : void
      */
@@ -461,7 +461,7 @@ class vendor_model extends CI_Model {
 
     /**
      *  @desc : To get latest pincode mapping file name
-     *     
+     *
      *  @param : void
      *  @return : array of file name
      */
@@ -475,9 +475,9 @@ class vendor_model extends CI_Model {
 
     /**
      *  @desc : To get vendor SMS templates
-     * 
+     *
      *  To get the active template for a particular sms tag.
-     *     
+     *
      *  @param : $sms_tag
      *  @return : template if exists else returns blank
      */
@@ -497,9 +497,9 @@ class vendor_model extends CI_Model {
 
     /**
      *  @desc : update escalation policy flag in json in vendor escalation log table
-     * 
+     *
      *  To get the active template for a particular sms tag.
-     *     
+     *
      *  @param : $id
      *  @param : $flag
      *  @param : $booking_id
@@ -523,7 +523,7 @@ class vendor_model extends CI_Model {
 
     /**
      *  @desc : To get all the cities which are active
-     *     
+     *
      *  @param : void
      *  @return : array of cities
      */
@@ -601,9 +601,9 @@ class vendor_model extends CI_Model {
 
     /**
      * @desc:  To get vendor id and name, services, cities and sources for bookings assigned to service center.
-     * 
+     *
      * This is function to show the performance of a vendor, by showing
-     * 
+     *
      * @param: void
      * @return : Array
      */
@@ -626,7 +626,7 @@ class vendor_model extends CI_Model {
 
     /**
      * @desc: This function is to get vendors available in a particular city.
-     * @param: $vendor_id 
+     * @param: $vendor_id
      * @param: $city
      * @return : array of vendor and appliance name
      */
@@ -671,10 +671,10 @@ class vendor_model extends CI_Model {
 
     /**
      *  @desc: This function is used to get vendor performance.
-     * 
+     *
      *  This performance of vendor can be viewed according to timely basis- weekly, monthly, quatrly and yearly.
      *  Vendor performane can be categorised city wise, Appliance wise, Source wise and timely basis.
-     * 
+     *
      *  @param : $vendor
      *          - Contains details of vendor, vendor_id, number of completed bookings, cancelled bookings, etc.
      *  @return : array of vendor performance details.
@@ -693,7 +693,7 @@ class vendor_model extends CI_Model {
         if ($vendor['vendor_id'] != "" && $vendor['source'] == "") {
             $sources = " , source ";
         }
-        // It is used to get dataset group by month- year and order by year desc 
+        // It is used to get dataset group by month- year and order by year desc
         if ($vendor['period'] == 'All Month') {
             $group_By .= " GROUP BY DATE_FORMAT(booking_details.`create_date`, '%M, %Y') $sources ORDER BY DATE_FORMAT(`booking_details`.`create_date`, '%Y') DESC, completed_booking";
             // it used to select month and year with dataset
@@ -705,7 +705,7 @@ class vendor_model extends CI_Model {
         if ($vendor['period'] == "All Year") {
             $group_By = " GROUP BY DATE_FORMAT(booking_details.`create_date`, '%Y') $sources ORDER BY DATE_FORMAT(booking_details.`create_date`, '%Y') DESC, completed_booking";
 
-            //used to select year  
+            //used to select year
             $month = " DATE_FORMAT(booking_details.`create_date`, '%Y') `month`,";
         }
 
@@ -713,15 +713,15 @@ class vendor_model extends CI_Model {
         if ($vendor['period'] == "Week") {
             // get week wise dataset.
             $group_By = " GROUP BY WEEK(booking_details.`create_date`) $sources ORDER BY DATE_FORMAT(booking_details`create_date`,'%Y') DESC , DATE_FORMAT(booking_details.`create_date`,'%m') DESC, completed_booking";
-            //used to select week  
+            //used to select week
             $month = "  CONCAT(date(booking_details.create_date), ' - ', date(booking_details.create_date) + INTERVAL 7 DAY)   `month`,";
         }
 
         //Quater Wise DataSet
         if ($vendor['period'] == 'Quater') {
             $group_By .= " GROUP BY Year(booking_details.create_date) Desc, QUARTER(booking_details.create_date) DESC $sources ";
-            $month = " CASE QUARTER(booking_details.create_date) 
- 
+            $month = " CASE QUARTER(booking_details.create_date)
+
         WHEN 1 THEN 'Jan - Mar'
 
         WHEN 2 THEN 'Apr - Jun'
@@ -776,7 +776,7 @@ class vendor_model extends CI_Model {
                 $condition = " AND service_id =  $value[Appliance_ID] ";
                 // Calculate avg as a subquery
                 $avg = " , AVG(amount_paid) AS amount_paid,
-                     (SELECT avg(amount_paid) 
+                     (SELECT avg(amount_paid)
                        FROM `booking_details`
                       WHERE booking_details.service_id = '$value[Appliance_ID]' AND source =
                       '$vendor[source]') as avg_amount_paid";
@@ -828,9 +828,9 @@ class vendor_model extends CI_Model {
     }
 
     /**
-     *  @desc:  This function is to insert service center details for the actions they 
+     *  @desc:  This function is to insert service center details for the actions they
      *          performed on the booking assigned to them.
-     * 
+     *
      *  @param : $data
      *          - Contains closing remarks,  charges collected by vendor, etc.
      *  @return : void
@@ -841,7 +841,7 @@ class vendor_model extends CI_Model {
 
     /**
      *  @desc:  When reassign service center, update previous action perform by service center
-     * 
+     *
      *  @param : $data
      *          - Contains closing remarks to be updated,  charges collected by vendor, etc.
      *  @return : void
@@ -856,22 +856,22 @@ class vendor_model extends CI_Model {
 
     /**
      *  @desc:  When reassign service center, delete previous action perform by service center
-     * 
+     *
      *  @param : $booking_id
      *  @return : void
      */
     function delete_previous_service_center_action($booking_id) {
         $charges = $this->booking_model->getbooking_charges();
-        log_message('info', "Entering: " . __METHOD__ . "  " . print_r($charges));
+        
         $this->db->where('booking_id', $booking_id);
         $this->db->delete("service_center_booking_action");
     }
 
     /**
      *  @desc: get cancellation reason for specific vendor
-     * 
+     *
      *  Will count the cancellead bookings with same cancellation reason for a particular service center
-     *     
+     *
      *  @param : $service_center_id
      *  @return : array of cancellation reason count
      */
