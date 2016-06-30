@@ -687,7 +687,7 @@ class bookings_excel extends CI_Controller {
 
         $booking['source'] = 'SS';
 	$booking['partner_id'] = 1;
-        $booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
+	$booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
         $booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
         $booking['booking_id'] = $booking['source'] . "-" . $booking['booking_id'];
 
@@ -738,9 +738,8 @@ class bookings_excel extends CI_Controller {
             $bcc = "";
             $subject = 'Booking Confirmation - Snapdeal - AROUND';
             $attachment = "";
-//            $this->sendMail($subject, $message, $to, $cc, $bcc);
-            //Call to sendMail function
-            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
+
+	    $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
         }
 
         //Update lead table with booking ID and new status
@@ -748,33 +747,5 @@ class bookings_excel extends CI_Controller {
 
         redirect(base_url() . 'employee/bookings_excel/get_unassigned_bookings', 'refresh');
     }
-
- //    function sendMail($subject, $message, $to, $cc, $bcc) {
-
- //        $this->load->library('email');
- //        $this->email->initialize(array(
- //            'useragent' => 'CodeIgniter',
- //            'protocol' => 'smtp',
- //            'smtp_host' => 'smtp.sendgrid.net',
- //            'smtp_port' => '587',
- //            'smtp_user' => 'nitinmalhotra',
- //            'smtp_pass' => 'mandatory16',
- //            'mailtype' => 'html',
- //            'charset' => 'iso-8859-1',
- //            'crlf' => "\r\n",
- //            'newline' => "\r\n",
- //            'wordwrap' => TRUE
- //            )
- //        );
-
- //        $this->email->from('booking@247around.com', '247around Team');
-	// //$this->email->to($to);
- //        //TODO: Uncomment before releasing
- //        $this->email->bcc('anuj@247around.com, nits@247around.com');
- //        //$this->email->bcc('anuj.aggarwal@gmail.com');
- //        $this->email->subject($subject);
- //        $this->email->message($message);
- //        $this->email->send();
- //    }
 
 }
