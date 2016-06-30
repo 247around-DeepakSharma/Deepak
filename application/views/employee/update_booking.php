@@ -4,7 +4,7 @@
         <div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">Update Booking</div>
             <div class="panel-body">
-                <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url()?>employee/new_booking/index/<?php echo $booking_history[0]['booking_id']?>/<?php echo $booking_history[0]['user_id'];?>"  method="POST" enctype="multipart/form-data">
+                <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url()?>employee/new_booking/update_booking/<?php echo $booking_history[0]['user_id'];?>/<?php echo $booking_history[0]['booking_id']?>"  method="POST" enctype="multipart/form-data">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="col-md-6">
@@ -107,9 +107,9 @@
                                             <label for="service_name" class="col-md-4">Brand *</label>
                                             <div class="col-md-6">
                                                 <select type="text" class="form-control appliance_brand"    name="appliance_brand[]" id="appliance_brand_1" required>
-                                                    <option disabled>Select Brand</option>
+                                                    <option selected disabled>Select Brand</option>
                                                     <?php foreach ($brand as  $appliance_brand) { ?>
-                                                        <option <?php if($appliance_brand['brand_name'] == $unit_details[0]['brand']){ echo "selected";}?> ><?php echo $appliance_brand['brand_name']; ?></option>
+                                                        <option <?php if(isset($unit_details[0]['brand'])) { if($appliance_brand['brand_name'] == $unit_details[0]['brand']){ echo "selected";} } ?> ><?php echo $appliance_brand['brand_name']; ?></option >
                                                     <?php } ?>
                                                     
                                                 </select>
@@ -119,9 +119,9 @@
                                             <label for="service_name" class="col-md-4">Category *</label>
                                             <div class="col-md-6">
                                                 <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(service_id,this.value, this.id);" required>
-                                                    <option disabled>Select Appliance Category</option>
+                                                    <option selected disabled>Select Appliance Category</option>
                                                     <?php foreach ($category as $key => $appliance_category) { ?>
-                                                       <option <?php if( $appliance_category['category'] == $unit_details[0]['category']) { echo "selected"; } ?>><?php echo $appliance_category['category']; ?></option>
+                                                       <option <?php if(isset($unit_details[0]['category'])) { if( $appliance_category['category'] == $unit_details[0]['category']) { echo "selected"; } } ?>><?php echo $appliance_category['category']; ?></option>
                                                     <?php } ?>
                                                 </select>
                                             </div>
@@ -130,9 +130,9 @@
                                             <label for="service_name" class="col-md-4">Capacity *</label>
                                             <div class="col-md-6">
                                                 <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);">
-                                                    <option  disabled>Select Appliance Capacity</option>
+                                                    <option  selected disabled>Select Appliance Capacity</option>
                                                     <?php foreach ($capacity[0] as $appliance_capacity) { ?>
-                                                       <option <?php if($appliance_capacity['capacity'] == $unit_details[0]['capacity']) { echo "selected"; } ?> ><?php echo $appliance_capacity['capacity']; ?></option>
+                                                       <option <?php if(isset($unit_details[0]['capacity'])) {if($appliance_capacity['capacity'] == $unit_details[0]['capacity']) { echo "selected"; } } ?> ><?php echo $appliance_capacity['capacity']; ?></option>
                                                     <?php } ?>
                                                 </select>
                                                
@@ -141,14 +141,14 @@
                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Model </label>
                                             <div class="col-md-6">
-                                                <input  type="text" class="form-control"  name="model_number[]" id="model_number_1" value = "<?php echo $unit_details[0]['model_number']; ?>" placeholder="Enter Model" >
+                                                <input  type="text" class="form-control"  name="model_number[]" id="model_number_1" value = "<?php if(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model" >
                                                
                                             </div>
                                         </div>
                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Tag</label>
                                             <div class="col-md-6">
-                                                <input  type="text" class="form-control"  name="appliance_tags[]" id="appliance_tags_1" value = "<?php echo $unit_details[0]['appliance_tag']; ?>" placeholder="Enter Tag" >
+                                                <input  type="text" class="form-control"  name="appliance_tags[]" id="appliance_tags_1" value = "<?php if(isset($unit_details[0]['appliance_tag'])) {  echo $unit_details[0]['appliance_tag']; } ?>" placeholder="Enter Tag" >
                                                
                                             </div>
                                         </div>
@@ -158,18 +158,18 @@
                                                 <select  type="text" class=" form-control "   name="purchase_month[]" id="purchase_month_1" >
                                                     <option value="">Month</option>
 
-                                                    <option <?php if($unit_details[0]['purchase_month'] == "Jan"){ echo "selected";} ?> >Jan</option>
-                                                    <option <?php if($unit_details[0]['purchase_month'] == "Feb"){  echo "selected";} ?> >Feb</option>
-                                                    <option <?php if($unit_details[0]['purchase_month'] == "Mar"){  echo "selected";} ?> >Mar</option>
-                                                    <option <?php if($unit_details[0]['purchase_month'] == "Apr"){ echo "selected";} ?>>Apr</option>
-                                                    <option <?php if($unit_details[0]['purchase_month'] == "May"){ echo "selected";} ?>>May</option>
-                                                    <option <?php if($unit_details[0]['purchase_month'] == "Jun"){ echo "selected";} ?>>Jun</option>
-                                                    <option <?php if($unit_details[0]['purchase_month'] == "July"){ echo "selected";} ?>>July</option>
-                                                    <option <?php if($unit_details[0]['purchase_month'] == "Aug"){ echo "selected";} ?>>Aug</option>
-                                                    <option <?php if($unit_details[0]['purchase_month'] == "Sept"){ echo "selected";} ?>>Sept</option>
-                                                    <option <?php if($unit_details[0]['purchase_month'] == "Oct"){ echo "selected";} ?>>Oct</option>
-                                                    <option <?php if($unit_details[0]['purchase_month'] == "Nov"){ echo "selected";} ?>>Nov</option>
-                                                    <option <?php if($unit_details[0]['purchase_month'] == "Dec"){ echo "selected";} ?>>Dec</option>
+                                                    <option <?php if(isset($unit_details[0]['purchase_month'])) {  if($unit_details[0]['purchase_month'] == "Jan"){ echo "selected";} } ?> >Jan</option>
+                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Feb"){  echo "selected";} } ?> >Feb</option>
+                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Mar"){  echo "selected";} } ?> >Mar</option>
+                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Apr"){ echo "selected";} }?>>Apr</option>
+                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "May"){ echo "selected";} } ?>>May</option>
+                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Jun"){ echo "selected";} } ?>>Jun</option>
+                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "July"){ echo "selected";}} ?>>July</option>
+                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) {if($unit_details[0]['purchase_month'] == "Aug"){ echo "selected";}} ?>>Aug</option>
+                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) {if($unit_details[0]['purchase_month'] == "Sept"){ echo "selected";}} ?>>Sept</option>
+                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Oct"){ echo "selected";} } ?>>Oct</option>
+                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Nov"){ echo "selected";}} ?>>Nov</option>
+                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Dec"){ echo "selected";} } ?>>Dec</option>
                                                 </select>
                                             </div>
                                             <div class="form-group">
@@ -177,7 +177,7 @@
                                                     <select  type="text" class="col-md-3 form-control "   name="purchase_year[]" id="purchase_year_1" required>
                                                         <option selected="selected" value="" >Year</option>
                                                         <?php for($i = 0; $i> -26; $i--){ ?>
-                                                        <option <?php if(date("Y",strtotime($i." year")) == $unit_details[0]['purchase_year']){ echo "selected" ;} ?> >
+                                                        <option <?php  if(isset($unit_details[0]['purchase_year'])) { if(date("Y",strtotime($i." year")) == $unit_details[0]['purchase_year']){ echo "selected" ;} } ?> >
                                                             <?php echo date("Y",strtotime($i." year")); ?>
                                                         </option>
                                                         <?php }  ?>
@@ -199,36 +199,51 @@
                                                         <th>Discount</th>
                                                         <th>Selected Services</th>
                                                     </tr>
-                                                    <tbody>
-                                                     <?php $i=0; foreach ( $prices[0] as  $price) { ?>
+                                                    <tbody><?php if(!empty($prices)) { ?>
+                                                     <?php $i=0; $k=0; foreach ( $prices[0] as  $price) { ?>
                                                         
                                                         <tr>
                                                             <td><?php echo $price['service_category']; ?></td>
                                                             <td><?php echo intval($price['customer_total']); ?></td>
                                                             <td><?php echo intval($price['partner_net_payable']); ?></td>
                                                             <td><?php echo intval($price['customer_net_payable']) ;?></td>
-                                                            <?php foreach($unit_details[0]['qunatity'] as $key => $qunatity ){
-                                                                    if($qunatity['price_tags'] == $price['service_category'] ){?>
 
-                                                                        <td>
-                                                                      <?php  echo "<input  type='text' class='form-control discount' name= 'discount[".$unit_details[0]['brand']."][" . $price['id'] . "][]'  id='discount_" . $i . "_1" . "' value = '".$qunatity['around_net_payable']."' placeholder='Enter discount' readonly>"; ?>
-                                                                      </td>
+                                                                       
+                                                            <td><input type="text" class="form-control discount" name="<?php echo "discount[".$unit_details[0]['brand']."][". $price['id']."][]"; ?>" id="<?php echo "discount_". $i . "_1"; ?>" 
 
-                                                                      <td><input class='price_checkbox' checked  type='checkbox' id="<?php echo "checkbox_" . $i . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand']; ?>][]'  onclick='final_price(), enable_discount(this.id)' value = "<?php echo $price['id']. "_" .intval($price['customer_net_payable']) ?>"></td>
+                                                            value = "<?php if(isset($unit_details[0]['qunatity'])){
+                                                                   foreach ($unit_details[0]['qunatity'] as  $tag) {
+                                                                       if($tag['price_tags'] == $price['service_category'] ){
+                                                                          echo $tag['around_net_payable']; 
+                                                                       }
+                                                                    } 
+                                                                } else {
+                                                                    echo "0";
+                                                                }
+        
+                                                                ?> "
 
-                                                                   <?php } else { ?>
-                                                                     <td><?php   echo "<input  type='text' class='form-control discount' name= 'discount[".$unit_details[0]['brand']."][" . $price['id'] . "][]'  id='discount_" . $i . "_1" . "' value = '0' placeholder='Enter discount' readonly>"; ?>
-                                                                     </td>
+                                                            value="<?php if(isset($unit_details[0]['qunatity'][$k]['around_net_payable'])){ if($unit_details[0]['qunatity'][$k]['price_tags'] == $price['service_category'] ){ echo $unit_details[0]['qunatity'][$k]['around_net_payable']; } else { echo "0"; } } else { echo "0"; }?>" 
 
-                                                                      <td><input class='price_checkbox'  type='checkbox' id="<?php echo "checkbox_" . $i . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand']; ?>][]'  onclick='final_price(), enable_discount(this.id)' value = "<?php echo $price['id']. "_" .intval($price['customer_net_payable']) ?>"></td>
 
-                                                                    <?php }
-                                                                }?>
+                                                            placeholder='Enter discount' readonly />
+                                                            </td>
 
-                                                           
+                                                            <td>
+                                                               <input class='price_checkbox' <?php if(isset($unit_details[0]['qunatity'])){
+                                                                   foreach ($unit_details[0]['qunatity'] as  $tags) {
+                                                                       if($tags['price_tags'] == $price['service_category'] ){
+                                                                          echo "checked"; 
+                                                                       }
+                                                                    } 
+                                                                }
+        
+                                                                ?> 
+
+                                                                type='checkbox' id="<?php echo "checkbox_" . $i . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand']; ?>][]'  onclick='final_price(), enable_discount(this.id)' value = "<?php echo $price['id']. "_" .intval($price['customer_net_payable']) ?>"></td>
                                                             
                                                         </tr>
-                                                        <?php } ?>
+                                                        <?php  $i++; if(count($unit_details[0]['qunatity']) > $k){ $k++;} }} ?>
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -239,14 +254,12 @@
                         </div>
                     </div>
                     <div class="cloned">
+                           <?php if(count($unit_details) > 1) { ?>
                            <?php $number = 1; foreach ($unit_details as $key => $booking_unit_details) { ?>
 
                            <?php if($number > 1) { ?>
 
                          <div class="clonedInput panel panel-info " id="<?php echo "cat_".$number;?>">
-                        <!--  <i class="fa fa-plus addsection pull-right fa-3x" aria-hidden="true" style ="margin-top:15px; margin-bottom: 15px; margin-right:40px; "></i>
-                            <i class="fa fa-times pull-right deletesection  fa-3x"  style ="margin-top:15px; margin-bottom: 15px; margin-right:20px; " aria-hidden="true"></i>-->
-                    
 
                         <div class="panel-heading">
                             <button class="clone btn btn-sm btn-info">Add</button> 
@@ -393,7 +406,7 @@
                             </div>
                         </div>
                          </div>
-                    <?php  } $number++; } 
+                    <?php  } $number++; } }
                     ?>
                    
                    

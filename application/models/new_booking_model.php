@@ -52,14 +52,8 @@ class New_booking_model extends CI_Model {
      * @return : Array() 
      */
     function insert_data_in_booking_unit_details($services_details){
-        $this->db->select('service_category as price_tags, customer_total, partner_net_payable, rate as tax_rate, product_or_services, partner_payable_basic as partner_paid_basic_charges');
-        $this->db->from('service_centre_charges');
-        $this->db->where('service_centre_charges.id', $services_details['id']); // service center charges table (id)
-        $this->db->join('tax_rates','tax_rates.tax_code = service_centre_charges.tax_code AND tax_rates.state = service_centre_charges.state AND tax_rates.product_type = service_centre_charges.product_type');
-        $this->db->where('tax_rates.active','1');
-
-        $query = $this->db->get();
-        $data = $query->result_array();
+        $data = $this->getpricesdetails_with_tax($services_details['id']);
+       
         $result = array_merge($services_details, $data[0]);
 
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table 
@@ -302,7 +296,118 @@ class New_booking_model extends CI_Model {
         $this->update_price_in_unit_details($data, $unit_details);
 
     }
+    
+    /**
+     * @desc: this method is used  to return appliance id. It checks service id, user id, brand, category and capacity exist or not in the appliance_details table. If exist, it updates data otherwise it insert data in appliances_details table.
+     * @param: Array, user id
+     * @return : appliance id
+     */
+    function check_appliancesforuser($services_details, $user_id){
+        $this->db->select('id');
+
+        $where = array('service_id' => $services_details['service_id'], 'brand' => $services_details['appliance_brand'],
+         'user_id'=> $user_id, 'category' => $services_details['appliance_category'], 'capacity'=> $services_details['appliance_capacity']);
+        $this->db->where($where );
+        $query = $this->db->get('appliance_details');
+        if($query->num_rows>0){
+
+            $result = $query->result_array();
+            $appliance_id = $result[0]['id'];
+
+            $data = array(
+               "model_number" => $services_details['model_number'],
+               "purchase_year" => $services_details['purchase_year'],
+               "purchase_month" => $services_details['purchase_month'],
+               "tag" => $services_details['appliance_tag'],
+               "last_service_date" => date('Y-m-d H:i:s')
+            );
+
+            $this->db->where('id', $appliance_id);
+            $this->db->update('appliance_details', $data); 
+
+            return $appliance_id;
+
+        } else {
+
+           $result =  $this->addappliance($services_details, $user_id);
+           return $result;
+        }
+    }
+    
+    /**
+     * @desc: this method get prices details and check price tag is exist in unit details or not. if price tags does not exist, it inserts data in booking unit details and if price tags exist, it update booking unit details.
+     * @param: Array
+     * @return: Price tags.
+     */
+    function update_booking($services_details){
+
+        $data = $this->getpricesdetails_with_tax($services_details['id']);
+
+        $result = array_merge($services_details, $data[0]);
+
+        unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table 
+        $result['customer_net_payable'] = $result['customer_total'] - $result['partner_net_payable'] - $result['around_net_payable']; 
+               //log_message ('info', __METHOD__ . "update booking_unit_details data". print_r($result));
+
+        $this->db->select('id');
+        $this->db->where('appliance_id', $services_details['appliance_id']);
+        $this->db->where('price_tags', $data[0]['price_tags']);
+        $this->db->where('booking_id', $services_details['booking_id']);
+        $query = $this->db->get('booking_unit_details');
+
+        if($query->num_rows >0){
+
+            $unit_details = $query->result_array();
+            $this->db->where('id',  $unit_details[0]['id']);
+            $this->db->update('booking_unit_details', $result); 
+
+         } else {
+             
+            $this->db->insert('booking_unit_details', $result);
+         }
+
+         return $data[0]['price_tags'];
+    }
+
+    function getpricesdetails_with_tax($service_centre_charges_id){
+         $this->db->select('service_category as price_tags, customer_total, partner_net_payable, rate as tax_rate, product_or_services, partner_payable_basic as partner_paid_basic_charges');
+        $this->db->from('service_centre_charges');
+        $this->db->where('service_centre_charges.id', $service_centre_charges_id); // service center charges table (id)
+        $this->db->join('tax_rates','tax_rates.tax_code = service_centre_charges.tax_code AND tax_rates.state = service_centre_charges.state AND tax_rates.product_type = service_centre_charges.product_type');
+        $this->db->where('tax_rates.active','1');
+
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+    function remove_unit_details($booking_id, $price_tags){
+        $this->db->select('id, price_tags');
+        $this->db->where('booking_id', $booking_id);
+        $query = $this->db->get('booking_unit_details');
+        if($query->num_rows>0){
+            $result = $query->result_array();
+            foreach ($result as $key => $value) {
+                 if (in_array($value['price_tags'], $price_tags)) {
+                   // echo "Match found";
+                 }
+                 else {
+                    //echo "Match not found";
+                   $this->db->where('id', $value['id']);
+                   $this->db->delete('booking_unit_details'); 
+
+                }
+            }
+        }
+        return;
+    }
+
+    function update_booking_details($booking){
+        $this->db->where('booking_id', $booking['booking_id']);
+        $this->db->update('booking_details', $booking);
+    }
 
 
 // end model
 }
+
+

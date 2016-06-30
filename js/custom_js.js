@@ -370,7 +370,7 @@ function enable_discount(div_id){
      $("#discount_"+div_no[1]+"_"+div_no[2]).attr("readonly", false);
   }
   else{
-    $("#discount_"+div_no[1]+"_"+div_no[2]).val(0);
+    //$("#discount_"+div_no[1]+"_"+div_no[2]).val(0);
 
      $("#discount_"+div_no[1]+"_"+div_no[2]).attr("readonly", true);
   }

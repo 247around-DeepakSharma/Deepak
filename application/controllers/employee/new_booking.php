@@ -90,7 +90,7 @@ class New_booking extends CI_Controller {
      *  @param : user id
      *  @return : Array(booking details)
      */
-    function getAllBookingInput($user_id) {
+    function getAllBookingInput($user_id, $booking_id = "") {
         $user['user_id'] = $booking['user_id'] = $user_id;
         $booking['service_id'] = $this->input->post('service_id');
         $booking['source'] = $this->input->post('source_code');
@@ -99,7 +99,14 @@ class New_booking extends CI_Controller {
         $booking['amount_due'] = $this->input->post('grand_total_price');
         $booking['booking_address'] = $this->input->post('home_address');
         $booking['city'] = $this->input->post('city');
-        $booking['booking_id'] = $this->create_booking_id($user_id, $booking['source'],  $booking['type']);
+        if($booking_id == ""){
+
+            $booking['booking_id'] = $this->create_booking_id($user_id, $booking['source'],  $booking['type']);
+        } else {
+            $price_tags = array();
+            $booking['booking_id'] = $booking_id;
+        }
+        
         // select state by city
         $state = $this->vendor_model->selectSate($booking['city']);
         $booking['state'] = $state[0]['state'];
@@ -111,9 +118,11 @@ class New_booking extends CI_Controller {
         $booking['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
 
         $booking_timeslot = $this->input->post('booking_timeslot');
-        $booking_remarks = $this->input->post('query_remarks');
+        
         $booking_timeslot = explode("-", $booking_timeslot);
         $booking['booking_timeslot'] = $booking_timeslot[1];
+
+        $booking_remarks = $this->input->post('query_remarks');
 
         // All brand comming in array eg-- array([0]=> LG, [1]=> BPL)
         $appliance_brand = $this->input->post('appliance_brand');
@@ -207,10 +216,15 @@ class New_booking extends CI_Controller {
                 
                $services_details['partner_id'] = $booking['partner_id'];
             }
-            
-            $services_details['appliance_id'] = $this->new_booking_model->addappliance($services_details, $user_id);
+            if($booking_id == ""){
+                $services_details['appliance_id'] = $this->new_booking_model->addappliance($services_details, $user_id);
 
-            log_message ('info', __METHOD__ . "Appliance details data". print_r($services_details));
+            } else {
+                $services_details['appliance_id'] = $this->new_booking_model->check_appliancesforuser($services_details, $user_id);
+            }
+            
+
+           // log_message ('info', __METHOD__ . "Appliance details data". print_r($services_details));
             //Array ( ['brand'] => Array ( [0] => id_price ) )
             foreach ($pricesWithId[$value] as $keys => $values) {
 
@@ -218,10 +232,13 @@ class New_booking extends CI_Controller {
                 $services_details['id'] = $prices[0]; // This is id of service_centre_charges table. 
                 // discount for appliances. Array ( [BPL] => Array ( [100] => Array ( [0] => 200 ) [102] => Array ( [0] => 100 ) [103] => Array ( [0] => 0 ) ) 
                 $services_details['around_net_payable'] = $discount[$value][$services_details['id']][0];  
+               
                 $services_details['around_paid_basic_charges'] = $services_details['around_net_payable'];
-                $result = $this->new_booking_model->insert_data_in_booking_unit_details($services_details);
+                if($booking_id = ""){
 
-                if ($booking['current_status'] != 'FollowUp') {
+                    $result = $this->new_booking_model->insert_data_in_booking_unit_details($services_details);
+
+                    if ($booking['current_status'] != 'FollowUp') {
                     $message .= "<br>Brand : " . $result['appliance_brand'] . "<br>Category : " .
                             $result['appliance_category'] . "<br>Capacity : " . $result['appliance_capacity'] .
                             "<br>Selected service is: " . $result['price_tags'] . "<br>Total price is: " .
@@ -229,7 +246,20 @@ class New_booking extends CI_Controller {
 
                     $message .= "<br/>";
                 }
+
+                } else {
+
+                    $price_tag = $this->new_booking_model->update_booking($services_details);
+                    array_push($price_tags, $price_tag);
+                }
+                
             }
+        }
+
+        if(!empty($price_tags)){
+            
+           $this->new_booking_model->remove_unit_details($booking['booking_id'], $price_tags);
+
         }
 
         if ($booking['type'] == 'Query') {
@@ -486,9 +516,16 @@ class New_booking extends CI_Controller {
        }
 
        $this->load->view('employee/header');
-        $this->load->view('employee/addbookingmodel');
+       $this->load->view('employee/addbookingmodel');
        $this->load->view('employee/update_booking', $booking);
+    }
 
-      // print_r($booking);
+    function update_booking($user_id, $booking_id){
+        $booking = $this->getAllBookingInput($user_id, $booking_id);
+
+        unset($booking['message']); // unset message body from booking deatils array
+        unset($booking['services']); // unset service name from booking details array
+
+        $this->new_booking_model->update_booking_details($booking);
     }
 }
