@@ -614,3 +614,4 @@ CREATE TABLE IF NOT EXISTS `booking_details` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `booking_id` (`booking_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
