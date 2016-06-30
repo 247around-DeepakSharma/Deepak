@@ -560,3 +560,57 @@ CREATE TABLE IF NOT EXISTS `booking_unit_details` (
   `total_price` varchar(50) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+<!-- Abhay 30-06-2016 -->
+
+
+--
+-- Table structure for table `booking_details`
+--
+
+CREATE TABLE IF NOT EXISTS `booking_details` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(10) NOT NULL,
+  `service_id` varchar(10) NOT NULL,
+  `booking_id` varchar(20) NOT NULL,
+  `order_id` varchar(25) NOT NULL,
+  `product_type` varchar(250) NOT NULL,
+  `delivery_date` datetime NOT NULL,
+  `request_type` varchar(25) NOT NULL,
+  `type` varchar(10) NOT NULL,
+  `source` varchar(30) DEFAULT NULL,
+  `partner_id` int(11) DEFAULT NULL COMMENT 'partner id if booking was given by any partner',
+  `booking_address` varchar(100) NOT NULL,
+  `city` varchar(50) DEFAULT NULL,
+  `state` varchar(50) DEFAULT NULL,
+  `booking_pincode` varchar(10) DEFAULT NULL,
+  `booking_location` varchar(200) DEFAULT NULL,
+  `booking_primary_contact_no` varchar(15) DEFAULT NULL,
+  `booking_alternate_contact_no` varchar(20) DEFAULT NULL,
+  `booking_date` varchar(100) NOT NULL,
+  `booking_timeslot` varchar(10) NOT NULL,
+  `booking_remarks` varchar(200) DEFAULT NULL,
+  `query_remarks` varchar(200) DEFAULT NULL,
+  `quantity` varchar(2) DEFAULT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` datetime DEFAULT NULL,
+  `closed_date` datetime DEFAULT NULL,
+  `current_status` varchar(20) NOT NULL DEFAULT 'Pending',
+  `internal_status` varchar(50) NOT NULL,
+  `cancellation_reason` varchar(100) DEFAULT NULL,
+  `assigned_vendor_id` varchar(5) DEFAULT NULL,
+  `backup_vendor_id` varchar(5) DEFAULT NULL,
+  `vendor_rating_stars` varchar(5) DEFAULT NULL,
+  `vendor_rating_comments` varchar(500) DEFAULT NULL,
+  `amount_due` varchar(5) DEFAULT NULL,
+  `rating_stars` varchar(5) DEFAULT NULL,
+  `rating_comments` varchar(200) DEFAULT NULL,
+  `payment_method` varchar(10) DEFAULT NULL,
+  `payment_txn_id` varchar(10) DEFAULT NULL,
+  `closing_remarks` text,
+  `booking_jobcard_filename` varchar(50) DEFAULT NULL,
+  `mail_to_vendor` varchar(5) NOT NULL DEFAULT '0',
+  `potential_value` varchar(10) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `booking_id` (`booking_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
