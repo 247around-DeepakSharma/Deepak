@@ -1,7 +1,8 @@
 <?php
 
-if (!defined('BASEPATH'))
+if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
+}
 
 class Invoice extends CI_Controller {
 
@@ -41,8 +42,11 @@ class Invoice extends CI_Controller {
     }
 
     /**
-     * This is used to get vendor, partner invoicing data by service center id or partner id
-     * and load data in a table.
+     * @desc: This is used to get vendor, partner invoicing data by service center id or partner id
+     *          and load data in a table.     
+     * 
+     * @param: void
+     * @return: void
      */
     function getInvoicingData() {
 	$data['source'] = $this->input->post('source');
@@ -53,7 +57,16 @@ class Invoice extends CI_Controller {
 	$this->load->view('employee/invoicing_table', $invoice);
     }
 
-    // Send Invoice pdf file to vendor
+     /**
+     * @desc: Send Invoice pdf file to vendor
+     * 
+     * @param: $invoiceId- this is the id of the invoice which we want to send.
+     * @param: $vendor_partnerId- to partner's/vendor's id
+     * @param: $start_date- date from which we are calculating this invoice
+     * @param: $end_date- date upto which we are calculating this invoice
+     * @param: $vendor_partner- tells if its vendor or partner 
+     * @return: void
+     */
     function sendInvoiceMail($invoiceId, $vendor_partnerId, $start_date, $end_date, $vendor_partner) {
 	log_message('info', "Entering: " . __METHOD__);
 	$email = $this->input->post('email');
@@ -95,8 +108,10 @@ class Invoice extends CI_Controller {
     }
 
     /**
-     * @desc Load view to select patner to display invoices
-     */
+     * @desc: Load view to select patner to display invoices
+     * @param: void
+     * @return: void
+     */    
     function invoice_partner_view() {
 
 	$data['partner'] = $this->partner_model->getpartner();
@@ -107,10 +122,10 @@ class Invoice extends CI_Controller {
     }
 
     /**
-     * @desc Get vendor email id from table to send invoice.
-     * @param type vendorId
-     * @param type email
-     * @return string
+     * @desc: Get vendor email id from table to send invoice.
+     * @param: type vendorId
+     * @param: type email
+     * @return: string
      */
     function get_to_emailId_for_vendor($vendorId, $email) {
 	$getEmail = $this->invoices_model->getEmailIdForVendor($vendorId);
@@ -125,10 +140,10 @@ class Invoice extends CI_Controller {
     }
 
     /**
-     * Get partner email id from table to send invoice.
-     * @param type $partnerId
-     * @param type $email
-     * @return string
+     * @desc : Get partner email id from table to send invoice.
+     * @param : type $partnerId
+     * @param : type $email
+     * @return : string
      */
     function get_to_emailId_for_partner($partnerId, $email) {
 	$getEmail = $this->invoices_model->getEmailIdForPartner($partnerId);
@@ -144,7 +159,8 @@ class Invoice extends CI_Controller {
 
     /**
      *  @desc : This function adds new transactions between vendor/partner and 247around.
-     *  @return :
+     *  @param : Type $partnerId
+     *  @return : void
      */
     function get_add_new_transaction($vendor_partner ="",$id="") {
         $data['vendor_partner'] = $vendor_partner;
@@ -155,8 +171,8 @@ class Invoice extends CI_Controller {
 
     /**
      *  @desc : This function inserts new bank transaction
-     *  @param :
-     *  @return :
+     *  @param : void
+     *  @return : void
      */
     function post_add_new_transaction() {
 	$account_statement['partner_vendor'] = $this->input->post('partner_vendor');
@@ -186,6 +202,11 @@ class Invoice extends CI_Controller {
 	redirect(base_url() . 'employee/invoice/get_add_new_transaction');
     }
 
+    /**
+     *  @desc : AJAX CALL. This function is to get the partner or vendor details.
+     *  @param : $par_ven - Vendor or partner name(specification)
+     *  @return : void
+     */
     function getPartnerOrVendor($par_ven) {
     	$vendor_partner_id = $this->input->post('vendor_partner_id');
 
@@ -221,9 +242,9 @@ class Invoice extends CI_Controller {
     }
 
     /**
-     * @desc: Delete Bank transaction
+     * @desc: This function is to delete bank transaction
      * @param: bank account transaction id, partner vender id
-     * @return:
+     * @return: void
      */
     function delete_banktransaction($transaction_id){
     	$this->invoices_model->delete_banktransaction($transaction_id);
