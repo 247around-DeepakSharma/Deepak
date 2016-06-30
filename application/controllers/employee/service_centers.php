@@ -21,7 +21,7 @@ class Service_centers extends CI_Controller {
 
     /**
      * @desc: This is used to load vendor Login Page
-     *     
+     *
      * @param: void
      * @return: void
      */
@@ -31,9 +31,9 @@ class Service_centers extends CI_Controller {
 
     /**
      * @desc: This is used to login
-     * 
+     *
      * If user name and password matches allowed to login, else error message appears.
-     *     
+     *
      * @param: void
      * @return: void
      */
@@ -57,11 +57,10 @@ class Service_centers extends CI_Controller {
      * @return: void
      */
     function pending_booking($offset = 0, $page = 0) {
-
-        $this->checkUserSession();
-        if ($page == 0) {
-            $page = 50;
-        }
+	$this->checkUserSession();
+	if ($page == 0) {
+	    $page = 50;
+	}
 
         $service_center_id = $this->session->userdata('service_center_id');
 
@@ -197,15 +196,14 @@ class Service_centers extends CI_Controller {
      * @return: void
      */
     function setSession($service_center_id, $user_name) {
-
-        $userSession = array(
-            'session_id' => md5(uniqid(mt_rand(), true)),
-            'service_center_id' => $service_center_id,
-            'user_name' => $user_name,
-            'sess_expiration' => 30000,
-            'loggedIn' => TRUE,
-            'userType' => 'service_center'
-        );
+	$userSession = array(
+	    'session_id' => md5(uniqid(mt_rand(), true)),
+	    'service_center_id' => $service_center_id,
+	    'user_name' => $user_name,
+	    'sess_expiration' => 30000,
+	    'loggedIn' => TRUE,
+	    'userType' => 'service_center'
+	);
 
         $this->session->set_userdata($userSession);
     }
@@ -213,7 +211,7 @@ class Service_centers extends CI_Controller {
     /**
      * @desc: This funtion will check Session
      * @param: void
-     * @return: true if details matches else session is distroyed. 
+     * @return: true if details matches else session is distroyed.
      */
     function checkUserSession() {
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center')) {
