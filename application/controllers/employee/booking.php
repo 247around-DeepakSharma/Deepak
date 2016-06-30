@@ -958,10 +958,17 @@ class Booking extends CI_Controller {
         $data['current_status'] = "Cancelled";
         $data['internal_status'] = "Cancelled";
 
-//	$insertData = $this->booking_model->cancel_booking($booking_id, $data);
         $this->booking_model->cancel_booking($booking_id, $data);
 
-        //Update SD leads table if required
+	//Update this booking in vendor action table as well if required
+	$data_vendor['closed_date'] = date("Y-m-d h:i:s");
+	$data_vendor['current_status'] = "Cancelled";
+	$data_vendor['internal_status'] = "Cancelled";
+	$data_vendor['booking_id'] = $booking_id;
+
+	$this->vendor_model->update_service_center_action($data_vendor);
+
+	//Update SD leads table if required
         //$this->booking_model->update_sd_lead_status($booking_id, 'Cancelled');
         //Is this SD booking?
         if (strpos($booking_id, "SS") !== FALSE) {

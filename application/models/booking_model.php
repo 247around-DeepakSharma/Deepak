@@ -2215,14 +2215,14 @@ class Booking_model extends CI_Model {
      * @return: Array()
      */
     function getbooking_charges($booking_id = "") {
-	$status = array('Pending', 'Rescheduled');
+	$status = array('Completed', 'Cancelled');
 
 	if ($booking_id != "") {
 	    $this->db->where('booking_id', $booking_id);
 	}
 
-	//Status should be Pending or Rescheduled only
-	$this->db->where_in('current_status', $status);
+	//Status should NOT be Completed or Cancelled
+	$this->db->where_not_in('current_status', $status);
 	$query = $this->db->get('service_center_booking_action');
 
 	log_message('info', __METHOD__ . $this->db->last_query());
