@@ -2662,7 +2662,8 @@ class Booking extends CI_Controller {
         log_message('info', __FUNCTION__);
 
         $s1 = $_SERVER['HTTP_REFERER'];
-        $s2 = "https://www.aroundhomzapp.com/";
+        //$s2 = "https://www.aroundhomzapp.com/";
+	$s2 = base_url();
 	$redirect_url = substr($s1, strlen($s2));
 
         $this->checkUserSession();
@@ -2687,8 +2688,8 @@ class Booking extends CI_Controller {
         //Make call to customer now
         $this->notify->make_outbound_call($agent_phone, $cust_phone);
 
-        //Redirect to the page from where you landed in this function
-        redirect(base_url() . $redirect_url, 'refresh');
+        //Redirect to the page from where you landed in this function, do not refresh
+	redirect(base_url() . $redirect_url);
     }
 
     /**

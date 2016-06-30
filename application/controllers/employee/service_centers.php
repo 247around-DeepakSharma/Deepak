@@ -46,7 +46,6 @@ class Service_centers extends CI_Controller {
      * @return: void
      */
     function pending_booking($offset = 0, $page = 0) {
-
 	$this->checkUserSession();
 	if ($page == 0) {
 	    $page = 50;
@@ -163,7 +162,6 @@ class Service_centers extends CI_Controller {
      *  param : Service center id
      */
     function setSession($service_center_id, $user_name) {
-
 	$userSession = array(
 	    'session_id' => md5(uniqid(mt_rand(), true)),
 	    'service_center_id' => $service_center_id,
