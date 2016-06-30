@@ -1,7 +1,8 @@
 <?php
 
-if (!defined('BASEPATH'))
+if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
+}
 
 class Login extends CI_Controller {
 
@@ -9,12 +10,12 @@ class Login extends CI_Controller {
      * load list modal and helpers
      */
     function __Construct() {
-	parent::__Construct();
-	$this->load->model('employeelogin');
-	$this->load->model('employee_model');
-	$this->load->model('filter_model');
-	$this->load->helper(array('form', 'url'));
-	$this->load->library('form_validation');
+        parent::__Construct();
+        $this->load->model('employeelogin');
+        $this->load->model('employee_model');
+        $this->load->model('filter_model');
+        $this->load->helper(array('form', 'url'));
+        $this->load->library('form_validation');
     }
 
     /**
@@ -34,41 +35,49 @@ class Login extends CI_Controller {
      *  @desc : Login Function
      *  @return : Admin Login
      */
+
+    /**
+     *  @desc : This funtion is to check login details of an employee
+     *  @param : void
+     *  @return : void
+     */
     public function index() {
 
-	if ($_POST) {
-	    $employee_id = $this->input->post('employee_id');
-	    $employee_password = $this->input->post('employee_password');
-	    $login = $this->employeelogin->login($employee_id, md5($employee_password));
-	    if ($login) {
-		$this->session->unset_userdata('email');
-		$this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone'], $login[0]['right_for_add_handyman'], $login[0]['right_for_add_service'], $login[0]['right_for_activate_deactivate_handyman'], $login[0]['right_for_activate_deactivate_service'], $login[0]['right_for_xls_for_handyman'], $login[0]['right_for_add_employee'], $login[0]['right_for_update_employee'], $login[0]['right_for_report_messgae'], $login[0]['right_for_signup_message'], $login[0]['right_for_review_message'], $login[0]['right_for_approve_handyman'], $login[0]['right_for_delete'], $login[0]['right_for_verifyhandyman'], $login[0]['right_for_popularsearch'], $login[0]['right_for_review']);
-		$this->dashboard();
-	    } else {
-		$output = "Employee Name/ID or password is incorrect.";
-		$this->loadView($output);
-	    }
-	} else {
-	    $this->load->view('employee/login');
-	}
+        if ($_POST) {
+            $employee_id = $this->input->post('employee_id');
+            $employee_password = $this->input->post('employee_password');
+            $login = $this->employeelogin->login($employee_id, md5($employee_password));
+            if ($login) {
+                $this->session->unset_userdata('email');
+                $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone'], $login[0]['right_for_add_handyman'], $login[0]['right_for_add_service'], $login[0]['right_for_activate_deactivate_handyman'], $login[0]['right_for_activate_deactivate_service'], $login[0]['right_for_xls_for_handyman'], $login[0]['right_for_add_employee'], $login[0]['right_for_update_employee'], $login[0]['right_for_report_messgae'], $login[0]['right_for_signup_message'], $login[0]['right_for_review_message'], $login[0]['right_for_approve_handyman'], $login[0]['right_for_delete'], $login[0]['right_for_verifyhandyman'], $login[0]['right_for_popularsearch'], $login[0]['right_for_review']);
+                $this->dashboard();
+            } else {
+                $output = "Employee Name/ID or password is incorrect.";
+                $this->loadView($output);
+            }
+        } else {
+            $this->load->view('employee/login');
+        }
     }
 
     /**
-     * This funtion load index page
+     *  @desc : This funtion load index page
+     *  @param : void
+     *  @return : void
      */
     function dashboard() {
-	$this->checkUserSession();
-	$employee_id = $this->session->userdata('employee_id');
-	$result['result'] = $this->employee_model->verifylist($employee_id, $date = 0);
-	$result['one'] = $this->employee_model->verifylist($employee_id, '0');
-	$result['three'] = $this->employee_model->verifylist($employee_id, '2');
-	$result['forteen'] = $this->employee_model->verifylist($employee_id, '14');
-	$result['service'] = $this->filter_model->getserviceforfilter();
-	$result['agent'] = $this->filter_model->getagent();
+        $this->checkUserSession();
+        $employee_id = $this->session->userdata('employee_id');
+        $result['result'] = $this->employee_model->verifylist($employee_id, $date = 0);
+        $result['one'] = $this->employee_model->verifylist($employee_id, '0');
+        $result['three'] = $this->employee_model->verifylist($employee_id, '2');
+        $result['forteen'] = $this->employee_model->verifylist($employee_id, '14');
+        $result['service'] = $this->filter_model->getserviceforfilter();
+        $result['agent'] = $this->filter_model->getagent();
 
-	//$this->load->view('employee/header',$result);
-	//$this->load->view('employee/finduser',$result);
-	redirect('employee/booking/view_pending_queries');
+        //$this->load->view('employee/header',$result);
+        //$this->load->view('employee/finduser',$result);
+        redirect('employee/booking/view_pending_queries');
     }
 
     /**
@@ -77,62 +86,71 @@ class Login extends CI_Controller {
      *  @return : Error on Admin Login Page
      */
     function loadView($output) {
-	$data['error'] = $output;
-	$this->load->view('employee/login', $data);
+        $data['error'] = $output;
+        $this->load->view('employee/login', $data);
     }
 
     /**
-     *  @desc : This function Set Session
-     *  param : Email and user id
+     *  @desc : This function is to Set Session of a particular employee once he/she is logged in.
+     *  @param : employee_id- id of employee for whom session is created
+     *  @return : void
      */
     function setSession($employee_id, $id, $phone, $addhandyman, $addservice, $activate_deactivate, $active_service, $xls_for_handyman, $create_employee, $update_employee, $report, $signup, $review_messgae, $approvehandyman, $delete, $verify, $popularsearch, $review) {
 
-	$userSession = array(
-	    'session_id' => md5(uniqid(mt_rand(), true)),
-	    'employee_id' => $employee_id,
-	    'id' => $id,
-	    'phone' => $phone,
-	    'add handyman' => $addhandyman,
-	    'add service' => $addservice,
-	    'activate/deactivate' => $activate_deactivate,
-	    'activate/deactivate_service' => $active_service,
-	    'xls_for_handyman' => $xls_for_handyman,
-	    'create_employee' => $create_employee,
-	    'update_employee' => $update_employee,
-	    'report' => $report,
-	    'signup' => $signup,
-	    'review_messgae' => $review_messgae,
-	    'approvehandyman' => $approvehandyman,
-	    'deletehandyman' => $delete,
-	    'verify' => $verify,
-	    'popularsearch' => $popularsearch,
-	    'review' => $review,
-	    'sess_expiration' => 30000,
-	    'loggedIn' => TRUE,
-	    'userType' => 'employee'
-	);
+        $userSession = array(
+            'session_id' => md5(uniqid(mt_rand(), true)),
+            'employee_id' => $employee_id,
+            'id' => $id,
+            'phone' => $phone,
+            'add handyman' => $addhandyman,
+            'add service' => $addservice,
+            'activate/deactivate' => $activate_deactivate,
+            'activate/deactivate_service' => $active_service,
+            'xls_for_handyman' => $xls_for_handyman,
+            'create_employee' => $create_employee,
+            'update_employee' => $update_employee,
+            'report' => $report,
+            'signup' => $signup,
+            'review_messgae' => $review_messgae,
+            'approvehandyman' => $approvehandyman,
+            'deletehandyman' => $delete,
+            'verify' => $verify,
+            'popularsearch' => $popularsearch,
+            'review' => $review,
+            'sess_expiration' => 30000,
+            'loggedIn' => TRUE,
+            'userType' => 'employee'
+        );
 
-	$this->session->set_userdata($userSession);
+        $this->session->set_userdata($userSession);
     }
 
     /**
-     * @desc :This funtion will check Session
+     *  @desc :This funtion will check Session of an employee before taking any 
+     *         action that he is logged in or not and is his session active or expired.
+     *  param : void
+     *  @return : void
      */
     function checkUserSession() {
-	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
-	    return TRUE;
-	} else {
-	    $this->session->sess_destroy();
-	    redirect(base_url() . "employee/login");
-	}
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+            return TRUE;
+        } else {
+            $this->session->sess_destroy();
+            redirect(base_url() . "employee/login");
+        }
     }
 
     /**
-     * @desc :This funtion for logout
+     *  @desc : This funtion is for logout of an employee
+     * 
+     *  This function distroys the login session of an employee.
+     * 
+     *  param : void
+     *  @return : void
      */
     function logout() {
-	$this->session->sess_destroy();
-	redirect(base_url() . "employee/login");
+        $this->session->sess_destroy();
+        redirect(base_url() . "employee/login");
     }
 
 }

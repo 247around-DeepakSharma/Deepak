@@ -37,34 +37,46 @@ class bookings_excel extends CI_Controller {
         }
     }
 
+    /*
+     * @desc: This function gets the page to upload booking excel
+     * @param: void
+     * @return: void
+     */
+
     public function index() {
         $this->load->view('employee/header');
         $this->load->view('employee/upload_bookings_excel');
     }
+
+    /*
+     * @desc: This function is to add bookings from excel
+     * @param: void
+     * @return: list of transactions
+     */
 
     public function add_booking_from_excel() {
         if (!empty($_FILES['file']['name'])) {
             $pathinfo = pathinfo($_FILES["file"]["name"]);
 
             if ($pathinfo['extension'] == 'xlsx') {
-		if ($_FILES['file']['size'] > 0) {
-		    $inputFileName = $_FILES['file']['tmp_name'];
-		    $inputFileExtn = 'Excel2007';
-		}
-	    } else {
-		if ($pathinfo['extension'] == 'xls') {
-		    if ($_FILES['file']['size'] > 0) {
-			$inputFileName = $_FILES['file']['tmp_name'];
-			$inputFileExtn = 'Excel5';
-		    }
-		}
-	    }
-	}
+                if ($_FILES['file']['size'] > 0) {
+                    $inputFileName = $_FILES['file']['tmp_name'];
+                    $inputFileExtn = 'Excel2007';
+                }
+            } else {
+                if ($pathinfo['extension'] == 'xls') {
+                    if ($_FILES['file']['size'] > 0) {
+                        $inputFileName = $_FILES['file']['tmp_name'];
+                        $inputFileExtn = 'Excel5';
+                    }
+                }
+            }
+        }
 
-	try {
+        try {
             $inputFileType = PHPExcel_IOFactory::identify($inputFileName);
             $objReader = PHPExcel_IOFactory::createReader($inputFileExtn);
-	    $objPHPExcel = $objReader->load($inputFileName);
+            $objPHPExcel = $objReader->load($inputFileName);
         } catch (Exception $e) {
             die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
         }
@@ -84,9 +96,9 @@ class bookings_excel extends CI_Controller {
 
         $headings_new = array();
         foreach ($headings as $heading) {
-	    $heading = str_replace(array("/", "(", ")", "."), "", $heading);
-	    array_push($headings_new, str_replace(array(" "), "_", $heading));
-	}
+            $heading = str_replace(array("/", "(", ")", "."), "", $heading);
+            array_push($headings_new, str_replace(array(" "), "_", $heading));
+        }
 
         for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
             //  Read a row of data into an array
@@ -94,24 +106,24 @@ class bookings_excel extends CI_Controller {
             $rowData[0] = array_combine($headings_new[0], $rowData[0]);
 
             //echo print_r($rowData[0], true), EOL;
-	    if ($rowData[0]['Phone'] == "") {
-		//echo print_r("Phone number null, break from this loop", true), EOL;
-		break;
-	    }
+            if ($rowData[0]['Phone'] == "") {
+                //echo print_r("Phone number null, break from this loop", true), EOL;
+                break;
+            }
 
-	    //Insert user if phone number doesn't exist
+            //Insert user if phone number doesn't exist
             $output = $this->user_model->search_user(trim($rowData[0]['Phone']));
 
-	    if (empty($output)) {
+            if (empty($output)) {
                 //User doesn't exist
                 $user['name'] = $rowData[0]['Customer_Name'];
                 $user['phone_number'] = $rowData[0]['Phone'];
                 $user['user_email'] = (isset($rowData[0]['Email_ID']) ? $rowData[0]['Email_ID'] : "");
-		$user['home_address'] = $rowData[0]['Customer_Address'];
-		$user['pincode'] = $rowData[0]['Pincode'];
-		$user['city'] = $rowData[0]['CITY'];
+                $user['home_address'] = $rowData[0]['Customer_Address'];
+                $user['pincode'] = $rowData[0]['Pincode'];
+                $user['city'] = $rowData[0]['CITY'];
 
-		$user_id = $this->user_model->add_user($user);
+                $user_id = $this->user_model->add_user($user);
 
                 //echo print_r($user, true), EOL;
                 //Add sample appliances for this user
@@ -284,10 +296,22 @@ class bookings_excel extends CI_Controller {
 	redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
     }
 
+    /*
+     * @desc: This function is to upload the products that have been shipped from our partners
+     * @param: void
+     * @return: void
+     */
+
     public function upload_shipped_products_excel() {
-	$this->load->view('employee/header');
-	$this->load->view('employee/upload_shippings_excel');
+        $this->load->view('employee/header');
+        $this->load->view('employee/upload_shippings_excel');
     }
+
+    /*
+     * @desc: This function is to add the uploaded products that have been shipped from our partners
+     * @param: void
+     * @return: void
+     */
 
     public function add_snapdeal_shipped_products_from_excel() {
 	log_message('info', __FUNCTION__);
@@ -566,14 +590,26 @@ class bookings_excel extends CI_Controller {
 	redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
     }
 
+    /*
+     * @desc: Shows all unassigned bookings from Snapdeal
+     * @param: void
+     * @return: void
+     */
+
     function get_unassigned_bookings() {
-	$bookings = $this->booking_model->get_sd_unassigned_bookings();
+        $bookings = $this->booking_model->get_sd_unassigned_bookings();
 
         $data['booking'] = $bookings;
 
         $this->load->view('employee/header');
         $this->load->view('employee/sd_booking_summary', $data);
     }
+
+    /*
+     * @desc: Shows all details of all the SD bookings in create date sorted manner.
+     * @param: void
+     * @return: void
+     */
 
     function get_all_sd_bookings() {
         $bookings = $this->booking_model->get_all_sd_bookings();
@@ -583,6 +619,13 @@ class bookings_excel extends CI_Controller {
         $this->load->view('employee/header');
         $this->load->view('employee/sd_booking_summary', $data);
     }
+
+    /*
+     * @desc: This function helps to get booking form to add booking.
+     * @param: $lead_id
+     *          - This lead id is used to get all the booking details.
+     * @return: void
+     */
 
     function get_booking_form($lead_id) {
         $lead = $this->booking_model->get_sd_lead($lead_id);
@@ -600,7 +643,13 @@ class bookings_excel extends CI_Controller {
             'category' => $category));
     }
 
-  function get_confirm_sd_lead_form() {
+    /*
+     * @desc: This function is to get confirm SD leads form i.e. to confirm booking
+     * @param: void
+     * @return: view with lead_id and booking details
+     */
+
+    function get_confirm_sd_lead_form() {
         $lead_id = $this->input->post('lead_id');
         $booking['user_id'] = $this->input->post('user_id');
         $booking['service_id'] = $this->input->post('service_id');
@@ -615,9 +664,9 @@ class bookings_excel extends CI_Controller {
         $booking['appliance_category'] = $this->input->post('appliance_category');
         $booking['appliance_capacity'] = $this->input->post('appliance_capacity');
         $booking['model_number'] = $this->input->post('model_number');
-	$booking['description'] = $this->input->post('description');
+        $booking['description'] = $this->input->post('description');
 
-	$booking['items_selected'] = $this->input->post('items_selected');
+        $booking['items_selected'] = $this->input->post('items_selected');
         $booking['total_price'] = $this->input->post('total_price');
 
         $booking['booking_date'] = $this->input->post('booking_date');
@@ -645,8 +694,16 @@ class bookings_excel extends CI_Controller {
             'result' => $result));
     }
 
-  function post_confirm_sd_lead_form() {
-        $lead_id = $this->input->post('lead_id'); $booking['user_id'] = $this->input->post('user_id');
+    /*
+     * @desc: This function is to confirm SD leads and make it as booking with status
+     *          as pending i.e. to confirm booking
+     * @param: void
+     * @return: void
+     */
+
+    function post_confirm_sd_lead_form() {
+        $lead_id = $this->input->post('lead_id');
+        $booking['user_id'] = $this->input->post('user_id');
         $booking['service_id'] = $this->input->post('service_id');
         $booking['service_name'] = $this->input->post('services');
         $booking['user_email'] = $this->input->post('user_email');
@@ -662,8 +719,8 @@ class bookings_excel extends CI_Controller {
         $booking['appliance_category'] = $this->input->post('appliance_category');
         $booking['appliance_capacity'] = $this->input->post('appliance_capacity');
         $booking['model_number'] = $this->input->post('model_number');
-	    $booking['description'] = $this->input->post('description');
-	    $booking['items_selected'] = $this->input->post('items_selected');
+        $booking['description'] = $this->input->post('description');
+        $booking['items_selected'] = $this->input->post('items_selected');
         $booking['total_price'] = $this->input->post('total_price');
         $booking['amount_due'] = $booking['total_price'];
         $booking['potential_value'] = $booking['total_price'];
@@ -671,7 +728,7 @@ class bookings_excel extends CI_Controller {
         $booking['purchase_month'] = date('m');
         $booking['purchase_year'] = date('Y');
         $booking['appliance_tags'] = $booking['appliance_brand'] .
-            " " . $booking['service_name'];
+                " " . $booking['service_name'];
         $booking['last_service_date'] = date('d-m-Y');
 
         $booking['booking_date'] = $this->input->post('booking_date');
@@ -718,18 +775,18 @@ class bookings_excel extends CI_Controller {
         if ($booking['current_status'] != "FollowUp") {
             $message = "Congratulations You have received new booking, details are mentioned below:
                 <br>Customer Name: " . $booking['user_name'] . "<br>Customer Phone Number: " .
-                $booking['booking_primary_contact_no'] . "<br>Customer email address: " .
-                $booking['user_email'] . "<br>Booking Id: " . $booking['booking_id'] .
-                "<br>Service name:" . $booking['service_name'] . "<br>Number of appliance: " .
-                $booking['quantity'] . "<br>Booking Date: " . $booking['booking_date'] .
-                "<br>Booking Timeslot: " . $booking['booking_timeslot'] . "<br>Amount Due: " .
-                $booking['amount_due'] . "<br>Your Booking Remark is: " . $booking['booking_remarks'] .
-                "<br>Booking address: " . $booking['booking_address'] . "<br>Booking pincode: " .
-                $booking['booking_pincode'] . "<br><br>
+                    $booking['booking_primary_contact_no'] . "<br>Customer email address: " .
+                    $booking['user_email'] . "<br>Booking Id: " . $booking['booking_id'] .
+                    "<br>Service name:" . $booking['service_name'] . "<br>Number of appliance: " .
+                    $booking['quantity'] . "<br>Booking Date: " . $booking['booking_date'] .
+                    "<br>Booking Timeslot: " . $booking['booking_timeslot'] . "<br>Amount Due: " .
+                    $booking['amount_due'] . "<br>Your Booking Remark is: " . $booking['booking_remarks'] .
+                    "<br>Booking address: " . $booking['booking_address'] . "<br>Booking pincode: " .
+                    $booking['booking_pincode'] . "<br><br>
                 Appliance Details:<br>";
 
             $appliance = "<br>Brand : " . $booking['appliance_brand'] . "<br>Category : " . $booking['appliance_category'] . "<br>Capacity : " . $booking['appliance_capacity'] .
-                "<br>Selected service/s is/are: " . $booking['items_selected'] . "<br>Total price is: " . $booking['total_price'] . "<br>";
+                    "<br>Selected service/s is/are: " . $booking['items_selected'] . "<br>Total price is: " . $booking['total_price'] . "<br>";
             $message = $message . $appliance . "<br> Thanks!!";
 
             $from = "booking@247around.com";

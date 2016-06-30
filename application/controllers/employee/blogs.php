@@ -1,7 +1,8 @@
 <?php
 
-if (!defined('BASEPATH'))
+if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
+}
 
 class Blogs extends CI_Controller {
 
@@ -18,7 +19,7 @@ class Blogs extends CI_Controller {
         $this->load->library("session");
         $this->load->library('s3');
         if (($this->session->userdata('loggedIn') == TRUE) &&
-            ($this->session->userdata('userType') == 'employee')) {
+                ($this->session->userdata('userType') == 'employee')) {
             return TRUE;
         } else {
             echo "<pre/>";
@@ -27,6 +28,12 @@ class Blogs extends CI_Controller {
             redirect(base_url() . "employee/login");
         }
     }
+
+    /*
+     * @desc: This function is to process to add a new blog or edit an existing blog.
+     * @param: void
+     * @return: void
+     */
 
     function index() {
         $blog['id'] = $this->input->post('id');
@@ -65,10 +72,22 @@ class Blogs extends CI_Controller {
         }
     }
 
+    /*
+     * @desc: This function is to get a form to add a new blog.
+     * @param: void
+     * @return: void
+     */
+
     function addblog() {
         $this->load->view('employee/header');
         $this->load->view('employee/addblog');
     }
+
+    /*
+     * @desc: This function is to display details of all the blogs present
+     * @param: void
+     * @return: void
+     */
 
     function viewblogs() {
         $query = $this->blogs_model->view_blogs();
@@ -76,30 +95,57 @@ class Blogs extends CI_Controller {
         $this->load->view('employee/viewblogs', array('query' => $query));
     }
 
+    /*
+     * @desc: This function is to edit a particular blog already present
+     * @param: $id- Id of the blog which we want to edit
+     * @return: void
+     */
+
     function editblog($id) {
         $query = $this->blogs_model->editblog($id);
         $this->load->view('employee/header');
         $this->load->view('employee/addblog', array('query' => $query));
     }
 
+    /*
+     * @desc: This function is to publish a particular blog on its request
+     * @param: $id- Id of the blog which we want to publish
+     * @return: void
+     */
+
     function publish($id) {
-        $query = $this->blogs_model->publish($id);
+//        $query = $this->blogs_model->publish($id);  // $query looks unused
+        $this->blogs_model->publish($id);
 
         $query = $this->blogs_model->view_blogs();
         $this->load->view('employee/header');
         $this->load->view('employee/viewblogs', array('query' => $query));
     }
+
+    /*
+     * @desc: This function is to unpublish a particular blog on its request
+     * @param: $id- Id of the blog which we want to unpublish
+     * @return: void
+     */
 
     function unpublish($id) {
-        $query = $this->blogs_model->unpublish($id);
+//        $query = $this->blogs_model->unpublish($id);    // $query looks unused
+        $this->blogs_model->unpublish($id);
 
         $query = $this->blogs_model->view_blogs();
         $this->load->view('employee/header');
         $this->load->view('employee/viewblogs', array('query' => $query));
     }
 
+    /*
+     * @desc: This function is to delete a particular blog on its request
+     * @param: $id- Id of the blog which we want to delete
+     * @return: void
+     */
+
     function delete($id) {
-        $query = $this->blogs_model->delete($id);
+//        $query = $this->blogs_model->delete($id);     // $query looks unused
+        $this->blogs_model->delete($id);
 
         $query = $this->blogs_model->view_blogs();
         $this->load->view('employee/header');
