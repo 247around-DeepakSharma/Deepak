@@ -235,6 +235,17 @@ class ArticleGenerator extends CI_Controller {
 	    echo "\n";
 	}
 
+	//Inserting urls of blogs table which are not in template form in the url table
+	//TODO: It doesnot create any sitemap as of now.
+	echo "\nInserting urls of blogs table which are not in template form in the url table\n\n";
+	$non_template_blogs = $this->url_model->add_non_template_blogs();
+
+	if ($non_template_blogs > 0)
+	    echo "Added $non_template_blogs blogs which are not templates\n\n";
+	else
+	    echo "Added 0 blogs which are not templates\n\n";
+
+	$total_rows_inserted += $non_template_blogs;
 
 	//Make sure the sitemaps are closed properly
 	echo "Last sitemap: " . $this->last_sitemap . "\n";

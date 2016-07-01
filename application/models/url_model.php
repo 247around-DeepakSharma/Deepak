@@ -21,6 +21,38 @@ class url_model extends CI_Model {
 	return $this->db->insert_id();
     }
 
+    /** @description Insert new blogs in url table which are not templates
+     *
+     * Ignore if URL is already there
+     *
+     *  @param
+     *  @return Int Number of URLs inserted
+     */
+    function add_non_template_blogs() {
+	$sql = "INSERT IGNORE INTO `url` (`url`, `brand`, `place`, `blog_id`) VALUES ";
+
+	//Find non-template blogs
+	$this->db->where('is_template', 0);
+	$query = $this->db->get('blogs');
+
+	$non_templates = $query->result_array();
+
+	foreach ($non_templates as $nt) {
+	    $title = $nt['url'];
+	    $id = $nt['id'];
+
+	    $s = "('$title','','','$id'),";
+	    $sql .= $s;
+	}
+
+	//Replace last "," with ";"
+	$sql[strlen($sql) - 1] = ";";
+
+	$this->db->query($sql);
+
+	return count($non_templates);
+    }
+
     /** @description Find all keywords in Workbook table
      *  @param
      *  @return Array Keywords array

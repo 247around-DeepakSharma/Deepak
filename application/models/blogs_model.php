@@ -16,7 +16,7 @@ class Blogs_model extends CI_Model {
 
     /*
      * @desc: This function shows all the blogs present
-     * @param: void     
+     * @param: void
      * @return: array of all the blogs
      */
     function view_blogs() {
@@ -29,7 +29,7 @@ class Blogs_model extends CI_Model {
 
     /*
      * @desc: This function shows blog details with their wordpress id
-     * @param: $wp_id         
+     * @param: $wp_id
      * @return: details of particular blog
      */
     function get_blog_by_wpid($wp_id) {
@@ -43,9 +43,10 @@ class Blogs_model extends CI_Model {
 
     /*
      * @desc: This function searches/finds blog with the matching keyword
-     * @param: $kw - keyword used to search blog   
+     * @param: $kw - keyword used to search blog
      * @return: array of blogs with matching keywords
      */
+
     function get_blog_by_keyword($kw) {
 	$this->db->where('keyword', $kw);
 	$query = $this->db->get('blogs');
@@ -54,9 +55,22 @@ class Blogs_model extends CI_Model {
     }
 
     /*
+     * @desc: This function searches/finds blog which are not templates
+     * @param:
+     * @return: array of non-template blogs
+     */
+
+    function get_non_template_blogs() {
+	$this->db->where('is_template', 0);
+	$query = $this->db->get('blogs');
+
+	return $query->result_array();
+    }
+
+    /*
      * @desc: This function is to add a new blog
      * @param: $blog- details of blog to be added.
-     * @return: the id of particular blog after insertion     
+     * @return: the id of particular blog after insertion
      */
     function add_blog($blog) {
 	$this->db->insert('blogs', $blog);
@@ -125,29 +139,27 @@ class Blogs_model extends CI_Model {
 
     /*
      * @desc: This function is to publish(make it live/active) a particular blog
-     * 
+     *
      * Its done by updating published field to 1.
-     * 
+     *
      * @param: $id- id of the blog to be published
      * @return: void
      */
     function publish($id) {
 	$sql = "UPDATE blogs SET published = 1 WHERE id='$id'";
-//	$query = $this->db->query($sql);    // $query is unused
         $this->db->query($sql);
     }
 
     /*
      * @desc: This function is to unpublish(make it inactive) a particular blog
-     * 
+     *
      * Its done by updating published field to 0.
-     * 
+     *
      * @param: $id- id of the blog to be unpublished
      * @return: void
      */
     function unpublish($id) {
 	$sql = "UPDATE blogs SET published = 0 WHERE id='$id'";
-//	$query = $this->db->query($sql);    // $query is unused
         $this->db->query($sql);
     }
 
@@ -158,15 +170,14 @@ class Blogs_model extends CI_Model {
      */
     function delete($id) {
 	$sql = "Delete FROM blogs WHERE id='$id'";
-//	$query = $this->db->query($sql);    // $query is unused
         $this->db->query($sql);
     }
 
     /*
      * @desc: This function is to finds the blogs to be updated
-     * 
+     *
      *  This search is on the basis of posting date of blog and where post status of blog is pending
-     * 
+     *
      * @param: void
      * @return: blogs to be updated
      */
@@ -179,7 +190,7 @@ class Blogs_model extends CI_Model {
     }
 
     /*
-     * @desc: This function is to find the blog from wordpress table     
+     * @desc: This function is to find the blog from wordpress table
      * @param: $blog_id- the id of the blog to be selected
      * @return: atrray of blog details
      */
@@ -221,12 +232,12 @@ class Blogs_model extends CI_Model {
 
 	return $results[0]['meta_value'];
     }
-    
+
     /*
      * @desc: This function is to get file name of particulat wordpress id
-     * 
+     *
      * This file is the image(most of times) which is a part of the particular blog.
-     * 
+     *
      * @param: $wp_id - its the id of the wordpress of which we want file name.
      * @return: name of the file
      */
@@ -246,7 +257,7 @@ class Blogs_model extends CI_Model {
 
     /*
      * @desc: This function is to add entry in our workbook
-     *      
+     *
      * @param: $prefix - the prefix of the data
      * @param: $keyword - the keyword of the blog
      * @param: $suffix - the suffix of the data
