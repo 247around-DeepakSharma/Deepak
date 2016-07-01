@@ -42,10 +42,14 @@ class url_model extends CI_Model {
      *
      * like
      *
-     * <brand>refrigerator repair in<city>
+     * <brand> refrigerator repair in <city>
+     *
+     * As of now, there SHOULD be space before and after the keyword if prefix
+     * and suffix are present.
      *
      *  @param
-     *  @return Array URL templates with prefix and suffix
+     *
+     *  @return Array URL template strings with prefix and suffix
      */
     function get_url_template_with_prefix_suffix() {
 	$this->db->where('active', '1');

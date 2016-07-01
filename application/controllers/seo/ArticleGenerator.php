@@ -3,12 +3,27 @@
 /*
  * READ THIS FIRST:
  *
+ * How this script works:
+ *
+ * This script relies on the workbook2 table which has prefix, keyword, suffix,
+ * title and service name as main columns. Keyword is used to find the template
+ * in blogs table, it should  match with blogs.keyword column. Column active in
+ * workbook2 table decides whether articles for this row needs to be generated
+ * or not.
+ *
+ * Once the script is fired, it looks for all the active templates. For each
+ * active template, it finds out the service name and the brands associated with
+ * the service. It then finds the template blog from the blogs table. Once it is
+ * found, the script generates all possible url combinations.
+ *
  * Assumption:
  *
  * 1. All keywords in workbook table should have " " in beginning and end depending on
  * prefix and suffix. If prefix is there, there should be " " in beginning. If
  * suffix is there, there should be " " in end. If both are there, " " should
  * be there at both the ends. THIS NEEDS TO BE FIXED.
+ *
+ * 2.
  */
 
 if (!defined('BASEPATH'))
@@ -41,7 +56,8 @@ class ArticleGenerator extends CI_Controller {
     }
 
     /**
-     * Home Page
+     * This command generates all the articles with brands and places replaced
+     * with the actual names.
      */
     public function index() {
 	log_message('info', 'Entering: ' . __METHOD__);
@@ -56,8 +72,8 @@ class ArticleGenerator extends CI_Controller {
 	$cities = $this->booking_model->get_distinct_place('City');
 	log_message('info', 'Cities: ' . count($cities));
 
-	//Get all the templates from workbook table for which articles need
-	//to be generated
+	//Get all the ACTIVE templates from workbook table for which articles need
+	//to be generated.
 	//TODO: there should be a way to select few templates in the workbook
 	$templates_data = $this->url_model->get_url_template_with_prefix_suffix();
 	$urls = $templates_data[0];
@@ -101,7 +117,7 @@ class ArticleGenerator extends CI_Controller {
 	    $urls[$k] = str_replace(" ", "-", $urls[$k]);
 	    $sql = "('$urls[$k]','<brand>','<suffix>','$id',CURRENT_TIMESTAMP),";
 
-	    //if the url has a blog of template type then copies of url is generated otherwise not
+	    //if the url has a blog of template type, then copies of url is generated otherwise not
 	    if ($is_template) {
 
 		echo "Template exists for this URL.\n ";
@@ -250,11 +266,10 @@ class ArticleGenerator extends CI_Controller {
      *
      */
     function get_final_url($prefix, $suffix, $string, $to_replace) {
-	log_message('info', __METHOD__ . '=> Prefix: ' . $prefix . ', Suffix: ' .
-	    $suffix . ', String: ' . $string . ', ToReplace: ' . $to_replace);
+	log_message('info', 'Entering: ' . __METHOD__);
 
 	//these chars should not come in URL and sitemap.xml
-	$chars_to_be_ignored = array('(', ')', ',', '/', '?', '&', '"');
+	$chars_to_be_ignored = array('(', ')', ',', '/', '?', '&', '"', '\'');
 
 	$suffix = str_replace($chars_to_be_ignored, "", $suffix);
 	$to_replace = str_replace($chars_to_be_ignored, "", $to_replace);
@@ -269,7 +284,7 @@ class ArticleGenerator extends CI_Controller {
 	$res_string = str_replace("<brand->", str_replace(" ", "-", $prefix . "-"), $res_string);
 	$res_string = str_replace("<brand>", str_replace(" ", "-", $prefix), $res_string);
 
-	log_message('info', 'Final URL: ' . $res_string);
+//	log_message('info', 'Final URL: ' . $res_string);
 
 	return $res_string;
     }
@@ -320,6 +335,8 @@ class ArticleGenerator extends CI_Controller {
      *
      */
     function make_copies_of_url($brand, $suffixes, $to_replace, $res, $sql, $url) {
+	//log_message('info', 'Entering: ' . __METHOD__);
+
 	$column = str_replace(array("<", ">"), "", $to_replace);
 
 	//TODO:
