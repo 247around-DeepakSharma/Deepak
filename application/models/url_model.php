@@ -115,7 +115,7 @@ class url_model extends CI_Model {
     function execute_sql($query) {
 	$this->db->query($query);
 
-	log_message('info', __METHOD__ . '=> Last query: ' . $this->db->last_query());
+	//log_message('info', __METHOD__ . '=> Last query: ' . $this->db->last_query());
     }
 
     /** @description Deletes all URLs from url table
@@ -124,6 +124,30 @@ class url_model extends CI_Model {
      */
     function delete_all() {
 	$this->db->empty_table('url');
+
+	log_message('info', __METHOD__ . '=> Last query: ' . $this->db->last_query());
+    }
+
+    /** @description Renames the newly generated table and create a new table
+     * for next iteration.
+     *
+     * This is called after all operations succeed and URLs have been
+     * generated properly.
+     *
+     *  @param
+     *  @return
+     */
+    function switch_url_tables() {
+	$this->load->dbforge();
+
+	//Drop old table first
+	$this->dbforge->drop_table('url_table');
+
+	//Rename 'url' table
+	$this->dbforge->rename_table('url', 'url_table');
+
+	//Make a fresh copy of URL table as well for next time
+	$this->db->query("CREATE TABLE url LIKE url_table");
 
 	log_message('info', __METHOD__ . '=> Last query: ' . $this->db->last_query());
     }

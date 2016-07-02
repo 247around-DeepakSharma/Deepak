@@ -32,6 +32,9 @@ if (!defined('BASEPATH'))
 //For infinite memory
 ini_set('memory_limit', '-1');
 
+//For timeout
+ini_set('max_execution_time', 3600);
+
 //error_reporting(E_ALL);
 //ini_set('display_errors', '1');
 
@@ -84,11 +87,6 @@ class ArticleGenerator extends CI_Controller {
 	$res = "";
 	$total_rows_inserted = 0;
 
-	//Step 1: Clean the URL table
-	$this->url_model->delete_all();
-
-	//exit(0);
-	//2:
 	//This loop runs for all entries in workbook table
 	for ($k = 0; $k < count($urls); $k++) {
 	    //initialising local variables of this loop
@@ -250,12 +248,29 @@ class ArticleGenerator extends CI_Controller {
 	//Make sure the sitemaps are closed properly
 	echo "Last sitemap: " . $this->last_sitemap . "\n";
 	//write closing tag in the last sitemap file
-	$f_last_sitemap = fopen(__DIR__ . "/sitemap-$this->last_sitemap.xml", "a") or die("Unable to open file!");
-	fwrite($f_last_sitemap, '</urlset>');
+	$last_sitemap_name = __DIR__ . "/sitemap-" . $this->last_sitemap . ".xml";
+	$f_last_sitemap = fopen($last_sitemap_name, "a");
+
+	if ($f_last_sitemap !== FALSE) {
+	    fwrite($f_last_sitemap, '</urlset>');
+	} else {
+	    echo "\n\nUnable to write closing tag in the last sitemap file\n\n";
+	    exit(-1);
+	}
 
 	//write closing tag in the sitemap index file
-	$this->master_sitemap = fopen(__DIR__ . "/sitemap.xml", "a") or die("Unable to open file!");
-	fwrite($this->master_sitemap, '</sitemapindex>');
+	$this->master_sitemap = fopen(__DIR__ . "/sitemap.xml", "a");
+	if ($this->master_sitemap !== FALSE) {
+	    fwrite($this->master_sitemap, '</sitemapindex>');
+	} else {
+	    echo "\n\nUnable to write closing tag in the sitemap index file\n\n";
+	    exit(-2);
+	}
+
+	//Everything done, now switch tables
+	$this->url_model->switch_url_tables();
+
+	echo "\nSwitching of Tables Complete........\n";
 
 	echo "\n\n******TOTAL " . $total_rows_inserted . " rows are inserted in the URL table.******\n\n";
     }
