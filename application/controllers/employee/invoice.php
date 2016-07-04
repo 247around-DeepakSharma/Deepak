@@ -18,8 +18,8 @@ class Invoice extends CI_Controller {
 	$this->load->model("vendor_model");
 	$this->load->model("booking_model");
 	$this->load->model("partner_model");
-	$this->load->library("notify");
 
+	$this->load->library("notify");
 	$this->load->library('form_validation');
 	$this->load->library("session");
 
@@ -49,7 +49,7 @@ class Invoice extends CI_Controller {
      * @return: void
      */
     function getInvoicingData() {
-	$data['source'] = $this->input->post('source');
+	$data['vendor_partner'] = $this->input->post('source');
 	$data['vendor_partner_id'] = $this->input->post('vendor_partner_id');
 
 	$invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
@@ -196,9 +196,23 @@ class Invoice extends CI_Controller {
 	$account_statement['description'] = $this->input->post('description');
 
 	$this->invoices_model->bankAccountTransaction($account_statement);
-	$output = "Added successfully.";
+
+	$output = "Transaction added successfully.";
 	$userSession = array('success' => $output);
 	$this->session->set_userdata($userSession);
+
+	//Send SMS to vendors about payment
+	if ($account_statement['partner_vendor'] == 'vendor') {
+	    $vendor_arr = $this->vendor_model->getVendorContact($account_statement['partner_vendor_id']);
+	    $v = $vendor_arr[0];
+
+	    $sms['tag'] = "payment_made_to_vendor";
+	    $sms['phone_no'] = $v['owner_phone_1'];
+	    $sms['smsData'] = "previous month";
+
+	    $this->notify->send_sms($sms);
+	}
+
 	redirect(base_url() . 'employee/invoice/get_add_new_transaction');
     }
 

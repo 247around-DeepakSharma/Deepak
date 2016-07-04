@@ -51,6 +51,10 @@ class vendor_partner_invoice extends CI_Controller {
      *
      * Invoice would be generated for period starting from Start_Date and ending
      * on End_date (both dates inclusive).
+     *
+     * To run:
+     *
+     * php index.php vendor_partner_invoice generate_cash_invoices_for_vendors 01-05-2016 31-05-2016
      */
     public function generate_cash_invoices_for_vendors($start_date, $end_date) {
 	log_message('info', __FUNCTION__ . '=> Start Date: ' . $start_date . ', End Date: ' . $end_date);
@@ -285,6 +289,10 @@ class vendor_partner_invoice extends CI_Controller {
      *
      * Invoice would be generated for period starting from Start_Date and ending
      * on End_date (both dates inclusive).
+     *
+     * To run:
+     *
+     * php index.php vendor_partner_invoice generate_foc_invoices_for_vendors 01-05-2016 31-05-2016
      */
 
     public function generate_foc_invoices_for_vendors($start_date = "", $end_date = "") {
@@ -512,6 +520,10 @@ class vendor_partner_invoice extends CI_Controller {
      *
      * Invoice would be generated for period starting from Start_Date and ending
      * on End_date (both dates inclusive).
+     *
+     * To run:
+     *
+     * php index.php vendor_partner_invoice generate_sw_invoices_for_vendors 01-05-2016 31-05-2016
      */
 
     public function generate_sw_invoices_for_vendors($start_date, $end_date) {

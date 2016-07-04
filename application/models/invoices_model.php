@@ -61,9 +61,10 @@ class invoices_model extends CI_Model {
      * @return :Array
      */
     function getInvoicingData($data) {
-	$where_arr = array('vendor_partner' => $data[source],
-	    'vendor_partner_id' => $data[vendor_partner_id]);
-	$this->db->where($where_arr);
+//	$where_arr = array('vendor_partner' => $data[source],
+//	    'vendor_partner_id' => $data[vendor_partner_id]);
+//	$this->db->where($where_arr);
+	$this->db->where($data);
 	$this->db->order_by('create_date');
 	$query = $this->db->get('vendor_partner_invoices');
 
