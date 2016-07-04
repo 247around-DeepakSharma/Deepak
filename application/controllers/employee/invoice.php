@@ -51,9 +51,13 @@ class Invoice extends CI_Controller {
     function getInvoicingData() {
 	$data['vendor_partner'] = $this->input->post('source');
 	$data['vendor_partner_id'] = $this->input->post('vendor_partner_id');
-
 	$invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
-	$invoice['bank_statement'] = $this->invoices_model->bank_transactions_details($data);
+
+	//TODO: Fix the reversed names here & everywhere else as well
+	$data2['partner_vendor'] = $this->input->post('source');
+	$data2['partner_vendor_id'] = $this->input->post('vendor_partner_id');
+	$invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details($data2);
+
 	$this->load->view('employee/invoicing_table', $invoice);
     }
 

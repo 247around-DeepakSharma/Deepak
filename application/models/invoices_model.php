@@ -87,9 +87,10 @@ class invoices_model extends CI_Model {
 	$this->db->insert('bank_transactions', $account_statement);
     }
 
-    function bank_transactions_details($data) {
-	$this->db->where('partner_vendor', $data['source']);
-	$this->db->where('partner_vendor_id', $data['vendor_partner_id']);
+    function get_bank_transactions_details($data) {
+//	$this->db->where('partner_vendor', $data['source']);
+//	$this->db->where('partner_vendor_id', $data['vendor_partner_id']);
+	$this->db->where($data);
 	$this->db->order_by('transaction_date DESC');
 	$query = $this->db->get('bank_transactions');
 	return $query->result_array();
