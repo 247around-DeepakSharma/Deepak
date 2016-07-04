@@ -34,7 +34,7 @@ class Invoice extends CI_Controller {
      * Load invoicing form
      */
     public function index() {
-	$data['service_center'] = $this->vendor_model->getActiveVendor("",0);
+	$data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
 	$data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor");
 
 	$this->load->view('employee/header');
@@ -43,8 +43,8 @@ class Invoice extends CI_Controller {
 
     /**
      * @desc: This is used to get vendor, partner invoicing data by service center id or partner id
-     *          and load data in a table.     
-     * 
+     *          and load data in a table.
+     *
      * @param: void
      * @return: void
      */
@@ -57,14 +57,14 @@ class Invoice extends CI_Controller {
 	$this->load->view('employee/invoicing_table', $invoice);
     }
 
-     /**
+    /**
      * @desc: Send Invoice pdf file to vendor
-     * 
+     *
      * @param: $invoiceId- this is the id of the invoice which we want to send.
      * @param: $vendor_partnerId- to partner's/vendor's id
      * @param: $start_date- date from which we are calculating this invoice
      * @param: $end_date- date upto which we are calculating this invoice
-     * @param: $vendor_partner- tells if its vendor or partner 
+     * @param: $vendor_partner- tells if its vendor or partner
      * @return: void
      */
     function sendInvoiceMail($invoiceId, $vendor_partnerId, $start_date, $end_date, $vendor_partner) {
@@ -111,7 +111,7 @@ class Invoice extends CI_Controller {
      * @desc: Load view to select patner to display invoices
      * @param: void
      * @return: void
-     */    
+     */
     function invoice_partner_view() {
 
 	$data['partner'] = $this->partner_model->getpartner();
@@ -162,11 +162,11 @@ class Invoice extends CI_Controller {
      *  @param : Type $partnerId
      *  @return : void
      */
-    function get_add_new_transaction($vendor_partner ="",$id="") {
-        $data['vendor_partner'] = $vendor_partner;
-        $data['id'] =  $id;
-	    $this->load->view('employee/header');
-	    $this->load->view('employee/addnewtransaction', $data);
+    function get_add_new_transaction($vendor_partner = "", $id = "") {
+	$data['vendor_partner'] = $vendor_partner;
+	$data['id'] = $id;
+	$this->load->view('employee/header');
+	$this->load->view('employee/addnewtransaction', $data);
     }
 
     /**
@@ -192,13 +192,13 @@ class Invoice extends CI_Controller {
 	}
 
 	$transaction_date = $this->input->post('tdate');
-	$account_statement['transaction_date'] = date("Y-m-d",strtotime($transaction_date));
+	$account_statement['transaction_date'] = date("Y-m-d", strtotime($transaction_date));
 	$account_statement['description'] = $this->input->post('description');
 
 	$this->invoices_model->bankAccountTransaction($account_statement);
-    $output   = "Added successfully.";
-    $userSession = array('success' =>$output);
-    $this->session->set_userdata($userSession);
+	$output = "Added successfully.";
+	$userSession = array('success' => $output);
+	$this->session->set_userdata($userSession);
 	redirect(base_url() . 'employee/invoice/get_add_new_transaction');
     }
 
@@ -208,37 +208,35 @@ class Invoice extends CI_Controller {
      *  @return : void
      */
     function getPartnerOrVendor($par_ven) {
-    	$vendor_partner_id = $this->input->post('vendor_partner_id');
+	$vendor_partner_id = $this->input->post('vendor_partner_id');
 
-	    if ($par_ven == 'partner') {
-	        $all_partners = $this->partner_model->get_all_partner_source("0");
-	        foreach ($all_partners as $p_name) {
-	        	$option = "<option value='".$p_name['partner_id']."'";
-		        if($vendor_partner_id == $p_name['partner_id']){
+	if ($par_ven == 'partner') {
+	    $all_partners = $this->partner_model->get_all_partner_source("0");
+	    foreach ($all_partners as $p_name) {
+		$option = "<option value='" . $p_name['partner_id'] . "'";
+		if ($vendor_partner_id == $p_name['partner_id']) {
 
-		        	$option .= "selected"  ;
-		        }
-		        $option .=" > ";
-		        $option .= $p_name['source'] . "</option>";
-		        echo $option;
-	        }
-	    } else {
-	        $all_vendors = $this->vendor_model->getActiveVendor("", 0);
-	        foreach ($all_vendors as $v_name) {
-	        	$option = "<option value='".$v_name['id']."'";
-		        if($vendor_partner_id == $v_name['id']){
-
-		        	$option .= "selected "  ;
-		        }
-		        $option .=" > ";
-		        $option .= $v_name['name'] . "</option>";
-
-		        echo $option;
-
-
-	        }
-	        echo $vendor_partner_id;
+		    $option .= "selected";
+		}
+		$option .=" > ";
+		$option .= $p_name['source'] . "</option>";
+		echo $option;
 	    }
+	} else {
+	    $all_vendors = $this->vendor_model->getActiveVendor("", 0);
+	    foreach ($all_vendors as $v_name) {
+		$option = "<option value='" . $v_name['id'] . "'";
+		if ($vendor_partner_id == $v_name['id']) {
+
+		    $option .= "selected ";
+		}
+		$option .=" > ";
+		$option .= $v_name['name'] . "</option>";
+
+		echo $option;
+	    }
+	    echo $vendor_partner_id;
+	}
     }
 
     /**
@@ -246,9 +244,9 @@ class Invoice extends CI_Controller {
      * @param: bank account transaction id, partner vender id
      * @return: void
      */
-    function delete_banktransaction($transaction_id){
-    	$this->invoices_model->delete_banktransaction($transaction_id);
-    	echo "success";
+    function delete_banktransaction($transaction_id) {
+	$this->invoices_model->delete_banktransaction($transaction_id);
+	echo "success";
     }
 
     /*
@@ -263,6 +261,7 @@ class Invoice extends CI_Controller {
      * @return: list of transactions
      *
      */
+
     function show_all_transactions($type = 'vendor') {
 	//Reset type to vendor if some other value is there
 	$possible_type = array('vendor', 'partner', 'all');
