@@ -139,7 +139,7 @@
                         ?>
                     </td>
                     <td><?php
-                        echo "<a class='btn btn-small btn-success btn-sm' href=".base_url()."employee/booking/get_update_query_form/$row[booking_id] title='Update'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
+                        echo "<a class='btn btn-small btn-success btn-sm' href=".base_url()."employee/new_booking/get_edit_booking_form/$row[booking_id] title='Update'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
                         ?>
                     </td>
                     <td>

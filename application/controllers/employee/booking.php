@@ -1745,18 +1745,11 @@ class Booking extends CI_Controller {
     }
 
     function viewdetails($booking_id) {
-	$data['query1'] = $this->booking_model->booking_history_by_booking_id($booking_id);
-	$data['query2'] = $this->booking_model->get_unit_details($booking_id);
-	$data['query4'] = $this->booking_model->getdescription_about_booking($booking_id);
+	$data['booking_history'] = $this->new_booking_model->getbooking_history($booking_id);
+	$data['unit_details'] = $this->new_booking_model->getunit_details($booking_id);
 
-	$data['query3'] = $this->booking_model->selectservicecentre($booking_id);
-	if (count($data['query3']) == 0) {
-	    //Service centre not assigned yet
-	    $data['query3'][0]['service_centre_name'] = 'NA';
-	    $data['query3'][0]['primary_contact_name'] = 'NA';
-	    $data['query3'][0]['primary_contact_phone_1'] = 'NA';
-	}
-
+	$data['service_center'] = $this->booking_model->selectservicecentre($booking_id);
+	
 	$this->load->view('employee/header');
 	$this->load->view('employee/viewdetails', $data);
     }

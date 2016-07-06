@@ -195,8 +195,9 @@
                                                         <th>Service Category</th>
                                                         <th>Charges</th>
                                                         <th>Partner Offer</th>
-                                                        <th>Total Charges</th>
                                                         <th>Discount</th>
+                                                        <th>Total Charges</th>
+                                                        
                                                         <th>Selected Services</th>
                                                     </tr>
                                                     <tbody><?php if(!empty($prices)) { ?>
@@ -206,10 +207,7 @@
                                                             <td><?php echo $price['service_category']; ?></td>
                                                             <td><?php echo intval($price['customer_total']); ?></td>
                                                             <td><?php echo intval($price['partner_net_payable']); ?></td>
-                                                            <td><?php echo intval($price['customer_net_payable']) ;?></td>
-
-                                                                       
-                                                            <td><input type="text" class="form-control discount" name="<?php echo "discount[".$unit_details[0]['brand']."][". $price['id']."][]"; ?>" id="<?php echo "discount_". $i . "_1"; ?>" 
+                                                              <td><input type="text" class="form-control discount" name="<?php echo "discount[".$unit_details[0]['brand']."][". $price['id']."][]"; ?>" id="<?php echo "discount_". $i . "_1"; ?>" 
 
                                                             value = "<?php if(isset($unit_details[0]['qunatity'])){
                                                                    foreach ($unit_details[0]['qunatity'] as  $tag) {
@@ -228,6 +226,8 @@
 
                                                             placeholder='Enter discount' readonly />
                                                             </td>
+
+                                                            <td><?php echo intval($price['customer_net_payable']) ;?></td>
 
                                                             <td>
                                                                <input class='price_checkbox' <?php if(isset($unit_details[0]['qunatity'])){

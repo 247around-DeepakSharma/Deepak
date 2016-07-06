@@ -1,139 +1,232 @@
-
 <style type="text/css">
-    table{
-          width: 99%;
-    }
     th,td{
-        border: 1px #f2f2f2 solid;
-        vertical-align: center;
-        padding: 1px;
-    }
-
-    th{
-        height: 50px;
-        background-color: #4CBA90;
-        color: white;
+    border: 1px #f2f2f2 solid;
+    vertical-align: center;
+    padding: 1px;
     }
     tr:nth-child(even) {background-color: #f2f2f2}
-
-
 </style>
-
 <div id="page-wrapper">
-  <div class="">
-    <div class="row">
-      <div style="width:85%;margin:50px;">
-        <h2 style="color:Blue;">Details:</h2>
-        <div style="float:left;width:60%;height:950px;">
-      	<p>
-      		<b style="color:red;">Customer Details:-</b><br>
-          <table>
-      		<tr><td width="35%;">Customer name: </td><td><?php echo $query1[0]['name']; ?></td></tr>
-      		<tr><td>Customer phone number: </td><td><?php echo $query1[0]['phone_number']; ?></td></tr>
-          <tr><td>Alternate phone number: </td><td><?php echo $query1[0]['alternate_phone_number']; ?></td></tr>
-      		<tr><td>Customer email address: </td><td><?php echo $query1[0]['user_email']; ?></td></tr>
-          <tr><td>Home address: </td><td><?php echo $query1[0]['home_address'];?></td></tr>
-          <tr><td>Home City: </td><td><?php echo $query1[0]['city'];?></td></tr>
-          <tr><td>Home State: </td><td><?php echo $query1[0]['state'];?></td></tr>
-          <tr><td>Home Pincode: </td><td><?php echo $query1[0]['pincode'];?></td></tr>
-          </table>
-          <br>
-          <br><b style="color:red;">Booking Details:-</b><br><br>
-          <table>
-      		<tr><td width="35%;">Booking Id: </td><td><?php echo $query1[0]['booking_id']; ?></td></tr> 
-          <tr><td width="35%;">Order Id: </td><td><?php if(!empty($query4)){ echo $query4[0]['order_id']; } ?></td></tr>
-          <tr><td>Booking Type: </td><td><?php echo $query1[0]['type']; ?></td></tr>
-      		<tr><td>Service name: </td><td><?php echo $query1[0]['services']; ?></td></tr>
-          <tr><td>Source: </td><td><?php echo $query1[0]['source']; ?></td></tr>
-          <tr><td>Number of appliances: </td><td><?php echo $query1[0]['quantity']; ?></td></tr>
-          <tr><td>Booking date: </td><td><?php echo $query1[0]['booking_date']; ?></td></tr>
-          <tr><td>Booking time slot: </td><td><?php echo $query1[0]['booking_timeslot']; ?></td></tr>
-      		<tr><td>Booking address: </td><td><?php echo $query1[0]['booking_address'];?></td></tr>
-           <tr><td>Booking City: </td><td><?php echo $query1[0]['city']; ?></td></tr>
-            <tr><td>Booking State: </td><td><?php echo $query1[0]['state']; ?></td></tr>
-          <tr><td>Booking Pincode: </td><td><?php echo $query1[0]['booking_pincode']; ?></td></tr>
-         
-          <tr><td>Booking Primary Contact No.: </td><td><?php echo $query1[0]['booking_primary_contact_no']; ?></td></tr>
-          <tr><td>Booking Alternate Contact No.: </td><td><?php echo $query1[0]['booking_alternate_contact_no']; ?></td></tr>
-          <tr><td>Booking Remarks: </td><td><?php echo $query1[0]['booking_remarks']; ?></td></tr>
-          <tr><td>Query Remarks: </td><td><?php echo $query1[0]['query_remarks']; ?></td></tr>
-          <tr><td>Booking current status: </td><td><?php echo $query1[0]['current_status']; ?></td></tr>
-          <tr><td>Booking internal status: </td><td><?php echo $query1[0]['internal_status']; ?></td></tr>
-          <tr><td>Booking closed date: </td><td><?php echo $query1[0]['closed_date']; ?></td></tr>
-          <tr><td>Potential Value: </td><td><?php echo $query1[0]['potential_value']; ?></td></tr>
-          <tr><td>Amount Due: </td><td><?php echo $query1[0]['amount_due']; ?></td></tr>
-          <tr><td>Amount Paid: </td><td><?php echo $query1[0]['amount_paid']; ?></td></tr>
-          <tr><td>Service charges: </td><td><?php echo $query1[0]['service_charge']; ?></td></tr>
-          <tr><td>Additional service charges: </td><td><?php echo $query1[0]['additional_service_charge']; ?></td></tr>
-          <tr><td>Parts cost: </td><td><?php echo $query1[0]['parts_cost']; ?></td></tr>
-          <tr><td>Rating star: </td><td><?php echo $query1[0]['rating_stars']; ?></td></tr>
-          <tr><td>Rating comments: </td><td><?php echo $query1[0]['rating_comments']; ?></td></tr>
-          <tr><td>Vendor Rating star: </td><td><?php echo $query1[0]['vendor_rating_stars']; ?></td></tr>
-          <tr><td>Vendor Rating comments: </td><td><?php echo $query1[0]['vendor_rating_comments']; ?></td></tr>
-          <tr><td>Closing Remark: </td><td><?php echo $query1[0]['closing_remarks']; ?></td></tr>
-          <tr><td>Cancellation Reason: </td><td><?php echo $query1[0]['cancellation_reason']; ?></td></tr>
-          </table>
-        </p>
+    <div class="">
+        <div class="row">
+            <div>
+                <h2 >Details:</h2>
+                <div class="col-md-12">
+                    <b >Customer Details:-</b><br>
+                    <table class="table  table-striped table-bordered">
+                        <tr>
+                            <th >Customer name: </th>
+                            <td><?php echo $booking_history[0]['name']; ?></td>
+                            <th>Customer phone number: </th>
+                            <td><?php echo $booking_history[0]['phone_number']; ?></td>
+                            <th>Alternate phone number: </th>
+                            <td><?php echo $booking_history[0]['alternate_phone_number']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Customer email address: </th>
+                            <td><?php echo $booking_history[0]['user_email']; ?></td>
+                            <th>Home address: </th>
+                            <td><?php echo $booking_history[0]['home_address'].", ".$booking_history[0]['city'];?></td>
+                            <th>State:</th>
+                            <td><?php echo $booking_history[0]['state']."- ".$booking_history[0]['pincode']  ?></td>
+                        </tr>
+                    </table>
+                    <br>
+                </div>
+                <div class="col-md-12"><b >Booking Details:-</b></div>
+                <div class="col-md-6">
+                    <table class="table  table-striped table-bordered" >
+                        <tr>
+                            <th >Booking Id: </th>
+                            <td><?php echo $booking_history[0]['booking_id']; ?></td>
+                        </tr>
+                        <tr>
+                            <th >Order Id: </th>
+                            <td><?php if(!empty($booking_history)){ echo $booking_history[0]['order_id']; } ?></td>
+                        </tr>
+                        <tr>
+                            <th>Booking Type: </th>
+                            <td><?php echo $booking_history[0]['type']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Service name: </th>
+                            <td><?php echo $booking_history[0]['services']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Source: </th>
+                            <td><?php echo $booking_history[0]['source']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Number of appliances: </th>
+                            <td><?php echo $booking_history[0]['quantity']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Booking date: </th>
+                            <td><?php echo $booking_history[0]['booking_date']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Booking time slot: </th>
+                            <td><?php echo $booking_history[0]['booking_timeslot']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Booking address: </th>
+                            <td><?php echo $booking_history[0]['booking_address'];?></td>
+                        </tr>
+                        <tr>
+                            <th>Booking City: </th>
+                            <td><?php echo $booking_history[0]['city']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Booking State: </th>
+                            <td><?php echo $booking_history[0]['state']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Booking Pincode: </th>
+                            <td><?php echo $booking_history[0]['booking_pincode']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Booking Primary Contact No.: </th>
+                            <td><?php echo $booking_history[0]['booking_primary_contact_no']; ?></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <table class="table  table-striped table-bordered">
+                        <tr>
+                            <th>Booking Alternate Contact No.: </th>
+                            <td><?php echo $booking_history[0]['booking_alternate_contact_no']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Booking Remarks: </th>
+                            <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Query Remarks: </th>
+                            <td><?php echo $booking_history[0]['query_remarks']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Booking current status: </th>
+                            <td><?php echo $booking_history[0]['current_status']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Booking internal status: </th>
+                            <td><?php echo $booking_history[0]['internal_status']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Booking closed date: </th>
+                            <td><?php echo $booking_history[0]['closed_date']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Potential Value: </th>
+                            <td><?php echo $booking_history[0]['potential_value']; ?></td>
+                        </tr>
+                        <!-- <tr><td>Amount Due: </td><td><?php echo $booking_history[0]['amount_due']; ?></td></tr>
+                            <tr><td>Amount Paid: </td><td><?php echo $booking_history[0]['amount_paid']; ?></td></tr>-->
+                        <tr>
+                            <th>Rating star: </th>
+                            <td><?php echo $booking_history[0]['rating_stars']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Rating comments: </th>
+                            <td><?php echo $booking_history[0]['rating_comments']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Vendor Rating star: </th>
+                            <td><?php echo $booking_history[0]['vendor_rating_stars']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Vendor Rating comments: </th>
+                            <td><?php echo $booking_history[0]['vendor_rating_comments']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Closing Remark: </th>
+                            <td><?php echo $booking_history[0]['closing_remarks']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Cancellation Reason: </th>
+                            <td><?php echo $booking_history[0]['cancellation_reason']; ?></td>
+                        </tr>
+                    </table>
+                </div>
+                <?php if(!empty($unit_details)) { ?>
+                <div class="col-md-12" style="margin-top:20px;" >
+                    <b >Appliance Details:-</b><br>
+                    <table class="table  table-striped table-bordered">
+                        <tr>
+                            <th>Brand</th>
+                            <th>Category</th>
+                            <th>Capacity</th>
+                            <th>Model Number</th>
+                            <th>Purchase Date</th>
+                            <th>Description</th>
+                            <th>Service Category</th>
+                            <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
+                            <th>Charges</th>
+                            <th>Partner Offer</th>
+                            <th>Discount</th>
+                            <th>Total Charges</th>
+                            <?php } else { ?>
+                            <th>Partner Offer</th>
+                            <th>Discount</th>
+                            <th>Paid Service Charges</th>
+                            <th>Paid Additional Charges</th>
+                            <th>Paid Parts Cost</th>
+                            <th>Total Amount Paid</th>
+                            <?php } ?>
+                        </tr>
+                        <tbody>
+                            <?php  foreach ( $unit_details as  $unit_detail) { ?>
+                            <?php foreach ($unit_detail['qunatity'] as $price) { ?>
+                            <tr>
+                                <td><?php echo $unit_detail['brand']?></td>
+                                <td><?php echo $unit_detail['category']?></td>
+                                <td><?php echo $unit_detail['capacity']?></td>
+                                <td><?php echo $unit_detail['model_number']?></td>
+                                <td><?php if(!empty($unit_detail['purchase_month'])) {echo $unit_detail['purchase_month']."-". $unit_detail['purchase_year'];} else { echo $unit_detail['purchase_year'];}?></td>
+                                <td><?php echo $unit_detail['description']?></td>
+                                <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
+                                <td><?php  print_r($price['price_tags']); ?></td>
+                                <td><?php  print_r($price['customer_total']); ?></td>
+                                <td><?php print_r($price['partner_net_payable']);  ?></td>
+                                <td><?php print_r($price['around_net_payable']);  ?></td>
+                                <td><?php print_r($price['customer_net_payable']);  ?></td>
+                                <?php } else {   ?>
+                                <td><?php  print_r($price['price_tags']); ?></td>
+                                <td><?php print_r($price['partner_net_payable']);  ?></td>
+                                <td><?php print_r($price['around_net_payable']);  ?></td>
+                                <td><?php  print_r($price['customer_paid_basic_charges']); ?></td>
+                                <td><?php print_r($price['customer_paid_extra_charges']);  ?></td>
+                                <td><?php print_r($price['customer_paid_parts']);  ?></td>
+                                <td><?php print_r($price['customer_paid_basic_charges'] + $price['customer_paid_extra_charges'] + $price['customer_paid_parts'] );  ?></td>
+                                <?php }?>
+                            </tr>
+                            <?php }} ?>
+                        </tbody>
+                    </table>
+                </div>
+                <?php } if(!empty($service_center)){?>
+                <div class="col-md-6">
+                    <b >Service Centre Details:</b><br>
+                    <table class="table  table-striped table-bordered">
+                        <tr>
+                            <th>Service Centre Name: </th>
+                            <td><?php if(isset($service_center[0]['service_centre_name'])){echo $service_center[0]['service_centre_name'];}?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>PoC Name: </th>
+                            <td><?php if(isset($service_center[0]['primary_contact_name'])){echo $service_center[0]['primary_contact_name'];}?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>PoC Number: </th>
+                            <td><?php if(isset($service_center[0]['primary_contact_phone_1'])){echo $service_center[0]['primary_contact_phone_1'];}?>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <?php } ?>
+            </div>
         </div>
-
-        <div style="float:left;width:40%;height:600px;">
-        <p>
-                <b style="color:red;">Appliance Details:-</b><br>
-        	<?php for($i=0; $i<$query1[0]['quantity']; $i++) {?>
-          <table>
-        	<tr><td td width="35%;">Brand<?=$i+1;?> : </td><td><?php echo $query2[$i]['appliance_brand'];?></td></tr>
-        	<tr><td>Model<?=$i+1;?> : </td><td><?php echo $query2[$i]['model_number'];?></td></tr>
-        	<tr><td>Category<?=$i+1;?> : </td><td><?php echo $query2[$i]['appliance_category'];?></td></tr>
-        	<tr><td>Capacity<?=$i+1;?> : </td><td><?php echo $query2[$i]['appliance_capacity'];?></td></tr>
-            <tr><td>Description<?=$i+1;?> : </td><td><?php echo $query1[0]['description'];?></td></tr>
-             
-              <?php for($j = 0; $j < count($query2); $j++) {?>
-                <tr><td>Selected services: </td><td><?php echo $query2[$j]['price_tags'];?></td></tr>
-                <tr><td>Total price: </td><td><?php echo $query2[$j]['total_price'];?></td></tr>
-              <?php } ?>
-              
-          </table>
-        	<br>
-        	<?php } ?>
-        </p>
-        </div>
-
-        <div style="float:right;width:40%;">
-          <p><br>
-            <b style="color:red;">Service Centre Details:</b><br>
-            <table>
-            <tr><td>Service Centre Name: </td><td><?php if(isset($query3[0]['service_centre_name'])){echo $query3[0]['service_centre_name'];}?>
-                </td>
-            </tr>
-            <tr><td>PoC Name: </td><td><?php if(isset($query3[0]['primary_contact_name'])){echo $query3[0]['primary_contact_name'];}?>
-                </td>
-            </tr>
-            <tr><td>PoC Number: </td><td><?php if(isset($query3[0]['primary_contact_phone_1'])){echo $query3[0]['primary_contact_phone_1'];}?>
-                </td>
-            </tr>
-            </table>
-          </p>
-        </div>
-
-        <div style="float:right;width:40%;">
-          <p><br>
-            <b style="color:red;">Charges Collected By:</b><br>
-            <table>
-            <tr>
-              <td>Service charges collected by: </td><td><?php echo $query1[0]['service_charge_collected_by']; ?>
-              </td>
-            </tr>
-            <tr><td>Additional Service charges collected by: </td><td><?php echo $query1[0]['additional_service_charge_collected_by']; ?>
-                </td>
-            </tr>
-            <tr><td>Parts cost collected by: </td><td><?php echo $query1[0]['parts_cost_collected_by']; ?>
-                </td>
-            </tr>
-            </table>
-          </p>
-        </div>
-
-      </div>
     </div>
-  </div>
 </div>
