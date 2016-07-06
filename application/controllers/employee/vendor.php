@@ -324,11 +324,13 @@ class vendor extends CI_Controller {
         $bcc_owner = $this->input->post('bcc_owner');
         $mail_to = $this->input->post('mail_to');
         $to = 'anuj@247around.com, nits@247around.com, sales@247around.com,' . $mail_to;
-        $cc = $this->input->post('mail_cc');
+	$cc = $this->input->post('mail_cc');
 
-        $subject = $this->input->post('subject');
-        $message = $this->input->post('mail_body');
-        $tmpFile = $_FILES['fileToUpload']['tmp_name'];
+	$subject = $this->input->post('subject');
+	//Replace new lines with line breaks for proper html formatting
+	$message = nl2br($this->input->post('mail_body'));
+
+	$tmpFile = $_FILES['fileToUpload']['tmp_name'];
         $fileName = $_FILES['fileToUpload']['name'];
         move_uploaded_file($tmpFile, "/tmp/$fileName");
 
@@ -799,9 +801,9 @@ class vendor extends CI_Controller {
 
     /**
      * @desc: sends mail to specific vendor
-     * 
+     *
      * Mail will be sent to the owner and POC1
-     * 
+     *
      * @param: void
      * @return: void
      */
