@@ -715,7 +715,7 @@ class Booking extends CI_Controller {
      *  @param : booking id
      *  @return : user details and booking history to view
      */
-    function get_complete_booking_form($booking_id) {
+    function complete_booking_form($booking_id) {
 
 	    $data['booking_id'] = $booking_id;
 
@@ -1819,54 +1819,6 @@ class Booking extends CI_Controller {
 	$data['Bookings'] = $this->booking_model->service_center_sorted_booking($config['per_page'], $offset);
 	$this->load->view('employee/header');
 	$this->load->view('employee/booking', $data);
-    }
-
-    /**
-     *  @desc : This function is to select completed bookings for editing
-     *  @param : booking id
-     *  @return : user's and booking details to view
-     */
-    function get_edit_completed_booking_form($booking_id) {
-	$getbooking = $this->booking_model->getbooking($booking_id);
-
-	$query2 = $this->booking_model->get_unit_details($booking_id);
-	if ($getbooking) {
-	    $employee_id = $this->session->userdata('employee_id');
-
-	    $data = $getbooking;
-
-	    $query = $this->booking_model->booking_history_by_booking_id($booking_id);
-
-	    $data1 = $query;
-
-	    $this->load->view('employee/header');
-	    $this->load->view('employee/editcompletedbooking', array('data' => $data,
-		'data1' => $data1,
-		'query2' => $query2));
-	} else {
-	    echo "This Id doesn't Available";
-	}
-    }
-
-    /**
-     *  @desc : This function is to edit the completed booking
-     *  @param : booking id
-     *  @return : edit the completed booking and load view
-     */
-    function process_edit_completed_booking_form($booking_id) {
-	$data['service_charge'] = $this->input->post('service_charge');
-	$data['service_charge_collected_by'] = $this->input->post('service_charge_collected_by');
-	$data['additional_service_charge'] = $this->input->post('additional_service_charge');
-	$data['additional_service_charge_collected_by'] = $this->input->post('additional_service_charge_collected_by');
-	$data['parts_cost'] = $this->input->post('parts_cost');
-	$data['parts_cost_collected_by'] = $this->input->post('parts_cost_collected_by');
-	$data['closing_remarks'] = $this->input->post('closing_remarks');
-	$data['booking_remarks'] = $this->input->post('booking_remarks');
-	$data['amount_paid'] = $data['service_charge'] + $data['parts_cost'] + $data['additional_service_charge'];
-
-	$insertData = $this->booking_model->edit_completed_booking($booking_id, $data);
-
-	redirect(base_url() . 'employee/booking/viewcompletedbooking', 'refresh');
     }
 
     /**

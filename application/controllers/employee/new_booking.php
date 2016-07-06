@@ -449,11 +449,11 @@ class New_booking extends CI_Controller {
     } 
     
     /**
-     * @desc: This is used to complete booking by admin
-     * @param: String Array
+     * @desc: This is used to complete booking by admin. It gets booking id and status as parameter. if status is 0 then redirect pending booking other wise redirect completed booking page 
+     * @param: String Array, string
      * @return :void
      */
-    function process_complete_booking($booking_id){
+    function process_complete_booking($booking_id, $status){
         // customer paid basic charge is comming in array
        // Array ( [100] =>  500 , [102] =>  300 )  
        $customer_basic_charge = $this->input->post('customer_basic_charge');
@@ -485,7 +485,13 @@ class New_booking extends CI_Controller {
        $booking['internal_status'] = $internal_status;
        // rate function is used to update booking details table
        $this->booking_model->rate($booking_id, $booking);
-       redirect(base_url() . 'employee/booking/view');
+       if($status ="0"){
+
+          redirect(base_url() . 'employee/booking/view');
+       } else {
+          redirect(base_url() . 'employee/booking/viewcompletedbooking');
+       }
+       
     }
 
      /**

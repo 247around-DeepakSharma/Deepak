@@ -3,7 +3,8 @@
       <div class="panel panel-info" style="margin-top:20px;">
          <div class="panel-heading">Complete Booking</div>
          <div class="panel-body">
-            <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url()?>employee/new_booking/process_complete_booking/<?php echo $booking_id;?>"  method="POST" enctype="multipart/form-data">
+         <?php if($booking_history[0]['current_status'] =="Completed"){ $status = "1"; } else { $status = "0"; }?>
+            <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url()?>employee/new_booking/process_complete_booking/<?php echo $booking_id;?>/<?php echo $status; ?>"  method="POST" enctype="multipart/form-data">
                <div class="row">
                   <div class="col-md-12">
                      <div class="col-md-6">
@@ -97,13 +98,13 @@
                                  <?php } ?>
                               </tr>
                               <tbody>
-                                 <?php foreach ($unit_details['qunatity'] as $key => $price) { ?>
+                                 <?php $paid_basic_charges = 0; $paid_additional_charges = 0; $paid_parts_cost=0;foreach ($unit_details['qunatity'] as $key => $price) { ?>
                                  <tr>
                                     <td><?php echo $price['price_tags'] ?></td>
                                     <td><?php echo $price['customer_net_payable']; ?></td>
-                                    <td>  <input  type="text" class="form-control cost"  name="<?php echo "customer_basic_charge[". $price['unit_id'] . "]"?>"  value = "0"></td>
-                                    <td>  <input  type="text" class="form-control cost"  name="<?php echo "additional_charge[". $price['unit_id'] . "]"?>"  value = "0"></td>
-                                    <td>  <input  type="text" class="form-control cost"  name="<?php echo "parts_cost[". $price['unit_id'] . "]"?>"  value = "0"></td>
+                                    <td>  <input  type="text" class="form-control cost"  name="<?php echo "customer_basic_charge[". $price['unit_id'] . "]"?>"  value = "<?php $paid_basic_charges += $price['customer_paid_basic_charges']; echo $price['customer_paid_basic_charges']; ?>"></td>
+                                    <td>  <input  type="text" class="form-control cost"  name="<?php echo "additional_charge[". $price['unit_id'] . "]"?>"  value = "<?php $paid_additional_charges += $price['customer_paid_extra_charges']; echo  $price['customer_paid_extra_charges']; ?>"></td>
+                                    <td>  <input  type="text" class="form-control cost"  name="<?php echo "parts_cost[". $price['unit_id'] . "]"?>"  value = "<?php $paid_parts_cost += $price['customer_paid_extra_charges']; echo $price['customer_paid_extra_charges'];?>"></td>
                                     <td>
                                        <div class="row">
                                           <div class="col-md-12">
@@ -112,7 +113,7 @@
                                                 <div class="col-md-10">
                                                    <?php foreach($internal_status as $status){?>
                                                    <div class="radio">
-                                                      <label><input type="radio"  name="internal_status" value="<?php  echo $status->status;?>" required><?php  echo $status->status;?></label>
+                                                      <label><input type="radio" <?php if($booking_history[0]['internal_status'] = $status->status){ echo 'checked'; } ?> name="internal_status" value="<?php  echo $status->status;?>" required><?php  echo $status->status;?></label>
                                                    </div>
                                                    <?php } ?> 
                                                 </div>
@@ -140,7 +141,7 @@
                         <div class="col-md-4">
                            <div class="input-group">
                               <div class="input-group-addon">Rs.</div>
-                              <input  type="text" class="form-control"  name="grand_total_price" id="grand_total_price" value="0" placeholder="Total Price" readonly>
+                              <input  type="text" class="form-control"  name="grand_total_price" id="grand_total_price" value="<?php echo $paid_basic_charges + $paid_additional_charges + $paid_parts_cost; ?>" placeholder="Total Price" readonly>
                            </div>
                         </div>
                      </div>
@@ -153,35 +154,35 @@
                         <div class="col-md-4">
                            <Select type="text" class="form-control"  name="rating_stars" value="">
                               <option>Select</option>
-                              <option>0</option>
-                              <option>1</option>
-                              <option>2</option>
-                              <option>3</option>
-                              <option>4</option>
-                              <option>5</option>
+                              <option <?php if($booking_history[0]['rating_stars'] =='0'){ echo "selected"; } ?>>0</option>
+                              <option <?php if($booking_history[0]['rating_stars'] =='1'){ echo "selected"; } ?>>1</option>
+                              <option <?php if($booking_history[0]['rating_stars'] =='2'){ echo "selected"; } ?>>2</option>
+                              <option <?php if($booking_history[0]['rating_stars'] =='3'){ echo "selected"; } ?>>3</option>
+                              <option <?php if($booking_history[0]['rating_stars'] =='4'){ echo "selected"; } ?>>4</option>
+                              <option <?php if($booking_history[0]['rating_stars'] =='5'){ echo "selected"; } ?>>5</option>
                            </Select>
                         </div>
                         <label for="rating_star" class="col-md-2">Vendor Star Rating</label>
                         <div class="col-md-4" >
                            <Select type="text" class="form-control"  name="vendor_rating_stars" value="">
                               <option>Select</option>
-                              <option>0</option>
-                              <option>1</option>
-                              <option>2</option>
-                              <option>3</option>
-                              <option>4</option>
-                              <option>5</option>
+                              <option <?php if($booking_history[0]['vendor_rating_stars'] =='0'){ echo "selected"; } ?>>0</option>
+                              <option <?php if($booking_history[0]['vendor_rating_stars'] =='1'){ echo "selected"; } ?>>1</option>
+                              <option <?php if($booking_history[0]['vendor_rating_stars'] =='2'){ echo "selected"; } ?>>2</option>
+                              <option <?php if($booking_history[0]['vendor_rating_stars'] =='3'){ echo "selected"; } ?>>3</option>
+                              <option <?php if($booking_history[0]['vendor_rating_stars'] =='4'){ echo "selected"; } ?>>4</option>
+                              <option <?php if($booking_history[0]['vendor_rating_stars'] =='5'){ echo "selected"; } ?>>5</option>
                            </Select>
                         </div>
                      </div>
                      <div class="form-group">
                         <label for="remark" class="col-md-2">Rating Comment</label>
                         <div class="col-md-4">
-                           <textarea class="form-control" rows="5" name="rating_comments"></textarea>
+                           <textarea class="form-control" rows="5" name="rating_comments"><?php echo $booking_history[0]['rating_comments']; ?></textarea>
                         </div>
                         <label for="remark" class="col-md-2">Vendor Rating Comment</label>
                         <div class="col-md-4" >
-                           <textarea class="form-control"  rows="5" name="vendor_rating_comments"></textarea>
+                           <textarea class="form-control"  rows="5" name="vendor_rating_comments"><?php echo $booking_history[0]['vendor_rating_comments']; ?></textarea>
                         </div>
                      </div>
                   </div>
