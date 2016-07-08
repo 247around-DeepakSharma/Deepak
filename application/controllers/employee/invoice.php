@@ -235,8 +235,8 @@ class Invoice extends CI_Controller {
     	//$vendor_id="1"; $date_ragnge="2016/05/01-2016/05/06";
     	$data = $this->invoices_model->generate_vendor_invoices($vendor_id, $date_ragnge);
 
-    	//$this->generate_cash_invoices_for_vendors($data['invoice1']);
-    	$this->generate_foc_invoices_for_vendors($data['invoice2']);
+    	$this->generate_cash_invoices_for_vendors($data['invoice1']);
+    	//$this->generate_foc_invoices_for_vendors($data['invoice2']);
 
     	$this->load->view('employee/test', $data);
 
@@ -259,8 +259,10 @@ class Invoice extends CI_Controller {
 
     		$invoices = $data[$i];
     		$excel_data = array();
+    		
+    		$unique_booking = array_unique(array_map(function ($i) { return $i['booking_id']; }, $invoices));
             
-    		$count = count($invoices);
+    		$count = count($unique_booking);
 
     		log_message('info', __FUNCTION__ . '=> Start Date: ' . $invoices[0]['start_date'] . ', End Date: ' . $invoices[0]['end_date']);
 	         //echo $start_date, $end_date; 
@@ -442,10 +444,10 @@ class Invoice extends CI_Controller {
     	}
 
     	//Delete XLS files now
-	    foreach ($file_names as $file_name)
+	    /*foreach ($file_names as $file_name)
 	        exec("rm -rf " . escapeshellarg($file_name));
 
-	    exit(0);
+	    exit(0);*/
     }
 
     function generate_foc_invoices_for_vendors($data){
@@ -481,8 +483,10 @@ class Invoice extends CI_Controller {
              $invoices = $data[$i];
              
     		 $excel_data = array();
+
+    		 $unique_booking = array_unique(array_map(function ($k) { return $k['booking_id']; }, $invoices));
             
-    		 $count = count($invoices);
+    		 $count = count($unique_booking);
 
     		 log_message('info', __FUNCTION__ . '=> Start Date: ' . $invoices[0]['start_date'] . ', End Date: ' . $invoices[0]['end_date']);
 	         //echo $start_date, $end_date; 
@@ -711,6 +715,38 @@ class Invoice extends CI_Controller {
 
 	$this->load->view('employee/header');
 	$this->load->view('employee/view_transactions', $invoice);
+    }
+
+    function getpartner_invoices($partner_id =""){
+    	$data = $this->invoices_model->getpartner_invoices($partner_id);
+    	$this->create_partner_invoices_details($data['invoice']);
+    	
+       
+    }
+
+    function create_partner_invoices_details($data){
+    	for($i=0; $i< count($data); $i++){
+
+    		foreach ($data[$i] as $key => $value) {
+
+    		    $getsource = substr($value['booking_id'], 0, 2);
+    		    $invoice_id = $getsource.date('dmY');
+    		    if($value['price_tags'] == "Wall Mount Stand"){
+
+    		    	$data[$i][$key]['remarks'] = "Completed TV With Stand";
+
+    		    } else {
+
+    		    	$data[$i][$key]['remarks'] = "Completed	Installation & Demo";
+    		    }
+    		    print_r($invoice_id);
+    		    echo '<br/><br/>';
+    	    }
+
+    	}
+    
+    	print_r($data);
+
     }
 
 }

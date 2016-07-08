@@ -158,6 +158,9 @@ class New_booking_model extends CI_Model {
             $unit_details[0]['around_net_payable'] =0;
             $unit_details[0]['tax_rate'] = 0;
             $data['customer_net_payable'] = 0;
+            $data['partner_paid_basic_charges'] = 0;
+            $data['around_paid_basic_charges'] = 0;
+            
 
             // Update price in unit table
             $this->update_price_in_unit_details($data, $unit_details);

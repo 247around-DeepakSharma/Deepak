@@ -205,9 +205,9 @@ class invoices_model extends CI_Model {
         
         } 
         if($date_ragnge !=""){
-            $custom_dtae = explode("-", $date_ragnge);
-            $from_date = $custom_dtae[0];
-            $to_date = $custom_dtae[1];
+            $custom_date = explode("-", $date_ragnge);
+            $from_date = $custom_date[0];
+            $to_date = $custom_date[1];
             $where_vendor_id .= " AND closed_date >= '$from_date' AND closed_date < '$to_date' ";
 
         }  else {
@@ -246,8 +246,8 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
                 }
 
                 $condition = "  From booking_details, booking_unit_details, services, service_centres
-                          WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id AND `services`.id = `booking_details`.service_id  AND `booking_details`.assigned_vendor_id = `service_centres`.id AND current_status = 'Completed' AND assigned_vendor_id = $value[vendor_id] $where ";
-               
+                          WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id AND `services`.id = `booking_details`.service_id  AND `booking_details`.assigned_vendor_id = `service_centres`.id AND current_status = 'Completed' AND assigned_vendor_id = $value[vendor_id] AND booking_unit_details.booking_status = 'Completed' $where ";
+                
                  $sql1 = "SELECT  `booking_details`.booking_id, `booking_details`.city, `booking_details`.internal_status, `booking_details`.closed_date, vendor_rating_stars, `booking_unit_details`.price_tags, `booking_unit_details`.vendor_extra_charges, `booking_unit_details`.vendor_st_extra_charges, customer_paid_extra_charges as additional_charges, (customer_paid_basic_charges + around_net_payable ) as service_charges, customer_paid_parts as parts_cost, `services`.services, vendor_to_around, customer_net_payable, partner_net_payable,around_to_vendor, (customer_paid_basic_charges + customer_paid_extra_charges + customer_paid_parts) as amount_paid ,`service_centres`.name, `service_centres`.id, `service_centres`.sc_code, `service_centres`.address, `service_centres`.beneficiary_name, `service_centres`.bank_account, `service_centres`.bank_name, `service_centres`.ifsc_code,  `service_centres`.owner_email,  `service_centres`.primary_contact_email, `booking_unit_details`.  product_or_services, `booking_unit_details`.around_net_payable,  (customer_net_payable + partner_net_payable + around_net_payable) as total_booking_charge, $date
 
 
@@ -277,12 +277,7 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 
                      (SELECT SUM(vendor_to_around) $condition ) AS amount_to_be_pay
 
-
-
-
-                    $condition ";
-                 
-                    
+                    $condition ";   
 
                  $query1 = $this->db->query($sql1);
                  $result1 = $query1->result_array();
@@ -299,6 +294,79 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
          return $invoice;
     }
 
+    function getpartner_invoices($partner_id = "", $date_ragnge="" ){
+
+        $where_partner_id  = "";
+        
+        if($partner_id !=""){
+           
+            $where_partner_id = " AND partner_id = '$partner_id'  ";
+        
+        } 
+        if($date_ragnge !=""){
+            $custom_date = explode("-", $date_ragnge);
+            $from_date = $custom_date[0];
+            $to_date = $custom_date[1];
+            $where_partner_id .= " AND closed_date >= '$from_date' AND closed_date < '$to_date' ";
+
+        }  else {
+
+            $where_partner_id .= "  AND  booking_details.closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
+AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
+        }
+
+        $sql = "SELECT  count('booking_id') as booking_count, partner_id 
+                FROM booking_details
+                WHERE current_status = 'Completed' AND partner_id is not null $where_partner_id  Group BY partner_id
+               ";
+       
+        $query = $this->db->query($sql);
+        $result = $query->result_array(); 
+
+        $array = array();
+        $where = "";
+            foreach ($result as $key => $value) {
+
+                if( $date_ragnge != ""){
+                     $where .= "  AND booking_details.closed_date >= '$from_date' AND booking_details.closed_date < '$to_date' ";
+                     $date = "  '$from_date' as start_date,  '$to_date'  as end_date,  ";
+        
+                } else {
+                     $where .=" AND  booking_details.closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
+AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
+                      $date = "  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') as start_date,  DATE_FORMAT(NOW() ,'%Y-%m-01') as end_date,  ";
+                }
+
+
+         $condition = "  From booking_details, booking_unit_details, services, partners
+                          WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id AND `services`.id = `booking_details`.service_id  AND current_status = 'Completed' AND booking_details.partner_id = $value[partner_id] AND booking_unit_details.booking_status = 'Completed' AND booking_unit_details.partner_paid_basic_charges > 0 AND booking_unit_details.partner_id = partners.id $where ";
+
+        $sql1 = "SELECT `booking_details`.service_id, `booking_details`.booking_id, `booking_details`.order_id, `booking_details`.reference_date,  `booking_details`.partner_id, `booking_details`.city, `booking_details`.closed_date, price_tags, `partners`.company_name, `partners`.company_address, $date
+ 
+                     (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN ((partner_net_payable + customer_paid_basic_charges) * (tax_rate/100) ) ELSE 0 END) as vat, 
+
+                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN ((partner_net_payable + customer_paid_basic_charges) * (tax_rate/100)) ELSE 0 END) as st, 
+
+                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN ((partner_net_payable + customer_paid_basic_charges) - ((partner_net_payable + customer_paid_basic_charges) * (tax_rate/100))) ELSE 0 END) as installation_charge, 
+
+                     (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN  ((partner_net_payable + customer_paid_basic_charges) - ((partner_net_payable + customer_paid_basic_charges) * (tax_rate/100))) ELSE 0 END) as stand
+
+                      $condition ";
+
+            $query1 = $this->db->query($sql1);
+                 $result1 = $query1->result_array();
+                //print_r($result1);
+                 array_push($array, $result1);
+                 
+            }
+           
+            $invoice['invoice'] = $array;
+
+            return $invoice;
+
+    }
+
    
 
 }
+
