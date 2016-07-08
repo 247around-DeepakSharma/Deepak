@@ -69,7 +69,7 @@ class New_booking extends CI_Controller {
             //$this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
         }
 
-        redirect(base_url() . 'employee/booking/view');
+      // redirect(base_url() . 'employee/booking/view');
     }
 
     /**
@@ -141,6 +141,8 @@ class New_booking extends CI_Controller {
         $booking['quantity'] = count($appliance_brand);
 
         $partner_id = $this->partner_model->get_all_partner_source("", $booking['source']);
+
+        $partner_net_payable = $this->input->post('partner_paid_basic_charges');
         // this case for partner
         if(!empty($partner_id)){
             $booking['partner_id'] = $partner_id[0]['partner_id'];
@@ -212,6 +214,8 @@ class New_booking extends CI_Controller {
             // get purchase months from months array for only specific key such as $months[0]. 
             $services_details['purchase_month'] = $months[$key];
             $services_details['service_id'] = $booking['service_id'];
+            
+
             if(!empty($partner_id)){
                 
                $services_details['partner_id'] = $booking['partner_id'];
@@ -231,11 +235,14 @@ class New_booking extends CI_Controller {
                 $prices = explode("_", $values);  // split string.. 
                 $services_details['id'] = $prices[0]; // This is id of service_centre_charges table. 
                 // discount for appliances. Array ( [BPL] => Array ( [100] => Array ( [0] => 200 ) [102] => Array ( [0] => 100 ) [103] => Array ( [0] => 0 ) ) 
-                $services_details['around_net_payable'] = $discount[$value][$services_details['id']][0];  
                
-                $services_details['around_paid_basic_charges'] = $services_details['around_net_payable'];
-                if($booking_id = ""){
+               
+                $services_details['around_paid_basic_charges'] = $discount[$value][$services_details['id']][0]; 
+                $services_details['partner_paid_basic_charges'] = $partner_net_payable[$value][$services_details['id']][0];
 
+
+                if($booking_id == ""){
+                   
                     $result = $this->new_booking_model->insert_data_in_booking_unit_details($services_details);
 
                     if ($booking['current_status'] != 'FollowUp') {
@@ -248,7 +255,7 @@ class New_booking extends CI_Controller {
                 }
 
                 } else {
-
+ 
                     $price_tag = $this->new_booking_model->update_booking($services_details);
                     array_push($price_tags, $price_tag);
                 }
@@ -258,7 +265,7 @@ class New_booking extends CI_Controller {
 
         if(!empty($price_tags)){
             
-           $this->new_booking_model->remove_unit_details($booking['booking_id'], $price_tags);
+           $this->new_booking_model->check_price_tags_status($booking['booking_id'], $price_tags);
 
         }
 
@@ -461,7 +468,9 @@ class New_booking extends CI_Controller {
        $additional_charge =  $this->input->post('additional_charge');
         // Parts cost is comming in array
        $parts_cost =  $this->input->post('parts_cost');
-       $internal_status = $this->input->post('internal_status');
+       $booking_status = $this->input->post('booking_status');
+       $total_amount_paid =  $this->input->post('grand_total_price');
+       $internal_status = "Unproductive";
        
        foreach ($customer_basic_charge as $unit_id => $value) {
         // variable $unit_id  is existing id in booking unit details table of given booking id 
@@ -470,7 +479,12 @@ class New_booking extends CI_Controller {
         $data['customer_paid_basic_charges'] = $value;
         $data['customer_paid_extra_charges'] = $additional_charge[$unit_id];
         $data['customer_paid_parts'] = $parts_cost[$unit_id];
-        $data['internal_status'] = $internal_status;
+        $data['booking_status'] = $booking_status[$unit_id];
+
+        if($data['booking_status'] == "Completed"){
+           $internal_status = "Completed";
+        }
+
         // update price in the booking unit details page
         $this->new_booking_model->update_unit_details($data);
           
@@ -481,10 +495,12 @@ class New_booking extends CI_Controller {
        $booking['vendor_rating_comments'] =  $this->input->post('vendor_rating_comments');
        $booking['rating_comments'] = $this->input->post('rating_comments');
        $booking['closed_date'] = date('Y-m-d h:i:s');
+       $booking['amount_paid'] =  $total_amount_paid;
        $booking['current_status'] = "Completed";
        $booking['internal_status'] = $internal_status;
-       // rate function is used to update booking details table
-       $this->booking_model->rate($booking_id, $booking);
+       $booking['booking_id'] =  $booking_id;
+       // this function is used to update booking details table
+       $this->new_booking_model->update_booking_details($booking);
        if($status ="0"){
 
           redirect(base_url() . 'employee/booking/view');

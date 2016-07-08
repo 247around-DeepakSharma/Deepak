@@ -368,11 +368,14 @@ function enable_discount(div_id){
   if ($("#checkbox_"+div_no[1]+"_"+div_no[2]).is(':checked')){
 
      $("#discount_"+div_no[1]+"_"+div_no[2]).attr("readonly", false);
+     $("#partner_paid_basic_charges_"+div_no[1]+"_"+div_no[2]).attr("readonly", false);
   }
   else{
     //$("#discount_"+div_no[1]+"_"+div_no[2]).val(0);
 
      $("#discount_"+div_no[1]+"_"+div_no[2]).attr("readonly", true);
+    
+      $("#partner_paid_basic_charges_"+div_no[1]+"_"+div_no[2]).attr("readonly", true);
   }
 
   final_price();

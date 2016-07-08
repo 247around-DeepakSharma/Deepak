@@ -92,35 +92,37 @@
                                  <th>Amount Due</th>
                                  <th>Customer Basic Charge</th>
                                  <th>Additional Charge</th>
-                                 <th>Parts Cost</th>
-                                 <?php if (strstr($booking_id, "SS") == TRUE) { ?>
+                                 <th>Parts Cost</th> 
                                  <th style="width:265px;">Status</th>
-                                 <?php } ?>
+                                
                               </tr>
                               <tbody>
                                  <?php $paid_basic_charges = 0; $paid_additional_charges = 0; $paid_parts_cost=0;foreach ($unit_details['qunatity'] as $key => $price) { ?>
                                  <tr>
                                     <td><?php echo $price['price_tags'] ?></td>
                                     <td><?php echo $price['customer_net_payable']; ?></td>
-                                    <td>  <input  type="text" class="form-control cost"  name="<?php echo "customer_basic_charge[". $price['unit_id'] . "]"?>"  value = "<?php $paid_basic_charges += $price['customer_paid_basic_charges']; echo $price['customer_paid_basic_charges']; ?>"></td>
-                                    <td>  <input  type="text" class="form-control cost"  name="<?php echo "additional_charge[". $price['unit_id'] . "]"?>"  value = "<?php $paid_additional_charges += $price['customer_paid_extra_charges']; echo  $price['customer_paid_extra_charges']; ?>"></td>
-                                    <td>  <input  type="text" class="form-control cost"  name="<?php echo "parts_cost[". $price['unit_id'] . "]"?>"  value = "<?php $paid_parts_cost += $price['customer_paid_extra_charges']; echo $price['customer_paid_extra_charges'];?>"></td>
+                                    <td>  <input  type="text" class="form-control cost"  name="<?php echo "customer_basic_charge[". $price['unit_id'] . "]"?>"  value = "<?php $paid_basic_charges += $price['customer_paid_basic_charges']; if(!empty($price['customer_paid_basic_charges'])){ echo $price['customer_paid_basic_charges']; } else { echo "0"; } ?>">
+                                    </td>
+                                    <td>  <input  type="text" class="form-control cost"  name="<?php echo "additional_charge[". $price['unit_id'] . "]"?>"  value = "<?php $paid_additional_charges += $price['customer_paid_extra_charges']; if(!empty($price['customer_paid_extra_charges'])){ echo  $price['customer_paid_extra_charges']; } else { echo "0"; } ?>">
+
+                                    </td>
+                                    <td>  <input  type="text" class="form-control cost"  name="<?php echo "parts_cost[". $price['unit_id'] . "]"?>"  value = "<?php $paid_parts_cost += $price['customer_paid_extra_charges']; if(!empty($price['customer_paid_extra_charges'])) { echo $price['customer_paid_extra_charges']; } else { echo "0"; }?>"></td>
                                     <td>
                                        <div class="row">
                                           <div class="col-md-12">
-                                             <?php if (strstr($booking_id, "SS") == TRUE) { ?>
+                                             
                                              <div class="form-group ">
                                                 <div class="col-md-10">
-                                                   <?php foreach($internal_status as $status){?>
+                                                   
                                                    <div class="radio">
-                                                      <label><input type="radio" <?php if($booking_history[0]['internal_status'] = $status->status){ echo 'checked'; } ?> name="internal_status" value="<?php  echo $status->status;?>" required><?php  echo $status->status;?></label>
+                                                      <label><input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "]"?>"  value="Completed" <?php if($price['booking_status'] =="Completed"){ echo "checked"; } ?> required>Completed<br/>
+                                                      <input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "]"?>"  value="Not Completed" <?php if($price['booking_status'] =="Not Completed"){ echo "checked"; } ?>  required>Not Completed
+                                                      </label>
                                                    </div>
-                                                   <?php } ?> 
+                                                 
                                                 </div>
                                              </div>
-                                             <?php } else { ?>
-                                             <input type ="hidden" name ="internal_status" value = "Completed" >
-                                             <?php } ?>
+                                            
                                           </div>
                                        </div>
                                     </td>

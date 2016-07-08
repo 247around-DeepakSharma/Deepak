@@ -730,103 +730,6 @@ class Booking extends CI_Controller {
 	    $this->load->view('employee/completebooking',$data);
     }
 
-    /**
-     *  @desc : This function is to complete the booking
-     *  @param : booking id
-     *  @return : completes the booking and load view
-     */
-    function process_complete_booking_form($booking_id) {
-	$data['closing_remarks'] = $this->input->post('closing_remarks');
-	$data['service_charge'] = $this->input->post('service_charge');
-	$data['service_charge_collected_by'] = $this->input->post('service_charge_collected_by');
-	$data['additional_service_charge'] = $this->input->post('additional_service_charge');
-	$data['additional_service_charge_collected_by'] = $this->input->post('additional_service_charge_collected_by');
-	$data['parts_cost'] = $this->input->post('parts_cost');
-	$data['parts_cost_collected_by'] = $this->input->post('parts_cost_collected_by');
-	$data['amount_paid'] = $data['service_charge'] + $data['parts_cost'] + $data['additional_service_charge'];
-	$data['internal_status'] = $this->input->post('internal_status');
-	$data['rating_star'] = $this->input->post('rating_star');
-	$data['rating_comments'] = $this->input->post('rating_comments');
-	$data['vendor_rating_stars'] = $this->input->post('vendor_rating_star');
-	$data['vendor_rating_comments'] = $this->input->post('vendor_rating_comments');
-
-	if ($data['rating_star'] === "Select" && $data['rating_comments'] == '') {
-	    $data['rating_star'] = "";
-	    $data['rating_comments'] = "";
-	}
-	$data['closed_date'] = date("Y-m-d h:i:s");
-
-	$this->booking_model->complete_booking($booking_id, $data);
-
-	//Save this booking id in booking_invoices_mapping table as well now
-	$this->invoices_model->insert_booking_invoice_mapping(array('booking_id' => $booking_id));
-
-	//Is this SD booking?
-	if (strpos($booking_id, "SS") !== FALSE) {
-	    $is_sd = TRUE;
-	} else {
-	    $is_sd = FALSE;
-	}
-
-	//Update SD bookings if required
-	if ($is_sd) {
-	    if ($this->booking_model->check_sd_lead_exists_by_booking_id($booking_id) === TRUE) {
-		$sd_where = array("CRM_Remarks_SR_No" => $booking_id);
-		$sd_data = array(
-		    "Status_by_247around" => "Completed",
-		    "Remarks_by_247around" => $data['internal_status'],
-		    "Rating_Stars" => $data['rating_star'],
-		    "update_date" => $data['closed_date']
-		);
-		$this->booking_model->update_sd_lead($sd_where, $sd_data);
-	    } else {
-		//Update Partner leads table
-		if (Partner_Integ_Complete) {
-		    $partner_where = array("247aroundBookingID" => $booking_id);
-		    $partner_data = array(
-			"247aroundBookingStatus" => "Completed",
-			"247aroundBookingRemarks" => $data['internal_status'],
-			"update_date" => $data['closed_date']
-		    );
-		    $this->partner_model->update_partner_lead($partner_where, $partner_data);
-
-		    //Call relevant partner API
-		    //TODO: make it dynamic, use service object model (interfaces)
-		    $partner_cb_data = array_merge($partner_where, $partner_data);
-		    $this->partner_sd_cb->update_status_complete_booking($partner_cb_data);
-		}
-	    }
-	}
-
-	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id, "join");
-
-	log_message('info', 'Booking Status Change- Booking id: ' . $booking_id . " Completed By " . $this->session->userdata('employee_id'));
-
-	$from = "booking@247around.com";
-	$to = "anuj@247around.com, nits@247around.com";
-	$cc = "";
-	$bcc = "";
-	$subject = 'Booking Completion-AROUND';
-	$message = "Booking Completion.<br>Customer name: " . $query1[0]['name'] . "<br>Customer phone number: " . $query1[0]['phone_number'] . "<br>Customer email: " . $query1[0]['user_email'] . "<br>Booking Id is: " . $query1[0]['booking_id'] . "<br>Your service name is:" . $query1[0]['services'] . "<br>Booking date: " . $query1[0]['booking_date'] . "<br>Booking completion date: " . $data['closed_date'] . "<br>Amount paid for the booking: " . $data['amount_paid'] . "<br>Your booking completion remark is: " . $data['closing_remarks'] . "<br>Vendor name:" . $query1[0]['vendor_name'] . "<br>Vendor city:" . $query1[0]['district'] . "<br>Thanks!!";
-	$attachment ="";
-
-	$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
-	//------End of sending email--------//
-	//------Send SMS on Completion of booking-----//
-	if ($is_sd == FALSE) {
-		$sms['tag'] = "complete_booking";
-		$sms['smsData']['service'] = $query1[0]['services'];    	
-    	$sms['phone_no'] = $query1[0]['phone_number'];
-    	$sms['booking_id'] =  $booking['booking_id']; 
-
-    	$this->notify->send_sms($sms);
-	}
-
-	//-------End of send SMS-----------//
-
-
-	redirect(base_url() . 'employee/booking/view', 'refresh');
-    }
 
     /**
      *  @desc : This function is to select to booking to be canceled
@@ -1162,9 +1065,9 @@ class Booking extends CI_Controller {
                 $service_category = $prices['service_category'];
 
                 $html .="<tr><td>" . $prices['service_category'] . "</td>";
-                $html .= "<td>" . intval($prices['customer_total']) . "</td>";
-                $html .= "<td>" . intval($prices['partner_net_payable']) . "</td>";
-                $html .= "<td>" . intval($prices['customer_net_payable']) . "</td>";
+                $html .= "<td>" . $prices['customer_total'] . "</td>";
+                $html .= "<td><input  type='text' class='form-control discount' name= 'partner_paid_basic_charges[$brand][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '".$prices['partner_net_payable']."' placeholder='Enter discount' readonly/></td>"; 
+                $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
                 $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '0' placeholder='Enter discount' readonly></td>";
                 $html .= "<td><input class='price_checkbox'";
                 if ($prices['service_category'] == 'Repair') {

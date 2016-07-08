@@ -57,7 +57,7 @@ class New_booking_model extends CI_Model {
         $result = array_merge($services_details, $data[0]);
 
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table 
-        $result['customer_net_payable'] = $result['customer_total'] - $result['partner_net_payable'] - $result['around_net_payable']; 
+        $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges']; 
         log_message ('info', __METHOD__ . "booking_unit_details data". print_r($result));
         $this->db->insert('booking_unit_details', $result);
 
@@ -126,7 +126,7 @@ class New_booking_model extends CI_Model {
 
         foreach ($appliance as $key => $value) {
             // get data from booking unit details table on the basis of appliance id
-            $this->db->select('id as unit_id, price_tags, customer_total, around_net_payable, partner_net_payable, customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts');
+            $this->db->select('id as unit_id, price_tags, customer_total, around_net_payable, partner_net_payable, customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts, booking_status, partner_paid_basic_charges');
             $this->db->where('appliance_id', $value['appliance_id']);
             $query2 = $this->db->get('booking_unit_details');
 
@@ -142,44 +142,27 @@ class New_booking_model extends CI_Model {
      */
     function update_unit_details($data){
         // get booking unit data on the basis of id
-        $this->db->select('around_net_payable, partner_net_payable, tax_rate, price_tags');
+        $this->db->select('around_net_payable, partner_net_payable, tax_rate, price_tags, partner_paid_basic_charges, around_paid_basic_charges');
         $this->db->where('id', $data['id']);
         $query = $this->db->get('booking_unit_details');
         $unit_details = $query->result_array();
-       // check price tage is Wall Mount Stand
-       if($unit_details[0]['price_tags'] == "Wall Mount Stand"){
-            // Check coming internal status is 'Completed TV Without Stand' or 'Completed With Demo'
-            // In this case all price in unit table is zero
-            if($data['internal_status'] == "Completed TV Without Stand" || $data['internal_status'] = "Completed With Demo"){
 
-                $data['customer_total'] = 0;
-                $unit_details[0]['partner_net_payable'] = 0;
-                $unit_details[0]['around_net_payable'] =0;
-                $unit_details[0]['tax_rate'] = 0;
-                $data['customer_net_payable'] = 0;
-                
-            } 
-            // Update price in unit table
+        if($data['booking_status'] == "Completed"){
+
             $this->update_price_in_unit_details($data, $unit_details);
-        // Check price tag is Installation & Demo
-        } else if($unit_details[0]['price_tags'] == "Installation & Demo"){
-            // check Coming internal status is Completed TV With Stand
-            if($data['internal_status'] == "Completed TV With Stand"){
-                // update price for installation & Demo
-                $this->update_price_in_unit_details($data, $unit_details);
-                // Get tax rate details for  Stand
-                $unit_details_for_insert = $this->gettax_rate_details($data['id'], "Wall Mount Stand");
-                // Insert new row in unit details for stand
-                $this->copy_and_insert_in_booking_unit_details($data['id'],$unit_details_for_insert );
-
-            } else {
-                $this->update_price_in_unit_details($data, $unit_details); 
-            }
 
         } else {
 
+            $data['customer_total'] = 0;
+            $unit_details[0]['partner_net_payable'] = 0;
+            $unit_details[0]['around_net_payable'] =0;
+            $unit_details[0]['tax_rate'] = 0;
+            $data['customer_net_payable'] = 0;
+
+            // Update price in unit table
             $this->update_price_in_unit_details($data, $unit_details);
         }
+
     }
     
     /**
@@ -195,7 +178,7 @@ class New_booking_model extends CI_Model {
     
     /**
      * @desc: get tax rate for specific booking 
-     */
+     
     function gettax_rate_details($booking_unit_id, $service_category){
         $this->db->select('booking_unit_details.around_net_payable, service_centre_charges.partner_payable_basic as partner_paid_basic_charges, service_centre_charges.product_or_services, service_centre_charges.customer_total as customer_total, service_centre_charges.service_category as price_tags, service_centre_charges.partner_net_payable, tax_rates.rate as tax_rate');
         $this->db->from('booking_unit_details');
@@ -217,18 +200,18 @@ class New_booking_model extends CI_Model {
 
         return $unit_details ;
 
-    }
+    }*/
     
     // Update Price in unit details
     function update_price_in_unit_details($data, $unit_details){
 
-        $data['around_net_payable'] = $unit_details[0]['around_net_payable'];
-        $data['partner_net_payable'] = $unit_details[0]['partner_net_payable'];
+        $data['around_paid_basic_charges'] = $unit_details[0]['around_paid_basic_charges'];
+        $data['partner_paid_basic_charges'] = $unit_details[0]['partner_paid_basic_charges'];
         $data['tax_rate'] = $unit_details[0]['tax_rate'];
-       
+      
         
-        $vendor_total_basic_charges =  ($data['customer_paid_basic_charges'] + $data['partner_net_payable'] + $data['around_net_payable']) * basic_percentage;
-        $around_total_basic_charges = ($data['customer_paid_basic_charges'] + $data['partner_net_payable'] + $data['around_net_payable'] - $vendor_total_basic_charges);
+        $vendor_total_basic_charges =  ($data['customer_paid_basic_charges'] + $data['partner_paid_basic_charges'] + $data['around_paid_basic_charges']) * basic_percentage;
+        $around_total_basic_charges = ($data['customer_paid_basic_charges'] + $data['partner_paid_basic_charges'] + $data['around_paid_basic_charges'] - $vendor_total_basic_charges);
 
         $data['around_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($around_total_basic_charges, $data['tax_rate'] );
         $data['vendor_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($vendor_total_basic_charges, $data['tax_rate'] ); 
@@ -272,7 +255,6 @@ class New_booking_model extends CI_Model {
      * @desc: copy data of specific id, insert appliance details in new row and update price in it  
      * @param: unit id, Array
      * @return: void
-     */
     function copy_and_insert_in_booking_unit_details($unit_id, $unit_details){
         $this->db->select('booking_id,partner_id, service_id, appliance_id, appliance_brand, appliance_category, appliance_capacity,    appliance_size, model_number, appliance_tag, purchase_year, purchase_month');
         $this->db->where('id', $unit_id);
@@ -296,6 +278,8 @@ class New_booking_model extends CI_Model {
         $this->update_price_in_unit_details($data, $unit_details);
 
     }
+
+    */
     
     /**
      * @desc: this method is used  to return appliance id. It checks service id, user id, brand, category and capacity exist or not in the appliance_details table. If exist, it updates data otherwise it insert data in appliances_details table.
@@ -346,7 +330,7 @@ class New_booking_model extends CI_Model {
         $result = array_merge($services_details, $data[0]);
 
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table 
-        $result['customer_net_payable'] = $result['customer_total'] - $result['partner_net_payable'] - $result['around_net_payable']; 
+         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges']; 
                //log_message ('info', __METHOD__ . "update booking_unit_details data". print_r($result));
 
         $this->db->select('id');
@@ -370,7 +354,7 @@ class New_booking_model extends CI_Model {
     }
 
     function getpricesdetails_with_tax($service_centre_charges_id){
-         $this->db->select('service_category as price_tags, customer_total, partner_net_payable, rate as tax_rate, product_or_services, partner_payable_basic as partner_paid_basic_charges');
+         $this->db->select('service_category as price_tags, customer_total, partner_net_payable, rate as tax_rate, product_or_services');
         $this->db->from('service_centre_charges');
         $this->db->where('service_centre_charges.id', $service_centre_charges_id); // service center charges table (id)
         $this->db->join('tax_rates','tax_rates.tax_code = service_centre_charges.tax_code AND tax_rates.state = service_centre_charges.state AND tax_rates.product_type = service_centre_charges.product_type');
@@ -380,7 +364,8 @@ class New_booking_model extends CI_Model {
         return $query->result_array();
     }
 
-    function remove_unit_details($booking_id, $price_tags){
+    function check_price_tags_status($booking_id, $price_tags){
+
         $this->db->select('id, price_tags');
         $this->db->where('booking_id', $booking_id);
         $query = $this->db->get('booking_unit_details');
@@ -392,8 +377,9 @@ class New_booking_model extends CI_Model {
                  }
                  else {
                     //echo "Match not found";
+                   $data = array('booking_status' => "Not Completed" );
                    $this->db->where('id', $value['id']);
-                   $this->db->delete('booking_unit_details'); 
+                   $this->db->update('booking_unit_details', $data); 
 
                 }
             }
@@ -405,7 +391,6 @@ class New_booking_model extends CI_Model {
         $this->db->where('booking_id', $booking['booking_id']);
         $this->db->update('booking_details', $booking);
     }
-
 
 // end model
 }
