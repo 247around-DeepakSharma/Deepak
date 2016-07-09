@@ -595,21 +595,24 @@ EOD;
 	$directory_xls = "summary-excels/" . $output_file;
 	$this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
 
-	//Connect and login to FTP server
-	$ftp_server = "ftp.edustbin.com";
-	$ftp_conn = ftp_ssl_connect($ftp_server) or die("Could not connect to $ftp_server");
-	$login = ftp_login($ftp_conn, "upload@edustbin.com", "SDKB%^&*");
+	/*
+	  //Connect and login to FTP server
+	  $ftp_server = "ftp.edustbin.com";
+	  $ftp_conn = ftp_ssl_connect($ftp_server) or die("Could not connect to $ftp_server");
+	  $login = ftp_login($ftp_conn, "upload@edustbin.com", "SDKB%^&*");
 
-	//Only for localhost
-	ftp_pasv($ftp_conn, true);
+	  //Only for localhost
+	  ftp_pasv($ftp_conn, true);
 
-	if (ftp_put($ftp_conn, $output_file, $output_file, FTP_BINARY)) {
-	    //echo "Successfully uploaded $output_file";
-	} else {
-	    log_message('error', __METHOD__ . ": Error uploading $output_file");
-	}
+	  if (ftp_put($ftp_conn, $output_file, $output_file, FTP_BINARY)) {
+	  //echo "Successfully uploaded $output_file";
+	  } else {
+	  log_message('error', __METHOD__ . ": Error uploading $output_file");
+	  }
 
-	ftp_close($ftp_conn);
+	  ftp_close($ftp_conn);
+	 *
+	 */
 
 	//Delete this file
 	exec("rm -rf " . escapeshellarg($output_file));
