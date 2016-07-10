@@ -216,13 +216,14 @@ class invoices_model extends CI_Model {
 AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
         }
 
-        $sql = "SELECT  count('booking_id') as booking_count, assigned_vendor_id as vendor_id
+        $sql = "SELECT  assigned_vendor_id as vendor_id
                 FROM booking_details
                 WHERE current_status = 'Completed'  $where_vendor_id  Group BY assigned_vendor_id
                ";
        
         $query = $this->db->query($sql);
         $result = $query->result_array(); 
+       
         $where = "";
        for($i =1; $i< 3; $i++){
 
@@ -246,7 +247,9 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
                 }
 
                 $condition = "  From booking_details, booking_unit_details, services, service_centres
-                          WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id AND `services`.id = `booking_details`.service_id  AND `booking_details`.assigned_vendor_id = `service_centres`.id AND current_status = 'Completed' AND assigned_vendor_id = $value[vendor_id] AND booking_unit_details.booking_status = 'Completed' $where ";
+                          WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id AND `services`.id = `booking_details`.service_id  AND `booking_details`.assigned_vendor_id = `service_centres`.id AND current_status = 'Completed' AND assigned_vendor_id = $value[vendor_id] AND `booking_unit_details`.booking_status = 'Completed' $where ";
+
+
                 
                  $sql1 = "SELECT  `booking_details`.booking_id, `booking_details`.city, `booking_details`.internal_status, `booking_details`.closed_date, vendor_rating_stars, `booking_unit_details`.price_tags, `booking_unit_details`.vendor_extra_charges, `booking_unit_details`.vendor_st_extra_charges, customer_paid_extra_charges as additional_charges, (customer_paid_basic_charges + around_net_payable ) as service_charges, customer_paid_parts as parts_cost, `services`.services, vendor_to_around, customer_net_payable, partner_net_payable,around_to_vendor, (customer_paid_basic_charges + customer_paid_extra_charges + customer_paid_parts) as amount_paid ,`service_centres`.name, `service_centres`.id, `service_centres`.sc_code, `service_centres`.address, `service_centres`.beneficiary_name, `service_centres`.bank_account, `service_centres`.bank_name, `service_centres`.ifsc_code,  `service_centres`.owner_email,  `service_centres`.primary_contact_email, `booking_unit_details`.  product_or_services, `booking_unit_details`.around_net_payable,  (customer_net_payable + partner_net_payable + around_net_payable) as total_booking_charge, $date
 
@@ -323,8 +326,11 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
         $query = $this->db->query($sql);
         $result = $query->result_array(); 
 
-        $array = array();
-        $where = "";
+       
+
+        for($i =1; $i< 3; $i++){
+            $array = array();
+             $where = "";
             foreach ($result as $key => $value) {
 
                 if( $date_ragnge != ""){
@@ -338,35 +344,54 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
                 }
 
 
-         $condition = "  From booking_details, booking_unit_details, services, partners
+                $condition = "  From booking_details, booking_unit_details, services, partners
                           WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id AND `services`.id = `booking_details`.service_id  AND current_status = 'Completed' AND booking_details.partner_id = $value[partner_id] AND booking_unit_details.booking_status = 'Completed' AND booking_unit_details.partner_paid_basic_charges > 0 AND booking_unit_details.partner_id = partners.id $where ";
 
-        $sql1 = "SELECT `booking_details`.service_id, `booking_details`.booking_id, `booking_details`.order_id, `booking_details`.reference_date,  `booking_details`.partner_id, `booking_details`.city, `booking_details`.closed_date, price_tags, `partners`.company_name, `partners`.company_address, $date
+                if($i ==1){
+
+                  $sql1 = "SELECT `booking_details`.service_id, `booking_details`.booking_id, `booking_details`.order_id, `booking_details`.reference_date,  `booking_details`.partner_id, `booking_details`.city, `booking_details`.closed_date, price_tags, `partners`.company_name, `partners`.company_address, partner_paid_basic_charges, `booking_unit_details`.appliance_size, `booking_unit_details`.product_or_services, $date
  
-                     (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN ((partner_net_payable + customer_paid_basic_charges) * (tax_rate/100) ) ELSE 0 END) as vat, 
+                     (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (partner_paid_basic_charges  * (tax_rate/100) ) ELSE 0 END) as vat, 
 
-                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN ((partner_net_payable + customer_paid_basic_charges) * (tax_rate/100)) ELSE 0 END) as st, 
+                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (partner_paid_basic_charges * (tax_rate/100)) ELSE 0 END) as st, 
 
-                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN ((partner_net_payable + customer_paid_basic_charges) - ((partner_net_payable + customer_paid_basic_charges) * (tax_rate/100))) ELSE 0 END) as installation_charge, 
+                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (partner_paid_basic_charges - ((partner_paid_basic_charges ) * (tax_rate/100))) ELSE 0 END) as installation_charge, 
 
-                     (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN  ((partner_net_payable + customer_paid_basic_charges) - ((partner_net_payable + customer_paid_basic_charges) * (tax_rate/100))) ELSE 0 END) as stand
+                     (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN  (partner_paid_basic_charges  - ((partner_paid_basic_charges ) * (tax_rate/100))) ELSE 0 END) as stand
 
                       $condition ";
+                } else if($i == 2) {
+                 
+                $sql1 = "SELECT count(`booking_unit_details`.id) as count_booking, services, `booking_unit_details`.partner_id,  `booking_unit_details`.appliance_capacity, `booking_unit_details`.price_tags,  `partners`.company_name, `partners`.company_address, partner_paid_basic_charges, `booking_details`.source,
 
-            $query1 = $this->db->query($sql1);
-                 $result1 = $query1->result_array();
+            
+                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (SUM(partner_paid_basic_charges - ((partner_paid_basic_charges ) * (tax_rate/100)))) ELSE 0 END) as total_installation_charge, 
+
+                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (SUM(partner_paid_basic_charges * (tax_rate/100))) ELSE 0 END) as total_st, 
+
+                      (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN  (SUM(partner_paid_basic_charges  - ((partner_paid_basic_charges ) * (tax_rate/100)))) ELSE 0 END) as total_stand_charge,
+
+                       (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (SUM(partner_paid_basic_charges  * (tax_rate/100) )) ELSE 0 END) as total_vat_charge
+
+
+                $condition Group By `booking_unit_details`.service_id, `booking_unit_details`.appliance_capacity, `booking_unit_details`.price_tags ";
+                }
+
+
+
+                $query1 = $this->db->query($sql1);
+                $result1 = $query1->result_array();
                 //print_r($result1);
-                 array_push($array, $result1);
+                array_push($array, $result1);
                  
             }
-           
-            $invoice['invoice'] = $array;
 
+            $invoice['invoice'.$i] = $array;
+
+        }
+         
             return $invoice;
-
     }
-
-   
 
 }
 

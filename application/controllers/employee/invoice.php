@@ -238,7 +238,7 @@ class Invoice extends CI_Controller {
     	$this->generate_cash_invoices_for_vendors($data['invoice1']);
     	//$this->generate_foc_invoices_for_vendors($data['invoice2']);
 
-    	$this->load->view('employee/test', $data);
+//    	$this->load->view('employee/test', $data);
 
       
     }
@@ -264,7 +264,8 @@ class Invoice extends CI_Controller {
             
     		$count = count($unique_booking);
 
-    		log_message('info', __FUNCTION__ . '=> Start Date: ' . $invoices[0]['start_date'] . ', End Date: ' . $invoices[0]['end_date']);
+
+    		log_message('info', __FUNCTION__ . '=> Start Date: ' . print_r($invoices[0]['start_date']) . ', End Date: ' . print_r($invoices[0]['end_date']));
 	         //echo $start_date, $end_date; 
 
     		$start_date = date("jS F, Y", strtotime($invoices[0]['start_date']));
@@ -315,51 +316,12 @@ class Invoice extends CI_Controller {
 
 		    log_message('info', 'Excel data: ' . print_r($excel_data, true));
 
-		    $R->load(array(
-		    array(
-			'id' => 'meta',
-			'data' => $excel_data,
-			'format' => array(
-			    'date' => array('datetime' => 'd/M/Y')
-			)
-		    ),
-		    array(
-			'id' => 'booking',
-			'repeat' => true,
-			'data' =>  $invoices,
-			//'minRows' => 2,
-			'format' => array(
-			    'create_date' => array('datetime' => 'd/M/Y'),
-			    'total_price' => array('number' => array('prefix' => 'Rs. ')),
-			)
-		    ),
-		    )
-		);
-            
-           //Get populated XLS with data
-		   $output_file_dir = "/tmp/";
-		   $output_file = $invoice_id;
-		   $output_file_excel = $output_file_dir . $output_file . ".xlsx";
-		   //for xlsx: excel, for xls: excel2003
-		   $R->render('excel', $output_file_excel);
+		    $files_name = $this->generate_pdf_with_data($excel_data, $invoices, $R, $file_names);
 
-		   //convert excel to pdf
-		   $output_file_pdf = $output_file_dir . $output_file . ".pdf";
-		   //$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=" . CONVERTAPI_KEY . " -o " . $output_file_pdf;
-		   putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-		   $tmp_path = '/tmp/';
-		   $tmp_output_file = '/tmp/output_' . __FUNCTION__ . '.txt';
-		   $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
-		    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
-		    $output_file_excel . ' 2> ' . $tmp_output_file;
 
-		   //echo $cmd;
-		   $output = '';
-		   $result_var = '';
-		   exec($cmd, $output, $result_var);
 
-		   //log_message('info', "Report generated with $count records");
-		   echo PHP_EOL . "Report generated with $count records" . PHP_EOL;
+    	    array_push($file_names, $files_name.".xlsx");
+		    array_push($file_names, $files_name.".pdf");
 
 		   //Send report via email
 		   $this->email->clear(TRUE);
@@ -391,7 +353,7 @@ class Invoice extends CI_Controller {
                         <br>https://play.google.com/store/apps/details?id=com.handymanapp";
 
 			$this->email->message($message);
-			$this->email->attach($output_file_pdf, 'attachment');
+			$this->email->attach($files_name.".pdf", 'attachment');
 
 		
 			/*$mail_ret = $this->email->send();
@@ -403,18 +365,19 @@ class Invoice extends CI_Controller {
 			    echo "Mail could not be sent" . PHP_EOL;
 			}*/
 			//Save filenames to delete later on
-		    array_push($file_names, $output_file_excel);
-		    array_push($file_names, $output_file_pdf);
-
+		     array_push($file_names, $files_name.".xlsx");
+		    array_push($file_names, $files_name.".pdf");
 
 			//Upload Excel files to AWS
 		//$bucket = 'bookings-collateral-test';
-		$bucket = 'bookings-collateral';
-		$directory_xls = "invoices-excel/" . $output_file . ".xlsx";
-		$directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
+		  $bucket = 'bookings-collateral';
+		  $directory_xls = "invoices-excel/" . $files_name . ".xlsx";
+		  $directory_pdf = "invoices-pdf/" . $files_name . ".pdf";
 
-		//$this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-		//$this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+
+
+		//$this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+		//$this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3;
 
 		//Save this invoice info in table
 		$invoice_details = array(
@@ -422,8 +385,8 @@ class Invoice extends CI_Controller {
 		    'type' => 'A',
 		    'vendor_partner' => 'vendor',
 		    'vendor_partner_id' => $invoices[0]['id'],
-		    'invoice_file_excel' => $output_file . '.xlsx',
-		    'invoice_file_pdf' => $output_file . '.pdf',
+		    'invoice_file_excel' => $files_name . '.xlsx',
+		    'invoice_file_pdf' => $files_name . '.pdf',
 		    'from_date' => date("Y-m-d", strtotime($start_date)), //??? Check this next time, format should be YYYY-MM-DD
 		    'to_date' => date("Y-m-d", strtotime($end_date)),
 		    'num_bookings' => $count,
@@ -434,13 +397,13 @@ class Invoice extends CI_Controller {
 		    'rating' => $excel_data['t_rating'],
 		    'around_royalty' => $excel_data['r_total'],
 		);
-		//$this->invoices_model->insert_new_invoice($invoice_details);
+		$this->invoices_model->insert_new_invoice($invoice_details);
 
 		/*
 		 * Update booking-invoice table to capture this new invoice against these bookings.
 		 * Since this is a type 'Cash' invoice, it would be stored as a vendor-debit invoice.
 		 */
-		//$this->update_booking_invoice_mappings_repairs($invoices, $invoice_id);
+		$this->update_booking_invoice_mappings_repairs($invoices, $invoice_id);
     	}
 
     	//Delete XLS files now
@@ -532,59 +495,20 @@ class Invoice extends CI_Controller {
 		    '. Your rating for completed bookings is ' . $excel_data['t_rating'] .
 		    '. We look forward to your continued support in future. As next step, 247around will pay you remaining amount as per our agreement.';
 
-		     $excel_data['beneficiary_name'] = $invoices[0]['beneficiary_name'];
+		    $excel_data['beneficiary_name'] = $invoices[0]['beneficiary_name'];
 		    $excel_data['bank_account'] = $invoices[0]['bank_account'];
 		    $excel_data['bank_name'] = $invoices[0]['bank_name'];
 		    $excel_data['ifsc_code'] = $invoices[0]['ifsc_code'];
 
 		    log_message('info', 'Excel data: ' . print_r($excel_data, true));
 
-		    $R->load(array(
-		    array(
-			'id' => 'meta',
-			'data' => $excel_data,
-			'format' => array(
-			    'date' => array('datetime' => 'd/M/Y')
-			)
-		    ),
-		    array(
-			'id' => 'booking',
-			'repeat' => true,
-			'data' =>  $invoices,
-			//'minRows' => 2,
-			'format' => array(
-			    'create_date' => array('datetime' => 'd/M/Y'),
-			    'total_price' => array('number' => array('prefix' => 'Rs. ')),
-			)
-		    ),
-		    )
-		);
+		    $files_name = $this->generate_pdf_with_data($excel_data, $invoices, $R, $file_names);
 
 
-		     //Get populated XLS with data
-		   $output_file_dir = "/tmp/";
-		   $output_file = $invoice_id;
-		   $output_file_excel = $output_file_dir . $output_file . ".xlsx";
-		   //for xlsx: excel, for xls: excel2003
-		   $R->render('excel', $output_file_excel);
 
-		   //convert excel to pdf
-		   $output_file_pdf = $output_file_dir . $output_file . ".pdf";
-		   //$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=" . CONVERTAPI_KEY . " -o " . $output_file_pdf;
-		   putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-		   $tmp_path = '/tmp/';
-		   $tmp_output_file = '/tmp/output_' . __FUNCTION__ . '.txt';
-		   $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
-		    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
-		    $output_file_excel . ' 2> ' . $tmp_output_file;
+    	    array_push($file_names, $files_name.".xlsx");
+		    array_push($file_names, $files_name.".pdf");
 
-		   //echo $cmd;
-		   $output = '';
-		   $result_var = '';
-		   exec($cmd, $output, $result_var);
-
-		   //log_message('info', "Report generated with $count records");
-		   echo PHP_EOL . "Report generated with $count records" . PHP_EOL;
 
 		   //Send report via email
 		   $this->email->clear(TRUE);
@@ -634,13 +558,13 @@ class Invoice extends CI_Controller {
 
 
 			//Upload Excel files to AWS
-		//$bucket = 'bookings-collateral-test';
-		$bucket = 'bookings-collateral';
-		$directory_xls = "invoices-excel/" . $output_file . ".xlsx";
-		$directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
+		 //$bucket = 'bookings-collateral-test';
+		  $bucket = 'bookings-collateral';
+		  $directory_xls = "invoices-excel/" . $files_name . ".xlsx";
+		  $directory_pdf = "invoices-pdf/" . $files_name . ".pdf";
 
-		//$this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-		//$this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3;
+		    //$this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+		    //$this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3;
 
       
 		$invoice_details = array(
@@ -648,8 +572,8 @@ class Invoice extends CI_Controller {
 		    'type' => 'B',
 		    'vendor_partner' => 'vendor',
 		    'vendor_partner_id' => $invoices[0]['id'],
-		    'invoice_file_excel' => $output_file . '.xlsx',
-		    'invoice_file_pdf' => $output_file . '.pdf',
+		    'invoice_file_excel' => $files_name . ".xlsx",
+		    'invoice_file_pdf' =>$files_name . ".pdf",
 		    'from_date' => date("Y-m-d", strtotime($start_date)), //??? Check this next time, format should be YYYY-MM-DD
 		    'to_date' => date("Y-m-d", strtotime($end_date)),
 		    'num_bookings' => $count,
@@ -661,13 +585,13 @@ class Invoice extends CI_Controller {
 		    'rating' => $excel_data['t_rating'],
 		    'around_royalty' => $excel_data['r_total'],
 		);
-		//$this->invoices_model->insert_new_invoice($invoice_details);
+		$this->invoices_model->insert_new_invoice($invoice_details);
 
 		/*
 		 * Update booking-invoice table to capture this new invoice against these bookings.
 		 * Since this is a type A invoice, it would be stored as a vendor-debit invoice.
 		 */
-		//$this->update_booking_invoice_mappings_installations($bookings_completed, $invoice_id);
+		$this->update_booking_invoice_mappings_installations($bookings_completed, $invoice_id);
 	    }
 
 	    
@@ -719,18 +643,59 @@ class Invoice extends CI_Controller {
 
     function getpartner_invoices($partner_id =""){
     	$data = $this->invoices_model->getpartner_invoices($partner_id);
-    	$this->create_partner_invoices_details($data['invoice']);
-    	
+    	$this->create_partner_invoices_details($data['invoice1']);
+    	$this->generate_partner_summary_invoices($data['invoice2']); 	
        
     }
-
+    
+    /**
+     * @desc: create partner invoices
+     */
     function create_partner_invoices_details($data){
+    	$file_names = array();
+
+
+        $template = 'partner_invoices.xlsx';
+	        //set absolute path to directory with template files
+	    $templateDir = __DIR__ . "/../";
+
     	for($i=0; $i< count($data); $i++){
+
+
+    		 //set config for report
+	         $config = array(
+	            'template' => $template,
+	            'templateDir' => $templateDir
+	         );
+
+    		//load template
+		    $R = new PHPReport($config);
+
+    		$total_installation_charge = 0;
+    		$total_service_tax = 0;
+    		$total_stand_charge = 0;
+    		$total_vat_charge = 0;
+    		$total_charges = 0;
+
+    		$getsource = substr($data[$i][0]['booking_id'], 0, 2);
+    		$invoice_id = $getsource.date('dmY');
+
+
+    		$unique_booking = array_unique(array_map(function ($k) { return $k['booking_id']; }, $data[$i]));
+            
+    		$count = count($unique_booking);
+
+    		log_message('info', __FUNCTION__ . '=> Start Date: ' . $data[$i][0]['start_date'] . ', End Date: ' . $data[$i][0]['end_date']);
+	         //echo $start_date, $end_date; 
+
+    		$start_date = date("jS F, Y", strtotime($data[$i][0]['start_date']));
+    		$end_date =  date("jS F, Y", strtotime($data[$i][0]['end_date']));
+
+    		
 
     		foreach ($data[$i] as $key => $value) {
 
-    		    $getsource = substr($value['booking_id'], 0, 2);
-    		    $invoice_id = $getsource.date('dmY');
+    		    
     		    if($value['price_tags'] == "Wall Mount Stand"){
 
     		    	$data[$i][$key]['remarks'] = "Completed TV With Stand";
@@ -739,13 +704,214 @@ class Invoice extends CI_Controller {
 
     		    	$data[$i][$key]['remarks'] = "Completed	Installation & Demo";
     		    }
-    		    print_r($invoice_id);
-    		    echo '<br/><br/>';
+
+    		    $data[$i][$key]['closed_date'] = date("jS F, Y", strtotime($value['closed_date']));
+    		    $data[$i][$key]['reference_date'] = date("jS F, Y", strtotime($value['reference_date']));
+
+    		    $total_installation_charge += $value['installation_charge'];
+    		    $total_service_tax += $value['st'];
+    		    $total_stand_charge += $value['stand'];
+    		    $total_vat_charge += $value['vat'];
+    		    $total_charges = $total_installation_charge + $total_service_tax + $total_stand_charge + $total_vat_charge;
+
     	    }
 
+    	    $excel_data['invoice_id'] = $invoice_id;
+    	    $excel_data['today'] = date('d-M-Y');
+    	    $excel_data['company_name'] = $data[$i][0]['company_name'];
+    	    $excel_data['company_address'] = $data[$i][0]['company_address'];
+    	    $excel_data['total_installation_charge'] = $total_installation_charge;
+    	    $excel_data['total_service_tax'] = $total_service_tax;
+    	    $excel_data['total_stand_charge'] = $total_stand_charge;
+    	    $excel_data['total_vat_charge'] = $total_vat_charge;
+    	    $excel_data['total_charges'] = $total_charges;
+
+    	     log_message('info', 'Excel data: ' . print_r($excel_data, true));
+
+    	    $files_name = $this->generate_pdf_with_data($excel_data, $data[$i], $R, $file_names);
+
+
+
+    	    array_push($file_names, $files_name.".xlsx");
+		    array_push($file_names, $files_name.".pdf");
+
+
+
+    	     //$bucket = 'bookings-collateral-test';
+		    $bucket = 'bookings-collateral';
+		    $directory_xls = "invoices-excel/" . $files_name . ".xlsx";
+		    $directory_pdf = "invoices-pdf/" . $files_name . ".pdf";
+
+		    //$this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+		    //$this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3;
+
+
+		    $invoice_details = array(
+		    'invoice_id' => $invoice_id,
+		    'type' => 'A',
+		    'vendor_partner' => 'partner',
+		    'vendor_partner_id' => $data[$i][0]['partner_id'],
+		    'invoice_file_excel' => $files_name . '.xlsx',
+		    'invoice_file_pdf' => $files_name . '.pdf',
+		    'from_date' => date("Y-m-d", strtotime($start_date)), //??? Check this next time, format should be YYYY-MM-DD
+		    'to_date' => date("Y-m-d", strtotime($end_date)),
+		    'num_bookings' => $count,
+		    'total_service_charge' =>  $excel_data['total_installation_charge'],
+		    'service_tax' => $excel_data['total_service_tax'],
+		    'parts_cost' =>  $excel_data['total_stand_charge'] ,
+		    'vat' =>  $excel_data['total_charges'] ,
+		    'around_royalty' =>  $excel_data['total_charges'],
+		);
+		$this->invoices_model->insert_new_invoice($invoice_details);
+
     	}
-    
-    	print_r($data);
+
+    	//Delete XLS files now
+	    /*foreach ($file_names as $file_name)
+	    exec("rm -rf " . escapeshellarg($file_name));
+
+	    exit(0);*/
+
+    }
+
+    function generate_partner_summary_invoices($data){
+    	$file_names = array();
+
+
+        $template = 'partner_invoice_summary.xlsx';
+	        //set absolute path to directory with template files
+	    $templateDir = __DIR__ . "/../";
+
+    	for($i=0; $i< count($data); $i++){
+
+
+    		 //set config for report
+	         $config = array(
+	            'template' => $template,
+	            'templateDir' => $templateDir
+	         );
+
+    		//load template
+		    $R = new PHPReport($config);
+
+
+    		$total_installation_charge = 0;
+    		$total_service_tax = 0;
+    		$total_stand_charge = 0;
+    		$total_vat_charge = 0;
+    		$total_charges = 0;
+    		$total_unit = 0;
+
+    		$getsource = substr($data[$i][0]['source'], 0, 2);
+    		$invoice_id = $getsource.date('dMY');
+
+    		foreach ($data[$i] as $key => $value) {
+
+    			$total_installation_charge += $value['total_installation_charge'];
+    		    $total_service_tax += $value['total_st'];
+    		    $total_stand_charge += $value['total_stand_charge'];
+    		    $total_vat_charge += $value['total_vat_charge'];
+    		    $total_unit += $value['count_booking'];
+
+    		    if($value['price_tags'] == "Wall Mount Stand"){
+
+    		    	$data[$i][$key]['remarks'] = "TV With Stand";
+
+    		    } else if($value['services'] == "Television"){
+
+    		    	$data[$i][$key]['remarks'] = "TV Without Stand";
+
+    		    } else {
+
+                   $data[$i][$key]['remarks'] = $value['services'];
+    		    }
+
+    		}
+
+    		$excel_data['invoice_id'] = $invoice_id;
+    	    $excel_data['today'] = date('d-M-Y');
+    	    $excel_data['company_name'] = $data[$i][0]['company_name'];
+    	    $excel_data['company_address'] = $data[$i][0]['company_address'];
+    	    $excel_data['total_installation_charge'] = $total_installation_charge;
+    	    $excel_data['total_service_tax'] = $total_service_tax;
+    	    $excel_data['total_stand_charge'] = $total_stand_charge;
+    	    $excel_data['total_vat_charge'] = $total_vat_charge;
+    	    $excel_data['total_charges'] = $total_installation_charge + $total_service_tax + $total_stand_charge + $total_vat_charge;
+    	    $excel_data['total_unit'] = $total_unit;
+    	   
+    	     log_message('info', 'Excel data: ' . print_r($excel_data, true));
+
+    	    $files_name = $this->generate_pdf_with_data($excel_data, $data[$i], $R, $file_names);
+
+
+
+    	    array_push($file_names, $files_name.".xlsx");
+		    array_push($file_names, $files_name.".pdf");
+
+
+
+    	     //$bucket = 'bookings-collateral-test';
+		    $bucket = 'bookings-collateral';
+		    $directory_xls = "invoices-excel/" . $files_name . ".xlsx";
+		    $directory_pdf = "invoices-pdf/" . $files_name . ".pdf";
+
+		    //$this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+		    //$this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3;
+
+        }
+
+        //Delete XLS files now
+	    /*foreach ($file_names as $file_name)
+	    exec("rm -rf " . escapeshellarg($file_name));
+
+	    exit(0);*/
+
+    }
+
+    function generate_pdf_with_data($excel_data, $data, $R, $file_names){
+
+
+		    $R->load(array(
+		    array(
+			'id' => 'meta',
+			'data' => $excel_data,
+			'format' => array(
+			    'date' => array('datetime' => 'd/M/Y')
+			)
+		    ),
+		    array(
+			'id' => 'booking',
+			'repeat' => true,
+			'data' =>  $data,
+			//'minRows' => 2,
+			
+		    ),
+		    )
+		);
+            
+           //Get populated XLS with data
+		   $output_file_dir = "/tmp/";
+		   $output_file = $excel_data['invoice_id'];
+		   $output_file_excel = $output_file_dir . $output_file . ".xlsx";
+		   //for xlsx: excel, for xls: excel2003
+		   $R->render('excel', $output_file_excel);
+
+		   //convert excel to pdf
+		   $output_file_pdf = $output_file_dir . $output_file . ".pdf";
+		   //$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=" . CONVERTAPI_KEY . " -o " . $output_file_pdf;
+		   putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+		   $tmp_path = '/tmp/';
+		   $tmp_output_file = '/tmp/output_' . __FUNCTION__ . '.txt';
+		   $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+		    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+		    $output_file_excel . ' 2> ' . $tmp_output_file;
+
+		   //echo $cmd;
+		   $output = '';
+		   $result_var = '';
+		   exec($cmd, $output, $result_var);
+
+		   return $output_file_dir . $output_file;
 
     }
 
