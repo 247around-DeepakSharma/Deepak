@@ -132,6 +132,7 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
     $("#grand_total_price").val(final_price);
 });
 
+
   function get_selected_price(){
     var price = 0;
     var price_array ;

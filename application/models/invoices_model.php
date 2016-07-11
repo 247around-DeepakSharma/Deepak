@@ -296,7 +296,11 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
         
          return $invoice;
     }
-
+    /**
+     * @desc: this method generates invoice summary and also details. when this method executes 1st for loop then  get all data  for invoices details and executes 2nd for loop then get add data for invoice summary.
+     * @param: partner id and date range
+     * @return: Array()
+     */
     function getpartner_invoices($partner_id = "", $date_ragnge="" ){
 
         $where_partner_id  = "";
@@ -317,7 +321,7 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
             $where_partner_id .= "  AND  booking_details.closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
 AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
         }
-
+        // Get partner id where completed Partners booking in last month
         $sql = "SELECT  count('booking_id') as booking_count, partner_id 
                 FROM booking_details
                 WHERE current_status = 'Completed' AND partner_id is not null $where_partner_id  Group BY partner_id
@@ -351,13 +355,13 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 
                   $sql1 = "SELECT `booking_details`.service_id, `booking_details`.booking_id, `booking_details`.order_id, `booking_details`.reference_date,  `booking_details`.partner_id, `booking_details`.city, `booking_details`.closed_date, price_tags, `partners`.company_name, `partners`.company_address, partner_paid_basic_charges, `booking_unit_details`.appliance_size, `booking_unit_details`.product_or_services, $date
  
-                     (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (partner_paid_basic_charges  * (tax_rate/100) ) ELSE 0 END) as vat, 
+                     (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (ROUND(partner_paid_basic_charges  * (tax_rate/100),3) ) ELSE 0 END) as vat, 
 
-                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (partner_paid_basic_charges * (tax_rate/100)) ELSE 0 END) as st, 
+                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (ROUND(partner_paid_basic_charges * (tax_rate/100),3)) ELSE 0 END) as st, 
 
-                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (partner_paid_basic_charges - ((partner_paid_basic_charges ) * (tax_rate/100))) ELSE 0 END) as installation_charge, 
+                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (ROUND(partner_paid_basic_charges - ((partner_paid_basic_charges ) * (tax_rate/100)),3)) ELSE 0 END) as installation_charge, 
 
-                     (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN  (partner_paid_basic_charges  - ((partner_paid_basic_charges ) * (tax_rate/100))) ELSE 0 END) as stand
+                     (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN  (ROUND(partner_paid_basic_charges  - ((partner_paid_basic_charges ) * (tax_rate/100)),3)) ELSE 0 END) as stand
 
                       $condition ";
                 } else if($i == 2) {
@@ -365,19 +369,17 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
                 $sql1 = "SELECT count(`booking_unit_details`.id) as count_booking, services, `booking_unit_details`.partner_id,  `booking_unit_details`.appliance_capacity, `booking_unit_details`.price_tags,  `partners`.company_name, `partners`.company_address, partner_paid_basic_charges, `booking_details`.source,
 
             
-                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (SUM(partner_paid_basic_charges - ((partner_paid_basic_charges ) * (tax_rate/100)))) ELSE 0 END) as total_installation_charge, 
+                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (ROUND(SUM(partner_paid_basic_charges - ((partner_paid_basic_charges ) * (tax_rate/100))),3)) ELSE 0 END) as total_installation_charge, 
 
-                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (SUM(partner_paid_basic_charges * (tax_rate/100))) ELSE 0 END) as total_st, 
+                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (ROUND(SUM(partner_paid_basic_charges * (tax_rate/100)),3)) ELSE 0 END) as total_st, 
 
-                      (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN  (SUM(partner_paid_basic_charges  - ((partner_paid_basic_charges ) * (tax_rate/100)))) ELSE 0 END) as total_stand_charge,
+                      (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN  (ROUND(SUM(partner_paid_basic_charges  - ((partner_paid_basic_charges ) * (tax_rate/100))),3)) ELSE 0 END) as total_stand_charge,
 
-                       (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (SUM(partner_paid_basic_charges  * (tax_rate/100) )) ELSE 0 END) as total_vat_charge
+                       (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (ROUND(SUM(partner_paid_basic_charges  * (tax_rate/100) ),3)) ELSE 0 END) as total_vat_charge
 
 
                 $condition Group By `booking_unit_details`.service_id, `booking_unit_details`.appliance_capacity, `booking_unit_details`.price_tags ";
                 }
-
-
 
                 $query1 = $this->db->query($sql1);
                 $result1 = $query1->result_array();

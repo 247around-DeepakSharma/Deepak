@@ -230,27 +230,29 @@ class Invoice extends CI_Controller {
     	$this->invoices_model->delete_banktransaction($transaction_id);
     	echo "success";
     }
-    // get all vendor invoices for both type  A and type b 
+
+    /**
+     * @desc: this is use to generate both type of invoices for vendor. In this method, we get data from model and pass another method to generate PDf and Excel file. This PDF file will send auto to vendor.
+     * @param: vendor id and date range
+     */
     function generate_vendor_invoices($vendor_id="", $date_ragnge=""){
     	//$vendor_id="1"; $date_ragnge="2016/05/01-2016/05/06";
     	$data = $this->invoices_model->generate_vendor_invoices($vendor_id, $date_ragnge);
 
     	$this->generate_cash_invoices_for_vendors($data['invoice1']);
-    	//$this->generate_foc_invoices_for_vendors($data['invoice2']);
+    	$this->generate_foc_invoices_for_vendors($data['invoice2']);
 
 //    	$this->load->view('employee/test', $data);
-
-      
     }
-
+    
+    /**
+     * @desc: this is used to generate cash invoices( vendor to around).this method generates invoices in excel format then convert it into PDF file and upload it into S3 and also send invoice to vendor. At the end it delete excel and pdf files.
+     * @param: Array
+     */
     function generate_cash_invoices_for_vendors($data){
-
-        // print_r($data);
         // vendor to around
 
         $file_names = array();
-
-
         $template = 'vendor_to_around_invoices.xlsx';
 	        //set absolute path to directory with template files
 	    $templateDir = "/usr/share/nginx/html/around/application/controllers/";
@@ -259,15 +261,13 @@ class Invoice extends CI_Controller {
 
     		$invoices = $data[$i];
     		$excel_data = array();
-    		
+    		// get unique booking id in data array
     		$unique_booking = array_unique(array_map(function ($i) { return $i['booking_id']; }, $invoices));
-            
+            // count number of unique booking 
     		$count = count($unique_booking);
 
-
     		log_message('info', __FUNCTION__ . '=> Start Date: ' . print_r($invoices[0]['start_date']) . ', End Date: ' . print_r($invoices[0]['end_date']));
-	         //echo $start_date, $end_date; 
-
+	        
     		$start_date = date("jS F, Y", strtotime($invoices[0]['start_date']));
     		$end_date =  date("jS F, Y", strtotime($invoices[0]['end_date']));
 
@@ -356,28 +356,26 @@ class Invoice extends CI_Controller {
 			$this->email->attach($files_name.".pdf", 'attachment');
 
 		
-			/*$mail_ret = $this->email->send();
+			$mail_ret = $this->email->send();
 			if ($mail_ret) {
-			    //log_message('info', __METHOD__ . ": Mail sent successfully");
+			    log_message('info', __METHOD__ . ": Mail sent successfully");
 			    echo "Mail sent successfully...............\n\n";
 			} else {
 			    log_message('error', __METHOD__ . ": Mail could not be sent");
 			    echo "Mail could not be sent" . PHP_EOL;
-			}*/
+			}
 			//Save filenames to delete later on
 		     array_push($file_names, $files_name.".xlsx");
 		    array_push($file_names, $files_name.".pdf");
 
 			//Upload Excel files to AWS
-		//$bucket = 'bookings-collateral-test';
+		  $bucket = 'bookings-collateral-test';
 		  $bucket = 'bookings-collateral';
 		  $directory_xls = "invoices-excel/" . $files_name . ".xlsx";
 		  $directory_pdf = "invoices-pdf/" . $files_name . ".pdf";
-
-
-
-		//$this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-		//$this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3;
+          // upload files to S3
+		  $this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+		  $this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3;
 
 		//Save this invoice info in table
 		$invoice_details = array(
@@ -407,12 +405,16 @@ class Invoice extends CI_Controller {
     	}
 
     	//Delete XLS files now
-	    /*foreach ($file_names as $file_name)
+	    foreach ($file_names as $file_name)
 	        exec("rm -rf " . escapeshellarg($file_name));
 
-	    exit(0);*/
+	    exit(0);
     }
-
+    
+    /**
+     * @desc: this is used to generate invoices( around to vendor).this method generates invoices in excel format then convert it into PDF file and upload it into S3 and also send invoice to vendor. At the end it delete excel and pdf files.
+     * @param: Array
+     */
     function generate_foc_invoices_for_vendors($data){
     	
         // vendor to around
@@ -446,9 +448,9 @@ class Invoice extends CI_Controller {
              $invoices = $data[$i];
              
     		 $excel_data = array();
-
+             //get unit booking id in array
     		 $unique_booking = array_unique(array_map(function ($k) { return $k['booking_id']; }, $invoices));
-            
+             // count  number of unique booking id
     		 $count = count($unique_booking);
 
     		 log_message('info', __FUNCTION__ . '=> Start Date: ' . $invoices[0]['start_date'] . ', End Date: ' . $invoices[0]['end_date']);
@@ -513,7 +515,7 @@ class Invoice extends CI_Controller {
 		   //Send report via email
 		   $this->email->clear(TRUE);
 		   $this->email->from('billing@247around.com', '247around Team');
-		   //$to = $invoices[0]['owner_email'] . ", " . $invoices[0]['primary_contact_email'];
+		   $to = $invoices[0]['owner_email'] . ", " . $invoices[0]['primary_contact_email'];
 		   $to = "abhaya@247around.com";
 			//$to = 'anuj.aggarwal@gmail.com';
 			$this->email->to($to);
@@ -543,14 +545,14 @@ class Invoice extends CI_Controller {
 			$this->email->attach($output_file_pdf, 'attachment');
 
 		
-			/*$mail_ret = $this->email->send();
+			$mail_ret = $this->email->send();
 			if ($mail_ret) {
 			    //log_message('info', __METHOD__ . ": Mail sent successfully");
 			    echo "Mail sent successfully...............\n\n";
 			} else {
 			    log_message('error', __METHOD__ . ": Mail could not be sent");
 			    echo "Mail could not be sent" . PHP_EOL;
-			}*/
+			}
 
 			//Save filenames to delete later on
 		    array_push($file_names, $output_file_excel);
@@ -558,13 +560,13 @@ class Invoice extends CI_Controller {
 
 
 			//Upload Excel files to AWS
-		 //$bucket = 'bookings-collateral-test';
+		  $bucket = 'bookings-collateral-test';
 		  $bucket = 'bookings-collateral';
 		  $directory_xls = "invoices-excel/" . $files_name . ".xlsx";
 		  $directory_pdf = "invoices-pdf/" . $files_name . ".pdf";
 
-		    //$this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-		    //$this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3;
+		  $this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+		  $this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3;
 
       
 		$invoice_details = array(
@@ -597,10 +599,10 @@ class Invoice extends CI_Controller {
 	    
 
 	//Delete XLS files now
-	/*foreach ($file_names as $file_name)
+	foreach ($file_names as $file_name)
 	    exec("rm -rf " . escapeshellarg($file_name));
 
-	exit(0);*/
+	exit(0);
     }
 
      /*
@@ -640,27 +642,26 @@ class Invoice extends CI_Controller {
 	$this->load->view('employee/header');
 	$this->load->view('employee/view_transactions', $invoice);
     }
-
+    
+    /**
+     * @desc: this method is used to generate both type invoices (invoices details and summary)
+     */
     function getpartner_invoices($partner_id =""){
     	$data = $this->invoices_model->getpartner_invoices($partner_id);
     	$this->create_partner_invoices_details($data['invoice1']);
-    	$this->generate_partner_summary_invoices($data['invoice2']); 	
-       
+    	$this->generate_partner_summary_invoices($data['invoice2']); 	  
     }
     
     /**
-     * @desc: create partner invoices
+     * @desc: generate details partner invoices
      */
     function create_partner_invoices_details($data){
     	$file_names = array();
-
-
         $template = 'partner_invoices.xlsx';
 	        //set absolute path to directory with template files
 	    $templateDir = __DIR__ . "/../";
 
     	for($i=0; $i< count($data); $i++){
-
 
     		 //set config for report
 	         $config = array(
@@ -680,7 +681,6 @@ class Invoice extends CI_Controller {
     		$getsource = substr($data[$i][0]['booking_id'], 0, 2);
     		$invoice_id = $getsource.date('dmY');
 
-
     		$unique_booking = array_unique(array_map(function ($k) { return $k['booking_id']; }, $data[$i]));
             
     		$count = count($unique_booking);
@@ -690,8 +690,6 @@ class Invoice extends CI_Controller {
 
     		$start_date = date("jS F, Y", strtotime($data[$i][0]['start_date']));
     		$end_date =  date("jS F, Y", strtotime($data[$i][0]['end_date']));
-
-    		
 
     		foreach ($data[$i] as $key => $value) {
 
@@ -730,20 +728,16 @@ class Invoice extends CI_Controller {
 
     	    $files_name = $this->generate_pdf_with_data($excel_data, $data[$i], $R, $file_names);
 
-
-
     	    array_push($file_names, $files_name.".xlsx");
 		    array_push($file_names, $files_name.".pdf");
 
-
-
-    	     //$bucket = 'bookings-collateral-test';
+    	    $bucket = 'bookings-collateral-test';
 		    $bucket = 'bookings-collateral';
 		    $directory_xls = "invoices-excel/" . $files_name . ".xlsx";
 		    $directory_pdf = "invoices-pdf/" . $files_name . ".pdf";
 
-		    //$this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-		    //$this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3;
+		    $this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+		    $this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3;
 
 
 		    $invoice_details = array(
@@ -767,10 +761,10 @@ class Invoice extends CI_Controller {
     	}
 
     	//Delete XLS files now
-	    /*foreach ($file_names as $file_name)
+	    foreach ($file_names as $file_name)
 	    exec("rm -rf " . escapeshellarg($file_name));
 
-	    exit(0);*/
+	    exit(0);
 
     }
 
@@ -806,12 +800,17 @@ class Invoice extends CI_Controller {
     		$invoice_id = $getsource.date('dMY');
 
     		foreach ($data[$i] as $key => $value) {
-
+    			
     			$total_installation_charge += $value['total_installation_charge'];
     		    $total_service_tax += $value['total_st'];
     		    $total_stand_charge += $value['total_stand_charge'];
     		    $total_vat_charge += $value['total_vat_charge'];
     		    $total_unit += $value['count_booking'];
+
+    		    $data[$i][$key]['partner_paid_basic_charges'] =$value['total_installation_charge'] + $value['total_st'] + $value['total_stand_charge'] +  $value['total_vat_charge'];
+
+    		    
+    		    echo "<br/><br/>";
 
     		    if($value['price_tags'] == "Wall Mount Stand"){
 
@@ -827,6 +826,7 @@ class Invoice extends CI_Controller {
     		    }
 
     		}
+    		print_r($data);
 
     		$excel_data['invoice_id'] = $invoice_id;
     	    $excel_data['today'] = date('d-M-Y');
@@ -867,7 +867,12 @@ class Invoice extends CI_Controller {
 	    exit(0);*/
 
     }
-
+    
+    /**
+     * @desc: Generate Excel and Pdf File with invoices data and return file names
+     * @param: Array(Excel data), Array(Invoices data), Initiallized PHP report library and files name
+     * @return : File name
+     */
     function generate_pdf_with_data($excel_data, $data, $R, $file_names){
 
 
@@ -904,15 +909,12 @@ class Invoice extends CI_Controller {
 		   $tmp_output_file = '/tmp/output_' . __FUNCTION__ . '.txt';
 		   $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
 		    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
-		    $output_file_excel . ' 2> ' . $tmp_output_file;
-
-		   //echo $cmd;
+		   $output_file_excel . ' 2> ' . $tmp_output_file;
 		   $output = '';
 		   $result_var = '';
 		   exec($cmd, $output, $result_var);
 
 		   return $output_file_dir . $output_file;
-
     }
 
 }

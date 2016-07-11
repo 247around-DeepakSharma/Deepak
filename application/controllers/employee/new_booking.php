@@ -199,34 +199,37 @@ class New_booking extends CI_Controller {
         foreach ($appliance_brand as $key => $value) {
             
             $services_details = "";
-            $services_details['appliance_brand'] = $value; // brand
+            $appliances_details = "";
+            $appliances_details['user_id'] = $user_id;
+            $appliances_details['brand'] = $services_details['appliance_brand'] = $value; // brand
             // get category from appiance category array for only specific key. 
-            $services_details['appliance_category'] = $appliance_category[$key]; 
+            $appliances_details['category'] = $services_details['appliance_category'] = $appliance_category[$key]; 
             // get appliance_capacity from appliance_capacity array for only specific key. 
-            $services_details['appliance_capacity'] = $appliance_capacity[$key];
+            $appliances_details['capacity'] = $services_details['appliance_capacity'] = $appliance_capacity[$key];
             // get model_number from appliance_capacity array for only specific key such as $model_number[0]. 
-            $services_details['model_number'] = $model_number[$key];
+            $appliances_details['model_number'] = $services_details['model_number'] = $model_number[$key];
              // get appliance tag from appliance_tag array for only specific key such as $appliance_tag[0]. 
-            $services_details['appliance_tag'] = $appliance_tags[$key];
+            $appliances_details['tag'] = $services_details['appliance_tag'] = $appliance_tags[$key];
              // get purchase year from purchase year array for only specific key such as $purchase_year[0]. 
-            $services_details['purchase_year'] = $purchase_year[$key];
+            $appliances_details['purchase_year'] = $services_details['purchase_year'] = $purchase_year[$key];
             $services_details['booking_id'] = $booking['booking_id'];
             // get purchase months from months array for only specific key such as $months[0]. 
-            $services_details['purchase_month'] = $months[$key];
-            $services_details['service_id'] = $booking['service_id'];
+            $appliances_details['purchase_month']= $services_details['purchase_month'] = $months[$key];
+            $appliances_details['service_id']= $services_details['service_id'] = $booking['service_id'];
+            $appliances_details['last_service_date'] = date('Y-m-d H:i:s');
             
 
             if(!empty($partner_id)){
                 
                $services_details['partner_id'] = $booking['partner_id'];
             }
-            if($booking_id == ""){
-                $services_details['appliance_id'] = $this->new_booking_model->addappliance($services_details, $user_id);
 
-            } else {
-                $services_details['appliance_id'] = $this->new_booking_model->check_appliancesforuser($services_details, $user_id);
+            $services_details['appliance_id'] = $this->new_booking_model->check_appliancesforuser($appliances_details);
+
+            if(empty($services_details['appliance_id'])){
+
+                 $services_details['appliance_id'] = $this->new_booking_model->addappliance($appliances_details);
             }
-            
 
            // log_message ('info', __METHOD__ . "Appliance details data". print_r($services_details));
             //Array ( ['brand'] => Array ( [0] => id_price ) )
@@ -236,10 +239,8 @@ class New_booking extends CI_Controller {
                 $services_details['id'] = $prices[0]; // This is id of service_centre_charges table. 
                 // discount for appliances. Array ( [BPL] => Array ( [100] => Array ( [0] => 200 ) [102] => Array ( [0] => 100 ) [103] => Array ( [0] => 0 ) ) 
                
-               
                 $services_details['around_paid_basic_charges'] = $discount[$value][$services_details['id']][0]; 
                 $services_details['partner_paid_basic_charges'] = $partner_net_payable[$value][$services_details['id']][0];
-
 
                 if($booking_id == ""){
                    

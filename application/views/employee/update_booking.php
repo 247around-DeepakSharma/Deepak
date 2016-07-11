@@ -207,7 +207,7 @@
                                                             <td><?php echo $price['service_category']; ?></td>
                                                             <td><?php echo $price['customer_total']; ?></td>
                                                             <td>
-                                                            <input type="text" class="form-control discount" name="<?php echo "partner_paid_basic_charges[".$unit_details[0]['brand']."][". $price['id']."][]"; ?>" id="<?php echo "partner_paid_basic_charges". $i . "_1"; ?>" value = "<?php if(isset($unit_details[0]['qunatity'][$k]['around_net_payable'])){ echo $unit_details[0]['qunatity'][$k]['around_net_payable']; } else { echo $price['partner_net_payable']; }  ?>"  />
+                                                            <input type="text" class="form-control " name="<?php echo "partner_paid_basic_charges[".$unit_details[0]['brand']."][". $price['id']."][]"; ?>" id="<?php echo "partner_paid_basic_charges". $i . "_1"; ?>" value = "<?php if(isset($unit_details[0]['qunatity'][$k]['around_net_payable'])){ echo $unit_details[0]['qunatity'][$k]['around_net_payable']; } else { echo $price['partner_net_payable']; }  ?>"  />
 
                                                             </td>
                                                               <td><input type="text" class="form-control discount" name="<?php echo "discount[".$unit_details[0]['brand']."][". $price['id']."][]"; ?>" id="<?php echo "discount_". $i . "_1"; ?>" 

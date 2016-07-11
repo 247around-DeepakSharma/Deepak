@@ -66,20 +66,11 @@ class New_booking_model extends CI_Model {
     
     /**
      * @desc: this is used to add appliances
-     * @param: Array,  User Id
+     * @param: Array(Appliances details)
      * @return: appliance id
      */
-    function addappliance($services, $user_id){
-        $appliance_detail = array("user_id" => $user_id,
-        "service_id" => $services['service_id'],
-        "brand" => $services['appliance_brand'],
-        "category" => $services['appliance_category'],
-        "capacity" => $services['appliance_capacity'],
-        "model_number" => $services['model_number'],
-        "purchase_year" => $services['purchase_year'],
-        "purchase_month" => $services['purchase_month'],
-        "tag" => $services['appliance_tag'],
-        "last_service_date" => date('Y-m-d H:i:s'));
+    function addappliance($appliance_detail){
+       
         $this->db->insert('appliance_details', $appliance_detail);
         return $this->db->insert_id();
     }
@@ -138,7 +129,7 @@ class New_booking_model extends CI_Model {
     }
     
     /**
-     * @desc: update booking in booking unit details
+     * @desc: update price in booking unit details
      */
     function update_unit_details($data){
         // get booking unit data on the basis of id
@@ -169,12 +160,13 @@ class New_booking_model extends CI_Model {
     }
     
     /**
-     * @desc: calculate tax charge
+     * @desc: calculate service charges and vat charges
      * @param : total charges and tax rate
      * @return calculate charges
      */
     function get_calculated_tax_charge($total_charges, $tax_rate){
-        
+          //52.50 = (402.50 / ((100 + 15)/100)) * ((15)/100)
+          //52.50 =  (402.50 / 1.15) * (0.15)
         $st_vat_charge = sprintf ("%.2f", ($total_charges / ((100 + $tax_rate)/100)) * (($tax_rate)/100));
         return $st_vat_charge;
     }
@@ -289,34 +281,27 @@ class New_booking_model extends CI_Model {
      * @param: Array, user id
      * @return : appliance id
      */
-    function check_appliancesforuser($services_details, $user_id){
+    function check_appliancesforuser($services_details){
         $this->db->select('id');
-
-        $where = array('service_id' => $services_details['service_id'], 'brand' => $services_details['appliance_brand'],
-         'user_id'=> $user_id, 'category' => $services_details['appliance_category'], 'capacity'=> $services_details['appliance_capacity']);
-        $this->db->where($where );
+        $this->db->where('service_id', $services_details['service_id']);
+        $this->db->where('brand', $services_details['brand']);
+        $this->db->where('user_id', $services_details['user_id']);
+        $this->db->where('category', $services_details['category']);
+        $this->db->where('capacity', $services_details['capacity']);
         $query = $this->db->get('appliance_details');
         if($query->num_rows>0){
 
             $result = $query->result_array();
             $appliance_id = $result[0]['id'];
 
-            $data = array(
-               "model_number" => $services_details['model_number'],
-               "purchase_year" => $services_details['purchase_year'],
-               "purchase_month" => $services_details['purchase_month'],
-               "tag" => $services_details['appliance_tag'],
-               "last_service_date" => date('Y-m-d H:i:s')
-            );
-
             $this->db->where('id', $appliance_id);
-            $this->db->update('appliance_details', $data); 
+            $this->db->update('appliance_details', $services_details); 
 
             return $appliance_id;
 
         } else {
 
-           $result =  $this->addappliance($services_details, $user_id);
+           $result =  $this->addappliance($services_details);
            return $result;
         }
     }
@@ -357,13 +342,10 @@ class New_booking_model extends CI_Model {
     }
 
     function getpricesdetails_with_tax($service_centre_charges_id){
-         $this->db->select('service_category as price_tags, customer_total, partner_net_payable, rate as tax_rate, product_or_services');
-        $this->db->from('service_centre_charges');
-        $this->db->where('service_centre_charges.id', $service_centre_charges_id); // service center charges table (id)
-        $this->db->join('tax_rates','tax_rates.tax_code = service_centre_charges.tax_code AND tax_rates.state = service_centre_charges.state AND tax_rates.product_type = service_centre_charges.product_type');
-        $this->db->where('tax_rates.active','1');
 
-        $query = $this->db->get();
+        $sql =" SELECT service_category as price_tags, customer_total, partner_net_payable, rate as tax_rate, product_or_services from service_centre_charges, tax_rates where `service_centre_charges`.id = '$service_centre_charges_id' AND `tax_rates`.tax_code = `service_centre_charges`.tax_code AND `tax_rates`.state = `service_centre_charges`.state AND `tax_rates`.product_type = `service_centre_charges`.product_type AND (to_date is NULL or to_date >= CURDATE() ) AND `tax_rates`.active = 1 ";
+
+        $query = $this->db->query($sql);
         return $query->result_array();
     }
 
