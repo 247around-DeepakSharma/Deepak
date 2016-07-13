@@ -147,10 +147,12 @@ class New_booking extends CI_Controller {
 	$charges = $this->booking_model->getbooking_charges($data['booking_id']);
 
 	if (empty($charges[0]['admin_remarks'])) {
+        $data['current_status'] = "Pending";
 	    $data['admin_remarks'] = date("F j") . "  :-" . $admin_remarks;
 	    $this->vendor_model->update_service_center_action($data);
 	    echo "success";
 	} else {
+        $data['current_status'] = "Pending";
 	    // remove previous text, added in admin_remarks column.
 	    $string = str_replace($charges[0]['admin_remarks'], " ", $admin_remarks);
 	    // Add current and previous text in admin_remarks column
@@ -176,6 +178,7 @@ class New_booking extends CI_Controller {
 
 	redirect(base_url() . 'employee/new_booking/review_bookings');
     }
+    
 
     /**
      * @desc: This funtion is used to review booking which is completed/cancelled by our vendors.

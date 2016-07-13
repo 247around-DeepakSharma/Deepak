@@ -851,6 +851,7 @@ class Booking_model extends CI_Model {
         if ($service_center_id != "") {
             $where .= " AND assigned_vendor_id = '" . $service_center_id . "'";
             $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
+
         } else {
             $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
         }
@@ -872,8 +873,7 @@ class Booking_model extends CI_Model {
         foreach ($temp as $key => $value) {
             $this->db->select('*');
             $this->db->where('booking_id', $value->booking_id);
-            //$status = array('Pending', 'Rescheduled');
-            //$this->db->where_in('current_status', $status);
+            $this->db->where_not_in('current_status', 'Pending');
             $query2 = $this->db->get('service_center_booking_action');
 
             if ($query2->num_rows > 0) {
@@ -980,13 +980,13 @@ class Booking_model extends CI_Model {
     }
 
     /**
-     * @desc : This funtion gives all the cancellation reasons present
+     * @desc : This funtion gives all the cancellation reasons present for partner or vendor or admin panel
      *
      * @param : void
      * @return : all the cancellation reasons present
      */
-    function cancelreason() {
-        $query = $this->db->query("Select id,reason from booking_cancellation_reasons");
+    function cancelreason($reason_of = "") {
+        $query = $this->db->query("Select id,reason from booking_cancellation_reasons where reason_of = '$reason_of' ");
         return $query->result();
     }
 
@@ -1186,12 +1186,6 @@ class Booking_model extends CI_Model {
      *  @return : array(userdetails,servicename and bookingdetails)
      */
     function booking_history_by_booking_id($booking_id, $join = "") {
-        /*
-          $sql = "Select services.services, users.*, booking_details.*"
-          . "from booking_details, users, services "
-          . "where booking_details.booking_id='$booking_id' and "
-          . "booking_details.user_id = users.user_id and services.id = booking_details.service_id";
-         */
         $service_centre = "";
         $condition = "";
         $service_center_name = "";
@@ -1337,9 +1331,7 @@ class Booking_model extends CI_Model {
     function pendingbookings() {
         $sql = "Select services.services, "
                 . "users.name, users.phone_number,"
-                . "booking_details.user_id, booking_details.service_id, booking_details.booking_id, "
-                . "booking_details.booking_date, booking_details.booking_timeslot, booking_details.appliance_brand,"
-                . "booking_details.appliance_category, booking_details.booking_address, booking_details.booking_pincode "
+                . "booking_details.* "
                 . "from booking_details, users, services "
                 . "where booking_details.user_id = users.user_id and "
                 . "services.id = booking_details.service_id and "
@@ -1406,13 +1398,6 @@ class Booking_model extends CI_Model {
     function update_booking($booking_id, $data) {
         $this->db->where(array("booking_id" => $booking_id));
         $this->db->update("booking_details", $data);
-
-//	$sql = "Update booking_details set rating_stars='$data[rating_star]', rating_comments='$data[rating_comments]', "
-//            . "vendor_rating_stars='$data[vendor_rating_star]', vendor_rating_comments='$data[vendor_rating_comments]' "
-//            . "where booking_id='$booking_id'";
-//
-//        $query = $this->db->query($sql);
-//        return $query;
     }
 
     /**
@@ -2215,7 +2200,7 @@ class Booking_model extends CI_Model {
      * @return: Array()
      */
     function getbooking_charges($booking_id = "") {
-	$status = array('Completed', 'Cancelled');
+	$status = array('Completed', 'Cancelled', 'Pending');
 
 	if ($booking_id != "") {
 	    $this->db->where('booking_id', $booking_id);

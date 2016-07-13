@@ -17,10 +17,11 @@
                                     <th>Phone No.</th>
                                     <th>Service Name</th>
                                     <th>Booking Date</th>
+                                    <th>Age Of Booking</th>
                                     <th>Status</th>
                                     <th>247around Remarks</th>
                                     <th>View</th>
-                                    <!--<th>Cancel</th>-->
+                                    <th>Cancel</th>
                                     <th>Complete</th>
                                     <th>Job Card</th>
                                 </tr>
@@ -48,6 +49,7 @@
                                                 <?= $row->booking_date; ?> /
                                                     <?= $row->booking_timeslot; ?>
                                             </td>
+                                            <td> <?= $row->age_of_booking." day"; ?></td>
                                             <td>
                                                 <?php echo $row->current_status; ?>
                                             </td>
@@ -57,11 +59,10 @@
                                                 </div>
                                             </td>
                                             <td><a class='btn btn-sm btn-primary' href="<?php echo base_url();?>service_center/booking_details/<?=$row->booking_id?>" target='_blank' title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>
-<!--                         
-                        <td>
-                             <a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-danger disabled' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
-                        </td>                    
--->
+                       
+                                        <td>
+                                           <a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
+                                        </td>                    
                                             <td>
                                                 <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-success' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
                                             </td>

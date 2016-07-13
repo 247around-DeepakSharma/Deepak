@@ -66,7 +66,7 @@ class Service_centers extends CI_Controller {
 
         $offset = ($this->uri->segment(3) != '' ? $this->uri->segment(3) : 0);
         $config['base_url'] = base_url() . 'service_centers/pending_booking';
-        $config['total_rows'] = $this->booking_model->total_pending_booking("", $service_center_id);
+        $config['total_rows'] = $this->service_centers_model->getPending_booking("count","",$service_center_id);
 
         $config['per_page'] = $page;
         $config['uri_segment'] = 3;
@@ -76,7 +76,7 @@ class Service_centers extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        $data['bookings'] = $this->booking_model->date_sorted_booking($config['per_page'], $offset, "", $service_center_id);
+        $data['bookings'] = $this->service_centers_model->getPending_booking($config['per_page'], $offset, $service_center_id);
 
         if ($this->session->flashdata('result') != '')
             $data['success'] = $this->session->flashdata('result');
@@ -133,8 +133,9 @@ class Service_centers extends CI_Controller {
         $data['parts_cost'] = $this->input->post('parts_cost');
         $data['amount_paid'] = $this->input->post('total_charge');
         $closing_remarks = $this->input->post('closing_remarks');
+        $data['current_status'] = "InProcess";
         $charges = $this->booking_model->getbooking_charges($booking_id);
-
+        $data['closed_date'] = date('Y-m-d h:i:s');
         if (!empty($charges)) {
             // remove previous text, added in closing_remarks column.
             $string = str_replace($charges[0]['service_center_remarks'], " ", $closing_remarks);
@@ -143,7 +144,9 @@ class Service_centers extends CI_Controller {
 
             $this->vendor_model->update_service_center_action($data);
         } else {
+
             $data['service_center_remarks'] = date("F j") . ":- " . $closing_remarks;
+        
             $this->vendor_model->insert_service_center_action($data);
         }
 
@@ -158,14 +161,14 @@ class Service_centers extends CI_Controller {
     function cancel_booking_form($booking_id) {
         $this->checkUserSession();
         $data['user_and_booking_details'] = $this->booking_model->booking_history_by_booking_id($booking_id);
-        $data['reason'] = $this->booking_model->cancelreason();
+        $data['reason'] = $this->booking_model->cancelreason("vendor");
 
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/cancel_booking_form', $data);
     }
 
     /**
-     * @desc: This is used to cancel booking.
+     * @desc: This is used to cancel booking for service center.
      * @param: booking id
      * @return: void
      */
@@ -179,12 +182,13 @@ class Service_centers extends CI_Controller {
 
         $data['service_center_id'] = $this->session->userdata('service_center_id');
         $data['booking_id'] = $booking_id;
-        $data['current_status'] = "Cancelled";
+        $data['current_status'] = "InProcess";
         $data['internal_status'] = "Cancelled";
         $data['service_charge'] = $data['additional_service_charge'] = $data['parts_cost'] = $data['amount_paid'] = 0;
         $data['service_center_remarks'] = date("F j") . ":- " . $cancellation_reason;
+        $data['closed_date'] = date('Y-m-d h:i:s');
 
-        $this->vendor_model->insert_service_center_action($data);
+        $this->vendor_model->update_service_center_action($data);
 
         redirect(base_url() . "service_center/pending_booking");
     }
@@ -231,5 +235,77 @@ class Service_centers extends CI_Controller {
         $this->session->sess_destroy();
         redirect(base_url() . "service_center");
     }
+    
+    /**
+     * @desc: this is used to display completed booking for specific service center
+     */
+    function completed_booking($offset = 0, $page = 0){
+        $this->checkUserSession();
+    if ($page == 0) {
+        $page = 50;
+    }
+
+        $service_center_id = $this->session->userdata('service_center_id');
+
+        $offset = ($this->uri->segment(3) != '' ? $this->uri->segment(3) : 0);
+        $config['base_url'] = base_url() . 'service_centers/completed_booking';
+        $config['total_rows'] = $this->service_centers_model->getcompleted_or_cancelled_booking("count","",$service_center_id,"Completed");
+
+        $config['per_page'] = $page;
+        $config['uri_segment'] = 3;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+
+        $data['count'] = $config['total_rows'];
+        $data['bookings'] = $this->service_centers_model->getcompleted_or_cancelled_booking($config['per_page'], $offset, $service_center_id, "Completed");
+
+        if ($this->session->flashdata('result') != '')
+            $data['success'] = $this->session->flashdata('result');
+
+        $data['status'] = "Completed";
+
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/completed_booking', $data);
+
+    }
+
+    /**
+     * @desc: this is used to display completed booking for specific service center
+     */
+    function cancelled_booking($offset = 0, $page = 0){
+        $this->checkUserSession();
+    if ($page == 0) {
+        $page = 50;
+    }
+
+        $service_center_id = $this->session->userdata('service_center_id');
+
+        $offset = ($this->uri->segment(3) != '' ? $this->uri->segment(3) : 0);
+        $config['base_url'] = base_url() . 'service_centers/completed_booking';
+        $config['total_rows'] = $this->service_centers_model->getcompleted_or_cancelled_booking("count","",$service_center_id,"Cancelled");
+
+        $config['per_page'] = $page;
+        $config['uri_segment'] = 3;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+
+        $data['count'] = $config['total_rows'];
+        $data['bookings'] = $this->service_centers_model->getcompleted_or_cancelled_booking($config['per_page'], $offset, $service_center_id, "Cancelled");
+
+        if ($this->session->flashdata('result') != '')
+            $data['success'] = $this->session->flashdata('result');
+
+        $data['status'] = "Cancelled";
+
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/completed_booking', $data);
+
+    }
+
+
 
 }

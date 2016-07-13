@@ -861,10 +861,14 @@ class vendor_model extends CI_Model {
      *  @return : void
      */
     function delete_previous_service_center_action($booking_id) {
-        $charges = $this->booking_model->getbooking_charges();
-
+        $this->db->select('*');
         $this->db->where('booking_id', $booking_id);
-        $this->db->delete("service_center_booking_action");
+        $query = $this->db->get('service_center_booking_action');
+        if ($query->num_rows() > 0) {
+            $this->db->where('booking_id', $booking_id);
+            $this->db->delete("service_center_booking_action");
+
+       }
     }
 
     /**

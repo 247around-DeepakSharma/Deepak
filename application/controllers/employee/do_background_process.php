@@ -49,6 +49,12 @@ class Do_background_process extends CI_Controller {
                 //Assign service centre
                 $this->booking_model->assign_booking($booking_id, $service);
 
+                $data['current_status'] = "Pending";
+                $data['service_center_id'] = $service;
+                $data['booking_id'] = $booking_id;
+                $data['create_date'] = date('Y-m-d h:i:s');
+                $this->vendor_model->insert_service_center_action($data);
+
 		//Send SMS to customer
 		$query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
                 $sms['tag'] = "service_centre_assigned";
@@ -144,6 +150,7 @@ class Do_background_process extends CI_Controller {
         log_message('info', "Entering: " . __METHOD__);
 
         $booking_id = $this->input->post('approve');
+       
         log_message('info', "Booking Id " . print_r($booking_id, TRUE));
 
         foreach ($booking_id as $key => $value) {
@@ -151,27 +158,35 @@ class Do_background_process extends CI_Controller {
             log_message('info', ": " . "data " . print_r($data, TRUE));
 
             //unset id of service center action table
-            $data[0]['closed_date'] = date('Y-m-d h:i:s');
-            unset($data[0]['id']);
-            unset($data[0]['service_center_id']);
-            $data[0]['closing_remarks'] = "Service Center Remarks:- " . $data[0]['service_center_remarks'] .
-                    " <br/> Admin:-  " . $data[0]['admin_remarks'];
+            if($data[0]['internal_status'] == "Cancelled"){
 
-            unset($data[0]['admin_remarks']);
-            unset($data[0]['create_date']);
-            $data[0]['current_status'] = "Completed";
+                $data[0]['current_status'] = "Cancelled";
+
+            } else {
+               $data[0]['current_status'] = "Completed";
+            }
+
             $data[0]['booking_id'] = $value;
 
             $this->vendor_model->update_service_center_action($data[0]);
 
+            $data[0]['closing_remarks'] = "Service Center Remarks:- " . $data[0]['service_center_remarks'] .
+                    " <br/> Admin:-  " . $data[0]['admin_remarks'];
+            unset($data[0]['id']);
+            unset($data[0]['service_center_id']);
+            unset($data[0]['admin_remarks']);
+            unset($data[0]['create_date']);
             unset($data[0]['service_center_remarks']);
-
+            
+     
+            $data[0]['closed_date'] = date('Y-m-d h:i:s');
+            
             //update booking_details table
             log_message('info', "Update data " . print_r($data, true));
             $this->booking_model->update_booking($data[0]['booking_id'], $data[0]);
 
             //Save this booking id in booking_invoices_mapping table as well now
-            $this->invoices_model->insert_booking_invoice_mapping(array('booking_id' => $data[0]['booking_id']));
+           $this->invoices_model->insert_booking_invoice_mapping(array('booking_id' => $data[0]['booking_id']));
 
             //Is this SD booking?
             if (strpos($data[0]['booking_id'], "SS") !== FALSE) {
@@ -214,7 +229,7 @@ class Do_background_process extends CI_Controller {
                 }
             }
 
-            $query1 = $this->booking_model->booking_history_by_booking_id($data[0]['booking_id']);
+            $query1 = $this->booking_model->booking_history_by_booking_id($data[0]['booking_id'],"0");
 
             log_message('info', 'Booking Status Change - Booking id: ' . $data[0]['booking_id'] . " Completed By " . $this->session->userdata('employee_id'));
 
@@ -234,17 +249,10 @@ class Do_background_process extends CI_Controller {
 
             if ($is_sd == FALSE) {
                 $smsBody = "Your request for " . $query1[0]['services'] . " Repair completed. Like us on Facebook goo.gl/Y4L6Hj For discounts download app goo.gl/m0iAcS. For feedback call 011-39595200.";
-                $this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
+               $this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
             }
         }
     }
-
-    function save_completed_booking() {
-
-    }
-
-    function save_cancelled_booking() {
-
-    }
+    /* end controller */
 
 }

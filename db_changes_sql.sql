@@ -481,3 +481,8 @@ ALTER TABLE  `workbook2` ADD  `active` INT( 1 ) NOT NULL DEFAULT  '0' AFTER  `se
 INSERT INTO `boloaaka_test`.`sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'vendor_invoice_mailed', 'Dear Partner, %s Invoice for %s, Amount Rs. %s was sent to your email id. Kindly review and let us know if any issue. 247around Team', 'SMS sent after generating monthly invoices', '1', CURRENT_TIMESTAMP);
 
 ALTER TABLE  `vendor_partner_invoices` ADD  `type_code` VARCHAR( 10 ) NULL COMMENT 'Invoice type code: A=>Cash, B=>FOC, C=>CreditNote, D=>DebitNote' AFTER  `type` ;
+
+
+<!-- Abhay 12 July -->
+
+ALTER TABLE  `booking_cancellation_reasons` ADD  `reason_of` VARCHAR( 25 ) NOT NULL AFTER  `reason` ;
