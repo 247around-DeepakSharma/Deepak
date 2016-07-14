@@ -58,7 +58,9 @@ class New_booking extends CI_Controller {
 	$data['internal_status'] = $this->input->post('internal_status');
 	$admin_remarks = $this->input->post('admin_remarks');
 
-	$service_charges = $this->booking_model->getbooking_charges($booking_id);
+	$status = array('Completed', 'Cancelled');
+
+	$service_charges = $this->booking_model->getbooking_charges($booking_id, $status);
 	log_message('info', "service_charges: " . print_r($service_charges, TRUE));
 
 	$data['closing_remarks'] = "Service Center Remarks:- " . $service_charges[0]['service_center_remarks'] . " <br/> Admin:-  " . date("F j") . ":- " . $admin_remarks . "<br/>" . $service_charges[0]['admin_remarks'];
@@ -191,6 +193,47 @@ class New_booking extends CI_Controller {
 	$charges['charges'] = $this->booking_model->get_booking_for_review($booking_id);
 	$this->load->view('employee/header');
 	$this->load->view('employee/review_booking', $charges);
+    }
+    
+    /**
+     * @desc: this is used to display reschedule request by service center in admin panel
+     * @param: void
+     * @return: void
+     */
+    function review_reschedule_bookings_request(){
+    	
+       $data['data'] = $this->booking_model->review_reschedule_bookings_request();
+       $this->load->view('employee/header');
+	   $this->load->view('employee/showreschedulerequest', $data);
+       
+    }
+    
+    /**
+     * @desc: this method is used to reschedule booking request in admin panel
+     */ 
+    function process_reschedule_booking(){
+    	$reschedule_booking_id = $this->input->post('reschedule');
+    	$reschedule_booking_date = $this->input->post('reschedule_booking_date');
+    	$reschedule_booking_timeslot = $this->input->post('reschedule_booking_timeslot');
+
+    	foreach ($reschedule_booking_id as $key => $value) {
+
+    		$booking['booking_date'] = date('d-m-Y', strtotime($reschedule_booking_date[$value]));
+    		$timeslot = $reschedule_booking_timeslot[$value];
+    		$booking_timeslot = explode("-", $timeslot);
+    		$booking['booking_timeslot'] = $booking_timeslot[1];
+    		$booking['current_status'] = 'Rescheduled';
+            $booking['internal_status'] = 'Rescheduled';
+            $booking['update_date'] = date("Y-m-d h:i:s");
+    		
+    		$this->booking_model->update_booking($value, $booking);
+    		$data['booking_id'] = $value;
+    		$data['internal_status'] =  "Pending";
+    		$this->vendor_model->update_service_center_action($data);
+    
+    	}
+
+    	  redirect(base_url() . "employee/new_booking/review_reschedule_bookings_request");
     }
 
 }

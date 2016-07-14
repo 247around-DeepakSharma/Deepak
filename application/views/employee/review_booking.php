@@ -15,7 +15,7 @@
             <div class="col-md-3 pull-right" style="margin-top:20px;">
                  <input type="search" class="form-control pull-right"  id="search" placeholder="search">
             </div>
-            <div style="width:100%;margin-left:10px;margine-right:5px;">
+            <div style="width:100%;margin-left:10px;margin-right:5px;">
                 <h1 align="left">
                     <b>Review Bookings</b>
                 </h1>

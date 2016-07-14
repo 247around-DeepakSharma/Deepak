@@ -870,23 +870,7 @@ class Booking_model extends CI_Model {
 
         $temp = $query->result();
 
-        foreach ($temp as $key => $value) {
-            $this->db->select('*');
-            $this->db->where('booking_id', $value->booking_id);
-            $this->db->where_not_in('current_status', 'Pending');
-            $query2 = $this->db->get('service_center_booking_action');
-
-            if ($query2->num_rows > 0) {
-                if ($service_center_id != "") {
-                    $result2 = $query2->result_array();
-                    $temp[$key]->current_status = "In Process";
-                    $temp[$key]->admin_remarks = $result2[0]['admin_remarks'];
-                } else {
-                    $temp[$key]->current_status = "Review";
-                }
-            }
-        }
-
+       
         usort($temp, array($this, 'date_compare_bookings'));
 
         //return slice of the sorted array
@@ -2199,14 +2183,14 @@ class Booking_model extends CI_Model {
      * @param: booking id
      * @return: Array()
      */
-    function getbooking_charges($booking_id = "") {
-	$status = array('Completed', 'Cancelled', 'Pending');
+    function getbooking_charges($booking_id = "", $status="") {
 
 	if ($booking_id != "") {
 	    $this->db->where('booking_id', $booking_id);
 	}
 
 	//Status should NOT be Completed or Cancelled
+    if($status !="")
 	$this->db->where_not_in('current_status', $status);
 	$query = $this->db->get('service_center_booking_action');
 
@@ -2223,8 +2207,9 @@ class Booking_model extends CI_Model {
      * @param: void
      * @return: Array of charges
      */
-    function get_booking_for_review() {
-        $charges = $this->getbooking_charges();
+    function get_booking_for_review($booking_id) {
+        $status = array('Completed', 'Cancelled', 'Pending');
+        $charges = $this->getbooking_charges($booking_id, $status);
         foreach ($charges as $key => $value) {
             $charges[$key]['service_centres'] = $this->vendor_model->getVendor($value['booking_id']);
             $charges[$key]['query2'] = $this->get_unit_details($value['booking_id']);
@@ -2267,6 +2252,29 @@ class Booking_model extends CI_Model {
         } else {
             return "";
         }
+    }
+    
+    /**
+     * @desc: this is used to display reschedule request by service center in admin panel
+     * @param: void
+     * @return: void
+     */
+    function review_reschedule_bookings_request(){
+        
+        $this->db->select('booking_details.booking_id, users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.booking_timeslot, service_center_booking_action.booking_date as reschedule_date_request,  service_center_booking_action.booking_timeslot as reschedule_timeslot_request, service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.service_center_remarks');
+        $this->db->from('service_center_booking_action');
+        $this->db->join('booking_details','booking_details.booking_id = service_center_booking_action.booking_id');
+        
+        $this->db->join('services','services.id = booking_details.service_id');
+        $this->db->join('users','users.user_id = booking_details.user_id');
+        $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id');
+        $this->db->where('service_center_booking_action.internal_status', "Reschedule");
+         
+        $query = $this->db->get();
+        
+        $result = $query->result_array();
+        
+        return $result;
     }
 
 }

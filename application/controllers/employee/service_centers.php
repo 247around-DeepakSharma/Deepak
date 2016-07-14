@@ -306,6 +306,35 @@ class Service_centers extends CI_Controller {
 
     }
 
+    /**
+     * @desc: this is used to send reschedule booking
+     * @param: void
+     * @return : void
+     */
+    function save_reschedule_request(){
+        $data['booking_id'] = $this->input->post('booking_id');
+        $booking_date = $this->input->post('booking_date');
+        $data['booking_date'] = date('d-m-Y',strtotime($booking_date));
+        $data['booking_timeslot'] = $this->input->post('booking_timeslot');
+        $data['internal_status'] = 'Reschedule';
+        $reschedule_remarks = $this->input->post('remarks');
+        $charges = $this->booking_model->getbooking_charges($data['booking_id']);
+       
+        if (!empty($charges)) {
+            // Add current and previous text in admin_remarks column
+           
+            $data['service_center_remarks'] = $charges[0]['service_center_remarks'] . " <br/>" . date("F j") . ":- " . $reschedule_remarks;
+
+        } else {
+
+            $data['service_center_remarks'] = date("F j") . ":- " . $reschedule_remarks;
+        
+        }
+
+        $this->vendor_model->update_service_center_action($data);
+        print_r("success");
+    }
+
 
 
 }
