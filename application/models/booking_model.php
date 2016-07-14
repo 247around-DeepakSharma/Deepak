@@ -926,19 +926,19 @@ class Booking_model extends CI_Model {
     public function total_pending_queries($booking_id = "") {
         $where = "";
 
-        if ($booking_id != "") {
-            $where .= "AND `booking_details`.`booking_id` = '$booking_id'";
-            $sql = "SELECT count(*) as count from booking_details
+	if ($booking_id != "")
+	    $where .= "AND `booking_details`.`booking_id` = '$booking_id'";
+
+	$sql = "SELECT count(*) as count from booking_details
         JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
         JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
         LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
         WHERE `booking_id` LIKE '%Q-%' $where  AND
         (booking_details.current_status='FollowUp')";
-            $query = $this->db->query($sql);
-            $count = $query->result_array();
+	$query = $this->db->query($sql);
+	$count = $query->result_array();
 
-            return $count[0]['count'];
-        }
+	return $count[0]['count'];
     }
 
     /**
