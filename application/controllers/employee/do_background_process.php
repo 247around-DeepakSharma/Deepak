@@ -157,15 +157,16 @@ class Do_background_process extends CI_Controller {
             $data = $this->booking_model->getbooking_charges($value);
             log_message('info', ": " . "data " . print_r($data, TRUE));
 
-            //unset id of service center action table
             if($data[0]['internal_status'] == "Cancelled"){
 
-                $data[0]['current_status'] = "Cancelled";
+                $current_status = "Cancelled";
 
 
             } else {
-               $data[0]['current_status'] = "Completed";
+               $current_status = "Completed";
             }
+
+             $data[0]['current_status'] = $current_status;
 
             $data[0]['booking_id'] = $value;
 
@@ -201,7 +202,7 @@ class Do_background_process extends CI_Controller {
                 if ($this->booking_model->check_sd_lead_exists_by_booking_id($data[0]['booking_id']) === TRUE) {
                     $sd_where = array("CRM_Remarks_SR_No" => $data[0]['booking_id']);
                     $sd_data = array(
-                        "Status_by_247around" => "Completed",
+                        "Status_by_247around" => $current_status,
                         "Remarks_by_247around" => $data[0]['internal_status'],
                         "Rating_Stars" => "",
                         "update_date" => $data[0]['closed_date']
@@ -214,7 +215,7 @@ class Do_background_process extends CI_Controller {
                     if (Partner_Integ_Complete) {
                         $partner_where = array("247aroundBookingID" => $data[0]['booking_id']);
                         $partner_data = array(
-                            "247aroundBookingStatus" => "Completed",
+                            "247aroundBookingStatus" => $current_status,
                             "247aroundBookingRemarks" => $data[0]['internal_status'],
                             "update_date" => $data[0]['closed_date']
                         );
