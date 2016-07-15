@@ -15,7 +15,7 @@
             <div class="col-md-3 pull-right" style="margin-top:20px;">
                  <input type="search" class="form-control pull-right"  id="search" placeholder="search">
             </div>
-            <div style="width:100%;margin-left:10px;margine-right:5px;">
+            <div style="width:100%;margin-left:10px;margin-right:5px;">
                 <h1 align="left">
                     <b>Review Bookings</b>
                 </h1>
@@ -44,6 +44,7 @@
                     <th>Internal Status</th>
                     <th>Closing Remarks</th>
                     <th  ><input type="checkbox" id="selecctall" />  Approve</th>
+                    <th>View</th>
                     <th>Edit</th>
                     <th>Reject</th>
                     
@@ -88,15 +89,20 @@
 					    <td><p id="<?php echo "parts_cost".$count;?>"><?php echo $value['parts_cost']; ?></p></td>
 					     <td><?php echo ($value['parts_cost'] + $value['additional_service_charge'] + $value['service_charge']); ?></td>
                          <input type="hidden" id="<?php echo "admin_remarks".$count;?>" value="<?php echo $value['admin_remarks'];?>"></input>
-                <td><p id="<?php echo "internal_status".$count; ?>"><?php echo $value['internal_status']; ?></p></td>
+                        <td><p id="<?php echo "internal_status".$count; ?>"><?php echo $value['internal_status']; ?></p></td>
 
-               <td data-popover="true" style="position: absolute; border:0px;" data-html=true data-content="<?php if(isset($value['service_center_remarks'])){ echo $value['service_center_remarks'];}?>"><div class="marquee"><div><span ><?php echo $value['service_center_remarks']; ?></span></div></div></td>
-               
-               
-					     
-                <td><input type="checkbox"  class="checkbox1" name="approve[]" value="<?php echo $value['booking_id']; ?>"></input></td>
-                <td><button type="button" id="<?php echo $count;?>" class="btn btn-info btn-sm open-AddBookingDialog" data-toggle="modal" data-target="#myModal">Edit</button></td>
-                <td><button type="button" id="<?php echo "remarks_".$count;?>" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Reject</button></td>
+                       <td data-popover="true" style="position: absolute; border:0px;" data-html=true data-content="<?php if(isset($value['service_center_remarks'])){ echo $value['service_center_remarks'];}?>"><div class="marquee"><div><span ><?php echo $value['service_center_remarks']; ?></span></div></div></td>
+	     
+                        <td><input type="checkbox"  class="checkbox1" name="approve[]" value="<?php echo $value['booking_id']; ?>"></input></td>
+                        
+                        <td>
+                            <?php echo "<a class='btn btn-sm btn-primary' "
+                            . "href=" . base_url() . "employee/booking/viewdetails/$value[booking_id] target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
+                            ?>
+                        </td>
+                        
+                        <td><button type="button" id="<?php echo $count;?>" class="btn btn-info btn-sm open-AddBookingDialog" data-toggle="modal" data-target="#myModal">Edit</button></td>
+                        <td><button type="button" id="<?php echo "remarks_".$count;?>" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Reject</button></td>
                     		
                     	</tr>
                     	<?php $count++; } ?>
@@ -106,7 +112,7 @@
                 </table>
                 <?php if(!empty($charges)){?>
                 <div class"col-md-12">
-                <center><input type="submit" value="Complete Booking" class="btn btn-md btn-success"></input></center>
+                <center><input type="submit" value="Save Bookings" class="btn btn-md btn-success"></input></center>
                 </div>
                  <?php } ?>
                 </form>

@@ -61,10 +61,14 @@ class invoices_model extends CI_Model {
      * @return :Array
      */
     function getInvoicingData($data) {
-        $sql = " SELECT * from vendor_partner_invoices where vendor_partner ='$data[source]' AND  vendor_partner_id = '$data[vendor_partner_id]' AND due_date <= CURRENT_DATE() Order By create_date ASC";
+//	$where_arr = array('vendor_partner' => $data[source],
+//	    'vendor_partner_id' => $data[vendor_partner_id]);
+//	$this->db->where($where_arr);
+	$this->db->where($data);
+	$this->db->order_by('create_date');
+	$query = $this->db->get('vendor_partner_invoices');
 
-	   $data = $this->db->query($sql);
-       return $data->result_array();
+	return $query->result_array();
     }
 
     /**
@@ -83,9 +87,10 @@ class invoices_model extends CI_Model {
 	$this->db->insert('bank_transactions', $account_statement);
     }
 
-    function bank_transactions_details($data) {
-	$this->db->where('partner_vendor', $data['source']);
-	$this->db->where('partner_vendor_id', $data['vendor_partner_id']);
+    function get_bank_transactions_details($data) {
+//	$this->db->where('partner_vendor', $data['source']);
+//	$this->db->where('partner_vendor_id', $data['vendor_partner_id']);
+	$this->db->where($data);
 	$this->db->order_by('transaction_date DESC');
 	$query = $this->db->get('bank_transactions');
 	return $query->result_array();

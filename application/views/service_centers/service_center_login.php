@@ -11,7 +11,7 @@
         <link href="<?php echo base_url()?>font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
          <link href="<?php echo base_url()?>css/sb-admin.css" rel="stylesheet">
         <script src="<?php echo base_url()?>js/jquery.js"></script>
-        <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
         <script src="<?php echo base_url()?>js/bootstrap.min.js"></script>
         <style>
             body{

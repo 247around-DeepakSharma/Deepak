@@ -39,9 +39,9 @@ class bookingjobcard extends CI_Controller {
     }
 
     /**
-     * @input: void
-     * @description: accepts post request only and basic validations
-     * @output: void
+     * @desc: accepts post request only and basic validations
+     * @param: void     
+     * @return: void
      */
     public function index() {
         //echo "Hello, World" . PHP_EOL;
@@ -49,6 +49,12 @@ class bookingjobcard extends CI_Controller {
         $this->load->view('employee/header');
         $this->load->view('employee/jobcard');
     }
+
+    /*
+     * @desc: This function is to prepare jobcard of a booking.
+     * @param: void
+     * @return: void
+     */
 
     public function prepare_job_card_by_booking_id() {
         log_message('info', __FUNCTION__);
@@ -59,7 +65,7 @@ class bookingjobcard extends CI_Controller {
         $file_names = array();
 
         $template = 'BookingJobCard_Template-v6.xlsx';
-	//set absolute path to directory with template files
+        //set absolute path to directory with template files
         $templateDir = __DIR__ . "/../";
 
         //set config for report
@@ -75,7 +81,7 @@ class bookingjobcard extends CI_Controller {
         $unit_details = $this->reporting_utils->get_unit_details($booking_id);
 
 
-	$R->load(array(
+        $R->load(array(
             array(
                 'id' => 'booking',
                 //'repeat' => TRUE,
@@ -96,7 +102,7 @@ class bookingjobcard extends CI_Controller {
                     'total_price' => array('number' => array('prefix' => 'Rs. ')),
                 )
             ),
-            )
+                )
         );
 
         //Get populated XLS with data
@@ -115,17 +121,17 @@ class bookingjobcard extends CI_Controller {
         $this->reporting_utils->update_booking_jobcard($booking_details[0]['id'], $output_file . ".pdf");
 
         //$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=278325305" . " -o " . $output_file_pdf;
-	putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-	$tmp_path = '/home/around/libreoffice_tmp';
-	$tmp_output_file = '/home/around/libreoffice_tmp/output.txt';
-	$cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
-	    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
-	    $output_file_excel . ' 2> ' . $tmp_output_file;
+        putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+        $tmp_path = '/home/around/libreoffice_tmp';
+        $tmp_output_file = '/home/around/libreoffice_tmp/output.txt';
+        $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+                '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+                $output_file_excel . ' 2> ' . $tmp_output_file;
 
-	//echo $cmd;
-	$output = '';
-	$result_var = '';
-	exec($cmd, $output, $result_var);
+        //echo $cmd;
+        $output = '';
+        $result_var = '';
+        exec($cmd, $output, $result_var);
 
         //Upload Excel & PDF files to AWS
         $bucket = 'bookings-collateral';
@@ -141,96 +147,112 @@ class bookingjobcard extends CI_Controller {
         $this->load->view('employee/jobcard', $data);
     }
 
+    /*
+     * @desc: This function is to prepare jobcard of a booking using booking id.
+     * @param: $booking_id- Booking Id of which we want want to prepare the jobcard
+     * @return: void
+     */
+
     public function prepare_job_card_using_booking_id($booking_id) {
-	log_message('info', __FUNCTION__);
+        log_message('info', __FUNCTION__);
 
-	log_message('info', $booking_id);
+        log_message('info', $booking_id);
 
-	$file_names = array();
+        $file_names = array();
 
-	$template = 'BookingJobCard_Template-v6.xlsx';
-	//set absolute path to directory with template files
-	$templateDir = __DIR__ . "/../";
+        $template = 'BookingJobCard_Template-v6.xlsx';
+        //set absolute path to directory with template files
+        $templateDir = __DIR__ . "/../";
 
-	//set config for report
-	$config = array(
-	    'template' => $template,
-	    'templateDir' => $templateDir
-	);
+        //set config for report
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
 
-	//load template
-	$R = new PHPReport($config);
-	//log_message('info', "PHP report");
+        //load template
+        $R = new PHPReport($config);
+        //log_message('info', "PHP report");
 
-	$booking_details = $this->reporting_utils->get_booking_details($booking_id);
-	$unit_details = $this->reporting_utils->get_unit_details($booking_id);
+        $booking_details = $this->reporting_utils->get_booking_details($booking_id);
+        $unit_details = $this->reporting_utils->get_unit_details($booking_id);
 
-	$R->load(array(
-	    array(
-		'id' => 'booking',
-		//'repeat' => TRUE,
-		'data' => $booking_details[0],
-		//'minRows' => 2,
-		'format' => array(
-		    'booking_date' => array('datetime' => 'd/M/Y'),
-		    'amount_due' => array('number' => array('prefix' => 'Rs. ')),
-		)
-	    ),
-	    array(
-		'id' => 'unit',
-		'repeat' => TRUE,
-		'data' => $unit_details,
-		//'minRows' => 2,
-		'format' => array(
-		    //'create_date' => array('datetime' => 'd/M/Y'),
-		    'total_price' => array('number' => array('prefix' => 'Rs. ')),
-		)
-	    ),
-	    )
-	);
+        $R->load(array(
+            array(
+                'id' => 'booking',
+                //'repeat' => TRUE,
+                'data' => $booking_details[0],
+                //'minRows' => 2,
+                'format' => array(
+                    'booking_date' => array('datetime' => 'd/M/Y'),
+                    'amount_due' => array('number' => array('prefix' => 'Rs. ')),
+                )
+            ),
+            array(
+                'id' => 'unit',
+                'repeat' => TRUE,
+                'data' => $unit_details,
+                //'minRows' => 2,
+                'format' => array(
+                    //'create_date' => array('datetime' => 'd/M/Y'),
+                    'total_price' => array('number' => array('prefix' => 'Rs. ')),
+                )
+            ),
+                )
+        );
 
-	//Get populated XLS with data
-	if ($booking_details[0]['current_status'] == "Rescheduled")
-	    $output_file_suffix = "-RESC-" . $booking_details[0]['booking_date'];
-	else
-	    $output_file_suffix = "";
+        //Get populated XLS with data
+        if ($booking_details[0]['current_status'] == "Rescheduled")
+            $output_file_suffix = "-RESC-" . $booking_details[0]['booking_date'];
+        else
+            $output_file_suffix = "";
 
-	$output_file_dir = "/tmp/";
-	$output_file = "BookingJobCard-" . $booking_id . $output_file_suffix;
+        $output_file_dir = "/tmp/";
+        $output_file = "BookingJobCard-" . $booking_id . $output_file_suffix;
 
-	$output_file_excel = $output_file_dir . $output_file . ".xlsx";
-	$result = $R->render('excel', $output_file_excel);
-	$output_file_pdf = $output_file_dir . $output_file . ".pdf";
+        $output_file_excel = $output_file_dir . $output_file . ".xlsx";
+        $result = $R->render('excel', $output_file_excel);
+        $output_file_pdf = $output_file_dir . $output_file . ".pdf";
 
-	//Update output file name in DB
-	$this->reporting_utils->update_booking_jobcard($booking_details[0]['id'], $output_file . ".pdf");
+        //Update output file name in DB
+        $this->reporting_utils->update_booking_jobcard($booking_details[0]['id'], $output_file . ".pdf");
 
-	//$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=278325305" . " -o " . $output_file_pdf;
-	putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-	$tmp_path = '/home/around/libreoffice_tmp';
-	$tmp_output_file = '/home/around/libreoffice_tmp/output.txt';
-	$cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
-	    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
-	    $output_file_excel . ' 2> ' . $tmp_output_file;
+        //$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=278325305" . " -o " . $output_file_pdf;
+        putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+        $tmp_path = '/home/around/libreoffice_tmp';
+        $tmp_output_file = '/home/around/libreoffice_tmp/output.txt';
+        $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+                '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+                $output_file_excel . ' 2> ' . $tmp_output_file;
 
-	//echo $cmd;
-	$output = '';
-	$result_var = '';
-	exec($cmd, $output, $result_var);
+        //echo $cmd;
+        $output = '';
+        $result_var = '';
+        exec($cmd, $output, $result_var);
 
-	//Upload Excel & PDF files to AWS
-	$bucket = 'bookings-collateral';
-	$directory_xls = "jobcards-excel/" . $output_file . ".xlsx";
-	$this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        //Upload Excel & PDF files to AWS
+        $bucket = 'bookings-collateral';
+        $directory_xls = "jobcards-excel/" . $output_file . ".xlsx";
+        $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 
-	$directory_pdf = "jobcards-pdf/" . $output_file . ".pdf";
-	$this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+        $directory_pdf = "jobcards-pdf/" . $output_file . ".pdf";
+        $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
 
-	$this->session->set_flashdata('result', 'Job card generated successfully');
-	redirect(base_url() . 'employee/booking/view', 'refresh');
+        $this->session->set_flashdata('result', 'Job card generated successfully');
+        redirect(base_url() . 'employee/booking/view', 'refresh');
     }
 
-    //This function sends email to the assigned vendor
+    /*
+     * @desc: This function sends email to the assigned vendor with the booking details.
+     * 
+     * We can add additional notes to the email we are sending to vendor.
+     * 
+     * @param: $booking_id - to find details of booking
+     * @param: $additional_note - extra notes to be sent in email
+     * 
+     * @return: void
+     */
+
     function send_mail_to_vendor($booking_id, $additional_note) {
         //log_message('info', __FUNCTION__);
 
@@ -242,9 +264,9 @@ class bookingjobcard extends CI_Controller {
 
             $salutation = "Dear " . $servicecentredetails[0]['primary_contact_name'];
             $heading = "<br><br>Please find attached job card " . $getbooking[0]['booking_id'] . " for "
-                . $serviceName[0]['services'] .
-                "<br><br>Date: " . $getbooking[0]['booking_date'] .
-                "<br>Time Slot: " . $getbooking[0]['booking_timeslot'];
+                    . $serviceName[0]['services'] .
+                    "<br><br>Date: " . $getbooking[0]['booking_date'] .
+                    "<br>Time Slot: " . $getbooking[0]['booking_timeslot'];
 
             $booking_remarks = "<br><br>Booking remarks: " . $getbooking[0]['booking_remarks'];
             $heading .= $booking_remarks;
@@ -272,11 +294,11 @@ class bookingjobcard extends CI_Controller {
 
             $to = $servicecentredetails[0]['primary_contact_email'];
             $owner = $servicecentredetails[0]['owner_email'];
-	    $cc = $owner;
-	    $bcc = 'anuj@247around.com';
+            $cc = $owner;
+            $bcc = 'anuj@247around.com';
 
-	    $subject = "247Around / Job Card " . $getbooking[0]['booking_id'] . " / " . $getbooking[0]['booking_date'] .
-                " / " . $getbooking[0]['booking_timeslot'];
+            $subject = "247Around / Job Card " . $getbooking[0]['booking_id'] . " / " . $getbooking[0]['booking_date'] .
+                    " / " . $getbooking[0]['booking_timeslot'];
 
             $file_pdf = $getbooking[0]['booking_jobcard_filename'];
             $output_file_pdf = "/tmp/" . $getbooking[0]['booking_jobcard_filename'];
@@ -291,10 +313,10 @@ class bookingjobcard extends CI_Controller {
             $this->email->attach($output_file_pdf, 'attachment');
 
             $this->email->from('booking@247around.com', '247around Team');
-	    $this->email->to($to);
+            $this->email->to($to);
             $this->email->cc($cc);
-	    $this->email->bcc($bcc);
-	    $this->email->subject($subject);
+            $this->email->bcc($bcc);
+            $this->email->subject($subject);
             $this->email->message($message);
 
             $date1 = date('d-m-Y', strtotime('now'));
@@ -337,12 +359,25 @@ class bookingjobcard extends CI_Controller {
             }
 
             redirect(base_url() . 'employee/booking/view');
-	} else {
+        } else {
             echo "Booking does not exist.";
         }
     }
 
-    //This function sends reminder email to the assigned vendor
+    /* Was made earliar, do something as escalate option now does.
+     * @desc: This function sends reminder email to the assigned vendor
+     * 
+     * We can add additional notes to the reminder email we are sending to vendor.
+     * 
+     * This mail is sent if vendor is not contacting the user or not completing the 
+     *      booking on time.
+     * 
+     * @param: $booking_id - to add details of booking to email body.
+     * @param: $additional_note - extra notes to be sent in email.
+     * 
+     * @return: void
+     */
+
     function send_reminder_mail_to_vendor($booking_id, $additional_note) {
         $getbooking = $this->booking_model->getbooking($booking_id);
 
@@ -378,16 +413,16 @@ class bookingjobcard extends CI_Controller {
             $message = $salutation . $heading . $note . "Regards,<br><br>Devendra";
 
             $message = $message . "<br><br>--------------------------------------------------<br><br>" .
-                $last_mail[0]['body'];
+                    $last_mail[0]['body'];
 
             $to = $servicecentredetails[0]['primary_contact_email'];
             $owner = $servicecentredetails[0]['owner_email'];
             $cc = ($owner . ', anuj@247around.com, nits@247around.com');
-	    //$cc = $owner;
+            //$cc = $owner;
 
-	    $this->email->clear(TRUE);
+            $this->email->clear(TRUE);
             $this->email->from('booking@247around.com', '247around Team');
-	    $this->email->to($to);
+            $this->email->to($to);
             $this->email->cc($cc);
             $this->email->subject($new_sub);
             $this->email->message($message);
@@ -406,7 +441,7 @@ class bookingjobcard extends CI_Controller {
             }
 
             redirect(base_url() . 'employee/booking/view');
-	} else {
+        } else {
             echo "This booking Id do not exists";
         }
     }

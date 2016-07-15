@@ -429,8 +429,9 @@ class Reporting_utils extends CI_Model {
         $query = $this->db->get("partner_leads");
         return $query->result_array();
     }
+
     /*
-     * Get completed bookings to generate invoice for service center.
+     * Get completed bookings to generate CASH invoice for service center.
      * These are the bookings for which vendor has collected money on 247around behalf.
      * These could be partner bookings where partner doesn't pay us or general
      * repair bookings which 247around gets from non-partner channels.
@@ -461,6 +462,38 @@ class Reporting_utils extends CI_Model {
 		((booking_details.partner_id IS NULL) OR
 		(booking_details.partner_id = 1 AND booking_details.service_id IN (44,50)) OR
 		(booking_details.partner_id = 1 AND booking_details.service_id NOT IN (44,50) AND booking_details.parts_cost!='0'))
+	    AND booking_details.service_id = services.id
+	    AND booking_details.assigned_vendor_id = $id");
+
+	//$result = (bool) ($this->db->affected_rows() > 0);
+
+	return $query->result_array();
+    }
+
+    /*
+     * Get completed Website (SW) bookings to generate CASH invoice for service center.
+     * These are the bookings for which vendor has collected money on 247around behalf.
+     *
+     * This is a temp routine to generate SW invoices which got missed for May
+     * 2016, Not to be used typically.
+     */
+
+    function get_sw_completed_bookings_by_sc($id, $s_date, $e_date) {
+	$query = $this->db->query("
+	    SELECT booking_details.booking_id,
+	    services.services AS service_name,
+	    booking_details.booking_date,
+	    Date_Format(booking_details.closed_date,'%d-%m-%Y') AS closed_date,
+	    booking_details.service_charge,
+	    booking_details.additional_service_charge,
+	    booking_details.parts_cost,
+	    booking_details.amount_paid,
+	    booking_details.rating_stars AS rating
+	    FROM booking_details, services
+	    WHERE booking_details.current_status =  'Completed'
+	    AND booking_details.closed_date >=  '$s_date'
+	    AND booking_details.closed_date <=  '$e_date'
+	    AND booking_details.partner_id LIKE 247001
 	    AND booking_details.service_id = services.id
 	    AND booking_details.assigned_vendor_id = $id");
 
@@ -509,9 +542,9 @@ class Reporting_utils extends CI_Model {
 	 */
 
 	$query = $this->db->query("
-	    SELECT partner_leads_for_foc_invoicing.*, booking_details.assigned_vendor_id
-	  FROM partner_leads_for_foc_invoicing, booking_details
-	  WHERE partner_leads_for_foc_invoicing.booking_id = booking_details.booking_id
+	    SELECT partner_leads_for_foc_invoicing_may.*, booking_details.assigned_vendor_id
+	  FROM partner_leads_for_foc_invoicing_may, booking_details
+	  WHERE partner_leads_for_foc_invoicing_may.booking_id = booking_details.booking_id
 	  AND booking_details.assigned_vendor_id = $id");
 
 	return $query->result_array();
@@ -537,12 +570,10 @@ class Reporting_utils extends CI_Model {
                  SUM(CASE WHEN `current_status` LIKE '%Cancelled%' THEN 1 ELSE 0 END) AS cancelled,
                  SUM(CASE WHEN `current_status` LIKE '%Completed%' THEN 1 ELSE 0 END) AS completed,
                  SUM(CASE WHEN `current_status` LIKE '%Pending%' OR `current_status` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) as scheduled,
-                 SUM(CASE WHEN `current_status` LIKE '%FollowUp%' OR `current_status` LIKE '%Completed%' OR `current_status` LIKE '%Cancelled%' OR `current_status` LIKE '%Pending%' OR `current_status` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) AS total 
-  
+                 SUM(CASE WHEN `current_status` LIKE '%FollowUp%' OR `current_status` LIKE '%Completed%' OR `current_status` LIKE '%Cancelled%' OR `current_status` LIKE '%Pending%' OR `current_status` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) AS total
                 from booking_details $where Group By source ;
+                 ";
 
-                 "; 
-                
             $data = $this->db->query($sql);
             $result['data'.$i] = $data->result_array();
         }

@@ -1,7 +1,8 @@
 <?php
 
-if (!defined('BASEPATH'))
+if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
+}
 
 
 define('EOL', (PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
@@ -42,6 +43,11 @@ class service_centre_charges extends CI_Controller {
 	}
     }
 
+    /**
+     *  @desc : This function is to get a form to upload service center charges from excel
+     *  @param : void
+     *  @return : void
+     */
     public function index() {
 	$this->load->view('employee/header');
 	$this->load->view('employee/upload_service_centre_charges_excel');

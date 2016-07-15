@@ -152,7 +152,7 @@
                 }
                 ?>
                 <div class="col-md-12">
-                
+
                 <table >
 
                     <thead>
@@ -170,7 +170,8 @@
                     <th>
                        <a href="<?php echo base_url();?>employee/booking/service_center_sorted_booking">Service Center</a>
                     </th>
-                    <th>View</th>
+		            <th>Call</th>
+                    <th>View Jobcard</th>
                     <th>Reschedule</th>
                     <th>Cancel</th>
                     <th>Complete</th>
@@ -180,12 +181,12 @@
                     <th>Edit Booking</th>
                     <th>Re-assign</th>
                     <th>Escalate</th>
-                    
+
 
                     </tr>
 
                     </thead>
-                     
+
                     <?php $count = 1; ?>
                     <?php foreach($Bookings as $key =>$row){?>
 
@@ -208,12 +209,19 @@
                     <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
                     <td id="status_<?php echo $row->booking_id; ?>"><?php echo $row->current_status; ?></td>
                     <td><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?=$row->assigned_vendor_id;?>"><?php if(!empty($row->service_centre_name)){ echo $row->service_centre_name." / ".$row->primary_contact_name." / ".$row->primary_contact_phone_1 ; } ?></a></td>
-                    <td>
-                        <?php echo "<a class='btn btn-sm btn-primary' "
-                                . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";?>
-                    </td> 
+                            <td><a class="btn btn-sm btn-info"
+				   href="<?php echo base_url(); ?>employee/booking/call_customer/<?= $row->phone_number; ?>"
+    				   title = "call" onclick = "return confirm('Call Customer ?');">
+    				    <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
+    				</a>
+			    </td>
+    			   <td>
+			    <?php echo "<a class='btn btn-sm btn-primary' "
+			    . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
+			    ?>
+                        </td>
 
-                    <td>
+                        <td>
                         <?php
                         if ($row->current_status == 'Pending' || $row->current_status == 'Rescheduled')
                         {
@@ -247,7 +255,7 @@
                         if ($row->current_status == 'Pending' || $row->current_status == 'Rescheduled')
                         {
                             echo "<a class='btn btn-sm btn-danger btn-sm' "
-                            . "href=" . base_url() . "employee/booking/complete_booking_form/$row->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>";
+                            . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>";
                         } else if ($row->current_status == 'Review')
                         {
                             echo "<a class='btn btn-sm btn-danger btn-sm' "
@@ -256,7 +264,7 @@
                         else
                         {
                             echo "<a class='btn btn-sm btn-danger btn-sm disabled' "
-                                . "href=" . base_url() . "employee/booking/complete_booking_form/$row->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>";
+                                . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>";
                         }
                         ?>
                     </td>
@@ -328,7 +336,7 @@
                     </td>
                     <td><?php
                             echo "<a class='btn btn-sm btn-primary'"
-                                . "href=" . base_url() . "employee/new_booking/get_edit_booking_form/$row->booking_id title='Edit Booking'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
+                                . "href=" . base_url() . "employee/booking/get_edit_booking_form/$row->booking_id title='Edit Booking'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
                     ?></td>
                      <td>
                         <a href="<?php echo base_url();?>employee/vendor/get_reassign_vendor_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-success' title="Re- assign"><i class="fa fa-repeat" aria-hidden="true"></i></a>
@@ -345,7 +353,7 @@
                 </table>
                 <?php if(!empty($links)){ ?><div class="pagination" style="float:left;"> <?php if(isset($links)){echo $links;} ?></div> <?php }  ?>
                 </div>
-                
+
             </div>
         </div>
     </div>

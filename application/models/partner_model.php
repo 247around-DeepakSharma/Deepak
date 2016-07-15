@@ -115,15 +115,24 @@ class Partner_model extends CI_Model {
 
     //return booking source code
     function get_source_code_for_partner($partner_id) {
-    	$this->db->where(array("partner_id" => $partner_id));
-    	$query = $this->db->get('bookings_sources');
-    	$results = $query->result_array();
+	$this->db->where(array("partner_id" => $partner_id));
+	$query = $this->db->get('bookings_sources');
+	$results = $query->result_array();
 
-    	if (count($results) > 0) {
-    		return $results[0]['code'];
-    	} else {
-    		return "SO";
-    	}
+	if (count($results) > 0) {
+	    return $results[0]['code'];
+	} else {
+	    return "SO";
+	}
+    }
+    //Return Partner ID from Booking Source
+    //Default 'Other'
+    function get_partner_id_from_booking_source_code($source) {
+	$this->db->where(array("code" => $source));
+	$query = $this->db->get('bookings_sources');
+	$results = $query->result_array();
+
+	return $results[0]['partner_id'];
     }
 
     function get_all_partner_source($flag="", $source= ""){

@@ -615,3 +615,7 @@ CREATE TABLE IF NOT EXISTS `booking_details` (
   UNIQUE KEY `booking_id` (`booking_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
+
+<!-- Abhay  7/07/16 -->
+ALTER TABLE  `service_centre_charges` CHANGE  `product_type`  `product_type` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
+

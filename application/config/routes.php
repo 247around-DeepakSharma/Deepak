@@ -45,8 +45,12 @@ $route['vendor-extn'] = 'api/vendor_extn';
 $route['get-vendor-phone'] = 'api/getVendorPhoneFromExtn';
 $route['service_center'] = 'employee/service_centers';
 $route['service_center/pending_booking'] = 'employee/service_centers/pending_booking';
+$route['service_center/completed_booking'] = 'employee/service_centers/completed_booking';
+$route['service_center/cancelled_booking'] = 'employee/service_centers/cancelled_booking';
 $route['service_center/booking_details/(:any)'] = 'employee/service_centers/booking_details/$1';
+$route['service_center/cancel_booking_form/(:any)'] = 'employee/service_centers/cancel_booking_form/$1';
 $route['service_center/complete_booking_form/(:any)'] = 'employee/service_centers/complete_booking_form/$1';
+$route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';
 
 //$route['api/(:any)'] = 'partner/$2';
 

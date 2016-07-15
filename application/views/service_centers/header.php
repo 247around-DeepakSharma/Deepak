@@ -11,7 +11,7 @@
       <link href="<?php echo base_url()?>font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
       <link href="<?php echo base_url()?>css/sb-admin.css" rel="stylesheet">
       <script src="<?php echo base_url()?>js/jquery.js"></script>
-      <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+      <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
       <script src="<?php echo base_url()?>js/bootstrap.min.js"></script>
       <style type="text/css">
          .navbar{
@@ -41,7 +41,11 @@
                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Booking <span class="caret"></span></a>
                      <ul class="dropdown-menu">
                         <li><a href="<?php echo base_url();?>service_center/pending_booking">Pending Booking</a></li>
-                        <!--<li role="separator" class="divider"></li>-->
+                         <li role="separator" class="divider"></li>
+                        <li><a href="<?php echo base_url();?>service_center/completed_booking">Completed Booking</a></li>
+                         <li role="separator" class="divider"></li>
+                        <li><a href="<?php echo base_url();?>service_center/cancelled_booking">Cancelled Booking</a></li>
+                       
                      </ul>
                   </li>
                </ul>

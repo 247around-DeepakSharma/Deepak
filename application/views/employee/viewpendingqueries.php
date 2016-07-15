@@ -4,11 +4,11 @@
 <script type="text/javascript" src="<?php echo base_url();?>js/jquery-ui-1.7.1.custom.min.js"></script>
 <script>
     $(function(){
-    
+
       $('#dynamic_select').bind('change', function () {
-          var url = $(this).val(); 
+          var url = $(this).val();
           if (url) {
-              window.location = url; 
+              window.location = url;
           }
           return false;
       });
@@ -17,15 +17,15 @@
 </script>
 <style type="text/css">
     table{
-          
+
     }
     th,td{
         border: 1px #f2f2f2 solid;
         text-align:center;
-        vertical-align: center;    
+        vertical-align: center;
         padding: 2px;
     }
-    
+
     th{
         height: 50px;
         background-color: #4CBA90;
@@ -71,6 +71,7 @@
                     <th width="100px;">City</th>
                     <th width="100px;">Vendor Status</th>
                     <th width="250px;">Query Remarks</th>
+                    <th width="60px;">Call</th>
                     <th width="60px;">View</th>
                     <th width="60px;">Update</th>
                     <th width="60px;">Cancel</th>
@@ -102,7 +103,7 @@
                     <td><?= $row['potential_value']; ?></td>
                     <td><?= $row['booking_date']; ?> / <?= $row['booking_timeslot']; ?></td>
                     <td id="status_<?php echo $row['booking_id']; ?>">
-                        <?php 
+                        <?php
                             echo $row['current_status'];
                             if ($row['current_status'] != $row['internal_status'])
                                 echo " (" . $row['internal_status'] . ")";
@@ -119,34 +120,43 @@
 
                     <select onchange="load_vendor_details(<?php echo $count; ?>)" id="vendor_avalilabe<?php echo $count;?>"  class="form-control" style="width:156px;">
                         <option selected disabled>Vendor Available</option>
-                    
+
                     <?php foreach ($row['vendor_status'] as  $value) { ?>
                     <option value="<?php echo $value['Vendor_ID']?>"><?php echo $value['Vendor_Name']; ?></option>
-                          
+
                     <?php  } ?>
                     </select>
 
                     </td>
-                          
+
 
                    <?php  } ?>
-                    
+
                     <td><?= $row['query_remarks']; ?></td>
-                    
+
+                    <td>
+                        <a class="btn btn-sm btn-info"
+				   href="<?php echo base_url(); ?>employee/booking/call_customer/<?= $row['booking_primary_contact_no']; ?>"
+    				   title = "call" onclick = "return confirm('Call Customer ?');">
+    				    <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
+    				    </a>
+                    </td>
+
                     <td>
                         <?php echo "<a class='btn btn-sm btn-primary' "
                         . "href=" . base_url() . "employee/booking/viewdetails/$row[booking_id] target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
                         ?>
                     </td>
+
                     <td><?php
-                        echo "<a class='btn btn-small btn-success btn-sm' href=".base_url()."employee/new_booking/get_edit_booking_form/$row[booking_id] title='Update'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
+                        echo "<a class='btn btn-small btn-success btn-sm' href=".base_url()."employee/booking/get_update_query_form/$row[booking_id] title='Update'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
                         ?>
                     </td>
                     <td>
-                        <?php            
+                        <?php
                         echo "<a class='btn btn-small btn-warning btn-sm' href=".base_url()."employee/booking/get_cancel_followup_form/$row[booking_id] title='Cancel'> <i class='fa fa-times' aria-hidden='true'></i></a>";
                         ?>
-                    </td>            
+                    </td>
                     </tr>
                     <?php $count++;
                     }?>
@@ -161,7 +171,7 @@
 <script src="<?php echo base_url();?>js/jquery.filtertable.min.js"></script>
 
 <script>
- 
+
     $(document).ready(function() {
         $('table').filterTable({ // apply filterTable to all tables on this page
             inputSelector: '#input-filter' // use the existing input instead of creating a new one
@@ -173,13 +183,13 @@
         document.location.href= '<?php echo base_url(); ?>employee/vendor/viewvendor/'+vendor_id;
     }
 
-   
+
 </script>
 <style>
     /* generic table styling */
     table { border-collapse: collapse; }
     td { padding: 5px; }
-    
+
     td { border-bottom: 1px solid #ccc; }
     /* filter-table specific styling */
     td.alt { background-color: #ffc; background-color: rgba(255, 255, 0, 0.2); }

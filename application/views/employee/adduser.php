@@ -105,7 +105,7 @@
                         <select name="state" id="state" onchange="getcity()" class="form-control" >
                           <option value="" >Select State</option>
                           <?php foreach ($state as $value) { ?>
-                          <option value="<?php echo $value['state']; ?>"><?php echo $value['state']; ?></option>
+                          <option value="<?php echo $value['state']; ?>" ><?php echo $value['state']; ?></option>
                         <?php  } ?>
                           
                         </select>
@@ -159,7 +159,7 @@
        url: '<?php echo base_url(); ?>employee/vendor/getDistrict/1',
        data: {state: state},
        success: function (data) {
-      
+
          $("#city").html(data);          
          $('#loader_gif').attr('src', "");
          $('#loader_gif').css('display','none');
