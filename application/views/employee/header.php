@@ -94,6 +94,10 @@
                             <li>
                                 <a href="<?php echo base_url() ?>employee/new_booking/review_bookings"><i class="fa fa-fw fa-desktop"></i> <strong> Review Bookings</strong></a>
                             </li>
+                            <li class="divider"></li>
+                            <li>
+                                <a href="<?php echo base_url() ?>employee/new_booking/review_reschedule_bookings_request"><i class="fa fa-fw fa-desktop"></i> <strong> Reschedule Bookings</strong></a>
+                            </li>
 
                             <!--
                                               
