@@ -216,6 +216,7 @@
             url: '<?php echo base_url(); ?>employee/service_centers/save_reschedule_request',
             data: {booking_id: booking_id, booking_date: booking_date, booking_timeslot: booking_timeslot, remarks: remarks},
             success: function (result) {
+
                 //console.log(result);
                 location.reload();
                

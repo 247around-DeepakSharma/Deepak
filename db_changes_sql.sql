@@ -488,3 +488,8 @@ ALTER TABLE  `vendor_partner_invoices` ADD  `type_code` VARCHAR( 10 ) NULL COMME
 ALTER TABLE  `booking_cancellation_reasons` ADD  `reason_of` VARCHAR( 25 ) NOT NULL AFTER  `reason` ;
 ALTER TABLE  `service_center_booking_action` ADD  `booking_date` DATE NULL DEFAULT NULL AFTER  `internal_status` ;
 ALTER TABLE  `service_center_booking_action` ADD  `booking_timeslot` VARCHAR( 25 ) NULL DEFAULT NULL AFTER  `booking_date` ;
+
+<!-- Abhay 15july -->
+
+ALTER TABLE  `service_center_booking_action` ADD  `cancellation_reason` VARCHAR( 100 ) NULL AFTER  `service_center_remarks` ;
+ALTER TABLE  `service_center_booking_action` ADD  `reschedule_reason` VARCHAR( 100 ) NOT NULL AFTER  `cancellation_reason` ;

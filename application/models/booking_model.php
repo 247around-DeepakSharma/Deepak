@@ -969,7 +969,7 @@ class Booking_model extends CI_Model {
      * @param : void
      * @return : all the cancellation reasons present
      */
-    function cancelreason($reason_of = "") {
+    function cancelreason($reason_of) {
         $query = $this->db->query("Select id,reason from booking_cancellation_reasons where reason_of = '$reason_of' ");
         return $query->result();
     }
@@ -2192,6 +2192,8 @@ class Booking_model extends CI_Model {
 	//Status should NOT be Completed or Cancelled
     if($status !="")
 	$this->db->where_not_in('current_status', $status);
+
+    $this->db->where_not_in('internal_status', "Reschedule");
 	$query = $this->db->get('service_center_booking_action');
 
 	log_message('info', __METHOD__ . "=> " . $this->db->last_query());
@@ -2261,7 +2263,7 @@ class Booking_model extends CI_Model {
      */
     function review_reschedule_bookings_request(){
         
-        $this->db->select('booking_details.booking_id, users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.booking_timeslot, service_center_booking_action.booking_date as reschedule_date_request,  service_center_booking_action.booking_timeslot as reschedule_timeslot_request, service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.service_center_remarks');
+        $this->db->select('booking_details.booking_id, users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.booking_timeslot, service_center_booking_action.booking_date as reschedule_date_request,  service_center_booking_action.booking_timeslot as reschedule_timeslot_request, service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.reschedule_reason');
         $this->db->from('service_center_booking_action');
         $this->db->join('booking_details','booking_details.booking_id = service_center_booking_action.booking_id');
         

@@ -56,12 +56,12 @@
                   </div>
                </div>
                <div>
-                  <center>
-                     <input type="submit" value="Cancel Booking" onclick="return(check_text())" class="btn btn-danger btn-large">
-                     <a href="<?php echo base_url();?>employee/booking/view">
-                     <input type="Button" value="Go Back !!!" class="btn btn-primary btn-large">
-                     </a>
-                  </center>
+                <div class="col-md-6 col-md-offset-4">
+                  
+                     <input type="submit" value="Cancel Booking" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return(check_text())" class="btn btn-danger btn-large">
+                    
+                  
+                  </div>
                </div>
             </form>
          </div>

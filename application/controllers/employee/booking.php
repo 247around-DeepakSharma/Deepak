@@ -67,7 +67,7 @@ class Booking extends CI_Controller {
         $results['pincode'] = $this->input->post('pincode');
         $results['name'] = $this->input->post('name');
 
-        $results['reason'] = $this->booking_model->cancelreason();
+        $results['reason'] = $this->booking_model->cancelreason("247around");
         $results['services'] = $this->booking_model->selectservice();
         $results['sources'] = $this->booking_model->select_booking_source();
 
@@ -770,7 +770,7 @@ class Booking extends CI_Controller {
     function cancelreason() {
 
 
-        $query = $this->booking_model->cancelreason();
+        $query = $this->booking_model->cancelreason("247around");
 
         $data['reason'] = null;
 
@@ -933,7 +933,7 @@ class Booking extends CI_Controller {
     function get_cancel_booking_form($booking_id) {
         $data['user_and_booking_details'] = $this->booking_model->booking_history_by_booking_id($booking_id);
 
-        $data['reason'] = $this->booking_model->cancelreason();
+        $data['reason'] = $this->booking_model->cancelreason("247around");
         $this->load->view('employee/header');
         $this->load->view('employee/cancelbooking', $data);
     }
@@ -1762,7 +1762,7 @@ class Booking extends CI_Controller {
      */
     function get_cancel_followup_form($booking_id) {
         $query = $this->booking_model->getbooking($booking_id);
-        $reasons = $this->booking_model->cancelreason();
+        $reasons = $this->booking_model->cancelreason("247around");
         $page = "Cancel";
         $internal_status = $this->booking_model->get_internal_status($page);
         $this->load->view('employee/header');

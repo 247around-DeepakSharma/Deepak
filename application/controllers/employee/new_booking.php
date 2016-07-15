@@ -53,19 +53,26 @@ class New_booking extends CI_Controller {
 	$data['additional_service_charge'] = $this->input->post('additional_charge');
 	$data['parts_cost'] = $this->input->post('parts_cost');
 	$data['amount_paid'] = $this->input->post('amount_paid');
-	$data['current_status'] = "Completed";
+	
 	$data['closed_date'] = date("Y-m-d h:i:s");
 	$data['internal_status'] = $this->input->post('internal_status');
+	if($data['internal_status'] == "Cancelled"){
+
+		$data['current_status'] = "Cancelled";
+		$data['cancellation_reason'] = $this->input->post('cancellation_reason');
+
+	} else{
+		$data['current_status'] = "Completed";
+	}
+	$data['service_charge'] = $this->input->post('service_charge');
 	$admin_remarks = $this->input->post('admin_remarks');
+	
+	$service_center_remarks = $this->input->post('service_center_remarks');
 
-	$status = array('Completed', 'Cancelled');
-
-	$service_charges = $this->booking_model->getbooking_charges($booking_id, $status);
-	log_message('info', "service_charges: " . print_r($service_charges, TRUE));
-
-	$data['closing_remarks'] = "Service Center Remarks:- " . $service_charges[0]['service_center_remarks'] . " <br/> Admin:-  " . date("F j") . ":- " . $admin_remarks . "<br/>" . $service_charges[0]['admin_remarks'];
+	$data['closing_remarks'] = "Service Center Remarks:- " . $service_center_remarks . " <br/> Admin:-  " . $admin_remarks;
 
 	log_message('info', "update data: " . print_r($data, TRUE));
+
 	$this->booking_model->update_booking($booking_id, $data);
 
 	$data['booking_id'] = $booking_id;
@@ -190,30 +197,21 @@ class New_booking extends CI_Controller {
      * @return : array of charges to view
      */
     function review_bookings($booking_id = "") {
-	$charges['charges'] = $this->booking_model->get_booking_for_review($booking_id);
+	$data['charges'] = $this->booking_model->get_booking_for_review($booking_id);
+	$data['data'] = $this->booking_model->review_reschedule_bookings_request();
 	$this->load->view('employee/header');
-	$this->load->view('employee/review_booking_complete_cancel', $charges);
+	$this->load->view('employee/review_booking', $data);
     }
 
-    /**
-     * @desc: this is used to display reschedule request by service center in admin panel
-     * @param: void
-     * @return: void
-     */
-    function review_reschedule_bookings_request(){
-
-       $data['data'] = $this->booking_model->review_reschedule_bookings_request();
-       $this->load->view('employee/header');
-	   $this->load->view('employee/review_booking_reschedule', $data);
-    }
 
     /**
-     * @desc: this method is used to reschedule booking request in admin panel
+     * @desc: this method is used to approve reschedule booking request in admin panel
      */
     function process_reschedule_booking(){
     	$reschedule_booking_id = $this->input->post('reschedule');
     	$reschedule_booking_date = $this->input->post('reschedule_booking_date');
     	$reschedule_booking_timeslot = $this->input->post('reschedule_booking_timeslot');
+    	$reschedule_reason = $this->input->post('reschedule_reason');
 
     	foreach ($reschedule_booking_id as $key => $value) {
 
@@ -224,15 +222,17 @@ class New_booking extends CI_Controller {
     		$booking['current_status'] = 'Rescheduled';
             $booking['internal_status'] = 'Rescheduled';
             $booking['update_date'] = date("Y-m-d h:i:s");
+            $booking['reschedule_reason'] = $reschedule_reason[$value];
 
     		$this->booking_model->update_booking($value, $booking);
     		$data['booking_id'] = $value;
     		$data['internal_status'] =  "Pending";
+    		$data['current_status'] =  "Pending";
     		$this->vendor_model->update_service_center_action($data);
 
     	}
 
-    	  redirect(base_url() . "employee/new_booking/review_reschedule_bookings_request");
+    	  redirect(base_url() . "employee/new_booking/review_bookings");
     }
 
 }
