@@ -68,7 +68,7 @@ class vendor extends CI_Controller {
             if (!empty($brands)) {
                 $_POST['brands'] = implode(",", $brands);
             }
-            
+
             unset($_POST['day']);
 
             if (!empty($_POST['id'])) {
@@ -777,7 +777,7 @@ class vendor extends CI_Controller {
     function review_bookings() {
         $charges['charges'] = $this->vendor_model->getbooking_charges();
         $this->load->view('employee/header');
-        $this->load->view('employee/review_booking', $charges);
+        $this->load->view('employee/review_booking_complete_cancel', $charges);
     }
 
     /**
@@ -820,7 +820,7 @@ class vendor extends CI_Controller {
         $cc = 'anuj@247around.com, nits@247around.com';
         $subject = $this->input->post('subject');
         $raw_message = $this->input->post('mail_body');
-        
+
         //to replace new lines in line breaks for html
         $message = nl2br($raw_message);
         $bcc = "";

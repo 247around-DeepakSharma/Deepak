@@ -87,16 +87,18 @@
                                 <a href="<?php echo base_url() ?>employee/booking/get_assign_booking_form"><i class="fa fa-fw fa-desktop"></i> <strong>Assign Vendor</strong></a>
                             </li>
                             <li class="divider"></li>
+<!--
                             <li>
                                 <a href="<?php echo base_url() ?>employee/vendor/get_reassign_vendor_form"><i class="fa fa-fw fa-desktop"></i> <strong> Re-assign Vendor</strong></a>
                             </li>
                             <li class="divider"></li>
+-->
                             <li>
-                                <a href="<?php echo base_url() ?>employee/new_booking/review_bookings"><i class="fa fa-fw fa-desktop"></i> <strong> Review Bookings</strong></a>
+                                <a href="<?php echo base_url() ?>employee/new_booking/review_bookings"><i class="fa fa-fw fa-desktop"></i> <strong> Review Bookings - Close</strong></a>
                             </li>
                             <li class="divider"></li>
                             <li>
-                                <a href="<?php echo base_url() ?>employee/new_booking/review_reschedule_bookings_request"><i class="fa fa-fw fa-desktop"></i> <strong> Reschedule Bookings</strong></a>
+                                <a href="<?php echo base_url() ?>employee/new_booking/review_reschedule_bookings_request"><i class="fa fa-fw fa-desktop"></i> <strong> Review Bookings - Reschedule</strong></a>
                             </li>
 
                             <!--

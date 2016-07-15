@@ -180,7 +180,7 @@ class New_booking extends CI_Controller {
 
 	redirect(base_url() . 'employee/new_booking/review_bookings');
     }
-    
+
 
     /**
      * @desc: This funtion is used to review booking which is completed/cancelled by our vendors.
@@ -192,25 +192,24 @@ class New_booking extends CI_Controller {
     function review_bookings($booking_id = "") {
 	$charges['charges'] = $this->booking_model->get_booking_for_review($booking_id);
 	$this->load->view('employee/header');
-	$this->load->view('employee/review_booking', $charges);
+	$this->load->view('employee/review_booking_complete_cancel', $charges);
     }
-    
+
     /**
      * @desc: this is used to display reschedule request by service center in admin panel
      * @param: void
      * @return: void
      */
     function review_reschedule_bookings_request(){
-    	
+
        $data['data'] = $this->booking_model->review_reschedule_bookings_request();
        $this->load->view('employee/header');
-	   $this->load->view('employee/showreschedulerequest', $data);
-       
+	   $this->load->view('employee/review_booking_reschedule', $data);
     }
-    
+
     /**
      * @desc: this method is used to reschedule booking request in admin panel
-     */ 
+     */
     function process_reschedule_booking(){
     	$reschedule_booking_id = $this->input->post('reschedule');
     	$reschedule_booking_date = $this->input->post('reschedule_booking_date');
@@ -225,12 +224,12 @@ class New_booking extends CI_Controller {
     		$booking['current_status'] = 'Rescheduled';
             $booking['internal_status'] = 'Rescheduled';
             $booking['update_date'] = date("Y-m-d h:i:s");
-    		
+
     		$this->booking_model->update_booking($value, $booking);
     		$data['booking_id'] = $value;
     		$data['internal_status'] =  "Pending";
     		$this->vendor_model->update_service_center_action($data);
-    
+
     	}
 
     	  redirect(base_url() . "employee/new_booking/review_reschedule_bookings_request");

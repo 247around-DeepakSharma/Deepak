@@ -19,11 +19,11 @@
                            <th>Phone No.</th>
                            <th>Service Name</th>
                            <th>Booking Date</th>
-                           <th>Age Of Booking</th>
+                           <th>Days Passed</th>
                            <th>Status</th>
                            <th>247around Remarks</th>
                            <th>View</th>
-                           <th>Reschedule Request</th>
+                           <th>Reschedule</th>
                            <th>Cancel</th>
                            <th>Complete</th>
                            <th>Job Card</th>

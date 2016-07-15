@@ -17,7 +17,7 @@
             </div>
             <div style="width:100%;margin-left:10px;margin-right:5px;">
                 <h1 align="left">
-                    <b>Review Bookings</b>
+                    <b>Review Bookings - Complete / Cancel</b>
                 </h1>
                   <form action="<?php echo base_url();?>employee/new_booking/complete_booking" method="post">
                 
@@ -33,22 +33,18 @@
                     <th>Service Center </th>
                     <th>User Name</th>
                     <th>Category/ Capacity</th>
-                    <th>Quantity</th>
-                    <th>Booking Date</th>
                     <th>Amount Due</th>
-                    <th>Booking Remark</th>
                     <th>Service Charge</th>
                     <th>Additional Service Charge</th>
                     <th>Parts Cost</th>
                     <th>Total Charge</th>
-                    <th>Internal Status</th>
-                    <th>Closing Remarks</th>
-                    <th  ><input type="checkbox" id="selecctall" />  Approve</th>
+                    <th>Vendor Status</th>
+                    <th>Vendor Remarks</th>
+                    <th><input type="checkbox" id="selecctall" />  Approve</th>
                     <th>View</th>
                     <th>Edit</th>
                     <th>Reject</th>
                     
-
                     </tr>
 
                     </thead>
@@ -80,10 +76,7 @@
 							   ?>
               
 					    <td><?php echo $category." / ". $capacity; ?></td>
-					    <td><?php echo $value['booking'][0]['quantity']; ?></td>
-					    <td><?php echo $value['booking'][0]['booking_date']; ?>/ <?php echo $value['booking'][0]['booking_timeslot']; ?></td>
 					    <td><?php echo $value['booking'][0]['amount_due']; ?></td>
-					    <td><?php echo $value['booking'][0]['booking_remarks']; ?></td>
 					    <td><p id="<?php echo "service_charge".$count; ?>"><?php echo $value['service_charge']; ?></p></td>
 					    <td><p id="<?php echo "additional_charge".$count; ?>"><?php echo $value['additional_service_charge']; ?></p></td>
 					    <td><p id="<?php echo "parts_cost".$count;?>"><?php echo $value['parts_cost']; ?></p></td>
@@ -91,7 +84,7 @@
                          <input type="hidden" id="<?php echo "admin_remarks".$count;?>" value="<?php echo $value['admin_remarks'];?>"></input>
                         <td><p id="<?php echo "internal_status".$count; ?>"><?php echo $value['internal_status']; ?></p></td>
 
-                       <td data-popover="true" style="position: absolute; border:0px;" data-html=true data-content="<?php if(isset($value['service_center_remarks'])){ echo $value['service_center_remarks'];}?>"><div class="marquee"><div><span ><?php echo $value['service_center_remarks']; ?></span></div></div></td>
+                       <td><?php echo $value['service_center_remarks']; ?></td>
 	     
                         <td><input type="checkbox"  class="checkbox1" name="approve[]" value="<?php echo $value['booking_id']; ?>"></input></td>
                         

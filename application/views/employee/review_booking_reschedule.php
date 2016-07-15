@@ -9,10 +9,9 @@
 <div id="page-wrapper">
         <div class="row">
          <div style="width:100%;margin-left:10px;margin-right:5px;">
-                <h2 align="left">
-                    Request For Reschedule Bookings
-                </h2>
-
+                <h1 align="left">
+                    Review Bookings - Reschedule
+                </h1>
 
                 <div class="col-md-12">
                  <form action="<?php echo base_url();?>employee/new_booking/process_reschedule_booking" method="post">
