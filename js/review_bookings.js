@@ -13,6 +13,13 @@ $(document).on("click", ".open-AddBookingDialog", function () {
     var booking_id = $('#booking_id' + this.id).val();
     var internal_status = document.getElementById("internal_status" + this.id).innerHTML;
     ;
+    var cancellation_reason = document.getElementById("cancellation_reason" + this.id).innerHTML;
+    ;
+
+    var service_center_remarks = document.getElementById("service_center_remarks" + this.id).innerHTML;
+    ;
+     var admin_remarks = document.getElementById("admin_remarks_" + this.id).innerHTML;
+    ;
 
 
     $('#modal-title2').text(booking_id);
@@ -20,6 +27,10 @@ $(document).on("click", ".open-AddBookingDialog", function () {
     $('#input_additional_charge').val(additional_charge);
     $('#input_parts_cost').val(parts_cost);
     $('#input_internal_status').val(internal_status);
+    $('#input_cancellation_reason').val(cancellation_reason);
+    $('#input_service_center_remarks').val(service_center_remarks);
+    $('#input_admin_remarks').val(admin_remarks);
+
     sum_charges();
 
 });
@@ -33,6 +44,10 @@ function getData() {
     postData['amount_paid'] = $("#input_total_charge").val();
     postData['internal_status'] = $("#input_internal_status").val();
     postData['admin_remarks'] = $("#input_admin_remarks").val();
+    postData['cancellation_reason'] = $("#input_cancellation_reason").val();
+    postData['service_center_remarks'] = $("#input_service_center_remarks").val();
+
+    console.log(postData);
 
     return postData;
 }
@@ -67,7 +82,8 @@ function approve_booking() {
     var postData = getData();
     console.log(postData);
     sendAjaxRequest(postData, review_completeUrl).done(function (data) {
-	location.reload();
+        
+	   location.reload();
     });
 }
 

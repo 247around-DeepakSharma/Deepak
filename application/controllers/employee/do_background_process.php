@@ -246,7 +246,7 @@ class Do_background_process extends CI_Controller {
             $subject = 'Booking Completion - 247around';
             $cc = "";
             $bcc = "";
-           // $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
+            $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
 
             if ($is_sd == FALSE) {
                 $smsBody = "Your request for " . $query1[0]['services'] . " Repair completed. Like us on Facebook goo.gl/Y4L6Hj For discounts download app goo.gl/m0iAcS. For feedback call 011-39595200.";
