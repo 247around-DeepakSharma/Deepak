@@ -135,8 +135,6 @@ class User extends CI_Controller {
         $data['Bookings'] = $this->user_model->getBookingId_by_orderId($partner_code, $order_id);
         $data['search'] = "Search";
 
-        print_r($data['Bookings'][0]->booking_id);
-
         if (strstr($data['Bookings'][0]->booking_id, "Q-") == TRUE) { 
 
              redirect(base_url() . 'employee/booking/view_pending_queries/0/0/'.$data['Bookings'][0]->booking_id);
@@ -378,5 +376,4 @@ class User extends CI_Controller {
         $user['user'] = $this->user_model->get_count_transactional_user($data);
         $this->load->view('employee/transactionalusers', $user);
     }
-
 }
