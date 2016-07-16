@@ -111,12 +111,15 @@ class User extends CI_Controller {
                 $this->load->view('employee/bookinghistory', $data);
             }
         } elseif ($booking_id != "") {  //if booking id given and matched, will be displayed 
-            $data['Bookings'] = $this->booking_model->search_bookings_by_booking_id($booking_id);
+           if (strstr($booking_id, "Q-") == TRUE) { 
 
-            $this->load->view('employee/header');
+                redirect(base_url() . 'employee/booking/view_pending_queries/0/0/'.$booking_id);
 
+           } else {
 
-            $this->load->view('employee/booking', $data);
+               redirect(base_url() . 'employee/booking/view/0/0/'.$booking_id);
+
+           }
         }
     }
 
@@ -132,8 +135,19 @@ class User extends CI_Controller {
         $data['Bookings'] = $this->user_model->getBookingId_by_orderId($partner_code, $order_id);
         $data['search'] = "Search";
 
-        $this->load->view('employee/header');
-        $this->load->view('employee/booking', $data);
+        print_r($data['Bookings'][0]->booking_id);
+
+        if (strstr($data['Bookings'][0]->booking_id, "Q-") == TRUE) { 
+
+             redirect(base_url() . 'employee/booking/view_pending_queries/0/0/'.$data['Bookings'][0]->booking_id);
+             
+        } else {
+
+            $this->load->view('employee/header');
+            $this->load->view('employee/booking', $data);
+        }
+
+        
     }
 
     /**
