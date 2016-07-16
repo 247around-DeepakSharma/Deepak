@@ -157,15 +157,17 @@ class New_booking extends CI_Controller {
 
 	if (empty($charges[0]['admin_remarks'])) {
         $data['current_status'] = "Pending";
+        $data['internal_status'] = "Pending";
 	    $data['admin_remarks'] = date("F j") . "  :-" . $admin_remarks;
 	    $this->vendor_model->update_service_center_action($data);
 	    echo "success";
 	} else {
         $data['current_status'] = "Pending";
+        $data['internal_status'] = "Pending";
 	    // remove previous text, added in admin_remarks column.
 	    $string = str_replace($charges[0]['admin_remarks'], " ", $admin_remarks);
 	    // Add current and previous text in admin_remarks column
-	    $data['admin_remarks'] = $charges[0]['admin_remarks'] . " <br/> " . date("F j") . ":- " . $string;
+	    $data['admin_remarks'] = $charges[0]['admin_remarks'] . "   " . date("F j") . ":- " . $string;
 	    $this->vendor_model->update_service_center_action($data);
 	    echo "success";
 	}

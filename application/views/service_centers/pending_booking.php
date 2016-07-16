@@ -55,11 +55,12 @@
                            <td> <?= $row->age_of_booking." day"; ?></td>
                            <td>
                               <?php echo $row->current_status; ?>
-                           </td>
-                           <td data-popover="true" style="position: absolute; border:0px;" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
+                           </td> 
+                           <td data-popover="true" style="position: absolute; border:0px; width: 12%" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
                               <div class="marquee">
                                  <div><span><?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?></span></div>
                               </div>
+
                            </td>
                            <td><a class='btn btn-sm btn-primary' href="<?php echo base_url();?>service_center/booking_details/<?=$row->booking_id?>" target='_blank' title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>
                            <td>
@@ -144,33 +145,36 @@
 </div>
 <style type="text/css">
    .marquee {
-   height: 100%;
-   width: 100%;
-   color: red;
-   overflow: hidden;
-   position: relative;
-   }
-   .marquee div {
-   display: block;
-   width: 100%;
-   height: 50px;
-   z-index: -1;
-   position: absolute;
-   overflow: hidden;
-   animation: marquee 5s linear infinite;
-   }
-   .marquee span {
-   float: left;
-   width: 50%;
-   }
-   @keyframes marquee {
-   0% {
-   left: 0;
-   }
-   100% {
-   left: -100%;
-   }
-   }
+        height: 100%;
+        width: 100%;
+        color: red;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .marquee div {
+        display: block;
+        width: 100%;
+        height: 22px;
+    
+        position: relative;
+        overflow: hidden;
+        animation: marquee 5s linear infinite;
+    }
+    
+    .marquee span {
+        
+        width: 50%;
+    }
+    
+    @keyframes marquee {
+        0% {
+            left: 0;
+        }
+        100% {
+            left: -100%;
+        }
+    }
 </style>
 <script type="text/javascript">
    $('body').popover({

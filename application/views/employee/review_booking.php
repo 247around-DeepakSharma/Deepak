@@ -178,7 +178,7 @@
                <button type="button" class="close" data-dismiss="modal">&times;</button>
                <h4 class="modal-title" id="modal-title2">Modal Header</h4>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" id="edit_form">
                <form class="form-horizontal"  method="post" action="#">
                   <div class="form-group ">
                      <label for="name" class="col-md-3">Service Charge</label>

@@ -79,10 +79,16 @@ function close_model() {
 }
 
 function approve_booking() {
+    var img = $('<img />', { 
+  id: 'Myid',
+  src:  baseUrl +"/images/loader.gif",
+  alt: 'MyAlt'
+});
+img.appendTo($('#edit_form'));
     var postData = getData();
-    console.log(postData);
+    
     sendAjaxRequest(postData, review_completeUrl).done(function (data) {
-        
+       
 	   location.reload();
     });
 }
