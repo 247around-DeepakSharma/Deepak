@@ -90,15 +90,15 @@
                             <td>
                             <?php
                             if (is_null($row['booking_jobcard_filename'])) {
-                                echo "<a href=" . base_url() . "employee/booking/jobcard/$row[booking_id] >$row[booking_id]</a>";
+                                echo "<a target='_blank' href=" . base_url() . "employee/booking/jobcard/$row[booking_id] >$row[booking_id]</a>";
                             } else {
-                                echo '<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row['booking_jobcard_filename'] . '">' . $row['booking_id'] . '</a>';
+                                echo '<a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row['booking_jobcard_filename'] . '">' . $row['booking_id'] . '</a>';
                             }
                             ?>
                         </td>
 
-                    <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $row['phone_number'];?>"><?=$row['customername'];?></a></td>
-                    <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $row['phone_number'];?>"><?php echo $row['booking_primary_contact_no']; ?></a></td>
+                    <td><a target='_blank' href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $row['phone_number'];?>"><?=$row['customername'];?></a></td>
+                    <td><a target='_blank' href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $row['phone_number'];?>"><?php echo $row['booking_primary_contact_no']; ?></a></td>
                     <td><?= $row['services']; ?></td>
                     <td><?= $row['potential_value']; ?></td>
                     <td><?= $row['booking_date']; ?> / <?= $row['booking_timeslot']; ?></td>
@@ -149,12 +149,12 @@
                     </td>
 
                     <td><?php
-                        echo "<a class='btn btn-small btn-success btn-sm' href=".base_url()."employee/booking/get_update_query_form/$row[booking_id] title='Update'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
+                        echo "<a target='_blank' class='btn btn-small btn-success btn-sm' href=".base_url()."employee/booking/get_update_query_form/$row[booking_id] title='Update'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
                         ?>
                     </td>
                     <td>
                         <?php
-                        echo "<a class='btn btn-small btn-warning btn-sm' href=".base_url()."employee/booking/get_cancel_followup_form/$row[booking_id] title='Cancel'> <i class='fa fa-times' aria-hidden='true'></i></a>";
+                        echo "<a target='_blank' class='btn btn-small btn-warning btn-sm' href=".base_url()."employee/booking/get_cancel_followup_form/$row[booking_id] title='Cancel'> <i class='fa fa-times' aria-hidden='true'></i></a>";
                         ?>
                     </td>
                     </tr>

@@ -224,13 +224,13 @@
                         <?php
                         if ($row->current_status == 'Pending' || $row->current_status == 'Rescheduled')
                         {
-                            echo "<a id='edit' class='btn btn-sm btn-success' "
-                            . "href=" . base_url() . "employee/booking/get_reschedule_booking_form/$row->booking_id title='Reschedule'><i class='fa fa-calendar' aria-hidden='true'></i></a>";
+                            echo "<a target='_blank' id='edit' class='btn btn-sm btn-success' "
+                            . "href=" . base_url() . "employee/booking/get_reschedule_booking_form/$row->booking_id title='Reschedule'><i class='fa fa-calendar' aria-hidden='true' ></i></a>";
                         }
                         else
                         {
-                            echo "<a id='edit' class='btn btn-sm btn-success disabled' "
-                          . "href=" . base_url() . "employee/booking/get_reschedule_booking_form/$row->booking_id title='Reschedule'><i class='fa fa-calendar' aria-hidden='true'></i></a>";
+                            echo "<a id='edit' target='_blank' class='btn btn-sm btn-success disabled' "
+                          . "href=" . base_url() . "employee/booking/get_reschedule_booking_form/$row->booking_id title='Reschedule'><i class='fa fa-calendar' aria-hidden='true' ></i></a>";
                         }
                         ?>
                     </td>
@@ -239,13 +239,13 @@
                         <?php
                         if ($row->current_status == 'Pending' || $row->current_status == 'Rescheduled')
                         {
-                            echo "<a id='edit' class='btn btn-sm btn-warning' "
-                            . "href=" . base_url() . "employee/booking/get_cancel_booking_form/$row->booking_id title='Cancel'> <i class='fa fa-times' aria-hidden='true'></i></a>";
+                            echo "<a id='edit' target='_blank' class='btn btn-sm btn-warning' "
+                            . "href=" . base_url() . "employee/booking/get_cancel_booking_form/$row->booking_id title='Cancel'> <i class='fa fa-times' aria-hidden='true' ></i></a>";
                         }
                         else
                         {
-                            echo "<a id='edit' class='btn btn-sm btn-warning disabled' "
-                                . "href=" . base_url() . "employee/booking/get_cancel_booking_form/$row->booking_id  title='Cancel'> <i class='fa fa-times' aria-hidden='true'></i></a>";
+                            echo "<a id='edit' target='_blank' class='btn btn-sm btn-warning disabled' "
+                                . "href=" . base_url() . "employee/booking/get_cancel_booking_form/$row->booking_id  title='Cancel'> <i class='fa fa-times' aria-hidden='true' ></i></a>";
                         }
                         ?>
                     </td>
@@ -253,17 +253,17 @@
                         <?php
                         if ($row->current_status == 'Pending' || $row->current_status == 'Rescheduled')
                         {
-                            echo "<a class='btn btn-sm btn-danger btn-sm' "
-                            . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>";
+                            echo "<a target='_blank' class='btn btn-sm btn-danger btn-sm' "
+                            . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
                         } else if ($row->current_status == 'Review')
                         {
-                            echo "<a class='btn btn-sm btn-danger btn-sm' "
-                            . "href=" . base_url() . "employee/new_booking/review_bookings/$row->booking_id title='Complete'><i class='fa fa-eye-slash' aria-hidden='true'></i></a>";
+                            echo "<a target='_blank' class='btn btn-sm btn-danger btn-sm' "
+                            . "href=" . base_url() . "employee/new_booking/review_bookings/$row->booking_id title='Complete'><i class='fa fa-eye-slash' aria-hidden='true' ></i></a>";
                         }
                         else
                         {
-                            echo "<a class='btn btn-sm btn-danger btn-sm disabled' "
-                                . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>";
+                            echo "<a target='_blank' class='btn btn-sm btn-danger btn-sm disabled' "
+                                . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
                         }
                         ?>
                     </td>
@@ -272,13 +272,13 @@
                       <?php
                       if ($row->current_status == 'Pending' || $row->current_status == 'Rescheduled')
                       {
-                        echo "<a class='btn btn-sm btn-info' "
-                        . "href=" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$row->booking_id title='Job Card'> <i class='fa fa-file-pdf-o' aria-hidden='true'></i></a>";
+                        echo "<a target='_blank' class='btn btn-sm btn-info' "
+                        . "href=" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$row->booking_id title='Job Card'> <i class='fa fa-file-pdf-o' aria-hidden='true' ></i></a>";
                       }
                       else
                       {
-                        echo "<a class='btn btn-sm btn-info disabled' "
-                          . "href=" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$row->booking_id title='Job Card'> <i class='fa fa-file-pdf-o' aria-hidden='true'></i></a>";
+                        echo "<a target='_blank' class='btn btn-sm btn-info disabled' "
+                          . "href=" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$row->booking_id title='Job Card'> <i class='fa fa-file-pdf-o' aria-hidden='true' ></i></a>";
                       }
                       ?>
                     </td>
@@ -289,7 +289,7 @@
                         if(!is_null($row->assigned_vendor_id) && !is_null($row->booking_jobcard_filename)
                             && ($row->mail_to_vendor==0))
                         {
-                            echo "<a id='b_notes" . $count. "' class='btn btn-sm btn-success' onclick='show(this.id)' title='Mail'><i class='fa fa-envelope-o' aria-hidden='true'></i></a>";
+                            echo "<a  id='b_notes" . $count. "' class='btn btn-sm btn-success' onclick='show(this.id)' title='Mail'><i class='fa fa-envelope-o' aria-hidden='true'></i></a>";
                             echo "<div class='dialog' id='bookingMailForm".$count."'>";
                             echo "<form class='mailform'>";
                             echo "<textarea style='width:200px;height:80px;' id='valueFromMyButton".$count."' name='valueFromMyButton".$count."' placeholder='Enter Additional Notes'></textarea>";
@@ -303,7 +303,7 @@
                         else
                         {
                             echo "<a class='btn btn-sm btn-success disabled'"
-                                . "href=" . base_url() . "employee/bookingjobcard/send_mail_to_vendor/$row->booking_id title='Mail'><i class='fa fa-envelope-o' aria-hidden='true'></i></a>";
+                                . "href=" . base_url() . "employee/bookingjobcard/send_mail_to_vendor/$row->booking_id title='Mail'><i class='fa fa-envelope-o' aria-hidden='true' ></i></a>";
                         }
                         ?>
 
@@ -334,14 +334,14 @@
 
                     </td>
                     <td><?php
-                            echo "<a class='btn btn-sm btn-primary'"
+                            echo "<a target='_blank' class='btn btn-sm btn-primary'"
                                 . "href=" . base_url() . "employee/booking/get_edit_booking_form/$row->booking_id title='Edit Booking'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
                     ?></td>
                      <td>
-                        <a href="<?php echo base_url();?>employee/vendor/get_reassign_vendor_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-success' title="Re- assign"><i class="fa fa-repeat" aria-hidden="true"></i></a>
+                        <a target='_blank' href="<?php echo base_url();?>employee/vendor/get_reassign_vendor_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-success' title="Re- assign"><i class="fa fa-repeat" aria-hidden="true"></i></a>
                     </td>
                     <td>
-                                <a href="<?php echo base_url(); ?>employee/vendor/get_vendor_escalation_form/<?php echo $row->booking_id; ?>" <?php if($row->assigned_vendor_id == null){ echo "disabled"; }?> class='btn btn-sm btn-danger' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
+                                <a target='_blank' href="<?php echo base_url(); ?>employee/vendor/get_vendor_escalation_form/<?php echo $row->booking_id; ?>" <?php if($row->assigned_vendor_id == null){ echo "disabled"; }?> class='btn btn-sm btn-danger' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
                         </td>
 
                 </tr>
