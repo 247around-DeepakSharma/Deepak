@@ -246,7 +246,7 @@ class Booking extends CI_Controller {
                 $bcc = "";
                 $subject = 'Booking Confirmation-AROUND';
                 $attachment = "";
-                $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
+               // $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
                 //-------Sending SMS on booking--------//
 
                 $sms['tag'] = "add_new_booking";
@@ -256,11 +256,11 @@ class Booking extends CI_Controller {
                 $sms['phone_no'] = $query1[0]['phone_number'];
                 $sms['booking_id'] = $booking['booking_id'];
 
-                $this->notify->send_sms($sms);
+                //$this->notify->send_sms($sms);
             }
             //------End of sending SMS--------//
 
-            redirect(base_url() . 'employee/booking/view');
+            redirect(base_url() . search_page);
         }
     }
 
@@ -915,7 +915,7 @@ class Booking extends CI_Controller {
             $this->notify->send_sms($sms);
         }
 
-        redirect(base_url() . 'employee/booking/view', 'refresh');
+        redirect(base_url() . search_page);
     }
 
     /**
@@ -1037,7 +1037,7 @@ class Booking extends CI_Controller {
         log_message('info', 'Booking Status Change- Booking id: ' . $booking_id . " Cancelled By " . $this->session->userdata('employee_id'));
 
         //---------End of sending SMS----------//
-        redirect(base_url() . 'employee/booking/view');
+        redirect(base_url() . search_page);
     }
 
     /**
@@ -1182,7 +1182,7 @@ class Booking extends CI_Controller {
 
             log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $this->session->userdata('employee_id') . " data " . print_r($data, true));
 
-            redirect(base_url() . 'employee/booking/view', 'refresh');
+            redirect(base_url() . search_page);
         }
     }
 
@@ -1296,7 +1296,7 @@ class Booking extends CI_Controller {
         $url = base_url() . "employee/do_background_process/assign_booking";
         $this->asynchronous_lib->do_background_process($url, $service_center);
 
-        redirect(base_url() . 'employee/booking/view');
+        redirect(base_url() . search_page);
     }
 
     /**
@@ -1682,7 +1682,7 @@ class Booking extends CI_Controller {
 
                 //------End of sending SMS--------//
 
-                redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
+                redirect(base_url() . search_page);
             } else {
                 echo "Booking not inserted";
             }
@@ -1745,7 +1745,7 @@ class Booking extends CI_Controller {
                     }
                 }
 
-                redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
+                redirect(base_url() . search_page);
             } else {
                 echo "Query is not saved";
             }
@@ -1854,7 +1854,7 @@ class Booking extends CI_Controller {
 
         $this->notify->send_email($email);
 
-        redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
+        redirect(base_url() . search_page);
     }
 
     /**
@@ -2248,7 +2248,7 @@ class Booking extends CI_Controller {
             //------End of sending SMS--------//
         }
 
-        redirect(base_url() . 'employee/booking/view', 'refresh');
+        redirect(base_url() . search_page);
     }
 
     /**
@@ -2593,7 +2593,7 @@ class Booking extends CI_Controller {
                 $attachment = "";
 
                 $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
-                redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
+                redirect(base_url() . search_page);
             } else {
                 echo "Query is not saved";
             }
@@ -2632,7 +2632,7 @@ class Booking extends CI_Controller {
                 $this->booking_model->delete_appliance_details($appliance_id);
             }
         }
-        redirect(base_url() . 'employee/booking/view', 'refresh');
+        redirect(base_url() . search_page);
     }
 
     /**
