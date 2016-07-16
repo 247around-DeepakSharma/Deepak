@@ -1292,9 +1292,20 @@ class Booking extends CI_Controller {
      *  @return : load pending booking view
      */
     function process_assign_booking_form() {
-        $service_center['service_center'] = $this->input->post('service_center');
+        $service_center = $this->input->post('service_center');
         $url = base_url() . "employee/do_background_process/assign_booking";
-        $this->asynchronous_lib->do_background_process($url, $service_center);
+        foreach ($service_center as $booking_id => $service_center_id) {
+            if ($service_center_id != "Select") {
+                
+                $data = array();
+                $data['booking_id'] = $booking_id;
+                $data['service_center_id'] = $service_center_id;
+                
+                $this->asynchronous_lib->do_background_process($url, $data);
+            }
+
+        }
+       
 
         redirect(base_url() . search_page);
     }

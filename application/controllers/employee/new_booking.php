@@ -179,12 +179,16 @@ class New_booking extends CI_Controller {
      * @return : void
      */
     function complete_booking() {
-	$approve['approve'] = $this->input->post('approve');
-
+	$approve = $this->input->post('approve');
 	$url = base_url() . "employee/do_background_process/complete_booking";
 
-	$this->asynchronous_lib->do_background_process($url, $approve);
+	foreach ($approve as $key => $booking_id) {
+		$data  = array();
+		$data['booking_id'] = $booking_id;
+		$this->asynchronous_lib->do_background_process($url, $data);
 
+	}
+	
 	redirect(base_url() . 'employee/new_booking/review_bookings');
     }
 
