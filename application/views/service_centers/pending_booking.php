@@ -20,7 +20,6 @@
                            <th>Service Name</th>
                            <th>Booking Date</th>
                            <th>Days Passed</th>
-                           <th>Status</th>
                            <th>247around Remarks</th>
                            <th>View</th>
                            <th>Reschedule</th>
@@ -53,9 +52,7 @@
                               <?= $row->booking_timeslot; ?>
                            </td>
                            <td> <?= $row->age_of_booking." day"; ?></td>
-                           <td>
-                              <?php echo $row->current_status; ?>
-                           </td> 
+                           
                            <td data-popover="true" style="position: absolute; border:0px; width: 12%" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
                               <div class="marquee">
                                  <div><span><?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?></span></div>
@@ -77,9 +74,6 @@
                      </tbody>
                   </table>
                </div>
-               <!-- <div class="text-right">
-                  <a href="#">View All Transactions <i class="fa fa-arrow-circle-right"></i></a>
-                  </div>-->
             </div>
          </div>
          <!-- end  col-md-12-->
