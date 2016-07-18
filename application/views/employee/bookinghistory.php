@@ -109,7 +109,7 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
 
                      <?php } else if(substr($row['booking_id'],0,1) == "Q") {?>
 
-                          <a href="<?php echo base_url(); ?>employee/booking/view_pending_queries/0/0/<?php echo $row['booking_id']?>" class="btn btn-small btn-success btn-sm" title="More Action"><i class="fa fa-bars" aria-hidden="true"></i></a>
+                          <a href="<?php echo base_url(); ?>employee/booking/view_queries/<?php echo $row['current_status']; ?>/0/0/<?php echo $row['booking_id']?>" class="btn btn-small btn-success btn-sm" title="More Action"><i class="fa fa-bars" aria-hidden="true"></i></a>
 
                      <?php } ?>
                     </td>
@@ -129,7 +129,7 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
             </div>
             <div style="float:left;">
               <center>
-                <a class="btn btn-primary" href="<?php echo base_url(); ?>employee/new_booking/addbooking/<?php echo $data[0]['phone_number'];?>">New Booking</a>
+                <a class="btn btn-primary" href="<?php echo base_url(); ?>employee/booking/addbooking/<?php echo $data[0]['phone_number'];?>">New Booking</a>
 
               <a style="margin-left: 90px;"href="<?php echo base_url();?>employee/user/get_edit_user_form/<?php echo $data[0]['phone_number']?>" class='btn btn-primary'>User Details</a>
 

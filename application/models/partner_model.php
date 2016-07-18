@@ -125,6 +125,7 @@ class Partner_model extends CI_Model {
 	    return "SO";
 	}
     }
+
     //Return Partner ID from Booking Source
     //Default 'Other'
     function get_partner_id_from_booking_source_code($source) {

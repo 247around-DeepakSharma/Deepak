@@ -68,7 +68,7 @@ class vendor extends CI_Controller {
             if (!empty($brands)) {
                 $_POST['brands'] = implode(",", $brands);
             }
-            
+
             unset($_POST['day']);
 
             if (!empty($_POST['id'])) {
@@ -87,7 +87,7 @@ class vendor extends CI_Controller {
 
                 $this->notify->sendEmail("booking@247around.com", 'anuj@247around.com', '', '', 'New Vendor Creation', json_encode($_POST), "");
 
-                redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
+                redirect(base_url() . 'employee/vendor/viewvendor');
             }
         } else {
             $this->add_vendor();
@@ -295,7 +295,8 @@ class vendor extends CI_Controller {
 	     log_message('info', "Reassigned - Booking id: " . $booking_id . "  By " .
 		$this->session->userdata('employee_id') . " service center id " . $service_center);
 
-            redirect(base_url() . 'employee/booking/view');
+            redirect(base_url() . search_page);
+
         } else {
             $output = "Please select any service center.";
             $userSession = array('error' => $output);
@@ -355,7 +356,7 @@ class vendor extends CI_Controller {
 
         $this->notify->sendEmail("sales@247around.com", $to, $cc, $bcc, $subject, $message, $attachment);
 
-        redirect(base_url() . 'employee/booking/view', 'refresh');
+       redirect(base_url() . search_page);
     }
 
     /**
@@ -453,7 +454,7 @@ class vendor extends CI_Controller {
             $url = base_url() . "employee/do_background_process/upload_pincode_file";
             $this->asynchronous_lib->do_background_process($url, array());
 
-            redirect(base_url() . 'employee/booking/view');
+            redirect(base_url() . search_page);
         } else {
 
             $this->get_pincode_excel_upload_form("Not valid File");
@@ -524,7 +525,7 @@ class vendor extends CI_Controller {
                 //$output = "Vendor Escalation Process Completed.";
                 //$userSession = array('success' => $output);
                 //$this->session->set_userdata($userSession);
-                redirect(base_url() . 'employee/booking/view');
+                redirect(base_url() . search_page);
             }
         } else {
             $this->get_vendor_escalation_form($escalation['booking_id']);
@@ -777,7 +778,7 @@ class vendor extends CI_Controller {
     function review_bookings() {
         $charges['charges'] = $this->vendor_model->getbooking_charges();
         $this->load->view('employee/header');
-        $this->load->view('employee/review_booking', $charges);
+        $this->load->view('employee/review_booking_complete_cancel', $charges);
     }
 
     /**
@@ -820,7 +821,7 @@ class vendor extends CI_Controller {
         $cc = 'anuj@247around.com, nits@247around.com';
         $subject = $this->input->post('subject');
         $raw_message = $this->input->post('mail_body');
-        
+
         //to replace new lines in line breaks for html
         $message = nl2br($raw_message);
         $bcc = "";

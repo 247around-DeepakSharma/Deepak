@@ -4,7 +4,7 @@
         <div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">Update Booking</div>
             <div class="panel-body">
-                <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url()?>employee/new_booking/update_booking/<?php echo $booking_history[0]['user_id'];?>/<?php echo $booking_history[0]['booking_id']?>"  method="POST" enctype="multipart/form-data">
+                <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url()?>employee/booking/update_booking/<?php echo $booking_history[0]['user_id'];?>/<?php echo $booking_history[0]['booking_id']?>"  method="POST" enctype="multipart/form-data">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="col-md-6">
@@ -207,7 +207,7 @@
                                                             <td><?php echo $price['service_category']; ?></td>
                                                             <td><?php echo $price['customer_total']; ?></td>
                                                             <td>
-                                                            <input type="text" class="form-control " name="<?php echo "partner_paid_basic_charges[".$unit_details[0]['brand']."][". $price['id']."][]"; ?>" id="<?php echo "partner_paid_basic_charges". $i . "_1"; ?>" value = "<?php if(isset($unit_details[0]['qunatity'][$k]['around_net_payable'])){ echo $unit_details[0]['qunatity'][$k]['around_net_payable']; } else { echo $price['partner_net_payable']; }  ?>"  />
+                                                            <input type="text" class="form-control " name="<?php echo "partner_paid_basic_charges[".$unit_details[0]['brand']."][". $price['id']."][]"; ?>" id="<?php echo "partner_paid_basic_charges". $i . "_1"; ?>" value = "<?php if(isset($unit_details[0]['qunatity'][$k]['partner_net_payable'])){ echo $unit_details[0]['qunatity'][$k]['partner_net_payable']; } else { echo $price['partner_net_payable']; }  ?>"  />
 
                                                             </td>
                                                               <td><input type="text" class="form-control discount" name="<?php echo "discount[".$unit_details[0]['brand']."][". $price['id']."][]"; ?>" id="<?php echo "discount_". $i . "_1"; ?>" 

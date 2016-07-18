@@ -79,7 +79,7 @@
                 <div>
                   <center>
                     <input type="submit" value="Edit Query" class="btn btn-danger">
-                    <?php echo "<a id='edit' class='btn btn-small btn-primary' href=".base_url()."employee/booking/view_pending_queries>Cancel</a>";?>
+                    <?php echo "<a id='edit' class='btn btn-small btn-primary' href=".base_url()."employee/booking/view_queries/FollowUp>Cancel</a>";?>
                     
                   </center>
                 </div>

@@ -35,7 +35,7 @@ class User extends CI_Controller {
         $this->load->view('employee/finduser', $data);
     }
 
-    /**
+/**
      * @desc : This function is to find/search user
      * 
      * Searches user details with booking id, order id and partner code
@@ -113,11 +113,24 @@ class User extends CI_Controller {
             }
         } elseif ($booking_id != "") {  //if booking id given and matched, will be displayed 
             $data['Bookings'] = $this->booking_model->search_bookings_by_booking_id($booking_id);
+            if(!empty($data['Bookings'])){
+                if (strstr($data['Bookings'][0]->booking_id, "Q-") == TRUE) {
+                    
+                    $this->load->view('employee/header');
+                    $this->load->view('employee/viewpendingqueries', $data);
 
-            $this->load->view('employee/header');
+                } else {
 
+                    $this->load->view('employee/header');
+                    $this->load->view('employee/booking', $data);
+                }
+            } else {
 
-            $this->load->view('employee/booking', $data);
+                $this->load->view('employee/header');
+                $this->load->view('employee/booking', $data);
+            }
+
+           
         }
     }
 
@@ -130,12 +143,28 @@ class User extends CI_Controller {
      * @return : array of data(searched results) to the view
      */
     function search_by_OrderId($partner_code, $order_id) {
-        $data['Bookings'] = $this->user_model->getBookingId_by_orderId($partner_code, $order_id);
+        $data['Bookings'] = $this->booking_model->getBookingId_by_orderId($partner_code, $order_id);
         $data['search'] = "Search";
 
-        $this->load->view('employee/header');
-        $this->load->view('employee/booking', $data);
+        if(!empty($data['Bookings'])){
+                if (strstr($data['Bookings'][0]->booking_id, "Q-") == TRUE) {
+                    
+                    $this->load->view('employee/header');
+                    $this->load->view('employee/viewpendingqueries', $data);
+
+                } else {
+
+                    $this->load->view('employee/header');
+                    $this->load->view('employee/booking', $data);
+                }
+            } else {
+
+                $this->load->view('employee/header');
+                $this->load->view('employee/booking', $data);
+            }
+
     }
+
 
     /**
      * @desc : This function is used to find user by their name

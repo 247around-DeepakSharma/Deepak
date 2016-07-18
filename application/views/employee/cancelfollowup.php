@@ -80,7 +80,7 @@ function check_text(){
                 <div>
                   <center>
                     <input type="submit" value="Save" onclick="return(check_text())" class="btn btn-danger">
-                    <?php echo "<a id='edit' class='btn btn-small btn-primary' href=".base_url()."employee/booking/view_pending_queries>Back</a>";?>
+                    <?php echo "<a id='edit' class='btn btn-small btn-primary' href=".base_url()."employee/booking/view_queries/FollowUp>Back</a>";?>
                     
                   </center>
                 </div>

@@ -4,7 +4,7 @@
         <div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">Add Booking</div>
             <div class="panel-body">
-                <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url()?>employee/new_booking/index/<?php echo $user[0]['user_id'];?>"  method="POST" enctype="multipart/form-data">
+                <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url()?>employee/booking/index/<?php echo $user[0]['user_id'];?>"  method="POST" enctype="multipart/form-data">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="col-md-6">

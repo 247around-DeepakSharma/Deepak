@@ -143,7 +143,7 @@ class Service_centers extends CI_Controller {
             // remove previous text, added in closing_remarks column.
             $string = str_replace($charges[0]['service_center_remarks'], " ", $closing_remarks);
             // Add current and previous text in admin_remarks column
-            $data['service_center_remarks'] = $charges[0]['service_center_remarks'] . " <br/>" . date("F j") . ":- " . $string;
+            $data['service_center_remarks'] = $charges[0]['service_center_remarks'] . " " . date("F j") . ":- " . $string;
 
             $this->vendor_model->update_service_center_action($data);
         } else {
@@ -157,8 +157,50 @@ class Service_centers extends CI_Controller {
     }
 
     /**
-     *  @desc : This function Set Session
-     *  param : Service center id
+     * @desc: This is used to get cancel booking form.
+     * @param: booking id
+     * @return: void
+     */
+    function cancel_booking_form($booking_id) {
+        $this->checkUserSession();
+        $data['user_and_booking_details'] = $this->booking_model->booking_history_by_booking_id($booking_id);
+        $data['reason'] = $this->booking_model->cancelreason("vendor");
+
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/cancel_booking_form', $data);
+    }
+
+    /**
+     * @desc: This is used to cancel booking for service center.
+     * @param: booking id
+     * @return: void
+     */
+    function process_cancel_booking($booking_id) {
+        $this->checkUserSession();
+
+        $cancellation_reason = $this->input->post('cancellation_reason');
+        if ($cancellation_reason === 'Other') {
+            $cancellation_reason = "Other : " . $cancellation_reason;
+        }
+
+        $data['service_center_id'] = $this->session->userdata('service_center_id');
+        $data['booking_id'] = $booking_id;
+        $data['current_status'] = "InProcess";
+        $data['internal_status'] = "Cancelled";
+        $data['service_charge'] = $data['additional_service_charge'] = $data['parts_cost'] = $data['amount_paid'] = 0;
+        $data['cancellation_reason'] = date("F j") . ":- " . $cancellation_reason;
+        $data['closed_date'] = date('Y-m-d h:i:s');
+
+        $this->vendor_model->update_service_center_action($data);
+
+        redirect(base_url() . "service_center/pending_booking");
+    }
+
+    /**
+     * @desc: This function Sets Session
+     * @param: Service center id
+     * @param: user name
+     * @return: void
      */
     function setSession($service_center_id, $user_name) {
 	$userSession = array(
@@ -268,29 +310,17 @@ class Service_centers extends CI_Controller {
     }
 
     /**
-     * @desc: this is used to send reschedule booking
+     * @desc: this method save reschedule request in service center action table. 
      * @param: void
      * @return : void
      */
     function save_reschedule_request(){
         $data['booking_id'] = $this->input->post('booking_id');
-        $booking_date = $this->input->post('booking_date');
-        $data['booking_date'] = date('d-m-Y',strtotime($booking_date));
+        $data['booking_date'] = date('Y-m-d',strtotime($this->input->post('booking_date')));
         $data['booking_timeslot'] = $this->input->post('booking_timeslot');
+        $data['current_status'] = "InProcess";
         $data['internal_status'] = 'Reschedule';
-        $reschedule_remarks = $this->input->post('remarks');
-        $charges = $this->booking_model->getbooking_charges($data['booking_id']);
-       
-        if (!empty($charges)) {
-            // Add current and previous text in admin_remarks column
-           
-            $data['service_center_remarks'] = $charges[0]['service_center_remarks'] . " <br/>" . date("F j") . ":- " . $reschedule_remarks;
-
-        } else {
-
-            $data['service_center_remarks'] = date("F j") . ":- " . $reschedule_remarks;
-        
-        }
+        $data['reschedule_reason'] = date("F j") . ":- " . $this->input->post('remarks');
 
         $this->vendor_model->update_service_center_action($data);
         print_r("success");

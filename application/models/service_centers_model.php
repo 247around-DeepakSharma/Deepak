@@ -50,7 +50,7 @@ class Service_centers_model extends CI_Model {
             users.name as customername, users.phone_number,
             booking_details.*, service_centres.name as service_centre_name,
             service_centres.primary_contact_name,service_centres.primary_contact_phone_1,
-            DATEDIFF(CURRENT_TIMESTAMP , service_center_booking_action.create_date ) as age_of_booking
+            DATEDIFF(CURRENT_TIMESTAMP , service_center_booking_action.create_date ) as age_of_booking, service_center_booking_action.admin_remarks
             from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`

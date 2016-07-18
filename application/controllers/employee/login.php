@@ -68,7 +68,7 @@ class Login extends CI_Controller {
 
 	//$this->load->view('employee/header',$result);
 	//$this->load->view('employee/finduser',$result);
-	redirect('employee/booking/view_all_pending_queries');
+	redirect(base_url().search_page);
     }
 
     /**

@@ -402,19 +402,6 @@ class Booking_model extends CI_Model {
     }
 
     /**
-     *  @desc : to select the services.
-     *
-     * 	The services we get are the once that are active from our end
-     *
-     *  @param : void
-     *  @return : array with active services
-     */
-    function selectservice() {
-        $query = $this->db->query("Select id,services from services where isBookingActive='1'");
-        return $query->result();
-    }
-
-    /**
      *  @desc : this function is to get a particular service.
      *
      * 	This function gets the service name with the help of its id
@@ -425,34 +412,6 @@ class Booking_model extends CI_Model {
     function selectservicebyid($service_id) {
         $query = $this->db->query("SELECT services from services where id='$service_id'");
         return $query->result_array();
-    }
-
-    /**
-     *  @desc : This function is to get all the distinct brand
-     *
-     *  Only distinct brands are selected from all the brands.
-     *
-     *  @param : void
-     *  @return : array of distinct brands
-     */
-    function selectbrand() {
-        $query = $this->db->query("Select DISTINCT brand_name from appliance_brands
-                                    order by brand_name");
-        return $query->result();
-    }
-
-    /**
-     *  @desc : This function is to get all the distinct category
-     *
-     *  Only distinct categories are selected from all the categories present.
-     *
-     *  @param : void
-     *  @return : array of distinct categories
-     */
-    function selectcategory() {
-
-        $query = $this->db->query("Select DISTINCT category from service_centre_charges");
-        return $query->result();
     }
 
     /**
@@ -506,6 +465,19 @@ class Booking_model extends CI_Model {
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`"
         );
 
+        return $query->result();
+    }
+
+   /**
+     *  @desc : to select the services.
+     *
+     *  The services we get are the once that are active from our end
+     *
+     *  @param : void
+     *  @return : array with active services
+     */
+    function selectservice() {
+        $query = $this->db->query("Select id,services from services where isBookingActive='1'");
         return $query->result();
     }
 
@@ -578,38 +550,6 @@ class Booking_model extends CI_Model {
     }
 
     /**
-     *  @desc : Function to view all completed bookings in Descending order according by close date.
-     *
-     *  Shows users name, phone number, services name.
-     *
-     *  Also shows complete booking details and also assigned service centre's basic
-     *  details for that particular booking.
-     *
-     * This will return all the completed booking for any date.
-     *
-     *  @param: void
-     *  @return : array of booking, users, services and service center details in sorted
-     *          format by closed date in descending order.
-     */
-    function view_all_completed_booking() {
-        $query = $this->db->query("Select services.services,
-            users.name as customername, users.phone_number,
-            booking_details.*, service_centres.name as service_centre_name,
-            service_centres.district as city,
-           service_centres.primary_contact_name,service_centres.primary_contact_phone_1
-            from booking_details
-            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
-            JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-            LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-            WHERE `booking_id` NOT LIKE '%Q-%' AND
-            (booking_details.current_status = 'Completed')
-            ORDER BY closed_date DESC"
-        );
-
-        return $query->result();
-    }
-
-    /**
      *  @desc : Function to view completed bookings in Descending order according by close date.
      *
      *  Here start and limit upto which we want to see the output is given.
@@ -623,7 +563,13 @@ class Booking_model extends CI_Model {
      *  @return : array of booking, users, services and service center details in sorted
      *          format by closed date in descending order.
      */
-    function view_completed_booking($limit, $start) {
+    function view_completed_or_cancelled_booking($limit, $start, $status) {
+    
+        $add_limit = "";
+        if($limit != "All"){
+        
+             $add_limit = " LIMIT $start, $limit ";
+        }
 
         $query = $this->db->query("Select services.services,
             users.name as customername, users.phone_number,
@@ -635,76 +581,14 @@ class Booking_model extends CI_Model {
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
             WHERE `booking_id` NOT LIKE '%Q-%' AND
-            (booking_details.current_status = 'Completed')
-	    ORDER BY closed_date DESC LIMIT $start, $limit"
+            (booking_details.current_status = '$status')
+	    ORDER BY closed_date DESC $add_limit "
         );
 
-        return $query->result();
+       
+       return $query->result();
     }
 
-    /**
-     *  @desc : Function to view cancelled bookings in Descending order according by close date.
-     *
-     *  Here start and limit upto which we want to see the output is given.
-     *
-     *  Shows users name, phone number and services name.
-     *
-     *  Also shows cancelled booking details and also assigned service centre's basic
-     *  details for that particular booking.
-     *
-     *  @param: start and limit of result
-     *  @return : array of booking, users, services and service center details in sorted
-     *          format by closed date in descending order.
-     */
-    function view_cancelled_booking($limit, $start) {
-
-        $query = $this->db->query("Select services.services,
-            users.name as customername, users.phone_number,
-            booking_details.*, service_centres.name as service_centre_name,
-            service_centres.district as city,
-           service_centres.primary_contact_name,service_centres.primary_contact_phone_1
-            from booking_details
-            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
-            JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-            LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-            WHERE `booking_id` NOT LIKE '%Q-%' AND
-            (booking_details.current_status = 'Cancelled')
-	    ORDER BY closed_date DESC LIMIT $start, $limit"
-        );
-
-        return $query->result();
-    }
-
-    /**
-     *  @desc : Function to view all cancelled bookings in Descending order according by close date.
-     *
-     *  Shows users name, phone number, services name.
-     *
-     *  Also shows cancelled booking details and also assigned service centre's basic
-     *  details for that particular booking.
-     *
-     * This will return all the cancelled booking for any date.
-     *
-     *  @param: void
-     *  @return : array of booking, users, services and service center details in sorted
-     *          format by closed date in descending order.
-     */
-    function view_all_cancelled_booking() {
-        $query = $this->db->query("Select services.services,
-            users.name as customername, users.phone_number,
-            booking_details.*, service_centres.name as service_centre_name,
-           service_centres.primary_contact_name,service_centres.primary_contact_phone_1
-            from booking_details
-            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
-            JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-            LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-            WHERE `booking_id` NOT LIKE '%Q-%' AND
-            (booking_details.current_status = 'Cancelled')
-            ORDER BY closed_date DESC"
-        );
-
-        return $query->result();
-    }
 
     /**
      *  @desc : Function to view pending and rescheduled bookings in current status sorted descending order.
@@ -870,8 +754,10 @@ class Booking_model extends CI_Model {
 
         $temp = $query->result();
 
-       
-        usort($temp, array($this, 'date_compare_bookings'));
+        if($limit =="All"){
+            usort($temp, array($this, 'date_compare_bookings'));
+        }
+        
 
         //return slice of the sorted array
         return array_slice($temp, $start, $limit);
@@ -885,14 +771,14 @@ class Booking_model extends CI_Model {
      * @param : void
      * @return : total number of completed or cancelled bookings
      */
-    public function total_completed_booking() {
+    public function total_closed_booking($status = "") {
 
         $query = $this->db->query("Select count(*) as count from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
             WHERE `booking_id` NOT LIKE '%Q-%' AND
-            (booking_details.current_status = 'Completed' OR booking_details.current_status = 'Cancelled')"
+            (booking_details.current_status = '$status')"
         );
 
         $count = $query->result_array();
@@ -907,22 +793,22 @@ class Booking_model extends CI_Model {
      * @param : booking id
      * @return : total number of pending queries
      */
-    public function total_pending_queries($booking_id = "") {
+    public function total_queries($status, $booking_id = "") {
         $where = "";
 
-        if ($booking_id != "") {
-            $where .= "AND `booking_details`.`booking_id` = '$booking_id'";
-            $sql = "SELECT count(*) as count from booking_details
+	if ($booking_id != "")
+	    $where .= "AND `booking_details`.`booking_id` = '$booking_id'";
+
+	$sql = "SELECT count(*) as count from booking_details
         JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
         JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
         LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
         WHERE `booking_id` LIKE '%Q-%' $where  AND
-        (booking_details.current_status='FollowUp')";
-            $query = $this->db->query($sql);
-            $count = $query->result_array();
+        (booking_details.current_status='$status')";
+	$query = $this->db->query($sql);
+	$count = $query->result_array();
 
-            return $count[0]['count'];
-        }
+	return $count[0]['count'];
     }
 
     /**
@@ -969,7 +855,7 @@ class Booking_model extends CI_Model {
      * @param : void
      * @return : all the cancellation reasons present
      */
-    function cancelreason($reason_of = "") {
+    function cancelreason($reason_of) {
         $query = $this->db->query("Select id,reason from booking_cancellation_reasons where reason_of = '$reason_of' ");
         return $query->result();
     }
@@ -1169,33 +1055,26 @@ class Booking_model extends CI_Model {
      *  @param : $booking_id
      *  @return : array(userdetails,servicename and bookingdetails)
      */
-    function booking_history_by_booking_id($booking_id, $join= "") {
+    function booking_history_by_booking_id($booking_id, $join = "") {
+        $service_centre = "";
+        $condition = "";
+        $service_center_name = "";
+        if ($join != "") {
+            $service_center_name = ",service_centres.name as vendor_name, service_centres.district ";
+            $service_centre = ", service_centres ";
+            $condition = " and booking_details.assigned_vendor_id =  service_centres.id";
+        }
 
-	/*
-	  $sql = "Select services.services, users.*, booking_details.*"
-	  . "from booking_details, users, services "
-	  . "where booking_details.booking_id='$booking_id' and "
-	  . "booking_details.user_id = users.user_id and services.id = booking_details.service_id";
-	 */
-      $service_centre = "";
-      $condition ="";
-	  $service_center_name ="";
-	  if($join !=""){
-	  	$service_center_name =",service_centres.name as vendor_name, service_centres.district ";
-	  	$service_centre = ", service_centres ";
-	  	$condition = " and booking_details.assigned_vendor_id =  service_centres.id";
-	  }
+        $sql = "Select services.services, users.*, booking_details.*, appliance_details.description  " . $service_center_name
+                . "from booking_details, users, services, appliance_details " . $service_centre
+                . "where booking_details.booking_id='$booking_id' and "
+                . "booking_details.user_id = users.user_id and "
+                . "services.id = booking_details.service_id and "
+                . "booking_details.appliance_id = appliance_details.id " . $condition;
 
-	$sql = "Select services.services, users.*, booking_details.*, appliance_details.description  ". $service_center_name
-	    . "from booking_details, users, services, appliance_details ". $service_centre
-	    . "where booking_details.booking_id='$booking_id' and "
-	    . "booking_details.user_id = users.user_id and "
-	    . "services.id = booking_details.service_id and "
-	    . "booking_details.appliance_id = appliance_details.id ". $condition;
+        $query = $this->db->query($sql);
 
-	$query = $this->db->query($sql);
-
-	return $query->result_array();
+        return $query->result_array();
     }
 
     /**
@@ -1845,15 +1724,20 @@ class Booking_model extends CI_Model {
      *  @param : start and limit for the query
      *  @return : array(specific no of pending query detils)
      */
-    function get_pending_queries($limit, $start, $booking_id = "") {
+    function get_queries($limit, $start, $status, $booking_id = "") {
         $where = "";
+        $add_limit = "";
 
         if ($booking_id != "") {
-            $where .= "AND `booking_details`.`booking_id` = '$booking_id'";
+            $where .= "AND `booking_details`.`booking_id` = '$booking_id' AND (`booking_details`.current_status='Completed' OR `booking_details`.current_status='Cancelled') ";
         } else {
-            if ($limit != -1) {
+            if ($limit != 'All') {
                 $where .= "AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR
-			    booking_details.booking_date='')";
+                booking_details.booking_date='') AND `booking_details`.current_status='$status' ";
+
+                $add_limit = " limit $start, $limit ";
+
+
             }
         }
 
@@ -1868,26 +1752,23 @@ class Booking_model extends CI_Model {
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
             LEFT JOIN `partner_leads` ON `booking_details`.`booking_id` = `partner_leads`.`247aroundBookingID`
-            WHERE `booking_id` LIKE '%Q-%' $where AND
-	    (booking_details.current_status='FollowUp')
-	    order by CASE booking_date
-			WHEN '' THEN 'a'
-			ELSE 'b'
-		    END, STR_TO_DATE(booking_date,'%d-%m-%Y') desc; ";
+            WHERE `booking_id` LIKE '%Q-%' $where 
+        
+        order by CASE booking_date
+            WHEN '' THEN 'a'
+            ELSE 'b'
+            END, STR_TO_DATE(booking_date,'%d-%m-%Y') desc $add_limit";
 
         $query = $this->db->query($sql);
 
-        $temp = $query->result_array();
+        $temp = $query->result();
 
-        //usort($temp, array($this, 'date_compare_queries'));
+        usort($temp, array($this, 'date_compare_queries'));
 
         $data = $this->searchPincodeAvailable($temp);
-        //return slice of the sorted array
-        if ($limit != -1) {
-            return array_slice($data, $start, $limit);
-        } else {
-            return $data;
-        }
+ 
+        return $data;
+        
     }
 
     /**
@@ -1900,8 +1781,8 @@ class Booking_model extends CI_Model {
         foreach ($temp as $key => $value) {
             $this->db->distinct();
             $this->db->select('Vendor_ID, Vendor_Name');
-            $this->db->where('vendor_pincode_mapping.Appliance_ID', $value['service_id']);
-            $this->db->where('vendor_pincode_mapping.Pincode', $value['booking_pincode']);
+            $this->db->where('vendor_pincode_mapping.Appliance_ID', $value->service_id);
+            $this->db->where('vendor_pincode_mapping.Pincode', $value->booking_pincode);
             $this->db->where('vendor_pincode_mapping.active', "1");
             $this->db->from('vendor_pincode_mapping');
 
@@ -1910,14 +1791,15 @@ class Booking_model extends CI_Model {
             $this->db->where('service_centres.active', "1");
             $data = $this->db->get();
             if ($data->num_rows() > 0) {
-                $temp[$key]['vendor_status'] = $data->result_array();
+                $temp[$key]->vendor_status = $data->result_array();
             } else {
-                $temp[$key]['vendor_status'] = "Vendor Not Available";
+                $temp[$key]->vendor_status = "Vendor Not Available";
             }
         }
 
         return $temp;
     }
+
 
     /**
      *  @desc : Function to get distinct area/pincode/city/state
@@ -2192,6 +2074,8 @@ class Booking_model extends CI_Model {
 	//Status should NOT be Completed or Cancelled
     if($status !="")
 	$this->db->where_not_in('current_status', $status);
+
+    $this->db->where_not_in('internal_status', "Reschedule");
 	$query = $this->db->get('service_center_booking_action');
 
 	log_message('info', __METHOD__ . "=> " . $this->db->last_query());
@@ -2261,7 +2145,7 @@ class Booking_model extends CI_Model {
      */
     function review_reschedule_bookings_request(){
         
-        $this->db->select('booking_details.booking_id, users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.booking_timeslot, service_center_booking_action.booking_date as reschedule_date_request,  service_center_booking_action.booking_timeslot as reschedule_timeslot_request, service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.service_center_remarks');
+        $this->db->select('booking_details.booking_id, users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.booking_timeslot, service_center_booking_action.booking_date as reschedule_date_request,  service_center_booking_action.booking_timeslot as reschedule_timeslot_request, service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.reschedule_reason');
         $this->db->from('service_center_booking_action');
         $this->db->join('booking_details','booking_details.booking_id = service_center_booking_action.booking_id');
         
@@ -2276,5 +2160,52 @@ class Booking_model extends CI_Model {
         
         return $result;
     }
+
+    /**
+     * @desc : This function is used to get booking id with the help of order id.
+     * 
+     *  Partner id and order id finds the exact booking id.
+     * 
+     * @param : partner id and order id.
+     * @return : Array(booking details)
+     */
+    function getBookingId_by_orderId($partner_id, $order_id) {
+
+        $booking = array();
+
+        $partner_code = $this->partner_model->get_source_code_for_partner($partner_id);
+
+        $union = "";
+        if ($partner_code == "SS") {
+            $union = "UNION 
+
+                   SELECT CRM_Remarks_SR_No as booking FROM  `snapdeal_leads` WHERE  Sub_Order_ID LIKE  '%$order_id%' ";
+        }
+
+        $sql = "SELECT 247aroundBookingID  as booking from partner_leads where OrderID LIKE '%$order_id%' And  PartnerID = '$partner_id'   " . $union;
+ 
+
+        $query = $this->db->query($sql);
+
+        $data = $query->result();
+
+        if (count($data) > 0) {
+
+            foreach ($data as $value) {
+                $string = preg_replace("/[^0-9,.]/", "", $value->booking); //replace all character and symbol
+                $booking_data = $this->search_bookings_by_booking_id($string);
+
+                if (count($booking_data) > 0) {
+                    array_push($booking, $booking_data[0]);
+                }
+            }
+
+            return $booking;
+        } else {
+
+            return $booking;
+        }
+    }
+
 
 }

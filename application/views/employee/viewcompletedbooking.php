@@ -39,15 +39,15 @@
 <div id="page-wrapper" >
     <div class="">
         <div class="row">
-            <?php  if($this->uri->segment(3) == 'viewcompletedbooking' || $this->uri->segment(3) == 'viewallcompletedbooking'){?>
+            <?php  if($this->uri->segment(3) == 'viewclosedbooking' ){ $status = $this->uri->segment(4); ?>
             <div class="pagination">
                 <select id="dynamic_select">
-                    <option value="<?php echo base_url().'employee/booking/viewcompletedbooking'?>" <?php if($this->uri->segment(4) == 50){ echo 'selected';}?>>50</option>
-                    <option value="<?php echo base_url().'employee/booking/viewcompletedbooking/0/100'?>" <?php if($this->uri->segment(5) == 100){ echo 'selected';}?>>100</option>
-                    <option value="<?php echo base_url().'employee/booking/viewcompletedbooking/0/200'?>" <?php if($this->uri->segment(5) == 200){ echo 'selected';}?>>200</option>
-                    <option value="<?php echo base_url().'employee/booking/viewallcompletedbooking'?>" <?php if($this->uri->segment(3) == 'viewallcompletedbooking'){ echo 'selected';}?>>All</option>
-                    <?php if ($this->uri->segment(5)){if($this->uri->segment(5) != 50 || $this->uri->segment(5) != 100 || $this->uri->segment(5) != 200 ){?>
-                    <option value="" <?php if($this->uri->segment(5) == count($Bookings)){ echo 'selected';}?>><?php echo $this->uri->segment(5);?></option>
+                    <option value="<?php echo base_url().'employee/booking/viewclosedbooking/'.$status; ?>" <?php if($this->uri->segment(5) == 50){ echo 'selected';}?>>50</option>
+                    <option value="<?php echo base_url().'employee/booking/viewclosedbooking/'.$status.'/0/100'?>" <?php if($this->uri->segment(6) == 100){ echo 'selected';}?>>100</option>
+                    <option value="<?php echo base_url().'employee/booking/viewclosedbooking/'.$status.'/0/200'?>" <?php if($this->uri->segment(6) == 200){ echo 'selected';}?>>200</option>
+                    <option value="<?php echo base_url().'employee/booking/viewclosedbooking/'.$status.'/0/All'?>" <?php if($this->uri->segment(6) == 'All'){ echo 'selected';}?>>All</option>
+                    <?php if ($this->uri->segment(6)){if($this->uri->segment(6) != 50 || $this->uri->segment(6) != 100 || $this->uri->segment(6) != 200 ||  $this->uri->segment(6) != "All" ){?>
+                    <option value="" <?php if($this->uri->segment(6) == count($Bookings)){ echo 'selected';}?>><?php echo $this->uri->segment(6);?></option>
                     <?php } }?>
                 </select>
             </div>
@@ -56,7 +56,7 @@
                  <input type="search" class="form-control pull-right"  id="search" placeholder="search">
             </div>
             <div style="margin-left:10px;margine-right:5px;">
-                <h1 align="left"><b>Completed Bookings</b></h1>
+                <h1 align="left"><?php echo $status." Bookings"; ?></h1>
                 <table >
 
                     <thead>

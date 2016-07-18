@@ -293,7 +293,7 @@ class bookings_excel extends CI_Controller {
 	    }
 	}
 
-	redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
+	redirect(base_url() . search_page);
     }
 
     /*
@@ -445,11 +445,14 @@ class bookings_excel extends CI_Controller {
 		$lead_details['City'] = $rowData[0]['CITY'];
 		$lead_details['Phone'] = $rowData[0]['Phone'];
 
-		$dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Expected_Delivery_Date']);
+		if (isset($rowData[0]['Expected_Delivery_Date']))
+		    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Expected_Delivery_Date']);
+		else
+		    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Delivery_Date']);
 
 		if ($dateObj2->format('d') == date('d')) {
-		    $dateObj2  =  date_create('+1days');
-	    }
+		    $dateObj2 = date_create('+2days');
+		}
 		log_message('info', print_r($dateObj2, true));
 
 		$lead_details['Expected_Delivery_Date'] = $dateObj2->format('d/m/Y');
@@ -587,7 +590,7 @@ class bookings_excel extends CI_Controller {
 	    }
 	}
 
-	redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
+	redirect(base_url() . search_page);
     }
 
     /*

@@ -51,11 +51,11 @@
                </a>
                <ul class="dropdown-menu  ">
                   <li >
-		      <a  href="<?php echo base_url() ?>employee/booking/view_all_pending_queries"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Queries</a></strong>
+		      <a  href="<?php echo base_url() ?>employee/booking/view_queries/FollowUp/0/All"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Queries</a></strong>
                   </li>
                   <li class="divider"></li>
-                  <li <?php if($this->uri->uri_string()=='employee/signup_message'){ echo 'class="active"';}?>>
-                     <a href="<?php echo base_url() ?>employee/booking/view_cancelled_queries"><i class="fa fa-fw fa-desktop"></i> <strong> Cancelled Queries</strong></a>
+                  <li >
+                     <a href="<?php echo base_url() ?>employee/booking/view_queries/Cancelled"><i class="fa fa-fw fa-desktop"></i> <strong> Cancelled Queries</strong></a>
                   </li>
                </ul>
                <!-- /.dropdown-messages -->
@@ -72,11 +72,11 @@
                   </li>
                   <li class="divider"></li>
                   <li>
-                     <a href="<?php echo base_url() ?>employee/booking/viewcompletedbooking"><i class="fa fa-fw fa-desktop"></i> <strong>View Completed Booking</strong></a>
+                     <a href="<?php echo base_url() ?>employee/booking/viewclosedbooking/Completed"><i class="fa fa-fw fa-desktop"></i> <strong>View Completed Booking</strong></a>
                   </li>
                   <li class="divider"></li>
                   <li>
-                     <a href="<?php echo base_url() ?>employee/booking/viewcancelledbooking"><i class="fa fa-fw fa-desktop"></i> <strong>View Cancelled Booking</strong></a>
+                     <a href="<?php echo base_url() ?>employee/booking/viewclosedbooking/Cancelled"><i class="fa fa-fw fa-desktop"></i> <strong>View Cancelled Booking</strong></a>
                   </li>
                   <li class="divider"></li>
                   <li >
@@ -88,7 +88,7 @@
                   </li>
                   <li class="divider"></li>
                   <li>
-                     <a href="<?php echo base_url()?>employee/new_booking/review_bookings"><i class="fa fa-fw fa-desktop"></i> <strong> Review Bookings</strong></a>
+                     <a href="<?php echo base_url()?>employee/booking/review_bookings"><i class="fa fa-fw fa-desktop"></i> <strong> Review Bookings</strong></a>
                   </li>
 
 <!--
@@ -137,43 +137,49 @@
             </li>
             <!-- /.dropdown -->
 
-            <li class="dropdown">
-               <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-               <i class="fa fa-fw fa-arrows-v"></i> Service Centres <i class="fa fa-caret-down"></i>
-               </a>
-               <ul class="dropdown-menu">
-                  <li>
-                     <a href="<?php echo base_url()?>employee/vendor/viewvendor" ><i class="fa fa-fw fa-desktop"></i> <strong> View Service Centres</strong></a>
-                  </li>
-                  <li class="divider"></li>
-                  <li>
-                     <a href="<?php echo base_url()?>employee/vendor/vendor_availability_form"><i class="fa fa-fw fa-desktop "></i> <strong> Search Service Centre</strong></a>
-                  </li>
-                  <li class="divider"></li>
-                  <li>
-                     <a href="<?php echo base_url()?>employee/vendor/get_pincode_excel_upload_form"><i class="fa fa-fw fa-desktop"></i> <strong> Upload Pincode Mapping Excel</strong></a>
-                  </li>
-                  <li class="divider"></li>
-                  <li>
-                     <a href="<?php echo base_url()?>employee/vendor/get_broadcast_mail_to_vendors_form"><i class="fa fa-fw fa-desktop"></i> <strong> Send Broadcast Email</strong></a>
-                  </li>
-                  <li class="divider"></li>
-                  <li>
-                     <a href="<?php echo base_url()?>employee/invoice"><i class="fa fa-fw fa-desktop "></i> <strong> Show Invoices</strong></a>
-                  </li>
-                  <li class="divider"></li>
-                  <li>
-                     <a href="<?php echo base_url()?>employee/invoice/get_add_new_transaction"><i class="fa fa-fw fa-desktop "></i> <strong>Add New Transaction</strong></a>
-                  </li>
-                  <li class="divider"></li>
-                  <li>
-                     <a href="<?php echo base_url()?>employee/invoice/show_all_transactions/vendor"><i class="fa fa-fw fa-desktop "></i> <strong>Show All Transactions</strong></a>
-                  </li>
-               </ul>
-               <!-- /.dropdown-user -->
-            </li>
+           
             <!-- /.dropdown -->
 
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-fw fa-arrows-v"></i> Service Centres <i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="<?php echo base_url() ?>employee/vendor/viewvendor" ><i class="fa fa-fw fa-desktop"></i> <strong> View Service Centres</strong></a>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                                <a href="<?php echo base_url() ?>employee/vendor/vendor_availability_form"><i class="fa fa-fw fa-desktop "></i> <strong> Search Service Centre</strong></a>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                                <a href="<?php echo base_url() ?>employee/vendor/get_pincode_excel_upload_form"><i class="fa fa-fw fa-desktop"></i> <strong> Upload Pincode Mapping Excel</strong></a>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                                <a href="<?php echo base_url() ?>employee/vendor/get_mail_vendor"><i class="fa fa-fw fa-desktop"></i> <strong> Send Email</strong></a>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                                <a href="<?php echo base_url() ?>employee/vendor/get_broadcast_mail_to_vendors_form"><i class="fa fa-fw fa-desktop"></i> <strong> Send Broadcast Email</strong></a>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                                <a href="<?php echo base_url() ?>employee/invoice"><i class="fa fa-fw fa-desktop "></i> <strong> Show Invoices</strong></a>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                                <a href="<?php echo base_url() ?>employee/invoice/get_add_new_transaction"><i class="fa fa-fw fa-desktop "></i> <strong>Add New Transaction</strong></a>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                                <a href="<?php echo base_url() ?>employee/invoice/show_all_transactions/vendor"><i class="fa fa-fw fa-desktop "></i> <strong>Show All Transactions</strong></a>
+                            </li>
+                        </ul>
+                        <!-- /.dropdown-user -->
+                    </li>
+                    <!-- /.dropdown -->
 
             <li class="dropdown">
                <a class="dropdown-toggle" data-toggle="dropdown" href="#">

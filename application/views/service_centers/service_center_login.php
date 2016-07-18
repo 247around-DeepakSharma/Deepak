@@ -19,7 +19,7 @@
             background-color:#f2f2f2;
             float:none;
             }
-           
+
         </style>
     </head>
     <body style="background-color: #fff;">
@@ -35,7 +35,7 @@
                     '</div>';
                     }
                     ?>
-                <img src="<?php echo base_url()?>images/logo.jpg" style="display: inline;"> 
+                <img src="<?php echo base_url()?>images/logo.jpg" style="display: inline;">
                 <p style="display: inline; color: #fff;margin-left:33px;font-size: 22px; ">Welcome to Service Center Portal</p>
                 <div class="col-md-offset-3">
                     <form class="form-horizontal" action="<?php echo base_url(); ?>employee/service_centers/service_center_login" style="margin-top:45px;" method="post" id="login_form">
@@ -46,8 +46,8 @@
                                     <input type = "text" class = "form-control" name="user_name" placeholder = "User Name">
                                 </div>
                             </div>
-                            &nbsp;<span id="errmsg"></span> 
-                            
+                            &nbsp;<span id="errmsg"></span>
+
                         </div>
 
                         <div class="form-group">
@@ -57,7 +57,7 @@
                                     <input type = "password" class = "form-control" name="password" placeholder = "Password">
                                 </div>
                             </div>
-                            &nbsp;<span id="errmsg1"></span> 
+                            &nbsp;<span id="errmsg1"></span>
                         </div>
                         <a href="#" class="pull-right" style="color: #fff;margin-right: 77px;">Forgot password</a>
                         <div class="form-group">
@@ -66,15 +66,15 @@
                             </div>
                         </div>
                     </form>
-                    
+
                 </div>
             </div>
         </div>
-        
+
     </body>
 
 <script type="text/javascript">
-    
+
 (function($,W,D)
 {
     var JQUERY4U = {};
@@ -92,13 +92,13 @@
                     },
                     password: {
                         required: true,
-                        minlength: 8
+                        //minlength: 8
                     }
                 },
                 messages: {
                     name: "Please enter your User Name",
                     password: "Please enter at least 8 digits password"
-                   
+
                 },
                 errorPlacement: function(error, element) {
                    error.insertAfter(element.parent());

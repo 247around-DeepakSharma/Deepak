@@ -338,19 +338,26 @@ class New_booking extends CI_Controller {
 	$data['additional_service_charge'] = $this->input->post('additional_charge');
 	$data['parts_cost'] = $this->input->post('parts_cost');
 	$data['amount_paid'] = $this->input->post('amount_paid');
-	$data['current_status'] = "Completed";
+	
 	$data['closed_date'] = date("Y-m-d h:i:s");
 	$data['internal_status'] = $this->input->post('internal_status');
+	if($data['internal_status'] == "Cancelled"){
+
+		$data['current_status'] = "Cancelled";
+		$data['cancellation_reason'] = $this->input->post('cancellation_reason');
+
+	} else{
+		$data['current_status'] = "Completed";
+	}
+	$data['service_charge'] = $this->input->post('service_charge');
 	$admin_remarks = $this->input->post('admin_remarks');
+	
+	$service_center_remarks = $this->input->post('service_center_remarks');
 
-	$status = array('Completed', 'Cancelled');
-
-	$service_charges = $this->booking_model->getbooking_charges($booking_id, $status);
-	log_message('info', "service_charges: " . print_r($service_charges, TRUE));
-
-	$data['closing_remarks'] = "Service Center Remarks:- " . $service_charges[0]['service_center_remarks'] . " <br/> Admin:-  " . date("F j") . ":- " . $admin_remarks . "<br/>" . $service_charges[0]['admin_remarks'];
+	$data['closing_remarks'] = "Service Center Remarks:- " . $service_center_remarks . " <br/> Admin:-  " . $admin_remarks;
 
 	log_message('info', "update data: " . print_r($data, TRUE));
+
 	$this->booking_model->update_booking($booking_id, $data);
 
 	$data['booking_id'] = $booking_id;
@@ -436,20 +443,22 @@ class New_booking extends CI_Controller {
 
 	if (empty($charges[0]['admin_remarks'])) {
         $data['current_status'] = "Pending";
+        $data['internal_status'] = "Pending";
 	    $data['admin_remarks'] = date("F j") . "  :-" . $admin_remarks;
 	    $this->vendor_model->update_service_center_action($data);
 	    echo "success";
 	} else {
         $data['current_status'] = "Pending";
+        $data['internal_status'] = "Pending";
 	    // remove previous text, added in admin_remarks column.
 	    $string = str_replace($charges[0]['admin_remarks'], " ", $admin_remarks);
 	    // Add current and previous text in admin_remarks column
-	    $data['admin_remarks'] = $charges[0]['admin_remarks'] . " <br/> " . date("F j") . ":- " . $string;
+	    $data['admin_remarks'] = $charges[0]['admin_remarks'] . "   " . date("F j") . ":- " . $string;
 	    $this->vendor_model->update_service_center_action($data);
 	    echo "success";
 	}
     }
-    
+
     /**
      * @desc: This funtion is used to review bookings (All selected checkbox) which are
      * completed/cancelled by our vendors.
@@ -457,16 +466,20 @@ class New_booking extends CI_Controller {
      * @param : void
      * @return : void
      */
-    function complete_booking(){
-        $approve['approve'] = $this->input->post('approve');
-        
-        $url = base_url() . "employee/do_background_process/complete_booking";
+    function complete_booking() {
+	$approve = $this->input->post('approve');
+	$url = base_url() . "employee/do_background_process/complete_booking";
 
-        $this->asynchronous_lib->do_background_process($url, $approve);
+	foreach ($approve as $key => $booking_id) {
+		$data  = array();
+		$data['booking_id'] = $booking_id;
+		$this->asynchronous_lib->do_background_process($url, $data);
 
-       
-        redirect(base_url() . 'employee/new_booking/review_bookings');
+	}
+	
+	redirect(base_url() . 'employee/new_booking/review_bookings');
     }
+
 
     /**
      * @desc: This funtion is used to review booking which is completed/cancelled by our vendors.
@@ -476,64 +489,10 @@ class New_booking extends CI_Controller {
      * @return : array of charges to view
      */
     function review_bookings($booking_id = "") {
-	$charges['charges'] = $this->booking_model->get_booking_for_review($booking_id);
+	$data['charges'] = $this->booking_model->get_booking_for_review($booking_id);
+	$data['data'] = $this->booking_model->review_reschedule_bookings_request();
 	$this->load->view('employee/header');
-	$this->load->view('employee/review_booking', $charges);
-    } 
-    
-    /**
-     * @desc: This is used to complete booking by admin. It gets booking id and status as parameter. if status is 0 then redirect pending booking other wise redirect completed booking page 
-     * @param: String Array, string
-     * @return :void
-     */
-    function process_complete_booking($booking_id, $status){
-        // customer paid basic charge is comming in array
-       // Array ( [100] =>  500 , [102] =>  300 )  
-       $customer_basic_charge = $this->input->post('customer_basic_charge');
-        // Additional service charge is comming in array
-       $additional_charge =  $this->input->post('additional_charge');
-        // Parts cost is comming in array
-       $parts_cost =  $this->input->post('parts_cost');
-       $booking_status = $this->input->post('booking_status');
-       $total_amount_paid =  $this->input->post('grand_total_price');
-       $internal_status = "Unproductive";
-       
-       foreach ($customer_basic_charge as $unit_id => $value) {
-        // variable $unit_id  is existing id in booking unit details table of given booking id 
-        $data = array();
-        $data['id'] = $unit_id;
-        $data['customer_paid_basic_charges'] = $value;
-        $data['customer_paid_extra_charges'] = $additional_charge[$unit_id];
-        $data['customer_paid_parts'] = $parts_cost[$unit_id];
-        $data['booking_status'] = $booking_status[$unit_id];
-
-        if($data['booking_status'] == "Completed"){
-           $internal_status = "Completed";
-        }
-
-        // update price in the booking unit details page
-        $this->new_booking_model->update_unit_details($data);
-          
-       }
-
-       $booking['rating_stars'] = $this->input->post('rating_stars');
-       $booking['vendor_rating_stars'] = $this->input->post('vendor_rating_stars');
-       $booking['vendor_rating_comments'] =  $this->input->post('vendor_rating_comments');
-       $booking['rating_comments'] = $this->input->post('rating_comments');
-       $booking['closed_date'] = date('Y-m-d h:i:s');
-       $booking['amount_paid'] =  $total_amount_paid;
-       $booking['current_status'] = "Completed";
-       $booking['internal_status'] = $internal_status;
-       $booking['booking_id'] =  $booking_id;
-       // this function is used to update booking details table
-       $this->new_booking_model->update_booking_details($booking);
-       if($status ="0"){
-
-          redirect(base_url() . 'employee/booking/view');
-       } else {
-          redirect(base_url() . 'employee/booking/viewcompletedbooking');
-       }
-       
+	$this->load->view('employee/review_booking', $data);
     }
 
      /**
@@ -577,26 +536,16 @@ class New_booking extends CI_Controller {
         $this->new_booking_model->update_booking_details($booking);
     }
     
-    /**
-     * @desc: this is used to display reschedule request by service center in admin panel
-     * @param: void
-     * @return: void
-     */
-    function review_reschedule_bookings_request(){
-    	
-       $data['data'] = $this->booking_model->review_reschedule_bookings_request();
-       $this->load->view('employee/header');
-	   $this->load->view('employee/showreschedulerequest', $data);
-       
-    }
+  
     
     /**
-     * @desc: this method is used to reschedule booking request in admin panel
-     */ 
+     * @desc: this method is used to approve reschedule booking request in admin panel
+     */
     function process_reschedule_booking(){
     	$reschedule_booking_id = $this->input->post('reschedule');
     	$reschedule_booking_date = $this->input->post('reschedule_booking_date');
     	$reschedule_booking_timeslot = $this->input->post('reschedule_booking_timeslot');
+    	$reschedule_reason = $this->input->post('reschedule_reason');
 
     	foreach ($reschedule_booking_id as $key => $value) {
 
@@ -607,15 +556,72 @@ class New_booking extends CI_Controller {
     		$booking['current_status'] = 'Rescheduled';
             $booking['internal_status'] = 'Rescheduled';
             $booking['update_date'] = date("Y-m-d h:i:s");
-    		
+            $booking['reschedule_reason'] = $reschedule_reason[$value];
+
     		$this->booking_model->update_booking($value, $booking);
     		$data['booking_id'] = $value;
     		$data['internal_status'] =  "Pending";
+    		$data['current_status'] =  "Pending";
     		$this->vendor_model->update_service_center_action($data);
-    
+
     	}
 
-    	  redirect(base_url() . "employee/new_booking/review_reschedule_bookings_request");
+    	  redirect(base_url() . "employee/new_booking/review_bookings");
+    }
+
+    /**
+     * @desc: This is used to complete booking by admin. It gets booking id and status as parameter. if status is 0 then redirect pending booking other wise redirect completed booking page 
+     * @param: String Array, string
+     * @return :void
+     */
+    function process_complete_booking($booking_id, $status){
+        // customer paid basic charge is comming in array
+       // Array ( [100] =>  500 , [102] =>  300 )  
+       $customer_basic_charge = $this->input->post('customer_basic_charge');
+        // Additional service charge is comming in array
+       $additional_charge =  $this->input->post('additional_charge');
+        // Parts cost is comming in array
+       $parts_cost =  $this->input->post('parts_cost');
+       $booking_status = $this->input->post('booking_status');
+       $total_amount_paid =  $this->input->post('grand_total_price');
+       $internal_status = "Cancelled";
+       
+       foreach ($customer_basic_charge as $unit_id => $value) {
+        // variable $unit_id  is existing id in booking unit details table of given booking id 
+        $data = array();
+        $data['id'] = $unit_id;
+        $data['customer_paid_basic_charges'] = $value;
+        $data['customer_paid_extra_charges'] = $additional_charge[$unit_id];
+        $data['customer_paid_parts'] = $parts_cost[$unit_id];
+        $data['booking_status'] = $booking_status[$unit_id];
+
+        if($data['booking_status'] == "Completed"){
+           $internal_status = "Completed";
+        }
+
+        // update price in the booking unit details page
+        $this->new_booking_model->update_unit_details($data);
+          
+       }
+
+       $booking['rating_stars'] = $this->input->post('rating_stars');
+       $booking['vendor_rating_stars'] = $this->input->post('vendor_rating_stars');
+       $booking['vendor_rating_comments'] =  $this->input->post('vendor_rating_comments');
+       $booking['rating_comments'] = $this->input->post('rating_comments');
+       $booking['closed_date'] = date('Y-m-d h:i:s');
+       $booking['amount_paid'] =  $total_amount_paid;
+       $booking['current_status'] = "Completed";
+       $booking['internal_status'] = $internal_status;
+       $booking['booking_id'] =  $booking_id;
+       // this function is used to update booking details table
+       $this->new_booking_model->update_booking_details($booking);
+       if($status ="0"){
+
+          redirect(base_url() . 'employee/booking/view');
+       } else {
+          redirect(base_url() . 'employee/booking/viewcompletedbooking');
+       }
+       
     }
 
 }
