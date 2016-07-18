@@ -39,7 +39,7 @@
 <div id="page-wrapper" >
     <div class="">
         <div class="row">
-            <?php  if($this->uri->segment(3) == 'view_pending_queries' || $this->uri->segment(3) == 'view_all_pending_queries'){?>
+            <?php  if($this->uri->segment(3) == 'view_pending_queries' || $this->uri->segment(3) == 'view_all_pending_queries' || $this->uri->segment(3) == 'finduser'){?>
             <div class="pagination">
                 <select id="dynamic_select">
                     <option value="<?php echo base_url().'employee/booking/view_pending_queries'?>" <?php if($this->uri->segment(4) == 50){ echo 'selected';}?>>50</option>
@@ -82,37 +82,37 @@
                     <?php $count = 1; ?>
                     <?php foreach($Bookings as $key =>$row){?>
 
-                    <tr <?php if($row['OrderID']!=null) { ?>
+                    <tr <?php if (isset($row->OrderID)) { if($row->OrderID !=null) { ?>
                                 style="background-color:#EC8484"
-                        <?php } ?> >
-                    <td><?php echo $row['id']?>.</td>
+                        <?php }  }?> >
+                    <td><?=$row->id?>.</td>
 
                             <td>
                             <?php
-                            if (is_null($row['booking_jobcard_filename'])) {
-                                echo "<a target='_blank' href=" . base_url() . "employee/booking/jobcard/$row[booking_id] >$row[booking_id]</a>";
+                            if (is_null($row->booking_jobcard_filename)) {
+                                 echo "<a target='_blank' href=" . base_url() . "employee/booking/jobcard/".$row->booking_id." >".$row->booking_id."</a>";
                             } else {
-                                echo '<a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row['booking_jobcard_filename'] . '">' . $row['booking_id'] . '</a>';
+                                echo '<a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';
                             }
                             ?>
                         </td>
 
-                    <td><a target='_blank' href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $row['phone_number'];?>"><?=$row['customername'];?></a></td>
-                    <td><a target='_blank' href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $row['phone_number'];?>"><?php echo $row['booking_primary_contact_no']; ?></a></td>
-                    <td><?= $row['services']; ?></td>
-                    <td><?= $row['potential_value']; ?></td>
-                    <td><?= $row['booking_date']; ?> / <?= $row['booking_timeslot']; ?></td>
-                    <td id="status_<?php echo $row['booking_id']; ?>">
+                    <td><a target='_blank' href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $row->phone_number;?>"><?php echo $row->customername;?></a></td>
+                    <td><a target='_blank' href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $row->phone_number;?>"><?php echo $row->booking_primary_contact_no; ?></a></td>
+                    <td><?= $row->services; ?></td>
+                    <td><?= $row->potential_value; ?></td>
+                    <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
+                    <td id="status_<?php echo $row->booking_id; ?>">
                         <?php
-                            echo $row['current_status'];
-                            if ($row['current_status'] != $row['internal_status'])
-                                echo " (" . $row['internal_status'] . ")";
+                            echo $row->current_status;
+                            if ($row->current_status != $row->internal_status)
+                                echo " (" . $row->internal_status . ")";
                         ?>
                     </td>
-                     <td><?= $row['city']; ?></td>
-                    <?php if($row['vendor_status'] =="Vendor Not Available"){ ?>
+                     <td><?= $row->city; ?></td>
+                    <?php if($row->vendor_status =="Vendor Not Available"){ ?>
 
-                          <td><p style="color: red;"><?php print_r($row['vendor_status']); ?></p></td>
+                          <td><p style="color: red;"><?php print_r($row->vendor_status); ?></p></td>
 
                     <?php } else { ?>
 
@@ -121,8 +121,8 @@
                     <select onchange="load_vendor_details(<?php echo $count; ?>)" id="vendor_avalilabe<?php echo $count;?>"  class="form-control" style="width:156px;">
                         <option selected disabled>Vendor Available</option>
 
-                    <?php foreach ($row['vendor_status'] as  $value) { ?>
-                    <option value="<?php echo $value['Vendor_ID']?>"><?php echo $value['Vendor_Name']; ?></option>
+                    <?php foreach ($row->vendor_status as  $value) { ?>
+                    <option value="<?php echo $value->Vendor_ID?>"><?php echo $value->Vendor_Name; ?></option>
 
                     <?php  } ?>
                     </select>
@@ -132,11 +132,11 @@
 
                    <?php  } ?>
 
-                    <td><?= $row['query_remarks']; ?></td>
+                    <td><?= $row->query_remarks; ?></td>
 
                     <td>
                         <a class="btn btn-sm btn-info"
-				   href="<?php echo base_url(); ?>employee/booking/call_customer/<?= $row['booking_primary_contact_no']; ?>"
+				   href="<?php echo base_url(); ?>employee/booking/call_customer/<?php echo $row->booking_primary_contact_no; ?>"
     				   title = "call" onclick = "return confirm('Call Customer ?');">
     				    <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
     				    </a>
@@ -144,17 +144,17 @@
 
                     <td>
                         <?php echo "<a class='btn btn-sm btn-primary' "
-                        . "href=" . base_url() . "employee/booking/viewdetails/$row[booking_id] target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
+                        . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
                         ?>
                     </td>
 
                     <td><?php
-                        echo "<a target='_blank' class='btn btn-small btn-success btn-sm' href=".base_url()."employee/booking/get_update_query_form/$row[booking_id] title='Update'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
+                        echo "<a target='_blank' class='btn btn-small btn-success btn-sm' href=".base_url()."employee/booking/get_update_query_form/$row->booking_id title='Update'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
                         ?>
                     </td>
                     <td>
                         <?php
-                        echo "<a target='_blank' class='btn btn-small btn-warning btn-sm' href=".base_url()."employee/booking/get_cancel_followup_form/$row[booking_id] title='Cancel'> <i class='fa fa-times' aria-hidden='true'></i></a>";
+                        echo "<a target='_blank' class='btn btn-small btn-warning btn-sm' href=".base_url()."employee/booking/get_cancel_followup_form/$row->booking_id title='Cancel'> <i class='fa fa-times' aria-hidden='true'></i></a>";
                         ?>
                     </td>
                     </tr>

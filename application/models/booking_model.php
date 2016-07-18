@@ -1877,7 +1877,7 @@ class Booking_model extends CI_Model {
 
         $query = $this->db->query($sql);
 
-        $temp = $query->result_array();
+        $temp = $query->result();
 
         //usort($temp, array($this, 'date_compare_queries'));
 
@@ -1900,8 +1900,8 @@ class Booking_model extends CI_Model {
         foreach ($temp as $key => $value) {
             $this->db->distinct();
             $this->db->select('Vendor_ID, Vendor_Name');
-            $this->db->where('vendor_pincode_mapping.Appliance_ID', $value['service_id']);
-            $this->db->where('vendor_pincode_mapping.Pincode', $value['booking_pincode']);
+            $this->db->where('vendor_pincode_mapping.Appliance_ID', $value->service_id);
+            $this->db->where('vendor_pincode_mapping.Pincode', $value->booking_pincode);
             $this->db->where('vendor_pincode_mapping.active', "1");
             $this->db->from('vendor_pincode_mapping');
 
@@ -1910,9 +1910,9 @@ class Booking_model extends CI_Model {
             $this->db->where('service_centres.active', "1");
             $data = $this->db->get();
             if ($data->num_rows() > 0) {
-                $temp[$key]['vendor_status'] = $data->result_array();
+                $temp[$key]->vendor_status = $data->result_array();
             } else {
-                $temp[$key]['vendor_status'] = "Vendor Not Available";
+                $temp[$key]->vendor_status = "Vendor Not Available";
             }
         }
 
@@ -2075,7 +2075,62 @@ class Booking_model extends CI_Model {
             = `service_centres`.`id` WHERE booking_id like '%$booking_id%'"
         );
 
-        return $query->result();
+        $temp = $query->result();
+        if(!empty($temp)){
+             if (strstr($temp[0]->booking_id, "Q-") == TRUE) {
+
+                $data = $this->searchPincodeAvailable($temp);
+                return $data;
+             }
+        }
+
+        return $temp;
+    }
+
+      /**
+     * @desc : This function is used to get booking id with the help of order id.
+     * 
+     *  Partner id and order id finds the exact booking id.
+     * 
+     * @param : partner id and order id.
+     * @return : Array(booking details)
+     */
+    function getBookingId_by_orderId($partner_id, $order_id) {
+
+        $booking = array();
+
+        $partner_code = $this->partner_model->get_source_code_for_partner($partner_id);
+
+        $union = "";
+        if ($partner_code == "SS") {
+            $union = "UNION 
+
+                   SELECT CRM_Remarks_SR_No as booking FROM  `snapdeal_leads` WHERE  Sub_Order_ID LIKE  '%$order_id%' ";
+        }
+
+        $sql = "SELECT 247aroundBookingID  as booking from partner_leads where OrderID LIKE '%$order_id%' And  PartnerID = '$partner_id'   " . $union;
+ 
+
+        $query = $this->db->query($sql);
+
+        $data = $query->result();
+
+        if (count($data) > 0) {
+
+            foreach ($data as $value) {
+                $string = preg_replace("/[^0-9,.]/", "", $value->booking); //replace all character and symbol
+                $booking_data = $this->search_bookings_by_booking_id($string);
+
+                if (count($booking_data) > 0) {
+                    array_push($booking, $booking_data[0]);
+                }
+            }
+
+            return $booking;
+        } else {
+
+            return $booking;
+        }
     }
 
     /**
@@ -2277,6 +2332,11 @@ class Booking_model extends CI_Model {
         $result = $query->result_array();
         
         return $result;
+    }
+
+    function test($data){
+        $this->db->insert('booking_details', $data);
+        echo $this->db-->last_query();
     }
 
 }

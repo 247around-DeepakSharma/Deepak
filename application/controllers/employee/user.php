@@ -76,6 +76,7 @@ class User extends CI_Controller {
                 //if user not found take's to add user
                 $output['phone_number'] = $phone_number;
                 $this->loadViews($output);
+
             } else {
                 //if entered detail matches it will be displayed in a page
                 //$this->user_details($phone_number,$offset = 0, $page = 0)
@@ -111,15 +112,25 @@ class User extends CI_Controller {
                 $this->load->view('employee/bookinghistory', $data);
             }
         } elseif ($booking_id != "") {  //if booking id given and matched, will be displayed 
-           if (strstr($booking_id, "Q-") == TRUE) { 
+            $data['Bookings'] = $this->booking_model->search_bookings_by_booking_id($booking_id);
+            if(!empty($data['Bookings'])){
+                if (strstr($data['Bookings'][0]->booking_id, "Q-") == TRUE) {
+                    
+                    $this->load->view('employee/header');
+                    $this->load->view('employee/viewpendingqueries', $data);
 
-                redirect(base_url() . 'employee/booking/view_pending_queries/0/0/'.$booking_id);
+                } else {
 
-           } else {
+                    $this->load->view('employee/header');
+                    $this->load->view('employee/booking', $data);
+                }
+            } else {
 
-               redirect(base_url() . 'employee/booking/view/0/0/'.$booking_id);
+                $this->load->view('employee/header');
+                $this->load->view('employee/booking', $data);
+            }
 
-           }
+           
         }
     }
 
@@ -132,20 +143,26 @@ class User extends CI_Controller {
      * @return : array of data(searched results) to the view
      */
     function search_by_OrderId($partner_code, $order_id) {
-        $data['Bookings'] = $this->user_model->getBookingId_by_orderId($partner_code, $order_id);
+        $data['Bookings'] = $this->booking_model->getBookingId_by_orderId($partner_code, $order_id);
         $data['search'] = "Search";
 
-        if (strstr($data['Bookings'][0]->booking_id, "Q-") == TRUE) { 
+        if(!empty($data['Bookings'])){
+                if (strstr($data['Bookings'][0]->booking_id, "Q-") == TRUE) {
+                    
+                    $this->load->view('employee/header');
+                    $this->load->view('employee/viewpendingqueries', $data);
 
-             redirect(base_url() . 'employee/booking/view_pending_queries/0/0/'.$data['Bookings'][0]->booking_id);
-             
-        } else {
+                } else {
 
-            $this->load->view('employee/header');
-            $this->load->view('employee/booking', $data);
-        }
+                    $this->load->view('employee/header');
+                    $this->load->view('employee/booking', $data);
+                }
+            } else {
 
-        
+                $this->load->view('employee/header');
+                $this->load->view('employee/booking', $data);
+            }
+
     }
 
     /**

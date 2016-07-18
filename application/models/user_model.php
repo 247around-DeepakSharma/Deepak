@@ -173,24 +173,6 @@ class User_model extends CI_Model {
         return false;
     }
 
-    /** @description : Function to search booking with booking id from find user page
-     *  @param : booking id
-     *  @return : array(matching bookings)
-     */
-    function search_bookings_by_booking_id($booking_id) {
-        $query = $this->db->query("Select services.services,
-            users.name as customername, users.phone_number,
-            booking_details.*, service_centres.name as service_centre_name,
-            service_centres.primary_contact_name,service_centres.primary_contact_phone_1
-            from booking_details
-            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
-            JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-            LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` 
-            = `service_centres`.`id` WHERE booking_id like '%$booking_id%'"
-        );
-
-        return $query->result();
-    }
 
     /** @description : Function to add new user
      * 
@@ -358,51 +340,6 @@ class User_model extends CI_Model {
         }
 
         return $user;
-    }
-
-    /**
-     * @desc : This function is used to get booking id with the help of order id.
-     * 
-     *  Partner id and order id finds the exact booking id.
-     * 
-     * @param : partner id and order id.
-     * @return : Array(booking details)
-     */
-    function getBookingId_by_orderId($partner_id, $order_id) {
-
-        $booking = array();
-
-        $partner_code = $this->partner_model->get_source_code_for_partner($partner_id);
-
-        $union = "";
-        if ($partner_code == "SS") {
-            $union = "UNION 
-
-                  SELECT CRM_Remarks_SR_No as booking from snapdeal_leads where Sub_Order_ID = '$order_id'";
-        }
-
-        $sql = "SELECT 247aroundBookingID  as booking from partner_leads where OrderID = '$order_id' And  PartnerID = '$partner_id'  " . $union;
-
-        $query = $this->db->query($sql);
-
-        $data = $query->result_array();
-
-        if (count($data) > 0) {
-
-            foreach ($data as $value) {
-                $string = preg_replace("/[^0-9,.]/", "", $value['booking']); //replace all character and symbol
-                $booking_data = $this->search_bookings_by_booking_id($string);
-
-                if (count($booking_data) > 0) {
-                    array_push($booking, $booking_data[0]);
-                }
-            }
-
-            return $booking;
-        } else {
-
-            return $booking;
-        }
     }
 
     /**
