@@ -338,13 +338,13 @@ class BookingSummary extends CI_Controller {
 		    $user['user_email'] = $email;
 		    $user['home_address'] = $place;
 
-		    $booking['user_id'] = $this->user_model->add_user($user);
+		     $appliances_details['user_id']  = $booking['user_id'] = $this->user_model->add_user($user);
 
 		    $to_be_cancelled = 1;
 		    //echo print_r($booking['user_id'], true);
 		} else {
 		    echo 'User exists' . PHP_EOL;
-		    $booking['user_id'] = $output[0]['user_id'];
+		    $appliances_details['user_id'] = $booking['user_id'] = $output[0]['user_id'];
 		    //echo print_r($booking['user_id'], true);
 		    //Find bookings for this user
 		    $num_bookings = $this->booking_model->getBookingCountByUser($booking['user_id']);
@@ -368,7 +368,7 @@ class BookingSummary extends CI_Controller {
 		if (strstr($appliance, "LED TV")) {
 		    $appliance = 'Television';
 		}
-		$booking['service_id'] = $this->booking_model->getServiceId($appliance);
+		$unit_details['service_id'] = $appliances_details['service_id']= $booking['service_id'] = $this->booking_model->getServiceId($appliance);
 		//echo "Service ID: " . $booking['service_id'] . PHP_EOL;
 
 		$yy = date("y");
@@ -379,22 +379,29 @@ class BookingSummary extends CI_Controller {
 
 		//Add source
 		$booking['source'] = "SJ";
-		$booking['partner_id'] = $this->partner_model->get_partner_id_from_booking_source_code($booking['source']);
-		$booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
+		$unit_details['partner_id'] = $booking['partner_id'] = $this->partner_model->get_partner_id_from_booking_source_code($booking['source']);
+		$unit_details['booking_id'] = $booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
 
 		$booking['quantity'] = '1';
-		$booking['appliance_brand1'] = $brand;
-		$booking['appliance_category1'] = 'TV-LED';
-		$booking['appliance_capacity1'] = '';
-		$booking['appliance_tags1'] = '';
-		$booking['purchase_year1'] = '';
-		$booking['model_number1'] = '';
+		$appliances_details['brand'] = $unit_details['appliance_brand'] = $brand;
+		$appliances_details['category'] = $unit_details['appliance_category'] = 'TV-LED';
+		$appliances_details['capacity'] = $unit_details['appliance_capacity'] = '';
+		$appliances_details['tag'] = $unit_details['appliance_tags'] = '';
+		$appliances_details['purchase_year'] = $unit_details['purchase_year'] = '';
+		$appliances_details['model_number']  = $unit_details['model_number'] = '';
+		$appliances_details['purchase_month']= "";
+		$appliances_details['last_service_date'] = date('Y-m-d H:i:s');
 		$booking['items_selected1'] = '';
-		$booking['total_price1'] = '';
 		$booking['potential_value'] = '500';
 
-		$appliance_id = $this->booking_model->addappliancedetails($booking);
-		$this->booking_model->addunitdetails($booking);
+		$unit_details['appliance_id'] = $appliance_id = $this->booking_model->check_appliancesforuser($appliances_details);
+
+            if(empty($unit_details['appliance_id'])){
+
+                 $unit_details['appliance_id'] = $appliance_id =  $this->booking_model->addappliance($appliances_details);
+            }
+
+		$this->booking_model->addunitdetails($unit_details);
 
 		$booking['current_status'] = "FollowUp";
 		$booking['type'] = "Query";
@@ -410,7 +417,7 @@ class BookingSummary extends CI_Controller {
 		$booking['query_remarks'] = '';
 
 		//Insert query
-		$this->booking_model->addbooking($booking, $appliance_id[0]['id']);
+		$this->booking_model->addbooking($booking);
 
 		//Cancel this query as well. All
 		//potential oppurtunities have been logged already.
@@ -418,7 +425,7 @@ class BookingSummary extends CI_Controller {
 		$data['cancellation_reason'] = "Your problem is resolved.";
 		$data['update_date'] = date("Y-m-d h:i:s");
 		$data['current_status'] = "Cancelled";
-		$insertData = $this->booking_model->cancel_booking($booking['booking_id'], $data);
+		$insertData = $this->booking_model->update_booking($booking['booking_id'], $data);
 		echo $booking['booking_id'] . " booking cancelled" . PHP_EOL;
 
 		//mark this message as flagged

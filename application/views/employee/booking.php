@@ -240,12 +240,12 @@
                         if ($row->current_status == 'Pending' || $row->current_status == 'Rescheduled')
                         {
                             echo "<a id='edit' target='_blank' class='btn btn-sm btn-warning' "
-                            . "href=" . base_url() . "employee/booking/get_cancel_booking_form/$row->booking_id title='Cancel'> <i class='fa fa-times' aria-hidden='true' ></i></a>";
+                            . "href=" . base_url() . "employee/booking/get_cancel_form/$row->booking_id title='Cancel'> <i class='fa fa-times' aria-hidden='true' ></i></a>";
                         }
                         else
                         {
                             echo "<a id='edit' target='_blank' class='btn btn-sm btn-warning disabled' "
-                                . "href=" . base_url() . "employee/booking/get_cancel_booking_form/$row->booking_id  title='Cancel'> <i class='fa fa-times' aria-hidden='true' ></i></a>";
+                                . "href=" . base_url() . "employee/booking/get_cancel_form/$row->booking_id  title='Cancel'> <i class='fa fa-times' aria-hidden='true' ></i></a>";
                         }
                         ?>
                     </td>

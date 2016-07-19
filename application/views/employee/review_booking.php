@@ -72,7 +72,7 @@
                <h2 >
                   <b>Review Bookings - Complete / Cancel</b>
                </h2>
-               <form action="<?php echo base_url();?>employee/new_booking/complete_booking" method="post">
+               <form action="<?php echo base_url();?>employee/booking/complete_booking" method="post">
                   <div class="col-md-12">
                      <table class="table table-bordered table-hover table-striped">
                         <thead>

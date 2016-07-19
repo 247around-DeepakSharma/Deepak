@@ -43,364 +43,73 @@ class Booking_model extends CI_Model {
         return $t1 - $t2;
     }
 
+     /**
+     * @desc: this is used to add appliances
+     * @param: Array(Appliances details)
+     * @return: appliance id
+     */
+    function addappliance($appliance_detail){
+        log_message ('info', __METHOD__ . "appliance_detail data". print_r($appliance_detail));
+        $this->db->insert('appliance_details', $appliance_detail);
+        return $this->db->insert_id();
+    }
+
+    /**
+     * @desc: this method is used  to return appliance id. It checks service id, user id, brand, category, capacity and model number exist or not in the appliance_details table. If exist, it updates data otherwise it insert data in appliances_details table.
+     * @param: Array, user id
+     * @return : appliance id
+     */
+    function check_appliancesforuser($services_details){
+        $this->db->select('id');
+        $this->db->where('service_id', $services_details['service_id']);
+        $this->db->where('brand', $services_details['brand']);
+        $this->db->where('user_id', $services_details['user_id']);
+        $this->db->where('category', $services_details['category']);
+        $this->db->where('capacity', $services_details['capacity']);
+        $this->db->where('model_number', $services_details['model_number']);
+        $query = $this->db->get('appliance_details');
+        if($query->num_rows>0){
+
+            $result = $query->result_array();
+            $appliance_id = $result[0]['id'];
+
+            $this->db->where('id', $appliance_id);
+            $this->db->update('appliance_details', $services_details); 
+
+            return $appliance_id;
+
+        } else {
+
+           $result =  $this->addappliance($services_details);
+           return $result;
+        }
+    }
+
     /**
      *  @desc : add unit details for a booking
-     *
-     * 	This will add the details for each appliance for the number of appliances
-     * selected while taking booking for inserting them in unit details table.
-     *
      *  @param : booking(appliance) details
      *  @return : none
      */
-    function addunitdetails($booking) {
-        $units = $booking['quantity'];
 
-        if ($units == 1) {
-            $unit_detail = array("booking_id" => $booking['booking_id'],
-                "appliance_brand" => $booking['appliance_brand1'],
-                "appliance_category" => $booking['appliance_category1'],
-                "appliance_capacity" => $booking['appliance_capacity1'],
-                "model_number" => $booking['model_number1'],
-                "price_tags" => $booking['items_selected1'],
-                "purchase_year" => $booking['purchase_year1'],
-                "total_price" => $booking['total_price1'],
-                "appliance_tag" => $booking['appliance_tags1']);
-
-            $this->db->insert('booking_unit_details', $unit_detail);
-        } elseif ($units == 2) {
-            $unit_detail = array("booking_id" => $booking['booking_id'],
-                "appliance_brand" => $booking['appliance_brand1'],
-                "appliance_category" => $booking['appliance_category1'],
-                "appliance_capacity" => $booking['appliance_capacity1'],
-                "model_number" => $booking['model_number1'],
-                "price_tags" => $booking['items_selected1'],
-                "purchase_year" => $booking['purchase_year1'],
-                "total_price" => $booking['total_price1'],
-                "appliance_tag" => $booking['appliance_tags1']);
-
-            $this->db->insert('booking_unit_details', $unit_detail);
-
-            $unit_detail = array("booking_id" => $booking['booking_id'],
-                "appliance_brand" => $booking['appliance_brand2'],
-                "appliance_category" => $booking['appliance_category2'],
-                "appliance_capacity" => $booking['appliance_capacity2'],
-                "model_number" => $booking['model_number2'],
-                "price_tags" => $booking['items_selected2'],
-                "purchase_year" => $booking['purchase_year2'],
-                "total_price" => $booking['total_price2'],
-                "appliance_tag" => $booking['appliance_tags2']);
-
-            $this->db->insert('booking_unit_details', $unit_detail);
-        } elseif ($units == 3) {
-            $unit_detail = array("booking_id" => $booking['booking_id'],
-                "appliance_brand" => $booking['appliance_brand1'],
-                "appliance_category" => $booking['appliance_category1'],
-                "appliance_capacity" => $booking['appliance_capacity1'],
-                "model_number" => $booking['model_number1'],
-                "price_tags" => $booking['items_selected1'],
-                "purchase_year" => $booking['purchase_year1'],
-                "total_price" => $booking['total_price1'],
-                "appliance_tag" => $booking['appliance_tags1']);
-
-            $this->db->insert('booking_unit_details', $unit_detail);
-
-            $unit_detail = array("booking_id" => $booking['booking_id'],
-                "appliance_brand" => $booking['appliance_brand2'],
-                "appliance_category" => $booking['appliance_category2'],
-                "appliance_capacity" => $booking['appliance_capacity2'],
-                "model_number" => $booking['model_number2'],
-                "price_tags" => $booking['items_selected2'],
-                "purchase_year" => $booking['purchase_year2'],
-                "total_price" => $booking['total_price2'],
-                "appliance_tag" => $booking['appliance_tags2']);
-
-            $this->db->insert('booking_unit_details', $unit_detail);
-
-            $unit_detail = array("booking_id" => $booking['booking_id'],
-                "appliance_brand" => $booking['appliance_brand3'],
-                "appliance_category" => $booking['appliance_category3'],
-                "appliance_capacity" => $booking['appliance_capacity3'],
-                "model_number" => $booking['model_number3'],
-                "price_tags" => $booking['items_selected3'],
-                "purchase_year" => $booking['purchase_year3'],
-                "total_price" => $booking['total_price3'],
-                "appliance_tag" => $booking['appliance_tags3']);
-
-            $this->db->insert('booking_unit_details', $unit_detail);
-        } elseif ($units == 4) {
-            $unit_detail = array("booking_id" => $booking['booking_id'],
-                "appliance_brand" => $booking['appliance_brand1'],
-                "appliance_category" => $booking['appliance_category1'],
-                "appliance_capacity" => $booking['appliance_capacity1'],
-                "model_number" => $booking['model_number1'],
-                "price_tags" => $booking['items_selected1'],
-                "purchase_year" => $booking['purchase_year1'],
-                "total_price" => $booking['total_price1'],
-                "appliance_tag" => $booking['appliance_tags1']);
-
-            $this->db->insert('booking_unit_details', $unit_detail);
-
-            $unit_detail = array("booking_id" => $booking['booking_id'],
-                "appliance_brand" => $booking['appliance_brand2'],
-                "appliance_category" => $booking['appliance_category2'],
-                "appliance_capacity" => $booking['appliance_capacity2'],
-                "model_number" => $booking['model_number2'],
-                "price_tags" => $booking['items_selected2'],
-                "purchase_year" => $booking['purchase_year2'],
-                "total_price" => $booking['total_price2'],
-                "appliance_tag" => $booking['appliance_tags2']);
-
-            $this->db->insert('booking_unit_details', $unit_detail);
-
-            $unit_detail = array("booking_id" => $booking['booking_id'],
-                "appliance_brand" => $booking['appliance_brand3'],
-                "appliance_category" => $booking['appliance_category3'],
-                "appliance_capacity" => $booking['appliance_capacity3'],
-                "model_number" => $booking['model_number3'],
-                "price_tags" => $booking['items_selected3'],
-                "purchase_year" => $booking['purchase_year3'],
-                "total_price" => $booking['total_price3'],
-                "appliance_tag" => $booking['appliance_tags3']);
-
-            $this->db->insert('booking_unit_details', $unit_detail);
-
-            $unit_detail = array("booking_id" => $booking['booking_id'],
-                "appliance_brand" => $booking['appliance_brand4'],
-                "appliance_category" => $booking['appliance_category4'],
-                "appliance_capacity" => $booking['appliance_capacity4'],
-                "model_number" => $booking['model_number4'],
-                "price_tags" => $booking['items_selected4'],
-                "purchase_year" => $booking['purchase_year4'],
-                "total_price" => $booking['total_price4'],
-                "appliance_tag" => $booking['appliance_tags4']);
-
-            $this->db->insert('booking_unit_details', $unit_detail);
-        }
-        //}
+    function addunitdetails($booking){
+        log_message ('info', __METHOD__ . "booking unit details data". print_r($booking));
+        $this->db->insert('booking_unit_details', $booking);
+        return $this->db->insert_id();
     }
 
-    /**
-     *  @desc : add appliance details for a particular user(from booking)
-     *
-     * 	This will add the details for each appliance for the number of appliances
-     * selected while taking booking in appliance details table.
-     *
-     *  @param : booking(appliance) details
-     *  @return : none
+
+    /** @description:* add booking
+     *  @param : booking
+     *  @return : array (booking)
      */
-    function addappliancedetails($booking) {
-        $units = $booking['quantity'];
-        if ($units == 1) {
-            $appliance_detail = array("user_id" => $booking['user_id'],
-                "service_id" => $booking['service_id'],
-                "brand" => $booking['appliance_brand1'],
-                "category" => $booking['appliance_category1'],
-                "capacity" => $booking['appliance_capacity1'],
-                "model_number" => $booking['model_number1'],
-                "purchase_year" => $booking['purchase_year1'],
-                "tag" => $booking['appliance_tags1'],
-                "last_service_date" => date('Y-m-d H:i:s'));
-            $this->db->insert('appliance_details', $appliance_detail);
-            $id = $this->db->insert_id();
-        } elseif ($units == 2) {
-            $appliance_detail = array("user_id" => $booking['user_id'],
-                "service_id" => $booking['service_id'],
-                "brand" => $booking['appliance_brand1'],
-                "category" => $booking['appliance_category1'],
-                "capacity" => $booking['appliance_capacity1'],
-                "model_number" => $booking['model_number1'],
-                "purchase_year" => $booking['purchase_year1'],
-                "tag" => $booking['appliance_tags1'],
-                "last_service_date" => date('Y-m-d H:i:s'));
-            $this->db->insert('appliance_details', $appliance_detail);
-            $appliance_detail = array("user_id" => $booking['user_id'],
-                "service_id" => $booking['service_id'],
-                "brand" => $booking['appliance_brand2'],
-                "category" => $booking['appliance_category2'],
-                "capacity" => $booking['appliance_capacity2'],
-                "model_number" => $booking['model_number2'],
-                "purchase_year" => $booking['purchase_year2'],
-                "tag" => $booking['appliance_tags2'],
-                "last_service_date" => date('Y-m-d H:i:s'));
-            $this->db->insert('appliance_details', $appliance_detail);
-            $id = $this->db->insert_id();
-        } elseif ($units == 3) {
-            $appliance_detail = array("user_id" => $booking['user_id'],
-                "service_id" => $booking['service_id'],
-                "brand" => $booking['appliance_brand1'],
-                "category" => $booking['appliance_category1'],
-                "capacity" => $booking['appliance_capacity1'],
-                "model_number" => $booking['model_number1'],
-                "purchase_year" => $booking['purchase_year1'],
-                "tag" => $booking['appliance_tags1'],
-                "last_service_date" => date('Y-m-d H:i:s'));
-            $this->db->insert('appliance_details', $appliance_detail);
-            $appliance_detail = array("user_id" => $booking['user_id'],
-                "service_id" => $booking['service_id'],
-                "brand" => $booking['appliance_brand2'],
-                "category" => $booking['appliance_category2'],
-                "capacity" => $booking['appliance_capacity2'],
-                "model_number" => $booking['model_number2'],
-                "purchase_year" => $booking['purchase_year2'],
-                "tag" => $booking['appliance_tags2'],
-                "last_service_date" => date('Y-m-d H:i:s'));
-            $this->db->insert('appliance_details', $appliance_detail);
-            $appliance_detail = array("user_id" => $booking['user_id'],
-                "service_id" => $booking['service_id'],
-                "brand" => $booking['appliance_brand3'],
-                "category" => $booking['appliance_category3'],
-                "capacity" => $booking['appliance_capacity3'],
-                "model_number" => $booking['model_number3'],
-                "purchase_year" => $booking['purchase_year3'],
-                "tag" => $booking['appliance_tags3'],
-                "last_service_date" => date('Y-m-d H:i:s'));
-            $this->db->insert('appliance_details', $appliance_detail);
-            $id = $this->db->insert_id();
-        } elseif ($units == 4) {
-            $appliance_detail = array("user_id" => $booking['user_id'],
-                "service_id" => $booking['service_id'],
-                "brand" => $booking['appliance_brand1'],
-                "category" => $booking['appliance_category1'],
-                "capacity" => $booking['appliance_capacity1'],
-                "model_number" => $booking['model_number1'],
-                "purchase_year" => $booking['purchase_year1'],
-                "tag" => $booking['appliance_tags1'],
-                "last_service_date" => date('Y-m-d H:i:s'));
-            $this->db->insert('appliance_details', $appliance_detail);
-            $appliance_detail = array("user_id" => $booking['user_id'],
-                "service_id" => $booking['service_id'],
-                "brand" => $booking['appliance_brand2'],
-                "category" => $booking['appliance_category2'],
-                "capacity" => $booking['appliance_capacity2'],
-                "model_number" => $booking['model_number2'],
-                "purchase_year" => $booking['purchase_year2'],
-                "tag" => $booking['appliance_tags2'],
-                "last_service_date" => date('Y-m-d H:i:s'));
-            $this->db->insert('appliance_details', $appliance_detail);
-            $appliance_detail = array("user_id" => $booking['user_id'],
-                "service_id" => $booking['service_id'],
-                "brand" => $booking['appliance_brand3'],
-                "category" => $booking['appliance_category3'],
-                "capacity" => $booking['appliance_capacity3'],
-                "model_number" => $booking['model_number3'],
-                "purchase_year" => $booking['purchase_year3'],
-                "tag" => $booking['appliance_tags3'],
-                "last_service_date" => date('Y-m-d H:i:s'));
-            $this->db->insert('appliance_details', $appliance_detail);
-            $appliance_detail = array("user_id" => $booking['user_id'],
-                "service_id" => $booking['service_id'],
-                "brand" => $booking['appliance_brand4'],
-                "category" => $booking['appliance_category4'],
-                "capacity" => $booking['appliance_capacity4'],
-                "model_number" => $booking['model_number4'],
-                "purchase_year" => $booking['purchase_year4'],
-                "tag" => $booking['appliance_tags4'],
-                "last_service_date" => date('Y-m-d H:i:s'));
-            $this->db->insert('appliance_details', $appliance_detail);
-            $id = $this->db->insert_id();
-        }
-        $sql = "SELECT * FROM appliance_details WHERE id = $id";
-        $query = $this->db->query($sql);
-        return $query->result_array();
+
+    function addbooking($booking){
+        log_message ('info', __METHOD__ . "booking details data". print_r($booking));
+        $this->db->insert('booking_details', $booking);
+        return $this->db->insert_id();
     }
 
-    /**
-     *  @desc : add appliance details for a particular user through excel
-     *
-     * 	This will add the details of appliance while taking booking using excel in appliance details table.
-     *
-     *  @param : booking(appliance) details
-     *  @return : appliance's id after inserting the appliance details
-     */
-    function addexcelappliancedetails($booking) {
-        $appliance_detail = array("user_id" => $booking['user_id'],
-            "service_id" => $booking['service_id'],
-            "brand" => $booking['appliance_brand'],
-            "category" => $booking['appliance_category'],
-            "capacity" => $booking['appliance_capacity'],
-            "model_number" => $booking['model_number'],
-            "description" => $booking['description'],
-            "purchase_month" => $booking['purchase_month'],
-            "purchase_year" => $booking['purchase_year'],
-            "last_service_date" => $booking['last_service_date'],
-            "tag" => $booking['appliance_tags']);
-        $this->db->insert('appliance_details', $appliance_detail);
-        $id = $this->db->insert_id();
-        return $id;
-    }
-
-    /**
-     *  @desc : add bookings unit details for each appliance
-     *
-     * 	This will add the details of appliance while taking booking.
-     *
-     *  @param : booking details
-     *  @return : void
-     */
-    function addapplianceunitdetails($booking) {
-        $unit_detail = array("booking_id" => $booking['booking_id'],
-            "appliance_brand" => $booking['appliance_brand'],
-            "appliance_category" => $booking['appliance_category'],
-            "appliance_capacity" => $booking['appliance_capacity'],
-            "model_number" => $booking['model_number'],
-            "price_tags" => $booking['items_selected'],
-            "purchase_year" => $booking['purchase_year'],
-            "total_price" => $booking['total_price'],
-            "appliance_tag" => $booking['appliance_tags']);
-        return $this->db->insert('booking_unit_details', $unit_detail);
-    }
-
-    /**
-     *  @desc : add booking's complete details as provided.
-     *
-     * 	This is the main function which helps in entering a new booking with all the details.
-     *
-     *  It enters details like- booking address, pincode, booking date, timeslot,booking remarks, etc.
-     *
-     *  @param : booking details and appliance_id
-     *  @return : insert_id after inserting booking
-     */
-    function addbooking($booking, $appliance_id, $city = "", $state = "") {
-	//TODO: Fix this, array should not be initialized here
-	$booking_detail = array(
-	    "user_id" => $booking['user_id'],
-	    "service_id" => $booking['service_id'],
-	    "booking_id" => $booking['booking_id'],
-	    "appliance_id" => $appliance_id,
-	    "type" => $booking['type'],
-	    "source" => $booking['source'],
-	    "partner_id" => $booking['partner_id'],
-	    "booking_address" => $booking['booking_address'],
-	    "booking_pincode" => $booking['booking_pincode'],
-	    //city
-	    //state
-	    "booking_primary_contact_no" => $booking['booking_primary_contact_no'],
-	    "booking_alternate_contact_no" => $booking['booking_alternate_contact_no'],
-	    "booking_date" => $booking['booking_date'],
-	    "booking_timeslot" => $booking['booking_timeslot'],
-	    "booking_remarks" => $booking['booking_remarks'],
-	    "query_remarks" => $booking['query_remarks'],
-	    "quantity" => $booking['quantity'],
-	    "current_status" => $booking['current_status'],
-	    "internal_status" => $booking['internal_status'],
-	    "amount_due" => $booking['amount_due'],
-	    "potential_value" => $booking['potential_value'],
-	);
-
-	//TODO: Fix this, signature should not have default city/state
-	// Added city coming from snapdeal
-	if ($city != "") {
-	    $booking_detail['city'] = $city;
-	}
-
-	if ($state != "") {
-	    $booking_detail['state'] = $state;
-	}
-
-	$this->db->insert('booking_details', $booking_detail);
-	return $this->db->insert_id();
-    }
-
+   
     /**
      *  @desc : this function is to get a particular service.
      *
@@ -414,35 +123,7 @@ class Booking_model extends CI_Model {
         return $query->result_array();
     }
 
-    /**
-     *  @desc : This function is to get all the distinct capacity
-     *
-     *  Only distinct capacity are selected from all the capacity present.
-     *
-     *  @param : void
-     *  @return : array of distinct capacity
-     */
-    function selectcapacity() {
-
-        $query = $this->db->query("Select DISTINCT capacity from service_centre_charges");
-        return $query->result();
-    }
-
-    /**
-     *  @desc : This function is to find/search user with his/her phone number.
-     *
-     *  The user registered with us with that phone number will be searched.
-     *  The user if found, he must be verified as well.
-     *
-     *  @param : phone number
-     *  @return : array of user's details if user found
-     */
-    function finduser($phone) {
-        $query = $this->db->query("Select user_id,name,user_email from users
-                                where phone_number='$phone' AND is_verified='1'");
-        return $query->result();
-    }
-
+    
     /**
      *  @desc : This function gives us the booking details
      *
@@ -479,38 +160,6 @@ class Booking_model extends CI_Model {
     function selectservice() {
         $query = $this->db->query("Select id,services from services where isBookingActive='1'");
         return $query->result();
-    }
-
-    /**
-     *  @desc : Function to view all pending and rescheduled bookings
-     *
-     *  Shows users name, phone number, services name.
-     *
-     *  Also shows complete booking details and also assigned service centre's basic
-     *  details for that particular booking.
-     *
-     * This will return all the pending and rescheduled booking for any date.
-     *
-     *  @param: void
-     *  @return : array of booking, users, services and service center details
-     */
-    public function viewallpendingbooking() {
-        $query = $this->db->query("Select services.services,
-            users.name as customername, users.phone_number,
-            booking_details.*, service_centres.name as service_centre_name,
-            service_centres.primary_contact_name,service_centres.primary_contact_phone_1
-            from booking_details
-            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
-            JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-            LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-            WHERE (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled')"
-        );
-
-        $temp = $query->result();
-
-        usort($temp, array($this, 'date_compare_bookings'));
-
-        return $temp;
     }
 
     /**
@@ -586,7 +235,11 @@ class Booking_model extends CI_Model {
         );
 
        
-       return $query->result();
+       $temp = $query->result();
+
+        usort($temp, array($this, 'date_compare_bookings'));
+
+        return $temp;
     }
 
 
@@ -811,29 +464,6 @@ class Booking_model extends CI_Model {
 	return $count[0]['count'];
     }
 
-    /**
-     * @desc : This funtion counts total number of cancelled queries.
-     *
-     * Also matches users id from users and booking details table.
-     *
-     * Also matches service's id from services and booking details table.
-     *
-     * @param : void
-     * @return : total number of cancelled queries
-     */
-    public function total_cancelled_queries() {
-        $sql = "SELECT count(*) as count from booking_details
-        JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
-        JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-        LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-        WHERE `booking_id` LIKE '%Q-%' AND
-        (booking_details.current_status='Cancelled')";
-
-        $query = $this->db->query($sql);
-        $count = $query->result_array();
-
-        return $count[0]['count'];
-    }
 
     /**
      * @desc : This funtion counts total number of bookings for a particular user
@@ -860,20 +490,6 @@ class Booking_model extends CI_Model {
         return $query->result();
     }
 
-    /**
-     * @desc : This funtion is for the cancellation of the bookings
-     *
-     * The status is checked before cancellation, it must be either pending or rescheduled
-     *
-     * @param : booking id and data needed while cancellation
-     * @return : void
-     */
-    function cancel_booking($booking_id, $data) {
-        $states = array('Pending', 'Rescheduled');
-        $this->db->where(array('booking_id' => $booking_id));
-        $this->db->where_in('current_status', $states);
-        $this->db->update('booking_details', $data);
-    }
 
     /**
      * @desc : This funtion is to get complete booking details
@@ -928,73 +544,6 @@ class Booking_model extends CI_Model {
         return $result;
     }
 
-    /**
-     * @desc : This funtion is to complete a particular booking.
-     *
-     * While completing it also inserts closing details like- charges, amount_paid, parts cost and
-     *      who collected these charges.
-     *
-     * The curent status of booking must be pending or rescheduled.
-     *
-     * This also inserts rating and comments of user expierience for service provided
-     *      and also rating of vendor.
-     *
-     * @param : booking id and closing data
-     * @return : returns true if completed else false.
-     */
-    function complete_booking($booking_id, $data) {
-        $sql = "Update booking_details set current_status='Completed',closed_date='$data[closed_date]', "
-                . "closing_remarks='$data[closing_remarks]',amount_paid='$data[amount_paid]',"
-                . "service_charge='$data[service_charge]', service_charge_collected_by='$data[service_charge_collected_by]',"
-                . "additional_service_charge='$data[additional_service_charge]',internal_status='$data[internal_status]', "
-                . "additional_service_charge_collected_by='$data[additional_service_charge_collected_by]', "
-                . "parts_cost='$data[parts_cost]', parts_cost_collected_by='$data[parts_cost_collected_by]',"
-                . "rating_stars='$data[rating_star]',rating_comments='$data[rating_comments]', "
-                . "vendor_rating_stars='$data[vendor_rating_stars]', vendor_rating_comments='$data[vendor_rating_comments]' "
-                . "where booking_id='$booking_id' and (current_status='Rescheduled' or current_status='Pending')";
-        //echo "<pre>";print_r($sql);exit;
-        $query = $this->db->query($sql);
-        return $query;
-    }
-
-    /**
-     * @desc : Schedule bookings given by Partner like Snapdeal
-     *
-     * This will update the booking details and current status.
-     *
-     * @param : booking id and data
-     * @return : void
-     */
-    function schedule_booking($booking_id, $data) {
-        $states = array('FollowUp');
-        $this->db->where(array('booking_id' => $booking_id));
-        $this->db->where_in('current_status', $states);
-        $this->db->update('booking_details', $data);
-    }
-
-    /**
-     * @desc : This funtion reschedules bookings by updating the booking details
-     *
-     * This will update the booking details like booking date, timeslot and current status.
-     *
-     * @param : booking id and reschedule data
-     * @return : void
-     */
-    function reschedule_booking($booking_id, $data) {
-        $states = array('Pending', 'Rescheduled');
-        $this->db->where(array('booking_id' => $booking_id));
-        $this->db->where_in('current_status', $states);
-        $this->db->update('booking_details', $data);
-
-//	$query = $this->db->query("Update booking_details set current_status='Rescheduled',
-//	    internal_status='Rescheduled',
-//	update_date='$data[update_date]',booking_date='$data[booking_date]',
-//	booking_timeslot='$data[booking_timeslot]'
-//	where booking_id='$booking_id'
-//	and (current_status='Pending' or current_status='Rescheduled')");
-//
-//        return $query;
-    }
 
     /**
      * @desc : This funtion gives the name of the service
@@ -1050,27 +599,27 @@ class Booking_model extends CI_Model {
       }
      */
 
-    /**
-     *  @desc : for selecting particular booking details to be sent through email
-     *  @param : $booking_id
-     *  @return : array(userdetails,servicename and bookingdetails)
+     /**
+     * @desc: get booking history
+     * @param: booking id, flag to make join with service center table
+     * @return : array
      */
-    function booking_history_by_booking_id($booking_id, $join = "") {
+    function getbooking_history($booking_id, $join=""){
+
         $service_centre = "";
-        $condition = "";
-        $service_center_name = "";
-        if ($join != "") {
-            $service_center_name = ",service_centres.name as vendor_name, service_centres.district ";
+        $condition ="";
+        $service_center_name ="";
+        if($join !=""){
+            $service_center_name =",service_centres.name as vendor_name, service_centres.district ";
             $service_centre = ", service_centres ";
             $condition = " and booking_details.assigned_vendor_id =  service_centres.id";
         }
 
-        $sql = "Select services.services, users.*, booking_details.*, appliance_details.description  " . $service_center_name
-                . "from booking_details, users, services, appliance_details " . $service_centre
-                . "where booking_details.booking_id='$booking_id' and "
-                . "booking_details.user_id = users.user_id and "
-                . "services.id = booking_details.service_id and "
-                . "booking_details.appliance_id = appliance_details.id " . $condition;
+        $sql = " SELECT `services`.`services`, users.*, booking_details.* ".  $service_center_name
+               . "from booking_details, users, services " . $service_centre
+               . "where booking_details.booking_id='$booking_id' and "
+               . "booking_details.user_id = users.user_id and "
+               . "services.id = booking_details.service_id  ". $condition;
 
         $query = $this->db->query($sql);
 
@@ -1102,8 +651,6 @@ class Booking_model extends CI_Model {
     function getBrandForService($service_id) {
         $this->db->where(array('service_id' => $service_id, 'seo' => 1));
         $this->db->select('brand_name');
-        //$sql = "Select  brand_name from appliance_brands where service_id='$service_id'";
-        //$query = $this->db->query($sql);
         $query = $this->db->get('appliance_brands');
         return $query->result_array();
     }
@@ -1308,66 +855,6 @@ class Booking_model extends CI_Model {
         return $query->result_array();
     }
 
-    /**
-     *  @desc : This function is to update booking details
-     *  @param : old booking id, new booking details
-     *  @return : void
-     */
-    function update_booking_details($booking_id, $booking) {
-        // remove some keys in booking array to while upade booking details table
-        unset($booking['unit_id']);
-        unset($booking['purchase_year']);
-        unset($booking['appliance_tag']);
-        unset($booking['model_number']);
-        unset($booking['current_booking_date']);
-        unset($booking['current_booking_timeslot']);
-        unset($booking['new_booking_date']);
-        unset($booking['new_booking_timeslot']);
-        //..............................................................................
-        $this->db->where("booking_id", $booking_id);
-        $this->db->update('booking_details', $booking);
-
-        return 1;
-    }
-
-    /**
-     *  @desc : This function is to update unit booking details
-     *  @param : old booking id, new booking details
-     *  @return : void
-     */
-    function update_booking_unit_details($booking_id, $booking) {
-        $sql = "Update booking_unit_details set booking_id='$booking[booking_id]', "
-                . "appliance_brand='$booking[appliance_brand]', "
-                . "appliance_category='$booking[appliance_category]', "
-                . "appliance_capacity='$booking[appliance_capacity]', "
-                . "model_number='$booking[model_number]', "
-                . "total_price='$booking[total_price]',"
-                . "price_tags = '$booking[items_selected]',"
-                . "purchase_year='$booking[purchase_year]',"
-                . "appliance_tag = '$booking[appliance_tag]'"
-                . "where booking_id='$booking_id'";
-
-        $this->db->query($sql);
-//	$query = $this->db->query($sql); //as $query is not used
-    }
-
-    /**
-     *  @desc : This function is to cancel query
-     *  @param : booking id, booking details
-     *  @return : void
-     */
-    function cancel_followup($booking_id, $booking) {
-        $this->db->where(array("booking_id" => $booking_id));
-        $this->db->update('booking_details', $booking);
-
-//	$sql = "Update booking_details set current_status='$booking[current_status]', "
-//            . "cancellation_reason='$booking[cancellation_reason]', "
-//            . "closing_remarks='$booking[closing_remarks]', "
-//            . "internal_status='$booking[internal_status]' "
-//            . "where booking_id='$booking_id'";
-//
-//        $query = $this->db->query($sql);
-    }
 
     /**
      *  @desc : This function is to get jobcard file name.
@@ -1467,39 +954,6 @@ class Booking_model extends CI_Model {
         $sql = "INSERT into appliance_brands(service_id,brand_name) values('$service_id','$newbrand')";
         $this->db->query($sql);
 //	$query = $this->db->query($sql); // as $query was not been used, this linecould be deleted
-    }
-
-    /*
-      function edit_query($booking_id, $data) {
-      $sql = "UPDATE booking_details set booking_date='$data[booking_date]',booking_timeslot=
-      '$data[booking_timeslot]',query_remarks='$data[query_remarks]' where booking_id=
-      '$booking_id'";
-      $query = $this->db->query($sql);
-      }
-     *
-     */
-
-    /**
-     *  @desc : This function is to edit completed booking
-     *
-     *  Through this the prices(service charge, parts cost, etc) and collected by is edited(if changed).
-     *
-     * 	Closing remarks also get edited if changed.
-     *
-     *  @param : booking id, booking details
-     *  @return : void
-     */
-    function edit_completed_booking($booking_id, $data) {
-        $sql = "UPDATE booking_details set service_charge='$data[service_charge]',
-		service_charge_collected_by='$data[service_charge_collected_by]',
-		additional_service_charge='$data[additional_service_charge]',
-		additional_service_charge_collected_by='$data[additional_service_charge_collected_by]',
-		parts_cost='$data[parts_cost]', parts_cost_collected_by='$data[parts_cost_collected_by]',
-		closing_remarks='$data[closing_remarks]', booking_remarks='$data[booking_remarks]',
-		amount_paid='$data[amount_paid]' where booking_id='$booking_id'";
-
-        $this->db->query($sql);
-//	$query = $this->db->query($sql);  // as $query was not been used, this linecould be deleted
     }
 
     /**
@@ -1817,65 +1271,6 @@ class Booking_model extends CI_Model {
     }
 
     /**
-     *  @desc : Function to get cancelled queries according to pagination
-     *
-     * 	This shows the cancelled queries start to the limit we define
-     *
-     *  @param : start and limit of data
-     *  @return : slice of sorted data
-     */
-    function get_cancelled_queries($limit, $start) {
-        $sql = "SELECT services.services,
-            users.name as customername, users.phone_number,
-            booking_details.*, service_centres.name as service_centre_name,
-            service_centres.primary_contact_name,service_centres.primary_contact_phone_1
-            from booking_details
-            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
-            JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-            LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-            WHERE `booking_id` LIKE '%Q-%' AND
-            (booking_details.current_status='Cancelled')";
-
-        $query = $this->db->query($sql);
-
-        $temp = $query->result();
-
-        usort($temp, array($this, 'date_compare_queries'));
-
-        //return slice of the sorted array
-        return array_slice($temp, $start, $limit);
-    }
-
-    /**
-     *  @desc : Function to view all the cancelled queries.
-     *
-     * 	This shows all the cancelled queries in sorted manner according to its cancellation date.
-     *
-     *  @param : void
-     *  @return : sorted all cancelled bookings
-     */
-    function view_all_cancelled_queries() {
-        $sql = "SELECT services.services,
-            users.name as customername, users.phone_number,
-            booking_details.*, service_centres.name as service_centre_name,
-            service_centres.primary_contact_name,service_centres.primary_contact_phone_1
-            from booking_details
-            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
-            JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-            LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-            WHERE `booking_id` LIKE '%Q-%' AND
-            (booking_details.current_status='Cancelled')";
-
-        $query = $this->db->query($sql);
-
-        $temp = $query->result();
-
-        usort($temp, array($this, 'date_compare_queries'));
-
-        return $temp;
-    }
-
-    /**
      *  @desc : Function to add single appliance while converting query to booking
      *
      *  @param : appliance details
@@ -1920,25 +1315,6 @@ class Booking_model extends CI_Model {
             "appliance_tag" => $booking['appliance_tag']);
 
         $this->db->insert('booking_unit_details', $unit_detail);
-    }
-
-    /**
-     *  @desc : Function to update single appliance details
-     *
-     *  @param : appliance(booking) details
-     *  @return : true if updated else false
-     */
-    function update_appliance_details($booking) {
-        $sql = "Update appliance_details set user_id='$booking[user_id]',"
-                . "service_id='$booking[service_id]',brand='$booking[appliance_brand]',"
-                . "category='$booking[appliance_category]',
-                capacity='$booking[appliance_capacity]',"
-                . "model_number='$booking[model_number]',tag='$booking[appliance_tag]',"
-                . "purchase_year='$booking[purchase_year]' where id='$booking[appliance_id]'";
-
-        $query = $this->db->query($sql);
-
-        return $query;
     }
 
     /** @description : Function to search bookings with booking id from find user page
@@ -2205,6 +1581,226 @@ class Booking_model extends CI_Model {
 
             return $booking;
         }
+    }
+
+    function check_price_tags_status($booking_id, $price_tags){
+
+        $this->db->select('id, price_tags');
+        $this->db->where('booking_id', $booking_id);
+        $query = $this->db->get('booking_unit_details');
+        if($query->num_rows>0){
+            $result = $query->result_array();
+            foreach ($result as $key => $value) {
+                 if (in_array($value['price_tags'], $price_tags)) {
+                   // echo "Match found";
+                 }
+                 else {
+                    //echo "Match not found";
+                   $data = array('booking_status' => "Cancelled" );
+                   $this->db->where('id', $value['id']);
+                   $this->db->update('booking_unit_details', $data); 
+
+                }
+            }
+        }
+        return;
+    }
+
+    function getpricesdetails_with_tax($service_centre_charges_id){
+
+        $sql =" SELECT service_category as price_tags, customer_total, partner_net_payable, rate as tax_rate, product_or_services from service_centre_charges, tax_rates where `service_centre_charges`.id = '$service_centre_charges_id' AND `tax_rates`.tax_code = `service_centre_charges`.tax_code AND `tax_rates`.state = `service_centre_charges`.state AND `tax_rates`.product_type = `service_centre_charges`.product_type AND (to_date is NULL or to_date >= CURDATE() ) AND `tax_rates`.active = 1 ";
+
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+
+    /**
+     * @desc: this method get prices details and check price tag is exist in unit details or not. if price tags does not exist, it inserts data in booking unit details and if price tags exist, it update booking unit details.
+     * @param: Array
+     * @return: Price tags.
+     */
+    function update_booking_in_booking_details($services_details){
+
+        $data = $this->getpricesdetails_with_tax($services_details['id']);
+
+        $result = array_merge($services_details, $data[0]);
+
+        unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table 
+         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges']; 
+               //log_message ('info', __METHOD__ . "update booking_unit_details data". print_r($result));
+
+        $this->db->select('id');
+        $this->db->where('appliance_id', $services_details['appliance_id']);
+        $this->db->where('price_tags', $data[0]['price_tags']);
+        $this->db->where('booking_id', $services_details['booking_id']);
+        $query = $this->db->get('booking_unit_details');
+
+        if($query->num_rows >0){
+
+            $unit_details = $query->result_array();
+            $this->db->where('id',  $unit_details[0]['id']);
+            $this->db->update('booking_unit_details', $result); 
+
+         } else {
+             
+            $this->db->insert('booking_unit_details', $result);
+         }
+
+         return $data[0]['price_tags'];
+    }
+
+    // Update Price in unit details
+    function update_price_in_unit_details($data, $unit_details){
+
+        $data['around_paid_basic_charges'] = $unit_details[0]['around_paid_basic_charges'];
+        $data['partner_paid_basic_charges'] = $unit_details[0]['partner_paid_basic_charges'];
+        $data['tax_rate'] = $unit_details[0]['tax_rate'];
+      
+        
+        $vendor_total_basic_charges =  ($data['customer_paid_basic_charges'] + $data['partner_paid_basic_charges'] + $data['around_paid_basic_charges']) * basic_percentage;
+        $around_total_basic_charges = ($data['customer_paid_basic_charges'] + $data['partner_paid_basic_charges'] + $data['around_paid_basic_charges'] - $vendor_total_basic_charges);
+
+        $data['around_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($around_total_basic_charges, $data['tax_rate'] );
+        $data['vendor_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($vendor_total_basic_charges, $data['tax_rate'] ); 
+
+        $data['around_comm_basic_charges'] = $around_total_basic_charges - $data['around_st_or_vat_basic_charges'];
+        $data['vendor_basic_charges'] = $vendor_total_basic_charges - $data['vendor_st_or_vat_basic_charges'];
+
+        $total_vendor_addition_charge = $data['customer_paid_extra_charges'] * addtitional_percentage;
+        $total_around_additional_charge = $data['customer_paid_extra_charges'] - $total_vendor_addition_charge;
+
+        $data['around_st_extra_charges'] = $this->get_calculated_tax_charge($total_around_additional_charge, $data['tax_rate']);
+        $data['vendor_st_extra_charges'] = $this->get_calculated_tax_charge($total_vendor_addition_charge, $data['tax_rate']  );
+
+        $data['around_comm_extra_charges'] = $total_around_additional_charge - $data['around_st_extra_charges'];
+        $data['vendor_extra_charges'] = $total_vendor_addition_charge - $data['vendor_st_extra_charges'] ;
+
+        $total_vendor_parts_charge = $data['customer_paid_parts'] * parts_percentage;
+        $total_around_parts_charge =  $data['customer_paid_parts'] - $total_vendor_parts_charge;
+        $data['around_st_parts'] = $this->get_calculated_tax_charge($total_around_parts_charge, $data['tax_rate'] );
+        $data['vendor_st_parts'] =  $this->get_calculated_tax_charge($total_vendor_parts_charge,  $data['tax_rate']);
+        $data['around_comm_parts'] =  $total_around_parts_charge - $data['around_st_parts'];
+        $data['vendor_parts'] = $total_vendor_parts_charge - $data['vendor_st_parts'] ;
+
+        $vendor_around_charge = ($data['customer_paid_basic_charges'] + $data['customer_paid_parts'] + $data['customer_paid_extra_charges']) - ($vendor_total_basic_charges + $total_vendor_addition_charge + $total_vendor_parts_charge );
+
+        if($vendor_around_charge > 0){
+
+            $data['vendor_to_around'] = $vendor_around_charge;
+            $data['around_to_vendor'] = 0;
+
+        } else {
+            $data['vendor_to_around'] = 0;
+            $data['around_to_vendor'] = abs($vendor_around_charge);
+        }
+        unset($data['internal_status']);
+        $this->db->where('id', $data['id']);
+        $this->db->update('booking_unit_details',$data);
+    }
+
+    /**
+     * @desc: calculate service charges and vat charges
+     * @param : total charges and tax rate
+     * @return calculate charges
+     */
+    function get_calculated_tax_charge($total_charges, $tax_rate){
+          //52.50 = (402.50 / ((100 + 15)/100)) * ((15)/100)
+          //52.50 =  (402.50 / 1.15) * (0.15)
+        $st_vat_charge = sprintf ("%.2f", ($total_charges / ((100 + $tax_rate)/100)) * (($tax_rate)/100));
+        return $st_vat_charge;
+    }
+
+    /**
+     * @desc: get all booking details for given booking id
+     * @param: booking id 
+     * @return:  Array
+     */
+    function getunit_details($booking_id){
+
+        $sql = "SELECT distinct(appliance_id), brand, category, capacity, `appliance_details`.`model_number`,description, `appliance_details`.`purchase_month`, `appliance_details`.`purchase_year`, appliance_tag
+            from booking_unit_details,  appliance_details Where `booking_unit_details`.booking_id = '$booking_id' AND `appliance_details`.`id` = `booking_unit_details`.`appliance_id`  ";
+
+        $query = $this->db->query($sql);
+        $appliance =  $query->result_array();
+
+        foreach ($appliance as $key => $value) {
+            // get data from booking unit details table on the basis of appliance id
+            $this->db->select('id as unit_id, price_tags, customer_total, around_net_payable, partner_net_payable, customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts, booking_status, partner_paid_basic_charges');
+            $this->db->where('appliance_id', $value['appliance_id']);
+            $query2 = $this->db->get('booking_unit_details');
+
+            $result = $query2->result_array();
+            $appliance[$key]['qunatity'] = $result; // add booking unit details array into quantity key of previous array
+        }
+
+        return $appliance;
+    }
+    
+    /**
+     * @desc: update price in booking unit details
+     */
+    function update_unit_details($data){
+        // get booking unit data on the basis of id
+        $this->db->select('around_net_payable, partner_net_payable, tax_rate, price_tags, partner_paid_basic_charges, around_paid_basic_charges');
+        $this->db->where('id', $data['id']);
+        $query = $this->db->get('booking_unit_details');
+        $unit_details = $query->result_array();
+
+        if($data['booking_status'] == "Completed"){
+
+            $this->update_price_in_unit_details($data, $unit_details);
+
+        } else {
+
+            $data['customer_total'] = 0;
+            $unit_details[0]['partner_net_payable'] = 0;
+            $unit_details[0]['around_net_payable'] =0;
+            $unit_details[0]['tax_rate'] = 0;
+            $data['customer_net_payable'] = 0;
+            $data['partner_paid_basic_charges'] = 0;
+            $data['around_paid_basic_charges'] = 0;
+            
+
+            // Update price in unit table
+            $this->update_price_in_unit_details($data, $unit_details);
+        }
+
+    }
+
+    /**
+     * @desc: this method is used to get cit services, sources and user details
+     * @param : user phone no.
+     * @return : array()
+     */
+    function get_city_booking_source_services($phone_number){
+    
+        $query1['services'] = $this->selectservice();
+        
+        $query2['city'] = $this->vendor_model->getDistrict();
+        $query3['sources'] = $this->partner_model->get_all_partner_source("0");
+        $query4['user'] = $this->user_model->search_user($phone_number);
+
+        return $query = array_merge($query1, $query2, $query3, $query4);
+
+    }
+
+     /**
+     * @desc: this is used to copy price and tax rate of custom service center id and insert into booking unit details table with 
+     * booking id and details.
+     * @param: Array()
+     * @return : Array() 
+     */
+    function insert_data_in_booking_unit_details($services_details){
+        $data = $this->getpricesdetails_with_tax($services_details['id']);
+       
+        $result = array_merge($services_details, $data[0]);
+
+        unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table 
+        $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges']; 
+        log_message ('info', __METHOD__ . "booking_unit_details data". print_r($result));
+        $this->db->insert('booking_unit_details', $result);
+
+        return $result;
     }
 
 

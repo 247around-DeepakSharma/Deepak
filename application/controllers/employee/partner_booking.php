@@ -129,12 +129,14 @@ class Partner_booking extends CI_Controller {
 
                         $user_id = $this->user_model->add_user($user);
                         $data = $this->set_price_rows_data($row, $user_id);
+                        $data['city'] = $user['city'];
+                        $data['state'] = $user['state'];
 
                         //For adding unit and appliance details
                         //$appliance_id = $this->booking_model->addappliancedetails($data);
                         //$this->booking_model->addunitdetails($data);
 
-                        $output = $this->booking_model->addbooking($data, "", $row[4], $user['state']);
+                        $output = $this->booking_model->addbooking($data);
                     }
                 }
             }
@@ -296,7 +298,7 @@ class Partner_booking extends CI_Controller {
      */
     function set_price_rows_data_for_paytm($row, $partner_id, $user_id) {
 
-        $data['OrderID'] = $row[0];
+        $data['order_id'] = $row[0];
         $data['ItemID'] = $row[1];
         $data['MerchantID'] = $row[2];
         $data['ProductType'] = $row[3];
@@ -333,50 +335,59 @@ class Partner_booking extends CI_Controller {
      */
     function createBooking($data, $partner_id, $user_id) {
         // print_r("times");
+        $unit_details['partner_id'] = $booking['partner_id'];
         $source = $this->partner_model->get_source_code_for_partner($partner_id);
-        $data['user_id'] = $user_id;
-        $data['source'] = $source;
-        $data['booking_id'] = $this->create_booking_id($data['user_id'], $data['source']);
-        $data['quantity'] = '1';
-        $data['appliance_brand'] = $data['Brand'];
-        $data['appliance_category'] = '';
-        $data['appliance_capacity'] = '';
-        $data['service_id'] = $this->booking_model->getServiceId($data['Product']);
-        $data['booking_primary_contact_no'] = $data['Mobile'];
-        $data['booking_alternate_contact_no'] = '';
-        $data['model_number'] = '';
-        $data['description'] = '';
-        $data['appliance_tags'] = $data['Brand'] . " " . $data['Product'];
-        $data['purchase_month'] = date('m');
-        $data['purchase_year'] = date('Y');
+        $appliances_details['user_id'] =  $booking_id['user_id'] = $user_id;
+        $booking['source'] = $source;
+        $unit_details['booking_id'] = $booking['booking_id'] = $data['booking_id']= $this->create_booking_id($data['user_id'], $data['source']);
+        $booking['quantity'] = '1';
+        $appliances_details['brand'] = $unit_details['appliance_brand'] = $data['Brand'];
+        $appliances_details['category'] = $unit_details['appliance_category'] = '';
+        $appliances_details['capacity'] = $unit_details['appliance_capacity'] = '';
+        $appliances_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $this->booking_model->getServiceId($data['Product']);
+        $booking['booking_primary_contact_no'] = $data['Mobile'];
+        $booking['booking_alternate_contact_no'] = '';
+        $appliances_details['model_number'] = $unit_details['model_number'] = '';
+        $unit_details['description'] = '';
+        $appliances_details['tag'] = $unit_details['appliance_tags'] = $data['Brand'] . " " . $data['Product'];
+        $appliances_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
+        $appliances_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
+        $appliances_details['last_service_date'] = date('Y-m-d H:i:s');
 
-        $data['items_selected'] = '';
-        $data['total_price'] = '';
-        $data['potential_value'] = '';
-        $data['last_service_date'] = date('d-m-Y');
+        $booking['potential_value'] = '';
 
         //echo "<br><br>";
         //print_r("expression");
-        $appliance_id = $this->booking_model->addexcelappliancedetails($data);
+        $unit_details['appliance_id'] = $appliance_id =  $this->booking_model->check_appliancesforuser($appliances_details);
+
+            if(empty($unit_details['appliance_id'])){
+
+                 $unit_details['appliance_id'] = $appliance_id = $this->booking_model->addappliance($appliances_details);
+            }
+        
         //echo print_r($appliance_id, true) . "<br><br>";
         //print_r("appliance_id".$appliance_id);
-        $return = $this->booking_model->addapplianceunitdetails($data);
+        $this->booking_model->addunitdetails($unit_details);
         //print_r("appliance_unit_id".$return);
 
-        $data['current_status'] = "FollowUp";
-        $data['internal_status'] = "FollowUp";
-        $data['type'] = "Query";
-        $data['booking_date'] = '';
-        $data['booking_timeslot'] = '';
-        $data['booking_address'] = $data['Address'];
-        $data['booking_pincode'] = $data['Pincode'];
-        $data['amount_due'] = '';
-        $data['booking_remarks'] = '';
-        $data['query_remarks'] = '';
+        $booking['current_status'] = "FollowUp";
+        $booking['internal_status'] = "FollowUp";
+        $booking['type'] = "Query";
+        $booking['booking_date'] = '';
+        $booking['booking_timeslot'] = '';
+        $booking['booking_address'] = $data['Address'];
+        $booking['booking_pincode'] = $data['Pincode'];
+        $booking['amount_due'] = '';
+        $booking['booking_remarks'] = '';
+        $booking['query_remarks'] = '';
+        $booking['order_id'] = $data['order_id'];
+        $booking['estimated_delivery_date']  = $data['DeliveryDate'];
+        $booking['reference_date'] = $data['ReferenceDate'];
+        $booking['request_type'] = "excel";
 
         //Insert query
         //echo print_r($booking, true) . "<br><br>";
-        $id = $this->booking_model->addbooking($data, $appliance_id);
+        $id = $this->booking_model->addbooking($data);
         //print_r("add booking".$id);
 
         return $data['booking_id'];

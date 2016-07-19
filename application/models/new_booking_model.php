@@ -288,6 +288,7 @@ class New_booking_model extends CI_Model {
         $this->db->where('user_id', $services_details['user_id']);
         $this->db->where('category', $services_details['category']);
         $this->db->where('capacity', $services_details['capacity']);
+        $this->db->where('model_number', $services_details['model_number']);
         $query = $this->db->get('appliance_details');
         if($query->num_rows>0){
 

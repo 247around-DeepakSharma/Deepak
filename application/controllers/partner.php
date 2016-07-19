@@ -226,8 +226,9 @@ class Partner extends CI_Controller {
 
 			//Add this as a Query now
 			$booking['booking_id'] = '';
-			$booking['user_id'] = $user_id;
-			$booking['service_id'] = $this->booking_model->getServiceId($lead_details['Product']);
+			$booking['order_id'] = $lead_details['orderID'];
+			$appliance_details['user_id'] = $booking['user_id'] = $user_id;
+			$appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $this->booking_model->getServiceId($lead_details['Product']);
 			log_message('info', __METHOD__ . ":: Service ID: " . $booking['service_id']);
 			//echo "Service ID: " . $booking['service_id'] . PHP_EOL;
 
@@ -243,29 +244,31 @@ class Partner extends CI_Controller {
 			//Add partner code from sources table
 			//All partners should have a valid partner code in the bookings_sources table
 			$booking['source'] = $this->partner_model->get_source_code_for_partner($this->partner['id']);
-			$booking['partner_id'] = $this->partner['id'];
-			$booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
+			$unit_details['partner_id'] = $booking['partner_id'] = $this->partner['id'];
+			$unit_details['booking_id'] = $booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
 			$lead_details['247aroundBookingID'] = $booking['booking_id'];
 
 			$booking['quantity'] = '1';
-			$booking['appliance_brand'] = $lead_details['Brand'];
-			$booking['appliance_category'] = '';
-			$booking['appliance_capacity'] = '';
-			$booking['description'] = $lead_details['ProductType'];
-			$booking['model_number'] = (isset($lead_details['Model']) ? $lead_details['Model'] : "");
-			$booking['appliance_tags'] = $lead_details['Brand'] . " " . $lead_details['Product'];
-			$booking['purchase_month'] = date('m');
-			$booking['purchase_year'] = date('Y');
-
-			$booking['items_selected'] = '';
-			$booking['total_price'] = '';
+			$appliance_details['brand'] = $unit_details['appliance_brand'] = $lead_details['Brand'];
+			$appliance_details['category'] = $unit_details['appliance_category'] = '';
+			$appliance_details['capacity'] = $unit_details['appliance_capacity'] = '';
+			$appliance_details['description'] = $unit_details['description'] = $lead_details['ProductType'];
+			$$appliance_details['model_number'] = $unit_details['model_number'] = (isset($lead_details['Model']) ? $lead_details['Model'] : "");
+			$appliance_details['tag'] = $unit_details['appliance_tags'] = $lead_details['Brand'] . " " . $lead_details['Product'];
+			$appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
+			$appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
+			
+			$appliance_details['last_service_date'] = date('d-m-Y');
 			$booking['potential_value'] = '';
-			$booking['last_service_date'] = date('d-m-Y');
 
 			//echo print_r($booking, true) . "<br><br>";
-			$appliance_id = $this->booking_model->addexcelappliancedetails($booking);
-			//echo print_r($appliance_id, true) . "<br><br>";
-			$this->booking_model->addapplianceunitdetails($booking);
+			$unit_details['appliance_id'] = $appliance_id =  $this->booking_model->check_appliancesforuser($appliance_details);
+
+            if(empty($unit_details['appliance_id'])){
+
+                 $unit_details['appliance_id'] = $appliance_id = $this->booking_model->addappliance($appliance_details);
+            }
+			 $this->booking_model->addunitdetails($unit_details);
 
 			$booking['current_status'] = "FollowUp";
 			$booking['internal_status'] = "FollowUp";
@@ -278,10 +281,13 @@ class Partner extends CI_Controller {
 			$booking['amount_due'] = '';
 			$booking['booking_remarks'] = '';
 			$booking['query_remarks'] = '';
+			$booking['city'] = $requestData['city'];
+			$state = $this->vendor_model->getall_state($booking['city']);
+			$booking['state'] = $state[0]['state'];
 
 			//Insert query
 			//echo print_r($booking, true) . "<br><br>";
-			$this->booking_model->addbooking($booking, $appliance_id, $requestData['city']);
+			$this->booking_model->addbooking($booking);
 
 			//Save this in SD leads table
 			//echo print_r($lead_details, true) . "<br><br>";
@@ -976,7 +982,7 @@ class Partner extends CI_Controller {
 	$booking['cancellation_reason'] = "Other : " . $request['cancellationReason'];
 	$booking['update_date'] = $booking['closed_date'] = date("Y-m-d h:i:s");
 
-	$this->booking_model->cancel_followup($booking_id, $booking);
+	$this->booking_model->update_booking($booking_id, $booking);
 
 	//Update partner leads table
 	$partner_where = array("247aroundBookingID" => $booking_id);
@@ -1052,7 +1058,7 @@ class Partner extends CI_Controller {
 	$booking['query_remarks'] = (isset($request['remarks']) ? $request['remarks'] : "");
 	$booking['update_date'] = date("Y-m-d h:i:s");
 
-	$this->booking_model->schedule_booking($booking_id, $booking);
+	$this->booking_model->update_booking($booking_id, $booking);
 
 	//Update Partner leads table
 	$partner_where = array("247aroundBookingID" => $booking_id);
