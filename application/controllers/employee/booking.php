@@ -919,6 +919,110 @@ class Booking extends CI_Controller {
     }
 
     /**
+     *  @desc : This function is to present form to open completed bookings
+     *
+     * It converts a Completed Booking into Pending booking and schedule it to
+     * a new booking date & time.
+     *
+     *  @param : String (Booking Id)
+     *  @return :
+     */
+    function get_convert_completed_booking_to_pending_form($booking_id) {
+	$bookings = $this->booking_model->booking_history_by_booking_id($booking_id);
+
+	$this->load->view('employee/header');
+	$this->load->view('employee/complete_to_pending', $bookings[0]);
+    }
+
+    /**
+     *  @desc : This function is to process form to open completed bookings
+     *
+     * Accepts the new booking date and timeslot povided in form and then opens
+     * a completed booking.
+     *
+     *  @param : booking id
+     *  @return : Converts the booking to Pending stage and load view
+     */
+    function process_convert_completed_booking_to_pending_form($booking_id) {
+	$data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
+	$data['booking_timeslot'] = $this->input->post('booking_timeslot');
+	$data['current_status'] = 'Pending';
+	$data['internal_status'] = 'Scheduled';
+	$data['update_date'] = date("Y-m-d h:i:s");
+	$data['closed_date'] = NULL;
+	$data['vendor_rating_stars'] = NULL;
+	$data['vendor_rating_comments'] = NULL;
+	$data['service_charge'] = NULL;
+	$data['service_charge_collected_by'] = NULL;
+	$data['additional_service_charge'] = NULL;
+	$data['additional_service_charge_collected_by'] = NULL;
+	$data['parts_cost'] = NULL;
+	$data['parts_cost_collected_by'] = NULL;
+	$data['amount_paid'] = NULL;
+	$data['rating_stars'] = NULL;
+	$data['rating_comments'] = NULL;
+	$data['closing_remarks'] = NULL;
+	$data['booking_jobcard_filename'] = NULL;
+	$data['mail_to_vendor'] = 0;
+
+	//Is this SD booking?
+	if (strpos($booking_id, "SS") !== FALSE) {
+	    $is_sd = TRUE;
+	} else {
+	    $is_sd = FALSE;
+	}
+
+	if ($data['booking_timeslot'] == "Select") {
+	    echo "Please Select Booking Timeslot.";
+	} else {
+	    $this->booking_model->convert_completed_booking_to_pending($booking_id, $data);
+
+	    //Update SD leads table if required
+	    if ($is_sd) {
+		if ($this->booking_model->check_sd_lead_exists_by_booking_id($booking_id) === TRUE) {
+		    $sd_where = array("CRM_Remarks_SR_No" => $booking_id);
+		    $sd_data = array(
+			"Status_by_247around" => $data['current_status'],
+			"Remarks_by_247around" => $data['internal_status'],
+			"Scheduled_Appointment_DateDDMMYYYY" => $data['booking_date'],
+			"Scheduled_Appointment_Time" => $data['booking_timeslot'],
+			"update_date" => $data['update_date']
+		    );
+		    $this->booking_model->update_sd_lead($sd_where, $sd_data);
+		}
+	    }
+
+	    //Log this state change as well for this booking
+	    $state_change['booking_id'] = $booking_id;
+	    $state_change['old_state'] = 'Completed';
+	    $state_change['new_state'] = 'Pending';
+	    $state_change['agent_id'] = $this->session->userdata('id');
+	    $this->booking_model->insert_booking_state_change($state_change);
+
+	    $query1 = $this->booking_model->booking_history_by_booking_id($booking_id, "join");
+
+	    $email['booking_id'] = $query1[0]['booking_id'];
+	    $email['name'] = $query1[0]['name'];
+	    $email['phone_no'] = $query1[0]['phone_number'];
+	    $email['service'] = $query1[0]['services'];
+	    $email['booking_date'] = $data['booking_date'];
+	    $email['booking_timeslot'] = $data['booking_timeslot'];
+	    $email['vendor_name'] = $query1[0]['vendor_name'];
+	    $email['city'] = $query1[0]['city'];
+	    $email['agent'] = $this->session->userdata('employee_id');
+
+	    $email['tag'] = "open_completed_booking";
+	    $email['subject'] = "Completed Booking Converted to Pending - AROUND";
+
+	    $this->notify->send_email($email);
+
+	    log_message('info', 'Completed Booking Opened - Booking id: ' . $booking_id . " Opened By: " . $this->session->userdata('employee_id') . " => " . print_r($data, true));
+
+	    redirect(base_url() . search_page);
+	}
+    }
+
+    /**
      *  @desc : This function is to select booking to be canceled.
      *
      * Opens a form with user's name and option to be choosen to cancel the booking.
@@ -1296,16 +1400,16 @@ class Booking extends CI_Controller {
         $url = base_url() . "employee/do_background_process/assign_booking";
         foreach ($service_center as $booking_id => $service_center_id) {
             if ($service_center_id != "Select") {
-                
+
                 $data = array();
                 $data['booking_id'] = $booking_id;
                 $data['service_center_id'] = $service_center_id;
-                
+
                 $this->asynchronous_lib->do_background_process($url, $data);
             }
 
         }
-       
+
 
         redirect(base_url() . search_page);
     }

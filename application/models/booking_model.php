@@ -870,7 +870,7 @@ class Booking_model extends CI_Model {
 
         $temp = $query->result();
 
-       
+
         usort($temp, array($this, 'date_compare_bookings'));
 
         //return slice of the sorted array
@@ -1095,19 +1095,23 @@ class Booking_model extends CI_Model {
      * @return : void
      */
     function reschedule_booking($booking_id, $data) {
-        $states = array('Pending', 'Rescheduled');
-        $this->db->where(array('booking_id' => $booking_id));
-        $this->db->where_in('current_status', $states);
-        $this->db->update('booking_details', $data);
+	$states = array('Pending', 'Rescheduled');
+	$this->db->where(array('booking_id' => $booking_id));
+	$this->db->where_in('current_status', $states);
+	$this->db->update('booking_details', $data);
+    }
 
-//	$query = $this->db->query("Update booking_details set current_status='Rescheduled',
-//	    internal_status='Rescheduled',
-//	update_date='$data[update_date]',booking_date='$data[booking_date]',
-//	booking_timeslot='$data[booking_timeslot]'
-//	where booking_id='$booking_id'
-//	and (current_status='Pending' or current_status='Rescheduled')");
-//
-//        return $query;
+    /**
+     *  @desc : This function converts a Completed Booking into Pending booking
+     * and schedules it to new booking date & time.
+     *
+     *  @param : String $booking_id Booking Id
+     *  @param : Array $data New Booking Date and Time
+     *  @return :
+     */
+    function convert_completed_booking_to_pending($booking_id, $data) {
+	$this->db->where(array('booking_id' => $booking_id, 'current_status' => 'Completed'));
+	$this->db->update('booking_details', $data);
     }
 
     /**
@@ -2089,9 +2093,9 @@ class Booking_model extends CI_Model {
 
       /**
      * @desc : This function is used to get booking id with the help of order id.
-     * 
+     *
      *  Partner id and order id finds the exact booking id.
-     * 
+     *
      * @param : partner id and order id.
      * @return : Array(booking details)
      */
@@ -2103,13 +2107,13 @@ class Booking_model extends CI_Model {
 
         $union = "";
         if ($partner_code == "SS") {
-            $union = "UNION 
+            $union = "UNION
 
                    SELECT CRM_Remarks_SR_No as booking FROM  `snapdeal_leads` WHERE  Sub_Order_ID LIKE  '%$order_id%' ";
         }
 
         $sql = "SELECT 247aroundBookingID  as booking from partner_leads where OrderID LIKE '%$order_id%' And  PartnerID = '$partner_id'   " . $union;
- 
+
 
         $query = $this->db->query($sql);
 
@@ -2310,33 +2314,40 @@ class Booking_model extends CI_Model {
             return "";
         }
     }
-    
+
     /**
      * @desc: this is used to display reschedule request by service center in admin panel
      * @param: void
      * @return: void
      */
     function review_reschedule_bookings_request(){
-        
+
         $this->db->select('booking_details.booking_id, users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.booking_timeslot, service_center_booking_action.booking_date as reschedule_date_request,  service_center_booking_action.booking_timeslot as reschedule_timeslot_request, service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.reschedule_reason');
         $this->db->from('service_center_booking_action');
         $this->db->join('booking_details','booking_details.booking_id = service_center_booking_action.booking_id');
-        
+
         $this->db->join('services','services.id = booking_details.service_id');
         $this->db->join('users','users.user_id = booking_details.user_id');
         $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id');
         $this->db->where('service_center_booking_action.internal_status', "Reschedule");
-         
+
         $query = $this->db->get();
-        
+
         $result = $query->result_array();
-        
+
         return $result;
     }
 
-    function test($data){
-        $this->db->insert('booking_details', $data);
-        echo $this->db-->last_query();
+    /**
+     *  @desc : This function is to insert booking state changes.
+     *
+     *  @param : Array $details Booking state change details
+     *  @return :
+     */
+    function insert_booking_state_change($details) {
+	$this->db->insert('booking_state_change', $details);
+
+	//return $this->db->insert_id();
     }
 
 }

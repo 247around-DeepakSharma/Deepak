@@ -71,6 +71,7 @@
                     <th width="150px;">Service Centre City</th>
                     <th width="60px;">Call</th>
                     <th width="60px;">Edit</th>
+                    <th width="60px;">Open</th>
                     <th width="60px;">View</th>
                     <th width="60px;">Rate</th>
                     </tr>
@@ -110,6 +111,12 @@
                     <td><?php
                         echo "<a id='edit' class='btn btn-sm btn-success' "
                             . "href=" . base_url() . "employee/booking/get_edit_completed_booking_form/$row->booking_id title='Edit'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
+                        ?>
+                    </td>
+
+                    <td><?php
+                        echo "<a id='edit' class='btn btn-sm btn-warning' "
+                            . "href=" . base_url() . "employee/booking/get_convert_completed_booking_to_pending_form/$row->booking_id title='Open'> <i class='fa fa-calendar' aria-hidden='true'></i></a>";
                         ?>
                     </td>
 
