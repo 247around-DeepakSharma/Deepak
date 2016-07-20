@@ -40,7 +40,7 @@ class bookingjobcard extends CI_Controller {
 
     /**
      * @desc: accepts post request only and basic validations
-     * @param: void     
+     * @param: void
      * @return: void
      */
     public function index() {
@@ -64,8 +64,8 @@ class bookingjobcard extends CI_Controller {
 
         $file_names = array();
 
-        $template = 'BookingJobCard_Template-v6.xlsx';
-        //set absolute path to directory with template files
+        $template = 'BookingJobCard_Template-v7.xlsx';
+	//set absolute path to directory with template files
         $templateDir = __DIR__ . "/../";
 
         //set config for report
@@ -160,8 +160,8 @@ class bookingjobcard extends CI_Controller {
 
         $file_names = array();
 
-        $template = 'BookingJobCard_Template-v6.xlsx';
-        //set absolute path to directory with template files
+        $template = 'BookingJobCard_Template-v7.xlsx';
+	//set absolute path to directory with template files
         $templateDir = __DIR__ . "/../";
 
         //set config for report
@@ -244,12 +244,12 @@ class bookingjobcard extends CI_Controller {
 
     /*
      * @desc: This function sends email to the assigned vendor with the booking details.
-     * 
+     *
      * We can add additional notes to the email we are sending to vendor.
-     * 
+     *
      * @param: $booking_id - to find details of booking
      * @param: $additional_note - extra notes to be sent in email
-     * 
+     *
      * @return: void
      */
 
@@ -366,15 +366,15 @@ class bookingjobcard extends CI_Controller {
 
     /* Was made earliar, do something as escalate option now does.
      * @desc: This function sends reminder email to the assigned vendor
-     * 
+     *
      * We can add additional notes to the reminder email we are sending to vendor.
-     * 
-     * This mail is sent if vendor is not contacting the user or not completing the 
+     *
+     * This mail is sent if vendor is not contacting the user or not completing the
      *      booking on time.
-     * 
+     *
      * @param: $booking_id - to add details of booking to email body.
      * @param: $additional_note - extra notes to be sent in email.
-     * 
+     *
      * @return: void
      */
 
