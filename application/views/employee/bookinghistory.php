@@ -1,5 +1,5 @@
 
-<?php 
+<?php
 $this->db_location = $this->load->database('default1', TRUE,TRUE);
         $this->db = $this->load->database('default', TRUE,TRUE);
 ?>
@@ -14,10 +14,10 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
     th,td{
         border: 1px #f2f2f2 solid;
         text-align:center;
-        vertical-align: center;    
+        vertical-align: center;
         padding: 6px;
     }
-    
+
     th{
         height: 50px;
         background-color: #4CBA90;
@@ -38,29 +38,29 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
           $("#for_appliance").toggle();
           $("#for_user").toggle();
           $('#for_user_page').toggle();
-          
+
       });
-      
+
     });
 </script>
 
 
-<div id="page-wrapper" style="width:100%;"> 
+<div id="page-wrapper" style="width:100%;">
    <div class="">
       	<div class="row">
         	<div id="for_user" style="width:90%;margin:50px;">
-          <?php 
-          if (isset($data)) { 
+          <?php
+          if (isset($data)) {
             ?>
                 <center><h2>Booking History: <?php echo $data[0]['name'];?></h2></center>
-                
+
               <table>
                 <thead>
                     <tr>
                     <th>No.</th>
 
                     <th>Booking ID</th>
-                   
+
                     <th>Name</th>
 
                     <th>Appliance</th>
@@ -73,13 +73,13 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
                     <th>View</th>
                     <th>Go To Booking </th>
                     <th>Un-Cancel</th>
-          
+
                   </tr>
               </thead>
-             
+
               <?php $count = 1; if(isset($data[0]['booking_id'])){ ?>
                     <?php foreach($data as $key =>$row){?>
-                    
+
                     <tr>
 
                     <td><?php echo $count; $count++;?>.</td>
@@ -91,7 +91,7 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
                     <td><?=$row['services'];?></td>
 
                     <td><?=$row['booking_date'];?></td>
-                    
+
                     <td><?=$row['booking_timeslot'];?></td>
 
                     <td><?php echo $row['current_status'];  ?></td>
@@ -103,9 +103,9 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
                     </td>
 
 
-                   
+
                     <td>
-                    <?php 
+                    <?php
                       if(substr($row['booking_id'],0,1) == "S"){ ?>
 
                           <a href="<?php echo  base_url();?>employee/booking/view/0/0/<?php echo $row['booking_id'] ?>" class="btn btn-small btn-success btn-sm" title="More Action"><i class="fa fa-bars" aria-hidden="true"></i></a>
@@ -113,7 +113,7 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
                      <?php } else if(substr($row['booking_id'],0,1) == "Q") {?>
 
                           <a href="<?php echo base_url(); ?>employee/booking/view_pending_queries/0/0/<?php echo $row['booking_id']?>" class="btn btn-small btn-success btn-sm" title="More Action"><i class="fa fa-bars" aria-hidden="true"></i></a>
-                            
+
                      <?php } ?>
 
 
@@ -121,20 +121,20 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
                     <td>
                    <?php if ($row['current_status'] =='Cancelled' && strpos($row['booking_id'], "Q") !== FALSE) {?>
 
-                          <a class="btn btn-small btn-danger btn-sm" href="<?php echo base_url(); ?>employee/booking/cancelled_booking_re_book/<?php echo $row['booking_id'];?>/<?php echo $data[0]['phone_number'];?>" title="More Action"><i class="fa fa-folder-open-o" aria-hidden="true"></i></a>
+			<a class="btn btn-small btn-danger btn-sm" href="<?php echo base_url(); ?>employee/booking/open_cancelled_query/<?php echo $row['booking_id']; ?>" title="Open"><i class="fa fa-folder-open-o" aria-hidden="true"></i></a>
 
                      <?php } ?></td>
-                    </tr>  
-                     
-                  
-                    <?php 
+                    </tr>
+
+
+                    <?php
                      } }?>
 
               </table>
-              <?php 
+              <?php
             }
             ?>
-             
+
             </div>
             <div style="float:left;">
               <center>
@@ -197,7 +197,7 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
                     <td><?=$row['capacity']?></td>
                     <td><?=$row['model_number']?></td>
                     <td><?=$row['purchase_month']?>-<?=$row['purchase_year']?></td>
-                    <td><?php 
+                    <td><?php
                         echo "<a class='btn btn-small btn-primary btn-sm' href=".base_url()."employee/booking/get_appliance_booking_form/$row[id]>Book Now</a>";
                     ?></td>
                   </tr>
@@ -207,5 +207,5 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
             </div>
         </div>
     </div>
-</div>            	
+</div>
 </html>

@@ -69,6 +69,7 @@
                     <th width="250px;">Query Remarks</th>
                     <th width="80px;">Call</th>
                     <th width="80px;">View</th>
+                    <th width="80px;">Un-Cancel</th>
                     </tr>
 
                     </thead>
@@ -109,6 +110,14 @@
                         . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank'  title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
                         ?>
                     </td>
+
+                    <td>
+                        <?php echo "<a class='btn btn-sm btn-warning' "
+                        . "href=" . base_url() . "employee/booking/open_cancelled_query/$row->booking_id target='_blank'  title='open'><i class='fa fa-calendar' aria-hidden='true'></i></a>";
+    ?>
+                    </td>
+
+
                     </tr>
                     <?php
                     }?>

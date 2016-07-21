@@ -26,8 +26,8 @@ function check_text(){
               <h1 class="page-header">
                     Cancel Booking 
               </h1>
-
-              <form class="form-horizontal" name="myForm" action="<?php echo base_url()?>employee/booking/process_cancel_booking_form/<?php echo $user_and_booking_details[0]['booking_id']; ?>" method="POST" >
+              
+              <form class="form-horizontal" name="myForm" action="<?php echo base_url()?>employee/booking/process_cancel_booking_form/<?php echo $user_and_booking_details[0]['booking_id'] . "/" . $pending_booking; ?>" method="POST" >
 
               <div class="form-group <?php if( form_error('name') ) { echo 'has-error';} ?>">
                   <label for="name" class="col-md-2">User Name</label>

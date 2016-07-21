@@ -67,11 +67,13 @@
                     <th width="125px;">User Name</th>
                     <th width="125px;">Phone No.</th>
                     <th width="125px;">Service Name</th>
+                    <th width="125px;">Status</th>
                     <th width="170px;">Service Centre</th>
                     <th width="150px;">Service Centre City</th>
                     <th width="60px;">Call</th>
                     <th width="60px;">Edit</th>
                     <th width="60px;">Open</th>
+                    <th width="60px;">Cancel</th>
                     <th width="60px;">View</th>
                     <th width="60px;">Rate</th>
                     </tr>
@@ -97,6 +99,7 @@
                     <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
                     <td><?= $row->booking_primary_contact_no; ?></td>
                     <td><?= $row->services; ?></td>
+                    <td><?= $row->current_status; ?></td>
                     <td><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $row->assigned_vendor_id;?>"><?= $row->service_centre_name; ?></a></td>
                     <td><?=$row->city; ?></td>
 
@@ -116,7 +119,13 @@
 
                     <td><?php
                         echo "<a id='edit' class='btn btn-sm btn-warning' "
-                            . "href=" . base_url() . "employee/booking/get_convert_completed_booking_to_pending_form/$row->booking_id title='Open'> <i class='fa fa-calendar' aria-hidden='true'></i></a>";
+                            . "href=" . base_url() . "employee/booking/get_convert_completed_booking_to_pending_form/$row->booking_id title='Open' target='_blank'> <i class='fa fa-calendar' aria-hidden='true'></i></a>";
+                        ?>
+                    </td>
+
+                    <td><?php
+                        echo "<a id='edit' class='btn btn-sm btn-danger' "
+                            . "href=" . base_url() . "employee/booking/get_cancel_booking_form/$row->booking_id/0 title='Cancel' target='_blank'> <i class='fa fa-times' aria-hidden='true'></i></a>";
                         ?>
                     </td>
 

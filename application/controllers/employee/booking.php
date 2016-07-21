@@ -883,8 +883,14 @@ class Booking extends CI_Controller {
             }
         }
 
+	//Log this state change as well for this booking
+	$state_change['booking_id'] = $booking_id;
+	$state_change['old_state'] = 'Pending';
+	$state_change['new_state'] = 'Completed';
+	$state_change['agent_id'] = $this->session->userdata('id');
+	$this->booking_model->insert_booking_state_change($state_change);
 
-        $query1 = $this->booking_model->booking_history_by_booking_id($booking_id, "join");
+	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id, "join");
 
         log_message('info', 'Booking Status Change- Booking id: ' . $booking_id . " Completed By " . $this->session->userdata('employee_id'));
 
@@ -1023,6 +1029,111 @@ class Booking extends CI_Controller {
     }
 
     /**
+     *  @desc : This function is to present form to open cancelled bookings
+     *
+     * It converts a Cancelled Booking into Pending booking and schedule it to
+     * a new booking date & time.
+     *
+     *  @param : String (Booking Id)
+     *  @return :
+     */
+    function get_convert_cancelled_booking_to_pending_form($booking_id) {
+	$bookings = $this->booking_model->booking_history_by_booking_id($booking_id);
+
+	$this->load->view('employee/header');
+	$this->load->view('employee/cancelled_to_pending', $bookings[0]);
+    }
+
+    /**
+     *  @desc : This function is to process form to open cancelled bookings
+     *
+     * Accepts the new booking date and timeslot povided in form and then opens
+     * a cancelled booking.
+     *
+     *  @param : booking id
+     *  @return : Converts the booking to Pending stage and load view
+     */
+    function process_convert_cancelled_booking_to_pending_form($booking_id) {
+	$data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
+	$data['booking_timeslot'] = $this->input->post('booking_timeslot');
+	$data['current_status'] = 'Pending';
+	$data['internal_status'] = 'Scheduled';
+	$data['cancellation_reason'] = NULL;
+	$data['update_date'] = date("Y-m-d h:i:s");
+	$data['closed_date'] = NULL;
+	$data['vendor_rating_stars'] = NULL;
+	$data['vendor_rating_comments'] = NULL;
+	$data['service_charge'] = NULL;
+	$data['service_charge_collected_by'] = NULL;
+	$data['additional_service_charge'] = NULL;
+	$data['additional_service_charge_collected_by'] = NULL;
+	$data['parts_cost'] = NULL;
+	$data['parts_cost_collected_by'] = NULL;
+	$data['amount_paid'] = NULL;
+	$data['rating_stars'] = NULL;
+	$data['rating_comments'] = NULL;
+	$data['closing_remarks'] = NULL;
+	$data['booking_jobcard_filename'] = NULL;
+	$data['mail_to_vendor'] = 0;
+
+	//Is this SD booking?
+	if (strpos($booking_id, "SS") !== FALSE) {
+	    $is_sd = TRUE;
+	} else {
+	    $is_sd = FALSE;
+	}
+
+	if ($data['booking_timeslot'] == "Select") {
+	    echo "Please Select Booking Timeslot.";
+	} else {
+	    $this->booking_model->convert_cancelled_booking_to_pending($booking_id, $data);
+
+	    //Update SD leads table if required
+	    if ($is_sd) {
+		if ($this->booking_model->check_sd_lead_exists_by_booking_id($booking_id) === TRUE) {
+		    $sd_where = array("CRM_Remarks_SR_No" => $booking_id);
+		    $sd_data = array(
+			"Status_by_247around" => $data['current_status'],
+			"Remarks_by_247around" => $data['internal_status'],
+			"Scheduled_Appointment_DateDDMMYYYY" => $data['booking_date'],
+			"Scheduled_Appointment_Time" => $data['booking_timeslot'],
+			"update_date" => $data['update_date']
+		    );
+		    $this->booking_model->update_sd_lead($sd_where, $sd_data);
+		}
+	    }
+
+	    //Log this state change as well for this booking
+	    $state_change['booking_id'] = $booking_id;
+	    $state_change['old_state'] = 'Cancelled';
+	    $state_change['new_state'] = 'Pending';
+	    $state_change['agent_id'] = $this->session->userdata('id');
+	    $this->booking_model->insert_booking_state_change($state_change);
+
+	    $query1 = $this->booking_model->booking_history_by_booking_id($booking_id, "join");
+
+	    $email['booking_id'] = $query1[0]['booking_id'];
+	    $email['name'] = $query1[0]['name'];
+	    $email['phone_no'] = $query1[0]['phone_number'];
+	    $email['service'] = $query1[0]['services'];
+	    $email['booking_date'] = $data['booking_date'];
+	    $email['booking_timeslot'] = $data['booking_timeslot'];
+	    $email['vendor_name'] = $query1[0]['vendor_name'];
+	    $email['city'] = $query1[0]['city'];
+	    $email['agent'] = $this->session->userdata('employee_id');
+
+	    $email['tag'] = "open_cancelled_booking";
+	    $email['subject'] = "Cancelled Booking Converted to Pending - AROUND";
+
+	    $this->notify->send_email($email);
+
+	    log_message('info', 'Cancelled Booking Opened - Booking id: ' . $booking_id . " Opened By: " . $this->session->userdata('employee_id') . " => " . print_r($data, true));
+
+	    redirect(base_url() . search_page);
+	}
+    }
+
+    /**
      *  @desc : This function is to select booking to be canceled.
      *
      * Opens a form with user's name and option to be choosen to cancel the booking.
@@ -1031,27 +1142,39 @@ class Booking extends CI_Controller {
      *
      * If others option is choosen, then the cancellation reason must be entered in the textarea.
      *
-     *  @param : booking id
+     *  @param : String $booking id Booking ID
+     *  @param : Bool $pending_booking
+     *
+     * It is 1 if a pending booking is getting cancelled.
+     * It is 0 if a completed booking is getting cancelled.
+     *
      *  @return : user details and booking history to view
      */
-    function get_cancel_booking_form($booking_id) {
-        $data['user_and_booking_details'] = $this->booking_model->booking_history_by_booking_id($booking_id);
-
+    function get_cancel_booking_form($booking_id, $pending_booking) {
+	$data['user_and_booking_details'] = $this->booking_model->booking_history_by_booking_id($booking_id);
         $data['reason'] = $this->booking_model->cancelreason("247around");
-        $this->load->view('employee/header');
+	$data['pending_booking'] = $pending_booking;
+
+	$this->load->view('employee/header');
         $this->load->view('employee/cancelbooking', $data);
     }
 
     /**
-     *  @desc : This function is to cancels the booking
+     *  @desc : This function is to cancel the booking
      *
-     * Accepts the cancellation reason provided in cancel booking form and then cancels 			booking with the reason provided.
+     * Accepts the cancellation reason provided in cancel booking form and then cancels
+     * booking with the reason provided.
      *
-     *  @param : booking id
+     *  @param : String $booking id Booking ID
+     *  @param : Bool $pending_booking
+     *
+     * It is 1 if a pending booking is getting cancelled.
+     * It is 0 if a completed booking is getting cancelled.
+     *
      *  @return : cancels the booking and load view
      */
-    function process_cancel_booking_form($booking_id) {
-        $data['cancellation_reason'] = $this->input->post('cancellation_reason');
+    function process_cancel_booking_form($booking_id, $pending_booking) {
+	$data['cancellation_reason'] = $this->input->post('cancellation_reason');
 
         $data['update_date'] = date("Y-m-d h:i:s");
         $data['closed_date'] = date("Y-m-d h:i:s");
@@ -1062,7 +1185,19 @@ class Booking extends CI_Controller {
         $data['current_status'] = "Cancelled";
         $data['internal_status'] = "Cancelled";
 
-        $this->booking_model->cancel_booking($booking_id, $data);
+	$data['service_charge'] = NULL;
+	$data['service_charge_collected_by'] = NULL;
+	$data['additional_service_charge'] = NULL;
+	$data['additional_service_charge_collected_by'] = NULL;
+	$data['parts_cost'] = NULL;
+	$data['parts_cost_collected_by'] = NULL;
+	$data['amount_paid'] = NULL;
+
+	//TODO: cancel_completed_booking() can be merged with cancel_booking() later
+	if ($pending_booking)
+	    $this->booking_model->cancel_booking($booking_id, $data);
+	else
+	    $this->booking_model->cancel_completed_booking($booking_id, $data);
 
 	//Update this booking in vendor action table as well if required
 	$data_vendor['closed_date'] = date("Y-m-d h:i:s");
@@ -1109,9 +1244,22 @@ class Booking extends CI_Controller {
             }
         }
 
-        $query1 = $this->booking_model->booking_history_by_booking_id($booking_id, "join");
+	//Log this state change as well for this booking
+	$state_change['booking_id'] = $booking_id;
 
-        $email['name'] = $query1[0]['name'];
+	if ($pending_booking) {
+	    $state_change['old_state'] = 'Pending';
+	} else {
+	    $state_change['old_state'] = 'Completed';
+	}
+
+	$state_change['new_state'] = 'Cancelled';
+	$state_change['agent_id'] = $this->session->userdata('id');
+	$this->booking_model->insert_booking_state_change($state_change);
+
+	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id, "join");
+
+	$email['name'] = $query1[0]['name'];
         $email['phone_no'] = $query1[0]['phone_number'];
         $email['user_email'] = $query1[0]['user_email'];
         $email['booking_id'] = $query1[0]['booking_id'];
@@ -1122,25 +1270,32 @@ class Booking extends CI_Controller {
         $email['cancellation_reason'] = $data['cancellation_reason'];
         $email['vendor_name'] = $query1[0]['vendor_name'];
         $email['district'] = $query1[0]['district'];
-        $email['tag'] = "cancel_booking";
-        $email['subject'] = "Booking Cancellation-AROUND";
 
-        $this->notify->send_email($email);
+	if ($pending_booking) {
+	    $email['tag'] = "cancel_booking";
+	    $email['subject'] = "Pending Booking Cancellation - AROUND";
 
-        //------End of sending email--------//
-        //------------Send SMS for cancellation---------//
-        if ($is_sd == FALSE) {
-            $sms['tag'] = "cancel_booking";
-            $sms['smsData']['service'] = $query1[0]['services'];
-            $sms['phone_no'] = $query1[0]['phone_number'];
-            $sms['booking_id'] = $query1[0]['booking_id'];
+	    $this->notify->send_email($email);
 
-            $this->notify->send_sms($sms);
-        }
+	    if ($is_sd == FALSE) {
+		$sms['tag'] = "cancel_booking";
+		$sms['smsData']['service'] = $query1[0]['services'];
+		$sms['phone_no'] = $query1[0]['phone_number'];
+		$sms['booking_id'] = $query1[0]['booking_id'];
 
-        log_message('info', 'Booking Status Change- Booking id: ' . $booking_id . " Cancelled By " . $this->session->userdata('employee_id'));
+		$this->notify->send_sms($sms);
+	    }
 
-        //---------End of sending SMS----------//
+	    log_message('info', 'Booking Status Change - Pending Booking ID: ' . $booking_id . " Cancelled By " . $this->session->userdata('employee_id'));
+	} else {
+	    $email['tag'] = "cancel_completed_booking";
+	    $email['subject'] = "Completed Booking Cancellation - AROUND";
+
+	    $this->notify->send_email($email);
+
+	    log_message('info', 'Booking Status Change - Completed Booking ID: ' . $booking_id . " Cancelled By " . $this->session->userdata('employee_id'));
+	}
+
         redirect(base_url() . search_page);
     }
 
@@ -1722,7 +1877,14 @@ class Booking extends CI_Controller {
                     }
                 }
 
-                $query1 = $this->booking_model->booking_history_by_booking_id($booking['booking_id']);
+		//Log this state change as well for this query
+		$state_change['booking_id'] = $booking['booking_id'];
+		$state_change['old_state'] = 'FollowUp';
+		$state_change['new_state'] = 'Pending';
+		$state_change['agent_id'] = $this->session->userdata('id');
+		$this->booking_model->insert_booking_state_change($state_change);
+
+		$query1 = $this->booking_model->booking_history_by_booking_id($booking['booking_id']);
                 //echo print_r($query1, true);
                 //$query2 = $this->booking_model->get_unit_details($booking['booking_id']);
                 //echo print_r($query2, true);
@@ -1731,17 +1893,6 @@ class Booking extends CI_Controller {
                 $mm = $months[$mm - 1];
                 $booking_date = $dd . $mm;
                 $booking_timeslot = $booking['booking_timeslot'];
-
-                /*
-                  if ($booking['booking_timeslot'] == "10AM-1PM") {
-                  $booking['booking_timeslot'] = "1PM";
-                  } elseif ($booking['booking_timeslot'] == "1PM-4PM") {
-                  $booking['booking_timeslot'] = "4PM";
-                  } elseif ($booking['booking_timeslot'] == "4PM-7PM") {
-                  $booking['booking_timeslot'] = "7PM";
-                  }
-                 *
-                 */
 
                 //-------Sending Email On Booking--------//
                 $message = "Congratulations! Query has been converted to Booking, details are mentioned below:
@@ -1887,7 +2038,7 @@ class Booking extends CI_Controller {
     }
 
     /**
-     *  @desc : This function is to cancel the followup
+     *  @desc : This function is to cancel the query
      *
      * 	We have to select one reason for the cancellation of the query.
      *
@@ -1951,11 +2102,18 @@ class Booking extends CI_Controller {
             }
         }
 
-        $query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
+	//Log this state change as well for this query
+	$state_change['booking_id'] = $booking_id;
+	$state_change['old_state'] = 'FollowUp';
+	$state_change['new_state'] = 'Cancelled';
+	$state_change['agent_id'] = $this->session->userdata('id');
+	$this->booking_model->insert_booking_state_change($state_change);
 
-        log_message('info', 'Booking Status Change- Booking id: ' . $booking_id . " Cancelled By " . $this->session->userdata('employee_id'));
+	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
 
-        $email['name'] = $query1[0]['name'];
+	log_message('info', 'Query Status Change- Booking ID: ' . $booking_id . " Cancelled By " . $this->session->userdata('employee_id'));
+
+	$email['name'] = $query1[0]['name'];
         $email['phone_no'] = $query1[0]['phone_number'];
         $email['user_email'] = $query1[0]['user_email'];
         $email['booking_id'] = $query1[0]['booking_id'];
@@ -1965,9 +2123,9 @@ class Booking extends CI_Controller {
         $email['update_date'] = $booking['update_date'];
         $email['cancellation_reason'] = $booking['cancellation_reason'];
         $email['tag'] = "cancel_booking";
-        $email['subject'] = "Booking Cancellation-AROUND";
+        $email['subject'] = "Query Cancellation - AROUND";
 
-        $this->notify->send_email($email);
+	$this->notify->send_email($email);
 
         redirect(base_url() . search_page);
     }
@@ -2751,14 +2909,14 @@ class Booking extends CI_Controller {
     }
 
     /**
-     *  @desc : This function is used to rebook cancel query
+     *  @desc : This function is used to open a cancelled query
      *  @param : String (Booking Id)
-     *  @param : String(Phone Number)
-     *  @return : refirect user controller
+     *  @return : redirect user controller
      */
-    function cancelled_booking_re_book($booking_id, $phone) {
-        $this->booking_model->change_booking_status($booking_id);
-        redirect(base_url() . 'employee/user/finduser/0/0/' . $phone, 'refresh');
+    function open_cancelled_query($booking_id) {
+	$this->booking_model->change_booking_status($booking_id);
+
+	redirect(base_url() . 'employee/booking/view_pending_queries/0/0/' . $booking_id, 'refresh');
     }
 
     /**

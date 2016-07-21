@@ -983,10 +983,25 @@ class Booking_model extends CI_Model {
      * @return : void
      */
     function cancel_booking($booking_id, $data) {
-        $states = array('Pending', 'Rescheduled');
-        $this->db->where(array('booking_id' => $booking_id));
-        $this->db->where_in('current_status', $states);
-        $this->db->update('booking_details', $data);
+	$states = array('Pending', 'Rescheduled');
+	$this->db->where(array('booking_id' => $booking_id));
+	$this->db->where_in('current_status', $states);
+	$this->db->update('booking_details', $data);
+    }
+
+    /**
+     * @desc : This funtion is for the cancellation of completed bookings
+     *
+     * The status is checked before cancellation, it must be completed
+     *
+     * @param : booking id and data needed while cancellation
+     * @return : void
+     */
+    function cancel_completed_booking($booking_id, $data) {
+	$states = array('Completed');
+	$this->db->where(array('booking_id' => $booking_id));
+	$this->db->where_in('current_status', $states);
+	$this->db->update('booking_details', $data);
     }
 
     /**
@@ -1111,6 +1126,19 @@ class Booking_model extends CI_Model {
      */
     function convert_completed_booking_to_pending($booking_id, $data) {
 	$this->db->where(array('booking_id' => $booking_id, 'current_status' => 'Completed'));
+	$this->db->update('booking_details', $data);
+    }
+
+    /**
+     *  @desc : This function converts a Cancelled Booking into Pending booking
+     * and schedules it to new booking date & time.
+     *
+     *  @param : String $booking_id Booking Id
+     *  @param : Array $data New Booking Date and Time
+     *  @return :
+     */
+    function convert_cancelled_booking_to_pending($booking_id, $data) {
+	$this->db->where(array('booking_id' => $booking_id, 'current_status' => 'Cancelled'));
 	$this->db->update('booking_details', $data);
     }
 
