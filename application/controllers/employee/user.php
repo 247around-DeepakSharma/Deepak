@@ -37,14 +37,14 @@ class User extends CI_Controller {
 
     /**
      * @desc : This function is to find/search user
-     * 
+     *
      * Searches user details with booking id, order id and partner code
-     * 
+     *
      * Also searches user details with user's name.
-     * 
+     *
      * Complete or partial detail entered to search will show all the matching users/bookings in a list,
      *      from which we can select the required one by looking at other details shown.
-     * 
+     *
      * @param: offset, per page number and phone number
      * @return : print Booking on Booking Page
      */
@@ -111,34 +111,58 @@ class User extends CI_Controller {
                 $this->load->view('employee/header');
                 $this->load->view('employee/bookinghistory', $data);
             }
-        } elseif ($booking_id != "") {  //if booking id given and matched, will be displayed 
+        } elseif ($booking_id != "") {  //if booking id given and matched, will be displayed
             $data['Bookings'] = $this->booking_model->search_bookings_by_booking_id($booking_id);
-            if(!empty($data['Bookings'])){
-                if (strstr($data['Bookings'][0]->booking_id, "Q-") == TRUE) {
-                    
-                    $this->load->view('employee/header');
-                    $this->load->view('employee/viewpendingqueries', $data);
+            if (!empty($data['Bookings'])) {
+		if (substr($data['Bookings'][0]->booking_id, 0, 2) === "Q-") {
+		    //It is a query, check its status and assign appropriate view
+		    switch ($data['Bookings'][0]->current_status) {
+			case 'FollowUp':
+			    $view = 'employee/viewpendingqueries';
+			    break;
 
+			case 'Cancelled':
+			    $view = 'employee/viewcancelledqueries';
+			    break;
+
+			default:
+			    $view = 'employee/viewpendingqueries';
+			    break;
+		    }
                 } else {
+		    //It is a booking, find its status first.
+		    switch ($data['Bookings'][0]->current_status) {
+			case 'Pending':
+			    $view = 'employee/booking';
+			    break;
 
-                    $this->load->view('employee/header');
-                    $this->load->view('employee/booking', $data);
-                }
-            } else {
+			case 'Cancelled':
+			    $view = 'employee/viewcancelledbooking';
+			    break;
 
-                $this->load->view('employee/header');
-                $this->load->view('employee/booking', $data);
-            }
+			case 'Completed':
+			    $view = 'employee/viewcompletedbooking';
+			    break;
 
-           
-        }
+			default:
+			    $view = 'employee/viewpendingqueries';
+			    break;
+		    }
+		}
+	    } else {
+                $view = 'employee/booking';
+	    }
+
+	    $this->load->view('employee/header');
+	    $this->load->view($view, $data);
+	}
     }
 
     /**
      * @desc : This function is used to find user by order id
-     * 
+     *
      * It also uses partner's code along with order id to find the user details.
-     * 
+     *
      * @param : partner code and order id
      * @return : array of data(searched results) to the view
      */
@@ -148,7 +172,7 @@ class User extends CI_Controller {
 
         if(!empty($data['Bookings'])){
                 if (strstr($data['Bookings'][0]->booking_id, "Q-") == TRUE) {
-                    
+
                     $this->load->view('employee/header');
                     $this->load->view('employee/viewpendingqueries', $data);
 
@@ -167,9 +191,9 @@ class User extends CI_Controller {
 
     /**
      * @desc : This function is used to find user by their name
-     * 
+     *
      * The name entered to search could be user's complete name or partial name as well.
-     * 
+     *
      * @param : void
      * @return : array of data(searched results) to the view
      */
@@ -182,7 +206,7 @@ class User extends CI_Controller {
 
     /**
      * @desc : This function is used to check phone number validation
-     *      
+     *
      * @param : void
      * @return : returns true if validation is true else false
      */
@@ -199,9 +223,9 @@ class User extends CI_Controller {
 
     /**
      * @desc : This function is used to load the view to add user
-     * 
+     *
      * Also sends user's detail(phone no.) and all states list to view
-     *      
+     *
      * @param : user's details
      * @return : void
      */
@@ -215,8 +239,8 @@ class User extends CI_Controller {
     }
 
     /**
-     * @desc : This function is used to add a new user     
-     *      
+     * @desc : This function is used to add a new user
+     *
      * @param : void
      * @return : takes to booking history page of newly added user
      */
@@ -246,7 +270,7 @@ class User extends CI_Controller {
 
     /**
      * @desc : This function is used to check validation for different fields
-     *      
+     *
      * @param : void
      * @return : returns true if validation satifies else false
      */
