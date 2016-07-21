@@ -493,3 +493,61 @@ ALTER TABLE  `service_center_booking_action` ADD  `booking_timeslot` VARCHAR( 25
 
 ALTER TABLE  `service_center_booking_action` ADD  `cancellation_reason` VARCHAR( 100 ) NULL AFTER  `service_center_remarks` ;
 ALTER TABLE  `service_center_booking_action` ADD  `reschedule_reason` VARCHAR( 100 ) NOT NULL AFTER  `cancellation_reason` ;
+
+-- Anuj 19 July
+-- New table to track changes for all Leads in our syste,
+
+CREATE TABLE `booking_state_change` (
+  `id` int(11) NOT NULL,
+  `booking_id` varchar(128) NOT NULL,
+  `old_state` varchar(128) NOT NULL,
+  `new_state` varchar(128) NOT NULL,
+  `old_reason` varchar(512) DEFAULT NULL,
+  `new_reason` varchar(512) DEFAULT NULL,
+  `agent_id` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Table to track booking_id state changes across entire lifecycle.';
+
+
+ALTER TABLE `booking_state_change`
+  ADD PRIMARY KEY (`id`);
+
+
+ALTER TABLE `booking_state_change`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+-- Delete old table "booking_cancellation_reasons" first
+
+CREATE TABLE `booking_cancellation_reasons` (
+  `id` int(11) NOT NULL,
+  `reason` varchar(100) NOT NULL,
+  `reason_of` varchar(25) NOT NULL,
+  `show_on_app` varchar(1) NOT NULL COMMENT 'Will this be shown to mobile app users?'
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=latin1;
+
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES(1, 'Your problem is resolved.', '247around', '1');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES(2, 'You entered a wrong booking.', '247around', '1');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES(3, 'You found a better option for this job.', '247around', '1');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES(4, 'You will not be available at this time.', '247around', '1');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES(5, 'You believe someone else did this booking.', '247around', '1');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES(7, 'Customer is not reachable.', '247around', '0');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES(8, 'Vendor issue', '247around', '0');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES(9, 'Other', '247around', '1');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES(10, 'Our charges are higher.', '247around', '0');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES(11, 'Customer will contact Brand Service Centre directly.', '247around', '0');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES(12, 'Installation already done.', 'vendor', '0');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES(13, 'Installation not required.', 'vendor', '0');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES(14, 'Customer problem is solved.', 'vendor', '0');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES(15, 'Repair not required.', 'vendor', '0');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES(16, 'Customer is not reachable.', 'vendor', '0');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES(17, 'Damaged product, customer will return it.', 'vendor', '0');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES(18, 'Customer will gift the product.', 'vendor', '0');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES(19, 'Wrong call - Not in our area.', 'vendor', '0');
+
+
+ALTER TABLE `booking_cancellation_reasons`
+  ADD PRIMARY KEY (`id`);
+
+
+ALTER TABLE `booking_cancellation_reasons`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=20;
