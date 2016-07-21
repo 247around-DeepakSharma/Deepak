@@ -850,6 +850,9 @@ class vendor_model extends CI_Model {
         if (isset($data['closing_remarks'])) {
             unset($data['closing_remarks']);
         }
+        if(isset($data['unit_details_id'])){
+           $this->db->where('unit_details_id', $data['unit_details_id']);
+        }
         $this->db->where('booking_id', $data['booking_id']);
         $this->db->update('service_center_booking_action', $data);
     }

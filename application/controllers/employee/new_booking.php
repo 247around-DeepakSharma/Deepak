@@ -406,7 +406,7 @@ class New_booking extends CI_Controller {
 	    }
 	}
 
-	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
+	$query1 = $this->booking_model->getbooking_history($booking_id);
 
 	log_message('info', 'Booking Status Change- Booking id: ' . $booking_id . " Completed By " . $this->session->userdata('employee_id'));
 
@@ -584,7 +584,7 @@ class New_booking extends CI_Controller {
        $parts_cost =  $this->input->post('parts_cost');
        $booking_status = $this->input->post('booking_status');
        $total_amount_paid =  $this->input->post('grand_total_price');
-       $internal_status = "Cancelled";
+       $internal_status = "UnProductive";
        
        foreach ($customer_basic_charge as $unit_id => $value) {
         // variable $unit_id  is existing id in booking unit details table of given booking id 
@@ -610,7 +610,7 @@ class New_booking extends CI_Controller {
        $booking['rating_comments'] = $this->input->post('rating_comments');
        $booking['closed_date'] = date('Y-m-d h:i:s');
        $booking['amount_paid'] =  $total_amount_paid;
-       $booking['current_status'] = "Completed";
+       $booking['current_status'] = $internal_status;
        $booking['internal_status'] = $internal_status;
        $booking['booking_id'] =  $booking_id;
        // this function is used to update booking details table

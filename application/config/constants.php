@@ -39,6 +39,10 @@ define('FOPEN_READ_WRITE_CREATE_STRICT',		'x+b');
 define('INT_STATUS_CUSTOMER_NOT_REACHABLE', 'Customer Not Reachable');
 define('search_page', 'employee/user');
 
+define('basic_percentage', 0.7);
+define('addtitional_percentage', .85);
+define('parts_percentage', .95);
+
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

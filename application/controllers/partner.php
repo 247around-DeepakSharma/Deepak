@@ -995,7 +995,7 @@ class Partner extends CI_Controller {
 
 	return TRUE;
 
-//	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
+//	$query1 = $this->booking_model->getbooking_history($booking_id);
 //
 //	//------------Sending Email----------//
 //

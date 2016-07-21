@@ -80,7 +80,7 @@
                   </li>
                   <li class="divider"></li>
                   <li >
-                     <a href="<?php echo base_url() ?>employee/booking/get_assign_booking_form"><i class="fa fa-fw fa-desktop"></i> <strong>Assign Vendor</strong></a>
+                     <a href="<?php echo base_url() ?>employee/vendor/get_assign_booking_form"><i class="fa fa-fw fa-desktop"></i> <strong>Assign Vendor</strong></a>
                   </li>
                   <li class="divider"></li>
                   <li>

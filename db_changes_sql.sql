@@ -619,3 +619,4 @@ CREATE TABLE IF NOT EXISTS `booking_details` (
 <!-- Abhay  7/07/16 -->
 ALTER TABLE  `service_centre_charges` CHANGE  `product_type`  `product_type` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
 
+ALTER TABLE  `service_center_booking_action` ADD  `unit_details_id` INT( 25 ) NULL DEFAULT NULL AFTER  `booking_id` ;

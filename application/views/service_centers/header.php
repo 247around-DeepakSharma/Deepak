@@ -13,6 +13,8 @@
       <script src="<?php echo base_url()?>js/jquery.js"></script>
       <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
       <script src="<?php echo base_url()?>js/bootstrap.min.js"></script>
+      <link href="<?php echo base_url()?>css/select2.min.css" rel="stylesheet" />
+      <script src="<?php echo base_url();?>js/select2.min.js"></script>
       <style type="text/css">
          .navbar{
          min-height: 80px;

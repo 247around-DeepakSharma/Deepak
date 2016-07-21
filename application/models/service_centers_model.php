@@ -6,10 +6,10 @@ class Service_centers_model extends CI_Model {
      * @desc load both db
      */
     function __construct() {
-	  parent::__Construct();
+      parent::__Construct();
 
-	    $this->db_location = $this->load->database('default1', TRUE, TRUE);
-	    $this->db = $this->load->database('default', TRUE, TRUE);
+        $this->db_location = $this->load->database('default1', TRUE, TRUE);
+        $this->db = $this->load->database('default', TRUE, TRUE);
     }
     
     /**
@@ -29,7 +29,7 @@ class Service_centers_model extends CI_Model {
          
       } else {
 
-      	return false;
+        return false;
       }
 
     }
@@ -41,34 +41,51 @@ class Service_centers_model extends CI_Model {
       * @return: Pending booking
       */
      function getPending_booking($limit="", $start="", $service_center_id ){
-        $where = "";
-        $where .= " AND assigned_vendor_id = '" . $service_center_id . "'";
-        $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
+       
+        //$where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
+        $this->db->distinct();
+        if($limit !="count"){
+            $this->db->limit($limit, $start);
+        }
 
+        $this->db->select('booking_id, DATEDIFF(CURRENT_TIMESTAMP , create_date ) as age_of_booking,admin_remarks');
+        $this->db->where('service_center_id', $service_center_id);
+        $this->db->where('current_status', "Pending");
+        $this->db->order_by('create_date  ASC'); 
+        $query = $this->db->get('service_center_booking_action');
+        $pending_booking = $query->result_array();
+        if($limit !="count"){
+            $data = array();
+            foreach ($pending_booking as $key => $value) {
+                $sql = "Select  services.services,
+                           users.name as customername, 
+                           users.phone_number,
+                           booking_details.booking_id,
+                           booking_details.booking_date,
+                           booking_details. booking_primary_contact_no,
+                           booking_details.booking_jobcard_filename,
+                           booking_details.booking_timeslot
+                           From  booking_details 
+                           JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
+                           JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
+                           WHERE booking_details.booking_id = '$value[booking_id]' AND (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled') ";
 
-        $query = $this->db->query("Select services.services,
-            users.name as customername, users.phone_number,
-            booking_details.*, service_centres.name as service_centre_name,
-            service_centres.primary_contact_name,service_centres.primary_contact_phone_1,
-            DATEDIFF(CURRENT_TIMESTAMP , service_center_booking_action.create_date ) as age_of_booking, service_center_booking_action.admin_remarks
-            from booking_details
-            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
-            JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-            JOIN `service_center_booking_action` ON `service_center_booking_action`.booking_id = `booking_details`.booking_id
-            LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id` WHERE
-        `booking_details`.booking_id NOT LIKE 'Q-%' $where AND  `service_center_booking_action`.current_status = 'Pending' AND
-            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled')"
-        );
+                $query1 = $this->db->query($sql);
+                $result = $query1->result();
+                $result[0]->age_of_booking = $value['age_of_booking'];
+                $result[0]->admin_remarks = $value['admin_remarks'];
+                array_push($data, $result[0]);
+            
+            }
+        }
 
-        
         if($limit =="count"){
-            $temp = $query->result_array();
-            return count($temp);
+           
+            return count($pending_booking);
 
         } else {
-            $temp = $query->result();
-            usort($temp, array($this, 'date_compare_bookings'));
-            return array_slice($temp, $start, $limit);
+            
+            return $data;
         }
         
 
@@ -102,5 +119,35 @@ class Service_centers_model extends CI_Model {
         $t2 = strtotime($b->booking_date);
 
         return $t2 - $t1;
+    }
+
+    function getcharges_filled_by_service_center($booking_id, $status){
+
+        $this->db->distinct();
+        $this->db->select('booking_id, amount_paid, admin_remarks, service_center_remarks, cancellation_reason');
+        if ($booking_id != "") {
+            $this->db->where('booking_id', $booking_id);
+        }
+
+         //Status should NOT be Completed or Cancelled
+        if($status !="")
+        $this->db->where_not_in('current_status', $status);
+
+        $this->db->where_not_in('internal_status', "Reschedule");
+        $query = $this->db->get('service_center_booking_action');
+        $booking = $query->result_array();
+
+         foreach ($booking as $key => $value) {
+            // get data from booking unit details table on the basis of appliance id
+            $this->db->select('unit_details_id, service_charge, additional_service_charge,  parts_cost, amount_paid, price_tags, appliance_category,appliance_capacity, service_center_booking_action.internal_status');
+            $this->db->where('service_center_booking_action.booking_id', $value['booking_id']);
+            $this->db->from('service_center_booking_action');
+            $this->db->join('booking_unit_details','booking_unit_details.id = service_center_booking_action.unit_details_id');
+            $query2 = $this->db->get();
+
+            $result = $query2->result_array();
+            $booking[$key]['unit_details'] = $result; 
+        }
+        return $booking;
     }
 }

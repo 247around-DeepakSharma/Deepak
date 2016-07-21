@@ -39,6 +39,7 @@ class Service_centers extends CI_Controller {
      * @return: void
      */
     function service_center_login() {
+        //$this->checkUserSession();
         $data['user_name'] = $this->input->post('user_name');
         $data['password'] = md5($this->input->post('password'));
         $service_center_id = $this->service_centers_model->service_center_login($data);
@@ -94,7 +95,7 @@ class Service_centers extends CI_Controller {
      */
     function booking_details($booking_id) {
         $this->checkUserSession();
-        $data['query1'] = $this->booking_model->booking_history_by_booking_id($booking_id);
+        $data['query1'] = $this->booking_model->getbooking_history($booking_id);
         $data['query2'] = $this->booking_model->get_unit_details($booking_id);
         $data['query4'] = $this->booking_model->getdescription_about_booking($booking_id);
         $data['query3'] = $this->booking_model->getbooking_charges($booking_id);
@@ -110,11 +111,10 @@ class Service_centers extends CI_Controller {
      */
     function complete_booking_form($booking_id) {
         $this->checkUserSession();
-        $data['query2'] = $this->booking_model->get_unit_details($booking_id);
-        $data['booking'] = $this->booking_model->booking_history_by_booking_id($booking_id);
+
         $data['booking_id'] = $booking_id;
-        $data['charges'] = $this->booking_model->getbooking_charges($booking_id);
-        $data['internal_status'] = $this->booking_model->get_internal_status("Complete");
+        $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
+        $data['bookng_unit_details'] = $this->booking_model->getunit_details($booking_id);
 
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
@@ -128,31 +128,49 @@ class Service_centers extends CI_Controller {
      */
     function process_complete_booking($booking_id) {
         $this->checkUserSession();
-        $data['booking_id'] = $booking_id;
-        $data['service_charge'] = $this->input->post('service_charge');
-        $data['service_center_id'] = $this->session->userdata('service_center_id');
-        $data['additional_service_charge'] = $this->input->post('additional_service_charge');
-        $data['internal_status'] = $this->input->post('internal_status');
-        $data['parts_cost'] = $this->input->post('parts_cost');
-        $data['amount_paid'] = $this->input->post('total_charge');
-        $closing_remarks = $this->input->post('closing_remarks');
-        $data['current_status'] = "InProcess";
-        $charges = $this->booking_model->getbooking_charges($booking_id);
-        $data['closed_date'] = date('Y-m-d h:i:s');
-        if (!empty($charges)) {
-            // remove previous text, added in closing_remarks column.
-            $string = str_replace($charges[0]['service_center_remarks'], " ", $closing_remarks);
-            // Add current and previous text in admin_remarks column
-            $data['service_center_remarks'] = $charges[0]['service_center_remarks'] . " " . date("F j") . ":- " . $string;
+          // customer paid basic charge is comming in array
+       // Array ( [100] =>  500 , [102] =>  300 )  
+       $customer_basic_charge = $this->input->post('customer_basic_charge');
+        // Additional service charge is comming in array
+       $additional_charge =  $this->input->post('additional_charge');
+        // Parts cost is comming in array
+       $parts_cost =  $this->input->post('parts_cost');
+       $booking_status = $this->input->post('booking_status');
+       $total_amount_paid =  $this->input->post('grand_total_price');
+       $closing_remarks = $this->input->post('closing_remarks');
+       $internal_status = "Cancelled";
+       $getremarks = $this->booking_model->getbooking_charges($booking_id);
+       
+       foreach ($customer_basic_charge as $unit_id => $value) {
+            // variable $unit_id  is existing id in booking unit details table of given booking id 
+            $data = array();
+            $data['unit_details_id'] = $unit_id;
+            $data['service_center_id'] = $this->session->userdata('service_center_id');
+            $data['service_charge'] = $value;
+            $data['additional_service_charge'] = $additional_charge[$unit_id];
+            $data['parts_cost'] = $parts_cost[$unit_id];
+            $data['internal_status'] = $booking_status[$unit_id];
+            $data['current_status'] = "InProcess";
+            $data['closed_date'] = date('Y-m-d h:i:s');
+            $data['booking_id'] =  $booking_id;
+            $data['amount_paid'] = $total_amount_paid;
+
+            if (!empty($charges)) {
+                // remove previous text, added in closing_remarks column.
+               $string = str_replace($getremarks[0]['service_center_remarks'], " ", $closing_remarks);
+               // Add current and previous text in admin_remarks column
+               $data['service_center_remarks'] = $getremarks[0]['service_center_remarks'] . " " . date("F j") . ":- " . $string;
+
+            } else {
+                if(!empty($closing_remarks)){
+                    $data['service_center_remarks'] = date("F j") . ":- " .$closing_remarks;
+                }
+                
+            }
 
             $this->vendor_model->update_service_center_action($data);
-        } else {
-
-            $data['service_center_remarks'] = date("F j") . ":- " . $closing_remarks;
+       }
         
-            $this->vendor_model->insert_service_center_action($data);
-        }
-
         redirect(base_url() . "service_center/pending_booking");
     }
 
@@ -163,7 +181,7 @@ class Service_centers extends CI_Controller {
      */
     function cancel_booking_form($booking_id) {
         $this->checkUserSession();
-        $data['user_and_booking_details'] = $this->booking_model->booking_history_by_booking_id($booking_id);
+        $data['user_and_booking_details'] = $this->booking_model->getbooking_history($booking_id);
         $data['reason'] = $this->booking_model->cancelreason("vendor");
 
         $this->load->view('service_centers/header');

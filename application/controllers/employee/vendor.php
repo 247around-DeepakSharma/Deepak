@@ -252,6 +252,57 @@ class vendor extends CI_Controller {
         redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
     }
 
+
+    /**
+     *  @desc : This function is to select all pending bookings to assign vendor(if not already assigned)
+     *
+     * This form displays all the pending bookings for which still no vendor is assigned in a tabular form.
+     *
+     * Vendors can be assigned for more than one booking simultaneously.
+     *
+     *  @param : void
+     *  @return : booking details and vendor details to view
+     */
+    function get_assign_booking_form() {
+        $results = array();
+        $bookings = $this->booking_model->pendingbookings();
+
+        foreach ($bookings as $booking) {
+            array_push($results, $this->booking_model->find_sc_by_pincode_and_appliance($booking['service_id'], $booking['booking_pincode']));
+        }
+
+        $this->load->view('employee/header');
+        $this->load->view('employee/assignbooking', array('data' => $bookings, 'results' => $results));
+    }
+
+    /**
+     *  @desc : Function to assign vendors for pending bookings in background process,
+     *  it send a Post server request.
+     *
+     * We can select vendors available corresponding to each booking present and can assign that particular booking to vendor.
+     *
+     *  @param : void
+     *  @return : load pending booking view
+     */
+    function process_assign_booking_form() {
+        $service_center = $this->input->post('service_center');
+        $url = base_url() . "employee/do_background_process/assign_booking";
+        foreach ($service_center as $booking_id => $service_center_id) {
+            if ($service_center_id != "Select") {
+                
+                $data = array();
+                $data['booking_id'] = $booking_id;
+                $data['service_center_id'] = $service_center_id;
+                
+                $this->asynchronous_lib->do_background_process($url, $data);
+            }
+
+        }
+    
+        redirect(base_url() . search_page);
+    }
+
+
     /**
      * @desc: This function is to get the reassign vendor page
      *
@@ -278,22 +329,27 @@ class vendor extends CI_Controller {
      */
     function process_reassign_vendor_form() {
         $booking_id = $this->input->post('booking_id');
-        $service_center = $this->input->post('service');
+        $service_center_id = $this->input->post('service');
 
-	if ($service_center != "Select") {
-            $this->booking_model->assign_booking($booking_id, $service_center);
+	if ($service_center_id != "Select") {
+            $this->booking_model->assign_booking($booking_id, $service_center_id);
             $this->vendor_model->delete_previous_service_center_action($booking_id);
-            $data['current_status'] = "Pending";
-            $data['service_center_id'] = $service_center;
-            $data['booking_id'] = $booking_id;
-            $data['create_date'] = date('Y-m-d h:i:s');
-            $this->vendor_model->insert_service_center_action($data);
+            $unit_details = $this->booking_model->getunit_details($booking_id);
+            foreach ($unit_details[0]['qunatity'] as $value ) { 
+                $data = array();
+                $data['current_status'] = "Pending";
+                $data['service_center_id'] = $service_center_id;
+                $data['booking_id'] = $booking_id;
+                $data['create_date'] = date('Y-m-d h:i:s');
+                $data['unit_details_id'] = $value['unit_id'];
+                $this->vendor_model->insert_service_center_action($data);
+            }
 
             //Setting mail to vendor flag to 0, once booking is re-assigned
             $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
 
 	     log_message('info', "Reassigned - Booking id: " . $booking_id . "  By " .
-		$this->session->userdata('employee_id') . " service center id " . $service_center);
+		$this->session->userdata('employee_id') . " service center id " . $service_center_id);
 
             redirect(base_url() . search_page);
 

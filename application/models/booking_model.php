@@ -834,10 +834,17 @@ class Booking_model extends CI_Model {
      *  @param : booking id
      *  @return : all the unit booking detais
      */
-    function get_unit_details($booking_id) {
-        $sql = "Select * from booking_unit_details where booking_id='$booking_id'";
+    function get_unit_details($booking_id="", $unit_details_id="") {
+        $this->db->select('*');
+        if($booking_id != ""){
+            $this->db->where('booking_id', $booking_id);
+        }
 
-        $query = $this->db->query($sql);
+        if($unit_details_id !=""){
+            $this->db->where('id', $unit_details_id);
+        }
+
+        $query = $this->db->get('booking_unit_details');
 
         return $query->result_array();
     }
@@ -1469,11 +1476,10 @@ class Booking_model extends CI_Model {
      */
     function get_booking_for_review($booking_id) {
         $status = array('Completed', 'Cancelled', 'Pending');
-        $charges = $this->getbooking_charges($booking_id, $status);
+        $charges = $this->service_centers_model->getcharges_filled_by_service_center($booking_id, $status);
         foreach ($charges as $key => $value) {
             $charges[$key]['service_centres'] = $this->vendor_model->getVendor($value['booking_id']);
-            $charges[$key]['query2'] = $this->get_unit_details($value['booking_id']);
-            $charges[$key]['booking'] = $this->booking_history_by_booking_id($value['booking_id']);
+            $charges[$key]['booking'] = $this->getbooking_history($value['booking_id']);
         }
 
         return $charges;
@@ -1521,7 +1527,7 @@ class Booking_model extends CI_Model {
      */
     function review_reschedule_bookings_request(){
         
-        $this->db->select('booking_details.booking_id, users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.booking_timeslot, service_center_booking_action.booking_date as reschedule_date_request,  service_center_booking_action.booking_timeslot as reschedule_timeslot_request, service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.reschedule_reason');
+        $this->db->select('distinct(service_center_booking_action.booking_id), users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.booking_timeslot, service_center_booking_action.booking_date as reschedule_date_request,  service_center_booking_action.booking_timeslot as reschedule_timeslot_request, service_centres.name as service_center_name, booking_details.quantity, service_center_booking_action.reschedule_reason');
         $this->db->from('service_center_booking_action');
         $this->db->join('booking_details','booking_details.booking_id = service_center_booking_action.booking_id');
         
@@ -1725,7 +1731,7 @@ class Booking_model extends CI_Model {
 
         foreach ($appliance as $key => $value) {
             // get data from booking unit details table on the basis of appliance id
-            $this->db->select('id as unit_id, price_tags, customer_total, around_net_payable, partner_net_payable, customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts, booking_status, partner_paid_basic_charges');
+            $this->db->select('id as unit_id, price_tags, customer_total, around_net_payable, partner_net_payable, customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts, booking_status, partner_paid_basic_charges,product_or_services');
             $this->db->where('appliance_id', $value['appliance_id']);
             $query2 = $this->db->get('booking_unit_details');
 

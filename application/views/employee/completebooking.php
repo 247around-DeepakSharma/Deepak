@@ -114,9 +114,9 @@
                                              <div class="form-group ">
                                                 <div class="col-md-10">
                                                    
-                                                   <div class="radio">
-                                                      <label><input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "]"?>"  value="Completed" <?php if($price['booking_status'] =="Completed"){ echo "checked"; } ?> required>Completed<br/>
-                                                      <input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "]"?>"  value="Not Completed" <?php if($price['booking_status'] =="Not Completed"){ echo "checked"; } ?>  required>Not Completed
+                                                    <div class="radio">
+                                                      <label><input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "]"?>"  value="Completed" <?php if($price['booking_status'] =="Completed"){ echo "checked"; } ?> required><?php if($price['product_or_services']=="Product"){ echo " Delivered";}else { echo " Completed"; } ?><br/>
+                                                      <input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "]"?>"  value="Cancelled" <?php if($price['booking_status'] =="Cancelled"){ echo "checked"; } ?>  required><?php if($price['product_or_services']=="Product"){ echo " Not Delivered";}else { echo " Not Completed"; } ?>
                                                       </label>
                                                    </div>
                                                  

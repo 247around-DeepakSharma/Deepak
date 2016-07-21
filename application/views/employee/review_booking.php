@@ -55,7 +55,7 @@
                <?php if(!empty($data)){?>
                <div class"col-md-12">
                   <center><input type="submit" value="Approve Bookings"  style=" background-color: #2C9D9C;
-    border-color: #2C9D9C;" class="btn btn-md btn-success"></input></center>
+                     border-color: #2C9D9C;" class="btn btn-md btn-success"></input></center>
                </div>
                <?php } ?>
             </form>
@@ -72,7 +72,7 @@
                <h2 >
                   <b>Review Bookings - Complete / Cancel</b>
                </h2>
-               <form action="<?php echo base_url();?>employee/booking/complete_booking" method="post">
+               <form action="<?php echo base_url();?>employee/booking/checked_complete_review_booking" method="post">
                   <div class="col-md-12">
                      <table class="table table-bordered table-hover table-striped">
                         <thead>
@@ -81,14 +81,10 @@
                               <th>Booking Id</th>
                               <th>Service Center </th>
                               <th>User Name</th>
-                              <th>Category/ Capacity</th>
                               <th>Amount Due</th>
-                              <th>Service Charge</th>
-                              <th>Additional Service Charge</th>
-                              <th>Parts Cost</th>
+                              <th style="text-align: center;">Price Details</th>
                               <th>Total Charge</th>
                               <th>Admin Remarks</th>
-                              <th>Vendor Status</th>
                               <th>Vendor Remarks</th>
                               <th>Vendor Cancellation Reason</th>
                               <th><input type="checkbox" id="selecctall" />  Approve</th>
@@ -101,51 +97,56 @@
                            <?php $count =1; foreach ($charges as $key => $value) { ?>
                            <tr>
                               <td><?php echo $count; ?></td>
-                              <td><?php echo $value['booking_id']; ?><input type="hidden" name="booking_id[]" value="<?php echo $value['booking_id']; ?>" id="<?php echo "booking_id".$count; ?>"></input></td>
+                              <td><?php echo $value['booking_id']; ?><input type="hidden" name="booking_id[]" value="<?php echo $value['booking_id']; ?>" id="<?php echo "booking_id".$count; ?>">
+                              </td>
                               <td><?php echo $value['service_centres'][0]['name']; ?></td>
-                              <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $value['booking'][0]['phone_number'];?>"><?php echo $value['booking'][0]['name'];?></a></td>
-                              <?php 
-                                 if (isset($value['query2'])) 
-                                 {
-                                   $brand  ="";
-                                   $category="";
-                                   $capacity="";
-                                   
-                                   for($i=0; $i< $value['booking'][0]['quantity']; $i++)
-                                   {
-                                     $brand .=$value['query2'][$i]['appliance_brand'].",";
-                                     $category .=$value['query2'][$i]['appliance_category'].",";
-                                     $capacity .=$value['query2'][$i]['appliance_capacity'].",";
-                                 
-                                   }
-                                 } 
-                                 ?>
-                              <td><?php echo $category." / ". $capacity; ?></td>
+                              <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $value['booking'][0]['phone_number'];?>"><?php echo $value['booking'][0]['name'];?></a>
+                              </td>
                               <td><?php echo $value['booking'][0]['amount_due']; ?></td>
                               <td>
-                                 <p id="<?php echo "service_charge".$count; ?>"><?php echo $value['service_charge']; ?></p>
+                                 <table  class="table table-bordered table-hover table-striped">
+                                    <thead>
+                                       <th>Category/Capacity</th>
+                                       <th>Tags</th>
+                                       <th>Service Charge</th>
+                                       <th>Additional Service Charge</th>
+                                       <th>Parts Cost</th>
+                                       <th>Vendor Status</th>
+                                    </thead>
+                                    <tbody>
+                                       <?php foreach ($value['unit_details'] as $key1 => $value1) { ?>
+                                       <tr>
+                                          <td><?php echo $value1['appliance_category']."/". $value1['appliance_capacity']; ?></td>
+                                          <td><?php echo $value1['price_tags']; ?></td>
+                                          <td>
+                                             <p id="<?php echo "service_charge".$count; ?>"><?php echo $value1['service_charge']; ?></p>
+                                          </td>
+                                          <td>
+                                             <p id="<?php echo "additional_charge".$count; ?>"><?php echo $value1['additional_service_charge']; ?></p>
+                                          </td>
+                                          <td>
+                                             <p id="<?php echo "parts_cost".$count;?>"><?php echo $value1['parts_cost']; ?></p>
+                                          </td>
+                                          <td>
+                                             <p id="<?php echo "internal_status".$count; ?>"><?php echo $value1['internal_status']; ?></p>
+                                          </td>
+                                       </tr>
+                                       <?php } ?>
+                                    </tbody>
+                                 </table>
                               </td>
-                              <td>
-                                 <p id="<?php echo "additional_charge".$count; ?>"><?php echo $value['additional_service_charge']; ?></p>
-                              </td>
-                              <td>
-                                 <p id="<?php echo "parts_cost".$count;?>"><?php echo $value['parts_cost']; ?></p>
-                              </td>
-                              <td><?php echo ($value['parts_cost'] + $value['additional_service_charge'] + $value['service_charge']); ?></td>
+                              <td><?php echo $value1['amount_paid']; ?></td>
                               <td>
                                  <p id="<?php echo "admin_remarks_".$count; ?>"><?php echo $value['admin_remarks']; ?></p>
                               </td>
                               <input type="hidden" id="<?php echo "admin_remarks".$count;?>" value="<?php echo $value['admin_remarks'];?>"></input>
-                              <td>
-                                 <p id="<?php echo "internal_status".$count; ?>"><?php echo $value['internal_status']; ?></p>
-                              </td>
                               <td>
                                  <p id="<?php echo "service_center_remarks".$count; ?>"><?php echo $value['service_center_remarks']; ?></p>
                               </td>
                               <td>
                                  <p id="<?php echo "cancellation_reason".$count; ?>"><?php echo $value['cancellation_reason']; ?></p>
                               </td>
-                              <td><input type="checkbox"  class="checkbox1" name="approve[]" value="<?php echo $value['booking_id']; ?>"></input></td>
+                              <td><input type="checkbox"  class="checkbox1" name="approved_booking[]" value="<?php echo $value['booking_id']; ?>"></input></td>
                               <td>
                                  <?php echo "<a class='btn btn-sm btn-primary' "
                                     . "href=" . base_url() . "employee/booking/viewdetails/$value[booking_id] target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
@@ -160,7 +161,7 @@
                      <?php if(!empty($charges)){?>
                      <div class"col-md-12">
                         <center><input type="submit" value="Approve Bookings"  style=" background-color: #2C9D9C;
-    border-color: #2C9D9C;"  class="btn btn-md btn-success"></input></center>
+                           border-color: #2C9D9C;"  class="btn btn-md btn-success"></input></center>
                      </div>
                      <?php } ?>
                </form>

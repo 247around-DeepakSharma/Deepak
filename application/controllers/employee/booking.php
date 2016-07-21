@@ -21,6 +21,7 @@ class Booking extends CI_Controller {
 	$this->load->model('user_model');
     $this->load->model('vendor_model');
     $this->load->model('invoices_model');
+    $this->load->model('service_centers_model');
     $this->load->model('partner_model');
     $this->load->library('partner_sd_cb');
     $this->load->library('notify');
@@ -442,8 +443,6 @@ class Booking extends CI_Controller {
 	    $data['bookng_unit_details'] = $this->booking_model->getunit_details($booking_id);
 	    $source = $this->partner_model->get_all_partner_source("0", $data['booking_history'][0]['source']);
 	    $data['booking_history'][0]['source_name'] = $source[0]['source'];
-
-	    $data['internal_status'] = $this->booking_model->get_internal_status("Complete");
 	    
 	    $this->load->view('employee/header');
 	    $this->load->view('employee/completebooking',$data);
@@ -766,56 +765,6 @@ class Booking extends CI_Controller {
         } else {
             echo "Price Table Not Found";
         }
-    }
-
-    /**
-     *  @desc : This function is to select all pending bookings to assign vendor(if not already assigned)
-     *
-     * This form displays all the pending bookings for which still no vendor is assigned in a tabular form.
-     *
-     * Vendors can be assigned for more than one booking simultaneously.
-     *
-     *  @param : void
-     *  @return : booking details and vendor details to view
-     */
-    function get_assign_booking_form() {
-        $results = array();
-        $bookings = $this->booking_model->pendingbookings();
-
-        foreach ($bookings as $booking) {
-            array_push($results, $this->booking_model->find_sc_by_pincode_and_appliance($booking['service_id'], $booking['booking_pincode']));
-        }
-
-        $this->load->view('employee/header');
-        $this->load->view('employee/assignbooking', array('data' => $bookings, 'results' => $results));
-    }
-
-    /**
-     *  @desc : Function to assign vendors for pending bookings in background process,
-     *  it send a Post server request.
-     *
-     * We can select vendors available corresponding to each booking present and can assign that particular booking to vendor.
-     *
-     *  @param : void
-     *  @return : load pending booking view
-     */
-    function process_assign_booking_form() {
-        $service_center = $this->input->post('service_center');
-        $url = base_url() . "employee/do_background_process/assign_booking";
-        foreach ($service_center as $booking_id => $service_center_id) {
-            if ($service_center_id != "Select") {
-                
-                $data = array();
-                $data['booking_id'] = $booking_id;
-                $data['service_center_id'] = $service_center_id;
-                
-                $this->asynchronous_lib->do_background_process($url, $data);
-            }
-
-        }
-       
-
-        redirect(base_url() . search_page);
     }
 
     /**
@@ -1578,11 +1527,11 @@ class Booking extends CI_Controller {
      * @param : void
      * @return : void
      */
-    function complete_booking() {
-    $approve = $this->input->post('approve');
+    function checked_complete_review_booking() {
+    $approved_booking = $this->input->post('approved_booking');
     $url = base_url() . "employee/do_background_process/complete_booking";
 
-    foreach ($approve as $key => $booking_id) {
+    foreach ($approved_booking as $key => $booking_id) {
         $data  = array();
         $data['booking_id'] = $booking_id;
         $this->asynchronous_lib->do_background_process($url, $data);
@@ -1591,6 +1540,8 @@ class Booking extends CI_Controller {
     
     redirect(base_url() . 'employee/booking/review_bookings');
     }
+
+    
 
     /**
      * @desc: This funtion is used to review booking which is completed/cancelled by our vendors.
@@ -1630,11 +1581,12 @@ class Booking extends CI_Controller {
             $data['booking_id'] = $value;
             $data['internal_status'] =  "Pending";
             $data['current_status'] =  "Pending";
+
             $this->vendor_model->update_service_center_action($data);
 
         }
 
-          redirect(base_url() . "employee/booking/review_bookings");
+        redirect(base_url() . "employee/booking/review_bookings");
     }
 
     /**
@@ -1652,7 +1604,7 @@ class Booking extends CI_Controller {
        $parts_cost =  $this->input->post('parts_cost');
        $booking_status = $this->input->post('booking_status');
        $total_amount_paid =  $this->input->post('grand_total_price');
-       $internal_status = "Cancelled";
+       $internal_status = "UnProductive";
        
        foreach ($customer_basic_charge as $unit_id => $value) {
         // variable $unit_id  is existing id in booking unit details table of given booking id 

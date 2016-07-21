@@ -46,26 +46,31 @@ class Do_background_process extends CI_Controller {
            
         log_message('info', "Booking ID: " . $booking_id . ", Service centre: " . $service_center_id);
 
-                //Assign service centre
+        //Assign service centre
         $this->booking_model->assign_booking($booking_id, $service_center_id);
+        $unit_details = $this->booking_model->getunit_details($booking_id);
+        foreach ($unit_details[0]['qunatity'] as $value ) { 
+            $data = array();
+            $data['current_status'] = "Pending";
+            $data['service_center_id'] = $service_center_id;
+            $data['booking_id'] = $booking_id;
+            $data['create_date'] = date('Y-m-d h:i:s');
+            $data['unit_details_id'] = $value['unit_id'];
+            $this->vendor_model->insert_service_center_action($data);
+        }
 
-        $data['current_status'] = "Pending";
-        $data['service_center_id'] = $service_center_id;
-        $data['booking_id'] = $booking_id;
-        $data['create_date'] = date('Y-m-d h:i:s');
-        $this->vendor_model->insert_service_center_action($data);
+        //Send SMS to customer
+        $query1 = $this->booking_model->getbooking_history($booking_id);
+        $sms['tag'] = "service_centre_assigned";
+        $sms['phone_no'] = $query1[0]['phone_number'];
+        $sms['booking_id'] = $booking_id;
+        $sms['smsData'] = "";
 
-		//Send SMS to customer
-		$query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
-                $sms['tag'] = "service_centre_assigned";
-		$sms['phone_no'] = $query1[0]['phone_number'];
-                $sms['smsData'] = "";
-
-		$sms_sent = $this->notify->send_sms($sms);
-                if ($sms_sent === FALSE) {
-                    log_message('info', "SMS not sent to user while assigning vendor. User's Phone: " .
-			$query1[0]['phone_number']);
-		}
+        $sms_sent = $this->notify->send_sms($sms);
+        if ($sms_sent === FALSE) {
+            log_message('info', "SMS not sent to user while assigning vendor. User's Phone: " .
+            $query1[0]['phone_number']);
+        }
 
         //Prepare job card
         $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
@@ -73,7 +78,6 @@ class Do_background_process extends CI_Controller {
         //Send mail to vendor, no Note to vendor as of now
         $message = "";
         $this->booking_utilities->lib_send_mail_to_vendor($booking_id, $message);
-        
     
     }
 
@@ -154,42 +158,48 @@ class Do_background_process extends CI_Controller {
         log_message('info', "Booking Id " . print_r($booking_id, TRUE));
 
         $data = $this->booking_model->getbooking_charges($booking_id);
-        log_message('info', ": " . "data " . print_r($data, TRUE));
+        $current_status = "UnProductive";
+        log_message('info', ": " . " service center data " . print_r($data, TRUE));
 
-        if($data[0]['internal_status'] == "Cancelled"){
+        foreach ($data as $key => $value) {
+            $current_status1 = "Cancelled";
+            if($value['internal_status'] == "Completed"){
+                $current_status1 = "Completed";
+                $current_status = "Completed";
+            }
 
-            $current_status = "Cancelled";
+            $service_center['booking_id'] = $booking_id;
+            $service_center['closing_remarks'] = "Service Center Remarks:- " . $value['service_center_remarks'] .
+                    " <br/> Admin:-  " . $value['admin_remarks'];
+            $service_center['current_status'] = $current_status1;
+            $unit_details['booking_status'] = $service_center['internal_status'] = $value['internal_status'];
+            $unit_details['id'] = $service_center['unit_details_id'] = $value['unit_details_id'];
 
+            $this->vendor_model->update_service_center_action($service_center);
 
-        } else {
-            $current_status = "Completed";
+            $unit_details['customer_paid_basic_charges'] = $value['service_charge'];
+            $unit_details['customer_paid_extra_charges'] = $value['additional_service_charge'];
+            $unit_details['customer_paid_parts'] = $value['parts_cost'];
+            
+            log_message('info', ": " . " update booking unit details data " . print_r($unit_details, TRUE));
+             // update price in the booking unit details page
+            $this->booking_model->update_unit_details($unit_details);
         }
-
-        $data[0]['current_status'] = $current_status;
-
-        $data[0]['booking_id'] = $booking_id;
-
-        $this->vendor_model->update_service_center_action($data[0]);
-
-        $data[0]['closing_remarks'] = "Service Center Remarks:- " . $data[0]['service_center_remarks'] .
-                    " <br/> Admin:-  " . $data[0]['admin_remarks'];
-        unset($data[0]['id']);
-        unset($data[0]['service_center_id']);
-        unset($data[0]['admin_remarks']);
-        unset($data[0]['create_date']);
-        unset($data[0]['service_center_remarks']);
             
      
-        $data[0]['closed_date'] = date('Y-m-d h:i:s');
-        $data[0]['booking_date'] = date('d-m-Y', strtotime($data[0]['booking_date']));
+        $booking['closed_date'] = date('Y-m-d h:i:s');
+        $booking['current_status'] = $current_status;
+        $booking['internal_status'] = "Completed";
+        $booking['amount_paid'] = $data[0]['amount_paid'];
+        $booking['closing_remarks'] = $service_center['closing_remarks'];
             
         //update booking_details table
-        log_message('info', "Update data " . print_r($data, true));
+        log_message('info', ": " . " update booking details data " . print_r($booking, TRUE));
 
-        $this->booking_model->update_booking($data[0]['booking_id'], $data[0]);
+        $this->booking_model->update_booking($booking_id, $booking);
 
         //Save this booking id in booking_invoices_mapping table as well now
-        $this->invoices_model->insert_booking_invoice_mapping(array('booking_id' => $data[0]['booking_id']));
+        //$this->invoices_model->insert_booking_invoice_mapping(array('booking_id' => $data[0]['booking_id']));
 
         //Is this SD booking?
         if (strpos($data[0]['booking_id'], "SS") !== FALSE) {
@@ -198,41 +208,7 @@ class Do_background_process extends CI_Controller {
             $is_sd = FALSE;
         }
 
-        //Update SD bookings if required
-        if ($is_sd) {
-            if ($this->booking_model->check_sd_lead_exists_by_booking_id($data[0]['booking_id']) === TRUE) {
-                $sd_where = array("CRM_Remarks_SR_No" => $data[0]['booking_id']);
-                $sd_data = array(
-                        "Status_by_247around" => $current_status,
-                        "Remarks_by_247around" => $data[0]['internal_status'],
-                        "Rating_Stars" => "",
-                        "update_date" => $data[0]['closed_date']
-                );
-
-                log_message('info', "update sd lead");
-                $this->booking_model->update_sd_lead($sd_where, $sd_data);
-            } else {
-                //Update Partner leads table
-                if (Partner_Integ_Complete) {
-                    $partner_where = array("247aroundBookingID" => $data[0]['booking_id']);
-                    $partner_data = array(
-                            "247aroundBookingStatus" => $current_status,
-                            "247aroundBookingRemarks" => $data[0]['internal_status'],
-                            "update_date" => $data[0]['closed_date']
-                    );
-
-                    log_message('info', "update partner lead");
-                    $this->partner_model->update_partner_lead($partner_where, $partner_data);
-
-                        //Call relevant partner API
-                        //TODO: make it dynamic, use service object model (interfaces)
-                    $partner_cb_data = array_merge($partner_where, $partner_data);
-                    $this->partner_sd_cb->update_status_complete_booking($partner_cb_data);
-                }
-             }
-        }
-
-        $query1 = $this->booking_model->booking_history_by_booking_id($data[0]['booking_id'],"0");
+        $query1 = $this->booking_model->getbooking_history($data[0]['booking_id'],"0");
 
         log_message('info', 'Booking Status Change - Booking id: ' . $data[0]['booking_id'] . " Completed By " . $this->session->userdata('employee_id'));
 
@@ -241,11 +217,11 @@ class Do_background_process extends CI_Controller {
         $query1[0]['booking_id'] . "<br>Your service name is:" . $query1[0]['services'] . "<br>Booking date: " .
         $query1[0]['booking_date'] . "<br>Booking completion date: " . $data[0]['closed_date'] .
                     "<br>Amount paid for the booking: " . $data[0]['amount_paid'] . "<br>Your booking completion remark is: " .
-        $data[0]['closing_remarks'] . "<br>Vendor name:" . $query1[0]['vendor_name'] . "<br>Vendor city:" .
+        $booking['closing_remarks']. "<br>Vendor name:" . $query1[0]['vendor_name'] . "<br>Vendor city:" .
         $query1[0]['district'] . "<br> Thanks!!";
 
-        $to = "anuj@247around.com, nits@247around.com";
-       // $to = "anand.abhay1910@gmail.com, anuj@247around.com";
+       // $to = "anuj@247around.com, nits@247around.com";
+        $to = "anand.abhay1910@gmail.com, anuj@247around.com";
         $subject = 'Booking Completion - 247around';
         $cc = "";
         $bcc = "";
@@ -253,7 +229,7 @@ class Do_background_process extends CI_Controller {
 
         if ($is_sd == FALSE) {
             $smsBody = "Your request for " . $query1[0]['services'] . " Repair completed. Like us on Facebook goo.gl/Y4L6Hj For discounts download app goo.gl/m0iAcS. For feedback call 011-39595200.";
-               $this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
+            $this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
         }
         
     }
