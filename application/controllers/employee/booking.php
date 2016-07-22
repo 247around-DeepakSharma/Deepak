@@ -2111,19 +2111,17 @@ class Booking extends CI_Controller {
 
 	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
 
-	log_message('info', 'Query Status Change- Booking ID: ' . $booking_id . " Cancelled By " . $this->session->userdata('employee_id'));
+	log_message('info', 'Query Status Change - Booking ID: ' . $booking_id . " Cancelled By " . $this->session->userdata('employee_id'));
 
 	$email['name'] = $query1[0]['name'];
         $email['phone_no'] = $query1[0]['phone_number'];
-        $email['user_email'] = $query1[0]['user_email'];
         $email['booking_id'] = $query1[0]['booking_id'];
         $email['service'] = $query1[0]['services'];
         $email['booking_date'] = $query1[0]['booking_date'];
-        $email['booking_timeslot'] = $query1[0]['booking_timeslot'];
-        $email['update_date'] = $booking['update_date'];
         $email['cancellation_reason'] = $booking['cancellation_reason'];
-        $email['tag'] = "cancel_booking";
-        $email['subject'] = "Query Cancellation - AROUND";
+
+	$email['tag'] = "cancel_query";
+	$email['subject'] = "Query Cancellation - AROUND";
 
 	$this->notify->send_email($email);
 
