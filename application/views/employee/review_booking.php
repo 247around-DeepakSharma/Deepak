@@ -1,18 +1,18 @@
 <script type="text/javascript" src="<?php echo base_url();?>js/review_bookings.js"></script>
 <script type="text/javascript">
-   $(document).ready(function(){ 
+   $(document).ready(function(){
      $("#selecctall_reschedule").change(function(){
        $(".checkbox_reschedule").prop('checked', $(this).prop("checked"));
        });
    });
-   
+
 </script>
 <div id="page-wrapper">
    <div class="row">
       <div style="width:100%;margin-left:10px;margin-right:5px;">
-         <h1 align="left">
-            Review Bookings - Reschedule
-         </h1>
+	  <h2 align="left">
+	      Review Bookings - Reschedule
+         </h2>
          <div class="col-md-12">
             <form action="<?php echo base_url();?>employee/new_booking/process_reschedule_booking" method="post">
                <table class="table table-bordered table-hover table-striped">
@@ -70,7 +70,7 @@
             </div>
             <div style="width:100%;margin-left:10px;margin-right:5px;">
                <h2 >
-                  <b>Review Bookings - Complete / Cancel</b>
+                  Review Bookings - Complete / Cancel
                </h2>
                <form action="<?php echo base_url();?>employee/new_booking/complete_booking" method="post">
                   <div class="col-md-12">
@@ -104,21 +104,21 @@
                               <td><?php echo $value['booking_id']; ?><input type="hidden" name="booking_id[]" value="<?php echo $value['booking_id']; ?>" id="<?php echo "booking_id".$count; ?>"></input></td>
                               <td><?php echo $value['service_centres'][0]['name']; ?></td>
                               <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $value['booking'][0]['phone_number'];?>"><?php echo $value['booking'][0]['name'];?></a></td>
-                              <?php 
-                                 if (isset($value['query2'])) 
+                              <?php
+                                 if (isset($value['query2']))
                                  {
                                    $brand  ="";
                                    $category="";
                                    $capacity="";
-                                   
+
                                    for($i=0; $i< $value['booking'][0]['quantity']; $i++)
                                    {
                                      $brand .=$value['query2'][$i]['appliance_brand'].",";
                                      $category .=$value['query2'][$i]['appliance_category'].",";
                                      $capacity .=$value['query2'][$i]['appliance_capacity'].",";
-                                 
+
                                    }
-                                 } 
+                                 }
                                  ?>
                               <td><?php echo $category." / ". $capacity; ?></td>
                               <td><?php echo $value['booking'][0]['amount_due']; ?></td>
@@ -151,7 +151,7 @@
                                     . "href=" . base_url() . "employee/booking/viewdetails/$value[booking_id] target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
                                     ?>
                               </td>
-                              <td><button type="button" id="<?php echo $count;?>" class="btn btn-info btn-sm open-AddBookingDialog" data-toggle="modal" data-target="#myModal">Edit</button></td>
+                              <td><button type="button" id="<?php echo $count;?>" class="btn btn-info btn-sm open-AddBookingDialog disabled" data-toggle="modal" data-target="#myModal">Edit</button></td>
                               <td><button type="button" id="<?php echo "remarks_".$count;?>" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Reject</button></td>
                            </tr>
                            <?php $count++; } ?>
@@ -213,13 +213,13 @@
                   <div class="form-group ">
                      <label for="name" class="col-md-3">Vendor Cancellation Reason</label>
                      <div class="col-md-6">
-                        <textarea type="text" class="form-control" id="input_cancellation_reason" name="cancellation_reason" value = ""  ></textarea> 
+                        <textarea type="text" class="form-control" id="input_cancellation_reason" name="cancellation_reason" value = ""  ></textarea>
                      </div>
                   </div>
                   <div class="form-group ">
                      <label for="name" class="col-md-3">Vendor Remarks</label>
                      <div class="col-md-6">
-                        <textarea type="text" class="form-control" id="input_service_center_remarks" name="service_center_remarks" value = ""  ></textarea> 
+                        <textarea type="text" class="form-control" id="input_service_center_remarks" name="service_center_remarks" value = ""  ></textarea>
                      </div>
                   </div>
                   <div class="form-group ">
@@ -259,17 +259,17 @@
    </div>
 </div>
 <script type="text/javascript">
-   $(document).ready(function(){ 
+   $(document).ready(function(){
      $("#selecctall").change(function(){
        $(".checkbox1").prop('checked', $(this).prop("checked"));
        });
    });
-   
+
 </script>
 <script type="text/javascript">
    $("#search").keyup(function () {
    var value = this.value.toLowerCase().trim();
-   
+
    $("table tr").each(function (index) {
        if (!index) return;
        $(this).find("td").each(function () {

@@ -48,10 +48,8 @@ class New_booking extends CI_Controller {
      * @return; void
      */
     function complete_review_booking() {
-	log_message('info', "Entering: " . __METHOD__);
-
 	$booking_id = $this->input->post('booking_id');
-	log_message('info', "booking_id: " . $booking_id);
+	log_message('info', __METHOD__ . "=> Booking Id " . print_r($booking_id, TRUE));
 
 	$data['service_charge'] = $this->input->post('service_charge');
 	$data['additional_service_charge'] = $this->input->post('additional_charge');
@@ -192,7 +190,7 @@ class New_booking extends CI_Controller {
 		$this->asynchronous_lib->do_background_process($url, $data);
 	}
 
-	redirect(base_url() . 'employee/new_booking/review_bookings');
+	redirect(base_url() . 'employee/new_booking/review_bookings', 'refresh');
     }
 
 

@@ -174,6 +174,7 @@ class Do_background_process extends CI_Controller {
 	    $this->process_review_complete_booking($data);
 	}
 
+	redirect(base_url() . 'employee/new_booking/review_bookings', 'refresh');
     }
 
     //Completes booking after Reviewing SC Remarks and Charges
@@ -181,7 +182,6 @@ class Do_background_process extends CI_Controller {
 	$current_status = "Completed";
 
 	$data[0]['current_status'] = $current_status;
-	$data[0]['closed_date'] = date('Y-m-d h:i:s');
 
 	$this->vendor_model->update_service_center_action($data[0]);
 
@@ -200,6 +200,7 @@ class Do_background_process extends CI_Controller {
 	unset($data[0]['booking_date']);
 	unset($data[0]['booking_timeslot']);
 
+	$data[0]['closed_date'] = date('Y-m-d h:i:s');
 	//$data[0]['booking_date'] = date('d-m-Y', strtotime($data[0]['booking_date']));
 	//
 	//update booking_details table
@@ -291,6 +292,8 @@ class Do_background_process extends CI_Controller {
 
 	    $this->notify->send_sms($sms);
 	}
+
+	return 1;
     }
 
     //Cancels booking after Reviewing SC Remarks and Charges
@@ -395,6 +398,7 @@ class Do_background_process extends CI_Controller {
 	    $this->notify->send_sms($sms);
 	}
 
+	return 1;
     }
 
     /* end controller */

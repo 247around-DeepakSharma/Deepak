@@ -146,7 +146,7 @@ class Service_centers extends CI_Controller {
         } else {
 
             $data['service_center_remarks'] = date("F j") . ":- " . $closing_remarks;
-        
+
             $this->vendor_model->insert_service_center_action($data);
         }
 
@@ -235,7 +235,7 @@ class Service_centers extends CI_Controller {
         $this->session->sess_destroy();
         redirect(base_url() . "service_center");
     }
-    
+
     /**
      * @desc: this is used to display completed booking for specific service center
      */
@@ -307,7 +307,7 @@ class Service_centers extends CI_Controller {
     }
 
     /**
-     * @desc: this method save reschedule request in service center action table. 
+     * @desc: this method save reschedule request in service center action table.
      * @param: void
      * @return : void
      */
@@ -318,8 +318,9 @@ class Service_centers extends CI_Controller {
         $data['current_status'] = "InProcess";
         $data['internal_status'] = 'Reschedule';
         $data['reschedule_reason'] = date("F j") . ":- " . $this->input->post('remarks');
+	$data['update_date'] = date("Y-m-d h:i:s");
 
-        $this->vendor_model->update_service_center_action($data);
+	$this->vendor_model->update_service_center_action($data);
         print_r("success");
     }
 
