@@ -14,6 +14,7 @@ class invoices_model extends CI_Model {
 
     /*
      * Insert new entry in booking invoice mapping.
+     *
      * This table is used to capture relation between booking id and invoices.
      * Any booking can go to vendor cash invoice and vendor foc invoice / partner
      * invoice. This table saves invoice IDs for bookings.
@@ -23,7 +24,12 @@ class invoices_model extends CI_Model {
      */
 
     function insert_booking_invoice_mapping($details) {
-	$this->db->insert('booking_invoices_mapping', $details);
+	//Check whether booking id exists in this table or not
+	//If it doesn't, insert it; else return
+	$this->db->where('booking_id', $details['booking_id']);
+	$query = $this->db->get('booking_invoices_mapping');
+	if (count($query->result_array()) == 0)
+	    $this->db->insert('booking_invoices_mapping', $details);
     }
 
     /*
