@@ -133,6 +133,7 @@ class User extends CI_Controller {
 		    //It is a booking, find its status first.
 		    switch ($data['Bookings'][0]->current_status) {
 			case 'Pending':
+			case 'Rescheduled':
 			    $view = 'employee/booking';
 			    break;
 
@@ -145,7 +146,7 @@ class User extends CI_Controller {
 			    break;
 
 			default:
-			    $view = 'employee/viewpendingqueries';
+			    $view = 'employee/booking';
 			    break;
 		    }
 		}
