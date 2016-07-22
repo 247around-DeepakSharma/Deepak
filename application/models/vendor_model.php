@@ -847,7 +847,8 @@ class vendor_model extends CI_Model {
      *  @return : void
      */
     function update_service_center_action($data) {
-        if (isset($data['closing_remarks'])) {
+	//TODO: Why we are unsetting here?
+	if (isset($data['closing_remarks'])) {
             unset($data['closing_remarks']);
         }
         $this->db->where('booking_id', $data['booking_id']);

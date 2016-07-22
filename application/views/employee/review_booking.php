@@ -18,7 +18,7 @@
                <table class="table table-bordered table-hover table-striped">
                   <thead>
                      <tr>
-                        <th>SNo.</th>
+                        <th>No.</th>
                         <th>Booking Id</th>
                         <th>Service Center </th>
                         <th>User Name</th>
@@ -77,7 +77,7 @@
                      <table class="table table-bordered table-hover table-striped">
                         <thead>
                            <tr>
-                              <th>S No.</th>
+                              <th>No.</th>
                               <th>Booking Id</th>
                               <th>Service Center </th>
                               <th>User Name</th>

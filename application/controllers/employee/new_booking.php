@@ -37,39 +37,41 @@ class New_booking extends CI_Controller {
     function index(){}
 
     /**
-     * @desc: This is function is used to complete booking and update service center action in service_center_action table
+     * @desc: Approve booking status change suggested by Service Center
+     *
+     * SC cancels or completes a booking and we review this change. If we are reviewing
+     * a specific booking by pressing "Edit" button on "Review Bookings - Complete / Cancel"
+     * page, this function gets called. Once we approve, booking gets cancelled /
+     * completed in the system.
+     *
      * @param : void
      * @return; void
      */
     function complete_review_booking() {
 	log_message('info', "Entering: " . __METHOD__);
 
-
 	$booking_id = $this->input->post('booking_id');
 	log_message('info', "booking_id: " . $booking_id);
-
 
 	$data['service_charge'] = $this->input->post('service_charge');
 	$data['additional_service_charge'] = $this->input->post('additional_charge');
 	$data['parts_cost'] = $this->input->post('parts_cost');
 	$data['amount_paid'] = $this->input->post('amount_paid');
-	
+
 	$data['closed_date'] = date("Y-m-d h:i:s");
 	$data['internal_status'] = $this->input->post('internal_status');
-	if($data['internal_status'] == "Cancelled"){
 
+	if($data['internal_status'] == "Cancelled"){
 		$data['current_status'] = "Cancelled";
 		$data['cancellation_reason'] = $this->input->post('cancellation_reason');
-
-	} else{
-		$data['current_status'] = "Completed";
+	} else {
+	    $data['current_status'] = "Completed";
 	}
-	$data['service_charge'] = $this->input->post('service_charge');
+
 	$admin_remarks = $this->input->post('admin_remarks');
-	
 	$service_center_remarks = $this->input->post('service_center_remarks');
 
-	$data['closing_remarks'] = "Service Center Remarks:- " . $service_center_remarks . " <br/> Admin:-  " . $admin_remarks;
+	$data['closing_remarks'] = "Service Center Remarks:- " . $service_center_remarks . " <br/>Admin Remarks:-  " . $admin_remarks;
 
 	log_message('info', "update data: " . print_r($data, TRUE));
 
@@ -188,9 +190,8 @@ class New_booking extends CI_Controller {
 		$data  = array();
 		$data['booking_id'] = $booking_id;
 		$this->asynchronous_lib->do_background_process($url, $data);
-
 	}
-	
+
 	redirect(base_url() . 'employee/new_booking/review_bookings');
     }
 

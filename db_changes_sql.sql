@@ -551,3 +551,42 @@ ALTER TABLE `booking_cancellation_reasons`
 
 ALTER TABLE `booking_cancellation_reasons`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=20;
+
+-- 22 July ANUJ 
+
+ALTER TABLE  `service_center_booking_action` ADD UNIQUE (
+`booking_id`
+);
+
+
+INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES(5, 'open_completed_booking', 'Completed Booking Opened:\n<br><br>\nBooking Id: %s<br>\nCustomer: %s<br>\nMobile: %s<br>\nService: %s<br>\nNew Booking Date: %s<br>\nNew Timeslot: %s<br>\nVendor: %s<br>\nCity: %s<br>\nAgent: %s<br>\n<br><br>\nThanks !!!<br><br>', 'booking@247around.com', 'anuj@247around.com, nits@247around.com', '', '', '1', '2016-07-20 00:00:00');
+INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES(6, 'open_cancelled_booking', 'Cancelled Booking Opened:\r\n<br><br>\r\nBooking Id: %s<br>\r\nCustomer: %s<br>\r\nMobile: %s<br>\r\nService: %s<br>\r\nNew Booking Date: %s<br>\r\nNew Timeslot: %s<br>\r\nVendor: %s<br>\r\nCity: %s<br>\r\nAgent: %s<br>\r\n<br><br>\r\nThanks !!!<br><br>', 'booking@247around.com', 'anuj@247around.com, nits@247around.com', '', '', '1', '2016-07-20 00:00:00');
+INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES(7, 'cancel_completed_booking', 'Completed Booking Cancellation:<br>Customer name: %s <br>Customer phone number: %s <br>Customer email: %s <br>Booking Id: %s <br>Service name is: %s <br>Booking date was: %s <br>Booking timeslot was: %s <br>Booking cancellation date is: %s <br>Booking cancellation reason: %s <br>Vendor name: %s <br>Vendor city: %s <br>Thanks!!', 'booking@247around.com', 'anuj@247around.com, nits@247around.com', '', '', '1', '0000-00-00 00:00:00');
+
+ALTER TABLE  `booking_details` ADD  `reschedule_reason` VARCHAR( 1024 ) NULL AFTER  `cancellation_reason` ;
+
+INSERT INTO  `boloaaka`.`email_template` (
+`id` ,
+`tag` ,
+`template` ,
+`from` ,
+`to` ,
+`cc` ,
+`bcc` ,
+`active` ,
+`create_date`
+)
+VALUES (
+NULL ,  'cancel_query',  'Query Cancellation:<br>
+Customer: %s <br>
+Mobile: %s <br>
+Booking Id: %s <br>
+Service: %s <br>
+Follow Up Date: %s <br>
+Cancellation Reason: %s <br><br>
+Thanks!!',  'booking@247around.com',  'anuj@247around.com, nits@247around.com',  '',  '',  '1',  '2016-06-17 00:00:00'
+);
+
+ALTER TABLE `service_center_booking_action` CHANGE `closed_date` `closed_date` TIMESTAMP NULL;
+
+INSERT INTO `boloaaka_test`.`sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'complete_booking_snapdeal', 'Yippie! Request for %s installation completed by 247around. Like us on Facebook goo.gl/Y4L6Hj. For any issues & feedback, call @ 9555000247.', NULL, '1', CURRENT_TIMESTAMP);

@@ -1413,7 +1413,9 @@ class Booking_model extends CI_Model {
     //TODO: Merge with update_booking_details function
     function update_booking($booking_id, $data) {
         $this->db->where(array("booking_id" => $booking_id));
-        $this->db->update("booking_details", $data);
+        $result = $this->db->update("booking_details", $data);
+
+	log_message('info', __METHOD__ . " => SQL: " . $this->db->last_query() . ", Result: " . $result);
     }
 
     /**
@@ -2270,17 +2272,18 @@ class Booking_model extends CI_Model {
      * @param: booking id
      * @return: Array()
      */
-    function getbooking_charges($booking_id = "", $status="") {
-
+    function getbooking_charges($booking_id = "", $status = "") {
 	if ($booking_id != "") {
 	    $this->db->where('booking_id', $booking_id);
 	}
 
 	//Status should NOT be Completed or Cancelled
-    if($status !="")
-	$this->db->where_not_in('current_status', $status);
+	if ($status != "")
+	    $this->db->where_not_in('current_status', $status);
 
-    $this->db->where_not_in('internal_status', "Reschedule");
+	//TODO: Why do we need this?
+	$this->db->where_not_in('internal_status', "Reschedule");
+
 	$query = $this->db->get('service_center_booking_action');
 
 	log_message('info', __METHOD__ . "=> " . $this->db->last_query());

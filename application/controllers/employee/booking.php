@@ -841,7 +841,8 @@ class Booking extends CI_Controller {
         }
         $data['closed_date'] = date("Y-m-d h:i:s");
 
-        $this->booking_model->complete_booking($booking_id, $data);
+	//TODO: Change this to update_booking
+	$this->booking_model->complete_booking($booking_id, $data);
 
         //Save this booking id in booking_invoices_mapping table as well now
         $this->invoices_model->insert_booking_invoice_mapping(array('booking_id' => $booking_id));
@@ -910,8 +911,6 @@ class Booking extends CI_Controller {
 
         $this->notify->send_email($email);
 
-        //------End of sending email--------//
-        //------Send SMS on Completion of booking-----//
         if ($is_sd == FALSE) {
             $sms['tag'] = "complete_booking";
             $sms['smsData']['service'] = $query1[0]['services'];
@@ -919,9 +918,16 @@ class Booking extends CI_Controller {
             $sms['booking_id'] = $query1[0]['booking_id'];
 
             $this->notify->send_sms($sms);
-        }
+        } else {
+	    $sms['tag'] = "complete_booking_snapdeal";
+	    $sms['smsData']['service'] = $query1[0]['services'];
+	    $sms['phone_no'] = $query1[0]['phone_number'];
+	    $sms['booking_id'] = $query1[0]['booking_id'];
 
-        redirect(base_url() . search_page);
+	    $this->notify->send_sms($sms);
+	}
+
+	redirect(base_url() . search_page);
     }
 
     /**
