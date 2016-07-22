@@ -52,7 +52,7 @@ class Do_background_process extends CI_Controller {
         $data['current_status'] = "Pending";
         $data['service_center_id'] = $service_center_id;
         $data['booking_id'] = $booking_id;
-        $data['create_date'] = date('Y-m-d h:i:s');
+        $data['create_date'] = date('Y-m-d H:i:s');
         $this->vendor_model->insert_service_center_action($data);
 
 		//Send SMS to customer
@@ -200,7 +200,7 @@ class Do_background_process extends CI_Controller {
 	unset($data[0]['booking_date']);
 	unset($data[0]['booking_timeslot']);
 
-	$data[0]['closed_date'] = date('Y-m-d h:i:s');
+	$data[0]['closed_date'] = date('Y-m-d H:i:s');
 	//$data[0]['booking_date'] = date('d-m-Y', strtotime($data[0]['booking_date']));
 	//
 	//update booking_details table
@@ -308,8 +308,8 @@ class Do_background_process extends CI_Controller {
 	$booking_data['cancellation_reason'] = $data[0]['cancellation_reason'];
 	$booking_data['closing_remarks'] = "Service Center Remarks:- " . $data[0]['service_center_remarks'] .
 	    " <br/> Admin:-  " . $data[0]['admin_remarks'];
-	$booking_data['update_date'] = date("Y-m-d h:i:s");
-	$booking_data['closed_date'] = date("Y-m-d h:i:s");
+	$booking_data['update_date'] = date("Y-m-d H:i:s");
+	$booking_data['closed_date'] = date("Y-m-d H:i:s");
 
 	$booking_data['current_status'] = "Cancelled";
 	$booking_data['internal_status'] = "Cancelled";

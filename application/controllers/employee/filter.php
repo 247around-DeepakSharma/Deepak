@@ -172,7 +172,7 @@ class Filter extends CI_Controller {
     function approvefilter($id, $offset = 0) {
         $check = $this->checkapprovesession();
         if ($check == TRUE) {
-            $date = date("Y-m-d h:i:s");
+            $date = date("Y-m-d H:i:s");
             $updateAction = array('approved' => '1', 'action' => '1', 'approve_by' => $this->session->userdata('employee_id'), 'approve_date' => $date);
             $removeuser = $this->handyman_model->UpdateHandyman($id, $updateAction);
             $output = $removeuser . " Approved successfully";
@@ -189,7 +189,7 @@ class Filter extends CI_Controller {
     function verify($id) {
         $check = $this->checkverify();
         if ($check == TRUE) {
-            $date = date("Y-m-d h:i:s");
+            $date = date("Y-m-d H:i:s");
             $updateAction = array('approved' => '0', 'action' => '0', 'verify_by' => $this->session->userdata('employee_id'), 'verify_date' => $date, 'verified' => '1');
             $removeuser = $this->handyman_model->UpdateHandyman($id, $updateAction);
             $output = $removeuser . " Approved successfully";

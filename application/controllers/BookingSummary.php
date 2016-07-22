@@ -416,7 +416,7 @@ class BookingSummary extends CI_Controller {
 		//potential oppurtunities have been logged already.
 		$data['closing_remarks'] = "";
 		$data['cancellation_reason'] = "Your problem is resolved.";
-		$data['update_date'] = date("Y-m-d h:i:s");
+		$data['update_date'] = date("Y-m-d H:i:s");
 		$data['current_status'] = "Cancelled";
 		$insertData = $this->booking_model->cancel_booking($booking['booking_id'], $data);
 		echo $booking['booking_id'] . " booking cancelled" . PHP_EOL;

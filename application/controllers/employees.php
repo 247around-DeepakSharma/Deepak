@@ -32,7 +32,7 @@ class Employees extends CI_Controller {
      if($_POST){
           if($validation){
               $data = $this->getdata();
-              $data['create_date']   = date("Y-m-d h:i:s");
+              $data['create_date']   = date("Y-m-d H:i:s");
               $insertData  = $this->employee_model->insertData($data);
               $result['service']       = $this->filter_model->getserviceforfilter();
               $result['agent']         = $this->filter_model->getagent(); 

@@ -68,7 +68,7 @@ class Review extends CI_Controller {
         $insert['review']       = $this->input->post('review');
         $insert['handyman_id']  = $this->input->post('handyman_id');
         $insert['user_id']      = $this->input->post('user_id');
-        $insert['create_date']  = date("Y-m-d h:i:s");
+        $insert['create_date']  = date("Y-m-d H:i:s");
         return $insert;
     }
 

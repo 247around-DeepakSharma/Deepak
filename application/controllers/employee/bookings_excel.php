@@ -683,7 +683,7 @@ class bookings_excel extends CI_Controller {
         $booking['type'] = 'Booking';
         $booking['query_remarks'] = '';
         $booking['current_status'] = 'Pending';
-        $booking['create_date'] = date("Y-m-d h:i:s");
+        $booking['create_date'] = date("Y-m-d H:i:s");
 
         $booking['source'] = 'SS';
         $booking['appliance_tags'] = '';
@@ -754,7 +754,7 @@ class bookings_excel extends CI_Controller {
         $booking['type'] = 'Booking';
         $booking['query_remarks'] = '';
         $booking['current_status'] = 'Pending';
-        $booking['create_date'] = date("Y-m-d h:i:s");
+        $booking['create_date'] = date("Y-m-d H:i:s");
 
         $appliance_id = $this->booking_model->addexcelappliancedetails($booking);
 

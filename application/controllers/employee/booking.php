@@ -164,7 +164,7 @@ class Booking extends CI_Controller {
 
             $booking['booking_pincode'] = $this->input->post('booking_pincode');
             $booking['amount_due'] = $booking['total_price1'] + $booking['total_price2'] + $booking['total_price3'] + $booking['total_price4'];
-            $booking['create_date'] = date("Y-m-d h:i:s");
+            $booking['create_date'] = date("Y-m-d H:i:s");
             $booking['booking_date'] = date('d-m-Y', strtotime($booking['booking_date']));
             $yy = date("y", strtotime($booking['booking_date']));
             $mm = date("m", strtotime($booking['booking_date']));
@@ -454,7 +454,7 @@ class Booking extends CI_Controller {
             }
         }
         $booking['amount_due'] = $booking['total_price1'] + $booking['total_price2'] + $booking['total_price3'] + $booking['total_price4'];
-        $booking['create_date'] = date("Y-m-d h:i:s");
+        $booking['create_date'] = date("Y-m-d H:i:s");
 
         $result = $this->booking_model->service_name($booking['service_id']);
 
@@ -839,7 +839,7 @@ class Booking extends CI_Controller {
             $data['rating_star'] = "";
             $data['rating_comments'] = "";
         }
-        $data['closed_date'] = date("Y-m-d h:i:s");
+        $data['closed_date'] = date("Y-m-d H:i:s");
 
 	//TODO: Change this to update_booking
 	$this->booking_model->complete_booking($booking_id, $data);
@@ -960,7 +960,7 @@ class Booking extends CI_Controller {
 	$data['booking_timeslot'] = $this->input->post('booking_timeslot');
 	$data['current_status'] = 'Pending';
 	$data['internal_status'] = 'Scheduled';
-	$data['update_date'] = date("Y-m-d h:i:s");
+	$data['update_date'] = date("Y-m-d H:i:s");
 	$data['closed_date'] = NULL;
 	$data['vendor_rating_stars'] = NULL;
 	$data['vendor_rating_comments'] = NULL;
@@ -1065,7 +1065,7 @@ class Booking extends CI_Controller {
 	$data['current_status'] = 'Pending';
 	$data['internal_status'] = 'Scheduled';
 	$data['cancellation_reason'] = NULL;
-	$data['update_date'] = date("Y-m-d h:i:s");
+	$data['update_date'] = date("Y-m-d H:i:s");
 	$data['closed_date'] = NULL;
 	$data['vendor_rating_stars'] = NULL;
 	$data['vendor_rating_comments'] = NULL;
@@ -1182,8 +1182,8 @@ class Booking extends CI_Controller {
     function process_cancel_booking_form($booking_id, $pending_booking) {
 	$data['cancellation_reason'] = $this->input->post('cancellation_reason');
 
-        $data['update_date'] = date("Y-m-d h:i:s");
-        $data['closed_date'] = date("Y-m-d h:i:s");
+        $data['update_date'] = date("Y-m-d H:i:s");
+        $data['closed_date'] = date("Y-m-d H:i:s");
 
         if ($data['cancellation_reason'] === 'Other') {
             $data['cancellation_reason'] = "Other : " . $this->input->post("cancellation_reason_text");
@@ -1206,7 +1206,7 @@ class Booking extends CI_Controller {
 	    $this->booking_model->cancel_completed_booking($booking_id, $data);
 
 	//Update this booking in vendor action table as well if required
-	$data_vendor['closed_date'] = date("Y-m-d h:i:s");
+	$data_vendor['closed_date'] = date("Y-m-d H:i:s");
 	$data_vendor['current_status'] = "Cancelled";
 	$data_vendor['internal_status'] = "Cancelled";
 	$data_vendor['booking_id'] = $booking_id;
@@ -1353,7 +1353,7 @@ class Booking extends CI_Controller {
         $data['booking_timeslot'] = $this->input->post('booking_timeslot');
         $data['current_status'] = 'Rescheduled';
         $data['internal_status'] = 'Rescheduled';
-        $data['update_date'] = date("Y-m-d h:i:s");
+        $data['update_date'] = date("Y-m-d H:i:s");
 
         //Is this SD booking?
         if (strpos($booking_id, "SS") !== FALSE) {
@@ -1858,7 +1858,7 @@ class Booking extends CI_Controller {
                             "Remarks_by_247around" => $booking['internal_status'],
                             "Scheduled_Appointment_DateDDMMYYYY" => $booking['booking_date'],
                             "Scheduled_Appointment_Time" => $booking['booking_timeslot'],
-                            "update_date" => date("Y-m-d h:i:s")
+                            "update_date" => date("Y-m-d H:i:s")
                         );
                         $this->booking_model->update_sd_lead($sd_where, $sd_data);
                     } else {
@@ -1871,7 +1871,7 @@ class Booking extends CI_Controller {
                                 "247aroundBookingRemarks" => $booking['internal_status'],
                                 "ScheduledAppointmentDate" => $sch_date,
                                 "ScheduledAppointmentTime" => $booking['booking_timeslot'],
-                                "update_date" => date("Y-m-d h:i:s")
+                                "update_date" => date("Y-m-d H:i:s")
                             );
                             $this->partner_model->update_partner_lead($partner_where, $partner_data);
 
@@ -1995,7 +1995,7 @@ class Booking extends CI_Controller {
                         $sd_data = array(
                             "Status_by_247around" => $booking['current_status'],
                             "Remarks_by_247around" => $booking['internal_status'],
-                            "update_date" => date("Y-m-d h:i:s")
+                            "update_date" => date("Y-m-d H:i:s")
                         );
                         $this->booking_model->update_sd_lead($sd_where, $sd_data);
                     } else {
@@ -2005,7 +2005,7 @@ class Booking extends CI_Controller {
                             $partner_data = array(
                                 "247aroundBookingStatus" => $booking['current_status'],
                                 "247aroundBookingRemarks" => $booking['internal_status'],
-                                "update_date" => date("Y-m-d h:i:s")
+                                "update_date" => date("Y-m-d H:i:s")
                             );
                             $this->partner_model->update_partner_lead($partner_where, $partner_data);
 
@@ -2057,7 +2057,7 @@ class Booking extends CI_Controller {
         $booking['current_status'] = "Cancelled";
         $booking['internal_status'] = $this->input->post('internal_status');
         $booking['cancellation_reason'] = $this->input->post('cancellation_reason');
-        $booking['closed_date'] = date("Y-m-d h:i:s");
+        $booking['closed_date'] = date("Y-m-d H:i:s");
         $booking['update_date'] = $booking['closed_date'];
 
         //Is this SD booking?
@@ -2401,7 +2401,7 @@ class Booking extends CI_Controller {
         $booking['query_remarks'] = '';
         $booking['current_status'] = 'Pending';
         $booking['internal_status'] = 'Scheduled';
-        $booking['create_date'] = date("Y-m-d h:i:s");
+        $booking['create_date'] = date("Y-m-d H:i:s");
         $booking['source'] = $this->input->post('source_code');
 
         $result = $this->booking_model->service_name($booking['service_id']);
@@ -2458,7 +2458,7 @@ class Booking extends CI_Controller {
         $booking['query_remarks'] = '';
         $booking['current_status'] = 'Pending';
         $booking['internal_status'] = 'Scheduled';
-        $booking['create_date'] = date("Y-m-d h:i:s");
+        $booking['create_date'] = date("Y-m-d H:i:s");
         $booking['potential_value'] = 0;
 
         $this->booking_model->addapplianceunitdetails($booking);
@@ -2775,7 +2775,7 @@ class Booking extends CI_Controller {
         $booking['current_booking_timeslot'] = $this->input->post('current_booking_timeslot');
         $booking['new_booking_date'] = $this->input->post('new_booking_date');
         $booking['new_booking_timeslot'] = $this->input->post('new_booking_timeslot');
-        $data['update_date'] = date("Y-m-d h:i:s");
+        $data['update_date'] = date("Y-m-d H:i:s");
         $booking['booking_date'] = date('d-m-Y', strtotime($booking['booking_date']));
         $yy = date("y", strtotime($booking['booking_date']));
         $mm = date("m", strtotime($booking['booking_date']));

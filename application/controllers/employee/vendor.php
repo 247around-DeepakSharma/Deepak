@@ -286,7 +286,7 @@ class vendor extends CI_Controller {
             $data['current_status'] = "Pending";
             $data['service_center_id'] = $service_center;
             $data['booking_id'] = $booking_id;
-            $data['create_date'] = date('Y-m-d h:i:s');
+            $data['create_date'] = date('Y-m-d H:i:s');
             $this->vendor_model->insert_service_center_action($data);
 
             //Setting mail to vendor flag to 0, once booking is re-assigned

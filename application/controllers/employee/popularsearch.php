@@ -30,7 +30,7 @@ class Popularsearch extends CI_Controller {
      $validation = $this->checkValidation();
         if($validation){
              $data['searchkeyword']    = $this->input->post('search');
-             $data['create_date']      = date("Y-m-d h:i:s");
+             $data['create_date']      = date("Y-m-d H:i:s");
              $insert                   = $this->Popularsearch_model->AddPopularSearchKeyword($data);
              $output['sucess']         = "Popular Search Keyword Added";
              $employee_id              = $this->session->userdata('employee_id');
@@ -134,7 +134,7 @@ class Popularsearch extends CI_Controller {
      $validation = $this->checkValidation();
         if($validation){
              $data['searchkeyword'] = $this->input->post('search');
-             $data['update_date']   = date("Y-m-d h:i:s");
+             $data['update_date']   = date("Y-m-d H:i:s");
              $insert = $this->Popularsearch_model->UpdatePopularSearchKeyword($id,$data);
              $search = $this->Popularsearch_model->getsearchkeyword($id);
              foreach ($search as  $value) 

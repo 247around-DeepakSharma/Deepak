@@ -254,7 +254,7 @@ class User extends CI_Controller {
         $user['state'] = $this->input->post('state');
         $user['pincode'] = $this->input->post('pincode');
         $user['alternate_phone_number'] = $this->input->post('alternate_phone_number');
-        $user['create_date'] = date("Y-m-d h:i:s");
+        $user['create_date'] = date("Y-m-d H:i:s");
 
         //Add the user
         $user_id = $this->user_model->add_user($user);

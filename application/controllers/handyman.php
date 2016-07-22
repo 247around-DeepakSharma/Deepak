@@ -33,7 +33,7 @@ class Handyman extends CI_Controller {
      if($_POST){
           if($validation){
               $data = $this->getdata();
-              $data['current_time']   = date("Y-m-d h:i:s");
+              $data['current_time']   = date("Y-m-d H:i:s");
               $insertData  = $this->handyman_model->insertData($data);
               $this->loadView($insertData);
                
@@ -345,7 +345,7 @@ class Handyman extends CI_Controller {
            if($validation){
                
                     $data = $this->getdata();
-                    $data['updatedate']    = date("Y-m-d h:i:s");
+                    $data['updatedate']    = date("Y-m-d H:i:s");
                     $insertData  = $this->handyman_model->updatehandyman($handyman_id,$data);
                     $output = " Profile Updated successFully";
                     $userSession = array('success' =>$output);
@@ -487,7 +487,7 @@ class Handyman extends CI_Controller {
    */
 
    function approve($id,$offset=0){
-    $date = date("Y-m-d h:i:s");
+    $date = date("Y-m-d H:i:s");
     $updateAction = array('approved' =>'1','action'=>'1' ,'approve_by' =>'admin','approve_date'=>$date );
     $removeuser = $this->handyman_model->UpdateHandyman($id,$updateAction);
     $output = $removeuser." Approved successfully";
@@ -538,7 +538,7 @@ class Handyman extends CI_Controller {
 
    function verify($id){
     
-        $date = date("Y-m-d h:i:s");
+        $date = date("Y-m-d H:i:s");
         $updateAction = array('approved' =>'0','action'=>'0' ,'verify_by' => 'admin','verify_date'=>$date ,'verified'=>'1');
         $removeuser = $this->handyman_model->UpdateHandyman($id,$updateAction);
         $output = $removeuser." Approved successfully";

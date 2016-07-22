@@ -135,7 +135,7 @@ class Service_centers extends CI_Controller {
         $closing_remarks = $this->input->post('closing_remarks');
         $data['current_status'] = "InProcess";
         $charges = $this->booking_model->getbooking_charges($booking_id);
-        $data['closed_date'] = date('Y-m-d h:i:s');
+        $data['closed_date'] = date('Y-m-d H:i:s');
         if (!empty($charges)) {
             // remove previous text, added in closing_remarks column.
             $string = str_replace($charges[0]['service_center_remarks'], " ", $closing_remarks);
@@ -186,7 +186,7 @@ class Service_centers extends CI_Controller {
         $data['internal_status'] = "Cancelled";
         $data['service_charge'] = $data['additional_service_charge'] = $data['parts_cost'] = $data['amount_paid'] = 0;
         $data['cancellation_reason'] = date("F j") . ":- " . $cancellation_reason;
-        $data['closed_date'] = date('Y-m-d h:i:s');
+        $data['closed_date'] = date('Y-m-d H:i:s');
 
         $this->vendor_model->update_service_center_action($data);
 
@@ -318,7 +318,7 @@ class Service_centers extends CI_Controller {
         $data['current_status'] = "InProcess";
         $data['internal_status'] = 'Reschedule';
         $data['reschedule_reason'] = date("F j") . ":- " . $this->input->post('remarks');
-	$data['update_date'] = date("Y-m-d h:i:s");
+	$data['update_date'] = date("Y-m-d H:i:s");
 
 	$this->vendor_model->update_service_center_action($data);
         print_r("success");

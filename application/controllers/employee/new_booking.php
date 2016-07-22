@@ -56,7 +56,7 @@ class New_booking extends CI_Controller {
 	$data['parts_cost'] = $this->input->post('parts_cost');
 	$data['amount_paid'] = $this->input->post('amount_paid');
 
-	$data['closed_date'] = date("Y-m-d h:i:s");
+	$data['closed_date'] = date("Y-m-d H:i:s");
 	$data['internal_status'] = $this->input->post('internal_status');
 
 	if($data['internal_status'] == "Cancelled"){
@@ -226,7 +226,7 @@ class New_booking extends CI_Controller {
     		$booking['booking_timeslot'] = $booking_timeslot[1];
     		$booking['current_status'] = 'Rescheduled';
             $booking['internal_status'] = 'Rescheduled';
-            $booking['update_date'] = date("Y-m-d h:i:s");
+            $booking['update_date'] = date("Y-m-d H:i:s");
             $booking['reschedule_reason'] = $reschedule_reason[$value];
 
     		$this->booking_model->update_booking($value, $booking);
