@@ -185,7 +185,7 @@ class Service_centers extends CI_Controller {
         $data['current_status'] = "InProcess";
         $data['internal_status'] = "Cancelled";
         $data['service_charge'] = $data['additional_service_charge'] = $data['parts_cost'] = $data['amount_paid'] = 0;
-        $data['cancellation_reason'] = date("F j") . ":- " . $cancellation_reason;
+        $data['cancellation_reason'] = $cancellation_reason;
         $data['closed_date'] = date('Y-m-d H:i:s');
 
         $this->vendor_model->update_service_center_action($data);
@@ -317,7 +317,7 @@ class Service_centers extends CI_Controller {
         $data['booking_timeslot'] = $this->input->post('booking_timeslot');
         $data['current_status'] = "InProcess";
         $data['internal_status'] = 'Reschedule';
-        $data['reschedule_reason'] = date("F j") . ":- " . $this->input->post('remarks');
+        $data['reschedule_reason'] = $this->input->post('remarks');
 	$data['update_date'] = date("Y-m-d H:i:s");
 
 	$this->vendor_model->update_service_center_action($data);

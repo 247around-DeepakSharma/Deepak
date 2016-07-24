@@ -2943,9 +2943,9 @@ class Booking extends CI_Controller {
      *  @return : none
      */
     function call_customer($cust_phone) {
-        log_message('info', __FUNCTION__);
+//        log_message('info', __FUNCTION__);
 
-        $s1 = $_SERVER['HTTP_REFERER'];
+	$s1 = $_SERVER['HTTP_REFERER'];
         //$s2 = "https://www.aroundhomzapp.com/";
 	$s2 = base_url();
 	$redirect_url = substr($s1, strlen($s2));

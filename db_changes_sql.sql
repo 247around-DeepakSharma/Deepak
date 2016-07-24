@@ -590,3 +590,5 @@ Thanks!!',  'booking@247around.com',  'anuj@247around.com, nits@247around.com', 
 ALTER TABLE `service_center_booking_action` CHANGE `closed_date` `closed_date` TIMESTAMP NULL;
 
 INSERT INTO `boloaaka_test`.`sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'complete_booking_snapdeal', 'Yippie! Request for %s installation completed by 247around. Like us on Facebook goo.gl/Y4L6Hj. For any issues & feedback, call @ 9555000247.', NULL, '1', CURRENT_TIMESTAMP);
+
+ALTER TABLE `service_center_booking_action` ADD UNIQUE(`booking_id`);
