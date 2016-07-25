@@ -33,7 +33,8 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="form-group <?php if (form_error('service_id')) { echo 'has-error';} ?>">
+                                
+                                <div class="form-group ">
                                     <label for="service_name" class="col-md-4">Service Name *</label>
                                     <div class="col-md-6">
                                         <input type="hidden" name="service" id="services"/>
@@ -43,10 +44,16 @@
                                             <option  value=<?= $values->id; ?>>
                                                 <?php echo $values->services; }    ?>
                                             </option>
-                                            <?php echo form_error('service_id'); ?>
+                                            
                                         </select>
                                     </div>
                                 </div>
+                                 <div class="form-group ">
+                                     <label for="service_name" class="col-md-4">Order Id </label>
+                                      <div class="col-md-6">
+                                          <input class="form-control" name= "order_id"></input>
+                                      </div>
+                                 </div>
                                 <!--  end col-md-6  -->
                             </div>
                             <!--  start col-md-6  -->
@@ -55,7 +62,7 @@
                                     <label  class="col-md-4">User Email</label>
                                     <div class="col-md-6">
                                         <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php echo $user[0]['user_email']; ?>">
-                                        <?php echo form_error('user_email'); ?>
+                                       
                                     </div>
                                 </div>
                                 <div class="form-group ">

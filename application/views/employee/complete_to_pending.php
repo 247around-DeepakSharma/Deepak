@@ -1,0 +1,72 @@
+
+<div id="page-wrapper"> 
+   <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+
+              <h1 class="page-header">
+              <?php echo "Open ". $status. " Booking"; ?>
+                   
+              </h1>
+
+              <form class="form-horizontal" action="<?php echo base_url()?>employee/booking/process_convert_booking_to_pending_form/<?php echo $booking_id ?>/<?php echo $status; ?>" method="POST" >
+
+                <div class="form-group <?php if( form_error('booking_id') ) { echo 'has-error';} ?>">
+                  <label for="booking_id" class="col-md-2">Booking ID</label>
+                  <div class="col-md-6">
+                    <input type="text" class="form-control"  name="booking_id" value = "<?php echo $booking_id; ?>"  disabled>
+                    <?php echo form_error('booking_id'); ?>
+                  </div>
+                </div>
+
+                <div class="form-group <?php if( form_error('name') ) { echo 'has-error';} ?>">
+                  <label for="name" class="col-md-2">User</label>
+                  <div class="col-md-6">
+                    <input type="text" class="form-control"  name="name" value = "<?php echo $name; ?>"  disabled>
+                    <?php echo form_error('name'); ?>
+                  </div>
+                </div>
+
+                <div class="form-group <?php if( form_error('phone_number') ) { echo 'has-error';} ?>">
+                  <label for="phone_number" class="col-md-2">Mobile</label>
+                  <div class="col-md-6">
+                    <input type="text" class="form-control"  name="phone_number" value = "<?php echo $phone_number; ?>"  disabled>
+                    <?php echo form_error('phone_number'); ?>
+                  </div>
+                </div>
+
+
+                <div class="form-group <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
+                  <label for="booking_date" class="col-md-2">New Booking Date</label>
+                  <div class="col-md-6">
+                    <input type="date" name="booking_date" value="<?php echo set_value('booking_date'); ?>" required>
+                    <?php echo form_error('booking_date'); ?>
+                  </div>
+                </div>
+
+                <div class="form-group <?php if( form_error('booking_timeslot') ) { echo 'has-error';} ?>">
+                  <label for="booking_timeslot" class="col-md-2">New Booking Timeslot</label>
+                  <div class="col-md-6">
+                    <select type="text" name="booking_timeslot" value="<?php echo set_value('booking_timeslot'); ?>" >
+                    <option>Select</option>
+                    <option>10AM-1PM</option>
+                    <option>1PM-4PM</option>
+                    <option>4PM-7PM</option>
+                    </select>
+                    <?php echo form_error('booking_timeslot'); ?>
+                  </div>
+                </div>
+
+                <div>
+                  <center>
+                    <input type="submit" value="Open" class="btn btn-danger">
+<!--                    <?php echo "<a id='edit' class='btn btn-small btn-primary' href=".base_url()."employee/booking/view>Cancel</a>";?>-->
+                    
+                  </center>
+                </div>
+
+              </form>
+            </div>
+        </div>
+    </div>
+</div>

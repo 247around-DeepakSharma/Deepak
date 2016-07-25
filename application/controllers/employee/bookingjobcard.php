@@ -40,7 +40,7 @@ class bookingjobcard extends CI_Controller {
 
     /**
      * @desc: accepts post request only and basic validations
-     * @param: void     
+     * @param: void
      * @return: void
      */
     public function index() {
@@ -64,8 +64,8 @@ class bookingjobcard extends CI_Controller {
 
         $file_names = array();
 
-        $template = 'BookingJobCard_Template-v6.xlsx';
-        //set absolute path to directory with template files
+        $template = 'BookingJobCard_Template-v7.xlsx';
+	//set absolute path to directory with template files
         $templateDir = __DIR__ . "/../";
 
         //set config for report
@@ -160,8 +160,8 @@ class bookingjobcard extends CI_Controller {
 
         $file_names = array();
 
-        $template = 'BookingJobCard_Template-v6.xlsx';
-        //set absolute path to directory with template files
+        $template = 'BookingJobCard_Template-v7.xlsx';
+	//set absolute path to directory with template files
         $templateDir = __DIR__ . "/../";
 
         //set config for report
@@ -244,12 +244,12 @@ class bookingjobcard extends CI_Controller {
 
     /*
      * @desc: This function sends email to the assigned vendor with the booking details.
-     * 
+     *
      * We can add additional notes to the email we are sending to vendor.
-     * 
+     *
      * @param: $booking_id - to find details of booking
      * @param: $additional_note - extra notes to be sent in email
-     * 
+     *
      * @return: void
      */
 
@@ -366,15 +366,15 @@ class bookingjobcard extends CI_Controller {
 
     /* Was made earliar, do something as escalate option now does.
      * @desc: This function sends reminder email to the assigned vendor
-     * 
+     *
      * We can add additional notes to the reminder email we are sending to vendor.
-     * 
-     * This mail is sent if vendor is not contacting the user or not completing the 
+     *
+     * This mail is sent if vendor is not contacting the user or not completing the
      *      booking on time.
-     * 
+     *
      * @param: $booking_id - to add details of booking to email body.
      * @param: $additional_note - extra notes to be sent in email.
-     * 
+     *
      * @return: void
      */
 
@@ -447,9 +447,7 @@ class bookingjobcard extends CI_Controller {
     }
 
     // function sendTransactionalSms($phone_number, $body) {
-
     //     //log_message ('info', "Entering: " . __METHOD__ . ": Phone num: " . $phone_number);
-
     //     $post_data = array(
     //         // 'From' doesn't matter; For transactional, this will be replaced with your SenderId;
     //         // For promotional, this will be ignored by the SMS gateway
@@ -457,14 +455,10 @@ class bookingjobcard extends CI_Controller {
     //         'To' => $phone_number,
     //         'Body' => $body,
     //     );
-
     //     $exotel_sid = "aroundhomz";
     //     $exotel_token = "a041058fa6b179ecdb9846ccf0e4fd8e09104612";
-
     //     $url = "https://" . $exotel_sid . ":" . $exotel_token . "@twilix.exotel.in/v1/Accounts/" . $exotel_sid . "/Sms/send";
-
     //     $ch = curl_init();
-
     //     curl_setopt($ch, CURLOPT_VERBOSE, 1);
     //     curl_setopt($ch, CURLOPT_URL, $url);
     //     curl_setopt($ch, CURLOPT_POST, 1);
@@ -472,7 +466,6 @@ class bookingjobcard extends CI_Controller {
     //     curl_setopt($ch, CURLOPT_FAILONERROR, 0);
     //     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
     //     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
-
     //     $http_result = curl_exec($ch);
     //     $error = curl_error($ch);
     //     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -480,5 +473,4 @@ class bookingjobcard extends CI_Controller {
     //     //echo exit();
     //     curl_close($ch);
     // }
-
 }

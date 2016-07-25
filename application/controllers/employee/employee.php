@@ -35,7 +35,7 @@ class Employee extends CI_Controller {
               
               $result['service']       = $this->filter_model->getserviceforfilter();
               $result['agent']         = $this->filter_model->getagent();
-              $data['create_date']   = date("Y-m-d h:i:s");
+              $data['create_date']   = date("Y-m-d H:i:s");
               $insertData  = $this->employee_model->insertData($data);
               $data['sucess'] = "Employee created";
               $employee_id              = $this->session->userdata('employee_id');

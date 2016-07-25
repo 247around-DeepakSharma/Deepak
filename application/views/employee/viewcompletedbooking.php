@@ -71,8 +71,11 @@
                     <th width="150px;">Service Centre City</th>
                     <th width="60px;">Call</th>
                     <th width="60px;">Edit</th>
+                    <th width="60px;">Edit</th>
                     <th width="60px;">View</th>
+                    <?php if($status != "Cancelled" ){?>
                     <th width="60px;">Rate</th>
+                    <?php } ?>
                     </tr>
 
                     </thead>
@@ -112,13 +115,18 @@
                             . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Edit'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
                         ?>
                     </td>
+                     <td><?php
+                        echo "<a id='edit' class='btn btn-sm btn-warning' "
+                            . "href=" . base_url() . "employee/booking/get_convert_booking_to_pending_form/$row->booking_id/$status title='Open' target='_blank'> <i class='fa fa-calendar' aria-hidden='true'></i></a>";
+                        ?>
+                    </td>
 
                     <td>
                         <?php echo "<a class='btn btn-sm btn-primary' "
                         . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
                         ?>
                     </td>
-
+                     <?php if($status != "Cancelled" ) {?>
                     <td>
                         <?php
                         if ($row->current_status == 'Completed' && (empty($row->rating_stars) || empty($row->vendor_rating_stars)))
@@ -133,6 +141,7 @@
                         }
                         ?>
                     </td>
+                    <?php } ?>
 
                     </tr>
                     <?php

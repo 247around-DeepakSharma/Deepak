@@ -1190,9 +1190,9 @@ class Api extends CI_Controller {
      * @output: None
      */
     public function pass_through() {
-        log_message('info', "Entering: " . __METHOD__);
+//        log_message('info', "Entering: " . __METHOD__);
 
-        $activity = array('activity' => 'process exotel request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
+	$activity = array('activity' => 'process exotel request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
         $this->apis->logTable($activity);
 
         //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet

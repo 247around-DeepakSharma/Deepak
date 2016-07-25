@@ -92,7 +92,7 @@ class Booking extends CI_Controller {
    
 
     /**
-     *  @desc : This function is used to insert data in booking unit details and appliance details table
+     *  @desc : This function is used to insert or update data in booking unit details and appliance details table
      *  @param : user id, booking id (optional)
      *  @return : Array(booking details)
      */
@@ -112,6 +112,8 @@ class Booking extends CI_Controller {
             $price_tags = array();
             $booking['booking_id'] = $booking_id;
         }
+
+        $appliance_id = $this->input->post('appliance_id');
         
         // select state by city
         $state = $this->vendor_model->selectSate($booking['city']);
@@ -119,6 +121,7 @@ class Booking extends CI_Controller {
         $booking['booking_pincode'] = $this->input->post('booking_pincode');
         $service = $booking['services'] = $this->input->post('service');
         $booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
+        $booking['order_id'] = $this->input->post('order_id');
         $booking['potential_value'] = $this->input->post('potential_value');
         $booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
         $booking['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
@@ -230,11 +233,24 @@ class Booking extends CI_Controller {
                $services_details['partner_id'] = $booking['partner_id'];
             }
 
-            $services_details['appliance_id'] = $this->booking_model->check_appliancesforuser($appliances_details);
+            /*check appliance id is empty or not. if appliance id is not empty means appliance id comes from html page(booking insert by appliance id)
+            * Check booking is not empty means we need to upadate booking and  get appliance id
+            * if appliance id and booking id is empty means we need to insert new booking.(it comes first)
+            **/
+            if(!empty($appliance_id)){
+                $services_details['appliance_id'] = $appliance_id;
 
-            if(empty($services_details['appliance_id'])){
+            } else if($booking_id !="") {
+                            // check appliances exist in appliance table or not
+               $services_details['appliance_id'] = $this->booking_model->check_appliancesforuser($appliances_details);
+
+                if(empty($services_details['appliance_id'])){
 
                  $services_details['appliance_id'] = $this->booking_model->addappliance($appliances_details);
+                }
+
+            } else {
+                $services_details['appliance_id'] = $this->booking_model->addappliance($appliances_details);
             }
 
            // log_message ('info', __METHOD__ . "Appliance details data". print_r($services_details));
@@ -443,7 +459,7 @@ class Booking extends CI_Controller {
 	    $data['bookng_unit_details'] = $this->booking_model->getunit_details($booking_id);
 	    $source = $this->partner_model->get_all_partner_source("0", $data['booking_history'][0]['source']);
 	    $data['booking_history'][0]['source_name'] = $source[0]['source'];
-	    
+	   
 	    $this->load->view('employee/header');
 	    $this->load->view('employee/completebooking',$data);
     }
@@ -486,8 +502,8 @@ class Booking extends CI_Controller {
         $data['cancellation_reason'] = $this->input->post('cancellation_reason');
         $data['internal_status'] = $this->input->post('internal_status');
 
-        $data['update_date'] = date("Y-m-d h:i:s");
-        $data['closed_date'] = date("Y-m-d h:i:s");
+        $data['update_date'] = date("Y-m-d H:i:s");
+        $data['closed_date'] = date("Y-m-d H:i:s");
 
         if ($data['cancellation_reason'] === 'Other') {
             $data['cancellation_reason'] = "Other : " . $this->input->post("cancellation_reason_text");
@@ -497,50 +513,17 @@ class Booking extends CI_Controller {
         $this->booking_model->update_booking($booking_id, $data);
 
 	    //Update this booking in vendor action table 
-	    $data_vendor['closed_date'] = date("Y-m-d h:i:s");
+	    $data_vendor['closed_date'] = date("Y-m-d H:i:s");
 	    $data_vendor['current_status'] = "Cancelled";
 	    $data_vendor['internal_status'] = "Cancelled";
 	    $data_vendor['booking_id'] = $booking_id;
 
 	    $this->vendor_model->update_service_center_action($data_vendor);
 
-        //Is this SD booking?
-        if (strpos($booking_id, "SS") !== FALSE) {
-            $is_sd = TRUE;
-        } else {
-            $is_sd = FALSE;
-        }
-
-        $query1 = $this->booking_model->getbooking_history($booking_id, "join");
-
-        $email['name'] = $query1[0]['name'];
-        $email['phone_no'] = $query1[0]['phone_number'];
-        $email['user_email'] = $query1[0]['user_email'];
-        $email['booking_id'] = $query1[0]['booking_id'];
-        $email['service'] = $query1[0]['services'];
-        $email['booking_date'] = $query1[0]['booking_date'];
-        $email['booking_timeslot'] = $query1[0]['booking_timeslot'];
-        $email['update_date'] = $data['update_date'];
-        $email['cancellation_reason'] = $data['cancellation_reason'];
-        $email['vendor_name'] = $query1[0]['vendor_name'];
-        $email['district'] = $query1[0]['district'];
-        $email['tag'] = "cancel_booking";
-        $email['subject'] = "Booking Cancellation-AROUND";
-
-        $this->notify->send_email($email);
-
-        //------End of sending email--------//
-        //------------Send SMS for cancellation---------//
-        if ($is_sd == FALSE) {
-            $sms['tag'] = "cancel_booking";
-            $sms['smsData']['service'] = $query1[0]['services'];
-            $sms['phone_no'] = $query1[0]['phone_number'];
-            $sms['booking_id'] = $query1[0]['booking_id'];
-
-            $this->notify->send_sms($sms);
-        }
-
-        log_message('info', 'Booking Status Change- Booking id: ' . $booking_id . " Cancelled By " . $this->session->userdata('employee_id'));
+        //Log this state change as well for this booking
+       $this->notify->insert_state_change($booking_id, $data['current_status'], "Pending" , $this->session->userdata('id'), $this->session->userdata('employee_id'));
+       // this is used to send email or sms while booking cancelled
+       $this->notify->send_sms_email_for_complete_cancel_booking($booking_id, $data['current_status']);
 
         //---------End of sending SMS----------//
         redirect(base_url() . search_page);
@@ -594,7 +577,7 @@ class Booking extends CI_Controller {
         $data['booking_timeslot'] = $this->input->post('booking_timeslot');
         $data['current_status'] = 'Rescheduled';
         $data['internal_status'] = 'Rescheduled';
-        $data['update_date'] = date("Y-m-d h:i:s");
+        $data['update_date'] = date("Y-m-d H:i:s");
 
         //Is this SD booking?
         if (strpos($booking_id, "SS") !== FALSE) {
@@ -978,204 +961,17 @@ class Booking extends CI_Controller {
 
     /**
      *  @desc : This function is to select particular appliance for booking.
-     *
-     * 	Through this we get a form with the appliance details for a appliance which is already registered with us under a particular user.
-     *
+     *  We have already made a function to get_edit_booking_form, this method use that function to insert booking by appliance id
      *  @param : appliance id
      *  @return : user's and appliance details to view
      */
-    function get_appliance_booking_form($id) {
-        $sources = $this->booking_model->select_booking_source();
-        $details = $this->booking_model->get_appliance_details($id);
 
-        $price_details = $this->booking_model->getPricesForCategoryCapacity($details[0]['service_id'], $details[0]['category'], $details[0]['capacity']);
-
-        $user_details = $this->booking_model->get_user_details($details[0]['user_id']);
-
-        if ($details) {
-            $this->load->view('employee/header');
-            $this->load->view('employee/appliancebooking', array('sources' => $sources,
-                'details' => $details,
-                'price_details' => $price_details,
-                'user_details' => $user_details));
-        } else {
-            echo "This Appliance dosn't exists";
-        }
+    function get_appliance_booking_form($appliance_id){
+       $this->get_edit_booking_form("", $appliance_id);
+    
     }
 
-    /**
-     *  @desc : This function is to get appliance booking confirmation page
-     *
-     * 	This method will show all the entered details in form for that particular appliance's booking.
-     *
-     * 	This will help us to re-check the entered details before making it a booking.
-     *
-     *  @param : appliance id
-     *  @return : user and appliance details and load view
-     */
-    function appliancebookingconf($appliance_id) {
-        $booking['user_id'] = $this->input->post('user_id');
-        $booking['service_id'] = $this->input->post('service_id');
-        $booking['user_email'] = $this->input->post('user_email');
-        $booking['city'] = $this->input->post('city');
-        $booking['state'] = $this->input->post('state');
-        $booking['user_name'] = $this->input->post('name');
-        $booking['phone_number'] = $this->input->post('phone_number'); //For pagination to user's detils page
-        $booking['appliance_id'] = $appliance_id;
-        $booking['appliance_brand'] = $this->input->post('appliance_brand');
-        $booking['appliance_category'] = $this->input->post('appliance_category');
-        $booking['model_number'] = $this->input->post('model_number');
-        $booking['appliance_capacity'] = $this->input->post('appliance_capacity');
-        $booking['purchase_year'] = $this->input->post('purchase_year');
-        $booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
-        $booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
-        $booking['appliance_tags'] = $this->input->post('appliance_tags');
-        $booking['total_price'] = $this->input->post('total_price');
-        $booking['items_selected'] = $this->input->post('items_selected');
-        $booking['booking_timeslot'] = $this->input->post('booking_timeslot');
-        $booking['booking_address'] = $this->input->post('booking_address');
-        $booking['booking_pincode'] = $this->input->post('booking_pincode');
-        $booking['booking_remarks'] = $this->input->post('booking_remarks');
-        $booking['booking_date'] = $this->input->post('booking_date');
-        $booking['booking_date'] = date('d-m-Y', strtotime($booking['booking_date']));
-        $yy = date("y", strtotime($booking['booking_date']));
-        $mm = date("m", strtotime($booking['booking_date']));
-        $dd = date("d", strtotime($booking['booking_date']));
-        $booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
-        $booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
-        $booking['amount_due'] = $booking['total_price'];
-        $booking['quantity'] = 1;
-        $booking['type'] = 'Booking';
-        $booking['query_remarks'] = '';
-        $booking['current_status'] = 'Pending';
-        $booking['internal_status'] = 'Scheduled';
-        $booking['create_date'] = date("Y-m-d h:i:s");
-        $booking['source'] = $this->input->post('source_code');
-
-        $result = $this->booking_model->service_name($booking['service_id']);
-
-        $this->load->view('employee/header');
-        $this->load->view('employee/appliancebookingconf', array('booking' => $booking, 'result' => $result));
-    }
-
-    /**
-     *  @desc : This function is to enter booking for particular appliance.
-     *
-     * 	The booking will be inserted for the particular appliance of the particular user with the services selected.
-     *
-     *  @param : void
-     *  @return : loads the pending booking view
-     */
-    function process_appliance_booking_form() {
-        $booking['user_id'] = $this->input->post('user_id');
-        $booking['service_id'] = $this->input->post('service_id');
-        $booking['service_name'] = $this->input->post('services');
-        $booking['user_email'] = $this->input->post('user_email');
-        $booking['user_name'] = $this->input->post('user_name');
-        $booking['city'] = $this->input->post('city');
-        $booking['state'] = $this->input->post('state');
-        $booking['phone_number'] = $this->input->post('phone_number');      //For pagination to user's detils page
-        $booking['appliance_id'] = $this->input->post('appliance_id');
-        $booking['appliance_brand'] = $this->input->post('appliance_brand');
-        $booking['appliance_capacity'] = $this->input->post('appliance_capacity');
-        $booking['appliance_category'] = $this->input->post('appliance_category');
-        $booking['source'] = $this->input->post('source');
-	//Find Partner ID for this Source
-	$booking['partner_id'] = $this->partner_model->get_partner_id_from_booking_source_code($booking['source']);
-	$booking['model_number'] = $this->input->post('model_number');
-        $booking['purchase_year'] = $this->input->post('purchase_year');
-        $booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
-        $booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
-        $booking['appliance_tags'] = $this->input->post('appliance_tags');
-        $booking['total_price'] = $this->input->post('total_price');
-        $booking['items_selected'] = $this->input->post('items_selected');
-        $booking['booking_timeslot'] = $this->input->post('booking_timeslot');
-        $booking['booking_address'] = $this->input->post('booking_address');
-        $booking['booking_pincode'] = $this->input->post('booking_pincode');
-        $booking['booking_remarks'] = $this->input->post('booking_remarks');
-        $booking['booking_date'] = $this->input->post('booking_date');
-        $booking['booking_date'] = date('d-m-Y', strtotime($booking['booking_date']));
-        $yy = date("y", strtotime($booking['booking_date']));
-        $mm = date("m", strtotime($booking['booking_date']));
-        $dd = date("d", strtotime($booking['booking_date']));
-        $booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
-        $booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
-        $booking['amount_due'] = $booking['total_price'];
-        $booking['quantity'] = 1;
-        $booking['type'] = 'Booking';
-        $booking['query_remarks'] = '';
-        $booking['current_status'] = 'Pending';
-        $booking['internal_status'] = 'Scheduled';
-        $booking['create_date'] = date("Y-m-d h:i:s");
-        $booking['potential_value'] = 0;
-
-        $this->booking_model->addapplianceunitdetails($booking);
-
-	$this->booking_model->addbooking($booking, $booking['appliance_id'], $booking['city'], $booking['state']);
-
-        $months = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
-        $mm = $months[$mm - 1];
-        $booking['booking_date'] = $dd . $mm;
-
-        if ($booking['booking_timeslot'] == "10AM-1PM") {
-            $booking['booking_timeslot'] = "1PM";
-        } elseif ($booking['booking_timeslot'] == "1PM-4PM") {
-            $booking['booking_timeslot'] = "4PM";
-        } elseif ($booking['booking_timeslot'] == "4PM-7PM") {
-            $booking['booking_timeslot'] = "7PM";
-        }
-
-        //-------Sending Email On Booking--------//
-        if ($booking['current_status'] != "FollowUp") {
-            $message = "Congratulations You have received new booking from existing appliance, details are mentioned below:
-          <br>Customer Name: " . $booking['user_name'] . "<br>Customer Phone Number: " .
-                    $booking['booking_primary_contact_no'] . "<br>Customer email address: " .
-                    $booking['user_email'] . "<br>Booking Id: " . $booking['booking_id'] . "<br>Service name:" .
-                    $booking['service_name'] . "<br>Number of appliance: " . $booking['quantity'] .
-                    "<br>Booking Date: " . $booking['booking_date'] . "<br>Booking Timeslot: " .
-                    $booking['booking_timeslot'] . "<br>Amount Due: " . $booking['amount_due'] .
-                    "<br>Your Booking Remark is: " . $booking['booking_remarks'] . "<br>Booking address: " .
-                    $booking['booking_address'] . "<br>Booking pincode: " . $booking['booking_pincode'] .
-                    "<br>Booking city: " . $booking['city'] .
-                    "<br><br>
-            Appliance Details:<br>";
-
-            $appliance = "";
-            for ($i = 0; $i < $booking['quantity']; $i++) {
-
-                $appliance = "<br>Brand : " . $booking['appliance_brand'] . "<br>Category : " . $booking['appliance_category'] . "<br>Capacity : " . $booking['appliance_capacity'] .
-                        "<br>Selected service/s is/are: " . $booking['items_selected'] . "<br>Total price is: " . $booking['total_price'] . "<br>";
-                $message = $message . $appliance;
-            }
-            $message = $message . "<br> Thanks!!";
-
-            $from = 'booking@247around.com';
-            $to = "anuj@247around.com, nits@247around.com";
-            $cc = "";
-            $bcc = "";
-            $subject = 'Booking Confirmation-AROUND';
-            $attachment = "";
-
-            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
-            //-------Sending SMS on booking--------//
-
-            if (strstr($booking['booking_id'], "SS") == FALSE) {
-
-                $sms['tag'] = "add_new_booking";
-                $sms['smsData']['service'] = $booking['service_name'];
-                $sms['smsData']['booking_date'] = $booking['booking_date'];
-                $sms['smsData']['booking_timeslot'] = $booking['booking_timeslot'];
-                $sms['phone_no'] = $booking['booking_primary_contact_no'];
-                $sms['booking_id'] = $booking['booking_id'];
-
-                $this->notify->send_sms($sms);
-            }
-            //------End of sending SMS--------//
-        }
-
-        redirect(base_url() . search_page);
-    }
-
+    
     /**
      *  @desc : This function is to get add new brand page
      *
@@ -1248,17 +1044,25 @@ class Booking extends CI_Controller {
      * @param: booking id
      * @return : void
      */
-    function get_edit_booking_form($booking_id){
-       $booking_history = $this->booking_model->getbooking_history($booking_id);
+    function get_edit_booking_form($booking_id, $appliance_id = ""){
+
+       if($booking_id !=""){
+            $booking_history = $this->booking_model->getbooking_history($booking_id);
+
+       } else {
+            $booking_history = $this->booking_model->getbooking_history_by_appliance_id($appliance_id);
+       }
+       
       
        $booking = $this->booking_model->get_city_booking_source_services($booking_history[0]['phone_number']);
        $booking['booking_history'] = $booking_history;
-       $booking['unit_details'] =  $this->booking_model->getunit_details($booking_id);
+       $booking['unit_details'] =  $this->booking_model->getunit_details($booking_id, $appliance_id);
        $booking['brand'] = $this->booking_model->getBrandForService($booking_history[0]['service_id']);
        $partner_id = $this->booking_model->get_price_mapping_partner_code($booking_history[0]['source']);
        $booking['category'] = $this->booking_model->getCategoryForService($booking_history[0]['service_id'], $booking_history[0]['state'], $partner_id);
        $booking['capacity'] = array(); 
        $booking['prices'] = array();
+       $booking['appliance_id'] = $appliance_id;
 
        foreach ($booking['unit_details'] as $key => $value) {
 
@@ -1350,12 +1154,12 @@ class Booking extends CI_Controller {
      *  @return : none
      */
     function call_customer($cust_phone) {
-        log_message('info', __FUNCTION__);
+       // log_message('info', __FUNCTION__);
 
         $s1 = $_SERVER['HTTP_REFERER'];
         //$s2 = "https://www.aroundhomzapp.com/";
-	$s2 = base_url();
-	$redirect_url = substr($s1, strlen($s2));
+	    $s2 = base_url();
+	    $redirect_url = substr($s1, strlen($s2));
 
         $this->checkUserSession();
 
@@ -1414,82 +1218,6 @@ class Booking extends CI_Controller {
         }
     }
 
-    /**
-     * @desc: This is function is used to complete booking and update service center action in service_center_action table
-     * @param : void
-     * @return; void
-     */
-    function complete_review_booking() {
-    log_message('info', "Entering: " . __METHOD__);
-
-
-    $booking_id = $this->input->post('booking_id');
-    log_message('info', "booking_id: " . $booking_id);
-
-
-    $data['service_charge'] = $this->input->post('service_charge');
-    $data['additional_service_charge'] = $this->input->post('additional_charge');
-    $data['parts_cost'] = $this->input->post('parts_cost');
-    $data['amount_paid'] = $this->input->post('amount_paid');
-    
-    $data['closed_date'] = date("Y-m-d h:i:s");
-    $data['internal_status'] = $this->input->post('internal_status');
-    if($data['internal_status'] == "Cancelled"){
-
-        $data['current_status'] = "Cancelled";
-        $data['cancellation_reason'] = $this->input->post('cancellation_reason');
-
-    } else{
-        $data['current_status'] = "Completed";
-    }
-    $data['service_charge'] = $this->input->post('service_charge');
-    $admin_remarks = $this->input->post('admin_remarks');
-    
-    $service_center_remarks = $this->input->post('service_center_remarks');
-
-    $data['closing_remarks'] = "Service Center Remarks:- " . $service_center_remarks . " <br/> Admin:-  " . $admin_remarks;
-
-    log_message('info', "update data: " . print_r($data, TRUE));
-
-    $this->booking_model->update_booking($booking_id, $data);
-
-    $data['booking_id'] = $booking_id;
-    $this->vendor_model->update_service_center_action($data);
-
-    //Save this booking id in booking_invoices_mapping table as well now
-    $this->invoices_model->insert_booking_invoice_mapping(array('booking_id' => $booking_id));
-
-    //Is this SD booking?
-    if (strpos($booking_id, "SS") !== FALSE) {
-        $is_sd = TRUE;
-    } else {
-        $is_sd = FALSE;
-    }
-
-
-    $query1 = $this->booking_model->getbooking_history($booking_id);
-
-    log_message('info', 'Booking Status Change- Booking id: ' . $booking_id . " Completed By " . $this->session->userdata('employee_id'));
-
-    $message = "Booking Completion.<br>Customer name: " . $query1[0]['name'] . "<br>Customer phone number: " . $query1[0]['phone_number'] . "<br>Customer email: " . $query1[0]['user_email'] . "<br>Booking Id is: " . $query1[0]['booking_id'] . "<br>Your service name is:" . $query1[0]['services'] . "<br>Booking date: " . $query1[0]['booking_date'] . "<br>Booking completion date: " . $data['closed_date'] . "<br>Amount paid for the booking: " . $data['amount_paid'] . "<br>Your booking completion remark is: " . $data['closing_remarks'] . "<br> Thanks!!";
-
-    $to = "anuj@247around.com, nits@247around.com";
-
-    $subject = 'Booking Completion-AROUND';
-    $cc = "";
-    $bcc = "";
-    $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
-
-    //------End of sending email--------//
-    //------Send SMS on Completion of booking-----//
-    if ($is_sd == FALSE) {
-        $smsBody = "Your request for " . $query1[0]['services'] . " Repair completed. Like us on Facebook goo.gl/Y4L6Hj For discounts download app goo.gl/m0iAcS. For feedback call 011-39595200.";
-        $this->notify->sendTransactionalSms($query1[0]['phone_number'], $smsBody);
-    }
-
-    print_r('success');
-    }
-
     
     /**
      * @desc: save Admin remarks in service center action table
@@ -1530,10 +1258,14 @@ class Booking extends CI_Controller {
     function checked_complete_review_booking() {
     $approved_booking = $this->input->post('approved_booking');
     $url = base_url() . "employee/do_background_process/complete_booking";
+    $agent_id = $this->session->userdata('id');
+    $agent_name = $this->session->userdata('employee_id');
 
     foreach ($approved_booking as $key => $booking_id) {
         $data  = array();
         $data['booking_id'] = $booking_id;
+        $data['agent_id'] = $agent_id;
+        $data['agent_name'] = $agent_name;
         $this->asynchronous_lib->do_background_process($url, $data);
 
     }
@@ -1574,7 +1306,7 @@ class Booking extends CI_Controller {
             $booking['booking_timeslot'] = $booking_timeslot[1];
             $booking['current_status'] = 'Rescheduled';
             $booking['internal_status'] = 'Rescheduled';
-            $booking['update_date'] = date("Y-m-d h:i:s");
+            $booking['update_date'] = date("Y-m-d H:i:s");
             $booking['reschedule_reason'] = $reschedule_reason[$value];
 
             $this->booking_model->update_booking($value, $booking);
@@ -1594,7 +1326,7 @@ class Booking extends CI_Controller {
      * @param: String Array, string
      * @return :void
      */
-    function process_complete_booking($booking_id, $status){
+    function process_complete_booking($booking_id, $status=""){
         // customer paid basic charge is comming in array
        // Array ( [100] =>  500 , [102] =>  300 )  
        $customer_basic_charge = $this->input->post('customer_basic_charge');
@@ -1604,8 +1336,10 @@ class Booking extends CI_Controller {
        $parts_cost =  $this->input->post('parts_cost');
        $booking_status = $this->input->post('booking_status');
        $total_amount_paid =  $this->input->post('grand_total_price');
-       $internal_status = "UnProductive";
-       
+       $admin_remarks =  $this->input->post('admin_remarks');
+       $internal_status = "Cancelled";
+       $service_center_details = $this->booking_model->getbooking_charges($booking_id);
+   
        foreach ($customer_basic_charge as $unit_id => $value) {
         // variable $unit_id  is existing id in booking unit details table of given booking id 
         $data = array();
@@ -1618,29 +1352,128 @@ class Booking extends CI_Controller {
         if($data['booking_status'] == "Completed"){
            $internal_status = "Completed";
         }
-
+        log_message('info', ": " . " update booking unit details data " . print_r($data, TRUE));
+        
         // update price in the booking unit details page
         $this->booking_model->update_unit_details($data);
-          
-       }
+        
+        $service_center['booking_id'] = $booking_id;
+        $service_center['closing_remarks'] = "Service Center Remarks:- " . $service_center_details[0]['service_center_remarks'] .
+                    " <br/> Admin:-  " . $admin_remarks;
+        $service_center['internal_status']  = $service_center['current_status'] = $data['booking_status'];
 
+        $service_center['unit_details_id'] = $unit_id;
+        $service_center['update_date'] =  date('Y-m-d H:i:s');
+
+        log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
+
+        $this->vendor_model->update_service_center_action($service_center);
+        
+       }
+   
        $booking['rating_stars'] = $this->input->post('rating_stars');
        $booking['vendor_rating_stars'] = $this->input->post('vendor_rating_stars');
        $booking['vendor_rating_comments'] =  $this->input->post('vendor_rating_comments');
        $booking['rating_comments'] = $this->input->post('rating_comments');
-       $booking['closed_date'] = date('Y-m-d h:i:s');
+       $booking['closing_remarks'] = $service_center['closing_remarks'];
+       $booking['closed_date'] = date('Y-m-d H:i:s');
        $booking['amount_paid'] =  $total_amount_paid;
-       $booking['current_status'] = "Completed";
+       $booking['current_status'] = $internal_status;
        $booking['internal_status'] = $internal_status;
        $booking['booking_id'] =  $booking_id;
+       //update booking_details table
+        log_message('info', ": " . " update booking details data (" .$booking['current_status'] .")".print_r($booking, TRUE));
        // this function is used to update booking details table
        $this->booking_model->update_booking($booking_id, $booking);
+
+       //Log this state change as well for this booking
+       $this->notify->insert_state_change($booking_id, $internal_status, "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
+
+       $this->notify->send_sms_email_for_complete_cancel_booking($booking_id, $internal_status);
+
        if($status ="0"){
 
           redirect(base_url() . 'employee/booking/view');
        } else {
-          redirect(base_url() . 'employee/booking/viewclosedbooking/'.$$internal_status);
+          redirect(base_url() . 'employee/booking/viewclosedbooking/'.$internal_status);
        }
        
     }
+
+     /**
+     *  @desc : This function is to present form to open completed bookings
+     *
+     * It converts a Completed Booking into Pending booking and schedule it to
+     * a new booking date & time.
+     *
+     *  @param : String (Booking Id)
+     *  @return :
+     */
+    function get_convert_booking_to_pending_form($booking_id, $status) {
+        $bookings = $this->booking_model->getbooking_history($booking_id);
+        $bookings[0]['status'] = $status;
+
+        $this->load->view('employee/header');
+        $this->load->view('employee/complete_to_pending', $bookings[0]);
+    }
+
+     /**
+     *  @desc : This function is to process form to open completed bookings
+     *
+     * Accepts the new booking date and timeslot povided in form and then opens
+     * a completed booking.
+     *
+     *  @param : booking id
+     *  @return : Converts the booking to Pending stage and load view
+     */
+    function process_convert_booking_to_pending_form($booking_id, $status) {
+        $data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
+        $data['booking_timeslot'] = $this->input->post('booking_timeslot');
+        $data['current_status'] = 'Pending';
+        $data['internal_status'] = 'Scheduled';
+        $data['update_date'] = date("Y-m-d H:i:s");
+        $data['closed_date'] = NULL;
+        $data['vendor_rating_stars'] = NULL;
+        $data['vendor_rating_comments'] = NULL;
+        $data['amount_paid'] = NULL;
+        $data['rating_stars'] = NULL;
+        $data['rating_comments'] = NULL;
+        $data['closing_remarks'] = NULL;
+        $data['booking_jobcard_filename'] = NULL;
+        $data['mail_to_vendor'] = 0;
+
+
+        if ($data['booking_timeslot'] == "Select") {
+            echo "Please Select Booking Timeslot.";
+        } else {
+
+            $this->booking_model->convert_booking_to_pending($booking_id, $data, $status);
+            //Log this state change as well for this booking
+            $this->notify->insert_state_change($booking_id, "Pending", $status, $this->session->userdata('id'), $this->session->userdata('employee_id'));
+
+            $query1 = $this->booking_model->getbooking_history($booking_id, "join");
+
+            $email['booking_id'] = $query1[0]['booking_id'];
+            $email['name'] = $query1[0]['name'];
+            $email['phone_no'] = $query1[0]['phone_number'];
+            $email['service'] = $query1[0]['services'];
+            $email['booking_date'] = $data['booking_date'];
+            $email['booking_timeslot'] = $data['booking_timeslot'];
+            $email['vendor_name'] = $query1[0]['vendor_name'];
+            $email['city'] = $query1[0]['city'];
+            $email['agent'] = $this->session->userdata('employee_id');
+
+            $email['tag'] = "open_completed_booking";
+            $email['subject'] = $status. " Booking Converted to Pending - AROUND";
+
+            $this->notify->send_email($email);
+
+            log_message('info', 'Completed Booking Opened - Booking id: ' . $booking_id . " Opened By: " . $this->session->userdata('employee_id') . " => " . print_r($data, true));
+
+            redirect(base_url() . search_page);
+        }
+    }
+
+
+    
 }

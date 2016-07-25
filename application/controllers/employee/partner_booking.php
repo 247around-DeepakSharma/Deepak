@@ -298,7 +298,7 @@ class Partner_booking extends CI_Controller {
      */
     function set_price_rows_data_for_paytm($row, $partner_id, $user_id) {
 
-        $data['order_id'] = $row[0];
+        $data['OrderID'] = $row[0];
         $data['ItemID'] = $row[1];
         $data['MerchantID'] = $row[2];
         $data['ProductType'] = $row[3];

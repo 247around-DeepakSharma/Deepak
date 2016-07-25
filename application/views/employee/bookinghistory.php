@@ -127,23 +127,29 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
               </table>
                        
             </div>
-            <div style="float:left;">
-              <center>
+            <div class="row" style="margin-top: 20px;">
+            <div class="col-md-3 col-md-offset-2">
                 <a class="btn btn-primary" href="<?php echo base_url(); ?>employee/booking/addbooking/<?php echo $data[0]['phone_number'];?>">New Booking</a>
 
-              <a style="margin-left: 90px;"href="<?php echo base_url();?>employee/user/get_edit_user_form/<?php echo $data[0]['phone_number']?>" class='btn btn-primary'>User Details</a>
-
-              <div style="float:left;margin-left:100px;"><input id="appliance_toogle_button" type="Button" value="Appliance Details" class='btn btn-primary'></div>
-
-              <div style="float:left;margin-left:100px;"></div>
-              </center>
-
+            </div>
+            <div class="col-md-3">
+               <a href="<?php echo base_url();?>employee/user/get_edit_user_form/<?php echo $data[0]['phone_number']?>" class='btn btn-primary'>User Details</a>
+            </div>
+            <div class="col-md-3">
+              <input id="appliance_toogle_button" type="Button" value="Appliance Details" class='btn btn-primary'>
+            </div>
+              
+            </div>
+            </div>
+            <div style=" margin-top: 25px;" class="col-md-12 col-md-offset-3">
+             
+            
               <?php if(!empty($links)) { ?><div id="for_user_page" class="pagination" style="float:left;"> <?php echo $links; ?></div> <?php } ?>
 
             </div>
 
 
-            <div id="for_appliance" style="float:left;padding-top:20px;padding-left:20px;">
+            <div id="for_appliance" class="col-md-12" >
               <h2><b>Appliance Wallet:</b></h2>
               <div>
                 <table>

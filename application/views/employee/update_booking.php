@@ -4,7 +4,7 @@
         <div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">Update Booking</div>
             <div class="panel-body">
-                <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url()?>employee/booking/update_booking/<?php echo $booking_history[0]['user_id'];?>/<?php echo $booking_history[0]['booking_id']?>"  method="POST" enctype="multipart/form-data">
+                <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php if(isset($booking_history[0]['booking_id'])){ echo base_url()?>employee/booking/update_booking/<?php echo $booking_history[0]['user_id'];?>/<?php echo $booking_history[0]['booking_id']; } else { echo base_url()?>employee/booking/index/<?php echo $user[0]['user_id'];} ?> "  method="POST" enctype="multipart/form-data">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="col-md-6">
@@ -12,6 +12,7 @@
                                     <label for="name" class="col-md-4">User Name</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control" id="name" name="user_name" value = "<?php echo $booking_history[0]['name'] ?>" readonly="readonly">
+                                        <input type="hidden" name="appliance_id" value="<?php echo $appliance_id; ?>" </input>
                                     </div>
                                 </div>
                                 <div class="form-group ">
@@ -47,6 +48,12 @@
                                         </select>
                                     </div>
                                 </div>
+                                 <div class="form-group ">
+                                     <label for="service_name" class="col-md-4">Order Id </label>
+                                      <div class="col-md-6">
+                                          <input class="form-control" name= "order_id" value="<?php if(isset($booking_history[0]['order_id'])){ echo $booking_history[0]['order_id']; } ?>"></input>
+                                      </div>
+                                 </div>
                                 <!--  end col-md-6  -->
                             </div>
                             <!--  start col-md-6  -->
@@ -77,12 +84,12 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="form-group <?php if( form_error('type') ) { echo 'has-error';} ?>">
+                                <div class="form-group ">
                                     <label for="type" class="col-md-4">Type *</label>
                                     <div class="col-md-8">
-                                        <input style="width:65px;height:20px;display:inline;" id="query" type="radio" class="form-control booking_type" name="type" value="Query"  <?php if($booking_history[0]['type'] == "Query" ){ echo "checked"; }?>  required>Query
-                                        <input style="width:65px;height:20px;display:inline;" id="booking" type="radio" class="form-control booking_type" name="type" value="Booking" <?php if($booking_history[0]['type'] == "Booking" ){ echo "checked"; }?> required>Booking
-                                        <?php echo form_error('type'); ?>
+                                        <input style="width:65px;height:20px;display:inline;" id="query" type="radio" class="form-control booking_type" name="type" value="Query"  <?php if(isset($booking_history[0]['type'])){ if($booking_history[0]['type'] == "Query" ){ echo "checked"; } } ?>  required>Query
+                                        <input style="width:65px;height:20px;display:inline;" id="booking" type="radio" class="form-control booking_type" name="type" value="Booking" <?php if(isset($booking_history[0]['type'])){   if($booking_history[0]['type'] == "Booking" ){ echo "checked"; } } ?> required>Booking
+                                       
                                     </div>
                                 </div>
                                 <!-- end col-md-6 -->
@@ -443,9 +450,9 @@
                                 <div class="col-md-6">
                                     <select class="form-control" id="booking_timeslot" name="booking_timeslot" value = "<?php echo set_value('booking_timeslot'); ?>"  required>
                                         <option selected disabled>Select time slot</option>
-                                        <option <?php if($booking_history[0]['booking_timeslot'] == "1PM"){echo "selected"; } ?>>10AM-1PM</option>
-                                        <option <?php if($booking_history[0]['booking_timeslot'] == "4PM"){echo "selected"; } ?>>1PM-4PM</option>
-                                        <option <?php if($booking_history[0]['booking_timeslot'] == "7PM"){echo "selected"; } ?>>4PM-7PM</option>
+                                        <option <?php if(isset($booking_history[0]['booking_timeslot'])){ if($booking_history[0]['booking_timeslot'] == "1PM"){echo "selected"; } } ?>>10AM-1PM</option>
+                                        <option <?php if(isset($booking_history[0]['booking_timeslot'])){  if($booking_history[0]['booking_timeslot'] == "4PM"){echo "selected"; } } ?>>1PM-4PM</option>
+                                        <option <?php if(isset($booking_history[0]['booking_timeslot'])){  if($booking_history[0]['booking_timeslot'] == "7PM"){echo "selected"; } } ?>>4PM-7PM</option>
                                     </select>
                                 </div>
                             </div>

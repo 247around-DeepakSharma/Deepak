@@ -626,6 +626,20 @@ class Booking_model extends CI_Model {
         return $query->result_array();
     }
 
+    function getbooking_history_by_appliance_id($appliance_id){
+
+        $sql = " SELECT `services`.`services`, users.*, `booking_unit_details`.service_id, `booking_details`.source "
+               . "from booking_unit_details, booking_details, users, services " 
+               . "where booking_unit_details.appliance_id='$appliance_id' and "
+               . " booking_details.booking_id = booking_unit_details.booking_id and "
+               . "booking_details.user_id = users.user_id and "
+               . "services.id = booking_details.service_id  ";
+
+        $query = $this->db->query($sql);
+
+        return $query->result_array();
+    }
+
     /**
      *  @desc : function to get service center details assigned to a particular booking
      *  @param : $booking_id
@@ -964,33 +978,6 @@ class Booking_model extends CI_Model {
     }
 
     /**
-     *  @desc : This function is to get appliance deatils
-     *
-     *  This helps to find appliance details of a user if he/she is willing to book any service for that
-     *       appliance that is registered with us.
-     *
-     *  @param : appliance id
-     *  @return : appliance details
-     */
-    function get_appliance_details($id) {
-        $sql = "SELECT * from appliance_details WHERE id='$id'";
-        $query = $this->db->query($sql);
-        return $query->result_array();
-    }
-
-    /**
-     *  @desc : This function finds all the details of a particular user
-     *
-     *  @param : user id
-     *  @return : array of user details
-     */
-    function get_user_details($user_id) {
-        $sql = "SELECT * from users WHERE user_id='$user_id'";
-        $query = $this->db->query($sql);
-        return $query->result_array();
-    }
-
-    /**
      *  @desc : This function finds all the details for the particular service name/
      *      get all service from database(mentioned earliar)
      *
@@ -1003,17 +990,6 @@ class Booking_model extends CI_Model {
 
         $services = $query->result_array();
         return $services[0]['id'];
-    }
-
-    /**
-     *  @desc : This function selects all the booking sources names and codes present
-     *
-     *  @param : void
-     *  @return : array of all sources
-     */
-    function select_booking_source() {
-        $query = $this->db->query("SELECT source, code FROM bookings_sources");
-        return $query->result();
     }
 
     /**
@@ -1717,22 +1693,31 @@ class Booking_model extends CI_Model {
     }
 
     /**
-     * @desc: get all booking details for given booking id
-     * @param: booking id 
+     * @desc: get booking unit details(Prices) from booking id or appliance id. it gets all prices in the array of key value quantity.
+     * @param: booking id, appliance id
      * @return:  Array
      */
-    function getunit_details($booking_id){
+    function getunit_details($booking_id="", $appliance_id=""){
+        $where = "";
 
-        $sql = "SELECT distinct(appliance_id), brand, category, capacity, `appliance_details`.`model_number`,description, `appliance_details`.`purchase_month`, `appliance_details`.`purchase_year`, appliance_tag
-            from booking_unit_details,  appliance_details Where `booking_unit_details`.booking_id = '$booking_id' AND `appliance_details`.`id` = `booking_unit_details`.`appliance_id`  ";
+        if($booking_id !=""){
+           $where = " `booking_unit_details`.booking_id = '$booking_id' ";
+
+        } else if($appliance_id !=""){
+            $where = " `booking_unit_details`.appliance_id = '$appliance_id' ";
+        }
+
+        $sql = "SELECT distinct(appliance_id), brand, booking_id, category, capacity, `appliance_details`.`model_number`,description, `appliance_details`.`purchase_month`, `appliance_details`.`purchase_year`, appliance_tag
+            from booking_unit_details,  appliance_details Where $where  AND `appliance_details`.`id` = `booking_unit_details`.`appliance_id`  ";
 
         $query = $this->db->query($sql);
         $appliance =  $query->result_array();
-
+        
         foreach ($appliance as $key => $value) {
             // get data from booking unit details table on the basis of appliance id
             $this->db->select('id as unit_id, price_tags, customer_total, around_net_payable, partner_net_payable, customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts, booking_status, partner_paid_basic_charges,product_or_services');
             $this->db->where('appliance_id', $value['appliance_id']);
+            $this->db->where('booking_id', $value['booking_id']);
             $query2 = $this->db->get('booking_unit_details');
 
             $result = $query2->result_array();
@@ -1807,6 +1792,32 @@ class Booking_model extends CI_Model {
         $this->db->insert('booking_unit_details', $result);
 
         return $result;
+    }
+
+    /**
+     *  @desc : This function is to insert booking state changes.
+     *
+     *  @param : Array $details Booking state change details
+     *  @return :
+     */
+    function insert_booking_state_change($details) {
+    $this->db->insert('booking_state_change', $details);
+
+    //return $this->db->insert_id();
+    }
+
+    /**
+     *  @desc : This function converts a Completed/Cancelled Booking into Pending booking
+     * and schedules it to new booking date & time.
+     *
+     *  @param : String $booking_id Booking Id
+     *  @param : Array $data New Booking Date and Time
+     *  @param : current_status
+     *  @return :
+     */
+    function convert_booking_to_pending($booking_id, $data, $status) {
+    $this->db->where(array('booking_id' => $booking_id, 'current_status' => $status));
+    $this->db->update('booking_details', $data);
     }
 
 

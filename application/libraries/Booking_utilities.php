@@ -40,7 +40,7 @@ class Booking_utilities {
 
 	$file_names = array();
 
-	$template = 'BookingJobCard_Template-v6.xlsx';
+	$template = 'BookingJobCard_Template-v7.xlsx';
 	//set absolute path to directory with template files
 	$templateDir = __DIR__ . "/../controllers/";
 
@@ -220,12 +220,12 @@ class Booking_utilities {
 	    	$booking_details[0]->booking_timeslot= '1PM';
 	    }
 	    else {
-	    	$booking_details[0]->booking_timeslot= '4PM';	
+	    	$booking_details[0]->booking_timeslot= '4PM';
 	    }
 
 
 	    $smsBody = "Booking - " . $booking_details[0]->customername . ", " . $booking_details[0]->phone_number . ", " . $serviceName[0]['services'] . ", " . $bookingdate ."/" . $booking_details[0]->booking_timeslot .  ", " . $getbooking[0]['booking_address'] . ", ". $booking_details[0]->booking_pincode . ". 247around";
-	    
+
 	    //Send SMS to vendor
 	    $this->sendTransactionalSms($servicecentredetails[0]['primary_contact_phone_1'], $smsBody);
 	    //Save email in database

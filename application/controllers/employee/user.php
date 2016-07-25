@@ -111,27 +111,52 @@ class User extends CI_Controller {
                 $this->load->view('employee/header');
                 $this->load->view('employee/bookinghistory', $data);
             }
-        } elseif ($booking_id != "") {  //if booking id given and matched, will be displayed 
+        } elseif ($booking_id != "") {  //if booking id given and matched, will be displayed
             $data['Bookings'] = $this->booking_model->search_bookings_by_booking_id($booking_id);
-            if(!empty($data['Bookings'])){
-                if (strstr($data['Bookings'][0]->booking_id, "Q-") == TRUE) {
-                    
-                    $this->load->view('employee/header');
-                    $this->load->view('employee/viewpendingqueries', $data);
+            if (!empty($data['Bookings'])) {
+		if (substr($data['Bookings'][0]->booking_id, 0, 2) === "Q-") {
+		    //It is a query, check its status and assign appropriate view
+		    switch ($data['Bookings'][0]->current_status) {
+			case 'FollowUp':
+			    $view = 'employee/viewpendingqueries';
+			    break;
 
+			case 'Cancelled':
+			    $view = 'employee/viewcancelledqueries';
+			    break;
+
+			default:
+			    $view = 'employee/viewpendingqueries';
+			    break;
+		    }
                 } else {
+		    //It is a booking, find its status first.
+		    switch ($data['Bookings'][0]->current_status) {
+			case 'Pending':
+			case 'Rescheduled':
+			    $view = 'employee/booking';
+			    break;
 
-                    $this->load->view('employee/header');
-                    $this->load->view('employee/booking', $data);
-                }
-            } else {
+			case 'Cancelled':
+			    $view = 'employee/viewcancelledbooking';
+			    break;
 
-                $this->load->view('employee/header');
-                $this->load->view('employee/booking', $data);
-            }
+			case 'Completed':
+			    $view = 'employee/viewcompletedbooking';
+			    break;
 
-           
-        }
+			default:
+			    $view = 'employee/booking';
+			    break;
+		    }
+		}
+	    } else {
+                $view = 'employee/booking';
+	    }
+
+	    $this->load->view('employee/header');
+	    $this->load->view($view, $data);
+	}
     }
 
     /**
@@ -230,7 +255,7 @@ class User extends CI_Controller {
         $user['state'] = $this->input->post('state');
         $user['pincode'] = $this->input->post('pincode');
         $user['alternate_phone_number'] = $this->input->post('alternate_phone_number');
-        $user['create_date'] = date("Y-m-d h:i:s");
+        $user['create_date'] = date("Y-m-d H:i:s");
 
         //Add the user
         $user_id = $this->user_model->add_user($user);

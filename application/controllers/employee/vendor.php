@@ -333,14 +333,14 @@ class vendor extends CI_Controller {
 
 	if ($service_center_id != "Select") {
             $this->booking_model->assign_booking($booking_id, $service_center_id);
-            $this->vendor_model->delete_previous_service_center_action($booking_id);
+           // $this->vendor_model->delete_previous_service_center_action($booking_id);
             $unit_details = $this->booking_model->getunit_details($booking_id);
             foreach ($unit_details[0]['qunatity'] as $value ) { 
                 $data = array();
                 $data['current_status'] = "Pending";
                 $data['service_center_id'] = $service_center_id;
                 $data['booking_id'] = $booking_id;
-                $data['create_date'] = date('Y-m-d h:i:s');
+                $data['create_date'] = date('Y-m-d H:i:s');
                 $data['unit_details_id'] = $value['unit_id'];
                 $this->vendor_model->insert_service_center_action($data);
             }

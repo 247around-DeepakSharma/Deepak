@@ -37,7 +37,7 @@ class Service extends CI_Controller {
       $service['services']    = $this->input->post('services');
       $service['keywords']    = $this->input->post('keywords');
       $service['distance']    = $this->input->post('distance');
-      $service['create_date'] = date("Y-m-d h:i:s");
+      $service['create_date'] = date("Y-m-d H:i:s");
 
       if(isset($_POST['service_image']))
         $service['service_image'] = $this->input->post('service_image');
@@ -241,7 +241,7 @@ class Service extends CI_Controller {
                $service['services']     = $this->input->post('services');
                $service['distance']     = $this->input->post('distance');
                $service['keywords']     = $this->input->post('keywords');
-               $service['update_date']  = date("Y-m-d h:i:s");
+               $service['update_date']  = date("Y-m-d H:i:s");
 
 
                if(isset($_POST['service_image']))

@@ -119,15 +119,16 @@
 <div id="page-wrapper">
     <div class="">
         <div class="row">
-            <?php  if($this->uri->segment(3) == 'view' || $this->uri->segment(3) == 'service_center_sorted_booking'){?>
+            <?php  if($this->uri->segment(3) == 'view' || $this->uri->segment(3) == 'view_all_pending_booking'
+                        || $this->uri->segment(3) == 'service_center_sorted_booking'){?>
             <div class="pagination">
                 <select id="dynamic_select">
                     <option value="<?php echo base_url().'employee/booking/view'?>" <?php if($this->uri->segment(4) == 50){ echo 'selected';}?>>50</option>
                     <option value="<?php echo base_url().'employee/booking/view/0/100'?>" <?php if($this->uri->segment(5) == 100){ echo 'selected';}?>>100</option>
                     <option value="<?php echo base_url().'employee/booking/view/0/200'?>" <?php if($this->uri->segment(5) == 200){ echo 'selected';}?>>200</option>
-                    <option value="<?php echo base_url().'employee/booking/view/0/All'?>" <?php if($this->uri->segment(5) == 'All'){ echo 'selected';}?>>All</option>
-                    <?php if ($this->uri->segment(5)){if($this->uri->segment(5) != 50 || $this->uri->segment(5) != 100 || $this->uri->segment(5) != 200 || $this->uri->segment(5) != 'ALl'){?>
-                    <option value="" <?php if($this->uri->segment(5) == count($Bookings)){ echo 'selected';}?>><?php echo $this->uri->segment(5);?></option >
+                    <option value="<?php echo base_url().'employee/booking/view_all_pending_booking'?>" <?php if($this->uri->segment(3) == 'view_all_pending_booking'){ echo 'selected';}?>>All</option>
+                    <?php if ($this->uri->segment(5)){if($this->uri->segment(5) != 50 || $this->uri->segment(5) != 100 || $this->uri->segment(5) != 200 ){?>
+                    <option value="" <?php if($this->uri->segment(5) == count($Bookings)){ echo 'selected';}?>><?php echo $this->uri->segment(5);?></option>
                     <?php } }?>
                 </select>
             </div>

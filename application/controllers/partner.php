@@ -980,7 +980,7 @@ class Partner extends CI_Controller {
 	$booking['current_status'] = "Cancelled";
 	$booking['internal_status'] = $request['cancellationReason'];
 	$booking['cancellation_reason'] = "Other : " . $request['cancellationReason'];
-	$booking['update_date'] = $booking['closed_date'] = date("Y-m-d h:i:s");
+	$booking['update_date'] = $booking['closed_date'] = date("Y-m-d H:i:s");
 
 	$this->booking_model->update_booking($booking_id, $booking);
 
@@ -1056,7 +1056,7 @@ class Partner extends CI_Controller {
 
 	$sch_time = $booking['booking_timeslot'];
 	$booking['query_remarks'] = (isset($request['remarks']) ? $request['remarks'] : "");
-	$booking['update_date'] = date("Y-m-d h:i:s");
+	$booking['update_date'] = date("Y-m-d H:i:s");
 
 	$this->booking_model->update_booking($booking_id, $booking);
 

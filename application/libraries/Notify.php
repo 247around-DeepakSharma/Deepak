@@ -81,7 +81,7 @@ class Notify {
 
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_VERBOSE, 1);
+        curl_setopt($ch, CURLOPT_VERBOSE, 0);
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -130,7 +130,7 @@ class Notify {
         if (!empty($template)) {
             $emailBody = vsprintf($template[0], $email);
             $from = $template[2];
-            $to = $template[1];
+            $to =  $template[1];
             $cc = "";
             $bcc = "";
             $subject = $email['subject'];
@@ -180,7 +180,7 @@ class Notify {
 
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_VERBOSE, 1);
+        //curl_setopt($ch, CURLOPT_VERBOSE, 1);
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -194,10 +194,90 @@ class Notify {
 
         curl_close($ch);
 
-        log_message('info', __FUNCTION__ . "=> " . print_r(array($http_result, $error, $http_code), TRUE));
+        //log_message('info', __FUNCTION__ . "=> " . print_r(array($http_result, $error, $http_code), TRUE));
+    }
+    
+    /**
+     * @desc: this is used to insert agent record while update booking
+     * @param: String(booking id, agent id, agent name, booking status)
+     * @return: void
+     */
+    function insert_state_change($booking_id, $new_state, $old_state, $agent_id, $agent_name){
+        //Log this state change as well for this booking
+      
+       //Log this state change as well for this booking
+        $state_change['booking_id'] = $booking_id;
+        $state_change['old_state'] = $old_state;
+        $state_change['new_state'] = $new_state;
+        $state_change['agent_id'] = $agent_id;
+        $this->My_CI->booking_model->insert_booking_state_change($state_change);
+        log_message('info', 'Booking Status Change - Booking id: ' . $booking_id . $new_state."  By " . $agent_name);
+    }
+    /**
+     * @desc: this is used to send sms and email while complete or cancel booking
+     * @param: booking id current status
+     * @return: true
+     */
+    function send_sms_email_for_complete_cancel_booking($booking_id, $current_status){
+       //Is this SD booking?
+        if (strpos($booking_id, "SS") !== FALSE) {
+           $is_sd = TRUE;
+        } else {
+            $is_sd = FALSE;
+        }
 
-        //print_r(array($http_result, $error, $http_code));
-        //echo "Response = " . print_r($http_result);
+       $query1 = $this->My_CI->booking_model->getbooking_history($booking_id,"join");
+
+       $email['name'] = $query1[0]['name'];
+       $email['phone_no'] = $query1[0]['phone_number'];
+       $email['user_email'] = $query1[0]['user_email'];
+       $email['booking_id'] = $query1[0]['booking_id'];
+       $email['service'] = $query1[0]['services'];
+       $email['booking_date'] = $query1[0]['booking_date'];
+       $email['closed_date'] = $query1[0]['closed_date'];
+       $email['amount_paid'] = $query1[0]['amount_paid'];
+       $email['closing_remarks'] = $query1[0]['closing_remarks'];
+       $email['vendor_name'] = $query1[0]['vendor_name'];
+       $email['district'] = $query1[0]['district'];
+
+       if($current_status == "Completed"){
+            $email['tag'] = "complete_booking";
+            $email['subject'] = "Booking Completion-AROUND";
+
+       } else {
+
+        $email['tag'] = "cancel_booking";
+        $email['subject'] = "Pending Booking Cancellation - AROUND";
+
+       }
+      
+      
+       $this->send_email($email);
+
+        if ($is_sd == FALSE) {
+
+            if($current_status == "Completed"){
+                $sms['tag'] = "complete_booking";
+
+            } else {
+
+                $sms['tag'] = "cancel_booking";
+            }
+            $sms['smsData']['service'] = $query1[0]['services'];
+            $sms['phone_no'] = $query1[0]['phone_number'];
+            $sms['booking_id'] = $query1[0]['booking_id'];
+
+            $this->send_sms($sms);
+        } else {
+            if($current_status == "Completed"){
+                $sms['tag'] = "complete_booking_snapdeal";
+                $sms['smsData']['service'] = $query1[0]['services'];
+                $sms['phone_no'] = $query1[0]['phone_number'];
+                $sms['booking_id'] = $query1[0]['booking_id'];
+
+                $this->send_sms($sms);
+            }
+        }        
     }
 
 }

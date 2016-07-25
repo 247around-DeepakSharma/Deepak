@@ -3,7 +3,7 @@
       <div class="panel panel-info" style="margin-top:20px;">
          <div class="panel-heading">Complete Booking</div>
          <div class="panel-body">
-         <?php if($booking_history[0]['current_status'] =="Completed"){ $status = "1"; } else { $status = "0"; }?>
+         <?php if($booking_history[0]['current_status'] == "Completed"){ $status = "1"; } else { $status = "0"; }?>
             <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url()?>employee/booking/process_complete_booking/<?php echo $booking_id;?>/<?php echo $status; ?>"  method="POST" enctype="multipart/form-data">
                <div class="row">
                   <div class="col-md-12">
@@ -187,6 +187,12 @@
                            <textarea class="form-control"  rows="5" name="vendor_rating_comments"><?php echo $booking_history[0]['vendor_rating_comments']; ?></textarea>
                         </div>
                      </div>
+                      <div class="form-group">
+                       <label for="remark" class="col-md-2">Admin Remarks</label>
+                       <div class="col-md-4" >
+                           <textarea class="form-control"  rows="5" name="admin_remarks"></textarea>
+                        </div>
+                      </div>
                   </div>
                </div>
                <div class="form-group  col-md-12" >
