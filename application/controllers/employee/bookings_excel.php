@@ -451,7 +451,11 @@ class bookings_excel extends CI_Controller {
 		    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Delivery_Date']);
 
 		if ($dateObj2->format('d') == date('d')) {
-		    $dateObj2 = date_create('+2days');
+		    //If date is NULL, add 4 days from today in EDD.
+		    $dateObj2 = date_create('+4days');
+		} else {
+		    //If date is NOT NULL, add 2 days in EDD.
+		    $dateObj2 = date_add($dateObj2, date_interval_create_from_date_string('2 days'));
 		}
 		log_message('info', print_r($dateObj2, true));
 
