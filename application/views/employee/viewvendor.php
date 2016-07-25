@@ -2,8 +2,7 @@
     <div class="row">
       <div >
        
-        <h1><b>Service Centres</b><a class="pull-right" href="<?php echo base_url();?>employee/vendor/add_vendor"><input class="btn btn-primary" type="Button" value="Add Service Centre"></a></h1>
-        
+        <h1>Service Centres</h1>
         
         <table style="width:98%;" class="table table-striped table-bordered">
           
@@ -19,6 +18,7 @@
           	<th>Owner Name</th>
           	<th>Owner Phone No.</th>
           	<th>Owner Email</th>
+          	<th>CRM Login / Password</th>
           	<th colspan="2">Action</th>
           </tr>
 
@@ -36,6 +36,7 @@
           	<td><?=$row['owner_name'];?></td>
           	<td><?=$row['owner_phone_1'];?></td>
           	<td><?=$row['owner_email'];?></td>
+          	<td><?php echo strtolower($row['sc_code']) . " / " . strtolower($row['sc_code']);  ?></td>
           	<td><?php if($row['active']==1)
                 {
                   echo "<a id='edit' class='btn btn-small btn-primary' "
@@ -54,6 +55,7 @@
           <?php } ?>
         </table>
 
+        <a href="<?php echo base_url();?>employee/vendor/add_vendor"><input class="btn btn-primary" type="Button" value="Add Service Centre"></a>
         
       </div>
     </div>
