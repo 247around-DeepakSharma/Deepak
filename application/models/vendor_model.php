@@ -76,11 +76,23 @@ class vendor_model extends CI_Model {
      *
      * @param: $vendor
      *          - Vendor details to be added.
-     * @return: void
+     * @return: ID for the new vendor
      */
     function add_vendor($vendor) {
+	$this->db->insert('service_centres', $vendor);
 
-        $this->db->insert('service_centres', $vendor);
+	return $this->db->insert_id();
+    }
+
+    /**
+     * @desc: This function is to add login details for a new vendor
+     *
+     * @param: $login
+     *          - Vendor login details to be added.
+     * @return: void
+     */
+    function add_vendor_login($login) {
+	$this->db->insert('service_centers_login', $login);
     }
 
     /**
@@ -223,14 +235,6 @@ class vendor_model extends CI_Model {
         return $query->result_array();
     }
 
-    /**
-     *  @desc : This function is used get the escalation reasons.
-     *
-     *  The escalation reasons which are active only those are returned.
-     *
-     *  @param : void
-     *  @return : array of id and escalation reasons
-     */
     function getVendor($booking_id) {
 
         $this->db->select("service_centres.name, service_centres.id ");

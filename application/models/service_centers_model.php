@@ -11,11 +11,11 @@ class Service_centers_model extends CI_Model {
 	    $this->db_location = $this->load->database('default1', TRUE, TRUE);
 	    $this->db = $this->load->database('default', TRUE, TRUE);
     }
-    
+
     /**
      * @desc: check service center login and return pending booking
      * @param: Array(username, password)
-     * @return : Array(Pending booking)  
+     * @return : Array(Pending booking)
      */
     function service_center_login($data){
        $this->db->select('service_center_id');
@@ -26,7 +26,7 @@ class Service_centers_model extends CI_Model {
         if ($query->num_rows() > 0) {
             $result = $query->result_array();
             return $result[0]['service_center_id'];
-         
+
       } else {
 
       	return false;
@@ -60,7 +60,7 @@ class Service_centers_model extends CI_Model {
             (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled')"
         );
 
-        
+
         if($limit =="count"){
             $temp = $query->result_array();
             return count($temp);
@@ -70,7 +70,7 @@ class Service_centers_model extends CI_Model {
             usort($temp, array($this, 'date_compare_bookings'));
             return array_slice($temp, $start, $limit);
         }
-        
+
 
      }
 
@@ -78,7 +78,7 @@ class Service_centers_model extends CI_Model {
         if($limit!="count"){
             $this->db->limit($limit, $start);
         }
-        
+
         $this->db->select('booking_details.booking_id, users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.closing_remarks, booking_details.booking_timeslot');
         $this->db->from('booking_details');
         $this->db->join('services','services.id = booking_details.service_id');
@@ -86,15 +86,15 @@ class Service_centers_model extends CI_Model {
         $this->db->where('booking_details.current_status', $status);
         $this->db->where('assigned_vendor_id',$service_center_id);
         $query = $this->db->get();
-        
+
         $result = $query->result_array();
         if($limit == "count"){
-        
+
             return count($result);
         }
         return $result;
-         
-     
+
+
      }
 
       function date_compare_bookings($a, $b) {
