@@ -1979,7 +1979,12 @@ class Booking extends CI_Controller {
 	    //Send SMS if customer didn't pick the call
 	    if ($this->input->post('internal_status') == INT_STATUS_CUSTOMER_NOT_REACHABLE) {
 		$query1 = $this->booking_model->booking_history_by_booking_id($booking['booking_id']);
-		$sms['tag'] = "call_not_picked";
+
+		if ($is_sd) {
+		    $sms['tag'] = "call_not_picked_snapdeal";
+		} else {
+		    $sms['tag'] = "call_not_picked_other";
+		}
 		$sms['smsData']['name'] = $query1[0]['name'];
 		$sms['smsData']['service'] = $query1[0]['services'];
 		$sms['phone_no'] = $query1[0]['phone_number'];
