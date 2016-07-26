@@ -20,6 +20,8 @@ class New_booking extends CI_Controller {
 	$this->load->model('vendor_model');
 	$this->load->model('invoices_model');
 	$this->load->model('partner_model');
+
+	$this->load->library('booking_utilities');
 	$this->load->library('partner_sd_cb');
 	$this->load->library('notify');
 	$this->load->helper(array('form', 'url'));
@@ -219,25 +221,31 @@ class New_booking extends CI_Controller {
     	$reschedule_reason = $this->input->post('reschedule_reason');
 
     	foreach ($reschedule_booking_id as $key => $value) {
+	    $booking['booking_date'] = date('d-m-Y', strtotime($reschedule_booking_date[$value]));
+	    $timeslot = $reschedule_booking_timeslot[$value];
+	    $booking_timeslot = explode("-", $timeslot);
+	    $booking['booking_timeslot'] = $booking_timeslot[1];
+	    $booking['current_status'] = 'Rescheduled';
+	    $booking['internal_status'] = 'Rescheduled';
+	    $booking['update_date'] = date("Y-m-d H:i:s");
+	    $booking['reschedule_reason'] = $reschedule_reason[$value];
+	    $booking['mail_to_vendor'] = 0;
+	    $this->booking_model->update_booking($value, $booking);
 
-    		$booking['booking_date'] = date('d-m-Y', strtotime($reschedule_booking_date[$value]));
-    		$timeslot = $reschedule_booking_timeslot[$value];
-    		$booking_timeslot = explode("-", $timeslot);
-    		$booking['booking_timeslot'] = $booking_timeslot[1];
-    		$booking['current_status'] = 'Rescheduled';
-            $booking['internal_status'] = 'Rescheduled';
-            $booking['update_date'] = date("Y-m-d H:i:s");
-            $booking['reschedule_reason'] = $reschedule_reason[$value];
+	    $data['booking_id'] = $value;
+	    $data['internal_status'] = "Pending";
+	    $data['current_status'] = "Pending";
+	    $this->vendor_model->update_service_center_action($data);
 
-    		$this->booking_model->update_booking($value, $booking);
-    		$data['booking_id'] = $value;
-    		$data['internal_status'] =  "Pending";
-    		$data['current_status'] =  "Pending";
-    		$this->vendor_model->update_service_center_action($data);
+	    //Prepare job card
+	    $this->booking_utilities->lib_prepare_job_card_using_booking_id($value);
 
-    	}
+	    //Send mail to vendor, no Note to vendor as of now
+	    //$message = "";
+	    //$this->booking_utilities->lib_send_mail_to_vendor($value, $message);
+	}
 
-    	  redirect(base_url() . "employee/new_booking/review_bookings");
+	redirect(base_url() . "employee/new_booking/review_bookings");
     }
 
 }
