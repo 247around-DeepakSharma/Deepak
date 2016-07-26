@@ -1445,9 +1445,12 @@ class Booking extends CI_Controller {
             //Setting mail to vendor flag to 0, once booking is rescheduled
             $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
 
-            log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $this->session->userdata('employee_id') . " data " . print_r($data, true));
+	    //Prepare job card
+	    $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
 
-            redirect(base_url() . search_page);
+	    log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $this->session->userdata('employee_id') . " data " . print_r($data, true));
+
+	    redirect(base_url() . search_page);
         }
     }
 
