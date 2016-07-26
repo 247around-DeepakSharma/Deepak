@@ -596,3 +596,30 @@ ALTER TABLE `service_center_booking_action` ADD UNIQUE(`booking_id`);
 -- 25 July - Anuj
 
 ALTER TABLE  `service_center_booking_action` ADD  `update_date` DATETIME NULL AFTER  `booking_timeslot` ;
+
+-- 26 July - Anuj
+
+INSERT INTO  `boloaaka`.`sms_template` (
+`id` ,
+`tag` ,
+`template` ,
+`comments` ,
+`active` ,
+`create_date`
+)
+VALUES (
+NULL ,  'call_not_picked_other', 'Hello %s! 247around specialist tried to reach you for your %s service request. Please call @ 9555000247 and we would be glad to help you.', NULL ,  '1',  '2016-07-26 13:59:13'
+);
+
+INSERT INTO  `boloaaka`.`sms_template` (
+`id` ,
+`tag` ,
+`template` ,
+`comments` ,
+`active` ,
+`create_date`
+)
+VALUES (
+NULL ,  'call_not_picked_snapdeal', 'Hello %s! 247around, Snapdeal Partner, tried to reach you for your %s installation. Please call @ 9555000247 for installation. Thank you.', NULL ,  '1',  '2016-07-26 13:57:25'
+);
+
