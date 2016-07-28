@@ -137,23 +137,13 @@ class Service_centers extends CI_Controller {
         $data['amount_paid'] = $this->input->post('total_charge');
         $closing_remarks = $this->input->post('closing_remarks');
         $data['current_status'] = "InProcess";
-        $charges = $this->booking_model->getbooking_charges($booking_id);
-        $data['closed_date'] = date('Y-m-d H:i:s');
-        if (!empty($charges)) {
-            // remove previous text, added in closing_remarks column.
-            $string = str_replace($charges[0]['service_center_remarks'], " ", $closing_remarks);
-            // Add current and previous text in admin_remarks column
-            $data['service_center_remarks'] = $charges[0]['service_center_remarks'] . " " . date("F j") . ":- " . $string;
+        //$charges = $this->booking_model->getbooking_charges($booking_id);
+	$data['closed_date'] = date('Y-m-d H:i:s');
+	$data['service_center_remarks'] = date("F j") . ":- " . $closing_remarks;
 
-            $this->vendor_model->update_service_center_action($data);
-        } else {
+	$this->vendor_model->update_service_center_action($data);
 
-            $data['service_center_remarks'] = date("F j") . ":- " . $closing_remarks;
-
-            $this->vendor_model->insert_service_center_action($data);
-        }
-
-        redirect(base_url() . "service_center/pending_booking");
+	redirect(base_url() . "service_center/pending_booking");
     }
 
     /**

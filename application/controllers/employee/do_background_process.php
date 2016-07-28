@@ -50,6 +50,7 @@ class Do_background_process extends CI_Controller {
 	$this->booking_model->assign_booking($booking_id, $service_center_id);
 
 	$data['current_status'] = "Pending";
+	$data['internal_status'] = "Pending";
 	$data['service_center_id'] = $service_center_id;
 	$data['booking_id'] = $booking_id;
 	$data['create_date'] = date('Y-m-d H:i:s');

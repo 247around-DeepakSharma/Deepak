@@ -294,7 +294,8 @@ class vendor extends CI_Controller {
             $this->booking_model->assign_booking($booking_id, $service_center);
             $this->vendor_model->delete_previous_service_center_action($booking_id);
             $data['current_status'] = "Pending";
-            $data['service_center_id'] = $service_center;
+	    $data['internal_status'] = "Pending";
+	    $data['service_center_id'] = $service_center;
             $data['booking_id'] = $booking_id;
             $data['create_date'] = date('Y-m-d H:i:s');
             $this->vendor_model->insert_service_center_action($data);
@@ -302,7 +303,7 @@ class vendor extends CI_Controller {
             //Setting mail to vendor flag to 0, once booking is re-assigned
             $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
 
-	     log_message('info', "Reassigned - Booking id: " . $booking_id . "  By " .
+	    log_message('info', "Reassigned - Booking id: " . $booking_id . "  By " .
 		$this->session->userdata('employee_id') . " service center id " . $service_center);
 
             redirect(base_url() . search_page);

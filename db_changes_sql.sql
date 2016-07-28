@@ -623,3 +623,16 @@ VALUES (
 NULL ,  'call_not_picked_snapdeal', 'Hello %s! 247around, Snapdeal Partner, tried to reach you for your %s installation. Please call @ 9555000247 for installation. Thank you.', NULL ,  '1',  '2016-07-26 13:57:25'
 );
 
+ALTER TABLE  `service_center_booking_action` CHANGE  `reschedule_reason`  `reschedule_reason` VARCHAR( 128 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL ;
+ALTER TABLE  `service_center_booking_action` CHANGE  `admin_remarks`  `admin_remarks` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL ;
+ALTER TABLE  `service_center_booking_action` CHANGE  `internal_status`  `internal_status` VARCHAR( 100 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL ;
+ALTER TABLE  `service_center_booking_action` CHANGE  `service_center_remarks`  `service_center_remarks` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL ;
+ALTER TABLE  `service_center_booking_action` CHANGE  `service_charge`  `service_charge` INT NOT NULL ;
+ALTER TABLE  `service_center_booking_action` CHANGE  `additional_service_charge`  `additional_service_charge` INT NOT NULL ;
+ALTER TABLE  `service_center_booking_action` CHANGE  `parts_cost`  `parts_cost` INT NOT NULL ;
+ALTER TABLE  `service_center_booking_action` CHANGE  `amount_paid`  `amount_paid` INT NOT NULL ;
+
+-- 27 july
+
+ALTER TABLE  `boloaaka`.`service_center_booking_action` DROP INDEX  `booking_id` ,
+ADD UNIQUE  `unq_booking_sc` (  `booking_id` ,  `service_center_id` ) COMMENT  'booking id and sc id should be unique';
