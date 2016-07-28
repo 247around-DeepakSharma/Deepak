@@ -18,19 +18,19 @@ class Do_background_process extends CI_Controller {
      * load list modal and helpers
      */
     function __Construct() {
-        parent::__Construct();
+	parent::__Construct();
 
-        $this->load->helper(array('form', 'url'));
-        $this->load->model('booking_model');
-        $this->load->model('vendor_model');
-        $this->load->model('invoices_model');
-        $this->load->model('partner_model');
-        $this->load->library('booking_utilities');
-        $this->load->library('partner_sd_cb');
-        $this->load->library('asynchronous_lib');
-        $this->load->library('notify');
-        $this->load->library('s3');
-        $this->load->library('email');
+	$this->load->helper(array('form', 'url'));
+	$this->load->model('booking_model');
+	$this->load->model('vendor_model');
+	$this->load->model('invoices_model');
+	$this->load->model('partner_model');
+	$this->load->library('booking_utilities');
+	$this->load->library('partner_sd_cb');
+	$this->load->library('asynchronous_lib');
+	$this->load->library('notify');
+	$this->load->library('s3');
+	$this->load->library('email');
     }
 
     /**
@@ -39,111 +39,109 @@ class Do_background_process extends CI_Controller {
      *  @return : void
      */
     function assign_booking() {
-        log_message('info', "Entering: " . __METHOD__);
+	log_message('info', "Entering: " . __METHOD__);
 
-        $booking_id = $this->input->post('booking_id');
-        $service_center_id = $this->input->post('service_center_id');
+	$booking_id = $this->input->post('booking_id');
+	$service_center_id = $this->input->post('service_center_id');
 
-        log_message('info', "Booking ID: " . $booking_id . ", Service centre: " . $service_center_id);
+	log_message('info', "Booking ID: " . $booking_id . ", Service centre: " . $service_center_id);
 
-                //Assign service centre
-        $this->booking_model->assign_booking($booking_id, $service_center_id);
+	//Assign service centre
+	$this->booking_model->assign_booking($booking_id, $service_center_id);
 
-        $data['current_status'] = "Pending";
-        $data['service_center_id'] = $service_center_id;
-        $data['booking_id'] = $booking_id;
-        $data['create_date'] = date('Y-m-d H:i:s');
-        $this->vendor_model->insert_service_center_action($data);
+	$data['current_status'] = "Pending";
+	$data['service_center_id'] = $service_center_id;
+	$data['booking_id'] = $booking_id;
+	$data['create_date'] = date('Y-m-d H:i:s');
+	$this->vendor_model->insert_service_center_action($data);
 
-		//Send SMS to customer
-		$query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
-                $sms['tag'] = "service_centre_assigned";
-		$sms['phone_no'] = $query1[0]['phone_number'];
-                $sms['smsData'] = "";
+	//Send SMS to customer
+	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
+	$sms['tag'] = "service_centre_assigned";
+	$sms['phone_no'] = $query1[0]['phone_number'];
+	$sms['smsData'] = "";
 
-		$sms_sent = $this->notify->send_sms($sms);
-                if ($sms_sent === FALSE) {
-                    log_message('info', "SMS not sent to user while assigning vendor. User's Phone: " .
-			$query1[0]['phone_number']);
-		}
+	$sms_sent = $this->notify->send_sms($sms);
+	if ($sms_sent === FALSE) {
+	    log_message('info', "SMS not sent to user while assigning vendor. User's Phone: " .
+		$query1[0]['phone_number']);
+	}
 
-        //Prepare job card
-        $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+	//Prepare job card
+	$this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
 
-        //Send mail to vendor, no Note to vendor as of now
-        $message = "";
-        $this->booking_utilities->lib_send_mail_to_vendor($booking_id, $message);
-
-
+	//Send mail to vendor, no Note to vendor as of now
+	$message = "";
+	$this->booking_utilities->lib_send_mail_to_vendor($booking_id, $message);
     }
 
     /**
      * @desc: this is used to upload asynchronouly data from current uploaded excel file.
      */
     function upload_pincode_file() {
-        $mapping_file['pincode_mapping_file'] = $this->vendor_model->getLatestVendorPincodeMappingFile();
+	$mapping_file['pincode_mapping_file'] = $this->vendor_model->getLatestVendorPincodeMappingFile();
 
-        $reader = ReaderFactory::create(Type::XLSX);
-        $reader->open("/tmp/" . $mapping_file['pincode_mapping_file'][0]['file_name']);
-        $count = 1;
-        $pincodes_inserted = 0;
-        $err_count = 0;
-        $header_row = FALSE;
+	$reader = ReaderFactory::create(Type::XLSX);
+	$reader->open("/tmp/" . $mapping_file['pincode_mapping_file'][0]['file_name']);
+	$count = 1;
+	$pincodes_inserted = 0;
+	$err_count = 0;
+	$header_row = FALSE;
 
-        $rows = array();
-        foreach ($reader->getSheetIterator() as $sheet) {
-            foreach ($sheet->getRowIterator() as $row) {
-                if ($count > 0) {
-                    if ($count % 1000 == 0) {
-                        if (!$header_row) {
-                            //header row to be removed for the first iteration
-                            array_shift($rows);
+	$rows = array();
+	foreach ($reader->getSheetIterator() as $sheet) {
+	    foreach ($sheet->getRowIterator() as $row) {
+		if ($count > 0) {
+		    if ($count % 1000 == 0) {
+			if (!$header_row) {
+			    //header row to be removed for the first iteration
+			    array_shift($rows);
 
-                            $header_row = TRUE;
-                        }
+			    $header_row = TRUE;
+			}
 
-                        //call insert_batch function for $rows..
-                        $this->vendor_model->insert_vendor_pincode_mapping_temp($rows);
-                        $pincodes_inserted += count($rows);
-                        //echo date("Y-m-d H:i:s") . "=> " . $pincodes_inserted . " pincodes added\n";
-                        unset($rows);
-                        $rows = array();
+			//call insert_batch function for $rows..
+			$this->vendor_model->insert_vendor_pincode_mapping_temp($rows);
+			$pincodes_inserted += count($rows);
+			//echo date("Y-m-d H:i:s") . "=> " . $pincodes_inserted . " pincodes added\n";
+			unset($rows);
+			$rows = array();
 
-                        //reset count
-                        $count = 0;
-                    }
+			//reset count
+			$count = 0;
+		    }
 
-                    $data['Vendor_Name'] = $row[0];
-                    $data['Vendor_ID'] = $row[1];
-                    $data['Appliance'] = $row[2];
-                    $data['Appliance_ID'] = $row[3];
-                    $data['Brand'] = $row[4];
-                    $data['Area'] = $row[5];
-                    $data['Pincode'] = $row[6];
-                    $data['Region'] = $row[7];
-                    $data['City'] = $row[8];
-                    $data['State'] = $row[9];
+		    $data['Vendor_Name'] = $row[0];
+		    $data['Vendor_ID'] = $row[1];
+		    $data['Appliance'] = $row[2];
+		    $data['Appliance_ID'] = $row[3];
+		    $data['Brand'] = $row[4];
+		    $data['Area'] = $row[5];
+		    $data['Pincode'] = $row[6];
+		    $data['Region'] = $row[7];
+		    $data['City'] = $row[8];
+		    $data['State'] = $row[9];
 
-                    array_push($rows, $data);
-                }
-                $count++;
-            }
+		    array_push($rows, $data);
+		}
+		$count++;
+	    }
 
-            //insert remaining rows
-            $this->vendor_model->insert_vendor_pincode_mapping_temp($rows);
-            //echo date("Y-m-d H:i:s") . "=> " . ($count - 1) . " records added\n";
-            $pincodes_inserted += count($rows);
-        }
+	    //insert remaining rows
+	    $this->vendor_model->insert_vendor_pincode_mapping_temp($rows);
+	    //echo date("Y-m-d H:i:s") . "=> " . ($count - 1) . " records added\n";
+	    $pincodes_inserted += count($rows);
+	}
 
-        $reader->close();
+	$reader->close();
 
-        if ($err_count === 0) {
-            //Drop the original pincode mapping table and rename the temp table with new pincodes mapping
-            $result = $this->vendor_model->switch_temp_pincode_table();
+	if ($err_count === 0) {
+	    //Drop the original pincode mapping table and rename the temp table with new pincodes mapping
+	    $result = $this->vendor_model->switch_temp_pincode_table();
 
-            if ($result)
-                $data['table_switched'] = TRUE;
-        }
+	    if ($result)
+		$data['table_switched'] = TRUE;
+	}
     }
 
     /**
@@ -160,12 +158,12 @@ class Do_background_process extends CI_Controller {
      * @return; void
      */
     function complete_booking() {
-        $booking_id = $this->input->post('booking_id');
+	$booking_id = $this->input->post('booking_id');
 
-        log_message('info', __METHOD__ . "=> Booking Id " . print_r($booking_id, TRUE));
+	log_message('info', __METHOD__ . "=> Booking Id " . print_r($booking_id, TRUE));
 
 	$data = $this->booking_model->getbooking_charges($booking_id);
-        log_message('info', ": " . "data " . print_r($data, TRUE));
+	log_message('info', ": " . "data " . print_r($data, TRUE));
 
 	//Bookings can be completed or cancelled. Take appropriate actions for both types.
 	if ($data[0]['internal_status'] == "Cancelled") {
