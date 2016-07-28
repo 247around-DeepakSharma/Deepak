@@ -155,7 +155,7 @@ class Service_centers extends CI_Controller {
             $data['booking_id'] =  $booking_id;
             $data['amount_paid'] = $total_amount_paid;
 
-            if (!empty($charges)) {
+            if (!empty($getremarks[0]['service_center_remarks'])) {
                 // remove previous text, added in closing_remarks column.
                $string = str_replace($getremarks[0]['service_center_remarks'], " ", $closing_remarks);
                // Add current and previous text in admin_remarks column
@@ -165,11 +165,12 @@ class Service_centers extends CI_Controller {
                 if(!empty($closing_remarks)){
                     $data['service_center_remarks'] = date("F j") . ":- " .$closing_remarks;
                 }
-                
             }
 
             $this->vendor_model->update_service_center_action($data);
        }
+        
+
         
         redirect(base_url() . "service_center/pending_booking");
     }
