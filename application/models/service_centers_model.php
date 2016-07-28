@@ -43,10 +43,11 @@ class Service_centers_model extends CI_Model {
      function getPending_booking($limit="", $start="", $service_center_id ){
         $where = "";
         $where .= " AND assigned_vendor_id = '" . $service_center_id . "'";
-        $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
+	//do not show bookings for future as of now
+	$where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0";
 
 
-        $query = $this->db->query("Select services.services,
+	$query = $this->db->query("Select services.services,
             users.name as customername, users.phone_number,
             booking_details.*, service_centres.name as service_centre_name,
             service_centres.primary_contact_name,service_centres.primary_contact_phone_1,
@@ -56,7 +57,7 @@ class Service_centers_model extends CI_Model {
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             JOIN `service_center_booking_action` ON `service_center_booking_action`.booking_id = `booking_details`.booking_id
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id` WHERE
-        `booking_details`.booking_id NOT LIKE 'Q-%' $where AND  `service_center_booking_action`.current_status = 'Pending' AND
+	    `booking_details`.booking_id NOT LIKE 'Q-%' $where AND  `service_center_booking_action`.current_status = 'Pending' AND
             (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled')"
         );
 
