@@ -289,7 +289,6 @@ class Notify {
                 $email['tag'] = "open_completed_booking";
                 $email['subject'] = " Booking Converted to Pending - AROUND";
                 break;
-
         } 
       
        $this->send_email($email);         
