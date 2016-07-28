@@ -218,7 +218,7 @@ class Notify {
      * @param: booking id current status
      * @return: true
      */
-    function send_sms_email_for_complete_cancel_booking($booking_id, $current_status){
+    function send_sms_email_for_booking($booking_id, $current_status){
        //Is this SD booking?
         if (strpos($booking_id, "SS") !== FALSE) {
            $is_sd = TRUE;
@@ -234,50 +234,65 @@ class Notify {
        $email['booking_id'] = $query1[0]['booking_id'];
        $email['service'] = $query1[0]['services'];
        $email['booking_date'] = $query1[0]['booking_date'];
+       $email['booking_timeslot'] = $query1[0]['booking_timeslot'];
        $email['closed_date'] = $query1[0]['closed_date'];
        $email['amount_paid'] = $query1[0]['amount_paid'];
        $email['closing_remarks'] = $query1[0]['closing_remarks'];
        $email['vendor_name'] = $query1[0]['vendor_name'];
-       $email['district'] = $query1[0]['district'];
+       $email['city'] = $query1[0]['district'];
 
-       if($current_status == "Completed"){
-            $email['tag'] = "complete_booking";
-            $email['subject'] = "Booking Completion-AROUND";
+       $sms['smsData']['service'] = $query1[0]['services'];
+       $sms['phone_no'] = $query1[0]['phone_number'];
+       $sms['booking_id'] = $query1[0]['booking_id'];
 
-       } else {
+        switch ($current_status) {
+            case 'Completed':
+                $email['tag'] = "complete_booking";
+                $email['subject'] = "Booking Completion-AROUND";
 
-        $email['tag'] = "cancel_booking";
-        $email['subject'] = "Pending Booking Cancellation - AROUND";
+                if ($is_sd == FALSE) {
 
-       }
+                    $sms['tag'] = "complete_booking";
+                    
+                } else {
+
+                    $sms['tag'] = "complete_booking_snapdeal";
+                }
+
+                $this->send_sms($sms); 
+
+            break;
+
+            case 'Cancelled':
+                $email['tag'] = "cancel_booking";
+                $email['subject'] = "Pending Booking Cancellation - AROUND";
+
+                if ($is_sd == FALSE) {
+                    $sms['tag'] = "cancel_booking";
+                    $this->send_sms($sms); 
+                }
+                break;
+
+            case 'Rescheduled':
+                $email['tag'] = "reschedule_booking";
+                $email['subject'] = "Booking Rescheduled-AROUND";
+
+                if ($is_sd == FALSE) {
+                    $sms['tag'] = "reschedule_booking";
+                    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
+                    $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
+                    $this->send_sms($sms); 
+                }
+                break;
+
+            case 'OpenBooking':
+                $email['tag'] = "open_completed_booking";
+                $email['subject'] = " Booking Converted to Pending - AROUND";
+                break;
+
+        } 
       
-      
-       $this->send_email($email);
-
-        if ($is_sd == FALSE) {
-
-            if($current_status == "Completed"){
-                $sms['tag'] = "complete_booking";
-
-            } else {
-
-                $sms['tag'] = "cancel_booking";
-            }
-            $sms['smsData']['service'] = $query1[0]['services'];
-            $sms['phone_no'] = $query1[0]['phone_number'];
-            $sms['booking_id'] = $query1[0]['booking_id'];
-
-            $this->send_sms($sms);
-        } else {
-            if($current_status == "Completed"){
-                $sms['tag'] = "complete_booking_snapdeal";
-                $sms['smsData']['service'] = $query1[0]['services'];
-                $sms['phone_no'] = $query1[0]['phone_number'];
-                $sms['booking_id'] = $query1[0]['booking_id'];
-
-                $this->send_sms($sms);
-            }
-        }        
+       $this->send_email($email);         
     }
 
 }

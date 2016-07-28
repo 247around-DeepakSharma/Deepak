@@ -113,50 +113,8 @@ class User extends CI_Controller {
             }
         } elseif ($booking_id != "") {  //if booking id given and matched, will be displayed
             $data['Bookings'] = $this->booking_model->search_bookings_by_booking_id($booking_id);
-            if (!empty($data['Bookings'])) {
-		if (substr($data['Bookings'][0]->booking_id, 0, 2) === "Q-") {
-		    //It is a query, check its status and assign appropriate view
-		    switch ($data['Bookings'][0]->current_status) {
-			case 'FollowUp':
-			    $view = 'employee/viewpendingqueries';
-			    break;
-
-			case 'Cancelled':
-			    $view = 'employee/viewcancelledqueries';
-			    break;
-
-			default:
-			    $view = 'employee/viewpendingqueries';
-			    break;
-		    }
-                } else {
-		    //It is a booking, find its status first.
-		    switch ($data['Bookings'][0]->current_status) {
-			case 'Pending':
-			case 'Rescheduled':
-			    $view = 'employee/booking';
-			    break;
-
-			case 'Cancelled':
-			    $view = 'employee/viewcancelledbooking';
-			    break;
-
-			case 'Completed':
-			    $view = 'employee/viewcompletedbooking';
-			    break;
-
-			default:
-			    $view = 'employee/booking';
-			    break;
-		    }
-		}
-	    } else {
-                $view = 'employee/booking';
+            $this->load_search_view($data);
 	    }
-
-	    $this->load->view('employee/header');
-	    $this->load->view($view, $data);
-	}
     }
 
     /**
@@ -171,23 +129,58 @@ class User extends CI_Controller {
         $data['Bookings'] = $this->booking_model->getBookingId_by_orderId($partner_code, $order_id);
         $data['search'] = "Search";
 
-        if(!empty($data['Bookings'])){
-                if (strstr($data['Bookings'][0]->booking_id, "Q-") == TRUE) {
-                    
-                    $this->load->view('employee/header');
-                    $this->load->view('employee/viewpendingqueries', $data);
+        $this->load_search_view($data);
 
-                } else {
+    }
+    /**
+     * @desc: this is used to load view on the basis of booking or query and its current status
+     *  @param: Array
+     */
+    function load_search_view($data){
+        if (!empty($data['Bookings'])) {
+            if (substr($data['Bookings'][0]->booking_id, 0, 2) === "Q-") {
+                //It is a query, check its status and assign appropriate view
+                switch ($data['Bookings'][0]->current_status) {
+                    case 'FollowUp':
+                    $view = 'employee/viewpendingqueries';
+                    break;
 
-                    $this->load->view('employee/header');
-                    $this->load->view('employee/booking', $data);
+                    case 'Cancelled':
+                    $view = 'employee/viewcancelledqueries';
+                    break;
+
+                    default:
+                        $view = 'employee/viewpendingqueries';
+                    break;
                 }
             } else {
+                //It is a booking, find its status first.
+                switch ($data['Bookings'][0]->current_status) {
+                    case 'Pending':
+                    case 'Rescheduled':
+                    $view = 'employee/booking';
+                    break;
 
-                $this->load->view('employee/header');
-                $this->load->view('employee/booking', $data);
+                    case 'Cancelled':
+                    $view = 'employee/viewcancelledbooking';
+                    break;
+
+                    case 'Completed':
+                    $view = 'employee/viewcompletedbooking';
+                    break;
+
+                    default:
+                    $view = 'employee/booking';
+                    break;
+                }
             }
 
+        } else {
+            $view = 'employee/booking';
+        }
+
+        $this->load->view('employee/header');
+        $this->load->view($view, $data);
     }
 
 

@@ -103,15 +103,50 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
 
                     <td>
                     <?php 
-                      if(substr($row['booking_id'],0,1) == "S"){ ?>
 
-                          <a href="<?php echo  base_url();?>employee/booking/view/0/0/<?php echo $row['booking_id'] ?>" class="btn btn-small btn-success btn-sm" title="More Action"><i class="fa fa-bars" aria-hidden="true"></i></a>
+                        if (substr($row['booking_id'], 0, 2) === "Q-") {
+                            //It is a query, check its status and assign appropriate view
+                          switch ($row['current_status']) {
+                              case 'FollowUp':
+                              $view = 'employee/booking/view_queries/FollowUp/0/0/'.$row['booking_id'];
+                              break;
 
-                     <?php } else if(substr($row['booking_id'],0,1) == "Q") {?>
+                              case 'Cancelled':
+                                $view = 'employee/booking/view_queries/Cancelled/0/0/'.$row['booking_id'];
+                                break;
 
-                          <a href="<?php echo base_url(); ?>employee/booking/view_queries/<?php echo $row['current_status']; ?>/0/0/<?php echo $row['booking_id']?>" class="btn btn-small btn-success btn-sm" title="More Action"><i class="fa fa-bars" aria-hidden="true"></i></a>
+                                default:
+                                $view = 'employee/booking/view_queries/FollowUp/0/0/'.$row['booking_id'];
+                                break;
+                          }
 
-                     <?php } ?>
+                        } else {
+                          //It is a booking, find its status first.
+                          switch ($row['current_status']) {
+                            case 'Pending':
+                            case 'Rescheduled':
+                            $view = 'employee/booking/view/0/0/'.$row['booking_id'];
+                            break;
+
+                            case 'Cancelled':
+                            $view = 'employee/booking/viewclosedbooking/Cancelled/0/0/'.$row['booking_id'];
+                            break;
+
+                            case 'Completed':
+                            $view = 'employee/booking/viewclosedbooking/Completed/0/0/'.$row['booking_id'];
+                            break;
+
+                            default:
+                            $view = 'employee/booking/view/0/0/'.$row['booking_id'];
+                            break;
+                          }
+                        }
+
+                        ?>
+
+                         <a href="<?php echo  base_url().$view;?>" class="btn btn-small btn-success btn-sm" title="More Action"><i class="fa fa-bars" aria-hidden="true"></i></a>
+
+
                     </td>
                     <td>
                     <?php if ($row['current_status'] =='Cancelled' && strpos($row['booking_id'], "Q") !== FALSE) {?>

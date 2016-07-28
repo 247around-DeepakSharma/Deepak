@@ -387,7 +387,7 @@ class Invoice extends CI_Controller {
 		    $directory_pdf = "invoices-pdf/" . $files_name . ".pdf";
 
 		    $this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-		    $this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3;
+		    $this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3);
 
 
 		    $invoice_details = array(

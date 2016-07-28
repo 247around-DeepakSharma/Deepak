@@ -211,8 +211,27 @@ class Do_background_process extends CI_Controller {
         //Log this state change as well for this booking
         $this->notify->insert_state_change($booking_id, $current_status, "Pending", $agent_id, $agent_name);
 
-        $this->notify->send_sms_email_for_complete_cancel_booking($booking_id, $current_status);       
+        $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+        $send['booking_id']  = $booking_id;
+        $send['state'] = $current_status;
+        $this->asynchronous_lib->do_background_process($url, $send);
+
+        //$this->notify->send_sms_email_for_booking($booking_id, $current_status);       
     }
+    
+    /**
+     * @desc : this method send request to send sms and email for completed, cancelled, Rescheduled, open completed/cancelled booking 
+     */ 
+    function send_sms_email_for_booking(){
+        $booking_id = $this->input->post('booking_id');
+        $state = $this->input->post('state');
+
+        $this->notify->send_sms_email_for_booking($booking_id, $state); 
+        log_message('info', ":  Send sms and email request for booking_id" .print_r($booking_id, TRUE). " and state ". print_r($state, TRUE));
+
+    }
+
+
     /* end controller */
 
 }

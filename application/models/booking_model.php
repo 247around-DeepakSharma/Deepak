@@ -212,13 +212,20 @@ class Booking_model extends CI_Model {
      *  @return : array of booking, users, services and service center details in sorted
      *          format by closed date in descending order.
      */
-    function view_completed_or_cancelled_booking($limit, $start, $status) {
+    function view_completed_or_cancelled_booking($limit, $start, $status, $booking_id= "") {
     
         $add_limit = "";
         if($limit != "All"){
         
              $add_limit = " LIMIT $start, $limit ";
         }
+
+         $where = "";
+
+        if($booking_id != ""){
+            $where =  "  booking_id = '$booking_id' AND ";
+        } 
+
 
         $query = $this->db->query("Select services.services,
             users.name as customername, users.phone_number,
@@ -229,7 +236,7 @@ class Booking_model extends CI_Model {
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-            WHERE `booking_id` NOT LIKE '%Q-%' AND
+            WHERE `booking_id` NOT LIKE '%Q-%' AND $where 
             (booking_details.current_status = '$status')
 	    ORDER BY closed_date DESC $add_limit "
         );
@@ -424,13 +431,18 @@ class Booking_model extends CI_Model {
      * @param : void
      * @return : total number of completed or cancelled bookings
      */
-    public function total_closed_booking($status = "") {
+    public function total_closed_booking($status = "", $booking_id = "") {
+        $where = "";
+
+        if($booking_id != ""){
+            $where =  "  booking_id = '$booking_id' AND ";
+        } 
 
         $query = $this->db->query("Select count(*) as count from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-            WHERE `booking_id` NOT LIKE '%Q-%' AND
+            WHERE `booking_id` NOT LIKE '%Q-%' AND $where 
             (booking_details.current_status = '$status')"
         );
 
