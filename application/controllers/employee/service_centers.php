@@ -169,7 +169,6 @@ class Service_centers extends CI_Controller {
 
             $this->vendor_model->update_service_center_action($data);
        }
-        
 
         redirect(base_url() . "service_center/pending_booking");
     }
