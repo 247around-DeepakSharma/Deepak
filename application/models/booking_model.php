@@ -374,52 +374,52 @@ class Booking_model extends CI_Model {
         return $count[0]['count'];
     }
 
-//    /**
-//     * @desc : This funtion used to sort bookings based on their booking date
-//     *
-//     * Also matches users id from users and booking details table.
-//     *
-//     * @param : start and limit of result, booking id and service center id
-//     * @return : date sorted booking for pending or rescheduled bookings, booking details,
-//     *          basic user's and service center details.
-//     */
-//    function date_sorted_booking($limit, $start, $booking_id = "", $service_center_id = "") {
-//        $where = "";
-//
-//        if ($booking_id != "") {
-//            $where .= "AND `booking_details`.`booking_id` = '$booking_id'";
-//        }
-//
-//        if ($service_center_id != "") {
-//            $where .= " AND assigned_vendor_id = '" . $service_center_id . "'";
-//            $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
-//
-//        } else {
-//            $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
-//        }
-//
-//        $query = $this->db->query("Select services.services,
-//            users.name as customername, users.phone_number,
-//            booking_details.*, service_centres.name as service_centre_name,
-//            service_centres.primary_contact_name,service_centres.primary_contact_phone_1
-//            from booking_details
-//            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
-//            JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-//            LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id` WHERE
-//    		`booking_id` NOT LIKE 'Q-%' $where AND
-//            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled')"
-//        );
-//
-//        $temp = $query->result();
-//
-//        if($limit =="All"){
-//            usort($temp, array($this, 'date_compare_bookings'));
-//        }
-//
-//
-//        //return slice of the sorted array
-//        return array_slice($temp, $start, $limit);
-//    }
+    /**
+     * @desc : This funtion used to sort bookings based on their booking date
+     *
+     * Also matches users id from users and booking details table.
+     *
+     * @param : start and limit of result, booking id and service center id
+     * @return : date sorted booking for pending or rescheduled bookings, booking details,
+     *          basic user's and service center details.
+     */
+    function date_sorted_booking($limit, $start, $booking_id = "", $service_center_id = "") {
+        $where = "";
+
+        if ($booking_id != "") {
+            $where .= "AND `booking_details`.`booking_id` = '$booking_id'";
+        }
+
+        if ($service_center_id != "") {
+            $where .= " AND assigned_vendor_id = '" . $service_center_id . "'";
+            $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
+
+        } else {
+            $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
+        }
+
+        $query = $this->db->query("Select services.services,
+            users.name as customername, users.phone_number,
+            booking_details.*, service_centres.name as service_centre_name,
+            service_centres.primary_contact_name,service_centres.primary_contact_phone_1
+            from booking_details
+            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
+            JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
+            LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id` WHERE
+    		`booking_id` NOT LIKE 'Q-%' $where AND
+            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled')"
+        );
+
+        $temp = $query->result();
+
+        if($limit =="All"){
+            usort($temp, array($this, 'date_compare_bookings'));
+        }
+
+
+        //return slice of the sorted array
+        return array_slice($temp, $start, $limit);
+    }
 
     /**
      * @desc : This funtion counts total number of completed or cancelled bookings

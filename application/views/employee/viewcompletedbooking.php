@@ -70,8 +70,8 @@
                     <th width="170px;">Service Centre</th>
                     <th width="150px;">Service Centre City</th>
                     <th width="60px;">Call</th>
-                    <th width="60px;">Edit</th>
-                    <th width="60px;">Edit</th>
+                    <th width="60px;">Complete</th>
+                    <th width="60px;">Open</th>
                     <th width="60px;">View</th>
                     <?php if($status != "Cancelled" ){?>
                     <th width="60px;">Rate</th>
