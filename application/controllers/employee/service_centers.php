@@ -45,9 +45,11 @@ class Service_centers extends CI_Controller {
         $service_center_id = $this->service_centers_model->service_center_login($data);
 
         if ($service_center_id) {
-            $this->setSession($service_center_id, $data['user_name']);
-            redirect(base_url() . "service_center/pending_booking");
+	    //get sc details now
+	    $sc_details = $this->vendor_model->getVendorContact($service_center_id);
+	    $this->setSession($sc_details[0]['id'], $sc_details[0]['name']);
 
+	    redirect(base_url() . "service_center/pending_booking");
         } else {
             $data['error'] = "Please enter correct user name and password";
             $this->load->view('service_centers/service_center_login', $data);
@@ -155,11 +157,11 @@ class Service_centers extends CI_Controller {
             $data['booking_id'] =  $booking_id;
             $data['amount_paid'] = $total_amount_paid;
 
+
+
             if (!empty($getremarks[0]['service_center_remarks'])) {
-                // remove previous text, added in closing_remarks column.
-               $string = str_replace($getremarks[0]['service_center_remarks'], " ", $closing_remarks);
-               // Add current and previous text in admin_remarks column
-               $data['service_center_remarks'] = $getremarks[0]['service_center_remarks'] . " " . date("F j") . ":- " . $string;
+                
+               $data['service_center_remarks'] = date("F j") . ":- " . $closing_remarks." ". $getremarks[0]['service_center_remarks'];
 
             } else {
                 if(!empty($closing_remarks)){
@@ -216,14 +218,14 @@ class Service_centers extends CI_Controller {
     /**
      * @desc: This function Sets Session
      * @param: Service center id
-     * @param: user name
+     * @param: Service center name
      * @return: void
      */
     function setSession($service_center_id, $user_name) {
 	$userSession = array(
 	    'session_id' => md5(uniqid(mt_rand(), true)),
 	    'service_center_id' => $service_center_id,
-	    'user_name' => $user_name,
+	    'service_center_name' => $service_center_name,
 	    'sess_expiration' => 30000,
 	    'loggedIn' => TRUE,
 	    'userType' => 'service_center'

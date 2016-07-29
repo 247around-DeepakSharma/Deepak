@@ -567,8 +567,7 @@ EOD;
 	//Send report via email
 	$this->email->from('booking@247around.com', '247around Team');
 	$this->email->to("alok.singh@snapdeal.com");
-	$cc = "dhananjay.shashidharan@snapdeal.com, sudhanshu.shukla@snapdeal.com, kaushal.kukreja@snapdeal.com, "
-	    . "james.tellis@snapdeal.com, seema.devi@snapdeal.com, "
+	$cc = "dhananjay.shashidharan@snapdeal.com,"
 	    . "soumendra.choudhury@snapdeal.com, somya.kaila@snapdeal.com, "
 	    . "shivalini.verma@snapdeal.com, "
 	    . "nits@247around.com, anuj@247around.com";

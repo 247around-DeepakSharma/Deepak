@@ -493,9 +493,10 @@ class Booking extends CI_Controller {
 	$this->booking_model->update_booking($booking_id, $data);
 
 	//Update this booking in vendor action table
-	$data_vendor['closed_date'] = date("Y-m-d H:i:s");
+    $data_vendor['update_date'] = date("Y-m-d H:i:s");
 	$data_vendor['current_status'] = "Cancelled";
 	$data_vendor['internal_status'] = "Cancelled";
+    $data_vendor['cancellation_reason'] = $data['cancellation_reason'];
 	$data_vendor['booking_id'] = $booking_id;
 
 	$this->vendor_model->update_service_center_action($data_vendor);
@@ -575,6 +576,13 @@ class Booking extends CI_Controller {
 	} else {
 
 	    $this->booking_model->update_booking($booking_id, $data);
+
+	    $service_center_data['booking_id'] = $booking_id;
+        $service_center_data['internal_status'] = "Pending";
+        $service_center_data['current_status'] = "Pending";
+        $service_center_data['update_date'] = date("Y-m-d H:i:s");
+        $this->vendor_model->update_service_center_action($service_center_data);
+
 	    $query1 = $this->_model->getbooking_history($booking_id);
 
 	    $email['name'] = $query1[0]['name'];
@@ -614,8 +622,11 @@ class Booking extends CI_Controller {
 		$this->notify->send_sms($sms);
 	    }
 
-	    //Setting mail to vendor flag to 0, once booking is rescheduled
-	    $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
+	   //Setting mail to vendor flag to 0, once booking is rescheduled
+            $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
+
+	    //Prepare job card
+	    $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
 
 	    log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $this->session->userdata('employee_id') . " data " . print_r($data, true));
 
@@ -1451,5 +1462,123 @@ class Booking extends CI_Controller {
 	    redirect(base_url() . search_page);
 	}
     }
+
+    /**
+     *  @desc : This function is to present form to open cancelled bookings
+     *
+     * It converts a Cancelled Booking into Pending booking and schedule it to
+     * a new booking date & time.
+     *
+     *  @param : String (Booking Id)
+     *  @return :
+     */
+    function get_convert_cancelled_booking_to_pending_form($booking_id) {
+	$bookings = $this->booking_model->booking_history_by_booking_id($booking_id);
+
+	$this->load->view('employee/header');
+	$this->load->view('employee/cancelled_to_pending', $bookings[0]);
+    }
+
+    /**
+     *  @desc : This function is to process form to open cancelled bookings
+     *
+     * Accepts the new booking date and timeslot povided in form and then opens
+     * a cancelled booking.
+     *
+     *  @param : booking id
+     *  @return : Converts the booking to Pending stage and load view
+     */
+    function process_convert_cancelled_booking_to_pending_form($booking_id) {
+	$data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
+	$data['booking_timeslot'] = $this->input->post('booking_timeslot');
+	$data['current_status'] = 'Pending';
+	$data['internal_status'] = 'Scheduled';
+	$data['cancellation_reason'] = NULL;
+	$data['update_date'] = date("Y-m-d H:i:s");
+	$data['closed_date'] = NULL;
+	$data['vendor_rating_stars'] = NULL;
+	$data['vendor_rating_comments'] = NULL;
+	$data['service_charge'] = NULL;
+	$data['service_charge_collected_by'] = NULL;
+	$data['additional_service_charge'] = NULL;
+	$data['additional_service_charge_collected_by'] = NULL;
+	$data['parts_cost'] = NULL;
+	$data['parts_cost_collected_by'] = NULL;
+	$data['amount_paid'] = NULL;
+	$data['rating_stars'] = NULL;
+	$data['rating_comments'] = NULL;
+	$data['closing_remarks'] = NULL;
+	$data['booking_jobcard_filename'] = NULL;
+	$data['mail_to_vendor'] = 0;
+
+	//Is this SD booking?
+	if (strpos($booking_id, "SS") !== FALSE) {
+	    $is_sd = TRUE;
+	} else {
+	    $is_sd = FALSE;
+	}
+
+	if ($data['booking_timeslot'] == "Select") {
+	    echo "Please Select Booking Timeslot.";
+	} else {
+	    $this->booking_model->convert_cancelled_booking_to_pending($booking_id, $data);
+
+	    //Update SD leads table if required
+	    if ($is_sd) {
+		if ($this->booking_model->check_sd_lead_exists_by_booking_id($booking_id) === TRUE) {
+		    $sd_where = array("CRM_Remarks_SR_No" => $booking_id);
+		    $sd_data = array(
+			"Status_by_247around" => $data['current_status'],
+			"Remarks_by_247around" => $data['internal_status'],
+			"Scheduled_Appointment_DateDDMMYYYY" => $data['booking_date'],
+			"Scheduled_Appointment_Time" => $data['booking_timeslot'],
+			"update_date" => $data['update_date']
+		    );
+		    $this->booking_model->update_sd_lead($sd_where, $sd_data);
+		}
+	    }
+
+	    //Log this state change as well for this booking
+	    $state_change['booking_id'] = $booking_id;
+	    $state_change['old_state'] = 'Cancelled';
+	    $state_change['new_state'] = 'Pending';
+	    $state_change['agent_id'] = $this->session->userdata('id');
+	    $this->booking_model->insert_booking_state_change($state_change);
+
+	    $query1 = $this->booking_model->booking_history_by_booking_id($booking_id, "join");
+
+	    $email['booking_id'] = $query1[0]['booking_id'];
+	    $email['name'] = $query1[0]['name'];
+	    $email['phone_no'] = $query1[0]['phone_number'];
+	    $email['service'] = $query1[0]['services'];
+	    $email['booking_date'] = $data['booking_date'];
+	    $email['booking_timeslot'] = $data['booking_timeslot'];
+	    $email['vendor_name'] = $query1[0]['vendor_name'];
+	    $email['city'] = $query1[0]['city'];
+	    $email['agent'] = $this->session->userdata('employee_id');
+
+	    $email['tag'] = "open_cancelled_booking";
+	    $email['subject'] = "Cancelled Booking Converted to Pending - AROUND";
+
+	    $this->notify->send_email($email);
+
+	    log_message('info', 'Cancelled Booking Opened - Booking id: ' . $booking_id . " Opened By: " . $this->session->userdata('employee_id') . " => " . print_r($data, true));
+
+	    redirect(base_url() . search_page);
+	}
+    }
+
+    /**
+     *  @desc : This function is used to open a cancelled query
+     *  @param : String (Booking Id)
+     *  @return : redirect user controller
+     */
+    function open_cancelled_query($booking_id) {
+	$this->booking_model->change_booking_status($booking_id);
+
+	redirect(base_url() . 'employee/booking/view_pending_queries/0/0/' . $booking_id, 'refresh');
+    }
+
+
 
 }

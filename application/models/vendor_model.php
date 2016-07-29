@@ -76,12 +76,25 @@ class vendor_model extends CI_Model {
      *
      * @param: $vendor
      *          - Vendor details to be added.
-     * @return: void
+     * @return: ID for the new vendor
      */
     function add_vendor($vendor) {
 
         $this->db->insert('service_centres', $vendor);
+        return $this->db->insert_id();
+
     }
+
+     /**
+     * @desc: This function is to add login details for a new vendor
+     *
+     * @param: $login
+     *          - Vendor login details to be added.
+     * @return: void
+     */
+    function add_vendor_login($login) {
+        $this->db->insert('service_centers_login', $login);
+     }
 
     /**
      * @desc: This function is to get all the active services

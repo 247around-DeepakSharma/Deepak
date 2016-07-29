@@ -52,6 +52,7 @@ class Do_background_process extends CI_Controller {
         foreach ($unit_details[0]['qunatity'] as $value ) { 
             $data = array();
             $data['current_status'] = "Pending";
+            $data['internal_status'] = "Pending";
             $data['service_center_id'] = $service_center_id;
             $data['booking_id'] = $booking_id;
             $data['create_date'] = date('Y-m-d H:i:s');
