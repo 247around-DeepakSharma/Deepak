@@ -48,7 +48,7 @@ class Booking extends CI_Controller {
     /**
      *  @desc : This method is used to add booking.
      *
-     * This function will get all the booking details. 
+     * This function will get all the booking details.
      * These booking details are the details which are inserted in booking details table while taking the actual booking.
      *
      * After insertion of booking details, if it is not a query then an email and SMS will be sent to the user for booking confirmation.
@@ -89,7 +89,7 @@ class Booking extends CI_Controller {
       // redirect(base_url() . 'employee/booking/view');
     }
 
-   
+
 
     /**
      *  @desc : This function is used to insert or update data in booking unit details and appliance details table
@@ -114,7 +114,7 @@ class Booking extends CI_Controller {
         }
 
         $appliance_id = $this->input->post('appliance_id');
-        
+
         // select state by city
         $state = $this->vendor_model->selectSate($booking['city']);
         $booking['state'] = $state[0]['state'];
@@ -127,7 +127,7 @@ class Booking extends CI_Controller {
         $booking['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
 
         $booking_timeslot = $this->input->post('booking_timeslot');
-        
+
         $booking_timeslot = explode("-", $booking_timeslot);
         $booking['booking_timeslot'] = $booking_timeslot[1];
 
@@ -156,8 +156,8 @@ class Booking extends CI_Controller {
         if(!empty($partner_id)){
             $booking['partner_id'] = $partner_id[0]['partner_id'];
         }
-        
-        // All discount comming in array.  Array ( [BPL] => Array ( [100] => Array ( [0] => 200 ) [102] => Array ( [0] => 100 ) [103] => Array ( [0] => 0 ) ) .. Key is Appliance brand, unit id and discount value. 
+
+        // All discount comming in array.  Array ( [BPL] => Array ( [100] => Array ( [0] => 200 ) [102] => Array ( [0] => 100 ) [103] => Array ( [0] => 0 ) ) .. Key is Appliance brand, unit id and discount value.
         $discount = $this->input->post('discount');
          // All prices comming in array with pricing table id
         /*Array(
@@ -206,30 +206,30 @@ class Booking extends CI_Controller {
 
 
         foreach ($appliance_brand as $key => $value) {
-            
+
             $services_details = "";
             $appliances_details = "";
             $appliances_details['user_id'] = $user_id;
             $appliances_details['brand'] = $services_details['appliance_brand'] = $value; // brand
-            // get category from appiance category array for only specific key. 
-            $appliances_details['category'] = $services_details['appliance_category'] = $appliance_category[$key]; 
-            // get appliance_capacity from appliance_capacity array for only specific key. 
+            // get category from appiance category array for only specific key.
+            $appliances_details['category'] = $services_details['appliance_category'] = $appliance_category[$key];
+            // get appliance_capacity from appliance_capacity array for only specific key.
             $appliances_details['capacity'] = $services_details['appliance_capacity'] = $appliance_capacity[$key];
-            // get model_number from appliance_capacity array for only specific key such as $model_number[0]. 
+            // get model_number from appliance_capacity array for only specific key such as $model_number[0].
             $appliances_details['model_number'] = $services_details['model_number'] = $model_number[$key];
-             // get appliance tag from appliance_tag array for only specific key such as $appliance_tag[0]. 
+             // get appliance tag from appliance_tag array for only specific key such as $appliance_tag[0].
             $appliances_details['tag'] = $services_details['appliance_tag'] = $appliance_tags[$key];
-             // get purchase year from purchase year array for only specific key such as $purchase_year[0]. 
+             // get purchase year from purchase year array for only specific key such as $purchase_year[0].
             $appliances_details['purchase_year'] = $services_details['purchase_year'] = $purchase_year[$key];
             $services_details['booking_id'] = $booking['booking_id'];
-            // get purchase months from months array for only specific key such as $months[0]. 
+            // get purchase months from months array for only specific key such as $months[0].
             $appliances_details['purchase_month']= $services_details['purchase_month'] = $months[$key];
             $appliances_details['service_id']= $services_details['service_id'] = $booking['service_id'];
             $appliances_details['last_service_date'] = date('Y-m-d H:i:s');
-            
+
 
             if(!empty($partner_id)){
-                
+
                $services_details['partner_id'] = $booking['partner_id'];
             }
 
@@ -257,15 +257,15 @@ class Booking extends CI_Controller {
             //Array ( ['brand'] => Array ( [0] => id_price ) )
             foreach ($pricesWithId[$value] as $keys => $values) {
 
-                $prices = explode("_", $values);  // split string.. 
-                $services_details['id'] = $prices[0]; // This is id of service_centre_charges table. 
-                // discount for appliances. Array ( [BPL] => Array ( [100] => Array ( [0] => 200 ) [102] => Array ( [0] => 100 ) [103] => Array ( [0] => 0 ) ) 
-               
-                $services_details['around_paid_basic_charges'] = $discount[$value][$services_details['id']][0]; 
+                $prices = explode("_", $values);  // split string..
+                $services_details['id'] = $prices[0]; // This is id of service_centre_charges table.
+                // discount for appliances. Array ( [BPL] => Array ( [100] => Array ( [0] => 200 ) [102] => Array ( [0] => 100 ) [103] => Array ( [0] => 0 ) )
+
+                $services_details['around_paid_basic_charges'] = $discount[$value][$services_details['id']][0];
                 $services_details['partner_paid_basic_charges'] = $partner_net_payable[$value][$services_details['id']][0];
 
                 if($booking_id == ""){
-                   
+
                     $result = $this->booking_model->insert_data_in_booking_unit_details($services_details);
 
                     if ($booking['current_status'] != 'FollowUp') {
@@ -278,16 +278,16 @@ class Booking extends CI_Controller {
                 }
 
                 } else {
- 
+
                     $price_tag = $this->booking_model->update_booking_in_booking_details($services_details);
                     array_push($price_tags, $price_tag);
                 }
-                
+
             }
         }
 
         if(!empty($price_tags)){
-            
+
            $this->booking_model->check_price_tags_status($booking['booking_id'], $price_tags);
 
         }
@@ -303,11 +303,11 @@ class Booking extends CI_Controller {
 
         return $booking;
     }
-    
+
     /**
      * @desc: this method generates booking id. booking id is the combination of booking source, 4 digit random number, date and month
      * @param: user id, booking source, booking type
-     * @return: booking id 
+     * @return: booking id
      */
     function create_booking_id($user_id, $source, $type) {
         $booking['booking_id'] = '';
@@ -325,7 +325,7 @@ class Booking extends CI_Controller {
         } else {
             $booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
         }
-        
+
         return $booking['booking_id'];
     }
 
@@ -358,7 +358,6 @@ class Booking extends CI_Controller {
         }
 
         $this->load->view('employee/header');
-
         $this->load->view('employee/booking', $data);
     }
 
@@ -369,7 +368,7 @@ class Booking extends CI_Controller {
      *  @return : pending bookings according to pagination
      */
     function view($offset = 0, $page = 0, $booking_id = "") {
-        
+
         if ($page == '0' ) {
             $page = 50;
         }
@@ -405,11 +404,11 @@ class Booking extends CI_Controller {
      *  @return : completed bookings according to pagination
      */
     function viewclosedbooking($status, $offset = 0, $page = 0, $booking_id="") {
-        
+
         if ($page == '0' ) {
             $page = 50;
         }
-       
+
         $offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
         $config['base_url'] = base_url() . 'employee/booking/viewclosedbooking/'.$status;
         $config['total_rows'] = $this->booking_model->total_closed_booking($status, $booking_id);
@@ -459,7 +458,7 @@ class Booking extends CI_Controller {
 	    $data['bookng_unit_details'] = $this->booking_model->getunit_details($booking_id);
 	    $source = $this->partner_model->get_all_partner_source("0", $data['booking_history'][0]['source']);
 	    $data['booking_history'][0]['source_name'] = $source[0]['source'];
-	   
+
 	    $this->load->view('employee/header');
 	    $this->load->view('employee/completebooking',$data);
     }
@@ -482,10 +481,10 @@ class Booking extends CI_Controller {
         $data['user_and_booking_details'] = $this->booking_model->getbooking_history($booking_id);
         $data['reason'] = $this->booking_model->cancelreason("247around");
         if($status == "followup"){
-          
+
           $data['internal_status'] = $this->booking_model->get_internal_status("Cancel");
         }
-       
+
         $this->load->view('employee/header');
         $this->load->view('employee/cancelbooking', $data);
     }
@@ -509,10 +508,10 @@ class Booking extends CI_Controller {
             $data['cancellation_reason'] = "Other : " . $this->input->post("cancellation_reason_text");
         }
         $data['current_status'] = "Cancelled";
-       
+
         $this->booking_model->update_booking($booking_id, $data);
 
-	    //Update this booking in vendor action table 
+	    //Update this booking in vendor action table
 	    $data_vendor['closed_date'] = date("Y-m-d H:i:s");
 	    $data_vendor['current_status'] = "Cancelled";
 	    $data_vendor['internal_status'] = "Cancelled";
@@ -593,7 +592,7 @@ class Booking extends CI_Controller {
         if ($data['booking_timeslot'] == "Select") {
             echo "Please Select Booking Timeslot.";
         } else {
-            
+
             $this->booking_model->update_booking($booking_id, $data);
 	        $query1 = $this->_model->getbooking_history($booking_id);
 
@@ -660,7 +659,7 @@ class Booking extends CI_Controller {
     /**
      * @desc : This function will load category with help of service_id on ajax call
      * this method get get category on the basis of service id, state, price mapping id
-     * @input: service id, city, partner_code 
+     * @input: service id, city, partner_code
      * @return : displays category
      */
     function getCategoryForService() {
@@ -704,7 +703,7 @@ class Booking extends CI_Controller {
    /**
      * @desc : This function will show the price and services for ajax call
      * this method returns price list on the basis of service id, category, capacity, price mapping id, state
-     * @input: service_id,category, capacity, brand, partner code, city, clone number 
+     * @input: service_id,category, capacity, brand, partner code, city, clone number
      * @return : services name and there prices
      */
     public function getPricesForCategoryCapacity() {
@@ -733,7 +732,7 @@ class Booking extends CI_Controller {
 
                 $html .="<tr><td>" . $prices['service_category'] . "</td>";
                 $html .= "<td>" . $prices['customer_total'] . "</td>";
-                $html .= "<td><input  type='text' class='form-control' name= 'partner_paid_basic_charges[$brand][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '".$prices['partner_net_payable']."' placeholder='Enter discount' readonly/></td>"; 
+                $html .= "<td><input  type='text' class='form-control' name= 'partner_paid_basic_charges[$brand][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '".$prices['partner_net_payable']."' placeholder='Enter discount' readonly/></td>";
                 $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
                 $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '0' placeholder='Enter discount' readonly></td>";
                 $html .= "<td><input class='price_checkbox'";
@@ -838,22 +837,22 @@ class Booking extends CI_Controller {
         $this->load->view('employee/header');
         $this->load->view('employee/booking', $data);
     }
-   
-    /**
-     *  @desc : This function is to create jobcard
-     *
-     * 	Jobcard is created and attached in mail when we reschedule booking and is sent to the vendor to whome we assign this booking.
-     *
-     *  @param : booking id
-     *  @return : void
-     */
-    function jobcard($booking_id) {
-        $query1 = $this->booking_model->getbooking_history($booking_id);
-        $query2 = $this->booking_model->get_unit_details($booking_id);
 
-        $this->load->view('employee/header');
-        $this->load->view('employee/unassignedjobcard', array('query1' => $query1, 'query2' => $query2));
-    }
+//    /**
+//     *  @desc : This function is to create jobcard
+//     *
+//     * 	Jobcard is created and attached in mail when we reschedule booking and is sent to the vendor to whome we assign this booking.
+//     *
+//     *  @param : booking id
+//     *  @return : void
+//     */
+//    function jobcard($booking_id) {
+//        $query1 = $this->booking_model->getbooking_history($booking_id);
+//        $query2 = $this->booking_model->get_unit_details($booking_id);
+//
+//        $this->load->view('employee/header');
+//        $this->load->view('employee/unassignedjobcard', array('query1' => $query1, 'query2' => $query2));
+//    }
 
     /**
      *  @desc : This function is to view deatils of any particular booking.
@@ -868,70 +867,70 @@ class Booking extends CI_Controller {
 	$data['unit_details'] = $this->booking_model->getunit_details($booking_id);
 
 	$data['service_center'] = $this->booking_model->selectservicecentre($booking_id);
-	
+
 	$this->load->view('employee/header');
 	$this->load->view('employee/viewdetails', $data);
     }
 
-    /**
-     *  @desc : Function to sort pending bookings with current status
-     *
-     * 	This will display all the bookings present in sorted manner according to there booking status.
-     *
-     *  @param : start booking and bookings per page
-     *  @return : bookings and load view
-     */
-    function status_sorted_booking($offset = 0, $page = 0) {
-        if ($page == 0) {
-            $page = 50;
-        }
+//    /**
+//     *  @desc : Function to sort pending bookings with current status
+//     *
+//     * 	This will display all the bookings present in sorted manner according to there booking status.
+//     *
+//     *  @param : start booking and bookings per page
+//     *  @return : bookings and load view
+//     */
+//    function status_sorted_booking($offset = 0, $page = 0) {
+//        if ($page == 0) {
+//            $page = 50;
+//        }
+//
+//        $offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
+//        $config['base_url'] = base_url() . 'employee/booking/status_sorted_booking';
+//        $config['total_rows'] = $this->booking_model->total_pending_booking();
+//        $config['per_page'] = $page;
+//        $config['uri_segment'] = 4;
+//        $config['first_link'] = 'First';
+//        $config['last_link'] = 'Last';
+//
+//        $this->pagination->initialize($config);
+//        $data['links'] = $this->pagination->create_links();
+//
+//        $data['Bookings'] = $this->booking_model->status_sorted_booking($config['per_page'], $offset);
+//        $this->load->view('employee/header');
+//
+//        $this->load->view('employee/statussortedbooking', $data);
+//    }
 
-        $offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
-        $config['base_url'] = base_url() . 'employee/booking/status_sorted_booking';
-        $config['total_rows'] = $this->booking_model->total_pending_booking();
-        $config['per_page'] = $page;
-        $config['uri_segment'] = 4;
-        $config['first_link'] = 'First';
-        $config['last_link'] = 'Last';
-
-        $this->pagination->initialize($config);
-        $data['links'] = $this->pagination->create_links();
-
-        $data['Bookings'] = $this->booking_model->status_sorted_booking($config['per_page'], $offset);
-        $this->load->view('employee/header');
-
-        $this->load->view('employee/statussortedbooking', $data);
-    }
-
-    /**
-     *  @desc : Function to sort pending and rescheduled bookings with booking date
-     *
-     * 	This method will display all the pending and rescheduled bookings present in sorted manner according to there booking date.
-     *
-     *  @param : start booking and bookings per page
-     *  @return : sorted bookings and load view
-     */
-    function date_sorted_booking($offset = 0, $page = 0) {
-        if ($page == 0) {
-            $page = 50;
-        }
-        //$offset = ($this->uri->segment(4)) ? $this->uri->segment(4) : 0;
-        $offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
-        $config['base_url'] = base_url() . 'employee/booking/date_sorted_booking';
-        $config['total_rows'] = $this->booking_model->total_pending_booking();
-        $config['per_page'] = $page;
-        $config['uri_segment'] = 4;
-        $config['first_link'] = 'First';
-        $config['last_link'] = 'Last';
-
-        $this->pagination->initialize($config);
-        $data['links'] = $this->pagination->create_links();
-
-        $data['Bookings'] = $this->booking_model->date_sorted_booking($config['per_page'], $offset);
-        $this->load->view('employee/header');
-
-        $this->load->view('employee/datesortedbooking', $data);
-    }
+//    /**
+//     *  @desc : Function to sort pending and rescheduled bookings with booking date
+//     *
+//     * 	This method will display all the pending and rescheduled bookings present in sorted manner according to there booking date.
+//     *
+//     *  @param : start booking and bookings per page
+//     *  @return : sorted bookings and load view
+//     */
+//    function date_sorted_booking($offset = 0, $page = 0) {
+//        if ($page == 0) {
+//            $page = 50;
+//        }
+//        //$offset = ($this->uri->segment(4)) ? $this->uri->segment(4) : 0;
+//        $offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
+//        $config['base_url'] = base_url() . 'employee/booking/date_sorted_booking';
+//        $config['total_rows'] = $this->booking_model->total_pending_booking();
+//        $config['per_page'] = $page;
+//        $config['uri_segment'] = 4;
+//        $config['first_link'] = 'First';
+//        $config['last_link'] = 'Last';
+//
+//        $this->pagination->initialize($config);
+//        $data['links'] = $this->pagination->create_links();
+//
+//        $data['Bookings'] = $this->booking_model->date_sorted_booking($config['per_page'], $offset);
+//        $this->load->view('employee/header');
+//
+//        $this->load->view('employee/datesortedbooking', $data);
+//    }
 
     /**
      *  @desc : Function to sort pending and rescheduled bookings with service center's name
@@ -972,10 +971,10 @@ class Booking extends CI_Controller {
 
     function get_appliance_booking_form($appliance_id){
        $this->get_edit_booking_form("", $appliance_id);
-    
+
     }
 
-    
+
     /**
      *  @desc : This function is to get add new brand page
      *
@@ -1056,15 +1055,15 @@ class Booking extends CI_Controller {
        } else {
             $booking_history = $this->booking_model->getbooking_history_by_appliance_id($appliance_id);
        }
-       
-      
+
+
        $booking = $this->booking_model->get_city_booking_source_services($booking_history[0]['phone_number']);
        $booking['booking_history'] = $booking_history;
        $booking['unit_details'] =  $this->booking_model->getunit_details($booking_id, $appliance_id);
        $booking['brand'] = $this->booking_model->getBrandForService($booking_history[0]['service_id']);
        $partner_id = $this->booking_model->get_price_mapping_partner_code($booking_history[0]['source']);
        $booking['category'] = $this->booking_model->getCategoryForService($booking_history[0]['service_id'], $booking_history[0]['state'], $partner_id);
-       $booking['capacity'] = array(); 
+       $booking['capacity'] = array();
        $booking['prices'] = array();
        $booking['appliance_id'] = $appliance_id;
 
@@ -1222,7 +1221,7 @@ class Booking extends CI_Controller {
         }
     }
 
-    
+
     /**
      * @desc: save Admin remarks in service center action table
      * @param: void
@@ -1273,11 +1272,11 @@ class Booking extends CI_Controller {
         $this->asynchronous_lib->do_background_process($url, $data);
 
     }
-    
+
     redirect(base_url() . 'employee/booking/review_bookings');
     }
 
-    
+
 
     /**
      * @desc: This funtion is used to review booking which is completed/cancelled by our vendors.
@@ -1342,13 +1341,13 @@ class Booking extends CI_Controller {
     }
 
     /**
-     * @desc: This is used to complete booking by admin. It gets booking id and status as parameter. if status is 0 then redirect pending booking other wise redirect completed booking page 
+     * @desc: This is used to complete booking by admin. It gets booking id and status as parameter. if status is 0 then redirect pending booking other wise redirect completed booking page
      * @param: String Array, string
      * @return :void
      */
     function process_complete_booking($booking_id, $status=""){
         // customer paid basic charge is comming in array
-       // Array ( [100] =>  500 , [102] =>  300 )  
+       // Array ( [100] =>  500 , [102] =>  300 )
        $customer_basic_charge = $this->input->post('customer_basic_charge');
         // Additional service charge is comming in array
        $additional_charge =  $this->input->post('additional_charge');
@@ -1359,9 +1358,9 @@ class Booking extends CI_Controller {
        $admin_remarks =  $this->input->post('admin_remarks');
        $internal_status = "Cancelled";
        $service_center_details = $this->booking_model->getbooking_charges($booking_id);
-   
+
        foreach ($customer_basic_charge as $unit_id => $value) {
-        // variable $unit_id  is existing id in booking unit details table of given booking id 
+        // variable $unit_id  is existing id in booking unit details table of given booking id
         $data = array();
         $data['id'] = $unit_id;
         $data['customer_paid_basic_charges'] = $value;
@@ -1373,10 +1372,10 @@ class Booking extends CI_Controller {
            $internal_status = "Completed";
         }
         log_message('info', ": " . " update booking unit details data " . print_r($data, TRUE));
-        
+
         // update price in the booking unit details page
         $this->booking_model->update_unit_details($data);
-        
+
         $service_center['booking_id'] = $booking_id;
         $service_center['closing_remarks'] = "Service Center Remarks:- " . $service_center_details[0]['service_center_remarks'] .
                     " <br/> Admin:-  " . $admin_remarks;
@@ -1388,9 +1387,9 @@ class Booking extends CI_Controller {
         log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
 
         $this->vendor_model->update_service_center_action($service_center);
-        
+
        }
-   
+
        $booking['rating_stars'] = $this->input->post('rating_stars');
        $booking['vendor_rating_stars'] = $this->input->post('vendor_rating_stars');
        $booking['vendor_rating_comments'] =  $this->input->post('vendor_rating_comments');
@@ -1420,7 +1419,7 @@ class Booking extends CI_Controller {
        } else {
           redirect(base_url() . 'employee/booking/viewclosedbooking/'.$internal_status);
        }
-       
+
     }
 
      /**
@@ -1489,5 +1488,5 @@ class Booking extends CI_Controller {
     }
 
 
-    
+
 }

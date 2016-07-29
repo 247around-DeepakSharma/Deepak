@@ -164,12 +164,8 @@
                     <th>Phone No.</th>
                     <th>Service Name</th>
                     <th>Booking Date</th>
-                    <th>
-                    <a href="<?php echo base_url();?>employee/booking/status_sorted_booking">Status</a>
-                    </th>
-                    <th>
-                       <a href="<?php echo base_url();?>employee/booking/service_center_sorted_booking">Service Center</a>
-                    </th>
+                    <th>Status</th>
+                    <th>Service Center</th>
 		            <th>Call</th>
                     <th>View Jobcard</th>
                     <th>Reschedule</th>

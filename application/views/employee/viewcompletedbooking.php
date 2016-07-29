@@ -86,15 +86,9 @@
                     <tr>
                     <td><?=$row->id?>.</td>
 
-                            <td>
-                            <?php
-                            if (is_null($row->booking_jobcard_filename)) {
-                                echo "<a href=" . base_url() . "employee/booking/jobcard/$row->booking_id>$row->booking_id</a>";
-                            } else {
-                                echo '<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';
-                            }
-                            ?>
-                        </td>
+                            <td><?php
+				    echo '<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';?>
+    			    </td>
 
                     <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
                     <td><?= $row->booking_primary_contact_no; ?></td>
