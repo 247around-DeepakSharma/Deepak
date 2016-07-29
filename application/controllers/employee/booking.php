@@ -839,10 +839,16 @@ class Booking extends CI_Controller {
             $data['rating_star'] = "";
             $data['rating_comments'] = "";
         }
-        $data['closed_date'] = date("Y-m-d H:i:s");
+        $service_center_data['update_date'] = $data['closed_date'] = date("Y-m-d H:i:s");
 
-	//TODO: Change this to update_booking
-	$this->booking_model->complete_booking($booking_id, $data);
+	   //TODO: Change this to update_booking
+	   $this->booking_model->complete_booking($booking_id, $data);
+
+        $service_center_data['booking_id'] = $booking_id;
+        $service_center_data['current_status'] = "Completed";
+        $service_center_data['internal_status'] =  $data['internal_status'];
+        $this->vendor_model->update_service_center_action($service_center_data);
+
 
         //Save this booking id in booking_invoices_mapping table as well now
         $this->invoices_model->insert_booking_invoice_mapping(array('booking_id' => $booking_id));
@@ -1206,9 +1212,10 @@ class Booking extends CI_Controller {
 	    $this->booking_model->cancel_completed_booking($booking_id, $data);
 
 	//Update this booking in vendor action table as well if required
-	$data_vendor['closed_date'] = date("Y-m-d H:i:s");
+	$data_vendor['update_date'] = date("Y-m-d H:i:s");
 	$data_vendor['current_status'] = "Cancelled";
 	$data_vendor['internal_status'] = "Cancelled";
+    $data_vendor['cancellation_reason'] = $data['cancellation_reason'];
 	$data_vendor['booking_id'] = $booking_id;
 
 	$this->vendor_model->update_service_center_action($data_vendor);
@@ -1367,6 +1374,12 @@ class Booking extends CI_Controller {
         } else {
             //$insertData = $this->booking_model->reschedule_booking($booking_id, $data);
             $this->booking_model->reschedule_booking($booking_id, $data);
+
+            $service_center_data['booking_id'] = $booking_id;
+            $service_center_data['internal_status'] = "Pending";
+            $service_center_data['current_status'] = "Pending";
+            $service_center_data['update_date'] = date("Y-m-d H:i:s");
+            $this->vendor_model->update_service_center_action($service_center_data);
 
             //Update SD leads table if required
             if ($is_sd) {
@@ -1571,9 +1584,7 @@ class Booking extends CI_Controller {
 
                 $this->asynchronous_lib->do_background_process($url, $data);
             }
-
         }
-
 
         redirect(base_url() . search_page);
     }
