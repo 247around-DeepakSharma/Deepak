@@ -117,12 +117,13 @@
                     <?php } else { ?>
 
                     <td>
-
+                  
                     <select onchange="load_vendor_details(<?php echo $count; ?>)" id="vendor_avalilabe<?php echo $count;?>"  class="form-control" style="width:156px;">
                         <option selected disabled>Vendor Available</option>
 
                     <?php foreach ($row->vendor_status as  $value) { ?>
-                    <option value="<?php echo $value->Vendor_ID?>"><?php echo $value->Vendor_Name; ?></option>
+                   
+                    <option value="<?php echo $value['Vendor_ID']; ?>"><?php echo $value['Vendor_Name']; ?></option>
 
                     <?php  } ?>
                     </select>
