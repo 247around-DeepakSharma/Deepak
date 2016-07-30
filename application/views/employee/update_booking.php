@@ -12,9 +12,10 @@
                                     <label for="name" class="col-md-4">User Name</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control" id="name" name="user_name" value = "<?php echo $booking_history[0]['name'] ?>" readonly="readonly">
-                                        <input type="hidden" name="appliance_id" value="<?php echo $appliance_id; ?>" </input>
+                                        
                                     </div>
                                 </div>
+
                                 <div class="form-group ">
                                     <label for="booking_primary_contact_no" class="col-md-4">Primary Contact Number *</label>
                                     <div class="col-md-6">
@@ -113,22 +114,30 @@
                                         <div class="form-group ">
                                             <label for="service_name" class="col-md-4">Brand *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_brand"    name="appliance_brand[]" id="appliance_brand_1" required>
+                                                <select type="text" class="form-control appliance_brand"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>
+   name="appliance_brand[]" id="appliance_brand_1" required>
                                                     <option selected disabled>Select Brand</option>
                                                     <?php foreach ($brand as  $appliance_brand) { ?>
-                                                        <option <?php if(isset($unit_details[0]['brand'])) { if($appliance_brand['brand_name'] == $unit_details[0]['brand']){ echo "selected";} } ?> ><?php echo $appliance_brand['brand_name']; ?></option >
+                                                        <option <?php if(isset($unit_details[0]['brand'])) { if($appliance_brand['brand_name'] == $unit_details[0]['brand']){ echo "selected";} } ?> 
+                                                       
+
+                                                        ><?php echo $appliance_brand['brand_name']; ?></option >
                                                     <?php } ?>
                                                     
                                                 </select>
                                             </div>
                                         </div>
+                                        <input type="hidden" name="appliance_id[]" value="<?php echo $unit_details[0]['appliance_id']; ?>"> </input>
                                         <div class="form-group">
                                             <label for="service_name" class="col-md-4">Category *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(service_id,this.value, this.id);" required>
+                                                <select type="text" class="form-control appliance_category"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(service_id,this.value, this.id);" required>
                                                     <option selected disabled>Select Appliance Category</option>
                                                     <?php foreach ($category as $key => $appliance_category) { ?>
-                                                       <option <?php if(isset($unit_details[0]['category'])) { if( $appliance_category['category'] == $unit_details[0]['category']) { echo "selected"; } } ?>><?php echo $appliance_category['category']; ?></option>
+                                                       <option <?php if(isset($unit_details[0]['category'])) { if( $appliance_category['category'] == $unit_details[0]['category']) { echo "selected"; } } ?>
+                                                      
+
+                                                       ><?php echo $appliance_category['category']; ?></option>
                                                     <?php } ?>
                                                 </select>
                                             </div>
@@ -136,10 +145,12 @@
                                         <div class="form-group <?php if (form_error('appliance_capacity')) { echo 'has-error';} ?>">
                                             <label for="service_name" class="col-md-4">Capacity *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);">
+                                                <select type="text" class="form-control appliance_capacity"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);">
                                                     <option  selected disabled>Select Appliance Capacity</option>
                                                     <?php foreach ($capacity[0] as $appliance_capacity) { ?>
-                                                       <option <?php if(isset($unit_details[0]['capacity'])) {if($appliance_capacity['capacity'] == $unit_details[0]['capacity']) { echo "selected"; } } ?> ><?php echo $appliance_capacity['capacity']; ?></option>
+                                                       <option <?php if(isset($unit_details[0]['capacity'])) {if($appliance_capacity['capacity'] == $unit_details[0]['capacity']) { echo "selected"; } } ?> 
+                                                    
+                                                        ><?php echo $appliance_capacity['capacity']; ?></option>
                                                     <?php } ?>
                                                 </select>
                                                
@@ -148,29 +159,29 @@
                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Model </label>
                                             <div class="col-md-6">
-                                                <input  type="text" class="form-control"  name="model_number[]" id="model_number_1" value = "<?php if(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model" >
+                                                <input  type="text" class="form-control"  name="model_number[]" id="model_number_1" value = "<?php if(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
                                                
                                             </div>
                                         </div>
                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Tag</label>
                                             <div class="col-md-6">
-                                                <input  type="text" class="form-control"  name="appliance_tags[]" id="appliance_tags_1" value = "<?php if(isset($unit_details[0]['appliance_tag'])) {  echo $unit_details[0]['appliance_tag']; } ?>" placeholder="Enter Tag" >
+                                                <input  type="text" class="form-control"  name="appliance_tags[]" id="appliance_tags_1" value = "<?php if(isset($unit_details[0]['appliance_tag'])) {  echo $unit_details[0]['appliance_tag']; } ?>" placeholder="Enter Tag"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
                                                
                                             </div>
                                         </div>
                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Purchase Year</label>
                                             <div class="col-md-4">
-                                                <select  type="text" class=" form-control "   name="purchase_month[]" id="purchase_month_1" >
+                                                <select  type="text" class=" form-control " <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  name="purchase_month[]" id="purchase_month_1" >
                                                     <option value="">Month</option>
 
-                                                    <option <?php if(isset($unit_details[0]['purchase_month'])) {  if($unit_details[0]['purchase_month'] == "Jan"){ echo "selected";} } ?> >Jan</option>
+                                                    <option <?php if(isset($unit_details[0]['purchase_month'])) {  if($unit_details[0]['purchase_month'] == "Jan"){ echo "selected";} } ?>  >Jan</option>
                                                     <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Feb"){  echo "selected";} } ?> >Feb</option>
-                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Mar"){  echo "selected";} } ?> >Mar</option>
-                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Apr"){ echo "selected";} }?>>Apr</option>
-                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "May"){ echo "selected";} } ?>>May</option>
-                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Jun"){ echo "selected";} } ?>>Jun</option>
+                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Mar"){  echo "selected";} } ?>>Mar</option>
+                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Apr"){ echo "selected";} }?> >Apr</option>
+                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "May"){ echo "selected";} } ?> >May</option>
+                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Jun"){ echo "selected";} } ?> >Jun</option>
                                                     <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "July"){ echo "selected";}} ?>>July</option>
                                                     <option <?php  if(isset($unit_details[0]['purchase_month'])) {if($unit_details[0]['purchase_month'] == "Aug"){ echo "selected";}} ?>>Aug</option>
                                                     <option <?php  if(isset($unit_details[0]['purchase_month'])) {if($unit_details[0]['purchase_month'] == "Sept"){ echo "selected";}} ?>>Sept</option>
@@ -181,10 +192,10 @@
                                             </div>
                                             <div class="form-group">
                                                 <div class="col-md-4">
-                                                    <select  type="text" class="col-md-3 form-control "   name="purchase_year[]" id="purchase_year_1" required>
+                                                    <select  type="text" class="col-md-3 form-control "   name="purchase_year[]" id="purchase_year_1" <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  required> 
                                                         <option selected="selected" value="" >Year</option>
                                                         <?php for($i = 0; $i> -26; $i--){ ?>
-                                                        <option <?php  if(isset($unit_details[0]['purchase_year'])) { if(date("Y",strtotime($i." year")) == $unit_details[0]['purchase_year']){ echo "selected" ;} } ?> >
+                                                        <option <?php  if(isset($unit_details[0]['purchase_year'])) { if(date("Y",strtotime($i." year")) == $unit_details[0]['purchase_year']){ echo "selected" ;} } ?>>
                                                             <?php echo date("Y",strtotime($i." year")); ?>
                                                         </option>
                                                         <?php }  ?>
@@ -280,6 +291,7 @@
                                                 </select>
                                             </div>
                                         </div>
+                                        <input type="hidden" name="appliance_id[]" value="<?php echo $booking_unit_details['appliance_id']; ?>"> </input>
                                         <div class="form-group">
                                             <label for="service_name" class="col-md-4">Category *</label>
                                             <div class="col-md-6">
@@ -291,6 +303,7 @@
                                                 </select>
                                             </div>
                                         </div>
+
                                         <div class="form-group <?php if (form_error('appliance_capacity')) { echo 'has-error';} ?>">
                                             <label for="service_name" class="col-md-4">Capacity *</label>
                                             <div class="col-md-6">
@@ -459,14 +472,14 @@
                             <div class="form-group ">
                                 <label for="type" class="col-md-4">Potential Value</label>
                                 <div class="col-md-6">
-                                   
-                                    <input  type="text" class="form-control"  name="potential_value" id="potential_value" value = "<?php echo set_value('potential_value'); ?>" placeholder="Enter potential_value" >
+                                  
+                                    <input  type="text" class="form-control"  name="potential_value" id="potential_value" value = "<?php if(isset($booking_history[0]['potential_value'])){ echo $booking_history[0]['potential_value']; }?>" placeholder="Enter potential_value" >
                                 </div>
                             </div>
                             <div class="form-group ">
-                                <label for="type" class="col-md-4">Query Remarks</label>
+                                <label for="type" class="col-md-4">Remarks</label>
                                 <div class="col-md-6">
-                                    <textarea class="form-control" rows="4" name="query_remarks" id="query_remarks" placeholder="Enter Quer Remarks" ></textarea>
+                                    <textarea class="form-control" rows="4" name="query_remarks" id="query_remarks" placeholder="Enter Quer Remarks" ><?php if(isset($booking_history[0]['booking_remarks'])){ echo $booking_history[0]['booking_remarks']; } else  if(isset($booking_history[0]['query_remarks'])){ echo $booking_history[0]['query_remarks']; } ?></textarea>
                                 </div>
                             </div>
                             <div>

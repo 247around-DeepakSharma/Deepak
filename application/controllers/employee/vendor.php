@@ -81,13 +81,23 @@ class vendor extends CI_Controller {
                 $_POST['sc_code'] = $this->generate_service_center_code($_POST['name'], $_POST['district']);
 
                 //if vendor do not exists, vendor is added
-                $this->vendor_model->add_vendor($_POST);
-                $this->sendWelcomeSms($_POST['primary_contact_phone_1'], $_POST['name']);
+                $sc_id = $this->vendor_model->add_vendor($_POST);
+
+		        $this->sendWelcomeSms($_POST['primary_contact_phone_1'], $_POST['name']);
                 $this->sendWelcomeSms($_POST['owner_phone_1'], $_POST['owner_name']);
 
                 $this->notify->sendEmail("booking@247around.com", 'anuj@247around.com', '', '', 'New Vendor Creation', json_encode($_POST), "");
 
-                redirect(base_url() . 'employee/vendor/viewvendor');
+		  //create vendor login details as well
+		   $sc_login_uname = strtolower($_POST['sc_code']);
+		   $login['service_center_id'] = $sc_id;
+		   $login['user_name'] = $sc_login_uname;
+		   $login['password'] = md5($sc_login_uname);
+		   $login['active'] = 1;
+
+		   $this->vendor_model->add_vendor_login($login);
+
+		   redirect(base_url() . 'employee/vendor/viewvendor');
             }
         } else {
             $this->add_vendor();

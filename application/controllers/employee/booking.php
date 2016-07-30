@@ -108,8 +108,6 @@ class Booking extends CI_Controller {
 	    $booking['booking_id'] = $booking_id;
 	}
 
-	$appliance_id = $this->input->post('appliance_id');
-
 	// select state by city
 	$state = $this->vendor_model->selectSate($booking['city']);
 	$booking['state'] = $state[0]['state'];
@@ -143,6 +141,8 @@ class Booking extends CI_Controller {
 	// All purchase month comming in array eg-- array([0]=> Jan, [1]=> Feb)
 	$months = $this->input->post('purchase_month');
 	$booking['quantity'] = count($appliance_brand);
+
+	$appliance_id = $this->input->post('appliance_id');
 
 	$partner_id = $this->partner_model->get_all_partner_source("", $booking['source']);
 
@@ -230,18 +230,15 @@ class Booking extends CI_Controller {
 	     * Check booking is not empty means we need to upadate booking and  get appliance id
 	     * if appliance id and booking id is empty means we need to insert new booking.(it comes first)
 	     * */
-	    if (!empty($appliance_id)) {
-		$services_details['appliance_id'] = $appliance_id;
-	    } else if ($booking_id != "") {
-		// check appliances exist in appliance table or not
-		$services_details['appliance_id'] = $this->booking_model->check_appliancesforuser($appliances_details);
 
-		if (empty($services_details['appliance_id'])) {
+	  if(isset($appliance_id[$key])){
 
-		    $services_details['appliance_id'] = $this->booking_model->addappliance($appliances_details);
-		}
+	    	$services_details['appliance_id'] = $appliance_id[$key];
+	    	$this->booking_model->update_appliances($services_details['appliance_id'] ,$appliances_details);
+
 	    } else {
-		$services_details['appliance_id'] = $this->booking_model->addappliance($appliances_details);
+	    	
+	    	 $services_details['appliance_id'] = $this->booking_model->addappliance($appliances_details);
 	    }
 
 	    // log_message ('info', __METHOD__ . "Appliance details data". print_r($services_details));
@@ -288,7 +285,7 @@ class Booking extends CI_Controller {
 	    $booking['message'] = $message;
 	}
 	$this->user_model->edit_user($user);
-
+    
 	return $booking;
     }
 
@@ -639,7 +636,8 @@ class Booking extends CI_Controller {
      * @param: service_id of booking
      * @return : all present brands
      */
-    function getBrandForService($service_id) {
+    function getBrandForService() {
+    $service_id = $this->input->post('service_id');
 
 	$result = $this->booking_model->getBrandForService($service_id);
 	echo "<option selected disabled> Select Brand</option>";
@@ -1039,6 +1037,7 @@ class Booking extends CI_Controller {
 
 	if ($booking_id != "") {
 	    $booking_history = $this->booking_model->getbooking_history($booking_id);
+
 	} else {
 	    $booking_history = $this->booking_model->getbooking_history_by_appliance_id($appliance_id);
 	}
@@ -1048,7 +1047,9 @@ class Booking extends CI_Controller {
 	$booking['unit_details'] = $this->booking_model->getunit_details($booking_id, $appliance_id);
 	$booking['brand'] = $this->booking_model->getBrandForService($booking_history[0]['service_id']);
 	$partner_id = $this->booking_model->get_price_mapping_partner_code($booking_history[0]['source']);
+
 	$booking['category'] = $this->booking_model->getCategoryForService($booking_history[0]['service_id'], $booking_history[0]['state'], $partner_id);
+	
 	$booking['capacity'] = array();
 	$booking['prices'] = array();
 	$booking['appliance_id'] = $appliance_id;
@@ -1067,14 +1068,17 @@ class Booking extends CI_Controller {
 	$this->load->view('employee/addbookingmodel');
 	$this->load->view('employee/update_booking', $booking);
     }
-
+    
+    /**
+     * @desc: this is used to update booking
+     */ 
     function update_booking($user_id, $booking_id) {
+    
 	$booking = $this->getAllBookingInput($user_id, $booking_id);
-
 	unset($booking['message']); // unset message body from booking deatils array
 	unset($booking['services']); // unset service name from booking details array
 
-	$this->booking_model->booking_id($booking_id, $booking);
+	$this->booking_model->update_booking($booking_id, $booking);
     }
 
 //    /**

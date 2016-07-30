@@ -49,40 +49,20 @@ class Booking_model extends CI_Model {
      * @return: appliance id
      */
     function addappliance($appliance_detail){
-        log_message ('info', __METHOD__ . "appliance_detail data". print_r($appliance_detail));
+        log_message ('info', __METHOD__ . "appliance_detail data". print_r($appliance_detail, true));
         $this->db->insert('appliance_details', $appliance_detail);
         return $this->db->insert_id();
     }
 
     /**
-     * @desc: this method is used  to return appliance id. It checks service id, user id, brand, category, capacity and model number exist or not in the appliance_details table. If exist, it updates data otherwise it insert data in appliances_details table.
-     * @param: Array, user id
-     * @return : appliance id
+     * @desc: Update appliace details
+     * @param:  user id
+     * @param: Array
+     * @return : void
      */
-    function check_appliancesforuser($services_details){
-        $this->db->select('id');
-        $this->db->where('service_id', $services_details['service_id']);
-        $this->db->where('brand', $services_details['brand']);
-        $this->db->where('user_id', $services_details['user_id']);
-        $this->db->where('category', $services_details['category']);
-        $this->db->where('capacity', $services_details['capacity']);
-        $this->db->where('model_number', $services_details['model_number']);
-        $query = $this->db->get('appliance_details');
-        if($query->num_rows>0){
-
-            $result = $query->result_array();
-            $appliance_id = $result[0]['id'];
-
-            $this->db->where('id', $appliance_id);
-            $this->db->update('appliance_details', $services_details);
-
-            return $appliance_id;
-
-        } else {
-
-           $result =  $this->addappliance($services_details);
-           return $result;
-        }
+    function update_appliances($appliance_id, $appliance_details){
+        $this->db->where('id', $appliance_id);
+        $this->db->update('appliance_details', $appliance_details);
     }
 
     /**
@@ -92,7 +72,7 @@ class Booking_model extends CI_Model {
      */
 
     function addunitdetails($booking){
-        log_message ('info', __METHOD__ . "booking unit details data". print_r($booking));
+        log_message ('info', __METHOD__ . "booking unit details data". print_r($booking, true));
         $this->db->insert('booking_unit_details', $booking);
         return $this->db->insert_id();
     }
@@ -104,7 +84,7 @@ class Booking_model extends CI_Model {
      */
 
     function addbooking($booking){
-        log_message ('info', __METHOD__ . "booking details data". print_r($booking));
+        log_message ('info', __METHOD__ . "booking details data". print_r($booking, true));
         $this->db->insert('booking_details', $booking);
         return $this->db->insert_id();
     }
@@ -633,7 +613,7 @@ class Booking_model extends CI_Model {
 
     function getbooking_history_by_appliance_id($appliance_id){
 
-        $sql = " SELECT `services`.`services`, users.*, `booking_unit_details`.service_id, `booking_details`.source "
+        $sql = " SELECT `services`.`services`, users.*, `booking_unit_details`.service_id, `booking_details`.* "
                . "from booking_unit_details, booking_details, users, services "
                . "where booking_unit_details.appliance_id='$appliance_id' and "
                . " booking_details.booking_id = booking_unit_details.booking_id and "
@@ -1800,7 +1780,7 @@ class Booking_model extends CI_Model {
 
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
-        log_message ('info', __METHOD__ . "booking_unit_details data". print_r($result));
+        log_message ('info', __METHOD__ . "booking_unit_details data". print_r($result, true));
         $this->db->insert('booking_unit_details', $result);
 
         return $result;

@@ -43,7 +43,7 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
             <div class="row">
                 <div style="width:auto;margin:50px;">
                     <h2><b>Assign Booking to Service Center</b></h2>
-                    <form id="myForm" class="form-horizontal" action="<?php echo base_url() ?>employee/booking/process_assign_booking_form" method="POST">
+                    <form id="myForm" class="form-horizontal" action="<?php echo base_url() ?>employee/vendor/process_assign_booking_form" method="POST">
                         <table class="table table-striped table-bordered">
                             <tr>
                                 <th>Serial No.</th>
