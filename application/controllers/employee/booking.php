@@ -237,7 +237,7 @@ class Booking extends CI_Controller {
 	    	$this->booking_model->update_appliances($services_details['appliance_id'] ,$appliances_details);
 
 	    } else {
-	    	
+
 	    	 $services_details['appliance_id'] = $this->booking_model->addappliance($appliances_details);
 	    }
 
@@ -285,7 +285,7 @@ class Booking extends CI_Controller {
 	    $booking['message'] = $message;
 	}
 	$this->user_model->edit_user($user);
-    
+
 	return $booking;
     }
 
@@ -1049,7 +1049,7 @@ class Booking extends CI_Controller {
 	$partner_id = $this->booking_model->get_price_mapping_partner_code($booking_history[0]['source']);
 
 	$booking['category'] = $this->booking_model->getCategoryForService($booking_history[0]['service_id'], $booking_history[0]['state'], $partner_id);
-	
+
 	$booking['capacity'] = array();
 	$booking['prices'] = array();
 	$booking['appliance_id'] = $appliance_id;
@@ -1068,12 +1068,12 @@ class Booking extends CI_Controller {
 	$this->load->view('employee/addbookingmodel');
 	$this->load->view('employee/update_booking', $booking);
     }
-    
+
     /**
      * @desc: this is used to update booking
-     */ 
+     */
     function update_booking($user_id, $booking_id) {
-    
+
 	$booking = $this->getAllBookingInput($user_id, $booking_id);
 	unset($booking['message']); // unset message body from booking deatils array
 	unset($booking['services']); // unset service name from booking details array
@@ -1279,17 +1279,18 @@ class Booking extends CI_Controller {
     }
 
     /**
-     * @desc: this method is used to approve reschedule booking request in admin panel and upadte current status and internal status (Pending )of service center action table.
+     * @desc: This method is used to approve reschedule booking requests in admin panel and
+     * upadte current status and internal status (Pending) of bookings in service center
+     * booking action table.
      *
      */
-    function process_reschedule_booking() {
+    function process_review_reschedule_bookings() {
 	$reschedule_booking_id = $this->input->post('reschedule');
 	$reschedule_booking_date = $this->input->post('reschedule_booking_date');
 	$reschedule_booking_timeslot = $this->input->post('reschedule_booking_timeslot');
 	$reschedule_reason = $this->input->post('reschedule_reason');
 
 	foreach ($reschedule_booking_id as $key => $value) {
-
 	    $booking['booking_date'] = date('d-m-Y', strtotime($reschedule_booking_date[$value]));
 	    $timeslot = $reschedule_booking_timeslot[$value];
 	    $booking_timeslot = explode("-", $timeslot);

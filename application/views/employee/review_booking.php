@@ -1,11 +1,11 @@
 <script type="text/javascript" src="<?php echo base_url();?>js/review_bookings.js"></script>
 <script type="text/javascript">
-   $(document).ready(function(){ 
+   $(document).ready(function(){
      $("#selecctall_reschedule").change(function(){
        $(".checkbox_reschedule").prop('checked', $(this).prop("checked"));
        });
    });
-   
+
 </script>
 <div id="page-wrapper">
    <div class="row">
@@ -14,8 +14,8 @@
 	      Review Bookings - Reschedule
          </h2>
          <div class="col-md-12">
-            <form action="<?php echo base_url();?>employee/booking/process_reschedule_booking" method="post">
-               <table class="table table-bordered table-hover table-striped">
+	     <form action="<?php echo base_url(); ?>employee/booking/process_review_reschedule_bookings" method="post">
+		 <table class="table table-bordered table-hover table-striped">
                   <thead>
                      <tr>
                         <th>SNo.</th>
@@ -193,17 +193,17 @@
    </div>
 </div>
 <script type="text/javascript">
-   $(document).ready(function(){ 
+   $(document).ready(function(){
      $("#selecctall").change(function(){
        $(".checkbox1").prop('checked', $(this).prop("checked"));
        });
    });
-   
+
 </script>
 <script type="text/javascript">
    $("#search").keyup(function () {
    var value = this.value.toLowerCase().trim();
-   
+
    $("table tr").each(function (index) {
        if (!index) return;
        $(this).find("td").each(function () {
