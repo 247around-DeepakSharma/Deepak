@@ -59,6 +59,7 @@ class Partner extends CI_Controller {
     private $requestUrl = '';
     private $jsonRequestData = null;
     private $jsonResponseString;
+
     //private $debug;
 
     function __Construct() {
@@ -407,7 +408,6 @@ class Partner extends CI_Controller {
 	}
     }
 
-
     /**
      * Schedule timeslot for an order
      *
@@ -540,6 +540,83 @@ class Partner extends CI_Controller {
 			    "247aroundBookingID" => $lead_details['247aroundBookingID'],
 			    "247aroundBookingStatus" => $lead_details['247aroundBookingStatus'],
 			    "247aroundBookingRemarks" => $lead_details['247aroundBookingRemarks']);
+			$this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
+		    } else {
+			log_message('info', __METHOD__ . ":: Request validation fails. " . print_r($is_valid, true));
+
+			//Request validation fails
+			$this->sendJsonResponse(array($is_valid['code'], $is_valid['msg']));
+		    }
+		}
+	    } else {
+		log_message('info', __METHOD__ . ":: Invalid token: " . $this->token);
+
+		//invalid token
+		$this->sendJsonResponse(array(ERR_INVALID_AUTH_TOKEN_CODE, ERR_INVALID_AUTH_TOKEN_MSG));
+	    }
+	}
+    }
+
+    /**
+     * Get booking details
+     *
+     * API to find out details for a booking. This API is used by 247around internally
+     * and is not exposed to any partner.
+     *
+     * @access	public
+     * @return	Success / Error code as per the document
+     */
+    public function getBookingDetails() {
+	log_message('info', "Entering: " . __METHOD__);
+	$this->requestUrl = __METHOD__;
+
+	//Default values
+	$this->jsonResponseString['response'] = NULL;
+	$this->jsonResponseString['code'] = ERR_GENERIC_ERROR_CODE;
+	$this->jsonResponseString['result'] = ERR_GENERIC_ERROR_MSG;
+
+	//Save header / ip address in DB
+	$h = $this->getallheaders();
+	if ($h === FALSE) {
+	    $this->sendJsonResponse(array(ERR_GENERIC_ERROR_CODE, ERR_GENERIC_ERROR_MSG));
+	} else {
+	    $this->header = json_encode($h);
+	    $this->token = $h['Authorization'];
+
+	    //Validate token
+	    $this->partner = $this->partner_model->validate_partner($this->token);
+	    if ($this->partner !== FALSE) {
+		//Token validated
+		$input_d = file_get_contents('php://input');
+		$requestData = json_decode($input_d, TRUE);
+
+		if (!(json_last_error() === JSON_ERROR_NONE)) {
+		    log_message('info', __METHOD__ . ":: Invalid JSON");
+
+		    //invalid json
+		    $this->jsonRequestData = $input_d;
+		    $this->sendJsonResponse(array(ERR_INVALID_JSON_INPUT_CODE, ERR_INVALID_JSON_INPUT_MSG));
+		} else {
+		    $this->jsonRequestData = $input_d;
+
+		    //1. Validate request - check all essential parameters are there
+		    $is_valid = $this->validate_get_booking_details_data($requestData);
+		    if ($is_valid['result'] == TRUE) {
+			//Send response: complete booking details
+			$lead_details = $is_valid['lead'];
+			$this->jsonResponseString['response'] = array(
+			    "booking_id" => $lead_details['query1'][0]['booking_id'],
+			    "name" => $lead_details['query1'][0]['name'],
+			    "booking_primary_contact_no" => $lead_details['query1'][0]['booking_primary_contact_no'],
+			    "booking_alternate_contact_no" => $lead_details['query1'][0]['booking_alternate_contact_no'],
+			    "city" => $lead_details['query1'][0]['city'],
+			    "home_address" => $lead_details['query1'][0]['home_address'],
+			    "pincode" => $lead_details['query1'][0]['pincode'],
+			    "description" => $lead_details['query1'][0]['description'],
+			    "services" => $lead_details['query1'][0]['services'],
+			    "appliance_brand" => $lead_details['query2'][0]['appliance_brand'],
+			    "order_id" => $lead_details['query3'][0]['order_id'],
+			);
 			$this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
 		    } else {
 			log_message('info', __METHOD__ . ":: Request validation fails. " . print_r($is_valid, true));
@@ -754,6 +831,70 @@ class Partner extends CI_Controller {
 
 		$flag = FALSE;
 	    }
+	}
+
+	//If code is still empty, it means data is valid.
+	if ($resultArr['code'] == "") {
+	    $resultArr['result'] = TRUE;
+	}
+
+	return $resultArr;
+    }
+
+    //Validate get booking details API data
+    function validate_get_booking_details_data($request) {
+	log_message('info', "Entering: " . __METHOD__);
+
+	//Lead will store the booking entry if it exists
+	$resultArr = array("result" => FALSE, "lead" => NULL, "code" => NULL, "msg" => NULL);
+	$flag = TRUE;
+
+	//Validate Partner Name
+	if ($request['partnerName'] != $this->partner['public_name']) {
+	    $resultArr['code'] = ERR_INVALID_PARTNER_NAME_CODE;
+	    $resultArr['msg'] = ERR_INVALID_PARTNER_NAME_MSG;
+
+	    $flag = FALSE;
+	}
+
+	//Mandatory Parameter Missing
+	if (($flag === TRUE) &&
+	    ($request['247aroundBookingID'] == "")
+	) {
+	    $resultArr['code'] = ERR_MANDATORY_PARAMETER_MISSING_CODE;
+	    $resultArr['msg'] = ERR_MANDATORY_PARAMETER_MISSING_MSG;
+
+	    $flag = FALSE;
+	}
+
+	//Order ID / Booking ID validation
+	if ($flag === TRUE) {
+	    $lead['query1'] = $this->booking_model->booking_history_by_booking_id($request['247aroundBookingID']);
+	    $lead['query2'] = $this->booking_model->get_unit_details($request['247aroundBookingID']);
+	    $lead['query3'] = $this->booking_model->getdescription_about_booking($request['247aroundBookingID']);
+
+	    $resultArr['lead'] = $lead;
+
+
+//	    $lead = $this->partner_model->get_partner_lead_by_order_id($this->partner['id'], $request['orderID']);
+//	    if (!is_null($lead)) {
+//		//order id found, check booking id
+//		if ($lead['247aroundBookingID'] != $request['247aroundBookingID']) {
+//		    $resultArr['code'] = ERR_INVALID_BOOKING_ID_CODE;
+//		    $resultArr['msg'] = ERR_INVALID_BOOKING_ID_MSG;
+//
+//		    $flag = FALSE;
+//		} else {
+//		    //Everything fine, return lead information
+//		    $resultArr['lead'] = $lead;
+//		}
+//	    } else {
+//		//Order id not found
+//		$resultArr['code'] = ERR_ORDER_ID_NOT_FOUND_CODE;
+//		$resultArr['msg'] = ERR_ORDER_ID_NOT_FOUND_MSG;
+//
+//		$flag = FALSE;
+//	    }
 	}
 
 	//If code is still empty, it means data is valid.
@@ -1011,12 +1152,12 @@ class Partner extends CI_Controller {
 //	redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
     }
 
-
     /*
      * Return true/false & final timeslot if rescheduling is success/failure
      * Valid timeslots from SD - 9-12, 12-3, 3-6. We remap these timeslots to our
      * timeslots currently and return them.
      */
+
     function process_schedule_request($request) {
 	log_message('info', "Entering: " . __METHOD__);
 
@@ -1105,10 +1246,8 @@ class Partner extends CI_Controller {
 	    } else {
 		return FALSE;
 	    }
-
 	}
     }
-
 
     /**
      * Send final JSON response to Partner
