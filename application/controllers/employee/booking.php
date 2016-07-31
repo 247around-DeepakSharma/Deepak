@@ -237,14 +237,13 @@ class Booking extends CI_Controller {
 	    /* if appliance id exist the initialize appliance id in array and update appliance details other wise it insert appliance details and return appliance id
 	     * */
 
-	  if(isset($appliance_id[$key])){
+	    if (isset($appliance_id[$key])) {
 
-	    	$services_details['appliance_id'] = $appliance_id[$key];
-	    	$this->booking_model->update_appliances($services_details['appliance_id'] ,$appliances_details);
-
+		$services_details['appliance_id'] = $appliance_id[$key];
+		$this->booking_model->update_appliances($services_details['appliance_id'], $appliances_details);
 	    } else {
-	    	
-	    	 $services_details['appliance_id'] = $this->booking_model->addappliance($appliances_details);
+
+		$services_details['appliance_id'] = $this->booking_model->addappliance($appliances_details);
 	    }
 
 	    // log_message ('info', __METHOD__ . "Appliance details data". print_r($appliances_details));
@@ -291,7 +290,7 @@ class Booking extends CI_Controller {
 	    $booking['message'] = $message;
 	}
 	$this->user_model->edit_user($user);
-    
+
 	return $booking;
     }
 
@@ -498,10 +497,10 @@ class Booking extends CI_Controller {
 	$this->booking_model->update_booking($booking_id, $data);
 
 	//Update this booking in vendor action table
-    $data_vendor['update_date'] = date("Y-m-d H:i:s");
+	$data_vendor['update_date'] = date("Y-m-d H:i:s");
 	$data_vendor['current_status'] = "Cancelled";
 	$data_vendor['internal_status'] = "Cancelled";
-    $data_vendor['cancellation_reason'] = $data['cancellation_reason'];
+	$data_vendor['cancellation_reason'] = $data['cancellation_reason'];
 	$data_vendor['booking_id'] = $booking_id;
 
 	$this->vendor_model->update_service_center_action($data_vendor);
@@ -583,10 +582,10 @@ class Booking extends CI_Controller {
 	    $this->booking_model->update_booking($booking_id, $data);
 
 	    $service_center_data['booking_id'] = $booking_id;
-        $service_center_data['internal_status'] = "Pending";
-        $service_center_data['current_status'] = "Pending";
-        $service_center_data['update_date'] = date("Y-m-d H:i:s");
-        $this->vendor_model->update_service_center_action($service_center_data);
+	    $service_center_data['internal_status'] = "Pending";
+	    $service_center_data['current_status'] = "Pending";
+	    $service_center_data['update_date'] = date("Y-m-d H:i:s");
+	    $this->vendor_model->update_service_center_action($service_center_data);
 
 	    $query1 = $this->_model->getbooking_history($booking_id);
 
@@ -627,8 +626,8 @@ class Booking extends CI_Controller {
 		$this->notify->send_sms($sms);
 	    }
 
-	   //Setting mail to vendor flag to 0, once booking is rescheduled
-            $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
+	    //Setting mail to vendor flag to 0, once booking is rescheduled
+	    $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
 
 	    //Prepare job card
 	    $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
@@ -645,7 +644,7 @@ class Booking extends CI_Controller {
      * @return : all present brands
      */
     function getBrandForService() {
-    $service_id = $this->input->post('service_id');
+	$service_id = $this->input->post('service_id');
 
 	$result = $this->booking_model->getBrandForService($service_id);
 	echo "<option selected disabled> Select Brand</option>";
@@ -1045,7 +1044,6 @@ class Booking extends CI_Controller {
 
 	if ($booking_id != "") {
 	    $booking_history = $this->booking_model->getbooking_history($booking_id);
-
 	} else {
 	    $booking_history = $this->booking_model->getbooking_history_by_appliance_id($appliance_id);
 	}
@@ -1057,7 +1055,7 @@ class Booking extends CI_Controller {
 	$partner_id = $this->booking_model->get_price_mapping_partner_code($booking_history[0]['source']);
 
 	$booking['category'] = $this->booking_model->getCategoryForService($booking_history[0]['service_id'], $booking_history[0]['state'], $partner_id);
-	
+
 	$booking['capacity'] = array();
 	$booking['prices'] = array();
 	$booking['appliance_id'] = $appliance_id;
@@ -1076,12 +1074,12 @@ class Booking extends CI_Controller {
 	$this->load->view('employee/addbookingmodel');
 	$this->load->view('employee/update_booking', $booking);
     }
-    
+
     /**
      * @desc: this is used to update booking
-     */ 
+     */
     function update_booking($user_id, $booking_id) {
-    
+
 	$booking = $this->getAllBookingInput($user_id, $booking_id);
 	unset($booking['message']); // unset message body from booking deatils array
 	unset($booking['services']); // unset service name from booking details array
@@ -1289,17 +1287,18 @@ class Booking extends CI_Controller {
     }
 
     /**
-     * @desc: this method is used to approve reschedule booking request in admin panel and upadte current status and internal status (Pending )of service center action table.
+     * @desc: This method is used to approve reschedule booking requests in admin panel and
+     * upadte current status and internal status (Pending) of bookings in service center
+     * booking action table.
      *
      */
-    function process_reschedule_booking() {
+    function process_review_reschedule_bookings() {
 	$reschedule_booking_id = $this->input->post('reschedule');
 	$reschedule_booking_date = $this->input->post('reschedule_booking_date');
 	$reschedule_booking_timeslot = $this->input->post('reschedule_booking_timeslot');
 	$reschedule_reason = $this->input->post('reschedule_reason');
 
 	foreach ($reschedule_booking_id as $key => $value) {
-
 	    $booking['booking_date'] = date('d-m-Y', strtotime($reschedule_booking_date[$value]));
 	    $timeslot = $reschedule_booking_timeslot[$value];
 	    $booking_timeslot = explode("-", $timeslot);
@@ -1592,7 +1591,5 @@ class Booking extends CI_Controller {
 
 	redirect(base_url() . 'employee/booking/view_pending_queries/0/0/' . $booking_id, 'refresh');
     }
-
-
 
 }
