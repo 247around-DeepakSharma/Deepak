@@ -620,3 +620,7 @@ CREATE TABLE IF NOT EXISTS `booking_details` (
 ALTER TABLE  `service_centre_charges` CHANGE  `product_type`  `product_type` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
 
 ALTER TABLE  `service_center_booking_action` ADD  `unit_details_id` INT( 25 ) NULL DEFAULT NULL AFTER  `booking_id` ;
+
+--Anuj 30/07
+
+DELETE FROM `boloaaka_invoices`.`bookings_sources` WHERE `bookings_sources`.`code` = 'SO';
