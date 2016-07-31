@@ -138,8 +138,8 @@ class Booking_model extends CI_Model {
      *  @return : array with active services
      */
     function selectservice() {
-        $query = $this->db->query("Select id,services from services where isBookingActive='1'");
-        return $query->result();
+        $query = $this->db->query("Select id,services from services where isBookingActive='1' order by services");
+	return $query->result();
     }
 
 //    /**
@@ -650,7 +650,8 @@ class Booking_model extends CI_Model {
     function getBrandForService($service_id) {
         $this->db->where(array('service_id' => $service_id, 'seo' => 1));
         $this->db->select('brand_name');
-        $query = $this->db->get('appliance_brands');
+	$this->db->order_by('brand_name');
+	$query = $this->db->get('appliance_brands');
         return $query->result_array();
     }
 
@@ -697,15 +698,15 @@ class Booking_model extends CI_Model {
         $this->db->where('service_id',$service_id);
         $this->db->where('category', $category);
         $this->db->where('active', 1);
-        $this->db->where('check_box',1);
-        if($partner_id !=""){
+        $this->db->where('check_box', 1);
+
+	if($partner_id !=""){
             $this->db->where('partner_id', $partner_id);
             $this->db->where('state', $state);
         }
 
     	if (!empty($capacity)) {
     		$this->db->where('capacity', $capacity);
-
     	}
 
     	$query = $this->db->get('service_centre_charges');
@@ -1751,14 +1752,12 @@ class Booking_model extends CI_Model {
     }
 
     /**
-     * @desc: this method is used to get cit services, sources and user details
+     * @desc: this method is used to get city, services, sources and user details
      * @param : user phone no.
      * @return : array()
      */
     function get_city_booking_source_services($phone_number){
-
         $query1['services'] = $this->selectservice();
-
         $query2['city'] = $this->vendor_model->getDistrict();
         $query3['sources'] = $this->partner_model->get_all_partner_source("0");
         $query4['user'] = $this->user_model->search_user($phone_number);
