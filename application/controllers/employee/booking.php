@@ -68,7 +68,7 @@ class Booking extends CI_Controller {
 
 	if ($booking['type'] == 'Booking') {
 	    //$to = "anuj@247around.com, nits@247around.com";
-	    $to = "abhaya@247around.com";
+	    $to = "abhaya@247around.com, anuj@247Around";
 	    $from = "booking@247around.com";
 	    $cc = "";
 	    $bcc = "";
@@ -80,10 +80,10 @@ class Booking extends CI_Controller {
 		$booking['booking_date'] . ", " . $booking['booking_timeslot'] .
 		". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";
 
-	    //$this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
+	    $this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
 	}
 
-	// redirect(base_url() . 'employee/booking/view');
+	    redirect(base_url() . search_page);
     }
 
     /**
@@ -100,12 +100,20 @@ class Booking extends CI_Controller {
 	$booking['amount_due'] = $this->input->post('grand_total_price');
 	$booking['booking_address'] = $this->input->post('home_address');
 	$booking['city'] = $this->input->post('city');
+	$booking['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
 	if ($booking_id == "") {
 
-	    $booking['booking_id'] = $this->create_booking_id($user_id, $booking['source'], $booking['type']);
+	    $booking['booking_id'] = $this->create_booking_id($user_id, $booking['source'], $booking['type'], $booking['booking_date']);
 	} else {
 	    $price_tags = array();
-	    $booking['booking_id'] = $booking_id;
+	    if($booking['type'] == "Booking"){
+	    	$booking_id_array = explode("Q-", $booking_id);
+	    	$booking['booking_id'] = $booking_id_array[1];
+
+	    } else {
+	    	$booking['booking_id'] = $booking_id;
+	    }
+	    
 	}
 
 	// select state by city
@@ -117,7 +125,7 @@ class Booking extends CI_Controller {
 	$booking['order_id'] = $this->input->post('order_id');
 	$booking['potential_value'] = $this->input->post('potential_value');
 	$booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
-	$booking['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
+	
 
 	$booking_timeslot = $this->input->post('booking_timeslot');
 
@@ -226,9 +234,7 @@ class Booking extends CI_Controller {
 		$services_details['partner_id'] = $booking['partner_id'];
 	    }
 
-	    /* check appliance id is empty or not. if appliance id is not empty means appliance id comes from html page(booking insert by appliance id)
-	     * Check booking is not empty means we need to upadate booking and  get appliance id
-	     * if appliance id and booking id is empty means we need to insert new booking.(it comes first)
+	    /* if appliance id exist the initialize appliance id in array and update appliance details other wise it insert appliance details and return appliance id
 	     * */
 
 	    if (isset($appliance_id[$key])) {
@@ -240,7 +246,7 @@ class Booking extends CI_Controller {
 		$services_details['appliance_id'] = $this->booking_model->addappliance($appliances_details);
 	    }
 
-	    // log_message ('info', __METHOD__ . "Appliance details data". print_r($services_details));
+	    // log_message ('info', __METHOD__ . "Appliance details data". print_r($appliances_details));
 	    //Array ( ['brand'] => Array ( [0] => id_price ) )
 	    foreach ($pricesWithId[$value] as $keys => $values) {
 
@@ -265,7 +271,7 @@ class Booking extends CI_Controller {
 		    }
 		} else {
 
-		    $price_tag = $this->booking_model->update_booking_in_booking_details($services_details);
+		    $price_tag = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id);
 		    array_push($price_tags, $price_tag);
 		}
 	    }
@@ -293,14 +299,16 @@ class Booking extends CI_Controller {
      * @param: user id, booking source, booking type
      * @return: booking id
      */
-    function create_booking_id($user_id, $source, $type) {
+    function create_booking_id($user_id, $source, $type, $booking_date) {
 	$booking['booking_id'] = '';
-	$digits = 4;
-	$mm = date("m");
-	$dd = date("d");
-	$booking['booking_id'] = str_pad($user_id, 4, "0", STR_PAD_LEFT) . $dd . $mm;
-	// Add 4 digits random number in booking id.
-	$booking['booking_id'] .= rand(pow(10, $digits - 1) - 1, pow(10, $digits) - 1);
+	
+	$yy = date("y", strtotime($booking_date));
+    $mm = date("m", strtotime($booking_date));
+    $dd = date("d", strtotime($booking_date));
+
+	$booking['booking_id'] = str_pad($user_id, 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
+    $booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($user_id)) + 1);
+               
 
 	//Add source
 	$booking['source'] = $source;
@@ -732,7 +740,7 @@ class Booking extends CI_Controller {
 		$html .=" type='checkbox' id='checkbox_" . $i . "_" . $clone_number . "'";
 		$html .= "name='prices[$brand][]'";
 		$html .= "  onclick='final_price(), enable_discount(this.id)'" .
-		    "value=" . $prices['id'] . "_" . intval($prices['customer_net_payable']) . "></td><tr>";
+		    "value=" . $prices['id'] . "_" . intval($prices['customer_net_payable']) . " ></td><tr>";
 
 		$i++;
 	    }
@@ -1077,6 +1085,8 @@ class Booking extends CI_Controller {
 	unset($booking['services']); // unset service name from booking details array
 
 	$this->booking_model->update_booking($booking_id, $booking);
+
+	redirect(base_url() . search_page);
     }
 
 //    /**

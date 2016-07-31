@@ -418,7 +418,7 @@
                             </div>
                         </div>
                          </div>
-                    <?php  } $number++; } }
+                    <?php  } $number++; } }    
                     ?>
                    
                    
@@ -428,7 +428,7 @@
                             <div class="form-group ">
                                 <label for="booking_date" class="col-md-4">Booking Date *</label>
                                 <div class="col-md-6">
-                                    <input type="date" class="form-control"  id="booking_date" min="<?php echo date("Y-m-d") ?>" name="booking_date" value = "<?php echo  date("Y-m-d", strtotime("+1 day")); ?>" required>
+                                    <input type="date" class="form-control"  id="booking_date" min="<?php echo date("Y-m-d") ?>" name="booking_date" value = "<?php echo  date("Y-m-d", strtotime($booking_history[0]['booking_date'])); ?>" required>
                                 </div>
                             </div>
                             <div class="form-group">

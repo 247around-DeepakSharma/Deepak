@@ -393,12 +393,15 @@ class Booking_model extends CI_Model {
         $temp = $query->result();
 
         if($limit =="All"){
+
             usort($temp, array($this, 'date_compare_bookings'));
+            return $temp;
+        } else  {
+
+             //return slice of the sorted array
+            return array_slice($temp, $start, $limit);
         }
-
-
-        //return slice of the sorted array
-        return array_slice($temp, $start, $limit);
+       
     }
 
     /**
@@ -1155,7 +1158,7 @@ class Booking_model extends CI_Model {
         $add_limit = "";
 
         if ($booking_id != "") {
-            $where .= "AND `booking_details`.`booking_id` = '$booking_id' AND (`booking_details`.current_status='Completed' OR `booking_details`.current_status='Cancelled') ";
+            $where .= "AND `booking_details`.`booking_id` = '$booking_id' AND `booking_details`.current_status='$status'  ";
         } else {
             if ($limit != 'All') {
                 $where .= "AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR
@@ -1167,20 +1170,16 @@ class Booking_model extends CI_Model {
             }
         }
 
-        //TODO: Use standard SQL here
-        //order by STR_TO_DATE(booking_date,'%d-%m-%Y') desc
         $sql = "SELECT services.services,
             users.name as customername, users.phone_number,
-            booking_details.*, service_centres.name as service_centre_name,
-            service_centres.primary_contact_name,service_centres.primary_contact_phone_1, partner_leads.OrderID
+            booking_details.*
             from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-            LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-            LEFT JOIN `partner_leads` ON `booking_details`.`booking_id` = `partner_leads`.`247aroundBookingID`
+            
             WHERE `booking_id` LIKE '%Q-%' $where
 
-        order by CASE booking_date
+            order by CASE booking_date
             WHEN '' THEN 'a'
             ELSE 'b'
             END, STR_TO_DATE(booking_date,'%d-%m-%Y') desc $add_limit";
@@ -1188,11 +1187,10 @@ class Booking_model extends CI_Model {
         $query = $this->db->query($sql);
 
         $temp = $query->result();
-
         usort($temp, array($this, 'date_compare_queries'));
 
         $data = $this->searchPincodeAvailable($temp);
-
+        
         return $data;
 
     }
@@ -1594,7 +1592,7 @@ class Booking_model extends CI_Model {
      * @param: Array
      * @return: Price tags.
      */
-    function update_booking_in_booking_details($services_details){
+    function update_booking_in_booking_details($services_details, $booking_id){
 
         $data = $this->getpricesdetails_with_tax($services_details['id']);
 
@@ -1607,7 +1605,7 @@ class Booking_model extends CI_Model {
         $this->db->select('id');
         $this->db->where('appliance_id', $services_details['appliance_id']);
         $this->db->where('price_tags', $data[0]['price_tags']);
-        $this->db->where('booking_id', $services_details['booking_id']);
+        $this->db->where('booking_id', $booking_id);
         $query = $this->db->get('booking_unit_details');
 
         if($query->num_rows >0){
