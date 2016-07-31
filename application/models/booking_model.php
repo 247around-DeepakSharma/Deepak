@@ -77,6 +77,11 @@ class Booking_model extends CI_Model {
         return $this->db->insert_id();
     }
 
+    function update_booking_unit_details($booking_id, $data){
+        $this->db->where('booking_id', $booking_id);
+        $this->db->update('booking_unit_details', $data);
+    }
+
 
     /** @description:* add booking
      *  @param : booking

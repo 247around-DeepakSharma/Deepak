@@ -51,8 +51,9 @@ class Service_centers extends CI_Controller {
 
 	    redirect(base_url() . "service_center/pending_booking");
         } else {
-            $data['error'] = "Please enter correct user name and password";
-            $this->load->view('service_centers/service_center_login', $data);
+            $userSession = array('error' => 'Please enter correct user name and password' );
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "service_center");
         }
     }
 
@@ -156,8 +157,6 @@ class Service_centers extends CI_Controller {
             $data['closed_date'] = date('Y-m-d H:i:s');
             $data['booking_id'] =  $booking_id;
             $data['amount_paid'] = $total_amount_paid;
-
-
 
             if (!empty($getremarks[0]['service_center_remarks'])) {
                 

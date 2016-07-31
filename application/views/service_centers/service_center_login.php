@@ -26,13 +26,14 @@
 
         <div class="container pageWrap">
             <div class="col-xs-4 " style="width:100%;text-align:left">
-                <?php if(isset($error) && $error !==0) {
+               
+                    <?php if($this->session->userdata('error')) {
                     echo '<div class="alert alert-danger alert-dismissible" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <strong>Error! </strong>' . $error .
-                    '</div>';
+                        <strong>' . $this->session->userdata('error') . '</strong>
+                    </div>';
                     }
                     ?>
                 <img src="<?php echo base_url()?>images/logo.jpg" style="display: inline;">
@@ -119,3 +120,5 @@
 
 
 </script>
+
+<?php $this->session->unset_userdata('error'); ?>

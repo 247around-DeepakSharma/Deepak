@@ -70,7 +70,12 @@
                     <th width="170px;">Service Centre</th>
                     <th width="150px;">Service Centre City</th>
                     <th width="60px;">Call</th>
-                    <th width="60px;">Complete</th>
+                  
+                    <?php if($status != "Cancelled" ){?>
+                    <th width="60px;">Cancel</th>
+                    <?php } else { ?>
+                        <th width="60px;">Complete</th>
+                    <?php  } ?>
                     <th width="60px;">Open</th>
                     <th width="60px;">View</th>
                     <?php if($status != "Cancelled" ){?>
@@ -103,12 +108,25 @@
     				    <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
     				    </a>
                     </td>
+                     <?php if($status != "Cancelled" ){?>
 
+                     <td>
+
+                    <?php
+                        echo "<a id='edit' class='btn btn-sm btn-primary' "
+                            . "href=" . base_url() . "employee/booking/get_cancel_form/$row->booking_id title='Cancel'> <i class='fa fa-times' aria-hidden='true' ></i></a>";
+                        ?>
+                        
+                    </td>
+                    
+                    <?php } else { ?>
                     <td><?php
                         echo "<a id='edit' class='btn btn-sm btn-success' "
                             . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Edit'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
                         ?>
                     </td>
+                    
+                    <?php } ?>
                      <td><?php
                         echo "<a id='edit' class='btn btn-sm btn-warning' "
                             . "href=" . base_url() . "employee/booking/get_convert_booking_to_pending_form/$row->booking_id/$status title='Open' target='_blank'> <i class='fa fa-calendar' aria-hidden='true'></i></a>";
