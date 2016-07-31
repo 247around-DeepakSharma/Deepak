@@ -584,8 +584,9 @@ class bookings_excel extends CI_Controller {
 
 		$sms['phone_no'] = $lead_details['Phone'];
 		$sms['booking_id'] = $booking['booking_id'];
-		$this->notify->send_sms($sms);
 
+		//temporarily disabling sms
+		//$this->notify->send_sms($sms);
 		//Reset
 		unset($booking);
 		unset($lead_details);
