@@ -84,8 +84,8 @@ class Booking_model extends CI_Model {
      */
 
     function addbooking($booking){
-        log_message ('info', __METHOD__ . "booking details data". print_r($booking, true));
-        $this->db->insert('booking_details', $booking);
+        log_message('info', __METHOD__ . "booking details data: " . print_r($booking, true));
+	$this->db->insert('booking_details', $booking);
         return $this->db->insert_id();
     }
 
@@ -401,7 +401,7 @@ class Booking_model extends CI_Model {
              //return slice of the sorted array
             return array_slice($temp, $start, $limit);
         }
-       
+
     }
 
     /**
@@ -1063,14 +1063,35 @@ class Booking_model extends CI_Model {
      *  @return : if exists returns true else false
      */
     function check_sd_lead_exists_by_order_id($sub_order_id) {
-        $this->db->where(array("Sub_Order_ID" => $sub_order_id));
-        $query = $this->db->get('snapdeal_leads');
+	$this->db->where(array("Sub_Order_ID" => $sub_order_id));
+	$query = $this->db->get('snapdeal_leads');
 
-        if (count($query->result_array()) > 0) {
-            return TRUE;
-        } else {
-            return FALSE;
-        }
+	if (count($query->result_array()) > 0) {
+	    return TRUE;
+	} else {
+	    return FALSE;
+	}
+    }
+
+    /**
+     *  @desc : This function is to check whether order id exists for a specific
+     * partner. Order id is unique for each partner and is tied to a unique
+     * booking id.
+     *
+     *  @param : String	$partner_id Partner ID
+     *  @param : String	$order_id Order ID
+     *
+     *  @return : If exists, returns booking details specific to this order id else false
+     */
+    function check_order_id_exists($partner_id, $order_id) {
+	$this->db->where(array("partner_id" => $partner_id, "order_id" => $order_id));
+	$query = $this->db->get('booking_details');
+
+	if (count($query->result_array()) > 0) {
+	    return $query->result_array()[0];
+	} else {
+	    return FALSE;
+	}
     }
 
     /**
@@ -1176,7 +1197,7 @@ class Booking_model extends CI_Model {
             from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-            
+
             WHERE `booking_id` LIKE '%Q-%' $where
 
             order by CASE booking_date
@@ -1190,7 +1211,7 @@ class Booking_model extends CI_Model {
         usort($temp, array($this, 'date_compare_queries'));
 
         $data = $this->searchPincodeAvailable($temp);
-        
+
         return $data;
 
     }
