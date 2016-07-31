@@ -113,7 +113,7 @@ class Booking extends CI_Controller {
 	    } else {
 	    	$booking['booking_id'] = $booking_id;
 	    }
-	    
+
 	}
 
 	// select state by city
@@ -125,7 +125,7 @@ class Booking extends CI_Controller {
 	$booking['order_id'] = $this->input->post('order_id');
 	$booking['potential_value'] = $this->input->post('potential_value');
 	$booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
-	
+
 
 	$booking_timeslot = $this->input->post('booking_timeslot');
 
@@ -301,14 +301,14 @@ class Booking extends CI_Controller {
      */
     function create_booking_id($user_id, $source, $type, $booking_date) {
 	$booking['booking_id'] = '';
-	
+
 	$yy = date("y", strtotime($booking_date));
     $mm = date("m", strtotime($booking_date));
     $dd = date("d", strtotime($booking_date));
 
 	$booking['booking_id'] = str_pad($user_id, 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
     $booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($user_id)) + 1);
-               
+
 
 	//Add source
 	$booking['source'] = $source;
@@ -928,35 +928,35 @@ class Booking extends CI_Controller {
 //        $this->load->view('employee/datesortedbooking', $data);
 //    }
 
-    /**
-     *  @desc : Function to sort pending and rescheduled bookings with service center's name
-     *
-     * 	This method will display all the pending and rescheduled bookings present in
-     *      sorted manner according to service centre's name assigned for the booking.
-     *
-     * 	This function is usefull to get all the bookings assigned to particular vendor together.
-     *
-     *  @param : start booking and bookings per page
-     *  @return : assigned vendor sorted bookings and load view
-     */
-    function service_center_sorted_booking($offset = 0, $page = 0) {
-	if ($page == 0) {
-	    $page = 50;
-	}
-
-	$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
-	$config['base_url'] = base_url() . 'employee/booking/service_center_sorted_booking';
-	$config['total_rows'] = $this->booking_model->total_pending_booking();
-	$config['per_page'] = $page;
-	$config['uri_segment'] = 4;
-	$config['first_link'] = 'First';
-	$config['last_link'] = 'Last';
-	$this->pagination->initialize($config);
-	$data['links'] = $this->pagination->create_links();
-	$data['Bookings'] = $this->booking_model->service_center_sorted_booking($config['per_page'], $offset);
-	$this->load->view('employee/header');
-	$this->load->view('employee/booking', $data);
-    }
+//    /**
+//     *  @desc : Function to sort pending and rescheduled bookings with service center's name
+//     *
+//     * 	This method will display all the pending and rescheduled bookings present in
+//     *      sorted manner according to service centre's name assigned for the booking.
+//     *
+//     * 	This function is usefull to get all the bookings assigned to particular vendor together.
+//     *
+//     *  @param : start booking and bookings per page
+//     *  @return : assigned vendor sorted bookings and load view
+//     */
+//    function service_center_sorted_booking($offset = 0, $page = 0) {
+//	if ($page == 0) {
+//	    $page = 50;
+//	}
+//
+//	$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
+//	$config['base_url'] = base_url() . 'employee/booking/service_center_sorted_booking';
+//	$config['total_rows'] = $this->booking_model->total_pending_booking();
+//	$config['per_page'] = $page;
+//	$config['uri_segment'] = 4;
+//	$config['first_link'] = 'First';
+//	$config['last_link'] = 'Last';
+//	$this->pagination->initialize($config);
+//	$data['links'] = $this->pagination->create_links();
+//	$data['Bookings'] = $this->booking_model->service_center_sorted_booking($config['per_page'], $offset);
+//	$this->load->view('employee/header');
+//	$this->load->view('employee/booking', $data);
+//    }
 
     /**
      *  @desc : This function is to select particular appliance for booking.

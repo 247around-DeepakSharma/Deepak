@@ -92,12 +92,12 @@
                   </li>
 
 <!--
-                  
+
                   <li class="divider"></li>
                   <li>
                      <a href="<?php echo base_url() ?>employee/bookingjobcard"><i class="fa fa-fw fa-desktop"></i> <strong>Prepare Job Card </strong></a>
                   </li>
-                  
+
 -->
                </ul>
                <!-- /.dropdown-tasks -->
@@ -112,23 +112,33 @@
                   <li >
                      <a href="<?php echo base_url() ?>employee/bookings_excel"><i class="fa fa-fw fa-desktop"></i> <strong> Upload Snapdeal Bookings</strong></a>
                   </li>
+
                   <li class="divider"></li>
-                  <li >
-                     <a href="<?php echo base_url()?>employee/partner_booking"><i class="fa fa-fw fa-desktop "></i> <strong> Upload Paytm Booking</strong></a>
+
+		  <li >
+		      <a href="<?php echo base_url()?>employee/partner_booking"><i class="fa fa-fw fa-desktop "></i> <strong> Upload Paytm Booking</strong></a>
                   </li>
-                  <li class="divider"></li>
-                  <li >
-                     <a href="<?php echo base_url() ?>employee/bookings_excel/get_unassigned_bookings"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Leads</strong></a>
+
+		  <li class="divider"></li>
+
+		  <!--		  <li >
+				       <a href="<?php echo base_url() ?>employee/bookings_excel/get_unassigned_bookings"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Leads</strong></a>
                   </li>
-                  <li class="divider"></li>
-                  <li >
-                     <a href="<?php echo base_url() ?>employee/bookings_excel/get_all_sd_bookings"><i class="fa fa-fw fa-desktop"></i> <strong> All Leads</strong></a>
+
+				    <li class="divider"></li>
+
+				    <li >
+				       <a href="<?php echo base_url() ?>employee/bookings_excel/get_all_sd_bookings"><i class="fa fa-fw fa-desktop"></i> <strong> All Leads</strong></a>
                   </li>
-                  <li class="divider"></li>
-                  <li >
+
+				    <li class="divider"></li>-->
+
+<li >
                      <a href="<?php echo base_url() ?>employee/invoice/invoice_partner_view"><i class="fa fa-fw fa-desktop"></i> <strong> Partner Invoices</strong></a>
                   </li>
+
                   <li class="divider"></li>
+
                   <li>
                      <a href="<?php echo base_url()?>employee/invoice/show_all_transactions/partner"><i class="fa fa-fw fa-desktop "></i> <strong>Show All Transactions</strong></a>
                   </li>
@@ -137,7 +147,7 @@
             </li>
             <!-- /.dropdown -->
 
-           
+
             <!-- /.dropdown -->
 
                     <li class="dropdown">

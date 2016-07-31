@@ -93,7 +93,7 @@
         $("#reminderMailForm"+i).toggle(500);
     }
 
-    
+
 </script>
 <style type="text/css">
     table{
@@ -119,8 +119,7 @@
 <div id="page-wrapper">
     <div class="">
         <div class="row">
-            <?php  if($this->uri->segment(3) == 'view' || $this->uri->segment(3) == 'view_all_pending_booking'
-                        || $this->uri->segment(3) == 'service_center_sorted_booking'){?>
+            <?php  if($this->uri->segment(3) == 'view' || $this->uri->segment(3) == 'view_all_pending_booking'){?>
             <div class="pagination">
                 <select id="dynamic_select">
                     <option value="<?php echo base_url().'employee/booking/view'?>" <?php if($this->uri->segment(4) == 50){ echo 'selected';}?>>50</option>
