@@ -149,11 +149,112 @@ class Partner_model extends CI_Model {
         return $this->db->insert_batch($table_name, $rows);
     }
 
-    function getpartner(){
+    function getpartner($partner_id=""){
+        if($partner_id !=""){
+            $this->db->where('id', $partner_id);
+        }
         $this->db->select('id,public_name as name');
         $this->db->where('is_active','1');
         $query = $this->db->get('partners');
         return $query->result_array();
+    }
+
+     /**
+     * @desc: check partner login and return pending booking
+     * @param: Array(username, password)
+     * @return : Array(Pending booking)  
+     */
+    function partner_login($data){
+       $this->db->select('partner_id');
+       $this->db->where('user_name',$data['user_name']);
+       $this->db->where('password',$data['password']);
+       $this->db->where('active',1);
+       $query = $this->db->get('partner_login');
+      
+        if ($query->num_rows() > 0) {
+            $result = $query->result_array();
+            return $result[0]['partner_id'];
+         
+      } else {
+
+        return false;
+      }
+
+    }
+
+    /**
+      * @desc: this is used to get pending booking for specific partner id
+      * @param: end limit, start limit, partner id
+      * @return: Pending booking
+      */
+     function getPending_booking($limit="", $start="", $partner_id ){
+        $where = "";
+        $where .= " AND partner_id = '" . $partner_id . "'";
+        //do not show bookings for future as of now
+        $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0";
+
+
+        $query = $this->db->query("Select services.services,
+            users.name as customername, users.phone_number,
+            booking_details.*
+            from booking_details
+            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
+            JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
+            WHERE
+            `booking_details`.booking_id NOT LIKE 'Q-%' $where AND 
+            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled')"
+        );
+
+        
+        if($limit =="count"){
+            $temp = $query->result_array();
+           // echo $this->db->last_query();
+            return count($temp);
+
+        } else {
+            $temp = $query->result();
+            usort($temp, array($this, 'date_compare_bookings'));
+        
+            return array_slice($temp, $start, $limit);
+        }
+     }
+     
+     /**
+      * @desc: This is used to get close booking of custom partner
+      * @param: End limit
+      * @param: Start limit
+      * @param: Partner Id
+      * @param: Booking Status(Cancelled or Completed)
+      * @return: Array()
+      */
+     function getclosed_booking($limit="", $start="", $partner_id, $status){
+        if($limit!="count"){
+            $this->db->limit($limit, $start);
+        }
+
+        $this->db->select('booking_details.booking_id, users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.closing_remarks, booking_details.booking_timeslot');
+        $this->db->from('booking_details');
+        $this->db->join('services','services.id = booking_details.service_id');
+        $this->db->join('users','users.user_id = booking_details.user_id');
+        $this->db->where('booking_details.current_status', $status);
+        $this->db->where('partner_id',$partner_id);
+        $query = $this->db->get();
+
+        $result = $query->result_array();
+        if($limit == "count"){
+
+            return count($result);
+        }
+        return $result;
+
+
+     }
+
+     function date_compare_bookings($a, $b) {
+        $t1 = strtotime($a->booking_date);
+        $t2 = strtotime($b->booking_date);
+
+        return $t2 - $t1;
     }
 
 }

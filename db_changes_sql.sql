@@ -636,3 +636,17 @@ ALTER TABLE  `service_center_booking_action` CHANGE  `amount_paid`  `amount_paid
 
 ALTER TABLE  `boloaaka`.`service_center_booking_action` DROP INDEX  `booking_id` ,
 ADD UNIQUE  `unq_booking_sc` (  `booking_id` ,  `service_center_id` ) COMMENT  'booking id and sc id should be unique';
+
+
+
+-- Abhay 31 July 
+
+CREATE TABLE IF NOT EXISTS `partner_login` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `partner_id` int(25) NOT NULL,
+  `user_name` varchar(100) NOT NULL,
+  `password` varchar(100) NOT NULL,
+  `active` int(11) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;

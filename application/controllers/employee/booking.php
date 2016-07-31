@@ -246,7 +246,7 @@ class Booking extends CI_Controller {
                 $bcc = "";
                 $subject = 'Booking Confirmation-AROUND';
                 $attachment = "";
-                $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
+                //$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
                 //-------Sending SMS on booking--------//
 
                 $sms['tag'] = "add_new_booking";
@@ -256,7 +256,7 @@ class Booking extends CI_Controller {
                 $sms['phone_no'] = $query1[0]['phone_number'];
                 $sms['booking_id'] = $booking['booking_id'];
 
-                $this->notify->send_sms($sms);
+                //$this->notify->send_sms($sms);
             }
             //------End of sending SMS--------//
 

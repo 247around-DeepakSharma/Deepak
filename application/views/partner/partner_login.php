@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <title>
-            Vendor Portal
+            Partner Portal
         </title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -26,7 +26,7 @@
 
         <div class="container pageWrap">
             <div class="col-xs-4 " style="width:100%;text-align:left">
-              
+
                     <?php if($this->session->userdata('error')) {
                     echo '<div class="alert alert-danger alert-dismissible" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -37,9 +37,9 @@
                     }
                     ?>
                 <img src="<?php echo base_url()?>images/logo.jpg" style="display: inline;">
-                <p style="display: inline; color: #fff;margin-left:33px;font-size: 22px; ">Welcome to Service Center Portal</p>
+                <p style="display: inline; color: #fff;margin-left:33px;font-size: 22px; ">Welcome to Partner Portal</p>
                 <div class="col-md-offset-3">
-                    <form class="form-horizontal" action="<?php echo base_url(); ?>employee/service_centers/service_center_login" style="margin-top:45px;" method="post" id="login_form">
+                    <form class="form-horizontal" action="<?php echo base_url(); ?>employee/partner/partner_login" style="margin-top:45px;" method="post" id="login_form">
                         <div class="form-group">
                             <div class="col-sm-10">
                                 <div class = "input-group">
@@ -73,6 +73,7 @@
         </div>
 
     </body>
+<?php $this->session->unset_userdata('error'); ?>
 
 <script type="text/javascript">
 
@@ -120,6 +121,3 @@
 
 
 </script>
-
-<?php $this->session->unset_userdata('error'); ?>
-

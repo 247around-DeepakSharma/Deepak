@@ -49,8 +49,9 @@ class Service_centers extends CI_Controller {
 
 	    redirect(base_url() . "service_center/pending_booking");
         } else {
-            $data['error'] = "Please enter correct user name and password";
-            $this->load->view('service_centers/service_center_login', $data);
+            $userSession = array('error' => 'Please enter correct user name and password' );
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "service_center");
         }
     }
 
