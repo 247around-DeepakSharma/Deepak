@@ -167,6 +167,13 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
      var query_remarks =$("#query_remarks").val();
      var type = $('input[name=type]:checked', '#booking_form').val(); 
 
+      if ($("input[type=checkbox]:checked").length === 0) {
+        $('#myModal').modal('toggle');
+        alert('no way you submit it without checking a box');
+        return false;
+      
+      }
+
      if(p_contact_no ==""){
         $('#myModal').modal('toggle');
         alert("Please fill Phone Number "); 
@@ -268,8 +275,6 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
 function setAppliances(i){
   
   var brand = $("#appliance_brand_"+i).val();
-
-  //alert(brand);
   
   if(brand == null){
     
