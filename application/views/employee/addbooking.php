@@ -188,10 +188,10 @@
                                                 <table class="table priceList table-striped table-bordered" name="priceList" id="priceList_1">
                                                     <tr>
                                                         <th>Service Category</th>
-                                                        <th>Charges</th>
-                                                        <th>Partner Offer</th>
-                                                        <th>Total Charges</th>
-                                                        <th>Discount</th>
+                                                        <th>Std. Charges</th>
+                                                        <th>Partner Discount</th>
+                                                        <th>Final Charges</th>
+                                                        <th>247around Discount</th>
                                                         <th>Selected Services</th>
                                                     </tr>
                                                 </table>
