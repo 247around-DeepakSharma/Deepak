@@ -70,8 +70,8 @@ class Partner_model extends CI_Model {
 
     //Find OrderID for 247aroundBooking ID
     function get_order_id_by_booking_id($booking_id) {
-    	$this->db->like(array("247aroundBookingID" => $booking_id));
-    	$query = $this->db->get("partner_leads");
+    	$this->db->like(array("booking_id" => $booking_id));
+    	$query = $this->db->get("booking_details");
     	$results = $query->result_array();
 
     	if (count($results) > 0) {
@@ -153,10 +153,37 @@ class Partner_model extends CI_Model {
         return $this->db->insert_batch($table_name, $rows);
     }
     
-    function getpartner(){
+    function getpartner($partner_id=""){
+        if($partner_id !=""){
+            $this->db->where('id', $partner_id);
+        }
         $this->db->select('id,public_name as name');
         $this->db->where('is_active','1');
         $query = $this->db->get('partners');
         return $query->result_array();
     }
+
+     /**
+     * @desc: check partner login and return pending booking
+     * @param: Array(username, password)
+     * @return : Array(Pending booking)  
+     */
+    function partner_login($data){
+       $this->db->select('id');
+       $this->db->where('user_name',$data['user_name']);
+       $this->db->where('password',$data['password']);
+       $this->db->where('active',1);
+       $query = $this->db->get('partner_login');
+        if ($query->num_rows() > 0) {
+            $result = $query->result_array();
+            return $result[0]['partner_id'];
+         
+      } else {
+
+        return false;
+      }
+
+    }
+
+
 }

@@ -192,10 +192,10 @@ class Do_background_process extends CI_Controller {
             $this->booking_model->update_unit_details($unit_details);
         }
             
-     
-        $booking['closed_date'] = date('Y-m-d H:i:s');
-        $booking['current_status'] = $current_status;
-        $booking['internal_status'] = "Completed";
+        $partner_sd_cb['247aroundBookingID'] = $booking_id;
+        $partner_sd_cb['update_date'] = $booking['closed_date'] = date('Y-m-d H:i:s');
+        $partner_sd_cb['247aroundBookingStatus'] = $booking['current_status'] = $current_status;
+        $partner_sd_cb['247aroundBookingRemarks'] = $booking['internal_status'] = $current_status;
         $booking['amount_paid'] = $data[0]['amount_paid'];
         $booking['closing_remarks'] = $service_center['closing_remarks'];
             

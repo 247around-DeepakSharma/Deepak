@@ -100,7 +100,9 @@ class Booking extends CI_Controller {
 	$booking['amount_due'] = $this->input->post('grand_total_price');
 	$booking['booking_address'] = $this->input->post('home_address');
 	$booking['city'] = $this->input->post('city');
-	$booking['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
+	$booking_date = $this->input->post('booking_date');
+	$booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
+
 	if ($booking_id == "") {
 
 	    $booking['booking_id'] = $this->create_booking_id($user_id, $booking['source'], $booking['type'], $booking['booking_date']);
@@ -176,12 +178,17 @@ class Booking extends CI_Controller {
 	$user['user_email'] = $this->input->post('user_email');
 
 	$message = "";
+    $partner_sd_cb['247aroundBookingID'] = $booking['booking_id'];
 
 	if ($booking['type'] == 'Booking') {
 
-	    $booking['current_status'] = 'Pending';
-	    $booking['internal_status'] = 'Scheduled';
+	    $partner_sd_cb['partner_sd_cb'] = $booking['current_status'] = 'Pending';
+	    $partner_sd_cb['247aroundBookingRemarks'] = $booking['internal_status'] = 'Scheduled';
+	    $partner_sd_cb['ScheduledAppointmentDate'] = date('Y-m-d H:i:s', strtotime($booking_date));
+	    $partner_sd_cb['ScheduledAppointmentTime'] = $booking['booking_timeslot'];
+	    $$partner_sd_cb['update_date'] = date("Y-m-d H:i:s");
 	    $booking['booking_remarks'] = $booking_remarks;
+                           
 
 	    $message .= "Congratulations You have received new booking, details are mentioned below:
       <br>Customer Name: " . $user_name . "<br>Customer Phone Number: " . $booking['booking_primary_contact_no'] .
@@ -194,9 +201,12 @@ class Booking extends CI_Controller {
 		" " . $booking['city'] . ", " . $booking['state'] . ", " .
 		"<br>Booking pincode: " . $booking['booking_pincode'] . "<br><br>
         Appliance Details:<br>";
+
 	} else if ($booking['type'] == 'Query') {
-	    $booking['current_status'] = "FollowUp";
-	    $booking['internal_status'] = "FollowUp";
+
+	    $partner_sd_cb['247aroundBookingStatus'] = $booking['current_status'] = "FollowUp";
+	    $partner_sd_cb['247aroundBookingRemarks'] = $booking['internal_status'] = "FollowUp";
+	    $partner_sd_cb['update_date'] = date("Y-m-d H:i:s");
 	    $booking['query_remarks'] = $booking_remarks;
 	}
 
@@ -262,11 +272,17 @@ class Booking extends CI_Controller {
 			    $result['customer_net_payable'] . "<br>";
 
 			$message .= "<br/>";
+
+			//Log this state change as well for this booking
+            $this->notify->insert_state_change($booking['booking_id'], "Insert", $booking['current_status'],$this->session->userdata('id'), $this->session->userdata('employee_id'));
 		    }
 		} else {
 
 		    $price_tag = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id);
 		    array_push($price_tags, $price_tag);
+
+		    //Log this state change as well for this booking
+            $this->notify->insert_state_change($booking['booking_id'], "Update", $booking['current_status'],$this->session->userdata('id'), $this->session->userdata('employee_id'));
 		}
 	    }
 	}
@@ -284,6 +300,8 @@ class Booking extends CI_Controller {
 	    $booking['message'] = $message;
 	}
 	$this->user_model->edit_user($user);
+
+	$this->notify->partner_sb_cb_callback($partner_sd_cb);
 
 	return $booking;
     }
@@ -460,7 +478,7 @@ class Booking extends CI_Controller {
      */
     function process_cancel_form($booking_id) {
 	$data['cancellation_reason'] = $this->input->post('cancellation_reason');
-	$data['internal_status'] = $this->input->post('internal_status');
+	$partner_sd_cb['247aroundBookingRemarks'] = $data['internal_status'] = $this->input->post('internal_status');
 
 	$data['update_date'] = date("Y-m-d H:i:s");
 	$data['closed_date'] = date("Y-m-d H:i:s");
@@ -468,20 +486,22 @@ class Booking extends CI_Controller {
 	if ($data['cancellation_reason'] === 'Other') {
 	    $data['cancellation_reason'] = "Other : " . $this->input->post("cancellation_reason_text");
 	}
-	$data['current_status'] = "Cancelled";
+	$partner_sd_cb['247aroundBookingStatus'] = $data['current_status'] = "Cancelled";
 
 	$this->booking_model->update_booking($booking_id, $data);
 
 	//Update this booking in vendor action table
-	$data_vendor['update_date'] = date("Y-m-d H:i:s");
+	$partner_sd_cb['update_date'] = $data_vendor['update_date'] = date("Y-m-d H:i:s");
 	$data_vendor['current_status'] = "Cancelled";
 	$data_vendor['internal_status'] = "Cancelled";
 	$data_vendor['cancellation_reason'] = $data['cancellation_reason'];
-	$data_vendor['booking_id'] = $booking_id;
+	$partner_sd_cb['247aroundBookingID'] = $data_vendor['booking_id'] = $booking_id;
 
 	$this->vendor_model->update_service_center_action($data_vendor);
 
 	$this->update_price_while_cancel_booking($booking_id);
+
+	$this->notify->partner_sb_cb_callback($partner_sd_cb);
 
 	//Log this state change as well for this booking
 	$this->notify->insert_state_change($booking_id, $data['current_status'], "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
@@ -620,6 +640,21 @@ class Booking extends CI_Controller {
 
 	    //Prepare job card
 	    $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+
+	    if($is_sd){
+	        $sch_date = date_format(date_create($yy . "-" . $mm . "-" . $dd), "Y-m-d H:i:s");
+            
+            $partner_data = array(
+                    "247aroundBookingID" => $booking_id,
+                    "247aroundBookingStatus" => $data['current_status'],
+                    "247aroundBookingRemarks" => $data['internal_status'],
+                    "ScheduledAppointmentDate" => $sch_date,
+                    "ScheduledAppointmentTime" => $data['booking_timeslot'],
+                    "update_date" => $data['update_date']
+            );
+                             
+            $this->notify->partner_sb_cb_callback($partner_data);
+	    }
 
 	    log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $this->session->userdata('employee_id') . " data " . print_r($data, true));
 
@@ -1287,25 +1322,27 @@ class Booking extends CI_Controller {
 	$reschedule_booking_timeslot = $this->input->post('reschedule_booking_timeslot');
 	$reschedule_reason = $this->input->post('reschedule_reason');
 
-	foreach ($reschedule_booking_id as $key => $value) {
-	    $booking['booking_date'] = date('d-m-Y', strtotime($reschedule_booking_date[$value]));
-	    $booking['booking_timeslot'] =$reschedule_booking_timeslot[$value];
-	    $booking['current_status'] = 'Rescheduled';
-	    $booking['internal_status'] = 'Rescheduled';
-	    $booking['update_date'] = date("Y-m-d H:i:s");
-	    $booking['reschedule_reason'] = $reschedule_reason[$value];
+	foreach ($reschedule_booking_id as $key => $booking_id) {
+	    $booking['booking_date'] = date('d-m-Y', strtotime($reschedule_booking_date[$booking_id]));
+	    $partner_sd_cb['ScheduledAppointmentDate'] = date('Y-m-d H:i:s', strtotime($reschedule_booking_date[$booking_id]));
+	    $partner_sd_cb['ScheduledAppointmentTime'] = $booking['booking_timeslot'] = $reschedule_booking_timeslot[$booking_id];
+	    $partner_sd_cb['247aroundBookingStatus'] = $send['state'] = $booking['current_status'] = 'Rescheduled';
+	    $partner_sd_cb['247aroundBookingRemarks'] = $booking['internal_status'] = 'Rescheduled';
+	    $partner_sd_cb['update_date'] = $booking['update_date'] = date("Y-m-d H:i:s");
+	    $partner_sd_cb['247aroundBookingID'] =  $send['booking_id'] = $data['booking_id'] = $booking_id;
+	    $booking['reschedule_reason'] = $reschedule_reason[$booking_id];
 
-	    $this->booking_model->update_booking($value, $booking);
-	    $data['booking_id'] = $value;
+	    $this->booking_model->update_booking($booking_id, $booking);
 	    $data['internal_status'] = "Pending";
 	    $data['current_status'] = "Pending";
 
 	    $this->vendor_model->update_service_center_action($data);
 
 	    $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-	    $send['booking_id'] = $value;
-	    $send['state'] = "Rescheduled";
 	    $this->asynchronous_lib->do_background_process($url, $send);
+
+	    //partner sb cd callback
+	    $this->notify->partner_sb_cb_callback($partner_sd_cb);
 
 	    //Log this state change as well for this booking
 	    $this->notify->insert_state_change($value, "Rescheduled", "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
@@ -1369,16 +1406,17 @@ class Booking extends CI_Controller {
 	    $this->vendor_model->update_service_center_action($service_center);
 	}
 
+    $partner_sd_cb['247aroundBookingStatus'] = $booking['current_status'] = $internal_status;
+	$partner_sd_cb['247aroundBookingRemarks'] = $booking['internal_status'] = $internal_status;
+	$partner_sd_cb['247aroundBookingID'] = $booking['booking_id'] = $booking_id;
 	$booking['rating_stars'] = $this->input->post('rating_stars');
 	$booking['vendor_rating_stars'] = $this->input->post('vendor_rating_stars');
 	$booking['vendor_rating_comments'] = $this->input->post('vendor_rating_comments');
 	$booking['rating_comments'] = $this->input->post('rating_comments');
 	$booking['closing_remarks'] = $service_center['closing_remarks'];
-	$partner_sd_cb['closed_date'] = $booking['closed_date'] = date('Y-m-d H:i:s');
+	$partner_sd_cb['update_date'] = $booking['closed_date'] = date('Y-m-d H:i:s');
 	$booking['amount_paid'] = $total_amount_paid;
-	$partner_sd_cb['current_status'] = $booking['current_status'] = $internal_status;
-	$partner_sd_cb['internal_status'] = $booking['internal_status'] = $internal_status;
-	$booking['booking_id'] = $booking_id;
+	
 	//update booking_details table
 	log_message('info', ": " . " update booking details data (" . $booking['current_status'] . ")" . print_r($booking, TRUE));
 	// this function is used to update booking details table
@@ -1392,7 +1430,7 @@ class Booking extends CI_Controller {
 	$send['state'] = $internal_status;
 	$this->asynchronous_lib->do_background_process($url, $send);
 
-	$this->check_is_sd($booking_id, $partner_sd_cb);
+	$this->notify->partner_sb_cb_callback($partner_sd_cb);
 
 	if ($status == "0") {
 	    redirect(base_url() . 'employee/booking/view');
@@ -1581,28 +1619,5 @@ class Booking extends CI_Controller {
 	redirect(base_url() . 'employee/booking/view_pending_queries/0/0/' . $booking_id, 'refresh');
     }
 
-    function check_is_sd($booking_id, $data){
-    	//Is this SD booking?
-	    if (strpos($booking_id, "SS") !== FALSE) {
-	        $is_sd = TRUE;
-	    } else {
-	        $is_sd = FALSE;
-	    }
-
-	    if($is_sd){
-	    	switch($data['current_status'])
-	    	case 'Completed':
-	    		 $partner_data = array(
-                   	"247aroundBookingID" => $booking_id,
-                    "247aroundBookingStatus" => $data['current_status'],
-                    "247aroundBookingRemarks" => $data['internal_status'],
-                    "update_date" => $data['closed_date']
-            );
-	    		break;          
-
-            $this->partner_sd_cb->update_status_complete_booking($partner_data);
-	    }
-
-    }
 
 }

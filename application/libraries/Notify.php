@@ -293,5 +293,47 @@ class Notify {
       
        $this->send_email($email);         
     }
+    
+    /**
+     * @desc: This method calls partner snapdeal api
+     */
+    function partner_sb_cb_callback($data){
+        //Is this SD booking?
+        if (strpos($data['booking_id'], "SS") !== FALSE) {
+            $is_sd = TRUE;
+        } else {
+            $is_sd = FALSE;
+        }
+
+        if($is_sd){
+            switch($data['current_status']){
+            case 'Completed':
+                
+                    $this->My_CI->partner_sd_cb->update_status_complete_booking($data);
+                    break;
+            case 'Pending':
+                        
+                    $this->My_CI->partner_sd_cb->update_status_schedule_booking($data);
+                    break;  
+
+            case 'FollowUp':
+                    $this->My_CI->partner_sd_cb->update_status_schedule_booking($data);
+                    break; 
+
+            case 'Rescheduled':
+                    $this->My_CI->partner_sd_cb->update_status_reschedule_booking($data);
+                    break;
+
+            case 'Cancelled':
+                   $this->My_CI->partner_sd_cb->update_status_cancel_booking($data);
+                   break;   
+            }    
+        }
+
+        log_message('info', 'Partner Sb Cd Callback: '  . print_r($data, true));
+
+        return true;
+
+    }
 
 }
