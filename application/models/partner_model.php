@@ -86,7 +86,7 @@ class Partner_model extends CI_Model {
         $union = "UNION
 
             SELECT Sub_Order_ID  as order_id FROM  `snapdeal_leads` WHERE  CRM_Remarks_SR_No LIKE  '%$booking_id%' ";
-        
+
 
         $sql = "SELECT OrderID AS order_id from partner_leads where 247aroundBookingID LIKE '%$booking_id%'   " . $union;
 
@@ -178,7 +178,7 @@ class Partner_model extends CI_Model {
      /**
      * @desc: check partner login and return pending booking
      * @param: Array(username, password)
-     * @return : Array(Pending booking)  
+     * @return : Array(Pending booking)
      */
     function partner_login($data){
        $this->db->select('partner_id');
@@ -186,11 +186,11 @@ class Partner_model extends CI_Model {
        $this->db->where('password',$data['password']);
        $this->db->where('active',1);
        $query = $this->db->get('partner_login');
-      
+
         if ($query->num_rows() > 0) {
             $result = $query->result_array();
             return $result[0]['partner_id'];
-         
+
       } else {
 
         return false;
@@ -207,23 +207,22 @@ class Partner_model extends CI_Model {
         $where = "";
         $where .= " AND partner_id = '" . $partner_id . "'";
         //do not show bookings for future as of now
-        $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0";
+        //$where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0";
 
-
-        $query = $this->db->query("Select services.services,
+	$query = $this->db->query("Select services.services,
             users.name as customername, users.phone_number,
             booking_details.*
 
             from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-            
+
             WHERE
-            `booking_details`.booking_id NOT LIKE 'Q-%' $where AND 
+            `booking_details`.booking_id NOT LIKE 'Q-%' $where AND
             (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled')"
         );
         $temp = $query->result();
-        
+
         foreach ($temp as $key => $value) {
            $order_id = $this->get_order_id($value->booking_id);
            if(!empty($order_id[0]['order_id'])){
@@ -232,20 +231,20 @@ class Partner_model extends CI_Model {
                $temp[$key]->order_id = "";
            }
         }
-        
+
         if($limit =="count"){
             $temp1 = $query->result_array();
            // echo $this->db->last_query();
             return count($temp1);
 
         } else {
-            
+
             usort($temp, array($this, 'date_compare_bookings'));
-        
+
             return array_slice($temp, $start, $limit);
         }
      }
-     
+
      /**
       * @desc: This is used to get close booking of custom partner
       * @param: End limit

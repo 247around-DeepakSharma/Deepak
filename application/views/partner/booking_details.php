@@ -8,35 +8,35 @@
                 <div class="panel-body">
                     <table class="table table-bordered table-hover table-striped">
                         <tr>
-                            <td >Customer name: </td>
+                            <td >Name: </td>
                             <td><?php echo $query1[0]['name']; ?></td>
                         </tr>
                         <tr>
-                            <td>Customer phone number: </td>
+                            <td>Mobile Number: </td>
                             <td><?php echo $query1[0]['phone_number']; ?></td>
                         </tr>
                         <tr>
-                            <td>Alternate phone number: </td>
+                            <td>Alternate Number: </td>
                             <td><?php echo $query1[0]['alternate_phone_number']; ?></td>
                         </tr>
                         <tr>
-                            <td>Customer email address: </td>
+                            <td>Email: </td>
                             <td><?php echo $query1[0]['user_email']; ?></td>
                         </tr>
                         <tr>
-                            <td>Home address: </td>
+                            <td>Address: </td>
                             <td><?php echo $query1[0]['home_address'];?></td>
                         </tr>
                         <tr>
-                            <td>Home City: </td>
+                            <td>City: </td>
                             <td><?php echo $query1[0]['city'];?></td>
                         </tr>
                         <tr>
-                            <td>Home State: </td>
+                            <td>State: </td>
                             <td><?php echo $query1[0]['state'];?></td>
                         </tr>
                         <tr>
-                            <td>Home Pincode: </td>
+                            <td>Pincode: </td>
                             <td><?php echo $query1[0]['pincode'];?></td>
                         </tr>
                     </table>
@@ -53,28 +53,32 @@
                     <?php for($i=0; $i<$query1[0]['quantity']; $i++) {?>
                     <table class="table table-bordered table-hover table-striped">
                         <tr>
-                            <td >Brand<?=$i+1;?> : </td>
+                            <td >Brand: </td>
                             <td><?php echo $query2[$i]['appliance_brand'];?></td>
                         </tr>
                         <tr>
-                            <td>Model<?=$i+1;?> : </td>
+                            <td>Model: </td>
                             <td><?php echo $query2[$i]['model_number'];?></td>
                         </tr>
                         <tr>
-                            <td>Category<?=$i+1;?> : </td>
+                            <td>Serial No: </td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Category: </td>
                             <td><?php echo $query2[$i]['appliance_category'];?></td>
                         </tr>
                         <tr>
-                            <td>Capacity<?=$i+1;?> : </td>
+                            <td>Capacity: </td>
                             <td><?php echo $query2[$i]['appliance_capacity'];?></td>
                         </tr>
                         <tr>
-                            <td>Description<?=$i+1;?> : </td>
+                            <td>Description: </td>
                             <td><?php echo $query1[0]['description'];?></td>
                         </tr>
                         <?php for($j = 0; $j < count($query2); $j++) {?>
                         <tr>
-                            <td>Selected services: </td>
+                            <td>Call Type: </td>
                             <td><?php echo $query2[$j]['price_tags'];?></td>
                         </tr>
                         <?php } ?>
@@ -93,71 +97,39 @@
                     <div class="col-md-6">
                         <table class="table table-bordered table-hover table-striped">
                             <tr>
-                                <td>Booking Id: </td>
+                                <td>Booking ID: </td>
                                 <td><?php echo $query1[0]['booking_id']; ?></td>
                             </tr>
                             <tr>
-                                <td>Order Id: </td>
-                                <td><?php if(!empty($query4)){ echo $query4[0]['order_id']; } ?></td>
+                                <td>Platform / Order ID: </td>
+                                <td>Platform / <?php if(!empty($query4)){ echo $query4[0]['order_id']; } ?></td>
                             </tr>
                             <tr>
-                                <td>Booking Type: </td>
-                                <td><?php echo $query1[0]['type']; ?></td>
-                            </tr>
-                            <tr>
-                                <td>Number of appliances: </td>
-                                <td><?php echo $query1[0]['quantity']; ?></td>
-                            </tr>
-                            <tr>
-                                <td>Booking date: </td>
+                                <td>Booking Date: </td>
                                 <td><?php echo $query1[0]['booking_date']; ?></td>
                             </tr>
                             <tr>
-                                <td>Booking time slot: </td>
+                                <td>Booking Timeslot: </td>
                                 <td><?php echo $query1[0]['booking_timeslot']; ?></td>
-                            </tr>
-                            <tr>
-                                <td>Booking address: </td>
-                                <td><?php echo $query1[0]['booking_address'];?></td>
-                            </tr>
-                            <tr>
-                                <td>Booking City: </td>
-                                <td><?php echo $query1[0]['city']; ?></td>
                             </tr>
                         </table>
                     </div>
                     <div class="col-md-6">
                         <table class="table table-bordered table-hover table-striped">
                             <tr>
-                                <td>Booking State: </td>
-                                <td><?php echo $query1[0]['state']; ?></td>
-                            </tr>
-                            <tr>
-                                <td>Booking Pincode: </td>
-                                <td><?php echo $query1[0]['booking_pincode']; ?></td>
-                            </tr>
-                            <tr>
-                                <td>Booking Primary Contact No.: </td>
-                                <td><?php echo $query1[0]['booking_primary_contact_no']; ?></td>
-                            </tr>
-                            <tr>
-                                <td>Booking Alternate Contact No.: </td>
-                                <td><?php echo $query1[0]['booking_alternate_contact_no']; ?></td>
-                            </tr>
-                            <tr>
                                 <td>Booking Remarks: </td>
                                 <td><?php echo $query1[0]['booking_remarks']; ?></td>
                             </tr>
                             <tr>
-                                <td>Booking current status: </td>
+                                <td>Booking Current Status: </td>
                                 <td><?php echo $query1[0]['current_status']; ?></td>
                             </tr>
                             <tr>
-                                <td>Booking internal status: </td>
+                                <td>Booking Internal Status: </td>
                                 <td><?php echo $query1[0]['internal_status']; ?></td>
                             </tr>
                             <tr>
-                                <td>Booking closed date: </td>
+                                <td>Booking Closed Date: </td>
                                 <td><?php echo $query1[0]['closed_date']; ?></td>
                             </tr>
                         </table>
