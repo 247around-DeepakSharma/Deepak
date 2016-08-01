@@ -195,20 +195,26 @@ class Do_background_process extends CI_Controller {
         $partner_sd_cb['247aroundBookingID'] = $booking_id;
         $partner_sd_cb['update_date'] = $booking['closed_date'] = date('Y-m-d H:i:s');
         $partner_sd_cb['247aroundBookingStatus'] = $booking['current_status'] = $current_status;
-        $partner_sd_cb['247aroundBookingRemarks'] = $booking['internal_status'] = $current_status;
+        $booking['internal_status'] = $current_status;
         $booking['amount_paid'] = $data[0]['amount_paid'];
         $booking['closing_remarks'] = $service_center['closing_remarks'];
             
         //update booking_details table
         log_message('info', ": " . " update booking details data (" .$current_status .")".print_r($booking, TRUE));
 
-        $this->booking_model->update_booking($booking_id, $booking);
+        if($current_status == "Cancelled"){
 
-        //Save this booking id in booking_invoices_mapping table as well now
-        if($current_status == "Completed")
+            $partner_sd_cb['247aroundBookingRemarks']  = $booking['cancellation_reason'] = $data[0]['cancellation_reason'];
+
+        } else {
+
+            $partner_sd_cb['247aroundBookingRemarks'] = $booking['internal_status'];
+            //Save this booking id in booking_invoices_mapping table as well now
             $this->invoices_model->insert_booking_invoice_mapping(array('booking_id' => $data[0]['booking_id']));
+        }
 
-       
+        $this->booking_model->update_booking($booking_id, $booking);
+            
         //Log this state change as well for this booking
         $this->notify->insert_state_change($booking_id, $current_status, "Pending", $agent_id, $agent_name);
 
@@ -217,7 +223,7 @@ class Do_background_process extends CI_Controller {
         $send['state'] = $current_status;
         $this->asynchronous_lib->do_background_process($url, $send);
 
-        //$this->notify->send_sms_email_for_booking($booking_id, $current_status);       
+        $this->notify->send_sms_email_for_booking($booking_id, $current_status);       
     }
     
     /**

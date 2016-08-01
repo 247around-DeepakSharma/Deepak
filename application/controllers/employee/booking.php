@@ -479,23 +479,20 @@ class Booking extends CI_Controller {
      */
     function process_cancel_form($booking_id) {
 	$data['cancellation_reason'] = $this->input->post('cancellation_reason');
-	$partner_sd_cb['247aroundBookingRemarks'] = $data['internal_status'] = $this->input->post('internal_status');
-
-	$data['update_date'] = date("Y-m-d H:i:s");
-	$data['closed_date'] = date("Y-m-d H:i:s");
-
-	if ($data['cancellation_reason'] === 'Other') {
+	$data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
+	
+	if ($data['cancellation_reason'] == 'Other') {
 	    $data['cancellation_reason'] = "Other : " . $this->input->post("cancellation_reason_text");
 	}
-	$partner_sd_cb['247aroundBookingStatus'] = $data['current_status'] = "Cancelled";
+	$partner_sd_cb['247aroundBookingStatus'] = $data['current_status'] = $data['internal_status'] = "Cancelled";
+	$partner_sd_cb['247aroundBookingRemarks'] = $data_vendor['cancellation_reason'] = $data['cancellation_reason'];
 
 	$this->booking_model->update_booking($booking_id, $data);
 
 	//Update this booking in vendor action table
 	$partner_sd_cb['update_date'] = $data_vendor['update_date'] = date("Y-m-d H:i:s");
-	$data_vendor['current_status'] = "Cancelled";
-	$data_vendor['internal_status'] = "Cancelled";
-	$data_vendor['cancellation_reason'] = $data['cancellation_reason'];
+	$data_vendor['current_status'] = $data_vendor['internal_status'] =  "Cancelled";
+
 	$partner_sd_cb['247aroundBookingID'] = $data_vendor['booking_id'] = $booking_id;
 
 	$this->vendor_model->update_service_center_action($data_vendor);
@@ -1329,10 +1326,10 @@ class Booking extends CI_Controller {
 	    $partner_sd_cb['ScheduledAppointmentDate'] = date('Y-m-d H:i:s', strtotime($reschedule_booking_date[$booking_id]));
 	    $partner_sd_cb['ScheduledAppointmentTime'] = $booking['booking_timeslot'] = $reschedule_booking_timeslot[$booking_id];
 	    $partner_sd_cb['247aroundBookingStatus']   = $send['state']               = $booking['current_status'] = 'Rescheduled';
-	    $partner_sd_cb['247aroundBookingRemarks']  = $booking['internal_status']  = 'Rescheduled';
+	    $booking['internal_status']  = 'Rescheduled';
 	    $partner_sd_cb['update_date']              = $booking['update_date']      = date("Y-m-d H:i:s");
-	    $partner_sd_cb['247aroundBookingID']       =  $send['booking_id']         = $data['booking_id'] = $booking_id;
-	    $booking['reschedule_reason']              = $reschedule_reason[$booking_id];
+	    $partner_sd_cb['247aroundBookingID']       = $send['booking_id']         = $data['booking_id'] = $booking_id;
+	    $partner_sd_cb['247aroundBookingRemarks']  = $checkbooking['reschedule_reason']              = $reschedule_reason[$booking_id];
 
 	    $this->booking_model->update_booking($booking_id, $booking);
 	    $data['internal_status'] = "Pending";

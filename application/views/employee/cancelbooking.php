@@ -58,25 +58,6 @@ function check_text(){
                     <textarea class="form-control"  id="cancellation_reason_text" name="cancellation_reason_text" value = "<?php echo set_value('cancellation_reason'); ?>" rows="8" disabled></textarea>                            
                   </div>
                 </div>
-
-                <?php if(isset($internal_status)){ if($user_and_booking_details[0]['source'] =="SS"){?>
-                <div class="form-group <?php if( form_error('internal_status') ) { echo 'has-error';} ?>">
-                  <label for="internal_status" class="col-md-2">Internal Status</label> 
-                  <div class="col-md-10">
-                    <?php foreach($internal_status as $status){?>
-                    <div style="float:left;">
-                        <input type="radio" class="form-control" name="internal_status" id="internal_status"
-                            value="<?php  echo $status->status;?>" style="height:20px;width:20px;margin-left:20px;" required>
-                        <?php  echo $status->status;?>&nbsp;&nbsp;&nbsp;&nbsp;
-                    </div>
-                    <?php } ?> 
-                    <?php echo form_error('internal_status'); ?>
-                  </div>
-                </div>
-                <?php }  } else { ?>
-                 <input type="hidden" name="internal_status" value="Cancelled"></input>
-
-                <?php } ?>
  
                  <div class="col-md-6 col-md-offset-4">
                   
