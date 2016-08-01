@@ -11,13 +11,14 @@
                         <table class="table table-bordered table-hover table-striped">
                             <thead>
                                 <tr>
-                                    <th>S No.</th>
-                                    <th>Booking Id</th>
-                                    <th>User Name</th>
-                                    <th>Phone No.</th>
-                                    <th>Service Name</th>
-                                    <th>Booking Date</th>
-                                    <th>View</th>
+                                   <th>S No.</th>
+                                   <th>Order ID</th>
+                                   <th>Booking ID</th>
+                                   <th>User Name</th>
+                                   <th>Phone No.</th>
+                                   <th>City</th>
+                                   <th>Booking Date</th>
+                                   <th>View</th>
                                    
                                 </tr>
                             </thead>
@@ -27,6 +28,9 @@
                                         <tr>
                                             <td>
                                                 <?php echo $count; ?>
+                                            </td>
+                                             <td>
+                                                <?php echo $row['order_id']; ?>
                                             </td>
                                             <td>
                                                 <?php echo $row['booking_id']; ?>
@@ -38,7 +42,7 @@
                                                 <?php echo $row['booking_primary_contact_no']; ?>
                                             </td>
                                             <td>
-                                                <?php echo  $row['services']; ?>
+                                                <?php echo  $row['city']; ?>
                                             </td>
                                             <td>
                                                 <?php echo $row['booking_date']; ?> /

@@ -11,10 +11,11 @@
                      <thead>
                         <tr>
                            <th>S No.</th>
-                           <th>Booking Id</th>
+                           <th>Order ID</th>
+                           <th>Booking ID</th>
                            <th>User Name</th>
                            <th>Phone No.</th>
-                           <th>Service Name</th>
+                           <th>City</th>
                            <th>Booking Date</th>
                            <th>View</th>
                           
@@ -27,6 +28,10 @@
                            <td>
                               <?php echo $sn_no; ?>
                            </td>
+                           
+                           <td>
+                              <?=$row->order_id; ?>
+                           </td>
                            <td >
                               <?=$row->booking_id?>
                            </td>
@@ -37,8 +42,9 @@
                               <?= $row->booking_primary_contact_no; ?>
                            </td>
                            <td>
-                              <?= $row->services; ?>
+                              <?= $row->city; ?>
                            </td>
+                          
                            <td>
                               <?= $row->booking_date; ?> /
                               <?= $row->booking_timeslot; ?>

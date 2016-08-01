@@ -81,6 +81,22 @@ class Partner_model extends CI_Model {
     	}
     }
 
+    function get_order_id($booking_id){
+
+        $union = "UNION
+
+            SELECT Sub_Order_ID  as order_id FROM  `snapdeal_leads` WHERE  CRM_Remarks_SR_No LIKE  '%$booking_id%' ";
+        
+
+        $sql = "SELECT OrderID AS order_id from partner_leads where 247aroundBookingID LIKE '%$booking_id%'   " . $union;
+
+
+        $query = $this->db->query($sql);
+        return $query->result_array();
+
+    }
+
+
     function update_partner_lead($array_where, $array_data) {
     	/*
     	 * Standard method of Update wasn't working because of the LIKE clause
@@ -197,22 +213,33 @@ class Partner_model extends CI_Model {
         $query = $this->db->query("Select services.services,
             users.name as customername, users.phone_number,
             booking_details.*
+
             from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
+            
             WHERE
             `booking_details`.booking_id NOT LIKE 'Q-%' $where AND 
             (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled')"
         );
-
+        $temp = $query->result();
+        
+        foreach ($temp as $key => $value) {
+           $order_id = $this->get_order_id($value->booking_id);
+           if(!empty($order_id[0]['order_id'])){
+               $temp[$key]->order_id = $order_id[0]['order_id'];
+           } else {
+               $temp[$key]->order_id = "";
+           }
+        }
         
         if($limit =="count"){
-            $temp = $query->result_array();
+            $temp1 = $query->result_array();
            // echo $this->db->last_query();
-            return count($temp);
+            return count($temp1);
 
         } else {
-            $temp = $query->result();
+            
             usort($temp, array($this, 'date_compare_bookings'));
         
             return array_slice($temp, $start, $limit);
@@ -232,7 +259,7 @@ class Partner_model extends CI_Model {
             $this->db->limit($limit, $start);
         }
 
-        $this->db->select('booking_details.booking_id, users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.closing_remarks, booking_details.booking_timeslot');
+        $this->db->select('booking_details.booking_id, users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.closing_remarks, booking_details.booking_timeslot, booking_details.city');
         $this->db->from('booking_details');
         $this->db->join('services','services.id = booking_details.service_id');
         $this->db->join('users','users.user_id = booking_details.user_id');
@@ -241,6 +268,18 @@ class Partner_model extends CI_Model {
         $query = $this->db->get();
 
         $result = $query->result_array();
+
+        foreach ($result as $key => $value) {
+           $order_id = $this->get_order_id($value['booking_id']);
+           if(!empty($order_id[0]['order_id'])){
+
+               $result[$key]['order_id'] = $order_id[0]['order_id'];
+
+           } else {
+               $result[$key]['order_id'] = "";
+           }
+        }
+
         if($limit == "count"){
 
             return count($result);
