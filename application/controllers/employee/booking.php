@@ -1828,7 +1828,8 @@ class Booking extends CI_Controller {
 
         //Insert appliance if required
         if (!$appliance_id) {
-            $booking['appliance_id'] = $this->booking_model->addsingleappliance($booking);
+            $appliance_id = $this->booking_model->addsingleappliance($booking);
+            $booking['appliance_id'] = $appliance_id[0]['id'];
         } else {
             $booking['appliance_id'] = $appliance_id;
             $this->booking_model->update_appliance_details($booking);
