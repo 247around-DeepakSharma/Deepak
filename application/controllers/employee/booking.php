@@ -274,7 +274,8 @@ class Booking extends CI_Controller {
 			$message .= "<br/>";
 
 			//Log this state change as well for this booking
-            $this->notify->insert_state_change($booking['booking_id'], "Insert", $booking['current_status'],$this->session->userdata('id'), $this->session->userdata('employee_id'));
+			//param:-- booking id, new state, old state, employee id, employee name
+            $this->notify->insert_state_change($booking['booking_id'], "Inserted", $booking['current_status'],$this->session->userdata('id'), $this->session->userdata('employee_id'));
 		    }
 		} else {
 
@@ -282,7 +283,7 @@ class Booking extends CI_Controller {
 		    array_push($price_tags, $price_tag);
 
 		    //Log this state change as well for this booking
-            $this->notify->insert_state_change($booking['booking_id'], "Update", $booking['current_status'],$this->session->userdata('id'), $this->session->userdata('employee_id'));
+            $this->notify->insert_state_change($booking['booking_id'], "Updated", $booking['current_status'],$this->session->userdata('id'), $this->session->userdata('employee_id'));
 		}
 	    }
 	}
@@ -504,6 +505,7 @@ class Booking extends CI_Controller {
 	$this->notify->partner_sb_cb_callback($partner_sd_cb);
 
 	//Log this state change as well for this booking
+	//param:-- booking id, new state, old state, employee id, employee name
 	$this->notify->insert_state_change($booking_id, $data['current_status'], "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 
 	// this is used to send email or sms while booking cancelled
@@ -1326,11 +1328,11 @@ class Booking extends CI_Controller {
 	    $booking['booking_date'] = date('d-m-Y', strtotime($reschedule_booking_date[$booking_id]));
 	    $partner_sd_cb['ScheduledAppointmentDate'] = date('Y-m-d H:i:s', strtotime($reschedule_booking_date[$booking_id]));
 	    $partner_sd_cb['ScheduledAppointmentTime'] = $booking['booking_timeslot'] = $reschedule_booking_timeslot[$booking_id];
-	    $partner_sd_cb['247aroundBookingStatus'] = $send['state'] = $booking['current_status'] = 'Rescheduled';
-	    $partner_sd_cb['247aroundBookingRemarks'] = $booking['internal_status'] = 'Rescheduled';
-	    $partner_sd_cb['update_date'] = $booking['update_date'] = date("Y-m-d H:i:s");
-	    $partner_sd_cb['247aroundBookingID'] =  $send['booking_id'] = $data['booking_id'] = $booking_id;
-	    $booking['reschedule_reason'] = $reschedule_reason[$booking_id];
+	    $partner_sd_cb['247aroundBookingStatus']   = $send['state']               = $booking['current_status'] = 'Rescheduled';
+	    $partner_sd_cb['247aroundBookingRemarks']  = $booking['internal_status']  = 'Rescheduled';
+	    $partner_sd_cb['update_date']              = $booking['update_date']      = date("Y-m-d H:i:s");
+	    $partner_sd_cb['247aroundBookingID']       =  $send['booking_id']         = $data['booking_id'] = $booking_id;
+	    $booking['reschedule_reason']              = $reschedule_reason[$booking_id];
 
 	    $this->booking_model->update_booking($booking_id, $booking);
 	    $data['internal_status'] = "Pending";
@@ -1345,6 +1347,7 @@ class Booking extends CI_Controller {
 	    $this->notify->partner_sb_cb_callback($partner_sd_cb);
 
 	    //Log this state change as well for this booking
+	    //param:-- booking id, new state, old state, employee id, employee name
 	    $this->notify->insert_state_change($value, "Rescheduled", "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 
 
@@ -1423,6 +1426,7 @@ class Booking extends CI_Controller {
 	$this->booking_model->update_booking($booking_id, $booking);
 
 	//Log this state change as well for this booking
+	//param:-- booking id, new state, old state, employee id, employee name
 	$this->notify->insert_state_change($booking_id, $internal_status, "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 
 	$url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
@@ -1488,6 +1492,7 @@ class Booking extends CI_Controller {
 
 	    $this->booking_model->convert_booking_to_pending($booking_id, $data, $status);
 	    //Log this state change as well for this booking
+	    //param:-- booking id, new state, old state, employee id, employee name
 	    $this->notify->insert_state_change($booking_id, "Pending", $status, $this->session->userdata('id'), $this->session->userdata('employee_id'));
 
 //	    $query1 = $this->booking_model->getbooking_history($booking_id, "join");
