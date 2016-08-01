@@ -18,6 +18,9 @@
                                    <th>Phone No.</th>
                                    <th>City</th>
                                    <th>Booking Date</th>
+                                   <?php if($status == "Cancelled"){ ?>
+                                   <th>Cancellation Reason</th>
+                                   <?php } ?>
                                    <th>View</th>
                                    
                                 </tr>
@@ -47,7 +50,12 @@
                                             <td>
                                                 <?php echo $row['booking_date']; ?> /
                                                     <?php echo $row['booking_timeslot']; ?>
-                                            </td>
+                                            <?php if($status == "Cancelled"){ ?>        
+                                            <td>
+                                             
+                                              <?php echo $row['cancellation_reason']; ?>
+                                              </td>
+                                             <?php } ?>
                                         
                                             
                                             <td><a class='btn btn-sm btn-primary' href="<?php echo base_url();?>partner/booking_details/<?php echo $row['booking_id']?>" target='_blank' title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>

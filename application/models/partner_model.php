@@ -259,7 +259,7 @@ class Partner_model extends CI_Model {
             $this->db->limit($limit, $start);
         }
 
-        $this->db->select('booking_details.booking_id, users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.closing_remarks, booking_details.booking_timeslot, booking_details.city');
+        $this->db->select('booking_details.booking_id, users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.closing_remarks, booking_details.booking_timeslot, booking_details.city, booking_details.cancellation_reason');
         $this->db->from('booking_details');
         $this->db->join('services','services.id = booking_details.service_id');
         $this->db->join('users','users.user_id = booking_details.user_id');
