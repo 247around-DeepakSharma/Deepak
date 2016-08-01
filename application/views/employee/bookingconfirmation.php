@@ -18,6 +18,11 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
             </tr>
 
             <tr>
+                <td>Order ID</td>
+                <td><?= $booking['order_id']; ?></td>
+            </tr>
+
+            <tr>
                 <td>Primary Contact Number</td>
                 <td><?= $booking['booking_primary_contact_no']; ?></td>
             </tr>
@@ -30,6 +35,10 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
             <tr>
                 <td>Booking Source</td>
                 <td><?= $booking_source['source'];?></td>
+            </tr>
+            <tr>
+                <td>Partner Source</td>
+                <td><?= $booking['partner_source'];?></td>
             </tr>
             
             <tr>
@@ -88,6 +97,9 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
 
 
             <div>
+            <input type="hidden" name="partner_source" value="<?php echo $booking['partner_source'];?>">
+            <input type="hidden" name="order_id" value="<?php echo $booking['order_id'];?>">
+            <input type="hidden" name="serial_number" value="<?php echo $booking['serial_number'];?>">
             <input type="hidden" name="service_id" value="<?php echo $booking['service_id'];?>">
             <input type="hidden" name="booking_date" value="<?php echo $booking['booking_date'];?>">
             <input type="hidden" name="user_id" value="<?php echo $booking['user_id'];?>">
@@ -163,6 +175,10 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
             <tr>
                 <td>Appliance Capacity</td>
                 <td><?=$booking['appliance_capacity'.$i];?></td>
+            </tr>
+            <tr>
+                <td>Serial Number</td>
+                <td><?=$booking['serial_number'];?></td>
             </tr>
             <tr>
                 <td>Services Selected</td>

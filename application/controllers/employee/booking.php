@@ -100,6 +100,9 @@ class Booking extends CI_Controller {
 	    $booking['city'] = $this->input->post('city');
             $booking['state'] = $this->input->post('state');
             $booking['quantity'] = $this->input->post('quantity');
+            $booking['partner_source'] = $this->input->post('partner_source');
+            $booking['order_id'] =  $this->input->post('order_id');
+            $booking['serial_number'] =  $this->input->post('serial_number');
             $booking['appliance_brand1'] = $this->input->post('appliance_brand1');
             $booking['appliance_category1'] = $this->input->post('appliance_category1');
             $booking['appliance_capacity1'] = $this->input->post('appliance_capacity1');
@@ -193,7 +196,9 @@ class Booking extends CI_Controller {
                 $booking['current_status'] = "Pending";
                 $booking['internal_status'] = "Scheduled";
             }
+
             $appliance_id = $this->booking_model->addappliancedetails($booking);
+
             $this->booking_model->addunitdetails($booking);
 
             $this->booking_model->addbooking($booking, $appliance_id[0]['id'], $booking['city'], $booking['state']);
@@ -283,6 +288,9 @@ class Booking extends CI_Controller {
         $foremail['name'] = $this->input->post('name');
         $booking['city'] = $this->input->post('booking_city');
         $booking['state'] = $this->input->post('booking_state');
+        $booking['serial_number'] =  $this->input->post('serial_number');
+        $booking['order_id'] = $this->input->post('order_id');
+        $booking['partner_source'] =  $this->input->post('partner_source');
 
         $booking['newbrand1'] = $this->input->post('newbrand1');
         $booking['newbrand2'] = $this->input->post('newbrand2');
@@ -2777,6 +2785,9 @@ class Booking extends CI_Controller {
         $booking['purchase_year'] = $this->input->post('purchase_year');
         $booking['appliance_tag'] = $this->input->post('appliance_tag');
         $booking['model_number'] = $this->input->post('model_number');
+        $booking['order_id'] = $this->input->post('order_id');
+        $booking['serial_number'] =  $this->input->post('serial_number');
+        $booking['partner_source']  = $this->input->post('partner_source');
 
         $booking['city'] = $this->input->post('booking_city');
         $booking['state'] = $this->input->post('booking_state');
@@ -2813,6 +2824,8 @@ class Booking extends CI_Controller {
             $this->booking_model->update_appliance_details($booking);
             //Update unit appliance
             $this->booking_model->update_booking_unit_details($booking_id, $booking);
+
+            unset($booking['serial_number']);
 
             //Updating booking details
             if ($this->booking_model->update_booking_details($booking_id, $booking)) {

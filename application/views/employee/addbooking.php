@@ -478,6 +478,29 @@ function service2()
                     </select>
                 </div>
               </div>
+                <div class="form-group ">
+                <label for="source_name" class="col-md-2">Partner Source</label>
+                <div class="col-md-6">
+
+                    <select class="form-control"  id="partner_source" name="partner_source"  >
+                      <option value="">Please Select Partner source</option>
+                      <option>Snapdeal</option>
+                      <option>Flipkart</option>
+                      <option>Ebay</option>
+                      <option>Offline</option>
+                      <option>Call Center</option>
+                    </select>
+                </div>
+              </div>
+
+                <div class="form-group">
+                      <label for="order id" class="col-md-2">Order ID</label>
+                      <div class="col-md-6">
+                          <input type="text" class="form-control"  id="order id" name="order_id" placeholder="Please Enter order id">
+                          <?php echo form_error('booking_primary_contact_no'); ?>
+                      </div>
+                  </div>
+
               <div class="form-group <?php if (form_error('service_id')) { echo 'has-error';} ?>">
                 <label for="service_name" class="col-md-2">Service Name</label>
                 <div class="col-md-6">
@@ -511,6 +534,15 @@ function service2()
                   <?php echo form_error('quantity'); ?>
                 </div>
               </div>
+
+               <div class="form-group">
+                      <label for="order id" class="col-md-2">Serial Number</label>
+                      <div class="col-md-6">
+                          <input type="text" class="form-control"  id="serial_number" name="serial_number" placeholder="Please Enter Serial Number">
+                         
+                      </div>
+                  </div>
+
                     <div style="height:900px;">
 
                 <div style="float:left">

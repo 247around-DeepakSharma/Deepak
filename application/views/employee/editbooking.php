@@ -205,6 +205,15 @@
                 </div>
                 </div>
 
+                 <div class="form-group ">
+                  <label for="service_name" class="col-md-2">Order ID</label>
+                  <div class="col-md-6">
+                    <input type="text" class="form-control"  name="order_id" value = "<?php if (isset($data3['order_id'])) {echo $data3['order_id']; }?>"  >
+                   
+                  </div>
+                </div>
+                
+
                 <div class="form-group <?php if( form_error('service_name') ) { echo 'has-error';} ?>">
                   <label for="service_name" class="col-md-2">Service Name</label>
                   <div class="col-md-6">
@@ -285,6 +294,14 @@
                   <div class="col-md-6">
                     <input type="text" class="form-control"  name="model_number" value = "<?php if (isset($unit_details['model_number'])) {echo $unit_details['model_number']; }?>">
                     <?php echo form_error('model_number'); ?>
+                  </div>
+                </div>   
+
+                  <div class="form-group ">
+                  <label for="model_number" class="col-md-2">Serial Number</label>
+                  <div class="col-md-6">
+                    <input type="text" class="form-control"  name="serial_number" value = "<?php if (isset($unit_details['serial_number'])) {echo $unit_details['serial_number']; }?>">
+                   
                   </div>
                 </div>             
                
