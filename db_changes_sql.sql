@@ -650,3 +650,8 @@ CREATE TABLE IF NOT EXISTS `partner_login` (
   `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE  `bookings_sources` ADD UNIQUE (
+`partner_id`
+);
+
