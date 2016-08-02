@@ -162,26 +162,39 @@ class Partner_model extends CI_Model {
         $query = $this->db->get('partners');
         return $query->result_array();
     }
-
-     /**
-     * @desc: check partner login and return pending booking
-     * @param: Array(username, password)
-     * @return : Array(Pending booking)  
+    
+    /**
+     * @desc: this method return partner data if need to call partner api other wise return false
+     * @param: booking id
      */
-    function partner_login($data){
-       $this->db->select('id');
-       $this->db->where('user_name',$data['user_name']);
-       $this->db->where('password',$data['password']);
-       $this->db->where('active',1);
-       $query = $this->db->get('partner_login');
-        if ($query->num_rows() > 0) {
-            $result = $query->result_array();
-            return $result[0]['partner_id'];
-         
-      } else {
+    function get_data_for_partner_callback($booking_id){
+        $this->db->select('*');
+        $this->db->where('booking_id', $booking_id);
+        $this->db->where('partner_id IS NOT NULL', null, false);
+        $query = $this->db->get('booking_details');
+        if($query->num_rows >0 ){
 
-        return false;
-      }
+           $result = $query->result_array();
+           $this->db->select('*');
+           $this->db->where('partner_id', $result[0]['partner_id']);
+           $this->db->where('callback_string',$result[0]['partner_source']);
+           $this->db->where('active',"1");
+           $query1 = $this->db->get('partrner_callback');
+
+           if($query1->num_rows > 0){
+               
+               return $result[0];
+               
+           } else {
+
+              return false;
+           }
+           
+
+        } else {
+
+            return false;
+        }
 
     }
 

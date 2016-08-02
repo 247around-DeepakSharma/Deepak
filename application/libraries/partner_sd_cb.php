@@ -47,28 +47,25 @@ class partner_sd_cb {
 
     //Call SD status update API when booking is scheduled
     public function update_status_schedule_booking($data) {
-	log_message('info', __METHOD__ . "=> Booking ID: " . $data['247aroundBookingID']);
+	log_message('info', __METHOD__ . "=> Booking ID: " . $data['booking_id']);
 	$this->requestUrl = __METHOD__;
-
-	//TODO: Send additional parameter 'partner_id' while fetching the order id
-	$order = $this->My_CI->partner_model->get_order_id_by_booking_id($data['247aroundBookingID']);
-
-	if ($order != NULL) {
-	    $this->partner = $order['PartnerID'];
+   
+	if ($data['order_id'] != NULL) {
+	    $this->partner = $data['partner_id'];
 
 	    //Update status, remarks, start & end date
 	    //Get start and end dates
 	    $postData = array(
 		"vendorCode" => VENDOR_CODE,
-		"caseId" => $data['247aroundBookingID'],
-		"orderId" => $order['OrderID'],
-		"vendorStatus" => $data['247aroundBookingStatus'],
-		"remarks" => $data['247aroundBookingRemarks']
+		"caseId" => $data['booking_id'],
+		"orderId" => $data['order_id'],
+		"vendorStatus" => $data['current_status'],
+		"remarks" => $data['internal_status']
 	    );
 
-	    switch ($data['247aroundBookingStatus']) {
+	    switch ($data['current_status']) {
 		case "Pending":
-		    $delDate = $this->getStartEndDate($data['ScheduledAppointmentDate'], $data['ScheduledAppointmentTime']);
+		    $delDate = $this->getStartEndDate(date('Y-m-d H:i:s', strtotime($data['booking_date'])), $data['booking_timeslot']);
 		    $postData['startDate'] = $delDate['tsStart'];
 		    $postData['endDate'] = $delDate['tsEnd'];
 
@@ -110,51 +107,49 @@ class partner_sd_cb {
 
     //Call SD status update API when query/booking is cancelled
     public function update_status_cancel_booking($data) {
-	log_message('info', __METHOD__ . "=> Booking ID: " . $data['247aroundBookingID']);
+	log_message('info', __METHOD__ . "=> Booking ID: " . $data['booking_id']);
 	$this->requestUrl = __METHOD__;
 
-	$order = $this->My_CI->partner_model->get_order_id_by_booking_id($data['247aroundBookingID']);
-
-	if ($order != NULL) {
-	    $this->partner = $order['PartnerID'];
+	if ($data['order_id'] != NULL) {
+	    $this->partner = $data['partner_id'];
 
 	    //Update status, remarks
 	    $postData = array(
 		"vendorCode" => VENDOR_CODE,
-		"caseId" => $data['247aroundBookingID'],
-		"orderId" => $order['OrderID'],
-		"vendorStatus" => $data['247aroundBookingStatus']
+		"caseId" => $data['booking_id'],
+		"orderId" => $data['order_id'],
+		"vendorStatus" => $data['current_status']
 	    );
 
-	    switch ($data['247aroundBookingRemarks']) {
+	    switch ($data['cancellation_reason']) {
 		case "Already Installed":
 		    $postData['caseStatus'] = "REFUSED_BY_CUSTOMER";
-		    $postData['remarks'] = $data['247aroundBookingRemarks'];
+		    $postData['remarks'] = $data['cancellation_reason'];
 		    break;
 
 		case "Installation Not Required":
 		    $postData['caseStatus'] = "REFUSED_BY_CUSTOMER";
-		    $postData['remarks'] = $data['247aroundBookingRemarks'];
+		    $postData['remarks'] = $data['cancellation_reason'];
 		    break;
 
 		case "Product To Be Returned":
 		    $postData['caseStatus'] = "PARENT_PRODUCT_FAULTY";
-		    $postData['remarks'] = $data['247aroundBookingRemarks'];
+		    $postData['remarks'] = $data['cancellation_reason'];
 		    break;
 
 		case "Customer Not Reachable":
 		    $postData['caseStatus'] = "CUSTOMER_NOT_AVAILABLE";
-		    $postData['remarks'] = $data['247aroundBookingRemarks'];
+		    $postData['remarks'] = $data['cancellation_reason'];
 		    break;
 
 		case "Denied By Vendor":
 		    $postData['caseStatus'] = "DENIED_BY_VENDOR";
-		    $postData['remarks'] = $data['247aroundBookingRemarks'];
+		    $postData['remarks'] = $data['cancellation_reason'];
 		    break;
 
 		default:
 		    $postData['caseStatus'] = "REFUSED_BY_CUSTOMER";
-		    $postData['remarks'] = "SERVICE_CANCELLED";
+		    $postData['remarks'] = "cancellation_reason";
 		    break;
 	    }
 
@@ -181,28 +176,26 @@ class partner_sd_cb {
 
     //Call SD status update API when booking is completed
     public function update_status_complete_booking($data) {
-	log_message('info', __METHOD__ . "=> Booking ID: " . $data['247aroundBookingID']);
+	log_message('info', __METHOD__ . "=> Booking ID: " . $data['booking_id']);
 	$this->requestUrl = __METHOD__;
 
-	$order = $this->My_CI->partner_model->get_order_id_by_booking_id($data['247aroundBookingID']);
-
-	if ($order != NULL) {
-	    $this->partner = $order['PartnerID'];
+	if ($data['order_id'] != NULL) {
+	    $this->partner = $data['order_id'];
 
 	    //Find completion date
-	    $delDate = $this->getServiceCompletionDate($data['ScheduledAppointmentDate']);
+	    $delDate = $this->getServiceCompletionDate(date('Y-m-d H:i:s', strtotime($data['booking_date'])));
 
 	    //Update status, remarks
 	    $postData = array(
 		"vendorCode" => VENDOR_CODE,
-		"caseId" => $data['247aroundBookingID'],
-		"orderId" => $order['OrderID'],
+		"caseId" => $data['booking_id'],
+		"orderId" => $data['order_id'],
 		"caseStatus" => "SERVICE_DELIVERED",
-		"vendorStatus" => $data['247aroundBookingStatus'],
-		"callType" => $data['247aroundBookingRemarks'],
+		"vendorStatus" => $data['current_status'],
+		"callType" => $data['internal_status'],
 		"startDate" => $delDate
 	    );
-
+        
 	    return $this->post_data($postData);
 	} else {
 	    log_message('info', __METHOD__ . "=> Order ID Not Found");
@@ -226,29 +219,27 @@ class partner_sd_cb {
 
     //Call SD status update API when booking is rescheduled
     public function update_status_reschedule_booking($data) {
-	log_message('info', __METHOD__ . "=> Booking ID: " . $data['247aroundBookingID']);
+	log_message('info', __METHOD__ . "=> Booking ID: " . $data['booking_id']);
 	$this->requestUrl = __METHOD__;
 
-	$order = $this->My_CI->partner_model->get_order_id_by_booking_id($data['247aroundBookingID']);
-
-	if ($order != NULL) {
-	    $this->partner = $order['PartnerID'];
+	if ($data['order_id'] != NULL) {
+	    $this->partner = $data['partner_id'];
 
 	    //Update status, remarks, start & end date
 	    //Get start and end dates
-	    $delDate = $this->getStartEndDate($data['ScheduledAppointmentDate'], $data['ScheduledAppointmentTime']);
+	    $delDate = $this->getStartEndDate(date('Y-m-d H:i:s', strtotime($data['booking_date'])), $data['booking_timeslot']);
 
 	    $postData = array(
 		"vendorCode" => VENDOR_CODE,
-		"caseId" => $data['247aroundBookingID'],
-		"orderId" => $order['OrderID'],
+		"caseId" => $data['booking_id'],
+		"orderId" => $data['order_id'],
 		"caseStatus" => "SERVICE_RESCHEDULED",
-		"vendorStatus" => $data['247aroundBookingStatus'],
-		"remarks" => $data['247aroundBookingRemarks'],
+		"vendorStatus" => $data['current_status'],
+		"remarks" => $data['internal_status'],
 		"startDate" => $delDate['tsStart'],
 		"endDate" => $delDate['tsEnd']
 	    );
-
+          
 	    return $this->post_data($postData);
 	} else {
 	    log_message('info', __METHOD__ . "=> Order ID Not Found");

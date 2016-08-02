@@ -192,9 +192,8 @@ class Do_background_process extends CI_Controller {
             $this->booking_model->update_unit_details($unit_details);
         }
             
-        $partner_sd_cb['247aroundBookingID'] = $booking_id;
-        $partner_sd_cb['update_date'] = $booking['closed_date'] = date('Y-m-d H:i:s');
-        $partner_sd_cb['247aroundBookingStatus'] = $booking['current_status'] = $current_status;
+        $booking['closed_date'] = date('Y-m-d H:i:s');
+        $booking['current_status'] = $current_status;
         $booking['internal_status'] = $current_status;
         $booking['amount_paid'] = $data[0]['amount_paid'];
         $booking['closing_remarks'] = $service_center['closing_remarks'];
@@ -204,11 +203,10 @@ class Do_background_process extends CI_Controller {
 
         if($current_status == "Cancelled"){
 
-            $partner_sd_cb['247aroundBookingRemarks']  = $booking['cancellation_reason'] = $data[0]['cancellation_reason'];
+            $booking['cancellation_reason'] = $data[0]['cancellation_reason'];
 
         } else {
 
-            $partner_sd_cb['247aroundBookingRemarks'] = $booking['internal_status'];
             //Save this booking id in booking_invoices_mapping table as well now
             $this->invoices_model->insert_booking_invoice_mapping(array('booking_id' => $data[0]['booking_id']));
         }
@@ -222,6 +220,8 @@ class Do_background_process extends CI_Controller {
         $send['booking_id']  = $booking_id;
         $send['state'] = $current_status;
         $this->asynchronous_lib->do_background_process($url, $send);
+
+        $this->partner_cb->partner_callback($booking_id);
 
         $this->notify->send_sms_email_for_booking($booking_id, $current_status);       
     }

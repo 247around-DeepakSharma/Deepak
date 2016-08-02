@@ -621,4 +621,6 @@ ALTER TABLE  `service_centre_charges` CHANGE  `product_type`  `product_type` VAR
 
 ALTER TABLE  `service_center_booking_action` ADD  `unit_details_id` INT( 25 ) NULL DEFAULT NULL AFTER  `booking_id` ;
 
+ALTER TABLE  `booking_details` CHANGE  `order_id`  `order_id` VARCHAR( 25 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
+
 --Anuj 30/07
