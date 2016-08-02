@@ -209,7 +209,7 @@ class Partner_model extends CI_Model {
         //do not show bookings for future as of now
         //$where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0";
 
-	$query = $this->db->query("Select services.services,
+	      $query = $this->db->query("Select services.services,
             users.name as customername, users.phone_number,
             booking_details.*
 
@@ -221,16 +221,15 @@ class Partner_model extends CI_Model {
             `booking_details`.booking_id NOT LIKE 'Q-%' $where AND
             (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled')"
         );
-        $temp = $query->result();
-
-        foreach ($temp as $key => $value) {
+        
+        /*foreach ($temp as $key => $value) {
            $order_id = $this->get_order_id($value->booking_id);
            if(!empty($order_id[0]['order_id'])){
                $temp[$key]->order_id = $order_id[0]['order_id'];
            } else {
                $temp[$key]->order_id = "";
            }
-        }
+        }*/
 
         if($limit =="count"){
             $temp1 = $query->result_array();
@@ -238,7 +237,7 @@ class Partner_model extends CI_Model {
             return count($temp1);
 
         } else {
-
+            $temp = $query->result();
             usort($temp, array($this, 'date_compare_bookings'));
 
             return array_slice($temp, $start, $limit);

@@ -50,10 +50,11 @@ class Partner extends CI_Controller {
         $partner_details = $this->partner_model->getpartner($partner_id);
         
         $this->setSession($partner_details[0]['id'], $partner_details[0]['name']);
+        log_message('info', 'Partner loggedIn  partner id' . $partner_details[0]['id'] . " Partner name" . $partner_details[0]['name']);
 
         redirect(base_url() . "partner/pending_booking");
         } else {
-        
+            
             $userSession = array('error' => 'Please enter correct user name and password' );
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/login");
@@ -83,7 +84,7 @@ class Partner extends CI_Controller {
 
         if ($this->session->flashdata('result') != '')
             $data['success'] = $this->session->flashdata('result');
-
+         log_message('info', 'Partner view Pending booking  partner id' . $partner_id . " Partner name" . $this->session->userdata('partner_name')." data ". print_r($data, true));
         $this->load->view('partner/header');
         $this->load->view('partner/pending_booking', $data);
     }
@@ -113,6 +114,8 @@ class Partner extends CI_Controller {
 
         $data['status'] = $state;
 
+        log_message('info', 'Partner view '.$state.' booking  partner id' . $partner_id . " Partner name" . $this->session->userdata('partner_name'). " data ". print_r($data, true));
+
         $this->load->view('partner/header');
         $this->load->view('partner/closed_booking', $data);
 
@@ -129,6 +132,8 @@ class Partner extends CI_Controller {
         $data['query2'] = $this->booking_model->get_unit_details($booking_id);
         $data['query4'] = $this->booking_model->getdescription_about_booking($booking_id);
         $data['query3'] = $this->booking_model->getbooking_charges($booking_id);
+
+        log_message('info', 'Partner view booking details booking  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'). " data ". print_r($data, true));
 
         $this->load->view('partner/header');
         $this->load->view('partner/booking_details', $data);
@@ -174,6 +179,8 @@ class Partner extends CI_Controller {
      * @return: void
      */
     function logout() {
+        log_message('info', 'Partner logout  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'). " data ". print_r($data, true));
+
         $this->session->sess_destroy();
         redirect(base_url() . "partner/login");
     }

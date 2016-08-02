@@ -65,6 +65,9 @@ class Booking_model extends CI_Model {
                 "purchase_year" => $booking['purchase_year1'],
                 "total_price" => $booking['total_price1'],
                 "appliance_tag" => $booking['appliance_tags1']);
+            if(isset($booking['serial_number'])){
+                $unit_detail['serial_number'] = $booking['serial_number'];
+            }
 
             $this->db->insert('booking_unit_details', $unit_detail);
         } elseif ($units == 2) {
@@ -397,7 +400,14 @@ class Booking_model extends CI_Model {
 	    $booking_detail['state'] = $state;
 	}
 
+    if(isset($booking['partner_source'])){
+        $booking_detail['partner_source'] = $booking['partner_source'];
+        $booking_detail['order_id'] = $booking['order_id'];
+
+    }
+
 	$this->db->insert('booking_details', $booking_detail);
+  
 	return $this->db->insert_id();
     }
 
@@ -1491,6 +1501,10 @@ class Booking_model extends CI_Model {
      *  @return : void
      */
     function update_booking_unit_details($booking_id, $booking) {
+        $unit = "";
+        if(isset($booking['serial_number'])){
+            $unit = "serial_number = '$booking[serial_number]', ";
+        }
         $sql = "Update booking_unit_details set booking_id='$booking[booking_id]', "
                 . "appliance_brand='$booking[appliance_brand]', "
                 . "appliance_category='$booking[appliance_category]', "
@@ -1499,6 +1513,7 @@ class Booking_model extends CI_Model {
                 . "total_price='$booking[total_price]',"
                 . "price_tags = '$booking[items_selected]',"
                 . "purchase_year='$booking[purchase_year]',"
+                . $unit
                 . "appliance_tag = '$booking[appliance_tag]'"
                 . "where booking_id='$booking_id'";
 
