@@ -1802,11 +1802,10 @@ class Booking extends CI_Controller {
         $booking['purchase_year'] = $this->input->post('purchase_year');
         $booking['appliance_tag'] = $this->input->post('appliance_tag');
         $booking['model_number'] = $this->input->post('model_number');
-	$booking['serial_number'] = $this->input->post('serial_number');
-	$booking['partner_source'] = $this->input->post('partner_source');
-	$booking['order_id'] = $this->input->post('order_id');
+	    $booking['partner_source'] = $this->input->post('partner_source');
+	    $booking['order_id'] = $this->input->post('order_id');
 
-	$booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
+	    $booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
         $booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
 
         $booking['total_price'] = $this->input->post('total_price');
@@ -1862,16 +1861,17 @@ class Booking extends CI_Controller {
             $booking['internal_status'] = "Scheduled";
             //$booking['potential_value'] = 0;
 
-            if (!$unit_id) {
-                //Insert unit appliance
-                $this->booking_model->add_single_unit_details($booking);
-            } else {
-                //Update unit appliance
-                $this->booking_model->update_booking_unit_details($booking_id, $booking);
-            }
 
             //Updating booking details
             if ($this->booking_model->update_booking_details($booking_id, $booking)) {
+                $booking['serial_number'] = $this->input->post('serial_number');
+                if (!$unit_id) {
+                    //Insert unit appliance
+                    $this->booking_model->add_single_unit_details($booking);
+                    } else {
+                        //Update unit appliance
+                        $this->booking_model->update_booking_unit_details($booking_id, $booking);
+                }
                 //Update SD leads table if required
                 if ($is_sd) {
                     if ($this->booking_model->check_sd_lead_exists_by_booking_id($booking_id) === TRUE) {
@@ -1991,6 +1991,11 @@ class Booking extends CI_Controller {
             $booking['potential_value'] = $this->input->post('potential_value');
             $booking['booking_id'] = $booking_id;
 
+            //Updating booking details
+            $result = $this->booking_model->update_booking_details($booking_id, $booking);
+
+            $booking['serial_number'] = $this->input->post('serial_number');
+
             if (!$unit_id) {
                 //Insert unit appliance
                 $this->booking_model->add_single_unit_details($booking);
@@ -1998,9 +2003,6 @@ class Booking extends CI_Controller {
                 //Update unit appliance
                 $this->booking_model->update_booking_unit_details($booking_id, $booking);
             }
-
-            //Updating booking details
-            $result = $this->booking_model->update_booking_details($booking_id, $booking);
 
 	    //Send SMS if customer didn't pick the call
 	    if ($this->input->post('internal_status') == INT_STATUS_CUSTOMER_NOT_REACHABLE) {

@@ -41,7 +41,7 @@
           <br><b style="color:red;">Booking Details:-</b><br><br>
           <table>
       		<tr><td width="35%;">Booking Id: </td><td><?php echo $query1[0]['booking_id']; ?></td></tr> 
-          <tr><td width="35%;">Order Id: </td><td><?php if(!empty($query4)){ echo $query4[0]['order_id']; } ?></td></tr>
+          <tr><td width="35%;">Order Id: </td><td><?php if(!empty($query1[0]['order_id'])){ echo $query1[0]['order_id']; } else if(!empty($query4)){ echo $query4[0]['order_id']; } ?></td></tr>
           <tr><td>Booking Type: </td><td><?php echo $query1[0]['type']; ?></td></tr>
       		<tr><td>Service name: </td><td><?php echo $query1[0]['services']; ?></td></tr>
           <tr><td>Source: </td><td><?php echo $query1[0]['source']; ?></td></tr>

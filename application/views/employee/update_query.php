@@ -224,11 +224,11 @@
                 <div class="col-md-6">
                     <select class="form-control"  id="partner_source" name="partner_source"  >
                       <option value="">Please select partner source</option>
-                      <option>CallCenter</option>
-                      <option>Snapdeal</option>
-                      <option>Flipkart</option>
-                      <option>Ebay</option>
-                      <option>Offline</option>
+                      <option <?php if (isset($data3['partner_source'])) { if($data3['partner_source']== "CallCenter"){ echo "selected"; } } ?>>CallCenter</option>
+                      <option <?php if (isset($data3['partner_source'])) {  if($data3['partner_source']== "Snapdeal"){ echo "selected"; } }?>>Snapdeal</option>
+                      <option <?php if (isset($data3['partner_source'])) { if($data3['partner_source']== "Flipkart"){ echo "selected"; } } ?>>Flipkart</option>
+                      <option <?php if (isset($data3['partner_source'])){ if($data3['partner_source']== "Ebay"){ echo "selected"; } } ?>>Ebay</option>
+                      <option <?php if (isset($data3['partner_source'])){ if($data3['partner_source']== "Offline"){ echo "selected"; } } ?>>Offline</option>
                     </select>
                 </div>
               </div>
@@ -236,7 +236,7 @@
                 <div class="form-group">
                       <label for="order_id" class="col-md-2">Order ID</label>
                       <div class="col-md-6">
-                          <input type="text" class="form-control"  id="order id" name="order_id" placeholder="Please Enter Order ID">
+                          <input type="text" class="form-control"  id="order id" name="order_id" value="<?php echo $data3['order_id']; ?>" placeholder="Please Enter Order ID">
                           <?php echo form_error('order_id'); ?>
                       </div>
                   </div>
@@ -292,7 +292,7 @@
                <div class="form-group">
                       <label for="serial_number" class="col-md-2">Serial Number</label>
                       <div class="col-md-6">
-                          <input type="text" class="form-control"  id="serial_number" name="serial_number" placeholder="Please Enter Serial Number">                         
+                          <input type="text" class="form-control"  id="serial_number" name="serial_number"  value = "<?php if (isset($unit_details['serial_number'])) {echo $unit_details['serial_number']; }?>" placeholder="Please Enter Serial Number">                         
                       </div>
                   </div>
 

@@ -1424,6 +1424,8 @@ class Booking_model extends CI_Model {
     function update_booking($booking_id, $data) {
         $this->db->where(array("booking_id" => $booking_id));
         $result = $this->db->update("booking_details", $data);
+        echo $this->db->last_query();
+        return true;
 
 	log_message('info', __METHOD__ . " => SQL: " . $this->db->last_query() . ", Result: " . $result);
     }
@@ -1518,6 +1520,7 @@ class Booking_model extends CI_Model {
                 . "where booking_id='$booking_id'";
 
         $this->db->query($sql);
+        echo $this->db->last_query();
 //	$query = $this->db->query($sql); //as $query is not used
     }
 
