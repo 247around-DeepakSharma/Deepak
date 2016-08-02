@@ -10,7 +10,7 @@ class Partner extends CI_Controller {
      */
     function __Construct() {
         parent::__Construct();
-        
+
         $this->load->model('booking_model');
         $this->load->model('partner_model');
         $this->load->library("pagination");
@@ -27,8 +27,8 @@ class Partner extends CI_Controller {
      * @return: void
      */
     function index() {
-       $this->load->view('partner/partner_login'); 
-        
+       $this->load->view('partner/partner_login');
+
     }
 
      /**
@@ -40,7 +40,7 @@ class Partner extends CI_Controller {
      * @return: void
      */
     function partner_login() {
-        
+
         $data['user_name'] = $this->input->post('user_name');
         $data['password'] = md5($this->input->post('password'));
         $partner_id = $this->partner_model->partner_login($data);
@@ -48,13 +48,13 @@ class Partner extends CI_Controller {
         if ($partner_id) {
         //get partner details now
         $partner_details = $this->partner_model->getpartner($partner_id);
-        
+
         $this->setSession($partner_details[0]['id'], $partner_details[0]['name']);
         log_message('info', 'Partner loggedIn  partner id' . $partner_details[0]['id'] . " Partner name" . $partner_details[0]['name']);
 
         redirect(base_url() . "partner/pending_booking");
         } else {
-            
+
             $userSession = array('error' => 'Please enter correct user name and password' );
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/login");
@@ -179,11 +179,11 @@ class Partner extends CI_Controller {
      * @return: void
      */
     function logout() {
-        log_message('info', 'Partner logout  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'). " data ". print_r($data, true));
+        log_message('info', 'Partner logout  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'));
 
         $this->session->sess_destroy();
         redirect(base_url() . "partner/login");
     }
 
-    
+
 }

@@ -248,7 +248,7 @@ class bookings_excel extends CI_Controller {
 		$booking['purchase_month'] = date('m');
 		$booking['purchase_year'] = date('Y');
 		$booking['order_id'] = $lead_details['Sub_Order_ID'];
-		$booking['partner_source'] = "delivered-excel";
+		$booking['partner_source'] = "Snapdeal-delivered-excel";
 
 
 		$booking['items_selected'] = '';
@@ -564,7 +564,7 @@ class bookings_excel extends CI_Controller {
 		$booking['booking_remarks'] = '';
 		$booking['query_remarks'] = 'Product Shipped, Call Customer For Booking';
 		$booking['order_id'] = $lead_details['Sub_Order_ID'];
-		$booking['partner_source'] = "shipped-excel";
+		$booking['partner_source'] = "Snapdeal-shipped-excel";
 
 		//Insert query
 		//echo print_r($booking, true) . "<br><br>";
