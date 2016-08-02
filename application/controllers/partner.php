@@ -278,6 +278,8 @@ class Partner extends CI_Controller {
 			$booking['amount_due'] = '';
 			$booking['booking_remarks'] = '';
 			$booking['query_remarks'] = '';
+			$booking['order_id'] = $lead_details['orderID'];
+			$booking['partner_source'] = "api";
 
 			//Insert query
 			//echo print_r($booking, true) . "<br><br>";

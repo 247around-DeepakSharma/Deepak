@@ -102,7 +102,7 @@
                             </tr>
                             <tr>
                                 <td>Platform / Order ID: </td>
-                                <td>Platform / <?php if(!empty($query4)){ echo $query4[0]['order_id']; } ?></td>
+                                <td><?php echo $query1[0]['partner_source']." / ";  if(isset($query1[0]['order_id'])){ echo $query1[0]['order_id'];} else if(!empty($query4)){ echo $query4[0]['order_id']; } ?></td>
                             </tr>
                             <tr>
                                 <td>Booking Date: </td>
