@@ -55,8 +55,10 @@ class bookings_excel extends CI_Controller {
      */
 
     public function add_booking_from_excel() {
-        if (!empty($_FILES['file']['name'])) {
-            $pathinfo = pathinfo($_FILES["file"]["name"]);
+	log_message('info', __FUNCTION__);
+
+	if (!empty($_FILES['file']['name'])) {
+	    $pathinfo = pathinfo($_FILES["file"]["name"]);
 
             if ($pathinfo['extension'] == 'xlsx') {
                 if ($_FILES['file']['size'] > 0) {
@@ -201,7 +203,7 @@ class bookings_excel extends CI_Controller {
 		$booking['booking_id'] = '';
 		$booking['user_id'] = $user_id;
 		$booking['service_id'] = $this->booking_model->getServiceId($lead_details['Product']);
-		//echo "Service ID: " . $booking['service_id'] . PHP_EOL;
+		log_message('info', __FUNCTION__ . "=> Service ID: " . $booking['service_id']);
 
 		$booking['booking_primary_contact_no'] = $lead_details['Phone'];
 		$booking['booking_alternate_contact_no'] = '';
@@ -212,15 +214,32 @@ class bookings_excel extends CI_Controller {
 		$booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
 		$booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
 
-		//Add source
-		$booking['source'] = "SS";
-		//Hardcoded partner ID as of now
-		$booking['partner_id'] = 1;
+		$booking['appliance_brand'] = $lead_details['Brand'];
+
+		//Add source and partner ID depending on the brand
+		//Ray and Wybor are Partners
+		//Hardcoded partner ID & Source as of now
+		switch ($booking['appliance_brand']) {
+		    case 'Wybor':
+			$booking['partner_id'] = '247010';
+			$booking['source'] = "SY";
+			break;
+
+		    case 'Ray':
+			$booking['partner_id'] = '247011';
+			$booking['source'] = "SR";
+			break;
+
+		    default:
+			$booking['partner_id'] = '1';
+			$booking['source'] = "SS";
+			break;
+		}
+
 		$booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
 		$lead_details['CRM_Remarks_SR_No'] = $booking['booking_id'];
 
 		$booking['quantity'] = '1';
-		$booking['appliance_brand'] = $lead_details['Brand'];
 		$booking['appliance_category'] = '';
 		$booking['appliance_capacity'] = '';
 		$booking['description'] = $lead_details['Product_Type'];
@@ -249,7 +268,6 @@ class bookings_excel extends CI_Controller {
 		$booking['amount_due'] = '';
 		$booking['booking_remarks'] = '';
 		$booking['query_remarks'] = '';
-
 
 		//Insert query
 		//echo print_r($booking, true) . "<br><br>";
@@ -487,15 +505,32 @@ class bookings_excel extends CI_Controller {
 		$booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
 		$booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
 
-		//Add source
-		$booking['source'] = "SS";
-		//Hardcoded partner ID as of now
-		$booking['partner_id'] = 1;
+		$booking['appliance_brand'] = $lead_details['Brand'];
+
+		//Add source and partner ID depending on the brand
+		//Ray and Wybor are Partners
+		//Hardcoded partner ID & Source as of now
+		switch ($booking['appliance_brand']) {
+		    case 'Wybor':
+			$booking['partner_id'] = '247010';
+			$booking['source'] = "SY";
+			break;
+
+		    case 'Ray':
+			$booking['partner_id'] = '247011';
+			$booking['source'] = "SR";
+			break;
+
+		    default:
+			$booking['partner_id'] = '1';
+			$booking['source'] = "SS";
+			break;
+		}
+
 		$booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
 		$lead_details['CRM_Remarks_SR_No'] = $booking['booking_id'];
 
 		$booking['quantity'] = '1';
-		$booking['appliance_brand'] = $lead_details['Brand'];
 		$booking['appliance_category'] = '';
 		$booking['appliance_capacity'] = '';
 		$booking['description'] = $lead_details['Product_Type'];
