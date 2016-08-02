@@ -247,6 +247,9 @@ class bookings_excel extends CI_Controller {
 		$booking['appliance_tags'] = $lead_details['Brand'] . " " . $lead_details['Product'];
 		$booking['purchase_month'] = date('m');
 		$booking['purchase_year'] = date('Y');
+		$booking['order_id'] = $lead_details['Sub_Order_ID'];
+		$booking['partner_source'] = "delivered-excel";
+
 
 		$booking['items_selected'] = '';
 		$booking['total_price'] = '';
@@ -544,6 +547,7 @@ class bookings_excel extends CI_Controller {
 		$booking['potential_value'] = '';
 		$booking['last_service_date'] = date('d-m-Y');
 
+
 		//echo print_r($booking, true) . "<br><br>";
 		$appliance_id = $this->booking_model->addexcelappliancedetails($booking);
 		//echo print_r($appliance_id, true) . "<br><br>";
@@ -559,6 +563,8 @@ class bookings_excel extends CI_Controller {
 		$booking['amount_due'] = '';
 		$booking['booking_remarks'] = '';
 		$booking['query_remarks'] = 'Product Shipped, Call Customer For Booking';
+		$booking['order_id'] = $lead_details['Sub_Order_ID'];
+		$booking['partner_source'] = "shipped-excel";
 
 		//Insert query
 		//echo print_r($booking, true) . "<br><br>";
