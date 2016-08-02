@@ -13,7 +13,7 @@ if (!defined('BASEPATH'))
  * performed on a booking so that the status update happens in the Partner
  * CRM as well.
  *
- * @author anujaggarwal
+ * @author Abhay
  */
 class partner_cb {
 
@@ -25,7 +25,12 @@ class partner_cb {
 	    $this->My_CI->load->model('partner_model');
         $this->My_CI->load->library('partner_sd_cb');
     }
-
+    
+    /**
+     * @desc: This method is user to check partner api call or not.
+     * if partner api is need to call then get partner library and function name from array and pass the data
+     * @param: booking id
+     */
     function partner_callback($booking_id){
         log_message('info', __METHOD__ . "=> Booking ID: " . $booking_id);
         // it return data to call partner api, if need to call partner api other wise return false 
@@ -38,6 +43,8 @@ class partner_cb {
                 $get_callback_library = $this->get_callback_library($data['partner_id']);
 
                 $this->My_CI->$get_callback_library->$call_details($data);
+                
+                return true;
 
             } else {
 
@@ -50,7 +57,14 @@ class partner_cb {
         }
 
     }
-
+    /**
+     * @desc: This metod stores partner call back function name in the array.
+     * This array stores -- 1st index -- Partner Id
+     * This array stores -- 2nd index -- booking status
+     * @param: Partner Id
+     * @param: status
+     * @return: funtion name
+     */
     function callback_array($partner_id, $state){
 
         $callback_array = array() ;
@@ -71,7 +85,11 @@ class partner_cb {
         }
 
     }
-
+    /**
+     * @desc: This method stores partner api callback library
+     * @param: Partner ID
+     * @return: library name 
+     */
     function get_callback_library($partner_id){
 
         $library['1'] = 'partner_sd_cb' ;

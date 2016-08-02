@@ -68,6 +68,7 @@ class Partner extends CI_Controller {
 	$this->load->model('partner_model');
 	$this->load->model('user_model');
 	$this->load->model('booking_model');
+	$this->load->model('vendor_model');
 
 	$this->load->library('email');
 	$this->load->helper(array('form', 'url'));
@@ -253,9 +254,9 @@ class Partner extends CI_Controller {
 			$appliance_details['brand'] = $unit_details['appliance_brand'] = $lead_details['Brand'];
 			$appliance_details['category'] = $unit_details['appliance_category'] = '';
 			$appliance_details['capacity'] = $unit_details['appliance_capacity'] = '';
-			$appliance_details['description'] = $unit_details['description'] = $lead_details['ProductType'];
-			$$appliance_details['model_number'] = $unit_details['model_number'] = (isset($lead_details['Model']) ? $lead_details['Model'] : "");
-			$appliance_details['tag'] = $unit_details['appliance_tags'] = $lead_details['Brand'] . " " . $lead_details['Product'];
+			$appliance_details['description'] = $unit_details['appliance_description'] = $lead_details['ProductType'];
+			$appliance_details['model_number'] = $unit_details['model_number'] = (isset($lead_details['Model']) ? $lead_details['Model'] : "");
+			$appliance_details['tag'] = $unit_details['appliance_tag'] = $lead_details['Brand'] . " " . $lead_details['Product'];
 			$appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
 			$appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
 			
@@ -263,12 +264,8 @@ class Partner extends CI_Controller {
 			$booking['potential_value'] = '';
 
 			//echo print_r($booking, true) . "<br><br>";
-			$unit_details['appliance_id'] = $appliance_id =  $this->booking_model->check_appliancesforuser($appliance_details);
+			 $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
 
-            if(empty($unit_details['appliance_id'])){
-
-                 $unit_details['appliance_id'] = $appliance_id = $this->booking_model->addappliance($appliance_details);
-            }
 			 $this->booking_model->addunitdetails($unit_details);
 
 			$booking['current_status'] = "FollowUp";
@@ -758,8 +755,9 @@ class Partner extends CI_Controller {
 	}
 
 	//Check timeslot format validity
+	
 	if (($flag === TRUE) &&
-	    ($this->validate_timeslot_format($request['deliveryDate']) === FALSE)) {
+	    ($this->validate_timeslot_format($request['deliveryDate'] ) === FALSE)) {
 	    $resultArr['code'] = ERR_INVALID_TIMESLOT_FORMAT_CODE;
 	    $resultArr['msg'] = ERR_INVALID_TIMESLOT_FORMAT_MSG;
 
@@ -1220,7 +1218,7 @@ class Partner extends CI_Controller {
     }
 
     function validate_timeslot_format($timeslot) {
-	json_decode($timeslot);
+	//json_decode($timeslot);
 
 	if (!(json_last_error() === JSON_ERROR_NONE)) {
 	    return FALSE;
