@@ -219,6 +219,28 @@
                   </div>
                 </div>
 
+                <div class="form-group ">
+                <label for="partner_source" class="col-md-2">Partner Source</label>
+                <div class="col-md-6">
+                    <select class="form-control"  id="partner_source" name="partner_source"  >
+                      <option value="">Please select partner source</option>
+                      <option>CallCenter</option>
+                      <option>Snapdeal</option>
+                      <option>Flipkart</option>
+                      <option>Ebay</option>
+                      <option>Offline</option>
+                    </select>
+                </div>
+              </div>
+               
+                <div class="form-group">
+                      <label for="order_id" class="col-md-2">Order ID</label>
+                      <div class="col-md-6">
+                          <input type="text" class="form-control"  id="order id" name="order_id" placeholder="Please Enter Order ID">
+                          <?php echo form_error('order_id'); ?>
+                      </div>
+                  </div>
+
                 <div class="form-group <?php if( form_error('service_name') ) { echo 'has-error';} ?>">
                   <label for="service_name" class="col-md-2">Appliance</label>
                   <div class="col-md-6">
@@ -267,6 +289,13 @@
                   </div>
                 </div>
                 
+               <div class="form-group">
+                      <label for="serial_number" class="col-md-2">Serial Number</label>
+                      <div class="col-md-6">
+                          <input type="text" class="form-control"  id="serial_number" name="serial_number" placeholder="Please Enter Serial Number">                         
+                      </div>
+                  </div>
+
               <div class="form-group <?php if (form_error('appliance_category')) { echo 'has-error';} ?>">
                 <label for="appliance_category" class="col-md-2">Category</label>
                 <div class="col-md-6">

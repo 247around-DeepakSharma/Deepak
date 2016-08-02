@@ -407,7 +407,7 @@ class Booking_model extends CI_Model {
     }
 
 	$this->db->insert('booking_details', $booking_detail);
-  
+
 	return $this->db->insert_id();
     }
 
@@ -2081,7 +2081,8 @@ class Booking_model extends CI_Model {
             "appliance_category" => $booking['appliance_category'],
             "appliance_capacity" => $booking['appliance_capacity'],
             "model_number" => $booking['model_number'],
-            "price_tags" => $booking['items_selected'],
+	    "serial_number" => $booking['serial_number'],
+	    "price_tags" => $booking['items_selected'],
             "purchase_year" => $booking['purchase_year'],
             "total_price" => $booking['total_price'],
             "appliance_tag" => $booking['appliance_tag']);

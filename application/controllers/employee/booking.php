@@ -1802,8 +1802,11 @@ class Booking extends CI_Controller {
         $booking['purchase_year'] = $this->input->post('purchase_year');
         $booking['appliance_tag'] = $this->input->post('appliance_tag');
         $booking['model_number'] = $this->input->post('model_number');
+	$booking['serial_number'] = $this->input->post('serial_number');
+	$booking['partner_source'] = $this->input->post('partner_source');
+	$booking['order_id'] = $this->input->post('order_id');
 
-        $booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
+	$booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
         $booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
 
         $booking['total_price'] = $this->input->post('total_price');
