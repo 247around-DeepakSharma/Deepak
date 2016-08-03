@@ -152,6 +152,9 @@ class Partner extends CI_Controller {
 			    $user['pincode'] = $requestData['pincode'];
 			    $user['city'] = $requestData['city'];
 
+			    $state = $this->vendor_model->getall_state($user['city']);
+			    $user['state'] = $state[0]['state'];
+
 			    $user_id = $this->user_model->add_user($user);
 
 			    //echo print_r($user, true), EOL;
@@ -167,11 +170,12 @@ class Partner extends CI_Controller {
 			    //User exists
 			    $user_id = $output[0]['user_id'];
 			}
-
-			$lead_details['PartnerID'] = $this->partner['id'];
-			$lead_details['orderID'] = $requestData['orderID'];
-			$lead_details['Brand'] = $requestData['brand'];
-			$lead_details['Model'] = (isset($requestData['model']) ? $requestData['model'] : "");
+            
+            $booking['partner_id'] = $unit_details['partner_id'] = $this->partner['id'];
+		    $booking['order_id'] = $requestData['orderID'];
+			$appliance_details['brand'] = $unit_details['appliance_brand'] = $requestData['brand'];
+			
+			$appliance_details['model_number'] =  $unit_details['model_number'] =  (isset($requestData['model']) ? $requestData['model'] : "");
 
 			log_message('info', 'Product type: ' . $requestData['product']);
 			$prod = trim($requestData['product']);
@@ -200,42 +204,37 @@ class Partner extends CI_Controller {
 			log_message('info', 'Product type matched: ' . $lead_details['Product']);
 
 			//Product description
-			$lead_details['ProductType'] = $requestData['productType'];
+			$appliance_details['description'] = $unit_details['appliance_description'] = $requestData['productType'];
 
 			//Check for all optional parameters before setting them
-			$lead_details['Category'] = (isset($requestData['category']) ? $requestData['category'] : "");
-			$lead_details['SubCategory'] = (isset($requestData['subCategory']) ? $requestData['subCategory'] : "");
-			$lead_details['Name'] = $requestData['name'];
-			$lead_details['Mobile'] = $requestData['mobile'];
-			$lead_details['AlternatePhone'] = (isset($requestData['alternatePhone']) ? $requestData['alternatePhone'] : "");
-			$lead_details['Email'] = (isset($requestData['email']) ? $requestData['email'] : "");
-			$lead_details['Address'] = $requestData['address'];
-			$lead_details['Landmark'] = (isset($requestData['landmark']) ? $requestData['landmark'] : "");
-			$lead_details['Pincode'] = $requestData['pincode'];
-			$lead_details['City'] = $requestData['city'];
+			$appliance_details['category'] = $unit_details['appliance_category']  = (isset($requestData['category']) ? $requestData['category'] : "");
+			//$lead_details['SubCategory'] = (isset($requestData['subCategory']) ? $requestData['subCategory'] : "");
+			
+			$booking['booking_primary_contact_no'] = $requestData['mobile'];
+			$booking['booking_alternate_contact_no'] = (isset($requestData['alternatePhone']) ? $requestData['alternatePhone'] : "");
 
-			$lead_details['DeliveryDate'] = $this->getDateTime($requestData['deliveryDate']);
+			$booking['city'] = $requestData['city'];
 
-			$lead_details['RequestType'] = $requestData['requestType'];
-			$lead_details['Remarks'] = (isset($requestData['remarks']) ? $requestData['remarks'] : "");
+			$state = $this->vendor_model->getall_state($user['city']);
+			$booking['state'] = $state[0]['state'];
 
-			$lead_details['PartnerRequestStatus'] = "";
-			$lead_details['PartnerRequestRemarks'] = "";
-			$lead_details['ScheduledAppointmentDate'] = "";
-			$lead_details['ScheduledAppointmentTime'] = "";
-			$lead_details['247aroundBookingStatus'] = "FollowUp";
-			$lead_details['247aroundBookingRemarks'] = "";
+			 $user['state'];
+			$booking['booking_pincode'] = $user['pincode'];
+			
+			$booking['booking_address'] = $requestData['address'] . ", " . (isset($requestData['landmark']) ? $requestData['landmark'] : "") ;
+
+			$booking['delivery_date'] = $this->getDateTime($requestData['deliveryDate']);
+
+			$booking['request_type'] = $requestData['requestType'];
+			$booking['query_remarks'] = (isset($requestData['remarks']) ? $requestData['remarks'] : "");
+
 
 			//Add this as a Query now
 			$booking['booking_id'] = '';
-			$booking['order_id'] = $lead_details['orderID'];
 			$appliance_details['user_id'] = $booking['user_id'] = $user_id;
 			$appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $this->booking_model->getServiceId($lead_details['Product']);
 			log_message('info', __METHOD__ . ":: Service ID: " . $booking['service_id']);
 			//echo "Service ID: " . $booking['service_id'] . PHP_EOL;
-
-			$booking['booking_primary_contact_no'] = $lead_details['Mobile'];
-			$booking['booking_alternate_contact_no'] = $lead_details['AlternatePhone'];
 
 			$yy = date("y");
 			$mm = date("m");
@@ -246,16 +245,10 @@ class Partner extends CI_Controller {
 			//Add partner code from sources table
 			//All partners should have a valid partner code in the bookings_sources table
 			$booking['source'] = $this->partner_model->get_source_code_for_partner($this->partner['id']);
-			$unit_details['partner_id'] = $booking['partner_id'] = $this->partner['id'];
+			
 			$unit_details['booking_id'] = $booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
-			$lead_details['247aroundBookingID'] = $booking['booking_id'];
-
+			
 			$booking['quantity'] = '1';
-			$appliance_details['brand'] = $unit_details['appliance_brand'] = $lead_details['Brand'];
-			$appliance_details['category'] = $unit_details['appliance_category'] = '';
-			$appliance_details['capacity'] = $unit_details['appliance_capacity'] = '';
-			$appliance_details['description'] = $unit_details['appliance_description'] = $lead_details['ProductType'];
-			$appliance_details['model_number'] = $unit_details['model_number'] = (isset($lead_details['Model']) ? $lead_details['Model'] : "");
 			$appliance_details['tag'] = $unit_details['appliance_tag'] = $lead_details['Brand'] . " " . $lead_details['Product'];
 			$appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
 			$appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
@@ -273,29 +266,19 @@ class Partner extends CI_Controller {
 			$booking['type'] = "Query";
 			$booking['booking_date'] = '';
 			$booking['booking_timeslot'] = '';
-			$booking['booking_address'] = $lead_details['Address'] . ", " . $lead_details['Landmark'] .
-			    ", " . $lead_details['City'];
-			$booking['booking_pincode'] = $lead_details['Pincode'];
 			$booking['amount_due'] = '';
 			$booking['booking_remarks'] = '';
-			$booking['query_remarks'] = '';
-			$booking['city'] = $requestData['city'];
-			$state = $this->vendor_model->getall_state($booking['city']);
-			$booking['state'] = $state[0]['state'];
-
+			
 			//Insert query
 			//echo print_r($booking, true) . "<br><br>";
 			$this->booking_model->addbooking($booking);
 
-			//Save this in SD leads table
-			//echo print_r($lead_details, true) . "<br><br>";
-			$this->partner_model->insert_partner_lead($lead_details);
-
+			
 			//Send response
 			$this->jsonResponseString['response'] = array(
-			    "orderID" => $lead_details['orderID'],
-			    "247aroundBookingID" => $lead_details['247aroundBookingID'],
-			    "247aroundBookingStatus" => $lead_details['247aroundBookingStatus']);
+			    "orderID" => $booking['order_id'],
+			    "247aroundBookingID" => $booking['booking_id'],
+			    "247aroundBookingStatus" => $booking['current_status']);
 			$this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
 		    } else {
 			log_message('info', __METHOD__ . ":: Request validation fails. " . print_r($is_valid, true));
@@ -307,9 +290,9 @@ class Partner extends CI_Controller {
 
 			    $lead_details = $is_valid['lead'];
 			    $this->jsonResponseString['response'] = array(
-				"247aroundBookingID" => $lead_details['247aroundBookingID'],
-				"247aroundBookingStatus" => $lead_details['247aroundBookingStatus'],
-				"247aroundBookingRemarks" => $lead_details['247aroundBookingRemarks']);
+				"247aroundBookingID" => $booking['booking_id'],
+				"247aroundBookingStatus" => $booking['current_status'],
+				"247aroundBookingRemarks" => $booking['query_remarks']);
 
 			    $this->sendJsonResponse(array($is_valid['code'], $is_valid['msg']));
 			} else {
@@ -609,10 +592,10 @@ class Partner extends CI_Controller {
 			    "city" => $lead_details['query1'][0]['city'],
 			    "home_address" => $lead_details['query1'][0]['home_address'],
 			    "pincode" => $lead_details['query1'][0]['pincode'],
-			    "description" => $lead_details['query1'][0]['description'],
+			    "description" => $lead_details['query2'][0]['description'],
 			    "services" => $lead_details['query1'][0]['services'],
 			    "appliance_brand" => $lead_details['query2'][0]['appliance_brand'],
-			    "order_id" => $lead_details['query3'][0]['order_id'],
+			    "order_id" => $lead_details['query1'][0]['order_id'],
 			);
 			$this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
 		    } else {
@@ -720,7 +703,7 @@ class Partner extends CI_Controller {
 	 *
 	 */
 	if ($flag === TRUE) {
-	    $lead = $this->partner_model->get_partner_lead_by_order_id($this->partner['id'], $request['orderID']);
+	    $lead = $this->partner_model->get_order_id_for_partner($this->partner['id'], $request['orderID']);
 	    if (!is_null($lead)) {
 		//order id exists, return booking id
 		$resultArr['code'] = ERR_ORDER_ID_EXISTS_CODE;
@@ -810,7 +793,7 @@ class Partner extends CI_Controller {
 
 	//Order ID / Booking ID validation
 	if ($flag === TRUE) {
-	    $lead = $this->partner_model->get_partner_lead_by_order_id($this->partner['id'], $request['orderID']);
+	    $lead = $this->partner_model->get_order_id_for_partner($this->partner['id'], $request['orderID']);
 	    if (!is_null($lead)) {
 		//order id found, check booking id
 		if ($lead['247aroundBookingID'] != $request['247aroundBookingID']) {
@@ -867,14 +850,13 @@ class Partner extends CI_Controller {
 
 	//Order ID / Booking ID validation
 	if ($flag === TRUE) {
-	    $lead['query1'] = $this->booking_model->booking_history_by_booking_id($request['247aroundBookingID']);
+	    $lead['query1'] = $this->booking_model->getbooking_history($request['247aroundBookingID']);
 	    $lead['query2'] = $this->booking_model->get_unit_details($request['247aroundBookingID']);
-	    $lead['query3'] = $this->booking_model->getdescription_about_booking($request['247aroundBookingID']);
-
+	   
 	    $resultArr['lead'] = $lead;
 
 
-//	    $lead = $this->partner_model->get_partner_lead_by_order_id($this->partner['id'], $request['orderID']);
+//	    $lead = $this->partner_model->get_order_id_for_partner($this->partner['id'], $request['orderID']);
 //	    if (!is_null($lead)) {
 //		//order id found, check booking id
 //		if ($lead['247aroundBookingID'] != $request['247aroundBookingID']) {
@@ -933,19 +915,19 @@ class Partner extends CI_Controller {
 
 	//Order ID / Booking ID validation
 	if ($flag === TRUE) {
-	    $lead = $this->partner_model->get_partner_lead_by_order_id($this->partner['id'], $request['orderID']);
+	    $lead = $this->partner_model->get_order_id_for_partner($this->partner['id'], $request['orderID']);
 	    if (!is_null($lead)) {
 		$resultArr['lead'] = $lead;
 
 		//order id found, check booking id
-		if ($lead['247aroundBookingID'] != $request['247aroundBookingID']) {
+		if ($lead['booking_id'] != $request['247aroundBookingID']) {
 		    $resultArr['code'] = ERR_INVALID_BOOKING_ID_CODE;
 		    $resultArr['msg'] = ERR_INVALID_BOOKING_ID_MSG;
 
 		    $flag = FALSE;
 		} else {
 		    //Check request status
-		    if ($lead['247aroundBookingStatus'] == "Cancelled") {
+		    if ($lead['booking_id'] == "Cancelled") {
 			$resultArr['code'] = ERR_REQUEST_ALREADY_CANCELLED_CODE;
 			$resultArr['msg'] = ERR_REQUEST_ALREADY_CANCELLED_MSG;
 
@@ -953,7 +935,7 @@ class Partner extends CI_Controller {
 		    }
 
 		    if (($flag === TRUE) &&
-			($lead['247aroundBookingStatus'] == "Completed")) {
+			($lead['current_status'] == "Completed")) {
 			$resultArr['code'] = ERR_REQUEST_ALREADY_COMPLETED_CODE;
 			$resultArr['msg'] = ERR_REQUEST_ALREADY_COMPLETED_MSG;
 
@@ -1016,19 +998,19 @@ class Partner extends CI_Controller {
 
 	//Order ID / Booking ID validation
 	if ($flag === TRUE) {
-	    $lead = $this->partner_model->get_partner_lead_by_order_id($this->partner['id'], $request['orderID']);
+	    $lead = $this->partner_model->get_order_id_for_partner($this->partner['id'], $request['orderID']);
 	    if (!is_null($lead)) {
 		$resultArr['lead'] = $lead;
 
 		//order id found, check booking id
-		if ($lead['247aroundBookingID'] != $request['247aroundBookingID']) {
+		if ($lead['booking_id'] != $request['247aroundBookingID']) {
 		    $resultArr['code'] = ERR_INVALID_BOOKING_ID_CODE;
 		    $resultArr['msg'] = ERR_INVALID_BOOKING_ID_MSG;
 
 		    $flag = FALSE;
 		} else {
 		    //Check request status
-		    if ($lead['247aroundBookingStatus'] == "Cancelled") {
+		    if ($lead['current_status'] == "Cancelled") {
 			$resultArr['code'] = ERR_REQUEST_ALREADY_CANCELLED_CODE;
 			$resultArr['msg'] = ERR_REQUEST_ALREADY_CANCELLED_MSG;
 
@@ -1036,7 +1018,7 @@ class Partner extends CI_Controller {
 		    }
 
 		    if (($flag === TRUE) &&
-			($lead['247aroundBookingStatus'] == "Completed")) {
+			($lead['current_status'] == "Completed")) {
 			$resultArr['code'] = ERR_REQUEST_ALREADY_COMPLETED_CODE;
 			$resultArr['msg'] = ERR_REQUEST_ALREADY_COMPLETED_MSG;
 
@@ -1123,31 +1105,8 @@ class Partner extends CI_Controller {
 
 	$this->booking_model->update_booking($booking_id, $booking);
 
-	//Update partner leads table
-	$partner_where = array("247aroundBookingID" => $booking_id);
-	$partner_data = array(
-	    "247aroundBookingStatus" => "Cancelled",
-	    "247aroundBookingRemarks" => $booking['internal_status'],
-	    "update_date" => $booking['closed_date']
-	);
-	$this->partner_model->update_partner_lead($partner_where, $partner_data);
-
 	return TRUE;
 
-//	$query1 = $this->booking_model->getbooking_history($booking_id);
-//
-//	//------------Sending Email----------//
-//
-//	$message = "Booking Cancellation:<br>Customer name: " . $query1[0]['name'] . "<br>Customer phone number: " .
-//	    $query1[0]['phone_number'] . "<br>Customer email: " . $query1[0]['user_email'] . "<br>Booking Id: " .
-//	    $query1[0]['booking_id'] . "<br>Service name is:" . $query1[0]['services'] . "<br>Booking date was: " .
-//	    $query1[0]['booking_date'] . "<br>Booking timeslot was: " . $query1[0]['booking_timeslot'] .
-//	    "<br>Booking cancellation date is: " . $booking['update_date'] . "<br>Booking cancellation reason: " .
-//	    $booking['cancellation_reason'] . "<br> Thanks!!";
-//	$to = "booking@247around.com";
-//	$this->sendMail('Booking Cancellation-AROUND', $message, $to, '', '');
-//
-//	redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
     }
 
     /*
@@ -1198,16 +1157,6 @@ class Partner extends CI_Controller {
 	$booking['update_date'] = date("Y-m-d H:i:s");
 
 	$this->booking_model->update_booking($booking_id, $booking);
-
-	//Update Partner leads table
-	$partner_where = array("247aroundBookingID" => $booking_id);
-	$partner_data = array(
-	    "ScheduledAppointmentDate" => $sch_date,
-	    "ScheduledAppointmentTime" => $sch_time,
-	    "Remarks" => $request['remarks'],
-	    "update_date" => $booking['update_date']
-	);
-	$this->partner_model->update_partner_lead($partner_where, $partner_data);
 
 	//Return 247around time slot
 	$resultArr['timeslotStart'] = json_encode($request['installationTimeslotStart'], JSON_UNESCAPED_SLASHES);

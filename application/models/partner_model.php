@@ -56,9 +56,9 @@ class Partner_model extends CI_Model {
     }
 
     //Find order id for a partner
-    function get_partner_lead_by_order_id($partner_id, $order_id) {
-    	$this->db->where(array("PartnerID" => $partner_id, "OrderID" => $order_id));
-    	$query = $this->db->get("partner_leads");
+    function get_order_id_for_partner($partner_id, $order_id) {
+    	$this->db->where(array("partner_id" => $partner_id, "order_id" => $order_id));
+    	$query = $this->db->get("booking_details");
     	$results = $query->result_array();
 
     	if (count($results) > 0) {
