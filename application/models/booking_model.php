@@ -1692,6 +1692,7 @@ class Booking_model extends CI_Model {
             $data['vendor_to_around'] = 0;
             $data['around_to_vendor'] = abs($vendor_around_charge);
         }
+        print_r($data);
         unset($data['internal_status']);
         $this->db->where('id', $data['id']);
         $this->db->update('booking_unit_details',$data);
@@ -1833,6 +1834,38 @@ class Booking_model extends CI_Model {
     function convert_booking_to_pending($booking_id, $data, $status) {
     $this->db->where(array('booking_id' => $booking_id, 'current_status' => $status));
     $this->db->update('booking_details', $data);
+    }
+    
+    /**
+     * @desc: this method inser new line item while booking completion
+     * @param: Unit id for copy appliance details into new line
+     * @param: service charges id for cop prices nad tax
+     * @param: Array, filled drom input form
+     */
+    function insert_new_unit_item($unit_id, $service_charge_id, $data){
+        $price_data = $this->getpricesdetails_with_tax($service_charge_id);
+        $this->db->select('booking_id,partner_id,service_id,appliance_id,appliance_brand,appliance_category, appliance_capacity,appliance_size, appliance_serial_no, appliance_description, model_number, appliance_tag, purchase_month, purchase_year');
+        
+        $this->db->where('id', $unit_id);
+        $query = $this->db->get('booking_unit_details');
+        $unit_details = $query->result_array();
+
+        $result = array_merge($price_data[0], $unit_details[0]);
+        $result['booking_status'] = $data['booking_status'];
+
+        log_message('info', ": " . " insert new item in booking unit details data " . print_r($result, TRUE));
+
+        $this->db->insert('booking_unit_details', $result);
+        $new_unit_id = $this->db->insert_id();
+
+        log_message('info', ": " . " insert new item in booking unit details returned id " . print_r($new_unit_id, TRUE));
+
+        $data['id'] = $new_unit_id;
+         log_message('info', ": " . " update booking unit details data " . print_r($data, TRUE));
+
+        $this->update_unit_details($data);
+
+        return true;
     }
 
 

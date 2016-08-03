@@ -3,6 +3,7 @@
       <div class="panel panel-info" style="margin-top:20px;">
          <div class="panel-heading">Complete Booking</div>
          <div class="panel-body">
+        
          <?php if($booking_history[0]['current_status'] == "Completed"){ $status = "1"; } else { $status = "0"; }?>
             <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url()?>employee/booking/process_complete_booking/<?php echo $booking_id;?>/<?php echo $status; ?>"  method="POST" enctype="multipart/form-data">
                <div class="row">
@@ -54,7 +55,7 @@
                   </div>
                </div>
                <!-- row End  -->
-               <?php foreach ($bookng_unit_details as $key => $unit_details) { ?>
+               <?php foreach ($bookng_unit_details as $keys => $unit_details) { ?>
                <div class="clonedInput panel panel-info " id="clonedInput1">
                   <!--  <i class="fa fa-plus addsection pull-right fa-3x" aria-hidden="true" style ="margin-top:15px; margin-bottom: 15px; margin-right:40px; "></i>
                      <i class="fa fa-times pull-right deletesection  fa-3x"  style ="margin-top:15px; margin-bottom: 15px; margin-right:20px; " aria-hidden="true"></i>-->
@@ -84,7 +85,7 @@
                               </div>
                            </div>
                            <?php } ?>
-                        </div>
+                        </div> 
                         <div class="col-md-8">
                            <table class="table priceList table-striped table-bordered" name="priceList" >
                               <tr>
@@ -96,9 +97,12 @@
                                  <th style="width:265px;">Status</th>
                                 
                               </tr>
+                              
                               <tbody>
-                                 <?php $paid_basic_charges = 0; $paid_additional_charges = 0; $paid_parts_cost=0;foreach ($unit_details['qunatity'] as $key => $price) { ?>
-                                 <tr>
+                                 <?php $paid_basic_charges = 0; $paid_additional_charges = 0; $paid_parts_cost=0;
+
+                                 foreach ($unit_details['qunatity'] as $key => $price) { ?>
+                                 <tr style="background-color: white; ">
                                     <td><?php echo $price['price_tags'] ?></td>
                                     <td><?php echo $price['customer_net_payable']; ?></td>
                                     <td>  <input  type="text" class="form-control cost"  name="<?php echo "customer_basic_charge[". $price['unit_id'] . "]"?>"  value = "<?php $paid_basic_charges += $price['customer_paid_basic_charges']; if(!empty($price['customer_paid_basic_charges'])){ echo $price['customer_paid_basic_charges']; } else { echo "0"; } ?>">
@@ -115,7 +119,9 @@
                                                 <div class="col-md-10">
                                                    
                                                     <div class="radio">
-                                                      <label><input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "]"?>"  value="Completed" <?php if($price['booking_status'] =="Completed"){ echo "checked"; } ?> required><?php if($price['product_or_services']=="Product"){ echo " Delivered";}else { echo " Completed"; } ?><br/>
+                                                      <label>
+                                                      <input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "]"?>"  value="Completed" <?php if($price['booking_status'] =="Completed"){ echo "checked"; } ?> required><?php if($price['product_or_services']=="Product"){ echo " Delivered";}else { echo " Completed"; } ?><br/>
+                                                      
                                                       <input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "]"?>"  value="Cancelled" <?php if($price['booking_status'] =="Cancelled"){ echo "checked"; } ?>  required><?php if($price['product_or_services']=="Product"){ echo " Not Delivered";}else { echo " Not Completed"; } ?>
                                                       </label>
                                                    </div>
@@ -128,6 +134,41 @@
                                     </td>
                                  </tr>
                                  <?php  } ?>
+                                 <?php
+                                 foreach ($prices[$keys] as $index => $value) { ?>
+                                   <tr style="background-color:   #FF4500; color: white;">
+
+                                     <td> <?php echo $value['service_category']; ?> </td>
+                                     <td> <?php echo $value['customer_net_payable']; ?> </td>
+                                     <td>  <input  type="text" class="form-control cost"   name="<?php echo "customer_basic_charge[". $price['unit_id'] . "new".$value['id']."]"?>"  value = "0.00">
+
+                                      <td>  <input  type="text" class="form-control cost"  name="<?php echo "additional_charge[". $price['unit_id'] . "new".$value['id']."]"?>"   value = " <?php echo "0.00"; ?>">
+
+                                    </td>
+                                    <td>  <input  type="text" class="form-control cost"   name="<?php echo "parts_cost[". $price['unit_id'] . "new".$value['id']."]"?>"  value = "<?php echo "0.00"; ?>"></td>
+                                    <td>
+                                     <div class="row">
+                                          <div class="col-md-12">
+                                             
+                                             <div class="form-group ">
+                                                <div class="col-md-10">
+                                                   
+                                                    <div class="radio">
+                                                      <label>
+                                                      <input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "new".$value['id']."]"?>"  value="Completed" > Completed<br/>
+                                                      
+                                                      <input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "new".$value['id']."]"?>"  value="Cancelled"  > Not Completed
+                                                      </label>
+                                                   </div>
+                                                 
+                                                </div>
+                                             </div>
+                                            
+                                          </div>
+                                       </div>
+                                    </td>
+                                   </tr>
+                                 <?php } ?>
                               </tbody>
                            </table>
                            <span class="error_msg" style="color: red"></span>

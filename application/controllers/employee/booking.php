@@ -145,7 +145,7 @@ class Booking extends CI_Controller {
 	$purchase_year = $this->input->post('purchase_year');
 	// All purchase month comming in array eg-- array([0]=> Jan, [1]=> Feb)
 	$months = $this->input->post('purchase_month');
-	$booking['quantity'] = count($appliance_brand);
+	$booking['qunatity'] = count($appliance_brand);
 
 	$appliance_id = $this->input->post('appliance_id');
 
@@ -433,9 +433,43 @@ class Booking extends CI_Controller {
 	$source = $this->partner_model->get_all_partner_source("0", $data['booking_history'][0]['source']);
 	$data['booking_history'][0]['source_name'] = $source[0]['source'];
 
+	$partner_id = $this->booking_model->get_price_mapping_partner_code($data['booking_history'][0]['source']);
+	$data['prices'] = array();
+
+	foreach ($data['bookng_unit_details'] as $key => $value) {
+
+		$prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'],$data['bookng_unit_details'][$key]['category'], $data['bookng_unit_details'][$key]['capacity'], $partner_id, $data['booking_history'][0]['state']);
+       
+		foreach ($value['qunatity'] as $index => $price_tag) {
+		    // Searched already inserted price tag exist in the price array (get all service category)
+			$id = $this->search_for_key($price_tag['price_tags'], $prices);
+			// remove array key, if price tag exist into price array
+			unset($prices[$id]);		
+		}
+
+		array_push($data['prices'], $prices);
+
+	}
+    
 	$this->load->view('employee/header');
 	$this->load->view('employee/completebooking', $data);
     }
+    
+    /**
+     * @desc: This is method return index key, if service caregory matches with given price tags
+     * @param: Price tag and Array
+     * @return: key
+     */
+    function search_for_key($price_tag, $array) {
+        foreach ($array as $key => $val) {
+            if ($val['service_category'] === $price_tag) {
+                return $key;
+            }
+        }
+        return null;
+    }
+
+
 
     /**
      *  @desc : This function is to select booking/Query to be canceled.
@@ -1315,32 +1349,52 @@ class Booking extends CI_Controller {
 
 	foreach ($customer_basic_charge as $unit_id => $value) {
 	    // variable $unit_id  is existing id in booking unit details table of given booking id
+	    
 	    $data = array();
-	    $data['id'] = $unit_id;
 	    $data['customer_paid_basic_charges'] = $value;
 	    $data['customer_paid_extra_charges'] = $additional_charge[$unit_id];
 	    $data['customer_paid_parts'] = $parts_cost[$unit_id];
-	    $data['booking_status'] = $booking_status[$unit_id];
+	    // it checks sting new in unit_id variable
+	    if (strpos($unit_id, 'new') !== false) {
+	    	if(isset($booking_status[$unit_id])){
+	    		if($booking_status[$unit_id] == "Completed"){
+                    // if new line item selected then coming unit id variable is the combination of unit id & new(string) and service charges id
+                    // e.g- 12new103 
+	    	        $remove_string_new = explode('new',$unit_id);
+                    $unit_id = $remove_string_new[0];
+                    $service_charges_id = $remove_string_new[1]; 
+                    $data['booking_id'] = $booking_id;
+                    $data['booking_status'] = "Completed";
+                    $internal_status = "Completed";
+                    $this->booking_model->insert_new_unit_item($unit_id, $service_charges_id, $data);
+	    	    }
+	    	}   
+	    	
+	    } else {
+            $data['booking_status'] = $booking_status[$unit_id];
+	    	
+	        if ($data['booking_status'] === "Completed") {
+		        $internal_status = "Completed";
+	        }
 
-	    if ($data['booking_status'] == "Completed") {
-		$internal_status = "Completed";
-	    }
-	    log_message('info', ": " . " update booking unit details data " . print_r($data, TRUE));
+	    	$data['id'] = $unit_id;
+           
+	        log_message('info', ": " . " update booking unit details data " . print_r($data, TRUE));
 
-	    // update price in the booking unit details page
-	    $this->booking_model->update_unit_details($data);
+	        // update price in the booking unit details page
+	        $this->booking_model->update_unit_details($data);
 
-	    $service_center['booking_id'] = $booking_id;
-	    $service_center['closing_remarks'] = "Service Center Remarks:- " . $service_center_details[0]['service_center_remarks'] .
+	        $service_center['booking_id'] = $booking_id;
+	        $service_center['closing_remarks'] = "Service Center Remarks:- " . $service_center_details[0]['service_center_remarks'] .
 		" <br/> Admin:-  " . $admin_remarks;
-	    $service_center['internal_status'] = $service_center['current_status'] = $data['booking_status'];
+	        $service_center['internal_status'] = $service_center['current_status'] = $data['booking_status'];
 
-	    $service_center['unit_details_id'] = $unit_id;
-	    $service_center['update_date'] = date('Y-m-d H:i:s');
+	        $service_center['unit_details_id'] = $unit_id;
+	        $service_center['update_date'] = date('Y-m-d H:i:s');
 
-	    log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
-
-	    $this->vendor_model->update_service_center_action($service_center);
+	        log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
+	        $this->vendor_model->update_service_center_action($service_center);
+	    }	   
 	}
 
     $booking['current_status'] = $internal_status;

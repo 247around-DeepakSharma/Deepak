@@ -220,7 +220,7 @@ class Service_centers extends CI_Controller {
      * @param: Service center name
      * @return: void
      */
-    function setSession($service_center_id, $user_name) {
+    function setSession($service_center_id, $service_center_name) {
 	$userSession = array(
 	    'session_id' => md5(uniqid(mt_rand(), true)),
 	    'service_center_id' => $service_center_id,
