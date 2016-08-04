@@ -46,6 +46,7 @@ class bookings_excel extends CI_Controller {
     public function index() {
 	$this->load->view('employee/header');
 	$this->load->view('employee/upload_bookings_excel');
+
     }
 
     /*
@@ -130,6 +131,9 @@ class bookings_excel extends CI_Controller {
 		$user['pincode'] = $rowData[0]['Pincode'];
 		$user['city'] = $rowData[0]['CITY'];
 
+		$state = $this->vendor_model->getall_state($user['city']);
+	    $user['state'] = $state[0]['state'];
+
 		$user_id = $this->user_model->add_user($user);
 
 		//echo print_r($user, true), EOL;
@@ -146,8 +150,9 @@ class bookings_excel extends CI_Controller {
 
 	    //Add this lead into the leads table
 	    //Check whether this is a new Lead or Not
-	    $partner_booking = $this->booking_model->check_order_id_exists($partner_id, $rowData[0]['Sub_Order_ID']);
-	    if ($partner_booking === FALSE) {
+	    $partner_booking = $this->partner_model->get_order_id_for_partner($partner_id, $rowData[0]['Sub_Order_ID']);
+	    if (is_null($partner_booking)) {
+	   
 		$prod = trim($rowData[0]['Product']);
 
 		if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
@@ -197,11 +202,6 @@ class bookings_excel extends CI_Controller {
 		$appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
 		$appliance_details['last_service_date'] = date('d-m-Y');
 
-//		$unit_details['appliance_id'] = $appliance_id = $this->booking_model->check_appliancesforuser($appliance_details);
-//		if (empty($unit_details['appliance_id'])) {
-//		    $unit_details['appliance_id'] = $appliance_id = $this->booking_model->addappliance($appliance_details);
-//		}
-
 		$unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
 		$unit_details['appliance_size'] = '';
 		$unit_details['price_tags'] = '';
@@ -239,30 +239,12 @@ class bookings_excel extends CI_Controller {
 		//Insert query
 		//echo print_r($booking, true) . "<br><br>";
 		$this->booking_model->addbooking($booking);
-
-		//Save this in SD leads table
-//		$lead_details['CRM_Remarks_SR_No'] = $booking['booking_id'];
-//		$lead_details['Status_by_247around'] = 'FollowUp';
-//		//echo print_r($lead_details, true) . "<br><br>";
-//		$this->booking_model->insert_sd_lead($lead_details);
-//
 		//Reset
 		unset($appliance_details);
 		unset($booking);
 		//unset($lead_details);
 	    } else {
-		//Check if we already have this as a Shipped Order
-		//If it is there, update the Delivery Date in SD leads table
-//		$dateObj = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Delivery_Date']);
-//
-//		$arr_where = array('order_id' => $rowData[0]['Sub_Order_ID']);
-//		$arr_data = array('Delivery_Date' => $dateObj->format('d/m/Y'));
-//		log_message('info', __FUNCTION__ . 'Update Partner Lead: ' . print_r(array($arr_where, $arr_data), true));
-//		$this->booking_model->update_sd_lead($arr_where, $arr_data);
-//		$sd_leads = $this->booking_model->get_sd_lead_by_order_id($rowData[0]['Sub_Order_ID']);
-//		$booking_id = $sd_leads[0]['CRM_Remarks_SR_No'];
-//		$status = $sd_leads[0]['Status_by_247around'];
-//		$int_status = $sd_leads[0]['Remarks_by_247around'];
+
 
 		$status = $partner_booking['current_status'];
 		$int_status = $partner_booking['internal_status'];
@@ -376,6 +358,9 @@ class bookings_excel extends CI_Controller {
 		$user['pincode'] = $rowData[0]['Pincode'];
 		$user['city'] = $rowData[0]['CITY'];
 
+		$state = $this->vendor_model->getall_state($user['city']);
+	    $user['state'] = $state[0]['state'];
+
 		$user_id = $this->user_model->add_user($user);
 
 		//echo print_r($user, true), EOL;
@@ -392,16 +377,16 @@ class bookings_excel extends CI_Controller {
 
 	    //Add this lead into the leads table
 	    //Check whether this is a new Lead or Not
-	    if ($this->booking_model->check_sd_lead_exists_by_order_id($rowData[0]['Sub_Order_ID']) == FALSE) {
-		$lead_details['Sub_Order_ID'] = $rowData[0]['Sub_Order_ID'];
-		$lead_details['Unique_id'] = $rowData[0]['Unique_id'];
-
+	    $partner_booking = $this->partner_model->get_order_id_for_partner($partner_id, $rowData[0]['Sub_Order_ID']);
+	    if (is_null($partner_booking)) {
+		$booking['order_id'] = $rowData[0]['Sub_Order_ID'];
+		
 		$dateObj1 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Referred_Date_and_Time']);
-		$lead_details['Referred_Date_and_Time'] = $dateObj1->format('d/m/Y');
+		$booking['reference_date'] = $dateObj1->format('d/m/Y');
 
-		$lead_details['Brand'] = $rowData[0]['Brand'];
-		$lead_details['Model'] = $rowData[0]['Model'];
-		$lead_details['Product'] = '';
+		$unit_details['appliance_brand'] = $appliance_details['brand'] = $rowData[0]['Brand'];
+		$unit_details['model_number'] = $appliance_details['model_number'] = $rowData[0]['Model'];
+		//$unit_details['Product'] = '';
 
 		$prod = trim($rowData[0]['Product']);
 
@@ -434,13 +419,8 @@ class bookings_excel extends CI_Controller {
 		    $lead_details['Product'] = 'Chimney';
 		}
 
-		$lead_details['Product_Type'] = $rowData[0]['Product_Type'];
-		$lead_details['Customer_Name'] = $rowData[0]['Customer_Name'];
-		$lead_details['Customer_Address'] = $rowData[0]['Customer_Address'];
-		$lead_details['Pincode'] = $rowData[0]['Pincode'];
-		$lead_details['City'] = $rowData[0]['CITY'];
-		$lead_details['Phone'] = $rowData[0]['Phone'];
-
+		$unit_details['appliance_description'] = $appliance_details['description'] = $rowData[0]['Product_Type'];
+		
 		if (isset($rowData[0]['Expected_Delivery_Date']))
 		    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Expected_Delivery_Date']);
 		else
@@ -455,26 +435,14 @@ class bookings_excel extends CI_Controller {
 		}
 		log_message('info', print_r($dateObj2, true));
 
-		$lead_details['Expected_Delivery_Date'] = $dateObj2->format('d/m/Y');
-
-		//$lead_details['user_id'] = $user_id;
-		$lead_details['Call_Type_Installation_Table_Top_InstallationDemo_Service'] = "";
-		$lead_details['Status_by_247around'] = "FollowUp";
-		$lead_details['Scheduled_Appointment_DateDDMMYYYY'] = "";
-		$lead_details['Scheduled_Appointment_Time'] = "";
-		$lead_details['Remarks_by_247around'] = "FollowUp";
-		$lead_details['Rating_Stars'] = "";
-		$lead_details['Status_by_Snapdeal'] = "";
-		$lead_details['Remarks_by_Snapdeal'] = "";
-		$lead_details['Final_Status'] = "";
-
+		$booking['estimated_delivery_date'] = $dateObj2->format('d/m/Y');
+		
 		//Add this as a Query now
 		$booking['booking_id'] = '';
 		$appliance_details['user_id'] = $booking['user_id'] = $user_id;
 		$unit_details['service_id'] = $appliance_details['service_id'] = $booking['service_id'] = $this->booking_model->getServiceId($lead_details['Product']);
 		log_message('info', __FUNCTION__ . "=> Service ID: " . $booking['service_id']);
 
-		$booking['booking_primary_contact_no'] = $lead_details['Phone'];
 		$booking['booking_alternate_contact_no'] = '';
 
 		$yy = $dateObj2->format('y');
@@ -488,52 +456,41 @@ class bookings_excel extends CI_Controller {
 		//Hardcoded partner ID as of now
 		$booking['partner_id'] = 1;
 		$unit_details['booking_id'] = $booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
-		$lead_details['CRM_Remarks_SR_No'] = $booking['booking_id'];
-
+		
 		$booking['quantity'] = '1';
-		$appliance_details['brand'] = $unit_details['appliance_brand'] = $lead_details['Brand'];
+		
 		$appliance_details['category'] = $unit_details['appliance_category'] = '';
 		$appliance_details['capacity'] = $unit_details['appliance_capacity'] = '';
-		$appliance_details['description'] = $unit_details['description'] = $lead_details['Product_Type'];
-		$appliance_details['model_number'] = $unit_details['model_number'] = $lead_details['Model'];
-		$appliance_details['tag'] = $unit_details['appliance_tags'] = $lead_details['Brand'] . " " . $lead_details['Product'];
+		$appliance_details['tag'] = $unit_details['appliance_tags'] = $unit_details['appliance_brand'] . " " . $lead_details['Product'];
 		$appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
 		$appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
 
 		$booking['potential_value'] = '';
 		$appliance_details['last_service_date'] = date('d-m-Y');
 
-		$unit_details['appliance_id'] = $appliance_id = $this->booking_model->check_appliancesforuser($appliance_details);
-
-		if (empty($unit_details['appliance_id'])) {
-
-		    $unit_details['appliance_id'] = $appliance_id = $this->booking_model->addappliance($appliance_details);
-		}
+        $unit_details['appliance_id'] = $appliance_id = $this->booking_model->addappliance($appliance_details);
 		$this->booking_model->addunitdetails($unit_details);
+        
 
+		$booking['query_remarks'] = "FollowUp";
 		$booking['current_status'] = "FollowUp";
-		$booking['internal_status'] = "FollowUp";
 		$booking['type'] = "Query";
 		$booking['booking_date'] = $dateObj2->format('d-m-Y');
 		$booking['booking_timeslot'] = '10AM-1PM';
-		$booking['booking_address'] = $lead_details['Customer_Address'];
-		$booking['booking_pincode'] = $lead_details['Pincode'];
+		$booking['booking_address'] = $rowData[0]['Customer_Address'];
+		$booking['booking_pincode'] = $rowData[0]['Pincode'];
+		$booking['city'] = $rowData[0]['CITY'];
+		$booking['booking_primary_contact_no'] = $rowData[0]['Phone'];
 		$booking['amount_due'] = '';
 		$booking['booking_remarks'] = '';
 		$booking['query_remarks'] = 'Product Shipped, Call Customer For Booking';
-		$booking['city'] = $lead_details['City'];
+	
 		$state = $this->vendor_model->getall_state($booking['city']);
 		$booking['state'] = $state[0]['state'];
 
 		//Insert query
 		//echo print_r($booking, true) . "<br><br>";
 		$this->booking_model->addbooking($booking);
-
-		//Save this in SD leads table
-		$lead_details['CRM_Remarks_SR_No'] = $booking['booking_id'];
-		$lead_details['Status_by_247around'] = 'FollowUp';
-		//echo print_r($lead_details, true) . "<br><br>";
-		$this->booking_model->insert_sd_lead($lead_details);
 
 		//Send SMS to customer about free installation
 		switch ($lead_details['Product']) {
@@ -582,13 +539,15 @@ class bookings_excel extends CI_Controller {
 			break;
 		}
 
-		$sms['phone_no'] = $lead_details['Phone'];
-		$sms['booking_id'] = $booking['booking_id'];
-		$this->notify->send_sms($sms);
+		//$sms['phone_no'] = $lead_details['Phone'];
+		//$sms['booking_id'] = $booking['booking_id'];
+		//$this->notify->send_sms($sms);
 
 		//Reset
 		unset($booking);
 		unset($lead_details);
+		unset($appliance_details);
+		unset($unit_details);
 	    } else {
 		//Skip this request as it already exists
 	    }
@@ -597,221 +556,4 @@ class bookings_excel extends CI_Controller {
 	redirect(base_url() . search_page);
     }
 
-//    /*
-//     * @desc: Shows all unassigned bookings from Snapdeal
-//     * @param: void
-//     * @return: void
-//     */
-//
-//    function get_unassigned_bookings() {
-//        $bookings = $this->booking_model->get_sd_unassigned_bookings();
-//
-//        $data['booking'] = $bookings;
-//
-//        $this->load->view('employee/header');
-//        $this->load->view('employee/sd_booking_summary', $data);
-//    }
-//    /*
-//     * @desc: Shows all details of all the SD bookings in create date sorted manner.
-//     * @param: void
-//     * @return: void
-//     */
-//
-//    function get_all_sd_bookings() {
-//        $bookings = $this->booking_model->get_all_sd_bookings();
-//
-//        $data['booking'] = $bookings;
-//
-//        $this->load->view('employee/header');
-//        $this->load->view('employee/sd_booking_summary', $data);
-//    }
-//
-//    /*
-//     * @desc: This function helps to get booking form to add booking.
-//     * @param: $lead_id
-//     *          - This lead id is used to get all the booking details.
-//     * @return: void
-//     */
-//
-//    function get_booking_form($lead_id) {
-//        $lead = $this->booking_model->get_sd_lead($lead_id);
-//        $users = $this->user_model->search_user($lead['Phone']);
-//        $user = $users[0];
-//
-//        $service_id = $this->booking_model->getServiceId($lead['Product']);
-//        $category = $this->booking_model->getCategoryForService($service_id);
-//
-//        $this->load->view('employee/header');
-//        $this->load->view('employee/confirm_sd_lead', array(
-//            'lead' => $lead,
-//            'user' => $user,
-//            'service_id' => $service_id,
-//            'category' => $category));
-//    }
-//
-//    /*
-//     * @desc: This function is to get confirm SD leads form i.e. to confirm booking
-//     * @param: void
-//     * @return: view with lead_id and booking details
-//     */
-//
-//    function get_confirm_sd_lead_form() {
-//        $lead_id = $this->input->post('lead_id');
-//        $booking['user_id'] = $this->input->post('user_id');
-//        $booking['service_id'] = $this->input->post('service_id');
-//
-//        $booking['user_name'] = $this->input->post('name');
-//        $booking['user_email'] = '';
-//        $booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
-//        $booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
-//
-//        $appliance = $this->input->post('services');
-//        $booking['appliance_brand'] = $this->input->post('appliance_brand');
-//        $booking['appliance_category'] = $this->input->post('appliance_category');
-//        $booking['appliance_capacity'] = $this->input->post('appliance_capacity');
-//        $booking['model_number'] = $this->input->post('model_number');
-//        $booking['description'] = $this->input->post('description');
-//
-//        $booking['items_selected'] = $this->input->post('items_selected');
-//        $booking['total_price'] = $this->input->post('total_price');
-//
-//        $booking['booking_date'] = $this->input->post('booking_date');
-//        $booking['booking_timeslot'] = $this->input->post('booking_timeslot');
-//        $booking['booking_address'] = $this->input->post('booking_address');
-//        $booking['booking_pincode'] = $this->input->post('booking_pincode');
-//        $booking['booking_remarks'] = $this->input->post('booking_remarks');
-//
-//        $booking['amount_due'] = $booking['total_price'];
-//        $booking['quantity'] = 1;
-//        $booking['type'] = 'Booking';
-//        $booking['query_remarks'] = '';
-//        $booking['current_status'] = 'Pending';
-//        $booking['create_date'] = date("Y-m-d h:i:s");
-//
-//        $booking['source'] = 'SS';
-//        $booking['appliance_tags'] = '';
-//
-//        $this->load->view('employee/header');
-//
-//        $result[0]['services'] = $appliance;
-//        $this->load->view('employee/appliancebookingconf', array(
-//            'lead_id' => $lead_id,
-//            'booking' => $booking,
-//            'result' => $result));
-//    }
-//
-//    /*
-//     * @desc: This function is to confirm SD leads and make it as booking with status
-//     *          as pending i.e. to confirm booking
-//     * @param: void
-//     * @return: void
-//     */
-//
-//    function post_confirm_sd_lead_form() {
-//        $lead_id = $this->input->post('lead_id');
-//        $unit_details['user_id'] =  $booking['user_id'] = $this->input->post('user_id');
-//        $unit_details['service_id'] = $appliance_details['service_id'] = $booking['service_id'] = $this->input->post('service_id');
-//        $service_name = $this->input->post('services');
-//        $user_email = $this->input->post('user_email');
-//        $user_name = $this->input->post('user_name');
-//        $booking['city'] = $this->input->post('city');
-//        $booking['state'] = $this->input->post('state');
-//
-//        $booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
-//        $booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
-//
-//        $booking['quantity'] = 1;
-//        $booking['appliance_brand'] = $this->input->post('appliance_brand');
-//        $appliance_details['brand'] = $unit_details['appliance_category'] = $this->input->post('appliance_category');
-//        $appliance_details['capacity'] = $unit_details['appliance_capacity'] = $this->input->post('appliance_capacity');
-//        $appliance_details['model_number'] = $unit_details['model_number'] = $this->input->post('model_number');
-//        $appliance_details['description'] = $unit_details['description'] = $this->input->post('description');
-//        //$booking['items_selected'] = $this->input->post('items_selected');
-//        //$booking['total_price'] = $this->input->post('total_price');
-//        $booking['amount_due'] = $booking['total_price'];
-//        $booking['potential_value'] = $booking['total_price'];
-//
-//        $appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
-//        $appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
-//        $appliance_details['tag'] = $unit_details['appliance_tags'] = $booking['appliance_brand'] .
-//                " " . $service_name;
-//        $appliance_details['last_service_date'] = date('d-m-Y');
-//
-//        $booking['booking_date'] = $this->input->post('booking_date');
-//        $booking['booking_timeslot'] = $this->input->post('booking_timeslot');
-//        $booking['booking_address'] = $this->input->post('booking_address');
-//        $booking['booking_pincode'] = $this->input->post('booking_pincode');
-//        $booking['booking_remarks'] = $this->input->post('booking_remarks');
-//
-//        $booking['booking_date'] = date('d-m-Y', strtotime($booking['booking_date']));
-//        $yy = date("y", strtotime($booking['booking_date']));
-//        $mm = date("m", strtotime($booking['booking_date']));
-//        $dd = date("d", strtotime($booking['booking_date']));
-//
-//        $booking['source'] = 'SS';
-//	    $unit_details['partner_id'] = $booking['partner_id'] = 1;
-//	    $booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
-//        $booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
-//        $unit_details['booking_id'] = $booking['booking_id'] = $booking['source'] . "-" . $booking['booking_id'];
-//
-//        $booking['type'] = 'Booking';
-//        $booking['query_remarks'] = '';
-//        $booking['current_status'] = 'Pending';
-//        $booking['create_date'] = date("Y-m-d h:i:s");
-//
-//        $unit_details['appliance_id'] = $appliance_id =  $this->booking_model->check_appliancesforuser($appliance_details);
-//
-//        if(empty($unit_details['appliance_id'])){
-//
-//            $unit_details['appliance_id'] = $appliance_id = $this->booking_model->addappliance($appliance_details);
-//        }
-//	    $this->booking_model->addunitdetails($unit_details);
-//
-//        $output = $this->booking_model->addbooking($booking);
-//
-//        $months = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
-//        $mm = $months[$mm - 1];
-//        $booking['booking_date'] = $dd . $mm;
-//
-//        if ($booking['booking_timeslot'] == "10AM-1PM") {
-//            $booking['booking_timeslot'] = "1PM";
-//        } elseif ($booking['booking_timeslot'] == "1PM-4PM") {
-//            $booking['booking_timeslot'] = "4PM";
-//        } elseif ($booking['booking_timeslot'] == "4PM-7PM") {
-//            $booking['booking_timeslot'] = "7PM";
-//        }
-//
-//        //-------Sending Email On Booking--------//
-//        if ($booking['current_status'] != "FollowUp") {
-//            $message = "Congratulations You have received new booking, details are mentioned below:
-//                <br>Customer Name: " . $user_name'] . "<br>Customer Phone Number: " .
-//                    $booking['booking_primary_contact_no'] . "<br>Customer email address: " .
-//                    $user_email'] . "<br>Booking Id: " . $booking['booking_id'] .
-//                    "<br>Service name:" . $service_name'] . "<br>Number of appliance: " .
-//                    $booking['quantity'] . "<br>Booking Date: " . $booking['booking_date'] .
-//                    "<br>Booking Timeslot: " . $booking['booking_timeslot'] . "<br>Amount Due: " .
-//                    $booking['amount_due'] . "<br>Your Booking Remark is: " . $booking['booking_remarks'] .
-//                    "<br>Booking address: " . $booking['booking_address'] . "<br>Booking pincode: " .
-//                    $booking['booking_pincode'] . "<br><br>
-//                Appliance Details:<br>";
-//
-//            $appliance = "<br>Brand : " . $booking['appliance_brand'] . "<br>Category : " . $booking['appliance_category'] . "<br>Capacity : " . $booking['appliance_capacity'] .
-//                    "<br>Selected service/s is/are: " . $booking['items_selected'] . "<br>Total price is: " . $booking['total_price'] . "<br>";
-//            $message = $message . $appliance . "<br> Thanks!!";
-//
-//            $from = "booking@247around.com";
-//            $to = "";
-//            $cc = "";
-//            $bcc = "";
-//            $subject = 'Booking Confirmation - Snapdeal - AROUND';
-//            $attachment = "";
-//
-//	    $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
-//        }
-//
-//        //Update lead table with booking ID and new status
-//        $this->booking_model->update_sd_lead($lead_id, $booking['booking_id'], 'Pending');
-//
-//        redirect(base_url() . 'employee/bookings_excel/get_unassigned_bookings', 'refresh');
-//    }
 }
