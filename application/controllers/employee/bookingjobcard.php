@@ -64,7 +64,7 @@ class bookingjobcard extends CI_Controller {
 
         $file_names = array();
 
-        $template = 'BookingJobCard_Template-v7.xlsx';
+        $template = 'BookingJobCard_Template-v8.xlsx';
 	//set absolute path to directory with template files
         $templateDir = __DIR__ . "/../";
 
@@ -77,17 +77,20 @@ class bookingjobcard extends CI_Controller {
         //load template
         $R = new PHPReport($config);
 
-        $booking_details = $this->reporting_utils->get_booking_details($booking_id);
-        $unit_details = $this->reporting_utils->get_unit_details($booking_id);
+       $booking_details = $this->booking_model->getbooking_history($booking_id);
+    //echo "Booking Details: " . "\n";
+    //print_r($booking_details);
+
+        $unit_details = $this->booking_model->get_unit_details($booking_id); 
 
 
-        $R->load(array(
+              $R->load(array(
             array(
                 'id' => 'booking',
                 //'repeat' => TRUE,
                 'data' => $booking_details[0],
                 //'minRows' => 2,
-                'format' => array(
+               'format' => array(
                     'booking_date' => array('datetime' => 'd/M/Y'),
                     'amount_due' => array('number' => array('prefix' => 'Rs. ')),
                 )
@@ -98,13 +101,12 @@ class bookingjobcard extends CI_Controller {
                 'data' => $unit_details,
                 //'minRows' => 2,
                 'format' => array(
-                    //'create_date' => array('datetime' => 'd/M/Y'),
-                    'total_price' => array('number' => array('prefix' => 'Rs. ')),
+            //'create_date' => array('datetime' => 'd/M/Y'),
+               'total_price' => array('number' => array('prefix' => 'Rs. ')),
                 )
-            ),
-                )
+             ),
+            )
         );
-
         //Get populated XLS with data
         if ($booking_details[0]['current_status'] == "Rescheduled")
             $output_file_suffix = "-RESC-" . $booking_details[0]['booking_date'];
@@ -160,7 +162,7 @@ class bookingjobcard extends CI_Controller {
 
         $file_names = array();
 
-        $template = 'BookingJobCard_Template-v7.xlsx';
+        $template = 'BookingJobCard_Template-v8.xlsx';
 	//set absolute path to directory with template files
         $templateDir = __DIR__ . "/../";
 
@@ -174,16 +176,20 @@ class bookingjobcard extends CI_Controller {
         $R = new PHPReport($config);
         //log_message('info', "PHP report");
 
-        $booking_details = $this->reporting_utils->get_booking_details($booking_id);
-        $unit_details = $this->reporting_utils->get_unit_details($booking_id);
+        $booking_details = $this->booking_model->getbooking_history($booking_id);
+    //echo "Booking Details: " . "\n";
+    //print_r($booking_details);
 
-        $R->load(array(
+        $unit_details = $this->booking_model->get_unit_details($booking_id); 
+
+
+            $R->load(array(
             array(
                 'id' => 'booking',
                 //'repeat' => TRUE,
                 'data' => $booking_details[0],
                 //'minRows' => 2,
-                'format' => array(
+               'format' => array(
                     'booking_date' => array('datetime' => 'd/M/Y'),
                     'amount_due' => array('number' => array('prefix' => 'Rs. ')),
                 )
@@ -194,11 +200,11 @@ class bookingjobcard extends CI_Controller {
                 'data' => $unit_details,
                 //'minRows' => 2,
                 'format' => array(
-                    //'create_date' => array('datetime' => 'd/M/Y'),
-                    'total_price' => array('number' => array('prefix' => 'Rs. ')),
+            //'create_date' => array('datetime' => 'd/M/Y'),
+               'total_price' => array('number' => array('prefix' => 'Rs. ')),
                 )
-            ),
-                )
+             ),
+            )
         );
 
         //Get populated XLS with data
@@ -221,6 +227,8 @@ class bookingjobcard extends CI_Controller {
         putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
         $tmp_path = '/home/around/libreoffice_tmp';
         $tmp_output_file = '/home/around/libreoffice_tmp/output.txt';
+        //$tmp_path = '/var/www/libreoffice';
+        //$tmp_output_file = '/var/www/output.txt';
         $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
                 '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
                 $output_file_excel . ' 2> ' . $tmp_output_file;
@@ -239,7 +247,7 @@ class bookingjobcard extends CI_Controller {
         $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
 
         $this->session->set_flashdata('result', 'Job card generated successfully');
-        redirect(base_url() . 'employee/booking/view', 'refresh');
+       // redirect(base_url() . 'employee/booking/view', 'refresh');
     }
 
     /*
