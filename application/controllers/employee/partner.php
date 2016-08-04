@@ -90,6 +90,36 @@ class Partner extends CI_Controller {
     }
 
     /**
+     * @desc: this is used to load pending booking
+     * @param: Offset and page no.
+     * @return: void
+     */
+    function pending_queries($offset = 0){
+        $this->checkUserSession();
+        $partner_id = $this->session->userdata('partner_id');
+        $config['base_url'] = base_url() . 'partner/pending_queries';
+        $config['total_rows'] = $this->partner_model->getPending_queries("count","",$partner_id);
+
+        $config['per_page'] = 50;
+        $config['uri_segment'] = 3;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+
+        $data['count'] = $config['total_rows'];
+        $data['bookings'] = $this->partner_model->getPending_queries($config['per_page'], $offset, $partner_id);
+
+        if ($this->session->flashdata('result') != '')
+            $data['success'] = $this->session->flashdata('result');
+         log_message('info', 'Partner view Pending query  partner id' . $partner_id . " Partner name" . $this->session->userdata('partner_name')." data ". print_r($data, true));
+        $this->load->view('partner/header');
+        $this->load->view('partner/pending_queries', $data);
+
+    }
+
+
+    /**
      * @desc: this is used to display completed booking for specific service center
      */
     function closed_booking($state, $offset = 0){

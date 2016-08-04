@@ -222,14 +222,6 @@ class Partner_model extends CI_Model {
             (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled')"
         );
         
-        /*foreach ($temp as $key => $value) {
-           $order_id = $this->get_order_id($value->booking_id);
-           if(!empty($order_id[0]['order_id'])){
-               $temp[$key]->order_id = $order_id[0]['order_id'];
-           } else {
-               $temp[$key]->order_id = "";
-           }
-        }*/
 
         if($limit =="count"){
             $temp1 = $query->result_array();
@@ -242,6 +234,44 @@ class Partner_model extends CI_Model {
 
             return array_slice($temp, $start, $limit);
         }
+     }
+     
+
+    /**
+      * @desc: this is used to get pending queries for specific partner id
+      * @param: end limit, start limit, partner id
+      * @return: Pending Queries
+      */
+     function getPending_queries($limit="", $start="", $partner_id ){
+        $where = "";
+        $where .= " AND partner_id = '" . $partner_id . "'";
+      
+        $query = $this->db->query("Select services.services,
+            users.name as customername, users.phone_number,
+            booking_details.*
+
+            from booking_details
+            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
+            JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
+
+            WHERE
+            `booking_details`.booking_id LIKE 'Q-%' $where AND
+             booking_details.current_status='FollowUp' "
+        );
+        
+
+        if($limit =="count"){
+            $temp1 = $query->result_array();
+           // echo $this->db->last_query();
+            return count($temp1);
+
+        } else {
+            $temp = $query->result();
+            usort($temp, array($this, 'date_compare_bookings'));
+
+            return array_slice($temp, $start, $limit);
+        }
+
      }
 
      /**

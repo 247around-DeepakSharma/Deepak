@@ -42,6 +42,8 @@
                      <ul class="dropdown-menu">
                         <li><a href="<?php echo base_url();?>partner/pending_booking">Pending Booking</a></li>
                          <li role="separator" class="divider"></li>
+                         <li><a href="<?php echo base_url();?>partner/pending_queries">Pending Queries</a></li>
+                         <li role="separator" class="divider"></li>
                         <li><a href="<?php echo base_url();?>partner/closed_booking/Completed">Completed Booking</a></li>
                          <li role="separator" class="divider"></li>
                         <li><a href="<?php echo base_url();?>partner/closed_booking/Cancelled">Cancelled Booking</a></li>
