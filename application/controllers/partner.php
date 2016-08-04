@@ -154,6 +154,7 @@ class Partner extends CI_Controller {
 			    $user['city'] = $requestData['city'];
 
 			    $state = $this->vendor_model->getall_state($user['city']);
+			     if(!empty($state))
 			    $user['state'] = $state[0]['state'];
 
 			    $user_id = $this->user_model->add_user($user);
@@ -217,9 +218,9 @@ class Partner extends CI_Controller {
 			$booking['city'] = $requestData['city'];
 
 			$state = $this->vendor_model->getall_state($user['city']);
+			 if(!empty($state))
 			$booking['state'] = $state[0]['state'];
 
-			 $user['state'];
 			$booking['booking_pincode'] = $user['pincode'];
 			
 			$booking['booking_address'] = $requestData['address'] . ", " . (isset($requestData['landmark']) ? $requestData['landmark'] : "") ;

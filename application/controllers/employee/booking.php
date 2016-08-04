@@ -145,7 +145,7 @@ class Booking extends CI_Controller {
 	$purchase_year = $this->input->post('purchase_year');
 	// All purchase month comming in array eg-- array([0]=> Jan, [1]=> Feb)
 	$months = $this->input->post('purchase_month');
-	$booking['qunatity'] = count($appliance_brand);
+	$booking['quantity'] = count($appliance_brand);
 
 	$appliance_id = $this->input->post('appliance_id');
 
@@ -713,7 +713,7 @@ class Booking extends CI_Controller {
 	$result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $state[0]['state']);
 	if (!empty($result)) {
 
-	    echo "<tr><th>Service Category</th><th>Charges</th><th>Partner Offer</th><th>Total Charges</th><th>Discount</th><th>Selected Services</th></tr>";
+	    echo "<tr><th>Service Category</th><th>Std. Charges</th><th>Partner Discount</th><th>Final Charges</th><th>247around Discount</th><th>Selected Services</th></tr>";
 	    $html = "";
 
 	    $i = 0;
@@ -723,7 +723,7 @@ class Booking extends CI_Controller {
 
 		$html .="<tr><td>" . $prices['service_category'] . "</td>";
 		$html .= "<td>" . $prices['customer_total'] . "</td>";
-		$html .= "<td><input  type='text' class='form-control' name= 'partner_paid_basic_charges[$brand][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly/></td>";
+		$html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly/></td>";
 		$html .= "<td>" . $prices['customer_net_payable'] . "</td>";
 		$html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '0' placeholder='Enter discount' readonly></td>";
 		$html .= "<td><input class='price_checkbox'";

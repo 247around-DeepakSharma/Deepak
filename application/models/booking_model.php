@@ -107,32 +107,6 @@ class Booking_model extends CI_Model {
         return $query->result_array();
     }
 
-
-//    /**
-//     *  @desc : This function gives us the booking details
-//     *
-//     *  Shows users name, phone number, services name.
-//     *
-//     *  Also shows complete booking details and also assigned service centre's basic
-//     *  details for that particular booking.
-//     *
-//     *  @param: void
-//     *  @return : array of booking details
-//     */
-//    public function viewbooking() {
-//        $query = $this->db->query("Select services.services,
-//            users.name as customername, users.phone_number,
-//            booking_details.*, service_centres.name as service_centre_name,
-//            service_centres.primary_contact_name,service_centres.primary_contact_phone_1
-//            from booking_details
-//            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
-//            JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-//            LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`"
-//        );
-//
-//        return $query->result();
-//    }
-
     /**
      *  @desc : to select the services.
      *
@@ -145,42 +119,6 @@ class Booking_model extends CI_Model {
         $query = $this->db->query("Select id,services from services where isBookingActive='1' order by services");
 	return $query->result();
     }
-
-//    /**
-//     *  @desc : Function to view pending and rescheduled bookings in Descending
-//     * order according to create date.
-//     *
-//     *  Here start and limit upto which we want to see bookings is also given
-//     *
-//     *  Shows users name, phone number, services name.
-//     *
-//     *  Also shows complete booking details and also assigned service centre's basic
-//     *  details for that particular booking.
-//     *
-//     * This will return all the pending and rescheduled booking for any date.
-//     *
-//     *  @param: start and limit for records
-//     *  @return : array of booking, users, services and service center details in sorted
-//     *          format for create date in descending order.
-//     */
-//    public function view_booking($limit, $start) {
-//        $this->db->limit($limit, $start);
-//
-//        $query = $this->db->query("Select services.services,
-//            users.name as customername, users.phone_number,
-//            booking_details.*, service_centres.name as service_centre_name,
-//            service_centres.primary_contact_name,service_centres.primary_contact_phone_1
-//            from booking_details
-//            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
-//            JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-//            LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-//            WHERE (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled')
-//            ORDER BY create_date DESC
-//            LIMIT $start,$limit"
-//        );
-//
-//        return $query->result();
-//    }
 
     /**
      *  @desc : Function to view completed bookings in Descending order according by close date.
@@ -230,70 +168,6 @@ class Booking_model extends CI_Model {
 
         return $temp;
     }
-
-
-//    /**
-//     *  @desc : Function to view pending and rescheduled bookings in current status sorted descending order.
-//     *
-//     *  Here start and limit upto which we want to see the output is given.
-//     *
-//     *  Shows users name, phone number and services name.
-//     *
-//     *  Also shows booking details and also assigned service centre's basic
-//     *  details for that particular booking.
-//     *
-//     *  @param: start and limit of result
-//     *  @return : array of booking, users, services and service center details in sorted
-//     *          format by current status in descending order.
-//     */
-//    function status_sorted_booking($limit, $start) {
-//        $query = $this->db->query("Select services.services,
-//            users.name as customername, users.phone_number,
-//            booking_details.*, service_centres.name as service_centre_name,
-//            service_centres.primary_contact_name,service_centres.primary_contact_phone_1
-//            from booking_details
-//            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
-//            JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-//            LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id` WHERE
-//            `booking_id` NOT LIKE '%Q-%' AND
-//            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled')
-//            ORDER BY current_status DESC
-//            LIMIT $start,$limit"
-//        );
-//
-//
-//        return $query->result();
-//    }
-
-//    /**
-//     *  @desc : Function to sort pending and rescheduled bookings with service center's name
-//     *
-//     * 	This method will display all the pending and rescheduled bookings present in
-//     *      sorted manner in ascending order according to service centre's name assigned for the booking.
-//     *
-//     * 	This function is usefull to get all the bookings assigned to particular vendor together.
-//     *
-//     *  @param : start and limit of result
-//     *  @return : assigned vendor sorted bookings
-//     */
-//    function service_center_sorted_booking($limit, $start) {
-//        $query = $this->db->query("Select services.services,
-//            users.name as customername, users.phone_number,
-//            booking_details.*, service_centres.name as service_centre_name,
-//            service_centres.primary_contact_name,service_centres.primary_contact_phone_1
-//            from booking_details
-//            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
-//            JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-//            LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id` WHERE
-//            `booking_id` NOT LIKE '%Q-%' AND
-//            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled')
-//            ORDER BY service_centres.name ASC
-//            LIMIT $start,$limit"
-//        );
-//
-//
-//        return $query->result();
-//    }
 
     /**
      *  @desc : Function to get service center details
@@ -487,26 +361,6 @@ class Booking_model extends CI_Model {
         return $query->result();
     }
 
-
-//    /**
-//     * @desc : This funtion is to get complete booking details
-//     * @param : start and limit of data required
-//     * @return : array of returned data
-//     */
-//    public function get_booking($limit, $start) {
-//        $this->db->limit($limit, $start);
-//        //$this->db->order_by('priority asc');
-//        $query = $this->db->get('booking_details');
-//        if ($query->num_rows() > 0) {
-//            foreach ($query->result() as $row) {
-//                $data[] = $row;
-//            }
-//            return $data;
-//            //return $query->result_array();
-//        }
-//        return false;
-//    }
-
     /**
      * @desc : This funtion is to get all booking details of particular booking.
      *
@@ -553,43 +407,6 @@ class Booking_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
-
-//    /**
-//     * @desc : This funtion gives user details
-//     *
-//     * With the help of user id finds home address of that particular user
-//     *
-//     * @param : user id
-//     * @return : user details
-//     */
-//    function user_details($user_id) {
-//        $sql = "Select home_address from users where user_id='$user_id'";
-//        $query = $this->db->query($sql);
-//
-//        return $query->result_array();
-//    }
-    //Please don't delete this function, as if now it is not been used anywhere. But can effect somewhere
-    //so after some time we can remove this
-    /**
-     *  @desc : All bookings history for a particular user
-     *  @param : user_id
-     *  @return : array(userdetails,servicename and bookingdetails)
-     */
-    /*    function booking_history_by_user_id($user_id) {
-
-      $sql = "Select services.services,"
-      . "users.name,users.user_email,users.user_id,users.phone_number,users.home_address,"
-      . "booking_details.* "
-      . "from booking_details,users,services where "
-      . "users.user_id='$user_id' and "
-      . "booking_details.user_id=users.user_id and "
-      . "services.id=booking_details.service_id";
-
-      $query = $this->db->query($sql);
-
-      return $query->result_array();
-      }
-     */
 
      /**
      * @desc: get booking history
@@ -697,8 +514,10 @@ class Booking_model extends CI_Model {
 
 	return $query->result_array();
     }
-
-    function getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id ="", $state="") {
+    /*
+     * @desc: This method return Price details. It filters according to service id, category, capacity, partner id
+     */
+    function getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $state) {
 
         $this->db->distinct();
         $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable');
@@ -706,12 +525,9 @@ class Booking_model extends CI_Model {
         $this->db->where('category', $category);
         $this->db->where('active', 1);
         $this->db->where('check_box', 1);
-
-	if($partner_id !=""){
-            $this->db->where('partner_id', $partner_id);
-            $this->db->where('state', $state);
-        }
-
+        $this->db->where('partner_id', $partner_id);
+        //$this->db->where('state', $state);
+        
     	if (!empty($capacity)) {
     		$this->db->where('capacity', $capacity);
     	}
@@ -857,28 +673,6 @@ class Booking_model extends CI_Model {
 
         return $query->result_array();
     }
-
-//    /**
-//     *  @desc : Function to get all booking details where booking type is FollowUp
-//     *
-//     *  @param : void
-//     *  @return : booking detils
-//     */
-//    function find_followup_users() {
-//        $sql = "Select * from booking_details where type='FollowUp'";
-//        $query = $this->db->query($sql);
-//
-//        return $query->result_array();
-//    }
-//    /**
-//     *  @desc : This function is to get jobcard file name.
-//     *  @param : booking id
-//     *  @return : void
-//     */
-//    function jobcard($booking_id) {
-//        $sql = "Select booking_jobcard_filename from booking_details where booking_id=$booking_id
-//                and booking_jobcard_filename is NULL";
-//    }
 
     /**
      *  @desc : This function is to get appliance count of a user
@@ -1265,53 +1059,6 @@ class Booking_model extends CI_Model {
         return $query->result_array();
     }
 
-//    /**
-//     *  @desc : Function to add single appliance while converting query to booking
-//     *
-//     *  @param : appliance details
-//     *  @return : appliance details after insertion
-//     */
-//    function addsingleappliance($booking) {
-//        $appliance_detail = array("user_id" => $booking['user_id'],
-//            "service_id" => $booking['service_id'],
-//            "brand" => $booking['appliance_brand'],
-//            "category" => $booking['appliance_category'],
-//            "capacity" => $booking['appliance_capacity'],
-//            "model_number" => $booking['model_number'],
-//            "purchase_year" => $booking['purchase_year'],
-//            "tag" => $booking['appliance_tag'],
-//            "last_service_date" => date('Y-m-d H:i:s'));
-//        $this->db->insert('appliance_details', $appliance_detail);
-//        $id = $this->db->insert_id();
-//
-//        //Just after insertion, use newly generated id to get inserted recods.
-//        $sql = "SELECT * FROM appliance_details WHERE id = $id";
-//        $query = $this->db->query($sql);
-//        return $query->result_array();
-//    }
-//
-//    /**
-//     *  @desc : Function to add single unit details while working with query
-//     *
-//     *  Through this we can insert a single unit(single appliance)while taking booking
-//     *
-//     *  @param : appliance details
-//     *  @return : void
-//     */
-//    function add_single_unit_details($booking) {
-//        $unit_detail = array("booking_id" => $booking['booking_id'],
-//            "appliance_brand" => $booking['appliance_brand'],
-//            "appliance_category" => $booking['appliance_category'],
-//            "appliance_capacity" => $booking['appliance_capacity'],
-//            "model_number" => $booking['model_number'],
-//            "price_tags" => $booking['items_selected'],
-//            "purchase_year" => $booking['purchase_year'],
-//            "total_price" => $booking['total_price'],
-//            "appliance_tag" => $booking['appliance_tag']);
-//
-//        $this->db->insert('booking_unit_details', $unit_detail);
-//    }
-
     /** @description : Function to search bookings with booking id from find user page
      *  @param : booking id
      *  @return : array(matching bookings)
@@ -1650,11 +1397,13 @@ class Booking_model extends CI_Model {
     // Update Price in unit details
     function update_price_in_unit_details($data, $unit_details){
 
-        $data['around_paid_basic_charges'] = $unit_details[0]['around_paid_basic_charges'];
-        $data['partner_paid_basic_charges'] = $unit_details[0]['partner_paid_basic_charges'];
         $data['tax_rate'] = $unit_details[0]['tax_rate'];
-
-
+        $data['around_paid_basic_charges'] = $unit_details[0]['around_paid_basic_charges'];
+        // calculate partner paid tax amount
+        $partner_paid_tax =  ($unit_details[0]['partner_paid_basic_charges'] * $data['tax_rate'])/ 100;
+        // Calculate  total partner paid charges with tax
+        $data['partner_paid_basic_charges'] = $unit_details[0]['partner_paid_basic_charges'] + $partner_paid_tax;
+       
         $vendor_total_basic_charges =  ($data['customer_paid_basic_charges'] + $data['partner_paid_basic_charges'] + $data['around_paid_basic_charges']) * basic_percentage;
         $around_total_basic_charges = ($data['customer_paid_basic_charges'] + $data['partner_paid_basic_charges'] + $data['around_paid_basic_charges'] - $vendor_total_basic_charges);
 

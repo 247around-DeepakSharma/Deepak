@@ -132,6 +132,7 @@ class bookings_excel extends CI_Controller {
 		$user['city'] = $rowData[0]['CITY'];
 
 		$state = $this->vendor_model->getall_state($user['city']);
+		 if(!empty($state))
 	    $user['state'] = $state[0]['state'];
 
 		$user_id = $this->user_model->add_user($user);
@@ -232,6 +233,7 @@ class bookings_excel extends CI_Controller {
 		$booking['query_remarks'] = '';
 		$booking['city'] = $rowData[0]['CITY'];
 		$state = $this->vendor_model->getall_state($booking['city']);
+		 if(!empty($state))
 		$booking['state'] = $state[0]['state'];
 		$booking['quantity'] = '1';
 		$booking['potential_value'] = '';
@@ -359,6 +361,7 @@ class bookings_excel extends CI_Controller {
 		$user['city'] = $rowData[0]['CITY'];
 
 		$state = $this->vendor_model->getall_state($user['city']);
+		 if(!empty($state))
 	    $user['state'] = $state[0]['state'];
 
 		$user_id = $this->user_model->add_user($user);
@@ -484,7 +487,7 @@ class bookings_excel extends CI_Controller {
 		$booking['amount_due'] = '';
 		$booking['booking_remarks'] = '';
 		$booking['query_remarks'] = 'Product Shipped, Call Customer For Booking';
-	
+	     if(!empty($state))
 		$state = $this->vendor_model->getall_state($booking['city']);
 		$booking['state'] = $state[0]['state'];
 
