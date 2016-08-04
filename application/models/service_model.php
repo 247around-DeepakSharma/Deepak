@@ -6,7 +6,6 @@ class Service_model extends CI_Model {
 function __construct(){
 parent::__Construct();
 
-$this->db_location = $this->load->database('default1', TRUE,TRUE);
 $this->db = $this->load->database('default', TRUE,TRUE);
 }
 

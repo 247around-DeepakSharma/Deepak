@@ -8,7 +8,7 @@ class Blogs_model extends CI_Model {
     function __construct() {
 	parent::__Construct();
 
-	$this->db_location = $this->load->database('default1', TRUE, TRUE);
+	
 	$this->db = $this->load->database('default', TRUE, TRUE);
 
 	$this->db_wp = $this->load->database('wordpress', TRUE, TRUE);
