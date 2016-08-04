@@ -115,6 +115,11 @@
 
                   <li class="divider"></li>
 
+                   <li >
+                       <a href="<?php echo base_url() ?>employee/bookings_excel/upload_shipped_products_excel"><i class="fa fa-fw fa-desktop"></i> <strong> Upload Snapdeal Products - Shipped</strong></a>
+                    </li>
+                  <li class="divider"></li>
+
 		  <li >
 		      <a href="<?php echo base_url()?>employee/partner_booking"><i class="fa fa-fw fa-desktop "></i> <strong> Upload Paytm Booking</strong></a>
                   </li>

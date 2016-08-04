@@ -36,7 +36,7 @@ class Service_centers_model extends CI_Model {
 
 
      /**
-      * @desc: this is used to get pending booking for specific service center id
+      * @desc: this is used to get pending booking and count pending booking for specific service center id
       * @param: end limit, start limit, service center id
       * @return: Pending booking
       */
@@ -90,7 +90,13 @@ class Service_centers_model extends CI_Model {
         
 
      }
-
+     /**
+      * @desc: this method return completed and cancelled booking according to request status
+      * @param: End limit
+      * @param: Start limit
+      * @param: service center id
+      * @param: Status+(Cancelled or Completed)
+      */
      function getcompleted_or_cancelled_booking($limit="", $start="", $service_center_id, $status){
         if($limit!="count"){
             $this->db->limit($limit, $start);
@@ -120,7 +126,9 @@ class Service_centers_model extends CI_Model {
 
         return $t2 - $t1;
     }
-
+    /**
+     *
+     */
     function getcharges_filled_by_service_center($booking_id, $status){
 
         $this->db->distinct();
@@ -149,5 +157,13 @@ class Service_centers_model extends CI_Model {
             $booking[$key]['unit_details'] = $result; 
         }
         return $booking;
+    }
+    /**
+     * @desc: this method update service center action table
+     */
+    function update_service_centers_action_table($booking_id, $data){
+      $this->db->where('booking_id', $booking_id);
+      $this->db->update('service_center_booking_action', $data);
+
     }
 }
