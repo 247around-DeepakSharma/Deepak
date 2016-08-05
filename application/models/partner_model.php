@@ -221,7 +221,7 @@ class Partner_model extends CI_Model {
             `booking_details`.booking_id NOT LIKE 'Q-%' $where AND
             (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled')"
         );
-        
+
 
         if($limit =="count"){
             $temp1 = $query->result_array();
@@ -235,7 +235,7 @@ class Partner_model extends CI_Model {
             return array_slice($temp, $start, $limit);
         }
      }
-     
+
 
     /**
       * @desc: this is used to get pending queries for specific partner id
@@ -245,8 +245,10 @@ class Partner_model extends CI_Model {
      function getPending_queries($limit="", $start="", $partner_id ){
         $where = "";
         $where .= " AND partner_id = '" . $partner_id . "'";
-      
-        $query = $this->db->query("Select services.services,
+	$where .= " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR
+			    booking_details.booking_date='')";
+
+	$query = $this->db->query("Select services.services,
             users.name as customername, users.phone_number,
             booking_details.*
 
@@ -258,7 +260,7 @@ class Partner_model extends CI_Model {
             `booking_details`.booking_id LIKE 'Q-%' $where AND
              booking_details.current_status='FollowUp' "
         );
-        
+
 
         if($limit =="count"){
             $temp1 = $query->result_array();

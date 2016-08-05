@@ -219,21 +219,27 @@ class bookings_excel extends CI_Controller {
 		//Add source and partner ID depending on the brand
 		//Ray and Wybor are Partners
 		//Hardcoded partner ID & Source as of now
-		switch ($booking['appliance_brand']) {
-		    case 'Wybor':
-			$booking['partner_id'] = '247010';
-			$booking['source'] = "SY";
-			break;
+		//Check whether pincode belongs to Tamilnadu or not
+		if (substr($lead_details['Pincode'], 0, 1) == "6") {
+		    switch ($booking['appliance_brand']) {
+			case 'Wybor':
+			    $booking['partner_id'] = '247010';
+			    $booking['source'] = "SY";
+			    break;
 
-		    case 'Ray':
-			$booking['partner_id'] = '247011';
-			$booking['source'] = "SR";
-			break;
+			case 'Ray':
+			    $booking['partner_id'] = '247011';
+			    $booking['source'] = "SR";
+			    break;
 
-		    default:
-			$booking['partner_id'] = '1';
-			$booking['source'] = "SS";
-			break;
+			default:
+			    $booking['partner_id'] = '1';
+			    $booking['source'] = "SS";
+			    break;
+		    }
+		} else {
+		    $booking['partner_id'] = '1';
+		    $booking['source'] = "SS";
 		}
 
 		$booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
@@ -512,22 +518,27 @@ class bookings_excel extends CI_Controller {
 
 		//Add source and partner ID depending on the brand
 		//Ray and Wybor are Partners
-		//Hardcoded partner ID & Source as of now
-		switch ($booking['appliance_brand']) {
-		    case 'Wybor':
-			$booking['partner_id'] = '247010';
-			$booking['source'] = "SY";
-			break;
+		//Check whether pincode belongs to Tamilnadu or not
+		if (substr($lead_details['Pincode'], 0, 1) == "6") {
+		    switch ($booking['appliance_brand']) {
+			case 'Wybor':
+			    $booking['partner_id'] = '247010';
+			    $booking['source'] = "SY";
+			    break;
 
-		    case 'Ray':
-			$booking['partner_id'] = '247011';
-			$booking['source'] = "SR";
-			break;
+			case 'Ray':
+			    $booking['partner_id'] = '247011';
+			    $booking['source'] = "SR";
+			    break;
 
-		    default:
-			$booking['partner_id'] = '1';
-			$booking['source'] = "SS";
-			break;
+			default:
+			    $booking['partner_id'] = '1';
+			    $booking['source'] = "SS";
+			    break;
+		    }
+		} else {
+		    $booking['partner_id'] = '1';
+		    $booking['source'] = "SS";
 		}
 
 		$booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];

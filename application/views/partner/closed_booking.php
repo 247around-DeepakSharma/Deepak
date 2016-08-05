@@ -3,7 +3,7 @@
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> <?php echo $status." Booking" ?>  (<?php echo $count; ?>)</h2>
+                    <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> <?php echo $status." Bookings" ?>  (<?php echo $count; ?>)</h2>
                 </div>
 
                 <div class="panel-body">
@@ -13,9 +13,9 @@
                                 <tr>
                                    <th>S No.</th>
                                    <th>Order ID</th>
-                                   <th>Booking ID</th>
+                                   <th>247around Booking ID</th>
                                    <th>User Name</th>
-                                   <th>Phone No.</th>
+                                   <th>Mobile</th>
                                    <th>City</th>
                                    <th>Booking Date</th>
                                    <?php if($status == "Cancelled"){ ?>

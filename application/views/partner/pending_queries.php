@@ -12,9 +12,9 @@
                         <tr>
                            <th>S No.</th>
                            <th>Order ID</th>
-                           <th>Booking ID</th>
+                           <th>247around Booking ID</th>
                            <th>User Name</th>
-                           <th>Phone No.</th>
+                           <th>Mobile</th>
                            <th>City</th>
                            <th>Booking Date</th>
                            <th>View</th>
