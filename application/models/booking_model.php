@@ -1622,15 +1622,29 @@ class Booking_model extends CI_Model {
     // This is for testing after testing it will remove 
 
     function get_all_booking_id(){
-        $this->db->select('booking_details.booking_id, booking_details.partner_id, booking_details.service_id, booking_details.appliance_id, booking_unit_details.appliance_capacity, booking_unit_details.appliance_brand, booking_unit_details.appliance_category, booking_unit_details.price_tags, booking_unit_details.appliance_tag, booking_unit_details.purchase_month, booking_unit_details.purchase_year, booking_unit_details.model_number, booking_details.service_charge, booking_details.additional_service_charge, booking_details.parts_cost ');
+      
 
-        $this->db->from('booking_details');
-        $this->db->join('booking_unit_details','booking_unit_details.booking_id = booking_details.booking_id ');
-        
-        $query = $this->db->get();
+        $sql = "SELECT booking_details.booking_id, booking_details.partner_id, booking_details.service_id, booking_details.appliance_id, booking_unit_details.appliance_capacity, booking_unit_details.appliance_brand, booking_unit_details.appliance_category, booking_unit_details.price_tags, booking_unit_details.appliance_tag, booking_unit_details.purchase_month, booking_unit_details.purchase_year, booking_unit_details.model_number, booking_details.service_charge, booking_details.additional_service_charge, booking_details.parts_cost, booking_details.internal_status 
+            from booking_details, booking_unit_details
+            where `closed_date` >= '2016-06-01 00:00:00' AND `closed_date` < '2016-07-01 00:00:00' AND `current_status` = 'Completed' AND booking_unit_details.booking_id = booking_details.booking_id 
+
+            ";
+
+            $query = $this->db->query($sql);
         $result = $query->result_array();
         return $result;
 
+    }
+
+    function getbookingid(){
+         $sql = "SELECT booking_details.booking_id, booking_details.service_charge, booking_details.additional_service_charge, booking_details.parts_cost, booking_details.internal_status 
+            from booking_details
+            where `closed_date` >= '2016-06-01 00:00:00' AND `closed_date` < '2016-07-01 00:00:00' AND `current_status` = 'Completed' 
+            ";
+
+            $query = $this->db->query($sql);
+        $result = $query->result_array();
+        return $result;
     }
 
         function update_unit_details_by_id($id, $data){
@@ -1715,10 +1729,12 @@ class Booking_model extends CI_Model {
        // print_r($unit_details);
         $data['id'] = $result1[$key]['id'];
 
-        echo "<br/>";
+        /*echo "<br/>";
             print_r($data);
             echo "<br/>";
-
+         print_r($unit_details);
+        echo "<br/>";*/
+       
         $this->update_price_in_unit_details($data, $unit_details);
 
         }

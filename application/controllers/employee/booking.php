@@ -1623,27 +1623,32 @@ class Booking extends CI_Controller {
     			case 'Installation':
     			case 'Installation,':
     			case 'InstallationwithoutStand,' :
-    				    $data  = array();
+    			case 'Installation,WallMountStand,':
+    			case 'Installation with Stand,':
+    			case 'InstallationwithStand,':
+
+    			switch ($value['internal_status']) {
+    				case 'Completed TV Without Stand':
+    				case 'Completed With Demo':
+    				case 'Completed':
+
+    					
+    					 $data  = array();
     			        $data['appliance_id'] =  $value['appliance_id'];
     		            $data['partner_id'] =  $value['partner_id'];
     		            $data['service_id'] = $value['service_id'];  
     			        $data['price_tags'] = "Installation & Demo";
     			        
-    		          echo "<br/>";
+    		         /*/ echo "<br/>";
 			    			 print_r($value['price_tags']);
     		            echo "<br/>";
     		            print_r($data);
-    		             echo "<br/>";
+    		             echo "<br/>";*/
     			        $this->booking_model->update_booking_unit_details( $booking_id, $data); 
-    			
-    				
-    				break;
+    					break;
 
-    				case 'Installation,WallMountStand,':
-    				case 'Installation with Stand,':
-    				case 'InstallationwithStand,':
-    					
-    					$data  = array();
+    			    case 'Completed TV With Stand':
+    			    	$data  = array();
 		                $data['appliance_id'] =  $value['appliance_id'];
 		    		    $data['partner_id'] =  $value['partner_id'];
 		    		    $data['service_id'] = $value['service_id']; 
@@ -1674,6 +1679,13 @@ class Booking extends CI_Controller {
     		            print_r($data);
 		    			
 		    			$this->booking_model->addunitdetails($data);
+    			    	break;
+    				
+    				default:
+    					echo $value['booking_id'];
+    					break;
+    			}
+
     					break;
 
     					case 'Repair,':
@@ -1877,7 +1889,7 @@ echo "<br/>";
     }
 
     function test2(){
-    	$booking_details = $this->booking_model->get_all_booking_id();
+    	$booking_details = $this->booking_model->getbookingid();
     	foreach ($booking_details as $key => $value) {
 
     		$data = array();
@@ -1888,9 +1900,11 @@ echo "<br/>";
 
 	        $this->booking_model->update_unit_price($value['booking_id'], $data);
 	        echo "<br/>";
-	        //print_r($data);
+	       // print_r($data);
 	        echo "<br/>";
     	}
+
+    	//print_r($booking_details);
     }
 
 }
