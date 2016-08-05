@@ -1440,7 +1440,10 @@ class Booking_model extends CI_Model {
             $data['vendor_to_around'] = 0;
             $data['around_to_vendor'] = abs($vendor_around_charge);
         }
-        print_r($data);
+        echo "<br/>";
+            print_r($data);
+            echo "<br/>";
+
         unset($data['internal_status']);
         $this->db->where('id', $data['id']);
         $this->db->update('booking_unit_details',$data);
@@ -1614,6 +1617,113 @@ class Booking_model extends CI_Model {
         $this->update_unit_details($data);
 
         return true;
+    }
+
+    // This is for testing after testing it will remove 
+
+    function get_all_booking_id(){
+        $this->db->select('booking_details.booking_id, booking_details.partner_id, booking_details.service_id, booking_details.appliance_id, booking_unit_details.appliance_capacity, booking_unit_details.appliance_brand, booking_unit_details.appliance_category, booking_unit_details.price_tags, booking_unit_details.appliance_tag, booking_unit_details.purchase_month, booking_unit_details.purchase_year, booking_unit_details.model_number, booking_details.service_charge, booking_details.additional_service_charge, booking_details.parts_cost ');
+
+        $this->db->from('booking_details');
+        $this->db->join('booking_unit_details','booking_unit_details.booking_id = booking_details.booking_id ');
+        
+        $query = $this->db->get();
+        $result = $query->result_array();
+        return $result;
+
+    }
+
+        function update_unit_details_by_id($id, $data){
+        $this->db->where('id', $id);
+        $this->db->update('booking_unit_details', $data);
+        return true;
+    }
+
+
+     function getPrices($service_id, $category, $capacity, $partner_id, $price_tags) {
+
+        $this->db->distinct();
+        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable');
+        $this->db->where('service_id',$service_id);
+        $this->db->where('category', $category);
+        $this->db->where('active', 1);
+        $this->db->where('check_box', 1);
+        $this->db->where('partner_id', $partner_id);
+        $this->db->where('service_category', $price_tags);
+        //$this->db->where('state', $state);
+        
+        if (!empty($capacity)) {
+            $this->db->where('capacity', $capacity);
+        }
+
+        $query = $this->db->get('service_centre_charges');
+
+        return $query->result_array();
+    }
+
+    function get_all_booking_unit(){
+        $query = $this->db->get('booking_unit_details');
+        return $query->result_array();
+    }
+
+    function return_source($booking_id){
+        $this->db->select('source');
+       $this->db->where('booking_id', $booking_id);
+       $query = $this->db->get('booking_details');
+       return $query->result_array();
+    }
+
+    function update_prices($services_details, $booking_id){
+         $data = $this->getpricesdetails_with_tax($services_details['id']);
+
+        $result = array_merge($services_details, $data[0]);
+
+        unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
+         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_net_payable'] - $result['around_paid_basic_charges'];
+               //log_message ('info', __METHOD__ . "update booking_unit_details data". print_r($result));
+         $result['partner_paid_basic_charges '] =  $result['partner_net_payable'];
+        $this->db->select('id');
+        $this->db->where('appliance_id', $services_details['appliance_id']);
+        $this->db->where('price_tags', $data[0]['price_tags']);
+        $this->db->where('booking_id', $booking_id);
+        $query = $this->db->get('booking_unit_details');
+       
+        if($query->num_rows >0){
+
+            $unit_details = $query->result_array();
+             print_r($unit_details);
+             echo "<br/>";
+            $this->db->where('id',  $unit_details[0]['id']);
+            $this->db->update('booking_unit_details', $result);
+
+         } 
+    }
+
+
+    function update_unit_price($booking_id, $data){
+        $this->db->select('*');
+        $this->db->where('booking_id', $booking_id);
+        $query = $this->db->get('booking_unit_details');
+        $result1 = $query->result_array();
+        foreach ($result1 as $key => $value) {
+
+        $this->db->select('around_net_payable, partner_net_payable, tax_rate, price_tags, partner_paid_basic_charges, around_paid_basic_charges');
+        $this->db->where('id', $result1[$key]['id']);
+        $query = $this->db->get('booking_unit_details');
+        $unit_details = $query->result_array();
+
+       // print_r($unit_details);
+        $data['id'] = $result1[$key]['id'];
+
+        echo "<br/>";
+            print_r($data);
+            echo "<br/>";
+
+        $this->update_price_in_unit_details($data, $unit_details);
+
+        }
+
+        
     }
 
 
