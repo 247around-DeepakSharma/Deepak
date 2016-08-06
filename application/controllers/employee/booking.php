@@ -6,6 +6,8 @@ if (!defined('BASEPATH')) {
 
 //error_reporting(E_ALL);
 //ini_set('display_errors', '1');
+ini_set('memory_limit', '-1');
+ini_set('max_execution_time', 3600);
 
 define('Partner_Integ_Complete', TRUE);
 
