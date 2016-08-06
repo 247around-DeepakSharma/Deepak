@@ -1349,9 +1349,9 @@ class Booking_model extends CI_Model {
         return;
     }
 
-    function getpricesdetails_with_tax($service_centre_charges_id){
+    function getpricesdetails_with_tax($service_centre_charges_id, $state){
 
-        $sql =" SELECT service_category as price_tags, customer_total, partner_net_payable, rate as tax_rate, product_or_services from service_centre_charges, tax_rates where `service_centre_charges`.id = '$service_centre_charges_id' AND `tax_rates`.tax_code = `service_centre_charges`.tax_code AND `tax_rates`.state = `service_centre_charges`.state AND `tax_rates`.product_type = `service_centre_charges`.product_type AND (to_date is NULL or to_date >= CURDATE() ) AND `tax_rates`.active = 1 ";
+        $sql =" SELECT service_category as price_tags, customer_total, partner_net_payable, rate as tax_rate, product_or_services from service_centre_charges, tax_rates where `service_centre_charges`.id = '$service_centre_charges_id' AND `tax_rates`.tax_code = `service_centre_charges`.tax_code AND `tax_rates`.state = '$state' AND `tax_rates`.product_type = `service_centre_charges`.product_type AND (to_date is NULL or to_date >= CURDATE() ) AND `tax_rates`.active = 1 ";
 
         $query = $this->db->query($sql);
         return $query->result_array();
@@ -1677,7 +1677,7 @@ class Booking_model extends CI_Model {
 
     function get_all_booking_unit(){
 
-        $sql = " SELECT * FROM `booking_unit_details` WHERE `booking_id` in (SELECT `booking_id` FROM `booking_details` WHERE `closed_date` >= '2016-06-01 00:00:00' AND `closed_date` < '2016-07-01 00:00:00' AND `current_status` = 'Completed')";
+        $sql = " SELECT booking_unit_details.*, `booking_details`.city FROM `booking_unit_details`, booking_details WHERE `booking_unit_details`.booking_id = `booking_details.booking_id` AND `booking_id` in (SELECT `booking_id` FROM `booking_details` WHERE `closed_date` >= '2016-06-01 00:00:00' AND `closed_date` < '2016-07-01 00:00:00' AND `current_status` = 'Completed')";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
@@ -1689,8 +1689,8 @@ class Booking_model extends CI_Model {
        return $query->result_array();
     }
 
-    function update_prices($services_details, $booking_id){
-         $data = $this->getpricesdetails_with_tax($services_details['id']);
+    function update_prices($services_details, $booking_id, $state){
+         $data = $this->getpricesdetails_with_tax($services_details['id'], $state);
 
         $result = array_merge($services_details, $data[0]);
 

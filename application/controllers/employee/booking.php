@@ -1833,7 +1833,10 @@ class Booking extends CI_Controller {
 		unset($data['id']);
 		$data['id'] = $prices[0]['id'];
 
-		$this->booking_model->update_prices($data, $data['booking_id']);
+		$state = $this->vendor_model->selectSate($data['city']);
+	    unset($data['city']);
+
+		$this->booking_model->update_prices($data, $data['booking_id'], $state[0]['state']);
 	    }
 	}
     }

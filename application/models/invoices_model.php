@@ -394,4 +394,12 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 	return $invoice;
     }
 
+    function get_total_booking_for_check_invoices($vendor_id, $from_date, $to_date){
+        $sql = "SELECT count(booking_id) as count from booking_details where assigned_vendor_id = '$vendor_id' AND closed_date >= '$from_date' AND closed_date < '$to_date'  ";
+        $query = $this->db->query($sql);
+
+        $return =  $query->result_array();
+        return $return[0]['count'];
+    }
+
 }

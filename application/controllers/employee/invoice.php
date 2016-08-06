@@ -570,11 +570,32 @@ class Invoice extends CI_Controller {
 	//$date_ragnge = "2016/06/01-2016/06/30";
 	$data = $this->invoices_model->generate_vendor_invoices($vendor_id, $date_ragnge);
 
-	$this->generate_cash_invoices_for_vendors($data['invoice1']);
-	$this->generate_foc_invoices_for_vendors($data['invoice2']);
+	$cash_data = $this->generate_cash_invoices_for_vendors($data['invoice1']);
+	$foc_data = $this->generate_foc_invoices_for_vendors($data['invoice2']);
 
-	//$this->load->view('employee/test', $data);
+    $result = array_merge($foc_data,$cash_data);
+     echo "<br/>";
+     echo "<br/>";
+    print_r($result);
+     echo "<br/>";
+     echo "<br/>";
+    $unique_vendor = array_unique(array_map(function ($k) { 
+            return $k['vendor_id'];
+        }, $result));
+
+    $arrayName = array( );
+    foreach ($unique_vendor as $key => $value) {
+        
+        $count['booking_count'] = $this->invoices_model->get_total_booking_for_check_invoices($value, $result[0]['start_date'], $result[0]['end_date']);
+        $count['vendor_id'] = $value;
+        array_push($arrayName, $count);
     }
+    echo "<br/>";
+     echo "<br/>";
+    print_r($arrayName);
+
+    
+    } 
 
     function generate_cash_invoices_for_vendors($data) {
 
@@ -583,10 +604,12 @@ class Invoice extends CI_Controller {
 	$template = 'vendor_to_around_invoices.xlsx';
 	//set absolute path to directory with template files
 	$templateDir = __DIR__ . "/../";
-
+    $cash_count_data = array();
 	for ($i = 0; $i < count($data); $i++) {
 
 	    $invoices = $data[$i];
+        if(!empty($invoices)){
+
 	    $excel_data = array();
 
 	    $unique_booking = array_unique(array_map(function ($k) { 
@@ -594,7 +617,6 @@ class Invoice extends CI_Controller {
         }, $invoices));
 
         $count = count($unique_booking);
-
 
 	    log_message('info', __FUNCTION__ . '=> Start Date: ' . $invoices[0]['start_date'] . ', End Date: ' . $invoices[0]['end_date']);
 	    //echo $start_date, $end_date;
@@ -788,13 +810,22 @@ class Invoice extends CI_Controller {
 	     * Since this is a type 'Cash' invoice, it would be stored as a vendor-debit invoice.
 	     */
 	    //$this->update_booking_invoice_mappings_repairs($invoices, $invoice_id);
+        $smail_data['vendor_id']['foc'] = $invoices[0]['id'];
+        $smail_data['vendor_name'] =  $invoices[0]['name'];
+        $smail_data['type'] =  "A";
+        $smail_data['booking_count'] = $count;
+        $smail_data['start_date'] = $invoices[0]['start_date'];
+        $smail_data['end_date'] = $invoices[0]['end_date'];
+        array_push($cash_count_data, $smail_data);
+        }
 	}
 
 	//Delete XLS files now
 	/*  foreach ($file_names as $file_name)
 	  exec("rm -rf " . escapeshellarg($file_name));
 
-	  exit(0); */
+	  */
+      return $cash_count_data;
     }
 
     function generate_foc_invoices_for_vendors($data) {
@@ -807,8 +838,13 @@ class Invoice extends CI_Controller {
 	$template = 'around_to_vendor_invoices.xlsx';
 	//set absolute path to directory with template files
 	$templateDir = __DIR__ . "/../";
+    $foc_count_data = array();
 
 	for ($i = 0; $i < count($data); $i++) {
+
+        $invoices = $data[$i];
+        if(!empty($invoices)){
+
 	    $total_inst_charge = 0;
 	    $total_st_charge = 0;
 	    $total_stand_charge = 0;
@@ -827,8 +863,6 @@ class Invoice extends CI_Controller {
 	    $r_vat = $total_vat_charge * .30;
 	    $r_stand = $total_stand_charge * .30;
 	    $t_total = $total_inst_charge + $total_stand_charge + $total_st_charge + $total_vat_charge;
-
-	    $invoices = $data[$i];
 
 	    $excel_data = array();
 
@@ -1028,6 +1062,14 @@ class Invoice extends CI_Controller {
 	     * Since this is a type A invoice, it would be stored as a vendor-debit invoice.
 	     */
 	    //$this->update_booking_invoice_mappings_installations($invoices, $invoice_id);
+        $smail_data['vendor_id'] = $invoices[0]['id'];
+        $smail_data['vendor_name'] =  $invoices[0]['name'];
+        $smail_data['type'] =  "B";
+        $smail_data['booking_count'] = $count;
+        $smail_data['start_date'] = $invoices[0]['start_date'];
+        $smail_data['end_date'] = $invoices[0]['end_date'];
+        array_push($foc_count_data, $smail_data);
+        }
 	}
 
 
@@ -1036,7 +1078,9 @@ class Invoice extends CI_Controller {
 	/* foreach ($file_names as $file_name)
 	  exec("rm -rf " . escapeshellarg($file_name));
 
-	  exit(0); */
+	   */
+
+      return $foc_count_data;
     }
 
     /*
