@@ -1633,7 +1633,7 @@ class Booking extends CI_Controller {
     				case 'Completed':
 
     					
-    					 $data  = array();
+    					$data  = array();
     			        $data['appliance_id'] =  $value['appliance_id'];
     		            $data['partner_id'] =  $value['partner_id'];
     		            $data['service_id'] = $value['service_id'];  
@@ -1648,6 +1648,7 @@ class Booking extends CI_Controller {
     					break;
 
     			    case 'Completed TV With Stand':
+
     			    	$data  = array();
 		                $data['appliance_id'] =  $value['appliance_id'];
 		    		    $data['partner_id'] =  $value['partner_id'];
@@ -1657,7 +1658,7 @@ class Booking extends CI_Controller {
 		    			$data['price_tags'] = "Installation & Demo";
 		    			$unit_id = $unit_details[0]['id'];
 		    			
-
+                       
 		    			$this->booking_model->update_unit_details_by_id($unit_id, $data);
 		               
 		    			$data['booking_id'] = $value['booking_id'];
@@ -1682,6 +1683,7 @@ class Booking extends CI_Controller {
     					break;
 
     					case 'Repair,':
+    					case 'Repair':
     						$data  = array();
     			            $data['appliance_id'] =  $value['appliance_id'];
     		                $data['partner_id'] =  $value['partner_id'];
@@ -1837,7 +1839,7 @@ echo "<br/>";
         	$prices = $this->booking_model->getPrices($data['service_id'],$data['appliance_category'], $data['appliance_capacity'], $partner_id, $data['price_tags']);
         	if(empty($prices)){
 
-echo $data['service_id']."<br/>".$data['appliance_category']."<br/>".$data['appliance_capacity']."<br/>". $partner_id."<br/>" .$data['price_tags'];
+echo $data['service_id']."<br/>".$data['appliance_category']."<br/>".$data['appliance_capacity']."<br/>". $partner_id."<br/>" .$data['price_tags']. $data['booking_id'];
 echo "<br/>";
         	} else {
         		unset($data['id']);
