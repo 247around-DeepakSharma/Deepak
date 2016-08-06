@@ -344,7 +344,7 @@ class vendor_model extends CI_Model {
         $this->db->distinct();
         $this->db->select('state');
         if ($city != "") {
-            $this->db->where('district', $city);
+            $this->db->LIKE('district', $city);
         }
         $this->db->order_by('state');
         $query = $this->db->get('india_pincode');

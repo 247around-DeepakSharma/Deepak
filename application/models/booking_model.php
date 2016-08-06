@@ -1677,7 +1677,7 @@ class Booking_model extends CI_Model {
 
     function get_all_booking_unit(){
 
-        $sql = " SELECT booking_unit_details.*, `booking_details`.city FROM `booking_unit_details`, booking_details WHERE `booking_unit_details`.booking_id = `booking_details.booking_id` AND `booking_id` in (SELECT `booking_id` FROM `booking_details` WHERE `closed_date` >= '2016-06-01 00:00:00' AND `closed_date` < '2016-07-01 00:00:00' AND `current_status` = 'Completed')";
+        $sql = " SELECT booking_unit_details.*, `booking_details`.city FROM `booking_unit_details`, booking_details WHERE `booking_unit_details`.booking_id = `booking_details`.`booking_id` AND `booking_unit_details`.`booking_id` in (SELECT booking_id FROM `booking_details` WHERE `closed_date` >= '2016-06-01 00:00:00' AND `closed_date` < '2016-07-01 00:00:00' AND `current_status` = 'Completed')";
         $query = $this->db->query($sql);
         return $query->result_array();
     }

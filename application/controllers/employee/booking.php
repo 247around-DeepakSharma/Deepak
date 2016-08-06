@@ -1825,16 +1825,26 @@ class Booking extends CI_Controller {
 	    $partner_id = $this->booking_model->get_price_mapping_partner_code($booking[0]['source']);
 
 	    $prices = $this->booking_model->getPrices($data['service_id'], $data['appliance_category'], $data['appliance_capacity'], $partner_id, $data['price_tags']);
+
+	    $state = $this->vendor_model->getall_state($data['city']);
+	    
+
 	    if (empty($prices)) {
 
-		echo $data['service_id'] . "<br/>" . $data['appliance_category'] . "<br/>" . $data['appliance_capacity'] . "<br/>" . $partner_id . "<br/>" . $data['price_tags'] . $data['booking_id'];
+		echo $data['service_id'] . "<br/>" . $data['appliance_category'] . "<br/>" . $data['appliance_capacity'] . "<br/>" . $partner_id . "<br/>" . $data['price_tags'] ."<br/>" .$data['booking_id']."<br/>";
+		echo "<br/><br/>";
+		print_r($state);
 		echo "<br/><br/>";
 	    } else {
 		unset($data['id']);
 		$data['id'] = $prices[0]['id'];
 
-		$state = $this->vendor_model->selectSate($data['city']);
-	    unset($data['city']);
+		if(empty($state)){
+			echo $data['city'];
+		}
+
+		unset($data['city']);
+
 
 		$this->booking_model->update_prices($data, $data['booking_id'], $state[0]['state']);
 	    }
