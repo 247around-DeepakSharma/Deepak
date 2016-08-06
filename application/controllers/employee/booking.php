@@ -1615,7 +1615,7 @@ class Booking extends CI_Controller {
     function test(){
 
     	$booking_details = $this->booking_model->get_all_booking_id();
-    	print_r($booking_details);
+    	//print_r($booking_details);
     	foreach ($booking_details as $key => $value) {
     		$booking_id =  $value['booking_id'];
 
@@ -1670,10 +1670,6 @@ class Booking extends CI_Controller {
 		    			$data['purchase_year'] = $value['purchase_year'];
 		    			$data['purchase_month'] =  $value['purchase_month'];
 		    			$data['price_tags'] = "Wall Mount Stand";
-		    			echo "<br/>";
-			    			 print_r($value['price_tags']);
-    		            echo "<br/>";
-    		            print_r($data);
 		    			
 		    			$this->booking_model->addunitdetails($data);
     			    	break;
