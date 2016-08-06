@@ -1656,10 +1656,7 @@ class Booking extends CI_Controller {
 		    			
 		    			$data['price_tags'] = "Installation & Demo";
 		    			$unit_id = $unit_details[0]['id'];
-		    			echo "<br/>";
-			    			 print_r($value['price_tags']);
-    		            echo "<br/>";
-    		            print_r($data);
+		    			
 
 		    			$this->booking_model->update_unit_details_by_id($unit_id, $data);
 		               
@@ -1695,9 +1692,7 @@ class Booking extends CI_Controller {
     		                $data['service_id'] = $value['service_id'];  
     			            $data['price_tags'] = "Repair";
     			        
-    		                 print_r($value['price_tags']);
-    		            echo "<br/>";
-    		            print_r($data);
+    		               
     			            $this->booking_model->update_booking_unit_details( $booking_id, $data); 
     						break;
 
@@ -1709,10 +1704,7 @@ class Booking extends CI_Controller {
     		                $data['service_id'] = $value['service_id'];  
     			            $data['price_tags'] = "Visit";
     			        
-    		                  echo "<br/>";
-			    			 print_r($value['price_tags']);
-    		            echo "<br/>";
-    		            print_r($data);
+    		              
     			            $this->booking_model->update_booking_unit_details( $booking_id, $data); 
     				    	
     				    	break;
@@ -1725,9 +1717,7 @@ class Booking extends CI_Controller {
 			    			
 			    			$data['price_tags'] = "Repair";
 			    			$unit_id = $unit_details[0]['id'];
-                              print_r($value['price_tags']);
-    		            echo "<br/>";
-    		            print_r($data);
+                            
 			    			$this->booking_model->update_unit_details_by_id($unit_id, $data);
 			               
 			    			$data['booking_id'] = $value['booking_id'];
@@ -1740,10 +1730,7 @@ class Booking extends CI_Controller {
 			    			$data['purchase_year'] = $value['purchase_year'];
 			    			$data['purchase_month'] =  $value['purchase_month'];
 			    			$data['price_tags'] = "Installation & Demo";
-			    			  echo "<br/>";
-			    			 print_r($value['price_tags']);
-    		            echo "<br/>";
-    		            print_r($data);
+			    			
 			    			$this->booking_model->addunitdetails($data);
     				    	break;
 
@@ -1769,9 +1756,6 @@ class Booking extends CI_Controller {
 			    			$data['price_tags'] = "Installation & Demo";
 			    			$unit_id = $unit_details[0]['id'];
 echo "<br/>";
-			    			 print_r($value['price_tags']);
-    		            echo "<br/>";
-    		            print_r($data);
 			    			$this->booking_model->update_unit_details_by_id($unit_id, $data);
 			               
 			    			$data['booking_id'] = $value['booking_id'];
@@ -1784,10 +1768,7 @@ echo "<br/>";
 			    			$data['purchase_year'] = $value['purchase_year'];
 			    			$data['purchase_month'] =  $value['purchase_month'];
 			    			$data['price_tags'] = "Uninstallation";
-			    			echo "<br/>";
-			    			 print_r($value['price_tags']);
-    		            echo "<br/>";
-    		            print_r($data);
+			    			
 			    			$this->booking_model->addunitdetails($data);
     				    	break;
 
@@ -1797,10 +1778,7 @@ echo "<br/>";
     		                $data['partner_id'] =  $value['partner_id'];
     		                $data['service_id'] = $value['service_id'];  
     			            $data['price_tags'] = "Gas Recharge";
-    			        echo "<br/>";
-    		 print_r($value['price_tags']);
-    		            echo "<br/>";
-    		            print_r($data);
+    			      
     			            $this->booking_model->update_booking_unit_details( $booking_id, $data); 
     				    	break;
     				    case 'Uninstallation,':
@@ -1809,10 +1787,7 @@ echo "<br/>";
     		                $data['partner_id'] =  $value['partner_id'];
     		                $data['service_id'] = $value['service_id'];  
     			            $data['price_tags'] = "Uninstallation";
-    			        echo "<br/>";
-    		 print_r($value['price_tags']);
-    		            echo "<br/>";
-    		            print_r($data);
+    			       
     			            $this->booking_model->update_booking_unit_details( $booking_id, $data); 
     				    	break;
     				    case 'Installation,Repair,':
@@ -1824,10 +1799,7 @@ echo "<br/>";
 			    			
 			    			$data['price_tags'] = "Repair";
 			    			$unit_id = $unit_details[0]['id'];
-			    			echo "<br/>";
- print_r($value['price_tags']);
-    		            echo "<br/>";
-    		            print_r($data);
+			    			
 			    			$this->booking_model->update_unit_details_by_id($unit_id, $data);
 			               
 			    			$data['booking_id'] = $value['booking_id'];
@@ -1840,10 +1812,7 @@ echo "<br/>";
 			    			$data['purchase_year'] = $value['purchase_year'];
 			    			$data['purchase_month'] =  $value['purchase_month'];
 			    			$data['price_tags'] = "Installation & Demo";
-			    			echo "<br/>";
-			    			 print_r($value['price_tags']);
-    		            echo "<br/>";
-    		            print_r($data);
+			    			
 			    			$this->booking_model->addunitdetails($data);
     				    	break;
     			

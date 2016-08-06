@@ -623,4 +623,37 @@ ALTER TABLE  `service_center_booking_action` ADD  `unit_details_id` INT( 25 ) NU
 
 ALTER TABLE  `booking_details` CHANGE  `order_id`  `order_id` VARCHAR( 25 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
 
---Anuj 30/07
+--Abhya 06/07
+
+ALTER TABLE  `booking_unit_details` ADD  `product_or_services` VARCHAR( 50 ) NOT NULL AFTER  `purchase_month` ,
+ADD  `tax_rate` DECIMAL( 10, 3 ) NOT NULL AFTER  `product_or_services` ,
+ADD  `customer_total` DECIMAL( 10, 2 ) NOT NULL AFTER  `tax_rate` ,
+ADD  `customer_net_payable` DECIMAL( 10, 2 ) NOT NULL AFTER  `customer_total` ,
+ADD  `partner_net_payable` DECIMAL( 10, 2 ) NOT NULL AFTER  `customer_net_payable` ,
+ADD  `around_net_payable` DECIMAL( 10, 2 ) NOT NULL AFTER  `partner_net_payable` ,
+ADD  `customer_paid_basic_charges` DECIMAL( 10, 2 ) NOT NULL AFTER  `around_net_payable` ,
+ADD  `partner_paid_basic_charges` DECIMAL( 10, 2 ) NOT NULL AFTER  `customer_paid_basic_charges` ,
+ADD  `around_paid_basic_charges` DECIMAL( 10, 2 ) NOT NULL AFTER  `partner_paid_basic_charges` ,
+ADD  `around_comm_basic_charges` DECIMAL( 10, 2 ) NOT NULL AFTER  `around_paid_basic_charges` ;
+
+
+ALTER TABLE  `booking_unit_details` ADD  `around_st_or_vat_basic_charges` DECIMAL( 10, 2 ) NOT NULL AFTER `around_comm_basic_charges` ,
+ADD  `vendor_basic_charges` DECIMAL( 10, 2 ) NOT NULL AFTER  `around_st_or_vat_basic_charges` ,
+ADD  `vendor_st_or_vat_basic_charges` DECIMAL( 10, 2 ) NOT NULL AFTER  `vendor_basic_charges` ,
+ADD  `customer_paid_extra_charges` DECIMAL( 10, 2 ) NOT NULL AFTER  `vendor_st_or_vat_basic_charges` ,
+ADD  `around_comm_extra_charges` DECIMAL( 10, 2 ) NOT NULL AFTER  `customer_paid_extra_charges` ,
+ADD  `around_st_extra_charges` DECIMAL( 10, 2 ) NOT NULL AFTER  `around_comm_extra_charges` ,
+ADD  `vendor_extra_charges` DECIMAL( 10, 2 ) NOT NULL AFTER  `around_st_extra_charges` ,
+ADD  `vendor_st_extra_charges` DECIMAL( 10, 2 ) NOT NULL AFTER  `vendor_extra_charges` ,
+ADD  `customer_paid_parts` DECIMAL( 10, 2 ) NOT NULL AFTER  `vendor_st_extra_charges` ,
+ADD  `around_comm_parts` DECIMAL( 10, 2 ) NOT NULL AFTER  `customer_paid_parts` ;
+
+
+ALTER TABLE  `booking_unit_details` ADD  `around_st_parts` DECIMAL( 10, 2 ) NOT NULL AFTER  `around_comm_parts` ,
+ADD  `vendor_parts` DECIMAL( 10, 2 ) NOT NULL AFTER  `around_st_parts` ,
+ADD  `vendor_st_parts` DECIMAL( 10, 2 ) NOT NULL AFTER  `vendor_parts` ,
+ADD  `vendor_to_around` DECIMAL( 10, 2 ) NOT NULL AFTER  `vendor_st_parts` ,
+ADD  `around_to_vendor` DECIMAL( 10, 2 ) NOT NULL AFTER  `vendor_to_around` ;
+
+
+
