@@ -4,6 +4,11 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
+/** Error reporting */
+error_reporting(E_ALL);
+ini_set('display_errors', TRUE);
+ini_set('display_startup_errors', TRUE);
+
 class Invoice extends CI_Controller {
 
     /**
@@ -577,7 +582,7 @@ class Invoice extends CI_Controller {
 
 	$template = 'vendor_to_around_invoices.xlsx';
 	//set absolute path to directory with template files
-	$templateDir = "/usr/share/nginx/html/around/application/controllers/";
+	$templateDir = __DIR__ . "/../";
 
 	for ($i = 0; $i < count($data); $i++) {
 
@@ -771,7 +776,7 @@ class Invoice extends CI_Controller {
 	    );
 
 
-	    $this->invoices_model->insert_new_invoice($invoice_details);
+	    //$this->invoices_model->insert_new_invoice($invoice_details);
 
 	    /*
 	     * Update booking-invoice table to capture this new invoice against these bookings.
@@ -796,7 +801,7 @@ class Invoice extends CI_Controller {
 
 	$template = 'around_to_vendor_invoices.xlsx';
 	//set absolute path to directory with template files
-	$templateDir = "/usr/share/nginx/html/around/application/controllers/";
+	$templateDir = __DIR__ . "/../";
 
 	for ($i = 0; $i < count($data); $i++) {
 	    $total_inst_charge = 0;
@@ -846,7 +851,7 @@ class Invoice extends CI_Controller {
 	    //A means it is for the 1st type of invoice as explained above
 	    //Make sure it is unique
 
-	    $invoice_id = $invoices[0]['sc_code'] . "-" . date("dMY") . "-A-" . rand(100, 999);
+	    $invoice_id = $invoices[0]['sc_code'] . "-" . date("dMY") . "-B-" . rand(100, 999);
 
 	    if (is_null($invoices[0]['avg_rating'])) {
 		$invoices[0]['avg_rating'] = "";
@@ -902,7 +907,6 @@ class Invoice extends CI_Controller {
 		),
 		)
 	    );
-
 
 	    //Get populated XLS with data
 	    $output_file_dir = "/tmp/";
@@ -960,7 +964,6 @@ class Invoice extends CI_Controller {
 	    $this->email->message($message);
 	    $this->email->attach($output_file_pdf, 'attachment');
 
-
 	    /* $mail_ret = $this->email->send();
 	      if ($mail_ret) {
 	      //log_message('info', __METHOD__ . ": Mail sent successfully");
@@ -1009,13 +1012,13 @@ class Invoice extends CI_Controller {
 		'due_date' => date("Y-m-d", strtotime($end_date . "+1 month"))
 	    );
 
-	    $this->invoices_model->insert_new_invoice($invoice_details);
+	    //$this->invoices_model->insert_new_invoice($invoice_details);
 
 	    /*
 	     * Update booking-invoice table to capture this new invoice against these bookings.
 	     * Since this is a type A invoice, it would be stored as a vendor-debit invoice.
 	     */
-	    $this->update_booking_invoice_mappings_installations($invoices, $invoice_id);
+	    //$this->update_booking_invoice_mappings_installations($invoices, $invoice_id);
 	}
 
 

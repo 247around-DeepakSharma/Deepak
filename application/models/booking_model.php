@@ -527,7 +527,7 @@ class Booking_model extends CI_Model {
         $this->db->where('check_box', 1);
         $this->db->where('partner_id', $partner_id);
         //$this->db->where('state', $state);
-        
+
     	if (!empty($capacity)) {
     		$this->db->where('capacity', $capacity);
     	}
@@ -1403,7 +1403,7 @@ class Booking_model extends CI_Model {
         $partner_paid_tax =  ($unit_details[0]['partner_paid_basic_charges'] * $data['tax_rate'])/ 100;
         // Calculate  total partner paid charges with tax
         $data['partner_paid_basic_charges'] = $unit_details[0]['partner_paid_basic_charges'] + $partner_paid_tax;
-       
+
         $vendor_total_basic_charges =  ($data['customer_paid_basic_charges'] + $data['partner_paid_basic_charges'] + $data['around_paid_basic_charges']) * basic_percentage;
         $around_total_basic_charges = ($data['customer_paid_basic_charges'] + $data['partner_paid_basic_charges'] + $data['around_paid_basic_charges'] - $vendor_total_basic_charges);
 
@@ -1586,7 +1586,7 @@ class Booking_model extends CI_Model {
     $this->db->where(array('booking_id' => $booking_id, 'current_status' => $status));
     $this->db->update('booking_details', $data);
     }
-    
+
     /**
      * @desc: this method inser new line item while booking completion
      * @param: Unit id for copy appliance details into new line
@@ -1596,7 +1596,7 @@ class Booking_model extends CI_Model {
     function insert_new_unit_item($unit_id, $service_charge_id, $data){
         $price_data = $this->getpricesdetails_with_tax($service_charge_id);
         $this->db->select('booking_id,partner_id,service_id,appliance_id,appliance_brand,appliance_category, appliance_capacity,appliance_size, appliance_serial_no, appliance_description, model_number, appliance_tag, purchase_month, purchase_year');
-        
+
         $this->db->where('id', $unit_id);
         $query = $this->db->get('booking_unit_details');
         $unit_details = $query->result_array();
@@ -1619,14 +1619,14 @@ class Booking_model extends CI_Model {
         return true;
     }
 
-    // This is for testing after testing it will remove 
+    // This is for testing after testing it will remove
 
     function get_all_booking_id(){
-      
 
-        $sql = "SELECT booking_details.booking_id, booking_details.partner_id, booking_details.service_id, booking_details.appliance_id, booking_unit_details.appliance_capacity, booking_unit_details.appliance_brand, booking_unit_details.appliance_category, booking_unit_details.price_tags, booking_unit_details.appliance_tag, booking_unit_details.purchase_month, booking_unit_details.purchase_year, booking_unit_details.model_number, booking_details.service_charge, booking_details.additional_service_charge, booking_details.parts_cost, booking_details.internal_status 
+
+        $sql = "SELECT booking_details.booking_id, booking_details.partner_id, booking_details.service_id, booking_details.appliance_id, booking_unit_details.appliance_capacity, booking_unit_details.appliance_brand, booking_unit_details.appliance_category, booking_unit_details.price_tags, booking_unit_details.appliance_tag, booking_unit_details.purchase_month, booking_unit_details.purchase_year, booking_unit_details.model_number, booking_details.service_charge, booking_details.additional_service_charge, booking_details.parts_cost, booking_details.internal_status
             from booking_details, booking_unit_details
-            where `closed_date` >= '2016-06-01 00:00:00' AND `closed_date` < '2016-07-01 00:00:00' AND `current_status` = 'Completed' AND booking_unit_details.booking_id = booking_details.booking_id 
+            where `closed_date` >= '2016-06-01 00:00:00' AND `closed_date` < '2016-07-01 00:00:00' AND `current_status` = 'Completed' AND booking_unit_details.booking_id = booking_details.booking_id
 
             ";
 
@@ -1637,9 +1637,9 @@ class Booking_model extends CI_Model {
     }
 
     function getbookingid(){
-         $sql = "SELECT booking_details.booking_id, booking_details.service_charge, booking_details.additional_service_charge, booking_details.parts_cost, booking_details.internal_status 
+         $sql = "SELECT booking_details.booking_id, booking_details.service_charge, booking_details.additional_service_charge, booking_details.parts_cost, booking_details.internal_status
             from booking_details
-            where `closed_date` >= '2016-06-01 00:00:00' AND `closed_date` < '2016-07-01 00:00:00' AND `current_status` = 'Completed' 
+            where `closed_date` >= '2016-06-01 00:00:00' AND `closed_date` < '2016-07-01 00:00:00' AND `current_status` = 'Completed'
             ";
 
             $query = $this->db->query($sql);
@@ -1665,7 +1665,7 @@ class Booking_model extends CI_Model {
         $this->db->where('partner_id', $partner_id);
         $this->db->where('service_category', $price_tags);
         //$this->db->where('state', $state);
-        
+
         if (!empty($capacity)) {
             $this->db->where('capacity', $capacity);
         }
@@ -1676,7 +1676,7 @@ class Booking_model extends CI_Model {
     }
 
     function get_all_booking_unit(){
-       
+
         $sql = " SELECT * FROM `booking_unit_details` WHERE `booking_id` in (SELECT `booking_id` FROM `booking_details` WHERE `closed_date` >= '2016-06-01 00:00:00' AND `closed_date` < '2016-07-01 00:00:00' AND `current_status` = 'Completed')";
         $query = $this->db->query($sql);
         return $query->result_array();
@@ -1703,16 +1703,14 @@ class Booking_model extends CI_Model {
         $this->db->where('price_tags', $data[0]['price_tags']);
         $this->db->where('booking_id', $booking_id);
         $query = $this->db->get('booking_unit_details');
-       
+
         if($query->num_rows >0){
 
             $unit_details = $query->result_array();
-             print_r($unit_details);
-             echo "<br/>";
             $this->db->where('id',  $unit_details[0]['id']);
             $this->db->update('booking_unit_details', $result);
 
-         } 
+         }
     }
 
 
@@ -1736,12 +1734,12 @@ class Booking_model extends CI_Model {
             echo "<br/>";
          print_r($unit_details);
         echo "<br/>";*/
-       
+
         $this->update_price_in_unit_details($data, $unit_details);
 
         }
 
-        
+
     }
 
 

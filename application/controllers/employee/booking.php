@@ -1828,17 +1828,13 @@ class Booking extends CI_Controller {
 	    if (empty($prices)) {
 
 		echo $data['service_id'] . "<br/>" . $data['appliance_category'] . "<br/>" . $data['appliance_capacity'] . "<br/>" . $partner_id . "<br/>" . $data['price_tags'] . $data['booking_id'];
-		echo "<br/>";
+		echo "<br/><br/>";
 	    } else {
 		unset($data['id']);
 		$data['id'] = $prices[0]['id'];
 
-		$price_tag = $this->booking_model->update_prices($data, $data['booking_id']);
+		$this->booking_model->update_prices($data, $data['booking_id']);
 	    }
-
-
-
-	    //$this->test2();
 	}
     }
 
