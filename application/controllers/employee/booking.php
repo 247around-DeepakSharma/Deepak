@@ -86,7 +86,7 @@ class Booking extends CI_Controller {
 	    $this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
 	}
 
-	    redirect(base_url() . search_page);
+	redirect(base_url() . search_page);
     }
 
     /**
@@ -111,16 +111,14 @@ class Booking extends CI_Controller {
 	    $booking['booking_id'] = $this->create_booking_id($user_id, $booking['source'], $booking['type'], $booking['booking_date']);
 	} else {
 	    $price_tags = array();
-	    if($booking['type'] == "Booking"){
+	    if ($booking['type'] == "Booking") {
 
-	    	$booking_id_array = explode("Q-", $booking_id);
-	    	if(isset($booking_id_array[1]))
-	    	$booking['booking_id'] = $booking_id_array[1];
-
+		$booking_id_array = explode("Q-", $booking_id);
+		if (isset($booking_id_array[1]))
+		    $booking['booking_id'] = $booking_id_array[1];
 	    } else {
-	    	$booking['booking_id'] = $booking_id;
+		$booking['booking_id'] = $booking_id;
 	    }
-
 	}
 
 	// select state by city
@@ -187,9 +185,9 @@ class Booking extends CI_Controller {
 	if ($booking['type'] == 'Booking') {
 
 	    $booking['current_status'] = 'Pending';
-	    $booking['internal_status'] = 'Scheduled'; 
+	    $booking['internal_status'] = 'Scheduled';
 	    $booking['booking_remarks'] = $booking_remarks;
-                           
+
 
 	    $message .= "Congratulations You have received new booking, details are mentioned below:
       <br>Customer Name: " . $user_name . "<br>Customer Phone Number: " . $booking['booking_primary_contact_no'] .
@@ -202,7 +200,6 @@ class Booking extends CI_Controller {
 		" " . $booking['city'] . ", " . $booking['state'] . ", " .
 		"<br>Booking pincode: " . $booking['booking_pincode'] . "<br><br>
         Appliance Details:<br>";
-
 	} else if ($booking['type'] == 'Query') {
 
 	    $booking['current_status'] = "FollowUp";
@@ -275,7 +272,7 @@ class Booking extends CI_Controller {
 
 			//Log this state change as well for this booking
 			//param:-- booking id, new state, old state, employee id, employee name
-            $this->notify->insert_state_change($booking['booking_id'], "Inserted", $booking['current_status'],$this->session->userdata('id'), $this->session->userdata('employee_id'));
+			$this->notify->insert_state_change($booking['booking_id'], "Inserted", $booking['current_status'], $this->session->userdata('id'), $this->session->userdata('employee_id'));
 		    }
 		} else {
 
@@ -283,7 +280,7 @@ class Booking extends CI_Controller {
 		    array_push($price_tags, $price_tag);
 
 		    //Log this state change as well for this booking
-            $this->notify->insert_state_change($booking_id, "Updated", $booking['current_status'],$this->session->userdata('id'), $this->session->userdata('employee_id'));
+		    $this->notify->insert_state_change($booking_id, "Updated", $booking['current_status'], $this->session->userdata('id'), $this->session->userdata('employee_id'));
 		}
 	    }
 	}
@@ -314,11 +311,11 @@ class Booking extends CI_Controller {
 	$booking['booking_id'] = '';
 
 	$yy = date("y", strtotime($booking_date));
-    $mm = date("m", strtotime($booking_date));
-    $dd = date("d", strtotime($booking_date));
+	$mm = date("m", strtotime($booking_date));
+	$dd = date("d", strtotime($booking_date));
 
 	$booking['booking_id'] = str_pad($user_id, 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
-    $booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($user_id)) + 1);
+	$booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($user_id)) + 1);
 
 
 	//Add source
@@ -442,38 +439,35 @@ class Booking extends CI_Controller {
 
 	foreach ($data['bookng_unit_details'] as $key => $value) {
 
-		$prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'],$data['bookng_unit_details'][$key]['category'], $data['bookng_unit_details'][$key]['capacity'], $partner_id, $data['booking_history'][0]['state']);
-       
-		foreach ($value['qunatity'] as $index => $price_tag) {
-		    // Searched already inserted price tag exist in the price array (get all service category)
-			$id = $this->search_for_key($price_tag['price_tags'], $prices);
-			// remove array key, if price tag exist into price array
-			unset($prices[$id]);		
-		}
+	    $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], $data['bookng_unit_details'][$key]['category'], $data['bookng_unit_details'][$key]['capacity'], $partner_id, $data['booking_history'][0]['state']);
 
-		array_push($data['prices'], $prices);
+	    foreach ($value['qunatity'] as $index => $price_tag) {
+		// Searched already inserted price tag exist in the price array (get all service category)
+		$id = $this->search_for_key($price_tag['price_tags'], $prices);
+		// remove array key, if price tag exist into price array
+		unset($prices[$id]);
+	    }
 
+	    array_push($data['prices'], $prices);
 	}
-    
+
 	$this->load->view('employee/header');
 	$this->load->view('employee/completebooking', $data);
     }
-    
+
     /**
      * @desc: This is method return index key, if service caregory matches with given price tags
      * @param: Price tag and Array
      * @return: key
      */
     function search_for_key($price_tag, $array) {
-        foreach ($array as $key => $val) {
-            if ($val['service_category'] === $price_tag) {
-                return $key;
-            }
-        }
-        return null;
+	foreach ($array as $key => $val) {
+	    if ($val['service_category'] === $price_tag) {
+		return $key;
+	    }
+	}
+	return null;
     }
-
-
 
     /**
      *  @desc : This function is to select booking/Query to be canceled.
@@ -512,7 +506,7 @@ class Booking extends CI_Controller {
     function process_cancel_form($booking_id) {
 	$data['cancellation_reason'] = $this->input->post('cancellation_reason');
 	$data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
-	
+
 	if ($data['cancellation_reason'] == 'Other') {
 	    $data['cancellation_reason'] = "Other : " . $this->input->post("cancellation_reason_text");
 	}
@@ -523,7 +517,7 @@ class Booking extends CI_Controller {
 
 	//Update this booking in vendor action table
 	$data_vendor['update_date'] = date("Y-m-d H:i:s");
-	$data_vendor['current_status'] = $data_vendor['internal_status'] =  "Cancelled";
+	$data_vendor['current_status'] = $data_vendor['internal_status'] = "Cancelled";
 
 	$data_vendor['booking_id'] = $booking_id;
 
@@ -540,21 +534,20 @@ class Booking extends CI_Controller {
 	$send['booking_id'] = $booking_id;
 	$send['state'] = $data['current_status'];
 	$this->asynchronous_lib->do_background_process($url, $send);
-    // call partner callback
+	// call partner callback
 	$this->partner_cb->partner_callback($booking_id);
 
 	redirect(base_url() . search_page);
     }
 
-    function update_price_while_cancel_booking($booking_id){
-    	$unit_details['booking_status'] = "Cancelled";
-	    $unit_details['tax_rate'] =  $unit_details['customer_total'] = 0;
-	    $unit_details['customer_paid_basic_charges'] = $unit_details['partner_paid_basic_charges'] = 0;
-	    $unit_details['around_paid_basic_charges'] = $unit_details['around_comm_basic_charges'] =0;
-	    $unit_details['vendor_to_around'] = $unit_details['around_to_vendor'] = 0;
+    function update_price_while_cancel_booking($booking_id) {
+	$unit_details['booking_status'] = "Cancelled";
+	$unit_details['tax_rate'] = $unit_details['customer_total'] = 0;
+	$unit_details['customer_paid_basic_charges'] = $unit_details['partner_paid_basic_charges'] = 0;
+	$unit_details['around_paid_basic_charges'] = $unit_details['around_comm_basic_charges'] = 0;
+	$unit_details['vendor_to_around'] = $unit_details['around_to_vendor'] = 0;
 
-	    $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
-
+	$this->booking_model->update_booking_unit_details($booking_id, $unit_details);
     }
 
     /**
@@ -616,8 +609,8 @@ class Booking extends CI_Controller {
 	    $service_center_data['update_date'] = date("Y-m-d H:i:s");
 	    $this->vendor_model->update_service_center_action($service_center_data);
 
-        $send_data['booking_id'] = $booking_id;
-        $send_data['current_status'] = "Rescheduled";
+	    $send_data['booking_id'] = $booking_id;
+	    $send_data['current_status'] = "Rescheduled";
 
 	    $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
 	    $this->asynchronous_lib->do_background_process($url, $send_data);
@@ -627,7 +620,7 @@ class Booking extends CI_Controller {
 
 	    //Prepare job card
 	    $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
-        // Partner Call back
+	    // Partner Call back
 	    $this->partner_cb->partner_callback($booking_id);
 
 	    log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $this->session->userdata('employee_id') . " data " . print_r($data, true));
@@ -925,7 +918,6 @@ class Booking extends CI_Controller {
 //
 //        $this->load->view('employee/datesortedbooking', $data);
 //    }
-
 //    /**
 //     *  @desc : Function to sort pending and rescheduled bookings with service center's name
 //     *
@@ -1302,8 +1294,8 @@ class Booking extends CI_Controller {
 	    $booking['booking_date'] = date('d-m-Y', strtotime($reschedule_booking_date[$booking_id]));
 	    $booking['booking_timeslot'] = $reschedule_booking_timeslot[$booking_id];
 	    $send['state'] = $booking['current_status'] = 'Rescheduled';
-	    $booking['internal_status']  =  'Rescheduled';
-	    $booking['update_date']  = date("Y-m-d H:i:s");
+	    $booking['internal_status'] = 'Rescheduled';
+	    $booking['update_date'] = date("Y-m-d H:i:s");
 	    $send['booking_id'] = $data['booking_id'] = $booking_id;
 	    $booking['reschedule_reason'] = $reschedule_reason[$booking_id];
 
@@ -1353,55 +1345,54 @@ class Booking extends CI_Controller {
 
 	foreach ($customer_basic_charge as $unit_id => $value) {
 	    // variable $unit_id  is existing id in booking unit details table of given booking id
-	    
+
 	    $data = array();
 	    $data['customer_paid_basic_charges'] = $value;
 	    $data['customer_paid_extra_charges'] = $additional_charge[$unit_id];
 	    $data['customer_paid_parts'] = $parts_cost[$unit_id];
 	    // it checks sting new in unit_id variable
 	    if (strpos($unit_id, 'new') !== false) {
-	    	if(isset($booking_status[$unit_id])){
-	    		if($booking_status[$unit_id] == "Completed"){
-                    // if new line item selected then coming unit id variable is the combination of unit id & new(string) and service charges id
-                    // e.g- 12new103 
-	    	        $remove_string_new = explode('new',$unit_id);
-                    $unit_id = $remove_string_new[0];
-                    $service_charges_id = $remove_string_new[1]; 
-                    $data['booking_id'] = $booking_id;
-                    $data['booking_status'] = "Completed";
-                    $internal_status = "Completed";
-                    $this->booking_model->insert_new_unit_item($unit_id, $service_charges_id, $data);
-	    	    }
-	    	}   
-	    	
+		if (isset($booking_status[$unit_id])) {
+		    if ($booking_status[$unit_id] == "Completed") {
+			// if new line item selected then coming unit id variable is the combination of unit id & new(string) and service charges id
+			// e.g- 12new103
+			$remove_string_new = explode('new', $unit_id);
+			$unit_id = $remove_string_new[0];
+			$service_charges_id = $remove_string_new[1];
+			$data['booking_id'] = $booking_id;
+			$data['booking_status'] = "Completed";
+			$internal_status = "Completed";
+			$this->booking_model->insert_new_unit_item($unit_id, $service_charges_id, $data);
+		    }
+		}
 	    } else {
-            $data['booking_status'] = $booking_status[$unit_id];
-	    	
-	        if ($data['booking_status'] === "Completed") {
-		        $internal_status = "Completed";
-	        }
+		$data['booking_status'] = $booking_status[$unit_id];
 
-	    	$data['id'] = $unit_id;
-           
-	        log_message('info', ": " . " update booking unit details data " . print_r($data, TRUE));
+		if ($data['booking_status'] === "Completed") {
+		    $internal_status = "Completed";
+		}
 
-	        // update price in the booking unit details page
-	        $this->booking_model->update_unit_details($data);
+		$data['id'] = $unit_id;
 
-	        $service_center['booking_id'] = $booking_id;
-	        $service_center['closing_remarks'] = "Service Center Remarks:- " . $service_center_details[0]['service_center_remarks'] .
-		" <br/> Admin:-  " . $admin_remarks;
-	        $service_center['internal_status'] = $service_center['current_status'] = $data['booking_status'];
+		log_message('info', ": " . " update booking unit details data " . print_r($data, TRUE));
 
-	        $service_center['unit_details_id'] = $unit_id;
-	        $service_center['update_date'] = date('Y-m-d H:i:s');
+		// update price in the booking unit details page
+		$this->booking_model->update_unit_details($data);
 
-	        log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
-	        $this->vendor_model->update_service_center_action($service_center);
-	    }	   
+		$service_center['booking_id'] = $booking_id;
+		$service_center['closing_remarks'] = "Service Center Remarks:- " . $service_center_details[0]['service_center_remarks'] .
+		    " <br/> Admin:-  " . $admin_remarks;
+		$service_center['internal_status'] = $service_center['current_status'] = $data['booking_status'];
+
+		$service_center['unit_details_id'] = $unit_id;
+		$service_center['update_date'] = date('Y-m-d H:i:s');
+
+		log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
+		$this->vendor_model->update_service_center_action($service_center);
+	    }
 	}
 
-    $booking['current_status'] = $internal_status;
+	$booking['current_status'] = $internal_status;
 	$booking['internal_status'] = $internal_status;
 	$booking['booking_id'] = $booking_id;
 	$booking['rating_stars'] = $this->input->post('rating_stars');
@@ -1411,7 +1402,7 @@ class Booking extends CI_Controller {
 	$booking['closing_remarks'] = $service_center['closing_remarks'];
 	$booking['closed_date'] = date('Y-m-d H:i:s');
 	$booking['amount_paid'] = $total_amount_paid;
-	
+
 	//update booking_details table
 	log_message('info', ": " . " update booking details data (" . $booking['current_status'] . ")" . print_r($booking, TRUE));
 	// this function is used to update booking details table
@@ -1614,266 +1605,260 @@ class Booking extends CI_Controller {
 	redirect(base_url() . 'employee/booking/view_pending_queries/0/0/' . $booking_id, 'refresh');
     }
 
-    function test(){
+    function test() {
 
-    	$booking_details = $this->booking_model->get_all_booking_id();
-    	//print_r($booking_details);
-    	foreach ($booking_details as $key => $value) {
-    		$booking_id =  $value['booking_id'];
+	$booking_details = $this->booking_model->get_all_booking_id();
+	//print_r($booking_details);
+	foreach ($booking_details as $key => $value) {
+	    $booking_id = $value['booking_id'];
 
-    		switch ($value['price_tags']) {
-    			case 'Installation':
-    			case 'Installation,':
-    			case 'InstallationwithoutStand,' :
-    			case 'Installation,WallMountStand,':
-    			case 'Installation with Stand,':
-    			case 'InstallationwithStand,':
+	    switch ($value['price_tags']) {
+		case 'Installation':
+		case 'Installation,':
+		case 'InstallationwithoutStand,' :
+		case 'Installation,WallMountStand,':
+		case 'Installation with Stand,':
+		case 'InstallationwithStand,':
 
-    			switch ($value['internal_status']) {
-    				case 'Completed TV Without Stand':
-    				case 'Completed With Demo':
-    				case 'Completed':
+		    switch ($value['internal_status']) {
+			case 'Completed TV Without Stand':
+			case 'Completed With Demo':
+			case 'Completed':
 
-    					
-    					$data  = array();
-    			        $data['appliance_id'] =  $value['appliance_id'];
-    		            $data['partner_id'] =  $value['partner_id'];
-    		            $data['service_id'] = $value['service_id'];  
-    			        $data['price_tags'] = "Installation & Demo";
-    			        
-    		         /*/ echo "<br/>";
-			    			 print_r($value['price_tags']);
-    		            echo "<br/>";
-    		            print_r($data);
-    		             echo "<br/>";*/
-    			        $this->booking_model->update_booking_unit_details( $booking_id, $data); 
-    					break;
 
-    			    case 'Completed TV With Stand':
+			    $data = array();
+			    $data['appliance_id'] = $value['appliance_id'];
+			    $data['partner_id'] = $value['partner_id'];
+			    $data['service_id'] = $value['service_id'];
+			    $data['price_tags'] = "Installation & Demo";
 
-    			    	$data  = array();
-		                $data['appliance_id'] =  $value['appliance_id'];
-		    		    $data['partner_id'] =  $value['partner_id'];
-		    		    $data['service_id'] = $value['service_id']; 
-		    			$unit_details = $this->booking_model->get_unit_details($value['booking_id']);
-		    			
-		    			$data['price_tags'] = "Installation & Demo";
-		    			$unit_id = $unit_details[0]['id'];
-		    			
-                       
-		    			$this->booking_model->update_unit_details_by_id($unit_id, $data);
-		               
-		    			$data['booking_id'] = $value['booking_id'];
-		    			$data['appliance_brand'] =  $value['appliance_brand'];
-		    			$data['appliance_category'] =  $value['appliance_category'];
-		    			$data['appliance_capacity'] =  $value['appliance_capacity'];
-		    			$data['model_number'] =  $value['model_number'];
-		    			
-		    			$data['appliance_tag'] =  $value['appliance_tag'];
-		    			$data['purchase_year'] = $value['purchase_year'];
-		    			$data['purchase_month'] =  $value['purchase_month'];
-		    			$data['price_tags'] = "Wall Mount Stand";
-		    			
-		    			$this->booking_model->addunitdetails($data);
-    			    	break;
-    				
-    				default:
-    					echo $value['booking_id'];
-    					break;
-    			}
+			    /* / echo "<br/>";
+			      print_r($value['price_tags']);
+			      echo "<br/>";
+			      print_r($data);
+			      echo "<br/>"; */
+			    $this->booking_model->update_booking_unit_details($booking_id, $data);
+			    break;
 
-    					break;
+			case 'Completed TV With Stand':
 
-    					case 'Repair,':
-    					case 'Repair':
-    						$data  = array();
-    			            $data['appliance_id'] =  $value['appliance_id'];
-    		                $data['partner_id'] =  $value['partner_id'];
-    		                $data['service_id'] = $value['service_id'];  
-    			            $data['price_tags'] = "Repair";
-    			        
-    		               
-    			            $this->booking_model->update_booking_unit_details( $booking_id, $data); 
-    						break;
+			    $data = array();
+			    $data['appliance_id'] = $value['appliance_id'];
+			    $data['partner_id'] = $value['partner_id'];
+			    $data['service_id'] = $value['service_id'];
+			    $unit_details = $this->booking_model->get_unit_details($value['booking_id']);
 
-    				    case 'VisitCharge,':
-    				    case 'Visit Charge':
-    				    	$data  = array();
-    			            $data['appliance_id'] =  $value['appliance_id'];
-    		                $data['partner_id'] =  $value['partner_id'];
-    		                $data['service_id'] = $value['service_id'];  
-    			            $data['price_tags'] = "Visit";
-    			        
-    		              
-    			            $this->booking_model->update_booking_unit_details( $booking_id, $data); 
-    				    	
-    				    	break;
-    				    case 'Repair,Installation,':
-    				    	$data  = array();
-			                $data['appliance_id'] =  $value['appliance_id'];
-			    		    $data['partner_id'] =  $value['partner_id'];
-			    		    $data['service_id'] = $value['service_id']; 
-			    			$unit_details = $this->booking_model->get_unit_details($value['booking_id']);
-			    			
-			    			$data['price_tags'] = "Repair";
-			    			$unit_id = $unit_details[0]['id'];
-                            
-			    			$this->booking_model->update_unit_details_by_id($unit_id, $data);
-			               
-			    			$data['booking_id'] = $value['booking_id'];
-			    			$data['appliance_brand'] =  $value['appliance_brand'];
-			    			$data['appliance_category'] =  $value['appliance_category'];
-			    			$data['appliance_capacity'] =  $value['appliance_capacity'];
-			    			$data['model_number'] =  $value['model_number'];
-			    			
-			    			$data['appliance_tag'] =  $value['appliance_tag'];
-			    			$data['purchase_year'] = $value['purchase_year'];
-			    			$data['purchase_month'] =  $value['purchase_month'];
-			    			$data['price_tags'] = "Installation & Demo";
-			    			
-			    			$this->booking_model->addunitdetails($data);
-    				    	break;
+			    $data['price_tags'] = "Installation & Demo";
+			    $unit_id = $unit_details[0]['id'];
 
-    				    case 'GasRechargewithDryer,':
-    				    	
-    				        $data  = array();
-    			            $data['appliance_id'] =  $value['appliance_id'];
-    		                $data['partner_id'] =  $value['partner_id'];
-    		                $data['service_id'] = $value['service_id'];  
-    			            $data['price_tags'] = "Gas Recharge with Dryer";
-    			        
-    		
-    			            $this->booking_model->update_booking_unit_details( $booking_id, $data); 
-    				    	break;
 
-    				    case 'Installation,Uninstallation,':
-    				    	$data  = array();
-			                $data['appliance_id'] =  $value['appliance_id'];
-			    		    $data['partner_id'] =  $value['partner_id'];
-			    		    $data['service_id'] = $value['service_id']; 
-			    			$unit_details = $this->booking_model->get_unit_details($value['booking_id']);
-			    			
-			    			$data['price_tags'] = "Installation & Demo";
-			    			$unit_id = $unit_details[0]['id'];
-echo "<br/>";
-			    			$this->booking_model->update_unit_details_by_id($unit_id, $data);
-			               
-			    			$data['booking_id'] = $value['booking_id'];
-			    			$data['appliance_brand'] =  $value['appliance_brand'];
-			    			$data['appliance_category'] =  $value['appliance_category'];
-			    			$data['appliance_capacity'] =  $value['appliance_capacity'];
-			    			$data['model_number'] =  $value['model_number'];
-			    			
-			    			$data['appliance_tag'] =  $value['appliance_tag'];
-			    			$data['purchase_year'] = $value['purchase_year'];
-			    			$data['purchase_month'] =  $value['purchase_month'];
-			    			$data['price_tags'] = "Uninstallation";
-			    			
-			    			$this->booking_model->addunitdetails($data);
-    				    	break;
+			    $this->booking_model->update_unit_details_by_id($unit_id, $data);
 
-    				    case 'GasRecharge,':
-    				    	$data  = array();
-    			            $data['appliance_id'] =  $value['appliance_id'];
-    		                $data['partner_id'] =  $value['partner_id'];
-    		                $data['service_id'] = $value['service_id'];  
-    			            $data['price_tags'] = "Gas Recharge";
-    			      
-    			            $this->booking_model->update_booking_unit_details( $booking_id, $data); 
-    				    	break;
-    				    case 'Uninstallation,':
-    				    	$data  = array();
-    			            $data['appliance_id'] = $value['appliance_id'];
-    		                $data['partner_id'] =  $value['partner_id'];
-    		                $data['service_id'] = $value['service_id'];  
-    			            $data['price_tags'] = "Uninstallation";
-    			       
-    			            $this->booking_model->update_booking_unit_details( $booking_id, $data); 
-    				    	break;
-    				    case 'Installation,Repair,':
-    				    	$data  = array();
-			                $data['appliance_id'] =  $value['appliance_id'];
-			    		    $data['partner_id'] =  $value['partner_id'];
-			    		    $data['service_id'] = $value['service_id']; 
-			    			$unit_details = $this->booking_model->get_unit_details($value['booking_id']);
-			    			
-			    			$data['price_tags'] = "Repair";
-			    			$unit_id = $unit_details[0]['id'];
-			    			
-			    			$this->booking_model->update_unit_details_by_id($unit_id, $data);
-			               
-			    			$data['booking_id'] = $value['booking_id'];
-			    			$data['appliance_brand'] =  $value['appliance_brand'];
-			    			$data['appliance_category'] =  $value['appliance_category'];
-			    			$data['appliance_capacity'] =  $value['appliance_capacity'];
-			    			$data['model_number'] =  $value['model_number'];
-			    			
-			    			$data['appliance_tag'] =  $value['appliance_tag'];
-			    			$data['purchase_year'] = $value['purchase_year'];
-			    			$data['purchase_month'] =  $value['purchase_month'];
-			    			$data['price_tags'] = "Installation & Demo";
-			    			
-			    			$this->booking_model->addunitdetails($data);
-    				    	break;
-    			
-    			default:
-    				echo $value['booking_id'];
-    				break;
-    		}
-    		
-    		
+			    $data['booking_id'] = $value['booking_id'];
+			    $data['appliance_brand'] = $value['appliance_brand'];
+			    $data['appliance_category'] = $value['appliance_category'];
+			    $data['appliance_capacity'] = $value['appliance_capacity'];
+			    $data['model_number'] = $value['model_number'];
 
-    	}
+			    $data['appliance_tag'] = $value['appliance_tag'];
+			    $data['purchase_year'] = $value['purchase_year'];
+			    $data['purchase_month'] = $value['purchase_month'];
+			    $data['price_tags'] = "Wall Mount Stand";
 
-    	//$this->test1();
-        
+			    $this->booking_model->addunitdetails($data);
+			    break;
 
+			default:
+			    echo $value['booking_id'];
+			    break;
+		    }
+
+		    break;
+
+		case 'Repair,':
+		case 'Repair':
+		    $data = array();
+		    $data['appliance_id'] = $value['appliance_id'];
+		    $data['partner_id'] = $value['partner_id'];
+		    $data['service_id'] = $value['service_id'];
+		    $data['price_tags'] = "Repair";
+
+
+		    $this->booking_model->update_booking_unit_details($booking_id, $data);
+		    break;
+
+		case 'VisitCharge,':
+		case 'Visit Charge':
+		    $data = array();
+		    $data['appliance_id'] = $value['appliance_id'];
+		    $data['partner_id'] = $value['partner_id'];
+		    $data['service_id'] = $value['service_id'];
+		    $data['price_tags'] = "Visit";
+
+
+		    $this->booking_model->update_booking_unit_details($booking_id, $data);
+
+		    break;
+		case 'Repair,Installation,':
+		    $data = array();
+		    $data['appliance_id'] = $value['appliance_id'];
+		    $data['partner_id'] = $value['partner_id'];
+		    $data['service_id'] = $value['service_id'];
+		    $unit_details = $this->booking_model->get_unit_details($value['booking_id']);
+
+		    $data['price_tags'] = "Repair";
+		    $unit_id = $unit_details[0]['id'];
+
+		    $this->booking_model->update_unit_details_by_id($unit_id, $data);
+
+		    $data['booking_id'] = $value['booking_id'];
+		    $data['appliance_brand'] = $value['appliance_brand'];
+		    $data['appliance_category'] = $value['appliance_category'];
+		    $data['appliance_capacity'] = $value['appliance_capacity'];
+		    $data['model_number'] = $value['model_number'];
+
+		    $data['appliance_tag'] = $value['appliance_tag'];
+		    $data['purchase_year'] = $value['purchase_year'];
+		    $data['purchase_month'] = $value['purchase_month'];
+		    $data['price_tags'] = "Installation & Demo";
+
+		    $this->booking_model->addunitdetails($data);
+		    break;
+
+		case 'GasRechargewithDryer,':
+
+		    $data = array();
+		    $data['appliance_id'] = $value['appliance_id'];
+		    $data['partner_id'] = $value['partner_id'];
+		    $data['service_id'] = $value['service_id'];
+		    $data['price_tags'] = "Gas Recharge with Dryer";
+
+
+		    $this->booking_model->update_booking_unit_details($booking_id, $data);
+		    break;
+
+		case 'Installation,Uninstallation,':
+		    $data = array();
+		    $data['appliance_id'] = $value['appliance_id'];
+		    $data['partner_id'] = $value['partner_id'];
+		    $data['service_id'] = $value['service_id'];
+		    $unit_details = $this->booking_model->get_unit_details($value['booking_id']);
+
+		    $data['price_tags'] = "Installation & Demo";
+		    $unit_id = $unit_details[0]['id'];
+		    echo "<br/>";
+		    $this->booking_model->update_unit_details_by_id($unit_id, $data);
+
+		    $data['booking_id'] = $value['booking_id'];
+		    $data['appliance_brand'] = $value['appliance_brand'];
+		    $data['appliance_category'] = $value['appliance_category'];
+		    $data['appliance_capacity'] = $value['appliance_capacity'];
+		    $data['model_number'] = $value['model_number'];
+
+		    $data['appliance_tag'] = $value['appliance_tag'];
+		    $data['purchase_year'] = $value['purchase_year'];
+		    $data['purchase_month'] = $value['purchase_month'];
+		    $data['price_tags'] = "Uninstallation";
+
+		    $this->booking_model->addunitdetails($data);
+		    break;
+
+		case 'GasRecharge,':
+		    $data = array();
+		    $data['appliance_id'] = $value['appliance_id'];
+		    $data['partner_id'] = $value['partner_id'];
+		    $data['service_id'] = $value['service_id'];
+		    $data['price_tags'] = "Gas Recharge";
+
+		    $this->booking_model->update_booking_unit_details($booking_id, $data);
+		    break;
+		case 'Uninstallation,':
+		    $data = array();
+		    $data['appliance_id'] = $value['appliance_id'];
+		    $data['partner_id'] = $value['partner_id'];
+		    $data['service_id'] = $value['service_id'];
+		    $data['price_tags'] = "Uninstallation";
+
+		    $this->booking_model->update_booking_unit_details($booking_id, $data);
+		    break;
+		case 'Installation,Repair,':
+		    $data = array();
+		    $data['appliance_id'] = $value['appliance_id'];
+		    $data['partner_id'] = $value['partner_id'];
+		    $data['service_id'] = $value['service_id'];
+		    $unit_details = $this->booking_model->get_unit_details($value['booking_id']);
+
+		    $data['price_tags'] = "Repair";
+		    $unit_id = $unit_details[0]['id'];
+
+		    $this->booking_model->update_unit_details_by_id($unit_id, $data);
+
+		    $data['booking_id'] = $value['booking_id'];
+		    $data['appliance_brand'] = $value['appliance_brand'];
+		    $data['appliance_category'] = $value['appliance_category'];
+		    $data['appliance_capacity'] = $value['appliance_capacity'];
+		    $data['model_number'] = $value['model_number'];
+
+		    $data['appliance_tag'] = $value['appliance_tag'];
+		    $data['purchase_year'] = $value['purchase_year'];
+		    $data['purchase_month'] = $value['purchase_month'];
+		    $data['price_tags'] = "Installation & Demo";
+
+		    $this->booking_model->addunitdetails($data);
+		    break;
+
+		default:
+		    echo $value['booking_id'];
+		    break;
+	    }
+	}
+
+	//$this->test1();
     }
 
-    function test1(){
-    	$booking_unit_details = $this->booking_model->get_all_booking_unit();
-        foreach ($booking_unit_details as $key => $data) {
-           
-        	$booking = $this->booking_model->return_source($data['booking_id']);
+    function test1() {
+	$booking_unit_details = $this->booking_model->get_all_booking_unit();
+	foreach ($booking_unit_details as $key => $data) {
 
-        	$partner_id = $this->booking_model->get_price_mapping_partner_code($booking[0]['source']);
-        	 
-        	$prices = $this->booking_model->getPrices($data['service_id'],$data['appliance_category'], $data['appliance_capacity'], $partner_id, $data['price_tags']);
-        	if(empty($prices)){
+	    $booking = $this->booking_model->return_source($data['booking_id']);
 
-echo $data['service_id']."<br/>".$data['appliance_category']."<br/>".$data['appliance_capacity']."<br/>". $partner_id."<br/>" .$data['price_tags']. $data['booking_id'];
-echo "<br/>";
-        	} else {
-        		unset($data['id']);
-        	$data['id'] = $prices[0]['id'];
+	    $partner_id = $this->booking_model->get_price_mapping_partner_code($booking[0]['source']);
 
-        	$price_tag = $this->booking_model->update_prices($data, $data['booking_id']);
-        	}
+	    $prices = $this->booking_model->getPrices($data['service_id'], $data['appliance_category'], $data['appliance_capacity'], $partner_id, $data['price_tags']);
+	    if (empty($prices)) {
 
-        	
+		echo $data['service_id'] . "<br/>" . $data['appliance_category'] . "<br/>" . $data['appliance_capacity'] . "<br/>" . $partner_id . "<br/>" . $data['price_tags'] . $data['booking_id'];
+		echo "<br/>";
+	    } else {
+		unset($data['id']);
+		$data['id'] = $prices[0]['id'];
 
-        	//$this->test2();
-    	
-        }
+		$price_tag = $this->booking_model->update_prices($data, $data['booking_id']);
+	    }
+
+
+
+	    //$this->test2();
+	}
     }
 
-    function test2(){
-    	$booking_details = $this->booking_model->getbookingid();
-    	foreach ($booking_details as $key => $value) {
+    function test2() {
+	$booking_details = $this->booking_model->getbookingid();
+	foreach ($booking_details as $key => $value) {
 
-    		$data = array();
-	        $data['customer_paid_basic_charges'] = $value['service_charge'];
-	        $data['customer_paid_extra_charges'] = $value['additional_service_charge'];
-	        $data['customer_paid_parts'] = $value['parts_cost'];
-	        $data['booking_status'] = "Completed";
+	    $data = array();
+	    $data['customer_paid_basic_charges'] = $value['service_charge'];
+	    $data['customer_paid_extra_charges'] = $value['additional_service_charge'];
+	    $data['customer_paid_parts'] = $value['parts_cost'];
+	    $data['booking_status'] = "Completed";
 
-	        $this->booking_model->update_unit_price($value['booking_id'], $data);
-	        echo "<br/>";
-	       // print_r($data);
-	        echo "<br/>";
-    	}
+	    $this->booking_model->update_unit_price($value['booking_id'], $data);
+	    echo "<br/>";
+	    // print_r($data);
+	    echo "<br/>";
+	}
 
-    	//print_r($booking_details);
+	//print_r($booking_details);
     }
 
 }
