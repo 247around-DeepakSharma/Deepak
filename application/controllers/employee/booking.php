@@ -4,8 +4,8 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-//error_reporting(E_ALL);
-//ini_set('display_errors', '1');
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 ini_set('memory_limit', '-1');
 ini_set('max_execution_time', 3600);
 
@@ -1624,8 +1624,6 @@ class Booking extends CI_Controller {
 			case 'Completed TV Without Stand':
 			case 'Completed With Demo':
 			case 'Completed':
-
-
 			    $data = array();
 			    $data['appliance_id'] = $value['appliance_id'];
 			    $data['partner_id'] = $value['partner_id'];
@@ -1687,6 +1685,8 @@ class Booking extends CI_Controller {
 		    $this->booking_model->update_booking_unit_details($booking_id, $data);
 		    break;
 
+		case 'Visit':
+		case 'Visit,':
 		case 'VisitCharge,':
 		case 'Visit Charge':
 		    $data = array();
