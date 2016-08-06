@@ -336,8 +336,8 @@ class Invoice extends CI_Controller {
 	    $getsource = substr($data[$i][0]['booking_id'], 0, 2);
 	    $invoice_id = $getsource . date('dmY');
 
-	    $unique_booking = array_unique(array_map(function ($k) {
-		    return $k['booking_id'];
+	    $unique_booking = array_unique(array_map(function ($k) { 
+            return $k['booking_id'];
 		}, $data[$i]));
 
 	    $count = count($unique_booking);
@@ -566,8 +566,8 @@ class Invoice extends CI_Controller {
 
     // get all vendor invoices for both type  A and type b
     function generate_vendor_invoices($vendor_id = "", $date_ragnge = "") {
-	$vendor_id = "1";
-	$date_ragnge = "2016/06/01-2016/06/30";
+	//$vendor_id = "1";
+	//$date_ragnge = "2016/06/01-2016/06/30";
 	$data = $this->invoices_model->generate_vendor_invoices($vendor_id, $date_ragnge);
 
 	$this->generate_cash_invoices_for_vendors($data['invoice1']);
@@ -589,10 +589,13 @@ class Invoice extends CI_Controller {
 	    $invoices = $data[$i];
 	    $excel_data = array();
 
-	    $count = count($invoices);
-	    echo "<br/>";
-	    print_r($invoices);
-	    echo "<br/>";
+	    $unique_booking = array_unique(array_map(function ($k) { 
+            return $k['booking_id'];
+        }, $invoices));
+
+        $count = count($unique_booking);
+
+
 	    log_message('info', __FUNCTION__ . '=> Start Date: ' . $invoices[0]['start_date'] . ', End Date: ' . $invoices[0]['end_date']);
 	    //echo $start_date, $end_date;
 
@@ -614,8 +617,10 @@ class Invoice extends CI_Controller {
 
 	    $invoice_id = $invoices[0]['sc_code'] . "-" . date("dMY") . "-A-" . rand(100, 999);
 	    if (is_null($invoices[0]['avg_rating'])) {
-		$invoices[0]['avg_rating'] = "";
-	    }
+          $invoices[0]['avg_rating'] = "";
+        } else if($invoices[0]['avg_rating'] =="Selec"){
+            $invoices[0]['avg_rating'] = "";
+        }
 	    $service_tax_rate = 0.145; //To be changed for June invoices onwards
 	    $r_st = round($invoices[0]['amount_to_be_pay'] * $service_tax_rate, 0); //service tax calculated on royalty
 	    //Find total charges for these bookings
@@ -827,10 +832,12 @@ class Invoice extends CI_Controller {
 
 	    $excel_data = array();
 
-	    $count = count($invoices);
-	    echo "<br/>";
-	    print_r($invoices);
-	    echo "<br/>";
+	    $unique_booking = array_unique(array_map(function ($k) { 
+            return $k['booking_id'];
+        }, $invoices));
+
+        $count = count($unique_booking);
+
 
 	    log_message('info', __FUNCTION__ . '=> Start Date: ' . $invoices[0]['start_date'] . ', End Date: ' . $invoices[0]['end_date']);
 	    //echo $start_date, $end_date;
@@ -854,8 +861,10 @@ class Invoice extends CI_Controller {
 	    $invoice_id = $invoices[0]['sc_code'] . "-" . date("dMY") . "-B-" . rand(100, 999);
 
 	    if (is_null($invoices[0]['avg_rating'])) {
-		$invoices[0]['avg_rating'] = "";
-	    }
+		  $invoices[0]['avg_rating'] = "";
+	    } else if($invoices[0]['avg_rating'] =="Selec"){
+            $invoices[0]['avg_rating'] = "";
+        }
 
 	    $excel_data = array(
 		't_ic' => $total_inst_charge, 't_st' => $total_st_charge, 't_stand' => $total_stand_charge,
@@ -874,7 +883,7 @@ class Invoice extends CI_Controller {
 	    $excel_data['count'] = $count;
 
 	    $excel_data['msg'] = 'Thanks 247around Partner for your support, we completed ' . $count .
-		' bookings with you from 1st April to 30th April' .
+		' bookings with you from '. $start_date.' '. $end_date .
 		'. Total transaction value for the bookings was Rs. ' . $excel_data['t_total'] .
 		'. Around royalty for this invoice is Rs. ' . $excel_data['r_total'] .
 		'. Your rating for completed bookings is ' . $excel_data['t_rating'] .
