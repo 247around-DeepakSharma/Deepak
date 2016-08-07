@@ -1658,27 +1658,28 @@ class Booking_model extends CI_Model {
 
         $this->db->distinct();
         $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable');
-        $this->db->where('service_id',$service_id);
+	$this->db->where('partner_id', $partner_id);
+	$this->db->where('service_id',$service_id);
         $this->db->where('category', $category);
-        $this->db->where('active', 1);
-        $this->db->where('check_box', 1);
-        $this->db->where('partner_id', $partner_id);
-        $this->db->where('service_category', $price_tags);
-        //$this->db->where('state', $state);
-
         if (!empty($capacity)) {
-            $this->db->where('capacity', $capacity);
-        }
+	    $this->db->where('capacity', $capacity);
+	}
+	$this->db->where('service_category', $price_tags);
+	//$this->db->where('active', 1);
 
-        $query = $this->db->get('service_centre_charges');
+	$query = $this->db->get('service_centre_charges');
 
         return $query->result_array();
     }
 
     function get_all_booking_unit(){
 
-        $sql = " SELECT booking_unit_details.*, `booking_details`.city FROM `booking_unit_details`, booking_details WHERE `booking_unit_details`.booking_id = `booking_details`.`booking_id` AND `booking_unit_details`.`booking_id` in (SELECT booking_id FROM `booking_details` WHERE `closed_date` >= '2016-06-01 00:00:00' AND `closed_date` < '2016-07-01 00:00:00' AND `current_status` = 'Completed')";
-        $query = $this->db->query($sql);
+        $sql = " SELECT booking_unit_details.*, `booking_details`.booking_pincode FROM `booking_unit_details`, booking_details "
+	    . "WHERE `booking_unit_details`.booking_id = `booking_details`.`booking_id` AND "
+	    . "`booking_unit_details`.`booking_id` in "
+	    . "(SELECT booking_id FROM `booking_details` WHERE `closed_date` >= '2016-06-01 00:00:00' AND "
+	    . "`closed_date` < '2016-07-01 00:00:00' AND `current_status` = 'Completed')";
+	$query = $this->db->query($sql);
         return $query->result_array();
     }
 

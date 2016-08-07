@@ -1,6 +1,11 @@
  var getUrl = window.location;
- /*var baseUrl = getUrl .protocol + "//" + getUrl.host  + "/" + getUrl.pathname.split('/')[1];*/
-var baseUrl = getUrl .protocol + "//" + getUrl.host ;
+
+ //Un-comment below line for localhost
+ var baseUrl = getUrl .protocol + "//" + getUrl.host  + "/" + getUrl.pathname.split('/')[1];
+
+ //Comment below line for localhost, this is for main server
+ //var baseUrl = getUrl .protocol + "//" + getUrl.host ;
+
  var brandServiceUrl = baseUrl + '/employee/booking/getBrandForService/';
  var categoryForServiceUrl = baseUrl + '/employee/booking/getCategoryForService/';
  var CapacityForCategoryUrl = baseUrl + '/employee/booking/getCapacityForCategory/';
@@ -24,7 +29,6 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
   }
     
   function getCategoryForService(service_id="") {
-
     var postData = {};
     
     postData['service_id'] = $("#service_id").val();
@@ -32,15 +36,13 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
     postData['partner_code'] = $("#source_code option:selected").val();
 
     sendAjaxRequest(postData, categoryForServiceUrl).done(function(data) {
-     
-       $(".appliance_category").html(data);   
+        $(".appliance_category").html(data);   
     });
 
   }
 
     
   function getCapacityForCategory(service_id, category, div_id) {
-
     var postData = {};
     
     postData['service_id'] = $("#service_id").val();
@@ -89,7 +91,6 @@ var baseUrl = getUrl .protocol + "//" + getUrl.host ;
 
        postData['capacity'] = "";
     }
-
 
     sendAjaxRequest(postData, pricesForCategoryCapacityUrl).done(function(data) {
     

@@ -4,8 +4,9 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
+//error_reporting(E_ALL);
+//ini_set('display_errors', '1');
+
 ini_set('memory_limit', '-1');
 ini_set('max_execution_time', 3600);
 
@@ -1813,7 +1814,7 @@ class Booking extends CI_Controller {
 	    }
 	}
 
-	//$this->test1();
+	$this->test1();
     }
 
     function test1() {
@@ -1826,27 +1827,30 @@ class Booking extends CI_Controller {
 
 	    $prices = $this->booking_model->getPrices($data['service_id'], $data['appliance_category'], $data['appliance_capacity'], $partner_id, $data['price_tags']);
 
-	    $state = $this->vendor_model->getall_state($data['city']);
-	    
+	    $state = $this->vendor_model->get_state_from_pincode($data['booking_pincode']);
 
 	    if (empty($prices)) {
+		echo $data['service_id'] . "<br/>" .
+		    $data['appliance_category'] . "<br/>" .
+		    $data['appliance_capacity'] . "<br/>" .
+		$partner_id . "<br/>" .
+		$data['price_tags'] . "<br/>" .
+		$data['booking_id'] . "<br/>";
 
-		echo $data['service_id'] . "<br/>" . $data['appliance_category'] . "<br/>" . $data['appliance_capacity'] . "<br/>" . $partner_id . "<br/>" . $data['price_tags'] ."<br/>" .$data['booking_id']."<br/>";
 		echo "<br/><br/>";
-		print_r($state);
+		print_r($state['state']);
 		echo "<br/><br/>";
 	    } else {
 		unset($data['id']);
 		$data['id'] = $prices[0]['id'];
 
 		if(empty($state)){
-			echo $data['city'];
+			echo $data['booking_pincode'];
 		}
 
-		unset($data['city']);
+		unset($data['booking_pincode']);
 
-
-		$this->booking_model->update_prices($data, $data['booking_id'], $state[0]['state']);
+		$this->booking_model->update_prices($data, $data['booking_id'], $state['state']);
 	    }
 	}
     }

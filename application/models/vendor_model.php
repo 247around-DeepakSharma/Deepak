@@ -8,7 +8,7 @@ class vendor_model extends CI_Model {
     function __construct() {
         parent::__Construct();
 
-    
+
         $this->db = $this->load->database('default', TRUE, TRUE);
     }
 
@@ -341,15 +341,31 @@ class vendor_model extends CI_Model {
      *  @return : array of states
      */
     function getall_state($city = "") {
-        $this->db->distinct();
-        $this->db->select('state');
-        if ($city != "") {
-            $this->db->LIKE('district', $city);
-        }
-        $this->db->order_by('state');
-        $query = $this->db->get('india_pincode');
+	$this->db->distinct();
+	$this->db->select('state');
+	if ($city != "") {
+	    $this->db->LIKE('district', $city);
+	}
+	$this->db->order_by('state');
+	$query = $this->db->get('india_pincode');
 
-        return $query->result_array();
+	return $query->result_array();
+    }
+
+    /**
+     *  @desc : This function is to get State specific to a Pincode
+     *
+     *  @param : $pincode
+     *  @return : State
+     */
+    function get_state_from_pincode($pincode) {
+	$this->db->distinct();
+	$this->db->select('state');
+	$this->db->where('pincode', $pincode);
+
+	$query = $this->db->get('india_pincode');
+
+	return $query->result_array()[0];
     }
 
     /**

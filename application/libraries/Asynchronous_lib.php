@@ -24,9 +24,9 @@ class Asynchronous_lib {
 	//Use SSL & port 443 for secure servers
 	//Use otherwise for localhost and non-secure servers
 	//For secure server
-	$fp = fsockopen('ssl://' . $parts['host'], isset($parts['port']) ? $parts['port'] : 443, $errno, $errstr, 30);
+	//$fp = fsockopen('ssl://' . $parts['host'], isset($parts['port']) ? $parts['port'] : 443, $errno, $errstr, 30);
 	//For localhost
-	//$fp = fsockopen($parts['host'], isset($parts['port']) ? $parts['port'] : 80, $errno, $errstr, 30);
+	$fp = fsockopen($parts['host'], isset($parts['port']) ? $parts['port'] : 80, $errno, $errstr, 30);
 
 	if (!$fp) {
 	    echo "Error occured while opening the socket: " . $errno . " Msg: " . $errstr;

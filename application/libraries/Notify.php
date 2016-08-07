@@ -42,19 +42,14 @@ class Notify {
 
         $this->My_CI->email->from($from, '247around Team');
 
-	if (!TRIAL_RUN) {
-	    $this->My_CI->email->to($to);
-	    $this->My_CI->email->bcc($bcc);
-	    $this->My_CI->email->cc($cc);
-	} else {
-	    //Trial mode
-	    $this->My_CI->email->to('anuj.aggarwal@gmail.com');
-	}
+	$this->My_CI->email->to('anuj@247around.com');
 
 	$this->My_CI->email->subject($subject);
 	$this->My_CI->email->message($message);
 
-        if ($this->My_CI->email->send())
+//	return true;
+
+	if ($this->My_CI->email->send())
             return true;
         else
             return false;
@@ -82,17 +77,17 @@ class Notify {
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_VERBOSE, 0);
-        curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_FAILONERROR, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
 
-        $http_result = curl_exec($ch);
-        $error = curl_error($ch);
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        //print_r($ch);
+//        $http_result = curl_exec($ch);
+//        $error = curl_error($ch);
+//        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+	//print_r($ch);
         //echo exit();
         curl_close($ch);
     }
@@ -138,7 +133,6 @@ class Notify {
             $attachment = "";
             $this->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
         } else {
-
             log_message('info', "Email Not Sent - Booking id: " . $email['booking_id'] . ",
         		please recheck tag: '" . $email['tag'] . "' & Phone Number - " . $email['phone_no']);
             $subject = 'Booking Email not sent';
@@ -181,18 +175,18 @@ class Notify {
         $ch = curl_init();
 
         //curl_setopt($ch, CURLOPT_VERBOSE, 1);
-        curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_FAILONERROR, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
 
-        $http_result = curl_exec($ch);
-        $error = curl_error($ch);
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+//        $http_result = curl_exec($ch);
+//        $error = curl_error($ch);
+//        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-        curl_close($ch);
+	curl_close($ch);
 
         //log_message('info', __FUNCTION__ . "=> " . print_r(array($http_result, $error, $http_code), TRUE));
     }

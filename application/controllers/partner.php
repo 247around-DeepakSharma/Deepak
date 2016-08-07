@@ -172,11 +172,11 @@ class Partner extends CI_Controller {
 			    //User exists
 			    $user_id = $output[0]['user_id'];
 			}
-            
+
             $booking['partner_id'] = $unit_details['partner_id'] = $this->partner['id'];
 		    $booking['order_id'] = $requestData['orderID'];
 			$appliance_details['brand'] = $unit_details['appliance_brand'] = $requestData['brand'];
-			
+
 			$appliance_details['model_number'] =  $unit_details['model_number'] =  (isset($requestData['model']) ? $requestData['model'] : "");
 
 			log_message('info', 'Product type: ' . $requestData['product']);
@@ -211,7 +211,7 @@ class Partner extends CI_Controller {
 			//Check for all optional parameters before setting them
 			$appliance_details['category'] = $unit_details['appliance_category']  = (isset($requestData['category']) ? $requestData['category'] : "");
 			//$lead_details['SubCategory'] = (isset($requestData['subCategory']) ? $requestData['subCategory'] : "");
-			
+
 			$booking['booking_primary_contact_no'] = $requestData['mobile'];
 			$booking['booking_alternate_contact_no'] = (isset($requestData['alternatePhone']) ? $requestData['alternatePhone'] : "");
 
@@ -222,7 +222,7 @@ class Partner extends CI_Controller {
 			$booking['state'] = $state[0]['state'];
 
 			$booking['booking_pincode'] = $user['pincode'];
-			
+
 			$booking['booking_address'] = $requestData['address'] . ", " . (isset($requestData['landmark']) ? $requestData['landmark'] : "") ;
 
 			$booking['delivery_date'] = $this->getDateTime($requestData['deliveryDate']);
@@ -247,14 +247,14 @@ class Partner extends CI_Controller {
 			//Add partner code from sources table
 			//All partners should have a valid partner code in the bookings_sources table
 			$booking['source'] = $this->partner_model->get_source_code_for_partner($this->partner['id']);
-			
+
 			$unit_details['booking_id'] = $booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
-			
+
 			$booking['quantity'] = '1';
 			$appliance_details['tag'] = $unit_details['appliance_tag'] = $lead_details['Brand'] . " " . $lead_details['Product'];
 			$appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
 			$appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
-			
+
 			$appliance_details['last_service_date'] = date('d-m-Y');
 			$booking['potential_value'] = '';
 
@@ -270,12 +270,12 @@ class Partner extends CI_Controller {
 			$booking['booking_timeslot'] = '';
 			$booking['amount_due'] = '';
 			$booking['booking_remarks'] = '';
-			
+
 			//Insert query
 			//echo print_r($booking, true) . "<br><br>";
 			$this->booking_model->addbooking($booking);
 
-			
+
 			//Send response
 			$this->jsonResponseString['response'] = array(
 			    "orderID" => $booking['order_id'],
@@ -685,7 +685,7 @@ class Partner extends CI_Controller {
 	    ($request['pincode'] == "") ||
 	    ($request['city'] == "") ||
 	    ($request['requestType'] == "")
-	)) {
+	    )) {
 	    $resultArr['code'] = ERR_MANDATORY_PARAMETER_MISSING_CODE;
 	    $resultArr['msg'] = ERR_MANDATORY_PARAMETER_MISSING_MSG;
 
@@ -740,7 +740,7 @@ class Partner extends CI_Controller {
 	}
 
 	//Check timeslot format validity
-	
+
 	if (($flag === TRUE) &&
 	    ($this->validate_timeslot_format($request['deliveryDate'] ) === FALSE)) {
 	    $resultArr['code'] = ERR_INVALID_TIMESLOT_FORMAT_CODE;
@@ -854,7 +854,7 @@ class Partner extends CI_Controller {
 	if ($flag === TRUE) {
 	    $lead['query1'] = $this->booking_model->getbooking_history($request['247aroundBookingID']);
 	    $lead['query2'] = $this->booking_model->get_unit_details($request['247aroundBookingID']);
-	   
+
 	    $resultArr['lead'] = $lead;
 
 	}
@@ -1163,14 +1163,14 @@ class Partner extends CI_Controller {
 		(array_key_exists('hour', $timeslot)) &&
 		(array_key_exists('minute', $timeslot))) {
 		if (
-			($timeslot['year'] === "") ||
+		    ($timeslot['year'] === "") ||
 		    ($timeslot['month'] === "") ||
 		    ($timeslot['day'] === "") ||
 		    ($timeslot['hour'] === "") ||
 		    ($timeslot['minute'] === "")
 		) {
 		    //something is missing
-			return FALSE;
+		    return FALSE;
 		} else {
 		    return TRUE;
 		}
@@ -1211,18 +1211,16 @@ class Partner extends CI_Controller {
 
     function getallheaders() {
 	//Use this if you are using Nginx
-
-	$headers = '';
-	foreach ($_SERVER as $name => $value) {
-	    if (substr($name, 0, 5) == 'HTTP_') {
-		$headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
-	    }
-	}
-
-	return $headers;
-
+//	$headers = '';
+//	foreach ($_SERVER as $name => $value) {
+//	    if (substr($name, 0, 5) == 'HTTP_') {
+//		$headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+//	    }
+//	}
+//
+//	return $headers;
 	//It works only with Apache
-	//return getallheaders();
+	return getallheaders();
     }
 
     function getDateTime($dt) {
