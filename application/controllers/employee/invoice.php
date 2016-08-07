@@ -664,7 +664,7 @@ class Invoice extends CI_Controller {
 		$excel_data['count'] = $count;
 
 		$excel_data['msg'] = 'Thanks 247around Partner for your support, we completed ' . $count .
-		    ' bookings with you from ' . $start_date . ' till ' . $end_date .
+		    ' bookings with you from ' . $start_date . ' to ' . $end_date .
 		    '. Total transaction value for the bookings was Rs. ' . $invoices[0]['total_amount_paid'] .
 		    '. Around royalty for this invoice is Rs. ' . $excel_data['r_total'] .
 		    '. Your rating for completed bookings is ' . $excel_data['t_rating'] .
@@ -766,7 +766,7 @@ class Invoice extends CI_Controller {
 		$sms['tag'] = "vendor_invoice_mailed";
 		$sms['smsData']['type'] = 'Cash';
 		$sms['smsData']['month'] = date('M Y', strtotime($start_date));
-		$sms['smsData']['amount'] = $invoices[0]['t_ap'];
+		$sms['smsData']['amount'] = $invoices[0]['total_amount_paid'];
 		$sms['phone_no'] = $invoices[0]['owner_phone_1'];
 
 		//$this->notify->send_sms($sms);
