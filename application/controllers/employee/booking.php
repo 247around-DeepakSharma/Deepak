@@ -827,22 +827,6 @@ class Booking extends CI_Controller {
 	$this->load->view('employee/booking', $data);
     }
 
-//    /**
-//     *  @desc : This function is to create jobcard
-//     *
-//     * 	Jobcard is created and attached in mail when we reschedule booking and is sent to the vendor to whome we assign this booking.
-//     *
-//     *  @param : booking id
-//     *  @return : void
-//     */
-//    function jobcard($booking_id) {
-//        $query1 = $this->booking_model->getbooking_history($booking_id);
-//        $query2 = $this->booking_model->get_unit_details($booking_id);
-//
-//        $this->load->view('employee/header');
-//        $this->load->view('employee/unassignedjobcard', array('query1' => $query1, 'query2' => $query2));
-//    }
-
     /**
      *  @desc : This function is to view deatils of any particular booking.
      *

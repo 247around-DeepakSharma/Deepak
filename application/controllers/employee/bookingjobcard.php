@@ -78,19 +78,16 @@ class bookingjobcard extends CI_Controller {
         $R = new PHPReport($config);
 
        $booking_details = $this->booking_model->getbooking_history($booking_id);
-    //echo "Booking Details: " . "\n";
-    //print_r($booking_details);
-
         $unit_details = $this->booking_model->get_unit_details($booking_id); 
 
 
-              $R->load(array(
+        $R->load(array(
             array(
                 'id' => 'booking',
                 //'repeat' => TRUE,
                 'data' => $booking_details[0],
                 //'minRows' => 2,
-               'format' => array(
+                'format' => array(
                     'booking_date' => array('datetime' => 'd/M/Y'),
                     'amount_due' => array('number' => array('prefix' => 'Rs. ')),
                 )
@@ -101,12 +98,13 @@ class bookingjobcard extends CI_Controller {
                 'data' => $unit_details,
                 //'minRows' => 2,
                 'format' => array(
-            //'create_date' => array('datetime' => 'd/M/Y'),
-               'total_price' => array('number' => array('prefix' => 'Rs. ')),
+                    //'create_date' => array('datetime' => 'd/M/Y'),
+                    'total_price' => array('number' => array('prefix' => 'Rs. ')),
                 )
              ),
             )
         );
+
         //Get populated XLS with data
         if ($booking_details[0]['current_status'] == "Rescheduled")
             $output_file_suffix = "-RESC-" . $booking_details[0]['booking_date'];
@@ -177,9 +175,6 @@ class bookingjobcard extends CI_Controller {
         //log_message('info', "PHP report");
 
         $booking_details = $this->booking_model->getbooking_history($booking_id);
-    //echo "Booking Details: " . "\n";
-    //print_r($booking_details);
-
         $unit_details = $this->booking_model->get_unit_details($booking_id); 
 
 
@@ -189,7 +184,7 @@ class bookingjobcard extends CI_Controller {
                 //'repeat' => TRUE,
                 'data' => $booking_details[0],
                 //'minRows' => 2,
-               'format' => array(
+                'format' => array(
                     'booking_date' => array('datetime' => 'd/M/Y'),
                     'amount_due' => array('number' => array('prefix' => 'Rs. ')),
                 )
@@ -200,8 +195,8 @@ class bookingjobcard extends CI_Controller {
                 'data' => $unit_details,
                 //'minRows' => 2,
                 'format' => array(
-            //'create_date' => array('datetime' => 'd/M/Y'),
-               'total_price' => array('number' => array('prefix' => 'Rs. ')),
+                    //'create_date' => array('datetime' => 'd/M/Y'),
+                    'total_price' => array('number' => array('prefix' => 'Rs. ')),
                 )
              ),
             )
@@ -247,7 +242,7 @@ class bookingjobcard extends CI_Controller {
         $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
 
         $this->session->set_flashdata('result', 'Job card generated successfully');
-       // redirect(base_url() . 'employee/booking/view', 'refresh');
+        redirect(base_url() . 'employee/booking/view', 'refresh');
     }
 
     /*

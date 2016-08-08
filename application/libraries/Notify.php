@@ -42,7 +42,9 @@ class Notify {
 
         $this->My_CI->email->from($from, '247around Team');
 
-	$this->My_CI->email->to('anuj@247around.com');
+	    $this->My_CI->email->to($to);
+	    $this->My_CI->email->bcc($bcc);
+	    $this->My_CI->email->cc($cc);
 
 	$this->My_CI->email->subject($subject);
 	$this->My_CI->email->message($message);
@@ -77,17 +79,17 @@ class Notify {
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_VERBOSE, 0);
-	curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_FAILONERROR, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
 
-//        $http_result = curl_exec($ch);
-//        $error = curl_error($ch);
-//        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-	//print_r($ch);
+        $http_result = curl_exec($ch);
+        $error = curl_error($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        //print_r($ch);
         //echo exit();
         curl_close($ch);
     }
@@ -125,7 +127,7 @@ class Notify {
         if (!empty($template)) {
             $emailBody = vsprintf($template[0], $email);
             $from = $template[2];
-            $to =  $template[1];
+            $to = $template[1];
             $cc = "";
             $bcc = "";
             $subject = $email['subject'];
@@ -133,6 +135,7 @@ class Notify {
             $attachment = "";
             $this->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
         } else {
+
             log_message('info', "Email Not Sent - Booking id: " . $email['booking_id'] . ",
         		please recheck tag: '" . $email['tag'] . "' & Phone Number - " . $email['phone_no']);
             $subject = 'Booking Email not sent';
@@ -287,47 +290,5 @@ class Notify {
       
        $this->send_email($email);         
     }
-    
-    /**
-     * @desc: This method calls partner snapdeal api
-     */
-    function partner_sb_cb_callback($data){
-        //Is this SD booking?
-        if (strpos($data['booking_id'], "SS") !== FALSE) {
-            $is_sd = TRUE;
-        } else {
-            $is_sd = FALSE;
-        }
-
-        if($is_sd){
-            switch($data['current_status']){
-            case 'Completed':
-                
-                    $this->My_CI->partner_sd_cb->update_status_complete_booking($data);
-                    break;
-            case 'Pending':
-                        
-                    $this->My_CI->partner_sd_cb->update_status_schedule_booking($data);
-                    break;  
-
-            case 'FollowUp':
-                    $this->My_CI->partner_sd_cb->update_status_schedule_booking($data);
-                    break; 
-
-            case 'Rescheduled':
-                    $this->My_CI->partner_sd_cb->update_status_reschedule_booking($data);
-                    break;
-
-            case 'Cancelled':
-                   $this->My_CI->partner_sd_cb->update_status_cancel_booking($data);
-                   break;   
-            }    
-        }
-
-        log_message('info', 'Partner Sb Cd Callback: '  . print_r($data, true));
-
-        return true;
-
-    }
-
+  
 }

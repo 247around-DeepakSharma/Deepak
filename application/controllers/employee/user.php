@@ -35,16 +35,16 @@ class User extends CI_Controller {
         $this->load->view('employee/finduser', $data);
     }
 
-/**
+    /**
      * @desc : This function is to find/search user
-     * 
+     *
      * Searches user details with booking id, order id and partner code
-     * 
+     *
      * Also searches user details with user's name.
-     * 
+     *
      * Complete or partial detail entered to search will show all the matching users/bookings in a list,
      *      from which we can select the required one by looking at other details shown.
-     * 
+     *
      * @param: offset, per page number and phone number
      * @return : print Booking on Booking Page
      */
@@ -186,9 +186,9 @@ class User extends CI_Controller {
 
     /**
      * @desc : This function is used to find user by their name
-     * 
+     *
      * The name entered to search could be user's complete name or partial name as well.
-     * 
+     *
      * @param : void
      * @return : array of data(searched results) to the view
      */
@@ -201,7 +201,7 @@ class User extends CI_Controller {
 
     /**
      * @desc : This function is used to check phone number validation
-     *      
+     *
      * @param : void
      * @return : returns true if validation is true else false
      */
@@ -218,9 +218,9 @@ class User extends CI_Controller {
 
     /**
      * @desc : This function is used to load the view to add user
-     * 
+     *
      * Also sends user's detail(phone no.) and all states list to view
-     *      
+     *
      * @param : user's details
      * @return : void
      */
@@ -234,8 +234,8 @@ class User extends CI_Controller {
     }
 
     /**
-     * @desc : This function is used to add a new user     
-     *      
+     * @desc : This function is used to add a new user
+     *
      * @param : void
      * @return : takes to booking history page of newly added user
      */
@@ -265,7 +265,7 @@ class User extends CI_Controller {
 
     /**
      * @desc : This function is used to check validation for different fields
-     *      
+     *
      * @param : void
      * @return : returns true if validation satifies else false
      */
@@ -412,5 +412,4 @@ class User extends CI_Controller {
         $user['user'] = $this->user_model->get_count_transactional_user($data);
         $this->load->view('employee/transactionalusers', $user);
     }
-
 }

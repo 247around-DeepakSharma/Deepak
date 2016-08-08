@@ -60,6 +60,8 @@ $route['partner/closed_booking/Completed/(:any)'] = 'employee/partner/closed_boo
 $route['partner/closed_booking/Cancelled'] = 'employee/partner/closed_booking/Cancelled';
 $route['partner/closed_booking/Cancelled/(:any)'] = 'employee/partner/closed_booking/Cancelled/$1';
 $route['partner/booking_details/(:any)'] = 'employee/partner/booking_details/$1';
+$route['partner/pending_queries'] = 'employee/partner/pending_queries';
+$route['partner/pending_queries/(:any)'] = 'employee/partner/pending_queries/$1';
 
 
 

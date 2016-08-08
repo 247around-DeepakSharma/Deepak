@@ -74,15 +74,22 @@
                      </tbody>
                   </table>
                </div>
-               <!-- <div class="text-right">
-                  <a href="#">View All Transactions <i class="fa fa-arrow-circle-right"></i></a>
-                  </div>-->
             </div>
          </div>
          <!-- end  col-md-12-->
       </div>
    </div>
 </div>
+ <div class="pagination" style="margin-left: 16px;" > <?php if(isset($links)) echo $links; ?></div>
+
+ <style type="text/css">
+
+
+.pagination a { color:#474747; border:solid 1px #B6B6B6; padding:6px 9px 6px 9px; background:#E6E6E6; background:-moz-linear-gradient(top, #FFFFFF 1px, #F3F3F3 1px, #E6E6E6); background:-webkit-gradient(linear, 0 0, 0 100%, color-stop(0.02, #FFFFFF), color-stop(0.02, #F3F3F3), color-stop(1, #E6E6E6)); }
+.pagination a:hover ,
+.pagination strong { background:#2C9D9C; padding:6px 9px 6px 9px; color: #fff; border:solid 1px #2C9D9C;  }
+ </style>
+      
 <!-- Modal -->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 <div class="modal-dialog" role="document">

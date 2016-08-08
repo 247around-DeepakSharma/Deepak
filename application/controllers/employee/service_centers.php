@@ -17,9 +17,8 @@ class Service_centers extends CI_Controller {
         $this->load->library("session");
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
-
     }
-    
+
     /**
      * @desc: This is used to load vendor Login Page
      *
@@ -39,7 +38,6 @@ class Service_centers extends CI_Controller {
      * @return: void
      */
     function service_center_login() {
-        //$this->checkUserSession();
         $data['user_name'] = $this->input->post('user_name');
         $data['password'] = md5($this->input->post('password'));
         $service_center_id = $this->service_centers_model->service_center_login($data);
@@ -121,7 +119,6 @@ class Service_centers extends CI_Controller {
 
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
-
     }
 
     /**
@@ -256,7 +253,7 @@ class Service_centers extends CI_Controller {
         $this->session->sess_destroy();
         redirect(base_url() . "service_center");
     }
-    
+
     /**
      * @desc: this is used to display completed booking for specific service center
      */
