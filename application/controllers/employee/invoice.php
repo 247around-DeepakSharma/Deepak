@@ -8,6 +8,8 @@ if (!defined('BASEPATH')) {
 error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
+ini_set('memory_limit', '-1');
+ini_set('max_execution_time', 36000000);
 
 class Invoice extends CI_Controller {
 
@@ -566,43 +568,37 @@ class Invoice extends CI_Controller {
 
     // get all vendor invoices for both type  A and type b
     function generate_vendor_invoices() {
-	$date_ragnge = "2016/06/01-2016/06/30";
+	$date_ragnge = "2016/06/01-2016/07/01";
 
-	$service_centers = $this->invoices_model->find_all_service_centers();
+//	$service_centers = $this->invoices_model->find_all_service_centers();
 	$cash_summary = array();
 	$foc_summary = array();
+	$bookings = array();
 	//echo print_r($service_centers, true);
-
-	foreach ($service_centers as $sc) {
+//	foreach ($service_centers as $sc) {
 //	echo 'Processing Service Centre: ' . $sc['name'] . PHP_EOL;
-	    $vendor_id = $sc['id'];
-	    $data = $this->invoices_model->generate_vendor_invoices($vendor_id, $date_ragnge);
+	$vendor_id = '';
+	$data = $this->invoices_model->generate_vendor_invoices($vendor_id, $date_ragnge);
 
-	    $cash_data = $this->generate_cash_invoices_for_vendors($data['invoice1']);
-	    $foc_data = $this->generate_foc_invoices_for_vendors($data['invoice2']);
+	$cash_data = $this->generate_cash_invoices_for_vendors($data['invoice1']);
+	$foc_data = $this->generate_foc_invoices_for_vendors($data['invoice2']);
+//	array_push($cash_summary, $cash_data[0]);
+//	array_push($foc_summary, $foc_data[0]);
+//	$bookings = array_merge($bookings, $cash_data[1], $foc_data[1]);
+//	unset($data);
 
-	    array_push($cash_summary, $cash_data);
-	    array_push($foc_summary, $foc_data);
 
-	    unset($data);
-
-//	$vendor_id = "17";  // $sc['id']
-//	$data = $this->invoices_model->generate_vendor_invoices($vendor_id, $date_ragnge);
-//
-//	$cash_data = $this->generate_cash_invoices_for_vendors($data['invoice1']);
-//	$foc_data = $this->generate_foc_invoices_for_vendors($data['invoice2']);
-//
-//	array_push($cash_summary, $cash_data);
-//	array_push($foc_summary, $foc_data);
-
-	    exit(0);
+	foreach ($cash_data as $b1) {
+	    echo $b1 . "<br>";
+//	    foreach ($b1 as $value) {
+//		echo $value . "<br>";
+//	    }
 	}
-
-	foreach ($cash_summary as $c) {
-	    echo $c;
-	}
-	foreach ($foc_summary as $f) {
-	    echo $f;
+	foreach ($foc_data as $b2) {
+	    echo $b2 . "<br>";
+//	    foreach ($b2 as $value) {
+//		echo $value . "<br>";
+//	    }
 	}
 
 //	print_r($cash_summary);
@@ -630,6 +626,8 @@ class Invoice extends CI_Controller {
     }
 
     function generate_cash_invoices_for_vendors($data) {
+	$unique_booking_cash = array();
+	$summary_cash = array();
 	$file_names = array();
 	$summary = '';
 
@@ -648,6 +646,7 @@ class Invoice extends CI_Controller {
 		    }, $invoices));
 
 		$count = count($unique_booking);
+		array_push($unique_booking_cash, $unique_booking);
 
 		log_message('info', __FUNCTION__ . '=> Start Date: ' .
 		    $invoices[0]['start_date'] . ', End Date: ' . $invoices[0]['end_date']);
@@ -738,7 +737,6 @@ class Invoice extends CI_Controller {
 		$output_file_excel = $output_file_dir . $output_file . ".xlsx";
 		//for xlsx: excel, for xls: excel2003
 		$R->render('excel', $output_file_excel);
-
 		//convert excel to pdf
 		$output_file_pdf = $output_file_dir . $output_file . ".pdf";
 		//$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=" . CONVERTAPI_KEY . " -o " . $output_file_pdf;
@@ -752,10 +750,9 @@ class Invoice extends CI_Controller {
 		//echo $cmd;
 		$output = '';
 		$result_var = '';
-		exec($cmd, $output, $result_var);
+//		exec($cmd, $output, $result_var);
 		log_message('info', "Report generated with $count records");
-		echo PHP_EOL . "Report generated with $count records" . PHP_EOL;
-
+//		echo PHP_EOL . "Report generated with $count records" . PHP_EOL;
 		//Send report via email
 		$this->email->clear(TRUE);
 		$this->email->from('billing@247around.com', '247around Team');
@@ -784,16 +781,17 @@ class Invoice extends CI_Controller {
                         <br>https://play.google.com/store/apps/details?id=com.handymanapp";
 
 		$this->email->message($message);
-		$this->email->attach($output_file_pdf, 'attachment');
+//		$this->email->attach($output_file_pdf, 'attachment');
+		$this->email->attach($output_file_excel, 'attachment');
 
-		/* $mail_ret = $this->email->send();
-		  if ($mail_ret) {
-		  //log_message('info', __METHOD__ . ": Mail sent successfully");
-		  echo "Mail sent successfully...............\n\n";
-		  } else {
-		  log_message('error', __METHOD__ . ": Mail could not be sent");
-		  echo "Mail could not be sent" . PHP_EOL;
-		  } */
+		$mail_ret = $this->email->send();
+		if ($mail_ret) {
+		    log_message('info', __METHOD__ . ": Mail sent successfully");
+		    echo "Mail sent successfully...............\n\n";
+		} else {
+		    log_message('error', __METHOD__ . ": Mail could not be sent");
+		    echo "Mail could not be sent" . PHP_EOL;
+		}
 
 		//Send SMS to PoC/Owner
 		$sms['tag'] = "vendor_invoice_mailed";
@@ -802,7 +800,7 @@ class Invoice extends CI_Controller {
 		$sms['smsData']['amount'] = $invoices[0]['total_amount_paid'];
 		$sms['phone_no'] = $invoices[0]['owner_phone_1'];
 
-		//$this->notify->send_sms($sms);
+		$this->notify->send_sms($sms);
 		//
 		//
 		//Save filenames to delete later on
@@ -844,10 +842,11 @@ class Invoice extends CI_Controller {
 		    'due_date' => date("Y-m-d", strtotime($end_date . "+1 month"))
 		);
 
+		$this->invoices_model->insert_new_invoice($invoice_details);
+
 		$summary = $invoices[0]['id'] . "," . $invoices[0]['name'] . "," . $count . "," . $excel_data['t_ap'] . "," . $excel_data['r_total']
 		    . "," . $excel_data['r_total'] . "<br>";
-
-		//$this->invoices_model->insert_new_invoice($invoice_details);
+		array_push($summary_cash, $summary);
 
 		/*
 		 * Update booking-invoice table to capture this new invoice against these bookings.
@@ -873,12 +872,16 @@ class Invoice extends CI_Controller {
 
 	 */
 
-	return $summary;
+//	return array($summary, $unique_booking_cash);
+//	return $unique_booking_cash;
+	return $summary_cash;
     }
 
     function generate_foc_invoices_for_vendors($data) {
+	$unique_booking_foc = array();
 	$file_names = array();
 	$summary = '';
+	$summary_foc = array();
 
 	$template = 'Vendor_Settlement_Template-FoC-v4.xlsx';
 	$templateDir = __DIR__ . "/../excel-templates/";
@@ -899,7 +902,7 @@ class Invoice extends CI_Controller {
 		    $total_st_charge += $data[$i][$j]['st'];
 		    $total_stand_charge += $data[$i][$j]['stand'];
 		    $total_vat_charge += $data[$i][$j]['vat'];
-		    $data[$i][$j]['amount_paid'] = $total_inst_charge + $total_st_charge + $total_stand_charge + $total_vat_charge;
+		    $invoices[$j]['amount_paid'] = $data[$i][$j]['installation_charge'] + $data[$i][$j]['st'] + $data[$i][$j]['stand'] + $data[$i][$j]['vat'];
 		}
 
 		$r_ic = $total_inst_charge * .30;
@@ -915,6 +918,7 @@ class Invoice extends CI_Controller {
 		    }, $invoices));
 
 		$count = count($unique_booking);
+		array_push($unique_booking_foc, $unique_booking);
 
 		log_message('info', __FUNCTION__ . '=> Start Date: ' . $invoices[0]['start_date'] . ', End Date: ' . $invoices[0]['end_date']);
 		//echo $start_date, $end_date;
@@ -1000,7 +1004,6 @@ class Invoice extends CI_Controller {
 		$output_file_excel = $output_file_dir . $output_file . ".xlsx";
 		//for xlsx: excel, for xls: excel2003
 		$R->render('excel', $output_file_excel);
-
 		//convert excel to pdf
 		$output_file_pdf = $output_file_dir . $output_file . ".pdf";
 		//$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=" . CONVERTAPI_KEY . " -o " . $output_file_pdf;
@@ -1013,18 +1016,18 @@ class Invoice extends CI_Controller {
 
 		log_message('info', 'Command: ' . $cmd);
 
-		echo $cmd;
+//		echo $cmd;
 		$output = '';
 		$result_var = '';
-		exec($cmd, $output, $result_var);
+//		exec($cmd, $output, $result_var);
 
 		log_message('info', "Report generated with $count records");
 		echo PHP_EOL . "Report generated with $count records" . PHP_EOL;
-
 		//Send invoice via email
 		$this->email->clear(TRUE);
 		$this->email->from('billing@247around.com', '247around Team');
 		$to = $invoices[0]['owner_email'] . ", " . $invoices[0]['primary_contact_email'];
+		//$to = "anuj@247around.com";
 		$this->email->to($to);
 
 		$cc = "billing@247around.com, nits@247around.com, anuj@247around.com";
@@ -1047,16 +1050,17 @@ class Invoice extends CI_Controller {
                         <br>https://play.google.com/store/apps/details?id=com.handymanapp";
 
 		$this->email->message($message);
-		$this->email->attach($output_file_pdf, 'attachment');
+//		$this->email->attach($output_file_pdf, 'attachment');
+		$this->email->attach($output_file_excel, 'attachment');
 
-		/* $mail_ret = $this->email->send();
-		  if ($mail_ret) {
-		  //log_message('info', __METHOD__ . ": Mail sent successfully");
-		  echo "Mail sent successfully..............." . PHP_EOL;
-		  } else {
-		  log_message('error', __METHOD__ . ": Mail could not be sent");
-		  echo "Mail could not be sent" . PHP_EOL;
-		  } */
+		$mail_ret = $this->email->send();
+		if ($mail_ret) {
+		    //log_message('info', __METHOD__ . ": Mail sent successfully");
+		    echo "Mail sent successfully..............." . PHP_EOL;
+		} else {
+		    log_message('error', __METHOD__ . ": Mail could not be sent");
+		    echo "Mail could not be sent" . PHP_EOL;
+		}
 
 		//Send SMS to PoC/Owner
 		$sms['tag'] = "vendor_invoice_mailed";
@@ -1065,7 +1069,7 @@ class Invoice extends CI_Controller {
 		$sms['smsData']['amount'] = $excel_data['t_total'];
 		$sms['phone_no'] = $invoices[0]['owner_phone_1'];
 
-		//$this->notify->send_sms($sms);
+		$this->notify->send_sms($sms);
 		//
 		//
 		//Save filenames to delete later on
@@ -1106,10 +1110,12 @@ class Invoice extends CI_Controller {
 		    'due_date' => date("Y-m-d", strtotime($end_date . "+1 month"))
 		);
 
+		$this->invoices_model->insert_new_invoice($invoice_details);
+
 		$summary = $invoices[0]['id'] . "," . $invoices[0]['name'] . "," . $count . "," . $excel_data['t_total'] . "," . $excel_data['r_total']
 		    . "," . ( $excel_data['r_total'] - $excel_data['t_total']) . "<br>";
 
-		//$this->invoices_model->insert_new_invoice($invoice_details);
+		array_push($summary_foc, $summary);
 
 		/*
 		 * Update booking-invoice table to capture this new invoice against these bookings.
@@ -1135,7 +1141,9 @@ class Invoice extends CI_Controller {
 
 	 */
 
-	return $summary;
+//	return array($summary, $unique_booking);
+//	return $unique_booking_foc;
+	return $summary_foc;
     }
 
     /*

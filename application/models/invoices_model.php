@@ -234,7 +234,8 @@ class invoices_model extends CI_Model {
 	for ($i = 1; $i < 3; $i++) {
 
 	    if ($i == 1) {
-		$where = " AND `booking_unit_details`.vendor_to_around > 0 AND   `booking_unit_details`.around_to_vendor =0 ";
+//		$where = " AND `booking_unit_details`.vendor_to_around > 0 AND   `booking_unit_details`.around_to_vendor =0 ";
+		$where = " AND ( ( `booking_unit_details`.vendor_to_around > 0 AND `booking_unit_details`.around_to_vendor =0 ) OR ( `booking_unit_details`.vendor_to_around = 0 AND `booking_unit_details`.around_to_vendor =0 ) )  ";
 	    } else {
 		$where = " AND `booking_unit_details`.around_to_vendor > 0  AND `booking_unit_details`.vendor_to_around = 0 ";
 	    }
