@@ -397,4 +397,9 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 	return $return[0]['count'];
     }
 
+    function find_all_service_centers() {
+	$query = $this->db->get("service_centres");
+	return $query->result_array();
+    }
+
 }
