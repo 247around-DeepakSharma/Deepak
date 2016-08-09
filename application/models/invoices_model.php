@@ -152,10 +152,10 @@ class invoices_model extends CI_Model {
      * @param: vendor_partner (vendor or partner) AND vendor or partner ID
      * @return: array()
      */
-    function getbank_transaction_summary($vendor_partner, $partner_vendor_id) {
-	$sql = " SELECT COALESCE(SUM(`credit_amount`),0) as credit_amount, COALESCE(SUM(`debit_amount`),0) as debit_amount  from bank_transactions where partner_vendor = '$vendor_partner' AND partner_vendor_id = '$partner_vendor_id' ";
-	$data = $this->db->query($sql);
-	return $data->result_array();
+    function getbank_transaction_summary($vendor_partner, $partner_vendor_id){
+        $sql = " SELECT COALESCE(SUM(`credit_amount`),0) as credit_amount, COALESCE(SUM(`debit_amount`),0) as debit_amount  from bank_transactions where partner_vendor = '$vendor_partner' AND partner_vendor_id = '$partner_vendor_id' ";
+        $data = $this->db->query($sql);
+        return $data->result_array();
     }
 
     /**
@@ -396,11 +396,6 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 
 	$return = $query->result_array();
 	return $return[0]['count'];
-    }
-
-    function find_all_service_centers() {
-	$query = $this->db->get("service_centres");
-	return $query->result_array();
     }
 
 }

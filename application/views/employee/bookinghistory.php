@@ -57,8 +57,8 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
                     <tr>
                     <th>No.</th>
 
-                    <th>Booking Id</th>
-                   
+                    <th>Booking ID</th>
+
                     <th>Name</th>
 
                     <th>Appliance</th>

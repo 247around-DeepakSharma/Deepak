@@ -601,28 +601,6 @@ class Invoice extends CI_Controller {
 //	    }
 	}
 
-//	print_r($cash_summary);
-//	print_r($foc_summary);
-//	$result = array_merge($foc_data, $cash_data);
-//	echo "<br/>";
-//	echo "<br/>";
-//	print_r($result);
-//	echo "<br/>";
-//	echo "<br/>";
-//	$unique_vendor = array_unique(array_map(function ($k) {
-//		return $k['vendor_id'];
-//	    }, $result));
-//
-//	$arrayName = array();
-//	foreach ($unique_vendor as $key => $value) {
-//
-//	    $count['booking_count'] = $this->invoices_model->get_total_booking_for_check_invoices($value, $result[0]['start_date'], $result[0]['end_date']);
-//	    $count['vendor_id'] = $value;
-//	    array_push($arrayName, $count);
-//	}
-//	echo "<br/>";
-//	echo "<br/>";
-//	print_r($arrayName);
     }
 
     function generate_cash_invoices_for_vendors($data) {
@@ -747,10 +725,10 @@ class Invoice extends CI_Controller {
 		    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
 		    $output_file_excel . ' 2> ' . $tmp_output_file;
 
-		//echo $cmd;
+		echo $cmd;
 		$output = '';
 		$result_var = '';
-//		exec($cmd, $output, $result_var);
+		exec($cmd, $output, $result_var);
 		log_message('info', "Report generated with $count records");
 //		echo PHP_EOL . "Report generated with $count records" . PHP_EOL;
 		//Send report via email
@@ -781,8 +759,8 @@ class Invoice extends CI_Controller {
                         <br>https://play.google.com/store/apps/details?id=com.handymanapp";
 
 		$this->email->message($message);
-//		$this->email->attach($output_file_pdf, 'attachment');
-		$this->email->attach($output_file_excel, 'attachment');
+		$this->email->attach($output_file_pdf, 'attachment');
+		//$this->email->attach($output_file_excel, 'attachment');
 
 		$mail_ret = $this->email->send();
 		if ($mail_ret) {
@@ -801,8 +779,6 @@ class Invoice extends CI_Controller {
 		$sms['phone_no'] = $invoices[0]['owner_phone_1'];
 
 		$this->notify->send_sms($sms);
-		//
-		//
 		//Save filenames to delete later on
 		array_push($file_names, $output_file_excel);
 		array_push($file_names, $output_file_pdf);
@@ -852,15 +828,8 @@ class Invoice extends CI_Controller {
 		 * Update booking-invoice table to capture this new invoice against these bookings.
 		 * Since this is a type 'Cash' invoice, it would be stored as a vendor-debit invoice.
 		 */
-		//$this->update_booking_invoice_mappings_repairs($invoices, $invoice_id);
-//		$smail_data['vendor_id']['foc'] = $invoices[0]['id'];
-//		$smail_data['vendor_name'] = $invoices[0]['name'];
-//		$smail_data['type'] = "A";
-//		$smail_data['booking_count'] = $count;
-//		$smail_data['start_date'] = $invoices[0]['start_date'];
-//		$smail_data['end_date'] = $invoices[0]['end_date'];
-//
-//		array_push($cash_count_data, $smail_data);
+		$this->update_booking_invoice_mappings_repairs($invoices, $invoice_id);
+
 	    } else {
 		//$summary = $invoices[0]['id'] . "," . $invoices[0]['name'] . ",0,0,0,0<br>";
 	    }
@@ -872,8 +841,6 @@ class Invoice extends CI_Controller {
 
 	 */
 
-//	return array($summary, $unique_booking_cash);
-//	return $unique_booking_cash;
 	return $summary_cash;
     }
 
@@ -1016,10 +983,10 @@ class Invoice extends CI_Controller {
 
 		log_message('info', 'Command: ' . $cmd);
 
-//		echo $cmd;
+		echo $cmd;
 		$output = '';
 		$result_var = '';
-//		exec($cmd, $output, $result_var);
+		exec($cmd, $output, $result_var);
 
 		log_message('info', "Report generated with $count records");
 		echo PHP_EOL . "Report generated with $count records" . PHP_EOL;
@@ -1050,12 +1017,12 @@ class Invoice extends CI_Controller {
                         <br>https://play.google.com/store/apps/details?id=com.handymanapp";
 
 		$this->email->message($message);
-//		$this->email->attach($output_file_pdf, 'attachment');
-		$this->email->attach($output_file_excel, 'attachment');
+		$this->email->attach($output_file_pdf, 'attachment');
+		//$this->email->attach($output_file_excel, 'attachment');
 
 		$mail_ret = $this->email->send();
 		if ($mail_ret) {
-		    //log_message('info', __METHOD__ . ": Mail sent successfully");
+		    log_message('info', __METHOD__ . ": Mail sent successfully");
 		    echo "Mail sent successfully..............." . PHP_EOL;
 		} else {
 		    log_message('error', __METHOD__ . ": Mail could not be sent");
@@ -1070,8 +1037,7 @@ class Invoice extends CI_Controller {
 		$sms['phone_no'] = $invoices[0]['owner_phone_1'];
 
 		$this->notify->send_sms($sms);
-		//
-		//
+
 		//Save filenames to delete later on
 		array_push($file_names, $output_file_excel);
 		array_push($file_names, $output_file_pdf);
@@ -1121,15 +1087,8 @@ class Invoice extends CI_Controller {
 		 * Update booking-invoice table to capture this new invoice against these bookings.
 		 * Since this is a type A invoice, it would be stored as a vendor-debit invoice.
 		 */
-		//$this->update_booking_invoice_mappings_installations($invoices, $invoice_id);
-//		$smail_data['vendor_id'] = $invoices[0]['id'];
-//		$smail_data['vendor_name'] = $invoices[0]['name'];
-//		$smail_data['type'] = "B";
-//		$smail_data['booking_count'] = $count;
-//		$smail_data['start_date'] = $invoices[0]['start_date'];
-//		$smail_data['end_date'] = $invoices[0]['end_date'];
-//
-//		array_push($foc_count_data, $smail_data);
+		$this->update_booking_invoice_mappings_installations($invoices, $invoice_id);
+
 	    } else {
 		//$summary = $invoices[0]['id'] . "," . $invoices[0]['name'] . ",0,0,0,0<br>";
 	    }
@@ -1141,8 +1100,6 @@ class Invoice extends CI_Controller {
 
 	 */
 
-//	return array($summary, $unique_booking);
-//	return $unique_booking_foc;
 	return $summary_foc;
     }
 

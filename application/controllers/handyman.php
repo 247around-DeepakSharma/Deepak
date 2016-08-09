@@ -33,7 +33,7 @@ class Handyman extends CI_Controller {
      if($_POST){
           if($validation){
               $data = $this->getdata();
-              $data['current_time']   = date("Y-m-d h:i:s");
+              $data['current_time']   = date("Y-m-d H:i:s");
               $insertData  = $this->handyman_model->insertData($data);
               $this->loadView($insertData);
                
