@@ -18,11 +18,12 @@
                         <div class="form-group ">
                            <label for="booking_city" class="col-md-4">Booking City *</label>
                            <div class="col-md-6">
-                              <select type="text" onchange= "select_state()" class="form-control"  id="booking_city" name="city" required>
-                                 <option value="<?php if (isset($booking_history[0]['city'])) {echo $booking_history[0]['city']; } ?>" selected="selected" disabled="disabled"><?php if (isset($booking_history[0]['city'])) {echo $booking_history[0]['city']; } ?></option>
+                              <select type="text"  class="form-control"  id="booking_city" name="city" required>
+                                 <option value="<?php if (isset($booking_history[0]['city'])) {echo $booking_history[0]['city']; } ?>" selected="selected" ><?php if (isset($booking_history[0]['city'])) {echo $booking_history[0]['city']; } ?></option>
                               </select>
                            </div>
                         </div>
+
                         <div class="form-group <?php if (form_error('service_id')) { echo 'has-error';} ?>">
                            <label for="service_name" class="col-md-4">Service Name *</label>
                            <div class="col-md-6">
@@ -55,7 +56,7 @@
                   </div>
                </div>
                <!-- row End  -->
-               <?php foreach ($bookng_unit_details as $keys => $unit_details) { ?>
+               <?php foreach ($booking_unit_details as $keys => $unit_details) { ?>
                <div class="clonedInput panel panel-info " id="clonedInput1">
                   <!--  <i class="fa fa-plus addsection pull-right fa-3x" aria-hidden="true" style ="margin-top:15px; margin-bottom: 15px; margin-right:40px; "></i>
                      <i class="fa fa-times pull-right deletesection  fa-3x"  style ="margin-top:15px; margin-bottom: 15px; margin-right:20px; " aria-hidden="true"></i>-->
@@ -101,7 +102,7 @@
                               <tbody>
                                  <?php $paid_basic_charges = 0; $paid_additional_charges = 0; $paid_parts_cost=0;
 
-                                 foreach ($unit_details['qunatity'] as $key => $price) { ?>
+                                 foreach ($unit_details['quantity'] as $key => $price) { ?>
                                  <tr style="background-color: white; ">
                                     <td><?php echo $price['price_tags'] ?></td>
                                     <td><?php echo $price['customer_net_payable']; ?></td>

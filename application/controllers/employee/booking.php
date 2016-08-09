@@ -261,7 +261,7 @@ class Booking extends CI_Controller {
 
 		if ($booking_id == "") {
 
-		    $result = $this->booking_model->insert_data_in_booking_unit_details($services_details);
+		    $result = $this->booking_model->insert_data_in_booking_unit_details($services_details, $booking['state']);
 
 		    if ($booking['current_status'] != 'FollowUp') {
 			$message .= "<br>Brand : " . $result['appliance_brand'] . "<br>Category : " .
@@ -277,7 +277,7 @@ class Booking extends CI_Controller {
 		    }
 		} else {
 
-		    $price_tag = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id);
+		    $price_tag = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state']);
 		    array_push($price_tags, $price_tag);
 
 		    //Log this state change as well for this booking
@@ -431,18 +431,18 @@ class Booking extends CI_Controller {
 	$data['booking_id'] = $booking_id;
 
 	$data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
-	$data['bookng_unit_details'] = $this->booking_model->getunit_details($booking_id);
+	$data['booking_unit_details'] = $this->booking_model->getunit_details($booking_id);
 	$source = $this->partner_model->get_all_partner_source("0", $data['booking_history'][0]['source']);
 	$data['booking_history'][0]['source_name'] = $source[0]['source'];
 
 	$partner_id = $this->booking_model->get_price_mapping_partner_code($data['booking_history'][0]['source']);
 	$data['prices'] = array();
 
-	foreach ($data['bookng_unit_details'] as $key => $value) {
+	foreach ($data['booking_unit_details'] as $key => $value) {
 
-	    $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], $data['bookng_unit_details'][$key]['category'], $data['bookng_unit_details'][$key]['capacity'], $partner_id, $data['booking_history'][0]['state']);
+	    $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], $data['booking_unit_details'][$key]['category'], $data['booking_unit_details'][$key]['capacity'], $partner_id, $data['booking_history'][0]['state']);
 
-	    foreach ($value['qunatity'] as $index => $price_tag) {
+	    foreach ($value['quantity'] as $index => $price_tag) {
 		// Searched already inserted price tag exist in the price array (get all service category)
 		$id = $this->search_for_key($price_tag['price_tags'], $prices);
 		// remove array key, if price tag exist into price array
@@ -451,6 +451,7 @@ class Booking extends CI_Controller {
 
 	    array_push($data['prices'], $prices);
 	}
+
 
 	$this->load->view('employee/header');
 	$this->load->view('employee/completebooking', $data);
@@ -1326,6 +1327,9 @@ class Booking extends CI_Controller {
 	$total_amount_paid = $this->input->post('grand_total_price');
 	$admin_remarks = $this->input->post('admin_remarks');
 	$internal_status = "Cancelled";
+	$city =  $this->input->post('city');
+	$state = $this->vendor_model->selectSate($city);
+
 	$service_center_details = $this->booking_model->getbooking_charges($booking_id);
 
 	foreach ($customer_basic_charge as $unit_id => $value) {
@@ -1347,7 +1351,7 @@ class Booking extends CI_Controller {
 			$data['booking_id'] = $booking_id;
 			$data['booking_status'] = "Completed";
 			$internal_status = "Completed";
-			$this->booking_model->insert_new_unit_item($unit_id, $service_charges_id, $data);
+			$this->booking_model->insert_new_unit_item($unit_id, $service_charges_id, $data, $state[0]['state']);
 		    }
 		}
 	    } else {
@@ -1856,6 +1860,10 @@ class Booking extends CI_Controller {
 	}
 
 	//print_r($booking_details);
+    }
+
+    function test_upload(){
+    	$this->booking_model->test_upload();
     }
 
 }
