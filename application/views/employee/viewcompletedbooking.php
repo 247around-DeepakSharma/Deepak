@@ -56,7 +56,7 @@
                  <input type="search" class="form-control pull-right"  id="search" placeholder="search">
             </div>
             <div style="margin-left:10px;margine-right:5px;">
-                <h1 align="left"><?php echo $status." Bookings"; ?></h1>
+                <h1 align="left"><?php  if(isset($status)){ echo $status." Bookings";} else { echo $Bookings[0]->current_status." Bookings"; $status =  $Bookings[0]->current_status; } ?></h1>
                 <table >
 
                     <thead>

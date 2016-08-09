@@ -430,7 +430,7 @@ class Booking_model extends CI_Model {
                . "booking_details.user_id = users.user_id and "
                . "services.id = booking_details.service_id  ". $condition;
 
-        $query = $this->db->query($sql);
+        $query = $this->db->query($sql);        
 
         return $query->result_array();
     }
@@ -474,15 +474,16 @@ class Booking_model extends CI_Model {
     function getBrandForService($service_id) {
         $this->db->where(array('service_id' => $service_id, 'seo' => 1));
         $this->db->select('brand_name');
-	$this->db->order_by('brand_name');
-	$query = $this->db->get('appliance_brands');
+	    $this->db->order_by('brand_name');
+	    $query = $this->db->get('appliance_brands');
         return $query->result_array();
     }
 
-    function getCategoryForService($service_id, $state ="", $partner_id="") {
+    function getCategoryForService($service_id, $state ="", $partner_id) {
+        //And state = '$state'
         $where = "";
-        if($state != ""){
-           $where .= "And state = '$state' AND partner_id = '$partner_id'";
+        if($partner_id != ""){
+           $where .= " AND partner_id = '$partner_id'";
 
         }
     	$sql = "Select distinct category from service_centre_charges where service_id=
@@ -492,10 +493,11 @@ class Booking_model extends CI_Model {
     	return $query->result_array();
     }
 
-    function getCapacityForCategory($service_id, $category, $state="", $partner_id="") {
+    function getCapacityForCategory($service_id, $category, $state="", $partner_id) {
+        //And state = '$state'
         $where = "";
-        if($state !=""){
-            $where .= "And state = '$state' AND partner_id ='$partner_id' ";
+        if($partner_id !=""){
+            $where .= " AND partner_id ='$partner_id' ";
         }
 
     	$sql = "Select distinct capacity from service_centre_charges where service_id='$service_id'
@@ -1168,9 +1170,14 @@ class Booking_model extends CI_Model {
      *  @param : String (partner code)
      *  @return : true
      */
-    function get_price_mapping_partner_code($partner_code) {
+    function get_price_mapping_partner_code($partner_code, $partner_id="") {
 	$this->db->select('price_mapping_id');
-	$this->db->where('code', $partner_code);
+    if($partner_code !=""){
+        $this->db->where('code', $partner_code);
+    } else {
+        $this->db->where('partner_id', $partner_id);
+    }
+	
 	$query = $this->db->get('bookings_sources');
 	if ($query->num_rows() > 0) {
 	    $result = $query->result_array();
@@ -1364,9 +1371,9 @@ class Booking_model extends CI_Model {
      * @param: Array
      * @return: Price tags.
      */
-    function update_booking_in_booking_details($services_details, $booking_id){
+    function update_booking_in_booking_details($services_details, $booking_id, $state){
 
-        $data = $this->getpricesdetails_with_tax($services_details['id']);
+        $data = $this->getpricesdetails_with_tax($services_details['id'], $state);
 
         $result = array_merge($services_details, $data[0]);
 
@@ -1490,7 +1497,7 @@ class Booking_model extends CI_Model {
             $query2 = $this->db->get('booking_unit_details');
 
             $result = $query2->result_array();
-            $appliance[$key]['qunatity'] = $result; // add booking unit details array into quantity key of previous array
+            $appliance[$key]['quantity'] = $result; // add booking unit details array into quantity key of previous array
         }
 
         return $appliance;
@@ -1548,8 +1555,8 @@ class Booking_model extends CI_Model {
      * @param: Array()
      * @return : Array()
      */
-    function insert_data_in_booking_unit_details($services_details){
-        $data = $this->getpricesdetails_with_tax($services_details['id']);
+    function insert_data_in_booking_unit_details($services_details, $state){
+        $data = $this->getpricesdetails_with_tax($services_details['id'], $state);
 
         $result = array_merge($services_details, $data[0]);
 
@@ -1593,8 +1600,8 @@ class Booking_model extends CI_Model {
      * @param: service charges id for cop prices nad tax
      * @param: Array, filled drom input form
      */
-    function insert_new_unit_item($unit_id, $service_charge_id, $data){
-        $price_data = $this->getpricesdetails_with_tax($service_charge_id);
+    function insert_new_unit_item($unit_id, $service_charge_id, $data, $state){
+        $price_data = $this->getpricesdetails_with_tax($service_charge_id, $state);
         $this->db->select('booking_id,partner_id,service_id,appliance_id,appliance_brand,appliance_category, appliance_capacity,appliance_size, appliance_serial_no, appliance_description, model_number, appliance_tag, purchase_month, purchase_year');
 
         $this->db->where('id', $unit_id);
@@ -1741,6 +1748,14 @@ class Booking_model extends CI_Model {
         }
 
 
+    }
+
+    function test_upload(){
+        
+
+        $sql = "LOAD DATA LOCAL  INFILE '/home/anuj/Desktop/vendor_pincode_mapping_temp/vendor_pincode_mapping_temp.csv' INTO TABLE vendor_pincode_mapping_temp FIELDS TERMINATED BY ',' ENCLOSED BY '' LINES TERMINATED BY '\r\n' (Vendor_Name,Vendor_ID,Appliance,Appliance_ID,Brand,Area,Pincode,Region,City,State)";
+        $this->db->query($sql);
+        echo $this->db->last_query();
     }
 
 
