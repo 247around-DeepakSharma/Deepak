@@ -132,7 +132,7 @@
                         </div>
                      </div>
 
-                      <?php if (strstr($booking_id, "SS") == TRUE) { ?>
+                      <?php if ((strstr($booking_id, "SS") == TRUE) || (strstr($booking_id, "SP") == TRUE)) { ?>
                <div class="form-group <?php if( form_error('internal_status') ) { echo 'has-error';} ?>">
                   <label for="internal_status" class="col-md-2">Internal Status</label>
                   <div class="col-md-10">
