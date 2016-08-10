@@ -4,7 +4,7 @@
          <div class="panel-heading">Complete Booking</div>
          <div class="panel-body">
         
-         <?php if($booking_history[0]['current_status'] == "Completed"){ $status = "1"; } else { $status = "0"; }?>
+         <?php if (isset($booking_history[0]['current_status'])){ if($booking_history[0]['current_status'] == "Completed"){ $status = "1"; } else { $status = "0"; } } else { echo $status = "1"; }?>
             <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url()?>employee/booking/process_complete_booking/<?php echo $booking_id;?>/<?php echo $status; ?>"  method="POST" enctype="multipart/form-data">
                <div class="row">
                   <div class="col-md-12">
