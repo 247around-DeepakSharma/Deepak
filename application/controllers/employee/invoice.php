@@ -304,7 +304,9 @@ class Invoice extends CI_Controller {
      * @desc: this method is used to generate both type invoices (invoices details and summary)
      */
     function getpartner_invoices($partner_id = "") {
-	$data = $this->invoices_model->getpartner_invoices($partner_id);
+    	$date_range = "2016/06/01-2016/07/01";
+	$data = $this->invoices_model->getpartner_invoices($partner_id, $date_range);
+
 	$this->create_partner_invoices_details($data['invoice1']);
 	$this->generate_partner_summary_invoices($data['invoice2']);
     }
@@ -319,6 +321,7 @@ class Invoice extends CI_Controller {
 	$templateDir = __DIR__ . "/../";
 
 	for ($i = 0; $i < count($data); $i++) {
+		if(!empty($data[$i])){
 
 	    //set config for report
 	    $config = array(
@@ -335,8 +338,8 @@ class Invoice extends CI_Controller {
 	    $total_vat_charge = 0;
 	    $total_charges = 0;
 
-	    $getsource = substr($data[$i][0]['booking_id'], 0, 2);
-	    $invoice_id = $getsource . date('dmY');
+	   //print_r($data[$i][0]['source']);
+	    $invoice_id = $data[$i][0]['source'] . date('dmY');
 
 	    $unique_booking = array_unique(array_map(function ($k) {
 		    return $k['booking_id'];
@@ -358,17 +361,17 @@ class Invoice extends CI_Controller {
 		    $data[$i][$key]['remarks'] = "Completed TV With Stand";
 		} else {
 
-		    $data[$i][$key]['remarks'] = "Completed	Installation & Demo";
+		    $data[$i][$key]['remarks'] = "Completed Installation & Demo";
 		}
 
 		$data[$i][$key]['closed_date'] = date("jS F, Y", strtotime($value['closed_date']));
 		$data[$i][$key]['reference_date'] = date("jS F, Y", strtotime($value['reference_date']));
 
-		$total_installation_charge += $value['installation_charge'];
-		$total_service_tax += $value['st'];
-		$total_stand_charge += $value['stand'];
-		$total_vat_charge += $value['vat'];
-		$total_charges = $total_installation_charge + $total_service_tax + $total_stand_charge + $total_vat_charge;
+		$total_installation_charge += round($value['installation_charge'],2);
+		$total_service_tax += round($value['st'], 2);
+		$total_stand_charge += round($value['stand'],2);
+		$total_vat_charge += round($value['vat'],2);
+		$total_charges = round(($total_installation_charge + $total_service_tax + $total_stand_charge + $total_vat_charge), 2);
 	    }
 
 	    $excel_data['invoice_id'] = $invoice_id;
@@ -393,8 +396,8 @@ class Invoice extends CI_Controller {
 	    $directory_xls = "invoices-excel/" . $files_name . ".xlsx";
 	    $directory_pdf = "invoices-pdf/" . $files_name . ".pdf";
 
-	    $this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-	    $this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3);
+	    //$this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+	    //$this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3);
 
 
 	    $invoice_details = array(
@@ -415,12 +418,13 @@ class Invoice extends CI_Controller {
 	    );
 	    $this->invoices_model->insert_new_invoice($invoice_details);
 	}
+	}
 
 	//Delete XLS files now
-	foreach ($file_names as $file_name)
-	    exec("rm -rf " . escapeshellarg($file_name));
+	//foreach ($file_names as $file_name)
+	  //  exec("rm -rf " . escapeshellarg($file_name));
 
-	exit(0);
+	//exit(0);
     }
 
     function generate_partner_summary_invoices($data) {
@@ -433,7 +437,7 @@ class Invoice extends CI_Controller {
 
 	for ($i = 0; $i < count($data); $i++) {
 
-
+    if(!empty($data[$i])){
 	    //set config for report
 	    $config = array(
 		'template' => $template,
@@ -451,34 +455,34 @@ class Invoice extends CI_Controller {
 	    $total_charges = 0;
 	    $total_unit = 0;
 
-	    $getsource = substr($data[$i][0]['source'], 0, 2);
-	    $invoice_id = $getsource . date('dMY');
+	    $invoice_id = $data[$i][0]['source'] . date('dMY');
 
 	    foreach ($data[$i] as $key => $value) {
 
-		$total_installation_charge += $value['total_installation_charge'];
-		$total_service_tax += $value['total_st'];
-		$total_stand_charge += $value['total_stand_charge'];
-		$total_vat_charge += $value['total_vat_charge'];
-		$total_unit += $value['count_booking'];
+		$total_installation_charge += round($value['total_installation_charge'], 2);
+		$total_service_tax += round($value['total_st'], 2);
+		$total_stand_charge += round($value['total_stand_charge'],2);
+		$total_vat_charge += round($value['total_vat_charge'],2);
+		$total_unit += round($value['count_booking'],2);
 
-		$data[$i][$key]['partner_paid_basic_charges'] = $value['total_installation_charge'] + $value['total_st'] + $value['total_stand_charge'] + $value['total_vat_charge'];
+		$data[$i][$key]['partner_paid_basic_charges'] = round(($value['total_installation_charge'] + $value['total_st'] + $value['total_stand_charge'] + $value['total_vat_charge']),2);
 
 
-		echo "<br/><br/>";
+		//echo "<br/><br/>";
 
 		if ($value['price_tags'] == "Wall Mount Stand") {
 
 		    $data[$i][$key]['remarks'] = "TV With Stand";
 		} else if ($value['services'] == "Television") {
 
-		    $data[$i][$key]['remarks'] = "TV Without Stand";
+		    $data[$i][$key]['remarks'] = "TV Installation & Demo";
 		} else {
 
 		    $data[$i][$key]['remarks'] = $value['services'];
+		    
 		}
 	    }
-	    print_r($data);
+	    //print_r($data);
 
 	    $excel_data['invoice_id'] = $invoice_id;
 	    $excel_data['today'] = date('d-M-Y');
@@ -510,6 +514,7 @@ class Invoice extends CI_Controller {
 	    //$this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 	    //$this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3;
 	}
+    }
 
 	//Delete XLS files now
 	/* foreach ($file_names as $file_name)
@@ -828,7 +833,7 @@ class Invoice extends CI_Controller {
 		 * Update booking-invoice table to capture this new invoice against these bookings.
 		 * Since this is a type 'Cash' invoice, it would be stored as a vendor-debit invoice.
 		 */
-		$this->update_booking_invoice_mappings_repairs($invoices, $invoice_id);
+		 //$this->update_booking_invoice_mappings_repairs($invoices, $invoice_id);
 
 	    } else {
 		//$summary = $invoices[0]['id'] . "," . $invoices[0]['name'] . ",0,0,0,0<br>";
@@ -1095,7 +1100,7 @@ class Invoice extends CI_Controller {
 		 * Update booking-invoice table to capture this new invoice against these bookings.
 		 * Since this is a type B invoice, it would be stored as a vendor-credit invoice.
 		 */
-		$this->update_booking_invoice_mappings_installations($invoices, $invoice_id);
+		 //$this->update_booking_invoice_mappings_installations($invoices, $invoice_id);
 
 	    } else {
 		//$summary = $invoices[0]['id'] . "," . $invoices[0]['name'] . ",0,0,0,0<br>";
