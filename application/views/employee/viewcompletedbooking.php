@@ -68,6 +68,7 @@
                     <th width="125px;">Phone No.</th>
                     <th width="125px;">Service Name</th>
                     <th width="125px;">Status</th>
+                    <th width="125px;">Completion Date</th>
                     <th width="170px;">Service Centre</th>
                     <th width="150px;">Service Centre City</th>
                     <th width="60px;">Call</th>
@@ -100,6 +101,7 @@
                     <td><?= $row->booking_primary_contact_no; ?></td>
                     <td><?= $row->services; ?></td>
                     <td><?= $row->current_status; ?></td>
+                    <td><?php echo date("d-m-Y", strtotime($row->closed_date)); ?></td>
                     <td><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $row->assigned_vendor_id;?>"><?= $row->service_centre_name; ?></a></td>
                     <td><?=$row->city; ?></td>
 
@@ -137,10 +139,10 @@
 
                     <td>
                         <?php
-                        if ($row->current_status == 'Completed' && (empty($row->rating_stars) || empty($row->vendor_rating_stars)))
+                        if ($row->current_status == 'Completed' && empty($row->rating_stars))
                         {
                             echo "<a class='btn btn-sm btn-danger' "
-                                    . "href=" . base_url() . "employee/booking/get_rating_form/$row->booking_id title='Rate'><i class='fa fa-star-o' aria-hidden='true'></i></a>";
+                                    . "href=" . base_url() . "employee/booking/get_rating_form/$row->booking_id title='Rate' target='_blank'><i class='fa fa-star-o' aria-hidden='true'></i></a>";
                         }
                         else
                         {
