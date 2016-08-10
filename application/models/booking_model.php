@@ -1078,7 +1078,16 @@ class Booking_model extends CI_Model {
             = `service_centres`.`id` WHERE booking_id like '%$booking_id%'"
         );
 
-        return $query->result();
+        $temp = $query->result();
+
+        usort($temp, array($this, 'date_compare_queries'));
+
+        if($temp[0]->current_status == "FollowUp"){
+            $data = $this->searchPincodeAvailable($temp);
+            return $data;
+        }
+       
+        return  $temp;
     }
 
     /**

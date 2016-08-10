@@ -85,3 +85,33 @@ CREATE TABLE IF NOT EXISTS `service_centre_charges` (
 ALTER TABLE `partners` ADD `company_address` VARCHAR(512) NOT NULL AFTER `public_name`;
 ALTER TABLE `partners` ADD `partner_code` INT NOT NULL COMMENT 'This is the Partner ID which is used in Booking Sources table.' AFTER `company_address`;
 ALTER TABLE  `service_center_booking_action` ADD  `unit_details_id` INT( 25 ) NULL DEFAULT NULL AFTER  `booking_id` ;
+ALTER TABLE  `booking_unit_details` ADD  `purchase_month` VARCHAR( 25 ) NOT NULL AFTER  `appliance_tag` ;
+
+
+--
+-- Table structure for table `tax_rates`
+--
+
+CREATE TABLE IF NOT EXISTS `tax_rates` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tax_code` varchar(50) NOT NULL COMMENT 'ST (service tax), VAT, CST etc',
+  `state` varchar(50) NOT NULL,
+  `product_type` varchar(50) DEFAULT NULL COMMENT 'product category',
+  `rate` decimal(4,2) NOT NULL,
+  `from_date` date DEFAULT NULL,
+  `to_date` date DEFAULT NULL,
+  `active` varchar(1) NOT NULL DEFAULT '1',
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS `partner_callback` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `partner_id` int(25) NOT NULL,
+  `callback_string` varchar(100) NOT NULL,
+  `active` int(10) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+
+--

@@ -1,4 +1,5 @@
-<?php $offset = $this->uri->segment(4); ?>
+
+<?php  $offset = $this->uri->segment(4); ?>
 
 <script type="text/javascript" src="<?php echo base_url();?>js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="<?php echo base_url();?>js/jquery-ui-1.7.1.custom.min.js"></script>
@@ -54,7 +55,7 @@
             <?php } ?>
              <div class="input-filter-container"><label for="input-filter">Search:</label> <input type="search" id="input-filter" size="15" placeholder="search"></div>
             <div style="margin-left:10px;margine-right:5px;">
-                <h1 align="left"><b><?php if($status == "FollowUp"){ echo "Pending Queries"; } else{ echo "Cancelled Queries"; } ?> </b></h1>
+                <h1 align="left"><b><?php if($status == "FollowUp"){ echo "Pending Queries"; } else if($Bookings[0]->current_status == "FollowUp"){ echo "Pending Queries";} else { echo "Cancelled Queries"; } ?> </b></h1>
                 <table >
 
                     <thead>
@@ -94,7 +95,7 @@
                         <?php }  }?> >
                     <td><?=$row->id?>.</td>
 
-    		    <td><?= $row->booking_id; ?></td>
+                <td><?= $row->booking_id; ?></td>
                         <td><a target='_blank' href="<?php echo base_url(); ?>employee/user/finduser/0/0/<?php echo $row->phone_number; ?>"><?php echo $row->customername; ?></a></td>
                         <td><a target='_blank' href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $row->phone_number;?>"><?php echo $row->booking_primary_contact_no; ?></a></td>
                     <td><?= $row->services; ?></td>
@@ -123,7 +124,7 @@
                         <option selected disabled>Vendor Available</option>
 
                     <?php foreach ($row->vendor_status as  $value) { ?>
-                    <option value="<?php echo $value->Vendor_ID?>"><?php echo $value->Vendor_Name; ?></option>
+                     <option value="<?php echo $value['Vendor_ID']; ?>"><?php echo $value['Vendor_Name']; ?></option>
 
                     <?php  } ?>
                     </select>
@@ -137,10 +138,10 @@
 
                     <td>
                         <a class="btn btn-sm btn-info"
-				   href="<?php echo base_url(); ?>employee/booking/call_customer/<?php echo $row->booking_primary_contact_no; ?>"
-    				   title = "call" onclick = "return confirm('Call Customer ?');">
-    				    <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
-    				    </a>
+                   href="<?php echo base_url(); ?>employee/booking/call_customer/<?php echo $row->booking_primary_contact_no; ?>"
+                       title = "call" onclick = "return confirm('Call Customer ?');">
+                        <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
+                        </a>
                     </td>
 
                     <td>

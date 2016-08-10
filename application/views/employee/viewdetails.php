@@ -176,7 +176,7 @@
                         </tr>
                         <tbody>
                             <?php  foreach ( $unit_details as  $unit_detail) { ?>
-                            <?php foreach ($unit_detail['qunatity'] as $price) { ?>
+                            <?php foreach ($unit_detail['quantity'] as $price) { ?>
                             <tr>
                                 <td><?php echo $unit_detail['brand']?></td>
                                 <td><?php echo $unit_detail['category']?></td>
