@@ -367,7 +367,7 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 
 		if ($i == 1) {
 
-		    $sql1 = "SELECT `booking_details`.service_id, `booking_details`.booking_id, `booking_details`.order_id, `booking_details`.reference_date,  `booking_details`.partner_id, `booking_details`.source,`booking_details`.city, `booking_details`.closed_date, price_tags, `partners`.company_name, `partners`.company_address, partner_paid_basic_charges, `booking_unit_details`.appliance_size, `booking_unit_details`.product_or_services, $date
+		    $sql1 = "SELECT `booking_details`.service_id, `booking_details`.booking_id, `booking_details`.order_id, `booking_details`.reference_date,  `booking_details`.partner_id, `booking_details`.source,`booking_details`.city, `booking_details`.closed_date, price_tags, `partners`.company_name, `partners`.company_address, partner_paid_basic_charges, `booking_unit_details`.product_or_services, $date
 
                      (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (ROUND(partner_paid_basic_charges  * (tax_rate/100),2) ) ELSE 0 END) as vat,
 

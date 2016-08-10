@@ -1,7 +1,10 @@
-ALTER TABLE `booking_details` ADD `request_type` VARCHAR(128) NULL AFTER `order_id`;
-ALTER TABLE `booking_details` ADD `partner_source` VARCHAR(128) NULL AFTER `request_type`, ADD `reference_date` DATETIME NULL AFTER `partner_source`, ADD `estimated_delivery_date` DATETIME NULL AFTER `reference_date`, ADD `shipped_date` DATETIME NULL AFTER `estimated_delivery_date`, ADD `delivery_date` DATETIME NULL AFTER `shipped_date`;
+ALTER TABLE `booking_details` ADD  `reference_date` DATETIME NULL AFTER `partner_source`;
+ALTER TABLE `booking_details` ADD `estimated_delivery_date` DATETIME NULL AFTER `reference_date`, ADD `shipped_date` DATETIME NULL AFTER `estimated_delivery_date`, ADD `delivery_date` DATETIME NULL AFTER `shipped_date`;
 ALTER TABLE `booking_details` CHANGE `partner_source` `partner_source` VARCHAR(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL COMMENT 'source for this partner booking - excel file / email / api call / callcentre call / etc';
-ALTER TABLE `booking_details` ADD `reschedule_reason` VARCHAR(128) NULL AFTER `internal_status`;
+ALTER TABLE  `booking_details` ADD  `booking_landmark` VARCHAR( 200 ) NOT NULL AFTER  `booking_location` ;
+
+
+
 -- ALTER TABLE `booking_details` DROP `booking_picture_file`;
 -- ALTER TABLE `booking_details` DROP `discount_coupon`;
 -- ALTER TABLE `booking_details` DROP `discount_amount`;
@@ -18,10 +21,7 @@ ALTER TABLE `booking_details` ADD `reschedule_reason` VARCHAR(128) NULL AFTER `i
 -- ALTER TABLE `booking_details` DROP `parts_cost`;
 -- ALTER TABLE `booking_details` DROP `parts_cost_collected_by`;
 -- ALTER TABLE `booking_details` DROP `appliance_id`;
-ALTER TABLE `booking_unit_details` ADD `partner_id` int(11) DEFAULT NULL AFTER `booking_id`;
-ALTER TABLE `booking_unit_details` ADD `service_id` int(11) DEFAULT NULL AFTER `partner_id`;
-ALTER TABLE `booking_unit_details` ADD `appliance_id` int(11) DEFAULT NULL AFTER `service_id`;
-ALTER TABLE `booking_unit_details` ADD `appliance_size` VARCHAR(128) DEFAULT NULL AFTER `appliance_capacity`;
+
 ALTER TABLE `booking_unit_details` ADD `appliance_serial_no` VARCHAR(128) DEFAULT NULL AFTER `appliance_size`;
 ALTER TABLE `booking_unit_details` ADD `appliance_description` VARCHAR(512) DEFAULT NULL AFTER `appliance_serial_no`;
 ALTER TABLE `booking_unit_details` ADD `booking_status` VARCHAR(128) DEFAULT NULL AFTER `price_tags`;
@@ -78,8 +78,10 @@ CREATE TABLE IF NOT EXISTS `service_centre_charges` (
   `customer_net_payable` decimal(10,2) NOT NULL,
   `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
 
 
 ALTER TABLE `partners` ADD `company_address` VARCHAR(512) NOT NULL AFTER `public_name`;
 ALTER TABLE `partners` ADD `partner_code` INT NOT NULL COMMENT 'This is the Partner ID which is used in Booking Sources table.' AFTER `company_address`;
+ALTER TABLE  `service_center_booking_action` ADD  `unit_details_id` INT( 25 ) NULL DEFAULT NULL AFTER  `booking_id` ;

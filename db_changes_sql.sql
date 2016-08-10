@@ -660,3 +660,6 @@ ALTER TABLE  `vendor_pincode_mapping_temp` CHANGE  `Region`  `Region` VARCHAR( 2
 
 <!-- Abhay 09 Aug-->
 ALTER TABLE  `booking_details` ADD  `booking_landmark` VARCHAR( 200 ) NOT NULL AFTER  `booking_location` ;
+ALTER TABLE  `booking_details` ADD  `reference_date` DATETIME NOT NULL AFTER  `appliance_id` ;
+
+ALTER TABLE  `booking_unit_details` ADD  `appliance_size` VARCHAR( 25 ) NOT NULL AFTER  `model_number` ;

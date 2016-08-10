@@ -431,7 +431,7 @@ class Booking_model extends CI_Model {
                . "services.id = booking_details.service_id  ". $condition;
 
         $query = $this->db->query($sql);   
-        echo $this->db->last_query();     
+        //echo $this->db->last_query();     
 
         return $query->result_array();
     }
@@ -1448,10 +1448,7 @@ class Booking_model extends CI_Model {
             $data['vendor_to_around'] = 0;
             $data['around_to_vendor'] = abs($vendor_around_charge);
         }
-        echo "<br/>";
-            print_r($data);
-            echo "<br/>";
-
+        
         unset($data['internal_status']);
         $this->db->where('id', $data['id']);
         $this->db->update('booking_unit_details',$data);
@@ -1752,7 +1749,15 @@ class Booking_model extends CI_Model {
     }
 
     function test_upload(){
-     $dbHost = "localhost";
+
+        $sql = "SELECT `service_id`, `booking_id`, `appliance_id`, `partner_id` FROM `booking_details`";
+        $query = $this->db->query();
+        $result =  $query->result_array();
+        foreach ($result as $key => $value) {
+            $this->db->where('booking_id', $value['booking_id']);
+            $this->db->update('booking_unit_details', $value);
+        }
+     /*$dbHost = "localhost";
      $dbUser = "root";
      $dbPass = "around";
      $dbName = "247around";
@@ -1768,7 +1773,7 @@ class Booking_model extends CI_Model {
 
       
         $this->db->query($sql);
-        echo $this->db->last_query();
+        echo $this->db->last_query();*/
     }
 
 
