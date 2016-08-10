@@ -100,6 +100,16 @@
                      </div>
                   </div>
                   <div class="col-md-6">
+                    
+                     <div class="form-group <?php if( form_error('serial_number') ) { echo 'has-error';} ?>">
+                        <label for="serial_number" class="col-md-3">Serial Number</label>
+                        <div class="col-md-6">
+                           <input type="text" class="form-control"  id="serial_number" name="serial_number" value ="<?php if(isset($charges[0]['serial_number'])){ echo $charges[0]['serial_number']; } else { echo ""; } ?>"  placeholder="Enter Serial Number" required>
+                           <?php echo form_error('serial_number'); ?>
+                        </div>
+                         <span id="errmsg2" style="color: red"></span>
+                     </div>
+
                      <div class="form-group <?php if( form_error('service_charge') ) { echo 'has-error';} ?>">
                         <label for="service_charge" class="col-md-3">Service Charge</label>
                         <div class="col-md-6">
@@ -158,6 +168,7 @@
                         </div>
                      </div>
                   </div>
+                  
                   <div class="col-md-12"><center>
                   <input type="submit" class="btn btn-primary btn-lg" value ="Save" style=" background-color: #2C9D9C;
     border-color: #2C9D9C;" ></input></center>
