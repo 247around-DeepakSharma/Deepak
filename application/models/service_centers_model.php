@@ -53,8 +53,10 @@ class Service_centers_model extends CI_Model {
         $this->db->order_by('create_date  ASC'); 
         $query = $this->db->get('service_center_booking_action');
         $pending_booking = $query->result_array();
+        
         if($limit !="count"){
             $data = array();
+            
             foreach ($pending_booking as $key => $value) {
                 $sql = "Select  services.services,
                            users.name as customername, 
@@ -71,11 +73,13 @@ class Service_centers_model extends CI_Model {
 
                 $query1 = $this->db->query($sql);
                 $result = $query1->result();
+                
                 $result[0]->age_of_booking = $value['age_of_booking'];
                 $result[0]->admin_remarks = $value['admin_remarks'];
                 array_push($data, $result[0]);
             
             }
+          
         }
 
         if($limit =="count"){
@@ -83,7 +87,7 @@ class Service_centers_model extends CI_Model {
             return count($pending_booking);
 
         } else {
-            
+           
             return $data;
         }
         

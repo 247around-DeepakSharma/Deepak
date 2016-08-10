@@ -42,6 +42,7 @@ define('search_page', 'employee/user');
 define('basic_percentage', 0.7);
 define('addtitional_percentage', .85);
 define('parts_percentage', .95);
+define('service_tax_rate', 0.15);
 
 
 /* End of file constants.php */

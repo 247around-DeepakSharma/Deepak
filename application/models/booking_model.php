@@ -430,7 +430,8 @@ class Booking_model extends CI_Model {
                . "booking_details.user_id = users.user_id and "
                . "services.id = booking_details.service_id  ". $condition;
 
-        $query = $this->db->query($sql);        
+        $query = $this->db->query($sql);   
+        echo $this->db->last_query();     
 
         return $query->result_array();
     }
@@ -1751,9 +1752,21 @@ class Booking_model extends CI_Model {
     }
 
     function test_upload(){
+     $dbHost = "localhost";
+     $dbUser = "root";
+     $dbPass = "around";
+     $dbName = "247around";
+    $file_location = '';
+
+        $sql = "LOAD DATA   INFILE '/usr/share/nginx/html/vendor_pincode_mapping_temp.csv' INTO TABLE vendor_pincode_mapping_temp FIELDS TERMINATED BY ',' ENCLOSED BY '' LINES TERMINATED BY '\r\n' (Vendor_Name,Vendor_ID,Appliance,Appliance_ID,Brand,Area,Pincode,Region,City,State)";
+
+       // system("mysql -u  root -p localhost --password='around' --local_infile=1 -e \"$sql\" $dbName");
         
 
-        $sql = "LOAD DATA LOCAL  INFILE '/home/anuj/Desktop/vendor_pincode_mapping_temp/vendor_pincode_mapping_temp.csv' INTO TABLE vendor_pincode_mapping_temp FIELDS TERMINATED BY ',' ENCLOSED BY '' LINES TERMINATED BY '\r\n' (Vendor_Name,Vendor_ID,Appliance,Appliance_ID,Brand,Area,Pincode,Region,City,State)";
+      //  $sql = "LOAD DATA  INFILE '".$file_location."' INTO TABLE vendor_pincode_mapping_temp
+       // FIELDS TERMINATED BY ',' LINES TERMINATED BY '\r\n'";
+
+      
         $this->db->query($sql);
         echo $this->db->last_query();
     }

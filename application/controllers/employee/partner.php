@@ -13,10 +13,14 @@ class Partner extends CI_Controller {
 
         $this->load->model('booking_model');
         $this->load->model('partner_model');
+        $this->load->model('vendor_model');
+        $this->load->model('user_model');
         $this->load->library("pagination");
         $this->load->library("session");
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
+        $this->load->library('notify');
+
 
     }
 
@@ -158,10 +162,9 @@ class Partner extends CI_Controller {
      */
     function booking_details($booking_id) {
         $this->checkUserSession();
-        $data['query1'] = $this->booking_model->booking_history_by_booking_id($booking_id);
-        $data['query2'] = $this->booking_model->get_unit_details($booking_id);
-        $data['query4'] = $this->booking_model->getdescription_about_booking($booking_id);
-        $data['query3'] = $this->booking_model->getbooking_charges($booking_id);
+        $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
+        $data['unit_details'] = $this->booking_model->getunit_details($booking_id);
+
 
         log_message('info', 'Partner view booking details booking  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'). " data ". print_r($data, true));
 
@@ -213,6 +216,270 @@ class Partner extends CI_Controller {
 
         $this->session->sess_destroy();
         redirect(base_url() . "partner/login");
+    }
+    /**
+     * @desc: This method loads abb booking form
+     * it gets user details(if exist), city, source, services
+     */
+    function get_addbooking_form($phone_number){
+        $data = $this->booking_model->get_city_booking_source_services($phone_number);
+        $this->load->view('partner/header');
+        $this->load->view('partner/addbookingmodel');
+        $this->load->view('partner/get_addbooking', $data);
+    }
+    
+    /**
+     * @desc: This method called by ajax to load category in the add booking form
+     * @param: service id, city, partner id 
+     */
+    function get_category(){
+        $service_id = $this->input->post('service_id');
+        $city = $this->input->post('city');
+        $partner_id = $this->input->post('partner_id');
+
+        $partner_mapping_id = $this->booking_model->get_price_mapping_partner_code("",$partner_id);
+        //print_r($partner_mapping_id);
+      
+        $state = "";
+        $result = $this->booking_model->getCategoryForService($service_id, $state, $partner_mapping_id);
+
+        echo "<option selected disabled>Select Appliance Category</option>";
+        foreach ($result as $category) {
+            echo "<option  >$category[category]</option>";
+        }  
+    }
+    /**
+     * @desc: This method called by ajax to load capacity in the add booking form
+     * @param: service id, city, partner id, category
+     */
+    function get_capacity() {
+        $service_id = $this->input->post('service_id');
+        $category = $this->input->post('category');
+        //$city = $this->input->post('city');
+        $partner_id = $this->input->post('partner_id');
+        $state = "";
+
+        $partner_mapping_id = $this->booking_model->get_price_mapping_partner_code("", $partner_id);
+
+        $result = $this->booking_model->getCapacityForCategory($service_id, $category, $state, $partner_mapping_id);
+
+        foreach ($result as $capacity) {
+            echo "<option>$capacity[capacity]</option>";
+        }
+    }
+
+    /**
+     * @desc: This method called by ajax to load price table in the add booking form
+     * @param: service id, partner id, category, capacity, brand, div clone number
+     */
+     public function get_price_table() {
+
+    $service_id = $this->input->post('service_id');
+    $category = $this->input->post('category');
+    $capacity = $this->input->post('capacity');
+    $brand = $this->input->post('brand');
+    $partner_id = $this->input->post('partner_id');
+    //$city = $this->input->post('city');
+    $clone_number = $this->input->post('clone_number');
+    $state = "";
+
+    $partner_mapping_id = $this->booking_model->get_price_mapping_partner_code("", $partner_id);
+   
+    $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_mapping_id, $state);
+    if (!empty($result)) {
+
+        echo "<tr><th>Service Category</th><th>Std. Charges</th><th>Partner Discount</th><th>Final Charges</th><th>247around Discount</th><th>Selected Services</th></tr>";
+        $html = "";
+
+        $i = 0;
+
+        foreach ($result as $prices) {
+        $service_category = $prices['service_category'];
+
+        $html .="<tr><td>" . $prices['service_category'] . "</td>";
+        $html .= "<td>" . $prices['customer_total'] . "</td>";
+        $html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly/></td>";
+        $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
+        $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '0' placeholder='Enter discount' readonly></td>";
+        $html .= "<td><input class='price_checkbox'";
+        if ($prices['service_category'] == 'Repair') {
+            $html .= "checked";
+        }
+
+        $html .=" type='checkbox' id='checkbox_" . $i . "_" . $clone_number . "'";
+        $html .= "name='prices[$brand][]'";
+        $html .= " " .
+            "value=" . $prices['id'] . "_" . intval($prices['customer_net_payable']) . " ></td><tr>";
+
+        $i++;
+        // onclick='final_price(), enable_discount(this.id)'
+        }
+        echo $html;
+    } else {
+        echo "Price Table Not Found";
+    }
+    }
+
+    /**
+     * @desc: This method insert booking details into table and send SMS and email if booking type is Booking
+     */
+    function process_addbooking(){
+        $booking = $this->getAllBookingInput();
+        $this->booking_model->addbooking($booking);
+
+        if ($booking['type'] == 'Booking') {
+            //$to = "anuj@247around.com, nits@247around.com";
+            $to = "abhaya@247around.com, anuj@247Around";
+            $from = "booking@247around.com";
+            $cc = "";
+            $bcc = "";
+            $subject = 'Booking Confirmation-AROUND';
+            //$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
+           //-------Sending SMS on booking--------//
+
+          /* $smsBody = "Got it! Request for " . trim($service) . " Repair is confirmed for " .
+           $booking['booking_date'] . ", " . $booking['booking_timeslot'] .
+        ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";*/
+
+          // $this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
+        }
+        redirect(base_url() . "partner/pending_booking");
+    }
+    
+     /**
+     * @desc: This method get all input from add booking and insert into appliance details, booking unit details and users table
+     */
+    function getAllBookingInput(){
+        $user_id = $this->input->post('user_id');
+        $user['city'] = $booking['city'] = $this->input->post('city');
+        $user['home_address'] =  $booking['booking_address'] = $this->input->post('home_address');
+        $user['pincode'] = $booking['booking_pincode'] = $this->input->post('booking_pincode');
+        $user['phone_number'] = $booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
+        $user['alternate_phone_number'] = $booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
+        $booking['partner_id'] = $this->input->post('partner_id');
+        $booking['source'] = $this->partner_model->get_source_code_for_partner($booking['partner_id']);
+        $booking['service_id'] = $this->input->post('service_id');
+        $booking['amount_due'] = $this->input->post('grand_total_price');
+        $booking_date = $this->input->post('booking_date');
+        $booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
+        $booking['booking_landmark'] =  $this->input->post('landmark');
+        $booking['type'] = 'Booking';
+
+        // select state by city
+        $state = $this->vendor_model->selectSate($booking['city']);
+        $booking['state'] =  $state[0]['state'];
+
+        if(empty($user_id)){
+            $user['name'] = $this->input->post('user_name');
+            $user['user_email'] =  $this->input->post('user_email');
+            $user['state'] =  $state[0]['state'];
+
+            $user_id = $this->user_model->add_user($user);
+          
+        }
+        $booking['user_id'] = $user_id;
+
+        $booking['booking_id'] = $this->create_booking_id($user_id, $booking['source'], $booking['type'], $booking['booking_date']);
+        $service_name = $this->input->post('service_name');
+        $booking['order_id'] = $this->input->post('order_id');
+        $booking['booking_timeslot'] = $this->input->post('booking_timeslot');
+        $booking['partner_source'] =  $this->input->post('partner_source');
+        $booking['booking_remarks'] =  $this->input->post('booking_remarks');
+
+        // All brand comming in array eg-- array([0]=> LG, [1]=> BPL)
+        $appliance_brand = $this->input->post('appliance_brand');
+        // All category comming in array eg-- array([0]=> TV-LCD, [1]=> TV-LED)
+        $appliance_category = $this->input->post('appliance_category');
+        // All capacity comming in array eg-- array([0]=> 19-30, [1]=> 31-42)
+        $appliance_capacity = $this->input->post('appliance_capacity');
+        // All model number comming in array eg-- array([0]=> ABC123, [1]=> CDE1478)
+        $model_number = $this->input->post('model_number');
+        // All purchase year comming in array eg-- array([0]=> 2016, [1]=> 2002)
+        $purchase_year = $this->input->post('purchase_year');
+        // All purchase month comming in array eg-- array([0]=> Jan, [1]=> Feb)
+        $months = $this->input->post('purchase_month');
+        $booking['quantity'] = count($appliance_brand);
+
+        $partner_net_payable = $this->input->post('partner_paid_basic_charges');
+        // All discount comming in array.  Array ( [BPL] => Array ( [100] => Array ( [0] => 200 ) [102] => Array ( [0] => 100 ) [103] => Array ( [0] => 0 ) ) .. Key is Appliance brand, unit id and discount value.
+        $discount = $this->input->post('discount');
+        // All prices comming in array with pricing table id
+        /* Array(
+        [BPL] => Array( [0] => 100_300 [1] => 102_250)
+
+        [Micromax] => Array([0] => 100_300)
+         ) */
+        //Array ( ['brand'] => Array ( [0] => id_price ) )
+        $pricesWithId = $this->input->post("prices");
+
+        foreach ($appliance_brand as $key => $value) {
+            $services_details = "";
+            $appliances_details = "";
+            $appliances_details['user_id'] = $user_id;
+            $appliances_details['brand'] = $services_details['appliance_brand'] = $value; // brand
+            // get category from appiance category array for only specific key.
+            $appliances_details['category'] = $services_details['appliance_category'] = $appliance_category[$key];
+            // get appliance_capacity from appliance_capacity array for only specific key.
+            $appliances_details['capacity'] = $services_details['appliance_capacity'] = $appliance_capacity[$key];
+            // get model_number from appliance_capacity array for only specific key such as $model_number[0].
+            $appliances_details['model_number'] = $services_details['model_number'] = $model_number[$key];
+            // get purchase year from purchase year array for only specific key such as $purchase_year[0].
+            $appliances_details['purchase_year'] = $services_details['purchase_year'] = $purchase_year[$key];
+            $services_details['booking_id'] = $booking['booking_id'];
+            // get purchase months from months array for only specific key such as $months[0].
+            $appliances_details['purchase_month'] = $services_details['purchase_month'] = $months[$key];
+            $appliances_details['service_id'] = $services_details['service_id'] = $booking['service_id'];
+            $appliances_details['last_service_date'] = date('Y-m-d H:i:s');
+            $services_details['partner_id'] = $booking['partner_id'];
+
+            $services_details['appliance_id'] = $this->booking_model->addappliance($appliances_details);
+            // log_message ('info', __METHOD__ . "Appliance details data". print_r($appliances_details));
+            //Array ( ['brand'] => Array ( [0] => id_price ) )
+            foreach ($pricesWithId[$value] as $keys => $values) {
+
+                $prices = explode("_", $values);  // split string..
+                $services_details['id'] = $prices[0]; // This is id of service_centre_charges table.
+                // discount for appliances. Array ( [BPL] => Array ( [100] => Array ( [0] => 200 ) [102] => Array ( [0] => 100 ) [103] => Array ( [0] => 0 ) )
+
+                $services_details['around_paid_basic_charges'] = $discount[$value][$services_details['id']][0];
+                $services_details['partner_paid_basic_charges'] = $partner_net_payable[$value][$services_details['id']][0];
+
+                $result = $this->booking_model->insert_data_in_booking_unit_details($services_details, $booking['state']);
+                //Log this state change as well for this booking
+                //param:-- booking id, new state, old state, employee id, employee name
+                //$this->notify->insert_state_change($booking['booking_id'], "Inserted", "New", $this->session->userdata('partner_id'), $this->session->userdata('partner_name'));
+            }
+
+        }
+
+        return $booking;
+    }
+
+     /**
+     * @desc: this method generates booking id. booking id is the combination of booking source, 4 digit random number, date and month
+     * @param: user id, booking source, booking type
+     * @return: booking id
+     */
+    function create_booking_id($user_id, $source, $type, $booking_date) {
+    $booking['booking_id'] = '';
+
+    $yy = date("y", strtotime($booking_date));
+    $mm = date("m", strtotime($booking_date));
+    $dd = date("d", strtotime($booking_date));
+
+    $booking['booking_id'] = str_pad($user_id, 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
+    $booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($user_id)) + 1);
+
+
+    //Add source
+    $booking['source'] = $source;
+    if ($type == "Booking") {
+        $booking['booking_id'] = $booking['source'] . "-" . $booking['booking_id'];
+    } else {
+        $booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
+    }
+
+    return $booking['booking_id'];
     }
 
 

@@ -566,43 +566,39 @@ class Invoice extends CI_Controller {
 	return $output_file_dir . $output_file;
     }
 
-    // get all vendor invoices for both type  A and type b
+    /**
+     * @desc: This method used to generates previous month invoice for vendor
+     * If date range empty then it generates previous month invoice otherwise generates between date range
+     * If vendor id is empty then its generates all vendor invoice
+     */
     function generate_vendor_invoices() {
 	$date_ragnge = "2016/06/01-2016/07/01";
 
-//	$service_centers = $this->invoices_model->find_all_service_centers();
 	$cash_summary = array();
 	$foc_summary = array();
 	$bookings = array();
-	//echo print_r($service_centers, true);
-//	foreach ($service_centers as $sc) {
-//	echo 'Processing Service Centre: ' . $sc['name'] . PHP_EOL;
+	
 	$vendor_id = '';
 	$data = $this->invoices_model->generate_vendor_invoices($vendor_id, $date_ragnge);
-
+    
+    // Call generate_cash_invoices_for_vendors method to generates cash invoice 
 	$cash_data = $this->generate_cash_invoices_for_vendors($data['invoice1']);
+	// Call generate_foc_invoices_for_vendors method to generates FOC invoice
 	$foc_data = $this->generate_foc_invoices_for_vendors($data['invoice2']);
-//	array_push($cash_summary, $cash_data[0]);
-//	array_push($foc_summary, $foc_data[0]);
-//	$bookings = array_merge($bookings, $cash_data[1], $foc_data[1]);
-//	unset($data);
-
 
 	foreach ($cash_data as $b1) {
 	    echo $b1 . "<br>";
-//	    foreach ($b1 as $value) {
-//		echo $value . "<br>";
-//	    }
 	}
 	foreach ($foc_data as $b2) {
 	    echo $b2 . "<br>";
-//	    foreach ($b2 as $value) {
-//		echo $value . "<br>";
-//	    }
 	}
 
     }
-
+    
+    /**
+     * @desc: It generates cash invoices for vendor
+     * @param: Array()
+     */
     function generate_cash_invoices_for_vendors($data) {
 	$unique_booking_cash = array();
 	$summary_cash = array();
@@ -610,26 +606,28 @@ class Invoice extends CI_Controller {
 	$summary = '';
 
 	$template = 'Vendor_Settlement_Template-Cash-v3.xlsx';
+	// xls file directory
 	$templateDir = __DIR__ . "/../excel-templates/";
-
-	//$cash_count_data = array();
 
 	for ($i = 0; $i < count($data); $i++) {
 	    $invoices = $data[$i];
+
 	    if (!empty($invoices)) {
 		$excel_data = array();
 
+        // it stores all unique booking id which is completed by particular vendor id
 		$unique_booking = array_unique(array_map(function ($k) {
 			return $k['booking_id'];
 		    }, $invoices));
-
+        // Count unique booking id
 		$count = count($unique_booking);
+		// push unique booking array into another array
 		array_push($unique_booking_cash, $unique_booking);
 
 		log_message('info', __FUNCTION__ . '=> Start Date: ' .
 		    $invoices[0]['start_date'] . ', End Date: ' . $invoices[0]['end_date']);
-		//echo $start_date, $end_date;
-
+		
+		// set date format like 1st July 2016
 		$start_date = date("jS F, Y", strtotime($invoices[0]['start_date']));
 		$end_date = date("jS F, Y", strtotime($invoices[0]['end_date']));
 
@@ -647,14 +645,16 @@ class Invoice extends CI_Controller {
 		//Make sure it is unique
 
 		$invoice_id = $invoices[0]['sc_code'] . "-" . date("dMY") . "-A-" . rand(100, 999);
-
+        // If avg_rating variable is null or Selec string then set empty
 		if (is_null($invoices[0]['avg_rating'])) {
 		    $invoices[0]['avg_rating'] = "";
+
 		} else if ($invoices[0]['avg_rating'] == "Selec") {
+
 		    $invoices[0]['avg_rating'] = "";
 		}
 
-		$service_tax_rate = 0.15; //To be changed for June invoices onwards
+		$service_tax_rate = service_tax_rate; //To be changed for June invoices onwards
 		$r_st = round($invoices[0]['amount_to_be_pay'] * $service_tax_rate, 0); //service tax calculated on royalty
 		//Find total charges for these bookings
 		$excel_data = array(
@@ -672,7 +672,7 @@ class Invoice extends CI_Controller {
 		$excel_data['ed'] = $end_date;
 		$excel_data['today'] = date("d-M-Y");
 		$excel_data['count'] = $count;
-
+        //set message to be displayed in excel sheet
 		$excel_data['msg'] = 'Thanks 247around Partner for your support, we completed ' . $count .
 		    ' bookings with you from ' . $start_date . ' to ' . $end_date .
 		    '. Total transaction value for the bookings was Rs. ' . $invoices[0]['total_amount_paid'] .
@@ -730,7 +730,7 @@ class Invoice extends CI_Controller {
 		$result_var = '';
 		exec($cmd, $output, $result_var);
 		log_message('info', "Report generated with $count records");
-//		echo PHP_EOL . "Report generated with $count records" . PHP_EOL;
+
 		//Send report via email
 		$this->email->clear(TRUE);
 		$this->email->from('billing@247around.com', '247around Team');
@@ -840,10 +840,15 @@ class Invoice extends CI_Controller {
 	  exec("rm -rf " . escapeshellarg($file_name));
 
 	 */
-
+    // return summary cash
 	return $summary_cash;
     }
-
+    
+    /**
+     * @desc: This is used to generates foc type invoices for vendor
+     * @param: Array()
+     * @return: Array (booking id) 
+     */
     function generate_foc_invoices_for_vendors($data) {
 	$unique_booking_foc = array();
 	$file_names = array();
@@ -851,6 +856,7 @@ class Invoice extends CI_Controller {
 	$summary_foc = array();
 
 	$template = 'Vendor_Settlement_Template-FoC-v4.xlsx';
+	// directory
 	$templateDir = __DIR__ . "/../excel-templates/";
 
 	$foc_count_data = array();
@@ -863,7 +869,7 @@ class Invoice extends CI_Controller {
 		$total_st_charge = 0;
 		$total_stand_charge = 0;
 		$total_vat_charge = 0;
-
+        // Calculate charges
 		for ($j = 0; $j < count($data[$i]); $j++) {
 		    $total_inst_charge += $data[$i][$j]['installation_charge'];
 		    $total_st_charge += $data[$i][$j]['st'];
@@ -879,17 +885,18 @@ class Invoice extends CI_Controller {
 		$t_total = $total_inst_charge + $total_stand_charge + $total_st_charge + $total_vat_charge;
 
 		$excel_data = array();
-
+        //this array stores unique booking id
 		$unique_booking = array_unique(array_map(function ($k) {
 			return $k['booking_id'];
 		    }, $invoices));
-
+        // count unique booking id
 		$count = count($unique_booking);
+		// push unique booking id into another array
 		array_push($unique_booking_foc, $unique_booking);
 
 		log_message('info', __FUNCTION__ . '=> Start Date: ' . $invoices[0]['start_date'] . ', End Date: ' . $invoices[0]['end_date']);
-		//echo $start_date, $end_date;
-
+        
+        //set date format like 1st june 2016
 		$start_date = date("jS F, Y", strtotime($invoices[0]['start_date']));
 		$end_date = date("jS F, Y", strtotime($invoices[0]['end_date']));
 
@@ -907,13 +914,14 @@ class Invoice extends CI_Controller {
 		//B means it is for the FOC type of invoice as explained above
 		//Make sure it is unique
 		$invoice_id = $invoices[0]['sc_code'] . "-" . date("dMY") . "-B-" . rand(100, 999);
-
+        // If avg_rating variable is null or Selec string then set empty
 		if (is_null($invoices[0]['avg_rating'])) {
+
 		    $invoices[0]['avg_rating'] = "";
 		} else if ($invoices[0]['avg_rating'] == "Selec") {
 		    $invoices[0]['avg_rating'] = "";
 		}
-
+        // stores charges
 		$excel_data = array(
 		    't_ic' => $total_inst_charge, 't_st' => $total_st_charge, 't_stand' => $total_stand_charge,
 		    't_vat' => $total_vat_charge, 't_total' => $t_total,
@@ -1075,7 +1083,7 @@ class Invoice extends CI_Controller {
 		    //Add 1 month to end date to calculate due date
 		    'due_date' => date("Y-m-d", strtotime($end_date . "+1 month"))
 		);
-
+        // insert invoice details into partner invoices table 
 		$this->invoices_model->insert_new_invoice($invoice_details);
 
 		$summary = $invoices[0]['id'] . "," . $invoices[0]['name'] . "," . $count . "," . $excel_data['t_total'] . "," . $excel_data['r_total']
@@ -1085,7 +1093,7 @@ class Invoice extends CI_Controller {
 
 		/*
 		 * Update booking-invoice table to capture this new invoice against these bookings.
-		 * Since this is a type A invoice, it would be stored as a vendor-debit invoice.
+		 * Since this is a type B invoice, it would be stored as a vendor-credit invoice.
 		 */
 		$this->update_booking_invoice_mappings_installations($invoices, $invoice_id);
 
