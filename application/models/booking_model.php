@@ -1600,6 +1600,21 @@ class Booking_model extends CI_Model {
     function convert_booking_to_pending($booking_id, $data, $status) {
     $this->db->where(array('booking_id' => $booking_id, 'current_status' => $status));
     $this->db->update('booking_details', $data);
+
+    $this->db->select('assigned_vendor_id');
+    $this->db->where('booking_id', $booking_id);
+    $query = $this->db->get('booking_details');
+    if($query->num_rows >0){
+        $result = $query->result_array();
+
+        $service_center_data['internal_status'] = "Pending";
+        $service_center_data['current_status'] = "Pending";
+        $service_center_data['update_date'] = date("Y-m-d H:i:s");
+
+        $this->db->where('booking_id', $booking_id);
+        $this->db->where('service_center_id', $result[0]['assigned_vendor_id']);
+        $this->db->update('service_center_booking_action', $service_center_data);
+    }
     }
 
     /**
