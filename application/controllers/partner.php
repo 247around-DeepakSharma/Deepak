@@ -137,6 +137,7 @@ class Partner extends CI_Controller {
 			$output = $this->user_model->search_user($requestData['mobile']);
 
 			if (empty($output)) {
+				$state = "";
 			    log_message('info', $requestData['mobile'] . ' does not exist');
 
 			    //User doesn't exist
@@ -153,9 +154,9 @@ class Partner extends CI_Controller {
 			    $user['pincode'] = $requestData['pincode'];
 			    $user['city'] = $requestData['city'];
 
-			    $state = $this->vendor_model->getall_state($user['city']);
-			     if(!empty($state))
-			    $user['state'] = $state[0]['state'];
+			    $state =  $this->vendor_model->get_state_from_pincode($requestData['pincode']);
+			    
+			    $user['state'] = $state['state'];
 
 			    $user_id = $this->user_model->add_user($user);
 
@@ -217,11 +218,10 @@ class Partner extends CI_Controller {
 
 			$booking['city'] = $requestData['city'];
 
-			$state = $this->vendor_model->getall_state($user['city']);
-			 if(!empty($state))
-			$booking['state'] = $state[0]['state'];
+			$state = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
 
-			$booking['booking_pincode'] = $user['pincode'];
+			$booking['state'] = $state['state'];
+			$booking['booking_pincode'] = $requestData['pincode'];
 
 			$booking['booking_address'] = $requestData['address'] . ", " . (isset($requestData['landmark']) ? $requestData['landmark'] : "") ;
 
@@ -251,7 +251,7 @@ class Partner extends CI_Controller {
 			$unit_details['booking_id'] = $booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
 
 			$booking['quantity'] = '1';
-			$appliance_details['tag'] = $unit_details['appliance_tag'] = $lead_details['Brand'] . " " . $lead_details['Product'];
+			$appliance_details['tag'] = $unit_details['appliance_tag'] = $appliance_details['brand'] . " " . $lead_details['Product'];
 			$appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
 			$appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
 
@@ -1211,16 +1211,18 @@ class Partner extends CI_Controller {
 
     function getallheaders() {
 	//Use this if you are using Nginx
-//	$headers = '';
-//	foreach ($_SERVER as $name => $value) {
-//	    if (substr($name, 0, 5) == 'HTTP_') {
-//		$headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
-//	    }
-//	}
-//
-//	return $headers;
+
+	$headers = '';
+	foreach ($_SERVER as $name => $value) {
+	    if (substr($name, 0, 5) == 'HTTP_') {
+		$headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+	    }
+	}
+
+	return $headers;
+
 	//It works only with Apache
-	return getallheaders();
+	//return getallheaders();
     }
 
     function getDateTime($dt) {
