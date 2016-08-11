@@ -49,7 +49,7 @@ class Do_background_process extends CI_Controller {
         //Assign service centre
         $this->booking_model->assign_booking($booking_id, $service_center_id);
         $unit_details = $this->booking_model->getunit_details($booking_id);
-        foreach ($unit_details[0]['qunatity'] as $value ) { 
+        foreach ($unit_details[0]['quantity'] as $value ) { 
             $data = array();
             $data['current_status'] = "Pending";
             $data['internal_status'] = "Pending";
