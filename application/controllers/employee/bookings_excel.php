@@ -135,7 +135,7 @@ class bookings_excel extends CI_Controller {
 		$user['city'] = $rowData[0]['CITY'];
 
 		$state =$state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
-		 if(!empty($state))
+		 
 	    $user['state'] = $state['state'];
 
 		$user_id = $this->user_model->add_user($user);
@@ -258,10 +258,10 @@ class bookings_excel extends CI_Controller {
 		$booking['booking_remarks'] = '';
 		$booking['query_remarks'] = 'Product Shipped, Call Customer For Booking';
 		$booking['city'] = $rowData[0]['CITY'];
-		if(empty($state)){
-	     	$state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
-		    $booking['state'] = $state['state'];
-	    }
+		
+	    $state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
+		$booking['state'] = $state['state'];
+	    
 		$booking['quantity'] = '1';
 		$booking['potential_value'] = '';
 
@@ -389,7 +389,6 @@ class bookings_excel extends CI_Controller {
 		$user['city'] = $rowData[0]['CITY'];
 
 		$state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
-		 if(empty($state))
 	    $user['state'] = $state['state'];
 
 		$user_id = $this->user_model->add_user($user);
@@ -535,10 +534,10 @@ class bookings_excel extends CI_Controller {
 		$booking['amount_due'] = '';
 		$booking['booking_remarks'] = '';
 		$booking['query_remarks'] = 'Product Shipped, Call Customer For Booking';
-	    if(!empty($state)){
-	     	$state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
-		    $booking['state'] = $state['state'];
-	    }
+	    
+	    $state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
+		$booking['state'] = $state['state'];
+	    
 		
 		//Insert query
 		//echo print_r($booking, true) . "<br><br>";
