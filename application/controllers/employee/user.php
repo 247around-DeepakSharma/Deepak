@@ -142,11 +142,8 @@ class User extends CI_Controller {
                 //It is a query, check its status and assign appropriate view
                 switch ($data['Bookings'][0]->current_status) {
                     case 'FollowUp':
-                    $view = 'employee/viewpendingqueries';
-                    break;
-
                     case 'Cancelled':
-                    $view = 'employee/viewcancelledqueries';
+                    $view = 'employee/viewpendingqueries';
                     break;
 
                     default:
@@ -162,9 +159,6 @@ class User extends CI_Controller {
                     break;
 
                     case 'Cancelled':
-                    $view = 'employee/viewcancelledbooking';
-                    break;
-
                     case 'Completed':
                     $view = 'employee/viewcompletedbooking';
                     break;

@@ -1081,8 +1081,9 @@ class Booking_model extends CI_Model {
         $temp = $query->result();
 
         usort($temp, array($this, 'date_compare_queries'));
-
-        if($temp[0]->current_status == "FollowUp"){
+        
+        if (strpos($temp[0]->booking_id, "Q-") !== FALSE) {
+        
             $data = $this->searchPincodeAvailable($temp);
             return $data;
         }
