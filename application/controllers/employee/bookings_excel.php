@@ -150,9 +150,32 @@ class bookings_excel extends CI_Controller {
 		$user_id = $output[0]['user_id'];
 	    }
 
+	    if (substr($rowData[0]['Pincode'], 0, 1) == "6") {
+		    switch ($rowData[0]['Brand']) {
+			case 'Wybor':
+			    $booking['partner_id'] = '247010';
+			    $booking['source'] = "SY";
+			    break;
+
+			case 'Ray':
+			    $booking['partner_id'] = '247011';
+			    $booking['source'] = "SR";
+			    break;
+
+			default:
+			    $booking['partner_id'] = '1';
+			    $booking['source'] = "SS";
+			    break;
+		    }
+		} else {
+		    $booking['partner_id'] = '1';
+		    $booking['source'] = "SS";
+		}
+
+
 	    //Add this lead into the leads table
 	    //Check whether this is a new Lead or Not
-	    $partner_booking = $this->partner_model->get_order_id_for_partner($partner_id, $rowData[0]['Sub_Order_ID']);
+	    $partner_booking = $this->partner_model->get_order_id_for_partner($booking['partner_id'], $rowData[0]['Sub_Order_ID']);
 	    if (is_null($partner_booking)) {
 	   
 		$prod = trim($rowData[0]['Product']);
@@ -185,28 +208,6 @@ class bookings_excel extends CI_Controller {
 
 		$booking['booking_pincode'] = $rowData[0]['Pincode'];
 		$appliance_details['brand'] = $unit_details['appliance_brand'] = $rowData[0]['Brand'];
-
-		if (substr($booking['booking_pincode'], 0, 1) == "6") {
-		    switch ($appliance_details['brand']) {
-			case 'Wybor':
-			    $booking['partner_id'] = '247010';
-			    $booking['source'] = "SY";
-			    break;
-
-			case 'Ray':
-			    $booking['partner_id'] = '247011';
-			    $booking['source'] = "SR";
-			    break;
-
-			default:
-			    $booking['partner_id'] = '1';
-			    $booking['source'] = "SS";
-			    break;
-		    }
-		} else {
-		    $booking['partner_id'] = '1';
-		    $booking['source'] = "SS";
-		}
 
 		$yy = date("y");
 		$mm = date("m");
@@ -401,11 +402,34 @@ class bookings_excel extends CI_Controller {
 		$user_id = $output[0]['user_id'];
 	    }
 
+		if (substr($rowData[0]['Pincode'], 0, 1) == "6") {
+		    switch ($rowData[0]['Brand']) {
+			case 'Wybor':
+			    $booking['partner_id'] = '247010';
+			    $booking['source'] = "SY";
+			    break;
+
+			case 'Ray':
+			    $booking['partner_id'] = '247011';
+			    $booking['source'] = "SR";
+			    break;
+
+			default:
+			    $booking['partner_id'] = '1';
+			    $booking['source'] = "SS";
+			    break;
+		    }
+		} else {
+		    $booking['partner_id'] = '1';
+		    $booking['source'] = "SS";
+		}
+
 	    //Add this lead into the leads table
 	    //Check whether this is a new Lead or Not
-	    $partner_booking = $this->partner_model->get_order_id_for_partner($partner_id, $rowData[0]['Sub_Order_ID']);
+	    $partner_booking = $this->partner_model->get_order_id_for_partner($booking['partner_id'], $rowData[0]['Sub_Order_ID']);
 	    if (is_null($partner_booking)) {
 		$booking['order_id'] = $rowData[0]['Sub_Order_ID'];
+		$booking['booking_pincode'] = $rowData[0]['Pincode'];
 		
 		$dateObj1 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Referred_Date_and_Time']);
 		$booking['reference_date'] = $dateObj1->format('d/m/Y');
@@ -477,37 +501,13 @@ class bookings_excel extends CI_Controller {
 		$booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
 		$booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
 
-		$booking['booking_pincode'] = $rowData[0]['Pincode'];
-
-		if (substr($booking['booking_pincode'], 0, 1) == "6") {
-		    switch ($appliance_details['brand']) {
-			case 'Wybor':
-			    $booking['partner_id'] = '247010';
-			    $booking['source'] = "SY";
-			    break;
-
-			case 'Ray':
-			    $booking['partner_id'] = '247011';
-			    $booking['source'] = "SR";
-			    break;
-
-			default:
-			    $booking['partner_id'] = '1';
-			    $booking['source'] = "SS";
-			    break;
-		    }
-		} else {
-		    $booking['partner_id'] = '1';
-		    $booking['source'] = "SS";
-		}
-
 		$unit_details['booking_id'] = $booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
 		
 		$booking['quantity'] = '1';
 		
 		$appliance_details['category'] = $unit_details['appliance_category'] = '';
 		$appliance_details['capacity'] = $unit_details['appliance_capacity'] = '';
-		$appliance_details['tag'] = $unit_details['appliance_tags'] = $unit_details['appliance_brand'] . " " . $lead_details['Product'];
+		$appliance_details['tag'] = $unit_details['appliance_tag'] = $unit_details['appliance_brand'] . " " . $lead_details['Product'];
 		$appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
 		$appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
 
