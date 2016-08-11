@@ -131,7 +131,7 @@ class Booking_utilities {
     function lib_send_mail_to_vendor($booking_id, $additional_note) {
 	//log_message('info', __FUNCTION__);
 
-	    $getbooking = $this->booking_model->getbooking_history($booking_id,"join");
+	    $getbooking = $this->My_CI->booking_model->getbooking_history($booking_id,"join");
 
         if (!empty($getbooking)) {
 
@@ -248,7 +248,7 @@ class Booking_utilities {
 
     //This function sends reminder email to the assigned vendor
     function lib_send_reminder_mail_to_vendor($booking_id, $additional_note) {
-	 $getbooking = $this->booking_model->getbooking_history($booking_id,"join");
+	 $getbooking = $this->My_CI->booking_model->getbooking_history($booking_id,"join");
 
         if (!empty($getbooking)) {
 
