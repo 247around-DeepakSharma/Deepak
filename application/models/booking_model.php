@@ -1357,9 +1357,9 @@ class Booking_model extends CI_Model {
                  }
                  else {
                     //echo "Match not found";
-                   $data = array('booking_status' => "Cancelled" );
+                  // $data = array('booking_status' => "Cancelled" );
                    $this->db->where('id', $value['id']);
-                   $this->db->update('booking_unit_details', $data);
+                   $this->db->update('booking_unit_details');
 
                 }
             }
@@ -1502,7 +1502,6 @@ class Booking_model extends CI_Model {
             $this->db->select('id as unit_id, price_tags, customer_total, around_net_payable, partner_net_payable, customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts, booking_status, partner_paid_basic_charges,product_or_services');
             $this->db->where('appliance_id', $value['appliance_id']);
             $this->db->where('booking_id', $value['booking_id']);
-            $this->db->where_not_in('booking_status', "Cancelled");
             $query2 = $this->db->get('booking_unit_details');
 
             $result = $query2->result_array();
