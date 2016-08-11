@@ -22,6 +22,7 @@ class vendor extends CI_Controller {
         $this->load->model('booking_model');
         $this->load->library('PHPReport');
         $this->load->model('filter_model');
+        $this->load->model('service_centers_model');
         $this->load->helper(array('form', 'url'));
         //$this->load->library('../controllers/api');
         $this->load->library('form_validation');
@@ -343,11 +344,17 @@ class vendor extends CI_Controller {
 
 	if ($service_center_id != "Select") {
             $this->booking_model->assign_booking($booking_id, $service_center_id);
-           // $this->vendor_model->delete_previous_service_center_action($booking_id);
+            
+            $pre_service_center_data['current_status'] = "Cancelled";
+            $pre_service_center_data['internal_status'] = "Cancelled";
+
+            $this->service_centers_model->update_service_centers_action_table($booking_id, $pre_service_center_data);
             $unit_details = $this->booking_model->getunit_details($booking_id);
-            foreach ($unit_details[0]['qunatity'] as $value ) { 
+           
+            foreach ($unit_details[0]['quantity'] as $value ) { 
                 $data = array();
                 $data['current_status'] = "Pending";
+                $data['internal_status'] = "Pending";
                 $data['service_center_id'] = $service_center_id;
                 $data['booking_id'] = $booking_id;
                 $data['create_date'] = date('Y-m-d H:i:s');
