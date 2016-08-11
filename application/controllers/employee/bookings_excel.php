@@ -508,6 +508,7 @@ class bookings_excel extends CI_Controller {
 		$unit_details['booking_id'] = $booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
 		
 		$booking['quantity'] = '1';
+		$unit_details['partner_id'] = $booking['partner_id'];
 		
 		$appliance_details['category'] = $unit_details['appliance_category'] = '';
 		$appliance_details['capacity'] = $unit_details['appliance_capacity'] = '';
