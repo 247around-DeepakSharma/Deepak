@@ -131,15 +131,13 @@ class Booking_utilities {
     function lib_send_mail_to_vendor($booking_id, $additional_note) {
 	//log_message('info', __FUNCTION__);
 
-	$getbooking = $this->My_CI->booking_model->getbooking($booking_id);
-	$booking_details = $this->My_CI->booking_model->search_bookings_by_booking_id($booking_id);
-	if ($getbooking) {
-	    $serviceName = $this->My_CI->booking_model->selectservicebyid($getbooking[0]['service_id']);
-	    $servicecentredetails = $this->My_CI->booking_model->selectservicecentre($booking_id);
+	    $getbooking = $this->booking_model->getbooking_history($booking_id,"join");
 
-	    $salutation = "Dear " . $servicecentredetails[0]['primary_contact_name'];
+        if (!empty($getbooking)) {
+
+	    $salutation = "Dear " . $getbooking[0]['primary_contact_name'];
 	    $heading = "<br><br>Please find attached job card " . $getbooking[0]['booking_id'] . " for "
-		. $serviceName[0]['services'] .
+		. $getbooking[0]['services'] .
 		"<br><br>Date: " . $getbooking[0]['booking_date'] .
 		"<br>Time Slot: " . $getbooking[0]['booking_timeslot'];
 
@@ -167,8 +165,8 @@ class Booking_utilities {
 
 	    $message = $salutation . $heading . $note . $fixedPara;
 
-	    $to = $servicecentredetails[0]['primary_contact_email'];
-	    $owner = $servicecentredetails[0]['owner_email'];
+	    $to = $getbooking[0]['primary_contact_email'];
+	    $owner = $getbooking[0]['owner_email'];
 	    $cc = $owner;
 	    $bcc = 'anuj@247around.com';
 
@@ -225,7 +223,7 @@ class Booking_utilities {
 	    $smsBody = "Booking - " . $booking_details[0]->customername . ", " . $booking_details[0]->phone_number . ", " . $serviceName[0]['services'] . ", " . $bookingdate ."/" . $booking_details[0]->booking_timeslot .  ", " . $getbooking[0]['booking_address'] . ", ". $booking_details[0]->booking_pincode . ". 247around";
 
 	    //Send SMS to vendor
-	    $this->sendTransactionalSms($servicecentredetails[0]['primary_contact_phone_1'], $smsBody);
+	    $this->sendTransactionalSms($getbooking[0]['primary_contact_phone_1'], $smsBody);
 	    //Save email in database
 	    $details = array("booking_id" => $booking_id, "subject" => $subject,
 		"body" => $message, "type" => "Booking",
@@ -250,10 +248,10 @@ class Booking_utilities {
 
     //This function sends reminder email to the assigned vendor
     function lib_send_reminder_mail_to_vendor($booking_id, $additional_note) {
-	$getbooking = $this->My_CI->booking_model->getbooking($booking_id);
+	 $getbooking = $this->booking_model->getbooking_history($booking_id,"join");
 
-	if ($getbooking) {
-	    $servicecentredetails = $this->My_CI->booking_model->selectservicecentre($booking_id);
+        if (!empty($getbooking)) {
+
 
 	    //Find last mail sent for this booking id and append it in the bottom
 	    $last_mail = $this->My_CI->booking_model->get_last_vendor_mail($booking_id);
@@ -271,7 +269,7 @@ class Booking_utilities {
 	    }
 
 	    //New message for this email
-	    $salutation = "Dear " . $servicecentredetails[0]['primary_contact_name'];
+	    $salutation = "Dear " . $getbooking[0]['primary_contact_name'];
 	    $heading = "<br><br>" . $type;
 	    $heading .= "<br><br>Please revert back on the current status of this booking.";
 
@@ -286,8 +284,8 @@ class Booking_utilities {
 	    $message = $message . "<br><br>--------------------------------------------------<br><br>" .
 		$last_mail[0]['body'];
 
-	    $to = $servicecentredetails[0]['primary_contact_email'];
-	    $owner = $servicecentredetails[0]['owner_email'];
+	    $to = $getbooking[0]['primary_contact_email'];
+	    $owner = $getbooking[0]['owner_email'];
 	    $cc = ($owner . ', nits@247around.com, anuj@247around.com');
 //	    $cc = $owner;
 

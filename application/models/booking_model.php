@@ -419,7 +419,7 @@ class Booking_model extends CI_Model {
         $condition ="";
         $service_center_name ="";
         if($join !=""){
-            $service_center_name =",service_centres.name as vendor_name, service_centres.district ";
+            $service_center_name =",service_centres.name as vendor_name, service_centres.district, service_centres.primary_contact_name, service_centres.owner_email, service_centres.primary_contact_phone_1, service_centres.primary_contact_email ";
             $service_centre = ", service_centres ";
             $condition = " and booking_details.assigned_vendor_id =  service_centres.id";
         }
@@ -1081,7 +1081,7 @@ class Booking_model extends CI_Model {
         $temp = $query->result();
 
         usort($temp, array($this, 'date_compare_queries'));
-        
+
         if (strpos($temp[0]->booking_id, "Q-") !== FALSE) {
         
             $data = $this->searchPincodeAvailable($temp);

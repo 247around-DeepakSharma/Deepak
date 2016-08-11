@@ -220,15 +220,15 @@ class bookingjobcard extends CI_Controller {
 
         //$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=278325305" . " -o " . $output_file_pdf;
         putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-        $tmp_path = '/home/around/libreoffice_tmp';
-        $tmp_output_file = '/home/around/libreoffice_tmp/output.txt';
-        //$tmp_path = '/var/www/libreoffice';
-        //$tmp_output_file = '/var/www/output.txt';
+        //$tmp_path = '/home/around/libreoffice_tmp';
+       // $tmp_output_file = '/home/around/libreoffice_tmp/output.txt';
+        $tmp_path = '/var/www/libreoffice';
+        $tmp_output_file = '/var/www/output.txt';
         $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
                 '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
                 $output_file_excel . ' 2> ' . $tmp_output_file;
 
-        //echo $cmd;
+        echo $cmd;
         $output = '';
         $result_var = '';
         exec($cmd, $output, $result_var);
@@ -242,7 +242,7 @@ class bookingjobcard extends CI_Controller {
         $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
 
         $this->session->set_flashdata('result', 'Job card generated successfully');
-        redirect(base_url() . 'employee/booking/view', 'refresh');
+        //redirect(base_url() . 'employee/booking/view', 'refresh');
     }
 
     /*
@@ -259,15 +259,14 @@ class bookingjobcard extends CI_Controller {
     function send_mail_to_vendor($booking_id, $additional_note) {
         //log_message('info', __FUNCTION__);
 
-        $getbooking = $this->booking_model->getbooking($booking_id);
+        $getbooking = $this->booking_model->getbooking_history($booking_id,"join");
 
-        if ($getbooking) {
-            $serviceName = $this->booking_model->selectservicebyid($getbooking[0]['service_id']);
-            $servicecentredetails = $this->booking_model->selectservicecentre($booking_id);
+        if (!empty($getbooking)) {
+         
 
-            $salutation = "Dear " . $servicecentredetails[0]['primary_contact_name'];
+            $salutation = "Dear " . $getbooking[0]['primary_contact_name'];
             $heading = "<br><br>Please find attached job card " . $getbooking[0]['booking_id'] . " for "
-                    . $serviceName[0]['services'] .
+                    . $getbooking[0]['services'] .
                     "<br><br>Date: " . $getbooking[0]['booking_date'] .
                     "<br>Time Slot: " . $getbooking[0]['booking_timeslot'];
 
@@ -295,8 +294,8 @@ class bookingjobcard extends CI_Controller {
 
             $message = $salutation . $heading . $note . $fixedPara;
 
-            $to = $servicecentredetails[0]['primary_contact_email'];
-            $owner = $servicecentredetails[0]['owner_email'];
+            $to = $getbooking[0]['primary_contact_email'];
+            $owner = $getbooking[0]['owner_email'];
             $cc = $owner;
             $bcc = 'anuj@247around.com';
 
