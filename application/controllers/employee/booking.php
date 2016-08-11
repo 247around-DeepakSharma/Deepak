@@ -1003,6 +1003,12 @@ class Booking extends CI_Controller {
 	} else {
 	    $this->booking_model->convert_completed_booking_to_pending($booking_id, $data);
 
+        $service_center_data['booking_id'] = $booking_id;
+        $service_center_data['internal_status'] = "Pending";
+        $service_center_data['current_status'] = "Pending";
+        $service_center_data['update_date'] = date("Y-m-d H:i:s");
+        $this->vendor_model->update_service_center_action($service_center_data);
+
 	    //Update SD leads table if required
 	    if ($is_sd) {
 		if ($this->booking_model->check_sd_lead_exists_by_booking_id($booking_id) === TRUE) {
@@ -1107,6 +1113,11 @@ class Booking extends CI_Controller {
 	    echo "Please Select Booking Timeslot.";
 	} else {
 	    $this->booking_model->convert_cancelled_booking_to_pending($booking_id, $data);
+        $service_center_data['booking_id'] = $booking_id;
+        $service_center_data['internal_status'] = "Pending";
+        $service_center_data['current_status'] = "Pending";
+        $service_center_data['update_date'] = date("Y-m-d H:i:s");
+        $this->vendor_model->update_service_center_action($service_center_data);
 
 	    //Update SD leads table if required
 	    if ($is_sd) {
@@ -1672,7 +1683,7 @@ class Booking extends CI_Controller {
             $sd_where = array("CRM_Remarks_SR_No" => $booking_id);
             $sd_data = array(
                 "Rating_Stars" => $data['rating_stars'],
-                "update_date" => $data['closed_date']
+                "update_date" => date('Y-m-d H:i:s')
             );
             $this->booking_model->update_sd_lead($sd_where, $sd_data);
         }
