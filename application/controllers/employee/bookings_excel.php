@@ -258,7 +258,7 @@ class bookings_excel extends CI_Controller {
 		$booking['booking_remarks'] = '';
 		$booking['query_remarks'] = 'Product Shipped, Call Customer For Booking';
 		$booking['city'] = $rowData[0]['CITY'];
-		if(!empty($state)){
+		if(empty($state)){
 	     	$state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
 		    $booking['state'] = $state['state'];
 	    }
@@ -389,7 +389,7 @@ class bookings_excel extends CI_Controller {
 		$user['city'] = $rowData[0]['CITY'];
 
 		$state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
-		 if(!empty($state))
+		 if(empty($state))
 	    $user['state'] = $state['state'];
 
 		$user_id = $this->user_model->add_user($user);
