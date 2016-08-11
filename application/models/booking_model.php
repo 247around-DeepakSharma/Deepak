@@ -430,8 +430,8 @@ class Booking_model extends CI_Model {
                . "booking_details.user_id = users.user_id and "
                . "services.id = booking_details.service_id  ". $condition;
 
-        $query = $this->db->query($sql);   
-        //echo $this->db->last_query();     
+        $query = $this->db->query($sql);
+        //echo $this->db->last_query();
 
         return $query->result_array();
     }
@@ -1083,11 +1083,11 @@ class Booking_model extends CI_Model {
         usort($temp, array($this, 'date_compare_queries'));
 
         if (strpos($temp[0]->booking_id, "Q-") !== FALSE) {
-        
+
             $data = $this->searchPincodeAvailable($temp);
             return $data;
         }
-       
+
         return  $temp;
     }
 
@@ -1188,7 +1188,7 @@ class Booking_model extends CI_Model {
     } else {
         $this->db->where('partner_id', $partner_id);
     }
-	
+
 	$query = $this->db->get('bookings_sources');
 	if ($query->num_rows() > 0) {
 	    $result = $query->result_array();
@@ -1458,7 +1458,7 @@ class Booking_model extends CI_Model {
             $data['vendor_to_around'] = 0;
             $data['around_to_vendor'] = abs($vendor_around_charge);
         }
-        
+
         unset($data['internal_status']);
         $this->db->where('id', $data['id']);
         $this->db->update('booking_unit_details',$data);
@@ -1651,10 +1651,10 @@ class Booking_model extends CI_Model {
 
     // This is for testing after testing it will remove
 
-    function get_all_booking_id(){
+    function c_get_all_booking_id() {
 
 
-        $sql = "SELECT booking_details.booking_id, booking_details.partner_id, booking_details.service_id, booking_details.appliance_id, booking_unit_details.appliance_capacity, booking_unit_details.appliance_brand, booking_unit_details.appliance_category, booking_unit_details.price_tags, booking_unit_details.appliance_tag, booking_unit_details.purchase_month, booking_unit_details.purchase_year, booking_unit_details.model_number, booking_details.service_charge, booking_details.additional_service_charge, booking_details.parts_cost, booking_details.internal_status
+	$sql = "SELECT booking_details.booking_id, booking_details.partner_id, booking_details.service_id, booking_details.appliance_id, booking_unit_details.appliance_capacity, booking_unit_details.appliance_brand, booking_unit_details.appliance_category, booking_unit_details.price_tags, booking_unit_details.appliance_tag, booking_unit_details.purchase_month, booking_unit_details.purchase_year, booking_unit_details.model_number, booking_details.service_charge, booking_details.additional_service_charge, booking_details.parts_cost, booking_details.internal_status
             from booking_details, booking_unit_details
             where `closed_date` >= '2016-06-01 00:00:00' AND `closed_date` < '2016-07-01 00:00:00' AND `current_status` = 'Completed' AND booking_unit_details.booking_id = booking_details.booking_id
 
@@ -1666,8 +1666,8 @@ class Booking_model extends CI_Model {
 
     }
 
-    function getbookingid(){
-         $sql = "SELECT booking_details.booking_id, booking_details.service_charge, booking_details.additional_service_charge, booking_details.parts_cost, booking_details.internal_status
+    function c_getbookingid() {
+	$sql = "SELECT booking_details.booking_id, booking_details.service_charge, booking_details.additional_service_charge, booking_details.parts_cost, booking_details.internal_status
             from booking_details
             where `closed_date` >= '2016-06-01 00:00:00' AND `closed_date` < '2016-07-01 00:00:00' AND `current_status` = 'Completed'
             ";
@@ -1702,9 +1702,9 @@ class Booking_model extends CI_Model {
         return $query->result_array();
     }
 
-    function get_all_booking_unit(){
+    function c_get_all_booking_unit() {
 
-        $sql = " SELECT booking_unit_details.*, `booking_details`.booking_pincode FROM `booking_unit_details`, booking_details "
+	$sql = " SELECT booking_unit_details.*, `booking_details`.booking_pincode FROM `booking_unit_details`, booking_details "
 	    . "WHERE `booking_unit_details`.booking_id = `booking_details`.`booking_id` AND "
 	    . "`booking_unit_details`.`booking_id` in "
 	    . "(SELECT booking_id FROM `booking_details` WHERE `closed_date` >= '2016-06-01 00:00:00' AND "
@@ -1791,15 +1791,40 @@ class Booking_model extends CI_Model {
         $sql = "LOAD DATA   INFILE '/usr/share/nginx/html/vendor_pincode_mapping_temp.csv' INTO TABLE vendor_pincode_mapping_temp FIELDS TERMINATED BY ',' ENCLOSED BY '' LINES TERMINATED BY '\r\n' (Vendor_Name,Vendor_ID,Appliance,Appliance_ID,Brand,Area,Pincode,Region,City,State)";
 
        // system("mysql -u  root -p localhost --password='around' --local_infile=1 -e \"$sql\" $dbName");
-        
+
 
       //  $sql = "LOAD DATA  INFILE '".$file_location."' INTO TABLE vendor_pincode_mapping_temp
        // FIELDS TERMINATED BY ',' LINES TERMINATED BY '\r\n'";
 
-      
+
         $this->db->query($sql);
         echo $this->db->last_query();*/
     }
 
+    function p_get_all_booking_id() {
+	$sql = "SELECT booking_details.booking_id, booking_details.partner_id, booking_details.service_id,
+	    booking_details.appliance_id, booking_unit_details.appliance_capacity,
+	    booking_unit_details.appliance_brand, booking_unit_details.appliance_category,
+	    booking_unit_details.price_tags, booking_unit_details.appliance_tag, booking_unit_details.purchase_month,
+	    booking_unit_details.purchase_year, booking_unit_details.model_number, booking_details.service_charge,
+	    booking_details.additional_service_charge, booking_details.parts_cost, booking_details.internal_status
+            from booking_details, booking_unit_details
+            where booking_details.`current_status` IN ('Pending', 'Rescheduled') AND booking_unit_details.booking_id = booking_details.booking_id";
+
+	$query = $this->db->query($sql);
+	$result = $query->result_array();
+	return $result;
+    }
+
+    function p_get_all_booking_unit() {
+	$sql = " SELECT booking_unit_details.*, `booking_details`.booking_pincode FROM `booking_unit_details`, booking_details "
+	    . "WHERE `booking_unit_details`.booking_id = `booking_details`.`booking_id` AND "
+	    . "`booking_unit_details`.`booking_id` in "
+	    . "(SELECT booking_id FROM `booking_details` WHERE "
+	    . "`current_status` IN ('Pending', 'Rescheduled'));";
+
+	$query = $this->db->query($sql);
+	return $query->result_array();
+    }
 
 }
