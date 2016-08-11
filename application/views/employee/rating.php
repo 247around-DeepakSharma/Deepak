@@ -5,7 +5,7 @@
          
           <h2 style="color:blue;">Rating Given by Customer</h2>
           
-          <form class="form-horizontal" id ="rating_form" action="<?php echo base_url()?>employee/booking/process_rating_form/<?php echo $data[0]['booking_id'];?>" method="POST">
+          <form class="form-horizontal" id ="rating_form" action="<?php echo base_url()?>employee/booking/process_rating_form/<?php echo $data[0]['booking_id'];?>/<?php echo $status; ?>" method="POST">
 
         <div><input type="hidden" name="user_id" value="<?php echo $data[0]['user_id'];?>"></div>
         

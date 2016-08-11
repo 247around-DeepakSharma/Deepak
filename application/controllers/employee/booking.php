@@ -771,14 +771,14 @@ class Booking extends CI_Controller {
      *  @param : booking id
      *  @return : user details to view
      */
-    function get_rating_form($booking_id) {
+    function get_rating_form($booking_id, $status) {
 	$getbooking = $this->booking_model->getbooking($booking_id);
 	if ($getbooking) {
 
 	    $this->session->userdata('employee_id');
 	    $data = $getbooking;
 	    $this->load->view('employee/header');
-	    $this->load->view('employee/rating', array('data' => $data));
+	    $this->load->view('employee/rating', array('data' => $data, 'status' =>  $status));
 	} else {
 	    echo "Id doesn't exist";
 	}
@@ -792,7 +792,7 @@ class Booking extends CI_Controller {
      *  @param : booking id
      *  @return : rate for booking and load view
      */
-    function process_rating_form($booking_id) {
+    function process_rating_form($booking_id, $status) {
 
 	if ($this->input->post('rating_star') != "Select") {
 	    $data['rating_stars'] = $this->input->post('rating_star');
@@ -812,7 +812,7 @@ class Booking extends CI_Controller {
 
 	$this->booking_model->update_booking($booking_id, $data);
 
-	redirect(base_url() . 'employee/booking/viewcompletedbooking', 'refresh');
+	redirect(base_url() . 'employee/booking/viewclosedbooking/'.$status);
     }
 
     /**

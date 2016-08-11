@@ -60,8 +60,8 @@ class bookings_excel extends CI_Controller {
 
     public function add_booking_from_excel() {
 	//TODO: Need to be changed
-	$partner_id = '1';
-	$partner_code = 'SS';
+	//$partner_id = '1';
+	//$partner_code = 'SS';
 
 	if (!empty($_FILES['file']['name'])) {
 	    $pathinfo = pathinfo($_FILES["file"]["name"]);
@@ -182,17 +182,40 @@ class bookings_excel extends CI_Controller {
 		$appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $this->booking_model->getServiceId($prod);
 		//echo "Service ID: " . $booking['service_id'] . PHP_EOL;
 
+		$booking['booking_pincode'] = $rowData[0]['Pincode'];
+		$appliance_details['brand'] = $unit_details['appliance_brand'] = $rowData[0]['Brand'];
+
+		if (substr($booking['booking_pincode'], 0, 1) == "6") {
+		    switch ($appliance_details['brand']) {
+			case 'Wybor':
+			    $booking['partner_id'] = '247010';
+			    $booking['source'] = "SY";
+			    break;
+
+			case 'Ray':
+			    $booking['partner_id'] = '247011';
+			    $booking['source'] = "SR";
+			    break;
+
+			default:
+			    $booking['partner_id'] = '1';
+			    $booking['source'] = "SS";
+			    break;
+		    }
+		} else {
+		    $booking['partner_id'] = '1';
+		    $booking['source'] = "SS";
+		}
+
 		$yy = date("y");
 		$mm = date("m");
 		$dd = date("d");
 		$booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
 		$booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
-		$booking['booking_id'] = "Q-" . $partner_code . "-" . $booking['booking_id'];
+		$booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
 		$unit_details['booking_id'] = $booking['booking_id'];
 
-		$booking['partner_id'] = $unit_details['partner_id'] = $partner_id;
-
-		$appliance_details['brand'] = $unit_details['appliance_brand'] = $rowData[0]['Brand'];
+		$unit_details['partner_id'] = $booking['partner_id'];
 		$appliance_details['category'] = $unit_details['appliance_category'] = '';
 		$appliance_details['capacity'] = $unit_details['appliance_capacity'] = '';
 		$appliance_details['description'] = $unit_details['appliance_description'] = $rowData[0]['Product_Type'];
@@ -214,7 +237,7 @@ class bookings_excel extends CI_Controller {
 		$booking['booking_date'] = '';
 		$booking['booking_timeslot'] = '';
 		$booking['request_type'] = 'Installation & Demo';
-		$booking['partner_source'] = 'Delivered_Excel';
+		$booking['partner_source'] = "Snapdeal-delivered-excel";
 		$del_date = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Delivery_Date']);
 		$booking['delivery_date'] = $del_date->format('Y-m-d H:i:s');
 		//since product is already delivered
@@ -225,12 +248,11 @@ class bookings_excel extends CI_Controller {
 		$booking['current_status'] = "FollowUp";
 		$booking['internal_status'] = "FollowUp";
 		$booking['type'] = "Query";
-		$booking['source'] = $partner_code;
+		
 		$booking['booking_address'] = $rowData[0]['Customer_Address'];
-		$booking['booking_pincode'] = $rowData[0]['Pincode'];
 		$booking['amount_due'] = '';
 		$booking['booking_remarks'] = '';
-		$booking['query_remarks'] = '';
+		$booking['query_remarks'] = 'Product Shipped, Call Customer For Booking';
 		$booking['city'] = $rowData[0]['CITY'];
 		$state = $this->vendor_model->getall_state($booking['city']);
 		 if(!empty($state))
@@ -454,10 +476,30 @@ class bookings_excel extends CI_Controller {
 		$booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
 		$booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
 
-		//Add source
-		$booking['source'] = "SS";
-		//Hardcoded partner ID as of now
-		$booking['partner_id'] = 1;
+		$booking['booking_pincode'] = $rowData[0]['Pincode'];
+
+		if (substr($booking['booking_pincode'], 0, 1) == "6") {
+		    switch ($appliance_details['brand']) {
+			case 'Wybor':
+			    $booking['partner_id'] = '247010';
+			    $booking['source'] = "SY";
+			    break;
+
+			case 'Ray':
+			    $booking['partner_id'] = '247011';
+			    $booking['source'] = "SR";
+			    break;
+
+			default:
+			    $booking['partner_id'] = '1';
+			    $booking['source'] = "SS";
+			    break;
+		    }
+		} else {
+		    $booking['partner_id'] = '1';
+		    $booking['source'] = "SS";
+		}
+
 		$unit_details['booking_id'] = $booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
 		
 		$booking['quantity'] = '1';
@@ -481,9 +523,9 @@ class bookings_excel extends CI_Controller {
 		$booking['booking_date'] = $dateObj2->format('d-m-Y');
 		$booking['booking_timeslot'] = '10AM-1PM';
 		$booking['booking_address'] = $rowData[0]['Customer_Address'];
-		$booking['booking_pincode'] = $rowData[0]['Pincode'];
 		$booking['city'] = $rowData[0]['CITY'];
 		$booking['booking_primary_contact_no'] = $rowData[0]['Phone'];
+		$booking['partner_source'] = "Snapdeal-shipped-excel";
 		$booking['amount_due'] = '';
 		$booking['booking_remarks'] = '';
 		$booking['query_remarks'] = 'Product Shipped, Call Customer For Booking';
