@@ -282,7 +282,7 @@ class Booking extends CI_Controller {
 		    }
 		} else {
             $services_details['booking_status'] = "";
-		    $price_tag = $this->booking_model->update_booking_in_booking_details($services_details, $booking['booking_id'], $booking['state']);
+		    $price_tag = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state']);
 		   
 		    array_push($price_tags, $price_tag);
 
