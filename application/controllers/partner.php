@@ -218,8 +218,9 @@ class Partner extends CI_Controller {
 
 			$booking['city'] = $requestData['city'];
 
-			$booking['state'] = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
+			$state = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
 
+			$booking['state'] = $state['state'];
 			$booking['booking_pincode'] = $requestData['pincode'];
 
 			$booking['booking_address'] = $requestData['address'] . ", " . (isset($requestData['landmark']) ? $requestData['landmark'] : "") ;
