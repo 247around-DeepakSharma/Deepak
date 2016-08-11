@@ -30,6 +30,7 @@ class bookings_excel extends CI_Controller {
 	$this->load->model('user_model');
 	$this->load->model('booking_model');
 	$this->load->model('partner_model');
+	$this->load->model('vendor_model');
 
 	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
 	    return TRUE;
@@ -132,9 +133,9 @@ class bookings_excel extends CI_Controller {
 		$user['pincode'] = $rowData[0]['Pincode'];
 		$user['city'] = $rowData[0]['CITY'];
 
-		$state = $this->vendor_model->getall_state($user['city']);
+		$state =$state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
 		 if(!empty($state))
-	    $user['state'] = $state[0]['state'];
+	    $user['state'] = $state['state'];
 
 		$user_id = $this->user_model->add_user($user);
 
@@ -256,9 +257,9 @@ class bookings_excel extends CI_Controller {
 		$booking['booking_remarks'] = '';
 		$booking['query_remarks'] = 'Product Shipped, Call Customer For Booking';
 		$booking['city'] = $rowData[0]['CITY'];
-		$state = $this->vendor_model->getall_state($booking['city']);
+		$state = $state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
 		 if(!empty($state))
-		$booking['state'] = $state[0]['state'];
+		$booking['state'] = $state['state'];
 		$booking['quantity'] = '1';
 		$booking['potential_value'] = '';
 
@@ -384,9 +385,9 @@ class bookings_excel extends CI_Controller {
 		$user['pincode'] = $rowData[0]['Pincode'];
 		$user['city'] = $rowData[0]['CITY'];
 
-		$state = $this->vendor_model->getall_state($user['city']);
+		$state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
 		 if(!empty($state))
-	    $user['state'] = $state[0]['state'];
+	    $user['state'] = $state['state'];
 
 		$user_id = $this->user_model->add_user($user);
 
@@ -531,8 +532,8 @@ class bookings_excel extends CI_Controller {
 		$booking['booking_remarks'] = '';
 		$booking['query_remarks'] = 'Product Shipped, Call Customer For Booking';
 	     if(!empty($state))
-		$state = $this->vendor_model->getall_state($booking['city']);
-		$booking['state'] = $state[0]['state'];
+		$state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
+		$booking['state'] = $state['state'];
 
 		//Insert query
 		//echo print_r($booking, true) . "<br><br>";
