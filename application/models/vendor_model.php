@@ -364,8 +364,14 @@ class vendor_model extends CI_Model {
 	$this->db->where('pincode', $pincode);
 
 	$query = $this->db->get('india_pincode');
+    if($query->num_rows > 0){
+        return $query->result_array()[0];
+    } else {
+        $state['state'] = "";
+        return $state;
+    }
 
-	return $query->result_array()[0];
+	
     }
 
     /**
