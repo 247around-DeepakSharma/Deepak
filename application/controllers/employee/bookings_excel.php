@@ -29,6 +29,7 @@ class bookings_excel extends CI_Controller {
 
 	$this->load->model('user_model');
 	$this->load->model('booking_model');
+	$this->load->model('partner_model');
 
 	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
 	    return TRUE;
