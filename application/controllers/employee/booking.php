@@ -113,12 +113,15 @@ class Booking extends CI_Controller {
 	} else {
 	    $price_tags = array();
 	    if ($booking['type'] == "Booking") {
-
-		$booking_id_array = explode("Q-", $booking_id);
-		if (isset($booking_id_array[1]))
-		    $booking['booking_id'] = $booking_id_array[1];
+	    	
+	    if (strpos($booking_id, "Q-") !== FALSE) {
+	    	
+              $booking_id_array = explode("Q-", $booking_id);
+              $booking['booking_id'] = $booking_id_array[1];
 	    } else {
-		$booking['booking_id'] = $booking_id;
+            $booking['booking_id'] = $booking_id;
+	    }
+
 	    }
 	}
 
@@ -206,6 +209,8 @@ class Booking extends CI_Controller {
 	    $booking['current_status'] = "FollowUp";
 	    $booking['internal_status'] = "FollowUp";
 	    $booking['query_remarks'] = $booking_remarks;
+	    if($booking_id !="")
+	    $booking['booking_id'] = "Q-".$booking_id;
 	}
 
 	foreach ($appliance_brand as $key => $value) {
@@ -273,11 +278,12 @@ class Booking extends CI_Controller {
 
 			//Log this state change as well for this booking
 			//param:-- booking id, new state, old state, employee id, employee name
-			$this->notify->insert_state_change($booking['booking_id'], "Inserted", $booking['current_status'], $this->session->userdata('id'), $this->session->userdata('employee_id'));
+			$this->notify->insert_state_change($booking['booking_id'], $booking['current_status'], "New", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 		    }
 		} else {
-
-		    $price_tag = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state']);
+            $services_details['booking_status'] = "";
+		    $price_tag = $this->booking_model->update_booking_in_booking_details($services_details, $booking['booking_id'], $booking['state']);
+		   
 		    array_push($price_tags, $price_tag);
 
 		    //Log this state change as well for this booking
@@ -696,7 +702,7 @@ class Booking extends CI_Controller {
      * @input: service_id,category, capacity, brand, partner code, city, clone number
      * @return : services name and there prices
      */
-    public function getPricesForCategoryCapacity() {
+    function getPricesForCategoryCapacity() {
 
 	$service_id = $this->input->post('service_id');
 	$category = $this->input->post('category');
@@ -1067,41 +1073,6 @@ class Booking extends CI_Controller {
 	redirect(base_url() . search_page);
     }
 
-//    /**
-//     *  @desc : This function is to get delete booking form
-//     *  @param : void
-//     *  @return : takes to view
-//     */
-//    function get_delete_booking_form() {
-//	$this->load->view('employee/header');
-//	$this->load->view('employee/delete_bookings');
-//    }
-//
-//    /**
-//     *  @desc : This function is to delete the booking
-//     *  @param : void
-//     *  @return : takes to view
-//     */
-//    function process_delete_booking_form() {
-//	$booking_id_from_textarea = $this->input->post('booking_id');
-//	//converting textarea string to array
-//	$booking_id_array = explode("\n", $booking_id_from_textarea);
-//
-//	for ($i = 0; $i < count($booking_id_array); $i++) {
-//	    $booking_id = trim($booking_id_array[$i]);
-//	    $getbookingdetails = $this->booking_model->getbooking($booking_id);
-//	    if (empty($getbookingdetails)) {
-//		echo "This Booking Id does not Exist!";
-//	    } else {
-//		$appliance_id = $getbookingdetails[0]['appliance_id'];
-//		$this->booking_model->delete_booking_details($booking_id);
-//		$this->booking_model->delete_unit_booking_details($booking_id);
-//		$this->booking_model->delete_appliance_details($appliance_id);
-//	    }
-//	}
-//	redirect(base_url() . search_page);
-//    }
-
     /**
      *  @desc : This function is used to rebook cancel query
      *  @param : String (Booking Id)
@@ -1113,19 +1084,6 @@ class Booking extends CI_Controller {
 	redirect(base_url() . 'employee/user/finduser/0/0/' . $phone, 'refresh');
     }
 
-//    /**
-//     *  @desc : This function is used to get state by city
-//     *
-//     * 	Takes city as input and then gives its state
-//     *
-//     *  @param : void
-//     *  @return : state
-//     */
-//    function get_state_by_city() {
-//	$city = $this->input->post('city');
-//	$state = $this->booking_model->selectSate($city);
-//	print_r($state);
-//    }
 
     /**
      *  @desc : This function is used to call customer from admin panel
