@@ -123,6 +123,7 @@ class bookings_excel extends CI_Controller {
 
 	    //Insert user if phone number doesn't exist
 	    $output = $this->user_model->search_user(trim($rowData[0]['Phone']));
+	    $state = "";
 
 	    if (empty($output)) {
 		//User doesn't exist
@@ -257,9 +258,10 @@ class bookings_excel extends CI_Controller {
 		$booking['booking_remarks'] = '';
 		$booking['query_remarks'] = 'Product Shipped, Call Customer For Booking';
 		$booking['city'] = $rowData[0]['CITY'];
-		$state = $state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
-		 if(!empty($state))
-		$booking['state'] = $state['state'];
+		if(!empty($state)){
+	     	$state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
+		    $booking['state'] = $state['state'];
+	    }
 		$booking['quantity'] = '1';
 		$booking['potential_value'] = '';
 
@@ -375,6 +377,7 @@ class bookings_excel extends CI_Controller {
 
 	    //Insert user if phone number doesn't exist
 	    $output = $this->user_model->search_user(trim($rowData[0]['Phone']));
+	    $state = "";
 
 	    if (empty($output)) {
 		//User doesn't exist
@@ -531,10 +534,11 @@ class bookings_excel extends CI_Controller {
 		$booking['amount_due'] = '';
 		$booking['booking_remarks'] = '';
 		$booking['query_remarks'] = 'Product Shipped, Call Customer For Booking';
-	     if(!empty($state))
-		$state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
-		$booking['state'] = $state['state'];
-
+	    if(!empty($state)){
+	     	$state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
+		    $booking['state'] = $state['state'];
+	    }
+		
 		//Insert query
 		//echo print_r($booking, true) . "<br><br>";
 		$this->booking_model->addbooking($booking);
