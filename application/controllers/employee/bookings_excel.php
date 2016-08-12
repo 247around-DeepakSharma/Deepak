@@ -134,7 +134,7 @@ class bookings_excel extends CI_Controller {
 		$user['pincode'] = $rowData[0]['Pincode'];
 		$user['city'] = $rowData[0]['CITY'];
 
-		$state =$state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
+		$state  = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
 		 
 	    $user['state'] = $state['state'];
 
