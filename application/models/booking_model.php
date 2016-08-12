@@ -1464,7 +1464,7 @@ class Booking_model extends CI_Model {
             $where = " `booking_unit_details`.appliance_id = '$appliance_id' ";
         }
 
-        $sql = "SELECT distinct(appliance_id), brand, booking_id, category, capacity, `appliance_details`.`model_number`,description, `appliance_details`.`purchase_month`, `appliance_details`.`purchase_year`, appliance_tag
+        $sql = "SELECT distinct(appliance_id), brand, booking_id, category, capacity, `appliance_details`.`model_number`,description, `appliance_details`.`purchase_month`, `appliance_details`.`purchase_year`, appliance_tag, `appliance_details`.serial_number
             from booking_unit_details,  appliance_details Where $where  AND `appliance_details`.`id` = `booking_unit_details`.`appliance_id`  ";
 
         $query = $this->db->query($sql);

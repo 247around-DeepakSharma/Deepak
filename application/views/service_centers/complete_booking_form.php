@@ -76,6 +76,13 @@
                               </div>
                            </div>
                            <?php } ?>
+                            <div class="form-group">
+                              <div class="col-md-8 ">
+                                 <input type="text" id="serial_number" class="form-control" name="serial_number[]" value="<?php echo $unit_details['serial_number']; ?>" placeholder="Please Enter Serial Number" required></input>
+                                
+                           
+                              </div>
+                           </div>
                         </div>
                         <div class="col-md-8">
                            <table class="table priceList table-striped table-bordered" name="priceList" >
@@ -89,7 +96,7 @@
                                 
                               </tr>
                               <tbody>
-                                 <?php $paid_basic_charges = 0; $paid_additional_charges = 0; $paid_parts_cost=0;foreach ($unit_details['qunatity'] as $key => $price) { ?>
+                                 <?php $paid_basic_charges = 0; $paid_additional_charges = 0; $paid_parts_cost=0;foreach ($unit_details['quantity'] as $key => $price) { ?>
                                  <tr>
                                     <td><?php echo $price['price_tags'] ?></td>
                                     <td><?php echo $price['customer_net_payable']; ?></td>

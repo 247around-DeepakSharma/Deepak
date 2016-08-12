@@ -46,7 +46,7 @@ class Service_centers_model extends CI_Model {
         if($limit !="count"){
             $this->db->limit($limit, $start);
         }
-
+        
         $this->db->select('booking_id, DATEDIFF(CURRENT_TIMESTAMP , create_date ) as age_of_booking,admin_remarks');
         $this->db->where('service_center_id', $service_center_id);
         $this->db->where('current_status', "Pending");
@@ -73,10 +73,13 @@ class Service_centers_model extends CI_Model {
 
                 $query1 = $this->db->query($sql);
                 $result = $query1->result();
-                
-                $result[0]->age_of_booking = $value['age_of_booking'];
-                $result[0]->admin_remarks = $value['admin_remarks'];
-                array_push($data, $result[0]);
+                if($query1->num_rows > 0){
+                  $result[0]->age_of_booking = $value['age_of_booking'];
+                  $result[0]->admin_remarks = $value['admin_remarks'];
+                  array_push($data, $result[0]);
+                }
+
+               
             
             }
           
@@ -87,6 +90,7 @@ class Service_centers_model extends CI_Model {
             return count($pending_booking);
 
         } else {
+          
            
             return $data;
         }

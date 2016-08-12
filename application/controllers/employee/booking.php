@@ -105,6 +105,7 @@ class Booking extends CI_Controller {
 	$booking['booking_address'] = $this->input->post('home_address');
 	$booking['city'] = $this->input->post('city');
 	$booking_date = $this->input->post('booking_date');
+	$booking['partner_source'] =  $this->input->post('partner_source');
 	$booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
 
 	if ($booking_id == "") {
@@ -154,6 +155,8 @@ class Booking extends CI_Controller {
 	$booking['quantity'] = count($appliance_brand);
 
 	$appliance_id = $this->input->post('appliance_id');
+
+	$serial_number =  $this->input->post('serial_number');
 
 	$partner_id = $this->partner_model->get_all_partner_source("", $booking['source']);
 
@@ -230,6 +233,7 @@ class Booking extends CI_Controller {
 	    // get purchase year from purchase year array for only specific key such as $purchase_year[0].
 	    $appliances_details['purchase_year'] = $services_details['purchase_year'] = $purchase_year[$key];
 	    $services_details['booking_id'] = $booking['booking_id'];
+	    $appliances_details['serial_number'] = $services_details['serial_number'] = $serial_number[$key];
 	    // get purchase months from months array for only specific key such as $months[0].
 	    $appliances_details['purchase_month'] = $services_details['purchase_month'] = $months[$key];
 	    $appliances_details['service_id'] = $services_details['service_id'] = $booking['service_id'];
