@@ -7,7 +7,6 @@ class Booking_model extends CI_Model {
      */
     function __construct() {
         parent::__Construct();
-
         $this->db = $this->load->database('default', TRUE, TRUE);
     }
 
@@ -135,23 +134,17 @@ class Booking_model extends CI_Model {
      *          format by closed date in descending order.
      */
     function view_completed_or_cancelled_booking($limit, $start, $status, $booking_id= "") {
-        $add_limit = "";
+        $add_limit = ""; $where = "";
         if($limit != "All"){
-
              $add_limit = " LIMIT $start, $limit ";
         }
-
-         $where = "";
-
         if($booking_id != ""){
             $where =  "  booking_id = '$booking_id' AND ";
         }
-
-        $query = $this->db->query("Select services.services,
-            users.name as customername, users.phone_number,
-            booking_details.*, service_centres.name as service_centre_name,
-            service_centres.district as city,
-           service_centres.primary_contact_name,service_centres.primary_contact_phone_1
+        $query = $this->db->query("Select services.services,users.name as customername, 
+            users.phone_number, booking_details.*, service_centres.name as service_centre_name,
+            service_centres.district as city, service_centres.primary_contact_name,
+            service_centres.primary_contact_phone_1
             from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
@@ -160,13 +153,9 @@ class Booking_model extends CI_Model {
             (booking_details.current_status = '$status')
 	    ORDER BY closed_date DESC $add_limit "
         );
-
-
        $temp = $query->result();
-
-        usort($temp, array($this, 'date_compare_bookings'));
-
-        return $temp;
+       usort($temp, array($this, 'date_compare_bookings'));
+       return $temp;
     }
 
     /**
@@ -1062,31 +1051,41 @@ class Booking_model extends CI_Model {
         return $query->result_array();
     }
 
-    /** @description : Function to search bookings with booking id from find user page
-     *  @param : booking id
-     *  @return : array(matching bookings)
-     */
-    function search_bookings_by_booking_id($booking_id) {
-        $query = $this->db->query("Select services.services,
-            users.name as customername, users.phone_number,
-            booking_details.*, service_centres.name as service_centre_name,
-            service_centres.primary_contact_name,service_centres.primary_contact_phone_1
-            from booking_details
-            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
-            JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-            LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id`
-            = `service_centres`.`id` WHERE booking_id like '%$booking_id%'"
-        );
+    function search_bookings($where, $partner_id = "") {
+  
+    if($partner_id !=""){
+        $this->db->where('partner_id', $partner_id);
+    }
 
-        $temp = $query->result();
+    $this->db->select("services.services, users.name as customername, 
+            users.phone_number, booking_details.*");
+    $this->db->from('booking_details');  
+    $this->db->join('users',' users.user_id = booking_details.user_id');
+    $this->db->join('services', 'services.id = booking_details.service_id');
+    $this->db->like($where);
+    $query =  $this->db->get();
+    $temp = $query->result();
+    if(!empty($temp[0]->assigned_vendor_id)){
+           $this->db->select('service_centres.name as service_centre_name,
+            service_centres.primary_contact_name,service_centres.primary_contact_phone_1 ');
+           $this->db->where('id', $temp[0]->assigned_vendor_id);
+           $query1 = $this->db->get('service_centres');
+           $result = $query1->result_array();
+           $temp[0]->service_centre_name =  $result[0]['service_centre_name'];
+           $temp[0]->primary_contact_name = $result[0]['primary_contact_name'];
+           $temp[0]->primary_contact_phone_1 = $result[0]['primary_contact_phone_1'];
+        
+    }
 
-        usort($temp, array($this, 'date_compare_queries'));
+    usort($temp, array($this, 'date_compare_queries'));
+    if($query->num_rows>0){
 
         if (strpos($temp[0]->booking_id, "Q-") !== FALSE) {
 
             $data = $this->searchPincodeAvailable($temp);
             return $data;
         }
+    }
 
         return  $temp;
     }
@@ -1298,53 +1297,27 @@ class Booking_model extends CI_Model {
         return $result;
     }
 
-    /**
-     * @desc : This function is used to get booking id with the help of order id.
-     *
-     *  Partner id and order id finds the exact booking id.
-     *
-     * @param : partner id and order id.
-     * @return : Array(booking details)
-     */
-    //TODO: can be removed
-    function getBookingId_by_orderId($partner_id, $order_id) {
+     //Find order id for a partner
+    function get_booking_from_order_id($partner_id, $order_id) {
+        $this->db->select('*');
+        $this->db->where('partner_id', $partner_id);
+        $this->db->like('order_id' , $order_id);
+      
+        $query = $this->db->get("booking_details");
 
-        $booking = array();
+         $temp = $query->result();
 
-        $partner_code = $this->partner_model->get_source_code_for_partner($partner_id);
+        usort($temp, array($this, 'date_compare_queries'));
 
-        $union = "";
-        if ($partner_code == "SS") {
-            $union = "UNION
+        if (strpos($temp[0]->booking_id, "Q-") !== FALSE) {
 
-                   SELECT CRM_Remarks_SR_No as booking FROM  `snapdeal_leads` WHERE  Sub_Order_ID LIKE  '%$order_id%' ";
+            $data = $this->searchPincodeAvailable($temp);
+            return $data;
         }
 
-        $sql = "SELECT 247aroundBookingID  as booking from partner_leads where OrderID LIKE '%$order_id%' And  PartnerID = '$partner_id'   " . $union;
 
-
-        $query = $this->db->query($sql);
-
-        $data = $query->result();
-
-        if (count($data) > 0) {
-
-            foreach ($data as $value) {
-                $string = preg_replace("/[^0-9,.]/", "", $value->booking); //replace all character and symbol
-                $booking_data = $this->search_bookings_by_booking_id($string);
-
-                if (count($booking_data) > 0) {
-                    array_push($booking, $booking_data[0]);
-                }
-            }
-
-            return $booking;
-        } else {
-
-            return $booking;
-        }
     }
-
+ 
     function check_price_tags_status($booking_id, $price_tags){
         $this->db->select('id, price_tags');
         $this->db->where('booking_id', $booking_id);

@@ -23,10 +23,9 @@ class Booking_utilities {
 	$this->My_CI->load->library('s3');
 	$this->My_CI->load->library('form_validation');
 	$this->My_CI->load->library("session");
-
+        $this->My_CI->load->library("notify");
 	$this->My_CI->load->helper('download');
 	$this->My_CI->load->helper(array('form', 'url'));
-
 	$this->My_CI->load->model('employee_model');
 	$this->My_CI->load->model('booking_model');
 	$this->My_CI->load->model('reporting_utils');
@@ -36,13 +35,9 @@ class Booking_utilities {
 	log_message('info', __FUNCTION__);
 
 	log_message('info', $booking_id);
-
-	$file_names = array();
-
 	$template = 'BookingJobCard_Template-v8.xlsx';
 	//set absolute path to directory with template files
 	$templateDir = __DIR__ . "/../controllers/";
-
 	//set config for report
 	$config = array(
 	    'template' => $template,
@@ -52,13 +47,8 @@ class Booking_utilities {
 	//load template
 	$R = new PHPReport($config);
 	//log_message('info', "PHP report");
-
 	$booking_details = $this->My_CI->booking_model->getbooking_history($booking_id);
-	//echo "Booking Details: " . "\n";
-	//print_r($booking_details);
-
 	$unit_details = $this->My_CI->booking_model->get_unit_details($booking_id);
-
 	$R->load(array(
 	    array(
 		'id' => 'booking',
@@ -84,16 +74,17 @@ class Booking_utilities {
 	);
 
 	//Get populated XLS with data
-	if ($booking_details[0]['current_status'] == "Rescheduled")
+	if ($booking_details[0]['current_status'] == "Rescheduled"){
 	    $output_file_suffix = "-RESC-" . $booking_details[0]['booking_date'];
-	else
+        } else {
 	    $output_file_suffix = "";
+        }
 
 	$output_file_dir = "/tmp/";
 	$output_file = "BookingJobCard-" . $booking_id . $output_file_suffix;
 
 	$output_file_excel = $output_file_dir . $output_file . ".xlsx";
-	$result = $R->render('excel', $output_file_excel);
+	$R->render('excel', $output_file_excel);
 	$output_file_pdf = $output_file_dir . $output_file . ".pdf";
 
 	//Update output file name in DB
@@ -101,22 +92,18 @@ class Booking_utilities {
 
 	//$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=278325305" . " -o " . $output_file_pdf;
 	putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-	$tmp_path = '/home/around/libreoffice_tmp';
-	$tmp_output_file = '/home/around/libreoffice_tmp/output.txt';
-	//$tmp_path = '/var/www/libreoffice';
-	//$tmp_output_file = '/var/www/output.txt';
+        $tmp_path = libreoffice_pdf;
+        $tmp_output_file = libreoffice_output_file;
 	$cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
 	    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
 	    $output_file_excel . ' 2> ' . $tmp_output_file;
-
-	//echo $cmd;
+        
 	$output = '';
 	$result_var = '';
 	exec($cmd, $output, $result_var);
 
 	//Upload Excel & PDF files to AWS
 	$bucket = 'bookings-collateral';
-
 	$directory_xls = "jobcards-excel/" . $output_file . ".xlsx";
 	$this->My_CI->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 
@@ -169,7 +156,7 @@ class Booking_utilities {
 	    $owner = $getbooking[0]['owner_email'];
 	    $cc = $owner;
 	    $bcc = 'anuj@247around.com';
-
+            $from = "booking@247around.com";
 	    $subject = "247Around / Job Card " . $getbooking[0]['booking_id'] . " / " . $getbooking[0]['booking_date'] .
 		" / " . $getbooking[0]['booking_timeslot'];
 
@@ -177,30 +164,16 @@ class Booking_utilities {
 	    $output_file_pdf = "/tmp/" . $getbooking[0]['booking_jobcard_filename'];
 
 	    $cmd = "curl https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/" . $file_pdf . " -o " . $output_file_pdf;
-	    exec($cmd);
-
-	    //Clear previous email
-	    $this->My_CI->email->clear(TRUE);
-
-	    //Attach this PDF file
-	    $this->My_CI->email->attach($output_file_pdf, 'attachment');
-
-	    $this->My_CI->email->from('booking@247around.com', '247around Team');
-	    $this->My_CI->email->to($to);
-	    $this->My_CI->email->cc($cc);
-	    $this->My_CI->email->bcc($bcc);
-	    $this->My_CI->email->subject($subject);
-	    $this->My_CI->email->message($message);
+	    exec($cmd);            
 
 	    $date1 = date('d-m-Y', strtotime('now'));
 	    $date2 = $getbooking[0]['booking_date'];
 	    $datediff = ($date1 - $date2) / (60 * 60 * 24);
 
-	    $mm = date("m", strtotime($getbooking[0]['booking_date']));
+	    $month = date("m", strtotime($getbooking[0]['booking_date']));
 	    $dd = date("d", strtotime($getbooking[0]['booking_date']));
 	    $months = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
-
-	    $mm = $months[$mm - 1];
+	    $mm = $months[$month - 1];
 
 	    if ($datediff == 0) {
 		$bookingdate = "Today";
@@ -210,17 +183,16 @@ class Booking_utilities {
 		$bookingdate = $dd . " " . $mm;
 	    }
 
-	    if ($booking_details[0]->booking_timeslot = '10AM-1PM') {
-	    	$booking_details[0]->booking_timeslot= '10AM';
-	    }elseif ($booking_details[0]->booking_timeslot = '1PM-4PM') {
-	    	$booking_details[0]->booking_timeslot= '1PM';
+	    if ($getbooking[0]->booking_timeslot == '10AM-1PM') {
+	    	$getbooking[0]->booking_timeslot= '10AM';
+	    }elseif ($getbooking[0]->booking_timeslot == '1PM-4PM') {
+	    	$getbooking[0]->booking_timeslot= '1PM';
 	    }
 	    else {
-	    	$booking_details[0]->booking_timeslot= '4PM';
+	    	$getbooking[0]->booking_timeslot= '4PM';
 	    }
 
-
-	    $smsBody = "Booking - " . $booking_details[0]->customername . ", " . $booking_details[0]->phone_number . ", " . $serviceName[0]['services'] . ", " . $bookingdate ."/" . $booking_details[0]->booking_timeslot .  ", " . $getbooking[0]['booking_address'] . ", ". $booking_details[0]->booking_pincode . ". 247around";
+	    $smsBody = "Booking - " . $getbooking[0]->customername . ", " . $getbooking[0]->phone_number . ", " . $getbooking[0]['services'] . ", " . $bookingdate ."/" . $getbooking[0]->booking_timeslot .  ", " . $getbooking[0]['booking_address'] . ", ". $getbooking[0]->booking_pincode . ". 247around";
 
 	    //Send SMS to vendor
 	    $this->sendTransactionalSms($getbooking[0]['primary_contact_phone_1'], $smsBody);
@@ -229,13 +201,11 @@ class Booking_utilities {
 		"body" => $message, "type" => "Booking",
 		"attachment" => $getbooking[0]['booking_jobcard_filename']);
 	    $this->My_CI->booking_model->save_vendor_email($details);
-
-	    if ($this->My_CI->email->send()) {
-//		$data['success'] = "Mail sent to Service Center successfully.";
-//		$this->My_CI->session->set_flashdata('result', 'Mail sent to Service Center successfully');
-		//Setting flag to 1, once mail is sent.
-		$this->My_CI->booking_model->set_mail_to_vendor($booking_id);
-	    } else {
+            $notify = $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $output_file_pdf);
+            if($notify){
+                $this->My_CI->booking_model->set_mail_to_vendor($booking_id);
+                
+            } else {
 //		$data['success'] = "Mail could not be sent, please try again.";
 //		$this->My_CI->session->set_flashdata('result', 'Mail could not be sent, please try again');
 	    }
@@ -287,6 +257,8 @@ class Booking_utilities {
 	    $to = $getbooking[0]['primary_contact_email'];
 	    $owner = $getbooking[0]['owner_email'];
 	    $cc = ($owner . ', nits@247around.com, anuj@247around.com');
+            $from= "booking@247around.com";
+            $bcc = "";
 //	    $cc = $owner;
 
 	    $this->My_CI->email->clear(TRUE);
@@ -300,6 +272,8 @@ class Booking_utilities {
 	    $details = array("booking_id" => $booking_id, "subject" => $new_sub,
 		"body" => $message, "type" => $type);
 	    $this->My_CI->booking_model->save_vendor_email($details);
+            
+            $notify = $this->notify->sendEmail($from, $to, $cc, $bcc, $new_sub, $message, "");
 
 	    if ($this->My_CI->email->send()) {
 //		$data['success'] = "Reminder mail sent to Service Center successfully.";

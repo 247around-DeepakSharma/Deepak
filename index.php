@@ -18,7 +18,7 @@
  * NOTE: If you change these, also change the error_reporting() code below
  *
  */
-	define('ENVIRONMENT', 'development');
+	define('ENVIRONMENT', 'testing_abhay');
 /*
  *---------------------------------------------------------------
  * ERROR REPORTING
@@ -32,16 +32,53 @@ if (defined('ENVIRONMENT'))
 {
 	switch (ENVIRONMENT)
 	{
+		
+		case 'testing_abhay':
+		    error_reporting(E_ALL);
+			ini_set('display_errors', 1);
+			define('libreoffice_pdf', '/var/www/libreoffice');
+			define('libreoffice_output_file', '/var/www/output.txt');
+			define('port', 80);
+			define('ssl', "");
+           
+            break;
+
+        case 'testing_stag':
+		    error_reporting(E_ALL);
+			ini_set('display_errors', 1);
+			define('libreoffice_pdf', '/home/abhay/libreoffice_tmp');
+			define('libreoffice_output_file', '/home/abhay/libreoffice_tmp/output.txt');
+			define('port', 80);
+			define('ssl', "");
+           
+            break;
+
+
+		case 'testing_anuj':
+		    error_reporting(E_ALL);
+			ini_set('display_errors', 1);
+			define('libreoffice_pdf', '');
+			define('libreoffice_output_file', '');
+			define('port', 80);
+			define('ssl', "");
+            
+            break;
 		case 'development':
 	//			error_reporting(E_ALL ^ E_DEPRECATED);
 	    error_reporting(E_ALL);
 	    ini_set('display_startup_errors', 1);
 	    ini_set('display_errors', 1);
+
 	    break;
 
 		case 'testing':
 		case 'production':
 			error_reporting(0);
+			define('libreoffice_pdf', '/home/around/libreoffice_tmp');
+			define('libreoffice_output_file', '/home/around/libreoffice_tmp/output.txt');
+			define('port', 443);
+			define('ssl', "ssl://");
+			
 		break;
 
 		default:

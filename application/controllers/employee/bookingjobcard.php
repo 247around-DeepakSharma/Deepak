@@ -17,7 +17,6 @@ class bookingjobcard extends CI_Controller {
         parent::__Construct();
 
         $this->load->model('reporting_utils');
-
         $this->load->library('PHPReport');
         $this->load->library('email');
         $this->load->library('s3');
@@ -62,25 +61,18 @@ class bookingjobcard extends CI_Controller {
         $booking_id = $this->input->post('booking_id');
         log_message('info', $booking_id);
 
-        $file_names = array();
-
         $template = 'BookingJobCard_Template-v8.xlsx';
 	//set absolute path to directory with template files
         $templateDir = __DIR__ . "/../";
-
         //set config for report
         $config = array(
             'template' => $template,
             'templateDir' => $templateDir
         );
-
         //load template
         $R = new PHPReport($config);
-
-       $booking_details = $this->booking_model->getbooking_history($booking_id);
+        $booking_details = $this->booking_model->getbooking_history($booking_id);
         $unit_details = $this->booking_model->get_unit_details($booking_id); 
-
-
         $R->load(array(
             array(
                 'id' => 'booking',
@@ -106,24 +98,25 @@ class bookingjobcard extends CI_Controller {
         );
 
         //Get populated XLS with data
-        if ($booking_details[0]['current_status'] == "Rescheduled")
+        if ($booking_details[0]['current_status'] == "Rescheduled"){
             $output_file_suffix = "-RESC-" . $booking_details[0]['booking_date'];
-        else
+        } else{
             $output_file_suffix = "";
+        }
 
         $output_file_dir = "/tmp/";
         $output_file = "BookingJobCard-" . $booking_id . $output_file_suffix;
         $output_file_excel = $output_file_dir . $output_file . ".xlsx";
-        $result = $R->render('excel', $output_file_excel);
+        $R->render('excel', $output_file_excel);
         $output_file_pdf = $output_file_dir . $output_file . ".pdf";
-
         //Update output file name in DB
         $this->reporting_utils->update_booking_jobcard($booking_details[0]['id'], $output_file . ".pdf");
 
         //$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=278325305" . " -o " . $output_file_pdf;
         putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-        $tmp_path = '/home/around/libreoffice_tmp';
-        $tmp_output_file = '/home/around/libreoffice_tmp/output.txt';
+        $tmp_path = libreoffice_pdf;
+        $tmp_output_file = libreoffice_output_file;
+        
         $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
                 '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
                 $output_file_excel . ' 2> ' . $tmp_output_file;
@@ -158,27 +151,20 @@ class bookingjobcard extends CI_Controller {
 
         log_message('info', $booking_id);
 
-        $file_names = array();
-
         $template = 'BookingJobCard_Template-v8.xlsx';
 	//set absolute path to directory with template files
         $templateDir = __DIR__ . "/../";
-
         //set config for report
         $config = array(
             'template' => $template,
             'templateDir' => $templateDir
         );
-
         //load template
         $R = new PHPReport($config);
         //log_message('info', "PHP report");
-
         $booking_details = $this->booking_model->getbooking_history($booking_id);
         $unit_details = $this->booking_model->get_unit_details($booking_id); 
-
-
-            $R->load(array(
+        $R->load(array(
             array(
                 'id' => 'booking',
                 //'repeat' => TRUE,
@@ -203,18 +189,17 @@ class bookingjobcard extends CI_Controller {
         );
 
         //Get populated XLS with data
-        if ($booking_details[0]['current_status'] == "Rescheduled")
+        if ($booking_details[0]['current_status'] == "Rescheduled"){
             $output_file_suffix = "-RESC-" . $booking_details[0]['booking_date'];
-        else
+        } else {
             $output_file_suffix = "";
+        }
 
         $output_file_dir = "/tmp/";
         $output_file = "BookingJobCard-" . $booking_id . $output_file_suffix;
-
         $output_file_excel = $output_file_dir . $output_file . ".xlsx";
-        $result = $R->render('excel', $output_file_excel);
+        $R->render('excel', $output_file_excel);
         $output_file_pdf = $output_file_dir . $output_file . ".pdf";
-
         //Update output file name in DB
         $this->reporting_utils->update_booking_jobcard($booking_details[0]['id'], $output_file . ".pdf");
 
@@ -222,8 +207,8 @@ class bookingjobcard extends CI_Controller {
         putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
         //$tmp_path = '/home/around/libreoffice_tmp';
        // $tmp_output_file = '/home/around/libreoffice_tmp/output.txt';
-        $tmp_path = '/var/www/libreoffice';
-        $tmp_output_file = '/var/www/output.txt';
+        $tmp_path = libreoffice_pdf;
+        $tmp_output_file = libreoffice_output_file;
         $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
                 '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
                 $output_file_excel . ' 2> ' . $tmp_output_file;
@@ -262,8 +247,6 @@ class bookingjobcard extends CI_Controller {
         $getbooking = $this->booking_model->getbooking_history($booking_id,"join");
 
         if (!empty($getbooking)) {
-         
-
             $salutation = "Dear " . $getbooking[0]['primary_contact_name'];
             $heading = "<br><br>Please find attached job card " . $getbooking[0]['booking_id'] . " for "
                     . $getbooking[0]['services'] .
@@ -296,6 +279,7 @@ class bookingjobcard extends CI_Controller {
 
             $to = $getbooking[0]['primary_contact_email'];
             $owner = $getbooking[0]['owner_email'];
+            $from = "booking@247around.com";
             $cc = $owner;
             $bcc = 'anuj@247around.com';
 
@@ -307,29 +291,17 @@ class bookingjobcard extends CI_Controller {
 
             $cmd = "curl https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/" . $file_pdf . " -o " . $output_file_pdf;
             exec($cmd);
-
-            //Clear previous email
-            $this->email->clear(TRUE);
-
-            //Attach this PDF file
-            $this->email->attach($output_file_pdf, 'attachment');
-
-            $this->email->from('booking@247around.com', '247around Team');
-            $this->email->to($to);
-            $this->email->cc($cc);
-            $this->email->bcc($bcc);
-            $this->email->subject($subject);
-            $this->email->message($message);
+            
+            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $output_file_pdf);
 
             $date1 = date('d-m-Y', strtotime('now'));
             $date2 = $getbooking[0]['booking_date'];
             $datediff = ($date1 - $date2) / (60 * 60 * 24);
 
-            $mm = date("m", strtotime($getbooking[0]['booking_date']));
+            $month = date("m", strtotime($getbooking[0]['booking_date']));
             $dd = date("d", strtotime($getbooking[0]['booking_date']));
             $months = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
-
-            $mm = $months[$mm - 1];
+            $mm = $months[$month - 1];
 
             if ($datediff == 0) {
                 $bookingdate = "Today";
@@ -343,7 +315,7 @@ class bookingjobcard extends CI_Controller {
 
             //Send SMS to vendor
 //            $this->sendTransactionalSms($servicecentredetails[0]['primary_contact_phone_1'], $smsBody);
-            $this->notify->sendTransactionalSms($servicecentredetails[0]['primary_contact_phone_1'], $smsBody);
+            $this->notify->sendTransactionalSms($getbooking[0]['primary_contact_phone_1'], $smsBody);
             //Save email in database
             $details = array("booking_id" => $booking_id, "subject" => $subject,
                 "body" => $message, "type" => "Booking",
@@ -420,15 +392,12 @@ class bookingjobcard extends CI_Controller {
             $to = $servicecentredetails[0]['primary_contact_email'];
             $owner = $servicecentredetails[0]['owner_email'];
             $cc = ($owner . ', anuj@247around.com, nits@247around.com');
+            $from = "booking@247around.com";
+            $bcc = "";
+            $attachment = "";
             //$cc = $owner;
-
-            $this->email->clear(TRUE);
-            $this->email->from('booking@247around.com', '247around Team');
-            $this->email->to($to);
-            $this->email->cc($cc);
-            $this->email->subject($new_sub);
-            $this->email->message($message);
-
+            $this->notify->sendEmail($from, $to, $cc, $bcc, $new_sub, $message, $attachment);
+           
             //Save email in database
             $details = array("booking_id" => $booking_id, "subject" => $new_sub,
                 "body" => $message, "type" => $type);

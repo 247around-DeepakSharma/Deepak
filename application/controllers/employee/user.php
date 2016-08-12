@@ -52,15 +52,10 @@ class User extends CI_Controller {
 
         $booking_id = $this->input->post('booking_id');
         $order_id = $this->input->post('order_id');
-        $partner_code = $this->input->post('partner');
+        $partner_id = $this->input->post('partner');
 
         if ($this->input->post('phone_number')) {
             $phone_number = $this->input->post('phone_number');
-        }
-
-        //search through order id
-        if (!empty($order_id)) {
-            $this->search_by_OrderId($partner_code, $order_id);
         }
 
         //search user by name
@@ -112,26 +107,22 @@ class User extends CI_Controller {
                 $this->load->view('employee/bookinghistory', $data);
             }
         } elseif ($booking_id != "") {  //if booking id given and matched, will be displayed
-            $data['Bookings'] = $this->booking_model->search_bookings_by_booking_id($booking_id);
+            
+            $where  = array('booking_id' => $booking_id );
+            $data['Bookings'] = $this->booking_model->search_bookings($where);
             $this->load_search_view($data);
-	    }
-    }
 
-    /**
-     * @desc : This function is used to find user by order id
-     * 
-     * It also uses partner's code along with order id to find the user details.
-     * 
-     * @param : partner code and order id
-     * @return : array of data(searched results) to the view
-     */
-    function search_by_OrderId($partner_code, $order_id) {
-        $data['Bookings'] = $this->booking_model->getBookingId_by_orderId($partner_code, $order_id);
-        $data['search'] = "Search";
+	    } else if (!empty($order_id)) {
 
-        $this->load_search_view($data);
+            $where  = array('order_id' => $order_id );
+            $data['Bookings'] = $this->booking_model->search_bookings($where, $partner_id);
+            $data['search'] = "Search";
+
+            $this->load_search_view($data);
+        }
 
     }
+
     /**
      * @desc: this is used to load view on the basis of booking or query and its current status
      *  @param: Array

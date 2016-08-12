@@ -33,12 +33,16 @@ class Notify {
      *  @return : if mail send return true else false
      */
     function sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment) {
+        switch (ENVIRONMENT)
+	{
+            case 'production':
         //Clear previous email
         $this->My_CI->email->clear(TRUE);
 
         //Attach file with mail
-        if (!empty($attachment))
+        if (!empty($attachment)){
             $this->My_CI->email->attach($attachment, 'attachment');
+        }
 
         $this->My_CI->email->from($from, '247around Team');
 
@@ -51,13 +55,18 @@ class Notify {
 
 //	return true;
 
-	if ($this->My_CI->email->send())
+	if ($this->My_CI->email->send()){
             return true;
-        else
+        } else {
             return false;
+        }
+        }
     }
 
     function sendTransactionalSms($phone_number, $body) {
+         switch (ENVIRONMENT)
+	{
+            case 'production':
 	if (TRIAL_RUN) {
 	    //Trial mode, replace phone number
 	    $phone_number = '8826423424';
@@ -86,12 +95,13 @@ class Notify {
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
 
-        $http_result = curl_exec($ch);
-        $error = curl_error($ch);
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_exec($ch);
+        curl_error($ch);
+        curl_getinfo($ch, CURLINFO_HTTP_CODE);
         //print_r($ch);
         //echo exit();
         curl_close($ch);
+       }
     }
 
     /**
@@ -160,8 +170,10 @@ class Notify {
      */
     function make_outbound_call($agent_phone, $customer_phone) {
 	//Callback fn called by Exotel
+         switch (ENVIRONMENT)
+	{
+            case 'production':
 	$cb = base_url() . 'call-customer-status-callback';
-
 	$post_data = array(
             'From' => $agent_phone,
             'To' => $customer_phone,
@@ -172,11 +184,8 @@ class Notify {
 
         $exotel_sid = "aroundhomz";
         $exotel_token = "a041058fa6b179ecdb9846ccf0e4fd8e09104612";
-
         $url = "https://" . $exotel_sid . ":" . $exotel_token . "@twilix.exotel.in/v1/Accounts/" . $exotel_sid . "/Calls/connect";
-
         $ch = curl_init();
-
         //curl_setopt($ch, CURLOPT_VERBOSE, 1);
 	curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, 1);
@@ -184,14 +193,10 @@ class Notify {
         curl_setopt($ch, CURLOPT_FAILONERROR, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
-
-//        $http_result = curl_exec($ch);
-//        $error = curl_error($ch);
-//        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
 	curl_close($ch);
 
         //log_message('info', __FUNCTION__ . "=> " . print_r(array($http_result, $error, $http_code), TRUE));
+        }
     }
     
     /**
