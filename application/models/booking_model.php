@@ -1359,7 +1359,7 @@ class Booking_model extends CI_Model {
                     //echo "Match not found";
                   // $data = array('booking_status' => "Cancelled" );
                    $this->db->where('id', $value['id']);
-                   $this->db->update('booking_unit_details');
+                   $this->db->delete('booking_unit_details');
 
                 }
             }
