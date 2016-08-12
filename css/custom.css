@@ -33,7 +33,7 @@
 .welcome_text{
 
     background-size: 100% 100%;
-    background-image: url("http://localhost/recruitify.in/image/background_image.png");
+    background-image: url("/images/background_image.png");
     background-repeat: no-repeat;
 }
 
@@ -204,23 +204,4 @@ div.item {
 	font-size: 17px; 
 	display: inline-block;
 	margin-left: 5px;
-}
-
-.unactive:hover .interface{
-	content: url('http://localhost/recruitify.in/image/interface_selected.png');
-}
-
-.unactive:hover .book {
-
-	content: url('http://localhost/recruitify.in/image/open-magazine_selected.png');
-}
-
-.unactive:hover .personal_details {
-
-	content: url('http://localhost/recruitify.in/image/manager_selecetd.png');
-}
-
-.unactive:hover .resume {
-
-	content: url('http://localhost/recruitify.in/image/resume-selected.png');
 }
