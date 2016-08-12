@@ -177,12 +177,13 @@ class Do_background_process extends CI_Controller {
             $service_center['current_status'] = $current_status1;
             $unit_details['booking_status'] = $service_center['internal_status'] = $value['internal_status'];
             $unit_details['id'] = $service_center['unit_details_id'] = $value['unit_details_id'];
+
             $service_center['update_date'] =  date('Y-m-d H:i:s');
 
             log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
 
             $this->vendor_model->update_service_center_action($service_center);
-
+            $unit_details['serial_number'] = $value['serial_number'];
             $unit_details['customer_paid_basic_charges'] = $value['service_charge'];
             $unit_details['customer_paid_extra_charges'] = $value['additional_service_charge'];
             $unit_details['customer_paid_parts'] = $value['parts_cost'];

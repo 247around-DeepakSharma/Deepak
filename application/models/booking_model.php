@@ -1460,13 +1460,18 @@ class Booking_model extends CI_Model {
         if($booking_id !=""){
            $where = " `booking_unit_details`.booking_id = '$booking_id' ";
 
+            $sql = "SELECT distinct(appliance_id), appliance_brand as brand, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description, `booking_unit_details`.`purchase_month`, `booking_unit_details`.`purchase_year`, appliance_tag, `booking_unit_details`.serial_number
+            from booking_unit_details Where $where  ";
+
         } else if($appliance_id !=""){
             $where = " `booking_unit_details`.appliance_id = '$appliance_id' ";
-        }
 
-        $sql = "SELECT distinct(appliance_id), brand, booking_id, category, capacity, `appliance_details`.`model_number`,description, `appliance_details`.`purchase_month`, `appliance_details`.`purchase_year`, appliance_tag, `appliance_details`.serial_number
+            $sql = "SELECT distinct(appliance_id), brand, booking_id, category, capacity, `appliance_details`.`model_number`,description, `appliance_details`.`purchase_month`, `appliance_details`.`purchase_year`, appliance_tag, `appliance_details`.serial_number
             from booking_unit_details,  appliance_details Where $where  AND `appliance_details`.`id` = `booking_unit_details`.`appliance_id`  ";
 
+        }
+
+       
         $query = $this->db->query($sql);
         $appliance =  $query->result_array();
 
@@ -1571,9 +1576,13 @@ class Booking_model extends CI_Model {
      *  @return :
      */
     function convert_booking_to_pending($booking_id, $data, $status) {
+    // update booking details
     $this->db->where(array('booking_id' => $booking_id, 'current_status' => $status));
     $this->db->update('booking_details', $data);
-
+    //update unit details
+    $this->db->where('booking_id', $booking_id);
+    $this->db->update('booking_unit_details', array('booking_status' => '' ));
+    // get service center id
     $this->db->select('assigned_vendor_id');
     $this->db->where('booking_id', $booking_id);
     $query = $this->db->get('booking_details');
@@ -1583,7 +1592,7 @@ class Booking_model extends CI_Model {
         $service_center_data['internal_status'] = "Pending";
         $service_center_data['current_status'] = "Pending";
         $service_center_data['update_date'] = date("Y-m-d H:i:s");
-
+        //update service center action table
         $this->db->where('booking_id', $booking_id);
         $this->db->where('service_center_id', $result[0]['assigned_vendor_id']);
         $this->db->update('service_center_booking_action', $service_center_data);

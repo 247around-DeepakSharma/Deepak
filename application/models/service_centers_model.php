@@ -154,7 +154,7 @@ class Service_centers_model extends CI_Model {
 
          foreach ($booking as $key => $value) {
             // get data from booking unit details table on the basis of appliance id
-            $this->db->select('unit_details_id, service_charge, additional_service_charge,  parts_cost, amount_paid, price_tags, appliance_category,appliance_capacity, service_center_booking_action.internal_status');
+            $this->db->select('unit_details_id, service_charge, additional_service_charge,  parts_cost, amount_paid, price_tags, appliance_category,appliance_capacity, service_center_booking_action.internal_status, service_center_booking_action.serial_number');
             $this->db->where('service_center_booking_action.booking_id', $value['booking_id']);
             $this->db->from('service_center_booking_action');
             $this->db->join('booking_unit_details','booking_unit_details.id = service_center_booking_action.unit_details_id');

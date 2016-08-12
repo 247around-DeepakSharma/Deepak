@@ -107,6 +107,7 @@
                                  <table  class="table table-bordered table-hover table-striped">
                                     <thead>
                                        <th>Category/Capacity</th>
+                                       <th>Serial Number</th>
                                        <th>Tags</th>
                                        <th>Service Charge</th>
                                        <th>Additional Service Charge</th>
@@ -117,6 +118,9 @@
                                        <?php foreach ($value['unit_details'] as $key1 => $value1) { ?>
                                        <tr>
                                           <td><p class="<?php echo "category".$count; ?>"><?php echo $value1['appliance_category']."/". $value1['appliance_capacity']; ?></p></td>
+                                          <td>
+                                             <p class="<?php echo "serial_number".$count; ?>"><?php echo $value1['serial_number']; ?></p>
+                                          </td>
                                           <td><p class="<?php echo "price_tags".$count; ?>"><?php echo $value1['price_tags']; ?></p></td>
                                           <td>
                                              <p id="<?php echo "service_charge".$count; ?>"><?php echo $value1['service_charge']; ?></p>

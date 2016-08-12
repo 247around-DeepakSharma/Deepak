@@ -86,6 +86,12 @@
                               </div>
                            </div>
                            <?php } ?>
+                            <div class="form-group">
+                              <div class="col-md-8 ">
+                              <input type="text" class="form-control" id="serial_number_1" name="serial_number[]" value="<?php echo $unit_details['serial_number']; ?>">
+                              </input>
+                              </div>
+                           </div>
                         </div> 
                         <div class="col-md-8">
                            <table class="table priceList table-striped table-bordered" name="priceList" >
