@@ -113,14 +113,6 @@
                         </li>
                         <li class="divider"></li>
                         <li >
-                            <a href="<?php echo base_url() ?>employee/bookings_excel/get_unassigned_bookings"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Leads</strong></a>
-                        </li>
-                        <li class="divider"></li>
-                        <li >
-                            <a href="<?php echo base_url() ?>employee/bookings_excel/get_all_sd_bookings"><i class="fa fa-fw fa-desktop"></i> <strong> All Leads</strong></a>
-                        </li>
-                        <li class="divider"></li>
-                        <li >
                             <a href="<?php echo base_url() ?>employee/invoice/invoice_partner_view"><i class="fa fa-fw fa-desktop"></i> <strong> Partner Invoices</strong></a>
                         </li>
                         <li class="divider"></li>

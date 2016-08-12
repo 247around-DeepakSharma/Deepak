@@ -3,6 +3,9 @@
       <div >
        
         <h1>Service Centres</h1>
+        <div class="pull-right" style="margin-bottom: 20px;">
+            <a href="<?php echo base_url();?>employee/vendor/add_vendor"><input class="btn btn-primary" type="Button" value="Add Service Centre"></a>
+        </div>
         
         <table style="width:98%;" class="table table-striped table-bordered">
           
@@ -54,7 +57,7 @@
           </tr>
           <?php } ?>
         </table>
-  <a href="<?php echo base_url();?>employee/vendor/add_vendor"><input class="btn btn-primary" type="Button" value="Add Service Centre"></a>
+
 
         
       </div>
