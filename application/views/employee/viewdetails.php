@@ -172,7 +172,9 @@
                             <th>Paid Additional Charges</th>
                             <th>Paid Parts Cost</th>
                             <th>Total Amount Paid</th>
+                            <th>Booking Status</th>
                             <?php } ?>
+                            
                         </tr>
                         <tbody>
                             <?php  foreach ( $unit_details as  $unit_detail) { ?>
@@ -190,6 +192,7 @@
                                 <td><?php print_r($price['partner_net_payable']);  ?></td>
                                 <td><?php print_r($price['around_net_payable']);  ?></td>
                                 <td><?php print_r($price['customer_net_payable']);  ?></td>
+                                <td><?php print_r($price['booking_status']); ?></td>
                                 <?php } else {   ?>
                                 <td><?php  print_r($price['price_tags']); ?></td>
                                 <td><?php print_r($price['partner_net_payable']);  ?></td>
@@ -198,7 +201,9 @@
                                 <td><?php print_r($price['customer_paid_extra_charges']);  ?></td>
                                 <td><?php print_r($price['customer_paid_parts']);  ?></td>
                                 <td><?php print_r($price['customer_paid_basic_charges'] + $price['customer_paid_extra_charges'] + $price['customer_paid_parts'] );  ?></td>
+                                <td><?php print_r($price['booking_status']); ?></td>
                                 <?php }?>
+                                
                             </tr>
                             <?php }} ?>
                         </tbody>
