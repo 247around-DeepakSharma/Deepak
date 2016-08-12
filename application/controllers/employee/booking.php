@@ -3020,9 +3020,6 @@ class Booking extends CI_Controller {
 
         //Make call to customer now
         $this->notify->make_outbound_call($agent_phone, $cust_phone);
-
-        //Redirect to the page from where you landed in this function, do not refresh
-	redirect(base_url() . $redirect_url);
     }
 
     /**
