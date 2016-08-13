@@ -90,7 +90,7 @@
                            <?php } ?>
                             <div class="form-group">
                               <div class="col-md-8 ">
-                                 <input type="text" id="serial_number" class="form-control" name="serial_number[]" value="<?php echo $unit_details['serial_number']; ?>" placeholder="Please Enter Serial Number" required></input>
+                                 <input type="text" id="serial_number" class="form-control" name="serial_number[]" value="<?php echo $unit_details['serial_number']; ?>" placeholder="Please Enter Serial Number"   <?php if (strpos($unit_details['price_tags'], 'Installation') !== false){ echo "required" ;}  ?>></input>
                                 
                            
                               </div>

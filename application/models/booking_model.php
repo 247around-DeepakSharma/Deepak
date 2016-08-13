@@ -1598,6 +1598,7 @@ class Booking_model extends CI_Model {
         $this->db->where('service_center_id', $result[0]['assigned_vendor_id']);
         $this->db->update('service_center_booking_action', $service_center_data);
     }
+    
     }
 
     /**

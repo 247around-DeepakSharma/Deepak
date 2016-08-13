@@ -328,20 +328,20 @@ class Partner extends CI_Controller {
         $this->booking_model->addbooking($booking);
 
         if ($booking['type'] == 'Booking') {
-            //$to = "anuj@247around.com, nits@247around.com";
-            $to = "abhaya@247around.com, anuj@247Around";
+            $to = "anuj@247around.com, nits@247around.com";
+            //$to = "abhaya@247around.com, anuj@247Around";
             $from = "booking@247around.com";
             $cc = "";
             $bcc = "";
             $subject = 'Booking Confirmation-AROUND';
-            //$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
+            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
            //-------Sending SMS on booking--------//
 
-          /* $smsBody = "Got it! Request for " . trim($service) . " Repair is confirmed for " .
+           $smsBody = "Got it! Request for " . trim($service) . " Repair is confirmed for " .
            $booking['booking_date'] . ", " . $booking['booking_timeslot'] .
-        ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";*/
+        ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";
 
-          // $this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
+           $this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
         }
         redirect(base_url() . "partner/pending_booking");
     }
