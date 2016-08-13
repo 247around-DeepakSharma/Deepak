@@ -2888,7 +2888,10 @@ class Booking extends CI_Controller {
             $booking['booking_id'] = "Q-" . $booking['booking_id'];
             //Update unit appliance, to update new booking id
             $this->booking_model->update_booking_unit_details($booking_id, $booking);
-            if ($this->booking_model->update_booking_details($booking_id, $booking)) {
+
+	    unset($booking['serial_number']);
+
+	    if ($this->booking_model->update_booking_details($booking_id, $booking)) {
                 $query1 = $this->booking_model->booking_history_by_booking_id($booking['booking_id']);
                 $months = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
                 $mm = $months[$mm - 1];
