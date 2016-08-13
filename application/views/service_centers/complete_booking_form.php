@@ -8,6 +8,12 @@
                <div class="row">
                   <div class="col-md-12">
                      <div class="col-md-6">
+                     <div class="form-group">
+                           <label for="name" class="col-md-4">Booking ID</label>
+                           <div class="col-md-6">
+                              <input type="text" class="form-control" id="booking_id" name="booking_id" value = "<?php if (isset($booking_history[0]['booking_id'])) {echo $booking_history[0]['booking_id']; } ?>" readonly="readonly">
+                           </div>
+                        </div>
                         <div class="form-group">
                            <label for="name" class="col-md-4">User Name</label>
                            <div class="col-md-6">
@@ -27,6 +33,12 @@
                      </div>
                      <!--  start col-md-6  -->
                      <div class="col-md-6">
+                       <div class="form-group ">
+                           <label for="booking_primary_contact_no" class="col-md-4">Order ID </label>
+                           <div class="col-md-6">
+                              <input type="text" class="form-control"  id="order_id" name="order_id" value = "<?php if (isset($booking_history[0]['order_id'])) {echo $booking_history[0]['order_id']; } ?>" readonly="readonly">
+                           </div>
+                        </div>
                         <div class="form-group ">
                            <label for="booking_primary_contact_no" class="col-md-4">Primary Contact Number *</label>
                            <div class="col-md-6">
@@ -150,6 +162,14 @@
                </div>
                <div class="row">
                   <div class="col-md-12">
+
+                   <div class="form-group">
+                       
+                        <label for="remark" class="col-md-2">Booking Remarks</label>
+                        <div class="col-md-8" >
+                           <textarea class="form-control"  rows="5" name="closing_remarks" readonly><?php if(isset($booking_history[0]['booking_remarks'])){ echo str_replace("<br/>","&#13;&#10;", $booking_history[0]['booking_remarks']); }  ?></textarea>
+                        </div>
+                     </div>
                     
                      <div class="form-group">
                        

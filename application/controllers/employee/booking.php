@@ -285,7 +285,7 @@ class Booking extends CI_Controller {
 			$this->notify->insert_state_change($booking['booking_id'], $booking['current_status'], "New", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 		    }
 		} else {
-            $services_details['booking_status'] = NULL;
+            $services_details['booking_status'] = "";
 		    $price_tag = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state']);
 
 		    array_push($price_tags, $price_tag);
