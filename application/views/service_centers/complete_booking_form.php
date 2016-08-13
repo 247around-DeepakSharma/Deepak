@@ -104,7 +104,7 @@
                      <div class="form-group <?php if( form_error('serial_number') ) { echo 'has-error';} ?>">
                         <label for="serial_number" class="col-md-3">Serial Number</label>
                         <div class="col-md-6">
-                           <input type="text" class="form-control"  id="serial_number" name="serial_number" value ="<?php if(isset($charges[0]['serial_number'])){ echo $charges[0]['serial_number']; } else { echo ""; } ?>"  placeholder="Enter Serial Number" required>
+                           <input type="text" class="form-control"  id="serial_number" name="serial_number" value ="<?php if(isset($charges[0]['serial_number'])){ echo $charges[0]['serial_number']; } else { echo ""; } ?>"  placeholder="Enter Serial Number" <?php if (strpos($query2[0]['price_tags'], 'Installation') !== false){ echo "required" ;} ?>  >
                            <?php echo form_error('serial_number'); ?>
                         </div>
                          <span id="errmsg2" style="color: red"></span>
@@ -266,11 +266,11 @@
             //form validation rules
             $("#complete_booking_form").validate({
                 rules: {
-                    closing_remarks: "required"
+                   
 
                 },
                 messages: {
-                    closing_remarks: "Please enter Closing Remarks"
+                  
 
                 },
                 submitHandler: function(form) {
