@@ -141,7 +141,7 @@ class Booking_model extends CI_Model {
         if($booking_id != ""){
             $where =  "  booking_id = '$booking_id' AND ";
         }
-        $query = $this->db->query("Select services.services,users.name as customername, 
+        $query = $this->db->query("Select services.services,users.name as customername,
             users.phone_number, booking_details.*, service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,
             service_centres.primary_contact_phone_1
@@ -316,7 +316,7 @@ class Booking_model extends CI_Model {
         JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
         JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
         LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-        WHERE `booking_id` LIKE '%Q-%' $where  
+        WHERE `booking_id` LIKE '%Q-%' $where
         AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR
                 booking_details.booking_date='') AND `booking_details`.current_status='$status'";
 	$query = $this->db->query($sql);
@@ -1053,14 +1053,14 @@ class Booking_model extends CI_Model {
     }
 
     function search_bookings($where, $partner_id = "") {
-  
+
     if($partner_id !=""){
         $this->db->where('partner_id', $partner_id);
     }
 
-    $this->db->select("services.services, users.name as customername, 
+    $this->db->select("services.services, users.name as customername,
             users.phone_number, booking_details.*");
-    $this->db->from('booking_details');  
+    $this->db->from('booking_details');
     $this->db->join('users',' users.user_id = booking_details.user_id');
     $this->db->join('services', 'services.id = booking_details.service_id');
     $this->db->like($where);
@@ -1075,7 +1075,7 @@ class Booking_model extends CI_Model {
            $temp[0]->service_centre_name =  $result[0]['service_centre_name'];
            $temp[0]->primary_contact_name = $result[0]['primary_contact_name'];
            $temp[0]->primary_contact_phone_1 = $result[0]['primary_contact_phone_1'];
-        
+
     }
 
     usort($temp, array($this, 'date_compare_queries'));
@@ -1303,7 +1303,7 @@ class Booking_model extends CI_Model {
         $this->db->select('*');
         $this->db->where('partner_id', $partner_id);
         $this->db->like('order_id' , $order_id);
-      
+
         $query = $this->db->get("booking_details");
 
          $temp = $query->result();
@@ -1318,7 +1318,7 @@ class Booking_model extends CI_Model {
 
 
     }
- 
+
     function check_price_tags_status($booking_id, $price_tags){
         $this->db->select('id, price_tags');
         $this->db->where('booking_id', $booking_id);
@@ -1472,7 +1472,7 @@ class Booking_model extends CI_Model {
 
         }
 
-       
+
         $query = $this->db->query($sql);
         $appliance =  $query->result_array();
 
@@ -1608,7 +1608,7 @@ class Booking_model extends CI_Model {
      */
     function insert_new_unit_item($unit_id, $service_charge_id, $data, $state){
         $price_data = $this->getpricesdetails_with_tax($service_charge_id, $state);
-        $this->db->select('booking_id,partner_id,service_id,appliance_id,appliance_brand,appliance_category, appliance_capacity,appliance_size, appliance_serial_no, appliance_description, model_number, appliance_tag, purchase_month, purchase_year');
+        $this->db->select('booking_id,partner_id,service_id,appliance_id,appliance_brand,appliance_category, appliance_capacity,appliance_size, serial_no, appliance_description, model_number, appliance_tag, purchase_month, purchase_year');
 
         $this->db->where('id', $unit_id);
         $query = $this->db->get('booking_unit_details');
@@ -1704,27 +1704,28 @@ class Booking_model extends CI_Model {
     }
 
     function update_prices($services_details, $booking_id, $state){
-         $data = $this->getpricesdetails_with_tax($services_details['id'], $state);
+	$data = $this->getpricesdetails_with_tax($services_details['id'], $state);
 
-        $result = array_merge($services_details, $data[0]);
+	if (!empty($data)) {
+	    $result = array_merge($services_details, $data[0]);
 
-        unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
-         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_net_payable'] - $result['around_paid_basic_charges'];
-               //log_message ('info', __METHOD__ . "update booking_unit_details data". print_r($result));
-         $result['partner_paid_basic_charges '] =  $result['partner_net_payable'];
-        $this->db->select('id');
-        $this->db->where('appliance_id', $services_details['appliance_id']);
-        $this->db->where('price_tags', $data[0]['price_tags']);
-        $this->db->where('booking_id', $booking_id);
-        $query = $this->db->get('booking_unit_details');
+	    unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
+	    $result['customer_net_payable'] = $result['customer_total'] - $result['partner_net_payable'] - $result['around_paid_basic_charges'];
+	    //log_message ('info', __METHOD__ . "update booking_unit_details data". print_r($result));
+	    $result['partner_paid_basic_charges '] = $result['partner_net_payable'];
+	    $this->db->select('id');
+	    $this->db->where('appliance_id', $services_details['appliance_id']);
+	    $this->db->where('price_tags', $data[0]['price_tags']);
+	    $this->db->where('booking_id', $booking_id);
+	    $query = $this->db->get('booking_unit_details');
 
-        if($query->num_rows >0){
+	    if ($query->num_rows > 0) {
 
-            $unit_details = $query->result_array();
-            $this->db->where('id',  $unit_details[0]['id']);
-            $this->db->update('booking_unit_details', $result);
-
-         }
+		$unit_details = $query->result_array();
+		$this->db->where('id', $unit_details[0]['id']);
+		$this->db->update('booking_unit_details', $result);
+	    }
+	}
     }
 
 
@@ -1733,7 +1734,7 @@ class Booking_model extends CI_Model {
         $this->db->where('booking_id', $booking_id);
         $query = $this->db->get('booking_unit_details');
         $result1 = $query->result_array();
-        foreach ($result1 as $key => $value) {
+        foreach ($result1 as $key) {
 
         $this->db->select('around_net_payable, partner_net_payable, tax_rate, price_tags, partner_paid_basic_charges, around_paid_basic_charges');
         $this->db->where('id', $result1[$key]['id']);
@@ -1754,34 +1755,6 @@ class Booking_model extends CI_Model {
         }
 
 
-    }
-
-    function test_upload(){
-
-        $sql = "SELECT `service_id`, `booking_id`, `appliance_id`, `partner_id` FROM `booking_details`";
-        $query = $this->db->query();
-        $result =  $query->result_array();
-        foreach ($result as $key => $value) {
-            $this->db->where('booking_id', $value['booking_id']);
-            $this->db->update('booking_unit_details', $value);
-        }
-     /*$dbHost = "localhost";
-     $dbUser = "root";
-     $dbPass = "around";
-     $dbName = "247around";
-    $file_location = '';
-
-        $sql = "LOAD DATA   INFILE '/usr/share/nginx/html/vendor_pincode_mapping_temp.csv' INTO TABLE vendor_pincode_mapping_temp FIELDS TERMINATED BY ',' ENCLOSED BY '' LINES TERMINATED BY '\r\n' (Vendor_Name,Vendor_ID,Appliance,Appliance_ID,Brand,Area,Pincode,Region,City,State)";
-
-       // system("mysql -u  root -p localhost --password='around' --local_infile=1 -e \"$sql\" $dbName");
-
-
-      //  $sql = "LOAD DATA  INFILE '".$file_location."' INTO TABLE vendor_pincode_mapping_temp
-       // FIELDS TERMINATED BY ',' LINES TERMINATED BY '\r\n'";
-
-
-        $this->db->query($sql);
-        echo $this->db->last_query();*/
     }
 
     function p_get_all_booking_id() {
