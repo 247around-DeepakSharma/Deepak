@@ -26,9 +26,17 @@
                             <th>Customer email address: </th>
                             <td><?php echo $booking_history[0]['user_email']; ?></td>
                             <th>Home address: </th>
-                            <td><?php echo $booking_history[0]['home_address'].", ".$booking_history[0]['city'];?></td>
-                            <th>State:</th>
-                            <td><?php echo $booking_history[0]['state']."- ".$booking_history[0]['pincode']  ?></td>
+                            <td><?php echo $booking_history[0]['home_address'];?></td>
+                            <th>City:</th>
+                            <td><?php echo $booking_history[0]['city'];  ?></td>
+                        </tr>
+                        <tr>
+                            <th>Near Landmark: </th>
+                            <td><?php echo $booking_history[0]['booking_landmark']; ?></td>
+                            <th>State: </th>
+                            <td><?php echo $booking_history[0]['state'];?></td>
+                            <th>Pincode:</th>
+                            <td><?php echo $booking_history[0]['pincode']  ?></td>
                         </tr>
                     </table>
                     <br>

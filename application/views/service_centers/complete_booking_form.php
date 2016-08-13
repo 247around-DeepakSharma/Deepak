@@ -8,6 +8,12 @@
                <div class="row">
                   <div class="col-md-12">
                      <div class="col-md-6">
+                     <div class="form-group">
+                           <label for="name" class="col-md-4">Booking ID</label>
+                           <div class="col-md-6">
+                              <input type="text" class="form-control" id="booking_id" name="booking_id" value = "<?php if (isset($booking_history[0]['booking_id'])) {echo $booking_history[0]['booking_id']; } ?>" readonly="readonly">
+                           </div>
+                        </div>
                         <div class="form-group">
                            <label for="name" class="col-md-4">User Name</label>
                            <div class="col-md-6">
@@ -27,6 +33,12 @@
                      </div>
                      <!--  start col-md-6  -->
                      <div class="col-md-6">
+                       <div class="form-group ">
+                           <label for="booking_primary_contact_no" class="col-md-4">Order ID </label>
+                           <div class="col-md-6">
+                              <input type="text" class="form-control"  id="order_id" name="order_id" value = "<?php if (isset($booking_history[0]['order_id'])) {echo $booking_history[0]['order_id']; } ?>" readonly="readonly">
+                           </div>
+                        </div>
                         <div class="form-group ">
                            <label for="booking_primary_contact_no" class="col-md-4">Primary Contact Number *</label>
                            <div class="col-md-6">
@@ -76,6 +88,13 @@
                               </div>
                            </div>
                            <?php } ?>
+                            <div class="form-group">
+                              <div class="col-md-8 ">
+                                 <input type="text" id="serial_number" class="form-control" name="serial_number[]" value="<?php echo $unit_details['serial_number']; ?>" placeholder="Please Enter Serial Number" required></input>
+                                
+                           
+                              </div>
+                           </div>
                         </div>
                         <div class="col-md-8">
                            <table class="table priceList table-striped table-bordered" name="priceList" >
@@ -89,7 +108,7 @@
                                 
                               </tr>
                               <tbody>
-                                 <?php $paid_basic_charges = 0; $paid_additional_charges = 0; $paid_parts_cost=0;foreach ($unit_details['qunatity'] as $key => $price) { ?>
+                                 <?php $paid_basic_charges = 0; $paid_additional_charges = 0; $paid_parts_cost=0;foreach ($unit_details['quantity'] as $key => $price) { ?>
                                  <tr>
                                     <td><?php echo $price['price_tags'] ?></td>
                                     <td><?php echo $price['customer_net_payable']; ?></td>
@@ -143,6 +162,14 @@
                </div>
                <div class="row">
                   <div class="col-md-12">
+
+                   <div class="form-group">
+                       
+                        <label for="remark" class="col-md-2">Booking Remarks</label>
+                        <div class="col-md-8" >
+                           <textarea class="form-control"  rows="5" name="closing_remarks" readonly><?php if(isset($booking_history[0]['booking_remarks'])){ echo str_replace("<br/>","&#13;&#10;", $booking_history[0]['booking_remarks']); }  ?></textarea>
+                        </div>
+                     </div>
                     
                      <div class="form-group">
                        

@@ -84,6 +84,20 @@
                                         </select>
                                     </div>
                                 </div>
+
+                                <div class="form-group ">
+                                    <label for="partner_source" class="col-md-4">Partner Source</label>
+                                <div class="col-md-6">
+                                    <select class="form-control"  id="partner_source" name="partner_source"  >
+                                    <option value="">Please Select Partner source</option>
+                                    <option>CallCenter</option>
+                                    <option>Snapdeal</option>
+                                    <option>Flipkart</option>
+                                    <option>Ebay</option>
+                                   <option>Offline</option>
+                                </select>
+                                </div>
+                                </div>
                                 <div class="form-group <?php if( form_error('type') ) { echo 'has-error';} ?>">
                                     <label for="type" class="col-md-4">Type *</label>
                                     <div class="col-md-8">
@@ -133,11 +147,18 @@
                                                 <?php echo form_error('appliance_capacity'); ?>
                                             </div>
                                         </div>
-                                        <div class="form-group <?php if( form_error('model_number') ) { echo 'has-error';} ?>">
+                                        <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Model </label>
                                             <div class="col-md-6">
-                                                <input  type="text" class="form-control"  name="model_number[]" id="model_number_1" value = "<?php echo set_value('model_number'); ?>" placeholder="Enter Model" >
-                                                <?php echo form_error('model_number'); ?>
+                                                <input  type="text" class="form-control"  name="model_number[]" id="model_number_1" value = "" placeholder="Enter Model" >
+                                               
+                                            </div>
+                                        </div>
+                                          <div class="form-group ">
+                                            <label for="type" class="col-md-4">Appliance Serial No </label>
+                                            <div class="col-md-6">
+                                                <input  type="text" class="form-control"  name="serial_number[]" id="serial_number_1" value = "<?php if(isset($unit_details[0]['serial_number'])) { echo $unit_details[0]['serial_number']; } ?>" placeholder="Enter Appliance Serial Number"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
+                                               
                                             </div>
                                         </div>
                                         <div class="form-group <?php if( form_error('appliance_tags') ) { echo 'has-error';} ?>">
@@ -284,7 +305,7 @@
 <script>
     $("#service_id").select2();
     $("#booking_city").select2();
-    //$(".appliance_category").select2();
+    $("#partner_source").select2();
     //$(".appliance_capacity").select2();
 </script>
 <script type="text/javascript">

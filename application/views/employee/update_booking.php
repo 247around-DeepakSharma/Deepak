@@ -52,7 +52,7 @@
                                  <div class="form-group ">
                                      <label for="service_name" class="col-md-4">Order Id </label>
                                       <div class="col-md-6">
-                                          <input class="form-control" name= "order_id" value="<?php if(isset($booking_history[0]['order_id'])){ echo $booking_history[0]['order_id']; } ?>"></input>
+                                          <input class="form-control" name= "order_id" value="<?php if(isset($booking_history[0]['order_id'])){ echo $booking_history[0]['order_id']; } ?>" placeholder="Enter Order ID"></input>
                                       </div>
                                  </div>
                                 <!--  end col-md-6  -->
@@ -84,6 +84,19 @@
                                           
                                         </select>
                                     </div>
+                                </div>
+                                  <div class="form-group ">
+                                    <label for="partner_source" class="col-md-4">Partner Source</label>
+                                <div class="col-md-6">
+                                    <select class="form-control"  id="partner_source" name="partner_source"  >
+                                    <option value="">Please Select Partner source</option>
+                                    <option <?php if($booking_history[0]['partner_source'] == "CallCenter" ){ echo "selected"; } ?> >CallCenter</option>
+                                    <option <?php if($booking_history[0]['partner_source'] == "Snapdeal" ){ echo "selected"; } ?>>Snapdeal</option>
+                                    <option <?php if($booking_history[0]['partner_source'] == "Flipkart" ){ echo "selected"; } ?>>Flipkart</option>
+                                    <option  <?php if($booking_history[0]['partner_source'] == "Ebay" ){ echo "selected"; } ?>>Ebay</option>
+                                   <option  <?php if($booking_history[0]['partner_source'] == "Offline" ){ echo "selected"; } ?>>Offline</option>
+                                </select>
+                                </div>
                                 </div>
                                 <div class="form-group ">
                                     <label for="type" class="col-md-4">Type *</label>
@@ -160,6 +173,13 @@
                                             <label for="type" class="col-md-4">Appliance Model </label>
                                             <div class="col-md-6">
                                                 <input  type="text" class="form-control"  name="model_number[]" id="model_number_1" value = "<?php if(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
+                                               
+                                            </div>
+                                        </div>
+                                         <div class="form-group ">
+                                            <label for="type" class="col-md-4">Appliance Serial No </label>
+                                            <div class="col-md-6">
+                                                <input  type="text" class="form-control"  name="serial_number[]" id="serial_number_1" value = "<?php if(isset($unit_details[0]['serial_number'])) { echo $unit_details[0]['serial_number']; } ?>" placeholder="Enter Appliance Serial Number"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
                                                
                                             </div>
                                         </div>
@@ -322,6 +342,13 @@
                                             <label for="type" class="col-md-4">Appliance Model </label>
                                             <div class="col-md-6">
                                                 <input  type="text" class="form-control"  name="model_number[]" id="<?php echo "model_number_".$number;?>" value = "<?php echo $booking_unit_details['model_number']; ?>" placeholder="Enter Model" >
+                                               
+                                            </div>
+                                        </div>
+                                          <div class="form-group ">
+                                            <label for="type" class="col-md-4">Appliance Serial No </label>
+                                            <div class="col-md-6">
+                                                <input  type="text" class="form-control"  name="serial_number[]" id="<?php echo "serial_number".$number;?>" value = "<?php if(isset($booking_unit_details['serial_number'])) { echo $booking_unit_details['serial_number']; } ?>" placeholder="Enter Appliance Serial Number"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
                                                
                                             </div>
                                         </div>
@@ -504,7 +531,7 @@
 <script>
     $("#service_id").select2();
     $("#booking_city").select2();
-    //$(".appliance_category").select2();
+    $("#partner_source").select2();
     //$(".appliance_capacity").select2();
 </script>
 <script type="text/javascript">

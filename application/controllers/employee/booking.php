@@ -105,6 +105,7 @@ class Booking extends CI_Controller {
 	$booking['booking_address'] = $this->input->post('home_address');
 	$booking['city'] = $this->input->post('city');
 	$booking_date = $this->input->post('booking_date');
+	$booking['partner_source'] =  $this->input->post('partner_source');
 	$booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
 
 	if ($booking_id == "") {
@@ -154,6 +155,8 @@ class Booking extends CI_Controller {
 	$booking['quantity'] = count($appliance_brand);
 
 	$appliance_id = $this->input->post('appliance_id');
+
+	$serial_number =  $this->input->post('serial_number');
 
 	$partner_id = $this->partner_model->get_all_partner_source("", $booking['source']);
 
@@ -230,6 +233,7 @@ class Booking extends CI_Controller {
 	    // get purchase year from purchase year array for only specific key such as $purchase_year[0].
 	    $appliances_details['purchase_year'] = $services_details['purchase_year'] = $purchase_year[$key];
 	    $services_details['booking_id'] = $booking['booking_id'];
+	    $appliances_details['serial_number'] = $services_details['serial_number'] = $serial_number[$key];
 	    // get purchase months from months array for only specific key such as $months[0].
 	    $appliances_details['purchase_month'] = $services_details['purchase_month'] = $months[$key];
 	    $appliances_details['service_id'] = $services_details['service_id'] = $booking['service_id'];
@@ -281,7 +285,7 @@ class Booking extends CI_Controller {
 			$this->notify->insert_state_change($booking['booking_id'], $booking['current_status'], "New", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 		    }
 		} else {
-            $services_details['booking_status'] = NULL;
+            $services_details['booking_status'] = "";
 		    $price_tag = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state']);
 
 		    array_push($price_tags, $price_tag);
@@ -1284,12 +1288,13 @@ class Booking extends CI_Controller {
 	$booking_status = $this->input->post('booking_status');
 	$total_amount_paid = $this->input->post('grand_total_price');
 	$admin_remarks = $this->input->post('admin_remarks');
+	$serial_number = $this->input->post('serial_number');
 	$internal_status = "Cancelled";
 	$city =  $this->input->post('city');
 	$state = $this->vendor_model->selectSate($city);
 
 	$service_center_details = $this->booking_model->getbooking_charges($booking_id);
-
+    $i = 0;
 	foreach ($customer_basic_charge as $unit_id => $value) {
 	    // variable $unit_id  is existing id in booking unit details table of given booking id
 
@@ -1297,6 +1302,7 @@ class Booking extends CI_Controller {
 	    $data['customer_paid_basic_charges'] = $value;
 	    $data['customer_paid_extra_charges'] = $additional_charge[$unit_id];
 	    $data['customer_paid_parts'] = $parts_cost[$unit_id];
+	    $data['serial_number'] = $serial_number[$i];
 	    // it checks sting new in unit_id variable
 	    if (strpos($unit_id, 'new') !== false) {
 		if (isset($booking_status[$unit_id])) {
@@ -1320,7 +1326,7 @@ class Booking extends CI_Controller {
 		}
 
 		$data['id'] = $unit_id;
-
+		
 		log_message('info', ": " . " update booking unit details data " . print_r($data, TRUE));
 
 		// update price in the booking unit details page
@@ -1337,6 +1343,8 @@ class Booking extends CI_Controller {
 		log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
 		$this->vendor_model->update_service_center_action($service_center);
 	    }
+
+	    $i++;
 	}
 
 	$booking['current_status'] = $internal_status;

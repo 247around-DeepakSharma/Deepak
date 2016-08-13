@@ -14,6 +14,26 @@
       });
     });
 
+    function outbound_call(phone_number){
+        var confirm_call = confirm("Call Customer ?");
+       
+        if (confirm_call == true) {
+            
+             $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number,
+                success: function(response) {
+                    console.log(response);
+                   
+                }
+            });
+        } else {
+            return false;
+        }
+
+    }
+
+
 </script>
 <style type="text/css">
     table{
@@ -69,8 +89,9 @@
                     <th width="125px;">Service Name</th>
                     <th width="170px;">Service Centre</th>
                     <th width="150px;">Service Centre City</th>
+                    
+                    <th width="125px;">Completion Date</th>
                     <th width="60px;">Call</th>
-                  
                     <?php if($status != "Cancelled" ){?>
                     <th width="60px;">Cancel</th>
                     <?php } else { ?>
@@ -100,14 +121,11 @@
                     <td><?= $row->services; ?></td>
                     <td><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?php echo $row->assigned_vendor_id;?>"><?= $row->service_centre_name; ?></a></td>
                     <td><?=$row->city; ?></td>
+                     <td><?php echo date("d-m-Y", strtotime($row->closed_date)); ?></td>
 
-                    <td>
-                        <a class="btn btn-sm btn-info"
-				   href="<?php echo base_url(); ?>employee/booking/call_customer/<?= $row->booking_primary_contact_no; ?>"
-    				   title = "call" onclick = "return confirm('Call Customer ?');">
-    				    <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
-    				    </a>
-                    </td>
+                    <td><button type="button" onclick="outbound_call(<?php echo $row->booking_primary_contact_no; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
+                     </td> 
+
                      <?php if($status != "Cancelled" ){?>
 
                      <td>
