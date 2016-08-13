@@ -12,9 +12,9 @@
                             <thead>
                                 <tr>
                                     <th>S No.</th>
-                                    <th>Booking Id</th>
+                                    <th>247Around Booking Id</th>
                                     <th>User Name</th>
-                                    <th>Phone No.</th>
+                                    <th>Mobile</th>
                                     <th>Service Name</th>
                                     <th>Booking Date</th>
                                     <th>Closing Remarks</th>

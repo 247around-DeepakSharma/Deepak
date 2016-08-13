@@ -86,6 +86,7 @@ class Do_background_process extends CI_Controller {
      * @desc: this is used to upload asynchronouly data from current uploaded excel file.
      */
     function upload_pincode_file() {
+        log_message('info', __METHOD__);
         $mapping_file['pincode_mapping_file'] = $this->vendor_model->getLatestVendorPincodeMappingFile();
 
         $reader = ReaderFactory::create(Type::XLSX);
@@ -108,7 +109,11 @@ class Do_background_process extends CI_Controller {
                         }
 
                         //call insert_batch function for $rows..
-                        $this->vendor_model->insert_vendor_pincode_mapping_temp($rows);
+                        $bat_res = $this->vendor_model->insert_vendor_pincode_mapping_temp($rows);
+                        if ($bat_res === FALSE) {
+                            log_message('info', 'Error in batch insertion');
+                            $err_count++;
+                        }
                         $pincodes_inserted += count($rows);
                         //echo date("Y-m-d H:i:s") . "=> " . $pincodes_inserted . " pincodes added\n";
                         unset($rows);
@@ -148,6 +153,8 @@ class Do_background_process extends CI_Controller {
 
             if ($result)
                 $data['table_switched'] = TRUE;
+        } else {
+            log_message('info', 'Tables not switched, ' . $err_count . ' errors.');
         }
     }
 

@@ -316,8 +316,9 @@ class Booking_model extends CI_Model {
         JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
         JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
         LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-        WHERE `booking_id` LIKE '%Q-%' $where  AND
-        (booking_details.current_status='$status')";
+        WHERE `booking_id` LIKE '%Q-%' $where  
+        AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR
+                booking_details.booking_date='') AND `booking_details`.current_status='$status'";
 	$query = $this->db->query($sql);
 	$count = $query->result_array();
 
