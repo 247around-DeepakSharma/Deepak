@@ -580,4 +580,50 @@ class Reporting_utils extends CI_Model {
 
         return $result;
     }
+    
+    /**
+     * @desc: This method is used to return all partner booking summary details for today, 
+     * within month and total
+     * @return array
+     */
+    function get_partner_summary_data(){
+        $partner = $this->get_partner_to_send_mail();
+        $summary_data =  array();
+        foreach ($partner as $key => $value){
+            for($i = 0; $i < 3; $i++){
+            $where = "" ;
+            // In this if clause, we set date for today
+            if($i == 0){
+                $where = " AND create_date >= CURDATE() AND create_date < CURDATE() + INTERVAL 1 DAY ";
+            } else if($i == 1) {
+                $where = " AND create_date >=  DATE_SUB(NOW(), INTERVAL 1 MONTH) ";
+            } else if($i == 2) {
+                $where = "";
+            }
+            $sql = "SELECT source, partner_source, "
+                    . " SUM(CASE WHEN `current_status` LIKE '%FollowUp%' THEN 1 ELSE 0 END) AS queries,"
+                    . " SUM(CASE WHEN `current_status` LIKE '%Cancelled%' THEN 1 ELSE 0 END) AS cancelled,"
+                    . " SUM(CASE WHEN `current_status` LIKE '%Completed%' THEN 1 ELSE 0 END) AS completed,"
+                    . " SUM(CASE WHEN `current_status` LIKE '%Pending%' OR `current_status` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) as scheduled,"
+                    . " SUM(CASE WHEN `current_status` LIKE '%FollowUp%' OR `current_status` LIKE '%Completed%' OR `current_status` LIKE '%Cancelled%' OR `current_status` LIKE '%Pending%' OR `current_status` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) AS total_booking "
+                    . " From booking_details Where partner_id = '". $value['partner_id']."' $where  Group By partner_source ";
+            $data = $this->db->query($sql);
+            $partner[$key]['data'.$i] = $data->result_array();
+            }
+            
+            
+        }
+        return $partner;
+    }
+    /**
+     *  @desc: This Method returns all partner details who have email id in the 
+     *  bookings_sources table
+     */      
+    function get_partner_to_send_mail(){
+        $this->db->select('*');
+        $this->db->where_not_in('partner_email_for_to','');
+        $query = $this->db->get('bookings_sources');
+        return $query->result_array();
+    }
+    
 }

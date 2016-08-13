@@ -664,6 +664,7 @@ class Booking_model extends CI_Model {
             $this->db->where('id', $unit_details_id);
         }
 
+
         $query = $this->db->get('booking_unit_details');
 
         return $query->result_array();
@@ -1463,15 +1464,15 @@ class Booking_model extends CI_Model {
         if($booking_id !=""){
            $where = " `booking_unit_details`.booking_id = '$booking_id' ";
 
-            $sql = "SELECT distinct(appliance_id), appliance_brand as brand, booking_id,
-		appliance_category as category, appliance_capacity as capacity,
-		`booking_unit_details`.`model_number`, appliance_description,
-		`booking_unit_details`.`purchase_month`, `booking_unit_details`.`purchase_year`,
-		appliance_tag, `booking_unit_details`.serial_number
-            from booking_unit_details Where $where  ";
-
-        } else if($appliance_id !=""){
-            $where = " `booking_unit_details`.appliance_id = '$appliance_id' ";
+	    $sql = "SELECT distinct(appliance_id), appliance_brand as brand, booking_id,
+		    appliance_category as category, appliance_capacity as capacity,
+		    `booking_unit_details`.`model_number`, appliance_description as description,
+		    `booking_unit_details`.`purchase_month`, `booking_unit_details`.`purchase_year`,
+		    appliance_tag, `booking_unit_details`.serial_number,
+		    `booking_unit_details`.price_tags
+		    from booking_unit_details Where $where  ";
+	} else if ($appliance_id != "") {
+	    $where = " `booking_unit_details`.appliance_id = '$appliance_id' ";
 
             $sql = "SELECT distinct(appliance_id), brand, booking_id, category, capacity, `appliance_details`.`model_number`,description, `appliance_details`.`purchase_month`, `appliance_details`.`purchase_year`, appliance_tag, `appliance_details`.serial_number
             from booking_unit_details,  appliance_details Where $where  AND `appliance_details`.`id` = `booking_unit_details`.`appliance_id`  ";
@@ -1604,6 +1605,7 @@ class Booking_model extends CI_Model {
         $this->db->where('service_center_id', $result[0]['assigned_vendor_id']);
         $this->db->update('service_center_booking_action', $service_center_data);
     }
+
     }
 
     /**

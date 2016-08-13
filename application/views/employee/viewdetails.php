@@ -186,34 +186,31 @@
                         </tr>
                         <tbody>
                             <?php  foreach ( $unit_details as  $unit_detail) { ?>
-                            <?php foreach ($unit_detail['quantity'] as $price) { ?>
+                            
                             <tr>
-                                <td><?php echo $unit_detail['brand']?></td>
-                                <td><?php echo $unit_detail['category']?></td>
-                                <td><?php echo $unit_detail['capacity']?></td>
+                                <td><?php echo $unit_detail['appliance_brand']?></td>
+                                <td><?php echo $unit_detail['appliance_category']?></td>
+                                <td><?php echo $unit_detail['appliance_capacity']?></td>
                                 <td><?php echo $unit_detail['model_number']?></td>
                                 <td><?php if(!empty($unit_detail['purchase_month'])) {echo $unit_detail['purchase_month']."-". $unit_detail['purchase_year'];} else { echo $unit_detail['purchase_year'];}?></td>
-                                <td><?php echo $unit_detail['description']?></td>
+                                <td><?php echo $unit_detail['appliance_description']?></td>
                                 <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
-                                <td><?php  print_r($price['price_tags']); ?></td>
-                                <td><?php  print_r($price['customer_total']); ?></td>
-                                <td><?php print_r($price['partner_net_payable']);  ?></td>
-                                <td><?php print_r($price['around_net_payable']);  ?></td>
-                                <td><?php print_r($price['customer_net_payable']);  ?></td>
-                                <td><?php print_r($price['booking_status']); ?></td>
+                                <td><?php  print_r($unit_detail['price_tags']); ?></td>
+                                <td><?php  print_r($unit_detail['customer_total']); ?></td>
+                                <td><?php print_r($unit_detail['partner_net_payable']);  ?></td>
+                                <td><?php print_r($unit_detail['around_net_payable']);  ?></td>
+                                <td><?php print_r($unit_detail['customer_net_payable']);  ?></td>
                                 <?php } else {   ?>
-                                <td><?php  print_r($price['price_tags']); ?></td>
-                                <td><?php print_r($price['partner_net_payable']);  ?></td>
-                                <td><?php print_r($price['around_net_payable']);  ?></td>
-                                <td><?php  print_r($price['customer_paid_basic_charges']); ?></td>
-                                <td><?php print_r($price['customer_paid_extra_charges']);  ?></td>
-                                <td><?php print_r($price['customer_paid_parts']);  ?></td>
-                                <td><?php print_r($price['customer_paid_basic_charges'] + $price['customer_paid_extra_charges'] + $price['customer_paid_parts'] );  ?></td>
-                                <td><?php print_r($price['booking_status']); ?></td>
+                                <td><?php  print_r($unit_detail['price_tags']); ?></td>
+                                <td><?php print_r($unit_detail['partner_net_payable']);  ?></td>
+                                <td><?php print_r($unit_detail['around_net_payable']);  ?></td>
+                                <td><?php  print_r($unit_detail['customer_paid_basic_charges']); ?></td>
+                                <td><?php print_r($unit_detail['customer_paid_extra_charges']);  ?></td>
+                                <td><?php print_r($unit_detail['customer_paid_parts']);  ?></td>
+                                <td><?php print_r($unit_detail['customer_paid_basic_charges'] + $unit_detail['customer_paid_extra_charges'] + $unit_detail['customer_paid_parts'] );  ?></td>
                                 <?php }?>
-                                
                             </tr>
-                            <?php }} ?>
+                            <?php } ?>
                         </tbody>
                     </table>
                 </div>

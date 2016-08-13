@@ -163,7 +163,7 @@ class Partner extends CI_Controller {
     function booking_details($booking_id) {
         $this->checkUserSession();
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
-        $data['unit_details'] = $this->booking_model->getunit_details($booking_id);
+        $data['unit_details'] = $this->booking_model->get_unit_details($booking_id);
 
 
         log_message('info', 'Partner view booking details booking  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'). " data ". print_r($data, true));
@@ -328,20 +328,20 @@ class Partner extends CI_Controller {
         $this->booking_model->addbooking($booking);
 
         if ($booking['type'] == 'Booking') {
-            //$to = "anuj@247around.com, nits@247around.com";
-            $to = "abhaya@247around.com, anuj@247Around";
+            $to = "anuj@247around.com, nits@247around.com";
+            //$to = "abhaya@247around.com, anuj@247Around";
             $from = "booking@247around.com";
             $cc = "";
             $bcc = "";
             $subject = 'Booking Confirmation-AROUND';
-            //$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
+            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
            //-------Sending SMS on booking--------//
 
-          /* $smsBody = "Got it! Request for " . trim($service) . " Repair is confirmed for " .
+           $smsBody = "Got it! Request for " . trim($service) . " Repair is confirmed for " .
            $booking['booking_date'] . ", " . $booking['booking_timeslot'] .
-        ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";*/
+        ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";
 
-          // $this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
+           $this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
         }
         redirect(base_url() . "partner/pending_booking");
     }

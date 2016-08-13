@@ -71,13 +71,13 @@ class Booking extends CI_Controller {
 	$this->booking_model->addbooking($booking);
 
 	if ($booking['type'] == 'Booking') {
-	    //$to = "anuj@247around.com, nits@247around.com";
-	    $to = "abhaya@247around.com, anuj@247Around";
+	    $to = "anuj@247around.com, nits@247around.com";
+	    //$to = "abhaya@247around.com, anuj@247Around";
 	    $from = "booking@247around.com";
 	    $cc = "";
 	    $bcc = "";
 	    $subject = 'Booking Confirmation-AROUND';
-	    //$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
+	    $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
 	    //-------Sending SMS on booking--------//
 
 	    $smsBody = "Got it! Request for " . trim($service) . " Repair is confirmed for " .
@@ -212,8 +212,11 @@ class Booking extends CI_Controller {
 	    $booking['current_status'] = "FollowUp";
 	    $booking['internal_status'] = "FollowUp";
 	    $booking['query_remarks'] = $booking_remarks;
-	    if($booking_id !="")
-	    $booking['booking_id'] = "Q-".$booking_id;
+	    if($booking_id !=""){
+	    	$booking['booking_id'] = "Q-".$booking_id;
+	    	$this->service_centers_model->delete_booking_id($booking_id);
+	    }
+	    
 	}
 
 	foreach ($appliance_brand as $key => $value) {
@@ -848,7 +851,7 @@ class Booking extends CI_Controller {
      */
     function viewdetails($booking_id) {
 	$data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
-	$data['unit_details'] = $this->booking_model->getunit_details($booking_id);
+	$data['unit_details'] = $this->booking_model->get_unit_details($booking_id);
 
 	$data['service_center'] = $this->booking_model->selectservicecentre($booking_id);
 
