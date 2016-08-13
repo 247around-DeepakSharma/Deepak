@@ -1329,7 +1329,7 @@ class Booking extends CI_Controller {
 		}
 
 		$data['id'] = $unit_id;
-		
+
 		log_message('info', ": " . " update booking unit details data " . print_r($data, TRUE));
 
 		// update price in the booking unit details page
@@ -1760,11 +1760,6 @@ class Booking extends CI_Controller {
 		    $data['service_id'] = $value['service_id'];
 		    $data['price_tags'] = "Installation & Demo";
 
-		    /* / echo "<br/>";
-		      print_r($value['price_tags']);
-		      echo "<br/>";
-		      print_r($data);
-		      echo "<br/>"; */
 		    $this->booking_model->update_booking_unit_details($booking_id, $data);
 		    break;
 
@@ -1787,6 +1782,9 @@ class Booking extends CI_Controller {
 		    $data['appliance_category'] = $value['appliance_category'];
 		    $data['appliance_capacity'] = $value['appliance_capacity'];
 		    $data['model_number'] = $value['model_number'];
+		    $data['appliance_size'] = $value['appliance_size'];
+		    $data['appliance_description'] = $value['appliance_description'];
+		    $data['serial_number'] = $value['serial_number'];
 
 		    $data['appliance_tag'] = $value['appliance_tag'];
 		    $data['purchase_year'] = $value['purchase_year'];
@@ -1798,6 +1796,7 @@ class Booking extends CI_Controller {
 
 		case 'Repair,':
 		case 'Repair':
+		case 'Repair - In Warranty':
 		    $data = array();
 		    $data['appliance_id'] = $value['appliance_id'];
 		    $data['partner_id'] = $value['partner_id'];
@@ -1816,7 +1815,6 @@ class Booking extends CI_Controller {
 		    $data['partner_id'] = $value['partner_id'];
 		    $data['service_id'] = $value['service_id'];
 		    $data['price_tags'] = "Visit";
-
 
 		    $this->booking_model->update_booking_unit_details($booking_id, $data);
 
@@ -1839,6 +1837,9 @@ class Booking extends CI_Controller {
 		    $data['appliance_category'] = $value['appliance_category'];
 		    $data['appliance_capacity'] = $value['appliance_capacity'];
 		    $data['model_number'] = $value['model_number'];
+		    $data['appliance_size'] = $value['appliance_size'];
+		    $data['appliance_description'] = $value['appliance_description'];
+		    $data['serial_number'] = $value['serial_number'];
 
 		    $data['appliance_tag'] = $value['appliance_tag'];
 		    $data['purchase_year'] = $value['purchase_year'];
@@ -1877,6 +1878,9 @@ class Booking extends CI_Controller {
 		    $data['appliance_category'] = $value['appliance_category'];
 		    $data['appliance_capacity'] = $value['appliance_capacity'];
 		    $data['model_number'] = $value['model_number'];
+		    $data['appliance_size'] = $value['appliance_size'];
+		    $data['appliance_description'] = $value['appliance_description'];
+		    $data['serial_number'] = $value['serial_number'];
 
 		    $data['appliance_tag'] = $value['appliance_tag'];
 		    $data['purchase_year'] = $value['purchase_year'];
@@ -1923,6 +1927,9 @@ class Booking extends CI_Controller {
 		    $data['appliance_category'] = $value['appliance_category'];
 		    $data['appliance_capacity'] = $value['appliance_capacity'];
 		    $data['model_number'] = $value['model_number'];
+		    $data['appliance_size'] = $value['appliance_size'];
+		    $data['appliance_description'] = $value['appliance_description'];
+		    $data['serial_number'] = $value['serial_number'];
 
 		    $data['appliance_tag'] = $value['appliance_tag'];
 		    $data['purchase_year'] = $value['purchase_year'];
@@ -1930,6 +1937,10 @@ class Booking extends CI_Controller {
 		    $data['price_tags'] = "Installation & Demo";
 
 		    $this->booking_model->addunitdetails($data);
+		    break;
+
+		case 'Installation & Demo':
+		case 'Wall Mount Stand':
 		    break;
 
 		default:
@@ -1962,7 +1973,9 @@ class Booking extends CI_Controller {
 		$data['booking_id'] . "<br/>";
 
 		echo "<br/><br/>";
-		print_r($state['state']);
+		if (empty($state)) {
+		    echo $data['booking_pincode'];
+		}
 		echo "<br/><br/>";
 	    } else {
 		unset($data['id']);
@@ -1973,7 +1986,6 @@ class Booking extends CI_Controller {
 		}
 
 		unset($data['booking_pincode']);
-
 		$this->booking_model->update_prices($data, $data['booking_id'], $state['state']);
 	    }
 	}
