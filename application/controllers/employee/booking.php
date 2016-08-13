@@ -212,8 +212,11 @@ class Booking extends CI_Controller {
 	    $booking['current_status'] = "FollowUp";
 	    $booking['internal_status'] = "FollowUp";
 	    $booking['query_remarks'] = $booking_remarks;
-	    if($booking_id !="")
-	    $booking['booking_id'] = "Q-".$booking_id;
+	    if($booking_id !=""){
+	    	$booking['booking_id'] = "Q-".$booking_id;
+	    	$this->service_centers_model->delete_booking_id($booking_id);
+	    }
+	    
 	}
 
 	foreach ($appliance_brand as $key => $value) {
