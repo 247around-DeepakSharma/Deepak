@@ -1462,7 +1462,7 @@ class Booking_model extends CI_Model {
         if($booking_id !=""){
            $where = " `booking_unit_details`.booking_id = '$booking_id' ";
 
-            $sql = "SELECT distinct(appliance_id), appliance_brand as brand, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_month`, `booking_unit_details`.`purchase_year`, appliance_tag, `booking_unit_details`.serial_number, `booking_unit_details`.price_tags
+            $sql = "SELECT distinct(appliance_id), appliance_brand as brand, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_month`, `booking_unit_details`.`purchase_year`, appliance_tag, `booking_unit_details`.serial_number
             from booking_unit_details Where $where  ";
 
         } else if($appliance_id !=""){
@@ -1476,6 +1476,8 @@ class Booking_model extends CI_Model {
 
         $query = $this->db->query($sql);
         $appliance =  $query->result_array();
+
+
 
         foreach ($appliance as $key => $value) {
             // get data from booking unit details table on the basis of appliance id
@@ -1783,6 +1785,38 @@ class Booking_model extends CI_Model {
 
 	$query = $this->db->query($sql);
 	return $query->result_array();
+    }
+
+    function test_service_center(){
+       $sql = "SELECT booking_details.`booking_id` FROM booking_details,  `service_center_booking_action` 
+               WHERE service_center_booking_action.current_status =  'Pending'
+               AND ( booking_details.current_status =  'Pending' OR booking_details.current_status =  'Rescheduled'
+               ) AND service_center_booking_action.booking_id = booking_details.booking_id "; 
+       
+        $query = $this->db->query($sql);
+        $result = $query->result_array();
+        
+        foreach ($result as $key => $value) {
+            $this->db->select('booking_id,id, price_tags');
+            $this->db->where('booking_id', $value['booking_id']);
+            $query1 = $this->db->get('booking_unit_details');
+            $result1 = $query1->result_array();
+            
+           if(count($result1 == 2)){
+
+               $this->db->where('booking_id', $result1[0]['booking_id']);
+               $this->db->update('service_center_booking_action', array('unit_details_id ' => $result1[0]['id']));
+
+               $this->db->select('*');
+
+
+           } else if(count($result1 == 1)){
+              $this->db->where('booking_id', $result1[0]['booking_id']);
+              $this->db->update('service_center_booking_action', array('unit_details_id ' => $result1[0]['id']));
+
+           }
+
+        }
     }
 
 }

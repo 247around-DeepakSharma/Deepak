@@ -59,7 +59,7 @@
                   </div>
                </div>
                <!-- row End  -->
-
+               
                <?php foreach ($bookng_unit_details as $key => $unit_details) { ?>
                <div class="clonedInput panel panel-info " id="clonedInput1">
                   <div class="panel-body">
@@ -90,7 +90,7 @@
                            <?php } ?>
                             <div class="form-group">
                               <div class="col-md-8 ">
-                                 <input type="text" id="serial_number" class="form-control" name="serial_number[]" value="<?php echo $unit_details['serial_number']; ?>" placeholder="Please Enter Serial Number"   <?php if (strpos($unit_details['price_tags'], 'Installation') !== false){ echo "required" ;}  ?>></input>
+                                 <input type="text" id="serial_number" class="form-control" name="serial_number[]" value="<?php echo $unit_details['serial_number']; ?>" placeholder="Please Enter Serial Number"  required ></input>
                                 
                            
                               </div>
@@ -109,7 +109,7 @@
                               </tr>
                               <tbody>
                                  <?php $paid_basic_charges = 0; $paid_additional_charges = 0; $paid_parts_cost=0;foreach ($unit_details['quantity'] as $key => $price) { ?>
-                                 <tr>
+                                 <tr> 
                                     <td><?php echo $price['price_tags'] ?></td>
                                     <td><?php echo $price['customer_net_payable']; ?></td>
                                     <td>  <input  type="text" class="form-control cost"  name="<?php echo "customer_basic_charge[". $price['unit_id'] . "]"?>"  value = "<?php $paid_basic_charges += $price['customer_paid_basic_charges']; if(!empty($price['customer_paid_basic_charges'])){ echo $price['customer_paid_basic_charges']; } else { echo "0"; } ?>">
