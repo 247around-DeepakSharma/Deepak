@@ -316,7 +316,7 @@ class Booking_model extends CI_Model {
         JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
         JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
         LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-        WHERE `booking_id` LIKE '%Q-%' $where  
+        WHERE `booking_id` LIKE '%Q-%' $where
         AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR
                 booking_details.booking_date='') AND `booking_details`.current_status='$status'";
 	$query = $this->db->query($sql);
@@ -1472,7 +1472,7 @@ class Booking_model extends CI_Model {
 
         }
 
-       
+
         $query = $this->db->query($sql);
         $appliance =  $query->result_array();
 
@@ -1608,7 +1608,7 @@ class Booking_model extends CI_Model {
      */
     function insert_new_unit_item($unit_id, $service_charge_id, $data, $state){
         $price_data = $this->getpricesdetails_with_tax($service_charge_id, $state);
-        $this->db->select('booking_id,partner_id,service_id,appliance_id,appliance_brand,appliance_category, appliance_capacity,appliance_size, appliance_serial_no, appliance_description, model_number, appliance_tag, purchase_month, purchase_year');
+        $this->db->select('booking_id,partner_id,service_id,appliance_id,appliance_brand,appliance_category, appliance_capacity,appliance_size, serial_no, appliance_description, model_number, appliance_tag, purchase_month, purchase_year');
 
         $this->db->where('id', $unit_id);
         $query = $this->db->get('booking_unit_details');
