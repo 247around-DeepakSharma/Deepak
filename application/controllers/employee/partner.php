@@ -163,7 +163,7 @@ class Partner extends CI_Controller {
     function booking_details($booking_id) {
         $this->checkUserSession();
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
-        $data['unit_details'] = $this->booking_model->getunit_details($booking_id);
+        $data['unit_details'] = $this->booking_model->get_unit_details($booking_id);
 
 
         log_message('info', 'Partner view booking details booking  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'). " data ". print_r($data, true));

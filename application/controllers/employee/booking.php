@@ -851,7 +851,7 @@ class Booking extends CI_Controller {
      */
     function viewdetails($booking_id) {
 	$data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
-	$data['unit_details'] = $this->booking_model->getunit_details($booking_id);
+	$data['unit_details'] = $this->booking_model->get_unit_details($booking_id);
 
 	$data['service_center'] = $this->booking_model->selectservicecentre($booking_id);
 
