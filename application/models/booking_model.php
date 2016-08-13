@@ -409,8 +409,10 @@ class Booking_model extends CI_Model {
         $condition ="";
         $service_center_name ="";
         if($join !=""){
-            $service_center_name =",service_centres.name as vendor_name, service_centres.district, service_centres.primary_contact_name, service_centres.owner_email, service_centres.primary_contact_phone_1, service_centres.primary_contact_email ";
-            $service_centre = ", service_centres ";
+            $service_center_name = ",service_centres.name as vendor_name, service_centres.district, "
+		. "service_centres.primary_contact_name, service_centres.owner_email, "
+		. "service_centres.primary_contact_phone_1, service_centres.primary_contact_email ";
+	    $service_centre = ", service_centres ";
             $condition = " and booking_details.assigned_vendor_id =  service_centres.id";
         }
 
@@ -1461,7 +1463,11 @@ class Booking_model extends CI_Model {
         if($booking_id !=""){
            $where = " `booking_unit_details`.booking_id = '$booking_id' ";
 
-            $sql = "SELECT distinct(appliance_id), appliance_brand as brand, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description, `booking_unit_details`.`purchase_month`, `booking_unit_details`.`purchase_year`, appliance_tag, `booking_unit_details`.serial_number
+            $sql = "SELECT distinct(appliance_id), appliance_brand as brand, booking_id,
+		appliance_category as category, appliance_capacity as capacity,
+		`booking_unit_details`.`model_number`, appliance_description,
+		`booking_unit_details`.`purchase_month`, `booking_unit_details`.`purchase_year`,
+		appliance_tag, `booking_unit_details`.serial_number
             from booking_unit_details Where $where  ";
 
         } else if($appliance_id !=""){
@@ -1761,6 +1767,9 @@ class Booking_model extends CI_Model {
 	$sql = "SELECT booking_details.booking_id, booking_details.partner_id, booking_details.service_id,
 	    booking_details.appliance_id, booking_unit_details.appliance_capacity,
 	    booking_unit_details.appliance_brand, booking_unit_details.appliance_category,
+	    booking_unit_details.appliance_size,
+	    booking_unit_details.appliance_description,
+	    booking_unit_details.serial_number,
 	    booking_unit_details.price_tags, booking_unit_details.appliance_tag, booking_unit_details.purchase_month,
 	    booking_unit_details.purchase_year, booking_unit_details.model_number, booking_details.service_charge,
 	    booking_details.additional_service_charge, booking_details.parts_cost, booking_details.internal_status
