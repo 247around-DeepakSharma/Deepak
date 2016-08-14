@@ -212,7 +212,7 @@ class Booking extends CI_Controller {
 	    $booking['query_remarks'] = $booking_remarks;
 	    if($booking_id !=""){
 	    	$booking['booking_id'] = $booking_id;
-	    	$this->service_centers_model->delete_booking_id("Q-".$booking_id);
+	    	$this->service_centers_model->delete_booking_id($booking_id);
 	    }
 	    
 	}
