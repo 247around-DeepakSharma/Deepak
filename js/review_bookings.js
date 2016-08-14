@@ -1,10 +1,10 @@
 var getUrl = window.location;
 
 //Un-comment below line for localhost
-var baseUrl = getUrl .protocol + "//" + getUrl.host  + "/" + getUrl.pathname.split('/')[1];
+//var baseUrl = getUrl .protocol + "//" + getUrl.host  + "/" + getUrl.pathname.split('/')[1];
 
 //Comment below line for localhost, this is for main server
-//var baseUrl = getUrl.protocol + "//" + getUrl.host;
+var baseUrl = getUrl.protocol + "//" + getUrl.host;
 
 var review_completeUrl = baseUrl + '/employee/booking/complete_review_booking/';
 var admin_remarksUrl = baseUrl + '/employee/booking/admin_remarks/';
