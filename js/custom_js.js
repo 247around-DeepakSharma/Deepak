@@ -168,6 +168,7 @@
      var query_remarks =$("#query_remarks").val();
      var type = $('input[name=type]:checked', '#booking_form').val(); 
 
+
       if ($("input[type=checkbox]:checked").length === 0) {
         $('#myModal').modal('toggle');
         alert('no way you submit it without checking a box');
@@ -201,29 +202,49 @@
 
       }
 
-     if(address == ""){
-        $('#myModal').modal('toggle');
-        alert("Please fill Address "); 
-        return false;
-     }
-
+  
      if(booking_date == ""){
         $('#myModal').modal('toggle');
         alert("Please fill Booking date "); 
         return false;
      }
 
-      if(type == null){
-        $('#myModal').modal('toggle');
-        alert("Please Select Booking Type ");
-        return false;
-      }
-      
       if(timeslot == null){
          $('#myModal').modal('toggle');
          alert('Please Select Booking Time Slot');
         return false; 
       }
+
+    if(type == null){
+        $('#myModal').modal('toggle');
+        alert("Please Select Booking Type ");
+        return false;
+
+    }  else {
+          if(type == "Booking"){
+            if(address == ""){
+              $('#myModal').modal('toggle');
+              alert("Please fill Address "); 
+              return false;
+            } else {
+
+              if(pincode == ""){
+                $('#myModal').modal('toggle');
+                alert("Please fill pincode "); 
+                return false;
+              }
+         }
+      } else {
+       if ($('input[name=internal_status]:checked').length > 0) {
+        // something when checked
+        } else {
+          $('#myModal').modal('toggle');
+          alert("Please check internal_status "); 
+          return false;
+        }
+      }
+    }
+      
 
      document.getElementById("user_name").innerHTML = name;
      document.getElementById("p_contact_no").innerHTML = p_contact_no;
@@ -325,7 +346,7 @@ function setAppliances(i){
             
             var id = this.id || "";
             var match = id.match(regex1) || [];
-            console.log(match[1]);
+            //console.log(match[1]);
             if (match.length == 3) {
                 this.id = match[1] + (indexClone);
             }

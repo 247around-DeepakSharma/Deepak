@@ -107,9 +107,10 @@ class Booking extends CI_Controller {
 	$booking_date = $this->input->post('booking_date');
 	$booking['partner_source'] =  $this->input->post('partner_source');
 	$booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
+	$booking['internal_status'] =  $this->input->post('internal_status');
 
 	if ($booking_id == "") {
-
+		
 	    $booking['booking_id'] = $this->create_booking_id($user_id, $booking['source'], $booking['type'], $booking['booking_date']);
 	} else {
 	    $price_tags = array();
@@ -123,7 +124,7 @@ class Booking extends CI_Controller {
             $booking['booking_id'] = $booking_id;
 	    }
 
-	    }
+	    } 
 	}
 
 	// select state by city
@@ -153,14 +154,11 @@ class Booking extends CI_Controller {
 	// All purchase month comming in array eg-- array([0]=> Jan, [1]=> Feb)
 	$months = $this->input->post('purchase_month');
 	$booking['quantity'] = count($appliance_brand);
-
 	$appliance_id = $this->input->post('appliance_id');
-
 	$serial_number =  $this->input->post('serial_number');
-
 	$partner_id = $this->partner_model->get_all_partner_source("", $booking['source']);
-
 	$partner_net_payable = $this->input->post('partner_paid_basic_charges');
+	$appliance_description = $this->input->post('appliance_description');
 	// this case for partner
 	if (!empty($partner_id)) {
 	    $booking['partner_id'] = $partner_id[0]['partner_id'];
@@ -213,8 +211,8 @@ class Booking extends CI_Controller {
 	    $booking['internal_status'] = "FollowUp";
 	    $booking['query_remarks'] = $booking_remarks;
 	    if($booking_id !=""){
-	    	$booking['booking_id'] = "Q-".$booking_id;
-	    	$this->service_centers_model->delete_booking_id($booking_id);
+	    	$booking['booking_id'] = $booking_id;
+	    	$this->service_centers_model->delete_booking_id("Q-".$booking_id);
 	    }
 	    
 	}
@@ -237,6 +235,7 @@ class Booking extends CI_Controller {
 	    $appliances_details['purchase_year'] = $services_details['purchase_year'] = $purchase_year[$key];
 	    $services_details['booking_id'] = $booking['booking_id'];
 	    $appliances_details['serial_number'] = $services_details['serial_number'] = $serial_number[$key];
+	    $appliances_details['description'] = $services_details['appliance_description'] = $appliance_description[$key];
 	    // get purchase months from months array for only specific key such as $months[0].
 	    $appliances_details['purchase_month'] = $services_details['purchase_month'] = $months[$key];
 	    $appliances_details['service_id'] = $services_details['service_id'] = $booking['service_id'];
@@ -259,7 +258,9 @@ class Booking extends CI_Controller {
 
 		$services_details['appliance_id'] = $this->booking_model->addappliance($appliances_details);
 	    }
+        
 
+       
 	    // log_message ('info', __METHOD__ . "Appliance details data". print_r($appliances_details));
 	    //Array ( ['brand'] => Array ( [0] => id_price ) )
 	    foreach ($pricesWithId[$value] as $keys => $values) {
@@ -306,7 +307,7 @@ class Booking extends CI_Controller {
 
 	if ($booking['type'] == 'Query') {
 
-	    $booking['message'] .= "";
+	    $booking['message'] = "";
 	} else {
 
 	    $booking['message'] = $message;
@@ -859,93 +860,7 @@ class Booking extends CI_Controller {
 	$this->load->view('employee/viewdetails', $data);
     }
 
-//    /**
-//     *  @desc : Function to sort pending bookings with current status
-//     *
-//     * 	This will display all the bookings present in sorted manner according to there booking status.
-//     *
-//     *  @param : start booking and bookings per page
-//     *  @return : bookings and load view
-//     */
-//    function status_sorted_booking($offset = 0, $page = 0) {
-//        if ($page == 0) {
-//            $page = 50;
-//        }
-//
-//        $offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
-//        $config['base_url'] = base_url() . 'employee/booking/status_sorted_booking';
-//        $config['total_rows'] = $this->booking_model->total_pending_booking();
-//        $config['per_page'] = $page;
-//        $config['uri_segment'] = 4;
-//        $config['first_link'] = 'First';
-//        $config['last_link'] = 'Last';
-//
-//        $this->pagination->initialize($config);
-//        $data['links'] = $this->pagination->create_links();
-//
-//        $data['Bookings'] = $this->booking_model->status_sorted_booking($config['per_page'], $offset);
-//        $this->load->view('employee/header');
-//
-//        $this->load->view('employee/statussortedbooking', $data);
-//    }
-//    /**
-//     *  @desc : Function to sort pending and rescheduled bookings with booking date
-//     *
-//     * 	This method will display all the pending and rescheduled bookings present in sorted manner according to there booking date.
-//     *
-//     *  @param : start booking and bookings per page
-//     *  @return : sorted bookings and load view
-//     */
-//    function date_sorted_booking($offset = 0, $page = 0) {
-//        if ($page == 0) {
-//            $page = 50;
-//        }
-//        //$offset = ($this->uri->segment(4)) ? $this->uri->segment(4) : 0;
-//        $offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
-//        $config['base_url'] = base_url() . 'employee/booking/date_sorted_booking';
-//        $config['total_rows'] = $this->booking_model->total_pending_booking();
-//        $config['per_page'] = $page;
-//        $config['uri_segment'] = 4;
-//        $config['first_link'] = 'First';
-//        $config['last_link'] = 'Last';
-//
-//        $this->pagination->initialize($config);
-//        $data['links'] = $this->pagination->create_links();
-//
-//        $data['Bookings'] = $this->booking_model->date_sorted_booking($config['per_page'], $offset);
-//        $this->load->view('employee/header');
-//
-//        $this->load->view('employee/datesortedbooking', $data);
-//    }
-//    /**
-//     *  @desc : Function to sort pending and rescheduled bookings with service center's name
-//     *
-//     * 	This method will display all the pending and rescheduled bookings present in
-//     *      sorted manner according to service centre's name assigned for the booking.
-//     *
-//     * 	This function is usefull to get all the bookings assigned to particular vendor together.
-//     *
-//     *  @param : start booking and bookings per page
-//     *  @return : assigned vendor sorted bookings and load view
-//     */
-//    function service_center_sorted_booking($offset = 0, $page = 0) {
-//	if ($page == 0) {
-//	    $page = 50;
-//	}
-//
-//	$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
-//	$config['base_url'] = base_url() . 'employee/booking/service_center_sorted_booking';
-//	$config['total_rows'] = $this->booking_model->total_pending_booking();
-//	$config['per_page'] = $page;
-//	$config['uri_segment'] = 4;
-//	$config['first_link'] = 'First';
-//	$config['last_link'] = 'Last';
-//	$this->pagination->initialize($config);
-//	$data['links'] = $this->pagination->create_links();
-//	$data['Bookings'] = $this->booking_model->service_center_sorted_booking($config['per_page'], $offset);
-//	$this->load->view('employee/header');
-//	$this->load->view('employee/booking', $data);
-//    }
+
 
     /**
      *  @desc : This function is to select particular appliance for booking.
@@ -1044,10 +959,11 @@ class Booking extends CI_Controller {
 	$partner_id = $this->booking_model->get_price_mapping_partner_code($booking_history[0]['source']);
 
 	$booking['category'] = $this->booking_model->getCategoryForService($booking_history[0]['service_id'], $booking_history[0]['state'], $partner_id);
-
 	$booking['capacity'] = array();
 	$booking['prices'] = array();
 	$booking['appliance_id'] = $appliance_id;
+	$booking['follow_up_internal_status'] = $this->booking_model->get_internal_status("FollowUp");
+
 
 	foreach ($booking['unit_details'] as $key => $value) {
 
@@ -1954,20 +1870,22 @@ class Booking extends CI_Controller {
 
     function p_test2() {
 	$booking_unit_details = $this->booking_model->p_get_all_booking_unit();
+	//print_r($booking_unit_details);
+	
 	foreach ($booking_unit_details as $key => $data) {
 
-	    $booking = $this->booking_model->return_source($data['booking_id']);
-
-	    $partner_id = $this->booking_model->get_price_mapping_partner_code($booking[0]['source']);
+	    $partner_id = $this->booking_model->get_price_mapping_partner_code("", $data['partner_id']);
 
 	    $prices = $this->booking_model->getPrices($data['service_id'], $data['appliance_category'], $data['appliance_capacity'], $partner_id, $data['price_tags']);
 
 	    $state = $this->vendor_model->get_state_from_pincode($data['booking_pincode']);
+	    
 
 	    if (empty($prices)) {
 		echo $data['service_id'] . "<br/>" .
 		$data['appliance_category'] . "<br/>" .
 		$data['appliance_capacity'] . "<br/>" .
+		$data['partner_id']."<br/>".
 		$partner_id . "<br/>" .
 		$data['price_tags'] . "<br/>" .
 		$data['booking_id'] . "<br/>";
@@ -1978,6 +1896,8 @@ class Booking extends CI_Controller {
 		}
 		echo "<br/><br/>";
 	    } else {
+	    	$data['unit_id'] =  $data['id'];
+
 		unset($data['id']);
 		$data['id'] = $prices[0]['id'];
 
@@ -1985,14 +1905,16 @@ class Booking extends CI_Controller {
 		    echo $data['booking_pincode'];
 		}
 
+
 		unset($data['booking_pincode']);
+		
 		$this->booking_model->update_prices($data, $data['booking_id'], $state['state']);
 	    }
 	}
     }
 
-    function test_upload(){
-    	$this->booking_model->test_upload();
+    function test_service_center_pending(){
+    	$this->booking_model->test_service_center_pending();
     }
 
 }

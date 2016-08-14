@@ -1185,20 +1185,20 @@ class Booking_model extends CI_Model {
      *  @return : true
      */
     function get_price_mapping_partner_code($partner_code, $partner_id="") {
-	$this->db->select('price_mapping_id');
+    $this->db->select('price_mapping_id');
     if($partner_code !=""){
         $this->db->where('code', $partner_code);
     } else {
         $this->db->where('partner_id', $partner_id);
     }
 
-	$query = $this->db->get('bookings_sources');
-	if ($query->num_rows() > 0) {
-	    $result = $query->result_array();
-	    return $result[0]['price_mapping_id'];
-	} else {
-	    return "";
-	}
+    $query = $this->db->get('bookings_sources');
+    if ($query->num_rows() > 0) {
+        $result = $query->result_array();
+        return $result[0]['price_mapping_id'];
+    } else {
+        return "";
+    }
     }
 
     /**
@@ -1367,7 +1367,7 @@ class Booking_model extends CI_Model {
 
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
          $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
-               //log_message ('info', __METHOD__ . "update booking_unit_details data". print_r($result));
+            log_message ('info', __METHOD__ . "update booking_unit_details data". print_r($result));
 
         $this->db->select('id');
         $this->db->where('appliance_id', $services_details['appliance_id']);
@@ -1382,8 +1382,15 @@ class Booking_model extends CI_Model {
             $this->db->update('booking_unit_details', $result);
 
          } else {
+            $unit_num =  $this->get_unit_details($booking_id);
+            if(count($unit_num >1)){
+                $this->db->insert('booking_unit_details', $result);
 
-            $this->db->insert('booking_unit_details', $result);
+            } else {
+                $this->db->where('booking_id',  $booking_id);
+                $this->db->update('booking_unit_details', $result); 
+            }
+            
          }
 
          return $data[0]['price_tags'];
@@ -1707,7 +1714,16 @@ class Booking_model extends CI_Model {
     }
 
     function update_prices($services_details, $booking_id, $state){
+        $unit_details_id = $services_details['unit_id'];
+       
 	$data = $this->getpricesdetails_with_tax($services_details['id'], $state);
+
+
+     echo "<br/>";
+        echo $unit_details_id."-".$booking_id,"--".$services_details['id'];
+        echo "<br/>";
+        print_r($data);
+    unset($services_details['unit_id']);
 
 	if (!empty($data)) {
 	    $result = array_merge($services_details, $data[0]);
@@ -1716,18 +1732,10 @@ class Booking_model extends CI_Model {
 	    $result['customer_net_payable'] = $result['customer_total'] - $result['partner_net_payable'] - $result['around_paid_basic_charges'];
 	    //log_message ('info', __METHOD__ . "update booking_unit_details data". print_r($result));
 	    $result['partner_paid_basic_charges '] = $result['partner_net_payable'];
-	    $this->db->select('id');
-	    $this->db->where('appliance_id', $services_details['appliance_id']);
-	    $this->db->where('price_tags', $data[0]['price_tags']);
-	    $this->db->where('booking_id', $booking_id);
-	    $query = $this->db->get('booking_unit_details');
 
-	    if ($query->num_rows > 0) {
+        $this->db->where('id', $unit_details_id);
+        $this->db->update('booking_unit_details', $result);
 
-		$unit_details = $query->result_array();
-		$this->db->where('id', $unit_details[0]['id']);
-		$this->db->update('booking_unit_details', $result);
-	    }
 	}
     }
 
@@ -1789,9 +1797,9 @@ class Booking_model extends CI_Model {
 	return $query->result_array();
     }
 
-    function test_service_center(){
+    function test_service_center_pending(){
        $sql = "SELECT booking_details.`booking_id` FROM booking_details,  `service_center_booking_action` 
-               WHERE service_center_booking_action.current_status =  'Pending'
+               WHERE service_center_booking_action.current_status =  'InProcess'
                AND ( booking_details.current_status =  'Pending' OR booking_details.current_status =  'Rescheduled'
                ) AND service_center_booking_action.booking_id = booking_details.booking_id "; 
        
@@ -1804,15 +1812,34 @@ class Booking_model extends CI_Model {
             $query1 = $this->db->get('booking_unit_details');
             $result1 = $query1->result_array();
             
-           if(count($result1 == 2)){
-
+           if(count($result1) === 2 ){
+               print_r($result1);
                $this->db->where('booking_id', $result1[0]['booking_id']);
-               $this->db->update('service_center_booking_action', array('unit_details_id ' => $result1[0]['id']));
+              $this->db->update('service_center_booking_action', array('unit_details_id ' => $result1[0]['id']));
 
                $this->db->select('*');
+               $this->db->where('booking_id', $result1[0]['booking_id']);
+               $query2 = $this->db->get('service_center_booking_action');
+               $result2 = $query2->result_array();
+               unset($result2[0]['id']);
+               $result2[0]['unit_details_id'] =  $result1[1]['id'];
+               $result2[0]['current_status'] = "InProcess";
+               //$result2[0]['internal_status'] = "Pending";
+               $this->db->insert('service_center_booking_action', $result2[0]);
+                echo "<br/>";
+                echo "two"; echo "<br/>";
+               echo $result1[0]['booking_id'];
+               echo "<br/>";
 
 
-           } else if(count($result1 == 1)){
+
+
+           } else if(count($result1) === 1){
+            echo "<br/>";
+            echo "only one";
+             echo "<br/>";
+               echo $result1[0]['booking_id'];
+               echo "<br/>";
               $this->db->where('booking_id', $result1[0]['booking_id']);
               $this->db->update('service_center_booking_action', array('unit_details_id ' => $result1[0]['id']));
 

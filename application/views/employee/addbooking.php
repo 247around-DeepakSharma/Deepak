@@ -161,6 +161,13 @@
                                                
                                             </div>
                                         </div>
+                                         <div class="form-group ">
+                                            <label for="type" class="col-md-4">Appliance Description </label>
+                                            <div class="col-md-6">
+                                                <input  type="text" class="form-control"  name="appliance_description[]" id="description_1" value = "<?php if(isset($unit_details[0]['description'])) { echo $unit_details[0]['description']; } ?>" placeholder="Enter Description"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
+                                               
+                                            </div>
+                                        </div>
                                         <div class="form-group <?php if( form_error('appliance_tags') ) { echo 'has-error';} ?>">
                                             <label for="type" class="col-md-4">Appliance Tag</label>
                                             <div class="col-md-6">

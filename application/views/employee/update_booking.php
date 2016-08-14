@@ -176,10 +176,18 @@
                                                
                                             </div>
                                         </div>
+                                        
                                          <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Serial No </label>
                                             <div class="col-md-6">
                                                 <input  type="text" class="form-control"  name="serial_number[]" id="serial_number_1" value = "<?php if(isset($unit_details[0]['serial_number'])) { echo $unit_details[0]['serial_number']; } ?>" placeholder="Enter Appliance Serial Number"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
+                                               
+                                            </div>
+                                        </div>
+                                         <div class="form-group ">
+                                            <label for="type" class="col-md-4">Appliance Description </label>
+                                            <div class="col-md-6">
+                                                <input  type="text" class="form-control"  name="appliance_description[]" id="description_1" value = "<?php if(isset($unit_details[0]['description'])) { echo $unit_details[0]['description']; } ?>" placeholder="Enter Description"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
                                                
                                             </div>
                                         </div>
@@ -352,6 +360,13 @@
                                                
                                             </div>
                                         </div>
+                                         <div class="form-group ">
+                                            <label for="type" class="col-md-4">Appliance Description </label>
+                                            <div class="col-md-6">
+                                                <input  type="text" class="form-control"  name="appliance_description[]" id="<?php echo "description".$number;?>"  value = "<?php if(isset($booking_unit_details['description'])) { echo $booking_unit_details['description']; } ?>"  placeholder="Enter Description"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
+                                               
+                                            </div>
+                                        </div>
                                         <div class="form-group <?php if( form_error('appliance_tags') ) { echo 'has-error';} ?>">
                                             <label for="type" class="col-md-4">Appliance Tag</label>
                                             <div class="col-md-6">
@@ -455,7 +470,7 @@
                             <div class="form-group ">
                                 <label for="booking_date" class="col-md-4">Booking Date *</label>
                                 <div class="col-md-6">
-                                    <input type="date" class="form-control"  id="booking_date" min="<?php echo date("Y-m-d") ?>" name="booking_date" value = "<?php echo  date("Y-m-d", strtotime($booking_history[0]['booking_date'])); ?>" required>
+                                    <input type="date" class="form-control"  id="booking_date" min="<?php echo date("Y-m-d") ?>" name="booking_date" value = "<?php if(!empty($booking_history[0]['booking_date'])){ echo  date("Y-m-d", strtotime($booking_history[0]['booking_date'])); } else { echo date("Y-m-d"); } ?>" required>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -470,7 +485,7 @@
                                 } ?>">
                                 <label for="booking_pincode" class="col-md-4">Booking Pincode *</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($booking_history[0]['booking_pincode'])){echo $booking_history[0]['booking_pincode'];} ?>" placeholder="Enter Area Pin" required>
+                                    <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($booking_history[0]['booking_pincode'])){echo $booking_history[0]['booking_pincode'];} ?>" placeholder="Enter Area Pin" >
                                    
                                 </div>
                             </div>
@@ -483,6 +498,22 @@
                                     </div>&nbsp;<span id="errmsg1"></span>
                                 </div>
                             </div>
+                     
+                 <div class="form-group ">
+                  <label for="Internal Status" class="col-sm-4">Internal Status</label>
+                  <div class="col-md-6">
+                     <?php
+                        
+                        foreach($follow_up_internal_status as $status){?>
+                     <div class="radio">
+                        <label>
+                        <input type="radio" name="internal_status"  class="internal_status"  value="<?php  echo $status->status;?>"  >
+                         <?php  echo $status->status;?>
+                        </label>
+                     </div>
+                     <?php } ?>
+                  </div>
+               </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group ">
@@ -509,6 +540,8 @@
                                     <textarea class="form-control" rows="4" name="query_remarks" id="query_remarks" placeholder="Enter Quer Remarks" ><?php if(isset($booking_history[0]['booking_remarks'])){ echo $booking_history[0]['booking_remarks']; } else  if(isset($booking_history[0]['query_remarks'])){ echo $booking_history[0]['query_remarks']; } ?></textarea>
                                 </div>
                             </div>
+                             
+
                             <div>
                             </div>
                         </div>
