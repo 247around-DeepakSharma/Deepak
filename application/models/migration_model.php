@@ -351,7 +351,7 @@ class Migration_model extends CI_Model {
     }
 
     function get_all_cancelled_query(){
-    	$sql = "SELECT `booking_details`.*, booking_unit_details.appliance_capacity, booking_unit_details.appliance_brand, booking_unit_details.appliance_category, booking_unit_details.price_tags, booking_unit_details.appliance_tag, booking_unit_details.purchase_month, booking_unit_details.purchase_year, booking_unit_details.model_number,booking_unit_details.appliance_size,booking_unit_details.appliance_description, booking_unit_details.serial_number FROM booking_details,  `booking_unit_details` WHERE   `current_status` LIKE  '%Cancelled%' AND booking_unit_details.booking_id = booking_details.booking_id  AND booking_details.booking_id LIKE '%Q-%' AND booking_details.create_date >= '2016-06-01' ";
+    	$sql = "SELECT `booking_details`.*, booking_unit_details.appliance_capacity, booking_unit_details.appliance_brand, booking_unit_details.appliance_category, booking_unit_details.price_tags, booking_unit_details.appliance_tag, booking_unit_details.purchase_month, booking_unit_details.purchase_year, booking_unit_details.model_number,booking_unit_details.appliance_size,booking_unit_details.appliance_description, booking_unit_details.serial_number FROM booking_details,  `booking_unit_details` WHERE   `current_status` LIKE  '%Cancelled%' AND booking_unit_details.booking_id = booking_details.booking_id  AND booking_details.create_date >= '2016-06-01' ";
 
     	$query = $this->db->query($sql);
     	return $query->result_array();
@@ -362,7 +362,7 @@ class Migration_model extends CI_Model {
 	    . "WHERE `booking_unit_details`.booking_id = `booking_details`.`booking_id` AND "
 	    . "`booking_unit_details`.`booking_id` in "
 	    . "(SELECT booking_id FROM `booking_details` WHERE "
-	    . "`current_status`  LIKE '%Cancelled%' AND booking_details.booking_id LIKE '%Q-%' AND booking_details.create_date >= '2016-06-01' ) ";
+	    . "`current_status`  LIKE '%Cancelled%' AND booking_details.create_date >= '2016-06-01' ) ";
 
 	$query = $this->db->query($sql);
 	return $query->result_array();
