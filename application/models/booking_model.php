@@ -1388,9 +1388,9 @@ class Booking_model extends CI_Model {
 
             } else {
                 $this->db->where('booking_id',  $booking_id);
-                $this->db->update('booking_unit_details', $result); 
+                $this->db->update('booking_unit_details', $result);
             }
-            
+
          }
 
          return $data[0]['price_tags'];
@@ -1715,15 +1715,15 @@ class Booking_model extends CI_Model {
 
     function update_prices($services_details, $booking_id, $state){
         $unit_details_id = $services_details['unit_id'];
-       
+
 	$data = $this->getpricesdetails_with_tax($services_details['id'], $state);
 
 
      echo "<br/>";
         echo $unit_details_id."-".$booking_id,"--".$services_details['id'];
         echo "<br/>";
-        print_r($data);
-    unset($services_details['unit_id']);
+//        print_r($data);
+	unset($services_details['unit_id']);
 
 	if (!empty($data)) {
 	    $result = array_merge($services_details, $data[0]);
@@ -1798,20 +1798,20 @@ class Booking_model extends CI_Model {
     }
 
     function test_service_center_pending(){
-       $sql = "SELECT booking_details.`booking_id` FROM booking_details,  `service_center_booking_action` 
+       $sql = "SELECT booking_details.`booking_id` FROM booking_details,  `service_center_booking_action`
                WHERE service_center_booking_action.current_status =  'InProcess'
                AND ( booking_details.current_status =  'Pending' OR booking_details.current_status =  'Rescheduled'
-               ) AND service_center_booking_action.booking_id = booking_details.booking_id "; 
-       
+               ) AND service_center_booking_action.booking_id = booking_details.booking_id ";
+
         $query = $this->db->query($sql);
         $result = $query->result_array();
-        
+
         foreach ($result as $key => $value) {
             $this->db->select('booking_id,id, price_tags');
             $this->db->where('booking_id', $value['booking_id']);
             $query1 = $this->db->get('booking_unit_details');
             $result1 = $query1->result_array();
-            
+
            if(count($result1) === 2 ){
                print_r($result1);
                $this->db->where('booking_id', $result1[0]['booking_id']);
