@@ -1388,9 +1388,9 @@ class Booking_model extends CI_Model {
 
             } else {
                 $this->db->where('booking_id',  $booking_id);
-                $this->db->update('booking_unit_details', $result); 
+                $this->db->update('booking_unit_details', $result);
             }
-            
+
          }
 
          return $data[0]['price_tags'];
@@ -1642,6 +1642,5 @@ class Booking_model extends CI_Model {
         return true;
     }
 
-  
 
 }

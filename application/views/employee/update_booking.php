@@ -547,8 +547,8 @@
                         </div>
                         <div class="form-group  col-md-12" >
                             <center>
-                                <button style="margin-right: 25px;" type="button" class="btn btn-info btn-md open-AddBookingDialog" data-toggle="modal" data-target="#myModal">Preview</button>
-                                <input type="submit" id="submitform" class="btn btn-info disabled" value="submit">
+                                <button style="margin-right: 25px;" type="button" class="btn btn-info btn-md open-AddBookingDialog" data-toggle="modal" data-target="#myModal">Confirm</button>
+                                <input type="submit" id="submitform" class="btn btn-info disabled" value="Submit">
                         </div>
                         </center>
                     </div>
