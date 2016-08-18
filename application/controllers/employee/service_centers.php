@@ -128,9 +128,12 @@ class Service_centers extends CI_Controller {
      * @return: void
      */
     function process_complete_booking($booking_id) {
-        $this->checkUserSession();
+	log_message('info', __METHOD__ . '=> ' . $booking_id);
+
+	$this->checkUserSession();
         $data['booking_id'] = $booking_id;
-        $data['service_charge'] = $this->input->post('service_charge');
+	$data['serial_number'] = $this->input->post('serial_number');
+	$data['service_charge'] = $this->input->post('service_charge');
         $data['service_center_id'] = $this->session->userdata('service_center_id');
         $data['additional_service_charge'] = $this->input->post('additional_service_charge');
         $data['internal_status'] = $this->input->post('internal_status');
@@ -141,6 +144,8 @@ class Service_centers extends CI_Controller {
         //$charges = $this->booking_model->getbooking_charges($booking_id);
 	$data['closed_date'] = date('Y-m-d H:i:s');
 	$data['service_center_remarks'] = date("F j") . ":- " . $closing_remarks;
+
+	log_message('info', $booking_id . print_r($data, TRUE));
 
 	$this->vendor_model->update_service_center_action($data);
 

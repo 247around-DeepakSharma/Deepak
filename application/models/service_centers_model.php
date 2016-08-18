@@ -28,7 +28,6 @@ class Service_centers_model extends CI_Model {
             return $result[0]['service_center_id'];
 
       } else {
-
       	return false;
       }
 
