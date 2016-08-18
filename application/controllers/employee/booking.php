@@ -1592,16 +1592,34 @@ class Booking extends CI_Controller {
      *  @return : load pending booking view
      */
     function process_assign_booking_form() {
+        log_message('info', "Entering: " . __METHOD__);
         $service_center = $this->input->post('service_center');
         $url = base_url() . "employee/do_background_process/assign_booking";
         foreach ($service_center as $booking_id => $service_center_id) {
             if ($service_center_id != "Select") {
 
-                $data = array();
-                $data['booking_id'] = $booking_id;
-                $data['service_center_id'] = $service_center_id;
+                log_message('info', "Booking ID: " . $booking_id . ", Service centre: " . $service_center_id);
 
-                $this->asynchronous_lib->do_background_process($url, $data);
+                //Assign service centre
+                $this->booking_model->assign_booking($booking_id, $service_center_id);
+                log_message('info', "Assigned Service center for this Booking ID: " . $booking_id . ", Service centre: " . $service_center_id);
+
+                $data['current_status'] = "Pending";
+                $data['internal_status'] = "Pending";
+                $data['service_center_id'] = $service_center_id;
+                $data['booking_id'] = $booking_id;
+                $data['create_date'] = date('Y-m-d H:i:s');
+
+                log_message('info', "Insert booking into service center action table  booking id: " . $booking_id . ", Service centre: " . $service_center_id);
+                $this->vendor_model->insert_service_center_action($data);
+
+                log_message('info', "Make Asynchronous process for send sms to customer, prepare job card, send mail to vendor booking id: " . $booking_id . ", Service centre: " . $service_center_id);
+
+                $data1 = array();
+                $data1['booking_id'] = $booking_id;
+                //$data['service_center_id'] = $service_center_id;
+
+                $this->asynchronous_lib->do_background_process($url, $data1);
             }
         }
 
