@@ -1,7 +1,8 @@
 <?php
 
-if (!defined('BASEPATH'))
+if (!defined('BASEPATH')){
     exit('No direct script access allowed');
+}
 
 class Partner extends CI_Controller {
 
@@ -13,6 +14,8 @@ class Partner extends CI_Controller {
 
         $this->load->model('booking_model');
         $this->load->model('partner_model');
+        $this->load->model('vendor_model');
+        $this->load->model('user_model');
         $this->load->library("pagination");
         $this->load->library("session");
         $this->load->helper(array('form', 'url'));
@@ -82,8 +85,9 @@ class Partner extends CI_Controller {
         $data['count'] = $config['total_rows'];
         $data['bookings'] = $this->partner_model->getPending_booking($config['per_page'], $offset, $partner_id);
 
-        if ($this->session->flashdata('result') != '')
+        if ($this->session->flashdata('result') != ''){
             $data['success'] = $this->session->flashdata('result');
+        }
          log_message('info', 'Partner view Pending booking  partner id' . $partner_id . " Partner name" . $this->session->userdata('partner_name')." data ". print_r($data, true));
         $this->load->view('partner/header');
         $this->load->view('partner/pending_booking', $data);
@@ -110,8 +114,9 @@ class Partner extends CI_Controller {
         $data['count'] = $config['total_rows'];
         $data['bookings'] = $this->partner_model->getPending_queries($config['per_page'], $offset, $partner_id);
 
-        if ($this->session->flashdata('result') != '')
+        if ($this->session->flashdata('result') != ''){
             $data['success'] = $this->session->flashdata('result');
+        }
          log_message('info', 'Partner view Pending query  partner id' . $partner_id . " Partner name" . $this->session->userdata('partner_name')." data ". print_r($data, true));
         $this->load->view('partner/header');
         $this->load->view('partner/pending_queries', $data);
@@ -139,8 +144,9 @@ class Partner extends CI_Controller {
         $data['count'] = $config['total_rows'];
         $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state);
 
-        if ($this->session->flashdata('result') != '')
+        if ($this->session->flashdata('result') != ''){
             $data['success'] = $this->session->flashdata('result');
+        }
 
         $data['status'] = $state;
 
@@ -167,6 +173,87 @@ class Partner extends CI_Controller {
 
         $this->load->view('partner/header');
         $this->load->view('partner/booking_details', $data);
+    }
+
+     /**
+     * @desc: This method loads abb booking form
+     * it gets user details(if exist), city, source, services
+     */
+    function get_addbooking_form($phone_number){
+        $data = $this->booking_model->get_city_booking_source_services($phone_number);
+        $this->load->view('partner/header');
+        $this->load->view('partner/get_addbooking', $data);
+    }
+    
+    /**
+     * @desc: This method is used to process to add booking by partner
+     */
+    function process_addbooking(){
+        
+        $booking_date =  date('d-m-Y', strtotime($this->input->post('booking_date')));
+        $order_id = $this->input->post('order_id');
+        if(empty($order_id)){ $order_id = "Not Provided";}
+        $description = $this->input->post('description');
+        if(empty($description)){ $description = "Not Provided";}
+        
+        $authToken =  $this->partner_model->get_authentication_code($this->session->userdata('partner_id'));
+        if($authToken){
+        $postData = '{'
+                . '"partnerName" : "'.$this->session->userdata('partner_name').'",'
+                . '"orderID" : "'.$order_id.'",'
+                . '"name" : "'.$this->input->post('user_name').'",'
+                . '"mobile" : "'. $this->input->post('booking_primary_contact_no').'",'
+                . '"email" : "'. $this->input->post('user_email').'",'
+                . '"address" : "'. $this->input->post('booking_address').'",'
+                . '"pincode" : "'. $this->input->post('booking_pincode').'",'
+                . '"city" : "'. $this->input->post('booking_address').'",'
+                . '"requestType" : "'. $this->input->post('price_tag').'",'
+                . '"alternatePhone" : "'. $this->input->post('booking_alternate_contact_no').'",'
+                . '"landmark" : "'. $this->input->post('landmark').'",'
+                . '"product" : "'. $this->input->post('service_name').'",'
+                . '"brand" : "'. $this->input->post('appliance_brand').'",'
+                . '"productType" : "'. $description.'",'
+                . '"deliveryDate" : {"year" : "0000", "month" : "00", "day" : "00", "hour" : "00", "minute" :"00"},'
+                . '"category" : "'. $this->input->post('appliance_category').'",'
+                . '"capacity" : "'. $this->input->post('appliance_capacity').'",'
+                . '"model" : "'. $this->input->post('model_number').'",'
+                . '"serial_number" : "'. $this->input->post('serial_number').'",'
+                . '"booking_date" : "'. $booking_date.'",'
+                . '"purchase_month" : "'. $this->input->post('purchase_month').'",'
+                . '"purchase_year" : "'. $this->input->post('purchase_year').'",'
+                . '"partner_source" : "'. $this->input->post('partner_source').'",'
+                . '"remarks" : "'. $this->input->post('query_remarks').'"'
+                . '}';
+        
+        $ch = curl_init(base_url().'partner/submitRequest');
+        curl_setopt_array($ch, array(
+            CURLOPT_POST => TRUE,
+            CURLOPT_RETURNTRANSFER => TRUE,
+            CURLOPT_HTTPHEADER => array(
+                'Authorization: '.$authToken,
+                'Content-Type: application/json'
+            ),
+            CURLOPT_POSTFIELDS => $postData
+        ));
+
+        // Send the request
+        $response = curl_exec($ch);
+
+       // echo $response;
+        // Check for errors
+        if($response === FALSE){
+            die(curl_error($ch));
+        }
+
+        // Decode the response
+        //$responseData = json_decode($response, TRUE);
+
+        // Print the date from the response
+        //echo $responseData['data'];
+        redirect(base_url()."partner/pending_booking");
+        } else {
+            echo "Authentication fail:";
+        }
     }
 
 

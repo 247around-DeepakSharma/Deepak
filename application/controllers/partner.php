@@ -249,13 +249,14 @@ class Partner extends CI_Controller {
 
 			$booking['quantity'] = '1';
 			$booking['appliance_brand'] = $lead_details['Brand'];
-			$booking['appliance_category'] = '';
-			$booking['appliance_capacity'] = '';
+			$booking['appliance_category'] = $lead_details['Category'];
+			$booking['appliance_capacity'] = (isset($requestData['capacity']) ? $requestData['capacity'] : "");
 			$booking['description'] = $lead_details['ProductType'];
 			$booking['model_number'] = (isset($lead_details['Model']) ? $lead_details['Model'] : "");
 			$booking['appliance_tags'] = $lead_details['Brand'] . " " . $lead_details['Product'];
-			$booking['purchase_month'] = date('m');
-			$booking['purchase_year'] = date('Y');
+			$booking['purchase_month'] = (isset($requestData['purchase_month']) ? $requestData['purchase_month'] : date('m'));
+			$booking['purchase_year'] = (isset($requestData['purchase_month']) ? $requestData['purchase_month'] : date('Y'));
+			$booking['serial_number'] = (isset($requestData['serial_number']) ? $requestData['serial_number'] : "");
 
 			$booking['items_selected'] = '';
 			$booking['total_price'] = '';
@@ -270,16 +271,16 @@ class Partner extends CI_Controller {
 			$booking['current_status'] = "FollowUp";
 			$booking['internal_status'] = "FollowUp";
 			$booking['type'] = "Query";
-			$booking['booking_date'] = '';
+			$booking['booking_date'] = (isset($requestData['booking_date']) ? $requestData['booking_date'] : "");;
 			$booking['booking_timeslot'] = '';
 			$booking['booking_address'] = $lead_details['Address'] . ", " . $lead_details['Landmark'] .
 			    ", " . $lead_details['City'];
 			$booking['booking_pincode'] = $lead_details['Pincode'];
 			$booking['amount_due'] = '';
 			$booking['booking_remarks'] = '';
-			$booking['query_remarks'] = '';
+			$booking['query_remarks'] = (isset($requestData['remarks']) ? $requestData['remarks'] : "");
 			$booking['order_id'] = $lead_details['orderID'];
-			$booking['partner_source'] = "STS";
+			$booking['partner_source'] = (isset($requestData['partner_source']) ? $requestData['partner_source'] : "STS");
 
 			//Insert query
 			//echo print_r($booking, true) . "<br><br>";
@@ -667,7 +668,7 @@ class Partner extends CI_Controller {
 	}
 
 	//Check for Request type
-	$valid_request_types = array("Installation", "Demo", "Installation and Demo");
+	$valid_request_types = array("Installation", "Demo", "Installation and Demo", "Installation & Demo", "Repair - Out Of Warranty", "Repair - In Warranty");
 	if (($flag === TRUE) &&
 	    (in_array($request['requestType'], $valid_request_types) == FALSE)) {
 	    $resultArr['code'] = ERR_INVALID_REQUEST_TYPE_CODE;
@@ -711,6 +712,8 @@ class Partner extends CI_Controller {
 	$flag = TRUE;
 
 	//Validate Partner Name
+	echo $request['partnerName'];
+
 	if ($request['partnerName'] != $this->partner['public_name']) {
 	    $resultArr['code'] = ERR_INVALID_PARTNER_NAME_CODE;
 	    $resultArr['msg'] = ERR_INVALID_PARTNER_NAME_MSG;

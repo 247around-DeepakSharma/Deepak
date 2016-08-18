@@ -50,6 +50,9 @@
                        
                      </ul>
                   </li>
+                   <li>
+                     <a data-toggle="modal" data-target="#myModal" style="cursor: pointer;">Add Booking</a>
+                  </li>
                </ul>
                <ul class="nav navbar-nav navbar-right">
                  
@@ -65,5 +68,43 @@
       </nav>
       <style type="text/css">
       </style>
+       <!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Please Enter Mobile Number</h4>
+        </div>
+        <div class="modal-body">
+           <form name="myForm" class="form-horizontal" id ="booking_form" action="#"  method="POST" enctype="multipart/form-data">
+           <div class="form-group">
+               <label for="customer phone number" class="col-md-4">Customer Phone Number</label>
+               <div class="col-md-6">
+                   <input type="text" class="form-control"  id="customer_phone_number" name="phone_number" value = "" required>
+               </div>
+              
+           </div>
+           </form>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" style="background-color:#2C9D9C; border-color: #2C9D9C; color: #fff;" onclick="call_booking_form()">Add Booking</button> 
+          <button type="button" class="btn btn-default" dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
    </body>
 </html>
+<script type="text/javascript">
+   function call_booking_form(){
+   
+   var phone_number  = $("#customer_phone_number").val();
+    window.location.href = '<?php echo base_url() ?>partner/booking_form/'+ phone_number;
+   
+}
+</script>
