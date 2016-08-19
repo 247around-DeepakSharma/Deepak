@@ -192,9 +192,8 @@ class Partner extends CI_Controller {
         
         $booking_date =  date('d-m-Y', strtotime($this->input->post('booking_date')));
         $order_id = $this->input->post('order_id');
-        if(empty($order_id)){ $order_id = "Not Provided";}
+        
         $description = $this->input->post('description');
-        if(empty($description)){ $description = "Not Provided";}
         
         $authToken =  $this->partner_model->get_authentication_code($this->session->userdata('partner_id'));
         if($authToken){
@@ -225,7 +224,7 @@ class Partner extends CI_Controller {
                 . '"remarks" : "'. $this->input->post('query_remarks').'"'
                 . '}';
         
-        $ch = curl_init(base_url().'partner/submitRequest');
+        $ch = curl_init(base_url().'partner/insertBookingByPartner');
         curl_setopt_array($ch, array(
             CURLOPT_POST => TRUE,
             CURLOPT_RETURNTRANSFER => TRUE,
@@ -239,12 +238,11 @@ class Partner extends CI_Controller {
         // Send the request
         $response = curl_exec($ch);
 
-       // echo $response;
+        //echo $response;
         // Check for errors
         if($response === FALSE){
             die(curl_error($ch));
         }
-
         // Decode the response
         //$responseData = json_decode($response, TRUE);
 

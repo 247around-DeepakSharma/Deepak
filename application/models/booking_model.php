@@ -426,7 +426,10 @@ class Booking_model extends CI_Model {
     if(isset($booking['partner_source'])){
         $booking_detail['partner_source'] = $booking['partner_source'];
         $booking_detail['order_id'] = $booking['order_id'];
+    }
 
+    if(isset($booking['booking_timeslot'])){
+         $booking_detail['booking_timeslot'] = $booking['booking_timeslot'];
     }
 
 	$this->db->insert('booking_details', $booking_detail);
