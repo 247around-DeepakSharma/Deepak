@@ -443,14 +443,14 @@ class Reporting_utils extends CI_Model {
 	$this->db->like('booking_id', 'SS');
 	$this->db->where('new_state', 'Pending');
 	$this->db->where('create_date >= ', date('Y-m-d H:i:s'));
-	$today_install_sched = $this->db->count_all_results('booking_details');
+	$today_install_sched = $this->db->count_all_results('booking_state_change');
 
 	//Count y'day installations scheduled
 	$this->db->like('booking_id', 'SS');
 	$this->db->where('new_state', 'Pending');
 	$this->db->where('create_date >= ', date('Y-m-d H:i:s', strtotime("-1 days")));
 	$this->db->where('create_date < ', date('Y-m-d H:i:s'));
-	$yday_install_sched = $this->db->count_all_results('booking_details');
+	$yday_install_sched = $this->db->count_all_results('booking_state_change');
 
 	//Count total installations completed
 	$this->db->where('source', 'SS');
@@ -503,14 +503,14 @@ class Reporting_utils extends CI_Model {
 	$this->db->like('booking_id', 'SS');
 	$this->db->where('new_state', 'Cancelled');
 	$this->db->where('create_date >= ', date('Y-m-d H:i:s'));
-	$today_install_cancl = $this->db->count_all_results('booking_details');
+	$today_install_cancl = $this->db->count_all_results('booking_state_change');
 
 	//Count y'day installations Cancelled
 	$this->db->like('booking_id', 'SS');
 	$this->db->where('new_state', 'Cancelled');
 	$this->db->where('create_date >= ', date('Y-m-d H:i:s', strtotime("-1 days")));
 	$this->db->where('create_date < ', date('Y-m-d H:i:s'));
-	$yday_install_cancl = $this->db->count_all_results('booking_details');
+	$yday_install_cancl = $this->db->count_all_results('booking_state_change');
 
 //	//Count total - Already Installed
 //	$this->db->where_in('Remarks_by_247around', array('Already Installed'));
