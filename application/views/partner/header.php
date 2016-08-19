@@ -50,9 +50,9 @@
                        
                      </ul>
                   </li>
-                   <li>
+                  <!-- <li>
                      <a data-toggle="modal" data-target="#myModal" style="cursor: pointer;">Add Booking</a>
-                  </li>
+                  </li>-->
                </ul>
                <ul class="nav navbar-nav navbar-right">
                  
