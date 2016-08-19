@@ -47,15 +47,16 @@
                         <li><a href="<?php echo base_url();?>partner/closed_booking/Completed">Completed Bookings</a></li>
                          <li role="separator" class="divider"></li>
                         <li><a href="<?php echo base_url();?>partner/closed_booking/Cancelled">Cancelled Bookings</a></li>
-                       
+
                      </ul>
                   </li>
                   <!-- <li>
                      <a data-toggle="modal" data-target="#myModal" style="cursor: pointer;">Add Booking</a>
-                  </li>-->
+                  </li>
+		  -->
                </ul>
                <ul class="nav navbar-nav navbar-right">
-                 
+
                   <li>
                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="verifyby"><i class="fa fa-user"></i> <?php echo $this->session->userdata('partner_name'); ?> <b class="caret"></b></a>
                   </li>
@@ -71,7 +72,7 @@
        <!-- Modal -->
   <div class="modal fade" id="myModal" role="dialog">
     <div class="modal-dialog">
-    
+
       <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
@@ -85,26 +86,26 @@
                <div class="col-md-6">
                    <input type="text" class="form-control"  id="customer_phone_number" name="phone_number" value = "" required>
                </div>
-              
+
            </div>
            </form>
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" style="background-color:#2C9D9C; border-color: #2C9D9C; color: #fff;" onclick="call_booking_form()">Add Booking</button> 
+          <button type="button" class="btn btn-default" style="background-color:#2C9D9C; border-color: #2C9D9C; color: #fff;" onclick="call_booking_form()">Add Booking</button>
           <button type="button" class="btn btn-default" dismiss="modal">Close</button>
         </div>
       </div>
-      
+
     </div>
   </div>
    </body>
 </html>
 <script type="text/javascript">
    function call_booking_form(){
-   
+
    var phone_number  = $("#customer_phone_number").val();
     window.location.href = '<?php echo base_url() ?>partner/booking_form/'+ phone_number;
-   
+
 }
 </script>
