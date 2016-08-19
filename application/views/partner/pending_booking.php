@@ -1,6 +1,15 @@
 <div class="container-fluid">
    <div class="row" style="margin-top: 40px;">
       <div class="col-md-12">
+      <?php if($this->session->userdata('success')) {
+                    echo '<div class="alert alert-success alert-dismissible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <strong>' . $this->session->userdata('success') . '</strong>
+                    </div>';
+                    }
+                    ?>
          <div class="panel panel-default">
             <div class="panel-heading">
                <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Pending Bookings (<?php echo $count; ?>)</h2>
@@ -67,3 +76,4 @@
 </div>
  <div class="custom_pagination" style="margin-left: 16px;" > <?php if(isset($links)) echo $links; ?></div>
       
+<?php $this->session->unset_userdata('success'); ?>-->

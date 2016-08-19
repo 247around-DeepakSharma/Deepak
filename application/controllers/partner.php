@@ -667,7 +667,7 @@ class Partner extends CI_Controller {
 	}
 
 	//Check for Request type
-	$valid_request_types = array("Installation", "Demo", "Installation and Demo", "Installation & Demo", "Repair - Out Of Warranty", "Repair - In Warranty");
+	$valid_request_types = array("Installation", "Demo", "Installation and Demo");
 	if (($flag === TRUE) &&
 	    (in_array($request['requestType'], $valid_request_types) == FALSE)) {
 	    $resultArr['code'] = ERR_INVALID_REQUEST_TYPE_CODE;
@@ -1378,7 +1378,7 @@ class Partner extends CI_Controller {
 
 			//Save this in SD leads table
 			//echo print_r($lead_details, true) . "<br><br>";
-			$this->partner_model->insert_partner_lead($lead_details);
+			//$this->partner_model->insert_partner_lead($lead_details);
 
 			//Send response
 			$this->jsonResponseString['response'] = array(

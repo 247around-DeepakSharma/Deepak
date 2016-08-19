@@ -2,31 +2,42 @@
 <?php  $phone_number = $this->uri->segment(3);  ?>
 <div id="page-wrapper" >
     <div class="container-fluid" >
+    
         <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php echo base_url()?>employee/partner/process_addbooking"  method="POST" enctype="multipart/form-data">
             <div class="panel panel-info" style="margin-top:20px;">
                 <div class="panel-heading">User Details</div>
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-12">
-                       
+                       <?php if($this->session->userdata('success')) {
+                    echo '<div class="alert alert-danger alert-dismissible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <strong>' . $this->session->userdata('success') . '</strong>
+                    </div>';
+                    }
+                    ?>
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="form-group <?php if( form_error('user_name') ) { echo 'has-error';} ?>">
                                     <label for="name" class="col-md-4">User Name</label>
                                     <div class="col-md-6">
-                                     <input type="hidden" class="form-control" id="user_id" name="user_id" value = "<?php if(isset($user[0]['user_id'])){ echo $user[0]['user_id']; }  ?>"  >
-                                        <input type="text" class="form-control" id="name" name="user_name" value = "<?php if(isset($user[0]['name'])){ echo $user[0]['name']; }  ?>" <?php if(isset($user[0]['name'])){ echo "readonly"; }  ?> placeholder="Please Enter User Name">
+                                    
+                                        <input type="text" class="form-control" id="name" name="user_name" value = "<?php if(isset($user[0]['name'])){ echo $user[0]['name']; } else { echo set_value('user_name'); }  ?>" <?php if(isset($user[0]['name'])){ echo "readonly"; }  ?> placeholder="Please Enter User Name">
+                                         <?php echo form_error('user_name'); ?>
                                     </div>
                                 </div>
-                                <div class="form-group ">
+                                <div class="form-group <?php if( form_error('booking_primary_contact_no') ) { echo 'has-error';} ?>">
                                     <label for="booking_primary_contact_no" class="col-md-4">Primary Contact Number *</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php if(isset($user[0]['phone_number'])){ echo $user[0]['phone_number']; } else { echo $phone_number; }  ?>" required>
+                                        <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php if(isset($user[0]['phone_number'])){ echo $user[0]['phone_number']; } else if($phone_number !=""){ echo  $phone_number; }  ?>" required>
+                                        <?php echo form_error('booking_primary_contact_no'); ?>
                                     </div>
                                 </div>
-                                <div class="form-group ">
+                                <div class="form-group <?php if( form_error('city') ) { echo 'has-error';} ?>">
                                     <label for="booking_city" class="col-md-4">Booking City *</label>
                                     <div class="col-md-6">
-                                        <select type="text" onchange= "getCategory()" class="form-control"  id="booking_city" name="city" required>
+                                        <select type="text" class="form-control"  id="booking_city" name="city" required>
                                             <option selected="selected" disabled="disabled">Select City</option>
                                             <?php 
                                                 foreach ($city as $key => $cites) { ?>
@@ -34,28 +45,32 @@
                                             <?php  }
                                                 ?>
                                         </select>
+                                         <?php echo form_error('city'); ?>
                                     </div>
                                 </div>
-                                <div class="form-group ">
+                                <div class="form-group <?php if( form_error('booking_pincode') ) { echo 'has-error';} ?>">
                                     <label for="booking_pincode" class="col-md-4">Booking Pincode *</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($user[0]['pincode'])){echo $user[0]['pincode'];} ?>" placeholder="Enter Area Pin" required>
+                                        <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($user[0]['pincode'])){echo $user[0]['pincode'];} else { echo set_value('booking_pincode');} ?>" placeholder="Enter Area Pin" required>
+                                          <?php echo form_error('booking_pincode'); ?>
                                     </div>
                                 </div>
-                                  <div class="form-group ">
+                                  <div class="form-group <?php if( form_error('landmark') ) { echo 'has-error';} ?>">
                                     <label for="booking_pincode" class="col-md-4">Near Landmark </label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="landmark" name="landmark" value = "<?php if(isset($user[0]['landmark'])){echo $user[0]['landmark'];} ?>" placeholder="Enter Any Near Landmark" required>
+                                        <input type="text" class="form-control" id="landmark" name="landmark" value = "<?php if(isset($user[0]['landmark'])){echo $user[0]['landmark'];} else { echo set_value('landmark');} ?>" placeholder="Enter Any Near Landmark" required>
+                                         <?php echo form_error('landmark'); ?>
                                     </div>
                                 </div>
                                 <!--  end col-md-6  -->
                             </div>
                             <!--  start col-md-6  -->
-                            <div class="col-md-6">
+                            <div class="col-md-6 <?php if( form_error('user_email') ) { echo 'has-error';} ?>">
                                 <div class="form-group ">
                                     <label  class="col-md-4">User Email</label>
                                     <div class="col-md-6">
                                         <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php if(isset($user[0]['user_email'])){  echo $user[0]['user_email'];  }  ?>" placeholder="Please Enter User Email">
+                                         <?php echo form_error('user_email'); ?>
                                     </div>
                                 </div>
                                 <div class="form-group ">
@@ -64,10 +79,11 @@
                                         <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="booking_alternate_contact_no" value = "<?php if(isset($user[0]['booking_alternate_contact_no'])){  echo $user[0]['alternate_phone_number']; } ?>" placeholder ="Please Enter Alternate Contact No" >
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group <?php if( form_error('booking_address') ) { echo 'has-error';} ?>">
                                     <label  for="booking_address" class="col-md-4">Booking Address *</label>
                                     <div class="col-md-6">
-                                        <textarea class="form-control" rows="6" id="booking_address" name="booking_address"  required ><?php if(isset($user[0]['home_address'])){  echo $user[0]['home_address']; } ?></textarea>
+                                        <textarea class="form-control" rows="6" id="booking_address" name="booking_address"  required ><?php if(isset($user[0]['home_address'])){  echo $user[0]['home_address']; } else { echo set_value('landmark'); } ?></textarea>
+                                        <?php echo form_error('booking_address'); ?>
                                     </div>
                                 </div>
                                 <!-- end col-md-6 -->
@@ -88,7 +104,7 @@
                                         <input class="form-control" name= "order_id" value="<?php if(isset($user[0]['order_id'])){  echo $user[0]['order_id']; } ?>" placeholder ="Please Enter Order ID" id="order_id"  ></input>
                                     </div>
                                 </div>
-                              <div class="form-group ">
+                              <div class="form-group <?php if( form_error('service_name') ) { echo 'has-error';} ?>">
                                     <label for="service_name" class="col-md-4">Service Name *</label>
                                     <div class="col-md-6">
                                        
@@ -100,6 +116,7 @@
                                             </option>
                                             
                                         </select>
+                                        <?php echo form_error('service_name'); ?>
                                     </div>
                                 </div>
                               
@@ -111,7 +128,7 @@
                             </div>
                             <!--  start col-md-6  -->
                             <div class="col-md-6">
-                             <div class="form-group ">
+                             <div class="form-group <?php if( form_error('partner_source') ) { echo 'has-error';} ?>">
                                     <label for="source_name" class="col-md-4">Booking Source *</label>
                                     <div class="col-md-6">
                                         <select type="text" class="booking_source form-control"  id="partner_source" name="partner_source" required>
@@ -122,13 +139,15 @@
                                             <option>Ebay</option>
                                             <option>Offline</option>
                                         </select>
+                                         <?php echo form_error('partner_source'); ?>
                                     </div>
                                 </div>
-                           <div class="form-group ">
+                           <div class="form-group <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
                                     <label for="booking_date" class="col-md-4">Booking Date *</label>
                                     <div class="col-md-6">
                                         <input type="date" class="form-control"  id="booking_date" name="booking_date"   value = "<?php echo  date("Y-m-d", strtotime("+1 day")); ?>"  >
                                         <!-- min="<?php echo date("Y-m-d", strtotime("+1 day")) ?>"  -->
+                                        <?php echo form_error('booking_date'); ?>
                                     </div>
                                 </div>
                                
@@ -150,7 +169,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="col-md-6">
-                                <div class="form-group ">
+                                <div class="form-group <?php if( form_error('appliance_brand') ) { echo 'has-error';} ?>">
                                     <label for="brand" class="col-md-4">Brand *</label>
                                     <div class="col-md-6">
                                         <select type="text" class="form-control appliance_brand"    name="appliance_brand" id="appliance_brand_1" required>
@@ -165,7 +184,7 @@
                                     </div>
                                 </div>
                                 <input hidden="text" name="partner_id" id="partner_id" value="<?php echo $this->session->userdata('partner_id') ; ?>"></input>
-                                <div class="form-group">
+                                <div class="form-group <?php if( form_error('appliance_category') ) { echo 'has-error';} ?>">
                                     <label for="category" class="col-md-4">Category *</label>
                                     <div class="col-md-6">
                                         <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category"   required>
@@ -173,9 +192,10 @@
                                             <option>TV-LED</option>
                                             <option>TV-LCD</option>
                                         </select>
+                                        <?php echo form_error('appliance_category'); ?>
                                     </div>
                                 </div>
-                                  <div class="form-group ">
+                                  <div class="form-group <?php if( form_error('appliance_capacity') ) { echo 'has-error';} ?>">
                                     <label for="capacity" class="col-md-4">Capacity *</label>
                                     <div class="col-md-6">
                                         <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" >
@@ -184,11 +204,11 @@
                                             <option><?php echo $i." Inch"; ?></option>
                                             <?php } ?>
                                         </select>
-                                       
+                                       <?php echo form_error('appliance_capacity'); ?>
                                     </div>
                                 </div>
 
-                                 <div class="form-group ">
+                                 <div class="form-group <?php if( form_error('price_tag') ) { echo 'has-error';} ?>">
                                     <label for="call type" class="col-md-4">Call Type *</label>
                                     <div class="col-md-6">
                                         <select type="text" class="form-control price_tags"   id="price_tag" name="price_tag" required>
@@ -197,14 +217,14 @@
                                             <option>Repair - In Warranty</option>
                                             <option>Repair - Out Of Warranty</option>
                                         </select>
-                                       
+                                       <?php echo form_error('price_tag'); ?>
                                     </div>
                                 </div>
                   
                                 
                                 
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6 ">
                                            
                                 <div class="form-group <?php if( form_error('model_number') ) { echo 'has-error';} ?>">
                                     <label for="type" class="col-md-4">Appliance Model </label>
@@ -213,17 +233,17 @@
                                         <?php echo form_error('model_number'); ?>
                                     </div>
                                 </div>
-                                  <div class="form-group ">
+                                  <div class="form-group <?php if( form_error('serial_number') ) { echo 'has-error';} ?>">
                                     <label for="type" class="col-md-4">Serial Number *</label>
                                     <div class="col-md-6">
-                                        <input  type="text" class="form-control"  name="serial_number" id="serial_number_1" value = "" placeholder="Enter Serial Number" >
-                                       
+                                        <input  type="text" class="form-control"  name="serial_number" id="serial_number_1" value = "<?php echo set_value('model_number'); ?>" placeholder="Enter Serial Number" >
+                                       <?php echo form_error('serial_number'); ?>
                                     </div>
                                 </div>
-                                 <div class="form-group ">
+                                 <div class="form-group <?php if( form_error('description') ) { echo 'has-error';} ?>">
                                     <label for="type" class="col-md-4">Description *</label>
                                     <div class="col-md-6">
-                                        <textarea type="text" class="form-control"  name="description" id="description" value = "" placeholder="Enter Product Description" ></textarea>   
+                                        <textarea type="text" class="form-control"  name="description" id="description" value = "<?php echo set_value('description'); ?>" placeholder="Enter Product Description" ></textarea>   
                                        
                                     </div>
                                 </div>
@@ -268,10 +288,11 @@
             <div class="row">
                 <div class="col-md-12">
                     
-                    <div class="form-group ">
+                    <div class="form-group <?php if( form_error('query_remarks') ) { echo 'has-error';} ?> ">
                         <label for="type" class="col-md-2">Problem Description</label>
                         <div class="col-md-8">
-                            <textarea class="form-control" rows="5" name="query_remarks"  placeholder="Enter Problem Description" ></textarea>
+                            <textarea class="form-control" rows="5" name="query_remarks"  placeholder="Enter Problem Description" ><?php echo set_value('query_remarks'); ?></textarea>
+                            <?php echo form_error('query_remarks'); ?>
                         </div>
                     </div>
                 </div>
@@ -291,7 +312,6 @@
 
 <script>
 
-
    (function($,W,D)
 {
     var JQUERY4U = {};
@@ -309,8 +329,7 @@
                         required: true,
                         minlength: 10
                     },
-                   
-                    state: "required",
+                    landmark: "required",
                     booking_pincode: {
                         required: true,
                         minlength: 6
@@ -321,18 +340,21 @@
                         email: true
                     },
                     booking_address: "required",   
-                    appliance_capacity: "required"
+                    appliance_capacity: "required",
+                    appliance_category: "required",
+                    "price_tag": "required"
                 },
                 messages: {
                     user_name: "Please Enter Customer  Name",
-                    booking_primary_contact_no: "Please Enter Customer Phone Number",
                     city: "Please Select City",
-                    state: "Please Select State",
+                    booking_primary_contact_no: "Please Enter Customer Phone Number",
+                    landmark: "Please Enter Landmark",
                     booking_pincode: "Please Enter Correct Pincode",
                     user_email: "Please fill correct email",
-                    booking_address: "Please fill Customer Address",
-                   
-                    appliance_capacity: "Please Enter Capacity"
+                    booking_address: "Please Fill Customer Address",
+                    appliance_capacity: "Please Enter Capacity",
+                    appliance_category: "Please Select Category",
+                    price_tag: "Plese Select "
                    
                 },
                 submitHandler: function(form) {
@@ -348,6 +370,10 @@
     });
 
 })(jQuery, window, document);
+
+</script>
+
+
 
 </script>
 <style type="text/css">
@@ -366,3 +392,4 @@
 }
 </style>
 
+<?php $this->session->unset_userdata('success'); ?>
