@@ -86,7 +86,8 @@
                               <th>Service Charge</th>
                               <th>Additional Service Charge</th>
                               <th>Parts Cost</th>
-                              <th>Total Charge</th>
+                              <th>Total Charges</th>
+                              <th>Serial Number</th>
                               <th>Admin Remarks</th>
                               <th>Vendor Status</th>
                               <th>Vendor Remarks</th>
@@ -132,6 +133,11 @@
                                  <p id="<?php echo "parts_cost".$count;?>"><?php echo $value['parts_cost']; ?></p>
                               </td>
                               <td><?php echo ($value['parts_cost'] + $value['additional_service_charge'] + $value['service_charge']); ?></td>
+
+                              <td>
+                                 <p id="<?php echo "serial_number_".$count; ?>"><?php echo $value['serial_number']; ?></p>
+                              </td>                                                            
+                              
                               <td>
                                  <p id="<?php echo "admin_remarks_".$count; ?>"><?php echo $value['admin_remarks']; ?></p>
                               </td>

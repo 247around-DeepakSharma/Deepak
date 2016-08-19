@@ -31,6 +31,7 @@ class Do_background_process extends CI_Controller {
 	$this->load->library('notify');
 	$this->load->library('s3');
 	$this->load->library('email');
+	$this->load->library("session");
     }
 
     /**
