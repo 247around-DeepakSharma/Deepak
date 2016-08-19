@@ -49,6 +49,7 @@ class New_booking extends CI_Controller {
      * @param : void
      * @return; void
      */
+    //this function needs to be cleaned and verified.
     function complete_review_booking() {
 	$booking_id = $this->input->post('booking_id');
 	log_message('info', __METHOD__ . "=> Booking Id " . print_r($booking_id, TRUE));
