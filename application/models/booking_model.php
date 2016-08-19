@@ -43,6 +43,21 @@ class Booking_model extends CI_Model {
         return $t1 - $t2;
     }
 
+     /**
+     * @desc: this method is used to get city, services, sources and user details
+     * @param : user phone no.
+     * @return : array()
+     */
+    function get_city_booking_source_services($phone_number){
+        $query1['services'] = $this->selectservice();
+        $query2['city'] = $this->vendor_model->getDistrict();
+        $query3['sources'] = $this->partner_model->get_all_partner_source("0");
+        $query4['user'] = $this->user_model->search_user($phone_number);
+
+        return $query = array_merge($query1, $query2, $query3, $query4);
+
+    }
+
     /**
      *  @desc : add unit details for a booking
      *
@@ -327,6 +342,10 @@ class Booking_model extends CI_Model {
             "purchase_year" => $booking['purchase_year'],
             "last_service_date" => $booking['last_service_date'],
             "tag" => $booking['appliance_tags']);
+
+        if(isset($booking['serial_number'])){
+            $appliance_detail['serial_number'] =  $booking['serial_number'];
+        }
         $this->db->insert('appliance_details', $appliance_detail);
         $id = $this->db->insert_id();
         return $id;
@@ -350,6 +369,10 @@ class Booking_model extends CI_Model {
             "purchase_year" => $booking['purchase_year'],
             "total_price" => $booking['total_price'],
             "appliance_tag" => $booking['appliance_tags']);
+
+         if(isset($booking['serial_number'])){
+            $unit_detail['serial_number'] =  $booking['serial_number'];
+        }
         return $this->db->insert('booking_unit_details', $unit_detail);
     }
 
@@ -403,7 +426,10 @@ class Booking_model extends CI_Model {
     if(isset($booking['partner_source'])){
         $booking_detail['partner_source'] = $booking['partner_source'];
         $booking_detail['order_id'] = $booking['order_id'];
+    }
 
+    if(isset($booking['booking_timeslot'])){
+         $booking_detail['booking_timeslot'] = $booking['booking_timeslot'];
     }
 
 	$this->db->insert('booking_details', $booking_detail);

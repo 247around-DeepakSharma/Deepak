@@ -326,4 +326,19 @@ class Partner_model extends CI_Model {
         return $t2 - $t1;
     }
 
+    function get_authentication_code($partner_id){
+       $this->db->select('auth_token');
+       $this->db->where('id', $partner_id);
+       $this->db->where('is_active','1');
+       $query =  $this->db->get('partners');
+       if($query->num_rows > 0){
+
+          return $query->result_array()[0]['auth_token'];
+
+       } else{
+
+          return false;
+       }
+    }
+
 }

@@ -43,19 +43,9 @@ class Do_background_process extends CI_Controller {
 	log_message('info', "Entering: " . __METHOD__);
 
 	$booking_id = $this->input->post('booking_id');
-	$service_center_id = $this->input->post('service_center_id');
 
-	log_message('info', "Booking ID: " . $booking_id . ", Service centre: " . $service_center_id);
+	log_message('info', "Asynchronous process:- send sms to customer booking id: " . $booking_id );
 
-	//Assign service centre
-	$this->booking_model->assign_booking($booking_id, $service_center_id);
-
-	$data['current_status'] = "Pending";
-	$data['internal_status'] = "Pending";
-	$data['service_center_id'] = $service_center_id;
-	$data['booking_id'] = $booking_id;
-	$data['create_date'] = date('Y-m-d H:i:s');
-	$this->vendor_model->insert_service_center_action($data);
 
 	//Send SMS to customer
 	$query1 = $this->booking_model->booking_history_by_booking_id($booking_id);
@@ -68,10 +58,11 @@ class Do_background_process extends CI_Controller {
 	    log_message('info', "SMS not sent to user while assigning vendor. User's Phone: " .
 		$query1[0]['phone_number']);
 	}
-
+    log_message('info', "Asynchronous process:- Prepare Job card booking id: " . $booking_id );
 	//Prepare job card
 	$this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
 
+    log_message('info', "Asynchronous process:- Send Mail booking id: " . $booking_id );
 	//Send mail to vendor, no Note to vendor as of now
 	$message = "";
 	$this->booking_utilities->lib_send_mail_to_vendor($booking_id, $message);
