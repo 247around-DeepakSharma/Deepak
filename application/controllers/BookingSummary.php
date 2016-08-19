@@ -433,7 +433,7 @@ class BookingSummary extends CI_Controller {
     }
 
     public function get_sd_summary_table() {
-	$snapdeal_summary_params = $this->reporting_utils->get_snapdeal_summary_params();
+	$snapdeal_summary_params = $this->reporting_utils->get_snapdeal_summary_params_new();
 
 	$total_install_req = $snapdeal_summary_params['total_install_req'];
 	$today_install_req = $snapdeal_summary_params['today_install_req'];
@@ -447,25 +447,15 @@ class BookingSummary extends CI_Controller {
 	$today_install_compl = $snapdeal_summary_params['today_install_compl'];
 	$yday_install_compl = $snapdeal_summary_params['yday_install_compl'];
 
-	$total_install_pend = $snapdeal_summary_params['total_install_pend'];
-	$today_install_pend = $snapdeal_summary_params['today_install_pend'];
-	$yday_install_pend = $snapdeal_summary_params['yday_install_pend'];
+	$total_followup_pend = $snapdeal_summary_params['total_followup_pend'];
+	$today_followup_pend = $snapdeal_summary_params['today_followup_pend'];
+	$yday_followup_pend = $snapdeal_summary_params['yday_followup_pend'];
 
-	$total_ph_unreach = $snapdeal_summary_params['total_ph_unreach'];
-	$today_ph_unreach = $snapdeal_summary_params['today_ph_unreach'];
-	$yday_ph_unreach = $snapdeal_summary_params['yday_ph_unreach'];
-
-	$total_already_inst = $snapdeal_summary_params['total_already_inst'];
-	$today_already_inst = $snapdeal_summary_params['today_already_inst'];
-	$yday_already_inst = $snapdeal_summary_params['yday_already_inst'];
-
-	$total_cancel_other = $snapdeal_summary_params['total_cancel_other'];
-	$today_cancel_other = $snapdeal_summary_params['today_cancel_other'];
-	$yday_cancel_other = $snapdeal_summary_params['yday_cancel_other'];
+	$total_install_cancl = $snapdeal_summary_params['total_install_cancl'];
+	$today_install_cancl = $snapdeal_summary_params['today_install_cancl'];
+	$yday_install_cancl = $snapdeal_summary_params['yday_install_cancl'];
 
 	$tat = $snapdeal_summary_params['tat'];
-	$avg_rating = $snapdeal_summary_params['avg_rating'];
-	//$ = $snapdeal_summary_params[''];
 
 	$message = <<<EOD
 	<table border="1">
@@ -475,11 +465,8 @@ class BookingSummary extends CI_Controller {
 		<td>Scheduled</td>
 		<td>Completed</td>
 		<td>Pending</td>
-		<td>Phone Unreachable</td>
 		<td>Cancelled</td>
-		<td>Already Installed</td>
 		<td>TAT (%)</td>
-		<td>Avg Rating (%)</td>
 	    </tr>
 
 	    <tr>
@@ -487,11 +474,8 @@ class BookingSummary extends CI_Controller {
 		<td>$yday_install_req</td>
 		<td>$yday_install_sched</td>
 		<td>$yday_install_compl</td>
-		<td>$yday_install_pend</td>
-		<td>$yday_ph_unreach</td>
-		<td>$yday_cancel_other</td>
-		<td>$yday_already_inst</td>
-		<td>NA</td>
+		<td>$yday_followup_pend</td>
+		<td>$yday_install_cancl</td>
 		<td>NA</td>
 	    </tr>
 
@@ -500,11 +484,8 @@ class BookingSummary extends CI_Controller {
 		<td>$today_install_req</td>
 		<td>$today_install_sched</td>
 		<td>$today_install_compl</td>
-		<td>$today_install_pend</td>
-		<td>$today_ph_unreach</td>
-		<td>$today_cancel_other</td>
-		<td>$today_already_inst</td>
-		<td>NA</td>
+		<td>$today_followup_pend</td>
+		<td>$today_install_cancl</td>
 		<td>NA</td>
 	    </tr>
 
@@ -513,12 +494,9 @@ class BookingSummary extends CI_Controller {
 		<td>$total_install_req</td>
 		<td>$total_install_sched</td>
 		<td>$total_install_compl</td>
-		<td>$total_install_pend</td>
-		<td>$total_ph_unreach</td>
-		<td>$total_cancel_other</td>
-		<td>$total_already_inst</td>
+		<td>$total_followup_pend</td>
+		<td>$total_install_cancl</td>
 		<td>$tat</td>
-		<td>$avg_rating</td>
 	    </tr>
 
 	</table>
@@ -530,41 +508,40 @@ EOD;
     public function send_summary_mail_to_snapdeal() {
 	//log_message('info', __FUNCTION__);
 
-	$template = 'SD_Summary_Template-v1.xls';
-	$templateDir = __DIR__ . "/";
-
-	//set config for report
-	$config = array(
-	    'template' => $template,
-	    'templateDir' => $templateDir
-	);
-
-	//load template
-	$R = new PHPReport($config);
-
-	//Fetch SD bookings
-	$leads = $this->reporting_utils->get_all_sd_leads();
-
-	$R->load(array(
-	    array(
-		'id' => 'sd',
-		'repeat' => true,
-		'data' => $leads,
-	    ),
-	));
-
-	//Get populated XLS with data
-	$output_file = "247around Installation Consolidated Data - " . date('d-M-Y') . ".xls";
-	$R->render('excel2003', $output_file);
-
+//	$template = 'SD_Summary_Template-v1.xls';
+//	$templateDir = __DIR__ . "/";
+//
+//	//set config for report
+//	$config = array(
+//	    'template' => $template,
+//	    'templateDir' => $templateDir
+//	);
+//
+//	//load template
+//	$R = new PHPReport($config);
+//
+//	//Fetch SD bookings
+//	$leads = $this->reporting_utils->get_all_sd_leads();
+//
+//	$R->load(array(
+//	    array(
+//		'id' => 'sd',
+//		'repeat' => true,
+//		'data' => $leads,
+//	    ),
+//	));
+//
+//	//Get populated XLS with data
+//	$output_file = "247around Installation Consolidated Data - " . date('d-M-Y') . ".xls";
+//	$R->render('excel2003', $output_file);
 	//Send report via email
 	$this->email->from('booking@247around.com', '247around Team');
-	$this->email->to("alok.singh@snapdeal.com");
-	$cc = "dhananjay.shashidharan@snapdeal.com,"
-	    . "soumendra.choudhury@snapdeal.com, somya.kaila@snapdeal.com, "
-	    . "shivalini.verma@snapdeal.com, "
-	    . "nits@247around.com, anuj@247around.com";
-	$this->email->cc($cc);
+	$this->email->to("anuj@247around.com");
+//	$cc = "dhananjay.shashidharan@snapdeal.com,"
+//	    . "soumendra.choudhury@snapdeal.com, somya.kaila@snapdeal.com, "
+//	    . "shivalini.verma@snapdeal.com, "
+//	    . "nits@247around.com, anuj@247around.com";
+//	$this->email->cc($cc);
 	//$this->email->bcc("anuj.aggarwal@gmail.com");
 
 	$this->email->subject("247around Installation Report - " . date('d-M-Y'));
@@ -581,18 +558,16 @@ EOD;
                         <br>https://play.google.com/store/apps/details?id=com.handymanapp";
 
 	$this->email->message($message);
-	$this->email->attach($output_file, 'attachment');
-
-	if ($this->email->send()) {
-	    //log_message('info', __METHOD__ . ": Mail sent successfully");
-	} else {
-	    log_message('error', __METHOD__ . ": Mail could not be sent");
-	}
-
+//	$this->email->attach($output_file, 'attachment');
+//	if ($this->email->send()) {
+//	    //log_message('info', __METHOD__ . ": Mail sent successfully");
+//	} else {
+//	    log_message('error', __METHOD__ . ": Mail could not be sent");
+//	}
 	//Upload Excel to AWS/FTP
-	$bucket = 'bookings-collateral';
-	$directory_xls = "summary-excels/" . $output_file;
-	$this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
+//	$bucket = 'bookings-collateral';
+//	$directory_xls = "summary-excels/" . $output_file;
+//	$this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
 
 	/*
 	  //Connect and login to FTP server
@@ -614,7 +589,7 @@ EOD;
 	 */
 
 	//Delete this file
-	exec("rm -rf " . escapeshellarg($output_file));
+//	exec("rm -rf " . escapeshellarg($output_file));
 
 	exit(0);
     }
