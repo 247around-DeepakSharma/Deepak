@@ -1366,8 +1366,8 @@ class Partner extends CI_Controller {
 			    ", " . $lead_details['City'];
 			$booking['booking_pincode'] = $lead_details['Pincode'];
 			$booking['amount_due'] = '';
-			$booking['booking_remarks'] = '';
-			$booking['query_remarks'] = (isset($requestData['remarks']) ? $requestData['remarks'] : "");
+			$booking['booking_remarks'] = (isset($requestData['remarks']) ? $requestData['remarks'] : "");
+			$booking['query_remarks'] = "";
 			$booking['order_id'] = $lead_details['orderID'];
 			$booking['partner_source'] = (isset($requestData['partner_source']) ? $requestData['partner_source'] : "");
 			$booking['booking_timeslot'] = "4PM-7PM";
