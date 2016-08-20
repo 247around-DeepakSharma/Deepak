@@ -540,7 +540,7 @@ EOD;
 	$this->email->to("alok.singh@snapdeal.com");
 	$cc = "dhananjay.shashidharan@snapdeal.com,"
 	    . "soumendra.choudhury@snapdeal.com, somya.kaila@snapdeal.com, "
-	    . "shivalini.verma@snapdeal.com, abhinaw.sinha@snapdeal.com"
+	    . "shivalini.verma@snapdeal.com, abhinaw.sinha@snapdeal.com, "
 	    . "nits@247around.com, anuj@247around.com";
 	$this->email->cc($cc);
 	$this->email->bcc("anuj.aggarwal@gmail.com");
