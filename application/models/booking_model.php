@@ -2443,4 +2443,14 @@ class Booking_model extends CI_Model {
 	//return $this->db->insert_id();
     }
 
+
+    function test_upload(){
+
+    $sql = "LOAD DATA INFILE '/tmp/vendor_pincode_mapping_temp1.csv' INTO TABLE vendor_pincode_mapping_temp FIELDS TERMINATED BY ',' ENCLOSED BY '' LINES TERMINATED BY '\r\n' (Vendor_Name,Vendor_ID,Appliance,Appliance_ID,Brand,Area,Pincode,Region,City,State)";
+
+      
+        $this->db->query($sql);
+        echo $this->db->last_query();
+    }
+
 }
