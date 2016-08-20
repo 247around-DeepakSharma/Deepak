@@ -462,18 +462,18 @@ class BookingSummary extends CI_Controller {
 	    <tr>
 		<td>Date</td>
 		<td>Requests Received</td>
-		<td>Scheduled</td>
-		<td>Completed</td>
-		<td>Pending</td>
-		<td>Cancelled</td>
+		<td>Requests Completed</td>
+		<td>Requests Scheduled</td>
+		<td>To be Followed Up</td>
+		<td>Requests Cancelled</td>
 		<td>TAT (%)</td>
 	    </tr>
 
 	    <tr>
 		<td>Yesterday</td>
 		<td>$yday_install_req</td>
-		<td>$yday_install_sched</td>
 		<td>$yday_install_compl</td>
+		<td>$yday_install_sched</td>
 		<td>$yday_followup_pend</td>
 		<td>$yday_install_cancl</td>
 		<td>NA</td>
@@ -482,8 +482,8 @@ class BookingSummary extends CI_Controller {
 	    <tr>
 		<td>Today</td>
 		<td>$today_install_req</td>
-		<td>$today_install_sched</td>
 		<td>$today_install_compl</td>
+		<td>$today_install_sched</td>
 		<td>$today_followup_pend</td>
 		<td>$today_install_cancl</td>
 		<td>NA</td>
@@ -492,8 +492,8 @@ class BookingSummary extends CI_Controller {
 	    <tr>
 		<td>Total</td>
 		<td>$total_install_req</td>
-		<td>$total_install_sched</td>
 		<td>$total_install_compl</td>
+		<td>$total_install_sched</td>
 		<td>$total_followup_pend</td>
 		<td>$total_install_cancl</td>
 		<td>$tat</td>
@@ -506,40 +506,42 @@ EOD;
     }
 
     public function send_summary_mail_to_snapdeal() {
-	//log_message('info', __FUNCTION__);
+	log_message('info', __FUNCTION__);
 
-//	$template = 'SD_Summary_Template-v1.xls';
-//	$templateDir = __DIR__ . "/";
-//
-//	//set config for report
-//	$config = array(
-//	    'template' => $template,
-//	    'templateDir' => $templateDir
-//	);
-//
-//	//load template
-//	$R = new PHPReport($config);
-//
-//	//Fetch SD bookings
-//	$leads = $this->reporting_utils->get_all_sd_leads();
-//
-//	$R->load(array(
-//	    array(
-//		'id' => 'sd',
-//		'repeat' => true,
-//		'data' => $leads,
-//	    ),
-//	));
-//
-//	//Get populated XLS with data
-//	$output_file = "247around Installation Consolidated Data - " . date('d-M-Y') . ".xls";
-//	$R->render('excel2003', $output_file);
+	$template = 'SD_Summary_Template-v2.xlsx';
+	$templateDir = __DIR__ . "/../";
+
+	//set config for report
+	$config = array(
+	    'template' => $template,
+	    'templateDir' => $templateDir
+	);
+
+	//load template
+	$R = new PHPReport($config);
+
+	//Fetch SD bookings
+	$leads = $this->reporting_utils->get_all_sd_leads();
+
+	$R->load(array(
+	    array(
+		'id' => 'sd',
+		'repeat' => true,
+		'data' => $leads,
+	    ),
+	));
+
+	//Get populated XLS with data
+	$output_file = "247around Installation Consolidated Data - " . date('d-M-Y') . ".xlsx";
+	//for xlsx: excel, for xls: excel2003
+	$R->render('excel', $output_file);
 	//Send report via email
 	$this->email->from('booking@247around.com', '247around Team');
+//	$this->email->to("alok.singh@snapdeal.com");
 	$this->email->to("anuj@247around.com");
 //	$cc = "dhananjay.shashidharan@snapdeal.com,"
 //	    . "soumendra.choudhury@snapdeal.com, somya.kaila@snapdeal.com, "
-//	    . "shivalini.verma@snapdeal.com, "
+//	    . "shivalini.verma@snapdeal.com, abhinaw.sinha@snapdeal.com"
 //	    . "nits@247around.com, anuj@247around.com";
 //	$this->email->cc($cc);
 	//$this->email->bcc("anuj.aggarwal@gmail.com");
@@ -548,7 +550,7 @@ EOD;
 	$summary_table = $this->get_sd_summary_table();
 
 	$message = "Dear Alok,<br/><br/>";
-	$message .= "Please find updated MTD summary table below. Detailed report uploaded on FTP.<br/><br/>";
+	$message .= "Please find updated summary table below.<br/><br/>";
 	$message .= $summary_table;
 	$message .= "<br><br>Best Regards,
                         <br>247around Team
@@ -557,39 +559,22 @@ EOD;
                         <br>Playstore - 247around -
                         <br>https://play.google.com/store/apps/details?id=com.handymanapp";
 
+	echo $message;
+
 	$this->email->message($message);
-//	$this->email->attach($output_file, 'attachment');
-//	if ($this->email->send()) {
-//	    //log_message('info', __METHOD__ . ": Mail sent successfully");
-//	} else {
-//	    log_message('error', __METHOD__ . ": Mail could not be sent");
-//	}
+	$this->email->attach($output_file, 'attachment');
+	if ($this->email->send()) {
+	    //log_message('info', __METHOD__ . ": Mail sent successfully");
+	} else {
+	    log_message('error', __METHOD__ . ": Mail could not be sent");
+	}
 	//Upload Excel to AWS/FTP
 //	$bucket = 'bookings-collateral';
 //	$directory_xls = "summary-excels/" . $output_file;
 //	$this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
 
-	/*
-	  //Connect and login to FTP server
-	  $ftp_server = "ftp.edustbin.com";
-	  $ftp_conn = ftp_ssl_connect($ftp_server) or die("Could not connect to $ftp_server");
-	  $login = ftp_login($ftp_conn, "upload@edustbin.com", "SDKB%^&*");
-
-	  //Only for localhost
-	  ftp_pasv($ftp_conn, true);
-
-	  if (ftp_put($ftp_conn, $output_file, $output_file, FTP_BINARY)) {
-	  //echo "Successfully uploaded $output_file";
-	  } else {
-	  log_message('error', __METHOD__ . ": Error uploading $output_file");
-	  }
-
-	  ftp_close($ftp_conn);
-	 *
-	 */
-
 	//Delete this file
-//	exec("rm -rf " . escapeshellarg($output_file));
+	exec("rm -rf " . escapeshellarg($output_file));
 
 	exit(0);
     }
