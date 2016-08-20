@@ -3074,4 +3074,9 @@ class Booking extends CI_Controller {
         }
     }
 
+    function test_upload_pincode_file(){
+        shell_exec('sudo chown mysql:mysql /tmp/vendor_pincode_mapping_temp1.csv');
+        $this->booking_model->test_upload();
+    }
+
 }
