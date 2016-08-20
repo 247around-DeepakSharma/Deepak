@@ -383,8 +383,7 @@ class bookings_excel extends CI_Controller {
             //  Read a row of data into an array
             $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
             $rowData[0] = array_combine($headings_new[0], $rowData[0]);
-            // print_r($rowData[0]);
-            
+
             //echo print_r($rowData[0], true), EOL;
             if ($rowData[0]['CustomerContactNo'] == "") {
                 //echo print_r("Phone number null, break from this loop", true), EOL;
@@ -399,9 +398,10 @@ class bookings_excel extends CI_Controller {
                 $user['name'] = $rowData[0]['CustomerName'];
                 $user['phone_number'] = $rowData[0]['CustomerContactNo'];
                 $user['user_email'] = (isset($rowData[0]['customer_email']) ? $rowData[0]['customer_email'] : "");
-                $user['home_address'] = $rowData[0]['CustomerAddress1'];
+                $user['home_address'] = $rowData[0]['CustomerAddress1']."  ".$rowData[0]['CustomerAddress2'];
                 $user['pincode'] = $rowData[0]['CustomerPincode'];
                 $user['city'] = $rowData[0]['CustomerCity'];
+                $user['state'] = $rowData[0]['CustomerState'];
 
                 $user_id = $this->user_model->add_user($user);
 
@@ -419,7 +419,7 @@ class bookings_excel extends CI_Controller {
 
             //Add this lead into the leads table
 	    //Check whether this is a new Lead or Not
-	    if ($this->booking_model->check_sd_lead_exists_by_order_id($rowData[0]['OrderID']) == FALSE) {
+	    if ($this->booking_model->check_booking_exists_by_order_id($rowData[0]['OrderID']) == FALSE) {
 		$lead_details['OrderID'] = $rowData[0]['OrderID'];
 		//$lead_details['Unique_id'] = $rowData[0]['Item ID'];
 
@@ -456,11 +456,10 @@ class bookings_excel extends CI_Controller {
 
 		$lead_details['ProductType'] = $rowData[0]['ProductName'];
 		$lead_details['Name'] = $rowData[0]['CustomerName'];
-		$lead_details['Address'] = $rowData[0]['CustomerAddress1'];
+		$lead_details['Address'] = $rowData[0]['CustomerAddress1']."  ".$rowData[0]['CustomerAddress2'];
 		$lead_details['Pincode'] = $rowData[0]['CustomerPincode'];
 		$lead_details['City'] = $rowData[0]['CustomerCity'];
 		$lead_details['Mobile'] = $rowData[0]['CustomerContactNo'];
-		$lead_details['Landmark'] = $rowData[0]['CustomerAddress2'];
 		$lead_details['Email'] =  $rowData[0]['customer_email'];
         
 		$dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['shippedDate']);
@@ -530,6 +529,7 @@ class bookings_excel extends CI_Controller {
 		$booking['purchase_year'] = date('Y');
 		$booking['order_id'] = $lead_details['OrderID'];
 		$booking['partner_source'] = "Paytm-delivered-excel";
+        $booking['state'] = $rowData[0]['CustomerState'];
 
 
 		$booking['items_selected'] = '';
@@ -540,7 +540,12 @@ class bookings_excel extends CI_Controller {
 		//echo print_r($booking, true) . "<br><br>";
 		$appliance_id = $this->booking_model->addexcelappliancedetails($booking);
 		//echo print_r($appliance_id, true) . "<br><br>";
-		$this->booking_model->addapplianceunitdetails($booking);
+		$return_unit_id = $this->booking_model->addapplianceunitdetails($booking);
+        if($return_unit_id){
+
+        }else {
+            log_message('info', __FUNCTION__ . 'Error Paytm booking unit not inserted: ' . print_r($booking, true)); 
+        }
 
 		$booking['current_status'] = "FollowUp";
 		$booking['internal_status'] = "FollowUp";
@@ -555,47 +560,25 @@ class bookings_excel extends CI_Controller {
 
 		//Insert query
 		//echo print_r($booking, true) . "<br><br>";
-		$this->booking_model->addbooking($booking, $appliance_id, $lead_details['City']);
+		$return_id  = $this->booking_model->addbooking($booking, $appliance_id, $lead_details['City']);
+        if($return_id){
 
-		
+        } else {
+            log_message('info', __FUNCTION__ . 'Error Paytm booking details not inserted: ' . print_r($booking, true));
+        }
+
 		//echo print_r($lead_details, true) . "<br><br>";
 		$id = $this->partner_model->insert_partner_lead($lead_details);
 		if($id){
 			
 		} else {
-			log_message('info', __FUNCTION__ . 'Paytm booking not inserted: ' . print_r($lead_details, true));
+			log_message('info', __FUNCTION__ . 'Error Paytm booking not inserted: ' . print_r($lead_details, true));
 		}
 
 		//Reset
 		unset($booking);
 		unset($lead_details);
-	    } else {
-		//Check if we already have this as a Shipped Order
-		//If it is there, update the Delivery Date in SD leads table
-		$dateObj = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['DeliveryDate']);
-
-		$arr_where = array('OrderID' => $rowData[0]['OrderID']);
-		$arr_data = array('DeliveryDate' => $dateObj->format('d/m/Y'));
-
-		log_message('info', __FUNCTION__ . 'Update Partner Lead: ' . print_r(array($arr_where, $arr_data), true));
-		$this->booking_model->update_partner_lead($arr_where, $arr_data);
-
-		//Clear the booking date so that it starts reflecting on our panel & update booking.
-		//This should be done only if the booking has not been updated in the meanwhile.
-		//If the booking has already been scheduled or cancelled, leave this as it is.
-		//If the booking query remarks or internal status has been changed, then also leave it.
-		$sd_leads = $this->booking_model->get_partner_lead_by_order_id($rowData[0]['OrderID']);
-		$booking_id = $sd_leads[0]['247aroundBookingID'];
-		$status = $sd_leads[0]['247aroundBookingStatus'];
-		$int_status = $sd_leads[0]['247aroundBookingRemarks'];
-
-		if ($status == 'FollowUp' && $int_status == 'FollowUp') {
-		    $data['booking_date'] = '';
-		    $data['booking_timeslot'] = '';
-		    log_message('info', __FUNCTION__ . 'Update Booking: ' . print_r(array($booking_id, $data), true));
-		    $this->booking_model->update_booking($booking_id, $data);
-		}
-	    }
+	    } 
 	}
 
 	redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
