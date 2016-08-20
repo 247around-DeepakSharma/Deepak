@@ -480,7 +480,7 @@ class Reporting_utils extends CI_Model {
 
 	//Count yday follow-ups pending
 	$yday = date("d-m-Y", strtotime("-1 days"));
-	$where_yday = "`source` LIKE '%SS%' AND `current_status`='FollowUp' AND (`booking_date`='' OR `booking_date`=$yday)";
+	$where_yday = "`source` LIKE '%SS%' AND `current_status`='FollowUp' AND `booking_date`=$yday";
 	$this->db->where($where_yday);
 	$yday_followup_pend = $this->db->count_all_results('booking_details');
 
