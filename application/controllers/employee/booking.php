@@ -2079,7 +2079,14 @@ class Booking extends CI_Controller {
                     }
                 }
 
-                redirect(base_url() . search_page);
+		//Log this state change as well for this query
+		$state_change['booking_id'] = $booking['booking_id'];
+		$state_change['old_state'] = 'FollowUp';
+		$state_change['new_state'] = 'FollowUp';
+		$state_change['agent_id'] = $this->session->userdata('id');
+		$this->booking_model->insert_booking_state_change($state_change);
+
+		redirect(base_url() . search_page);
             } else {
                 echo "Query is not saved";
             }

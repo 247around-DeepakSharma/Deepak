@@ -509,7 +509,7 @@ EOD;
 	log_message('info', __FUNCTION__);
 
 	$template = 'SD_Summary_Template-v2.xlsx';
-	$templateDir = __DIR__ . "/../";
+	$templateDir = __DIR__ . "/excel-templates/";
 
 	//set config for report
 	$config = array(
@@ -525,7 +525,7 @@ EOD;
 
 	$R->load(array(
 	    array(
-		'id' => 'sd',
+		'id' => 'bd',
 		'repeat' => true,
 		'data' => $leads,
 	    ),
@@ -558,8 +558,6 @@ EOD;
                         <br>Follow us on Facebook: www.facebook.com/247around | Website: www.247around.com
                         <br>Playstore - 247around -
                         <br>https://play.google.com/store/apps/details?id=com.handymanapp";
-
-	echo $message;
 
 	$this->email->message($message);
 	$this->email->attach($output_file, 'attachment');
