@@ -3,9 +3,9 @@
 if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 
-//error_reporting(E_ALL);
-//ini_set('display_errors', '1');
-//ini_set('include_path', '/Applications/MAMP/htdocs/aroundlocalhost/system/libraries');
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+ini_set('include_path', '/Applications/MAMP/htdocs/aroundlocalhost/system/libraries');
 //ini_set('include_path', '/var/www/aroundhomzapp.com/public_html/system/libraries');
 //require_once('simple_html_dom.php');
 
@@ -537,14 +537,13 @@ EOD;
 	$R->render('excel', $output_file);
 	//Send report via email
 	$this->email->from('booking@247around.com', '247around Team');
-//	$this->email->to("alok.singh@snapdeal.com");
-	$this->email->to("anuj@247around.com");
-//	$cc = "dhananjay.shashidharan@snapdeal.com,"
-//	    . "soumendra.choudhury@snapdeal.com, somya.kaila@snapdeal.com, "
-//	    . "shivalini.verma@snapdeal.com, abhinaw.sinha@snapdeal.com"
-//	    . "nits@247around.com, anuj@247around.com";
-//	$this->email->cc($cc);
-	//$this->email->bcc("anuj.aggarwal@gmail.com");
+	$this->email->to("alok.singh@snapdeal.com");
+	$cc = "dhananjay.shashidharan@snapdeal.com,"
+	    . "soumendra.choudhury@snapdeal.com, somya.kaila@snapdeal.com, "
+	    . "shivalini.verma@snapdeal.com, abhinaw.sinha@snapdeal.com"
+	    . "nits@247around.com, anuj@247around.com";
+	$this->email->cc($cc);
+	$this->email->bcc("anuj.aggarwal@gmail.com");
 
 	$this->email->subject("247around Installation Report - " . date('d-M-Y'));
 	$summary_table = $this->get_sd_summary_table();
@@ -567,9 +566,9 @@ EOD;
 	    log_message('error', __METHOD__ . ": Mail could not be sent");
 	}
 	//Upload Excel to AWS/FTP
-//	$bucket = 'bookings-collateral';
-//	$directory_xls = "summary-excels/" . $output_file;
-//	$this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
+	$bucket = 'bookings-collateral';
+	$directory_xls = "summary-excels/" . $output_file;
+	$this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
 
 	//Delete this file
 	exec("rm -rf " . escapeshellarg($output_file));
