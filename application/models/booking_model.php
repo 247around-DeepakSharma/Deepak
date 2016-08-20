@@ -1823,11 +1823,6 @@ class Booking_model extends CI_Model {
         $this->db->update("snapdeal_leads", $array_data);
     }
 
-    function update_partner_lead($array_where, $array_data) {
-        $this->db->where($array_where);
-        $this->db->update("partner_leads", $array_data);
-    }
-
     /**
      *  @desc : This function is to check snapdeal leads with their order id weather
      *      they exists or not.
@@ -1838,6 +1833,24 @@ class Booking_model extends CI_Model {
     function check_sd_lead_exists_by_order_id($sub_order_id) {
         $this->db->where(array("Sub_Order_ID" => $sub_order_id));
         $query = $this->db->get('snapdeal_leads');
+
+        if (count($query->result_array()) > 0) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+    /**
+     *  @desc : This function is to check booking details with their order id weather
+     *      they exists or not.
+     *
+     *  @param : array of order id
+     *  @return : if exists returns true else false
+     */
+    function check_booking_exists_by_order_id($order_id) {
+        $this->db->where(array("order_id" => $order_id));
+        $query = $this->db->get('booking_details');
 
         if (count($query->result_array()) > 0) {
             return TRUE;
@@ -1873,19 +1886,6 @@ class Booking_model extends CI_Model {
     function get_sd_lead_by_order_id($sub_order_id) {
         $this->db->where(array("Sub_Order_ID" => $sub_order_id));
         $query = $this->db->get('snapdeal_leads');
-
-        return $query->result_array();
-    }
-
-     /**
-     *  @desc : This function is to get partner leads with their order id
-     *
-     *  @param : array of Order id
-     *  @return : array of partner leads
-     */
-    function get_partner_lead_by_order_id($order_id) {
-        $this->db->where(array("OrderID" => $order_id));
-        $query = $this->db->get('partner_leads');
 
         return $query->result_array();
     }
