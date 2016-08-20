@@ -5,8 +5,8 @@ if (!defined('BASEPATH'))
 
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
-ini_set('include_path', '/Applications/MAMP/htdocs/aroundlocalhost/system/libraries');
-//ini_set('include_path', '/var/www/aroundhomzapp.com/public_html/system/libraries');
+//ini_set('include_path', '/Applications/MAMP/htdocs/aroundlocalhost/system/libraries');
+ini_set('include_path', '/var/www/aroundhomzapp.com/public_html/system/libraries');
 //require_once('simple_html_dom.php');
 
 class BookingSummary extends CI_Controller {
