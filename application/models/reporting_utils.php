@@ -415,6 +415,156 @@ class Reporting_utils extends CI_Model {
 	return $result;
     }
 
+    function get_snapdeal_summary_params_new() {
+	//Count all Snapdeal leads
+	$this->db->like('source', 'SS');
+	$total_install_req = $this->db->count_all_results('booking_details');
+
+	//Count today leads which has create_date as today
+//	$today = date("d") . "/" . date("m");
+	$this->db->where('source', 'SS');
+	$this->db->where('create_date >= ', date('Y-m-d H:i:s'));
+	$today_install_req = $this->db->count_all_results('booking_details');
+
+	//Count y'day leads
+//	$yday = date("d", strtotime("-1 days")) . "/" . date("m", strtotime("-1 days"));
+//	$this->db->like('Referred_Date_and_Time', $yday);
+	$this->db->where('source', 'SS');
+	$this->db->where('create_date >= ', date('Y-m-d H:i:s', strtotime("-1 days")));
+	$this->db->where('create_date < ', date('Y-m-d H:i:s'));
+	$yday_install_req = $this->db->count_all_results('booking_details');
+
+	//Count total installations scheduled
+	$this->db->where('source', 'SS');
+	$this->db->where_in('current_status', array('Completed', 'Pending', 'Rescheduled'));
+	$total_install_sched = $this->db->count_all_results('booking_details');
+
+	//Count today installations scheduled
+	$this->db->like('booking_id', 'SS');
+	$this->db->where('new_state', 'Pending');
+	$this->db->where('create_date >= ', date('Y-m-d H:i:s'));
+	$today_install_sched = $this->db->count_all_results('booking_state_change');
+
+	//Count y'day installations scheduled
+	$this->db->like('booking_id', 'SS');
+	$this->db->where('new_state', 'Pending');
+	$this->db->where('create_date >= ', date('Y-m-d H:i:s', strtotime("-1 days")));
+	$this->db->where('create_date < ', date('Y-m-d H:i:s'));
+	$yday_install_sched = $this->db->count_all_results('booking_state_change');
+
+	//Count total installations completed
+	$this->db->where('source', 'SS');
+	$this->db->where_in('current_status', array('Completed'));
+	$total_install_compl = $this->db->count_all_results('booking_details');
+
+	//Count today installations completed
+	$this->db->where('source', 'SS');
+	$this->db->where_in('current_status', array('Completed'));
+	$this->db->where('closed_date >= ', date('Y-m-d H:i:s'));
+	$today_install_compl = $this->db->count_all_results('booking_details');
+
+	//Count y'day installations completed
+	$this->db->where('source', 'SS');
+	$this->db->where_in('current_status', array('Completed'));
+	$this->db->where('closed_date >= ', date('Y-m-d H:i:s', strtotime("-1 days")));
+	$this->db->where('closed_date < ', date('Y-m-d H:i:s'));
+	$yday_install_compl = $this->db->count_all_results('booking_details');
+
+	//Count total follow-ups pending
+	$this->db->where('source', 'SS');
+	$this->db->where('current_status', 'FollowUp');
+	$total_followup_pend = $this->db->count_all_results('booking_details');
+
+	//Count today follow-ups pending
+	$today = date("d-m-Y");
+	$where_today = "source='SS' AND current_status='FollowUp' AND (booking_date='' OR booking_date=$today)";
+	$this->db->where($where_today);
+	$today_followup_pend = $this->db->count_all_results('booking_details');
+
+	//Count yday follow-ups pending
+	$yday = date("d-m-Y", strtotime("-1 days"));
+	$where_yday = "source='SS' AND current_status='FollowUp' AND (booking_date='' OR booking_date=$yday)";
+	$this->db->where($where_yday);
+	$yday_followup_pend = $this->db->count_all_results('booking_details');
+
+//	$total_install_pend = $total_install_sched - $total_install_compl;
+	//Count today installations pending
+//	$today_install_pend = $today_install_sched - $today_install_compl;
+	//Count y'day installations pending
+//	$yday_install_pend = $yday_install_sched - $yday_install_compl;
+//
+//
+	//Count total installations Cancelled
+	$this->db->where('source', 'SS');
+	$this->db->where('current_status', 'Cancelled');
+	$total_install_cancl = $this->db->count_all_results('booking_details');
+
+	//Count today installations Cancelled
+	$this->db->like('booking_id', 'SS');
+	$this->db->where('new_state', 'Cancelled');
+	$this->db->where('create_date >= ', date('Y-m-d H:i:s'));
+	$today_install_cancl = $this->db->count_all_results('booking_state_change');
+
+	//Count y'day installations Cancelled
+	$this->db->like('booking_id', 'SS');
+	$this->db->where('new_state', 'Cancelled');
+	$this->db->where('create_date >= ', date('Y-m-d H:i:s', strtotime("-1 days")));
+	$this->db->where('create_date < ', date('Y-m-d H:i:s'));
+	$yday_install_cancl = $this->db->count_all_results('booking_state_change');
+
+//	//Count total - Already Installed
+//	$this->db->where_in('Remarks_by_247around', array('Already Installed'));
+//	$total_already_inst = $this->db->count_all_results('snapdeal_leads');
+//
+//	//Count today - Already Installed
+//	$this->db->where_in('Remarks_by_247around', array('Already Installed'));
+//	$this->db->like('Referred_Date_and_Time', $today);
+//	$today_already_inst = $this->db->count_all_results('snapdeal_leads');
+//
+//	//Count y'day - Already Installed
+//	$this->db->where_in('Remarks_by_247around', array('Already Installed'));
+//	$this->db->like('Referred_Date_and_Time', $yday);
+//	$yday_already_inst = $this->db->count_all_results('snapdeal_leads');
+//
+//	//Count - Cancelled - Other reasons
+//	$total_cancel_other = $total_install_cancl - $total_already_inst;
+//	$today_cancel_other = $today_install_cancl - $today_already_inst;
+//	$yday_cancel_other = $yday_install_cancl - $yday_already_inst;
+	//TAT calculation
+	$tat = "100";
+	//SELECT DATEDIFF(`closed_date`, STR_TO_DATE(`booking_date`,"%d-%m-%Y")) FROM `booking_details` where source='SS' AND current_status='Completed'
+	//Average Rating
+//	$this->db->where('Rating_Stars !=', '');
+//	$this->db->select_avg('Rating_Stars');
+//	$query = $this->db->get('snapdeal_leads');
+//	$avg_rating = $query->result_array()[0]['Rating_Stars'];
+
+	$result = array(
+	    "total_install_req" => $total_install_req,
+	    "today_install_req" => $today_install_req,
+	    "yday_install_req" => $yday_install_req,
+
+	    "total_install_sched" => $total_install_sched,
+	    "today_install_sched" => $today_install_sched,
+	    "yday_install_sched" => $yday_install_sched,
+
+	    "total_install_compl" => $total_install_compl,
+	    "today_install_compl" => $today_install_compl,
+	    "yday_install_compl" => $yday_install_compl,
+
+	    "total_followup_pend" => $total_followup_pend,
+	    "today_followup_pend" => $today_followup_pend,
+	    "yday_followup_pend" => $yday_followup_pend,
+
+	    "total_install_cancl" => $total_install_cancl,
+	    "today_install_cancl" => $today_install_cancl,
+	    "yday_install_cancl" => $yday_install_cancl,
+	    "tat" => $tat,
+	);
+
+	return $result;
+    }
+
     function get_all_sd_leads() {
 	$query = $this->db->query("SELECT * FROM snapdeal_leads");
 

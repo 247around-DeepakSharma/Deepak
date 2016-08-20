@@ -31,6 +31,7 @@ class Do_background_process extends CI_Controller {
 	$this->load->library('notify');
 	$this->load->library('s3');
 	$this->load->library('email');
+	$this->load->library("session");
     }
 
     /**
@@ -184,32 +185,40 @@ class Do_background_process extends CI_Controller {
     //Completes booking after Reviewing SC Remarks and Charges
     function process_review_complete_booking($data) {
 	$current_status = "Completed";
+	$closed_date = date('Y-m-d H:i:s');
 
 	$data[0]['current_status'] = $current_status;
-
 	$this->vendor_model->update_service_center_action($data[0]);
 
-	$data[0]['closing_remarks'] = "Service Center Remarks:- " . $data[0]['service_center_remarks'] .
+//	$data[0]['closing_remarks'] = "Service Center Remarks:- " . $data[0]['service_center_remarks'] .
+//	    " <br/> Admin:-  " . $data[0]['admin_remarks'];
+	//Unset fields which are not required
+//	unset($data[0]['id']);
+//	unset($data[0]['service_center_id']);
+//	unset($data[0]['service_center_remarks']);
+//	unset($data[0]['cancellation_reason']);
+//	unset($data[0]['reschedule_reason']);
+//	unset($data[0]['admin_remarks']);
+//	unset($data[0]['create_date']);
+//	//TODO: Why do we have these fields here? These need to be removed.
+//	unset($data[0]['booking_date']);
+//	unset($data[0]['booking_timeslot']);
+//	$data[0]['closed_date'] = date('Y-m-d H:i:s');
+//
+	//update booking_details table
+	$booking_data['service_charge'] = $data[0]['service_charge'];
+	$booking_data['additional_service_charge'] = $data[0]['additional_service_charge'];
+	$booking_data['parts_cost'] = $data[0]['parts_cost'];
+	$booking_data['amount_paid'] = $data[0]['amount_paid'];
+	$booking_data['current_status'] = $data[0]['current_status'];
+	$booking_data['internal_status'] = $data[0]['internal_status'];
+	$booking_data['update_date'] = $closed_date;
+	$booking_data['closed_date'] = $closed_date;
+	$booking_data['closing_remarks'] = "Service Center Remarks:- " . $data[0]['service_center_remarks'] .
 	    " <br/> Admin:-  " . $data[0]['admin_remarks'];
 
-	//Unset fields which are not required
-	unset($data[0]['id']);
-	unset($data[0]['service_center_id']);
-	unset($data[0]['service_center_remarks']);
-	unset($data[0]['cancellation_reason']);
-	unset($data[0]['reschedule_reason']);
-	unset($data[0]['admin_remarks']);
-	unset($data[0]['create_date']);
-	//TODO: Why do we have these fields here? These need to be removed.
-	unset($data[0]['booking_date']);
-	unset($data[0]['booking_timeslot']);
-
-	$data[0]['closed_date'] = date('Y-m-d H:i:s');
-	//$data[0]['booking_date'] = date('d-m-Y', strtotime($data[0]['booking_date']));
-	//
-	//update booking_details table
-	log_message('info', "Update Booking Details (Complete): " . print_r($data[0], true));
-	$this->booking_model->update_booking($data[0]['booking_id'], $data[0]);
+	log_message('info', "Update Booking Details (Complete): " . print_r($booking_data, true));
+	$this->booking_model->update_booking($data[0]['booking_id'], $booking_data);
 
 	//Save this booking id in booking_invoices_mapping table as well now
 	$this->invoices_model->insert_booking_invoice_mapping(array('booking_id' => $data[0]['booking_id']));
@@ -229,10 +238,10 @@ class Do_background_process extends CI_Controller {
 		    "Status_by_247around" => $data[0]['current_status'],
 		    "Remarks_by_247around" => $data[0]['internal_status'],
 		    "Rating_Stars" => "",
-		    "update_date" => $data[0]['closed_date']
+		    "update_date" => $closed_date
 		);
 
-		log_message('info', "update sd lead");
+		log_message('info', "update sd lead for booking id: " . $data[0]['booking_id']);
 		$this->booking_model->update_sd_lead($sd_where, $sd_data);
 	    } else {
 		//Update Partner leads table
@@ -241,7 +250,7 @@ class Do_background_process extends CI_Controller {
 		    $partner_data = array(
 			"247aroundBookingStatus" => $data[0]['current_status'],
 			"247aroundBookingRemarks" => $data[0]['internal_status'],
-			"update_date" => $data[0]['closed_date']
+			"update_date" => $closed_date
 		    );
 
 		    log_message('info', "update partner lead");
@@ -261,7 +270,8 @@ class Do_background_process extends CI_Controller {
 	$state_change['new_state'] = 'Completed';
 	$state_change['agent_id'] = $this->session->userdata('id');
 	$this->booking_model->insert_booking_state_change($state_change);
-	log_message('info', 'Booking Status Change - Booking id: ' . $data[0]['booking_id'] . " Completed By " . $this->session->userdata('employee_id'));
+	log_message('info', 'Booking Status Change - Booking id: ' . $data[0]['booking_id'] .
+	    " Completed By " . $this->session->userdata('employee_id'));
 
 	$query1 = $this->booking_model->booking_history_by_booking_id($data[0]['booking_id'], "join");
 
@@ -271,9 +281,9 @@ class Do_background_process extends CI_Controller {
 	$email['booking_id'] = $query1[0]['booking_id'];
 	$email['service'] = $query1[0]['services'];
 	$email['booking_date'] = $query1[0]['booking_date'];
-	$email['closed_date'] = $data[0]['closed_date'];
+	$email['closed_date'] = $closed_date;
 	$email['amount_paid'] = $data[0]['amount_paid'];
-	$email['closing_remarks'] = $data[0]['closing_remarks'];
+	$email['closing_remarks'] = $booking_data['closing_remarks'];
 	$email['vendor_name'] = $query1[0]['vendor_name'];
 	$email['district'] = $query1[0]['district'];
 	$email['tag'] = "complete_booking";
@@ -303,28 +313,28 @@ class Do_background_process extends CI_Controller {
     //Cancels booking after Reviewing SC Remarks and Charges
     function process_review_cancel_booking($data) {
 	$current_status = "Cancelled";
+	$closed_date = date('Y-m-d H:i:s');
 
 	$data[0]['current_status'] = $current_status;
 	//Internal status is there in $data[0]['internal_status']
-
 	$this->vendor_model->update_service_center_action($data[0]);
 
 	$booking_data['cancellation_reason'] = $data[0]['cancellation_reason'];
 	$booking_data['closing_remarks'] = "Service Center Remarks:- " . $data[0]['service_center_remarks'] .
 	    " <br/> Admin:-  " . $data[0]['admin_remarks'];
-	$booking_data['update_date'] = date("Y-m-d H:i:s");
-	$booking_data['closed_date'] = date("Y-m-d H:i:s");
+	$booking_data['update_date'] = $closed_date;
+	$booking_data['closed_date'] = $closed_date;
 
 	$booking_data['current_status'] = "Cancelled";
 	$booking_data['internal_status'] = "Cancelled";
 
-	$booking_data['service_charge'] = NULL;
-	$booking_data['service_charge_collected_by'] = NULL;
-	$booking_data['additional_service_charge'] = NULL;
-	$booking_data['additional_service_charge_collected_by'] = NULL;
-	$booking_data['parts_cost'] = NULL;
-	$booking_data['parts_cost_collected_by'] = NULL;
-	$booking_data['amount_paid'] = NULL;
+	$booking_data['service_charge'] = 0;
+	$booking_data['service_charge_collected_by'] = 0;
+	$booking_data['additional_service_charge'] = 0;
+	$booking_data['additional_service_charge_collected_by'] = 0;
+	$booking_data['parts_cost'] = 0;
+	$booking_data['parts_cost_collected_by'] = 0;
+	$booking_data['amount_paid'] = 0;
 
 	//update booking_details table
 	log_message('info', "Update Booking Details (Cancel): " . print_r($booking_data, true));
@@ -372,7 +382,8 @@ class Do_background_process extends CI_Controller {
 	$state_change['new_state'] = 'Cancelled';
 	$state_change['agent_id'] = $this->session->userdata('id');
 	$this->booking_model->insert_booking_state_change($state_change);
-	log_message('info', 'Booking Status Change - Pending Booking ID: ' . $data[0]['booking_id'] . " Cancelled By " . $this->session->userdata('employee_id'));
+	log_message('info', 'Booking Status Change - Pending Booking ID: ' .
+	    $data[0]['booking_id'] . " Cancelled By " . $this->session->userdata('employee_id'));
 
 	$query1 = $this->booking_model->booking_history_by_booking_id($data[0]['booking_id'], "join");
 
