@@ -26,7 +26,7 @@ class bookings_excel extends CI_Controller {
         $this->load->library('s3');
         $this->load->library('PHPReport');
         $this->load->library('notify');
-
+        $this->load->model('partner_model');
         $this->load->model('user_model');
         $this->load->model('booking_model');
 
@@ -323,6 +323,285 @@ class bookings_excel extends CI_Controller {
 	redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
     }
 
+     /*
+     * @desc: This function is to add bookings from excel
+     * @param: void
+     * @return: list of transactions
+     */
+
+    public function upload_booking_for_paytm() {
+	log_message('info', __FUNCTION__);
+
+	if (!empty($_FILES['file']['name'])) {
+	    $pathinfo = pathinfo($_FILES["file"]["name"]);
+
+            if ($pathinfo['extension'] == 'xlsx') {
+                if ($_FILES['file']['size'] > 0) {
+                    $inputFileName = $_FILES['file']['tmp_name'];
+                    $inputFileExtn = 'Excel2007';
+                }
+            } else {
+                if ($pathinfo['extension'] == 'xls') {
+                    if ($_FILES['file']['size'] > 0) {
+                        $inputFileName = $_FILES['file']['tmp_name'];
+                        $inputFileExtn = 'Excel5';
+                    }
+                }
+            }
+        }
+
+        try {
+            $inputFileType = PHPExcel_IOFactory::identify($inputFileName);
+            $objReader = PHPExcel_IOFactory::createReader($inputFileExtn);
+            $objPHPExcel = $objReader->load($inputFileName);
+        } catch (Exception $e) {
+            die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
+        }
+
+        //  Get worksheet dimensions
+        $sheet = $objPHPExcel->setActiveSheetIndexbyName('Sheet1');
+        $highestRow = $sheet->getHighestRow();
+        $highestColumn = $sheet->getHighestColumn();
+        $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
+
+        //echo "highest row: ", $highestRow, EOL;
+        //echo "highest col: ", $highestColumn, EOL;
+        //echo "highest col index: ", $highestColumnIndex, EOL;
+
+        $sheet = $objPHPExcel->getSheet(0);
+        $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
+
+        $headings_new = array();
+        foreach ($headings as $heading) {
+            $heading = str_replace(array("/", "(", ")", " ", "."), "", $heading);
+            array_push($headings_new, str_replace(array(" "), "_", $heading));
+        }
+        
+        
+
+        for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
+            //  Read a row of data into an array
+            $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
+            $rowData[0] = array_combine($headings_new[0], $rowData[0]);
+            // print_r($rowData[0]);
+            
+            //echo print_r($rowData[0], true), EOL;
+            if ($rowData[0]['CustomerContactNo'] == "") {
+                //echo print_r("Phone number null, break from this loop", true), EOL;
+                break;
+            }
+
+            //Insert user if phone number doesn't exist
+            $output = $this->user_model->search_user(trim($rowData[0]['CustomerContactNo']));
+
+            if (empty($output)) {
+                //User doesn't exist
+                $user['name'] = $rowData[0]['CustomerName'];
+                $user['phone_number'] = $rowData[0]['CustomerContactNo'];
+                $user['user_email'] = (isset($rowData[0]['customer_email']) ? $rowData[0]['customer_email'] : "");
+                $user['home_address'] = $rowData[0]['CustomerAddress1'];
+                $user['pincode'] = $rowData[0]['CustomerPincode'];
+                $user['city'] = $rowData[0]['CustomerCity'];
+
+                $user_id = $this->user_model->add_user($user);
+
+                //echo print_r($user, true), EOL;
+                //Add sample appliances for this user
+                $count = $this->booking_model->getApplianceCountByUser($user_id);
+                //Add sample appliances if user has < 5 appliances in wallet
+                if ($count < 5) {
+                    $this->booking_model->addSampleAppliances($user_id, 5 - intval($count));
+                }
+            } else {
+                //User exists
+                $user_id = $output[0]['user_id'];
+            }
+
+            //Add this lead into the leads table
+	    //Check whether this is a new Lead or Not
+	    if ($this->booking_model->check_sd_lead_exists_by_order_id($rowData[0]['OrderID']) == FALSE) {
+		$lead_details['OrderID'] = $rowData[0]['OrderID'];
+		//$lead_details['Unique_id'] = $rowData[0]['Item ID'];
+
+		//$dateObj1 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Order Date']);
+		//$lead_details['DeliveryDate'] = $dateObj1->format('d/m/Y');
+
+		$lead_details['Brand'] = $rowData[0]['Brand'];
+		$lead_details['Model'] = "";
+		$lead_details['Product'] = '';
+
+		$prod = trim($rowData[0]['ProductCategoryL3']);
+
+		if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
+		    $lead_details['Product'] = 'Washing Machine';
+		}
+		if (stristr($prod, "Television")) {
+		    $lead_details['Product'] = 'Television';
+		}
+		if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
+		    $lead_details['Product'] = 'Air Conditioner';
+		}
+		if (stristr($prod, "Refrigerator")) {
+		    $lead_details['Product'] = 'Refrigerator';
+		}
+		if (stristr($prod, "Microwave")) {
+		    $lead_details['Product'] = 'Microwave';
+		}
+		if (stristr($prod, "Purifier")) {
+		    $lead_details['Product'] = 'Water Purifier';
+		}
+		if (stristr($prod, "Chimney")) {
+		    $lead_details['Product'] = 'Chimney';
+		}
+
+		$lead_details['ProductType'] = $rowData[0]['ProductName'];
+		$lead_details['Name'] = $rowData[0]['CustomerName'];
+		$lead_details['Address'] = $rowData[0]['CustomerAddress1'];
+		$lead_details['Pincode'] = $rowData[0]['CustomerPincode'];
+		$lead_details['City'] = $rowData[0]['CustomerCity'];
+		$lead_details['Mobile'] = $rowData[0]['CustomerContactNo'];
+		$lead_details['Landmark'] = $rowData[0]['CustomerAddress2'];
+		$lead_details['Email'] =  $rowData[0]['customer_email'];
+        
+		$dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['shippedDate']);
+		$lead_details['DeliveryDate'] = date('Y-m-d H:i:s',strtotime($dateObj2->format('d-m-Y')));
+
+		//$lead_details['user_id'] = $user_id;
+		//$lead_details['Call_Type_Installation_Table_Top_InstallationDemo_Service'] = "";
+		$lead_details['247aroundBookingStatus'] = "FollowUp";
+		$lead_details['ScheduledAppointmentDate'] = "";
+		$lead_details['ScheduledAppointmentTime'] = "";
+		$lead_details['247aroundBookingRemarks'] = "";
+		
+
+		//Add this as a Query now
+		$booking['booking_id'] = '';
+		$booking['user_id'] = $user_id;
+		$booking['service_id'] = $this->booking_model->getServiceId($lead_details['Product']);
+		log_message('info', __FUNCTION__ . "=> Service ID: " . $booking['service_id']);
+
+		$booking['booking_primary_contact_no'] = $lead_details['Mobile'];
+		$booking['booking_alternate_contact_no'] = '';
+
+		$yy = date("y");
+		$mm = date("m");
+		$dd = date("d");
+		$booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
+		$booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
+
+		$booking['appliance_brand'] = $lead_details['Brand'];
+
+		//Add source and partner ID depending on the brand
+		//Ray and Wybor are Partners
+		//Hardcoded partner ID & Source as of now
+		//Check whether pincode belongs to Tamilnadu or not
+		if (substr($lead_details['Pincode'], 0, 1) == "6") {
+		    switch ($booking['appliance_brand']) {
+			case 'Wybor':
+			    $booking['partner_id'] = '247010';
+			    $booking['source'] = "SY";
+			    break;
+
+			case 'Ray':
+			    $booking['partner_id'] = '247011';
+			    $booking['source'] = "SR";
+			    break;
+
+			default:
+			    $booking['partner_id'] = '3';
+			    $booking['source'] = "SP";
+			    break;
+		    }
+		} else {
+		    $booking['partner_id'] = '3';
+		    $booking['source'] = "SP";
+		}
+
+		$booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
+		$lead_details['247aroundBookingID'] = $booking['booking_id'];
+        $lead_details['PartnerID'] = $booking['partner_id'];
+		$booking['quantity'] = '1';
+		$booking['appliance_category'] = '';
+		$booking['appliance_capacity'] = '';
+		$booking['description'] = $lead_details['ProductType'];
+		$booking['model_number'] = $lead_details['Model'];
+		$booking['appliance_tags'] = $lead_details['Brand'] . " " . $lead_details['Product'];
+		$booking['purchase_month'] = date('m');
+		$booking['purchase_year'] = date('Y');
+		$booking['order_id'] = $lead_details['OrderID'];
+		$booking['partner_source'] = "Paytm-delivered-excel";
+
+
+		$booking['items_selected'] = '';
+		$booking['total_price'] = '';
+		$booking['potential_value'] = '';
+		$booking['last_service_date'] = date('d-m-Y');
+
+		//echo print_r($booking, true) . "<br><br>";
+		$appliance_id = $this->booking_model->addexcelappliancedetails($booking);
+		//echo print_r($appliance_id, true) . "<br><br>";
+		$this->booking_model->addapplianceunitdetails($booking);
+
+		$booking['current_status'] = "FollowUp";
+		$booking['internal_status'] = "FollowUp";
+		$booking['type'] = "Query";
+		$booking['booking_date'] = '';
+		$booking['booking_timeslot'] = '';
+		$booking['booking_address'] = $lead_details['Address'];
+		$booking['booking_pincode'] = $lead_details['Pincode'];
+		$booking['amount_due'] = '';
+		$booking['booking_remarks'] = '';
+		$booking['query_remarks'] = '';
+
+		//Insert query
+		//echo print_r($booking, true) . "<br><br>";
+		$this->booking_model->addbooking($booking, $appliance_id, $lead_details['City']);
+
+		
+		//echo print_r($lead_details, true) . "<br><br>";
+		$id = $this->partner_model->insert_partner_lead($lead_details);
+		if($id){
+			
+		} else {
+			log_message('info', __FUNCTION__ . 'Paytm booking not inserted: ' . print_r($lead_details, true));
+		}
+
+		//Reset
+		unset($booking);
+		unset($lead_details);
+	    } else {
+		//Check if we already have this as a Shipped Order
+		//If it is there, update the Delivery Date in SD leads table
+		$dateObj = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['DeliveryDate']);
+
+		$arr_where = array('OrderID' => $rowData[0]['OrderID']);
+		$arr_data = array('DeliveryDate' => $dateObj->format('d/m/Y'));
+
+		log_message('info', __FUNCTION__ . 'Update Partner Lead: ' . print_r(array($arr_where, $arr_data), true));
+		$this->booking_model->update_partner_lead($arr_where, $arr_data);
+
+		//Clear the booking date so that it starts reflecting on our panel & update booking.
+		//This should be done only if the booking has not been updated in the meanwhile.
+		//If the booking has already been scheduled or cancelled, leave this as it is.
+		//If the booking query remarks or internal status has been changed, then also leave it.
+		$sd_leads = $this->booking_model->get_partner_lead_by_order_id($rowData[0]['OrderID']);
+		$booking_id = $sd_leads[0]['247aroundBookingID'];
+		$status = $sd_leads[0]['247aroundBookingStatus'];
+		$int_status = $sd_leads[0]['247aroundBookingRemarks'];
+
+		if ($status == 'FollowUp' && $int_status == 'FollowUp') {
+		    $data['booking_date'] = '';
+		    $data['booking_timeslot'] = '';
+		    log_message('info', __FUNCTION__ . 'Update Booking: ' . print_r(array($booking_id, $data), true));
+		    $this->booking_model->update_booking($booking_id, $data);
+		}
+	    }
+	}
+
+	redirect(base_url() . 'employee/booking/view_pending_queries', 'refresh');
+    }
+
+
     /*
      * @desc: This function is to upload the products that have been shipped from our partners
      * @param: void
@@ -332,6 +611,18 @@ class bookings_excel extends CI_Controller {
     public function upload_shipped_products_excel() {
         $this->load->view('employee/header');
         $this->load->view('employee/upload_shippings_excel');
+    }
+
+
+    /*
+     * @desc: This function is to upload the products that have been delevered from our partners
+     * @param: void
+     * @return: void
+     */
+
+    public function upload_delivered_products_for_paytm_excel() {
+        $this->load->view('employee/header');
+        $this->load->view('employee/upload_delivered_excel');
     }
 
     /*

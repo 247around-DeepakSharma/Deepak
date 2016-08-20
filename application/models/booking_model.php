@@ -1823,6 +1823,11 @@ class Booking_model extends CI_Model {
         $this->db->update("snapdeal_leads", $array_data);
     }
 
+    function update_partner_lead($array_where, $array_data) {
+        $this->db->where($array_where);
+        $this->db->update("partner_leads", $array_data);
+    }
+
     /**
      *  @desc : This function is to check snapdeal leads with their order id weather
      *      they exists or not.
@@ -1871,6 +1876,20 @@ class Booking_model extends CI_Model {
 
         return $query->result_array();
     }
+
+     /**
+     *  @desc : This function is to get partner leads with their order id
+     *
+     *  @param : array of Order id
+     *  @return : array of partner leads
+     */
+    function get_partner_lead_by_order_id($order_id) {
+        $this->db->where(array("OrderID" => $order_id));
+        $query = $this->db->get('partner_leads');
+
+        return $query->result_array();
+    }
+
 
     /**
      *  @desc : Save(Insert) mail sent to vendor regarding bookings
