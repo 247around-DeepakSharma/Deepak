@@ -671,7 +671,7 @@ class Booking_model extends CI_Model {
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
             WHERE `booking_id` NOT LIKE '%Q-%' AND
-            (booking_details.current_status = 'Completed')
+            (booking_details.current_status = 'Completed')  AND  closed_date >=  DATE_SUB(NOW(), INTERVAL 2 MONTH)
 	    ORDER BY closed_date DESC LIMIT $start, $limit"
         );
 
@@ -704,7 +704,7 @@ class Booking_model extends CI_Model {
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
             WHERE `booking_id` NOT LIKE '%Q-%' AND
-            (booking_details.current_status = 'Cancelled')
+            (booking_details.current_status = 'Cancelled') AND  closed_date >=  DATE_SUB(NOW(), INTERVAL 2 MONTH)
 	    ORDER BY closed_date DESC LIMIT $start, $limit"
         );
 
@@ -921,14 +921,14 @@ class Booking_model extends CI_Model {
      * @param : void
      * @return : total number of completed or cancelled bookings
      */
-    public function total_completed_booking() {
+    public function total_completed_booking($status) {
 
         $query = $this->db->query("Select count(*) as count from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
             WHERE `booking_id` NOT LIKE '%Q-%' AND
-            (booking_details.current_status = 'Completed' OR booking_details.current_status = 'Cancelled')"
+            (booking_details.current_status = '$status') AND closed_date >=  DATE_SUB(NOW(), INTERVAL 2 MONTH)"
         );
 
         $count = $query->result_array();
@@ -977,7 +977,7 @@ class Booking_model extends CI_Model {
         JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
         LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
         WHERE `booking_id` LIKE '%Q-%' AND
-        (booking_details.current_status='Cancelled')";
+        (booking_details.current_status='Cancelled')  AND  closed_date >=  DATE_SUB(NOW(), INTERVAL 2 MONTH) ";
 
         $query = $this->db->query($sql);
         $count = $query->result_array();
@@ -2047,7 +2047,7 @@ class Booking_model extends CI_Model {
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
             WHERE `booking_id` LIKE '%Q-%' AND
-            (booking_details.current_status='Cancelled')";
+            (booking_details.current_status='Cancelled') AND  closed_date >=  DATE_SUB(NOW(), INTERVAL 2 MONTH)";
 
         $query = $this->db->query($sql);
 

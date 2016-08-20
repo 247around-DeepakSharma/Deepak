@@ -653,7 +653,7 @@ class Booking extends CI_Controller {
 
         $offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
         $config['base_url'] = base_url() . 'employee/booking/viewcompletedbooking';
-        $config['total_rows'] = $this->booking_model->total_completed_booking();
+        $config['total_rows'] = $this->booking_model->total_completed_booking("Completed");
         $config['per_page'] = $page;
         $config['uri_segment'] = 4;
         $config['first_link'] = 'First';
@@ -683,7 +683,7 @@ class Booking extends CI_Controller {
 
         $offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
         $config['base_url'] = base_url() . 'employee/booking/viewcancelledbooking';
-        $config['total_rows'] = $this->booking_model->total_completed_booking();
+        $config['total_rows'] = $this->booking_model->total_completed_booking("Cancelled");
         $config['per_page'] = $page;
         $config['uri_segment'] = 4;
         $config['first_link'] = 'First';
