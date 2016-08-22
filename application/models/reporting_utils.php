@@ -421,14 +421,11 @@ class Reporting_utils extends CI_Model {
 	$total_install_req = $this->db->count_all_results('booking_details');
 
 	//Count today leads which has create_date as today
-//	$today = date("d") . "/" . date("m");
 	$this->db->where('source', 'SS');
 	$this->db->where('create_date >= ', date('Y-m-d H:i:s'));
 	$today_install_req = $this->db->count_all_results('booking_details');
 
 	//Count y'day leads
-//	$yday = date("d", strtotime("-1 days")) . "/" . date("m", strtotime("-1 days"));
-//	$this->db->like('Referred_Date_and_Time', $yday);
 	$this->db->where('source', 'SS');
 	$this->db->where('create_date >= ', date('Y-m-d H:i:s', strtotime("-1 days")));
 	$this->db->where('create_date < ', date('Y-m-d H:i:s'));
@@ -436,7 +433,7 @@ class Reporting_utils extends CI_Model {
 
 	//Count total installations scheduled
 	$this->db->where('source', 'SS');
-	$this->db->where_in('current_status', array('Completed', 'Pending', 'Rescheduled'));
+	$this->db->where_in('current_status', array('Pending', 'Rescheduled'));
 	$total_install_sched = $this->db->count_all_results('booking_details');
 
 	//Count today installations scheduled
@@ -477,23 +474,16 @@ class Reporting_utils extends CI_Model {
 
 	//Count today follow-ups pending
 	$today = date("d-m-Y");
-	$where_today = "source='SS' AND current_status='FollowUp' AND (booking_date='' OR booking_date=$today)";
+	$where_today = "`source` LIKE '%SS%' AND `current_status`='FollowUp' AND (`booking_date`='' OR `booking_date`=$today)";
 	$this->db->where($where_today);
 	$today_followup_pend = $this->db->count_all_results('booking_details');
 
 	//Count yday follow-ups pending
 	$yday = date("d-m-Y", strtotime("-1 days"));
-	$where_yday = "source='SS' AND current_status='FollowUp' AND (booking_date='' OR booking_date=$yday)";
+	$where_yday = "`source` LIKE '%SS%' AND `current_status`='FollowUp' AND `booking_date`=$yday";
 	$this->db->where($where_yday);
 	$yday_followup_pend = $this->db->count_all_results('booking_details');
 
-//	$total_install_pend = $total_install_sched - $total_install_compl;
-	//Count today installations pending
-//	$today_install_pend = $today_install_sched - $today_install_compl;
-	//Count y'day installations pending
-//	$yday_install_pend = $yday_install_sched - $yday_install_compl;
-//
-//
 	//Count total installations Cancelled
 	$this->db->where('source', 'SS');
 	$this->db->where('current_status', 'Cancelled');
@@ -512,24 +502,6 @@ class Reporting_utils extends CI_Model {
 	$this->db->where('create_date < ', date('Y-m-d H:i:s'));
 	$yday_install_cancl = $this->db->count_all_results('booking_state_change');
 
-//	//Count total - Already Installed
-//	$this->db->where_in('Remarks_by_247around', array('Already Installed'));
-//	$total_already_inst = $this->db->count_all_results('snapdeal_leads');
-//
-//	//Count today - Already Installed
-//	$this->db->where_in('Remarks_by_247around', array('Already Installed'));
-//	$this->db->like('Referred_Date_and_Time', $today);
-//	$today_already_inst = $this->db->count_all_results('snapdeal_leads');
-//
-//	//Count y'day - Already Installed
-//	$this->db->where_in('Remarks_by_247around', array('Already Installed'));
-//	$this->db->like('Referred_Date_and_Time', $yday);
-//	$yday_already_inst = $this->db->count_all_results('snapdeal_leads');
-//
-//	//Count - Cancelled - Other reasons
-//	$total_cancel_other = $total_install_cancl - $total_already_inst;
-//	$today_cancel_other = $today_install_cancl - $today_already_inst;
-//	$yday_cancel_other = $yday_install_cancl - $yday_already_inst;
 	//TAT calculation
 	$tat = "100";
 	//SELECT DATEDIFF(`closed_date`, STR_TO_DATE(`booking_date`,"%d-%m-%Y")) FROM `booking_details` where source='SS' AND current_status='Completed'
@@ -566,7 +538,17 @@ class Reporting_utils extends CI_Model {
     }
 
     function get_all_sd_leads() {
-	$query = $this->db->query("SELECT * FROM snapdeal_leads");
+//	$query = $this->db->query("SELECT * FROM snapdeal_leads");
+	$query = $this->db->query("SELECT booking_id, order_id, booking_date, booking_timeslot,
+			current_status, internal_status, rating_stars,
+			DATE_FORMAT(booking_details.create_date, '%d/%M') as create_date,
+			services, brand, model_number, description, name, phone_number, home_address, pincode, users.city
+			FROM booking_details, users, services, appliance_details
+			WHERE booking_details.appliance_id = appliance_details.id AND
+			booking_details.service_id = services.id AND
+			booking_details.user_id = users.user_id AND
+			booking_details.source = 'SS' AND
+			booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)");
 
 	//$result = (bool) ($this->db->affected_rows() > 0);
 
