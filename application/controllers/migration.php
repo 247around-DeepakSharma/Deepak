@@ -512,7 +512,7 @@ class Migration extends CI_Controller {
 	$booking_unit_details = $this->migration_model->p_get_all_booking_unit();
 	//print_r($booking_unit_details);
 
-	foreach ($booking_unit_details as $key => $data) {
+	foreach ($booking_unit_details as $data) {
 
 	    $partner_id = $this->migration_model->get_price_mapping_partner_code("", $data['partner_id']);
 
@@ -554,14 +554,17 @@ class Migration extends CI_Controller {
     }
 
     /**
-     * @imp: Note-- Some Partner id  or appliance id is not exist in the booking details, so we need to fix these issuse then execute q_test1
+     * @imp: Note-- Some Partner id  or appliance id is not exist in the booking details,
+     * so we need to fix these issuse then execute q_test1
      *
      */
     function q_test1() {
 	$data = $this->migration_model->get_all_followUp();
 
-	foreach ($data as $key => $value) {
+	foreach ($data as $value) {
 	    switch ($value['price_tags']) {
+		case 'Installation':
+		case 'InstallationwithoutStand':
 		case 'Installation,':
 		case 'InstallationwithoutStand,':
 
@@ -580,6 +583,7 @@ class Migration extends CI_Controller {
 		    break;
 
 		case 'VisitCharge,':
+		case 'VisitCharge':
 		    $this->update_for_installation($value, "Visit");
 		    break;
 
@@ -595,19 +599,18 @@ class Migration extends CI_Controller {
 			    break;
 
 			default:
-			    echo $value['booking_id'] . "........Price tag empty<br/>";
+			    echo $value['booking_id'] . ", Price Tag Empty<br/>";
 			    break;
 		    }
 
 		    break;
-
 
 		case 'Installation & Demo':
 		case 'Wall Mount Stand':
 		    break;
 
 		default:
-		    echo $value['booking_id'] . "<br/>";
+		    echo $value['booking_id'] . ", Match not found<br/>";
 		    break;
 	    }
 	}
@@ -633,7 +636,7 @@ class Migration extends CI_Controller {
 	    echo "<br/>";
 	}
 
-	if (!empty($appliance_id)) {
+	if (!empty($value['appliance_id'])) {
 	    echo $booking_id . "  .... appliance_id Id Not Exist.";
 	    echo "<br/>";
 	}
@@ -653,17 +656,16 @@ class Migration extends CI_Controller {
 
 	$this->migration_model->update_booking_unit_details($booking_id, $unit_data);
 
-
 	if (!empty($value['partner_id'])) {
 	    echo $booking_id . "  .... Partner Id Not Exist.";
 	    echo "<br/>";
 	}
-	if (!empty($appliance_id)) {
+	if (!empty($value['appliance_id'])) {
 	    echo $booking_id . "  .... appliance_id Id Not Exist.";
 	    echo "<br/>";
 	}
 
-	echo $booking_id . "............Stand";
+	//echo $booking_id . "............Stand";
 
 	$unit_data['model_number'] = $value['model_number'];
 	$unit_data['appliance_size'] = $value['appliance_size'];
@@ -672,9 +674,7 @@ class Migration extends CI_Controller {
 	$unit_data['appliance_tag'] = $value['appliance_tag'];
 	$unit_data['purchase_year'] = $value['purchase_year'];
 	$unit_data['purchase_month'] = $value['purchase_month'];
-
 	$unit_data['booking_id'] = $value['booking_id'];
-
 	$unit_data['price_tags'] = "Wall Mount Stand";
 
 	$this->migration_model->addunitdetails($unit_data);
@@ -693,9 +693,7 @@ class Migration extends CI_Controller {
     function c_q_test1() {
 	$data = $this->migration_model->get_all_cancelled_query();
 	//print_r($data);
-	foreach ($data as $key => $value) {
-	    $booking_id = $value['booking_id'];
-
+	foreach ($data as $value) {
 	    switch ($value['price_tags']) {
 		case 'Repair,':
 		case 'Repair':
@@ -787,7 +785,7 @@ class Migration extends CI_Controller {
 
     function c_q_test3() {
 	$booking_details = $this->migration_model->c_q_getbookingid();
-	foreach ($booking_details as $key => $value) {
+	foreach ($booking_details as $value) {
 
 	    $data = array();
 	    $data['customer_paid_basic_charges'] = 0;
@@ -805,7 +803,7 @@ class Migration extends CI_Controller {
     }
 
     function update_prices_in_unit_details($booking_unit_details) {
-	foreach ($booking_unit_details as $key => $data) {
+	foreach ($booking_unit_details as $data) {
 
 	    $partner_id = $this->migration_model->get_price_mapping_partner_code("", $data['partner_id']);
 
