@@ -27,7 +27,7 @@
                                 <div class="form-group <?php if( form_error('booking_primary_contact_no') ) { echo 'has-error';} ?>">
                                     <label for="booking_primary_contact_no" class="col-md-4">Mobile *</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php if(isset($user[0]['phone_number'])){ echo $user[0]['phone_number']; } else if($phone_number !=""){ echo  $phone_number; }  ?>" required>
+                                        <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php if(isset($user[0]['phone_number'])){ echo $user[0]['phone_number']; } else if($phone_number !="process_addbooking"){ echo  $phone_number; }  ?>" required>
                                         <?php echo form_error('booking_primary_contact_no'); ?>
                                     </div>
                                 </div>
@@ -70,16 +70,17 @@
                                         <?php echo form_error('user_email'); ?>
                                     </div>
                                 </div>
-                                <div class="form-group ">
+                                <div class="form-group  <?php if( form_error('alternate_phone_number') ) { echo 'has-error';} ?>">
                                     <label for="booking_alternate_contact_no" class="col-md-4">Alternate Number</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="booking_alternate_contact_no" value = "<?php if(isset($user[0]['alternate_phone_number'])){  echo $user[0]['alternate_phone_number']; } ?>" placeholder ="Please Enter Alternate Contact No" >
+                                        <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="booking_alternate_contact_no" value = "<?php if(isset($user[0]['alternate_phone_number'])){  echo $user[0]['alternate_phone_number']; } else { echo set_value('alternate_phone_number');} ?>" placeholder ="Please Enter Alternate Contact No" >
                                     </div>
+                                     <?php echo form_error('alternate_phone_number'); ?>
                                 </div>
                                 <div class="form-group <?php if( form_error('booking_address') ) { echo 'has-error';} ?>">
                                     <label  for="booking_address" class="col-md-4">Address *</label>
                                     <div class="col-md-6">
-                                        <textarea class="form-control" rows="6" id="booking_address" name="booking_address"  required ><?php if(isset($user[0]['home_address'])){  echo $user[0]['home_address']; } else { echo set_value('home_address'); } ?></textarea>
+                                        <textarea class="form-control" rows="6" id="booking_address" name="booking_address"  required ><?php if(isset($user[0]['home_address'])){  echo $user[0]['home_address']; } else { echo set_value('booking_address'); } ?></textarea>
                                         <?php echo form_error('booking_address'); ?>
                                     </div>
                                 </div>
@@ -100,11 +101,12 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="col-md-6">
-                                <div class="form-group ">
+                                <div class="form-group <?php if( form_error('order_id') ) { echo 'has-error';} ?>">
                                     <label for="order id" class="col-md-4">Order ID </label>
                                     <div class="col-md-6">
-                                        <input class="form-control" name= "order_id" value="<?php if(isset($user[0]['order_id'])){  echo $user[0]['order_id']; } ?>" placeholder ="Please Enter Order ID" id="order_id"  />
+                                        <input class="form-control" name= "order_id" value="<?php if(isset($user[0]['order_id'])){  echo $user[0]['order_id']; } else { echo set_value('order_id');} ?>" placeholder ="Please Enter Order ID" id="order_id"  />
                                     </div>
+                                    <?php echo form_error('order_id'); ?>
                                     <span class="err"></span>
                                 </div>
                                 <div class="form-group <?php if( form_error('service_name') ) { echo 'has-error';} ?>">
@@ -140,8 +142,8 @@
                                     <div class="col-md-6">
                                         <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category"   required>
                                             <option selected disabled>Select Appliance Category</option>
-                                            <option>TV-LED</option>
-                                            <option>TV-LCD</option>
+                                            <option <?php if(set_value('appliance_category') == "TV-LED"){ echo "selected";} ?>>TV-LED</option>
+                                            <option <?php if(set_value('appliance_category') == "TV-LCD"){ echo "selected";} ?>>TV-LCD</option>
                                         </select>
                                         <?php echo form_error('appliance_category'); ?>
                                     </div>
@@ -154,7 +156,7 @@
                                         <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" >
                                             <option selected disabled>Select Appliance Capacity</option>
                                             <?php  for($i=16; $i<61; $i++){ ?>
-                                            <option><?php echo $i." Inch"; ?></option>
+                                            <option <?php if(set_value('appliance_capacity') == $i." Inch" ){ echo "selected";} ?>><?php echo $i." Inch"; ?></option>
                                             <?php } ?>
                                         </select>
                                         <?php echo form_error('appliance_capacity'); ?>
@@ -170,36 +172,37 @@
                                 <div class="form-group <?php if( form_error('serial_number') ) { echo 'has-error';} ?>">
                                     <label for="type" class="col-md-4">Serial Number </label>
                                     <div class="col-md-6">
-                                        <input  type="text" class="form-control"  name="serial_number" id="serial_number" value = "<?php echo set_value('model_number'); ?>" placeholder="Enter Serial Number" >
+                                        <input  type="text" class="form-control"  name="serial_number" id="serial_number" value = "<?php echo set_value('serial_number'); ?>" placeholder="Enter Serial Number" >
                                         <?php echo form_error('serial_number'); ?>
                                     </div>
                                     <span class="err"></span>
                                 </div>
-                                <div class="form-group ">
+                                <div class="form-group <?php if( form_error('purchase_month') ) { echo 'has-error';} ?>">
                                     <label for="type" class="col-md-4">Date of Purchase</label>
                                     <div class="col-md-4">
                                         <select  type="text" class=" form-control "   name="purchase_month" id="purchase_month_1" >
                                             <option selected="selected" value="">Month</option>
-                                            <option >Jan</option>
-                                            <option >Feb</option>
-                                            <option >Mar</option>
-                                            <option >Apr</option>
-                                            <option >May</option>
-                                            <option >Jun</option>
-                                            <option >July</option>
-                                            <option >Aug</option>
-                                            <option >Sept</option>
-                                            <option >Oct</option>
-                                            <option >Nov</option>
-                                            <option >Dec</option>
+                                            <option <?php if(set_value('purchase_month') == "Jan"){ echo "selected";} ?> >Jan</option>
+                                            <option <?php if(set_value('purchase_month') == "Feb"){ echo "selected";} ?>>Feb</option>
+                                            <option <?php if(set_value('purchase_month') == "Mar"){ echo "selected";} ?>>Mar</option>
+                                            <option <?php if(set_value('purchase_month') == "Apr"){ echo "selected";} ?>>Apr</option>
+                                            <option <?php if(set_value('purchase_month') == "May"){ echo "selected";} ?>>May</option>
+                                            <option <?php if(set_value('purchase_month') == "Jun"){ echo "selected";} ?>>Jun</option>
+                                            <option <?php if(set_value('purchase_month') == "July"){ echo "selected";} ?> >July</option>
+                                            <option <?php if(set_value('purchase_month') == "Aug"){ echo "selected";} ?>>Aug</option>
+                                            <option <?php if(set_value('purchase_month') == "Sept"){ echo "selected";} ?>>Sept</option>
+                                            <option <?php if(set_value('purchase_month') == "Oct"){ echo "selected";} ?>>Oct</option>
+                                            <option <?php if(set_value('purchase_month') == "Nov"){ echo "selected";} ?>>Nov</option>
+                                            <option <?php if(set_value('purchase_month') == "Dec"){ echo "selected";} ?>>Dec</option>
                                         </select>
+                                        <?php echo form_error('purchase_month'); ?>
                                     </div>
                                     <div class="form-group">
                                         <div class="col-md-4">
                                             <select  type="text" class="col-md-3 form-control "   name="purchase_year" id="purchase_year_1" >
                                                 <option selected="selected" value="" >Year</option>
                                                 <?php for($i = 0; $i> -26; $i--){ ?>
-                                                <option  >
+                                                <option  <?php if(set_value('purchase_year') == date("Y",strtotime($i." year"))){ echo "selected";} ?> >
                                                     <?php echo date("Y",strtotime($i." year")); ?>
                                                 </option>
                                                 <?php }  ?>
@@ -249,9 +252,9 @@
                                     <div class="col-md-6">
                                         <select type="text" class="form-control price_tags"   id="price_tag" name="price_tag" required>
                                             <option selected disabled>Select Call Type</option>
-                                            <option>Installation & Demo</option>
-                                            <option>Repair - In Warranty</option>
-                                            <option>Repair - Out Of Warranty</option>
+                                            <option <?php if(set_value('price_tag') == "Installation & Demo"){ echo "selected";} ?>>Installation & Demo</option>
+                                            <option <?php if(set_value('price_tag') == "Repair - In Warranty"){ echo "selected";} ?>>Repair - In Warranty</option>
+                                            <option <?php if(set_value('price_tag') == "Repair - Out Of Warranty"){ echo "selected";} ?>>Repair - Out Of Warranty</option>
                                         </select>
                                         <?php echo form_error('price_tag'); ?>
                                     </div>
@@ -274,7 +277,7 @@
             <div class="row">
                 <div class="form-group  col-md-12" >
                     <center>
-                        <input type="submit" id="submitform" class="btn btn-info " onclick="check_vakidation()" value="Submit">
+                        <input type="submit" id="submitform" class="btn btn-info " onclick="return check_vakidation()" value="Submit">
                 </div>
                 </center>
             </div>

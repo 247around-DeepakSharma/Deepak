@@ -305,11 +305,17 @@ class Partner extends CI_Controller {
 
     function set_form_validation(){
         $this->form_validation->set_rules('user_name', 'User Name', 'required|xss_clean');
-        $this->form_validation->set_rules('booking_primary_contact_no', 'Mobile Number', 'trim|required|xss_clean');
+        $this->form_validation->set_rules('booking_primary_contact_no', 'Mobile Number', 'trim|required|exact_length[10]|xss_clean');
         $this->form_validation->set_rules('city', 'City', 'trim|required|xss_clean');
         $this->form_validation->set_rules('booking_address', 'Booking Address', 'required');
-
-        $this->form_validation->set_rules('appliance_capacity', 'Appliance Capacity', 'required');
+        $this->form_validation->set_rules('landmark', 'LandMark', 'trim');
+        $this->form_validation->set_rules('appliance_capacity', 'Appliance Capacity', 'trim|required|xss_clean');
+        $this->form_validation->set_rules('alternate_phone_number', 'Alternate Number', 'trim|xss_clean');
+        $this->form_validation->set_rules('purchase_year', 'Purchase Year', 'trim|xss_clean');
+        $this->form_validation->set_rules('purchase_month', 'Purchase Month', 'trim|xss_clean');
+        $this->form_validation->set_rules('model_number', 'Model Number', 'trim|xss_clean');
+        $this->form_validation->set_rules('order_id', 'Order ID', 'trim|xss_clean');
+        $this->form_validation->set_rules('serial_number', 'Serial Number', 'trim|xss_clean');
         $this->form_validation->set_rules('appliance_category', 'Appliance Category', 'required');
         $this->form_validation->set_rules('partner_source', 'Booking Source', 'required');
         $this->form_validation->set_rules('service_name', 'Service Name', 'required');
