@@ -868,12 +868,15 @@ class bookings_excel extends CI_Controller {
 		$lead_details['Status_by_247around'] = 'FollowUp';
 		//echo print_r($lead_details, true) . "<br><br>";
 		$this->booking_model->insert_sd_lead($lead_details);
-  
-        $short_url['booking_id'] = $booking['booking_id'];
-        // create short url
-        $short_url['url']  = $this->googleurlapi->shorten("http://localhost/247around/booking_schedule/".$booking['booking_id']);
-        $this->booking_model->insert_short_url($short_url);
 
+//		//Commented as of now...
+//
+//		$short_url['booking_id'] = $booking['booking_id'];
+//		// create short url
+//		$short_url['url']  = $this->googleurlapi->shorten("http://localhost/247around/booking_schedule/".$booking['booking_id']);
+//		$this->booking_model->insert_short_url($short_url);
+//
+//		
 		//Send SMS to customer about free installation
 		switch ($lead_details['Product']) {
 		    case 'Washing Machine':
