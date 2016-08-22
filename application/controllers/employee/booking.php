@@ -35,7 +35,7 @@ class Booking extends CI_Controller {
         $this->load->library('booking_utilities');
         $this->load->library('partner_sd_cb');
         $this->load->library('asynchronous_lib');
-        $this->load->library('googleurlapi');
+        //$this->load->library('googleurlapi');
 
 
         if (($this->session->userdata('loggedIn') == TRUE) &&
