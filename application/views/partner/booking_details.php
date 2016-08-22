@@ -3,7 +3,7 @@
         <div class="col-md-6">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h2 class="panel-title"><i class="fa fa-money fa-fw"></i>  Customer Details</h2>
+                    <h2 class="panel-title"><i class="fa fa-money fa-fw"></i>  User Details</h2>
                 </div>
                 <div class="panel-body">
                     <table class="table table-bordered table-hover table-striped">
@@ -13,11 +13,11 @@
                         </tr>
                         <tr>
                             <td>Mobile Number: </td>
-                            <td><?php echo $query1[0]['phone_number']; ?></td>
+                            <td><?php echo $query1[0]['booking_primary_contact_no']; ?></td>
                         </tr>
                         <tr>
                             <td>Alternate Number: </td>
-                            <td><?php echo $query1[0]['alternate_phone_number']; ?></td>
+                            <td><?php echo $query1[0]['booking_alternate_contact_no']; ?></td>
                         </tr>
                         <tr>
                             <td>Email: </td>
@@ -25,7 +25,7 @@
                         </tr>
                         <tr>
                             <td>Address: </td>
-                            <td><?php echo $query1[0]['home_address'];?></td>
+                            <td><?php echo $query1[0]['booking_address'];?></td>
                         </tr>
                         <tr>
                             <td>City: </td>
@@ -37,7 +37,7 @@
                         </tr>
                         <tr>
                             <td>Pincode: </td>
-                            <td><?php echo $query1[0]['pincode'];?></td>
+                            <td><?php echo $query1[0]['booking_pincode'];?></td>
                         </tr>
                     </table>
                 </div>
@@ -47,7 +47,7 @@
         <div class="col-md-6">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h2 class="panel-title"><i class="fa fa-money fa-fw"></i>  Applicance Details</h2>
+                    <h2 class="panel-title"><i class="fa fa-money fa-fw"></i>  Product Details</h2>
                 </div>
                 <div class="panel-body">
                     <?php for($i=0; $i<$query1[0]['quantity']; $i++) {?>
@@ -72,16 +72,7 @@
                             <td>Capacity: </td>
                             <td><?php echo $query2[$i]['appliance_capacity'];?></td>
                         </tr>
-                        <tr>
-                            <td>Description: </td>
-                            <td><?php echo $query1[0]['description'];?></td>
-                        </tr>
-                        <?php for($j = 0; $j < count($query2); $j++) {?>
-                        <tr>
-                            <td>Call Type: </td>
-                            <td><?php echo $query2[$j]['price_tags'];?></td>
-                        </tr>
-                        <?php } ?>
+
                     </table>
                     <?php } ?>
                 </div>
@@ -108,10 +99,12 @@
                                 <td>Booking Date: </td>
                                 <td><?php echo $query1[0]['booking_date']; ?></td>
                             </tr>
+                            <?php for($j = 0; $j < count($query2); $j++) {?>
                             <tr>
-                                <td>Booking Timeslot: </td>
-                                <td><?php echo $query1[0]['booking_timeslot']; ?></td>
-                            </tr>
+                            <td>Call Type: </td>
+                            <td><?php echo $query2[$j]['price_tags'];?></td>
+                        </tr>
+                        <?php } ?>
                         </table>
                     </div>
                     <div class="col-md-6">

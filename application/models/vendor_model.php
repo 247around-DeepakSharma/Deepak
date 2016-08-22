@@ -35,6 +35,28 @@ class vendor_model extends CI_Model {
         return $query->result_array();
     }
 
+     /**
+     *  @desc : This function is to get State specific to a Pincode
+     *
+     *  @param : $pincode
+     *  @return : State
+     */
+    function get_state_from_pincode($pincode) {
+    $this->db->distinct();
+    $this->db->select('state');
+    $this->db->where('pincode', $pincode);
+
+    $query = $this->db->get('india_pincode');
+    if($query->num_rows > 0){
+        return $query->result_array()[0];
+    } else {
+        $state['state'] = "";
+        return $state;
+    }
+
+    
+    }
+
     /**
      * @desc: This function is to get the edit vendor form with vendor details
      *

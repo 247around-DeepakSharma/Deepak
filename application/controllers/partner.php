@@ -67,6 +67,7 @@ class Partner extends CI_Controller {
 	$this->load->model('partner_model');
 	$this->load->model('user_model');
 	$this->load->model('booking_model');
+	$this->load->model('vendor_model');
 
 	$this->load->library('email');
 	$this->load->helper(array('form', 'url'));
@@ -1238,6 +1239,9 @@ class Partner extends CI_Controller {
 			    $user['home_address'] = $address;
 			    $user['pincode'] = $requestData['pincode'];
 			    $user['city'] = $requestData['city'];
+			    $state = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
+
+                $user['state'] = $state['state'];
 
 			    $user_id = $this->user_model->add_user($user);
 
@@ -1372,9 +1376,11 @@ class Partner extends CI_Controller {
 			$booking['partner_source'] = (isset($requestData['partner_source']) ? $requestData['partner_source'] : "");
 			$booking['booking_timeslot'] = "4PM-7PM";
 
+			$state = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
+
 			//Insert query
 			//echo print_r($booking, true) . "<br><br>";
-			$this->booking_model->addbooking($booking, $appliance_id, $requestData['city']);
+			$this->booking_model->addbooking($booking, $appliance_id, $requestData['city'], $state['state']);
 
 			//Save this in SD leads table
 			//echo print_r($lead_details, true) . "<br><br>";
