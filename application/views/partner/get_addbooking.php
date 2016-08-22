@@ -18,21 +18,21 @@
                                 ?>
                             <div class="col-md-6">
                                 <div class="form-group <?php if( form_error('user_name') ) { echo 'has-error';} ?>">
-                                    <label for="name" class="col-md-4">User Name</label>
+                                    <label for="name" class="col-md-4">Name</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control" id="name" name="user_name" value = "<?php if(isset($user[0]['name'])){ echo $user[0]['name']; } else { echo set_value('user_name'); }  ?>" <?php if(isset($user[0]['name'])){ echo "readonly"; }  ?> placeholder="Please Enter User Name">
                                         <?php echo form_error('user_name'); ?>
                                     </div>
                                 </div>
                                 <div class="form-group <?php if( form_error('booking_primary_contact_no') ) { echo 'has-error';} ?>">
-                                    <label for="booking_primary_contact_no" class="col-md-4">Primary Contact Number *</label>
+                                    <label for="booking_primary_contact_no" class="col-md-4">Mobile *</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php if(isset($user[0]['phone_number'])){ echo $user[0]['phone_number']; } else if($phone_number !=""){ echo  $phone_number; }  ?>" required>
                                         <?php echo form_error('booking_primary_contact_no'); ?>
                                     </div>
                                 </div>
                                 <div class="form-group <?php if( form_error('city') ) { echo 'has-error';} ?>">
-                                    <label for="booking_city" class="col-md-4">Booking City *</label>
+                                    <label for="booking_city" class="col-md-4">City *</label>
                                     <div class="col-md-6">
                                         <select type="text" class="form-control"  id="booking_city" name="city" required>
                                             <option selected="selected" disabled="disabled">Select City</option>
@@ -46,16 +46,16 @@
                                     </div>
                                 </div>
                                 <div class="form-group <?php if( form_error('booking_pincode') ) { echo 'has-error';} ?>">
-                                    <label for="booking_pincode" class="col-md-4">Booking Pincode *</label>
+                                    <label for="booking_pincode" class="col-md-4">Pincode *</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($user[0]['pincode'])){echo $user[0]['pincode'];} else { echo set_value('booking_pincode');} ?>" placeholder="Enter Area Pin" required>
                                         <?php echo form_error('booking_pincode'); ?>
                                     </div>
                                 </div>
                                 <div class="form-group <?php if( form_error('landmark') ) { echo 'has-error';} ?>">
-                                    <label for="booking_pincode" class="col-md-4">Near Landmark </label>
+                                    <label for="booking_pincode" class="col-md-4"> Landmark</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="landmark" name="landmark" value = "<?php if(isset($user[0]['landmark'])){echo $user[0]['landmark'];} else { echo set_value('landmark');} ?>" placeholder="Enter Any Near Landmark" required>
+                                        <input type="text" class="form-control" id="landmark" name="landmark" value = "<?php if(isset($user[0]['landmark'])){echo $user[0]['landmark'];} else { echo set_value('landmark');} ?>" placeholder="Enter Any Landmark">
                                         <?php echo form_error('landmark'); ?>
                                     </div>
                                 </div>
@@ -64,22 +64,22 @@
                             <!--  start col-md-6  -->
                             <div class="col-md-6 <?php if( form_error('user_email') ) { echo 'has-error';} ?>">
                                 <div class="form-group ">
-                                    <label  class="col-md-4">User Email</label>
+                                    <label  class="col-md-4">Email</label>
                                     <div class="col-md-6">
                                         <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php if(isset($user[0]['user_email'])){  echo $user[0]['user_email'];  }  ?>" placeholder="Please Enter User Email">
                                         <?php echo form_error('user_email'); ?>
                                     </div>
                                 </div>
                                 <div class="form-group ">
-                                    <label for="booking_alternate_contact_no" class="col-md-4">Alternate Contact No</label>
+                                    <label for="booking_alternate_contact_no" class="col-md-4">Alternate Number</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="booking_alternate_contact_no" value = "<?php if(isset($user[0]['alternate_phone_number'])){  echo $user[0]['alternate_phone_number']; } ?>" placeholder ="Please Enter Alternate Contact No" >
                                     </div>
                                 </div>
                                 <div class="form-group <?php if( form_error('booking_address') ) { echo 'has-error';} ?>">
-                                    <label  for="booking_address" class="col-md-4">Booking Address *</label>
+                                    <label  for="booking_address" class="col-md-4">Address *</label>
                                     <div class="col-md-6">
-                                        <textarea class="form-control" rows="6" id="booking_address" name="booking_address"  required ><?php if(isset($user[0]['home_address'])){  echo $user[0]['home_address']; } else { echo set_value('landmark'); } ?></textarea>
+                                        <textarea class="form-control" rows="6" id="booking_address" name="booking_address"  required ><?php if(isset($user[0]['home_address'])){  echo $user[0]['home_address']; } else { echo set_value('home_address'); } ?></textarea>
                                         <?php echo form_error('booking_address'); ?>
                                     </div>
                                 </div>
@@ -161,7 +161,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group <?php if( form_error('model_number') ) { echo 'has-error';} ?>">
-                                    <label for="type" class="col-md-4">Appliance Model </label>
+                                    <label for="type" class="col-md-4">Model Number</label>
                                     <div class="col-md-6">
                                         <input  type="text" class="form-control"  name="model_number" id="model_number_1" value = "<?php echo set_value('model_number'); ?>" placeholder="Enter Model" >
                                         <?php echo form_error('model_number'); ?>
@@ -176,11 +176,11 @@
                                     <span class="err"></span>
                                 </div>
                                 <div class="form-group ">
-                                    <label for="type" class="col-md-4">Purchase Year</label>
+                                    <label for="type" class="col-md-4">Date of Purchase</label>
                                     <div class="col-md-4">
                                         <select  type="text" class=" form-control "   name="purchase_month" id="purchase_month_1" >
                                             <option selected="selected" value="">Month</option>
-                                            <option  >Jan</option>
+                                            <option >Jan</option>
                                             <option >Feb</option>
                                             <option >Mar</option>
                                             <option >Apr</option>
@@ -274,7 +274,7 @@
             <div class="row">
                 <div class="form-group  col-md-12" >
                     <center>
-                        <input type="submit" id="submitform" class="btn btn-info " onclick="check_vakidation()" value="submit">
+                        <input type="submit" id="submitform" class="btn btn-info " onclick="check_vakidation()" value="Submit">
                 </div>
                 </center>
             </div>
@@ -289,11 +289,11 @@
         var order_id =  $('#order_id').val();
         var serial_number = $('#serial_number').val();
         if (order_id == "" && serial_number == ""  ) {
-                alert("Please enter atleast Order ID OR Serial Number");
+                alert("Please enter either Order ID OR Serial Number");
                 return false;
         }
     
-        if( !confirm('Are you sure that you want to submit the form') ) 
+        if( !confirm('Confirm Booking?') ) 
             event.preventDefault();
     }
 </script>

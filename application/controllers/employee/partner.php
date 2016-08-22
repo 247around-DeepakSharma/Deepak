@@ -186,7 +186,7 @@ class Partner extends CI_Controller {
         $this->load->view('partner/header');
         $this->load->view('partner/get_addbooking', $data);
     }
-    
+
     /**
      * @desc: This method is used to process to add booking by partner
      */
@@ -197,9 +197,9 @@ class Partner extends CI_Controller {
         if($validate){
             $booking_date =  date('d-m-Y', strtotime($this->input->post('booking_date')));
             $order_id = $this->input->post('order_id');
-            
+
             $description = $this->input->post('description');
-            
+
             $authToken =  $this->partner_model->get_authentication_code($this->session->userdata('partner_id'));
             if($authToken){
             $postData = '{'
@@ -228,7 +228,7 @@ class Partner extends CI_Controller {
                     . '"partner_source" : "'. $this->input->post('partner_source').'",'
                     . '"remarks" : "'. $this->input->post('query_remarks').'"'
                     . '}';
-            
+
             $ch = curl_init(base_url().'partner/insertBookingByPartner');
             curl_setopt_array($ch, array(
                 CURLOPT_POST => TRUE,
@@ -245,7 +245,7 @@ class Partner extends CI_Controller {
 
             // Decode the response
             $responseData = json_decode($response, TRUE);
-             
+
              if(isset($responseData['data']['result'])){
                 if($responseData['data']['result'] != "Success"){
                     log_message('info', 'Partner ' .$this->session->userdata('partner_name')."  booking not Inserted ". print_r($_POST, true)." error mgs". print_r($responseData['data'], true) );
@@ -256,12 +256,12 @@ class Partner extends CI_Controller {
                    $data = $this->booking_model->get_city_booking_source_services($this->input->post('booking_primary_contact_no'));
                    $this->load->view('partner/header');
                    $this->load->view('partner/get_addbooking', $data);
-                  
+
                 } else {
                      $output = "Booking Inserted.";
                     $userSession = array('success' =>$output);
                     $this->session->set_userdata($userSession);
-                   
+
                     log_message('info', 'Partner ' .$this->session->userdata('partner_name')."  booking Inserted ". print_r($_POST, true));
                     // Print the date from the response
                     //echo $responseData['data'];
@@ -276,11 +276,11 @@ class Partner extends CI_Controller {
                 $data = $this->booking_model->get_city_booking_source_services($this->input->post('booking_primary_contact_no'));
                 $this->load->view('partner/header');
                 $this->load->view('partner/get_addbooking', $data);
-                
+
              }
-   
-           
-            
+
+
+
             } else {
                 log_message('info', 'Partner ' .$this->session->userdata('partner_name')."  Authentication failed");
                 //echo "Authentication fail:";
@@ -307,18 +307,17 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('user_name', 'User Name', 'required|xss_clean');
         $this->form_validation->set_rules('booking_primary_contact_no', 'Mobile Number', 'trim|required|xss_clean');
         $this->form_validation->set_rules('city', 'City', 'trim|required|xss_clean');
-        $this->form_validation->set_rules('landmark', 'Landmark', 'trim|required|xss_clean');
         $this->form_validation->set_rules('booking_address', 'Booking Address', 'required');
-       
+
         $this->form_validation->set_rules('appliance_capacity', 'Appliance Capacity', 'required');
         $this->form_validation->set_rules('appliance_category', 'Appliance Category', 'required');
-        //$this->form_validation->set_rules('partner_source', 'Booking Source', 'required');
+        $this->form_validation->set_rules('partner_source', 'Booking Source', 'required');
         $this->form_validation->set_rules('service_name', 'Service Name', 'required');
         $this->form_validation->set_rules('booking_date', 'Booking Date', 'required');
         $this->form_validation->set_rules('query_remarks', 'Problem Description', 'required');
         $this->form_validation->set_rules('booking_pincode', 'Booking Pincode', 'trim|required|exact_length[6]');
         $this->form_validation->set_rules('price_tag', 'Call Type', 'trim|required');
-      
+
         if ($this->form_validation->run() == FALSE) {
             return FALSE;
         }
