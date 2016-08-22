@@ -662,3 +662,19 @@ ALTER TABLE  `bookings_sources` ADD UNIQUE (
 `partner_id`
 );
 
+<!-- Abhay 22 Aug -->
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `booking_scheduling_url`
+--
+
+CREATE TABLE IF NOT EXISTS `booking_scheduling_url` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `booking_id` varchar(100) NOT NULL,
+  `url` varchar(100) NOT NULL,
+  `flag` varchar(10) NOT NULL DEFAULT '0',
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
