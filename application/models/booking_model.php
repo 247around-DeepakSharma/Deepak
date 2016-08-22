@@ -370,9 +370,11 @@ class Booking_model extends CI_Model {
             "total_price" => $booking['total_price'],
             "appliance_tag" => $booking['appliance_tags']);
 
-         if(isset($booking['serial_number'])){
+        if(isset($booking['serial_number'])){
             $unit_detail['serial_number'] =  $booking['serial_number'];
         }
+
+        
         return $this->db->insert('booking_unit_details', $unit_detail);
     }
 
@@ -2451,6 +2453,10 @@ class Booking_model extends CI_Model {
       
         $this->db->query($sql);
         echo $this->db->last_query();
+    }
+
+    function insert_short_url($data){
+        $this->db->insert('booking_scheduling_url', $data);
     }
 
 }

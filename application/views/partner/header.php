@@ -50,10 +50,10 @@
 
                      </ul>
                   </li>
-                  <!-- <li>
+                  <li>
                      <a data-toggle="modal" data-target="#myModal" style="cursor: pointer;">Add Booking</a>
                   </li>
-		  -->
+		  
                </ul>
                <ul class="nav navbar-nav navbar-right">
 
@@ -93,7 +93,7 @@
 
         <div class="modal-footer">
           <button type="button" class="btn btn-default" style="background-color:#2C9D9C; border-color: #2C9D9C; color: #fff;" onclick="call_booking_form()">Add Booking</button>
-          <button type="button" class="btn btn-default" dismiss="modal">Close</button>
+          <button type="button" class="btn btn-default " data-dismiss="modal">Close</button>
         </div>
       </div>
 

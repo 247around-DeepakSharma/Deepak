@@ -1347,10 +1347,10 @@ class Partner extends CI_Controller {
 			$booking['purchase_year'] = (isset($requestData['purchase_month']) ? $requestData['purchase_month'] : "");
 			$booking['serial_number'] = (isset($requestData['serial_number']) ? $requestData['serial_number'] : "");
 
-			$booking['items_selected'] = '';
 			$booking['total_price'] = '';
 			$booking['potential_value'] = '';
 			$booking['last_service_date'] = date('d-m-Y');
+			$booking['items_selected'] = $lead_details['RequestType'];
 
 			//echo print_r($booking, true) . "<br><br>";
 			$appliance_id = $this->booking_model->addexcelappliancedetails($booking);

@@ -312,7 +312,7 @@ class Partner extends CI_Controller {
        
         $this->form_validation->set_rules('appliance_capacity', 'Appliance Capacity', 'required');
         $this->form_validation->set_rules('appliance_category', 'Appliance Category', 'required');
-        $this->form_validation->set_rules('partner_source', 'Booking Source', 'required');
+        //$this->form_validation->set_rules('partner_source', 'Booking Source', 'required');
         $this->form_validation->set_rules('service_name', 'Service Name', 'required');
         $this->form_validation->set_rules('booking_date', 'Booking Date', 'required');
         $this->form_validation->set_rules('query_remarks', 'Problem Description', 'required');

@@ -35,6 +35,8 @@ class Booking extends CI_Controller {
         $this->load->library('booking_utilities');
         $this->load->library('partner_sd_cb');
         $this->load->library('asynchronous_lib');
+        $this->load->library('googleurlapi');
+
 
         if (($this->session->userdata('loggedIn') == TRUE) &&
                 ($this->session->userdata('userType') == 'employee')) {
@@ -3075,8 +3077,15 @@ class Booking extends CI_Controller {
     }
 
     function test_upload_pincode_file(){
-        shell_exec('sudo chown mysql:mysql /tmp/vendor_pincode_mapping_temp1.csv');
-        $this->booking_model->test_upload();
+       // shell_exec('sudo chown mysql:mysql /tmp/vendor_pincode_mapping_temp1.csv');
+       // $this->booking_model->test_upload();
+
+        // Create instance with key
+
+ 
+// Test: Shorten a URL
+$shorURL = $this->googleurlapi->shorten("http://www.247around.com/");
+echo $shorURL; // returns http://goo.gl/DbkFol
     }
 
 }
