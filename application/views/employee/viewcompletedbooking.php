@@ -92,7 +92,9 @@
                     
                     <th width="125px;">Completion Date</th>
                     <th width="60px;">Call</th>
+                    
                     <?php if($status != "Cancelled" ){?>
+                    <th width="60px;">Edit</th>
                     <th width="60px;">Cancel</th>
                     <?php } else { ?>
                         <th width="60px;">Complete</th>
@@ -128,10 +130,19 @@
 
                      <?php if($status != "Cancelled" ){?>
 
+                      <td>
+
+                    <?php
+                        echo "<a id='edit' class='btn btn-sm btn-success' "
+                            . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Cancel'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
+                        ?>
+                        
+                    </td>
+
                      <td>
 
                     <?php
-                        echo "<a id='edit' class='btn btn-sm btn-primary' "
+                        echo "<a id='edit' class='btn btn-sm btn-danger' "
                             . "href=" . base_url() . "employee/booking/get_cancel_form/$row->booking_id title='Cancel'> <i class='fa fa-times' aria-hidden='true' ></i></a>";
                         ?>
                         

@@ -345,10 +345,11 @@ class vendor extends CI_Controller {
 	if ($service_center_id != "Select") {
             $this->booking_model->assign_booking($booking_id, $service_center_id);
             
-            $pre_service_center_data['current_status'] = "Cancelled";
-            $pre_service_center_data['internal_status'] = "Cancelled";
+           // $pre_service_center_data['current_status'] = "Cancelled";
+            //$pre_service_center_data['internal_status'] = "Cancelled";
 
-            $this->service_centers_model->update_service_centers_action_table($booking_id, $pre_service_center_data);
+           // $this->service_centers_model->update_service_centers_action_table($booking_id, $pre_service_center_data);
+            $this->vendor_model->delete_previous_service_center_action($booking_id);
             $unit_details = $this->booking_model->getunit_details($booking_id);
            
             foreach ($unit_details[0]['quantity'] as $value ) { 

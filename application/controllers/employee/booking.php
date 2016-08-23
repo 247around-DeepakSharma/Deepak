@@ -1359,6 +1359,13 @@ class Booking extends CI_Controller {
 
 	    $this->booking_model->convert_booking_to_pending($booking_id, $data, $status);
 
+	    
+        $service_center_data['booking_id'] = $booking_id;
+        $service_center_data['internal_status'] = "Pending";
+        $service_center_data['current_status'] = "Pending";
+        $service_center_data['update_date'] = date("Y-m-d H:i:s");
+        $this->vendor_model->update_service_center_action($service_center_data);
+
 	    //Log this state change as well for this booking
 	    //param:-- booking id, new state, old state, employee id, employee name
 	    $this->notify->insert_state_change($booking_id, "Pending", $status, $this->session->userdata('id'), $this->session->userdata('employee_id'));

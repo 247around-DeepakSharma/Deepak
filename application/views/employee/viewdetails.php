@@ -208,6 +208,7 @@
                                 <td><?php print_r($unit_detail['customer_paid_extra_charges']);  ?></td>
                                 <td><?php print_r($unit_detail['customer_paid_parts']);  ?></td>
                                 <td><?php print_r($unit_detail['customer_paid_basic_charges'] + $unit_detail['customer_paid_extra_charges'] + $unit_detail['customer_paid_parts'] );  ?></td>
+                                <td><?php print_r($unit_detail['booking_status']); ?></td>
                                 <?php }?>
                             </tr>
                             <?php } ?>
