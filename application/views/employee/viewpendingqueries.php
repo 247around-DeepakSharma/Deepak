@@ -101,7 +101,10 @@ function outbound_call(phone_number){
                     <th width="60px;">Update</th>
 
                     <th width="60px;">Cancel</th>
+                    <?php } if($status == "Cancelled"){ ?>
+                     <th width="60px;">Un-Cancel</th>
                     <?php } ?>
+
                     </tr>
 
                     </thead>
@@ -112,7 +115,7 @@ function outbound_call(phone_number){
                     <tr <?php if (isset($row->OrderID)) { if($row->OrderID !=null) { ?>
                                 style="background-color:#EC8484"
                         <?php }  }?> >
-                    <td><?=$row->id?>.</td>
+                    <td><?php echo $count; ?></td>
 
                 <td><?= $row->booking_id; ?></td>
                         <td><a target='_blank' href="<?php echo base_url(); ?>employee/user/finduser/0/0/<?php echo $row->phone_number; ?>"><?php echo $row->customername; ?></a></td>
@@ -173,6 +176,12 @@ function outbound_call(phone_number){
                         <?php
                         echo "<a target='_blank' class='btn btn-small btn-warning btn-sm' href=".base_url()."employee/booking/get_cancel_form/$row->booking_id/followup title='Cancel'> <i class='fa fa-times' aria-hidden='true'></i></a>";
                         ?>
+                    </td>
+                    <?php } if($status == "Cancelled"){  ?>
+                     <td>
+                        <?php echo "<a class='btn btn-sm btn-warning' "
+                        . "href=" . base_url() . "employee/booking/open_cancelled_query/$row->booking_id target='_blank'  title='open'><i class='fa fa-calendar' aria-hidden='true'></i></a>";
+    ?>
                     </td>
                     <?php } ?>
                     </tr>

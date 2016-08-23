@@ -9,19 +9,19 @@
                         <div class="col-md-12">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="name" class="col-md-4">User Name</label>
+                                    <label for="name" class="col-md-4">Name</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control" id="name" name="user_name" value = "<?php echo $user[0]['name'] ?>" readonly="readonly">
                                     </div>
                                 </div>
                                 <div class="form-group ">
-                                    <label for="booking_primary_contact_no" class="col-md-4">Primary Contact Number *</label>
+                                    <label for="booking_primary_contact_no" class="col-md-4">Mobile *</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php echo $user[0]['phone_number']?>" required>
                                     </div>
                                 </div>
                                 <div class="form-group ">
-                                    <label for="booking_city" class="col-md-4">Booking City *</label>
+                                    <label for="booking_city" class="col-md-4">City *</label>
                                     <div class="col-md-6">
                                         <select type="text" onchange= "getCategoryForService()" class="form-control"  id="booking_city" name="city" required>
                                             <option selected="selected" disabled="disabled">Select City</option>
@@ -35,7 +35,7 @@
                                 </div>
                                 
                                 <div class="form-group ">
-                                    <label for="service_name" class="col-md-4">Service Name *</label>
+                                    <label for="service_name" class="col-md-4">Appliance *</label>
                                     <div class="col-md-6">
                                         <input type="hidden" name="service" id="services"/>
                                         <select type="text" class="form-control"  id="service_id" name="service_id" value = "<?php echo set_value('service_id'); ?>" onChange="getBrandForService(this.value), getCategoryForService();"  required>
@@ -49,7 +49,7 @@
                                     </div>
                                 </div>
                                  <div class="form-group ">
-                                     <label for="service_name" class="col-md-4">Order Id </label>
+                                     <label for="service_name" class="col-md-4">Order ID </label>
                                       <div class="col-md-6">
                                           <input class="form-control" name= "order_id"></input>
                                       </div>
@@ -59,14 +59,14 @@
                             <!--  start col-md-6  -->
                             <div class="col-md-6">
                                 <div class="form-group ">
-                                    <label  class="col-md-4">User Email</label>
+                                    <label  class="col-md-4">Email</label>
                                     <div class="col-md-6">
                                         <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php echo $user[0]['user_email']; ?>">
                                        
                                     </div>
                                 </div>
                                 <div class="form-group ">
-                                    <label for="booking_alternate_contact_no" class="col-md-4">Alternate Contact No</label>
+                                    <label for="booking_alternate_contact_no" class="col-md-4">Alternate No</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="booking_alternate_contact_no" value = "<?php echo $user[0]['alternate_phone_number']?>" >
                                     </div>
@@ -91,6 +91,10 @@
                                     <select class="form-control"  id="partner_source" name="partner_source"  >
                                     <option value="">Please Select Partner source</option>
                                     <option>CallCenter</option>
+                                    <option>STS</option>
+                                     <option>Snapdeal-delivered-excel</option>
+                                     
+                                     <option>Snapdeal-shipped-excel</option>
                                     <option>Snapdeal</option>
                                     <option>Flipkart</option>
                                     <option>Ebay</option>

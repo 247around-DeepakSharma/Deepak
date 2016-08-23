@@ -107,7 +107,7 @@ class Booking extends CI_Controller {
 	$booking_date = $this->input->post('booking_date');
 	$booking['partner_source'] =  $this->input->post('partner_source');
 	$booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
-	$booking['internal_status'] =  $this->input->post('internal_status');
+	
 
 	if ($booking_id == "") {
 		
@@ -208,10 +208,20 @@ class Booking extends CI_Controller {
 	} else if ($booking['type'] == 'Query') {
 
 	    $booking['current_status'] = "FollowUp";
-	    $booking['internal_status'] = "FollowUp";
+            $internal_status = $this->input->post('internal_status');
+            if(!empty($internal_status)){
+                $booking['internal_status'] =  $internal_status;
+            } else {
+                $booking['internal_status'] = "FollowUp";
+            }
 	    $booking['query_remarks'] = $booking_remarks;
 	    if($booking_id !=""){
-	    	$booking['booking_id'] = $booking_id;
+                if (strpos($booking_id, "Q-") === FALSE) {
+                    $booking['booking_id'] = "Q-".$booking_id;
+                } else {
+                     $booking['booking_id'] = $booking_id;
+                }
+	    	
 	    	$this->service_centers_model->delete_booking_id($booking_id);
 	    }
 	    
@@ -1389,7 +1399,7 @@ class Booking extends CI_Controller {
     function open_cancelled_query($booking_id) {
 	$this->booking_model->change_booking_status($booking_id);
 
-	redirect(base_url() . 'employee/booking/view_pending_queries/0/0/' . $booking_id);
+	redirect(base_url() . 'employee/booking/view_queries/FollowUp/0/0/' . $booking_id);
     }
 
     

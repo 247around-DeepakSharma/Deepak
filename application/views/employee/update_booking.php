@@ -9,7 +9,7 @@
                         <div class="col-md-12">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="name" class="col-md-4">User Name</label>
+                                    <label for="name" class="col-md-4">Name</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control" id="name" name="user_name" value = "<?php echo $booking_history[0]['name'] ?>" readonly="readonly">
                                         
@@ -17,13 +17,13 @@
                                 </div>
 
                                 <div class="form-group ">
-                                    <label for="booking_primary_contact_no" class="col-md-4">Primary Contact Number *</label>
+                                    <label for="booking_primary_contact_no" class="col-md-4">Mobile *</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php echo $booking_history[0]['phone_number']?>" required>
                                     </div>
                                 </div>
                                 <div class="form-group ">
-                                    <label for="booking_city" class="col-md-4">Booking City *</label>
+                                    <label for="booking_city" class="col-md-4">City *</label>
                                     <div class="col-md-6">
                                         <select type="text" onchange= "getCategoryForService()" class="form-control"  id="booking_city" name="city" required>
                                             <option selected="selected" disabled="disabled">Select City</option>
@@ -36,7 +36,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group <?php if (form_error('service_id')) { echo 'has-error';} ?>">
-                                    <label for="service_name" class="col-md-4">Service Name *</label>
+                                    <label for="service_name" class="col-md-4">Appliance *</label>
                                     <div class="col-md-6">
                                         <input type="hidden" name="service" id="services"/>
                                         <select type="text" class="form-control"  id="service_id" name="service_id" value = "<?php echo set_value('service_id'); ?>" onChange="getBrandForService(this.value), getCategoryForService();"  required>
@@ -50,7 +50,7 @@
                                     </div>
                                 </div>
                                  <div class="form-group ">
-                                     <label for="service_name" class="col-md-4">Order Id </label>
+                                     <label for="service_name" class="col-md-4">Order ID </label>
                                       <div class="col-md-6">
                                           <input class="form-control" name= "order_id" value="<?php if(isset($booking_history[0]['order_id'])){ echo $booking_history[0]['order_id']; } ?>" placeholder="Enter Order ID"></input>
                                       </div>
@@ -60,14 +60,14 @@
                             <!--  start col-md-6  -->
                             <div class="col-md-6">
                                 <div class="form-group ">
-                                    <label  class="col-md-4">User Email</label>
+                                    <label  class="col-md-4">Email</label>
                                     <div class="col-md-6">
                                         <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php echo $booking_history[0]['user_email']; ?>">
                                        
                                     </div>
                                 </div>
                                 <div class="form-group ">
-                                    <label for="booking_alternate_contact_no" class="col-md-4">Alternate Contact No</label>
+                                    <label for="booking_alternate_contact_no" class="col-md-4">Alternate No</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="booking_alternate_contact_no" value = "<?php echo $booking_history[0]['booking_alternate_contact_no']?>" >
                                     </div>
@@ -91,6 +91,10 @@
                                     <select class="form-control"  id="partner_source" name="partner_source" <?php if(!empty($booking_history[0]['partner_source'])){ echo "readonly";} ?> >
                                     <option value="">Please Select Partner source</option>
                                     <option <?php if($booking_history[0]['partner_source'] === "CallCenter" ){ echo "selected"; } ?> >CallCenter</option>
+                                     <option <?php if($booking_history[0]['partner_source'] === "STS" ){ echo "selected"; } ?> >STS</option>
+                                     <option <?php if($booking_history[0]['partner_source'] === "Snapdeal-delivered-excel" ){ echo "selected"; } ?> >Snapdeal-delivered-excel</option>
+                                     
+                                     <option <?php if($booking_history[0]['partner_source'] === "Snapdeal-shipped-excel" ){ echo "selected"; } ?> >Snapdeal-shipped-excel</option>
                                     <option <?php if($booking_history[0]['partner_source'] === "Snapdeal" ){ echo "selected"; } ?>>Snapdeal</option>
                                     <option <?php if($booking_history[0]['partner_source'] === "Flipkart" ){ echo "selected"; } ?>>Flipkart</option>
                                     <option  <?php if($booking_history[0]['partner_source'] === "Ebay" ){ echo "selected"; } ?>>Ebay</option>
@@ -187,7 +191,7 @@
                                          <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Description </label>
                                             <div class="col-md-6">
-                                                <input  type="text" class="form-control"  name="appliance_description[]" id="description_1" value = "<?php if(isset($unit_details[0]['description'])) { echo $unit_details[0]['description']; } ?>" placeholder="Enter Description"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
+                                                <textarea  type="text" class="form-control"  name="appliance_description[]" id="description_1" placeholder="Enter Description"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> ><?php if(isset($unit_details[0]['description'])) { echo $unit_details[0]['description']; } ?></textarea>
                                                
                                             </div>
                                         </div>
@@ -470,7 +474,7 @@
                             <div class="form-group ">
                                 <label for="booking_date" class="col-md-4">Booking Date *</label>
                                 <div class="col-md-6">
-                                    <input type="date" class="form-control"  id="booking_date" min="<?php echo date("Y-m-d") ?>" name="booking_date" value = "<?php if(!empty($booking_history[0]['booking_date'])){ echo  date("Y-m-d", strtotime($booking_history[0]['booking_date'])); } else { echo date("Y-m-d"); } ?>" required>
+                                    <input type="date" class="form-control"  id="booking_date" min="<?php echo date("Y-m-d") ?>" name="booking_date" value = "<?php if(!empty($booking_history[0]['booking_date'])){ echo  date("Y-m-d", strtotime($booking_history[0]['booking_date'])); } else { echo date("Y-m-d", strtotime('+1 days')); } ?>" required>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -507,7 +511,7 @@
                         foreach($follow_up_internal_status as $status){?>
                      <div class="radio">
                         <label>
-                        <input type="radio" name="internal_status"  class="internal_status"  value="<?php  echo $status->status;?>"  >
+                        <input type="radio" name="internal_status"  class="internal_status"  value="<?php  echo $status->status;?>" <?php if(isset($booking_history[0]['internal_status'])){ if( $status->status == $booking_history[0]['internal_status']){ echo "checked";}} ?> >
                          <?php  echo $status->status;?>
                         </label>
                      </div>
@@ -537,7 +541,7 @@
                             <div class="form-group ">
                                 <label for="type" class="col-md-4">Remarks</label>
                                 <div class="col-md-6">
-                                    <textarea class="form-control" rows="4" name="query_remarks" id="query_remarks" placeholder="Enter Quer Remarks" ><?php if(isset($booking_history[0]['booking_remarks'])){ echo $booking_history[0]['booking_remarks']; } else  if(isset($booking_history[0]['query_remarks'])){ echo $booking_history[0]['query_remarks']; } ?></textarea>
+                                    <textarea class="form-control" rows="4" name="query_remarks" id="query_remarks" placeholder="Enter Quer Remarks" ><?php if(isset($booking_history[0]['type'])){ if($booking_history[0]['type'] == "Booking"){ echo $booking_history[0]['booking_remarks']; } else { echo $booking_history[0]['query_remarks']; } }   ?></textarea> 
                                 </div>
                             </div>
                              
