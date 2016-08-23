@@ -15,23 +15,23 @@
                     <b >Customer Details:-</b><br>
                     <table class="table  table-striped table-bordered">
                         <tr>
-                            <th >Customer name: </th>
+                            <th >Name: </th>
                             <td><?php echo $booking_history[0]['name']; ?></td>
-                            <th>Customer phone number: </th>
+                            <th>Mobile: </th>
                             <td><?php echo $booking_history[0]['phone_number']; ?></td>
-                            <th>Alternate phone number: </th>
+                            <th>Alternate No: </th>
                             <td><?php echo $booking_history[0]['alternate_phone_number']; ?></td>
                         </tr>
                         <tr>
-                            <th>Customer email address: </th>
+                            <th>Email ID: </th>
                             <td><?php echo $booking_history[0]['user_email']; ?></td>
-                            <th>Home address: </th>
+                            <th>Address: </th>
                             <td><?php echo $booking_history[0]['home_address'];?></td>
                             <th>City:</th>
                             <td><?php echo $booking_history[0]['city'];  ?></td>
                         </tr>
                         <tr>
-                            <th>Near Landmark: </th>
+                            <th>Landmark: </th>
                             <td><?php echo $booking_history[0]['booking_landmark']; ?></td>
                             <th>State: </th>
                             <td><?php echo $booking_history[0]['state'];?></td>
@@ -69,7 +69,7 @@
                             <td><?php echo $booking_history[0]['booking_date']; ?></td>
                         </tr>
                         <tr>
-                            <th>Booking time slot: </th>
+                            <th>Booking timeslot: </th>
                             <td><?php echo $booking_history[0]['booking_timeslot']; ?></td>
                         </tr>
                         <tr>
@@ -149,6 +149,7 @@
                             <th>Paid Additional Charges</th>
                             <th>Paid Parts Cost</th>
                             <th>Total Amount Paid</th>
+                            <th>Booking Status</th>
                             <?php } ?>
                         </tr>
                         <tbody>
@@ -175,6 +176,7 @@
                                 <td><?php print_r($unit_detail['customer_paid_extra_charges']);  ?></td>
                                 <td><?php print_r($unit_detail['customer_paid_parts']);  ?></td>
                                 <td><?php print_r($unit_detail['customer_paid_basic_charges'] + $unit_detail['customer_paid_extra_charges'] + $unit_detail['customer_paid_parts'] );  ?></td>
+                                <td><?php print_r($unit_detail['booking_status']);  ?></td>
                                 <?php }?>
                             </tr>
                             <?php } ?>

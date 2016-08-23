@@ -53,7 +53,7 @@
                            </td>
                            <td> <?= $row->age_of_booking." day"; ?></td>
                           
-                           <td data-popover="true" style="position: absolute; border:0px; width: 12%" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
+                           <td data-popover="true" style="position: absolute; border:0px; width: 10%" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
                               <div class="marquee">
                                  <div><span><?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?></span></div>
                               </div>

@@ -140,6 +140,8 @@ class Service_centers extends CI_Controller {
        $booking_status = $this->input->post('booking_status');
        $total_amount_paid =  $this->input->post('grand_total_price');
        $closing_remarks = $this->input->post('closing_remarks');
+       //TODO:
+       //issues in to insert serial number 
        $serial_number = $this->input->post('serial_number');
        $internal_status = "Cancelled";
        $getremarks = $this->booking_model->getbooking_charges($booking_id);

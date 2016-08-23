@@ -626,11 +626,12 @@ class Migration extends CI_Controller {
 	$unit_data['appliance_brand'] = $value['appliance_brand'];
 	$unit_data['appliance_capacity'] = $value['appliance_capacity'];
 	$unit_data['appliance_category'] = $value['appliance_category'];
+        $unit_data['appliance_description'] = $value['appliance_description'];
 
 	$unit_data['price_tags'] = $price_tag;
 
 	$this->migration_model->update_booking_unit_details($booking_id, $unit_data);
-	//print_r($booking_id);
+	print_r($booking_id);
 	if (!empty($value['partner_id'])) {
 	    echo $booking_id . "  .... Partner Id Not Exist.";
 	    echo "<br/>";
@@ -651,11 +652,12 @@ class Migration extends CI_Controller {
 	$unit_data['appliance_brand'] = $value['appliance_brand'];
 	$unit_data['appliance_capacity'] = $value['appliance_capacity'];
 	$unit_data['appliance_category'] = $value['appliance_category'];
+        $unit_data['appliance_description'] = $value['appliance_description'];
 
 	$unit_data['price_tags'] = "Installation & Demo";
 
 	$this->migration_model->update_booking_unit_details($booking_id, $unit_data);
-
+                        
 	if (!empty($value['partner_id'])) {
 	    echo $booking_id . "  .... Partner Id Not Exist.";
 	    echo "<br/>";
@@ -665,7 +667,7 @@ class Migration extends CI_Controller {
 	    echo "<br/>";
 	}
 
-	//echo $booking_id . "............Stand";
+	echo $booking_id . "............Stand";
 
 	$unit_data['model_number'] = $value['model_number'];
 	$unit_data['appliance_size'] = $value['appliance_size'];

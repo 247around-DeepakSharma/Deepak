@@ -12,7 +12,7 @@
    function check_text() {
        var reason = document.myForm.cancellation_reason.value;
        var cancel_text = document.myForm.cancellation_reason_text.value;
-       if (reason == 'Other' && cancel_text == "") {
+       if (reason === 'Other' && cancel_text === "") {
            alert("Cancellation reason is missing");
            return false;
        }

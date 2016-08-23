@@ -46,7 +46,7 @@
                                                     <?php echo $row['booking_timeslot']; ?>
                                             </td>
                                         
-                                             <td data-popover="true" style="position: absolute; border:0px; width: 17%" data-html=true data-content="<?php echo $row['closing_remarks'];?>">
+                                             <td data-popover="true" style="position: absolute; border:0px; width: 12%" data-html=true data-content="<?php echo $row['closing_remarks'];?>">
                                                 <div class="marquee">
                                                     <div><span><?php echo $row['closing_remarks'];?></span></div>
                                                 </div>
