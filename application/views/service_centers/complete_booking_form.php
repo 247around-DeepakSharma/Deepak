@@ -91,7 +91,7 @@
                             <div class="form-group">
                               <div class="col-md-8 ">
                                  
-                                 <input type="text" id="serial_number" class="form-control" name="serial_number[]" value="<?php echo $unit_details['serial_number']; ?>" placeholder="Please Enter Serial Number"  required />
+                                 <input type="text" id="serial_number" class="form-control" name="serial_number" value="<?php echo $unit_details['serial_number']; ?>" placeholder="Please Enter Serial Number"  required />
                                
                               </div>
                            </div>

@@ -159,7 +159,7 @@ class Service_centers extends CI_Controller {
             $data['closed_date'] = date('Y-m-d H:i:s');
             $data['booking_id'] =  $booking_id;
             $data['amount_paid'] = $total_amount_paid;
-            $data['serial_number'] =  $serial_number[$i];
+            $data['serial_number'] =  $serial_number;
 
             if (!empty($getremarks[0]['service_center_remarks'])) {
                 
