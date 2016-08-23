@@ -245,51 +245,7 @@ class Migration_model extends CI_Model {
 	return $query->result_array();
     }
 
-    function test_service_center_pending() {
-	$sql = "SELECT booking_details.`booking_id` FROM booking_details,  `service_center_booking_action`
-               WHERE service_center_booking_action.current_status =  'InProcess'
-               AND ( booking_details.current_status =  'Pending' OR booking_details.current_status =  'Rescheduled'
-               ) AND service_center_booking_action.booking_id = booking_details.booking_id ";
-
-	$query = $this->db->query($sql);
-	$result = $query->result_array();
-
-	foreach ($result as $key => $value) {
-	    $this->db->select('booking_id,id, price_tags');
-	    $this->db->where('booking_id', $value['booking_id']);
-	    $query1 = $this->db->get('booking_unit_details');
-	    $result1 = $query1->result_array();
-
-	    if (count($result1) === 2) {
-		print_r($result1);
-		$this->db->where('booking_id', $result1[0]['booking_id']);
-		$this->db->update('service_center_booking_action', array('unit_details_id ' => $result1[0]['id']));
-
-		$this->db->select('*');
-		$this->db->where('booking_id', $result1[0]['booking_id']);
-		$query2 = $this->db->get('service_center_booking_action');
-		$result2 = $query2->result_array();
-		unset($result2[0]['id']);
-		$result2[0]['unit_details_id'] = $result1[1]['id'];
-		$result2[0]['current_status'] = "InProcess";
-		//$result2[0]['internal_status'] = "Pending";
-		$this->db->insert('service_center_booking_action', $result2[0]);
-		echo "<br/>";
-		echo "two";
-		echo "<br/>";
-		echo $result1[0]['booking_id'];
-		echo "<br/>";
-	    } else if (count($result1) === 1) {
-		echo "<br/>";
-		echo "only one";
-		echo "<br/>";
-		echo $result1[0]['booking_id'];
-		echo "<br/>";
-		$this->db->where('booking_id', $result1[0]['booking_id']);
-		$this->db->update('service_center_booking_action', array('unit_details_id ' => $result1[0]['id']));
-	    }
-	}
-    }
+    
 
     function get_all_followUp() {
 	$sql = "
@@ -383,6 +339,72 @@ class Migration_model extends CI_Model {
 	$query = $this->db->query($sql);
 	$result = $query->result_array();
 	return $result;
+    }
+    
+    function get_service_center_inprocess(){
+        $sql = "SELECT booking_details.`booking_id` FROM booking_details,  `service_center_booking_action`
+               WHERE service_center_booking_action.current_status =  'InProcess'
+               AND ( booking_details.current_status =  'Pending' OR booking_details.current_status =  'Rescheduled'
+               ) AND service_center_booking_action.booking_id = booking_details.booking_id ";
+
+	$query = $this->db->query($sql);
+	$result = $query->result_array();
+        
+        $this->update_service_center_table($result, false);
+    }
+    
+     function get_service_center_pending(){
+        $sql = "SELECT booking_details.`booking_id` FROM booking_details,  `service_center_booking_action`
+               WHERE service_center_booking_action.current_status =  'Pending'
+               AND ( booking_details.current_status =  'Pending' OR booking_details.current_status =  'Rescheduled'
+               ) AND service_center_booking_action.booking_id = booking_details.booking_id ";
+
+	$query = $this->db->query($sql);
+	$result = $query->result_array();
+        
+        $this->update_service_center_table($result, true);
+    }
+
+    function update_service_center_table($result, $internal_status = true) {
+	
+	foreach ($result as $value) {
+	    $this->db->select('booking_id,id, price_tags');
+	    $this->db->where('booking_id', $value['booking_id']);
+	    $query1 = $this->db->get('booking_unit_details');
+	    $result1 = $query1->result_array();
+
+	    if (count($result1) === 2) {
+		print_r($result1);
+		$this->db->where('booking_id', $result1[0]['booking_id']);
+		$this->db->update('service_center_booking_action', array('unit_details_id ' => $result1[0]['id']));
+
+		$this->db->select('*');
+		$this->db->where('booking_id', $result1[0]['booking_id']);
+		$query2 = $this->db->get('service_center_booking_action');
+		$result2 = $query2->result_array();
+		unset($result2[0]['id']);
+		$result2[0]['unit_details_id'] = $result1[1]['id'];
+		$result2[0]['current_status'] = "InProcess";
+                if($internal_status){
+                    $result2[0]['internal_status'] = "Pending";
+                }
+	
+		$this->db->insert('service_center_booking_action', $result2[0]);
+		echo "<br/>";
+		echo "two";
+		echo "<br/>";
+		echo $result1[0]['booking_id'];
+		echo "<br/>";
+	    } else if (count($result1) === 1) {
+		echo "<br/>";
+		echo "only one";
+		echo "<br/>";
+		echo $result1[0]['booking_id'];
+		echo "<br/>";
+		$this->db->where('booking_id', $result1[0]['booking_id']);
+		$this->db->update('service_center_booking_action', array('unit_details_id ' => $result1[0]['id']));
+	    }
+	}
     }
 
 }

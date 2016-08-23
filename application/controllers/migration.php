@@ -841,5 +841,14 @@ class Migration extends CI_Controller {
 	    }
 	}
     }
+    
+    
+    function update_service_center_inprocess(){
+        $this->migration_model->get_service_center_inprocess();
+    }
+    
+    function update_service_center_pending(){
+        $this->migration_model->get_service_center_pending();
+    }
 
 }
