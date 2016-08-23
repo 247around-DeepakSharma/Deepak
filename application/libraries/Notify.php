@@ -284,6 +284,17 @@ class Notify {
 		$email['tag'] = "open_completed_booking";
 		$email['subject'] = " Booking Converted to Pending - AROUND";
 		break;
+            
+            case 'Customer not reachable':
+                if ($is_sd) {
+		    $sms['tag'] = "call_not_picked_snapdeal";
+		} else {
+		    $sms['tag'] = "call_not_picked_other";
+		}
+		$sms['smsData']['name'] = $query1[0]['name'];
+		
+		$this->send_sms($sms);
+                break;
 	}
 
 	$this->send_email($email);

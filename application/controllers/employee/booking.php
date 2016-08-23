@@ -108,7 +108,6 @@ class Booking extends CI_Controller {
 	$booking['partner_source'] =  $this->input->post('partner_source');
 	$booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
 	
-
 	if ($booking_id == "") {
 		
 	    $booking['booking_id'] = $this->create_booking_id($user_id, $booking['source'], $booking['type'], $booking['booking_date']);
@@ -213,6 +212,9 @@ class Booking extends CI_Controller {
                 $booking['internal_status'] =  $internal_status;
             } else {
                 $booking['internal_status'] = "FollowUp";
+            }
+            if($booking['internal_status'] == INT_STATUS_CUSTOMER_NOT_REACHABLE){
+                $this->send_sms_while_not_picked($booking_id);
             }
 	    $booking['query_remarks'] = $booking_remarks;
 	    if($booking_id !=""){
@@ -325,6 +327,13 @@ class Booking extends CI_Controller {
 	$this->user_model->edit_user($user);
 
 	return $booking;
+    }
+    
+    function send_sms_while_not_picked($booking_id){
+        $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+	$send['booking_id'] = $booking_id;
+	$send['state'] = "Customer not reachable";
+	$this->asynchronous_lib->do_background_process($url, $send);
     }
 
     /**
