@@ -89,16 +89,15 @@
                                     <label for="partner_source" class="col-md-4">Partner Source</label>
                                 <div class="col-md-6">
                                     <select class="form-control"  id="partner_source" name="partner_source"  >
-                                    <option value="">Please Select Partner source</option>
+                                    <option value="">Please select seller channel</option>
                                     <option>CallCenter</option>
-                                    <option>STS</option>
-                                     <option>Snapdeal-delivered-excel</option>
-                                     
-                                     <option>Snapdeal-shipped-excel</option>
-                                    <option>Snapdeal</option>
                                     <option>Flipkart</option>
                                     <option>Ebay</option>
-                                   <option>Offline</option>
+                                    <option>Offline</option>
+                                    <option>STS</option>
+                                    <option>Snapdeal-delivered-excel</option>
+                                    <option>Snapdeal-shipped-excel</option>
+                                    <option>Paytm-delivered-excel</option>
                                 </select>
                                 </div>
                                 </div>

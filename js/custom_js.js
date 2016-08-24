@@ -171,7 +171,7 @@
 
       if ($("input[type=checkbox]:checked").length === 0) {
         $('#myModal').modal('toggle');
-        alert('no way you submit it without checking a box');
+        alert('Please select at least one check box');
         return false;
       
       }
@@ -239,7 +239,7 @@
         // something when checked
         } else {
           $('#myModal').modal('toggle');
-          alert("Please check internal_status "); 
+          alert("For Query, Internal Status is MANDATORY."); 
           return false;
         }
       }

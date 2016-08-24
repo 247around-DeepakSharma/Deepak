@@ -86,19 +86,18 @@
                                     </div>
                                 </div>
                                   <div class="form-group ">
-                                    <label for="partner_source" class="col-md-4">Partner Source</label>
+                                    <label for="partner_source" class="col-md-4">Seller Platform</label>
                                 <div class="col-md-6">
                                     <select class="form-control"  id="partner_source" name="partner_source" <?php if(!empty($booking_history[0]['partner_source'])){ echo "readonly";} ?> >
-                                    <option value="">Please Select Partner source</option>
+                                    <option value="">Please Select Seller Platform</option>
                                     <option <?php if($booking_history[0]['partner_source'] === "CallCenter" ){ echo "selected"; } ?> >CallCenter</option>
-                                     <option <?php if($booking_history[0]['partner_source'] === "STS" ){ echo "selected"; } ?> >STS</option>
-                                     <option <?php if($booking_history[0]['partner_source'] === "Snapdeal-delivered-excel" ){ echo "selected"; } ?> >Snapdeal-delivered-excel</option>
-                                     
-                                     <option <?php if($booking_history[0]['partner_source'] === "Snapdeal-shipped-excel" ){ echo "selected"; } ?> >Snapdeal-shipped-excel</option>
-                                    <option <?php if($booking_history[0]['partner_source'] === "Snapdeal" ){ echo "selected"; } ?>>Snapdeal</option>
                                     <option <?php if($booking_history[0]['partner_source'] === "Flipkart" ){ echo "selected"; } ?>>Flipkart</option>
                                     <option  <?php if($booking_history[0]['partner_source'] === "Ebay" ){ echo "selected"; } ?>>Ebay</option>
                                    <option  <?php if($booking_history[0]['partner_source'] === "Offline" ){ echo "selected"; } ?>>Offline</option>
+                                     <option <?php if($booking_history[0]['partner_source'] === "STS" ){ echo "selected"; } ?> >STS</option>
+                                     <option <?php if($booking_history[0]['partner_source'] === "Snapdeal-delivered-excel" ){ echo "selected"; } ?> >Snapdeal-delivered-excel</option>
+                                     <option <?php if($booking_history[0]['partner_source'] === "Snapdeal-shipped-excel" ){ echo "selected"; } ?> >Snapdeal-shipped-excel</option>
+                                     <option <?php if($booking_history[0]['partner_source'] === "Paytm-delivered-excel" ){ echo "selected"; } ?> >Paytm-delivered-excel</option>
                                 </select>
                                 </div>
                                 </div>
@@ -551,8 +550,8 @@
                         </div>
                         <div class="form-group  col-md-12" >
                             <center>
-                                <button style="margin-right: 25px;" type="button" class="btn btn-info btn-md open-AddBookingDialog" data-toggle="modal" data-target="#myModal">Confirm</button>
-                                <input type="submit" id="submitform" class="btn btn-info disabled" value="Submit">
+                                <button style="margin-right: 25px;" type="button" class="btn btn-info btn-md open-AddBookingDialog" data-toggle="modal" data-target="#myModal">Check Details</button>
+                                <input type="submit" id="submitform" class="btn btn-info disabled" value="Submit Booking">
                         </div>
                         </center>
                     </div>
