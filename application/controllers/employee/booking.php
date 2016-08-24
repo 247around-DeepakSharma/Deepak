@@ -133,7 +133,7 @@ class Booking extends CI_Controller {
 	// select state by city
 	$state = $this->vendor_model->get_state_from_pincode($booking['booking_pincode']);
 	$booking['state'] =  $state['state'];
-	
+
 	$service = $booking['services'] = $this->input->post('service');
 	$booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
 	$booking['order_id'] = $this->input->post('order_id');
@@ -247,10 +247,10 @@ class Booking extends CI_Controller {
 
 	if(empty($booking['state'])){
 	    $to = "anuj@247around.com, abhaya@247around.com";
-	    $message = " Booking State is not found. Booking ID is". $booking['booking_id'];
+	    $message = "State not found for Booking ID: " . $booking['booking_id'] . " and Pincode: " . $booking['booking_pincode'];
 	    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Booking State Not Found', $message, "");
 	}
-	
+
 
 	foreach ($appliance_brand as $key => $value) {
 
