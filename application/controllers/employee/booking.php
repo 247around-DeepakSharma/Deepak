@@ -1249,7 +1249,7 @@ class Booking extends CI_Controller {
 	    $data['customer_paid_basic_charges'] = $value;
 	    $data['customer_paid_extra_charges'] = $additional_charge[$unit_id];
 	    $data['customer_paid_parts'] = $parts_cost[$unit_id];
-	    $data['serial_number'] = $serial_number[$i];
+	    $data['serial_number'] = $serial_number[$unit_id];
 	    // it checks sting new in unit_id variable
 	    if (strpos($unit_id, 'new') !== false) {
 		if (isset($booking_status[$unit_id])) {
