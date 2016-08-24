@@ -1,3 +1,4 @@
+<script src="<?php echo base_url();?>js/base_url.js"></script>
 <script src="<?php echo base_url();?>js/custom_js.js"></script>
 <div id="page-wrapper" >
     <div class="container" >
@@ -36,10 +37,17 @@
                                         <select type="text" onchange= "getCategoryForService()" class="form-control"  id="booking_city" name="city" required>
                                             <option selected="selected" disabled="disabled">Select City</option>
                                             <?php 
-                                                foreach ($city as $key => $cites) { ?>
-                                            <option <?php if($cites['district'] == $user[0]['city']){ echo "Selected"; }?>><?php echo $cites['district']; ?></option>
+                                                
+                                                 $flag = 0; 
+                                                foreach ($city as $key => $cites) { 
+                                                   
+                                                    ?>
+                                            <option <?php if($cites['district'] == $user[0]['city']){ echo "Selected"; $flag = 1; }?>><?php echo $cites['district']; ?></option>
                                             <?php  }
                                                 ?>
+                                            <?php if($flag == 0){ ?>
+                                            <option selected="selected" ><?php echo $user[0]['city']; ?></option>
+                                            <?php } ?>
                                         </select>
                                     </div>
                                 </div>
@@ -315,7 +323,9 @@
 </script>
 <script>
     $("#service_id").select2();
-    $("#booking_city").select2();
+    $("#booking_city").select2({
+         tags: true
+    });
     $("#partner_source").select2();
     //$(".appliance_capacity").select2();
 </script>

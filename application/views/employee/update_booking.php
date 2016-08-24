@@ -1,3 +1,4 @@
+<script src="<?php echo base_url();?>js/base_url.js"></script>
 <script src="<?php echo base_url();?>js/custom_js.js"></script>
 <div id="page-wrapper" >
     <div class="container" >
@@ -33,29 +34,26 @@
                                 </div>
                             </div>
                                  <div class="form-group ">
+                                 <?php  
+
+                                                
+
+                                                ?>
                                     <label for="booking_city" class="col-md-4">City *</label>
                                     <div class="col-md-6">
                                         <select type="text" onchange= "getCategoryForService()" class="form-control"  id="booking_city" name="city" required>
                                             <option selected="selected" disabled="disabled">Select City</option>
-                                            <?php 
-                                                function check_city_exist($array, $key, $val) {
-                                                    foreach ($array as $item){
-                                                        if (isset($item[$key]) && $item[$key] == $val){
-                                                            return true;
-                                                        }
-                                                    }
-                                                            
-                                                    return false;
-                                                }
+                                            <?php
+                                           
+                                            $flag = 0;    
+                                            foreach ($city as $key => $cites) { 
                                                 
-                                                foreach ($city as $key => $cites) { 
-                                                $flag = check_city_exist($city, $key, $booking_history[0]['city']);    
                                                 ?>
-                                            <option <?php if($cites['district'] == $booking_history[0]['city']){ echo "Selected"; }?>><?php echo $cites['district']; ?></option>
+                                            <option <?php if($cites['district'] == $booking_history[0]['city']){ echo "Selected"; $flag = 1; }?>><?php echo $cites['district']; ?></option>
                                            
                                             <?php }
                                                 ?>
-                                             <?php if($flag){ ?>
+                                             <?php if($flag ==0){ ?>
                                             <option selected="selected" ><?php echo $booking_history[0]['city']; ?></option>
                                             <?php } ?>
                                         </select>
@@ -592,7 +590,7 @@
 </script>
 <script>
     $("#service_id").select2();
-     $("#booking_city").select2({
+    $("#booking_city").select2({
          tags: true
     });
     $("#partner_source").select2();
