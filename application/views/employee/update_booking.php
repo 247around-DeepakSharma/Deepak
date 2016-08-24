@@ -38,13 +38,19 @@
                                         <select type="text" onchange= "getCategoryForService()" class="form-control"  id="booking_city" name="city" required>
                                             <option selected="selected" disabled="disabled">Select City</option>
                                             <?php 
-                                                $flag = false;
-                                                if (in_array($booking_history[0]['city'], $cites)){
-                                                    //echo "Match found";
-                                                } else {
-                                                    $flag = true;
+                                                function check_city_exist($array, $key, $val) {
+                                                    foreach ($array as $item){
+                                                        if (isset($item[$key]) && $item[$key] == $val){
+                                                            return true;
+                                                        }
+                                                    }
+                                                            
+                                                    return false;
                                                 }
-                                                foreach ($city as $key => $cites) { ?>
+                                                
+                                                foreach ($city as $key => $cites) { 
+                                                $flag = check_city_exist($city, $key, $booking_history[0]['city']);    
+                                                ?>
                                             <option <?php if($cites['district'] == $booking_history[0]['city']){ echo "Selected"; }?>><?php echo $cites['district']; ?></option>
                                            
                                             <?php }
