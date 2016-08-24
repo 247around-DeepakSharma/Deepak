@@ -93,12 +93,12 @@
                         <div class="col-md-9">
                            <table class="table priceList table-striped table-bordered" name="priceList" >
                               <tr>
-                                  <th style="width:500px;">Enter Serial Number</th>
+                                  <th style="width:375px;">Enter Serial Number</th>
                                  <th>Service Category</th>
                                  <th>Amount Due</th>
                                  <th>Customer Basic Charge</th>
                                  <th>Additional Charge</th>
-                                 <th>Parts Cost</th> 
+                                 <th style="width: 112px;">Parts Cost</th> 
                                  <th style="width:265px;">Status</th>
                                 
                               </tr>
