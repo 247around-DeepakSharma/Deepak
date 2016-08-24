@@ -39,7 +39,24 @@ function check_text(){
                  <div class="form-group <?php if( form_error('cancellation_reason') ) { echo 'has-error';} ?>">
                   <label for="cancellation_reason" class="col-md-2">Cancelation Reason</label>
                   <div class="col-md-6">
+                   <?php 
+                   $flag = 0;
+                   if($user_and_booking_details[0]['current_status'] == "FollowUp"){
+                      if (strstr($user_and_booking_details[0]['booking_id'], "SS") == FALSE) {
+                          $flag = 0;
+                      } else {
+                        $flag = 1;
+                      }
+
+                   } else {
+
+                    $flag = 0;
+                   }
+
+
+                  ?>
                      <?php
+                        if($flag == 0){
                         $count = 1;
                         foreach($reason as $key =>$data1){?>
                      <div class="radio">
@@ -48,16 +65,28 @@ function check_text(){
                         <?php  echo $data1->reason;?>
                         </label>
                      </div>
-                     <?php } ?>
+                     <?php } } else { 
+                      $count = 1;
+                      foreach($internal_status as $key =>$data1){?>
+                    
+                     <div class="radio">
+                        <label>
+                        <input type="radio" onclick="check()" name="cancellation_reason" id="<?php echo " cancellation_reason ".$count; $count++;?>" value="<?php  echo $data1->status;?>" required>
+                        <?php  echo $data1->status;?>
+                        </label>
+                     </div>
+
+                    <?php  } } ?>
                   </div>
                </div>
-
+                <?php if($flag == 0){?>
                 <div class="form-group <?php if( form_error('cancellation_reason') ) { echo 'has-error';} ?>">                
                   <label for="cancellation_reason" class="col-md-2"> </label>
                   <div class="col-md-6">
                     <textarea class="form-control"  id="cancellation_reason_text" name="cancellation_reason_text" value = "<?php echo set_value('cancellation_reason'); ?>" rows="8" disabled></textarea>                            
                   </div>
                 </div>
+                <?php } ?>
  
                  <div class="col-md-6 col-md-offset-4">
                   
