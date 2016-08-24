@@ -185,7 +185,7 @@
                     <th>Status</th>
                     <th>Service Center</th>
 		            <th>Call</th>
-                    <th>View Jobcard</th>
+                    <th>View</th>
                     <th>Reschedule</th>
                     <th>Cancel</th>
                     <th>Complete</th>
