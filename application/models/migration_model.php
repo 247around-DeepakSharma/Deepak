@@ -27,7 +27,7 @@ class Migration_model extends CI_Model {
                 booking_details.internal_status, appliance_details.description as appliance_description
             from booking_details, booking_unit_details, appliance_details
             where `closed_date` >= '2016-06-01 00:00:00' AND `closed_date` < '2016-07-01 00:00:00' AND 
-            (`current_status` = 'Completed' OR `current_status` = 'Cancelled') AND booking_unit_details.booking_id = booking_details.booking_id
+            (`current_status` = '%Completed%' OR `current_status` = '%Cancelled%') AND booking_unit_details.booking_id = booking_details.booking_id
             AND booking_details.appliance_id =  appliance_details.id
 
             ";
@@ -47,7 +47,7 @@ class Migration_model extends CI_Model {
             booking_details.internal_status
             from booking_details
             where `closed_date` >= '2016-06-01 00:00:00' AND `closed_date` < '2016-07-01 00:00:00' 
-            AND (`current_status` = 'Completed' OR `current_status` = 'Cancelled' )
+            AND (`current_status` = '%Completed%' OR `current_status` = '%Cancelled%' )
             ";
 
 	$query = $this->db->query($sql);
@@ -123,7 +123,7 @@ class Migration_model extends CI_Model {
 	    . "WHERE `booking_unit_details`.booking_id = `booking_details`.`booking_id` AND "
 	    . "`booking_unit_details`.`booking_id` in "
 	    . "(SELECT booking_id FROM `booking_details` WHERE `closed_date` >= '2016-06-01 00:00:00' AND "
-	    . "`closed_date` < '2016-07-01 00:00:00' AND (`current_status` = 'Completed' OR `current_status` = 'Cancelled'))";
+	    . "`closed_date` < '2016-07-01 00:00:00' AND (`current_status` = '%Completed%' OR `current_status` = '%Cancelled%'))";
 	$query = $this->db->query($sql);
 	return $query->result_array();
     }
@@ -418,7 +418,7 @@ class Migration_model extends CI_Model {
     function get_service_center_completed_or_cancelled(){
         $sql = "SELECt booking_details.booking_id from booking_details, service_center_booking_action"
                 . " where service_center_booking_action.current_status = 'Completed' "
-                . " AND (booking_details.current_status = 'Completed' OR booking_details.current_status = 'Cancelled' ) "
+                . " AND (booking_details.current_status = '%Completed%' OR booking_details.current_status = '%Cancelled%' ) "
                 . "AND service_center_booking_action.booking_id = booking_details.booking_id ";
         $query = $this->db->query($sql);
 	$result = $query->result_array();
