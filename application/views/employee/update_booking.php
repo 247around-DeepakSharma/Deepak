@@ -506,16 +506,6 @@
                                     <textarea class="form-control" rows="4" id="booking_address" name="home_address"  required ><?php echo $booking_history[0]['booking_address']; ?></textarea>
                                 </div>
                             </div>
-                            <div class="form-group <?php
-                                if (form_error('booking_pincode')) {
-                                    echo 'has-error';
-                                } ?>">
-                                <label for="booking_pincode" class="col-md-4">Booking Pincode *</label>
-                                <div class="col-md-6">
-                                    <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($booking_history[0]['booking_pincode'])){echo $booking_history[0]['booking_pincode'];} ?>" placeholder="Enter Area Pin" >
-                                   
-                                </div>
-                            </div>
                             <div class="form-group ">
                                 <label for="type" class="col-sm-4">Price To be Pay</label>
                                 <div class="col-md-6">

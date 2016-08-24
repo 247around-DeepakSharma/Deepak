@@ -96,51 +96,18 @@ class Booking extends CI_Controller {
      *  @return : Array(booking details)
      */
     function getAllBookingInput($user_id, $booking_id = "") {
+        $booking = $this->get_booking_input();
         $user['user_id'] = $booking['user_id'] = $user_id;
-        $booking['service_id'] = $this->input->post('service_id');
-        $booking['source'] = $this->input->post('source_code');
         $user_name = $this->input->post('user_name');
-        $booking['type'] = $this->input->post('type');
-        $booking['amount_due'] = $this->input->post('grand_total_price');
-        $booking['booking_address'] = $this->input->post('home_address');
-        $booking['city'] = $this->input->post('city');
-        $booking_date = $this->input->post('booking_date');
-        $booking['partner_source'] = $this->input->post('partner_source');
-        $booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
-
         if ($booking_id == "") {
 
             $booking['booking_id'] = $this->create_booking_id($user_id, $booking['source'], $booking['type'], $booking['booking_date']);
         } else {
             $price_tags = array();
-            if ($booking['type'] == "Booking") {
-
-                if (strpos($booking_id, "Q-") !== FALSE) {
-
-                    $booking_id_array = explode("Q-", $booking_id);
-                    $booking['booking_id'] = $booking_id_array[1];
-                    $this->notify->insert_state_change($booking_id, "Pending", "FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'));
-                } else {
-                    $booking['booking_id'] = $booking_id;
-                    $this->notify->insert_state_change($booking_id, "Pending", "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
-                }
-            }
+            $booking['booking_id'] = $this->change_in_booking_id($booking['type'], $booking_id);
         }
-
-        $booking['booking_pincode'] = $this->input->post('booking_pincode');
-
-        // select state by city
-        $state = $this->vendor_model->get_state_from_pincode($booking['booking_pincode']);
-        $booking['state'] = $state['state'];
-
-        $service = $booking['services'] = $this->input->post('service');
-        $booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
-        $booking['order_id'] = $this->input->post('order_id');
-        $booking['potential_value'] = $this->input->post('potential_value');
-        $booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
-        $booking['booking_timeslot'] = $this->input->post('booking_timeslot');
+        $service = $booking['services'];
         $booking_remarks = $this->input->post('query_remarks');
-
         // All brand comming in array eg-- array([0]=> LG, [1]=> BPL)
         $appliance_brand = $this->input->post('appliance_brand');
         // All category comming in array eg-- array([0]=> TV-LCD, [1]=> TV-LED)
@@ -165,37 +132,19 @@ class Booking extends CI_Controller {
         if (!empty($partner_id)) {
             $booking['partner_id'] = $partner_id[0]['partner_id'];
         }
-
         // All discount comming in array.  Array ( [BPL] => Array ( [100] => Array ( [0] => 200 ) [102] => Array ( [0] => 100 ) [103] => Array ( [0] => 0 ) ) .. Key is Appliance brand, unit id and discount value.
         $discount = $this->input->post('discount');
         // All prices comming in array with pricing table id
-        /* Array(
-          [BPL] => Array
-          (
-          [0] => 100_300
-          [1] => 102_250
-          )
-
-          [Micromax] => Array
-          (
-          [0] => 100_300
-          )
-
-          ) */
+        /* Array([BPL] => Array([0] => 100_300 [1] => 102_250) [Micromax] => Array([0] => 100_300)) */
         //Array ( ['brand'] => Array ( [0] => id_price ) )
         $pricesWithId = $this->input->post("prices");
-
         $user['user_email'] = $this->input->post('user_email');
-
         $message = "";
 
         if ($booking['type'] == 'Booking') {
-
             $booking['current_status'] = 'Pending';
             $booking['internal_status'] = 'Scheduled';
             $booking['booking_remarks'] = $booking_remarks;
-
-
             $message .= "Congratulations You have received new booking, details are mentioned below:
       <br>Customer Name: " . $user_name . "<br>Customer Phone Number: " . $booking['booking_primary_contact_no'] .
                     "<br>Customer email address: " . $user['user_email'] . "<br>Booking Id: " .
@@ -223,27 +172,7 @@ class Booking extends CI_Controller {
                 $this->send_sms_while_not_picked($booking_id);
             }
             $booking['query_remarks'] = $booking_remarks;
-
-            if ($booking_id != "") {
-                if (strpos($booking_id, "Q-") === FALSE) {
-                    $booking['booking_id'] = "Q-" . $booking_id;
-                    //param:-- booking id, new state, old state, employee id, employee name
-                    $this->notify->insert_state_change($booking_id, "FollowUp", "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
-                } else {
-                    $booking['booking_id'] = $booking_id;
-                    $this->notify->insert_state_change($booking_id, "FollowUp", "FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'));
-                }
-
-                $this->service_centers_model->delete_booking_id($booking_id);
-            }
         }
-
-        if (empty($booking['state'])) {
-            $to = "anuj@247around.com, abhaya@247around.com";
-            $message = "State not found for Booking ID: " . $booking['booking_id'] . " and Pincode: " . $booking['booking_pincode'];
-            $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Booking State Not Found', $message, "");
-        }
-
 
         foreach ($appliance_brand as $key => $value) {
 
@@ -268,16 +197,11 @@ class Booking extends CI_Controller {
             $appliances_details['purchase_month'] = $services_details['purchase_month'] = $months[$key];
             $appliances_details['service_id'] = $services_details['service_id'] = $booking['service_id'];
             $appliances_details['last_service_date'] = date('Y-m-d H:i:s');
-
-
             if (!empty($partner_id)) {
-
                 $services_details['partner_id'] = $booking['partner_id'];
             }
-
             /* if appliance id exist the initialize appliance id in array and update appliance details other wise it insert appliance details and return appliance id
              * */
-
             if (isset($appliance_id[$key])) {
 
                 $services_details['appliance_id'] = $appliance_id[$key];
@@ -286,17 +210,13 @@ class Booking extends CI_Controller {
 
                 $services_details['appliance_id'] = $this->booking_model->addappliance($appliances_details);
             }
-
-
-
             // log_message ('info', __METHOD__ . "Appliance details data". print_r($appliances_details));
             //Array ( ['brand'] => Array ( [0] => id_price ) )
-            foreach ($pricesWithId[$value] as $keys => $values) {
+            foreach ($pricesWithId[$value] as $values) {
 
                 $prices = explode("_", $values);  // split string..
                 $services_details['id'] = $prices[0]; // This is id of service_centre_charges table.
                 // discount for appliances. Array ( [BPL] => Array ( [100] => Array ( [0] => 200 ) [102] => Array ( [0] => 100 ) [103] => Array ( [0] => 0 ) )
-
                 $services_details['around_paid_basic_charges'] = $discount[$value][$services_details['id']][0];
                 $services_details['partner_paid_basic_charges'] = $partner_net_payable[$value][$services_details['id']][0];
 
@@ -320,7 +240,6 @@ class Booking extends CI_Controller {
                 }
             }
         }
-
         if (!empty($price_tags)) {
 
             $this->booking_model->check_price_tags_status($booking['booking_id'], $price_tags);
@@ -338,11 +257,86 @@ class Booking extends CI_Controller {
         return $booking;
     }
 
+    /**
+     * @desc: This method is used to send sms while Customer not reachable in Pending Queries.
+     * This is Asynchronous Process
+     * @param  $booking_id
+     */
     function send_sms_while_not_picked($booking_id) {
         $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
         $send['booking_id'] = $booking_id;
         $send['state'] = "Customer not reachable";
         $this->asynchronous_lib->do_background_process($url, $send);
+    }
+    /**
+     * @desc: this method returns Booking data in array
+     * @return Array
+     */
+    function get_booking_input() {
+        $booking['service_id'] = $this->input->post('service_id');
+        $booking['source'] = $this->input->post('source_code');
+        $booking['type'] = $this->input->post('type');
+        $booking['amount_due'] = $this->input->post('grand_total_price');
+        $booking['booking_address'] = $this->input->post('home_address');
+        $booking['city'] = $this->input->post('city');
+        $booking_date = $this->input->post('booking_date');
+        $booking['partner_source'] = $this->input->post('partner_source');
+        $booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
+        $booking['booking_pincode'] = $this->input->post('booking_pincode');
+        // select state by pincode
+        $state = $this->vendor_model->get_state_from_pincode($booking['booking_pincode']);
+        $booking['state'] = $state['state'];
+        $booking['services'] = $this->input->post('service');
+        $booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
+        $booking['order_id'] = $this->input->post('order_id');
+        $booking['potential_value'] = $this->input->post('potential_value');
+        $booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
+        $booking['booking_timeslot'] = $this->input->post('booking_timeslot');
+
+        if (empty($booking['state'])) {
+            $to = "anuj@247around.com, abhaya@247around.com";
+            $message = "State not found for Booking ID: " . $booking['booking_id'] . " and Pincode: " . $booking['booking_pincode'];
+            $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Booking State Not Found', $message, "");
+        }
+
+        return $booking;
+    }
+    /**
+     * @desc: This method returns booking id when booking updated Pending Booking to Pending Query 
+     * OR Pending Query to Pending Booking 
+     * OR Pending Booking to pending booking
+     * OR Pending Query to Pending Query
+     * @param type $booking_type
+     * @param type $booking_id
+     * @return booking id
+     */
+    function change_in_booking_id($booking_type, $booking_id) {
+        $converted_booking_id = $booking_id;
+        switch ($booking_type) {
+            case Booking:
+                if (strpos($booking_id, "Q-") !== FALSE) {
+                    $booking_id_array = explode("Q-", $booking_id);
+                    $converted_booking_id = $booking_id_array[1];
+                    $this->notify->insert_state_change($converted_booking_id, "Pending", "FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'));
+                } else {
+                    $converted_booking_id = $booking_id;
+                    $this->notify->insert_state_change($converted_booking_id, "Pending", "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
+                }
+                break;
+            case Query:
+                if (strpos($booking_id, "Q-") === FALSE) {
+                    $converted_booking_id = "Q-" . $booking_id;
+                    //param:-- booking id, new state, old state, employee id, employee name
+                    $this->notify->insert_state_change($converted_booking_id, "FollowUp", "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
+                } else {
+                    $converted_booking_id = $booking_id;
+                    $this->notify->insert_state_change($converted_booking_id, "FollowUp", "FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'));
+                }
+
+                $this->service_centers_model->delete_booking_id($booking_id);
+        }
+
+        return $converted_booking_id;
     }
 
     /**
@@ -1012,13 +1006,13 @@ class Booking extends CI_Controller {
     function update_booking($user_id, $booking_id) {
 
         $booking = $this->getAllBookingInput($user_id, $booking_id);
-        
-        if($booking['type']== 'Booking'){
+
+        if ($booking['type'] == 'Booking') {
             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
             $send['booking_id'] = $booking['booking_id'];
             $send['state'] = "Newbooking";
             $this->asynchronous_lib->do_background_process($url, $send);
-            
+
             $to = "anuj@247around.com, nits@247around.com";
             $from = "booking@247around.com";
             $cc = "";
@@ -1026,10 +1020,10 @@ class Booking extends CI_Controller {
             $subject = 'Booking Confirmation-AROUND';
             $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $booking['message'], "");
         }
-        
+
         unset($booking['message']); // unset message body from booking deatils array
         unset($booking['services']); // unset service name from booking details array
-        
+
         $this->booking_model->update_booking($booking_id, $booking);
 
         $this->partner_cb->partner_callback($booking_id);
