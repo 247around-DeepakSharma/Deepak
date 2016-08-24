@@ -208,7 +208,6 @@
                         <div class="col-md-4">
                            <Select type="text" class="form-control"  name="rating_stars" value="">
                               <option>Select</option>
-                              <option <?php if($booking_history[0]['rating_stars'] =='0'){ echo "selected"; } ?>>0</option>
                               <option <?php if($booking_history[0]['rating_stars'] =='1'){ echo "selected"; } ?>>1</option>
                               <option <?php if($booking_history[0]['rating_stars'] =='2'){ echo "selected"; } ?>>2</option>
                               <option <?php if($booking_history[0]['rating_stars'] =='3'){ echo "selected"; } ?>>3</option>
@@ -216,27 +215,11 @@
                               <option <?php if($booking_history[0]['rating_stars'] =='5'){ echo "selected"; } ?>>5</option>
                            </Select>
                         </div>
-                        <label for="rating_star" class="col-md-2">Vendor Star Rating</label>
-                        <div class="col-md-4" >
-                           <Select type="text" class="form-control"  name="vendor_rating_stars" value="">
-                              <option>Select</option>
-                              <option <?php if($booking_history[0]['vendor_rating_stars'] =='0'){ echo "selected"; } ?>>0</option>
-                              <option <?php if($booking_history[0]['vendor_rating_stars'] =='1'){ echo "selected"; } ?>>1</option>
-                              <option <?php if($booking_history[0]['vendor_rating_stars'] =='2'){ echo "selected"; } ?>>2</option>
-                              <option <?php if($booking_history[0]['vendor_rating_stars'] =='3'){ echo "selected"; } ?>>3</option>
-                              <option <?php if($booking_history[0]['vendor_rating_stars'] =='4'){ echo "selected"; } ?>>4</option>
-                              <option <?php if($booking_history[0]['vendor_rating_stars'] =='5'){ echo "selected"; } ?>>5</option>
-                           </Select>
-                        </div>
                      </div>
                      <div class="form-group">
                         <label for="remark" class="col-md-2">Rating Comment</label>
                         <div class="col-md-4">
                            <textarea class="form-control" rows="5" name="rating_comments"><?php echo $booking_history[0]['rating_comments']; ?></textarea>
-                        </div>
-                        <label for="remark" class="col-md-2">Vendor Rating Comment</label>
-                        <div class="col-md-4" >
-                           <textarea class="form-control"  rows="5" name="vendor_rating_comments"><?php echo $booking_history[0]['vendor_rating_comments']; ?></textarea>
                         </div>
                      </div>
                       <div class="form-group">
@@ -249,7 +232,7 @@
                </div>
                <div class="form-group  col-md-12" >
                   <center>
-                     <input type="submit" id="submitform" class="btn btn-info" value="submit">
+                     <input type="submit" id="submitform" class="btn btn-info" value="Submit">
                </div>
                </center>
          </div>
