@@ -19,7 +19,7 @@ class Booking extends CI_Controller {
      */
     function __Construct() {
 	parent::__Construct();
-	
+
 	$this->load->model('booking_model');
 	$this->load->model('user_model');
 	$this->load->model('vendor_model');
@@ -107,9 +107,9 @@ class Booking extends CI_Controller {
 	$booking_date = $this->input->post('booking_date');
 	$booking['partner_source'] =  $this->input->post('partner_source');
 	$booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
-	
+
 	if ($booking_id == "") {
-		
+
 	    $booking['booking_id'] = $this->create_booking_id($user_id, $booking['source'], $booking['type'], $booking['booking_date']);
 	} else {
 	    $price_tags = array();
@@ -125,7 +125,7 @@ class Booking extends CI_Controller {
             $this->notify->insert_state_change($booking_id, "Pending", "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 	    }
 
-	    } 
+	    }
 	}
 
 	// select state by city
@@ -209,7 +209,7 @@ class Booking extends CI_Controller {
 
          //Log this state change as well for this booking
         //param:-- booking id, new state, old state, employee id, employee name
-		
+
 
 	} else if ($booking['type'] == 'Query') {
 
@@ -236,11 +236,11 @@ class Booking extends CI_Controller {
                      $this->notify->insert_state_change($booking_id, "FollowUp", "FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 
                 }
-	    	
+
 	    	$this->service_centers_model->delete_booking_id($booking_id);
 	    }
-        
-	    
+
+
 	}
 
 	foreach ($appliance_brand as $key => $value) {
@@ -284,9 +284,9 @@ class Booking extends CI_Controller {
 
 		$services_details['appliance_id'] = $this->booking_model->addappliance($appliances_details);
 	    }
-        
 
-       
+
+
 	    // log_message ('info', __METHOD__ . "Appliance details data". print_r($appliances_details));
 	    //Array ( ['brand'] => Array ( [0] => id_price ) )
 	    foreach ($pricesWithId[$value] as $keys => $values) {
@@ -337,7 +337,7 @@ class Booking extends CI_Controller {
 
 	return $booking;
     }
-    
+
     function send_sms_while_not_picked($booking_id){
         $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
 	$send['booking_id'] = $booking_id;
@@ -1009,11 +1009,12 @@ class Booking extends CI_Controller {
     }
 
     /**
-     * @desc: this is used to update booking
+     * @desc: This function is used to update both Bookings and Queries.
      */
     function update_booking($user_id, $booking_id) {
 
 	$booking = $this->getAllBookingInput($user_id, $booking_id);
+
 	unset($booking['message']); // unset message body from booking deatils array
 	unset($booking['services']); // unset service name from booking details array
 
@@ -1377,7 +1378,7 @@ class Booking extends CI_Controller {
 
 	    $this->booking_model->convert_booking_to_pending($booking_id, $data, $status);
 
-	    
+
         $service_center_data['booking_id'] = $booking_id;
         $service_center_data['internal_status'] = "Pending";
         $service_center_data['current_status'] = "Pending";
@@ -1427,6 +1428,6 @@ class Booking extends CI_Controller {
 	redirect(base_url() . 'employee/booking/view_queries/FollowUp/0/0/' . $booking_id);
     }
 
-    
+
 
 }
