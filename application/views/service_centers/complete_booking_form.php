@@ -64,16 +64,16 @@
                <div class="clonedInput panel panel-info " id="clonedInput1">
                   <div class="panel-body">
                      <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                            <div class="form-group ">
-                              <div class="col-md-8 ">
+                              <div class="col-md-12 ">
                                  <select type="text" class="form-control appliance_brand"    name="appliance_brand[]" id="appliance_brand_1" required>
                                     <option selected disabled><?php echo $unit_details['brand']; ?></option>
                                  </select>
                               </div>
                            </div>
                            <div class="form-group">
-                              <div class="col-md-8 ">
+                              <div class="col-md-12 ">
                                  <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  required>
                                     <option selected disabled><?php echo $unit_details['category']; ?></option>
                                  </select>
@@ -81,24 +81,19 @@
                            </div>
                            <?php  if(!empty($unit_details['capacity'])){ ?>
                            <div class="form-group">
-                              <div class="col-md-8">
+                              <div class="col-md-12">
                                  <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]" >
                                     <option selected disabled><?php echo $unit_details['capacity']; ?></option>
                                  </select>
                               </div>
                            </div>
                            <?php } ?>
-                            <div class="form-group">
-                              <div class="col-md-8 ">
-                                 
-                                 <input type="text" id="serial_number" class="form-control" name="serial_number" value="<?php echo $unit_details['serial_number']; ?>" placeholder="Please Enter Serial Number"  required />
-                               
-                              </div>
-                           </div>
+                           
                         </div>
-                        <div class="col-md-8">
+                        <div class="col-md-9">
                            <table class="table priceList table-striped table-bordered" name="priceList" >
                               <tr>
+                                  <th style="width:500px;">Enter Serial Number</th>
                                  <th>Service Category</th>
                                  <th>Amount Due</th>
                                  <th>Customer Basic Charge</th>
@@ -111,6 +106,15 @@
                                  <?php $paid_basic_charges = 0; $paid_additional_charges = 0; $paid_parts_cost=0;
                                  foreach ($unit_details['quantity'] as $key => $price) { ?>
                                  <tr> 
+                                     <td>
+                                          <div class="form-group">
+                              <div class="col-md-12">
+                                 
+                                 <input type="text" id="serial_number" class="form-control" name="<?php echo "serial_number[". $price['unit_id'] . "]"?>" value="<?php echo $unit_details['serial_number']; ?>" placeholder="Enter Serial Number"  required />
+                               
+                              </div>
+                           </div>
+                                     </td>
                                     <td><?php echo $price['price_tags'] ?></td>
                                     <td><?php echo $price['customer_net_payable']; ?></td>
                                     <td>  <input  type="text" class="form-control cost"  name="<?php echo "customer_basic_charge[". $price['unit_id'] . "]"?>"  value = "<?php $paid_basic_charges += $price['customer_paid_basic_charges']; if(!empty($price['customer_paid_basic_charges'])){ echo $price['customer_paid_basic_charges']; } else { echo "0"; } ?>">
@@ -184,7 +188,7 @@
                <div class="form-group  col-md-12" >
                   <center>
                      <input type="submit" id="submitform" class="btn btn-lg" style="background-color: #2C9D9A;
-    border-color: #2C9D9A; color:#fff;" value="submit">
+    border-color: #2C9D9A; color:#fff;" value="Submit">
                </div>
                </center>
          </div>

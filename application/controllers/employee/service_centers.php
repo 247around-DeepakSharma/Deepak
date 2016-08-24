@@ -140,10 +140,8 @@ class Service_centers extends CI_Controller {
        $booking_status = $this->input->post('booking_status');
        $total_amount_paid =  $this->input->post('grand_total_price');
        $closing_remarks = $this->input->post('closing_remarks');
-       //TODO:
-       //issues in to insert serial number 
        $serial_number = $this->input->post('serial_number');
-       $internal_status = "Cancelled";
+       //$internal_status = "Cancelled";
        $getremarks = $this->booking_model->getbooking_charges($booking_id);
        $i = 0;
        foreach ($customer_basic_charge as $unit_id => $value) {
@@ -159,7 +157,7 @@ class Service_centers extends CI_Controller {
             $data['closed_date'] = date('Y-m-d H:i:s');
             $data['booking_id'] =  $booking_id;
             $data['amount_paid'] = $total_amount_paid;
-            $data['serial_number'] =  $serial_number;
+            $data['serial_number'] =  $serial_number[$unit_id];
 
             if (!empty($getremarks[0]['service_center_remarks'])) {
                 
