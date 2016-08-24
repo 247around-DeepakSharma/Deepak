@@ -26,8 +26,8 @@ class Migration_model extends CI_Model {
                 booking_details.additional_service_charge, booking_details.parts_cost, 
                 booking_details.internal_status, appliance_details.description as appliance_description
             from booking_details, booking_unit_details, appliance_details
-            where `closed_date` >= '2016-06-01 00:00:00' AND `closed_date` < '2016-07-01 00:00:00' AND 
-            (`current_status` = '%Completed%' OR `current_status` = '%Cancelled%') AND booking_unit_details.booking_id = booking_details.booking_id
+            where `closed_date` >= '2016-06-01 00:00:00' AND 
+            `current_status` = '%Completed%' AND booking_unit_details.booking_id = booking_details.booking_id
             AND booking_details.appliance_id =  appliance_details.id
 
             ";
@@ -46,8 +46,8 @@ class Migration_model extends CI_Model {
             booking_details.parts_cost, 
             booking_details.internal_status
             from booking_details
-            where `closed_date` >= '2016-06-01 00:00:00' AND `closed_date` < '2016-07-01 00:00:00' 
-            AND (`current_status` = '%Completed%' OR `current_status` = '%Cancelled%' )
+            where `closed_date` >= '2016-06-01 00:00:00' AND 
+            `current_status` = '%Completed%' 
             ";
 
 	$query = $this->db->query($sql);
@@ -123,7 +123,7 @@ class Migration_model extends CI_Model {
 	    . "WHERE `booking_unit_details`.booking_id = `booking_details`.`booking_id` AND "
 	    . "`booking_unit_details`.`booking_id` in "
 	    . "(SELECT booking_id FROM `booking_details` WHERE `closed_date` >= '2016-06-01 00:00:00' AND "
-	    . "`closed_date` < '2016-07-01 00:00:00' AND (`current_status` = '%Completed%' OR `current_status` = '%Cancelled%'))";
+	    . " `current_status` = '%Completed%' )";
 	$query = $this->db->query($sql);
 	return $query->result_array();
     }

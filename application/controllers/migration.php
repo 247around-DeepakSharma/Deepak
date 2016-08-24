@@ -286,7 +286,7 @@ class Migration extends CI_Controller {
 	    $data['customer_paid_basic_charges'] = $value['service_charge'];
 	    $data['customer_paid_extra_charges'] = $value['additional_service_charge'];
 	    $data['customer_paid_parts'] = $value['parts_cost'];
-	    $data['booking_status'] = $value['current_status'];
+	    $data['booking_status'] = "Completed";
 
 	    $this->migration_model->update_unit_price($value['booking_id'], $data);
 	    echo "<br/>";
