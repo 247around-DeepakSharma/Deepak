@@ -119,8 +119,10 @@ class Booking extends CI_Controller {
 
               $booking_id_array = explode("Q-", $booking_id);
               $booking['booking_id'] = $booking_id_array[1];
+              $this->notify->insert_state_change($booking_id, "Pending", "FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 	    } else {
             $booking['booking_id'] = $booking_id;
+            $this->notify->insert_state_change($booking_id, "Pending", "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 	    }
 
 	    } 
@@ -204,6 +206,11 @@ class Booking extends CI_Controller {
 		" " . $booking['city'] . ", " . $booking['state'] . ", " .
 		"<br>Booking pincode: " . $booking['booking_pincode'] . "<br><br>
         Appliance Details:<br>";
+
+         //Log this state change as well for this booking
+        //param:-- booking id, new state, old state, employee id, employee name
+		
+
 	} else if ($booking['type'] == 'Query') {
 
 	    $booking['current_status'] = "FollowUp";
@@ -217,15 +224,22 @@ class Booking extends CI_Controller {
                 $this->send_sms_while_not_picked($booking_id);
             }
 	    $booking['query_remarks'] = $booking_remarks;
+
 	    if($booking_id !=""){
                 if (strpos($booking_id, "Q-") === FALSE) {
                     $booking['booking_id'] = "Q-".$booking_id;
+                    //param:-- booking id, new state, old state, employee id, employee name
+	                $this->notify->insert_state_change($booking_id, "FollowUp", "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
+
                 } else {
                      $booking['booking_id'] = $booking_id;
+                     $this->notify->insert_state_change($booking_id, "FollowUp", "FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'));
+
                 }
 	    	
 	    	$this->service_centers_model->delete_booking_id($booking_id);
 	    }
+        
 	    
 	}
 
@@ -296,9 +310,6 @@ class Booking extends CI_Controller {
 
 			$message .= "<br/>";
 
-			//Log this state change as well for this booking
-			//param:-- booking id, new state, old state, employee id, employee name
-			$this->notify->insert_state_change($booking['booking_id'], $booking['current_status'], "New", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 		    }
 		} else {
             $services_details['booking_status'] = "";
@@ -306,8 +317,6 @@ class Booking extends CI_Controller {
 
 		    array_push($price_tags, $price_tag);
 
-		    //Log this state change as well for this booking
-		    $this->notify->insert_state_change($booking_id, "Updated", $booking['current_status'], $this->session->userdata('id'), $this->session->userdata('employee_id'));
 		}
 	    }
 	}
