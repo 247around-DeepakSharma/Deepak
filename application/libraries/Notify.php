@@ -295,6 +295,22 @@ class Notify {
 		
 		$this->send_sms($sms);
                 break;
+                
+            case 'Newbooking':
+                 if ($is_sd == FALSE) {
+
+                    $sms['tag'] = "add_new_booking";
+                    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
+                    $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
+                    
+                    $this->notify->send_sms($sms);
+                } else {
+                    $sms['tag'] = "new_snapdeal_booking";
+                    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
+                    $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
+
+                    $this->notify->send_sms($sms);
+                }
 	}
 
 	$this->send_email($email);
