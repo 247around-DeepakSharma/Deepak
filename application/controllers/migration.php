@@ -25,7 +25,7 @@ class Migration extends CI_Controller {
 
 	$booking_details = $this->migration_model->c_get_all_booking_id();
 	//print_r($booking_details);
-	foreach ($booking_details as $key => $value) {
+	foreach ($booking_details as $value) {
 	    $booking_id = $value['booking_id'];
 
 	    switch ($value['price_tags']) {
@@ -44,6 +44,7 @@ class Migration extends CI_Controller {
 			    $data['appliance_id'] = $value['appliance_id'];
 			    $data['partner_id'] = $value['partner_id'];
 			    $data['service_id'] = $value['service_id'];
+                            $data['appliance_description'] = $value['appliance_description'];
 			    $data['price_tags'] = "Installation & Demo";
 
 			    /* / echo "<br/>";
@@ -60,6 +61,7 @@ class Migration extends CI_Controller {
 			    $data['appliance_id'] = $value['appliance_id'];
 			    $data['partner_id'] = $value['partner_id'];
 			    $data['service_id'] = $value['service_id'];
+                            $data['appliance_description'] = $value['appliance_description'];
 			    $unit_details = $this->migration_model->get_unit_details($value['booking_id']);
 
 			    $data['price_tags'] = "Installation & Demo";
@@ -95,6 +97,7 @@ class Migration extends CI_Controller {
 		    $data['appliance_id'] = $value['appliance_id'];
 		    $data['partner_id'] = $value['partner_id'];
 		    $data['service_id'] = $value['service_id'];
+                    $data['appliance_description'] = $value['appliance_description'];
 		    $data['price_tags'] = "Repair";
 
 
@@ -109,6 +112,7 @@ class Migration extends CI_Controller {
 		    $data['appliance_id'] = $value['appliance_id'];
 		    $data['partner_id'] = $value['partner_id'];
 		    $data['service_id'] = $value['service_id'];
+                    $data['appliance_description'] = $value['appliance_description'];
 		    $data['price_tags'] = "Visit";
 
 
@@ -120,6 +124,7 @@ class Migration extends CI_Controller {
 		    $data['appliance_id'] = $value['appliance_id'];
 		    $data['partner_id'] = $value['partner_id'];
 		    $data['service_id'] = $value['service_id'];
+                    $data['appliance_description'] = $value['appliance_description'];
 		    $unit_details = $this->migration_model->get_unit_details($value['booking_id']);
 
 		    $data['price_tags'] = "Repair";
@@ -147,6 +152,7 @@ class Migration extends CI_Controller {
 		    $data['appliance_id'] = $value['appliance_id'];
 		    $data['partner_id'] = $value['partner_id'];
 		    $data['service_id'] = $value['service_id'];
+                    $data['appliance_description'] = $value['appliance_description'];
 		    $data['price_tags'] = "Gas Recharge with Dryer";
 
 
@@ -158,6 +164,7 @@ class Migration extends CI_Controller {
 		    $data['appliance_id'] = $value['appliance_id'];
 		    $data['partner_id'] = $value['partner_id'];
 		    $data['service_id'] = $value['service_id'];
+                    $data['appliance_description'] = $value['appliance_description'];
 		    $unit_details = $this->migration_model->get_unit_details($value['booking_id']);
 
 		    $data['price_tags'] = "Installation & Demo";
@@ -185,6 +192,7 @@ class Migration extends CI_Controller {
 		    $data['partner_id'] = $value['partner_id'];
 		    $data['service_id'] = $value['service_id'];
 		    $data['price_tags'] = "Gas Recharge";
+                    $data['appliance_description'] = $value['appliance_description'];
 
 		    $this->migration_model->update_booking_unit_details($booking_id, $data);
 		    break;
@@ -202,6 +210,7 @@ class Migration extends CI_Controller {
 		    $data['appliance_id'] = $value['appliance_id'];
 		    $data['partner_id'] = $value['partner_id'];
 		    $data['service_id'] = $value['service_id'];
+                    $data['appliance_description'] = $value['appliance_description'];
 		    $unit_details = $this->migration_model->get_unit_details($value['booking_id']);
 
 		    $data['price_tags'] = "Repair";
@@ -232,7 +241,7 @@ class Migration extends CI_Controller {
 
     function c_test2() {
 	$booking_unit_details = $this->migration_model->c_get_all_booking_unit();
-	foreach ($booking_unit_details as $key => $data) {
+	foreach ($booking_unit_details as  $data) {
 
 	    $booking = $this->migration_model->return_source($data['booking_id']);
 
@@ -254,6 +263,7 @@ class Migration extends CI_Controller {
 		print_r($state['state']);
 		echo "<br/><br/>";
 	    } else {
+                $data['unit_id'] = $data['id'];
 		unset($data['id']);
 		$data['id'] = $prices[0]['id'];
 
@@ -270,13 +280,13 @@ class Migration extends CI_Controller {
 
     function c_test3() {
 	$booking_details = $this->migration_model->c_getbookingid();
-	foreach ($booking_details as $key => $value) {
+	foreach ($booking_details as  $value) {
 
 	    $data = array();
 	    $data['customer_paid_basic_charges'] = $value['service_charge'];
 	    $data['customer_paid_extra_charges'] = $value['additional_service_charge'];
 	    $data['customer_paid_parts'] = $value['parts_cost'];
-	    $data['booking_status'] = "Completed";
+	    $data['booking_status'] = $value['current_status'];
 
 	    $this->migration_model->update_unit_price($value['booking_id'], $data);
 	    echo "<br/>";
@@ -290,7 +300,7 @@ class Migration extends CI_Controller {
     function p_test1() {
 	$booking_details = $this->migration_model->p_get_all_booking_id();
 	//print_r($booking_details);
-	foreach ($booking_details as $key => $value) {
+	foreach ($booking_details as  $value) {
 	    $booking_id = $value['booking_id'];
 
 	    switch ($value['price_tags']) {
@@ -301,6 +311,7 @@ class Migration extends CI_Controller {
 		    $data['appliance_id'] = $value['appliance_id'];
 		    $data['partner_id'] = $value['partner_id'];
 		    $data['service_id'] = $value['service_id'];
+                    $data['appliance_description'] = $value['appliance_description'];
 		    $data['price_tags'] = "Installation & Demo";
 
 		    $this->migration_model->update_booking_unit_details($booking_id, $data);
@@ -313,6 +324,7 @@ class Migration extends CI_Controller {
 		    $data['appliance_id'] = $value['appliance_id'];
 		    $data['partner_id'] = $value['partner_id'];
 		    $data['service_id'] = $value['service_id'];
+                    $data['appliance_description'] = $value['appliance_description'];
 		    $unit_details = $this->migration_model->get_unit_details($value['booking_id']);
 
 		    $data['price_tags'] = "Installation & Demo";
@@ -326,7 +338,6 @@ class Migration extends CI_Controller {
 		    $data['appliance_capacity'] = $value['appliance_capacity'];
 		    $data['model_number'] = $value['model_number'];
 		    $data['appliance_size'] = $value['appliance_size'];
-		    $data['appliance_description'] = $value['appliance_description'];
 		    $data['serial_number'] = $value['serial_number'];
 
 		    $data['appliance_tag'] = $value['appliance_tag'];
@@ -344,6 +355,7 @@ class Migration extends CI_Controller {
 		    $data['appliance_id'] = $value['appliance_id'];
 		    $data['partner_id'] = $value['partner_id'];
 		    $data['service_id'] = $value['service_id'];
+                    $data['appliance_description'] = $value['appliance_description'];
 		    $data['price_tags'] = "Repair";
 
 		    $this->migration_model->update_booking_unit_details($booking_id, $data);
@@ -357,6 +369,7 @@ class Migration extends CI_Controller {
 		    $data['appliance_id'] = $value['appliance_id'];
 		    $data['partner_id'] = $value['partner_id'];
 		    $data['service_id'] = $value['service_id'];
+                    $data['appliance_description'] = $value['appliance_description'];
 		    $data['price_tags'] = "Visit";
 
 		    $this->migration_model->update_booking_unit_details($booking_id, $data);
@@ -368,6 +381,7 @@ class Migration extends CI_Controller {
 		    $data['appliance_id'] = $value['appliance_id'];
 		    $data['partner_id'] = $value['partner_id'];
 		    $data['service_id'] = $value['service_id'];
+                    $data['appliance_description'] = $value['appliance_description'];
 		    $unit_details = $this->migration_model->get_unit_details($value['booking_id']);
 
 		    $data['price_tags'] = "Repair";
@@ -381,7 +395,6 @@ class Migration extends CI_Controller {
 		    $data['appliance_capacity'] = $value['appliance_capacity'];
 		    $data['model_number'] = $value['model_number'];
 		    $data['appliance_size'] = $value['appliance_size'];
-		    $data['appliance_description'] = $value['appliance_description'];
 		    $data['serial_number'] = $value['serial_number'];
 
 		    $data['appliance_tag'] = $value['appliance_tag'];
@@ -398,6 +411,7 @@ class Migration extends CI_Controller {
 		    $data['appliance_id'] = $value['appliance_id'];
 		    $data['partner_id'] = $value['partner_id'];
 		    $data['service_id'] = $value['service_id'];
+                    $data['appliance_description'] = $value['appliance_description'];
 		    $data['price_tags'] = "Gas Recharge with Dryer";
 
 
@@ -412,8 +426,7 @@ class Migration extends CI_Controller {
 		    $data['appliance_brand'] = $value['appliance_brand'];
 		    $data['appliance_category'] = $value['appliance_category'];
 		    $data['appliance_capacity'] = $value['appliance_capacity'];
-
-
+                    $data['appliance_description'] = $value['appliance_description'];
 		    $unit_details = $this->migration_model->get_unit_details($value['booking_id']);
 
 		    $data['price_tags'] = "Installation & Demo";
@@ -424,7 +437,6 @@ class Migration extends CI_Controller {
 		    $data['booking_id'] = $value['booking_id'];
 		    $data['model_number'] = $value['model_number'];
 		    $data['appliance_size'] = $value['appliance_size'];
-		    $data['appliance_description'] = $value['appliance_description'];
 		    $data['serial_number'] = $value['serial_number'];
 
 		    $data['appliance_tag'] = $value['appliance_tag'];
@@ -444,6 +456,7 @@ class Migration extends CI_Controller {
 		    $data['appliance_brand'] = $value['appliance_brand'];
 		    $data['appliance_category'] = $value['appliance_category'];
 		    $data['appliance_capacity'] = $value['appliance_capacity'];
+                    $data['appliance_description'] = $value['appliance_description'];
 		    $data['price_tags'] = "Gas Recharge";
 
 		    $this->migration_model->update_booking_unit_details($booking_id, $data);
@@ -457,6 +470,7 @@ class Migration extends CI_Controller {
 		    $data['appliance_brand'] = $value['appliance_brand'];
 		    $data['appliance_category'] = $value['appliance_category'];
 		    $data['appliance_capacity'] = $value['appliance_capacity'];
+                    $data['appliance_description'] = $value['appliance_description'];
 
 		    $data['price_tags'] = "Uninstallation";
 
@@ -471,6 +485,7 @@ class Migration extends CI_Controller {
 		    $data['appliance_brand'] = $value['appliance_brand'];
 		    $data['appliance_category'] = $value['appliance_category'];
 		    $data['appliance_capacity'] = $value['appliance_capacity'];
+                    $data['appliance_description'] = $value['appliance_description'];
 
 		    $unit_details = $this->migration_model->get_unit_details($value['booking_id']);
 
@@ -482,7 +497,6 @@ class Migration extends CI_Controller {
 		    $data['booking_id'] = $value['booking_id'];
 		    $data['model_number'] = $value['model_number'];
 		    $data['appliance_size'] = $value['appliance_size'];
-		    $data['appliance_description'] = $value['appliance_description'];
 		    $data['serial_number'] = $value['serial_number'];
 
 		    $data['appliance_tag'] = $value['appliance_tag'];
@@ -734,6 +748,7 @@ class Migration extends CI_Controller {
 		    $data['appliance_id'] = $value['appliance_id'];
 		    $data['partner_id'] = $value['partner_id'];
 		    $data['service_id'] = $value['service_id'];
+                    $data['appliance_description'] = $value['appliance_description'];
 		    $unit_details = $this->migration_model->get_unit_details($value['booking_id']);
 
 		    $data['price_tags'] = "Installation & Demo";
@@ -851,6 +866,10 @@ class Migration extends CI_Controller {
     
     function update_service_center_pending(){
         $this->migration_model->get_service_center_pending();
+    }
+    
+    function update_service_center_completed_or_cancelled(){
+        $this->migration_model->get_service_center_completed_or_cancelled();
     }
 
 }
