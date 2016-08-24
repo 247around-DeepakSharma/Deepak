@@ -388,8 +388,7 @@ class Booking extends CI_Controller {
         if ($page == '0') {
             $page = 50;
         }
-
-        $offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
+        //$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
         $config['base_url'] = base_url() . 'employee/booking/view';
         $config['total_rows'] = $this->booking_model->total_pending_booking($booking_id);
 
@@ -423,7 +422,7 @@ class Booking extends CI_Controller {
             $page = 50;
         }
 
-        $offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
+        //$offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
         $config['base_url'] = base_url() . 'employee/booking/viewclosedbooking/' . $status;
         $config['total_rows'] = $this->booking_model->total_closed_booking($status, $booking_id);
         $config['per_page'] = $page;
@@ -478,7 +477,7 @@ class Booking extends CI_Controller {
 
             $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], $data['booking_unit_details'][$key]['category'], $data['booking_unit_details'][$key]['capacity'], $partner_id, $data['booking_history'][0]['state']);
 
-            foreach ($value['quantity'] as $index => $price_tag) {
+            foreach ($value['quantity'] as $price_tag) {
                 // Searched already inserted price tag exist in the price array (get all service category)
                 $id = $this->search_for_key($price_tag['price_tags'], $prices);
                 // remove array key, if price tag exist into price array
