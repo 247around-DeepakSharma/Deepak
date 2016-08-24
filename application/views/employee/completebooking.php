@@ -109,7 +109,7 @@
                                     <td>
                                      <div class="form-group">
                                        <div class="col-md-12 ">
-                                          <input type="text" class="form-control" id="serial_number_1"name="<?php echo "serial_number[". $price['unit_id'] . "]"?>"  value="<?php echo $unit_details['serial_number']; ?>"/>
+                                          <input type="text" class="form-control" id="serial_number_1"name="<?php echo "serial_number[". $price['unit_id'] . "]"?>"  value="<?php echo $unit_details['serial_number']; ?>" placeholder = "Enter Serial Number"/>
                               
                                        </div>
                                     </div>
@@ -148,7 +148,7 @@
                                  <?php
                                  foreach ($prices[$keys] as $index => $value) { ?>
                                    <tr style="background-color:   #FF4500; color: white;">
-
+                                     <td> <input type="text" class="form-control" id="serial_number_1" name="<?php echo "serial_number[". $price['unit_id'] . "new".$value['id']."]"?>"  value="<?php echo $unit_details['serial_number']; ?>" placeholder= "Enter Serial Number"/></td>
                                      <td> <?php echo $value['service_category']; ?> </td>
                                      <td> <?php echo $value['customer_net_payable']; ?> </td>
                                      <td>  <input  type="text" class="form-control cost"   name="<?php echo "customer_basic_charge[". $price['unit_id'] . "new".$value['id']."]"?>"  value = "0.00">

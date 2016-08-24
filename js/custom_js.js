@@ -32,7 +32,7 @@
     var postData = {};
     
     postData['service_id'] = $("#service_id").val();
-    postData['city'] = $('#booking_city').val();
+    postData['booking_pincode'] = $('#booking_pincode').val();
     postData['partner_code'] = $("#source_code option:selected").val();
 
     sendAjaxRequest(postData, categoryForServiceUrl).done(function(data) {
@@ -47,7 +47,7 @@
     
     postData['service_id'] = $("#service_id").val();
     postData['partner_code'] = $("#source_code option:selected").val();
-    postData['city'] = $('#booking_city').val();
+    postData['booking_pincode'] = $('#booking_pincode').val();
     postData['category'] = category;
 
     var div_no = div_id.split('_');
@@ -80,7 +80,7 @@
     postData['brand'] = $('#appliance_brand_'+ div_no[2]).val();
     postData['category'] = $("#appliance_category_"+div_no[2]).val();
     postData['partner_code'] = $("#source_code option:selected").val();    
-    postData['city'] = $('#booking_city').val();
+    postData['booking_pincode'] = $('#booking_pincode').val();
     postData['clone_number'] = div_no[2];
 
     if($("#appliance_capacity_"+div_no[2]).val()!="") {

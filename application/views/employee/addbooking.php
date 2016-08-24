@@ -20,6 +20,16 @@
                                         <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php echo $user[0]['phone_number']?>" required>
                                     </div>
                                 </div>
+                                 <div class="form-group <?php
+                                if (form_error('booking_pincode')) {
+                                    echo 'has-error';
+                                } ?>">
+                                <label for="booking_pincode" class="col-md-4">Pincode *</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($user[0]['pincode'])){echo $user[0]['pincode'];} ?>" placeholder="Enter Area Pin" required>
+                                    <?php echo form_error('booking_pincode'); ?>
+                                </div>
+                            </div>
                                 <div class="form-group ">
                                     <label for="booking_city" class="col-md-4">City *</label>
                                     <div class="col-md-6">
@@ -248,16 +258,7 @@
                                     <textarea class="form-control" rows="4" id="booking_address" name="home_address"  required ><?php echo $user[0]['home_address']; ?></textarea>
                                 </div>
                             </div>
-                            <div class="form-group <?php
-                                if (form_error('booking_pincode')) {
-                                    echo 'has-error';
-                                } ?>">
-                                <label for="booking_pincode" class="col-md-4">Booking Pincode *</label>
-                                <div class="col-md-6">
-                                    <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($user[0]['pincode'])){echo $user[0]['pincode'];} ?>" placeholder="Enter Area Pin" required>
-                                    <?php echo form_error('booking_pincode'); ?>
-                                </div>
-                            </div>
+                           
                             <div class="form-group ">
                                 <label for="type" class="col-sm-4">Price To be Pay</label>
                                 <div class="col-md-6">
