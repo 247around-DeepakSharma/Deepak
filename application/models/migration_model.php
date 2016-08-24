@@ -276,7 +276,7 @@ class Migration_model extends CI_Model {
             from booking_details, booking_unit_details,appliance_details
             where booking_details.`current_status` IN ('Pending', 'Rescheduled') AND 
             booking_unit_details.booking_id = booking_details.booking_id AND 
-            appliance_details.id =  booking_details.appliance_details";
+            appliance_details.id =  booking_details.appliance_id";
 
 	$query = $this->db->query($sql);
 	$result = $query->result_array();
