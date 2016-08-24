@@ -298,6 +298,8 @@ class Migration extends CI_Controller {
     }
 
     function p_test1() {
+	echo PHP_EOL;
+
 	$booking_details = $this->migration_model->p_get_all_booking_id();
 	//print_r($booking_details);
 	foreach ($booking_details as  $value) {
@@ -514,15 +516,17 @@ class Migration extends CI_Controller {
 		    break;
 
 		default:
-		    echo $value['booking_id'] . "<br/>";
+		    echo $value['booking_id'] . ", " . $value['price_tags'] . PHP_EOL;
 		    break;
 	    }
 	}
 
-//	$this->p_test2();
+	echo PHP_EOL;
     }
 
     function p_test2() {
+	echo PHP_EOL;
+
 	$booking_unit_details = $this->migration_model->p_get_all_booking_unit();
 	//print_r($booking_unit_details);
 
@@ -565,6 +569,8 @@ class Migration extends CI_Controller {
 		$this->migration_model->update_prices($data, $data['booking_id'], $state['state']);
 	    }
 	}
+
+	echo PHP_EOL;
     }
 
     /**
@@ -573,6 +579,8 @@ class Migration extends CI_Controller {
      *
      */
     function q_test1() {
+	echo PHP_EOL;
+
 	$data = $this->migration_model->get_all_followUp();
 
 	foreach ($data as $value) {
@@ -629,6 +637,7 @@ class Migration extends CI_Controller {
 	    }
 	}
 	//print_r(count($data));
+	echo PHP_EOL;
     }
 
     function update_for_installation($value, $price_tag) {
@@ -671,7 +680,7 @@ class Migration extends CI_Controller {
 	$unit_data['price_tags'] = "Installation & Demo";
 
 	$this->migration_model->update_booking_unit_details($booking_id, $unit_data);
-                        
+
 	if (!empty($value['partner_id'])) {
 	    echo $booking_id . "  .... Partner Id Not Exist.";
 	    echo "<br/>";
@@ -858,16 +867,16 @@ class Migration extends CI_Controller {
 	    }
 	}
     }
-    
-    
+
+
     function update_service_center_inprocess(){
         $this->migration_model->get_service_center_inprocess();
     }
-    
+
     function update_service_center_pending(){
         $this->migration_model->get_service_center_pending();
     }
-    
+
     function update_service_center_completed_or_cancelled(){
         $this->migration_model->get_service_center_completed_or_cancelled();
     }
