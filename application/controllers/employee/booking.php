@@ -128,10 +128,12 @@ class Booking extends CI_Controller {
 	    }
 	}
 
-	// select state by city
-	$state = $this->vendor_model->selectSate($booking['city']);
-	$booking['state'] = $state[0]['state'];
 	$booking['booking_pincode'] = $this->input->post('booking_pincode');
+
+	// select state by city
+	$state = $this->vendor_model->get_state_from_pincode($booking['booking_pincode']);
+	$booking['state'] =  $state['state'];
+	
 	$service = $booking['services'] = $this->input->post('service');
 	$booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
 	$booking['order_id'] = $this->input->post('order_id');
@@ -243,6 +245,13 @@ class Booking extends CI_Controller {
 
 	}
 
+	if(empty($booking['state'])){
+	    $to = "anuj@247around.com, abhaya@247around.com";
+	    $message = " Booking State is not found. Booking ID is". $booking['booking_id'];
+	    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Booking State Not Found', $message, "");
+	}
+	
+
 	foreach ($appliance_brand as $key => $value) {
 
 	    $services_details = "";
@@ -340,9 +349,9 @@ class Booking extends CI_Controller {
 
     function send_sms_while_not_picked($booking_id){
         $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-	$send['booking_id'] = $booking_id;
-	$send['state'] = "Customer not reachable";
-	$this->asynchronous_lib->do_background_process($url, $send);
+	    $send['booking_id'] = $booking_id;
+	    $send['state'] = "Customer not reachable";
+	    $this->asynchronous_lib->do_background_process($url, $send);
     }
 
     /**
@@ -697,13 +706,13 @@ class Booking extends CI_Controller {
     function getCategoryForService() {
 
 	$service_id = $this->input->post('service_id');
-	$city = $this->input->post('city');
+	$pincode = $this->input->post('booking_pincode');
 	$partner = $this->input->post('partner_code');
 
 	$partner_id = $this->booking_model->get_price_mapping_partner_code($partner);
+	$state = $this->vendor_model->get_state_from_pincode($pincode);
 
-	$state = $this->vendor_model->selectSate($city);
-	$result = $this->booking_model->getCategoryForService($service_id, $state[0]['state'], $partner_id);
+	$result = $this->booking_model->getCategoryForService($service_id, $state['state'], $partner_id);
 	echo "<option selected disabled>Select Appliance Category</option>";
 	foreach ($result as $category) {
 	    echo "<option>$category[category]</option>";
@@ -718,14 +727,14 @@ class Booking extends CI_Controller {
     function getCapacityForCategory() {
 	$service_id = $this->input->post('service_id');
 	$category = $this->input->post('category');
-	$city = $this->input->post('city');
+	$pincode = $this->input->post('booking_pincode');
 	$parter_code = $this->input->post('partner_code');
 
 	$partner_id = $this->booking_model->get_price_mapping_partner_code($parter_code);
 
-	$state = $this->vendor_model->selectSate($city);
+	$state = $this->vendor_model->get_state_from_pincode($pincode);
 
-	$result = $this->booking_model->getCapacityForCategory($service_id, $category, $state[0]['state'], $partner_id);
+	$result = $this->booking_model->getCapacityForCategory($service_id, $category, $state['state'], $partner_id);
 
 	foreach ($result as $capacity) {
 	    echo "<option>$capacity[capacity]</option>";
@@ -745,13 +754,13 @@ class Booking extends CI_Controller {
 	$capacity = $this->input->post('capacity');
 	$brand = $this->input->post('brand');
 	$parter_code = $this->input->post('partner_code');
-	$city = $this->input->post('city');
+	$pincode = $this->input->post('booking_pincode');
 	$clone_number = $this->input->post('clone_number');
-	$state = $this->vendor_model->selectSate($city);
+	$state = $this->vendor_model->get_state_from_pincode($pincode);
 
 	$partner_id = $this->booking_model->get_price_mapping_partner_code($parter_code);
 
-	$result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $state[0]['state']);
+	$result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $state['state']);
 	if (!empty($result)) {
 
 	    echo "<tr><th>Service Category</th><th>Std. Charges</th><th>Partner Discount</th><th>Final Charges</th><th>247around Discount</th><th>Selected Services</th></tr>";

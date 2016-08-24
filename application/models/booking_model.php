@@ -1618,7 +1618,7 @@ class Booking_model extends CI_Model {
      */
     function insert_new_unit_item($unit_id, $service_charge_id, $data, $state){
         $price_data = $this->getpricesdetails_with_tax($service_charge_id, $state);
-        $this->db->select('booking_id,partner_id,service_id,appliance_id,appliance_brand,appliance_category, appliance_capacity,appliance_size, serial_no, appliance_description, model_number, appliance_tag, purchase_month, purchase_year');
+        $this->db->select('booking_id,partner_id,service_id,appliance_id,appliance_brand,appliance_category, appliance_capacity,appliance_size, serial_number, appliance_description, model_number, appliance_tag, purchase_month, purchase_year');
 
         $this->db->where('id', $unit_id);
         $query = $this->db->get('booking_unit_details');

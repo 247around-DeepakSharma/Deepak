@@ -22,16 +22,36 @@
                                         <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php echo $booking_history[0]['phone_number']?>" required>
                                     </div>
                                 </div>
-                                <div class="form-group ">
+                                <div class="form-group <?php
+                                if (form_error('booking_pincode')) {
+                                    echo 'has-error';
+                                } ?>">
+                                <label for="booking_pincode" class="col-md-4">Pincode *</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($booking_history[0]['booking_pincode'])){echo $booking_history[0]['booking_pincode'];} ?>" placeholder="Enter Area Pin" >
+                                   
+                                </div>
+                            </div>
+                                 <div class="form-group ">
                                     <label for="booking_city" class="col-md-4">City *</label>
                                     <div class="col-md-6">
                                         <select type="text" onchange= "getCategoryForService()" class="form-control"  id="booking_city" name="city" required>
                                             <option selected="selected" disabled="disabled">Select City</option>
                                             <?php 
+                                                $flag = false;
+                                                if (in_array($booking_history[0]['city'], $cites)){
+                                                    //echo "Match found";
+                                                } else {
+                                                    $flag = true;
+                                                }
                                                 foreach ($city as $key => $cites) { ?>
                                             <option <?php if($cites['district'] == $booking_history[0]['city']){ echo "Selected"; }?>><?php echo $cites['district']; ?></option>
-                                            <?php  }
+                                           
+                                            <?php }
                                                 ?>
+                                             <?php if($flag){ ?>
+                                            <option selected="selected" ><?php echo $booking_history[0]['city']; ?></option>
+                                            <?php } ?>
                                         </select>
                                     </div>
                                 </div>
@@ -566,7 +586,9 @@
 </script>
 <script>
     $("#service_id").select2();
-    $("#booking_city").select2();
+     $("#booking_city").select2({
+         tags: true
+    });
     $("#partner_source").select2();
     //$(".appliance_capacity").select2();
 </script>
