@@ -1,10 +1,4 @@
- var getUrl = window.location;
 
- //Un-comment below line for localhost
- //var baseUrl = getUrl .protocol + "//" + getUrl.host  + "/" + getUrl.pathname.split('/')[1];
-
- //Comment below line for localhost, this is for main server
- var baseUrl = getUrl .protocol + "//" + getUrl.host ;
 
  var brandServiceUrl = baseUrl + '/employee/booking/getBrandForService/';
  var categoryForServiceUrl = baseUrl + '/employee/booking/getCategoryForService/';
@@ -83,7 +77,7 @@
     postData['booking_pincode'] = $('#booking_pincode').val();
     postData['clone_number'] = div_no[2];
 
-    if($("#appliance_capacity_"+div_no[2]).val()!="") {
+    if($("#appliance_capacity_"+div_no[2]).val()!=="") {
 
         postData['capacity'] = $("#appliance_capacity_"+div_no[2]).val();
 
