@@ -23,6 +23,7 @@ class Migration extends CI_Controller {
 
     //migrates completed bookings
     function c_test1() {
+	echo PHP_EOL;
 
 	$booking_details = $this->migration_model->c_get_all_booking_id();
 	//print_r($booking_details);
@@ -36,9 +37,11 @@ class Migration extends CI_Controller {
 		case 'Installation,WallMountStand,':
 		case 'Installation with Stand,':
 		case 'InstallationwithStand,':
+		case '':
 
 		    switch ($value['internal_status']) {
 			case 'Completed TV Without Stand':
+			case 'Completed Without Stand':
 			case 'Completed With Demo':
 			case 'Completed':
 			    $data = array();
@@ -57,6 +60,7 @@ class Migration extends CI_Controller {
 			    break;
 
 			case 'Completed TV With Stand':
+			case 'Completed With Stand':
 
 			    $data = array();
 			    $data['appliance_id'] = $value['appliance_id'];
@@ -86,7 +90,7 @@ class Migration extends CI_Controller {
 			    break;
 
 			default:
-			    echo $value['booking_id'];
+			    echo 'internal_status not found: ' . $value['booking_id'] . PHP_EOL;
 			    break;
 		    }
 
@@ -98,9 +102,30 @@ class Migration extends CI_Controller {
 		    $data['appliance_id'] = $value['appliance_id'];
 		    $data['partner_id'] = $value['partner_id'];
 		    $data['service_id'] = $value['service_id'];
-                    $data['appliance_description'] = $value['appliance_description'];
+		    $data['appliance_description'] = $value['appliance_description'];
 		    $data['price_tags'] = "Repair";
 
+		    $this->migration_model->update_booking_unit_details($booking_id, $data);
+		    break;
+
+		case 'Repair - In Warranty':
+		    $data = array();
+		    $data['appliance_id'] = $value['appliance_id'];
+		    $data['partner_id'] = $value['partner_id'];
+		    $data['service_id'] = $value['service_id'];
+		    $data['appliance_description'] = $value['appliance_description'];
+		    $data['price_tags'] = "Repair - In Warranty";
+
+		    $this->migration_model->update_booking_unit_details($booking_id, $data);
+		    break;
+
+		case 'Repair - Out Of Warranty':
+		    $data = array();
+		    $data['appliance_id'] = $value['appliance_id'];
+		    $data['partner_id'] = $value['partner_id'];
+		    $data['service_id'] = $value['service_id'];
+		    $data['appliance_description'] = $value['appliance_description'];
+		    $data['price_tags'] = "Repair - Out Of Warranty";
 
 		    $this->migration_model->update_booking_unit_details($booking_id, $data);
 		    break;
@@ -113,13 +138,24 @@ class Migration extends CI_Controller {
 		    $data['appliance_id'] = $value['appliance_id'];
 		    $data['partner_id'] = $value['partner_id'];
 		    $data['service_id'] = $value['service_id'];
-                    $data['appliance_description'] = $value['appliance_description'];
+		    $data['appliance_description'] = $value['appliance_description'];
 		    $data['price_tags'] = "Visit";
-
-
 		    $this->migration_model->update_booking_unit_details($booking_id, $data);
 
 		    break;
+
+		case 'WetService,':
+		case 'WetService':
+		    $data = array();
+		    $data['appliance_id'] = $value['appliance_id'];
+		    $data['partner_id'] = $value['partner_id'];
+		    $data['service_id'] = $value['service_id'];
+		    $data['appliance_description'] = $value['appliance_description'];
+		    $data['price_tags'] = "Wet Service";
+		    $this->migration_model->update_booking_unit_details($booking_id, $data);
+
+		    break;
+
 		case 'Repair,Installation,':
 		    $data = array();
 		    $data['appliance_id'] = $value['appliance_id'];
@@ -197,6 +233,7 @@ class Migration extends CI_Controller {
 
 		    $this->migration_model->update_booking_unit_details($booking_id, $data);
 		    break;
+
 		case 'Uninstallation,':
 		    $data = array();
 		    $data['appliance_id'] = $value['appliance_id'];
@@ -233,8 +270,12 @@ class Migration extends CI_Controller {
 		    $this->migration_model->addunitdetails($data);
 		    break;
 
+		case 'Installation & Demo':
+		case 'Wall Mount Stand':
+		    break;
+
 		default:
-		    echo $value['booking_id'];
+		    echo $value['booking_id'] . PHP_EOL;
 		    break;
 	    }
 	}
