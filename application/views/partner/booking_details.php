@@ -15,23 +15,23 @@
                     <b >Customer Details:-</b><br>
                     <table class="table  table-striped table-bordered">
                         <tr>
-                            <th >Customer name: </th>
+                            <th >Name: </th>
                             <td><?php echo $booking_history[0]['name']; ?></td>
-                            <th>Customer phone number: </th>
+                            <th>Mobile: </th>
                             <td><?php echo $booking_history[0]['phone_number']; ?></td>
-                            <th>Alternate phone number: </th>
+                            <th>Alternate No.: </th>
                             <td><?php echo $booking_history[0]['alternate_phone_number']; ?></td>
                         </tr>
                         <tr>
-                            <th>Customer email address: </th>
+                            <th>Email ID: </th>
                             <td><?php echo $booking_history[0]['user_email']; ?></td>
-                            <th>Home address: </th>
+                            <th>Address: </th>
                             <td><?php echo $booking_history[0]['home_address'];?></td>
                             <th>City:</th>
                             <td><?php echo $booking_history[0]['city'];  ?></td>
                         </tr>
                         <tr>
-                            <th>Near Landmark: </th>
+                            <th>Landmark: </th>
                             <td><?php echo $booking_history[0]['booking_landmark']; ?></td>
                             <th>State: </th>
                             <td><?php echo $booking_history[0]['state'];?></td>
@@ -49,7 +49,7 @@
                             <td><?php echo $booking_history[0]['booking_id']; ?></td>
                         </tr>
                         <tr>
-                            <th >Order ID: </th>
+                            <th >Platform / Order ID: </th>
                             <td><?php  echo $booking_history[0]['partner_source']." / "; if(!empty($booking_history[0]['order_id'])) { echo $booking_history[0]['order_id']; }  ?>
 
                           </td>
@@ -134,6 +134,7 @@
                             <th>Category</th>
                             <th>Capacity</th>
                             <th>Model Number</th>
+                            <th>Serial Number</th>
                             <th>Purchase Date</th>
                             <th>Description</th>
                             <th>Call Type</th>
@@ -159,6 +160,7 @@
                                 <td><?php echo $unit_detail['appliance_category']?></td>
                                 <td><?php echo $unit_detail['appliance_capacity']?></td>
                                 <td><?php echo $unit_detail['model_number']?></td>
+                                 <td><?php echo $unit_detail['serial_number']?></td>
                                 <td><?php if(!empty($unit_detail['purchase_month'])) {echo $unit_detail['purchase_month']."-". $unit_detail['purchase_year'];} else { echo $unit_detail['purchase_year'];}?></td>
                                 <td><?php echo $unit_detail['appliance_description']?></td>
                                 <?php if($booking_history[0]['current_status'] != "Completed"){ ?>

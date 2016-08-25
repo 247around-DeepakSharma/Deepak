@@ -73,7 +73,7 @@
                             <td><?php echo $booking_history[0]['booking_date']; ?></td>
                         </tr>
                         <tr>
-                            <th>Booking time slot: </th>
+                            <th>Booking timeslot: </th>
                             <td><?php echo $booking_history[0]['booking_timeslot']; ?></td>
                         </tr>
                         <tr>
@@ -165,6 +165,7 @@
                             <th>Category</th>
                             <th>Capacity</th>
                             <th>Model Number</th>
+                            <th>Serial Number</th>
                             <th>Purchase Date</th>
                             <th>Description</th>
                             <th>Service Category</th>
@@ -192,6 +193,7 @@
                                 <td><?php echo $unit_detail['appliance_category']?></td>
                                 <td><?php echo $unit_detail['appliance_capacity']?></td>
                                 <td><?php echo $unit_detail['model_number']?></td>
+                                <td><?php echo $unit_detail['serial_number']?></td>
                                 <td><?php if(!empty($unit_detail['purchase_month'])) {echo $unit_detail['purchase_month']."-". $unit_detail['purchase_year'];} else { echo $unit_detail['purchase_year'];}?></td>
                                 <td><?php echo $unit_detail['appliance_description']?></td>
                                 <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
