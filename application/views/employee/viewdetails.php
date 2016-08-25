@@ -10,9 +10,8 @@
     <div class="">
         <div class="row">
             <div>
-                <h2 >Details:</h2>
                 <div class="col-md-12">
-                    <b >Customer Details:-</b><br>
+                    <h3>Customer Details</h3>
                     <table class="table  table-striped table-bordered">
                         <tr>
                             <th >Name: </th>
@@ -41,15 +40,15 @@
                     </table>
                     <br>
                 </div>
-                <div class="col-md-12"><b >Booking Details:-</b></div>
+                <div class="col-md-12"><h3>Booking Details</h3></div>
                 <div class="col-md-6">
                     <table class="table  table-striped table-bordered" >
                         <tr>
-                            <th >Booking Id: </th>
+                            <th >Booking ID: </th>
                             <td><?php echo $booking_history[0]['booking_id']; ?></td>
                         </tr>
                         <tr>
-                            <th >Order Id: </th>
+                            <th >Order ID: </th>
                             <td><?php if(!empty($booking_history)){ echo $booking_history[0]['order_id']; } ?></td>
                         </tr>
                         <tr>
@@ -57,7 +56,7 @@
                             <td><?php echo $booking_history[0]['type']; ?></td>
                         </tr>
                         <tr>
-                            <th>Service name: </th>
+                            <th>Appliance: </th>
                             <td><?php echo $booking_history[0]['services']; ?></td>
                         </tr>
                         <tr>
@@ -65,19 +64,19 @@
                             <td><?php echo $booking_history[0]['source']; ?></td>
                         </tr>
                         <tr>
-                            <th>Number of appliances: </th>
+                            <th>Units: </th>
                             <td><?php echo $booking_history[0]['quantity']; ?></td>
                         </tr>
                         <tr>
-                            <th>Booking date: </th>
+                            <th>Booking Date: </th>
                             <td><?php echo $booking_history[0]['booking_date']; ?></td>
                         </tr>
                         <tr>
-                            <th>Booking timeslot: </th>
+                            <th>Booking Timeslot: </th>
                             <td><?php echo $booking_history[0]['booking_timeslot']; ?></td>
                         </tr>
                         <tr>
-                            <th>Booking address: </th>
+                            <th>Booking Address: </th>
                             <td><?php echo $booking_history[0]['booking_address'];?></td>
                         </tr>
                         <tr>
@@ -92,16 +91,16 @@
                             <th>Booking Pincode: </th>
                             <td><?php echo $booking_history[0]['booking_pincode']; ?></td>
                         </tr>
-                        <tr>
-                            <th>Booking Primary Contact No.: </th>
-                            <td><?php echo $booking_history[0]['booking_primary_contact_no']; ?></td>
-                        </tr>
                     </table>
                 </div>
                 <div class="col-md-6">
                     <table class="table  table-striped table-bordered">
                         <tr>
-                            <th>Booking Alternate Contact No.: </th>
+                            <th>Primary Contact No.: </th>
+                            <td><?php echo $booking_history[0]['booking_primary_contact_no']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Alternate Contact No.: </th>
                             <td><?php echo $booking_history[0]['booking_alternate_contact_no']; ?></td>
                         </tr>
                         <tr>
@@ -113,15 +112,15 @@
                             <td><?php echo $booking_history[0]['query_remarks']; ?></td>
                         </tr>
                         <tr>
-                            <th>Booking current status: </th>
+                            <th>Booking Current Status: </th>
                             <td><?php echo $booking_history[0]['current_status']; ?></td>
                         </tr>
                         <tr>
-                            <th>Booking internal status: </th>
+                            <th>Booking Internal Status: </th>
                             <td><?php echo $booking_history[0]['internal_status']; ?></td>
                         </tr>
                         <tr>
-                            <th>Booking closed date: </th>
+                            <th>Booking Closed Date: </th>
                             <td><?php echo $booking_history[0]['closed_date']; ?></td>
                         </tr>
                         <tr>
@@ -131,23 +130,15 @@
                         <!-- <tr><td>Amount Due: </td><td><?php echo $booking_history[0]['amount_due']; ?></td></tr>
                             <tr><td>Amount Paid: </td><td><?php echo $booking_history[0]['amount_paid']; ?></td></tr>-->
                         <tr>
-                            <th>Rating star: </th>
+                            <th>Rating Stars: </th>
                             <td><?php echo $booking_history[0]['rating_stars']; ?></td>
                         </tr>
                         <tr>
-                            <th>Rating comments: </th>
+                            <th>Rating Comments: </th>
                             <td><?php echo $booking_history[0]['rating_comments']; ?></td>
                         </tr>
                         <tr>
-                            <th>Vendor Rating star: </th>
-                            <td><?php echo $booking_history[0]['vendor_rating_stars']; ?></td>
-                        </tr>
-                        <tr>
-                            <th>Vendor Rating comments: </th>
-                            <td><?php echo $booking_history[0]['vendor_rating_comments']; ?></td>
-                        </tr>
-                        <tr>
-                            <th>Closing Remark: </th>
+                            <th>Closing Remarks: </th>
                             <td><?php echo $booking_history[0]['closing_remarks']; ?></td>
                         </tr>
                         <tr>
@@ -158,7 +149,7 @@
                 </div>
                 <?php if(!empty($unit_details)) { ?>
                 <div class="col-md-12" style="margin-top:20px;" >
-                    <b >Appliance Details:-</b><br>
+                    <h3>Appliance Details</h3>
                     <table class="table  table-striped table-bordered">
                         <tr>
                             <th>Brand</th>
