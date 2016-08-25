@@ -18,7 +18,7 @@
                         <div class="form-group ">
                            <label for="booking_city" class="col-md-4">City *</label>
                            <div class="col-md-6">
-                              <select type="text"  class="form-control"  id="booking_city" name="city" required>
+                              <select type="text" disabled="disabled" class="form-control"  id="booking_city" name="city" required>
                                  <option value="<?php if (isset($booking_history[0]['city'])) {echo $booking_history[0]['city']; } ?>" selected="selected" ><?php if (isset($booking_history[0]['city'])) {echo $booking_history[0]['city']; } ?></option>
                               </select>
                            </div>
@@ -28,7 +28,7 @@
                            <label for="service_name" class="col-md-4">Appliance *</label>
                            <div class="col-md-6">
                               <input type="hidden" name="service" id="services"/>
-                              <select type="text" class="form-control"  id="service_id" name="service_id" required>
+                              <select type="text" disabled="disabled"  class="form-control"  id="service_id" name="service_id" required>
                                  <option value="<?php if (isset($booking_history[0]['service_id'])) {echo $booking_history[0]['service_id']; } ?>" selected="selected" disabled="disabled"><?php if (isset($booking_history[0]['services'])) {echo $booking_history[0]['services']; } ?></option>
                               </select>
                            </div>
@@ -43,10 +43,17 @@
                               <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php if (isset($booking_history[0]['booking_primary_contact_no'])) {echo $booking_history[0]['booking_primary_contact_no']; } ?>" readonly="readonly">
                            </div>
                         </div>
+
+                        <div class="form-group ">
+                           <label for="booking_primary_contact_no" class="col-md-4">Pincoce *</label>
+                           <div class="col-md-6">
+                              <input type="text" class="form-control"  id="booking_pincode" name="booking_pincode" value = "<?php if (isset($booking_history[0]['booking_pincode'])) {echo $booking_history[0]['booking_pincode']; } ?>" readonly="readonly">
+                           </div>
+                        </div>
                         <div class="form-group ">
                            <label for="source_name" class="col-md-4">Booking Source *</label>
                            <div class="col-md-6">
-                              <select type="text" class="booking_source form-control"  id="source_code" name="source_code" required>
+                              <select type="text" disabled="disabled"  class="booking_source form-control"  id="source_code" name="source_code" required>
                                  <option value="<?php if (isset($booking_history[0]['source'])) {echo $booking_history[0]['source']; } ?>" selected="selected" disabled="disabled"><?php if (isset($booking_history[0]['source'])) {echo $booking_history[0]['source_name']; } ?></option>
                               </select>
                            </div>
@@ -65,14 +72,14 @@
                         <div class="col-md-3">
                            <div class="form-group ">
                               <div class="col-md-12 ">
-                                 <select type="text" class="form-control appliance_brand"    name="appliance_brand[]" id="appliance_brand_1" required>
+                                 <select type="text" class="form-control appliance_brand"  disabled="disabled"   name="appliance_brand[]" id="appliance_brand_1" required>
                                     <option selected disabled><?php echo $unit_details['brand']; ?></option>
                                  </select>
                               </div>
                            </div>
                            <div class="form-group">
                               <div class="col-md-12 ">
-                                 <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  required>
+                                 <select type="text" class="form-control appliance_category" disabled="disabled"   id="appliance_category_1" name="appliance_category[]"  required>
                                     <option selected disabled><?php echo $unit_details['category']; ?></option>
                                  </select>
                               </div>
@@ -80,7 +87,7 @@
                            <?php  if(!empty($unit_details['capacity'])){ ?>
                            <div class="form-group">
                               <div class="col-md-12">
-                                 <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]" >
+                                 <select type="text" class="form-control appliance_capacity" disabled="disabled"   id="appliance_capacity_1" name="appliance_capacity[]" >
                                     <option selected disabled><?php echo $unit_details['capacity']; ?></option>
                                  </select>
                               </div>
@@ -109,7 +116,7 @@
                                     <td>
                                      <div class="form-group">
                                        <div class="col-md-12 ">
-                                          <input type="text" class="form-control" id="serial_number_1"name="<?php echo "serial_number[". $price['unit_id'] . "]"?>"  value="<?php echo $unit_details['serial_number']; ?>" placeholder = "Enter Serial Number" required/>
+                                          <input type="text" class="form-control" id="serial_number_1"name="<?php echo "serial_number[". $price['unit_id'] . "]"?>"  value="<?php echo $price['serial_number']; ?>" placeholder = "Enter Serial Number" required/>
                                        </div>
                                     </div>
                                     </td>
@@ -120,7 +127,7 @@
                                     <td>  <input  type="text" class="form-control cost"  name="<?php echo "additional_charge[". $price['unit_id'] . "]"?>"  value = "<?php $paid_additional_charges += $price['customer_paid_extra_charges']; if(!empty($price['customer_paid_extra_charges'])){ echo  $price['customer_paid_extra_charges']; } else { echo "0"; } ?>">
 
                                     </td>
-                                    <td>  <input  type="text" class="form-control cost"  name="<?php echo "parts_cost[". $price['unit_id'] . "]"?>"  value = "<?php $paid_parts_cost += $price['customer_paid_extra_charges']; if(!empty($price['customer_paid_extra_charges'])) { echo $price['customer_paid_extra_charges']; } else { echo "0"; }?>"></td>
+                                    <td>  <input  type="text" class="form-control cost"  name="<?php echo "parts_cost[". $price['unit_id'] . "]"?>"  value = "<?php $paid_parts_cost += $price['customer_paid_parts']; if(!empty($price['customer_paid_parts'])) { echo $price['customer_paid_parts']; } else { echo "0"; }?>"></td>
                                     <td>
                                        <div class="row">
                                           <div class="col-md-12">
@@ -147,7 +154,7 @@
                                  <?php
                                  foreach ($prices[$keys] as $index => $value) { ?>
                                    <tr style="background-color:   #FF4500; color: white;">
-                                     <td> <input type="text" class="form-control" id="serial_number_1" name="<?php echo "serial_number[". $price['unit_id'] . "new".$value['id']."]"?>"  value="<?php echo $unit_details['serial_number']; ?>" placeholder= "Enter Serial Number" required/></td>
+                                     <td> <input type="text" class="form-control" id="serial_number_1" name="<?php echo "serial_number[". $price['unit_id'] . "new".$value['id']."]"?>"  value="" placeholder= "Enter Serial Number" required/></td>
                                      <td> <?php echo $value['service_category']; ?> </td>
                                      <td> <?php echo $value['customer_net_payable']; ?> </td>
                                      <td>  <input  type="text" class="form-control cost"   name="<?php echo "customer_basic_charge[". $price['unit_id'] . "new".$value['id']."]"?>"  value = "0.00">
@@ -188,7 +195,7 @@
                </div>
                <?php } ?>
                <div class="row">
-                  <div class ="col-md-10">
+                  <div class ="col-md-12">
                      <div class="form-group col-md-offset-1">
                         <label for="type" class="col-sm-2">Total Customer Paid</label>
                         <div class="col-md-4">
@@ -220,13 +227,12 @@
                         <div class="col-md-4">
                            <textarea class="form-control" rows="5" name="rating_comments"><?php echo $booking_history[0]['rating_comments']; ?></textarea>
                         </div>
-                     </div>
-                      <div class="form-group">
-                       <label for="remark" class="col-md-2">Admin Remarks</label>
+                         <label for="remark" class="col-md-2">Admin Remarks</label>
                        <div class="col-md-4" >
                            <textarea class="form-control"  rows="5" name="admin_remarks"></textarea>
                         </div>
-                      </div>
+                     </div>
+                      
                   </div>
                </div>
                <br>

@@ -135,6 +135,7 @@
                             <th>Category</th>
                             <th>Capacity</th>
                             <th>Model Number</th>
+                            <th>Serial Number</th>
                             <th>Purchase Date</th>
                             <th>Description</th>
                             <th>Call Type</th>
@@ -150,8 +151,9 @@
                             <th>Paid Additional Charges</th>
                             <th>Paid Parts Cost</th>
                             <th>Total Amount Paid</th>
-                            <th>Booking Status</th>
+                            
                             <?php } ?>
+                            <th>Booking Status</th>
                         </tr>
                         <tbody>
                            <?php  foreach ( $unit_details as  $unit_detail) { ?>
@@ -161,6 +163,7 @@
                                 <td><?php echo $unit_detail['appliance_category']?></td>
                                 <td><?php echo $unit_detail['appliance_capacity']?></td>
                                 <td><?php echo $unit_detail['model_number']?></td>
+                                <td><?php echo $unit_detail['serial_number']?></td>
                                 <td><?php if(!empty($unit_detail['purchase_month'])) {echo $unit_detail['purchase_month']."-". $unit_detail['purchase_year'];} else { echo $unit_detail['purchase_year'];}?></td>
                                 <td><?php echo $unit_detail['appliance_description']?></td>
                                 <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
@@ -177,8 +180,9 @@
                                 <td><?php print_r($unit_detail['customer_paid_extra_charges']);  ?></td>
                                 <td><?php print_r($unit_detail['customer_paid_parts']);  ?></td>
                                 <td><?php print_r($unit_detail['customer_paid_basic_charges'] + $unit_detail['customer_paid_extra_charges'] + $unit_detail['customer_paid_parts'] );  ?></td>
-                                <td><?php print_r($unit_detail['booking_status']);  ?></td>
+                                
                                 <?php }?>
+                                <td><?php print_r($unit_detail['booking_status']);  ?></td>
                             </tr>
                             <?php } ?>
                         </tbody>

@@ -1,3 +1,4 @@
+<script type="text/javascript" src="<?php echo base_url();?>js/base_url.js"></script>
 <script type="text/javascript" src="<?php echo base_url();?>js/review_bookings.js"></script>
 <script type="text/javascript">
    $(document).ready(function(){
