@@ -344,7 +344,12 @@ class Booking extends CI_Controller {
                     $this->notify->insert_state_change($converted_booking_id, "FollowUp", "FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'));
                 }
 
-                $this->service_centers_model->delete_booking_id($booking_id);
+		//Since booking has been converted to query, delete this entry from
+		//service center booking action table as well.
+		$this->service_centers_model->delete_booking_id($booking_id);
+
+		//Reset the assigned vendor ID for this booking
+		$this->booking_model->update_booking($booking_id, array("assigned_vendor_id" => NULL));
 
 		break;
 	}
