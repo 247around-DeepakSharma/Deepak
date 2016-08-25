@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <title>
-            Welcome 
+            Welcome
         </title>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -17,7 +17,7 @@
         <!-- Custom Fonts -->
         <link href="<?php echo base_url()?>css/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
         <script src="<?php echo base_url()?>js/jquery.js"></script>
-        <script src="<?php echo base_url()?>js/bootstrap.js"></script>    
+        <script src="<?php echo base_url()?>js/bootstrap.js"></script>
         <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
         <link href="<?php echo base_url()?>font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
         <link href="<?php echo base_url()?>css/sb-admin.css" rel="stylesheet">
@@ -35,7 +35,7 @@
             background-color: #E6E6E6;
             padding: 20px;
             margin-top:150px;
-            }  
+            }
         </style>
     </head>
 </html>
@@ -47,7 +47,7 @@
                     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
-                    <span class="icon-bar"></span> 
+                    <span class="icon-bar"></span>
                     </button>
                     <a class="navbar-brand" href="#">247Around</a>
                 </div>
@@ -99,7 +99,7 @@
                 </div>
                 <!-- end row -->
             </div>
-            <!-- end container-fluid-->  
+            <!-- end container-fluid-->
         </div>
     </div>
     <style type="text/css">
@@ -114,91 +114,95 @@
       <h3>A little bit about 247Around</h3>
    </div>
    <div class="col-md-12">
-      <p class="description">247around is PAN India Multibrand Appliance Repair Chain Of Service Centers. For Complete Peace Of Mind All Jobs That We Do Are Covered Under 1-3 Months Of Warranty. Call Us And Based On Your Pincode Our Nearest Service Center Engineer Will Be Assigned For The Job. Transparent Prices, Quality Repair. We Cover Appliances Like Television, Washing Machine, Refrigerator, Microwave, Air Conditioner, Mixer, Chimney, Geyser etc. We Provide Services Like Repair, Installation, Uninstallation, AMC, Extended Warranty etc.
-</p>
+       <p class="description">247around is PAN India Multi-brand Appliance Care Platform. For Complete Peace Of Mind,
+	   All Jobs That We Do Are Covered Under 1-3 Months Of Warranty. Call Us And Based On Your Pincode,
+	   Our Nearest Service Center Engineer Will Be Assigned For The Job. Transparent Prices, Quality Repair.
+	   We Cover Appliances Like Television, Washing Machine, Refrigerator, Microwave, Air Conditioner, Mixer,
+	   Chimney, Geyser etc. We Provide Services Like Repair, Installation, Uninstallation, AMC, Extended Warranty and others.
+       </p>
    </div>
    <div class="col-md-12" style="margin-bottom: 40px;">
       <hr/>
    </div>
    <div class="col-md-12" style="text-align: center;">
-      <h3>Installations, Service & Repair</h3>
-      <p style="color: #C2C2C2; font-size: 17px;font-weight: 600;">Short Description of Services</p>
+      <h3>Installation, Service & Repair</h3>
+       <!--<p style="color: #C2C2C2; font-size: 17px;font-weight: 600;">Short Description of Services</p>-->
    </div>
 
    <div class="col-md-12" style="margin-top: 50px;">
       <div class="row">
-         <div class="col-md-2 col-md-offset-1" style="text-align: center;"> 
+         <div class="col-md-2 col-md-offset-1" style="text-align: center;">
             <div class="item">
                <img class="key_image" src="<?php echo base_url();?>images/repair-tv.png"/>
-              <span class="caption"><strong>Televisions</strong></span>
+              <span class="caption"><strong>Television</strong></span>
             </div>
-            <span class="short_caption">Installation, Demo & Repair</span>
-            
+   <!--<span class="short_caption">Installation, Demo & Repair</span>-->
+
          </div>
-          <div class="col-md-2 col-md-offset-1" style="text-align: center;"> 
+          <div class="col-md-2 col-md-offset-1" style="text-align: center;">
             <div class="item">
                <img class="key_image" src="<?php echo base_url();?>images/repair-refrigerator.png"/>
-              <span class="caption"><strong>Refriferator</strong></span>
+	       <span class="caption"><strong>Refrigerator</strong></span>
             </div>
-            <span class="short_caption">Demo</span>
-            
+  <!--<span class="short_caption">Demo</span>-->
+
          </div>
-          <div class="col-md-2 col-md-offset-1" style="text-align: center;"> 
+          <div class="col-md-2 col-md-offset-1" style="text-align: center;">
             <div class="item">
                <img class="key_image" src="<?php echo base_url();?>images/repair-washing-mashine.png"/>
               <span class="caption"><strong>Washing Machine</strong></span>
             </div>
-            <span class="short_caption">Demo</span>
-            
+  <!--<span class="short_caption">Demo</span>-->
+
          </div>
-          <div class="col-md-2 col-md-offset-1" style="text-align: center;"> 
+          <div class="col-md-2 col-md-offset-1" style="text-align: center;">
             <div class="item">
                <img class="key_image" src="<?php echo base_url();?>images/repair-geyser.png"/>
               <span class="caption"><strong>Geyser</strong></span>
             </div>
-            <span class="short_caption">Demo</span>
-            
+  <!--<span class="short_caption">Demo</span>-->
+
          </div>
       </div>
    </div>
-   
+
    <div class="col-md-12" style="margin-top: 50px;margin-bottom: 50px;">
       <div class="row">
-         <div class="col-md-2 col-md-offset-1" style="text-align: center;"> 
+         <div class="col-md-2 col-md-offset-1" style="text-align: center;">
             <div class="item">
                <img class="key_image" src="<?php echo base_url();?>images/repair-ac.png"/>
               <span class="caption"><strong>Air Conditioner</strong></span>
             </div>
-            <span class="short_caption">Demo</span>
-            
+   <!--<span class="short_caption">Demo</span>-->
+
          </div>
-          <div class="col-md-2 col-md-offset-1" style="text-align: center;"> 
+          <div class="col-md-2 col-md-offset-1" style="text-align: center;">
             <div class="item">
                <img class="key_image" src="<?php echo base_url();?>images/repair-microwave.png"/>
               <span class="caption"><strong>Microwave</strong></span>
             </div>
-            <span class="short_caption">Demo</span>
-            
+  <!--<span class="short_caption">Demo</span>-->
+
          </div>
-          <div class="col-md-2 col-md-offset-1" style="text-align: center;"> 
+          <div class="col-md-2 col-md-offset-1" style="text-align: center;">
             <div class="item">
                <img class="key_image" src="<?php echo base_url();?>images/repair-ro.png"/>
               <span class="caption"><strong>Water purifier</strong></span>
             </div>
-            <span class="short_caption">Demo</span>
-            
+  <!--<span class="short_caption">Demo</span>-->
+
          </div>
-          <div class="col-md-2 col-md-offset-1" style="text-align: center;"> 
+          <div class="col-md-2 col-md-offset-1" style="text-align: center;">
             <div class="item">
                <img class="key_image" src="<?php echo base_url();?>images/repair-mixer.png"/>
               <span class="caption"><strong>Mixer</strong></span>
             </div>
-            <span class="short_caption">Demo</span>
-            
+  <!--<span class="short_caption">Demo</span>-->
+
          </div>
       </div>
    </div>
-  
+
    <!-- end container -->
 </div>
 </div>
@@ -206,11 +210,11 @@
 <hr/>
 <div  style="background-color: #fff;">
 <div class="row">
-  <div class="col-md-12" style="text-align: center;margin-top: 30px;margin-bottom: 30px;"> 
-           Copyright@2014 247around.com
+  <div class="col-md-12" style="text-align: center;margin-top: 30px;margin-bottom: 30px;">
+      Copyright@2015-2016 Blackmelon Advance Technology Co. Pvt. Ltd., All rights reserved.
   </div>
 </div>
-  
+
 </div>
 
 
