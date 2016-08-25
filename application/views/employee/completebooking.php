@@ -109,7 +109,7 @@
                                     <td>
                                      <div class="form-group">
                                        <div class="col-md-12 ">
-                                          <input type="text" class="form-control" id="serial_number_1"name="<?php echo "serial_number[". $price['unit_id'] . "]"?>"  value="<?php echo $unit_details['serial_number']; ?>" placeholder = "Enter Serial Number" required/>
+                                          <input type="text" class="form-control" id="serial_number_1"name="<?php echo "serial_number[". $price['unit_id'] . "]"?>"  value="<?php echo $price['serial_number']; ?>" placeholder = "Enter Serial Number" required/>
                                        </div>
                                     </div>
                                     </td>
@@ -188,7 +188,7 @@
                </div>
                <?php } ?>
                <div class="row">
-                  <div class ="col-md-10">
+                  <div class ="col-md-12">
                      <div class="form-group col-md-offset-1">
                         <label for="type" class="col-sm-2">Total Customer Paid</label>
                         <div class="col-md-4">
@@ -220,13 +220,12 @@
                         <div class="col-md-4">
                            <textarea class="form-control" rows="5" name="rating_comments"><?php echo $booking_history[0]['rating_comments']; ?></textarea>
                         </div>
-                     </div>
-                      <div class="form-group">
-                       <label for="remark" class="col-md-2">Admin Remarks</label>
+                         <label for="remark" class="col-md-2">Admin Remarks</label>
                        <div class="col-md-4" >
                            <textarea class="form-control"  rows="5" name="admin_remarks"></textarea>
                         </div>
-                      </div>
+                     </div>
+                      
                   </div>
                </div>
                <br>

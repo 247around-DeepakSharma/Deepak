@@ -1470,7 +1470,7 @@ class Booking_model extends CI_Model {
 
         if($booking_id !=""){
            $where = " `booking_unit_details`.booking_id = '$booking_id' ";
-            $sql = "SELECT distinct(appliance_id), appliance_brand as brand, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_month`, `booking_unit_details`.`purchase_year`, appliance_tag, `booking_unit_details`.serial_number
+            $sql = "SELECT distinct(appliance_id), appliance_brand as brand, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_month`, `booking_unit_details`.`purchase_year`, appliance_tag
             from booking_unit_details Where $where  ";
 
         } else if ($appliance_id != "") {
@@ -1487,7 +1487,7 @@ class Booking_model extends CI_Model {
 
         foreach ($appliance as $key => $value) {
             // get data from booking unit details table on the basis of appliance id
-            $this->db->select('id as unit_id, price_tags, customer_total, around_net_payable, partner_net_payable, customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts, booking_status, partner_paid_basic_charges,product_or_services');
+            $this->db->select('id as unit_id, price_tags, customer_total, around_net_payable, partner_net_payable, customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts, booking_status, partner_paid_basic_charges,product_or_services, serial_number');
             $this->db->where('appliance_id', $value['appliance_id']);
             $this->db->where('booking_id', $value['booking_id']);
             $query2 = $this->db->get('booking_unit_details');
