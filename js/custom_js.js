@@ -1,6 +1,4 @@
 
-
-
  var brandServiceUrl = baseUrl + '/employee/booking/getBrandForService/';
  var categoryForServiceUrl = baseUrl + '/employee/booking/getCategoryForService/';
  var CapacityForCategoryUrl = baseUrl + '/employee/booking/getCapacityForCategory/';

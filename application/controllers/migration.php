@@ -21,6 +21,7 @@ class Migration extends CI_Controller {
 	$this->load->model('vendor_model');
     }
 
+    //migrates completed bookings
     function c_test1() {
 
 	$booking_details = $this->migration_model->c_get_all_booking_id();
@@ -716,6 +717,7 @@ class Migration extends CI_Controller {
 	//print_r($booking_unit_details);
     }
 
+    //migrates cancelled queries and bookings
     function c_q_test1() {
 	$data = $this->migration_model->get_all_cancelled_query();
 	//print_r($data);

@@ -1367,9 +1367,10 @@ class Booking_model extends CI_Model {
 
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
          $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
-            log_message ('info', __METHOD__ . "update booking_unit_details data". print_r($result));
 
-        $this->db->select('id');
+	 log_message('info', __METHOD__ . "update booking_unit_details data" . print_r($result, true));
+
+	$this->db->select('id');
         $this->db->where('appliance_id', $services_details['appliance_id']);
         $this->db->where('price_tags', $data[0]['price_tags']);
         $this->db->where('booking_id', $booking_id);
@@ -1631,7 +1632,7 @@ class Booking_model extends CI_Model {
 
         $this->db->insert('booking_unit_details', $result);
         $new_unit_id = $this->db->insert_id();
-        
+
         log_message('info', ": " . " insert new item in booking unit details returned id " . print_r($new_unit_id, TRUE));
 
         $data['id'] = $new_unit_id;
@@ -1641,7 +1642,7 @@ class Booking_model extends CI_Model {
 
         return $new_unit_id;
     }
-    
+
 
 
 

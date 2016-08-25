@@ -292,8 +292,9 @@ class Booking extends CI_Controller {
         $booking['potential_value'] = $this->input->post('potential_value');
         $booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
         $booking['booking_timeslot'] = $this->input->post('booking_timeslot');
+	$booking['update_date'] = date("Y-m-d H:i:s");
 
-        if (empty($booking['state'])) {
+	if (empty($booking['state'])) {
             $to = "anuj@247around.com, abhaya@247around.com";
             $message = "State not found for Booking ID: " . $booking['booking_id'] . " and Pincode: " . $booking['booking_pincode'];
             $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Booking State Not Found', $message, "");
@@ -302,39 +303,56 @@ class Booking extends CI_Controller {
         return $booking;
     }
     /**
-     * @desc: This method returns booking id when booking updated Pending Booking to Pending Query
+     * @desc: This method returns booking id when booking updated
+     * Pending Booking to Pending Query
      * OR Pending Query to Pending Booking
      * OR Pending Booking to pending booking
      * OR Pending Query to Pending Query
-     * @param type $booking_type
+     *
+     * @param type $booking_type - New type to which booking would be converted
      * @param type $booking_id
+     *
      * @return booking id
      */
     function change_in_booking_id($booking_type, $booking_id) {
         $converted_booking_id = $booking_id;
-        switch ($booking_type) {
-            case Booking:
-                if (strpos($booking_id, "Q-") !== FALSE) {
-                    $booking_id_array = explode("Q-", $booking_id);
+
+	switch ($booking_type) {
+            case "Booking":
+		if (strpos($booking_id, "Q-") !== FALSE) {
+		    //Query to be converted to Booking
+		    $booking_id_array = explode("Q-", $booking_id);
                     $converted_booking_id = $booking_id_array[1];
                     $this->notify->insert_state_change($converted_booking_id, "Pending", "FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'));
                 } else {
-                    $converted_booking_id = $booking_id;
+		    //Booking to be updated to booking
+		    $converted_booking_id = $booking_id;
                     $this->notify->insert_state_change($converted_booking_id, "Pending", "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
                 }
-                break;
-            case Query:
-                if (strpos($booking_id, "Q-") === FALSE) {
-                    $converted_booking_id = "Q-" . $booking_id;
+
+		break;
+
+	    case "Query":
+		if (strpos($booking_id, "Q-") === FALSE) {
+		    //Booking to be converted to query
+		    $converted_booking_id = "Q-" . $booking_id;
                     //param:-- booking id, new state, old state, employee id, employee name
                     $this->notify->insert_state_change($converted_booking_id, "FollowUp", "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
                 } else {
-                    $converted_booking_id = $booking_id;
+		    //Query to be updated to query
+		    $converted_booking_id = $booking_id;
                     $this->notify->insert_state_change($converted_booking_id, "FollowUp", "FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'));
                 }
 
-                $this->service_centers_model->delete_booking_id($booking_id);
-        }
+		//Since booking has been converted to query, delete this entry from
+		//service center booking action table as well.
+		$this->service_centers_model->delete_booking_id($booking_id);
+
+		//Reset the assigned vendor ID for this booking
+		$this->booking_model->update_booking($booking_id, array("assigned_vendor_id" => NULL));
+
+		break;
+	}
 
         return $converted_booking_id;
     }
@@ -487,7 +505,7 @@ class Booking extends CI_Controller {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number'] =  $service_center_data[0]['serial_number'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_parts'] =  $service_center_data[0]['parts_cost'];
                 }
-                
+
                 // Searched already inserted price tag exist in the price array (get all service category)
                 $id = $this->search_for_key($price_tag['price_tags'], $prices);
                 // remove array key, if price tag exist into price array
@@ -1120,13 +1138,13 @@ class Booking extends CI_Controller {
     }
 
     /**
-     * @desc: Reject Booking from review page 
+     * @desc: Reject Booking from review page
      * @param: void
      * @return: void
      */
     function reject_booking_from_review() {
         $data['booking_id'] = $this->input->post('booking_id');
-        $admin_remarks = $this->input->post('admin_remarks');  
+        $admin_remarks = $this->input->post('admin_remarks');
         $data['internal_status'] = "Pending";
         $data['current_status'] = "Pending";
         $data['update_date'] = date("Y-m-d H:i:s");
@@ -1264,7 +1282,7 @@ class Booking extends CI_Controller {
                         $data['booking_status'] = "Completed";
                         $internal_status = "Completed";
                         $new_unit_id = $this->booking_model->insert_new_unit_item($unit_id, $service_charges_id, $data, $state['state']);
-                        
+
                         $data_service_center['booking_id'] = $booking_id;
                         $data_service_center['unit_details_id'] = $new_unit_id;
                         $data_service_center['service_center_id'] =  $service_center_details[0]['service_center_id'];
@@ -1300,7 +1318,7 @@ class Booking extends CI_Controller {
                 } else {
                     $service_center['closing_remarks'] = "Service Center Remarks:- " . $service_center_details[0]['service_center_remarks'];
                 }
-                
+
                 $service_center['internal_status'] = $service_center['current_status'] = $data['booking_status'];
                 $service_center['unit_details_id'] = $unit_id;
                 $service_center['update_date'] =  $service_center['closed_date'] =  date('Y-m-d H:i:s');
@@ -1410,7 +1428,7 @@ class Booking extends CI_Controller {
             $service_center_data['closed_date'] = NUll;
             $service_center_data['service_charge'] = $service_center_data['additional_service_charge'] = $service_center_data['parts_cost'] = "0.00";
             $this->vendor_model->update_service_center_action($service_center_data);
-            
+
             $unit_details['serial_number'] = "";
             $unit_details['booking_status'] = NULL;
             $unit_details['customer_paid_basic_charges'] = $unit_details['around_st_or_vat_basic_charges'] = "0.00";
@@ -1419,7 +1437,7 @@ class Booking extends CI_Controller {
             $unit_details['around_comm_basic_charges'] = $unit_details['around_to_vendor'] = "0.00";
             $unit_details['customer_paid_extra_charges'] = $unit_details['around_comm_extra_charges'] = "0.00";
             $unit_details['around_st_extra_charges'] = $unit_details['vendor_extra_charges'] = "0.00";
-       
+
             $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
 
             //Log this state change as well for this booking

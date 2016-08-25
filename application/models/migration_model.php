@@ -15,8 +15,6 @@ class Migration_model extends CI_Model {
      * @return type
      */
     function c_get_all_booking_id() {
-
-
 	$sql = "SELECT booking_details.booking_id, booking_details.partner_id, booking_details.service_id,
                 booking_details.appliance_id, booking_unit_details.appliance_capacity,
                 booking_unit_details.appliance_brand, booking_unit_details.appliance_category,
@@ -25,10 +23,10 @@ class Migration_model extends CI_Model {
                 booking_unit_details.model_number, booking_details.service_charge,
                 booking_details.additional_service_charge, booking_details.parts_cost,
                 booking_details.internal_status, appliance_details.description as appliance_description
-            from booking_details, booking_unit_details, appliance_details
-            where `closed_date` >= '2016-06-01 00:00:00' AND
-            `current_status` = '%Completed%' AND booking_unit_details.booking_id = booking_details.booking_id
-            AND booking_details.appliance_id =  appliance_details.id
+		from booking_details, booking_unit_details, appliance_details
+		where `closed_date` >= '2016-07-01 00:00:00' AND
+		`current_status` = 'Completed' AND booking_unit_details.booking_id = booking_details.booking_id
+		AND booking_details.appliance_id =  appliance_details.id
 
             ";
 
@@ -46,7 +44,7 @@ class Migration_model extends CI_Model {
             booking_details.parts_cost,
             booking_details.internal_status
             from booking_details
-            where `closed_date` >= '2016-06-01 00:00:00' AND
+            where `closed_date` >= '2016-07-01 00:00:00' AND
             `current_status` = '%Completed%'
             ";
 
@@ -122,7 +120,7 @@ class Migration_model extends CI_Model {
                 . "FROM `booking_unit_details`, booking_details "
 	    . "WHERE `booking_unit_details`.booking_id = `booking_details`.`booking_id` AND "
 	    . "`booking_unit_details`.`booking_id` in "
-	    . "(SELECT booking_id FROM `booking_details` WHERE `closed_date` >= '2016-06-01 00:00:00' AND "
+	    . "(SELECT booking_id FROM `booking_details` WHERE `closed_date` >= '2016-07-01 00:00:00' AND "
 	    . " `current_status` = '%Completed%' )";
 	$query = $this->db->query($sql);
 	return $query->result_array();
@@ -155,9 +153,9 @@ class Migration_model extends CI_Model {
 
 	$data = $this->getpricesdetails_with_tax($services_details['id'], $state);
 
-	echo "<br/>";
+	echo PHP_EOL;
 	echo $unit_details_id . "-" . $booking_id, "--" . $services_details['id'];
-	echo "<br/>";
+	echo PHP_EOL;
 	print_r($data);
 	unset($services_details['unit_id']);
 
@@ -189,11 +187,11 @@ class Migration_model extends CI_Model {
 	    // print_r($unit_details);
 	    $data['id'] = $result1[$key]['id'];
 
-	    /* echo "<br/>";
+	    /* echo PHP_EOL;
 	      print_r($data);
-	      echo "<br/>";
+	      echo PHP_EOL;
 	      print_r($unit_details);
-	      echo "<br/>"; */
+	      echo PHP_EOL; */
 
 	    $this->update_price_in_unit_details($data, $unit_details);
 	}
@@ -362,7 +360,7 @@ class Migration_model extends CI_Model {
 	    . "FROM booking_details,  `booking_unit_details`, appliance_details "
 	    . "WHERE   `current_status` LIKE  '%Cancelled%' AND "
 	    . "booking_unit_details.booking_id = booking_details.booking_id  "
-	    . "AND booking_details.create_date >= '2016-06-01' AND appliance_details.id = booking_details.appliance_id ";
+	    . "AND booking_details.create_date >= '2016-07-01' AND appliance_details.id = booking_details.appliance_id ";
 
 	$query = $this->db->query($sql);
 	return $query->result_array();
@@ -373,7 +371,7 @@ class Migration_model extends CI_Model {
 	    . "WHERE `booking_unit_details`.booking_id = `booking_details`.`booking_id` AND "
 	    . "`booking_unit_details`.`booking_id` in "
 	    . "(SELECT booking_id FROM `booking_details` WHERE "
-	    . "`current_status`  LIKE '%Cancelled%' AND booking_details.create_date >= '2016-06-01' ) ";
+	    . "`current_status`  LIKE '%Cancelled%' AND booking_details.create_date >= '2016-07-01' ) ";
 
 	$query = $this->db->query($sql);
 	return $query->result_array();
@@ -382,7 +380,7 @@ class Migration_model extends CI_Model {
     function c_q_getbookingid() {
 	$sql = "SELECT booking_details.booking_id, booking_details.service_charge, booking_details.additional_service_charge, booking_details.parts_cost, booking_details.internal_status
             from booking_details
-            where booking_details.create_date >= '2016-06-01' AND `current_status` = '%Cancelled%'
+            where booking_details.create_date >= '2016-07-01' AND `current_status` = '%Cancelled%'
             ";
 
 	$query = $this->db->query($sql);
@@ -414,14 +412,18 @@ class Migration_model extends CI_Model {
         $this->update_service_center_table($result, true);
     }
 
-    function get_service_center_completed_or_cancelled(){
-        $sql = "SELECt booking_details.booking_id from booking_details, service_center_booking_action"
+    function get_service_center_completed_or_cancelled() {
+	echo "Entering " . __METHOD__ . PHP_EOL;
+
+	$sql = "SELECt booking_details.booking_id from booking_details, service_center_booking_action"
                 . " where service_center_booking_action.current_status = 'Completed' "
                 . " AND (booking_details.current_status = '%Completed%' OR booking_details.current_status = '%Cancelled%' ) "
                 . "AND service_center_booking_action.booking_id = booking_details.booking_id ";
         $query = $this->db->query($sql);
 	$result = $query->result_array();
         $this->update_completed_service_center_table($result);
+
+	echo "Leaving " . __METHOD__ . PHP_EOL;
     }
     /**
      *  We get all completed or cancelled booking in parm.
@@ -454,19 +456,18 @@ class Migration_model extends CI_Model {
                 $result2[0]['internal_status'] = $result1[1]['booking_status'];
 
                 $this->db->insert('service_center_booking_action', $result2[0]);
-		echo "<br/>";
+		echo PHP_EOL;
 		echo "two";
-		echo "<br/>";
+		echo PHP_EOL;
 		echo $result1[0]['booking_id'];
-		echo "<br/>";
-
-            } else if (count($result1) === 1) {
-		echo "<br/>";
+		echo PHP_EOL;
+	    } else if (count($result1) === 1) {
+		echo PHP_EOL;
 		echo "only one";
-		echo "<br/>";
+		echo PHP_EOL;
 		echo $result1[0]['booking_id'];
-		echo "<br/>";
-                $data1['internal_status'] = $result1[0]['booking_status'];
+		echo PHP_EOL;
+		$data1['internal_status'] = $result1[0]['booking_status'];
                 $data1['current_status'] = $result1[0]['booking_status'];
 		$this->db->where('booking_id', $result1[0]['booking_id']);
 		$this->db->update('service_center_booking_action', $data1);
@@ -480,8 +481,10 @@ class Migration_model extends CI_Model {
      * If count of unit details is 2 then we  upadte service center table  and new one inseted
      * If count of unit details is 1 then only we update service cente table
      * If internal status is ture then we update in current status and internal status is Pending
-     * For only Inprocess -- First we get internal status from service center action table and then update service center action table
+     * For only Inprocess -- First we get internal status from service center action table and then update service
+     * center action table
      * Otherwise InProcess
+     *
      * @param type $result
      * @param type $internal_status
      */
@@ -514,24 +517,25 @@ class Migration_model extends CI_Model {
                 }
 
 		$this->db->insert('service_center_booking_action', $result2[0]);
-		echo "<br/>";
+		echo PHP_EOL;
 		echo "two";
-		echo "<br/>";
+		echo PHP_EOL;
 		echo $result1[0]['booking_id'];
-		echo "<br/>";
+		echo PHP_EOL;
 	    } else if (count($result1) === 1) {
-		echo "<br/>";
+		echo PHP_EOL;
 		echo "only one";
-		echo "<br/>";
+		echo PHP_EOL;
 		echo $result1[0]['booking_id'];
-		echo "<br/>";
+		echo PHP_EOL;
 		$this->db->where('booking_id', $result1[0]['booking_id']);
 		$this->db->update('service_center_booking_action', array('unit_details_id ' => $result1[0]['id']));
 	    }
 
-            if($internal_status){} else {
-                $this->db->select('internal-status');
-                $this->db->where('booking_id', $value['booking_id']);
+            if ($internal_status === FALSE) {
+		//current-status is InProcess and internal status is set by vendor
+		$this->db->select('internal_status');
+		$this->db->where('booking_id', $value['booking_id']);
                 $this->db->where('current_status', 'InProcess');
                 $query4 = $this->db->get('service_center_booking_action');
                 $service_internal_status = $query4->result_array();

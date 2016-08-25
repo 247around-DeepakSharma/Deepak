@@ -131,3 +131,7 @@ ALTER TABLE  `booking_unit_details` CHANGE  `serial_number`  `serial_number` VAR
 ALTER TABLE  `booking_unit_details` CHANGE  `price_tags`  `price_tags` VARCHAR( 1024 ) DEFAULT '' ;
 ALTER TABLE  `booking_unit_details` CHANGE  `appliance_tag`  `appliance_tag` VARCHAR( 1024 ) DEFAULT '' ;
 ALTER TABLE  `booking_unit_details` CHANGE  `booking_picture_file`  `booking_picture_file` VARCHAR( 1024 ) DEFAULT '' ;
+
+ALTER TABLE service_center_booking_action DROP INDEX unq_booking_sc_ids;
+ALTER TABLE `247around-mig2`.`service_center_booking_action` ADD UNIQUE `unq_booking_sc_ids` (`booking_id`, `unit_details_id`, `service_center_id`);
+ALTER TABLE `booking_unit_details` DROP `total_price`;

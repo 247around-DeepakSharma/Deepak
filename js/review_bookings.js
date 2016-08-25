@@ -9,15 +9,9 @@ $(document).on("click", ".open-AddBookingDialog", function () {
     var parts_cost = document.getElementById("parts_cost" + this.id).innerHTML;
     var booking_id = $('#booking_id' + this.id).val();
     var internal_status = document.getElementById("internal_status" + this.id).innerHTML;
-    ;
     var cancellation_reason = document.getElementById("cancellation_reason" + this.id).innerHTML;
-    ;
-
     var service_center_remarks = document.getElementById("service_center_remarks" + this.id).innerHTML;
-    ;
      var admin_remarks = document.getElementById("admin_remarks_" + this.id).innerHTML;
-    ;
-
 
     $('#modal-title2').text(booking_id);
     $('#input_service_charge').val(service_charge);

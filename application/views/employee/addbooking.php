@@ -36,11 +36,11 @@
                                     <div class="col-md-6">
                                         <select type="text" onchange= "getCategoryForService()" class="form-control"  id="booking_city" name="city" required>
                                             <option selected="selected" disabled="disabled">Select City</option>
-                                            <?php 
-                                                
-                                                 $flag = 0; 
-                                                foreach ($city as $key => $cites) { 
-                                                   
+                                            <?php
+
+                                                 $flag = 0;
+                                                foreach ($city as $key => $cites) {
+
                                                     ?>
                                             <option <?php if($cites['district'] == $user[0]['city']){ echo "Selected"; $flag = 1; }?>><?php echo $cites['district']; ?></option>
                                             <?php  }
@@ -51,7 +51,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                
+
                                 <div class="form-group ">
                                     <label for="service_name" class="col-md-4">Appliance *</label>
                                     <div class="col-md-6">
@@ -62,7 +62,7 @@
                                             <option  value=<?= $values->id; ?>>
                                                 <?php echo $values->services; }    ?>
                                             </option>
-                                            
+
                                         </select>
                                     </div>
                                 </div>
@@ -80,7 +80,7 @@
                                     <label  class="col-md-4">Email</label>
                                     <div class="col-md-6">
                                         <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php echo $user[0]['user_email']; ?>">
-                                       
+
                                     </div>
                                 </div>
                                 <div class="form-group ">
@@ -136,7 +136,7 @@
                         <!--  <i class="fa fa-plus addsection pull-right fa-3x" aria-hidden="true" style ="margin-top:15px; margin-bottom: 15px; margin-right:40px; "></i>
                             <i class="fa fa-times pull-right deletesection  fa-3x"  style ="margin-top:15px; margin-bottom: 15px; margin-right:20px; " aria-hidden="true"></i>-->
                         <div class="panel-heading">
-                            <button class="clone btn btn-sm btn-info">Add</button> 
+                            <button class="clone btn btn-sm btn-info">Add</button>
                             <button class="remove btn btn-sm btn-info">Remove</button>
                         </div>
                         <div class="panel-body">
@@ -172,21 +172,21 @@
                                             <label for="type" class="col-md-4">Appliance Model </label>
                                             <div class="col-md-6">
                                                 <input  type="text" class="form-control"  name="model_number[]" id="model_number_1" value = "" placeholder="Enter Model" >
-                                               
+
                                             </div>
                                         </div>
                                           <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Serial No </label>
                                             <div class="col-md-6">
                                                 <input  type="text" class="form-control"  name="serial_number[]" id="serial_number_1" value = "<?php if(isset($unit_details[0]['serial_number'])) { echo $unit_details[0]['serial_number']; } ?>" placeholder="Enter Appliance Serial Number"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
-                                               
+
                                             </div>
                                         </div>
                                          <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Description </label>
                                             <div class="col-md-6">
                                                 <input  type="text" class="form-control"  name="appliance_description[]" id="description_1" value = "<?php if(isset($unit_details[0]['description'])) { echo $unit_details[0]['description']; } ?>" placeholder="Enter Description"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
-                                               
+
                                             </div>
                                         </div>
                                         <div class="form-group <?php if( form_error('appliance_tags') ) { echo 'has-error';} ?>">
@@ -229,7 +229,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                       
+
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -266,7 +266,7 @@
                                     <textarea class="form-control" rows="4" id="booking_address" name="home_address"  required ><?php echo $user[0]['home_address']; ?></textarea>
                                 </div>
                             </div>
-                           
+
                             <div class="form-group ">
                                 <label for="type" class="col-sm-4">Price To be Pay</label>
                                 <div class="col-md-6">
@@ -307,14 +307,14 @@
                             <div class="form-group ">
                                 <label for="type" class="col-md-4">Potential Value</label>
                                 <div class="col-md-6">
-                                   
+
                                     <input  type="text" class="form-control"  name="potential_value" id="potential_value" value = "<?php echo set_value('potential_value'); ?>" placeholder="Enter potential_value" >
                                 </div>
                             </div>
                             <div class="form-group ">
                                 <label for="type" class="col-md-4">Remarks</label>
                                 <div class="col-md-6">
-                                    <textarea class="form-control" rows="4" name="query_remarks" id="query_remarks" placeholder="Enter Quer Remarks" ></textarea>
+                                    <textarea class="form-control" rows="4" name="query_remarks" id="query_remarks" placeholder="Enter Query Remarks" ></textarea>
                                 </div>
                             </div>
                             <div>
@@ -347,7 +347,7 @@
 <script type="text/javascript">
     var regex = /^(.+?)(\d+)$/i;
     var cloneIndex = $(".clonedInput").length +1;
-    
+
     function clone(){
        $(this).parents(".clonedInput").clone()
            .appendTo(".cloned")
@@ -363,7 +363,7 @@
            })
            .on('click', 'button.clone', clone)
            .on('click', 'button.remove', remove);
-           
+
            $('#priceList_'+cloneIndex).html("");
        cloneIndex++;
        return false;
@@ -374,7 +374,7 @@
        return false;
     }
     $("button.clone").on("click", clone);
-    
+
     $("button.remove").on("click", remove);
 </script>
 <style type="text/css">
