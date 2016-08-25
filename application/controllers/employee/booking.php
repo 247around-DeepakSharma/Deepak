@@ -373,6 +373,7 @@ class Booking extends CI_Controller {
      */
     function addbooking($phone_number) {
         $data = $this->booking_model->get_city_booking_source_services($phone_number);
+        $data['follow_up_internal_status'] = $this->booking_model->get_internal_status("FollowUp");
         $this->load->view('employee/header');
         $this->load->view('employee/addbookingmodel');
         $this->load->view('employee/addbooking', $data);

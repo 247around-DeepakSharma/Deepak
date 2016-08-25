@@ -146,7 +146,7 @@
                                         <div class="form-group ">
                                             <label for="service_name" class="col-md-4">Brand *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_brand"    name="appliance_brand[]" id="appliance_brand_1" required>
+                                                <select type="text" class="form-control appliance_brand" onchange="getCategoryForService()"   name="appliance_brand[]" id="appliance_brand_1" required>
                                                     <option selected disabled>Select Brand</option>
                                                 </select>
                                             </div>
@@ -276,6 +276,21 @@
                                     </div>&nbsp;<span id="errmsg1"></span>
                                 </div>
                             </div>
+                            <div class="form-group ">
+                  <label for="Internal Status" class="col-sm-4">Internal Status</label>
+                  <div class="col-md-6">
+                     <?php
+                        
+                        foreach($follow_up_internal_status as $status){?>
+                     <div class="radio">
+                        <label>
+                        <input type="radio" name="internal_status"  class="internal_status"  value="<?php  echo $status->status;?>" <?php if(isset($booking_history[0]['internal_status'])){ if( $status->status == $booking_history[0]['internal_status']){ echo "checked";}} ?> >
+                         <?php  echo $status->status;?>
+                        </label>
+                     </div>
+                     <?php } ?>
+                  </div>
+               </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group ">
