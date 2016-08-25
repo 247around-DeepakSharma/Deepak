@@ -1012,13 +1012,13 @@ class Booking extends CI_Controller {
     function update_booking($user_id, $booking_id) {
 
         $booking = $this->getAllBookingInput($user_id, $booking_id);
-        
+
         if($booking['type']== 'Booking'){
             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
             $send['booking_id'] = $booking['booking_id'];
             $send['state'] = "Newbooking";
             $this->asynchronous_lib->do_background_process($url, $send);
-            
+
             $to = "anuj@247around.com, nits@247around.com";
             $from = "booking@247around.com";
             $cc = "";
@@ -1026,10 +1026,10 @@ class Booking extends CI_Controller {
             $subject = 'Booking Confirmation-AROUND';
             $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $booking['message'], "");
         }
-        
+
         unset($booking['message']); // unset message body from booking deatils array
         unset($booking['services']); // unset service name from booking details array
-        
+
         $this->booking_model->update_booking($booking_id, $booking);
 
         $this->partner_cb->partner_callback($booking_id);
@@ -1309,11 +1309,13 @@ class Booking extends CI_Controller {
         $booking['current_status'] = $internal_status;
         $booking['internal_status'] = $internal_status;
         $booking['booking_id'] = $booking_id;
-        $booking['rating_stars'] = $this->input->post('rating_stars');
-        $booking['vendor_rating_stars'] = $this->input->post('vendor_rating_stars');
-        $booking['vendor_rating_comments'] = $this->input->post('vendor_rating_comments');
-        $booking['rating_comments'] = $this->input->post('rating_comments');
-        $booking['closing_remarks'] = $service_center['closing_remarks'];
+
+	if ($this->input->post('rating_stars') !== 'Selec') {
+	    $booking['rating_stars'] = $this->input->post('rating_stars');
+	    $booking['rating_comments'] = $this->input->post('rating_comments');
+	}
+
+	$booking['closing_remarks'] = $service_center['closing_remarks'];
         $booking['closed_date'] = date('Y-m-d H:i:s');
         $booking['amount_paid'] = $total_amount_paid;
 
@@ -1388,7 +1390,6 @@ class Booking extends CI_Controller {
         } else {
 
             $this->booking_model->convert_booking_to_pending($booking_id, $data, $status);
-
 
             $service_center_data['booking_id'] = $booking_id;
             $service_center_data['internal_status'] = "Pending";
