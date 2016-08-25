@@ -473,11 +473,20 @@ class Booking extends CI_Controller {
         $partner_id = $this->booking_model->get_price_mapping_partner_code($data['booking_history'][0]['source']);
         $data['prices'] = array();
 
-        foreach ($data['booking_unit_details'] as $key => $value) {
+        foreach ($data['booking_unit_details'] as $keys => $value) {
 
-            $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], $data['booking_unit_details'][$key]['category'], $data['booking_unit_details'][$key]['capacity'], $partner_id, $data['booking_history'][0]['state']);
+            $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], $data['booking_unit_details'][$keys]['category'], $data['booking_unit_details'][$keys]['capacity'], $partner_id, $data['booking_history'][0]['state']);
 
-            foreach ($value['quantity'] as $price_tag) {
+            foreach ($value['quantity'] as $key => $price_tag) {
+                $service_center_data = $this->service_centers_model->get_prices_filled_by_service_center($price_tag['unit_id'], $booking_id);
+               // print_r($service_center_data);
+               if(!empty($service_center_data)){
+                    $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_basic_charges'] =  $service_center_data[0]['service_charge'];
+                    $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_extra_charges'] =  $service_center_data[0]['additional_service_charge'];
+                    $data['booking_unit_details'][$keys]['quantity'][$key]['serial_number'] =  $service_center_data[0]['serial_number'];
+                    $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_parts'] =  $service_center_data[0]['parts_cost'];
+                }
+                
                 // Searched already inserted price tag exist in the price array (get all service category)
                 $id = $this->search_for_key($price_tag['price_tags'], $prices);
                 // remove array key, if price tag exist into price array
@@ -486,8 +495,6 @@ class Booking extends CI_Controller {
 
             array_push($data['prices'], $prices);
         }
-
-
         $this->load->view('employee/header');
         $this->load->view('employee/completebooking', $data);
     }
@@ -1112,32 +1119,23 @@ class Booking extends CI_Controller {
     }
 
     /**
-     * @desc: save Admin remarks in service center action table
+     * @desc: Reject Booking from review page 
      * @param: void
      * @return: void
      */
-    function admin_remarks() {
+    function reject_booking_from_review() {
         $data['booking_id'] = $this->input->post('booking_id');
-        $admin_remarks = $this->input->post('admin_remarks');
-
-        $charges = $this->booking_model->getbooking_charges($data['booking_id']);
-
-        if (empty($charges[0]['admin_remarks'])) {
-            $data['current_status'] = "Pending";
-            $data['internal_status'] = "Pending";
-            $data['admin_remarks'] = date("F j") . "  :-" . $admin_remarks;
-            $this->vendor_model->update_service_center_action($data);
-            echo "success";
-        } else {
-            $data['current_status'] = "Pending";
-            $data['internal_status'] = "Pending";
-            // remove previous text, added in admin_remarks column.
-            $string = str_replace($charges[0]['admin_remarks'], " ", $admin_remarks);
-            // Add current and previous text in admin_remarks column
-            $data['admin_remarks'] = $charges[0]['admin_remarks'] . "   " . date("F j") . ":- " . $string;
-            $this->vendor_model->update_service_center_action($data);
-            echo "success";
-        }
+        $admin_remarks = $this->input->post('admin_remarks');  
+        $data['internal_status'] = "Pending";
+        $data['current_status'] = "Pending";
+        $data['update_date'] = date("Y-m-d H:i:s");
+        $data['serial_number'] = "";
+        $data['service_center_remarks']  = NULL;
+        $data['booking_date'] = $data['booking_timeslot'] = NUll;
+        $data['closed_date'] = NUll;
+        $data['service_charge'] = $data['additional_service_charge'] = $data['parts_cost'] = "0.00";
+        $data['admin_remarks'] = date("F j") . "  :-" . $admin_remarks;
+        $this->vendor_model->update_service_center_action($data);
     }
 
     /**
@@ -1190,7 +1188,7 @@ class Booking extends CI_Controller {
         $reschedule_booking_timeslot = $this->input->post('reschedule_booking_timeslot');
         $reschedule_reason = $this->input->post('reschedule_reason');
 
-        foreach ($reschedule_booking_id as $key => $booking_id) {
+        foreach ($reschedule_booking_id as  $booking_id) {
             $booking['booking_date'] = date('d-m-Y', strtotime($reschedule_booking_date[$booking_id]));
             $booking['booking_timeslot'] = $reschedule_booking_timeslot[$booking_id];
             $send['state'] = $booking['current_status'] = 'Rescheduled';
@@ -1242,14 +1240,11 @@ class Booking extends CI_Controller {
         $admin_remarks = $this->input->post('admin_remarks');
         $serial_number = $this->input->post('serial_number');
         $internal_status = "Cancelled";
-        $city = $this->input->post('city');
-        $state = $this->vendor_model->selectSate($city);
-
+        $pincode = $this->input->post('booking_pincode');
+        $state = $this->vendor_model->get_state_from_pincode($pincode);
         $service_center_details = $this->booking_model->getbooking_charges($booking_id);
-        //$i = 0;
         foreach ($customer_basic_charge as $unit_id => $value) {
             // variable $unit_id  is existing id in booking unit details table of given booking id
-
             $data = array();
             $data['customer_paid_basic_charges'] = $value;
             $data['customer_paid_extra_charges'] = $additional_charge[$unit_id];
@@ -1267,7 +1262,20 @@ class Booking extends CI_Controller {
                         $data['booking_id'] = $booking_id;
                         $data['booking_status'] = "Completed";
                         $internal_status = "Completed";
-                        $this->booking_model->insert_new_unit_item($unit_id, $service_charges_id, $data, $state[0]['state']);
+                        $new_unit_id = $this->booking_model->insert_new_unit_item($unit_id, $service_charges_id, $data, $state['state']);
+                        
+                        $data_service_center['booking_id'] = $booking_id;
+                        $data_service_center['unit_details_id'] = $new_unit_id;
+                        $data_service_center['service_center_id'] =  $service_center_details[0]['service_center_id'];
+                        $data_service_center['update_date'] =  $data_service_center['closed_date'] =  date('Y-m-d H:i:s');
+                        $data_service_center['service_charge'] = $data['customer_paid_basic_charges'];
+                        $data_service_center['additional_service_charge'] = $data['customer_paid_extra_charges'];
+                        $data_service_center['parts_cost'] = $data['customer_paid_parts'];
+                        $data_service_center['serial_number'] = $data['serial_number'];
+                        $data_service_center['current_status'] = $data_service_center['internal_status'] ="Completed";
+                        $data_service_center['amount_paid'] = $total_amount_paid;
+                        $this->vendor_model->insert_service_center_action($data_service_center);
+
                     }
                 }
             } else {
@@ -1285,18 +1293,25 @@ class Booking extends CI_Controller {
                 $this->booking_model->update_unit_details($data);
 
                 $service_center['booking_id'] = $booking_id;
-                $service_center['closing_remarks'] = "Service Center Remarks:- " . $service_center_details[0]['service_center_remarks'] .
+                if(!empty($admin_remarks)){
+                    $service_center['closing_remarks'] = "Service Center Remarks:- " . $service_center_details[0]['service_center_remarks'] .
                         " <br/> Admin:-  " . $admin_remarks;
+                } else {
+                    $service_center['closing_remarks'] = "Service Center Remarks:- " . $service_center_details[0]['service_center_remarks'];
+                }
+                
                 $service_center['internal_status'] = $service_center['current_status'] = $data['booking_status'];
-
                 $service_center['unit_details_id'] = $unit_id;
-                $service_center['update_date'] = date('Y-m-d H:i:s');
+                $service_center['update_date'] =  $service_center['closed_date'] =  date('Y-m-d H:i:s');
+                $service_center['service_charge'] = $data['customer_paid_basic_charges'];
+                $service_center['additional_service_charge'] = $data['customer_paid_extra_charges'];
+                $service_center['parts_cost'] = $data['customer_paid_parts'];
+                $service_center['serial_number'] = $data['serial_number'];
+                $service_center['amount_paid'] = $total_amount_paid;
 
                 log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
                 $this->vendor_model->update_service_center_action($service_center);
             }
-
-            //$i++;
         }
 
         $booking['current_status'] = $internal_status;
@@ -1331,7 +1346,7 @@ class Booking extends CI_Controller {
         if ($status == "0") {
             redirect(base_url() . 'employee/booking/view');
         } else {
-            redirect(base_url() . 'employee/booking/viewclosedbooking/' . $internal_status);
+           redirect(base_url() . 'employee/booking/viewclosedbooking/' . $internal_status);
         }
     }
 
@@ -1388,7 +1403,23 @@ class Booking extends CI_Controller {
             $service_center_data['internal_status'] = "Pending";
             $service_center_data['current_status'] = "Pending";
             $service_center_data['update_date'] = date("Y-m-d H:i:s");
+            $service_center_data['serial_number'] = "";
+            $service_center_data['service_center_remarks'] = $service_center_data['admin_remarks'] = NULL;
+            $service_center_data['booking_date'] = $service_center_data['booking_timeslot'] = NUll;
+            $service_center_data['closed_date'] = NUll;
+            $service_center_data['service_charge'] = $service_center_data['additional_service_charge'] = $service_center_data['parts_cost'] = "0.00";
             $this->vendor_model->update_service_center_action($service_center_data);
+            
+            $unit_details['serial_number'] = "";
+            $unit_details['booking_status'] = NULL;
+            $unit_details['customer_paid_basic_charges'] = $unit_details['around_st_or_vat_basic_charges'] = "0.00";
+            $unit_details['partner_paid_basic_charges'] = $unit_details['vendor_basic_charges'] = "0.00";
+            $unit_details['around_paid_basic_charges'] = $unit_details['vendor_to_around'] =  "0.00";
+            $unit_details['around_comm_basic_charges'] = $unit_details['around_to_vendor'] = "0.00";
+            $unit_details['customer_paid_extra_charges'] = $unit_details['around_comm_extra_charges'] = "0.00";
+            $unit_details['around_st_extra_charges'] = $unit_details['vendor_extra_charges'] = "0.00";
+       
+            $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
 
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, employee id, employee name

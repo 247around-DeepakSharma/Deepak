@@ -151,8 +151,9 @@
                             <th>Paid Additional Charges</th>
                             <th>Paid Parts Cost</th>
                             <th>Total Amount Paid</th>
-                            <th>Booking Status</th>
+                            
                             <?php } ?>
+                            <th>Booking Status</th>
                         </tr>
                         <tbody>
                            <?php  foreach ( $unit_details as  $unit_detail) { ?>
@@ -179,8 +180,9 @@
                                 <td><?php print_r($unit_detail['customer_paid_extra_charges']);  ?></td>
                                 <td><?php print_r($unit_detail['customer_paid_parts']);  ?></td>
                                 <td><?php print_r($unit_detail['customer_paid_basic_charges'] + $unit_detail['customer_paid_extra_charges'] + $unit_detail['customer_paid_parts'] );  ?></td>
-                                <td><?php print_r($unit_detail['booking_status']);  ?></td>
+                                
                                 <?php }?>
+                                <td><?php print_r($unit_detail['booking_status']);  ?></td>
                             </tr>
                             <?php } ?>
                         </tbody>

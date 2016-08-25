@@ -1324,11 +1324,11 @@ class Booking_model extends CI_Model {
 
     function check_price_tags_status($booking_id, $price_tags){
         $this->db->select('id, price_tags');
-        $this->db->where('booking_id', $booking_id);
+        $this->db->like('booking_id', $booking_id);
         $query = $this->db->get('booking_unit_details');
         if($query->num_rows>0){
             $result = $query->result_array();
-            foreach ($result as $key => $value) {
+            foreach ($result as $value) {
                  if (in_array($value['price_tags'], $price_tags)) {
                    // echo "Match found";
                  }
@@ -1631,7 +1631,7 @@ class Booking_model extends CI_Model {
 
         $this->db->insert('booking_unit_details', $result);
         $new_unit_id = $this->db->insert_id();
-
+        
         log_message('info', ": " . " insert new item in booking unit details returned id " . print_r($new_unit_id, TRUE));
 
         $data['id'] = $new_unit_id;
@@ -1639,8 +1639,10 @@ class Booking_model extends CI_Model {
 
         $this->update_unit_details($data);
 
-        return true;
+        return $new_unit_id;
     }
+    
+
 
 
 }
