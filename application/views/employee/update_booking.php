@@ -155,7 +155,7 @@
                                             <label for="service_name" class="col-md-4">Brand *</label>
                                             <div class="col-md-6">
                                                 <select type="text" class="form-control appliance_brand"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>
-   name="appliance_brand[]" id="appliance_brand_1" required>
+   name="appliance_brand[]" id="appliance_brand_1" onChange="getCategoryForService()"  required>
                                                     <option selected disabled>Select Brand</option>
                                                     <?php foreach ($brand as  $appliance_brand) { ?>
                                                         <option <?php if(isset($unit_details[0]['brand'])) { if($appliance_brand['brand_name'] == $unit_details[0]['brand']){ echo "selected";} } ?>

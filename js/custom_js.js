@@ -1,3 +1,4 @@
+
  var brandServiceUrl = baseUrl + '/employee/booking/getBrandForService/';
  var categoryForServiceUrl = baseUrl + '/employee/booking/getCategoryForService/';
  var CapacityForCategoryUrl = baseUrl + '/employee/booking/getCapacityForCategory/';
@@ -17,6 +18,8 @@
      
       $(".appliance_brand").html(data);
 
+      
+
     });
   }
     
@@ -26,9 +29,12 @@
     postData['service_id'] = $("#service_id").val();
     postData['booking_pincode'] = $('#booking_pincode').val();
     postData['partner_code'] = $("#source_code option:selected").val();
-
+   
+    
     sendAjaxRequest(postData, categoryForServiceUrl).done(function(data) {
+      
         $(".appliance_category").html(data);   
+
     });
 
   }

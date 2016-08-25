@@ -109,14 +109,14 @@
                               </tr>
                               
                               <tbody>
-                                 <?php $paid_basic_charges = 0; $paid_additional_charges = 0; $paid_parts_cost=0;
+                                 <?php $count = 1; $paid_basic_charges = 0; $paid_additional_charges = 0; $paid_parts_cost=0;
 
                                  foreach ($unit_details['quantity'] as $key => $price) { ?>
                                  <tr style="background-color: white; ">
                                     <td>
                                      <div class="form-group">
                                        <div class="col-md-12 ">
-                                          <input type="text" class="form-control" id="serial_number_1"name="<?php echo "serial_number[". $price['unit_id'] . "]"?>"  value="<?php echo $price['serial_number']; ?>" placeholder = "Enter Serial Number" required/>
+                                          <input type="text" class="form-control" id="<?php echo "serial_number".$count; ?>" name="<?php echo "serial_number[". $price['unit_id'] . "]"?>"  value="<?php echo $price['serial_number']; ?>" placeholder = "Enter Serial Number" />
                                        </div>
                                     </div>
                                     </td>
@@ -137,9 +137,9 @@
                                                    
                                                     <div class="radio">
                                                       <label>
-                                                      <input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "]"?>"  value="Completed" <?php if($price['booking_status'] =="Completed"){ echo "checked"; } ?> required><?php if($price['product_or_services']=="Product"){ echo " Delivered";}else { echo " Completed"; } ?><br/>
+                                                      <input type="radio" class="my_checkbox" id="<?php echo "completed_".$count; ?>" name="<?php echo "booking_status[". $price['unit_id'] . "]"?>"  value="Completed" <?php if($price['booking_status'] =="Completed"){ echo "checked"; } ?> required><?php if($price['product_or_services']=="Product"){ echo " Delivered";}else { echo " Completed"; } ?><br/>
                                                       
-                                                      <input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "]"?>"  value="Cancelled" <?php if($price['booking_status'] =="Cancelled"){ echo "checked"; } ?>  required><?php if($price['product_or_services']=="Product"){ echo " Not Delivered";}else { echo " Not Completed"; } ?>
+                                                      <input type="radio" class="my_checkbox" id="<?php echo "cancelled_".$count; ?>" name="<?php echo "booking_status[". $price['unit_id'] . "]"?>"  value="Cancelled" <?php if($price['booking_status'] =="Cancelled"){ echo "checked"; } ?>  required><?php if($price['product_or_services']=="Product"){ echo " Not Delivered";}else { echo " Not Completed"; } ?>
                                                       </label>
                                                    </div>
                                                  
@@ -150,11 +150,11 @@
                                        </div>
                                     </td>
                                  </tr>
-                                 <?php  } ?>
+                                 <?php $count++; } ?>
                                  <?php
                                  foreach ($prices[$keys] as $index => $value) { ?>
                                    <tr style="background-color:   #FF4500; color: white;">
-                                     <td> <input type="text" class="form-control" id="serial_number_1" name="<?php echo "serial_number[". $price['unit_id'] . "new".$value['id']."]"?>"  value="" placeholder= "Enter Serial Number" required/></td>
+                                     <td> <input type="text" class="form-control" id="serial_number_1" name="<?php echo "serial_number[". $price['unit_id'] . "new".$value['id']."]"?>"  value="" placeholder= "Enter Serial Number" /></td>
                                      <td> <?php echo $value['service_category']; ?> </td>
                                      <td> <?php echo $value['customer_net_payable']; ?> </td>
                                      <td>  <input  type="text" class="form-control cost"   name="<?php echo "customer_basic_charge[". $price['unit_id'] . "new".$value['id']."]"?>"  value = "0.00">
@@ -172,9 +172,9 @@
                                                    
                                                     <div class="radio">
                                                       <label>
-                                                      <input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "new".$value['id']."]"?>"  value="Completed" > Completed<br/>
+                                                      <input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "new".$value['id']."]"?>"  value="Completed" id="<?php echo "completed_".$count; ?>" > Completed<br/>
                                                       
-                                                      <input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "new".$value['id']."]"?>"  value="Cancelled"  > Not Completed
+                                                      <input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "new".$value['id']."]"?>"  value="Cancelled" id="<?php echo "cancelled_".$count; ?>" > Not Completed
                                                       </label>
                                                    </div>
                                                  
@@ -185,7 +185,7 @@
                                        </div>
                                     </td>
                                    </tr>
-                                 <?php } ?>
+                                 <?php $count++; } ?>
                               </tbody>
                            </table>
                            <span class="error_msg" style="color: red"></span>
@@ -238,7 +238,7 @@
                <br>
                <div class="form-group  col-md-12" >
                   <center>
-                     <input type="submit" id="submitform" class="btn btn-info" value="Complete Booking">
+                     <input type="submit" id="submitform" onclick="return onsubmit_form()" class="btn btn-info" value="Complete Booking">
                </div>
                </center>
          </div>
@@ -280,4 +280,44 @@
    
     $("#grand_total_price").val(price);
    });
+
+
+   function onsubmit_form(){
+      var flag = 0;
+      $(':radio:checked').each(function(i){
+         //console.log($(this).val());
+         var div_no =  this.id.split('_');
+         if(div_no[0] == "completed"){
+            var serial_number = $("#serial_number"+div_no[1]).val();
+            if(serial_number == "" ){
+               
+              document.getElementById('serial_number'+div_no[1]).style.borderColor = "red";
+              flag = 1;
+            }
+
+            if(serial_number == "0"){
+               document.getElementById('serial_number'+div_no[1]).style.borderColor = "red";
+              flag = 1;
+            }
+
+            var number = Number(serial_number);
+
+            if(number > 0){
+               flag = 0;
+            } else {
+               document.getElementById('serial_number'+div_no[1]).style.borderColor = "red";
+               flag = 1;
+            }
+         }
+
+      });
+   
+      if(flag == 0){
+         return true;
+
+      } else if(flag == 1){
+
+         return false;
+      }      
+   }
 </script>

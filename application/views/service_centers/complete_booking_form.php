@@ -103,14 +103,14 @@
                                 
                               </tr>
                               <tbody>
-                                 <?php $paid_basic_charges = 0; $paid_additional_charges = 0; $paid_parts_cost=0;
+                                 <?php $count = 0; $paid_basic_charges = 0; $paid_additional_charges = 0; $paid_parts_cost=0;
                                  foreach ($unit_details['quantity'] as $key => $price) { ?>
                                  <tr> 
                                      <td>
                                           <div class="form-group">
                               <div class="col-md-12">
                                  
-                                 <input type="text" id="serial_number" class="form-control" name="<?php echo "serial_number[". $price['unit_id'] . "]"?>" value="<?php echo $price['serial_number']; ?>" placeholder="Enter Serial No"  required />
+                                 <input type="text" id="<?php echo "serial_number".$count ?>" class="form-control" name="<?php echo "serial_number[". $price['unit_id'] . "]"?>" value="<?php echo $price['serial_number']; ?>" placeholder="Enter Serial No"   />
                                
                               </div>
                            </div>
@@ -131,8 +131,8 @@
                                                 <div class="col-md-10">
                                                    
                                                    <div class="radio">
-                                                      <label><input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "]"?>"  value="Completed" <?php if($price['booking_status'] =="Completed"){ echo "checked"; } ?> required><?php if($price['product_or_services']=="Product"){ echo " Delivered";}else { echo " Completed"; } ?><br/>
-                                                      <input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "]"?>"  value="Cancelled" <?php if($price['booking_status'] =="Cancelled"){ echo "checked"; } ?>  required><?php if($price['product_or_services']=="Product"){ echo " Not Delivered";}else { echo " Not Completed"; } ?>
+                                                      <label><input type="radio"  name="<?php echo "booking_status[". $price['unit_id'] . "]"?>"  value="Completed" <?php if($price['booking_status'] =="Completed"){ echo "checked"; } ?> id="<?php echo "completed_".$count; ?>" required ><?php if($price['product_or_services']=="Product"){ echo " Delivered";}else { echo " Completed"; } ?><br/>
+                                                      <input type="radio" id="<?php echo "cancelled_".$count; ?>" name="<?php echo "booking_status[". $price['unit_id'] . "]"?>"  value="Cancelled" <?php if($price['booking_status'] =="Cancelled"){ echo "checked"; } ?>  required><?php if($price['product_or_services']=="Product"){ echo " Not Delivered";}else { echo " Not Completed"; } ?>
                                                       </label>
                                                    </div>
                                                  
@@ -187,8 +187,8 @@
                </div>
                <div class="form-group  col-md-12" >
                   <center>
-                     <input type="submit" id="submitform" class="btn btn-lg" style="background-color: #2C9D9A;
-    border-color: #2C9D9A; color:#fff;" value="Submit">
+                     <input type="submit" id="submitform"  onclick="return onsubmit_form()" class="btn btn-lg" style="background-color: #2C9D9A;
+    border-color: #2C9D9A; color:#fff;" value="Complete Booking">
                </div>
                </center>
          </div>
@@ -229,6 +229,47 @@
    
     $("#grand_total_price").val(price);
    });
+
+
+   function onsubmit_form(){
+      var flag = 0;
+      $(':radio:checked').each(function(i){
+         //console.log($(this).val());
+         var div_no =  this.id.split('_');
+         if(div_no[0] == "completed"){
+            var serial_number = $("#serial_number"+div_no[1]).val();
+            if(serial_number == "" ){
+               
+              document.getElementById('serial_number'+div_no[1]).style.borderColor = "red";
+              flag = 1;
+            }
+
+            if(serial_number == "0"){
+               document.getElementById('serial_number'+div_no[1]).style.borderColor = "red";
+              flag = 1;
+            } 
+
+            var number = Number(serial_number);
+            
+            if(number > 0){
+               
+               flag = 0;
+            } else {
+               document.getElementById('serial_number'+div_no[1]).style.borderColor = "red";
+               flag = 1;
+            }
+         }
+
+      });
+   
+      if(flag == 0){
+         return true;
+
+      } else if(flag == 1){
+
+         return false;
+      }      
+   }
 </script>
 <style type="text/css">
 .panel-info>.panel-heading {
