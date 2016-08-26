@@ -1,3 +1,25 @@
+<script type="text/javascript" src="<?php echo base_url();?>js/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="<?php echo base_url();?>js/jquery-ui-1.7.1.custom.min.js"></script>
+
+<script>
+    function outbound_call(phone_number){
+        var confirm_call = confirm("Call Vendor ?");
+       
+        if (confirm_call == true) {
+             $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number,
+                success: function(response) {
+                    //console.log(response);
+                }
+            });
+        } else {
+            return false;
+        }
+
+    }
+</script>
+
 <div  id="page-wrapper">
     <div class="row">
       <div >
@@ -30,14 +52,33 @@
           <tr>
             <td><?=$row['id'];?></td>
             <td><a href="<?php echo base_url();?>employee/vendor/editvendor/<?=$row['id'];?>"><?=$row['name'];?></a></td>
-            <td><?=$row['phone_1'];?></td>
+            <td>
+                <?=$row['phone_1'];?>
+                <button type="button" onclick="outbound_call(<?php echo $row['phone_1']; ?>)" 
+                    class="btn btn-sm btn-info">
+                        <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
+                </button>
+            </td>
           	<td><?=$row['email'];?></td>
           	<td><?=$row['address'];?></td>
           	<td><?=$row['primary_contact_name'];?></td>
-          	<td><?=$row['primary_contact_phone_1'];?></td>
+          	<td>
+          	    <?=$row['primary_contact_phone_1'];?>
+                <button type="button" onclick="outbound_call(<?php echo $row['primary_contact_phone_1']; ?>)" 
+                    class="btn btn-sm btn-info">
+                        <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
+                </button>
+          	</td>
           	<td><?=$row['primary_contact_email'];?></td>
           	<td><?=$row['owner_name'];?></td>
-          	<td><?=$row['owner_phone_1'];?></td>
+          	<td>
+          	    <?=$row['owner_phone_1'];?>
+                <button type="button" onclick="outbound_call(<?php echo $row['owner_phone_1']; ?>)" 
+                    class="btn btn-sm btn-info">
+                        <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
+                </button>
+          	</td>
+          	
           	<td><?=$row['owner_email'];?></td>
           	<td><?php echo strtolower($row['sc_code']) . " / " . strtolower($row['sc_code']);  ?></td>
           	<td><?php if($row['active']==1)
