@@ -311,7 +311,7 @@ class Invoice extends CI_Controller {
     /**
      * @desc: generate details partner invoices
      */
-    function create_partner_invoices_details($data) {
+    function create_partner_invoices_detailed($data) {
 	$file_names = array();
 	$template = 'partner_invoices.xlsx';
 //set absolute path to directory with template files
@@ -432,7 +432,7 @@ class Invoice extends CI_Controller {
 	exit(0);
     }
 
-    function generate_partner_summary_invoices($data) {
+    function create_partner_invoices_summary($data) {
 	$file_names = array();
 
 	$template = 'partner_invoice_summary.xlsx';
@@ -1146,8 +1146,10 @@ class Invoice extends CI_Controller {
 	$vendor_partner_id = $this->input->post('partner_vendor_id');
 	$invoice_month = $this->input->post('invoice_month');
 	$vendor_invoice_type = $this->input->post('vendor_invoice_type');
+
 	$next_month = "";
 	$year = "";
+
 	if ($invoice_month === 12) {
 	    $next_month = 01;
 	    $year = date('Y') + 1;
@@ -1155,13 +1157,20 @@ class Invoice extends CI_Controller {
 	    $next_month = $invoice_month + 1;
 	    $year = date('Y');
 	}
+
 	$date_range = date('Y') . "/" . $invoice_month . "/01-" . $year . "/" . $next_month . "/01";
+
 	if ($vendor_partner === "vendor") {
-	    log_message('info', "Invoice generate - vendor id" . print_r($vendor_partner_id) . "Date Range" . print_r($date_range, true) . " Invoice status" . print_r($invoice_type, true) . " invoice type" . print_r($vendor_invoice_type, true));
+	    log_message('info', "Invoice generate - vendor id: " . print_r($vendor_partner_id) . ", Date Range" .
+		print_r($date_range, true) . ", Invoice status" . print_r($invoice_type, true) . ", Invoice type" .
+		print_r($vendor_invoice_type, true));
+
 	    $this->generate_vendor_invoices($vendor_partner_id, $date_range, $invoice_type, $vendor_invoice_type);
 	} else if ($vendor_partner === "partner") {
-	    log_message('info', "Invoice generate - partner id" . print_r($vendor_partner_id) . "Date Range" . print_r($date_range, true) . " Invoice status" . print_r($invoice_type, true) . " invoice type");
-	    $this->getpartner_invoices($vendor_partner_id, $date_range, $invoice_type);
+	    log_message('info', "Invoice generate - partner id: " . print_r($vendor_partner_id) . ", Date Range" .
+		print_r($date_range, true) . ", Invoice status" . print_r($invoice_type, true) . ", Invoice type");
+
+	    $this->generate_partner_invoices($vendor_partner_id, $date_range, $invoice_type);
 	}
 
 	redirect(base_url() . "employee/invoice/get_invoices_form");
@@ -1173,12 +1182,12 @@ class Invoice extends CI_Controller {
      * @param type $date_range
      * @param type $invoice_type
      */
-    function getpartner_invoices($partner_id, $date_range, $invoice_type) {
+    function generate_partner_invoices($partner_id, $date_range, $invoice_type) {
 
 	$data = $this->invoices_model->getpartner_invoices($partner_id, $date_range);
 
-	$this->create_partner_invoices_details($data['invoice1'], $invoice_type);
-	$this->generate_partner_summary_invoices($data['invoice2'], $invoice_type);
+	$this->create_partner_invoices_detailed($data['invoice1'], $invoice_type);
+	$this->create_partner_invoices_summary($data['invoice2'], $invoice_type);
     }
 
     /**
