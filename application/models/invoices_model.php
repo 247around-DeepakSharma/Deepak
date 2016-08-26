@@ -203,22 +203,22 @@ class invoices_model extends CI_Model {
 
     /**
      * @desc : get all vendor invoice for previous month. it get both type A and type B invoice
-     * 
+     *
      * @param: void
      * @return : array
      */
-    function generate_vendor_invoices($vendor_id = "", $date_ragnge = "") {
+    function generate_vendor_invoices($vendor_id, $date_range) {
 	$where_vendor_id = "";
 
-	if ($vendor_id != "") {
+	if ($vendor_id != "All") {
 	    $where_vendor_id = " AND assigned_vendor_id = '$vendor_id'  ";
 	}
 
-	if ($date_ragnge != "") {
-	    $custom_date = explode("-", $date_ragnge);
+	if ($date_range != "") {
+	    $custom_date = explode("-", $date_range);
 	    $from_date = $custom_date[0];
 	    $to_date = $custom_date[1];
-	    $where_vendor_id .= " AND closed_date >= '$from_date' AND closed_date < '$to_date' ";
+	    $where_vendor_id .= " AND closed_date >= '$from_date' AND closed_date <='$to_date' ";
 	} else {
 	    $where_vendor_id .= "  AND  booking_details.closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
 			    AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
@@ -235,7 +235,7 @@ class invoices_model extends CI_Model {
 	for ($i = 1; $i < 3; $i++) {
 
 	    if ($i == 1) {
-	    	//for cash invoice, we get around_to_vendor > 0 and vendor to around =0 and also get around to vendor is zero and vendor to around =0 
+	    	//for cash invoice, we get around_to_vendor > 0 and vendor to around =0 and also get around to vendor is zero and vendor to around =0
 //		$where = " AND `booking_unit_details`.vendor_to_around > 0 AND   `booking_unit_details`.around_to_vendor =0 ";
 		$where = " AND ( ( `booking_unit_details`.vendor_to_around > 0 AND `booking_unit_details`.around_to_vendor =0 ) OR ( `booking_unit_details`.vendor_to_around = 0 AND `booking_unit_details`.around_to_vendor =0 ) )  ";
 	    } else {
@@ -245,8 +245,8 @@ class invoices_model extends CI_Model {
 	    $array = array();
 	    foreach ($result as $key => $value) {
 
-		if ($date_ragnge != "") {
-		    $where .= "  AND booking_details.closed_date >= '$from_date' AND booking_details.closed_date < '$to_date' ";
+		if ($date_range != "") {
+		    $where .= "  AND booking_details.closed_date >= '$from_date' AND booking_details.closed_date <= '$to_date' ";
 		    $date = "  '$from_date' as start_date,  '$to_date'  as end_date,  ";
 		} else {
 		    $where .=" AND  booking_details.closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
@@ -262,17 +262,17 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
                      (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (around_st_or_vat_basic_charges + vendor_st_or_vat_basic_charges) ELSE 0 END) as vat,
                     /* get sum of st charges if product_or_services is Service else sum of vat is zero  */
                      (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (around_st_or_vat_basic_charges + vendor_st_or_vat_basic_charges) ELSE 0 END) as st,
-                     /* get installation charge if product_or_services is Service else installation_charge is zero  
+                     /* get installation charge if product_or_services is Service else installation_charge is zero
                       * installation charge is the sum of around_comm_basic_charge and vendor_basic_charge
                       */
                      (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (around_comm_basic_charges +vendor_basic_charges) ELSE 0 END) as installation_charge,
-                      /* get stand charge if product_or_services is Product else stand charge is zero  
+                      /* get stand charge if product_or_services is Product else stand charge is zero
                       * Stand charge is the sum of around_comm_basic_charge and vendor_basic_charge
                       */
 
                      (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (around_comm_basic_charges +vendor_basic_charges) ELSE 0 END) as stand,
                      /* get sum of service charge, sum of service charge is the sum of customer paid basic charge and around net payable*/
-                      
+
                      (SELECT SUM(customer_paid_basic_charges + around_net_payable ) $condition ) AS sum_service_charge,
 
                       /* get sum of customer paid extra charges*/
@@ -304,7 +304,7 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 
 		$query1 = $this->db->query($sql1);
 		$result1 = $query1->result_array();
-		
+
 		array_push($array, $result1);
 	    }
 
@@ -319,19 +319,19 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
      * @param: partner id and date range
      * @return: Array()
      */
-    function getpartner_invoices($partner_id = "", $date_ragnge = "") {
+    function getpartner_invoices($partner_id, $date_range) {
 
 	$where_partner_id = "";
 
-	if ($partner_id != "") {
+	if ($partner_id != "All") {
 
 	    $where_partner_id = " AND partner_id = '$partner_id'  ";
 	}
-	if ($date_ragnge != "") {
-	    $custom_date = explode("-", $date_ragnge);
+	if ($date_range != "") {
+	    $custom_date = explode("-", $date_range);
 	    $from_date = $custom_date[0];
 	    $to_date = $custom_date[1];
-	    $where_partner_id .= " AND closed_date >= '$from_date' AND closed_date < '$to_date' ";
+	    $where_partner_id .= " AND closed_date >= '$from_date' AND closed_date <= '$to_date' ";
 	} else {
 
 	    $where_partner_id .= "  AND  booking_details.closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
@@ -352,8 +352,8 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
 	    $where = "";
 	    foreach ($result as $key => $value) {
 
-		if ($date_ragnge != "") {
-		    $where .= "  AND booking_details.closed_date >= '$from_date' AND booking_details.closed_date < '$to_date' ";
+		if ($date_range != "") {
+		    $where .= "  AND booking_details.closed_date >= '$from_date' AND booking_details.closed_date <= '$to_date' ";
 		    $date = "  '$from_date' as start_date,  '$to_date'  as end_date,  ";
 		} else {
 		    $where .=" AND  booking_details.closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
@@ -381,7 +381,7 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 		} else if ($i == 2) {
 
 		    $sql1 = "SELECT count(`booking_unit_details`.id) as count_booking, services, `booking_unit_details`.partner_id,  `booking_unit_details`.appliance_capacity, `booking_unit_details`.price_tags,  `partners`.company_name, `partners`.company_address, partner_paid_basic_charges, `booking_details`.source,
-                    
+
 
                      (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (ROUND(SUM(partner_paid_basic_charges - ((partner_paid_basic_charges ) * (tax_rate/100))),2)) ELSE 0 END) as total_installation_charge,
 

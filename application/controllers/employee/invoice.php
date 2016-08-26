@@ -235,8 +235,12 @@ class Invoice extends CI_Controller {
      */
     function getPartnerOrVendor($par_ven) {
 	$vendor_partner_id = $this->input->post('vendor_partner_id');
+        $flag = $this->input->post('invoice_flag');
 
 	if ($par_ven == 'partner') {
+            if($flag == 1){
+                echo "<option value='All'>All</option>";
+            }
 	    $all_partners = $this->partner_model->get_all_partner_source("0");
 	    foreach ($all_partners as $p_name) {
 		$option = "<option value='" . $p_name['partner_id'] . "'";
@@ -249,6 +253,10 @@ class Invoice extends CI_Controller {
 		echo $option;
 	    }
 	} else {
+            if($flag == 1){
+                echo "<option value='All'>All</option>";
+            }
+
 	    $all_vendors = $this->vendor_model->getActiveVendor("", 0);
 	    foreach ($all_vendors as $v_name) {
 		$option = "<option value='" . $v_name['id'] . "'";
@@ -300,16 +308,7 @@ class Invoice extends CI_Controller {
 	$this->load->view('employee/view_transactions', $invoice);
     }
 
-    /**
-     * @desc: this method is used to generate both type invoices (invoices details and summary)
-     */
-    function getpartner_invoices($partner_id = "") {
-    	$date_range = "2016/06/01-2016/07/01";
-	$data = $this->invoices_model->getpartner_invoices($partner_id, $date_range);
 
-	$this->create_partner_invoices_details($data['invoice1']);
-	$this->generate_partner_summary_invoices($data['invoice2']);
-    }
 
     /**
      * @desc: generate details partner invoices
@@ -479,7 +478,7 @@ class Invoice extends CI_Controller {
 		} else {
 
 		    $data[$i][$key]['remarks'] = $value['services'];
-		    
+
 		}
 	    }
 	    //print_r($data);
@@ -571,40 +570,13 @@ class Invoice extends CI_Controller {
 	return $output_file_dir . $output_file;
     }
 
-    /**
-     * @desc: This method used to generates previous month invoice for vendor
-     * If date range empty then it generates previous month invoice otherwise generates between date range
-     * If vendor id is empty then its generates all vendor invoice
-     */
-    function generate_vendor_invoices() {
-	$date_ragnge = "2016/06/01-2016/07/01";
 
-	$cash_summary = array();
-	$foc_summary = array();
-	$bookings = array();
-	
-	$vendor_id = '';
-	$data = $this->invoices_model->generate_vendor_invoices($vendor_id, $date_ragnge);
-    
-    // Call generate_cash_invoices_for_vendors method to generates cash invoice 
-	$cash_data = $this->generate_cash_invoices_for_vendors($data['invoice1']);
-	// Call generate_foc_invoices_for_vendors method to generates FOC invoice
-	$foc_data = $this->generate_foc_invoices_for_vendors($data['invoice2']);
-
-	foreach ($cash_data as $b1) {
-	    echo $b1 . "<br>";
-	}
-	foreach ($foc_data as $b2) {
-	    echo $b2 . "<br>";
-	}
-
-    }
-    
     /**
      * @desc: It generates cash invoices for vendor
      * @param: Array()
      */
-    function generate_cash_invoices_for_vendors($data) {
+    function generate_cash_invoices_for_vendors($data, $invoice_type) {
+
 	$unique_booking_cash = array();
 	$summary_cash = array();
 	$file_names = array();
@@ -631,7 +603,7 @@ class Invoice extends CI_Controller {
 
 		log_message('info', __FUNCTION__ . '=> Start Date: ' .
 		    $invoices[0]['start_date'] . ', End Date: ' . $invoices[0]['end_date']);
-		
+
 		// set date format like 1st July 2016
 		$start_date = date("jS F, Y", strtotime($invoices[0]['start_date']));
 		$end_date = date("jS F, Y", strtotime($invoices[0]['end_date']));
@@ -739,8 +711,13 @@ class Invoice extends CI_Controller {
 		//Send report via email
 		$this->email->clear(TRUE);
 		$this->email->from('billing@247around.com', '247around Team');
-		$to = $invoices[0]['owner_email'] . ", " . $invoices[0]['primary_contact_email'];
-		//$to = "anuj@247around.com";
+                if($invoice_type === "final"){
+                    $to = $invoices[0]['owner_email'] . ", " . $invoices[0]['primary_contact_email'];
+
+                } else if($invoice_type === "draft") {
+                    $to = "anuj@247around.com";
+                }
+
 		$this->email->to($to);
 
 		$cc = "billing@247around.com, nits@247around.com, anuj@247around.com";
@@ -775,8 +752,8 @@ class Invoice extends CI_Controller {
 		    log_message('error', __METHOD__ . ": Mail could not be sent");
 		    echo "Mail could not be sent" . PHP_EOL;
 		}
-
-		//Send SMS to PoC/Owner
+                if ($invoice_type === "final") {
+		    //Send SMS to PoC/Owner
 		$sms['tag'] = "vendor_invoice_mailed";
 		$sms['smsData']['type'] = 'Cash';
 		$sms['smsData']['month'] = date('M Y', strtotime($start_date));
@@ -784,19 +761,15 @@ class Invoice extends CI_Controller {
 		$sms['phone_no'] = $invoices[0]['owner_phone_1'];
 
 		$this->notify->send_sms($sms);
-		//Save filenames to delete later on
-		array_push($file_names, $output_file_excel);
-		array_push($file_names, $output_file_pdf);
-
-		//Upload Excel files to AWS
-		//$bucket = 'bookings-collateral-test';
-		$bucket = 'bookings-collateral';
-		$directory_xls = "invoices-excel/" . $output_file . ".xlsx";
+		    //Upload Excel files to AWS
+		$bucket = 'bookings-collateral-test';
+		    //$bucket = 'bookings-collateral';
+		    $directory_xls = "invoices-excel/" . $output_file . ".xlsx";
 		$directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
 
-		//$this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-		//$this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
-		//Save this invoice info in table
+		$this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+		    $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+		    //Save this invoice info in table
 		$invoice_details = array(
 		    'invoice_id' => $invoice_id,
 		    'type' => 'Cash',
@@ -825,15 +798,22 @@ class Invoice extends CI_Controller {
 
 		$this->invoices_model->insert_new_invoice($invoice_details);
 
+		    /*
+		     * Update booking-invoice table to capture this new invoice against these bookings.
+		     * Since this is a type 'Cash' invoice, it would be stored as a vendor-debit invoice.
+		     */
+		    //$this->update_booking_invoice_mappings_repairs($invoices, $invoice_id);
+		}
+
+		//Save filenames to delete later on
+		array_push($file_names, $output_file_excel);
+		array_push($file_names, $output_file_pdf);
+
 		$summary = $invoices[0]['id'] . "," . $invoices[0]['name'] . "," . $count . "," . $excel_data['t_ap'] . "," . $excel_data['r_total']
 		    . "," . $excel_data['r_total'] . "<br>";
 		array_push($summary_cash, $summary);
 
-		/*
-		 * Update booking-invoice table to capture this new invoice against these bookings.
-		 * Since this is a type 'Cash' invoice, it would be stored as a vendor-debit invoice.
-		 */
-		 //$this->update_booking_invoice_mappings_repairs($invoices, $invoice_id);
+
 
 	    } else {
 		//$summary = $invoices[0]['id'] . "," . $invoices[0]['name'] . ",0,0,0,0<br>";
@@ -848,13 +828,13 @@ class Invoice extends CI_Controller {
     // return summary cash
 	return $summary_cash;
     }
-    
+
     /**
      * @desc: This is used to generates foc type invoices for vendor
      * @param: Array()
-     * @return: Array (booking id) 
+     * @return: Array (booking id)
      */
-    function generate_foc_invoices_for_vendors($data) {
+    function generate_foc_invoices_for_vendors($data, $invoice_type) {
 	$unique_booking_foc = array();
 	$file_names = array();
 	$summary = '';
@@ -900,7 +880,7 @@ class Invoice extends CI_Controller {
 		array_push($unique_booking_foc, $unique_booking);
 
 		log_message('info', __FUNCTION__ . '=> Start Date: ' . $invoices[0]['start_date'] . ', End Date: ' . $invoices[0]['end_date']);
-        
+
         //set date format like 1st june 2016
 		$start_date = date("jS F, Y", strtotime($invoices[0]['start_date']));
 		$end_date = date("jS F, Y", strtotime($invoices[0]['end_date']));
@@ -1006,8 +986,12 @@ class Invoice extends CI_Controller {
 		//Send invoice via email
 		$this->email->clear(TRUE);
 		$this->email->from('billing@247around.com', '247around Team');
-		$to = $invoices[0]['owner_email'] . ", " . $invoices[0]['primary_contact_email'];
-		//$to = "anuj@247around.com";
+		if ($invoice_type === "final") {
+		    $to = $invoices[0]['owner_email'] . ", " . $invoices[0]['primary_contact_email'];
+		} else {
+		    $to = "anuj@247around.com";
+		}
+
 		$this->email->to($to);
 
 		$cc = "billing@247around.com, nits@247around.com, anuj@247around.com";
@@ -1041,8 +1025,8 @@ class Invoice extends CI_Controller {
 		    log_message('error', __METHOD__ . ": Mail could not be sent");
 		    echo "Mail could not be sent" . PHP_EOL;
 		}
-
-		//Send SMS to PoC/Owner
+                if ($invoice_type === "final") {
+		    //Send SMS to PoC/Owner
 		$sms['tag'] = "vendor_invoice_mailed";
 		$sms['smsData']['type'] = 'FOC';
 		$sms['smsData']['month'] = date('M Y', strtotime($start_date));
@@ -1050,10 +1034,6 @@ class Invoice extends CI_Controller {
 		$sms['phone_no'] = $invoices[0]['owner_phone_1'];
 
 		$this->notify->send_sms($sms);
-
-		//Save filenames to delete later on
-		array_push($file_names, $output_file_excel);
-		array_push($file_names, $output_file_pdf);
 
 		//Upload Excel files to AWS
 		//$bucket = 'bookings-collateral-test';
@@ -1088,19 +1068,25 @@ class Invoice extends CI_Controller {
 		    //Add 1 month to end date to calculate due date
 		    'due_date' => date("Y-m-d", strtotime($end_date . "+1 month"))
 		);
-        // insert invoice details into partner invoices table 
+        // insert invoice details into partner invoices table
 		$this->invoices_model->insert_new_invoice($invoice_details);
+
+		    /*
+		     * Update booking-invoice table to capture this new invoice against these bookings.
+		     * Since this is a type B invoice, it would be stored as a vendor-credit invoice.
+		     */
+		    //$this->update_booking_invoice_mappings_installations($invoices, $invoice_id);
+		}
+
+		//Save filenames to delete later on
+		array_push($file_names, $output_file_excel);
+		array_push($file_names, $output_file_pdf);
 
 		$summary = $invoices[0]['id'] . "," . $invoices[0]['name'] . "," . $count . "," . $excel_data['t_total'] . "," . $excel_data['r_total']
 		    . "," . ( $excel_data['r_total'] - $excel_data['t_total']) . "<br>";
 
 		array_push($summary_foc, $summary);
 
-		/*
-		 * Update booking-invoice table to capture this new invoice against these bookings.
-		 * Since this is a type B invoice, it would be stored as a vendor-credit invoice.
-		 */
-		 //$this->update_booking_invoice_mappings_installations($invoices, $invoice_id);
 
 	    } else {
 		//$summary = $invoices[0]['id'] . "," . $invoices[0]['name'] . ",0,0,0,0<br>";
@@ -1139,5 +1125,87 @@ class Invoice extends CI_Controller {
 	    $this->invoices_model->update_booking_invoice_mapping($booking['booking_id'], $details);
 	}
     }
+    /**
+     * @desc: This Method loads invoice form
+     */
+    function get_invoices_form(){
+    	$data['vendor_partner'] = "vendor";
+	$data['id'] = "";
+    	$this->load->view('employee/header');
+    	$this->load->view('employee/get_invoices_form', $data);
+    }
+
+    function process_invoices_form(){
+        $vendor_partner = $this->input->post('vendor_partner');
+        $invoice_type = $this->input->post('invoices_type');
+        $vendor_partner_id = $this->input->post('partner_vendor_id');
+        $invoice_month = $this->input->post('invoice_month');
+        $vendor_invoice_type = $this->input->post('vendor_invoice_type');
+        $next_month = "";
+        if($invoice_month === 12){
+            $next_month = 01;
+        } else {
+            $next_month = $invoice_month +1;
+        }
+        $date_range = date('Y')."/".$invoice_month."/01-".date("Y")."/".$next_month."/01";
+        if($vendor_partner === "vendor"){
+            log_message('info', "Invoice generate - vendor id" . print_r($vendor_partner_id) . "Date Range" . print_r($date_range, true) . " Invoice status" . print_r($invoice_type, true) . " invoice type" . print_r($vendor_invoice_type, true));
+	    $this->generate_vendor_invoices($vendor_partner_id, $date_range, $invoice_type, $vendor_invoice_type);
+	} else if ($vendor_partner === "partner") {
+	    log_message('info', "Invoice generate - partner id" . print_r($vendor_partner_id) . "Date Range" . print_r($date_range, true) . " Invoice status" . print_r($invoice_type, true) . " invoice type");
+	    $this->getpartner_invoices($vendor_partner_id, $date_range, $invoice_type);
+	}
+
+	redirect(base_url() . "employee/invoice/get_invoices_form");
+    }
+
+    /**
+     * @desc: this method is used to generate both type invoices (invoices details and summary)
+     * @param type $partner_id
+     * @param type $date_range
+     * @param type $invoice_type
+     */
+    function getpartner_invoices($partner_id, $date_range, $invoice_type) {
+
+	$data = $this->invoices_model->getpartner_invoices($partner_id, $date_range);
+
+	$this->create_partner_invoices_details($data['invoice1'],$invoice_type);
+	$this->generate_partner_summary_invoices($data['invoice2'], $invoice_type);
+    }
+
+    /**
+     * This method used to generates previous month invoice for vendor
+     * If date range empty then it generates previous month invoice otherwise generates between date range
+     * If vendor id is empty then its generates all vendor invoice
+     * @param type $vendor_id
+     * @param type $date_range
+     * @param type $invoice_type
+     * @param type $vendor_invoice_type
+     */
+    function generate_vendor_invoices($vendor_id,$date_range, $invoice_type, $vendor_invoice_type) {
+
+	$data = $this->invoices_model->generate_vendor_invoices($vendor_id, $date_range);
+        if($vendor_invoice_type === "cash"){
+            // Call generate_cash_invoices_for_vendors method to generates cash invoice
+	    $cash_data = $this->generate_cash_invoices_for_vendors($data['invoice1'], $invoice_type);
+        } else if($vendor_invoice_type === "foc"){
+            // Call generate_foc_invoices_for_vendors method to generates FOC invoice
+	    $foc_data = $this->generate_foc_invoices_for_vendors($data['invoice2'], $invoice_type);
+	} else if ($vendor_invoice_type === "All") {
+	    // Call generate_cash_invoices_for_vendors method to generates cash invoice
+	    $cash_data = $this->generate_cash_invoices_for_vendors($data['invoice1'], $invoice_type);
+	    // Call generate_foc_invoices_for_vendors method to generates FOC invoice
+	    $foc_data = $this->generate_foc_invoices_for_vendors($data['invoice2'], $invoice_type);
+	}
+
+	foreach ($cash_data as $b1) {
+	    echo $b1 . "<br>";
+	}
+	foreach ($foc_data as $b2) {
+	    echo $b2 . "<br>";
+	}
+
+    }
+
 
 }

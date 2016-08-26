@@ -2,11 +2,11 @@
 
 <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-  
+
 <script>
   $(function() {
      partner_vendor1(<?php echo $id; ?>);
-     $( "#datepicker" ).datepicker({  maxDate: new Date });
+
 
   });
 
@@ -14,13 +14,22 @@ function partner_vendor1(vendor_partner_id){
      var par_ven = $('input[name=partner_vendor]:checked', '#myForm1').val();
      $('#loader_gif').css("display", "inline-block");
      $('#loader_gif').attr('src',  "<?php echo base_url(); ?>images/loader.gif");
-     
+     if(par_ven === "partner"){
+         document.getElementById("myRadio1").disabled = true;
+         document.getElementById("myRadio2").disabled = true;
+         document.getElementById("myRadio3").disabled = true;
+     } else {
+        document.getElementById("myRadio1").disabled = false;
+         document.getElementById("myRadio2").disabled = false;
+         document.getElementById("myRadio3").disabled = false;
+     }
+
       $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/invoice/getPartnerOrVendor/' + par_ven,
-                data: {vendor_partner_id: vendor_partner_id,invoice_flag:0},
+                data: {vendor_partner_id: vendor_partner_id,invoice_flag: 1},
                 success: function (data) {
-                    console.log(data);
+
                     $("#name").html(data);
                     $('#loader_gif').attr('src',  "");
                     $('#loader_gif').css("display", "none");
@@ -41,15 +50,15 @@ function partner_vendor1(vendor_partner_id){
             $("#myForm1").validate({
                 rules: {
                     //partner_vendor: "required",
-                    credit_debit: "required",
-                    amount: "required",
-                    tdate: "required",
+                    partner_vendor_id: "required",
+                    invoice_month: "required"
+
                 },
                 messages: {
                    // partner_vendor: "Please select Partner/Vendor",
-                    credit_debit: "Please select credit/debit.",
-                    amount: "Please enter credit/debit amount.",
-                    tdate: "Please enter transaction date",
+                    partner_vendor_id: "Please select .",
+                    invoice_month: "Please Select Month."
+
                 },
                 submitHandler: function(form) {
                     form.submit();
@@ -100,8 +109,8 @@ color: red;
                     </div>';
                     }
                     ?>
-          <form name="myForm1" id="myForm1" class="form-horizontal" action="<?php echo base_url()?>employee/invoice/post_add_new_transaction" method="POST">
-              <h1>Add New Transaction</h1>
+          <form name="myForm1" id="myForm1" class="form-horizontal" action="<?php echo base_url() ?>employee/invoice/process_invoices_form" method="POST">
+              <h1>Generate Invoices</h1>
 	      <br>
 	      <div class="form-group ">
                   <label class="col-md-2">Select Party<span class="red">*</span></label>
@@ -114,96 +123,66 @@ color: red;
 
              <div class="form-group ">
               <label for="name" class="col-md-2">Name</label>
-                <div class="col-md-6">
+                <div class="col-md-3">
                   <select type="text" class="form-control"  id="name" name="partner_vendor_id"  required></select>
                 </div>
              </div>
 
-              <div class="form-group">
-                <label for="invoice_id" class="col-md-2">Invoice ID</label>
-                <div class="col-md-6">
-                  <input type="text" class="form-control"  name="invoice_id" placeholder="Enter Invoice ID">
-                  <span id="errmsg"></span>
-                </div>
-              </div>
+
 
               <div class="form-group ">
-		  <label for="name" class="col-md-2">Credit / Debit in 247Around <span class="red">*</span></label>
+		  <label for="name" class="col-md-2">Draft/Final <span class="red">*</span></label>
 		  <div class="col-md-6">
-		      <input type="radio" onclick="cre_deb_validation1()"  name="credit_debit" value = "Credit" checked>   Credit &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		      <input type="radio" onclick="cre_deb_validation1()"  name="credit_debit" value = "Debit">    Debit &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		      <input type="radio"  name="invoices_type" value = "draft" checked>   Draft &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		      <input type="radio"  name="invoices_type" value = "final">    Final &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
                 </div>
             <span id="errmsg1"></span>
               </div>
 
-              <div class="form-group">
-                <label for="name" class="col-md-2">Amount <span class="red">*</span></label>
-                <div class="col-md-6">
-		                <input type="text" class="form-control" id="amount" name="amount" required>
-                </div>
-                <span id="errmsg4"></span>
-              </div>
-
-              <div class="form-group">
-		  <label for="name" class="col-md-2">Transaction Mode<span class="red">*</span></label>
-		  <div>
-		    <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Cash" checked>    Cash &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		    <input type="radio" onclick="cre_deb_validation1()"  name="transaction_mode" value = "Cheque">    Cheque &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		    <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Transfer">    Transfer &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		    <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Other">    Other
-                </div>
-
-              </div>
-
-              <div class="form-group">
-		  <label for="name" class="col-md-2">Party Bank Name</label>
+               <div class="form-group ">
+		  <label for="name" class="col-md-2">Invoice Type <span class="red">*</span></label>
 		  <div class="col-md-6">
-                  <input type="text" class="form-control"  name="bankname">
+		      <input type="radio"  id="myRadio1" name="vendor_invoice_type" value = "All" checked>   All &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		      <input type="radio"  id="myRadio2" name="vendor_invoice_type" value = "foc">    FOC &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      <input type="radio"  id="myRadio3" name="vendor_invoice_type" value = "cash">    CASH &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
                 </div>
+            <span id="errmsg2"></span>
               </div>
 
               <div class="form-group">
-            	<label for="name" class="col-md-2">Transaction Date <span class="red">*</span></label>
+            	<label for="name" class="col-md-2">Invoices Month <span class="red">*</span></label>
                 <div class="col-md-2">
-                <div class="input-group input-append date" >
-                    <input type="text" id="datepicker" class="form-control" name="tdate" >
-                    <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                    <select name="invoice_month">
+                        <option value="01">Jan</option>
+                        <option value="02">Feb</option>
+                        <option value="03">March</option>
+                        <option value="04">April</option>
+                        <option value="05">May</option>
+                        <option value="06">June</option>
+                        <option value="07">July</option>
+                        <option value="08">Aug</option>
+                        <option value="09">Sept</option>
+                        <option value="10">Oct</option>
+                        <option value="11">Nov</option>
+                        <option value="12">Dec</option>
+
+                    </select>
                 </div>
-                </div>
-                
+
               </div>
               <span id="errms5"></span>
-            <div class="form-group">
-              <label for="name" class="col-md-2">Description</label>
-              <div class="col-md-6">
-		  <textarea class="form-control"  name="description" cols="5" rows="5" placeholder="Add transaction remarks"></textarea>
-              </div>
-            </div>
-        <div class="col-md-12" style="text-align: center;">
-            <input type= "submit"  class="btn btn-danger btn-lg"  value ="Save" >
+
+              <div class="col-md-12 col-md-offset-1" style="margin-top:20px;" >
+            <input type= "submit"  class="btn btn-danger btn-lg"  value ="Generate Invoice" >
         </div>
           </form>
 
   </div>
 </div>
 
-<script type="text/javascript">
-   $(document).ready(function () {
-  //called when key is pressed in textbox
-  $("#amount").keypress(function (e) {
-     //if the letter is not digit then display error and don't type anything
-     if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
-        //display error message
-        $("#errmsg4").html("Digits Only").show().fadeOut("slow");
-               return false;
-    }
-   });
-});
-
-
-</script>
-
 <?php if($this->session->userdata('success')) { $this->session->unset_userdata('success'); } ?>
- 
+
 
