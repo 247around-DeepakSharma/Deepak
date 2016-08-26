@@ -218,7 +218,7 @@ class invoices_model extends CI_Model {
 	    $custom_date = explode("-", $date_range);
 	    $from_date = $custom_date[0];
 	    $to_date = $custom_date[1];
-	    $where_vendor_id .= " AND closed_date >= '$from_date' AND closed_date <='$to_date' ";
+	    $where_vendor_id .= " AND closed_date >= '$from_date' AND closed_date < '$to_date' ";
 	} else {
 	    $where_vendor_id .= "  AND  booking_details.closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
 			    AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
@@ -246,7 +246,7 @@ class invoices_model extends CI_Model {
 	    foreach ($result as $key => $value) {
 
 		if ($date_range != "") {
-		    $where .= "  AND booking_details.closed_date >= '$from_date' AND booking_details.closed_date <= '$to_date' ";
+		    $where .= "  AND booking_details.closed_date >= '$from_date' AND booking_details.closed_date < '$to_date' ";
 		    $date = "  '$from_date' as start_date,  '$to_date'  as end_date,  ";
 		} else {
 		    $where .=" AND  booking_details.closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
@@ -331,7 +331,7 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 	    $custom_date = explode("-", $date_range);
 	    $from_date = $custom_date[0];
 	    $to_date = $custom_date[1];
-	    $where_partner_id .= " AND closed_date >= '$from_date' AND closed_date <= '$to_date' ";
+	    $where_partner_id .= " AND closed_date >= '$from_date' AND closed_date < '$to_date' ";
 	} else {
 
 	    $where_partner_id .= "  AND  booking_details.closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
@@ -353,7 +353,7 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
 	    foreach ($result as $key => $value) {
 
 		if ($date_range != "") {
-		    $where .= "  AND booking_details.closed_date >= '$from_date' AND booking_details.closed_date <= '$to_date' ";
+		    $where .= "  AND booking_details.closed_date >= '$from_date' AND booking_details.closed_date < '$to_date' ";
 		    $date = "  '$from_date' as start_date,  '$to_date'  as end_date,  ";
 		} else {
 		    $where .=" AND  booking_details.closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')

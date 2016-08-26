@@ -390,12 +390,12 @@ class Invoice extends CI_Controller {
 	    array_push($file_names, $files_name . ".xlsx");
 	    array_push($file_names, $files_name . ".pdf");
 
-	    $bucket = 'bookings-collateral-test';
+	    //$bucket = 'bookings-collateral-test';
 	    $bucket = 'bookings-collateral';
 	    $directory_xls = "invoices-excel/" . $files_name . ".xlsx";
 	    $directory_pdf = "invoices-pdf/" . $files_name . ".pdf";
 
-	    //$this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+		//$this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 	    //$this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3);
 
 
@@ -762,10 +762,10 @@ class Invoice extends CI_Controller {
 
 		$this->notify->send_sms($sms);
 		    //Upload Excel files to AWS
-		$bucket = 'bookings-collateral-test';
-		    //$bucket = 'bookings-collateral';
+		//$bucket = 'bookings-collateral-test';
+		    $bucket = 'bookings-collateral';
 		    $directory_xls = "invoices-excel/" . $output_file . ".xlsx";
-		$directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
+		    $directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
 
 		$this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 		    $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
@@ -988,13 +988,13 @@ class Invoice extends CI_Controller {
 		$this->email->from('billing@247around.com', '247around Team');
 		if ($invoice_type === "final") {
 		    $to = $invoices[0]['owner_email'] . ", " . $invoices[0]['primary_contact_email'];
+		    $cc = "billing@247around.com, nits@247around.com, anuj@247around.com";
 		} else {
 		    $to = "anuj@247around.com";
+		    $cc = "";
 		}
 
 		$this->email->to($to);
-
-		$cc = "billing@247around.com, nits@247around.com, anuj@247around.com";
 		$this->email->cc($cc);
 
 		$subject = "247around - " . $invoices[0]['name'] . " - Invoice for period: " . $start_date . " to " . $end_date;
@@ -1142,13 +1142,16 @@ class Invoice extends CI_Controller {
         $invoice_month = $this->input->post('invoice_month');
         $vendor_invoice_type = $this->input->post('vendor_invoice_type');
         $next_month = "";
-        if($invoice_month === 12){
+	$year = "";
+	if($invoice_month === 12){
             $next_month = 01;
-        } else {
-            $next_month = $invoice_month +1;
-        }
-        $date_range = date('Y')."/".$invoice_month."/01-".date("Y")."/".$next_month."/01";
-        if($vendor_partner === "vendor"){
+	    $year = date('Y') + 1;
+	} else {
+            $next_month = $invoice_month + 1;
+	    $year = date('Y');
+	}
+        $date_range = date('Y') . "/" . $invoice_month . "/01-" . $year . "/" . $next_month . "/01";
+	if($vendor_partner === "vendor"){
             log_message('info', "Invoice generate - vendor id" . print_r($vendor_partner_id) . "Date Range" . print_r($date_range, true) . " Invoice status" . print_r($invoice_type, true) . " invoice type" . print_r($vendor_invoice_type, true));
 	    $this->generate_vendor_invoices($vendor_partner_id, $date_range, $invoice_type, $vendor_invoice_type);
 	} else if ($vendor_partner === "partner") {
