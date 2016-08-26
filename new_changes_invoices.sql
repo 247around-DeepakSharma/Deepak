@@ -140,3 +140,36 @@ ALTER TABLE `booking_unit_details` DROP `total_price`;
 
 ALTER TABLE  `vendor_partner_invoices` ADD  `mail_sent` VARCHAR( 2 ) NOT NULL COMMENT 'flag to check whether mail was sent successfully or failed' AFTER  `amount_collected_paid` ;
 ALTER TABLE  `vendor_partner_invoices` ADD  `sms_sent` VARCHAR( 2 ) NOT NULL COMMENT 'flag to check whether SMS was sent successfully or failed' AFTER  `mail_sent` ;
+
+
+<!-- first execute these sql command then execute c_test2 and then c_test3 -->
+SS-93651606211
+
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '32 Inch' WHERE  `booking_unit_details`.`id` =6994;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '32 Inch' WHERE  `booking_unit_details`.`id` =6751;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '32 Inch' WHERE  `booking_unit_details`.`id` =19301;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '24 Inch' WHERE  `booking_unit_details`.`id` =7413;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '24 Inch' WHERE  `booking_unit_details`.`id` =19302;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '23 Inch' WHERE  `booking_unit_details`.`id` =7431;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '24 Inch' WHERE  `booking_unit_details`.`id` =7443;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '24 Inch' WHERE  `booking_unit_details`.`id` =19303;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '24 Inch' WHERE  `booking_unit_details`.`id` =7464;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '24 Inch' WHERE  `booking_unit_details`.`id` =7467;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '24 Inch' WHERE  `booking_unit_details`.`id` =19304;
+UPDATE  `247around`.`booking_unit_details` SET  `price_tags` =  'Installation & Demo' WHERE  `booking_unit_details`.`id` =19305;
+UPDATE  `247around`.`booking_details` SET  `internal_status` =  'Completed' WHERE  `booking_details`.`id` =7406;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '24 Inch' WHERE  `booking_unit_details`.`id` =7726;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '43 Inch' WHERE  `booking_unit_details`.`id` =7786;
+UPDATE  `247around`.`service_centre_charges` SET  `active` =  '1' WHERE  `service_centre_charges`.`id` =125;
+UPDATE  `247around`.`booking_unit_details` SET  `price_tags` =  'Visit' WHERE  `booking_unit_details`.`id` =7948;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '32 Inch' WHERE  `booking_unit_details`.`id` =8077;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '32 Inch' WHERE  `booking_unit_details`.`id` =8085;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '32 Inch' WHERE  `booking_unit_details`.`id` =19306;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '32 Inch' WHERE  `booking_unit_details`.`id` =6752;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '40 Inch' WHERE  `booking_unit_details`.`id` =8213;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '40 Inch' WHERE  `booking_unit_details`.`id` =19307;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '43 Inch' WHERE  `booking_unit_details`.`id` =8217;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '22 Inch' WHERE  `booking_unit_details`.`id` =19308;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '22 Inch' WHERE  `booking_unit_details`.`id` =19313;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '22 Inch' WHERE  `booking_unit_details`.`id` =19314;
+UPDATE  `247around`.`booking_unit_details` SET  `appliance_capacity` =  '24 Inch' WHERE  `booking_unit_details`.`id` =8948;
