@@ -22,7 +22,7 @@ class User extends CI_Controller {
         $this->load->library("pagination");
         $this->load->library("session");
         $this->load->library('s3');
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') && ($this->session->userdata('add service') == '1')) {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') ) {
             return TRUE;
         } else {
             redirect(base_url() . "employee/login");

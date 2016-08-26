@@ -31,7 +31,7 @@ class Invoice extends CI_Controller {
 	$this->load->library("session");
 	$this->load->library('s3');
 
-	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') && ($this->session->userdata('add service') == '1')) {
+	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
 	    return TRUE;
 	} else {
 	    redirect(base_url() . "employee/login");
@@ -311,10 +311,10 @@ class Invoice extends CI_Controller {
     /**
      * @desc: generate details partner invoices
      */
-    function create_partner_invoices_detailed($data) {
+    function create_partner_invoices_detailed($data, $invoice_type) {
 	$file_names = array();
 	$template = 'partner_invoices.xlsx';
-//set absolute path to directory with template files
+        //set absolute path to directory with template files
 	$templateDir = __DIR__ . "/../excel-templates/";
 
 	for ($i = 0; $i < count($data); $i++) {
@@ -335,7 +335,6 @@ class Invoice extends CI_Controller {
 		$total_vat_charge = 0;
 		$total_charges = 0;
 
-//print_r($data[$i][0]['source']);
 		$invoice_id = $data[$i][0]['source'] . date('dmY');
 
 		$unique_booking = array_unique(array_map(function ($k) {
@@ -345,7 +344,6 @@ class Invoice extends CI_Controller {
 		$count = count($unique_booking);
 
 		log_message('info', __FUNCTION__ . '=> Start Date: ' . $data[$i][0]['start_date'] . ', End Date: ' . $data[$i][0]['end_date']);
-//echo $start_date, $end_date;
 
 		$start_date = date("jS F, Y", strtotime($data[$i][0]['start_date']));
 		$end_date = date("jS F, Y", strtotime($data[$i][0]['end_date']));
@@ -398,8 +396,8 @@ class Invoice extends CI_Controller {
 		array_push($file_names, $files_name . ".xlsx");
 		array_push($file_names, $files_name . ".pdf");
 
-		//$bucket = 'bookings-collateral-test';
-		$bucket = 'bookings-collateral';
+		if ($invoice_type === "final") {
+		    $bucket = 'bookings-collateral';
 		$directory_xls = "invoices-excel/" . $files_name . ".xlsx";
 		$directory_pdf = "invoices-pdf/" . $files_name . ".pdf";
 
@@ -407,32 +405,34 @@ class Invoice extends CI_Controller {
 		$this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
 
 		$invoice_details = array(
-		    'invoice_id' => $invoice_id,
-		    'type' => 'A',
-		    'vendor_partner' => 'partner',
-		    'vendor_partner_id' => $data[$i][0]['partner_id'],
-		    'invoice_file_excel' => $files_name . '.xlsx',
-		    'invoice_file_pdf' => $files_name . '.pdf',
-		    'from_date' => date("Y-m-d", strtotime($start_date)), //??? Check this next time, format should be YYYY-MM-DD
-		    'to_date' => date("Y-m-d", strtotime($end_date)),
-		    'num_bookings' => $count,
-		    'total_service_charge' => $excel_data['total_installation_charge'],
-		    'service_tax' => $excel_data['total_service_tax'],
-		    'parts_cost' => $excel_data['total_stand_charge'],
-		    'vat' => $excel_data['total_charges'],
-		    'around_royalty' => $excel_data['total_charges'],
-		);
-		$this->invoices_model->insert_new_invoice($invoice_details);
+			'invoice_id' => $invoice_id,
+			'type_code' => 'A',
+			'type' => 'Cash',
+			'vendor_partner' => 'partner',
+			'vendor_partner_id' => $data[$i][0]['partner_id'],
+			'invoice_file_excel' => $files_name . '.xlsx',
+			'invoice_file_pdf' => $files_name . '.pdf',
+			'from_date' => date("Y-m-d", strtotime($start_date)), //??? Check this next time, format should be YYYY-MM-DD
+			'to_date' => date("Y-m-d", strtotime($end_date)),
+			'num_bookings' => $count,
+			'total_service_charge' => $excel_data['total_installation_charge'],
+			'service_tax' => $excel_data['total_service_tax'],
+			'parts_cost' => $excel_data['total_stand_charge'],
+			'vat' => $excel_data['total_charges'],
+			'around_royalty' => $excel_data['total_charges'],
+		    );
+		    $this->invoices_model->insert_new_invoice($invoice_details);
+		}
 	    }
 	}
-
 	//Delete XLS files now
-	foreach ($file_names as $file_name)
+	foreach ($file_names as $file_name) {
 	    exec("rm -rf " . escapeshellarg($file_name));
+	}
 	exit(0);
     }
 
-    function create_partner_invoices_summary($data) {
+    function create_partner_invoices_summary($data, $invoice_type) {
 	$file_names = array();
 
 	$template = 'partner_invoice_summary.xlsx';
@@ -450,7 +450,6 @@ class Invoice extends CI_Controller {
 
 		//load template
 		$R = new PHPReport($config);
-
 
 		$total_installation_charge = 0;
 		$total_service_tax = 0;
@@ -500,19 +499,21 @@ class Invoice extends CI_Controller {
 
 		array_push($file_names, $files_name . ".xlsx");
 		array_push($file_names, $files_name . ".pdf");
-
-		$bucket = 'bookings-collateral';
+                if ($invoice_type === "final") {
+		    $bucket = 'bookings-collateral';
 		$directory_xls = "invoices-excel/" . $files_name . ".xlsx";
 		$directory_pdf = "invoices-pdf/" . $files_name . ".pdf";
 
 		$this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 		$this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+		}
 	    }
 	}
 
 	//Delete XLS files now
-	foreach ($file_names as $file_name)
+	foreach ($file_names as $file_name) {
 	    exec("rm -rf " . escapeshellarg($file_name));
+	}
 
 	exit(0);
     }

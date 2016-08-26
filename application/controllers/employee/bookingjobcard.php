@@ -30,7 +30,7 @@ class bookingjobcard extends CI_Controller {
         $this->load->library("session");
         $this->load->library("notify");
 
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') && ($this->session->userdata('add service') == '1')) {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') ) {
             return TRUE;
         } else {
             redirect(base_url() . "employee/login");

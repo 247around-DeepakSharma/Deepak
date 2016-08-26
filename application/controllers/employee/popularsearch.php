@@ -14,7 +14,7 @@ class Popularsearch extends CI_Controller {
         $this->load->library('form_validation');
         $this->load->library('session');
         $this->load->library("pagination");
-        if (($this->session->userdata('loggedIn')==TRUE)&&($this->session->userdata('userType')=='employee') &&($this->session->userdata('popularsearch')=='1'))  {
+        if (($this->session->userdata('loggedIn')==TRUE)&&($this->session->userdata('userType')=='employee') )  {
           return TRUE ;
         } else {
           redirect(base_url()."admin");

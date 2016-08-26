@@ -13,7 +13,7 @@ class Report_message extends CI_Controller {
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
         $this->load->library('session');
-         if (($this->session->userdata('loggedIn')==TRUE)&&($this->session->userdata('userType')=='employee')&&($this->session->userdata('report')=='1'))  {
+         if (($this->session->userdata('loggedIn')==TRUE)&&($this->session->userdata('userType')=='employee'))  {
           return TRUE ;
         } else {
           redirect(base_url()."employee/login");

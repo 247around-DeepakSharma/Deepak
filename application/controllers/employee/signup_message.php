@@ -12,7 +12,7 @@ class Signup_message extends CI_Controller {
         $this->load->model('filter_model'); 
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
-       if (($this->session->userdata('loggedIn')==TRUE)&&($this->session->userdata('userType')=='employee')&&($this->session->userdata('signup')=='1'))  {
+       if (($this->session->userdata('loggedIn')==TRUE)&&($this->session->userdata('userType')=='employee'))  {
           return TRUE ;
         } else {
           redirect(base_url()."employee/login");
