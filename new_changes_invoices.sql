@@ -119,6 +119,8 @@ CREATE TABLE IF NOT EXISTS `partner_callback` (
   `active` int(10) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+INSERT INTO `partner_callback` (`id`, `partner_id`, `callback_string`, `active`) VALUES
+(1, 1, 'STS', 1);
 
 
 --
