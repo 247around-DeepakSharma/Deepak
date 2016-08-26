@@ -18,7 +18,7 @@ class Excel extends CI_Controller {
         $this->load->helper('download');
         $this->load->library('image_lib');
         $this->load->library('s3');
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') && ($this->session->userdata('xls_for_handyman') == '1')) {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') ) {
             return TRUE;
         } else {
             redirect(base_url() . "employee/login");

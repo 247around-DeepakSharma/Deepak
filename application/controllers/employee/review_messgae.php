@@ -13,7 +13,7 @@ class  Review_messgae extends CI_Controller {
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
         $this->load->library('session');
-        if (($this->session->userdata('loggedIn')==TRUE)&&($this->session->userdata('userType')=='employee')&&($this->session->userdata('review_messgae')=='1')) {
+        if (($this->session->userdata('loggedIn')==TRUE)&&($this->session->userdata('userType')=='employee')) {
           return TRUE ;
         } else {
           redirect(base_url()."employee/login");

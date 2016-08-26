@@ -31,7 +31,7 @@ class Invoice extends CI_Controller {
 	$this->load->library("session");
 	$this->load->library('s3');
 
-	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') && ($this->session->userdata('add service') == '1')) {
+	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
 	    return TRUE;
 	} else {
 	    redirect(base_url() . "employee/login");
@@ -425,7 +425,6 @@ class Invoice extends CI_Controller {
 		}
 	    }
 	}
-
 	//Delete XLS files now
 	foreach ($file_names as $file_name) {
 	    exec("rm -rf " . escapeshellarg($file_name));
