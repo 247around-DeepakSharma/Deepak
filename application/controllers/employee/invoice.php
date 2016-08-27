@@ -1151,7 +1151,7 @@ class Invoice extends CI_Controller {
 
     function process_invoices_form() {
 	$vendor_partner = $this->input->post('partner_vendor');
-	$invoice_type = $this->input->post('invoices_type');
+	$invoice_version = $this->input->post('invoice_version');
 	$vendor_partner_id = $this->input->post('partner_vendor_id');
 	$invoice_month = $this->input->post('invoice_month');
 	$vendor_invoice_type = $this->input->post('vendor_invoice_type');
@@ -1171,15 +1171,15 @@ class Invoice extends CI_Controller {
 
 	if ($vendor_partner === "vendor") {
 	    log_message('info', "Invoice generate - vendor id: " . print_r($vendor_partner_id) . ", Date Range" .
-		print_r($date_range, true) . ", Invoice status" . print_r($invoice_type, true) . ", Invoice type" .
+		print_r($date_range, true) . ", Invoice version" . print_r($invoice_version, true) . ", Invoice type" .
 		print_r($vendor_invoice_type, true));
 
-	    $this->generate_vendor_invoices($vendor_partner_id, $date_range, $invoice_type, $vendor_invoice_type);
+	    $this->generate_vendor_invoices($vendor_partner_id, $date_range, $invoice_version, $vendor_invoice_type);
 	} else if ($vendor_partner === "partner") {
 	    log_message('info', "Invoice generate - partner id: " . print_r($vendor_partner_id) . ", Date Range" .
-		print_r($date_range, true) . ", Invoice status" . print_r($invoice_type, true) . ", Invoice type");
+		print_r($date_range, true) . ", Invoice status" . print_r($invoice_version, true));
 
-	    $this->generate_partner_invoices($vendor_partner_id, $date_range, $invoice_type);
+	    $this->generate_partner_invoices($vendor_partner_id, $date_range, $invoice_version);
 	}
 
 

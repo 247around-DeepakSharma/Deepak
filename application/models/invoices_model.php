@@ -223,7 +223,8 @@ class invoices_model extends CI_Model {
 	    $where_vendor_id .= "  AND  booking_details.closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
 			    AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
 	}
-    // get all vendor id, who completed any booking into given period
+
+	// get all vendor id, who completed any booking into given period
 	$sql = "SELECT  assigned_vendor_id as vendor_id
                 FROM booking_details
                 WHERE current_status = 'Completed'  $where_vendor_id  Group BY assigned_vendor_id";
@@ -236,12 +237,12 @@ class invoices_model extends CI_Model {
 
 	    if ($i == 1) {
 	    	//for cash invoice, we get around_to_vendor > 0 and vendor to around =0 and also get around to vendor is zero and vendor to around =0
-//		$where = " AND `booking_unit_details`.vendor_to_around > 0 AND   `booking_unit_details`.around_to_vendor =0 ";
 		$where = " AND ( ( `booking_unit_details`.vendor_to_around > 0 AND `booking_unit_details`.around_to_vendor =0 ) OR ( `booking_unit_details`.vendor_to_around = 0 AND `booking_unit_details`.around_to_vendor =0 ) )  ";
 	    } else {
-	    //for cash invoices, we get around to vendor >0 and vendor to around =0
+		//for cash invoices, we get around to vendor >0 and vendor to around =0
 		$where = " AND `booking_unit_details`.around_to_vendor > 0  AND `booking_unit_details`.vendor_to_around = 0 ";
 	    }
+
 	    $array = array();
 	    foreach ($result as $key => $value) {
 
@@ -257,7 +258,19 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 		$condition = "  From booking_details, booking_unit_details, services, service_centres
                           WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id AND `services`.id = `booking_details`.service_id  AND `booking_details`.assigned_vendor_id = `service_centres`.id AND current_status = 'Completed' AND assigned_vendor_id = $value[vendor_id] AND `booking_unit_details`.booking_status = 'Completed' $where ";
 
-		$sql1 = "SELECT  `booking_details`.booking_id, `booking_details`.city, `booking_details`.internal_status, date_format(`booking_details`.`closed_date`,'%d/%m/%Y') as closed_date, rating_stars, `booking_unit_details`.price_tags, `booking_unit_details`.vendor_extra_charges, `booking_unit_details`.vendor_st_extra_charges, customer_paid_extra_charges as additional_charges, (customer_paid_basic_charges + around_net_payable ) as service_charges, customer_paid_parts as parts_cost, `services`.services, vendor_to_around, customer_net_payable, partner_net_payable,around_to_vendor, (customer_paid_basic_charges + customer_paid_extra_charges + customer_paid_parts) as amount_paid ,`service_centres`.name, `service_centres`.id, `service_centres`.sc_code, `service_centres`.address, `service_centres`.beneficiary_name, `service_centres`.bank_account, `service_centres`.bank_name, `service_centres`.ifsc_code,  `service_centres`.owner_email,  `service_centres`.primary_contact_email, `service_centres`.owner_phone_1,  `service_centres`.primary_contact_phone_1, `booking_unit_details`.  product_or_services, `booking_unit_details`.around_net_payable,  (customer_net_payable + partner_net_payable + around_net_payable) as total_booking_charge, $date
+		$sql1 = "SELECT  `booking_details`.booking_id, `booking_details`.city, `booking_details`.internal_status,
+		     date_format(`booking_details`.`closed_date`,'%d/%m/%Y') as closed_date, rating_stars, `booking_unit_details`.price_tags,
+		     `booking_unit_details`.appliance_category, `booking_unit_details`.appliance_capacity,
+		     `booking_unit_details`.vendor_extra_charges, `booking_unit_details`.vendor_st_extra_charges, customer_paid_extra_charges as additional_charges,
+		     (customer_paid_basic_charges + around_net_payable ) as service_charges, customer_paid_parts as parts_cost, `services`.services,
+		     vendor_to_around, customer_net_payable, partner_net_payable,around_to_vendor,
+		     (customer_paid_basic_charges + customer_paid_extra_charges + customer_paid_parts) as amount_paid ,
+		     `service_centres`.name, `service_centres`.id, `service_centres`.sc_code, `service_centres`.address,
+		     `service_centres`.beneficiary_name, `service_centres`.bank_account, `service_centres`.bank_name,
+		     `service_centres`.ifsc_code,  `service_centres`.owner_email,  `service_centres`.primary_contact_email, `service_centres`.owner_phone_1,
+		     `service_centres`.primary_contact_phone_1, `booking_unit_details`.  product_or_services, `booking_unit_details`.around_net_payable,
+		     (customer_net_payable + partner_net_payable + around_net_payable) as total_booking_charge, $date
+
                      /* get sum of vat charges if product_or_services is product else sum of vat is zero  */
                      (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (around_st_or_vat_basic_charges + vendor_st_or_vat_basic_charges) ELSE 0 END) as vat,
                     /* get sum of st charges if product_or_services is Service else sum of vat is zero  */
