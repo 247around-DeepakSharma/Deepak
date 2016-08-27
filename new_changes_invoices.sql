@@ -135,7 +135,7 @@ ALTER TABLE  `booking_unit_details` CHANGE  `appliance_tag`  `appliance_tag` VAR
 ALTER TABLE  `booking_unit_details` CHANGE  `booking_picture_file`  `booking_picture_file` VARCHAR( 1024 ) DEFAULT '' ;
 
 ALTER TABLE service_center_booking_action DROP INDEX unq_booking_sc_ids;
-ALTER TABLE `247around-mig2`.`service_center_booking_action` ADD UNIQUE `unq_booking_sc_ids` (`booking_id`, `unit_details_id`, `service_center_id`);
+ALTER TABLE `service_center_booking_action` ADD UNIQUE `unq_booking_sc_ids` (`booking_id`, `unit_details_id`, `service_center_id`);
 ALTER TABLE `booking_unit_details` DROP `total_price`;
 
 ALTER TABLE  `vendor_partner_invoices` ADD  `mail_sent` VARCHAR( 2 ) NOT NULL COMMENT 'flag to check whether mail was sent successfully or failed' AFTER  `amount_collected_paid` ;
