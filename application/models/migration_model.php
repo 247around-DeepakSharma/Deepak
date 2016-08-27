@@ -177,21 +177,21 @@ class Migration_model extends CI_Model {
 	$this->db->where('booking_id', $booking_id);
 	$query = $this->db->get('booking_unit_details');
 	$result1 = $query->result_array();
-	foreach ($result1 as $key) {
+	foreach ($result1 as $key => $value) {
 
 	    $this->db->select('around_net_payable, partner_net_payable, tax_rate, price_tags, partner_paid_basic_charges, around_paid_basic_charges');
-	    $this->db->where('id', $result1[$key]['id']);
+	    $this->db->where('id', $value['id']);
 	    $query = $this->db->get('booking_unit_details');
 	    $unit_details = $query->result_array();
 
 	    // print_r($unit_details);
-	    $data['id'] = $result1[$key]['id'];
+	    $data['id'] = $value['id'];
 
-	    /* echo PHP_EOL;
+	     echo PHP_EOL;
 	      print_r($data);
 	      echo PHP_EOL;
 	      print_r($unit_details);
-	      echo PHP_EOL; */
+	      echo PHP_EOL; 
 
 	    $this->update_price_in_unit_details($data, $unit_details);
 	}
@@ -206,6 +206,7 @@ class Migration_model extends CI_Model {
 	$partner_paid_tax = ($unit_details[0]['partner_paid_basic_charges'] * $data['tax_rate']) / 100;
 	// Calculate  total partner paid charges with tax
 	$data['partner_paid_basic_charges'] = $unit_details[0]['partner_paid_basic_charges'] + $partner_paid_tax;
+	print_r($data['partner_paid_basic_charges']);
 
 	$vendor_total_basic_charges = ($data['customer_paid_basic_charges'] + $data['partner_paid_basic_charges'] + $data['around_paid_basic_charges']) * basic_percentage;
 	$around_total_basic_charges = ($data['customer_paid_basic_charges'] + $data['partner_paid_basic_charges'] + $data['around_paid_basic_charges'] - $vendor_total_basic_charges);
@@ -244,6 +245,7 @@ class Migration_model extends CI_Model {
 	}
 
 	unset($data['internal_status']);
+	print_r($data);
 	$this->db->where('id', $data['id']);
 	$this->db->update('booking_unit_details', $data);
     }

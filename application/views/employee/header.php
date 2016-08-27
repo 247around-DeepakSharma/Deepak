@@ -77,10 +77,10 @@
                             <a href="<?php echo base_url() ?>employee/vendor/get_assign_booking_form"><i class="fa fa-fw fa-desktop"></i> <strong>Assign Vendor</strong></a>
                         </li>
                         <li class="divider"></li>
-                        <li>
+                       <!-- <li>
                             <a href="<?php echo base_url()?>employee/vendor/get_reassign_vendor_form"><i class="fa fa-fw fa-desktop"></i> <strong> Re-assign Vendor</strong></a>
                         </li>
-                        <li class="divider"></li>
+                        <li class="divider"></li>-->
                         <li>
                             <a href="<?php echo base_url()?>employee/booking/review_bookings"><i class="fa fa-fw fa-desktop"></i> <strong> Review Bookings</strong></a>
                         </li>
@@ -109,8 +109,8 @@
                         </li>
                         <li class="divider"></li>
                         <li >
-                            <a href="<?php echo base_url() ?>employee/partner_booking"><i class="fa fa-fw fa-desktop "></i> <strong> Upload Paytm Booking</strong></a>
-                        </li>
+                            <a href="<?php echo base_url() ?>employee/bookings_excel/upload_delivered_products_for_paytm_excel"><i class="fa fa-fw fa-desktop "></i> <strong> Upload Paytm Booking</strong></a>
+                            </li>
                         <li class="divider"></li>
                         <li >
                             <a href="<?php echo base_url() ?>employee/invoice/invoice_partner_view"><i class="fa fa-fw fa-desktop"></i> <strong> Partner Invoices</strong></a>

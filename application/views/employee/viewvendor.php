@@ -10,7 +10,6 @@
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number,
                 success: function(response) {
-                    //console.log(response);
                 }
             });
         } else {

@@ -115,9 +115,9 @@ color: red;
 	      <div class="form-group ">
                   <label class="col-md-2">Select Party<span class="red">*</span></label>
 		  <div class="col-md-6">
-		      <input type="radio" onclick="partner_vendor1(<?php echo $id; ?>);"  name="partner_vendor" <?php if($vendor_partner ==""){ echo "checked"; } else if($vendor_partner == "vendor"){ echo "checked"; }?> value = "vendor">    Service Centre &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		      <input type="radio" <?php if($vendor_partner == "partner"){ echo "checked"; } ?>onclick="partner_vendor1(<?php echo $id; ?>);" name="partner_vendor" value = "partner" >    Partner &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                </div>
+		      <input type="radio" onclick="partner_vendor1(<?php echo $id; ?>);"  name="partner_vendor"  checked="checked" value = "vendor" >    Service Centre &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		      <input type="radio" onclick="partner_vendor1(<?php echo $id; ?>);" name="partner_vendor" value = "partner" >    Partner &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		  </div>
               </div>
               <center><img id="loader_gif" src=""></center>
 

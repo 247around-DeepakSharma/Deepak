@@ -62,7 +62,7 @@ $route['partner/closed_booking/Cancelled/(:any)'] = 'employee/partner/closed_boo
 $route['partner/booking_details/(:any)'] = 'employee/partner/booking_details/$1';
 $route['partner/pending_queries'] = 'employee/partner/pending_queries';
 $route['partner/pending_queries/(:any)'] = 'employee/partner/pending_queries/$1';
-$route['partner/get_addbooking_form/(:any)'] = 'employee/partner/get_addbooking_form/$1';
+$route['partner/booking_form/(:any)'] = 'employee/partner/get_addbooking_form/$1';
 
 
 //$route['api/(:any)'] = 'partner/$2';

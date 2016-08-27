@@ -312,6 +312,7 @@ class Invoice extends CI_Controller {
      * @desc: generate details partner invoices
      */
     function create_partner_invoices_detailed($data, $invoice_type) {
+    	print_r($data);
 	$file_names = array();
 	$template = 'partner_invoices.xlsx';
         //set absolute path to directory with template files
@@ -425,10 +426,10 @@ class Invoice extends CI_Controller {
 		}
 	    }
 	}
-	//Delete XLS files now
-	foreach ($file_names as $file_name) {
-	    exec("rm -rf " . escapeshellarg($file_name));
-	}
+//	//Delete XLS files now
+//	foreach ($file_names as $file_name) {
+//	    exec("rm -rf " . escapeshellarg($file_name));
+//	}
 	exit(0);
     }
 
@@ -509,11 +510,11 @@ class Invoice extends CI_Controller {
 		}
 	    }
 	}
-
-	//Delete XLS files now
-	foreach ($file_names as $file_name) {
-	    exec("rm -rf " . escapeshellarg($file_name));
-	}
+//
+//	//Delete XLS files now
+//	foreach ($file_names as $file_name) {
+//	    exec("rm -rf " . escapeshellarg($file_name));
+//	}
 
 	exit(0);
     }
@@ -819,11 +820,10 @@ class Invoice extends CI_Controller {
 	    }
 	}
 
-	//Delete XLS files now
-	foreach ($file_names as $file_name) {
-	    exec("rm -rf " . escapeshellarg($file_name));
-	}
-
+//	//Delete XLS files now
+//	foreach ($file_names as $file_name) {
+//	    exec("rm -rf " . escapeshellarg($file_name));
+//	}
 	// return summary cash
 	return $summary_cash;
     }
@@ -1142,7 +1142,7 @@ class Invoice extends CI_Controller {
     }
 
     function process_invoices_form() {
-	$vendor_partner = $this->input->post('vendor_partner');
+	$vendor_partner = $this->input->post('partner_vendor');
 	$invoice_type = $this->input->post('invoices_type');
 	$vendor_partner_id = $this->input->post('partner_vendor_id');
 	$invoice_month = $this->input->post('invoice_month');
@@ -1174,7 +1174,9 @@ class Invoice extends CI_Controller {
 	    $this->generate_partner_invoices($vendor_partner_id, $date_range, $invoice_type);
 	}
 
-	redirect(base_url() . "employee/invoice/get_invoices_form");
+
+
+	//redirect(base_url() . "employee/invoice/get_invoices_form");
     }
 
     /**

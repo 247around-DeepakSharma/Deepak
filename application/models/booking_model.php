@@ -70,7 +70,7 @@ class Booking_model extends CI_Model {
      */
 
     function addunitdetails($booking){
-        log_message ('info', __METHOD__ . "booking unit details data". print_r($booking, true));
+        log_message ('info', __METHOD__ . " booking unit details data". print_r($booking, true));
         $this->db->insert('booking_unit_details', $booking);
         return $this->db->insert_id();
     }
@@ -87,8 +87,10 @@ class Booking_model extends CI_Model {
      */
 
     function addbooking($booking){
-        log_message('info', __METHOD__ . "booking details data: " . print_r($booking, true));
+        log_message('info', __METHOD__ . " booking details data: " . print_r($booking, true));
 	$this->db->insert('booking_details', $booking);
+    log_message ('info', __METHOD__ . "booking  SQL ". $this->db->last_query());
+    
         return $this->db->insert_id();
     }
 
@@ -1641,6 +1643,24 @@ class Booking_model extends CI_Model {
         $this->update_unit_details($data);
 
         return $new_unit_id;
+    }
+
+    /**
+     *  @desc : This function is to check booking details with their order id weather
+     *      they exists or not.
+     *
+     *  @param : array of order id
+     *  @return : if exists returns true else false
+     */
+    function check_booking_exists_by_order_id($order_id, $partner_src) {
+    $this->db->where(array("order_id" => $order_id, "partner_source" => $partner_src));
+    $query = $this->db->get('booking_details');
+
+        if (count($query->result_array()) > 0) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
     }
 
 
