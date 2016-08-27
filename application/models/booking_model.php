@@ -1643,6 +1643,24 @@ class Booking_model extends CI_Model {
         return $new_unit_id;
     }
 
+    /**
+     *  @desc : This function is to check booking details with their order id weather
+     *      they exists or not.
+     *
+     *  @param : array of order id
+     *  @return : if exists returns true else false
+     */
+    function check_booking_exists_by_order_id($order_id, $partner_src) {
+    $this->db->where(array("order_id" => $order_id, "partner_source" => $partner_src));
+    $query = $this->db->get('booking_details');
+
+        if (count($query->result_array()) > 0) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
 
 
 
