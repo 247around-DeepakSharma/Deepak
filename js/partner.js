@@ -7,7 +7,7 @@
  //Comment below line for localhost, this is for main server
  var baseUrl = getUrl .protocol + "//" + getUrl.host ;
 
- var addbooking_form = baseUrl + '/partner/get_addbooking_form/';
+ var addbooking_form = baseUrl + '/partner/booking_form/';
  var getCategoryUrl = baseUrl + '/employee/partner/get_category';
  var getCapacityUrl = baseUrl + '/employee/partner/get_capacity';
  var getPriceTableUrl = baseUrl + '/employee/partner/get_price_table';
@@ -342,11 +342,6 @@ function setAppliances(i){
       indexClone++; 
     }
   }
-
-
-$(document).ready(function () {
-  getCategory();
-});
 
 function sendAjaxRequest(postData, url) {
      return $.ajax({

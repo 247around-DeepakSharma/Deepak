@@ -70,7 +70,7 @@ class Booking_model extends CI_Model {
      */
 
     function addunitdetails($booking){
-        log_message ('info', __METHOD__ . "booking unit details data". print_r($booking, true));
+        log_message ('info', __METHOD__ . " booking unit details data". print_r($booking, true));
         $this->db->insert('booking_unit_details', $booking);
         return $this->db->insert_id();
     }
@@ -87,8 +87,10 @@ class Booking_model extends CI_Model {
      */
 
     function addbooking($booking){
-        log_message('info', __METHOD__ . "booking details data: " . print_r($booking, true));
+        log_message('info', __METHOD__ . " booking details data: " . print_r($booking, true));
 	$this->db->insert('booking_details', $booking);
+    log_message ('info', __METHOD__ . "booking  SQL ". $this->db->last_query());
+    
         return $this->db->insert_id();
     }
 
