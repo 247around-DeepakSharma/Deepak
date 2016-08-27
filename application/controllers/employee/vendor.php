@@ -304,7 +304,11 @@ class vendor extends CI_Controller {
                 $data = array();
                 $data['booking_id'] = $booking_id;
                 $data['service_center_id'] = $service_center_id;
-                
+                //Assign service centre
+                $this->booking_model->assign_booking($booking_id, $service_center_id);
+                // Delete Previous Assigned vendor data from service center action table
+                $this->vendor_model->delete_previous_service_center_action($booking_id);
+
                 $this->asynchronous_lib->do_background_process($url, $data);
             }
 

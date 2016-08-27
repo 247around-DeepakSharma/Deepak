@@ -44,10 +44,8 @@ class Do_background_process extends CI_Controller {
         $booking_id = $this->input->post('booking_id');
         $service_center_id = $this->input->post('service_center_id');
            
-        log_message('info', "Booking ID: " . $booking_id . ", Service centre: " . $service_center_id);
+        log_message('info', "Async Process to assign booking - Booking ID: " . $booking_id . ", Service centre: " . $service_center_id);
 
-        //Assign service centre
-        $this->booking_model->assign_booking($booking_id, $service_center_id);
         $unit_details = $this->booking_model->getunit_details($booking_id);
         foreach ($unit_details[0]['quantity'] as $value ) { 
             $data = array();
