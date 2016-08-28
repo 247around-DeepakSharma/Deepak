@@ -112,10 +112,7 @@
                             <a href="<?php echo base_url() ?>employee/bookings_excel/upload_delivered_products_for_paytm_excel"><i class="fa fa-fw fa-desktop "></i> <strong> Upload Paytm Booking</strong></a>
                             </li>
                         <li class="divider"></li>
-                        <li >
-                            <a href="<?php echo base_url() ?>employee/invoice/invoice_partner_view"><i class="fa fa-fw fa-desktop"></i> <strong> Partner Invoices</strong></a>
-                        </li>
-                        <li class="divider"></li>
+                       
                         <li>
                             <a href="<?php echo base_url() ?>employee/invoice/show_all_transactions/partner"><i class="fa fa-fw fa-desktop "></i> <strong>Show All Transactions</strong></a>
                         </li>
@@ -149,10 +146,8 @@
                             <a href="<?php echo base_url() ?>employee/vendor/get_broadcast_mail_to_vendors_form"><i class="fa fa-fw fa-desktop"></i> <strong> Send Broadcast Email</strong></a>
                         </li>
                         <li class="divider"></li>
-                        <li>
-                            <a href="<?php echo base_url() ?>employee/invoice"><i class="fa fa-fw fa-desktop "></i> <strong> Show Invoices</strong></a>
-                        </li>
-                        <li class="divider"></li>
+                       
+                        
                         <li>
                             <a href="<?php echo base_url() ?>employee/invoice/get_add_new_transaction"><i class="fa fa-fw fa-desktop "></i> <strong>Add New Transaction</strong></a>
                         </li>
@@ -188,6 +183,26 @@
                     <!-- /.dropdown-user -->
                 </li>
                 <!-- /.dropdown -->
+                 <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-fw fa-arrows-v"></i> Invoices <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/invoice"><i class="fa fa-fw fa-desktop "></i> <strong> Service Center Invoices</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                         <li >
+                            <a href="<?php echo base_url() ?>employee/invoice/invoice_partner_view"><i class="fa fa-fw fa-desktop"></i> <strong> Partner Invoices</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/invoice/get_invoices_form" ><i class="fa fa-fw fa-desktop"></i> <strong> Generate Invoices</strong></a>
+                        </li>
+                    </ul>
+                    <!-- /.dropdown-user -->
+                </li>
+
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     <i class="fa fa-fw fa-arrows-v"></i> Reports <i class="fa fa-caret-down"></i>
