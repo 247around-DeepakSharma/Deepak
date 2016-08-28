@@ -113,7 +113,7 @@ color: red;
               <h1>Generate Invoices</h1>
 	      <br>
 	      <div class="form-group ">
-                  <label class="col-md-2">Select Party<span class="red">*</span></label>
+                  <label class="col-md-2">Entity Type<span class="red">*</span></label>
 		  <div class="col-md-6">
 		      <input type="radio" onclick="partner_vendor1(<?php echo $id; ?>);"  name="partner_vendor"  checked="checked" value = "vendor" >    Service Centre &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 		      <input type="radio" onclick="partner_vendor1(<?php echo $id; ?>);" name="partner_vendor" value = "partner" >    Partner &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -122,7 +122,7 @@ color: red;
               <center><img id="loader_gif" src=""></center>
 
              <div class="form-group ">
-              <label for="name" class="col-md-2">Name</label>
+              <label for="name" class="col-md-2">Company Name</label>
                 <div class="col-md-3">
                   <select type="text" class="form-control"  id="name" name="partner_vendor_id"  required></select>
                 </div>
@@ -131,19 +131,19 @@ color: red;
 
 
               <div class="form-group ">
-		  <label for="name" class="col-md-2">Draft/Final <span class="red">*</span></label>
+		  <label for="name" class="col-md-2">Invoice Version <span class="red">*</span></label>
 		  <div class="col-md-6">
-		      <input type="radio"  name="invoices_type" value = "draft" checked>   Draft &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		      <input type="radio"  name="invoices_type" value = "final">    Final &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		      <input type="radio"  name="invoice_version" value = "draft" checked>   Draft &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		      <input type="radio"  name="invoice_version" value = "final">    Final &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
                 </div>
             <span id="errmsg1"></span>
               </div>
 
                <div class="form-group ">
-		  <label for="name" class="col-md-2">Invoice Type <span class="red">*</span></label>
+		  <label for="name" class="col-md-2">Invoice Type<span class="red">*</span></label>
 		  <div class="col-md-6">
-		      <input type="radio"  id="myRadio1" name="vendor_invoice_type" value = "All" checked>   All &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		      <input type="radio"  id="myRadio1" name="vendor_invoice_type" value = "all" checked>   All &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 		      <input type="radio"  id="myRadio2" name="vendor_invoice_type" value = "foc">    FOC &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                       <input type="radio"  id="myRadio3" name="vendor_invoice_type" value = "cash">    CASH &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
@@ -153,7 +153,7 @@ color: red;
               </div>
 
               <div class="form-group">
-            	<label for="name" class="col-md-2">Invoices Month <span class="red">*</span></label>
+            	<label for="name" class="col-md-2">Month<span class="red">*</span></label>
                 <div class="col-md-2">
                     <select name="invoice_month">
                         <option value="01">Jan</option>

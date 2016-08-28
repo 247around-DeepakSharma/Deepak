@@ -10,6 +10,7 @@ if (!defined('BASEPATH')) {
  * @author anujaggarwal
  */
 class Notify {
+
     var $My_CI;
 
     function __Construct() {
@@ -181,13 +182,12 @@ class Notify {
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
 
-		curl_exec($ch);
-		curl_error($ch);
-		curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$http_result = curl_exec($ch);
+		$error = curl_error($ch);
+		$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
+		log_message('info', __FUNCTION__ . "=> " . print_r(array($error, $http_code), TRUE));
 		curl_close($ch);
-
-		//log_message('info', __FUNCTION__ . "=> " . print_r(array($http_result, $error, $http_code), TRUE));
 
 		break;
 	}
@@ -284,33 +284,33 @@ class Notify {
 		$email['tag'] = "open_completed_booking";
 		$email['subject'] = " Booking Converted to Pending - AROUND";
 		break;
-            
-            case 'Customer not reachable':
-                if ($is_sd) {
+
+	    case 'Customer not reachable':
+		if ($is_sd) {
 		    $sms['tag'] = "call_not_picked_snapdeal";
 		} else {
 		    $sms['tag'] = "call_not_picked_other";
 		}
 		$sms['smsData']['name'] = $query1[0]['name'];
-		
+
 		$this->send_sms($sms);
-                break;
-                
-            case 'Newbooking':
-                 if ($is_sd == FALSE) {
+		break;
 
-                    $sms['tag'] = "add_new_booking";
-                    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
-                    $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
-                    
-                    $this->notify->send_sms($sms);
-                } else {
-                    $sms['tag'] = "new_snapdeal_booking";
-                    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
-                    $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
+	    case 'Newbooking':
+		if ($is_sd == FALSE) {
 
-                    $this->notify->send_sms($sms);
-                }
+		    $sms['tag'] = "add_new_booking";
+		    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
+		    $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
+
+		    $this->notify->send_sms($sms);
+		} else {
+		    $sms['tag'] = "new_snapdeal_booking";
+		    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
+		    $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
+
+		    $this->notify->send_sms($sms);
+		}
 	}
 
 	$this->send_email($email);

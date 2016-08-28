@@ -6,12 +6,10 @@
         var confirm_call = confirm("Call Vendor ?");
        
         if (confirm_call == true) {
-            alert(phone_number);
              $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number,
                 success: function(response) {
-                    console.log(response);
                 }
             });
         } else {
@@ -20,6 +18,7 @@
 
     }
 </script>
+
 <div  id="page-wrapper">
     <div class="row">
       <div >
