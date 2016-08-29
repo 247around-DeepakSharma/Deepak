@@ -72,7 +72,7 @@ class Service_centers extends CI_Controller {
         $service_center_id = $this->session->userdata('service_center_id');
 
         $offset = ($this->uri->segment(3) != '' ? $this->uri->segment(3) : 0);
-        $config['base_url'] = base_url() . 'service_centers/pending_booking';
+        $config['base_url'] = base_url() . 'service_center/pending_booking';
         $config['total_rows'] = $this->service_centers_model->getPending_booking("count","",$service_center_id);
 
         $config['per_page'] = $page;
@@ -272,7 +272,7 @@ class Service_centers extends CI_Controller {
         $service_center_id = $this->session->userdata('service_center_id');
 
         $offset = ($this->uri->segment(3) != '' ? $this->uri->segment(3) : 0);
-        $config['base_url'] = base_url() . 'service_centers/completed_booking';
+        $config['base_url'] = base_url() . 'service_center/completed_booking';
         $config['total_rows'] = $this->service_centers_model->getcompleted_or_cancelled_booking("count","",$service_center_id,"Completed");
 
         $config['per_page'] = $page;
@@ -307,7 +307,7 @@ class Service_centers extends CI_Controller {
         $service_center_id = $this->session->userdata('service_center_id');
 
         $offset = ($this->uri->segment(3) != '' ? $this->uri->segment(3) : 0);
-        $config['base_url'] = base_url() . 'service_centers/completed_booking';
+        $config['base_url'] = base_url() . 'service_center/cancelled_booking';
         $config['total_rows'] = $this->service_centers_model->getcompleted_or_cancelled_booking("count","",$service_center_id,"Cancelled");
 
         $config['per_page'] = $page;

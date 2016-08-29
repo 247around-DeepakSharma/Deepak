@@ -99,7 +99,7 @@
 
         <div class="modal-footer">
           <button type="button" class="btn btn-default" style="background-color:#2C9D9C; border-color: #2C9D9C; color: #fff;" onclick="call_booking_form()">Add Booking</button> 
-          <button type="button" class="btn btn-default" dismiss="modal">Close</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
       </div>
       

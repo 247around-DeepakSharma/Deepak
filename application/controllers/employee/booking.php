@@ -445,7 +445,7 @@ class Booking extends CI_Controller {
         $config['base_url'] = base_url() . 'employee/booking/viewclosedbooking/' . $status;
         $config['total_rows'] = $this->booking_model->total_closed_booking($status, $booking_id);
         $config['per_page'] = $page;
-        $config['uri_segment'] = 4;
+        $config['uri_segment'] = 5;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
 
@@ -971,7 +971,7 @@ class Booking extends CI_Controller {
         $config['total_rows'] = $this->booking_model->total_queries($status, $booking_id);
 
         $config['per_page'] = $page;
-        $config['uri_segment'] = 4;
+        $config['uri_segment'] = 5;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
 

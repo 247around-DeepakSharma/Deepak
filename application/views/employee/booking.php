@@ -362,7 +362,7 @@
                 <input type="hidden" id="total_no_rows" value="<?php echo $count;?>">
 
                 </table>
-                <?php if(!empty($links)){ ?><div class="pagination" style="float:left;"> <?php if(isset($links)){echo $links;} ?></div> <?php }  ?>
+                <?php if(!empty($links)){ ?><div class="custom_pagination" style="float:left;margin-top: 20px;margin-bottom: 20px;"> <?php if(isset($links)){echo $links;} ?></div> <?php } ?>
                 </div>
 
             </div>

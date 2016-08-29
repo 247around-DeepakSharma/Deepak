@@ -80,7 +80,7 @@
       </div>
    </div>
 </div>
- <div class="pagination" style="margin-left: 16px;" > <?php if(isset($links)) echo $links; ?></div>
+  <?php if(!empty($links)){ ?><div class="custom_pagination" style="float:left;margin-top: 20px;margin-bottom: 20px;"> <?php if(isset($links)){echo $links;} ?></div> <?php } ?>
 
  <style type="text/css">
 
