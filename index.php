@@ -38,8 +38,8 @@ if (defined('ENVIRONMENT'))
 			ini_set('display_errors', 1);
 			define('libreoffice_pdf', '/var/www/libreoffice');
 			define('libreoffice_output_file', '/var/www/output.txt');
-			define('port', 80);
-			define('ssl', "");
+			define('AROUND_CONFIG_PORT', 80);
+			define('AROUND_CONFIG_SSL', "");
            
             break;
 
@@ -48,8 +48,8 @@ if (defined('ENVIRONMENT'))
 			ini_set('display_errors', 1);
 			define('libreoffice_pdf', '/home/abhay/libreoffice_tmp');
 			define('libreoffice_output_file', '/home/abhay/libreoffice_tmp/output.txt');
-			define('port', 80);
-			define('ssl', "");
+			define('AROUND_CONFIG_PORT', 80);
+			define('AROUND_CONFIG_SSL', "");
            
             break;
 
@@ -59,8 +59,8 @@ if (defined('ENVIRONMENT'))
 			ini_set('display_errors', 1);
 			define('libreoffice_pdf', '');
 			define('libreoffice_output_file', '');
-			define('port', 80);
-			define('ssl', "");
+			define('AROUND_CONFIG_PORT', 80);
+			define('AROUND_CONFIG_SSL', "");
             
             break;
 		case 'development':
@@ -76,8 +76,8 @@ if (defined('ENVIRONMENT'))
 			error_reporting(0);
 			define('libreoffice_pdf', '/home/around/libreoffice_tmp');
 			define('libreoffice_output_file', '/home/around/libreoffice_tmp/output.txt');
-			define('port', 443);
-			define('ssl', "ssl://");
+			define('AROUND_CONFIG_PORT', 443);
+			define('AROUND_CONFIG_SSL', "ssl://");
 			
 		break;
 
