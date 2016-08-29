@@ -676,3 +676,29 @@ ALTER TABLE `booking_unit_details` CHANGE `customer_total` `customer_total` DECI
 
 
 ALTER TABLE  `booking_unit_details` CHANGE  `partner_paid_basic_charges`  `partner_paid_basic_charges` DECIMAL( 10, 2 ) NULL DEFAULT  '0.00' COMMENT  'store partner basic charge with tax';
+
+/** Vendor invoices snapshot**/
+
+CREATE TABLE IF NOT EXISTS `vendor_invoices_snapshot` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `invoice_id` varchar(255) NOT NULL,
+  `vendor_id` int(11) NOT NULL,
+  `type_code` varchar(10) NOT NULL,
+  `booking_id` varchar(100) NOT NULL,
+  `city` varchar(100) NOT NULL,
+  `appliance` varchar(100) NOT NULL,
+  `appliance_category` varchar(100) DEFAULT NULL,
+  `appliance_capacity` varchar(100) DEFAULT NULL,
+  `closed_date` datetime NOT NULL,
+  `service_category` varchar(100) NOT NULL,
+  `service_charge` decimal(10,2) DEFAULT '0.00',
+  `service_tax` decimal(10,2) DEFAULT '0.00',
+  `stand` decimal(10,2) DEFAULT '0.00',
+  `vat` decimal(10,2) DEFAULT '0.00',
+  `around_discount` decimal(10,2) DEFAULT '0.00',
+  `addtional_service_charge` decimal(10,2) DEFAULT '0.00',
+  `parts_cost` decimal(10,2) DEFAULT '0.00',
+  `amount_paid` decimal(10,2) DEFAULT '0.00',
+  `rating` varchar(10) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;

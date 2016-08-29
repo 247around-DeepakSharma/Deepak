@@ -7,8 +7,6 @@ class invoices_model extends CI_Model {
      */
     function __construct() {
 	parent::__Construct();
-
-	$this->db_location = $this->load->database('default1', TRUE, TRUE);
 	$this->db = $this->load->database('default', TRUE, TRUE);
     }
 
@@ -28,8 +26,9 @@ class invoices_model extends CI_Model {
 	//If it doesn't, insert it; else return
 	$this->db->where('booking_id', $details['booking_id']);
 	$query = $this->db->get('booking_invoices_mapping');
-	if (count($query->result_array()) == 0)
+	if (count($query->result_array()) == 0) {
 	    $this->db->insert('booking_invoices_mapping', $details);
+	}
     }
 
     /*
@@ -173,7 +172,7 @@ class invoices_model extends CI_Model {
 
 	    $data = $this->partner_model->getpartner();
 	}
-	foreach ($data as $key => $value) {
+	foreach ($data as $value) {
 
 	    $sql = "SELECT COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid FROM  `vendor_partner_invoices` WHERE vendor_partner_id =  $value[id] AND vendor_partner =  '$vendor_partner'  AND `due_date` <= CURRENT_DATE()";
 
@@ -236,7 +235,7 @@ class invoices_model extends CI_Model {
 	for ($i = 1; $i < 3; $i++) {
 
 	    if ($i == 1) {
-	    	//for cash invoice, we get around_to_vendor > 0 and vendor to around =0 and also get around to vendor is zero and vendor to around =0
+		//for cash invoice, we get around_to_vendor > 0 and vendor to around =0 and also get around to vendor is zero and vendor to around =0
 		$where = " AND ( ( `booking_unit_details`.vendor_to_around > 0 AND `booking_unit_details`.around_to_vendor =0 ) OR ( `booking_unit_details`.vendor_to_around = 0 AND `booking_unit_details`.around_to_vendor =0 ) )  ";
 	    } else {
 		//for cash invoices, we get around to vendor >0 and vendor to around =0
@@ -248,7 +247,7 @@ class invoices_model extends CI_Model {
 
 		if ($date_range != "") {
 		    $where .= "  AND booking_details.closed_date >= '$from_date' AND booking_details.closed_date < '$to_date' ";
-		    $date = "  '$from_date' as start_date,  '$to_date'  as end_date,  ";
+		    $date = "  '$from_date' as start_date,  '".date('Y-m-d', strtotime($to_date . " - 1 day"))."'  as end_date,  ";
 		} else {
 		    $where .=" AND  booking_details.closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
 AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
@@ -259,16 +258,16 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
                           WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id AND `services`.id = `booking_details`.service_id  AND `booking_details`.assigned_vendor_id = `service_centres`.id AND current_status = 'Completed' AND assigned_vendor_id = $value[vendor_id] AND `booking_unit_details`.booking_status = 'Completed' $where ";
 
 		$sql1 = "SELECT  `booking_details`.booking_id, `booking_details`.city, `booking_details`.internal_status,
-		     date_format(`booking_details`.`closed_date`,'%d/%m/%Y') as closed_date, rating_stars, `booking_unit_details`.price_tags,
+		     date_format(`booking_details`.`closed_date`,'%d/%m/%Y') as closed_date, `booking_details`.closed_date as closed_booking_date, rating_stars, `booking_unit_details`.price_tags,
 		     `booking_unit_details`.appliance_category, `booking_unit_details`.appliance_capacity,
 		     `booking_unit_details`.vendor_extra_charges, `booking_unit_details`.vendor_st_extra_charges, customer_paid_extra_charges as additional_charges,
-		     (customer_paid_basic_charges + around_net_payable ) as service_charges, customer_paid_parts as parts_cost, `services`.services,
+		     (customer_paid_basic_charges + around_paid_basic_charges ) as service_charges, customer_paid_parts as parts_cost, `services`.services,
 		     vendor_to_around, customer_net_payable, partner_net_payable,around_to_vendor,
 		     (customer_paid_basic_charges + customer_paid_extra_charges + customer_paid_parts) as amount_paid ,
 		     `service_centres`.name, `service_centres`.id, `service_centres`.sc_code, `service_centres`.address,
 		     `service_centres`.beneficiary_name, `service_centres`.bank_account, `service_centres`.bank_name,
 		     `service_centres`.ifsc_code,  `service_centres`.owner_email,  `service_centres`.primary_contact_email, `service_centres`.owner_phone_1,
-		     `service_centres`.primary_contact_phone_1, `booking_unit_details`.  product_or_services, `booking_unit_details`.around_net_payable,
+		     `service_centres`.primary_contact_phone_1, `booking_unit_details`.  product_or_services, `booking_unit_details`.around_paid_basic_charges as around_net_payable,
 		     (customer_net_payable + partner_net_payable + around_net_payable) as total_booking_charge, $date
 
                      /* get sum of vat charges if product_or_services is product else sum of vat is zero  */
@@ -307,7 +306,8 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
                      (SELECT SUM(customer_paid_parts * 0.05) $condition ) AS calcutated_parts_tax,
                       /* Calculate  Avg rating */
 
-                     (SELECT ROUND(AVG(rating_stars),1) $condition ) AS avg_rating,
+		             (SELECT ROUND(AVG(case when rating_stars > 0  then rating_stars else null
+                                end),1) $condition ) AS avg_rating,
 
                      (SELECT SUM((customer_paid_basic_charges + customer_paid_extra_charges + customer_paid_parts)) $condition ) AS total_amount_paid,
                        /* Calculate total amount to be pay */
@@ -327,7 +327,7 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 	return $invoice;
     }
 
-    /**
+        /**
      * @desc: this method generates invoice summary and also details. when this method executes 1st for loop then  get all data  for invoices details and executes 2nd for loop then get add data for invoice summary.
      * @param: partner id and date range
      * @return: Array()
@@ -426,6 +426,10 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 
 	$return = $query->result_array();
 	return $return[0]['count'];
+    }
+
+    function insert_invoice_row($invoices_data) {
+	$this->db->insert('vendor_invoices_snapshot', $invoices_data);
     }
 
 }

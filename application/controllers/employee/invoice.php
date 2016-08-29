@@ -617,13 +617,6 @@ class Invoice extends CI_Controller {
 		//Make sure it is unique
 		$invoice_id = $invoices[0]['sc_code'] . "-" . date("dMY") . "-A-" . rand(100, 999);
 
-		// If avg_rating variable is null or Selec string then set empty
-		if (is_null($invoices[0]['avg_rating'])) {
-		    $invoices[0]['avg_rating'] = "";
-		} else if ($invoices[0]['avg_rating'] == "Selec") {
-		    $invoices[0]['avg_rating'] = "";
-		}
-
 		$service_tax_rate = SERVICE_TAX_RATE;
 		$r_st = round($invoices[0]['amount_to_be_pay'] * $service_tax_rate, 0); //service tax calculated on royalty
 		//Find total charges for these bookings
@@ -763,7 +756,6 @@ class Invoice extends CI_Controller {
 		    $sms['phone_no'] = $invoices[0]['owner_phone_1'];
 
 		    $this->notify->send_sms($sms);
-
 		    //Upload Excel files to AWS
 		    $bucket = 'bookings-collateral';
 		    $directory_xls = "invoices-excel/" . $output_file . ".xlsx";
@@ -771,7 +763,6 @@ class Invoice extends CI_Controller {
 
 		    $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 		    $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
-
 		    //Save this invoice info in table
 		    $invoice_details = array(
 			'invoice_id' => $invoice_id,
@@ -808,6 +799,9 @@ class Invoice extends CI_Controller {
 		     * Since this is a type 'Cash' invoice, it would be stored as a vendor-debit invoice.
 		     */
 		    $this->update_booking_invoice_mappings_repairs($invoices, $invoice_id);
+
+		    // insert data into vendor invoices snapshot
+		    $this->insert_cash_invoices_snapshot($invoices, $invoice_id);
 		}
 
 		//Save filenames to delete later on
@@ -833,6 +827,64 @@ class Invoice extends CI_Controller {
     }
 
     /**
+     * @desc: This Method used to insert foc invoice snapshot into vendor invoices snapshot table
+     * @param type $invoices_data
+     * @param type $invoice_id
+     */
+    function insert_foc_invoices_snapshot($invoices_data, $invoice_id) {
+	$data = array();
+	foreach ($invoices_data as $value) {
+	    $data['booking_id'] = $value['booking_id'];
+	    $data['invoice_id'] = $invoice_id;
+	    $data['vendor_id'] = $invoices_data[0]['id'];
+	    $data['type_code'] = "B";
+	    $data['city'] = $value['city'];
+	    $data['appliance'] = $value['services'];
+	    $data['appliance_category'] = $value['appliance_category'];
+	    $data['appliance_capacity'] = $value['appliance_capacity'];
+	    $data['closed_date'] = $value['closed_booking_date'];
+	    $data['service_category'] = $value['price_tags'];
+	    $data['service_charge'] = $value['installation_charge'];
+	    $data['service_tax'] = $value['st'];
+	    $data['stand'] = $value['stand'];
+	    $data['vat'] = $value['vat'];
+	    $data['amount_paid'] = $value['amount_paid'];
+	    $data['rating'] = $value['rating_stars'];
+
+	    $this->invoices_model->insert_invoice_row($data);
+	}
+    }
+
+    /**
+     * @desc: This Method used to insert Cash invoice snapshot into vendor invoices snapshot table
+     * @param type $invoices_data
+     * @param type $invoice_id
+     */
+    function insert_cash_invoices_snapshot($invoices_data, $invoice_id) {
+	$data = array();
+	foreach ($invoices_data as $value) {
+	    $data['booking_id'] = $value['booking_id'];
+	    $data['invoice_id'] = $invoice_id;
+	    $data['vendor_id'] = $invoices_data[0]['id'];
+	    $data['type_code'] = "A";
+	    $data['city'] = $value['city'];
+	    $data['appliance'] = $value['services'];
+	    $data['appliance_category'] = $value['appliance_category'];
+	    $data['appliance_capacity'] = $value['appliance_capacity'];
+	    $data['closed_date'] = $value['closed_booking_date'];
+	    $data['service_category'] = $value['price_tags'];
+	    $data['service_charge'] = $value['service_charges'];
+	    $data['around_discount'] = $value['around_net_payable'];
+	    $data['addtional_service_charge'] = $value['additional_charges'];
+	    $data['parts_cost'] = $value['parts_cost'];
+	    $data['amount_paid'] = $value['amount_paid'];
+	    $data['rating'] = $value['rating_stars'];
+
+	    $this->invoices_model->insert_invoice_row($data);
+	}
+    }
+
+    /**
      * @desc: This is used to generates foc type invoices for vendor
      * @param: Array()
      * @return: Array (booking id)
@@ -855,6 +907,8 @@ class Invoice extends CI_Controller {
 		$total_st_charge = 0;
 		$total_stand_charge = 0;
 		$total_vat_charge = 0;
+		$rating_count = 0;
+		$t_rating = 0;
 
 		// Calculate charges
 		for ($j = 0; $j < count($data[$i]); $j++) {
@@ -863,6 +917,7 @@ class Invoice extends CI_Controller {
 		    $total_stand_charge += $data[$i][$j]['stand'];
 		    $total_vat_charge += $data[$i][$j]['vat'];
 		    $invoices[$j]['amount_paid'] = $data[$i][$j]['installation_charge'] + $data[$i][$j]['st'] + $data[$i][$j]['stand'] + $data[$i][$j]['vat'];
+
 		}
 
 		$r_ic = $total_inst_charge * .30;
@@ -902,13 +957,6 @@ class Invoice extends CI_Controller {
 		//B means it is for the FOC type of invoice as explained above
 		//Make sure it is unique
 		$invoice_id = $invoices[0]['sc_code'] . "-" . date("dMY") . "-B-" . rand(100, 999);
-
-		// If avg_rating variable is null or Selec string then set empty
-		if (is_null($invoices[0]['avg_rating'])) {
-		    $invoices[0]['avg_rating'] = "";
-		} else if ($invoices[0]['avg_rating'] == "Selec") {
-		    $invoices[0]['avg_rating'] = "";
-		}
 
 		// stores charges
 		$excel_data = array(
@@ -1044,8 +1092,7 @@ class Invoice extends CI_Controller {
 		    $sms['smsData']['amount'] = $excel_data['t_total'];
 		    $sms['phone_no'] = $invoices[0]['owner_phone_1'];
 
-		    $this->notify->send_sms($sms);
-
+		   // $this->notify->send_sms($sms);
 		    //Upload Excel files to AWS
 		    //$bucket = 'bookings-collateral-test';
 		    $bucket = 'bookings-collateral';
@@ -1054,7 +1101,6 @@ class Invoice extends CI_Controller {
 
 		    $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 		    $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
-
 		    //Save this invoice info in table
 		    $invoice_details = array(
 			'invoice_id' => $invoice_id,
@@ -1089,7 +1135,9 @@ class Invoice extends CI_Controller {
 		     * Update booking-invoice table to capture this new invoice against these bookings.
 		     * Since this is a type B invoice, it would be stored as a vendor-credit invoice.
 		     */
-		    //$this->update_booking_invoice_mappings_installations($invoices, $invoice_id);
+		    $this->update_booking_invoice_mappings_installations($invoices, $invoice_id);
+		    // insert data into vendor invoices snapshot
+		    $this->insert_foc_invoices_snapshot($invoices, $invoice_id);
 		}
 
 		//Save filenames to delete later on
@@ -1170,13 +1218,13 @@ class Invoice extends CI_Controller {
 	$date_range = date('Y') . "/" . $invoice_month . "/01-" . $year . "/" . $next_month . "/01";
 
 	if ($vendor_partner === "vendor") {
-	    log_message('info', "Invoice generate - vendor id: " . print_r($vendor_partner_id) . ", Date Range" .
+	    log_message('info', "Invoice generate - vendor id: " . print_r($vendor_partner_id, true) . ", Date Range" .
 		print_r($date_range, true) . ", Invoice version" . print_r($invoice_version, true) . ", Invoice type" .
 		print_r($vendor_invoice_type, true));
 
 	    $this->generate_vendor_invoices($vendor_partner_id, $date_range, $invoice_version, $vendor_invoice_type);
 	} else if ($vendor_partner === "partner") {
-	    log_message('info', "Invoice generate - partner id: " . print_r($vendor_partner_id) . ", Date Range" .
+	    log_message('info', "Invoice generate - partner id: " . print_r($vendor_partner_id, true) . ", Date Range" .
 		print_r($date_range, true) . ", Invoice status" . print_r($invoice_version, true));
 
 	    $this->generate_partner_invoices($vendor_partner_id, $date_range, $invoice_version);
@@ -1184,7 +1232,7 @@ class Invoice extends CI_Controller {
 
 
 
-	//redirect(base_url() . "employee/invoice/get_invoices_form");
+	redirect(base_url() . "employee/invoice/get_invoices_form");
     }
 
     /**

@@ -20,7 +20,7 @@ class Asynchronous_lib {
 	$parts = parse_url($url);
 	$errno = 0;
 	$errstr = "";
-        $fp = fsockopen(ssl . $parts['host'], isset($parts['port']) ? $parts['port'] : port, $errno, $errstr, 30);
+        $fp = fsockopen(AROUND_CONFIG_SSL . $parts['host'], isset($parts['port']) ? $parts['port'] : AROUND_CONFIG_PORT, $errno, $errstr, 30);
 	if (!$fp) {
 	    echo "Error occured while opening the socket: " . $errno . " Msg: " . $errstr;
 	    log_message('info', "Error occured while opening the socket: " . $errno . " Msg: " . $errstr);
