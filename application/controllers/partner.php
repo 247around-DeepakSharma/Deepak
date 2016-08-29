@@ -1412,7 +1412,9 @@ class Partner extends CI_Controller {
             //Add this as a Query now
             $booking['booking_id'] = '';
             $booking['user_id'] = $user_id;
+            $appliance_details['user_id'] = $booking['user_id'];
             $booking['service_id'] = $this->booking_model->getServiceId($lead_details['Product']);
+            $unit_details['service_id'] = $appliance_details['service_id'] = $booking['service_id'];
             log_message('info', __METHOD__ . ":: Service ID: " . $booking['service_id']);
             //echo "Service ID: " . $booking['service_id'] . PHP_EOL;
 
