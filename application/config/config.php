@@ -16,8 +16,7 @@
 | path to your installation.
 |
 */
-//$config['base_url']   = 'https://aroundhomzapp.com/';
-$config['base_url'] = 'http://localhost:8888/247around-adminp-dev/';
+$config['base_url']   = 'https://aroundhomzapp.com/';
 
 /*
 |--------------------------------------------------------------------------

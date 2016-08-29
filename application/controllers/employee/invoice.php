@@ -1093,7 +1093,7 @@ class Invoice extends CI_Controller {
 		    $sms['phone_no'] = $invoices[0]['owner_phone_1'];
 
 		    $this->notify->send_sms($sms);
-
+		    
 		    //Upload Excel files to AWS
 		    $bucket = 'bookings-collateral';
 		    $directory_xls = "invoices-excel/" . $output_file . ".xlsx";
