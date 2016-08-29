@@ -104,8 +104,10 @@ class Booking extends CI_Controller {
             $booking['booking_id'] = $this->create_booking_id($user_id, $booking['source'], $booking['type'], $booking['booking_date']);
         } else {
             $price_tags = array();
-            $booking['booking_id'] = $this->change_in_booking_id($booking['type'], $booking_id);
-        }
+            $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id);
+	    $booking['booking_id'] = $booking_id_with_flag['booking_id'];
+	    $booking['query_to_booking'] = $booking_id_with_flag['queries_to_booking'];
+	}
         $service = $booking['services'];
         $booking_remarks = $this->input->post('query_remarks');
         // All brand comming in array eg-- array([0]=> LG, [1]=> BPL)
@@ -315,34 +317,37 @@ class Booking extends CI_Controller {
      * @return booking id
      */
     function change_in_booking_id($booking_type, $booking_id) {
-        $converted_booking_id = $booking_id;
+        $data['booking_id'] = $booking_id;
+	$data['query_to_booking'] = '0';
+
 
 	switch ($booking_type) {
             case "Booking":
 		if (strpos($booking_id, "Q-") !== FALSE) {
 		    //Query to be converted to Booking
 		    $booking_id_array = explode("Q-", $booking_id);
-                    $converted_booking_id = $booking_id_array[1];
-                    $this->notify->insert_state_change($converted_booking_id, "Pending", "FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'));
-                } else {
+                    $data['booking_id'] = $booking_id_array[1];
+		    $data['query_to_booking'] = '1';
+		    $this->notify->insert_state_change($data['booking_id'], "Pending", "FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'));
+		} else {
 		    //Booking to be updated to booking
-		    $converted_booking_id = $booking_id;
-                    $this->notify->insert_state_change($converted_booking_id, "Pending", "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
-                }
+		    $data['booking_id'] = $booking_id;
+		    $this->notify->insert_state_change($data['booking_id'], "Pending", "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
+		}
 
 		break;
 
 	    case "Query":
 		if (strpos($booking_id, "Q-") === FALSE) {
 		    //Booking to be converted to query
-		    $converted_booking_id = "Q-" . $booking_id;
-                    //param:-- booking id, new state, old state, employee id, employee name
-                    $this->notify->insert_state_change($converted_booking_id, "FollowUp", "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
-                } else {
+		    $data['booking_id'] = "Q-" . $booking_id;
+		    //param:-- booking id, new state, old state, employee id, employee name
+                    $this->notify->insert_state_change($data['booking_id'], "FollowUp", "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
+		} else {
 		    //Query to be updated to query
-		    $converted_booking_id = $booking_id;
-                    $this->notify->insert_state_change($converted_booking_id, "FollowUp", "FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'));
-                }
+		    $data['booking_id'] = $booking_id;
+		    $this->notify->insert_state_change($data['booking_id'], "FollowUp", "FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'));
+		}
 
 		//Since booking has been converted to query, delete this entry from
 		//service center booking action table as well.
@@ -354,7 +359,7 @@ class Booking extends CI_Controller {
 		break;
 	}
 
-        return $converted_booking_id;
+        return $data;
     }
 
     /**
@@ -1032,24 +1037,19 @@ class Booking extends CI_Controller {
 
         $booking = $this->getAllBookingInput($user_id, $booking_id);
 
-        if ($booking['type'] == 'Booking') {
-            $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+        if ($booking['query_to_booking'] == '1') {
+	    $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
             $send['booking_id'] = $booking['booking_id'];
             $send['state'] = "Newbooking";
             $this->asynchronous_lib->do_background_process($url, $send);
 
-            $to = "anuj@247around.com, nits@247around.com";
-            $from = "booking@247around.com";
-            $cc = "";
-            $bcc = "";
-            $subject = 'Booking Confirmation-AROUND';
-            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $booking['message'], "");
         }
 
         unset($booking['message']); // unset message body from booking deatils array
         unset($booking['services']); // unset service name from booking details array
+	unset($booking['query_to_booking']);
 
-        $this->booking_model->update_booking($booking_id, $booking);
+	$this->booking_model->update_booking($booking_id, $booking);
 
         $this->partner_cb->partner_callback($booking_id);
 
