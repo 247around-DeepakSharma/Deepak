@@ -139,7 +139,6 @@ class Partner extends CI_Controller {
                         $output = $this->user_model->search_user($requestData['mobile']);
 
                         if (empty($output)) {
-                            $state = "";
                             log_message('info', $requestData['mobile'] . ' does not exist');
 
                             //User doesn't exist
@@ -176,27 +175,33 @@ class Partner extends CI_Controller {
                             $user_id = $output[0]['user_id'];
                         }
 
-                        if (substr($requestData['pincode'], 0, 1) == "6") {
-                            switch ($rowData[0]['Brand']) {
-                                case 'Wybor':
-                                    $booking['partner_id'] = $this->partner['id'] = '247010';
-                                    $booking['source'] = "SY";
-                                    break;
+			//Wybor brand should be tagged to Partner Wybor only if the
+			//state is Tamilnadu (pincode starts from 6). Else it would be
+			//tagged to Snapdeal.
+			//Ray brand should be tagged to Ray.
+			//All other brands would go to Snapdeal.
+			switch ($requestData['brand']) {
+			    case 'Wybor':
+				if (substr($requestData['pincode'], 0, 1) == "6") {
+				    $booking['partner_id'] = '247010';
+				    $booking['source'] = "SY";
+				} else {
+				    $booking['partner_id'] = '1';
+				    $booking['source'] = "SS";
+				}
 
-                                case 'Ray':
-                                    $booking['partner_id'] = $this->partner['id'] = '247011';
-                                    $booking['source'] = "SR";
-                                    break;
+				break;
 
-                                default:
-                                    $booking['partner_id'] = $this->partner['id'] = '1';
-                                    $booking['source'] = "SS";
-                                    break;
-                            }
-                        } else {
-                            $booking['partner_id'] = $this->partner['id'] = '1';
-                            $booking['source'] = "SS";
-                        }
+			    case 'Ray':
+				$booking['partner_id'] = '247011';
+				$booking['source'] = "SR";
+				break;
+
+			    default:
+				$booking['partner_id'] = '1';
+				$booking['source'] = "SS";
+				break;
+			}
 
                         $unit_details['partner_id'] = $booking['partner_id'];
                         $booking['order_id'] = $requestData['orderID'];
@@ -1393,10 +1398,10 @@ class Partner extends CI_Controller {
             $unit_details['appliance_category'] = $appliance_details['category'] =  (isset($requestData['category']) ? $requestData['category'] : "");
 
             $unit_details['appliance_capacity'] = $appliance_details['capacity'] =  (isset($requestData['capacity']) ? $requestData['capacity'] : "");
-           
+
             $booking['booking_primary_contact_no'] = $requestData['mobile'];
             $lead_details['booking_alternate_contact_no'] = (isset($requestData['alternatePhone']) ? $requestData['alternatePhone'] : "");
-           
+
            // $booking['booking_address'] = $requestData['address'];
             $booking['booking_landmark'] = (isset($requestData['landmark']) ? $requestData['landmark'] : "");
             $booking['booking_pincode'] = $requestData['pincode'];
@@ -1431,12 +1436,12 @@ class Partner extends CI_Controller {
             $unit_details['booking_id'] = $booking['booking_id'];
 
             $booking['quantity'] = '1';
-            
+
             $appliance_details['serial_number'] = $unit_details['serial_number'] =(isset($requestData['serial_number']) ? $requestData['serial_number'] : "");
 
             $booking['potential_value'] = '';
             $appliance_details['last_service_date'] = date('d-m-Y');
-            
+
 
             $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
             //echo print_r($appliance_id, true) . "<br><br>";
@@ -1444,7 +1449,7 @@ class Partner extends CI_Controller {
             if (!$return_unit_id) {
                 log_message('info', __FUNCTION__ . ' Error Partner booking unit not inserted: ' . print_r($unit_details, true));
             }
- 
+
 
             $booking['current_status'] = "Pending";
             $booking['internal_status'] = "Scheduled";

@@ -1091,15 +1091,17 @@ class Invoice extends CI_Controller {
 		    $sms['smsData']['month'] = date('M Y', strtotime($start_date));
 		    $sms['smsData']['amount'] = $excel_data['t_total'];
 		    $sms['phone_no'] = $invoices[0]['owner_phone_1'];
+
 		    $this->notify->send_sms($sms);
+		    
 		    //Upload Excel files to AWS
-		    //$bucket = 'bookings-collateral-test';
 		    $bucket = 'bookings-collateral';
 		    $directory_xls = "invoices-excel/" . $output_file . ".xlsx";
 		    $directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
 
 		    $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 		    $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+		    
 		    //Save this invoice info in table
 		    $invoice_details = array(
 			'invoice_id' => $invoice_id,

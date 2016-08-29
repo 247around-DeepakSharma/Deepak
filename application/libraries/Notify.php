@@ -313,6 +313,7 @@ class Notify {
 		}
 	}
 
+	//Send internal mails now
 	$this->send_email($email);
     }
 

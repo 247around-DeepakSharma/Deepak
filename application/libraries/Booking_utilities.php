@@ -203,6 +203,7 @@ class Booking_utilities {
 	    $this->My_CI->booking_model->save_vendor_email($details);
             $notify = $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $output_file_pdf);
             if($notify){
+		//Setting flag to 1, once mail is sent.
                 $this->My_CI->booking_model->set_mail_to_vendor($booking_id);
                 
             } else {

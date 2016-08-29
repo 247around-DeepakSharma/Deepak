@@ -149,7 +149,7 @@ class partner_sd_cb {
 
 		default:
 		    $postData['caseStatus'] = "REFUSED_BY_CUSTOMER";
-		    $postData['remarks'] = "cancellation_reason";
+		    $postData['remarks'] = "SERVICE_CANCELLED";
 		    break;
 	    }
 
