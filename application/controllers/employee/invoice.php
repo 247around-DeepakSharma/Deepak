@@ -1091,8 +1091,7 @@ class Invoice extends CI_Controller {
 		    $sms['smsData']['month'] = date('M Y', strtotime($start_date));
 		    $sms['smsData']['amount'] = $excel_data['t_total'];
 		    $sms['phone_no'] = $invoices[0]['owner_phone_1'];
-
-		   // $this->notify->send_sms($sms);
+		    $this->notify->send_sms($sms);
 		    //Upload Excel files to AWS
 		    //$bucket = 'bookings-collateral-test';
 		    $bucket = 'bookings-collateral';
