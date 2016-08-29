@@ -82,7 +82,7 @@ class bookings_excel extends CI_Controller {
 	}
 
 	try {
-	    $inputFileType = PHPExcel_IOFactory::identify($inputFileName);
+	    //$inputFileType = PHPExcel_IOFactory::identify($inputFileName);
 	    $objReader = PHPExcel_IOFactory::createReader($inputFileExtn);
 	    $objPHPExcel = $objReader->load($inputFileName);
 	} catch (Exception $e) {
@@ -90,16 +90,14 @@ class bookings_excel extends CI_Controller {
 	}
 
 	//  Get worksheet dimensions
-	$sheet = $objPHPExcel->setActiveSheetIndexbyName('Sheet1');
+	$sheet = $objPHPExcel->getSheet(0);
 	$highestRow = $sheet->getHighestRow();
 	$highestColumn = $sheet->getHighestColumn();
-	$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
-
+	//$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
 	//echo "highest row: ", $highestRow, EOL;
 	//echo "highest col: ", $highestColumn, EOL;
 	//echo "highest col index: ", $highestColumnIndex, EOL;
 
-	$sheet = $objPHPExcel->getSheet(0);
 	$headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
 
 	$headings_new = array();
@@ -150,28 +148,33 @@ class bookings_excel extends CI_Controller {
 		$user_id = $output[0]['user_id'];
 	    }
 
-	    if (substr($rowData[0]['Pincode'], 0, 1) == "6") {
-		switch ($rowData[0]['Brand']) {
-		    case 'Wybor':
+	    //Wybor brand should be tagged to Partner Wybor only if the
+	    //state is Tamilnadu (pincode starts from 6). Else it would be
+	    //tagged to Snapdeal.
+	    //Ray brand should be tagged to Ray.
+	    //All other brands would go to Snapdeal.
+	    switch ($rowData[0]['Brand']) {
+		case 'Wybor':
+		    if (substr($rowData[0]['Pincode'], 0, 1) == "6") {
 			$booking['partner_id'] = '247010';
 			$booking['source'] = "SY";
-			break;
-
-		    case 'Ray':
-			$booking['partner_id'] = '247011';
-			$booking['source'] = "SR";
-			break;
-
-		    default:
+		    } else {
 			$booking['partner_id'] = '1';
 			$booking['source'] = "SS";
-			break;
-		}
-	    } else {
-		$booking['partner_id'] = '1';
-		$booking['source'] = "SS";
-	    }
+		    }
 
+		    break;
+
+		case 'Ray':
+		    $booking['partner_id'] = '247011';
+		    $booking['source'] = "SR";
+		    break;
+
+		default:
+		    $booking['partner_id'] = '1';
+		    $booking['source'] = "SS";
+		    break;
+	    }
 
 	    //Add this lead into the leads table
 	    //Check whether this is a new Lead or Not
@@ -343,7 +346,7 @@ class bookings_excel extends CI_Controller {
 	}
 
 	try {
-	    $inputFileType = PHPExcel_IOFactory::identify($inputFileName);
+	    //$inputFileType = PHPExcel_IOFactory::identify($inputFileName);
 	    $objReader = PHPExcel_IOFactory::createReader($inputFileExtn);
 	    $objPHPExcel = $objReader->load($inputFileName);
 	} catch (Exception $e) {
@@ -351,12 +354,11 @@ class bookings_excel extends CI_Controller {
 	}
 
 	//  Get worksheet dimensions
-	$sheet = $objPHPExcel->setActiveSheetIndexbyName('Sheet1');
+	$sheet = $objPHPExcel->getSheet(0);
 	$highestRow = $sheet->getHighestRow();
 	$highestColumn = $sheet->getHighestColumn();
-	$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
+	//$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
 
-	$sheet = $objPHPExcel->getSheet(0);
 	$headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
 
 	$headings_new = array();
@@ -406,26 +408,32 @@ class bookings_excel extends CI_Controller {
 		$user_id = $output[0]['user_id'];
 	    }
 
-	    if (substr($rowData[0]['Pincode'], 0, 1) == "6") {
-		switch ($rowData[0]['Brand']) {
-		    case 'Wybor':
+	    //Wybor brand should be tagged to Partner Wybor only if the
+	    //state is Tamilnadu (pincode starts from 6). Else it would be
+	    //tagged to Snapdeal.
+	    //Ray brand should be tagged to Ray.
+	    //All other brands would go to Snapdeal.
+	    switch ($rowData[0]['Brand']) {
+		case 'Wybor':
+		    if (substr($rowData[0]['Pincode'], 0, 1) == "6") {
 			$booking['partner_id'] = '247010';
 			$booking['source'] = "SY";
-			break;
-
-		    case 'Ray':
-			$booking['partner_id'] = '247011';
-			$booking['source'] = "SR";
-			break;
-
-		    default:
+		    } else {
 			$booking['partner_id'] = '1';
 			$booking['source'] = "SS";
-			break;
-		}
-	    } else {
-		$booking['partner_id'] = '1';
-		$booking['source'] = "SS";
+		    }
+
+		    break;
+
+		case 'Ray':
+		    $booking['partner_id'] = '247011';
+		    $booking['source'] = "SR";
+		    break;
+
+		default:
+		    $booking['partner_id'] = '1';
+		    $booking['source'] = "SS";
+		    break;
 	    }
 
 	    //Add this lead into the leads table
@@ -651,7 +659,7 @@ class bookings_excel extends CI_Controller {
 	}
 
 	try {
-	    $inputFileType = PHPExcel_IOFactory::identify($inputFileName);
+	    //$inputFileType = PHPExcel_IOFactory::identify($inputFileName);
 	    $objReader = PHPExcel_IOFactory::createReader($inputFileExtn);
 	    $objPHPExcel = $objReader->load($inputFileName);
 	} catch (Exception $e) {
@@ -663,8 +671,7 @@ class bookings_excel extends CI_Controller {
 	$sheet = $objPHPExcel->getSheet(0);
 	$highestRow = $sheet->getHighestRow();
 	$highestColumn = $sheet->getHighestColumn();
-	$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
-
+	//$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
 	//echo "highest row: ", $highestRow, EOL;
 	//echo "highest col: ", $highestColumn, EOL;
 	//echo "highest col index: ", $highestColumnIndex, EOL;
@@ -783,30 +790,32 @@ class bookings_excel extends CI_Controller {
 		$booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
 		$booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
 
-		//Add source and partner ID depending on the brand
-		//Ray and Wybor are Partners
-		//Hardcoded partner ID & Source as of now
-		//Check whether pincode belongs to Tamilnadu or not
-		if (substr($lead_details['Pincode'], 0, 1) == "6") {
-		    switch ($booking['appliance_brand']) {
-			case 'Wybor':
+		//Wybor brand should be tagged to Partner Wybor only if the
+		//state is Tamilnadu (pincode starts from 6). Else it would be
+		//tagged to Paytm.
+		//Ray brand should be tagged to Ray.
+		//All other brands would go to Paytm.
+		switch ($rowData[0]['Brand']) {
+		    case 'Wybor':
+			if (substr($rowData[0]['Pincode'], 0, 1) == "6") {
 			    $booking['partner_id'] = '247010';
 			    $booking['source'] = "SY";
-			    break;
-
-			case 'Ray':
-			    $booking['partner_id'] = '247011';
-			    $booking['source'] = "SR";
-			    break;
-
-			default:
+			} else {
 			    $booking['partner_id'] = '3';
 			    $booking['source'] = "SP";
-			    break;
-		    }
-		} else {
-		    $booking['partner_id'] = '3';
-		    $booking['source'] = "SP";
+			}
+
+			break;
+
+		    case 'Ray':
+			$booking['partner_id'] = '247011';
+			$booking['source'] = "SR";
+			break;
+
+		    default:
+			$booking['partner_id'] = '3';
+			$booking['source'] = "SP";
+			break;
 		}
 
 		$unit_details['booking_id'] = $booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
