@@ -245,6 +245,8 @@ class Notify {
 	    case 'Completed':
 		$email['tag'] = "complete_booking";
 		$email['subject'] = "Booking Completion-AROUND";
+		//Send internal mails now
+	    $this->send_email($email);
 
 		if ($is_sd == FALSE) {
 
@@ -261,6 +263,8 @@ class Notify {
 	    case 'Cancelled':
 		$email['tag'] = "cancel_booking";
 		$email['subject'] = "Pending Booking Cancellation - AROUND";
+		//Send internal mails now
+	    $this->send_email($email);
 
 		if ($is_sd == FALSE) {
 		    $sms['tag'] = "cancel_booking";
@@ -271,6 +275,8 @@ class Notify {
 	    case 'Rescheduled':
 		$email['tag'] = "reschedule_booking";
 		$email['subject'] = "Booking Rescheduled-AROUND";
+		//Send internal mails now
+	    $this->send_email($email);
 
 		if ($is_sd == FALSE) {
 		    $sms['tag'] = "reschedule_booking";
@@ -283,6 +289,8 @@ class Notify {
 	    case 'OpenBooking':
 		$email['tag'] = "open_completed_booking";
 		$email['subject'] = " Booking Converted to Pending - AROUND";
+		//Send internal mails now
+	    $this->send_email($email);
 		break;
 
 	    case 'Customer not reachable':
@@ -311,10 +319,10 @@ class Notify {
 
 		    $this->notify->send_sms($sms);
 		}
+		
 	}
 
-	//Send internal mails now
-	$this->send_email($email);
+	
     }
 
 }

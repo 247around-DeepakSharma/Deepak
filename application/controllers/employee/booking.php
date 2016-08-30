@@ -1070,6 +1070,7 @@ class Booking extends CI_Controller {
 
 	$booking = $this->getAllBookingInput($user_id, $booking_id);
 	$query_to_booking = $booking['query_to_booking'];
+	$message = $booking['message'];
 
 	unset($booking['message']); // unset message body from booking deatils array
 	unset($booking['services']); // unset service name from booking details array
@@ -1084,7 +1085,14 @@ class Booking extends CI_Controller {
             $send['state'] = "Newbooking";
             $this->asynchronous_lib->do_background_process($url, $send);
 
-        }
+	    $to = "anuj@247around.com, nits@247around.com";
+	    //$to = "abhaya@247around.com, anuj@247Around";
+	    $from = "booking@247around.com";
+	    $cc = "";
+	    $bcc = "";
+	    $subject = 'Booking Confirmation-AROUND';
+	    $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
+	}
 	log_message('info', __FUNCTION__ . " Partner callback  " . print_r($booking_id, true));
 	$this->partner_cb->partner_callback($booking_id);
 
