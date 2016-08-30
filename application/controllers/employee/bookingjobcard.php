@@ -72,7 +72,7 @@ class bookingjobcard extends CI_Controller {
         //load template
         $R = new PHPReport($config);
         $booking_details = $this->booking_model->getbooking_history($booking_id);
-        $unit_details = $this->booking_model->get_unit_details($booking_id); 
+        $unit_details = $this->booking_model->get_unit_details($booking_id);
         $R->load(array(
             array(
                 'id' => 'booking',
@@ -116,7 +116,7 @@ class bookingjobcard extends CI_Controller {
         putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
         $tmp_path = libreoffice_pdf;
         $tmp_output_file = libreoffice_output_file;
-        
+
         $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
                 '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
                 $output_file_excel . ' 2> ' . $tmp_output_file;
@@ -163,7 +163,7 @@ class bookingjobcard extends CI_Controller {
         $R = new PHPReport($config);
         //log_message('info', "PHP report");
         $booking_details = $this->booking_model->getbooking_history($booking_id);
-        $unit_details = $this->booking_model->get_unit_details($booking_id); 
+        $unit_details = $this->booking_model->get_unit_details($booking_id);
         $R->load(array(
             array(
                 'id' => 'booking',
@@ -291,8 +291,6 @@ class bookingjobcard extends CI_Controller {
 
             $cmd = "curl https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/" . $file_pdf . " -o " . $output_file_pdf;
             exec($cmd);
-            
-            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $output_file_pdf);
 
             $date1 = date('d-m-Y', strtotime('now'));
             $date2 = $getbooking[0]['booking_date'];
@@ -322,8 +320,10 @@ class bookingjobcard extends CI_Controller {
                 "attachment" => $getbooking[0]['booking_jobcard_filename']);
             $this->booking_model->save_vendor_email($details);
 
-            if ($this->email->send()) {
-                $data['success'] = "Mail sent to Service Center successfully.";
+	    $is_mail = $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $output_file_pdf);
+
+	    if ($is_mail) {
+		$data['success'] = "Mail sent to Service Center successfully.";
                 $this->session->set_flashdata('result', 'Mail sent to Service Center successfully');
                 //Setting flag to 1, once mail is sent.
                 $this->booking_model->set_mail_to_vendor($booking_id);
@@ -353,7 +353,8 @@ class bookingjobcard extends CI_Controller {
      */
 
     function send_reminder_mail_to_vendor($booking_id, $additional_note) {
-        $getbooking = $this->booking_model->getbooking($booking_id);
+	log_message('info', __FUNCTION__ . " Booking ID  " . print_r($booking_id, true));
+	$getbooking = $this->booking_model->getbooking($booking_id);
 
         if ($getbooking) {
             $servicecentredetails = $this->booking_model->selectservicecentre($booking_id);
@@ -396,20 +397,20 @@ class bookingjobcard extends CI_Controller {
             $bcc = "";
             $attachment = "";
             //$cc = $owner;
-            $this->notify->sendEmail($from, $to, $cc, $bcc, $new_sub, $message, $attachment);
-           
-            //Save email in database
+            $is_email = $this->notify->sendEmail($from, $to, $cc, $bcc, $new_sub, $message, $attachment);
+	    if ($is_email) {
+		$data['success'] = "Reminder mail sent to Service Center successfully.";
+		$this->session->set_flashdata('email_result', 'Reminder mail sent to Service Center successfully.');
+	    } else {
+		$data['success'] = "Reminder mail could not be sent, please try again.";
+		$this->session->set_flashdata('email_result', 'Reminder mail could not be sent, please try again.');
+		log_message('info', __FUNCTION__ . " Mail not sent  " . print_r($booking_id, true));
+	    }
+
+	    //Save email in database
             $details = array("booking_id" => $booking_id, "subject" => $new_sub,
                 "body" => $message, "type" => $type);
             $this->booking_model->save_vendor_email($details);
-
-            if ($this->email->send()) {
-                $data['success'] = "Reminder mail sent to Service Center successfully.";
-                $this->session->set_flashdata('email_result', 'Reminder mail sent to Service Center successfully.');
-            } else {
-                $data['success'] = "Reminder mail could not be sent, please try again.";
-                $this->session->set_flashdata('email_result', 'Reminder mail could not be sent, please try again.');
-            }
 
             redirect(base_url() . 'employee/booking/view');
         } else {
@@ -417,31 +418,5 @@ class bookingjobcard extends CI_Controller {
         }
     }
 
-    // function sendTransactionalSms($phone_number, $body) {
-    //     //log_message ('info', "Entering: " . __METHOD__ . ": Phone num: " . $phone_number);
-    //     $post_data = array(
-    //         // 'From' doesn't matter; For transactional, this will be replaced with your SenderId;
-    //         // For promotional, this will be ignored by the SMS gateway
-    //         'From' => '01130017601',
-    //         'To' => $phone_number,
-    //         'Body' => $body,
-    //     );
-    //     $exotel_sid = "aroundhomz";
-    //     $exotel_token = "a041058fa6b179ecdb9846ccf0e4fd8e09104612";
-    //     $url = "https://" . $exotel_sid . ":" . $exotel_token . "@twilix.exotel.in/v1/Accounts/" . $exotel_sid . "/Sms/send";
-    //     $ch = curl_init();
-    //     curl_setopt($ch, CURLOPT_VERBOSE, 1);
-    //     curl_setopt($ch, CURLOPT_URL, $url);
-    //     curl_setopt($ch, CURLOPT_POST, 1);
-    //     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    //     curl_setopt($ch, CURLOPT_FAILONERROR, 0);
-    //     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-    //     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
-    //     $http_result = curl_exec($ch);
-    //     $error = curl_error($ch);
-    //     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    //     //print_r($ch);
-    //     //echo exit();
-    //     curl_close($ch);
-    // }
+
 }
