@@ -132,24 +132,30 @@ class Database_testing_model extends CI_Model {
     }
 
     function check_booking_exist_in_service_center() {
-	$this->db->select('booking_details.booking_id, count(booking_unit_details.booking_id) as count');
-	$this->db->from('booking_details');
-	$this->db->where('booking_details.`assigned_vendor_id` IS NOT NULL ', NULL, FALSE);
-	$this->db->where('booking_details.create_date >=', '2016-07-01 00:00:00');
-	$this->db->join('booking_unit_details', 'booking_unit_details.booking_id =  booking_details.booking_id');
-	$query = $this->db->get();
+	$sql = "SELECT  `booking_details`.`booking_id` "
+	    . " FROM (`booking_details`) WHERE booking_details.`assigned_vendor_id` IS NOT NULL  "
+	    . " AND  `booking_details`.`create_date` >=  '2016-07-01 00:00:00'";
+
+	$query = $this->db->query($sql);
 	$data = $query->result_array();
 	$data_result = array();
-	print_r($data);
+
 	foreach ($data as $value) {
+	    $this->db->select('count(booking_id) as unit_count');
+	    $this->db->where('booking_id', $value['booking_id']);
+	    $query1 = $this->db->get('booking_unit_details');
+	    $result1 = $query1->result_array();
+
 	    $this->db->select('count(booking_id) as service_count');
 	    $this->db->where('booking_id', $value['booking_id']);
-	    $query = $this->db->get('service_center_booking_action');
-	    $result = $query->result_array();
-	    if (count($result[0]['service_count']) != $value['count']) {
-		array_push($data_result, $data);
+	    $query2 = $this->db->get('service_center_booking_action');
+	    $result2 = $query2->result_array();
+
+	    if (count($result1[0]['unit_count']) != $result2[0]['service_count']) {
+		array_push($data_result, array('booking_id' => $value['booking_id']));
 	    }
 	}
+	
 	if (!empty($data_result)) {
 	    return $data_result;
 	} else {

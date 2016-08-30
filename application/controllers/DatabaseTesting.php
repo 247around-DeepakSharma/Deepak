@@ -59,6 +59,7 @@ class DatabaseTesting extends CI_Controller {
 	}
 	$is_service_center = $this->database_testing_model->check_booking_exist_in_service_center();
 	if ($is_service_center) {
+	   
 	    log_message('info', " Unit details have some inconsistent data( service_center id): " . print_r($is_service_center, true));
 	}
     }
