@@ -43,11 +43,11 @@ class Do_background_process extends CI_Controller {
 
         $booking_id = $this->input->post('booking_id');
         $service_center_id = $this->input->post('service_center_id');
-           
+
         log_message('info', "Async Process to assign booking - Booking ID: " . $booking_id . ", Service centre: " . $service_center_id);
 
         $unit_details = $this->booking_model->getunit_details($booking_id);
-        foreach ($unit_details[0]['quantity'] as $value ) { 
+        foreach ($unit_details[0]['quantity'] as $value ) {
             $data = array();
             $data['current_status'] = "Pending";
             $data['internal_status'] = "Pending";
@@ -77,7 +77,7 @@ class Do_background_process extends CI_Controller {
         //Send mail to vendor, no Note to vendor as of now
         $message = "";
         $this->booking_utilities->lib_send_mail_to_vendor($booking_id, $message);
-    
+
     }
 
     /**
@@ -162,7 +162,7 @@ class Do_background_process extends CI_Controller {
         $booking_id = $this->input->post('booking_id');
         $agent_id = $this->input->post('agent_id');
         $agent_name = $this->input->post('agent_name');
-       
+
         log_message('info', "Booking Id " . print_r($booking_id, TRUE));
 
         $data = $this->booking_model->getbooking_charges($booking_id);
@@ -192,18 +192,18 @@ class Do_background_process extends CI_Controller {
             $unit_details['customer_paid_basic_charges'] = $value['service_charge'];
             $unit_details['customer_paid_extra_charges'] = $value['additional_service_charge'];
             $unit_details['customer_paid_parts'] = $value['parts_cost'];
-            
+
             log_message('info', ": " . " update booking unit details data " . print_r($unit_details, TRUE));
              // update price in the booking unit details page
             $this->booking_model->update_unit_details($unit_details);
         }
-            
+
         $booking['closed_date'] = date('Y-m-d H:i:s');
         $booking['current_status'] = $current_status;
         $booking['internal_status'] = $current_status;
         $booking['amount_paid'] = $data[0]['amount_paid'];
         $booking['closing_remarks'] = $service_center['closing_remarks'];
-            
+
         //update booking_details table
         log_message('info', ": " . " update booking details data (" .$current_status .")".print_r($booking, TRUE));
 
@@ -218,7 +218,7 @@ class Do_background_process extends CI_Controller {
         }
 
         $this->booking_model->update_booking($booking_id, $booking);
-            
+
         //Log this state change as well for this booking
         $this->notify->insert_state_change($booking_id, $current_status, "Pending", $agent_id, $agent_name);
 
@@ -229,17 +229,20 @@ class Do_background_process extends CI_Controller {
 
         $this->partner_cb->partner_callback($booking_id);
 
-        $this->notify->send_sms_email_for_booking($booking_id, $current_status);       
+        $this->notify->send_sms_email_for_booking($booking_id, $current_status);
     }
-    
+
     /**
-     * @desc : this method send request to send sms and email for completed, cancelled, Rescheduled, open completed/cancelled booking 
-     */ 
-    function send_sms_email_for_booking(){
-        $booking_id = $this->input->post('booking_id');
+     * @desc : this method send request to send sms and email for completed, cancelled, Rescheduled, open completed/cancelled booking
+     */
+    function send_sms_email_for_booking() {
+	log_message('info', __FUNCTION__);
+	$booking_id = $this->input->post('booking_id');
         $state = $this->input->post('state');
 
-        $this->notify->send_sms_email_for_booking($booking_id, $state); 
+	log_message('info', __FUNCTION__ . " Booking ID :" . print_r($booking_id, true) . " Sms OR EMAIL tag: " . print_r($state, true));
+
+	$this->notify->send_sms_email_for_booking($booking_id, $state);
         log_message('info', ":  Send sms and email request for booking_id" .print_r($booking_id, TRUE). " and state ". print_r($state, TRUE));
 
     }

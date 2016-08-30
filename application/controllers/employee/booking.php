@@ -61,14 +61,18 @@ class Booking extends CI_Controller {
      *  @return : void
      */
     public function index($user_id) {
-        $booking = $this->getAllBookingInput($user_id);
+	log_message('info', __FUNCTION__);
+	log_message('info', " Booking Insert User ID: " . print_r($user_id, true));
+	$booking = $this->getAllBookingInput($user_id);
 
         $service = $booking['services'];
         $message = $booking['message'];
         unset($booking['message']); // unset message body from booking deatils array
         unset($booking['services']); // unset service name from booking details array
 
-        $this->booking_model->addbooking($booking);
+	log_message('info', " Booking to be insert: " . print_r($booking, true));
+
+	$this->booking_model->addbooking($booking);
 
         if ($booking['type'] == 'Booking') {
             $to = "anuj@247around.com, nits@247around.com";
@@ -96,17 +100,22 @@ class Booking extends CI_Controller {
      *  @return : Array(booking details)
      */
     function getAllBookingInput($user_id, $booking_id = "") {
-        $booking = $this->get_booking_input();
+	log_message('info', __FUNCTION__);
+	log_message('info', " Booking Insert User ID: " . print_r($user_id, true) . " Booking ID" . print_r($booking_id, true));
+	$booking = $this->get_booking_input();
         $user['user_id'] = $booking['user_id'] = $user_id;
         $user_name = $this->input->post('user_name');
         if ($booking_id == "") {
 
             $booking['booking_id'] = $this->create_booking_id($user_id, $booking['source'], $booking['type'], $booking['booking_date']);
-        } else {
-            $price_tags = array();
+
+	    log_message('info', "New Booking ID created" . print_r($booking['booking_id'], true));
+	} else {
+	    $price_tags = array();
             $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id);
 	    $booking['booking_id'] = $booking_id_with_flag['booking_id'];
 	    $booking['query_to_booking'] = $booking_id_with_flag['queries_to_booking'];
+	    log_message('info', " Booking Updated: " . print_r($booking['booking_id'], true) . " Query to booking: " . $booking['query_to_booking']);
 	}
         $service = $booking['services'];
         $booking_remarks = $this->input->post('query_remarks');
@@ -174,7 +183,9 @@ class Booking extends CI_Controller {
                 $this->send_sms_while_not_picked($booking_id);
             }
             $booking['query_remarks'] = $booking_remarks;
-        }
+
+	    log_message('info', " Booking Remarks" . print_r($booking_remarks, true));
+	}
 
         foreach ($appliance_brand as $key => $value) {
 
@@ -202,7 +213,8 @@ class Booking extends CI_Controller {
             if (!empty($partner_id)) {
                 $services_details['partner_id'] = $booking['partner_id'];
             }
-            /* if appliance id exist the initialize appliance id in array and update appliance details other wise it insert appliance details and return appliance id
+	    log_message('info', __METHOD__ . "Appliance ID" . print_r($appliance_id, true));
+	    /* if appliance id exist the initialize appliance id in array and update appliance details other wise it insert appliance details and return appliance id
              * */
             if (isset($appliance_id[$key])) {
 
@@ -211,9 +223,10 @@ class Booking extends CI_Controller {
             } else {
 
                 $services_details['appliance_id'] = $this->booking_model->addappliance($appliances_details);
-            }
-            // log_message ('info', __METHOD__ . "Appliance details data". print_r($appliances_details));
-            //Array ( ['brand'] => Array ( [0] => id_price ) )
+		log_message('info', __METHOD__ . " New Appliance ID created: " . print_r($services_details['appliance_id'], true));
+	    }
+             log_message('info', __METHOD__ . "Appliance details data" . print_r($appliances_details, true));
+	    //Array ( ['brand'] => Array ( [0] => id_price ) )
             foreach ($pricesWithId[$value] as $values) {
 
                 $prices = explode("_", $values);  // split string..
@@ -223,8 +236,8 @@ class Booking extends CI_Controller {
                 $services_details['partner_paid_basic_charges'] = $partner_net_payable[$value][$services_details['id']][0];
 
                 if ($booking_id == "") {
-
-                    $result = $this->booking_model->insert_data_in_booking_unit_details($services_details, $booking['state']);
+	            log_message('info', __METHOD__ . " Insert Booking Unit Details: " . print_r($services_details, true));
+		    $result = $this->booking_model->insert_data_in_booking_unit_details($services_details, $booking['state']);
 
                     if ($booking['current_status'] != 'FollowUp') {
                         $message .= "<br>Brand : " . $result['appliance_brand'] . "<br>Category : " .
@@ -236,15 +249,16 @@ class Booking extends CI_Controller {
                     }
                 } else {
                     $services_details['booking_status'] = "";
-                    $price_tag = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state']);
+		    log_message('info', __METHOD__ . " Update Booking Unit Details: " . print_r($services_details, true));
+		    $price_tag = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state']);
 
                     array_push($price_tags, $price_tag);
                 }
             }
         }
         if (!empty($price_tags)) {
-
-            $this->booking_model->check_price_tags_status($booking['booking_id'], $price_tags);
+	    log_message('info', __METHOD__ . " Price Tags: " . print_r($price_tags, true));
+	    $this->booking_model->check_price_tags_status($booking['booking_id'], $price_tags);
         }
 
         if ($booking['type'] == 'Query') {
@@ -255,8 +269,9 @@ class Booking extends CI_Controller {
             $booking['message'] = $message;
         }
         $this->user_model->edit_user($user);
+	log_message('info', __METHOD__ . " Return Booking: " . print_r($booking, true));
 
-        return $booking;
+	return $booking;
     }
 
     /**
@@ -265,7 +280,9 @@ class Booking extends CI_Controller {
      * @param  $booking_id
      */
     function send_sms_while_not_picked($booking_id) {
-        $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+	log_message('info', __FUNCTION__);
+	log_message('info', __FUNCTION__ . " Booking ID :" . print_r($booking_id, true));
+	$url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
         $send['booking_id'] = $booking_id;
         $send['state'] = "Customer not reachable";
         $this->asynchronous_lib->do_background_process($url, $send);
@@ -275,7 +292,9 @@ class Booking extends CI_Controller {
      * @return Array
      */
     function get_booking_input() {
-        $booking['service_id'] = $this->input->post('service_id');
+	log_message('info', __FUNCTION__);
+
+	$booking['service_id'] = $this->input->post('service_id');
         $booking['source'] = $this->input->post('source_code');
         $booking['type'] = $this->input->post('type');
         $booking['amount_due'] = $this->input->post('grand_total_price');
@@ -302,7 +321,9 @@ class Booking extends CI_Controller {
             $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Booking State Not Found', $message, "");
         }
 
-        return $booking;
+	log_message('info', __FUNCTION__ . " Booking State :" . print_r($booking['state'], true) . " Pincode: " . print_r($booking['booking_pincode']));
+
+	return $booking;
     }
     /**
      * @desc: This method returns booking id when booking updated
@@ -319,19 +340,20 @@ class Booking extends CI_Controller {
     function change_in_booking_id($booking_type, $booking_id) {
         $data['booking_id'] = $booking_id;
 	$data['query_to_booking'] = '0';
-
-
+	log_message('info', __FUNCTION__ . " Booking ID" . print_r($booking_id, true));
 	switch ($booking_type) {
-            case "Booking":
+	    case "Booking":
 		if (strpos($booking_id, "Q-") !== FALSE) {
 		    //Query to be converted to Booking
 		    $booking_id_array = explode("Q-", $booking_id);
                     $data['booking_id'] = $booking_id_array[1];
 		    $data['query_to_booking'] = '1';
+		    log_message('info', __FUNCTION__ . " Query Converted to Booking Booking ID" . print_r($data['booking_id']));
 		    $this->notify->insert_state_change($data['booking_id'], "Pending", "FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 		} else {
 		    //Booking to be updated to booking
 		    $data['booking_id'] = $booking_id;
+		    log_message('info', __FUNCTION__ . " Booking Updateded to Booking Booking ID" . print_r($data['booking_id']));
 		    $this->notify->insert_state_change($data['booking_id'], "Pending", "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 		}
 
@@ -341,16 +363,19 @@ class Booking extends CI_Controller {
 		if (strpos($booking_id, "Q-") === FALSE) {
 		    //Booking to be converted to query
 		    $data['booking_id'] = "Q-" . $booking_id;
+		    log_message('info', __FUNCTION__ . " Booking to be Converted to Query Booking ID" . print_r($data['booking_id']));
 		    //param:-- booking id, new state, old state, employee id, employee name
                     $this->notify->insert_state_change($data['booking_id'], "FollowUp", "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 		} else {
 		    //Query to be updated to query
 		    $data['booking_id'] = $booking_id;
+		    log_message('info', __FUNCTION__ . " Query to be updated to Query Booking ID" . print_r($data['booking_id']));
 		    $this->notify->insert_state_change($data['booking_id'], "FollowUp", "FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 		}
 
 		//Since booking has been converted to query, delete this entry from
 		//service center booking action table as well.
+		log_message('info', __FUNCTION__ . " Request to delete booking from service center action table Booking ID" . print_r($data['booking_id']));
 		$this->service_centers_model->delete_booking_id($booking_id);
 
 		//Reset the assigned vendor ID for this booking
@@ -487,21 +512,21 @@ class Booking extends CI_Controller {
      *  @return : user details and booking history to view
      */
     function get_complete_booking_form($booking_id) {
-        $data['booking_id'] = $booking_id;
-
-        $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
+	log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
+	$data['booking_id'] = $booking_id;
+	$data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
         $data['booking_unit_details'] = $this->booking_model->getunit_details($booking_id);
         $source = $this->partner_model->get_all_partner_source("0", $data['booking_history'][0]['source']);
         $data['booking_history'][0]['source_name'] = $source[0]['source'];
 
         $partner_id = $this->booking_model->get_price_mapping_partner_code($data['booking_history'][0]['source']);
         $data['prices'] = array();
-
-        foreach ($data['booking_unit_details'] as $keys => $value) {
+	log_message('info', __FUNCTION__ . " data " . print_r($data, true));
+	foreach ($data['booking_unit_details'] as $keys => $value) {
 
             $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], $data['booking_unit_details'][$keys]['category'], $data['booking_unit_details'][$keys]['capacity'], $partner_id, $data['booking_history'][0]['state']);
-
-            foreach ($value['quantity'] as $key => $price_tag) {
+	    log_message('info', __FUNCTION__ . " Prices " . print_r($prices, true));
+	    foreach ($value['quantity'] as $key => $price_tag) {
                 $service_center_data = $this->service_centers_model->get_prices_filled_by_service_center($price_tag['unit_id'], $booking_id);
                // print_r($service_center_data);
                if(!empty($service_center_data)){
@@ -552,7 +577,8 @@ class Booking extends CI_Controller {
      *  @return : user details and booking history to view
      */
     function get_cancel_form($booking_id, $status = "") {
-        $data['user_and_booking_details'] = $this->booking_model->getbooking_history($booking_id);
+	log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
+	$data['user_and_booking_details'] = $this->booking_model->getbooking_history($booking_id);
         $data['reason'] = $this->booking_model->cancelreason("247around");
         if ($status == "followup") {
 
@@ -572,7 +598,8 @@ class Booking extends CI_Controller {
      *  @return : cancels the booking and load view
      */
     function process_cancel_form($booking_id) {
-        $data['cancellation_reason'] = $this->input->post('cancellation_reason');
+	log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
+	$data['cancellation_reason'] = $this->input->post('cancellation_reason');
         $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
 
         if ($data['cancellation_reason'] == 'Other') {
@@ -581,15 +608,17 @@ class Booking extends CI_Controller {
         $data['current_status'] = $data['internal_status'] = "Cancelled";
         $data_vendor['cancellation_reason'] = $data['cancellation_reason'];
 
-        $this->booking_model->update_booking($booking_id, $data);
+	log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));
+
+	$this->booking_model->update_booking($booking_id, $data);
 
         //Update this booking in vendor action table
         $data_vendor['update_date'] = date("Y-m-d H:i:s");
         $data_vendor['current_status'] = $data_vendor['internal_status'] = "Cancelled";
 
         $data_vendor['booking_id'] = $booking_id;
-
-        $this->vendor_model->update_service_center_action($data_vendor);
+	log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($data_vendor, true));
+	$this->vendor_model->update_service_center_action($data_vendor);
 
         $this->update_price_while_cancel_booking($booking_id);
 
@@ -609,13 +638,14 @@ class Booking extends CI_Controller {
     }
 
     function update_price_while_cancel_booking($booking_id) {
-        $unit_details['booking_status'] = "Cancelled";
+	log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
+	$unit_details['booking_status'] = "Cancelled";
         $unit_details['tax_rate'] = $unit_details['customer_total'] = 0;
         $unit_details['customer_paid_basic_charges'] = $unit_details['partner_paid_basic_charges'] = 0;
         $unit_details['around_paid_basic_charges'] = $unit_details['around_comm_basic_charges'] = 0;
         $unit_details['vendor_to_around'] = $unit_details['around_to_vendor'] = 0;
-
-        $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
+	log_message('info', __FUNCTION__ . " Update unit details  " . print_r($unit_details, true));
+	$this->booking_model->update_booking_unit_details($booking_id, $unit_details);
     }
 
     /**
@@ -629,7 +659,8 @@ class Booking extends CI_Controller {
      *  @return : user details and booking history to view
      */
     function get_reschedule_booking_form($booking_id) {
-        $getbooking = $this->booking_model->getbooking($booking_id);
+	log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
+	$getbooking = $this->booking_model->getbooking($booking_id);
 
         if ($getbooking) {
 
@@ -657,38 +688,39 @@ class Booking extends CI_Controller {
      *  @return : reschedules the booking and load view
      */
     function process_reschedule_booking_form($booking_id) {
-
-        $data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
+	log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
+	$data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
         $data['booking_timeslot'] = $this->input->post('booking_timeslot');
         $data['current_status'] = 'Rescheduled';
         $data['internal_status'] = 'Rescheduled';
         $data['update_date'] = date("Y-m-d H:i:s");
 
-
         if ($data['booking_timeslot'] == "Select") {
             echo "Please Select Booking Timeslot.";
         } else {
-
-            $this->booking_model->update_booking($booking_id, $data);
+	    log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));
+	    $this->booking_model->update_booking($booking_id, $data);
 
             $service_center_data['booking_id'] = $booking_id;
             $service_center_data['internal_status'] = "Pending";
             $service_center_data['current_status'] = "Pending";
             $service_center_data['update_date'] = date("Y-m-d H:i:s");
-            $this->vendor_model->update_service_center_action($service_center_data);
+	    log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($service_center_data, true));
+	    $this->vendor_model->update_service_center_action($service_center_data);
 
-            $send_data['booking_id'] = $booking_id;
+	    $send_data['booking_id'] = $booking_id;
             $send_data['current_status'] = "Rescheduled";
 
             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
             $this->asynchronous_lib->do_background_process($url, $send_data);
-
-            //Setting mail to vendor flag to 0, once booking is rescheduled
+            log_message('info', __FUNCTION__ . " Set mail to vendor flag to 0  " . print_r($booking_id, true));
+	    //Setting mail to vendor flag to 0, once booking is rescheduled
             $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
-
-            //Prepare job card
+	    log_message('info', __FUNCTION__ . " Request to prepare Job Card  " . print_r($booking_id, true));
+	    //Prepare job card
             $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
-            // Partner Call back
+	    log_message('info', __FUNCTION__ . " Partner Callback  " . print_r($booking_id, true));
+	    // Partner Call back
             $this->partner_cb->partner_callback($booking_id);
 
             log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $this->session->userdata('employee_id') . " data " . print_r($data, true));
@@ -919,7 +951,8 @@ class Booking extends CI_Controller {
      *  @return : user's and appliance details to view
      */
     function get_appliance_booking_form($appliance_id) {
-        $this->get_edit_booking_form("", $appliance_id);
+	log_message('info', __FUNCTION__ . " Appliance ID  " . print_r($appliance_id, true));
+	$this->get_edit_booking_form("", $appliance_id);
     }
 
     /**
@@ -995,9 +1028,9 @@ class Booking extends CI_Controller {
      * @return : void
      */
     function get_edit_booking_form($booking_id, $appliance_id = "") {
-
-        if ($booking_id != "") {
-            $booking_history = $this->booking_model->getbooking_history($booking_id);
+	log_message('info', __FUNCTION__ . " Appliance ID  " . print_r($appliance_id, true) . " Booking ID: " . print_r($booking_id, true));
+	if ($booking_id != "") {
+	    $booking_history = $this->booking_model->getbooking_history($booking_id);
         } else {
             $booking_history = $this->booking_model->getbooking_history_by_appliance_id($appliance_id);
         }
@@ -1014,10 +1047,9 @@ class Booking extends CI_Controller {
         $booking['appliance_id'] = $appliance_id;
         $booking['follow_up_internal_status'] = $this->booking_model->get_internal_status("FollowUp");
 
+        foreach ($booking['unit_details'] as $key) {
 
-        foreach ($booking['unit_details'] as $key => $value) {
-
-            $capacity = $this->booking_model->getCapacityForCategory($booking_history[0]['service_id'], $booking['unit_details'][$key]['category'], $booking_history[0]['state'], $partner_id);
+	    $capacity = $this->booking_model->getCapacityForCategory($booking_history[0]['service_id'], $booking['unit_details'][$key]['category'], $booking_history[0]['state'], $partner_id);
 
             $prices = $this->booking_model->getPricesForCategoryCapacity($booking_history[0]['service_id'], $booking['unit_details'][$key]['category'], $booking['unit_details'][$key]['capacity'], $partner_id, $booking_history[0]['state']);
 
@@ -1034,24 +1066,27 @@ class Booking extends CI_Controller {
      * @desc: This function is used to update both Bookings and Queries.
      */
     function update_booking($user_id, $booking_id) {
+	log_message('info', __FUNCTION__ . " Booking ID  " . print_r($booking_id, true) . " User ID: " . print_r($user_id, true));
 
-        $booking = $this->getAllBookingInput($user_id, $booking_id);
+	$booking = $this->getAllBookingInput($user_id, $booking_id);
+	$query_to_booking = $booking['query_to_booking'];
 
-        if ($booking['query_to_booking'] == '1') {
+	unset($booking['message']); // unset message body from booking deatils array
+	unset($booking['services']); // unset service name from booking details array
+	unset($booking['query_to_booking']);
+	log_message('info', __FUNCTION__ . " Update booking  " . print_r($booking, true));
+
+	$this->booking_model->update_booking($booking_id, $booking);
+
+	if ($query_to_booking == '1') {
 	    $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
             $send['booking_id'] = $booking['booking_id'];
             $send['state'] = "Newbooking";
             $this->asynchronous_lib->do_background_process($url, $send);
 
         }
-
-        unset($booking['message']); // unset message body from booking deatils array
-        unset($booking['services']); // unset service name from booking details array
-	unset($booking['query_to_booking']);
-
-	$this->booking_model->update_booking($booking_id, $booking);
-
-        $this->partner_cb->partner_callback($booking_id);
+	log_message('info', __FUNCTION__ . " Partner callback  " . print_r($booking_id, true));
+	$this->partner_cb->partner_callback($booking_id);
 
         redirect(base_url() . search_page);
     }
@@ -1143,7 +1178,8 @@ class Booking extends CI_Controller {
      * @return: void
      */
     function reject_booking_from_review() {
-        $data['booking_id'] = $this->input->post('booking_id');
+	log_message('info', __FUNCTION__);
+	$data['booking_id'] = $this->input->post('booking_id');
         $admin_remarks = $this->input->post('admin_remarks');
         $data['internal_status'] = "Pending";
         $data['current_status'] = "Pending";
@@ -1154,7 +1190,8 @@ class Booking extends CI_Controller {
         $data['closed_date'] = NUll;
         $data['service_charge'] = $data['additional_service_charge'] = $data['parts_cost'] = "0.00";
         $data['admin_remarks'] = date("F j") . "  :-" . $admin_remarks;
-        $this->vendor_model->update_service_center_action($data);
+	log_message('info', __FUNCTION__ . " Update service center action table: " . print_r($data, true));
+	$this->vendor_model->update_service_center_action($data);
     }
 
     /**
@@ -1165,17 +1202,19 @@ class Booking extends CI_Controller {
      * @return : void
      */
     function checked_complete_review_booking() {
-        $approved_booking = $this->input->post('approved_booking');
+	log_message('info', __FUNCTION__);
+	$approved_booking = $this->input->post('approved_booking');
         $url = base_url() . "employee/do_background_process/complete_booking";
         $agent_id = $this->session->userdata('id');
         $agent_name = $this->session->userdata('employee_id');
 
-        foreach ($approved_booking as $key => $booking_id) {
-            $data = array();
+        foreach ($approved_booking as $booking_id) {
+	    $data = array();
             $data['booking_id'] = $booking_id;
             $data['agent_id'] = $agent_id;
             $data['agent_name'] = $agent_name;
-            $this->asynchronous_lib->do_background_process($url, $data);
+	    log_message('info', __FUNCTION__ . " Approved Booking: " . print_r($data, true));
+	    $this->asynchronous_lib->do_background_process($url, $data);
         }
 
         redirect(base_url() . 'employee/booking/review_bookings');
@@ -1189,7 +1228,8 @@ class Booking extends CI_Controller {
      * @return : array of charges to view
      */
     function review_bookings($booking_id = "") {
-        $data['charges'] = $this->booking_model->get_booking_for_review($booking_id);
+	log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
+	$data['charges'] = $this->booking_model->get_booking_for_review($booking_id);
         $data['data'] = $this->booking_model->review_reschedule_bookings_request();
         $this->load->view('employee/header');
         $this->load->view('employee/review_booking', $data);
@@ -1202,7 +1242,8 @@ class Booking extends CI_Controller {
      *
      */
     function process_review_reschedule_bookings() {
-        $reschedule_booking_id = $this->input->post('reschedule');
+	log_message('info', __FUNCTION__);
+	$reschedule_booking_id = $this->input->post('reschedule');
         $reschedule_booking_date = $this->input->post('reschedule_booking_date');
         $reschedule_booking_timeslot = $this->input->post('reschedule_booking_timeslot');
         $reschedule_reason = $this->input->post('reschedule_reason');
@@ -1215,12 +1256,12 @@ class Booking extends CI_Controller {
             $booking['update_date'] = date("Y-m-d H:i:s");
             $send['booking_id'] = $data['booking_id'] = $booking_id;
             $booking['reschedule_reason'] = $reschedule_reason[$booking_id];
-
-            $this->booking_model->update_booking($booking_id, $booking);
+	    log_message('info', __FUNCTION__ . " update booking: " . print_r($booking, true));
+	    $this->booking_model->update_booking($booking_id, $booking);
             $data['internal_status'] = "Pending";
             $data['current_status'] = "Pending";
-
-            $this->vendor_model->update_service_center_action($data);
+	    log_message('info', __FUNCTION__ . " update service cenetr action table: " . print_r($data, true));
+	    $this->vendor_model->update_service_center_action($data);
 
             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
             $this->asynchronous_lib->do_background_process($url, $send);
@@ -1229,11 +1270,11 @@ class Booking extends CI_Controller {
             //param:-- booking id, new state, old state, employee id, employee name
             $this->notify->insert_state_change($booking_id, "Rescheduled", "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 
-
-            //Setting mail to vendor flag to 0, once booking is rescheduled
+	    log_message('info', __FUNCTION__ . " Set Mail flag to 0 : " . print_r($booking_id, true));
+	    //Setting mail to vendor flag to 0, once booking is rescheduled
             $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
-
-            $this->partner_cb->partner_callback($booking_id);
+	    log_message('info', __FUNCTION__ . " partner callback: " . print_r($booking_id, true));
+	    $this->partner_cb->partner_callback($booking_id);
 
             log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $this->session->userdata('employee_id') . " data " . print_r($data, true));
         }
@@ -1247,7 +1288,8 @@ class Booking extends CI_Controller {
      * @return :void
      */
     function process_complete_booking($booking_id, $status = "") {
-        // customer paid basic charge is comming in array
+	log_message('info', __FUNCTION__ . " Booking id: " . print_r($booking_id, true) . " Status: " . print_r($status));
+	// customer paid basic charge is comming in array
         // Array ( [100] =>  500 , [102] =>  300 )
         $customer_basic_charge = $this->input->post('customer_basic_charge');
         // Additional service charge is comming in array
@@ -1281,7 +1323,11 @@ class Booking extends CI_Controller {
                         $data['booking_id'] = $booking_id;
                         $data['booking_status'] = "Completed";
                         $internal_status = "Completed";
-                        $new_unit_id = $this->booking_model->insert_new_unit_item($unit_id, $service_charges_id, $data, $state['state']);
+			log_message('info', __FUNCTION__ . " New unit selected, previous unit " . print_r($unit_id, true)
+			    . " Service charges id: "
+			    . print_r($service_charges_id, true)
+			    . " Data: " . print_r($data, true) . " State: " . print_r($state['state'], true));
+			$new_unit_id = $this->booking_model->insert_new_unit_item($unit_id, $service_charges_id, $data, $state['state']);
 
                         $data_service_center['booking_id'] = $booking_id;
                         $data_service_center['unit_details_id'] = $new_unit_id;
@@ -1293,7 +1339,8 @@ class Booking extends CI_Controller {
                         $data_service_center['serial_number'] = $data['serial_number'];
                         $data_service_center['current_status'] = $data_service_center['internal_status'] ="Completed";
                         $data_service_center['amount_paid'] = $total_amount_paid;
-                        $this->vendor_model->insert_service_center_action($data_service_center);
+			log_message('info', __FUNCTION__ . " New unit selected, service center action data " . print_r($data_service_center, true));
+			$this->vendor_model->insert_service_center_action($data_service_center);
 
                     }
                 }
@@ -1396,7 +1443,8 @@ class Booking extends CI_Controller {
      *  @return : Converts the booking to Pending stage and load view
      */
     function process_convert_booking_to_pending_form($booking_id, $status) {
-        $data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
+	log_message('info', __FUNCTION__ . " Booking id: " . print_r($booking_id) . " status: " . print_r($status));
+	$data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
         $data['booking_timeslot'] = $this->input->post('booking_timeslot');
         $data['current_status'] = 'Pending';
         $data['internal_status'] = 'Scheduled';
@@ -1415,8 +1463,8 @@ class Booking extends CI_Controller {
         if ($data['booking_timeslot'] == "Select") {
             echo "Please Select Booking Timeslot.";
         } else {
-
-            $this->booking_model->convert_booking_to_pending($booking_id, $data, $status);
+	    log_message('info', __FUNCTION__ . " Convert booking, data : " . print_r($data, true));
+	    $this->booking_model->convert_booking_to_pending($booking_id, $data, $status);
 
             $service_center_data['booking_id'] = $booking_id;
             $service_center_data['internal_status'] = "Pending";
@@ -1427,9 +1475,10 @@ class Booking extends CI_Controller {
             $service_center_data['booking_date'] = $service_center_data['booking_timeslot'] = NUll;
             $service_center_data['closed_date'] = NUll;
             $service_center_data['service_charge'] = $service_center_data['additional_service_charge'] = $service_center_data['parts_cost'] = "0.00";
-            $this->vendor_model->update_service_center_action($service_center_data);
+            log_message('info', __FUNCTION__ . " Convert booking, Service center data : " . print_r($service_center_data, true));
+	    $this->vendor_model->update_service_center_action($service_center_data);
 
-            $unit_details['serial_number'] = "";
+	    $unit_details['serial_number'] = "";
             $unit_details['booking_status'] = NULL;
             $unit_details['customer_paid_basic_charges'] = $unit_details['around_st_or_vat_basic_charges'] = "0.00";
             $unit_details['partner_paid_basic_charges'] = $unit_details['vendor_basic_charges'] = "0.00";
@@ -1437,8 +1486,9 @@ class Booking extends CI_Controller {
             $unit_details['around_comm_basic_charges'] = $unit_details['around_to_vendor'] = "0.00";
             $unit_details['customer_paid_extra_charges'] = $unit_details['around_comm_extra_charges'] = "0.00";
             $unit_details['around_st_extra_charges'] = $unit_details['vendor_extra_charges'] = "0.00";
+	    log_message('info', __FUNCTION__ . " Convert booking, unit details  data : " . print_r($unit_details, true));
 
-            $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
+	    $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
 
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, employee id, employee name

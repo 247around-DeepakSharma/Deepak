@@ -90,7 +90,7 @@ class Booking_model extends CI_Model {
         log_message('info', __METHOD__ . " booking details data: " . print_r($booking, true));
 	$this->db->insert('booking_details', $booking);
     log_message ('info', __METHOD__ . "booking  SQL ". $this->db->last_query());
-    
+
         return $this->db->insert_id();
     }
 
@@ -1161,7 +1161,10 @@ class Booking_model extends CI_Model {
 
         $this->db->where("booking_id", $booking_id);
         $this->db->update("booking_details", $status);
-        return true;
+
+	$this->db->where("booking_id", $booking_id);
+	$this->db->upadte("booking_unit_details", array("booking_status" => ""));
+	return true;
     }
 
     /**
@@ -1370,7 +1373,7 @@ class Booking_model extends CI_Model {
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
          $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
 
-	 log_message('info', __METHOD__ . "update booking_unit_details data" . print_r($result, true));
+	log_message('info', __METHOD__ . "update booking_unit_details data" . print_r($result, true) . " Price data with tax: " . print_r($data, true));
 
 	$this->db->select('id');
         $this->db->where('appliance_id', $services_details['appliance_id']);
@@ -1380,13 +1383,15 @@ class Booking_model extends CI_Model {
 
         if($query->num_rows >0){
 
-            $unit_details = $query->result_array();
-            $this->db->where('id',  $unit_details[0]['id']);
+	    $unit_details = $query->result_array();
+	    log_message('info', __METHOD__ . "update booking_unit_details ID: " . print_r($unit_details[0]['id'], true));
+	    $this->db->where('id',  $unit_details[0]['id']);
             $this->db->update('booking_unit_details', $result);
 
          } else {
-            $unit_num =  $this->get_unit_details($booking_id);
-            if(count($unit_num >1)){
+            $unit_num = $this->get_unit_details($booking_id);
+	    log_message('info', __METHOD__ . " Price tags not found, This unit details to be insert: " . print_r($unit_num, true));
+	    if(count($unit_num >1)){
                 $this->db->insert('booking_unit_details', $result);
 
             } else {
@@ -1554,15 +1559,16 @@ class Booking_model extends CI_Model {
      * @param: Array()
      * @return : Array()
      */
-    function insert_data_in_booking_unit_details($services_details, $state){
-        $data = $this->getpricesdetails_with_tax($services_details['id'], $state);
-
-        $result = array_merge($services_details, $data[0]);
+    function insert_data_in_booking_unit_details($services_details, $state) {
+	log_message('info', __FUNCTION__);
+	$data = $this->getpricesdetails_with_tax($services_details['id'], $state);
+        log_message('info', __METHOD__ . " Get Price with Taxes" . print_r($data, true));
+	$result = array_merge($services_details, $data[0]);
 
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
-        log_message ('info', __METHOD__ . "booking_unit_details data". print_r($result, true));
-        $this->db->insert('booking_unit_details', $result);
+        log_message('info', __METHOD__ . " Insert booking_unit_details data" . print_r($result, true));
+	$this->db->insert('booking_unit_details', $result);
 
         return $result;
     }
