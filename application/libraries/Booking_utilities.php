@@ -97,7 +97,7 @@ class Booking_utilities {
 	$cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
 	    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
 	    $output_file_excel . ' 2> ' . $tmp_output_file;
-        
+
 	$output = '';
 	$result_var = '';
 	exec($cmd, $output, $result_var);
@@ -164,7 +164,7 @@ class Booking_utilities {
 	    $output_file_pdf = "/tmp/" . $getbooking[0]['booking_jobcard_filename'];
 
 	    $cmd = "curl https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/" . $file_pdf . " -o " . $output_file_pdf;
-	    exec($cmd);            
+	    exec($cmd);
 
 	    $date1 = date('d-m-Y', strtotime('now'));
 	    $date2 = $getbooking[0]['booking_date'];
@@ -195,7 +195,7 @@ class Booking_utilities {
 	    $smsBody = "Booking - " . $getbooking[0]->customername . ", " . $getbooking[0]->phone_number . ", " . $getbooking[0]['services'] . ", " . $bookingdate ."/" . $getbooking[0]->booking_timeslot .  ", " . $getbooking[0]['booking_address'] . ", ". $getbooking[0]->booking_pincode . ". 247around";
 
 	    //Send SMS to vendor
-	    $this->sendTransactionalSms($getbooking[0]['primary_contact_phone_1'], $smsBody);
+	    $this->notify->sendTransactionalSms($getbooking[0]['primary_contact_phone_1'], $smsBody);
 	    //Save email in database
 	    $details = array("booking_id" => $booking_id, "subject" => $subject,
 		"body" => $message, "type" => "Booking",
@@ -205,7 +205,7 @@ class Booking_utilities {
             if($notify){
 		//Setting flag to 1, once mail is sent.
                 $this->My_CI->booking_model->set_mail_to_vendor($booking_id);
-                
+
             } else {
 //		$data['success'] = "Mail could not be sent, please try again.";
 //		$this->My_CI->session->set_flashdata('result', 'Mail could not be sent, please try again');
@@ -215,114 +215,6 @@ class Booking_utilities {
 	} else {
 //	    echo "Booking does not exist.";
 	}
-    }
-
-    //This function sends reminder email to the assigned vendor
-    function lib_send_reminder_mail_to_vendor($booking_id, $additional_note) {
-	 $getbooking = $this->My_CI->booking_model->getbooking_history($booking_id,"join");
-
-        if (!empty($getbooking)) {
-
-
-	    //Find last mail sent for this booking id and append it in the bottom
-	    $last_mail = $this->My_CI->booking_model->get_last_vendor_mail($booking_id);
-	    if ($last_mail[0]['type'] == 'Booking') {
-		//Send 1st Reminder Email
-		$new_sub = $last_mail[0]['subject'] . " - Reminder-1";
-		$type = "Reminder-1";
-	    } else {
-		//Send another Reminder Email
-		$t = explode("-", $last_mail[0]['type']);
-		$type = "Reminder-" . (intval($t[1]) + 1);
-		$old_sub = $last_mail[0]['subject'];
-		$substr = " - Reminder-X";
-		$new_sub = substr($old_sub, 0, 0 - strlen($substr)) . " - " . $type;
-	    }
-
-	    //New message for this email
-	    $salutation = "Dear " . $getbooking[0]['primary_contact_name'];
-	    $heading = "<br><br>" . $type;
-	    $heading .= "<br><br>Please revert back on the current status of this booking.";
-
-	    if ($additional_note != "") {
-		$note = "<br><b>Note:</b> " . urldecode($additional_note) . "<br><br>";
-	    } else {
-		$note = "<br><br>";
-	    }
-
-	    $message = $salutation . $heading . $note . "Regards,<br><br>Devendra";
-
-	    $message = $message . "<br><br>--------------------------------------------------<br><br>" .
-		$last_mail[0]['body'];
-
-	    $to = $getbooking[0]['primary_contact_email'];
-	    $owner = $getbooking[0]['owner_email'];
-	    $cc = ($owner . ', nits@247around.com, anuj@247around.com');
-            $from= "booking@247around.com";
-            $bcc = "";
-//	    $cc = $owner;
-
-	    $this->My_CI->email->clear(TRUE);
-	    $this->My_CI->email->from('booking@247around.com', '247around Team');
-	    $this->My_CI->email->to($to);
-	    $this->My_CI->email->cc($cc);
-	    $this->My_CI->email->subject($new_sub);
-	    $this->My_CI->email->message($message);
-
-	    //Save email in database
-	    $details = array("booking_id" => $booking_id, "subject" => $new_sub,
-		"body" => $message, "type" => $type);
-	    $this->My_CI->booking_model->save_vendor_email($details);
-            
-            $notify = $this->notify->sendEmail($from, $to, $cc, $bcc, $new_sub, $message, "");
-
-	    if ($this->My_CI->email->send()) {
-//		$data['success'] = "Reminder mail sent to Service Center successfully.";
-//		$this->My_CI->session->set_flashdata('email_result', 'Reminder mail sent to Service Center successfully.');
-	    } else {
-//		$data['success'] = "Reminder mail could not be sent, please try again.";
-//		$this->My_CI->session->set_flashdata('email_result', 'Reminder mail could not be sent, please try again.');
-	    }
-
-//	    redirect(base_url() . 'employee/booking/view');
-	} else {
-//	    echo "Booking ID does not exist";
-	}
-    }
-
-    function sendTransactionalSms($phone_number, $body) {
-
-	//log_message ('info', "Entering: " . __METHOD__ . ": Phone num: " . $phone_number);
-
-	$post_data = array(
-	    // 'From' doesn't matter; For transactional, this will be replaced with your SenderId;
-	    // For promotional, this will be ignored by the SMS gateway
-	    'From' => '01130017601',
-	    'To' => $phone_number,
-	    'Body' => $body,
-	);
-
-	$exotel_sid = "aroundhomz";
-	$exotel_token = "a041058fa6b179ecdb9846ccf0e4fd8e09104612";
-
-	$url = "https://" . $exotel_sid . ":" . $exotel_token . "@twilix.exotel.in/v1/Accounts/" . $exotel_sid . "/Sms/send";
-
-	$ch = curl_init();
-
-	curl_setopt($ch, CURLOPT_VERBOSE, 1);
-	curl_setopt($ch, CURLOPT_URL, $url);
-	curl_setopt($ch, CURLOPT_POST, 1);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-	curl_setopt($ch, CURLOPT_FAILONERROR, 0);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
-
-	$http_result = curl_exec($ch);
-	$error = curl_error($ch);
-	$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-	//print_r($ch);
-	//echo exit();
-	curl_close($ch);
     }
 
 }
