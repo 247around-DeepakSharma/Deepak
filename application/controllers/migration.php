@@ -96,6 +96,7 @@ class Migration extends CI_Controller {
 
 		case 'Repair,':
 		case 'Repair':
+		case 'Repair,InstallationwithStand,':
 		    $data = array();
 		    $data['appliance_id'] = $value['appliance_id'];
 		    $data['partner_id'] = $value['partner_id'];
