@@ -250,6 +250,11 @@ class Partner extends CI_Controller {
                         $state = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
 
                         $booking['state'] = $state['state'];
+                        if (empty($booking['state'])) {
+                            $to = "anuj@247around.com, abhaya@247around.com";
+                            $message = "State not found for Booking ID: " . $booking['booking_id'] . " and Pincode: " . $booking['booking_pincode'];
+                            $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Booking State Not Found', $message, "");
+                        }
                         $booking['booking_pincode'] = $requestData['pincode'];
 
                         $booking['booking_address'] = $requestData['address'] . ", " . (isset($requestData['landmark']) ? $requestData['landmark'] : "");
@@ -1465,6 +1470,11 @@ class Partner extends CI_Controller {
 
             $state = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
             $booking['state'] = $state['state'];
+            if (empty($booking['state'])) {
+                $to = "anuj@247around.com, abhaya@247around.com";
+                $message = "State not found for Booking ID: " . $booking['booking_id'] . " and Pincode: " . $booking['booking_pincode'];
+                $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Booking State Not Found', $message, "");
+            }
 
             //Insert query
             //echo print_r($booking, true) . "<br><br>";
