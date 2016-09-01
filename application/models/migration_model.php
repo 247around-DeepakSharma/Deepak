@@ -153,10 +153,10 @@ class Migration_model extends CI_Model {
 
 	$data = $this->getpricesdetails_with_tax($services_details['id'], $state);
 
-	echo PHP_EOL;
-	echo $unit_details_id . "-" . $booking_id, "--" . $services_details['id'];
-	echo PHP_EOL;
-	print_r($data);
+//	echo PHP_EOL;
+//	echo $unit_details_id . "-" . $booking_id, "--" . $services_details['id'];
+//	echo PHP_EOL;
+//	print_r($data);
 	unset($services_details['unit_id']);
 
 	if (!empty($data)) {
@@ -191,7 +191,7 @@ class Migration_model extends CI_Model {
 	      print_r($data);
 	      echo PHP_EOL;
 	      print_r($unit_details);
-	      echo PHP_EOL; 
+	      echo PHP_EOL;
 
 	    $this->update_price_in_unit_details($data, $unit_details);
 	}
@@ -417,10 +417,9 @@ class Migration_model extends CI_Model {
     function get_service_center_completed_or_cancelled() {
 	echo "Entering " . __METHOD__ . PHP_EOL;
 
-	$sql = "SELECt booking_details.booking_id from booking_details, service_center_booking_action"
-                . " where service_center_booking_action.current_status = 'Completed' "
-                . " AND (booking_details.current_status = 'Completed' OR booking_details.current_status = 'Cancelled') "
-                . "AND service_center_booking_action.booking_id = booking_details.booking_id ";
+	$sql = "SELECT booking_details.booking_id from booking_details, service_center_booking_action"
+                . " WHERE (booking_details.current_status = 'Completed' OR booking_details.current_status = 'Cancelled') "
+	    . "AND service_center_booking_action.booking_id = booking_details.booking_id ";
         $query = $this->db->query($sql);
 	$result = $query->result_array();
         $this->update_completed_service_center_table($result);
@@ -440,12 +439,14 @@ class Migration_model extends CI_Model {
             $this->db->where('booking_id', $value['booking_id']);
             $query1 = $this->db->get('booking_unit_details');
 	    $result1 = $query1->result_array();
-            if(count($result) ===2){
-                $data['unit_details_id'] = $result1[0]['id'];
+
+	    if (count($result1) === 2) {
+		$data['unit_details_id'] = $result1[0]['id'];
                 $data['internal_status'] = $result1[0]['booking_status'];
                 $data['current_status'] = $result1[0]['booking_status'];
 
-                $this->db->where('booking_id', $result1[0]['booking_id']);
+		print_r($data);
+		$this->db->where('booking_id', $result1[0]['booking_id']);
 		$this->db->update('service_center_booking_action', $data);
 
                 $this->db->select('*');
@@ -453,11 +454,13 @@ class Migration_model extends CI_Model {
 		$query2 = $this->db->get('service_center_booking_action');
 		$result2 = $query2->result_array();
 		unset($result2[0]['id']);
+
 		$result2[0]['unit_details_id'] = $result1[1]['id'];
 		$result2[0]['current_status'] = $result1[1]['booking_status'];
                 $result2[0]['internal_status'] = $result1[1]['booking_status'];
 
-                $this->db->insert('service_center_booking_action', $result2[0]);
+		print_r($result2[0]);
+		$this->db->insert('service_center_booking_action', $result2[0]);
 		echo PHP_EOL;
 		echo "two";
 		echo PHP_EOL;
@@ -469,8 +472,10 @@ class Migration_model extends CI_Model {
 		echo PHP_EOL;
 		echo $result1[0]['booking_id'];
 		echo PHP_EOL;
+		$data1['unit_details_id'] = $result1[0]['id'];
 		$data1['internal_status'] = $result1[0]['booking_status'];
                 $data1['current_status'] = $result1[0]['booking_status'];
+		print_r($data1);
 		$this->db->where('booking_id', $result1[0]['booking_id']);
 		$this->db->update('service_center_booking_action', $data1);
 	    }
@@ -499,7 +504,7 @@ class Migration_model extends CI_Model {
 	    $result1 = $query1->result_array();
 
 	    if (count($result1) === 2) {
-		print_r($result1);
+//		print_r($result1);
 		$this->db->where('booking_id', $result1[0]['booking_id']);
 		$this->db->update('service_center_booking_action', array('unit_details_id ' => $result1[0]['id']));
 
@@ -515,19 +520,19 @@ class Migration_model extends CI_Model {
                     $result2[0]['internal_status'] = "Pending";
                 } else {
                      $result2[0]['current_status'] = "InProcess";
-                     //$result2[0]['internal_status'] = $result1[1]['booking_status'];
+		    //$result2[0]['internal_status'] = $result1[1]['booking_status'];
                 }
 
 		$this->db->insert('service_center_booking_action', $result2[0]);
-		echo PHP_EOL;
-		echo "two";
-		echo PHP_EOL;
+//		echo PHP_EOL;
+//		echo "two";
+//		echo PHP_EOL;
 		echo $result1[0]['booking_id'];
 		echo PHP_EOL;
 	    } else if (count($result1) === 1) {
-		echo PHP_EOL;
-		echo "only one";
-		echo PHP_EOL;
+//		echo PHP_EOL;
+//		echo "only one";
+//		echo PHP_EOL;
 		echo $result1[0]['booking_id'];
 		echo PHP_EOL;
 		$this->db->where('booking_id', $result1[0]['booking_id']);
@@ -536,20 +541,55 @@ class Migration_model extends CI_Model {
 
             if ($internal_status === FALSE) {
 		//current-status is InProcess and internal status is set by vendor
-		$this->db->select('internal_status');
+		$this->db->select('*');
 		$this->db->where('booking_id', $value['booking_id']);
                 $this->db->where('current_status', 'InProcess');
                 $query4 = $this->db->get('service_center_booking_action');
                 $service_internal_status = $query4->result_array();
 
-                if($service_internal_status[0]['internal_status'] == 'Completed TV Without Stand' ||
-                        $service_internal_status[0]['internal_status'] == 'Completed With Demo' ||
-                        $service_internal_status[0]['internal_status'] == 'Completed TV With Stand'){
-                    $service_internal_status[0]['internal_status'] = "Completed";
-                }
-                $this->db->where('booking_id', $value['booking_id']);
-                $this->db->update('service_center_booking_action', array('internal_status'=> $service_internal_status[0]['internal_status']));
-            }
+		$i = 0;
+
+		foreach ($service_internal_status as $int_stat) {
+		    switch ($int_stat['internal_status']) {
+			case 'Completed TV Without Stand':
+			case 'Completed Without Stand':
+			case 'Completed With Demo':
+			case 'Completed':
+			    if ($i == 0) {
+				echo 'Completing 1st entry (1st Case) ...' . PHP_EOL;
+				$this->db->where('id', $int_stat['id']);
+				$this->db->update('service_center_booking_action', array('internal_status' => "Completed"));
+			    } else if ($i == 1) {
+				echo 'Cancelling 2nd entry (1st Case) ...' . PHP_EOL;
+				$this->db->where('id', $int_stat['id']);
+				$this->db->update('service_center_booking_action', array('internal_status' => "Cancelled"));
+			    }
+			    break;
+
+			case 'Completed TV With Stand':
+			case 'Completed With Stand':
+			    if ($i == 0) {
+				echo 'Completing 1st entry (2nd Case) ...' . PHP_EOL;
+				$this->db->where('id', $int_stat['id']);
+				$this->db->update('service_center_booking_action', array('internal_status' => "Completed"));
+			    } else if ($i == 1) {
+				echo 'Completing 2nd entry (2nd Case) ...' . PHP_EOL;
+				$this->db->where('id', $int_stat['id']);
+				$this->db->update('service_center_booking_action', array('internal_status' => "Completed"));
+			    }
+			    break;
+		    }
+		    $i++;
+		}
+
+//		if($service_internal_status[0]['internal_status'] == 'Completed TV Without Stand' ||
+//                        $service_internal_status[0]['internal_status'] == 'Completed With Demo' ||
+//                        $service_internal_status[0]['internal_status'] == 'Completed TV With Stand'){
+//                    $service_internal_status[0]['internal_status'] = "Completed";
+//                }
+//                $this->db->where('booking_id', $value['booking_id']);
+//                $this->db->update('service_center_booking_action', array('internal_status'=> $service_internal_status[0]['internal_status']));
+	    }
 	}
     }
 
