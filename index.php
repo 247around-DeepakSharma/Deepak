@@ -1,9 +1,9 @@
 <?php
 
 /*
- *---------------------------------------------------------------
+ * ---------------------------------------------------------------
  * APPLICATION ENVIRONMENT
- *---------------------------------------------------------------
+ * ---------------------------------------------------------------
  *
  * You can load different configurations depending on your
  * current environment. Setting the environment also influences
@@ -18,90 +18,88 @@
  * NOTE: If you change these, also change the error_reporting() code below
  *
  */
-	define('ENVIRONMENT', 'testing_abhay');
+define('ENVIRONMENT', 'testing_abhay');
 /*
- *---------------------------------------------------------------
+ * ---------------------------------------------------------------
  * ERROR REPORTING
- *---------------------------------------------------------------
+ * ---------------------------------------------------------------
  *
  * Different environments will require different levels of error reporting.
  * By default development will show errors but testing and live will hide them.
  */
 
-if (defined('ENVIRONMENT'))
-{
-	switch (ENVIRONMENT)
-	{
-		
-		case 'testing_abhay':
-		    error_reporting(E_ALL);
-			ini_set('display_errors', 1);
-			define('libreoffice_pdf', '/var/www/libreoffice');
-			define('libreoffice_output_file', '/var/www/output.txt');
-			define('AROUND_CONFIG_PORT', 80);
-			define('AROUND_CONFIG_SSL', "");
-           
-            break;
+if (defined('ENVIRONMENT')) {
+    switch (ENVIRONMENT) {
 
-        case 'testing_stag':
-		    error_reporting(E_ALL);
-			ini_set('display_errors', 1);
-			define('libreoffice_pdf', '/var/www/libreoffice');
-			define('libreoffice_output_file', '/var/www/output.txt');
-			define('AROUND_CONFIG_PORT', 80);
-			define('AROUND_CONFIG_SSL', "");
-           
-            break;
+	case 'testing_abhay':
+	    error_reporting(E_ALL);
+	    ini_set('display_errors', 1);
+	    define('libreoffice_pdf', '/var/www/libreoffice');
+	    define('libreoffice_output_file', '/var/www/output.txt');
+	    define('AROUND_CONFIG_PORT', 80);
+	    define('AROUND_CONFIG_SSL', "");
+
+	    break;
+
+	case 'testing_stag':
+	    error_reporting(E_ALL);
+	    ini_set('display_errors', 1);
+	    define('libreoffice_pdf', '/var/www/libreoffice');
+	    define('libreoffice_output_file', '/var/www/output.txt');
+	    define('AROUND_CONFIG_PORT', 80);
+	    define('AROUND_CONFIG_SSL', "");
+
+	    break;
 
 
-		case 'testing_anuj':
-		    error_reporting(E_ALL);
-			ini_set('display_errors', 1);
-			define('libreoffice_pdf', '');
-			define('libreoffice_output_file', '');
-			define('AROUND_CONFIG_PORT', 80);
-			define('AROUND_CONFIG_SSL', "");
-            
-            break;
-		case 'development':
-	//			error_reporting(E_ALL ^ E_DEPRECATED);
+	case 'testing_anuj':
+	    error_reporting(E_ALL);
+	    ini_set('display_errors', 1);
+	    define('libreoffice_pdf', '');
+	    define('libreoffice_output_file', '');
+	    define('AROUND_CONFIG_PORT', 80);
+	    define('AROUND_CONFIG_SSL', "");
+
+	    break;
+	case 'development':
+	    //			error_reporting(E_ALL ^ E_DEPRECATED);
 	    error_reporting(E_ALL);
 	    ini_set('display_startup_errors', 1);
 	    ini_set('display_errors', 1);
 
 	    break;
 
-		case 'testing':
-		case 'production':
-			error_reporting(0);
-			define('libreoffice_pdf', '/home/around/libreoffice_tmp');
-			define('libreoffice_output_file', '/home/around/libreoffice_tmp/output.txt');
-			define('AROUND_CONFIG_PORT', 443);
-			define('AROUND_CONFIG_SSL', "ssl://");
-			
-		break;
+	case 'testing':
+	case 'production':
+	    error_reporting(0);
+	    define('libreoffice_pdf', '/home/around/libreoffice_tmp');
+	    define('libreoffice_output_file', '/home/around/libreoffice_tmp/output.txt');
+	    define('AROUND_CONFIG_PORT', 443);
+	    define('AROUND_CONFIG_SSL', "ssl://");
 
-		default:
-			exit('The application environment is not set correctly.');
-	}
+	    break;
+
+	default:
+	    exit('The application environment is not set correctly.');
+    }
 }
 
 /*
- *---------------------------------------------------------------
+ * ---------------------------------------------------------------
  * SYSTEM FOLDER NAME
- *---------------------------------------------------------------
+ * ---------------------------------------------------------------
  *
  * This variable must contain the name of your "system" folder.
  * Include the path if the folder is not in the same  directory
  * as this file.
  *
  */
-	$system_path = 'system';
+$system_path = 'system';
 
 /*
- *---------------------------------------------------------------
+ * ---------------------------------------------------------------
  * APPLICATION FOLDER NAME
- *---------------------------------------------------------------
+ * ---------------------------------------------------------------
  *
  * If you want this front controller to use a different "application"
  * folder then the default one you can set its name here. The folder
@@ -112,7 +110,7 @@ if (defined('ENVIRONMENT'))
  * NO TRAILING SLASH!
  *
  */
-	$application_folder = 'application';
+$application_folder = 'application';
 
 /*
  * --------------------------------------------------------------------
@@ -134,15 +132,13 @@ if (defined('ENVIRONMENT'))
  * Un-comment the $routing array below to use this feature
  *
  */
-	// The directory name, relative to the "controllers" folder.  Leave blank
-	// if your controller is not in a sub-folder within the "controllers" folder
-	// $routing['directory'] = '';
-
-	// The controller class file name.  Example:  Mycontroller
-	// $routing['controller'] = '';
-
-	// The controller function you wish to be called.
-	// $routing['function']	= '';
+// The directory name, relative to the "controllers" folder.  Leave blank
+// if your controller is not in a sub-folder within the "controllers" folder
+// $routing['directory'] = '';
+// The controller class file name.  Example:  Mycontroller
+// $routing['controller'] = '';
+// The controller function you wish to be called.
+// $routing['function']	= '';
 
 
 /*
@@ -160,10 +156,7 @@ if (defined('ENVIRONMENT'))
  * Un-comment the $assign_to_config array below to use this feature
  *
  */
-	// $assign_to_config['name_of_config_item'] = 'value of config item';
-
-
-
+// $assign_to_config['name_of_config_item'] = 'value of config item';
 // --------------------------------------------------------------------
 // END OF USER CONFIGURABLE SETTINGS.  DO NOT EDIT BELOW THIS LINE
 // --------------------------------------------------------------------
@@ -174,62 +167,55 @@ if (defined('ENVIRONMENT'))
  * ---------------------------------------------------------------
  */
 
-	// Set the current directory correctly for CLI requests
-	if (defined('STDIN'))
-	{
-		chdir(dirname(__FILE__));
-	}
+// Set the current directory correctly for CLI requests
+if (defined('STDIN')) {
+    chdir(dirname(__FILE__));
+}
 
-	if (realpath($system_path) !== FALSE)
-	{
-		$system_path = realpath($system_path).'/';
-	}
+if (realpath($system_path) !== FALSE) {
+    $system_path = realpath($system_path) . '/';
+}
 
-	// ensure there's a trailing slash
-	$system_path = rtrim($system_path, '/').'/';
+// ensure there's a trailing slash
+$system_path = rtrim($system_path, '/') . '/';
 
-	// Is the system path correct?
-	if ( ! is_dir($system_path))
-	{
-		exit("Your system folder path does not appear to be set correctly. Please open the following file and correct this: ".pathinfo(__FILE__, PATHINFO_BASENAME));
-	}
+// Is the system path correct?
+if (!is_dir($system_path)) {
+    exit("Your system folder path does not appear to be set correctly. Please open the following file and correct this: " . pathinfo(__FILE__, PATHINFO_BASENAME));
+}
 
 /*
  * -------------------------------------------------------------------
  *  Now that we know the path, set the main path constants
  * -------------------------------------------------------------------
  */
-	// The name of THIS file
-	define('SELF', pathinfo(__FILE__, PATHINFO_BASENAME));
+// The name of THIS file
+define('SELF', pathinfo(__FILE__, PATHINFO_BASENAME));
 
-	// The PHP file extension
-	// this global constant is deprecated.
-	define('EXT', '.php');
+// The PHP file extension
+// this global constant is deprecated.
+define('EXT', '.php');
 
-	// Path to the system folder
-	define('BASEPATH', str_replace("\\", "/", $system_path));
+// Path to the system folder
+define('BASEPATH', str_replace("\\", "/", $system_path));
 
-	// Path to the front controller (this file)
-	define('FCPATH', str_replace(SELF, '', __FILE__));
+// Path to the front controller (this file)
+define('FCPATH', str_replace(SELF, '', __FILE__));
 
-	// Name of the "system folder"
-	define('SYSDIR', trim(strrchr(trim(BASEPATH, '/'), '/'), '/'));
+// Name of the "system folder"
+define('SYSDIR', trim(strrchr(trim(BASEPATH, '/'), '/'), '/'));
 
 
-	// The path to the "application" folder
-	if (is_dir($application_folder))
-	{
-		define('APPPATH', $application_folder.'/');
-	}
-	else
-	{
-		if ( ! is_dir(BASEPATH.$application_folder.'/'))
-		{
-			exit("Your application folder path does not appear to be set correctly. Please open the following file and correct this: ".SELF);
-		}
+// The path to the "application" folder
+if (is_dir($application_folder)) {
+    define('APPPATH', $application_folder . '/');
+} else {
+    if (!is_dir(BASEPATH . $application_folder . '/')) {
+	exit("Your application folder path does not appear to be set correctly. Please open the following file and correct this: " . SELF);
+    }
 
-		define('APPPATH', BASEPATH.$application_folder.'/');
-	}
+    define('APPPATH', BASEPATH . $application_folder . '/');
+}
 
 /*
  * --------------------------------------------------------------------
@@ -239,7 +225,7 @@ if (defined('ENVIRONMENT'))
  * And away we go...
  *
  */
-require_once BASEPATH.'core/CodeIgniter.php';
+require_once BASEPATH . 'core/CodeIgniter.php';
 
 /* End of file index.php */
 /* Location: ./index.php */
