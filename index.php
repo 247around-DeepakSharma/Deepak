@@ -46,8 +46,8 @@ if (defined('ENVIRONMENT'))
         case 'testing_stag':
 		    error_reporting(E_ALL);
 			ini_set('display_errors', 1);
-			define('libreoffice_pdf', '/home/abhay/libreoffice_tmp');
-			define('libreoffice_output_file', '/home/abhay/libreoffice_tmp/output.txt');
+			define('libreoffice_pdf', '/var/www/libreoffice');
+			define('libreoffice_output_file', '/var/www/output.txt');
 			define('AROUND_CONFIG_PORT', 80);
 			define('AROUND_CONFIG_SSL', "");
            

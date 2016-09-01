@@ -213,7 +213,6 @@ class bookingjobcard extends CI_Controller {
                 '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
                 $output_file_excel . ' 2> ' . $tmp_output_file;
 
-        echo $cmd;
         $output = '';
         $result_var = '';
         exec($cmd, $output, $result_var);

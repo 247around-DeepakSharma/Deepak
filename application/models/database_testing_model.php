@@ -20,9 +20,9 @@ class Database_testing_model extends CI_Model {
      */
     function check_unit_details() {
 	$this->db->select('booking_id, partner_id, service_id, appliance_id');
-	$this->db->or_where_in('booking_id', '0');
-	$this->db->or_where_in('partner_id', '0');
-	$this->db->or_where_in('appliance_id', '0');
+	$this->db->or_where('booking_id', '0');
+	$this->db->or_where('partner_id', '0');
+	$this->db->or_where('appliance_id', '0');
 	$this->db->where('create_date >=', '2016-07-01 00:00:00');
 	$query = $this->db->get('booking_unit_details');
 	if ($query->num_rows > 0) {
@@ -39,8 +39,8 @@ class Database_testing_model extends CI_Model {
     function check_price_tags() {
 	$this->db->select('booking_unit_details.booking_id, price_tags');
 	$this->db->from('booking_unit_details');
-	$this->db->or_where_in('price_tags', '');
-	$this->db->or_where_in('price_tags', NULL);
+	$this->db->or_where('price_tags', '');
+	$this->db->or_where('price_tags', NULL);
 	$this->db->join('booking_details', 'booking_details.booking_id = booking_unit_details.booking_id');
 	$this->db->where_in('booking_details.current_status', array('Pending', 'Completed', 'Cancelled', 'Rescheduled'));
 	$this->db->where('booking_details.create_date >=', '2016-07-01 00:00:00');
@@ -97,17 +97,20 @@ class Database_testing_model extends CI_Model {
      */
     function check_booking_details() {
 	$this->db->select('booking_id, partner_id, service_id, user_id,source, type, booking_pincode, city, booking_pincode');
-	$this->db->or_where_in('booking_id', '0');
-	$this->db->or_where_in('partner_id', '0');
-	$this->db->or_where_in('service_id', '0');
-	$this->db->or_where_in('user_id', '0');
-	$this->db->or_where_in('source', '');
-	$this->db->or_where_in('source', NULL);
-	$this->db->or_where_in('type', NULL);
-	$this->db->or_where_in('booking_pincode', NULL);
-	$this->db->or_where_in('city', NULL);
-	$this->db->or_where_in('booking_primary_contact_no', '');
-	$this->db->or_where_in('booking_primary_contact_no', '0');
+	$this->db->or_where('booking_id', '0');
+	$this->db->or_where('partner_id', '0');
+	$this->db->or_where('service_id', '0');
+	$this->db->or_where('user_id', '0');
+	$this->db->or_where('source', '');
+	$this->db->or_where('source', NULL);
+	$this->db->or_where('type', NULL);
+	$this->db->or_where('current_status', NULL);
+	$this->db->or_where('current_status', '0');
+	$this->db->or_where('internal_status', '0');
+	$this->db->or_where('booking_pincode', NULL);
+	$this->db->or_where('city', NULL);
+	$this->db->or_where('booking_primary_contact_no', '');
+	$this->db->or_where('booking_primary_contact_no', '0');
 	$this->db->where('booking_details.create_date >=', '2016-07-01 00:00:00');
 	$query = $this->db->get('booking_details');
 	if ($query->num_rows > 0) {
@@ -155,9 +158,62 @@ class Database_testing_model extends CI_Model {
 		array_push($data_result, array('booking_id' => $value['booking_id']));
 	    }
 	}
-	
+
 	if (!empty($data_result)) {
 	    return $data_result;
+	} else {
+	    return false;
+	}
+    }
+
+    /**
+     * @desc: This method checks booking id is zero,
+     * unit details id is zero or null,
+     * service center id is zero,
+     * current status and internal status is zero
+     * @return boolean
+     */
+    function check_service_center_action() {
+
+	$this->db->select('booking_id, unit_details_id, service_center_id,current_status, internal_status');
+	$this->db->or_where('booking_id', '0');
+	$this->db->or_where('unit_details_id', NULL);
+	$this->db->or_where('unit_details_id', '0');
+	$this->db->or_where('service_center_id', '0');
+	$this->db->or_where('current_status', '0');
+	$this->db->or_where('internal_status', '0');
+	$this->db->where('create_date >=', '2016-07-01 00:00:00');
+	$query = $this->db->get('service_center_booking_action');
+	echo $this->db->last_query();
+	if ($query->num_rows > 0) {
+	    return $query->result_array();
+	} else {
+	    return false;
+	}
+    }
+    /**
+     * @desc: this method check if booking is pending or rescheduled in booking details,
+     * it must be pending or Inprocess in service center action table
+     * @return boolean
+     */
+    function check_pending_booking_in_action_table() {
+	$this->db->select('booking_id');
+	$this->db->where_in('booking_details.current_status', array('Pending', 'Rescheduled'));
+	$this->db->where('booking_details.create_date >=', '2016-07-01 00:00:00');
+	$query = $this->db->get('booking_details');
+	if ($query->num_rows > 0) {
+	    $data = $query->result_array();
+	    $data_array = array();
+	    foreach ($data as $value) {
+		$this->db->select('booking_id');
+		$this->db->where('booking_id', $value['booking_id']);
+		$this->db->where_not_in('current_status', array('Pending', 'Inprocess'));
+		$query1 = $this->db->get('service_center_booking_action');
+		if ($query1->num_rows > 0) {
+		    array_push($data_array, array('booking_id' => $value['booking_id']));
+		}
+	    }
+	    return $data_array;
 	} else {
 	    return false;
 	}

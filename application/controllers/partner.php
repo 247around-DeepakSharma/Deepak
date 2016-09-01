@@ -250,6 +250,11 @@ class Partner extends CI_Controller {
                         $state = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
 
                         $booking['state'] = $state['state'];
+                        if (empty($booking['state'])) {
+                            $to = "anuj@247around.com, abhaya@247around.com";
+                            $message = "State not found for Booking ID: " . $booking['booking_id'] . " and Pincode: " . $booking['booking_pincode'];
+                            $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Booking State Not Found', $message, "");
+                        }
                         $booking['booking_pincode'] = $requestData['pincode'];
 
                         $booking['booking_address'] = $requestData['address'] . ", " . (isset($requestData['landmark']) ? $requestData['landmark'] : "");
@@ -1465,6 +1470,11 @@ class Partner extends CI_Controller {
 
             $state = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
             $booking['state'] = $state['state'];
+            if (empty($booking['state'])) {
+                $to = "anuj@247around.com, abhaya@247around.com";
+                $message = "State not found for Booking ID: " . $booking['booking_id'] . " and Pincode: " . $booking['booking_pincode'];
+                $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Booking State Not Found', $message, "");
+            }
 
             //Insert query
             //echo print_r($booking, true) . "<br><br>";
@@ -1476,6 +1486,8 @@ class Partner extends CI_Controller {
             $user_email =   $requestData['email'];
 
             // Send mail
+
+            if(!empty($return_id) && !empty($return_unit_id)){
 
             $message = "Congratulations You have received new booking, details are mentioned below:
       <br>Customer Name: " .  $user_name . "<br>Customer Phone Number: " . $booking['booking_primary_contact_no'] .
@@ -1493,8 +1505,8 @@ class Partner extends CI_Controller {
                                 $unit_details['appliance_category'] . "<br>Capacity : " . $unit_details['appliance_capacity'] .
                                 "<br>Selected service is: " . $unit_details['price_tags'] . "<br>";
 
-            //$to = "anuj@247around.com, nits@247around.com";
-            $to = "abhaya@247around.com";
+            $to = "anuj@247around.com, nits@247around.com";
+            //$to = "abhaya@247around.com";
             $from = "booking@247around.com";
             $cc = "";
             $bcc = "";
@@ -1507,6 +1519,7 @@ class Partner extends CI_Controller {
                     ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";
 
             $this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
+            }
 
 
 

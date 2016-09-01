@@ -265,6 +265,11 @@ class bookings_excel extends CI_Controller {
 
 		$state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
 		$booking['state'] = $state['state'];
+		if (empty($booking['state'])) {
+            $to = "anuj@247around.com, abhaya@247around.com";
+            $message = "State not found for Booking ID: " . $booking['booking_id'] . " and Pincode: " . $booking['booking_pincode'];
+            $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Booking State Not Found', $message, "");
+        }
 
 		$booking['quantity'] = '1';
 		$booking['potential_value'] = '';
@@ -550,6 +555,11 @@ class bookings_excel extends CI_Controller {
 
 		$state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
 		$booking['state'] = $state['state'];
+		if (empty($booking['state'])) {
+            $to = "anuj@247around.com, abhaya@247around.com";
+            $message = "State not found for Booking ID: " . $booking['booking_id'] . " and Pincode: " . $booking['booking_pincode'];
+            $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Booking State Not Found', $message, "");
+        }
 		$booking['create_date'] = date('Y-m-d H:i:s', strtotime("4 days"));
 
 
@@ -768,6 +778,11 @@ class bookings_excel extends CI_Controller {
 		$booking['booking_pincode'] = $rowData[0]['CustomerPincode'];
 		$booking['city'] = $rowData[0]['CustomerCity'];
 		$booking['state'] = $rowData[0]['CustomerState'];
+		if (empty($booking['state'])) {
+            $to = "anuj@247around.com, abhaya@247around.com";
+            $message = "State not found for Booking ID: " . $booking['booking_id'] . " and Pincode: " . $booking['booking_pincode'];
+            $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Booking State Not Found', $message, "");
+        }
 		$booking['booking_primary_contact_no'] = $rowData[0]['CustomerContactNo'];
 
 		$dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['shippedDate']);
