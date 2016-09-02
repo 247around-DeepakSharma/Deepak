@@ -27,7 +27,7 @@
                                 } ?>">
                                 <label for="booking_pincode" class="col-md-4">Pincode *</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($user[0]['pincode'])){echo $user[0]['pincode'];} ?>" placeholder="Enter Area Pin" required>
+                                    <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($user[0]['pincode'])){echo $user[0]['pincode'];} ?>" placeholder="Enter Area Pin" >
                                     <?php echo form_error('booking_pincode'); ?>
                                 </div>
                             </div>
@@ -202,18 +202,18 @@
                                                 <select  type="text" class=" form-control "   name="purchase_month[]" id="purchase_month_1" >
                                                     <option selected="selected" value="">Month</option>
 
-                                                    <option>Jan</option>
-                                                    <option>Feb</option>
-                                                    <option>Mar</option>
-                                                    <option>Apr</option>
-                                                    <option>May</option>
-                                                    <option>Jun</option>
-                                                    <option>July</option>
-                                                    <option>Aug</option>
-                                                    <option>Sept</option>
-                                                    <option>Oct</option>
-                                                    <option>Nov</option>
-                                                    <option>Dec</option>
+                                                    <option <?php if(date('m') == '01'){ echo "selected";} ?>>Jan</option>
+                                                    <option <?php if(date('m') == '02'){ echo "selected";} ?>>Feb</option>
+                                                    <option <?php if(date('m') == '03'){ echo "selected";} ?>>Mar</option>
+                                                    <option <?php if(date('m') == '04'){ echo "selected";} ?>>Apr</option>
+                                                    <option <?php if(date('m') == '05'){ echo "selected";} ?>>May</option>
+                                                    <option <?php if(date('m') == '06'){ echo "selected";} ?>>Jun</option>
+                                                    <option <?php if(date('m') == '07'){ echo "selected";} ?>>July</option>
+                                                    <option <?php if(date('m') == '08'){ echo "selected";} ?>>Aug</option>
+                                                    <option <?php if(date('m') == '09'){ echo "selected";} ?>>Sept</option>
+                                                    <option <?php if(date('m') == '10'){ echo "selected";} ?>>Oct</option>
+                                                    <option <?php if(date('m') == '11'){ echo "selected";} ?>>Nov</option>
+                                                    <option <?php if(date('m') == '12'){ echo "selected";} ?>>Dec</option>
                                                 </select>
                                             </div>
                                             <div class="form-group">
@@ -263,7 +263,7 @@
                             <div class="form-group">
                                 <label  for="booking_address" class="col-md-4">Booking Address *</label>
                                 <div class="col-md-6">
-                                    <textarea class="form-control" rows="4" id="booking_address" name="home_address"  required ><?php echo $user[0]['home_address']; ?></textarea>
+                                    <textarea class="form-control" rows="4" id="booking_address" name="home_address"   ><?php echo $user[0]['home_address']; ?></textarea>
                                 </div>
                             </div>
 
