@@ -146,7 +146,7 @@
                                         <div class="form-group ">
                                             <label for="service_name" class="col-md-4">Brand *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_brand" onchange="getCategoryForService()"   name="appliance_brand[]" id="appliance_brand_1" required>
+                                                <select type="text" class="form-control appliance_brand" onchange="getCategoryForService(this.id)"   name="appliance_brand[]" id="appliance_brand_1" required>
                                                     <option selected disabled>Select Brand</option>
                                                 </select>
                                             </div>
@@ -219,9 +219,9 @@
                                             <div class="form-group">
                                                 <div class="col-md-4">
                                                     <select  type="text" class="col-md-3 form-control "   name="purchase_year[]" id="purchase_year_1" required>
-                                                        <option selected="selected" value="" >Year</option>
+                                                        <option value="" >Year</option>
                                                         <?php for($i = 0; $i> -26; $i--){ ?>
-                                                        <option>
+                                                        <option  <?php if(date("Y",strtotime($i." year")) === date("Y")){ echo "selected";} ?>>
                                                             <?php echo date("Y",strtotime($i." year")); ?>
                                                         </option>
                                                         <?php }  ?>
@@ -322,8 +322,8 @@
                         </div>
                         <div class="form-group  col-md-12" >
                             <center>
-                                <button style="margin-right: 25px;" type="button" class="btn btn-info btn-md open-AddBookingDialog" data-toggle="modal" data-target="#myModal">Preview</button>
-                                <input type="submit" id="submitform" class="btn btn-info disabled" value="submit">
+                                <button style="margin-right: 25px;" type="button" class="btn btn-info btn-md open-AddBookingDialog" data-toggle="modal" data-target="#myModal">Check Details</button>
+                                <input type="submit" id="submitform" class="btn btn-info disabled" value="Submit Bookings">
                         </div>
                         </center>
                     </div>

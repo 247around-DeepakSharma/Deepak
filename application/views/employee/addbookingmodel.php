@@ -49,7 +49,7 @@
                      <td id="b_service" ></td>
                   </tr>
                   <tr>
-                     <th>Query Remarks</th>
+                     <th>Remarks</th>
                      <td id="bremarks">Remarks</td>
                      <th>Potential Value</th>
                      <td id="bpotential_value"></td>

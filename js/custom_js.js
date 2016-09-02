@@ -23,17 +23,25 @@
     });
   }
     
-  function getCategoryForService(service_id="") {
+  function getCategoryForService(div_id = "") {
     var postData = {};
     
     postData['service_id'] = $("#service_id").val();
     postData['booking_pincode'] = $('#booking_pincode').val();
     postData['partner_code'] = $("#source_code option:selected").val();
-   
     
     sendAjaxRequest(postData, categoryForServiceUrl).done(function(data) {
-      
-        $(".appliance_category").html(data);   
+
+        if(div_id ==""){
+          $(".appliance_category").html(data);   
+          
+
+        } else {
+
+           var div_no = div_id.split('_');
+           $("#appliance_category"+div_no[2]).html(data);
+        }
+        
 
     });
 
