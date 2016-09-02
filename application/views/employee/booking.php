@@ -201,12 +201,12 @@
 
                     </thead>
 
-                    <?php $count = 1; ?>
+                    <?php $count = 1; if($offset == 0){ $offset = 1;} ?>
                     <?php foreach($Bookings as $key =>$row){?>
 
                     <tr id="row_color<?php echo $count;?>">
                     <td><input type="hidden" class="mail_to_vendor<?php echo $count;?>" id="mail_to_vendor<?php echo $count;?>" value="<?php echo $row->mail_to_vendor;?>"></td>
-                    <td><?=$row->id?>.</td>
+                    <td><?php echo $offset;?>.</td>
 
                             <td>
                             <?php
@@ -357,7 +357,7 @@
                         </td>
 
                 </tr>
-                <?php $count++;
+                <?php $count++; $offset++;
                 }?>
                 <input type="hidden" id="total_no_rows" value="<?php echo $count;?>">
 

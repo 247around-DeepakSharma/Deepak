@@ -1,5 +1,5 @@
 
-<?php  $offset = $this->uri->segment(4); ?>
+<?php $offset = $this->uri->segment(5);  ?>
 
 <script type="text/javascript" src="<?php echo base_url();?>js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="<?php echo base_url();?>js/jquery-ui-1.7.1.custom.min.js"></script>
@@ -109,13 +109,13 @@ function outbound_call(phone_number){
 
                     </thead>
 
-                    <?php $count = 1; ?>
+                    <?php $count = 1; if($offset ==0){ $offset = 1;} ?>
                     <?php foreach($Bookings as $key =>$row){?>
 
                     <tr <?php if (isset($row->OrderID)) { if($row->OrderID !=null) { ?>
                                 style="background-color:#EC8484"
                         <?php }  }?> >
-                    <td><?php echo $count; ?></td>
+                    <td><?php echo $offset; ?></td>
 
                 <td><?= $row->booking_id; ?></td>
                         <td><a target='_blank' href="<?php echo base_url(); ?>employee/user/finduser/0/0/<?php echo $row->phone_number; ?>"><?php echo $row->customername; ?></a></td>
@@ -185,7 +185,7 @@ function outbound_call(phone_number){
                     </td>
                     <?php } ?>
                     </tr>
-                    <?php $count++;
+                    <?php $count++; $offset++;
                     }?>
 
                 </table>
