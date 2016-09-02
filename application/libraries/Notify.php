@@ -228,10 +228,6 @@ class Notify {
 	}
 
 	$query1 = $this->My_CI->booking_model->getbooking_filter_service_center($booking_id);
-	if (isset($query1[0]['vendor_name'])) {
-	    $email['vendor_name'] = $query1[0]['vendor_name'];
-	    $email['city'] = $query1[0]['district'];
-	}
 
 	$email['name'] = $query1[0]['name'];
 	$email['phone_no'] = $query1[0]['phone_number'];
@@ -247,6 +243,11 @@ class Notify {
 	$sms['smsData']['service'] = $query1[0]['services'];
 	$sms['phone_no'] = $query1[0]['booking_primary_contact_no'];
 	$sms['booking_id'] = $query1[0]['booking_id'];
+
+	if (isset($query1[0]['vendor_name'])) {
+	    $email['vendor_name'] = $query1[0]['vendor_name'];
+	    $email['city'] = $query1[0]['district'];
+	}
 
 	switch ($current_status) {
 	    case 'Completed':
@@ -276,14 +277,15 @@ class Notify {
 		    $email['tag'] = "cancel_booking";
 		    $email['subject'] = "Pending Booking Cancellation - 247AROUND";
 
-		    //Send internal mails now
-		    $this->send_email($email);
-
 		    if ($is_sd == FALSE) {
 			$sms['tag'] = "cancel_booking";
 			$this->send_sms($sms);
 		    }
 		}
+
+		//Send internal mails now
+		$this->send_email($email);
+
 		break;
 
 	    case 'Rescheduled':
@@ -298,6 +300,7 @@ class Notify {
 		    $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
 		    $this->send_sms($sms);
 		}
+
 		break;
 
 	    case 'OpenBooking':
@@ -305,6 +308,7 @@ class Notify {
 		$email['subject'] = "Closed Booking Reopened - 247AROUND";
 		//Send internal mails now
 		$this->send_email($email);
+
 		break;
 
 	    case 'Customer not reachable':
