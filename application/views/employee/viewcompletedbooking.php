@@ -173,12 +173,12 @@
                         if ($row->current_status == 'Completed' && empty($row->rating_stars ))
                         {
                             echo "<a class='btn btn-sm btn-danger' "
-                                    . "href=" . base_url() . "employee/booking/get_rating_form/$row->booking_id/$row->current_status title='Rate'><i class='fa fa-star-o' aria-hidden='true'></i></a>";
+                                    . "href=" . base_url() . "employee/booking/get_rating_form/$row->booking_id/$row->current_status title='Rate' target='_blank'><i class='fa fa-star-o' aria-hidden='true'></i></a>";
                         }
                         else
                         {
                             echo "<a class='btn btn-sm btn-danger disabled' "
-                                . "href=" . base_url() . "employee/booking/get_rating_form/$row->booking_id title='Rate'><i class='fa fa-star-o' aria-hidden='true'></i></a>";
+                                . "href=" . base_url() . "employee/booking/get_rating_form/$row->booking_id title='Rate' target='_blank'><i class='fa fa-star-o' aria-hidden='true'></i></a>";
                         }
                         ?>
                     </td>
