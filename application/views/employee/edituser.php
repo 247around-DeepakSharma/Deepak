@@ -24,11 +24,11 @@
     alert("Alternate Number length is not correct");
     return false;
   }  
-  if(pin!="" && !pin.match(exp2)){
-    alert("Enter only digits in pincode");
-    return false;
-  }
-  if(pin!="" && pin.length!=6){
+  // if(!pin.match(exp2)){
+  //   alert("Enter only digits in pincode");
+  //   return false;
+  // }
+  if(pin.length!=6 && pin.match(exp2)){
     alert("Enter 6 digits pincode.");
     return false;
   }
@@ -111,9 +111,9 @@
             </div>
 
             <div class="form-group <?php if( form_error('pincode') ) { echo 'has-error';} ?>">
-                <label for="pincode" class="col-md-2">Pincode<span class="red">*</span></label>
+                <label for="pincode" class="col-md-2">Pincode</span></label>
                 <div class="col-md-4">
-                    <input type="text" class="form-control"  name="pincode" value = "<?php echo $user[0]['pincode']; ?>" required>
+                    <input type="text" class="form-control"  name="pincode" value = "<?php echo $user[0]['pincode']; ?>" >
                     <?php echo form_error('pincode'); ?>
                 </div>
             </div>

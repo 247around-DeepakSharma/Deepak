@@ -28,12 +28,12 @@
 			alert("Please enter valid email.");
 			return false;
 		}
-    if(pin != "" && pin.length!=6)
+    if(pin.match(exp2) && pin.length!=6)
     {
       alert("Please enter 6 digts pincode.");
       return false;
     }
-    if(pin != "" && isNaN(pin) && !pin.match(exp2))
+    if( isNaN(pin) && !pin.match(exp2))
     {
       alert("Please enter only digits in pincode.");
       return false;
@@ -48,10 +48,7 @@
       alert("Please Select City");
       return false;
     }
-    if(pincode == ""){
-       alert("Please fill pincode");
-       return false;
-    }
+    
 	}
 
 </script>
@@ -125,9 +122,9 @@
                  </div>
 
                  <div class="form-group <?php if( form_error('pincode') ) { echo 'has-error';} ?>">
-                  <label for="pincode" class="col-md-2">Pincode<span class="red">*</span></label>
+                  <label for="pincode" class="col-md-2">Pincode</span></label>
                       <div class="col-md-6">
-                        <input type="text" class="form-control"  id="pincode" name="pincode" value = "<?php echo set_value('pincode');  ?>" placeholder="Please enter user's pincode." required>
+                        <input type="text" class="form-control"  id="pincode" name="pincode" value = "<?php echo set_value('pincode');  ?>" placeholder="Please enter user's pincode." >
                         <?php echo form_error('pincode'); ?>
                       </div>  
                  </div>
