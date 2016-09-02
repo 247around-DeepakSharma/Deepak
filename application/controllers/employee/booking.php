@@ -313,9 +313,9 @@ class Booking extends CI_Controller {
         $booking['potential_value'] = $this->input->post('potential_value');
         $booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
         $booking['booking_timeslot'] = $this->input->post('booking_timeslot');
-	$booking['update_date'] = date("Y-m-d H:i:s");
+	    $booking['update_date'] = date("Y-m-d H:i:s");
 
-	if (empty($booking['state'])) {
+	    if (empty($booking['state'])) {
             $to = "anuj@247around.com, abhaya@247around.com";
             $message = "State not found for Booking ID: " . $booking['booking_id'] . " and Pincode: " . $booking['booking_pincode'];
             $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Booking State Not Found', $message, "");
@@ -1047,7 +1047,7 @@ class Booking extends CI_Controller {
         $booking['appliance_id'] = $appliance_id;
         $booking['follow_up_internal_status'] = $this->booking_model->get_internal_status("FollowUp");
 
-        foreach ($booking['unit_details'] as $key) {
+        foreach ($booking['unit_details'] as $key => $value) {
 
 	    $capacity = $this->booking_model->getCapacityForCategory($booking_history[0]['service_id'], $booking['unit_details'][$key]['category'], $booking_history[0]['state'], $partner_id);
 
