@@ -324,6 +324,7 @@ class Booking_model extends CI_Model {
 	$query = $this->db->query($sql);
 	$count = $query->result_array();
 
+
 	return $count[0]['count'];
     }
 
@@ -973,6 +974,8 @@ class Booking_model extends CI_Model {
     function get_queries($limit, $start, $status, $booking_id = "") {
         $where = "";
         $add_limit = "";
+        echo $limit;
+        echo '<br/>';
 
         if ($booking_id != "") {
             $where .= "AND `booking_details`.`booking_id` = '$booking_id' AND `booking_details`.current_status='$status'  ";
@@ -984,6 +987,10 @@ class Booking_model extends CI_Model {
                 $add_limit = " limit $start, $limit ";
 
 
+            } else if($limit == 'All') {
+
+                $where .= "AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR
+                booking_details.booking_date='') AND `booking_details`.current_status='$status' ";
             }
         }
 
@@ -1002,7 +1009,7 @@ class Booking_model extends CI_Model {
             END, STR_TO_DATE(booking_date,'%d-%m-%Y') desc $add_limit";
 
         $query = $this->db->query($sql);
-
+        
         $temp = $query->result();
         usort($temp, array($this, 'date_compare_queries'));
 
