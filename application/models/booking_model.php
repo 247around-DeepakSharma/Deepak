@@ -974,8 +974,6 @@ class Booking_model extends CI_Model {
     function get_queries($limit, $start, $status, $booking_id = "") {
         $where = "";
         $add_limit = "";
-        echo $limit;
-        echo '<br/>';
 
         if ($booking_id != "") {
             $where .= "AND `booking_details`.`booking_id` = '$booking_id' AND `booking_details`.current_status='$status'  ";
