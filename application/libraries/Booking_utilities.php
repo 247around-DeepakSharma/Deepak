@@ -164,7 +164,8 @@ class Booking_utilities {
 	    $output_file_pdf = "/tmp/" . $getbooking[0]['booking_jobcard_filename'];
 
 	    $cmd = "curl https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/" . $file_pdf . " -o " . $output_file_pdf;
-	   
+	    exec($cmd);
+
 	    $date1 = date('d-m-Y', strtotime('now'));
 	    $date2 = $getbooking[0]['booking_date'];
 	    $datediff = ($date1 - $date2) / (60 * 60 * 24);
