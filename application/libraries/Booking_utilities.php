@@ -23,7 +23,7 @@ class Booking_utilities {
 	$this->My_CI->load->library('s3');
 	$this->My_CI->load->library('form_validation');
 	$this->My_CI->load->library("session");
-        $this->My_CI->load->library("notify");
+    $this->My_CI->load->library("notify");
 	$this->My_CI->load->helper('download');
 	$this->My_CI->load->helper(array('form', 'url'));
 	$this->My_CI->load->model('employee_model');
@@ -156,7 +156,7 @@ class Booking_utilities {
 	    $owner = $getbooking[0]['owner_email'];
 	    $cc = $owner;
 	    $bcc = 'anuj@247around.com';
-            $from = "booking@247around.com";
+        $from = "booking@247around.com";
 	    $subject = "247Around / Job Card " . $getbooking[0]['booking_id'] . " / " . $getbooking[0]['booking_date'] .
 		" / " . $getbooking[0]['booking_timeslot'];
 
@@ -164,8 +164,7 @@ class Booking_utilities {
 	    $output_file_pdf = "/tmp/" . $getbooking[0]['booking_jobcard_filename'];
 
 	    $cmd = "curl https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/" . $file_pdf . " -o " . $output_file_pdf;
-	    exec($cmd);
-
+	   
 	    $date1 = date('d-m-Y', strtotime('now'));
 	    $date2 = $getbooking[0]['booking_date'];
 	    $datediff = ($date1 - $date2) / (60 * 60 * 24);
@@ -183,25 +182,27 @@ class Booking_utilities {
 		$bookingdate = $dd . " " . $mm;
 	    }
 
-	    if ($getbooking[0]->booking_timeslot == '10AM-1PM') {
-	    	$getbooking[0]->booking_timeslot= '10AM';
-	    }elseif ($getbooking[0]->booking_timeslot == '1PM-4PM') {
-	    	$getbooking[0]->booking_timeslot= '1PM';
+	    if ($getbooking[0]['booking_timeslot'] == '10AM-1PM') {
+	    	$getbooking[0]['booking_timeslot']= '10AM';
+	    }elseif ($getbooking[0]['booking_timeslot'] == '1PM-4PM') {
+	    	$getbooking[0]['booking_timeslot']= '1PM';
 	    }
 	    else {
-	    	$getbooking[0]->booking_timeslot= '4PM';
+	    	$getbooking[0]['booking_timeslot']= '4PM';
 	    }
 
-	    $smsBody = "Booking - " . $getbooking[0]->customername . ", " . $getbooking[0]->phone_number . ", " . $getbooking[0]['services'] . ", " . $bookingdate ."/" . $getbooking[0]->booking_timeslot .  ", " . $getbooking[0]['booking_address'] . ", ". $getbooking[0]->booking_pincode . ". 247around";
+	    $smsBody = "Booking - " . $getbooking[0]['name'] . ", " . $getbooking[0]['booking_primary_contact_no'] . ", " . $getbooking[0]['services'] . ", " . $bookingdate ."/" . $getbooking[0]['booking_timeslot'] .  ", " . $getbooking[0]['booking_address'] . ", ". $getbooking[0]['booking_pincode'] . ". 247around";
 
 	    //Send SMS to vendor
-	    $this->notify->sendTransactionalSms($getbooking[0]['primary_contact_phone_1'], $smsBody);
+	    $this->My_CI->notify->sendTransactionalSms($getbooking[0]['primary_contact_phone_1'], $smsBody);
 	    //Save email in database
 	    $details = array("booking_id" => $booking_id, "subject" => $subject,
 		"body" => $message, "type" => "Booking",
 		"attachment" => $getbooking[0]['booking_jobcard_filename']);
 	    $this->My_CI->booking_model->save_vendor_email($details);
-            $notify = $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $output_file_pdf);
+	    log_message('info', " Send job card to vendor " . print_r($booking_id, true) . ", Service centre: " .  print_r($to,true). print_r($cc, true). print_r($bcc, true). print_r($subject, true). print_r($message, true). print_r($output_file_pdf, true));
+
+        $notify = $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $output_file_pdf);
             if($notify){
 		//Setting flag to 1, once mail is sent.
                 $this->My_CI->booking_model->set_mail_to_vendor($booking_id);
