@@ -221,32 +221,33 @@
 
                                             </div>
                                         </div>
+
                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Purchase Year</label>
                                             <div class="col-md-4">
                                                 <select  type="text" class=" form-control " <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  name="purchase_month[]" id="purchase_month_1" >
                                                     <option value="">Month</option>
 
-                                                    <option <?php if(isset($unit_details[0]['purchase_month'])) {  if($unit_details[0]['purchase_month'] == "Jan"){ echo "selected";} } ?>  >Jan</option>
-                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Feb"){  echo "selected";} } ?> >Feb</option>
-                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Mar"){  echo "selected";} } ?>>Mar</option>
-                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Apr"){ echo "selected";} }?> >Apr</option>
-                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "May"){ echo "selected";} } ?> >May</option>
-                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Jun"){ echo "selected";} } ?> >Jun</option>
-                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "July"){ echo "selected";}} ?>>July</option>
-                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) {if($unit_details[0]['purchase_month'] == "Aug"){ echo "selected";}} ?>>Aug</option>
-                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) {if($unit_details[0]['purchase_month'] == "Sept"){ echo "selected";}} ?>>Sept</option>
-                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Oct"){ echo "selected";} } ?>>Oct</option>
-                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Nov"){ echo "selected";}} ?>>Nov</option>
-                                                    <option <?php  if(isset($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Dec"){ echo "selected";} } ?>>Dec</option>
+                                                    <option <?php if(!empty($unit_details[0]['purchase_month'])) {  if($unit_details[0]['purchase_month'] == "Jan"){ echo "selected";} } else { if(date('m') == '01'){ echo "selected";}} ?>  >Jan</option>
+                                                    <option <?php  if(!empty($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Feb"){  echo "selected";} }else { if(date('m') == '02'){ echo "selected";}} ?> >Feb</option>
+                                                    <option <?php  if(!empty($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Mar"){  echo "selected";} }else { if(date('m') == '03'){ echo "selected";}} ?>>Mar</option>
+                                                    <option <?php  if(!empty($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Apr"){ echo "selected";} }else { if(date('m') == '04'){ echo "selected";}}?> >Apr</option>
+                                                    <option <?php  if(!empty($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "May"){ echo "selected";} }else { if(date('m') == '05'){ echo "selected";}} ?> >May</option>
+                                                    <option <?php  if(!empty($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Jun"){ echo "selected";} }else { if(date('m') == '06'){ echo "selected";}} ?> >Jun</option>
+                                                    <option <?php  if(!empty($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "July"){ echo "selected";}}else { if(date('m') == '07'){ echo "selected";}} ?>>July</option>
+                                                    <option <?php  if(!empty($unit_details[0]['purchase_month'])) {if($unit_details[0]['purchase_month'] == "Aug"){ echo "selected";}}else { if(date('m') == '08'){ echo "selected";}} ?>>Aug</option>
+                                                    <option <?php  if(!empty($unit_details[0]['purchase_month'])) {if($unit_details[0]['purchase_month'] == "Sept"){ echo "selected";}}else { if(date('m') == '09'){ echo "selected";}} ?>>Sept</option>
+                                                    <option <?php  if(!empty($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Oct"){ echo "selected";} }else { if(date('m') == '10'){ echo "selected";}} ?>>Oct</option>
+                                                    <option <?php  if(!empty($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Nov"){ echo "selected";}}else { if(date('m') == '11'){ echo "selected";}} ?>>Nov</option>
+                                                    <option <?php  if(!empty($unit_details[0]['purchase_month'])) { if($unit_details[0]['purchase_month'] == "Dec"){ echo "selected";} }else { if(date('m') == '12'){ echo "selected";}} ?>>Dec</option>
                                                 </select>
                                             </div>
                                             <div class="form-group">
                                                 <div class="col-md-4">
-                                                    <select  type="text" class="col-md-3 form-control "   name="purchase_year[]" id="purchase_year_1" <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  required>
+                                                    <select  type="text" class="col-md-3 form-control "   name="purchase_year[]" id="purchase_year_1" <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  >
                                                         <option selected="selected" value="" >Year</option>
                                                         <?php for($i = 0; $i> -26; $i--){ ?>
-                                                        <option <?php  if(isset($unit_details[0]['purchase_year'])) { if(date("Y",strtotime($i." year")) == $unit_details[0]['purchase_year']){ echo "selected" ;} } ?>>
+                                                        <option <?php  if(!empty($unit_details[0]['purchase_year'])) { if(date("Y",strtotime($i." year")) == $unit_details[0]['purchase_year']){ echo "selected" ;} } ?>>
                                                             <?php echo date("Y",strtotime($i." year")); ?>
                                                         </option>
                                                         <?php }  ?>
@@ -499,7 +500,7 @@
                             <div class="form-group">
                                 <label  for="booking_address" class="col-md-4">Booking Address *</label>
                                 <div class="col-md-6">
-                                    <textarea class="form-control" rows="4" id="booking_address" name="home_address"  required ><?php echo $booking_history[0]['booking_address']; ?></textarea>
+                                    <textarea class="form-control" rows="4" id="booking_address" name="home_address"   ><?php echo $booking_history[0]['booking_address']; ?></textarea>
                                 </div>
                             </div>
                             <div class="form-group ">

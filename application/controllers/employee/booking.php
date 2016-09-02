@@ -117,6 +117,16 @@ class Booking extends CI_Controller {
 	    $booking['query_to_booking'] = $booking_id_with_flag['queries_to_booking'];
 	    log_message('info', " Booking Updated: " . print_r($booking['booking_id'], true) . " Query to booking: " . $booking['query_to_booking']);
 	}
+
+    if (empty($booking['state']) && $booking['type'] != 'Query') {
+            $to = "anuj@247around.com, abhaya@247around.com";
+            $message = "State not found for Booking ID ". $booking[''] . "  Pincode: " . $booking['booking_pincode'];
+            $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Booking State Not Found', $message, "");
+              
+            log_message('info', __FUNCTION__ . " Booking State  not found:" . print_r($booking['state'], true) . " Pincode: " . print_r($booking['booking_pincode']));
+
+        }
+
         $service = $booking['services'];
         $booking_remarks = $this->input->post('query_remarks');
         // All brand comming in array eg-- array([0]=> LG, [1]=> BPL)
@@ -315,14 +325,7 @@ class Booking extends CI_Controller {
         $booking['booking_timeslot'] = $this->input->post('booking_timeslot');
 	    $booking['update_date'] = date("Y-m-d H:i:s");
 
-	    if (empty($booking['state'])) {
-            $to = "anuj@247around.com, abhaya@247around.com";
-            $message = "State not found for Booking ID: " . $booking['booking_id'] . " and Pincode: " . $booking['booking_pincode'];
-            $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Booking State Not Found', $message, "");
-        }
-
-	log_message('info', __FUNCTION__ . " Booking State :" . print_r($booking['state'], true) . " Pincode: " . print_r($booking['booking_pincode']));
-
+	   
 	return $booking;
     }
     /**
@@ -1015,7 +1018,6 @@ class Booking extends CI_Controller {
 
         $this->pagination->initialize($config);
         $data['links'] = $this->pagination->create_links();
-
         $data['Bookings'] = $this->booking_model->get_queries($config['per_page'], $offset, $status, $booking_id);
 
         $this->load->view('employee/header');
@@ -1538,6 +1540,10 @@ class Booking extends CI_Controller {
         $this->booking_model->change_booking_status($booking_id);
 
         redirect(base_url() . 'employee/booking/view_queries/FollowUp/0/0/' . $booking_id);
+    }
+
+    function test(){
+        $this->booking_utilities->lib_send_mail_to_vendor("SC-98651608123","");
     }
 
 }
