@@ -271,10 +271,11 @@ class Migration extends CI_Controller {
 
 		case 'Installation & Demo':
 		case 'Wall Mount Stand':
+		    echo $value['booking_id'] . ", " . $value['price_tags'] . PHP_EOL;
 		    break;
 
 		default:
-		    echo $value['booking_id'] . PHP_EOL;
+		    echo $value['booking_id'] . ", " . $value['price_tags'] . PHP_EOL;
 		    break;
 	    }
 	}
@@ -319,13 +320,11 @@ class Migration extends CI_Controller {
 		unset($data['booking_pincode']);
 
 		$this->migration_model->update_prices($data, $data['booking_id'], $state['state']);
-
-//		echo ".";
+		echo ".";
 	    }
 	}
 
 	echo PHP_EOL;
-//	echo 'Success: ' . $c . PHP_EOL;
     }
 
     function c_test3() {
@@ -574,6 +573,7 @@ class Migration extends CI_Controller {
 
 		case 'Installation & Demo':
 		case 'Wall Mount Stand':
+		    echo $value['booking_id'] . ", " . $value['price_tags'] . PHP_EOL;
 		    break;
 
 		default:
@@ -629,6 +629,7 @@ class Migration extends CI_Controller {
 		unset($data['booking_pincode']);
 
 		$this->migration_model->update_prices($data, $data['booking_id'], $state['state']);
+		echo ".";
 	    }
 	}
 
@@ -704,10 +705,11 @@ class Migration extends CI_Controller {
 
 		case 'Installation & Demo':
 		case 'Wall Mount Stand':
+		    echo $value['booking_id'] . PHP_EOL;
 		    break;
 
 		default:
-		    echo $value['booking_id'] . ", Match not found<br/>";
+		    echo $value['booking_id'] . ", Match not found" . PHP_EOL;
 		    break;
 	    }
 	}
@@ -739,6 +741,7 @@ class Migration extends CI_Controller {
 	    echo $booking_id . "  .... appliance_id Id Not Exist.";
 	    echo PHP_EOL;
 	}
+		    echo '.';
     }
 
     function update_for_installation_with_stand($value) {
@@ -776,6 +779,7 @@ class Migration extends CI_Controller {
 	$unit_data['price_tags'] = "Wall Mount Stand";
 
 	$this->migration_model->addunitdetails($unit_data);
+		    echo '.';
     }
 
     /**
@@ -793,77 +797,81 @@ class Migration extends CI_Controller {
 	//print_r($data);
 	foreach ($data as $value) {
 	    switch ($value['price_tags']) {
-//		case 'Repair,':
-//		case 'Repair':
-//		    $this->update_for_installation($value, "Repair");
-//		    break;
-//
-//		case 'Installation':
-//		case 'Installation,':
-//		case 'InstallationwithoutStand,':
-//		    $this->update_for_installation($value, "Installation & Demo");
-//		    break;
-//
-//		case 'InstallationwithStand':
-//		case 'Installation with Stand':
-//		case 'InstallationwithStand,':
-//		case 'Installation with Stand,':
-//		    $this->update_for_installation_with_stand($value);
-//		    break;
-//
-//		case 'GasRechargewithDryer,':
-//		    $this->update_for_installation($value, "Gas Recharge with Dryer");
-//		    break;
-//
-//		case 'GasRecharge,':
-//		    $this->update_for_installation($value, "Gas Recharge");
-//		    break;
-//
-//		case 'WetService,':
-//		case 'Wet Service':
-//		    echo $value['booking_id'] . 'WetService,' . PHP_EOL;
-//		    break;
-//
-//		case 'Installation,Uninstallation,':
-//		    $data = array();
-//		    $data['appliance_id'] = $value['appliance_id'];
-//		    $data['partner_id'] = $value['partner_id'];
-//		    $data['service_id'] = $value['service_id'];
-//                    $data['appliance_description'] = $value['appliance_description'];
-//		    $unit_details = $this->migration_model->get_unit_details($value['booking_id']);
-//
-//		    $data['price_tags'] = "Installation & Demo";
-//		    $unit_id = $unit_details[0]['id'];
-//
-//		    $this->migration_model->update_unit_details_by_id($unit_id, $data);
-//
-//		    $data['booking_id'] = $value['booking_id'];
-//		    $data['appliance_brand'] = $value['appliance_brand'];
-//		    $data['appliance_category'] = $value['appliance_category'];
-//		    $data['appliance_capacity'] = $value['appliance_capacity'];
-//		    $data['model_number'] = $value['model_number'];
-//
-//		    $data['appliance_tag'] = $value['appliance_tag'];
-//		    $data['purchase_year'] = $value['purchase_year'];
-//		    $data['purchase_month'] = $value['purchase_month'];
-//		    $data['price_tags'] = "Uninstallation";
-//
-//		    $this->migration_model->addunitdetails($data);
-//
-//		    break;
-//
-//		case 'VisitCharge,':
-//		case 'Visit Charge':
-//		    $this->update_for_installation($value, "Visit");
-//		    break;
-//
-//		case 'Service,':
-//		    echo $value['booking_id'] . 'Service' . PHP_EOL;
-//		    break;
-//
-//		case 'Repair,InstallationwithStand,':
-//		    echo $value['booking_id'] . 'Repair,InstallationwithStand,' . PHP_EOL;
-//		break;
+		case 'Repair,':
+		case 'Repair':
+		    $this->update_for_installation($value, "Repair");
+		    break;
+
+		case 'Repair - In Warranty':
+		    $this->update_for_installation($value, "Repair - In Warranty");
+		    break;
+
+		case 'Installation':
+		case 'Installation,':
+		case 'InstallationwithoutStand,':
+		    $this->update_for_installation($value, "Installation & Demo");
+		    break;
+
+		case 'InstallationwithStand':
+		case 'Installation with Stand':
+		case 'InstallationwithStand,':
+		case 'Installation with Stand,':
+		    $this->update_for_installation_with_stand($value);
+		    break;
+
+		case 'GasRechargewithDryer,':
+		    $this->update_for_installation($value, "Gas Recharge with Dryer");
+		    break;
+
+		case 'GasRecharge,':
+		    $this->update_for_installation($value, "Gas Recharge");
+		    break;
+
+		case 'WetService,':
+		case 'Wet Service':
+		    echo $value['booking_id'] . 'WetService,' . PHP_EOL;
+		    break;
+
+		case 'Installation,Uninstallation,':
+		    $data = array();
+		    $data['appliance_id'] = $value['appliance_id'];
+		    $data['partner_id'] = $value['partner_id'];
+		    $data['service_id'] = $value['service_id'];
+                    $data['appliance_description'] = $value['appliance_description'];
+		    $unit_details = $this->migration_model->get_unit_details($value['booking_id']);
+
+		    $data['price_tags'] = "Installation & Demo";
+		    $unit_id = $unit_details[0]['id'];
+
+		    $this->migration_model->update_unit_details_by_id($unit_id, $data);
+
+		    $data['booking_id'] = $value['booking_id'];
+		    $data['appliance_brand'] = $value['appliance_brand'];
+		    $data['appliance_category'] = $value['appliance_category'];
+		    $data['appliance_capacity'] = $value['appliance_capacity'];
+		    $data['model_number'] = $value['model_number'];
+
+		    $data['appliance_tag'] = $value['appliance_tag'];
+		    $data['purchase_year'] = $value['purchase_year'];
+		    $data['purchase_month'] = $value['purchase_month'];
+		    $data['price_tags'] = "Uninstallation";
+
+		    $this->migration_model->addunitdetails($data);
+
+		    break;
+
+		case 'VisitCharge,':
+		case 'Visit Charge':
+		    $this->update_for_installation($value, "Visit");
+		    break;
+
+		case 'Service,':
+		    echo $value['booking_id'] . 'Service' . PHP_EOL;
+		    break;
+
+		case 'Repair,InstallationwithStand,':
+		    echo $value['booking_id'] . 'Repair,InstallationwithStand,' . PHP_EOL;
+		break;
 
 		case '':
 //		    echo $value['booking_id'] . ", Price Tag is empty<br/>" . PHP_EOL;
@@ -883,10 +891,11 @@ class Migration extends CI_Controller {
 		    break;
 
 		case 'Installation & Demo':
+		    echo $value['booking_id'] . $value['price_tags'] . PHP_EOL;
 		    break;
 
 		default:
-//		    echo $value['booking_id'] . $value['price_tags'] . PHP_EOL;
+		    echo $value['booking_id'] . $value['price_tags'] . PHP_EOL;
 		    break;
 	    }
 	}
@@ -953,7 +962,7 @@ class Migration extends CI_Controller {
 
 		unset($data['booking_pincode']);
 
-//		$this->migration_model->update_prices($data, $data['booking_id'], $state['state']);
+		$this->migration_model->update_prices($data, $data['booking_id'], $state['state']);
 	    }
 	}
     }
