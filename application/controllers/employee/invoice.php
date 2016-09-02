@@ -426,10 +426,10 @@ class Invoice extends CI_Controller {
 	    }
 	}
 
-//	//Delete XLS files now
-//	foreach ($file_names as $file_name) {
-//	    exec("rm -rf " . escapeshellarg($file_name));
-//	}
+	//Delete XLS files now
+	foreach ($file_names as $file_name) {
+	    exec("rm -rf " . escapeshellarg($file_name));
+	}
 
 	exit(0);
     }
@@ -511,11 +511,11 @@ class Invoice extends CI_Controller {
 		}
 	    }
 	}
-//
-//	//Delete XLS files now
-//	foreach ($file_names as $file_name) {
-//	    exec("rm -rf " . escapeshellarg($file_name));
-//	}
+
+	//Delete XLS files now
+	foreach ($file_names as $file_name) {
+	    exec("rm -rf " . escapeshellarg($file_name));
+	}
 
 	exit(0);
     }
@@ -680,20 +680,20 @@ class Invoice extends CI_Controller {
 		//for xlsx: excel, for xls: excel2003
 		$R->render('excel', $output_file_excel);
 
-		//convert excel to pdf
-		$output_file_pdf = $output_file_dir . $output_file . ".pdf";
+//		//convert excel to pdf
+//		$output_file_pdf = $output_file_dir . $output_file . ".pdf";
+//
+//		putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+//		$tmp_path = '/tmp/';
+//		$tmp_output_file = '/tmp/output_' . __FUNCTION__ . '.txt';
+//		$cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+//		    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+//		    $output_file_excel . ' 2> ' . $tmp_output_file;
+//
+//		$output = '';
+//		$result_var = '';
+//		exec($cmd, $output, $result_var);
 
-		//$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=" . CONVERTAPI_KEY . " -o " . $output_file_pdf;
-		putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-		$tmp_path = '/tmp/';
-		$tmp_output_file = '/tmp/output_' . __FUNCTION__ . '.txt';
-		$cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
-		    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
-		    $output_file_excel . ' 2> ' . $tmp_output_file;
-
-		$output = '';
-		$result_var = '';
-		exec($cmd, $output, $result_var);
 		log_message('info', "Report generated with $count records");
 
 		//Send report via email
@@ -731,7 +731,7 @@ class Invoice extends CI_Controller {
                         <br>https://play.google.com/store/apps/details?id=com.handymanapp";
 
 		$this->email->message($message);
-		$this->email->attach($output_file_pdf, 'attachment');
+		$this->email->attach($output_file_excel, 'attachment');
 
 		$mail_ret = $this->email->send();
 
@@ -759,10 +759,10 @@ class Invoice extends CI_Controller {
 		    //Upload Excel files to AWS
 		    $bucket = 'bookings-collateral';
 		    $directory_xls = "invoices-excel/" . $output_file . ".xlsx";
-		    $directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
+//		    $directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
 
 		    $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-		    $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+//		    $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
 		    //Save this invoice info in table
 		    $invoice_details = array(
 			'invoice_id' => $invoice_id,
@@ -771,7 +771,7 @@ class Invoice extends CI_Controller {
 			'vendor_partner' => 'vendor',
 			'vendor_partner_id' => $invoices[0]['id'],
 			'invoice_file_excel' => $output_file . '.xlsx',
-			'invoice_file_pdf' => $output_file . '.pdf',
+//			'invoice_file_pdf' => $output_file . '.pdf',
 			'from_date' => date("Y-m-d", strtotime($start_date)),
 			'to_date' => date("Y-m-d", strtotime($end_date)),
 			'num_bookings' => $count,
@@ -806,7 +806,7 @@ class Invoice extends CI_Controller {
 
 		//Save filenames to delete later on
 		array_push($file_names, $output_file_excel);
-		array_push($file_names, $output_file_pdf);
+//		array_push($file_names, $output_file_pdf);
 
 		$summary = $invoices[0]['id'] . "," . $invoices[0]['name'] . "," . $count . "," . $excel_data['t_ap'] . "," . $excel_data['r_total']
 		    . "," . $excel_data['r_total'] . "<br>";
@@ -818,10 +818,10 @@ class Invoice extends CI_Controller {
 	    }
 	}
 
-//	//Delete XLS files now
-//	foreach ($file_names as $file_name) {
-//	    exec("rm -rf " . escapeshellarg($file_name));
-//	}
+	//Delete XLS files now
+	foreach ($file_names as $file_name) {
+	    exec("rm -rf " . escapeshellarg($file_name));
+	}
 
 	return $summary_cash;
     }
@@ -1019,20 +1019,19 @@ class Invoice extends CI_Controller {
 		$R->render('excel', $output_file_excel);
 
 		//convert excel to pdf
-		$output_file_pdf = $output_file_dir . $output_file . ".pdf";
-		//$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=" . CONVERTAPI_KEY . " -o " . $output_file_pdf;
-		putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-		$tmp_path = '/tmp/';
-		$tmp_output_file = '/tmp/output_' . __FUNCTION__ . '.txt';
-		$cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
-		    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
-		    $output_file_excel . ' 2> ' . $tmp_output_file;
-
-		log_message('info', 'Command: ' . $cmd);
-
-		$output = '';
-		$result_var = '';
-		exec($cmd, $output, $result_var);
+//		$output_file_pdf = $output_file_dir . $output_file . ".pdf";
+//		putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+//		$tmp_path = '/tmp/';
+//		$tmp_output_file = '/tmp/output_' . __FUNCTION__ . '.txt';
+//		$cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+//		    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+//		    $output_file_excel . ' 2> ' . $tmp_output_file;
+//
+//		log_message('info', 'Command: ' . $cmd);
+//
+//		$output = '';
+//		$result_var = '';
+//		exec($cmd, $output, $result_var);
 
 		log_message('info', "Report generated with $count records");
 		echo PHP_EOL . "Report generated with $count records" . PHP_EOL;
@@ -1069,7 +1068,7 @@ class Invoice extends CI_Controller {
                         <br>https://play.google.com/store/apps/details?id=com.handymanapp";
 
 		$this->email->message($message);
-		$this->email->attach($output_file_pdf, 'attachment');
+		$this->email->attach($output_file_excel, 'attachment');
 
 		$mail_ret = $this->email->send();
 		if ($mail_ret) {
@@ -1093,15 +1092,14 @@ class Invoice extends CI_Controller {
 		    $sms['phone_no'] = $invoices[0]['owner_phone_1'];
 
 		    $this->notify->send_sms($sms);
-		    
+
 		    //Upload Excel files to AWS
 		    $bucket = 'bookings-collateral';
 		    $directory_xls = "invoices-excel/" . $output_file . ".xlsx";
-		    $directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
+//		    $directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
 
 		    $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-		    $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
-		    
+//		    $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
 		    //Save this invoice info in table
 		    $invoice_details = array(
 			'invoice_id' => $invoice_id,
@@ -1110,7 +1108,7 @@ class Invoice extends CI_Controller {
 			'vendor_partner' => 'vendor',
 			'vendor_partner_id' => $invoices[0]['id'],
 			'invoice_file_excel' => $output_file . '.xlsx',
-			'invoice_file_pdf' => $output_file . '.pdf',
+//			'invoice_file_pdf' => $output_file . '.pdf',
 			'from_date' => date("Y-m-d", strtotime($start_date)),
 			'to_date' => date("Y-m-d", strtotime($end_date)),
 			'num_bookings' => $count,
@@ -1129,6 +1127,7 @@ class Invoice extends CI_Controller {
 			//Add 1 month to end date to calculate due date
 			'due_date' => date("Y-m-d", strtotime($end_date . "+1 month"))
 		    );
+
 		    // insert invoice details into partner invoices table
 		    $this->invoices_model->insert_new_invoice($invoice_details);
 
@@ -1137,13 +1136,14 @@ class Invoice extends CI_Controller {
 		     * Since this is a type B invoice, it would be stored as a vendor-credit invoice.
 		     */
 		    $this->update_booking_invoice_mappings_installations($invoices, $invoice_id);
+
 		    // insert data into vendor invoices snapshot
 		    $this->insert_foc_invoices_snapshot($invoices, $invoice_id);
 		}
 
 		//Save filenames to delete later on
 		array_push($file_names, $output_file_excel);
-		array_push($file_names, $output_file_pdf);
+//		array_push($file_names, $output_file_pdf);
 
 		$summary = $invoices[0]['id'] . "," . $invoices[0]['name'] . "," . $count . "," . $excel_data['t_total'] . "," . $excel_data['r_total']
 		    . "," . ( $excel_data['r_total'] - $excel_data['t_total']) . "<br>";
@@ -1156,10 +1156,10 @@ class Invoice extends CI_Controller {
 	    }
 	}
 
-//	//Delete XLS files now
-//	foreach ($file_names as $file_name) {
-//	    exec("rm -rf " . escapeshellarg($file_name));
-//	}
+	//Delete XLS files now
+	foreach ($file_names as $file_name) {
+	    exec("rm -rf " . escapeshellarg($file_name));
+	}
 
 	return $summary_foc;
     }
