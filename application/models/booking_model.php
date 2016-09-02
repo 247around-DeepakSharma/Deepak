@@ -268,6 +268,7 @@ class Booking_model extends CI_Model {
         } else  {
 
              //return slice of the sorted array
+            usort($temp, array($this, 'date_compare_bookings'));
             return array_slice($temp, $start, $limit);
         }
 
