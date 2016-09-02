@@ -96,7 +96,6 @@ class Migration extends CI_Controller {
 
 		case 'Repair,':
 		case 'Repair':
-		case 'Repair,InstallationwithStand,':
 		    $data = array();
 		    $data['appliance_id'] = $value['appliance_id'];
 		    $data['partner_id'] = $value['partner_id'];
@@ -272,10 +271,11 @@ class Migration extends CI_Controller {
 
 		case 'Installation & Demo':
 		case 'Wall Mount Stand':
+		    echo $value['booking_id'] . ", " . $value['price_tags'] . PHP_EOL;
 		    break;
 
 		default:
-		    echo $value['booking_id'] . PHP_EOL;
+		    echo $value['booking_id'] . ", " . $value['price_tags'] . PHP_EOL;
 		    break;
 	    }
 	}
@@ -320,13 +320,11 @@ class Migration extends CI_Controller {
 		unset($data['booking_pincode']);
 
 		$this->migration_model->update_prices($data, $data['booking_id'], $state['state']);
-
-//		echo ".";
+		echo ".";
 	    }
 	}
 
 	echo PHP_EOL;
-//	echo 'Success: ' . $c . PHP_EOL;
     }
 
     function c_test3() {
@@ -575,6 +573,7 @@ class Migration extends CI_Controller {
 
 		case 'Installation & Demo':
 		case 'Wall Mount Stand':
+		    echo $value['booking_id'] . ", " . $value['price_tags'] . PHP_EOL;
 		    break;
 
 		default:
@@ -630,6 +629,7 @@ class Migration extends CI_Controller {
 		unset($data['booking_pincode']);
 
 		$this->migration_model->update_prices($data, $data['booking_id'], $state['state']);
+		echo ".";
 	    }
 	}
 
@@ -664,7 +664,6 @@ class Migration extends CI_Controller {
 
 		case 'Repair,':
 		case 'Repair':
-		case 'Repair,InstallationwithStand,':
 		    $this->update_for_installation($value, "Repair");
 		    break;
 
@@ -706,10 +705,11 @@ class Migration extends CI_Controller {
 
 		case 'Installation & Demo':
 		case 'Wall Mount Stand':
+		    echo $value['booking_id'] . PHP_EOL;
 		    break;
 
 		default:
-		    echo $value['booking_id'] . ", Match not found<br/>";
+		    echo $value['booking_id'] . ", Match not found" . PHP_EOL;
 		    break;
 	    }
 	}
@@ -741,6 +741,7 @@ class Migration extends CI_Controller {
 	    echo $booking_id . "  .... appliance_id Id Not Exist.";
 	    echo PHP_EOL;
 	}
+		    echo '.';
     }
 
     function update_for_installation_with_stand($value) {
@@ -778,6 +779,7 @@ class Migration extends CI_Controller {
 	$unit_data['price_tags'] = "Wall Mount Stand";
 
 	$this->migration_model->addunitdetails($unit_data);
+		    echo '.';
     }
 
     /**
@@ -797,8 +799,11 @@ class Migration extends CI_Controller {
 	    switch ($value['price_tags']) {
 		case 'Repair,':
 		case 'Repair':
-		case 'Repair,InstallationwithStand,':
 		    $this->update_for_installation($value, "Repair");
+		    break;
+
+		case 'Repair - In Warranty':
+		    $this->update_for_installation($value, "Repair - In Warranty");
 		    break;
 
 		case 'Installation':
@@ -832,7 +837,7 @@ class Migration extends CI_Controller {
 		    $data['appliance_id'] = $value['appliance_id'];
 		    $data['partner_id'] = $value['partner_id'];
 		    $data['service_id'] = $value['service_id'];
-		    $data['appliance_description'] = $value['appliance_description'];
+                    $data['appliance_description'] = $value['appliance_description'];
 		    $unit_details = $this->migration_model->get_unit_details($value['booking_id']);
 
 		    $data['price_tags'] = "Installation & Demo";
@@ -866,7 +871,7 @@ class Migration extends CI_Controller {
 
 		case 'Repair,InstallationwithStand,':
 		    echo $value['booking_id'] . 'Repair,InstallationwithStand,' . PHP_EOL;
-		    break;
+		break;
 
 		case '':
 //		    echo $value['booking_id'] . ", Price Tag is empty<br/>" . PHP_EOL;
@@ -886,10 +891,11 @@ class Migration extends CI_Controller {
 		    break;
 
 		case 'Installation & Demo':
+		    echo $value['booking_id'] . $value['price_tags'] . PHP_EOL;
 		    break;
 
 		default:
-//		    echo $value['booking_id'] . $value['price_tags'] . PHP_EOL;
+		    echo $value['booking_id'] . $value['price_tags'] . PHP_EOL;
 		    break;
 	    }
 	}
@@ -956,7 +962,7 @@ class Migration extends CI_Controller {
 
 		unset($data['booking_pincode']);
 
-//		$this->migration_model->update_prices($data, $data['booking_id'], $state['state']);
+		$this->migration_model->update_prices($data, $data['booking_id'], $state['state']);
 	    }
 	}
     }

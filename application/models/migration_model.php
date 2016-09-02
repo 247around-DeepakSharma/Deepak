@@ -187,11 +187,11 @@ class Migration_model extends CI_Model {
 	    // print_r($unit_details);
 	    $data['id'] = $value['id'];
 
-	     echo PHP_EOL;
-	      print_r($data);
-	      echo PHP_EOL;
-	      print_r($unit_details);
-	      echo PHP_EOL;
+//	     echo PHP_EOL;
+//	      print_r($data);
+//	      echo PHP_EOL;
+//	      print_r($unit_details);
+//	      echo PHP_EOL;
 
 	    $this->update_price_in_unit_details($data, $unit_details);
 	}
@@ -206,7 +206,7 @@ class Migration_model extends CI_Model {
 	$partner_paid_tax = ($unit_details[0]['partner_paid_basic_charges'] * $data['tax_rate']) / 100;
 	// Calculate  total partner paid charges with tax
 	$data['partner_paid_basic_charges'] = $unit_details[0]['partner_paid_basic_charges'] + $partner_paid_tax;
-	print_r($data['partner_paid_basic_charges']);
+//	print_r($data['partner_paid_basic_charges']);
 
 	$vendor_total_basic_charges = ($data['customer_paid_basic_charges'] + $data['partner_paid_basic_charges'] + $data['around_paid_basic_charges']) * basic_percentage;
 	$around_total_basic_charges = ($data['customer_paid_basic_charges'] + $data['partner_paid_basic_charges'] + $data['around_paid_basic_charges'] - $vendor_total_basic_charges);
@@ -245,7 +245,7 @@ class Migration_model extends CI_Model {
 	}
 
 	unset($data['internal_status']);
-	print_r($data);
+//	print_r($data);
 	$this->db->where('id', $data['id']);
 	$this->db->update('booking_unit_details', $data);
     }
