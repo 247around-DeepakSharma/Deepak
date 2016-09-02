@@ -249,15 +249,15 @@
               flag = 1;
             } 
 
-            var number = Number(serial_number);
-            
-            if(number > 0){
-               
-               flag = 0;
-            } else {
-               document.getElementById('serial_number'+div_no[1]).style.borderColor = "red";
-               flag = 1;
-            }
+//            var number = Number(serial_number);
+//            
+//            if(number > 0){
+//               
+//               flag = 0;
+//            } else {
+//               document.getElementById('serial_number'+div_no[1]).style.borderColor = "red";
+//               flag = 1;
+//            }
          }
 
       });
