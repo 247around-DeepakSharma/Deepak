@@ -121,12 +121,12 @@ class Notify {
     function send_email($email) {
 
 	$template = $this->My_CI->booking_model->get_booking_email_template($email['tag']);
-	log_message('info', " Email Body" . print_r($email, true) );
-	    
+	log_message('info', " Email Body" . print_r($email, true));
+
 
 	if (!empty($template)) {
 	    $emailBody = vsprintf($template[0], $email);
-	    log_message('info', " Template" . print_r($email, true) );
+	    log_message('info', " Template" . print_r($email, true));
 	    $from = $template[2];
 	    $to = $template[1];
 	    $cc = "";
@@ -134,8 +134,8 @@ class Notify {
 	    $subject = $email['subject'];
 	    $message = $emailBody;
 	    $attachment = "";
-	    log_message('info', " Email Message" . print_r($message, true) );
-	    
+	    log_message('info', " Email Message" . print_r($message, true));
+
 	    $this->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
 	} else {
 	    log_message('info', "Email Not Sent - Booking id: " . $email['booking_id'] . ",
@@ -228,8 +228,8 @@ class Notify {
 	}
 
 	$query1 = $this->My_CI->booking_model->getbooking_filter_service_center($booking_id);
-	if(isset($query1[0]['vendor_name'])){
-		$email['vendor_name'] = $query1[0]['vendor_name'];
+	if (isset($query1[0]['vendor_name'])) {
+	    $email['vendor_name'] = $query1[0]['vendor_name'];
 	    $email['city'] = $query1[0]['district'];
 	}
 
@@ -243,7 +243,7 @@ class Notify {
 	$email['closed_date'] = $query1[0]['closed_date'];
 	$email['amount_paid'] = $query1[0]['amount_paid'];
 	$email['closing_remarks'] = $query1[0]['closing_remarks'];
-	
+
 	$sms['smsData']['service'] = $query1[0]['services'];
 	$sms['phone_no'] = $query1[0]['booking_primary_contact_no'];
 	$sms['booking_id'] = $query1[0]['booking_id'];
@@ -251,9 +251,10 @@ class Notify {
 	switch ($current_status) {
 	    case 'Completed':
 		$email['tag'] = "complete_booking";
-		$email['subject'] = "Booking Completion-AROUND";
+		$email['subject'] = "Booking Completion-247AROUND";
+
 		//Send internal mails now
-	    $this->send_email($email);
+		$this->send_email($email);
 
 		if ($is_sd == FALSE) {
 
@@ -268,31 +269,28 @@ class Notify {
 		break;
 
 	    case 'Cancelled':
-	    if (substr($booking_id, 0, 1) === 'Q-') {
-	    	$email['tag'] = "cancel_query";
+		if (substr($booking_id, 0, 2) === 'Q-') {
+		    $email['tag'] = "cancel_query";
+		    $email['subject'] = "Pending Query Cancellation - 247AROUND";
+		} else {
+		    $email['tag'] = "cancel_booking";
+		    $email['subject'] = "Pending Booking Cancellation - 247AROUND";
 
-		    $email['subject'] = "Query Booking Cancellation - AROUND";
+		    //Send internal mails now
+		    $this->send_email($email);
 
-	    } else {
-		$email['tag'] = "cancel_booking";
-
-		$email['subject'] = "Pending Booking Cancellation - AROUND";
-		
-		//Send internal mails now
-	    $this->send_email($email);
-
-		if ($is_sd == FALSE) {
-		    $sms['tag'] = "cancel_booking";
-		    $this->send_sms($sms);
+		    if ($is_sd == FALSE) {
+			$sms['tag'] = "cancel_booking";
+			$this->send_sms($sms);
+		    }
 		}
-	    }
 		break;
 
 	    case 'Rescheduled':
 		$email['tag'] = "reschedule_booking";
-		$email['subject'] = "Booking Rescheduled-AROUND";
+		$email['subject'] = "Booking Rescheduled-247AROUND";
 		//Send internal mails now
-	    $this->send_email($email);
+		$this->send_email($email);
 
 		if ($is_sd == FALSE) {
 		    $sms['tag'] = "reschedule_booking";
@@ -304,9 +302,9 @@ class Notify {
 
 	    case 'OpenBooking':
 		$email['tag'] = "open_completed_booking";
-		$email['subject'] = " Booking Converted to Pending - AROUND";
+		$email['subject'] = "Closed Booking Reopened - 247AROUND";
 		//Send internal mails now
-	    $this->send_email($email);
+		$this->send_email($email);
 		break;
 
 	    case 'Customer not reachable':
@@ -322,7 +320,6 @@ class Notify {
 
 	    case 'Newbooking':
 		if ($is_sd == FALSE) {
-
 		    $sms['tag'] = "add_new_booking";
 		    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
 		    $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
@@ -335,10 +332,7 @@ class Notify {
 
 		    $this->notify->send_sms($sms);
 		}
-		
 	}
-
-	
     }
 
 }
