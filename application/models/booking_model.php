@@ -431,6 +431,37 @@ class Booking_model extends CI_Model {
         return $query->result_array();
     }
 
+    function getbooking_filter_service_center($booking_id){
+
+        $this->db->select('assigned_vendor_id');
+        $this->db->where('assigned_vendor_id is NOT NULL', NULL, true);
+        $this->db->where('booking_id', $booking_id);
+        $query = $this->db->get('booking_details');
+        
+        if($query->num_rows > 0){
+            // NOT NUll
+            $data = $this->getbooking_history($booking_id, "Join");
+
+            log_message('info', __METHOD__ . $this->db->last_query());
+            return $data;
+
+        } else {
+            //NUll
+            $sql = " SELECT `services`.`services`, users.*, booking_details.* "
+               . "from booking_details, users, services " 
+               . "where booking_details.booking_id='$booking_id' and "
+               . "booking_details.user_id = users.user_id and "
+               . "services.id = booking_details.service_id  ";
+
+        $query = $this->db->query($sql);
+        log_message('info', __METHOD__ . $this->db->last_query());
+
+        return $query->result_array();
+        }
+
+    }
+
+
     function getbooking_history_by_appliance_id($appliance_id){
 
         $sql = " SELECT `services`.`services`, users.*, `booking_unit_details`.service_id, `booking_details`.* "

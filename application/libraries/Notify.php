@@ -121,9 +121,12 @@ class Notify {
     function send_email($email) {
 
 	$template = $this->My_CI->booking_model->get_booking_email_template($email['tag']);
+	log_message('info', " Email Body" . print_r($email, true) );
+	    
 
 	if (!empty($template)) {
 	    $emailBody = vsprintf($template[0], $email);
+	    log_message('info', " Template" . print_r($email, true) );
 	    $from = $template[2];
 	    $to = $template[1];
 	    $cc = "";
@@ -131,6 +134,8 @@ class Notify {
 	    $subject = $email['subject'];
 	    $message = $emailBody;
 	    $attachment = "";
+	    log_message('info', " Email Message" . print_r($message, true) );
+	    
 	    $this->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
 	} else {
 	    log_message('info', "Email Not Sent - Booking id: " . $email['booking_id'] . ",
@@ -222,7 +227,11 @@ class Notify {
 	    $is_sd = FALSE;
 	}
 
-	$query1 = $this->My_CI->booking_model->getbooking_history($booking_id, "join");
+	$query1 = $this->My_CI->booking_model->getbooking_filter_service_center($booking_id);
+	if(isset($query1[0]['vendor_name'])){
+		$email['vendor_name'] = $query1[0]['vendor_name'];
+	    $email['city'] = $query1[0]['district'];
+	}
 
 	$email['name'] = $query1[0]['name'];
 	$email['phone_no'] = $query1[0]['phone_number'];
@@ -234,11 +243,9 @@ class Notify {
 	$email['closed_date'] = $query1[0]['closed_date'];
 	$email['amount_paid'] = $query1[0]['amount_paid'];
 	$email['closing_remarks'] = $query1[0]['closing_remarks'];
-	$email['vendor_name'] = $query1[0]['vendor_name'];
-	$email['city'] = $query1[0]['district'];
-
+	
 	$sms['smsData']['service'] = $query1[0]['services'];
-	$sms['phone_no'] = $query1[0]['phone_number'];
+	$sms['phone_no'] = $query1[0]['booking_primary_contact_no'];
 	$sms['booking_id'] = $query1[0]['booking_id'];
 
 	switch ($current_status) {
@@ -261,8 +268,16 @@ class Notify {
 		break;
 
 	    case 'Cancelled':
+	    if (substr($booking_id, 0, 1) === 'Q-') {
+	    	$email['tag'] = "cancel_query";
+
+		    $email['subject'] = "Query Booking Cancellation - AROUND";
+
+	    } else {
 		$email['tag'] = "cancel_booking";
+
 		$email['subject'] = "Pending Booking Cancellation - AROUND";
+		
 		//Send internal mails now
 	    $this->send_email($email);
 
@@ -270,6 +285,7 @@ class Notify {
 		    $sms['tag'] = "cancel_booking";
 		    $this->send_sms($sms);
 		}
+	    }
 		break;
 
 	    case 'Rescheduled':
