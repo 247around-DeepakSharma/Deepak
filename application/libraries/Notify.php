@@ -229,28 +229,29 @@ class Notify {
 
 	$query1 = $this->My_CI->booking_model->getbooking_filter_service_center($booking_id);
 
-	$email['name'] = $query1[0]['name'];
-	$email['phone_no'] = $query1[0]['phone_number'];
-	$email['user_email'] = $query1[0]['user_email'];
-	$email['booking_id'] = $query1[0]['booking_id'];
-	$email['service'] = $query1[0]['services'];
-	$email['booking_date'] = $query1[0]['booking_date'];
-	$email['booking_timeslot'] = $query1[0]['booking_timeslot'];
-	$email['closed_date'] = $query1[0]['closed_date'];
-	$email['amount_paid'] = $query1[0]['amount_paid'];
-	$email['closing_remarks'] = $query1[0]['closing_remarks'];
 
 	$sms['smsData']['service'] = $query1[0]['services'];
 	$sms['phone_no'] = $query1[0]['booking_primary_contact_no'];
 	$sms['booking_id'] = $query1[0]['booking_id'];
 
-	if (isset($query1[0]['vendor_name'])) {
-	    $email['vendor_name'] = $query1[0]['vendor_name'];
-	    $email['city'] = $query1[0]['district'];
-	}
 
 	switch ($current_status) {
 	    case 'Completed':
+		$email = array();
+		$email['name'] = $query1[0]['name'];
+		$email['phone_no'] = $query1[0]['phone_number'];
+		$email['user_email'] = $query1[0]['user_email'];
+		$email['booking_id'] = $query1[0]['booking_id'];
+		$email['service'] = $query1[0]['services'];
+		$email['booking_date'] = $query1[0]['booking_date'];
+		$email['booking_timeslot'] = $query1[0]['booking_timeslot'];
+		$email['closed_date'] = $query1[0]['closed_date'];
+		$email['amount_paid'] = $query1[0]['amount_paid'];
+		$email['closing_remarks'] = $query1[0]['closing_remarks'];
+		if (isset($query1[0]['vendor_name'])) {
+		    $email['vendor_name'] = $query1[0]['vendor_name'];
+		    $email['city'] = $query1[0]['district'];
+		}
 		$email['tag'] = "complete_booking";
 		$email['subject'] = "Booking Completion-247AROUND";
 
@@ -270,12 +271,38 @@ class Notify {
 		break;
 
 	    case 'Cancelled':
+		$email = array();
 		if (substr($booking_id, 0, 2) === 'Q-') {
-		    $email['tag'] = "cancel_query";
-		    $email['subject'] = "Pending Query Cancellation - 247AROUND";
+		    $email_data['name'] = $query1[0]['name'];
+		    $email_data['phone_no'] = $query1[0]['phone_number'];
+		    $email_data['booking_id'] = $query1[0]['booking_id'];
+		    $email_data['cancellation_reason'] = $query1[0]['cancellation_reason'];
+
+		    $email_data['tag'] = "cancel_query";
+		    $email_data['service'] = $query1[0]['services'];
+		    $email_data['booking_date'] = $query1[0]['booking_date'];
+		    $email_data['subject'] = "Pending Query Cancellation - 247AROUND";
+		    //Send internal mails now
+		    $this->send_email($email_data);
 		} else {
+
+		    $email['name'] = $query1[0]['name'];
+		    $email['phone_no'] = $query1[0]['phone_number'];
+		    $email['user_email'] = $query1[0]['user_email'];
+		    $email['booking_id'] = $query1[0]['booking_id'];
+		    $email['service'] = $query1[0]['services'];
+		    $email['booking_date'] = $query1[0]['booking_date'];
+		    $email['booking_timeslot'] = $query1[0]['booking_timeslot'];
+		    $email['closed_date'] = $query1[0]['closed_date'];
+		    $email['cancellation_reason'] = $query1[0]['cancellation_reason'];
+		    if (isset($query1[0]['vendor_name'])) {
+			$email['vendor_name'] = $query1[0]['vendor_name'];
+			$email['city'] = $query1[0]['district'];
+		    }
 		    $email['tag'] = "cancel_booking";
 		    $email['subject'] = "Pending Booking Cancellation - 247AROUND";
+		    //Send internal mails now
+		    $this->send_email($email);
 
 		    if ($is_sd == FALSE) {
 			$sms['tag'] = "cancel_booking";
@@ -283,12 +310,22 @@ class Notify {
 		    }
 		}
 
-		//Send internal mails now
-		$this->send_email($email);
+
 
 		break;
 
 	    case 'Rescheduled':
+		$email = array();
+		$email['name'] = $query1[0]['name'];
+		$email['phone_no'] = $query1[0]['phone_number'];
+		$email['user_email'] = $query1[0]['user_email'];
+		$email['booking_id'] = $query1[0]['booking_id'];
+		$email['service'] = $query1[0]['services'];
+		$email['booking_date'] = $query1[0]['booking_date'];
+		$email['booking_timeslot'] = $query1[0]['booking_timeslot'];
+		$email['update_date'] = $query1[0]['update_date'];
+		$email['booking_address'] = $query1[0]['booking_address'] . ", "
+		    . $query1[0]['city'] . ", " . $query1[0]['booking_pincode'];
 		$email['tag'] = "reschedule_booking";
 		$email['subject'] = "Booking Rescheduled-247AROUND";
 		//Send internal mails now
@@ -304,7 +341,24 @@ class Notify {
 		break;
 
 	    case 'OpenBooking':
-		$email['tag'] = "open_completed_booking";
+		$email = array();
+		$email['booking_id'] = $query1[0]['booking_id'];
+		$email['name'] = $query1[0]['name'];
+		$email['phone_no'] = $query1[0]['phone_number'];
+		$email['service'] = $query1[0]['services'];
+		$email['booking_date'] = $query1[0]['booking_date'];
+		$email['booking_timeslot'] = $query1[0]['booking_timeslot'];
+		if (isset($query1[0]['vendor_name'])) {
+		    $email['vendor_name'] = $query1[0]['vendor_name'];
+		    $email['city'] = $query1[0]['district'];
+		}
+		$email['agent'] = "";
+		if ($query1[0]['current_status'] == "Completed") {
+		    $email['tag'] = "open_completed_booking";
+		} else {
+		    $email['tag'] = "open_cancelled_booking";
+		}
+
 		$email['subject'] = "Closed Booking Reopened - 247AROUND";
 		//Send internal mails now
 		$this->send_email($email);
