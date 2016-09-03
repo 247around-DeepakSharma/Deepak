@@ -108,7 +108,6 @@ function outbound_call(phone_number){
                     </tr>
 
                     </thead>
-
                     <?php $count = 1; if($offset ==0){ $offset = 1;} else { $offset = $offset+1; } ?>
                     <?php foreach($Bookings as $key =>$row){?>
 
