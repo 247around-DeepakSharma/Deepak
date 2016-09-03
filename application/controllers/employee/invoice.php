@@ -312,6 +312,8 @@ class Invoice extends CI_Controller {
      * @desc: generate details partner invoices
      */
     function create_partner_invoices_detailed($data, $invoice_type) {
+	log_message('info', __METHOD__ . "=> " . $invoice_type);
+
 	$file_names = array();
 	$template = 'partner_invoices.xlsx';
         //set absolute path to directory with template files
@@ -379,32 +381,41 @@ class Invoice extends CI_Controller {
 
 		log_message('info', 'Excel data: ' . print_r($excel_data, true));
 
-		$excel_data['invoice_id'] = $invoice_id;
-		$excel_data['today'] = date('d-M-Y');
-		$excel_data['company_name'] = $data[$i][0]['company_name'];
-		$excel_data['company_address'] = $data[$i][0]['company_address'];
-		$excel_data['total_installation_charge'] = $total_installation_charge;
-		$excel_data['total_service_tax'] = $total_service_tax;
-		$excel_data['total_stand_charge'] = $total_stand_charge;
-		$excel_data['total_vat_charge'] = $total_vat_charge;
-		$excel_data['total_charges'] = $total_charges;
-
-		log_message('info', 'Excel data: ' . print_r($excel_data, true));
-
 		$files_name = $this->generate_pdf_with_data($excel_data, $data[$i], $R, $file_names);
+
+		//Send report via email
+		$this->email->clear(TRUE);
+		$this->email->from('billing@247around.com', '247around Team');
+		$to = "anuj@247around.com";
+		$subject = "DRAFT INVOICE - 247around - " . $data[$i][0]['company_name'] .
+		    " Invoice for period: " . $start_date . " to " . $end_date;
+
+		$this->email->to($to);
+		$this->email->subject($subject);
+		$this->email->attach($files_name . ".xlsx", 'attachment');
+		$this->email->attach($files_name . ".pdf", 'attachment');
+
+		$mail_ret = $this->email->send();
+
+		if ($mail_ret) {
+		    log_message('info', __METHOD__ . ": Mail sent successfully");
+		} else {
+		    log_message('info', __METHOD__ . ": Mail could not be sent");
+		}
 
 		array_push($file_names, $files_name . ".xlsx");
 		array_push($file_names, $files_name . ".pdf");
 
 		if ($invoice_type === "final") {
 		    $bucket = 'bookings-collateral';
-		$directory_xls = "invoices-excel/" . $files_name . ".xlsx";
-		$directory_pdf = "invoices-pdf/" . $files_name . ".pdf";
 
-		$this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-		$this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+		    $directory_xls = "invoices-excel/" . $files_name . ".xlsx";
+		    $directory_pdf = "invoices-pdf/" . $files_name . ".pdf";
 
-		$invoice_details = array(
+		    $this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+		    $this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+
+		    $invoice_details = array(
 			'invoice_id' => $invoice_id,
 			'type_code' => 'A',
 			'type' => 'Cash',
@@ -416,11 +427,17 @@ class Invoice extends CI_Controller {
 			'to_date' => date("Y-m-d", strtotime($end_date)),
 			'num_bookings' => $count,
 			'total_service_charge' => $excel_data['total_installation_charge'],
+			'total_additional_service_charge' => 0.00,
 			'service_tax' => $excel_data['total_service_tax'],
 			'parts_cost' => $excel_data['total_stand_charge'],
 			'vat' => $excel_data['total_charges'],
+			'total_amount_collected' => $excel_data['total_charges'],
+			'rating' => 5,
 			'around_royalty' => $excel_data['total_charges'],
+			//Amount needs to be collected from Vendor
+			'amount_collected_paid' => $excel_data['total_charges'],
 		    );
+
 		    $this->invoices_model->insert_new_invoice($invoice_details);
 		}
 	    }
