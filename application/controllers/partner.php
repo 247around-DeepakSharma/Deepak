@@ -251,11 +251,11 @@ class Partner extends CI_Controller {
 
                         $booking['state'] = $state['state'];
                         if (empty($booking['state'])) {
-                            $to = "anuj@247around.com, abhaya@247around.com";
-                            $message = "State not found for Booking ID: " . $booking['booking_id'] . " and Pincode: " . $booking['booking_pincode'];
-                            $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Booking State Not Found', $message, "");
-                        }
-                        $booking['booking_pincode'] = $requestData['pincode'];
+			    $to = "anuj@247around.com, nits@247around.com";
+			    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
+			    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
+			}
+			$booking['booking_pincode'] = $requestData['pincode'];
 
                         $booking['booking_address'] = $requestData['address'] . ", " . (isset($requestData['landmark']) ? $requestData['landmark'] : "");
 
@@ -1470,13 +1470,13 @@ class Partner extends CI_Controller {
 
             $state = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
             $booking['state'] = $state['state'];
-            if (empty($booking['state'])) {
-                $to = "anuj@247around.com, abhaya@247around.com";
-                $message = "State not found for Booking ID: " . $booking['booking_id'] . " and Pincode: " . $booking['booking_pincode'];
-                $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Booking State Not Found', $message, "");
-            }
+	    if (empty($booking['state'])) {
+			    $to = "anuj@247around.com, nits@247around.com";
+			    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
+			    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
+			}
 
-            //Insert query
+			//Insert query
             //echo print_r($booking, true) . "<br><br>";
             $return_id = $this->booking_model->addbooking($booking);
             if (!$return_id) {
@@ -1506,7 +1506,6 @@ class Partner extends CI_Controller {
                                 "<br>Selected service is: " . $unit_details['price_tags'] . "<br>";
 
             $to = "anuj@247around.com, nits@247around.com";
-            //$to = "abhaya@247around.com";
             $from = "booking@247around.com";
             $cc = "";
             $bcc = "";

@@ -119,11 +119,11 @@ class Booking extends CI_Controller {
 	}
 
 	if (empty($booking['state']) && $booking['type'] != 'Query') {
-	    $to = "anuj@247around.com, abhaya@247around.com";
-	    $state_not_found_message = "State not found for Booking ID " . $booking['booking_id'] . "  Pincode: " . $booking['booking_pincode'];
-	    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Booking State Not Found', $state_not_found_message, "");
+	    $to = "anuj@247around.com, nits@247around.com";
+	    $state_not_found_message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
+	    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $state_not_found_message, "");
 
-	    log_message('info', __FUNCTION__ . " Booking State  not found:" . print_r($booking['state'], true) . " Pincode: " . print_r($booking['booking_pincode']));
+	    log_message('info', __FUNCTION__ . $state_not_found_message);
 	}
 
 	$service = $booking['services'];
