@@ -1449,11 +1449,22 @@ class Partner extends CI_Controller {
 
 
             $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
+            $state = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
+            $booking['state'] = $state['state'];
             //echo print_r($appliance_id, true) . "<br><br>";
-            $return_unit_id = $this->booking_model->addunitdetails($unit_details);
-            if (!$return_unit_id) {
-                log_message('info', __FUNCTION__ . ' Error Partner booking unit not inserted: ' . print_r($unit_details, true));
-            }
+            //$return_unit_id = $this->booking_model->addunitdetails($unit_details);
+            
+            $partner_id = $this->booking_model->get_price_mapping_partner_code("", $booking['partner_id']);
+            
+            $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_id, $unit_details['price_tags']);
+            
+            $unit_details['id'] =  $prices[0]['id'];
+            $unit_details['around_paid_basic_charges'] = "0.00";
+            $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
+            $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state']);
+            // if (!$return_unit_id) {
+            //     log_message('info', __FUNCTION__ . ' Error Partner booking unit not inserted: ' . print_r($unit_details, true));
+            // }
 
 
             $booking['current_status'] = "Pending";
@@ -1468,8 +1479,7 @@ class Partner extends CI_Controller {
             $booking['partner_source'] = (isset($requestData['partner_source']) ? $requestData['partner_source'] : "");
             $booking['booking_timeslot'] = "4PM-7PM";
 
-            $state = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
-            $booking['state'] = $state['state'];
+           
 	    if (empty($booking['state'])) {
 			    $to = "anuj@247around.com, nits@247around.com";
 			    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
@@ -1487,7 +1497,7 @@ class Partner extends CI_Controller {
 
             // Send mail
 
-            if(!empty($return_id) && !empty($return_unit_id)){
+            if(!empty($return_id)){
 
             $message = "Congratulations You have received new booking, details are mentioned below:
       <br>Customer Name: " .  $user_name . "<br>Customer Phone Number: " . $booking['booking_primary_contact_no'] .
