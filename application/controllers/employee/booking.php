@@ -76,7 +76,7 @@ class Booking extends CI_Controller {
 
 	if ($booking['type'] == 'Booking') {
 	    $to = "anuj@247around.com, nits@247around.com";
-	    //$to = "abhaya@247around.com, anuj@247Around";
+	    //$to = "abhaya@247around.com";
 	    $from = "booking@247around.com";
 	    $cc = "";
 	    $bcc = "";
@@ -114,8 +114,8 @@ class Booking extends CI_Controller {
 	    $price_tags = array();
 	    $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id);
 	    $booking['booking_id'] = $booking_id_with_flag['booking_id'];
-	    $booking['query_to_booking'] = $booking_id_with_flag['queries_to_booking'];
-	    log_message('info', " Booking Updated: " . print_r($booking['booking_id'], true) . " Query to booking: " . $booking['query_to_booking']);
+	    $booking['query_to_booking'] = $booking_id_with_flag['query_to_booking'];
+	    log_message('info', " Booking Updated: " . print_r($booking['booking_id'], true) . " Query to booking: " . print_r($booking['query_to_booking'], true));
 	}
 
 	if (empty($booking['state']) && $booking['type'] != 'Query') {
@@ -1074,6 +1074,7 @@ class Booking extends CI_Controller {
 	$booking = $this->getAllBookingInput($user_id, $booking_id);
 	$query_to_booking = $booking['query_to_booking'];
 	$message = $booking['message'];
+    log_message('info', __FUNCTION__ . " Update booking befor unset " . print_r($booking, true));
 
 	unset($booking['message']); // unset message body from booking deatils array
 	unset($booking['services']); // unset service name from booking details array
@@ -1089,7 +1090,7 @@ class Booking extends CI_Controller {
 	    $this->asynchronous_lib->do_background_process($url, $send);
 
 	    $to = "anuj@247around.com, nits@247around.com";
-	    //$to = "abhaya@247around.com, anuj@247Around";
+	    //$to = "abhaya@247around.com";
 	    $from = "booking@247around.com";
 	    $cc = "";
 	    $bcc = "";
