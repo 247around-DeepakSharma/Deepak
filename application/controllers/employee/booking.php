@@ -820,7 +820,13 @@ class Booking extends CI_Controller {
 	$result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $state['state']);
     $where  = array('service_id' => $service_id,'brand_name' => $brand);
     $brand_id_array  = $this->booking_model->get_brand($where);
-    $brand_id = $brand_id_array[0]['id'];
+    if(!empty($brand_id_array)){
+    	$brand_id = $brand_id_array[0]['id'];
+
+    } else {
+    	$brand_id = "";
+    }
+    
 	if (!empty($result)) {
 
 	    echo "<tr><th>Service Category</th><th>Std. Charges</th><th>Partner Discount</th><th>Final Charges</th><th>247around Discount</th><th>Selected Services</th></tr>";
@@ -1069,8 +1075,13 @@ class Booking extends CI_Controller {
 
         $where  = array('service_id' => $booking_history[0]['service_id'],'brand_name' => $value['brand']);
         $brand_id_array  = $this->booking_model->get_brand($where);
-        $booking['unit_details'][$key]['brand_id'] = $brand_id_array[0]['id'];
+        if(!empty($brand_id_array)){
 
+    	 $booking['unit_details'][$key]['brand_id'] = $brand_id_array[0]['id'];
+        } else {
+    	$booking['unit_details'][$key]['brand_id'] = "";
+        }
+       
 	    array_push($booking['capacity'], $capacity);
 	    array_push($booking['prices'], $prices);
 	}
