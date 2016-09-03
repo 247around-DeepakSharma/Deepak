@@ -193,6 +193,7 @@
                </center>
          </div>
          </form>
+          
          <!-- end Panel Body  -->
       </div>
    </div>
@@ -249,19 +250,28 @@
               flag = 1;
             } 
 
-//            var number = Number(serial_number);
-//            
-//            if(number > 0){
-//               
-//               flag = 0;
-//            } else {
-//               document.getElementById('serial_number'+div_no[1]).style.borderColor = "red";
-//               flag = 1;
-//            }
+            var numberRegex = /^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$/;
+            if(numberRegex.test(serial_number)) {
+              if(serial_number > 0){
+                alert(serial_number);
+              
+                  flag = 0;
+              } else {
+                alert(serial_number);
+                  document.getElementById('serial_number'+div_no[1]).style.borderColor = "red";
+                  flag = 1;
+              }
+  
+            } 
+
+           
+          
          }
 
+
       });
-   
+
+    
       if(flag == 0){
          return true;
 
