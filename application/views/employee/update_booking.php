@@ -277,10 +277,10 @@
                                                             <td><?php echo $price['service_category']; ?></td>
                                                             <td><?php echo $price['customer_total']; ?></td>
                                                             <td>
-                                                            <input type="text" class="form-control " name="<?php echo "partner_paid_basic_charges[".$unit_details[0]['brand']."][". $price['id']."][]"; ?>" id="<?php echo "partner_paid_basic_charges". $i . "_1"; ?>" value = "<?php if(isset($unit_details[0]['quantity'][$k]['partner_net_payable'])){ echo $unit_details[0]['quantity'][$k]['partner_net_payable']; } else { echo $price['partner_net_payable']; }  ?>"  />
+                                                            <input type="text" class="form-control " name="<?php echo "partner_paid_basic_charges[".$unit_details[0]['brand_id']."][". $price['id']."][]"; ?>" id="<?php echo "partner_paid_basic_charges". $i . "_1"; ?>" value = "<?php if(isset($unit_details[0]['quantity'][$k]['partner_net_payable'])){ echo $unit_details[0]['quantity'][$k]['partner_net_payable']; } else { echo $price['partner_net_payable']; }  ?>"  />
 
                                                             </td>
-                                                              <td><input type="text" class="form-control discount" name="<?php echo "discount[".$unit_details[0]['brand']."][". $price['id']."][]"; ?>" id="<?php echo "discount_". $i . "_1"; ?>"
+                                                              <td><input type="text" class="form-control discount" name="<?php echo "discount[".$unit_details[0]['brand_id']."][". $price['id']."][]"; ?>" id="<?php echo "discount_". $i . "_1"; ?>"
 
 
                                                             value="<?php if(isset($unit_details[0]['quantity'][$k]['around_net_payable'])){ if($unit_details[0]['quantity'][$k]['price_tags'] == $price['service_category'] ){ echo $unit_details[0]['quantity'][$k]['around_net_payable']; } else { echo "0"; } } else { echo "0"; }?>"
@@ -302,7 +302,7 @@
 
                                                                 ?>
 
-                                                                type='checkbox' id="<?php echo "checkbox_" . $i . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand']; ?>][]'  onclick='final_price(), enable_discount(this.id)' value = "<?php echo $price['id']. "_" .intval($price['customer_net_payable']) ?>"></td>
+                                                                type='checkbox' id="<?php echo "checkbox_" . $i . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand_id']; ?>][]'  onclick='final_price(), enable_discount(this.id)' value = "<?php echo $price['id']. "_" .intval($price['customer_net_payable']) ?>"></td>
 
                                                         </tr>
                                                         <?php  $i++; if(count($unit_details[0]['quantity']) > $k){ $k++;} }} ?>
@@ -457,16 +457,16 @@
                                                                     if($quantity['price_tags'] == $price['service_category'] ){?>
 
                                                                         <td>
-                                                                      <?php  echo "<input  type='text' class='form-control discount' name= 'discount[".$booking_unit_details['brand']."][" . $price['id'] . "][]'  id='discount_" . $i . "_" .$number. "' value = '".$quantity['around_net_payable']."' placeholder='Enter discount' readonly>"; ?>
+                                                                      <?php  echo "<input  type='text' class='form-control discount' name= 'discount[".$booking_unit_details['brand_id']."][" . $price['id'] . "][]'  id='discount_" . $i . "_" .$number. "' value = '".$quantity['around_net_payable']."' placeholder='Enter discount' readonly>"; ?>
                                                                       </td>
 
-                                                                      <td><input class='price_checkbox' checked  type='checkbox' id="<?php echo "checkbox_" . $i . "_".$number ; ?>" name='prices[<?php echo $booking_unit_details['brand']; ?>][]'  onclick='final_price(), enable_discount(this.id)' value = "<?php echo $price['id']. "_" .intval($price['customer_net_payable']) ?>"></td>
+                                                                      <td><input class='price_checkbox' checked  type='checkbox' id="<?php echo "checkbox_" . $i . "_".$number ; ?>" name='prices[<?php echo $booking_unit_details['brand_id']; ?>][]'  onclick='final_price(), enable_discount(this.id)' value = "<?php echo $price['id']. "_" .intval($price['customer_net_payable']) ?>"></td>
 
                                                                    <?php } else { ?>
-                                                                     <td><?php   echo "<input  type='text' class='form-control discount' name= 'discount[".$booking_unit_details['brand']."][" . $price['id'] . "][]'  id='discount_" . $i . "_".$number . "' value = '0' placeholder='Enter discount' readonly>"; ?>
+                                                                     <td><?php   echo "<input  type='text' class='form-control discount' name= 'discount[".$booking_unit_details['brand_id']."][" . $price['id'] . "][]'  id='discount_" . $i . "_".$number . "' value = '0' placeholder='Enter discount' readonly>"; ?>
                                                                      </td>
 
-                                                                      <td><input class='price_checkbox'  type='checkbox' id="<?php echo "checkbox_" . $i . "_".$number ; ?>" name='prices[<?php echo $booking_unit_details['brand']; ?>][]'  onclick='final_price(), enable_discount(this.id)' value = "<?php echo $price['id']. "_" .intval($price['customer_net_payable']) ?>"></td>
+                                                                      <td><input class='price_checkbox'  type='checkbox' id="<?php echo "checkbox_" . $i . "_".$number ; ?>" name='prices[<?php echo $booking_unit_details['brand_id']; ?>][]'  onclick='final_price(), enable_discount(this.id)' value = "<?php echo $price['id']. "_" .intval($price['customer_net_payable']) ?>"></td>
 
                                                                     <?php }
                                                                 }?>

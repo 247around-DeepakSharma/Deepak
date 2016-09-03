@@ -45,7 +45,7 @@ define('basic_percentage', 0.7);
 define('addtitional_percentage', .85);
 define('parts_percentage', .95);
 define('SERVICE_TAX_RATE', 0.15);
-
+define('DEFAULT_TAX_RATE', 15);
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

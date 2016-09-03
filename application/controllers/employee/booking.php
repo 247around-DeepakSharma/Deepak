@@ -201,7 +201,9 @@ class Booking extends CI_Controller {
 	    $services_details = "";
 	    $appliances_details = "";
 	    $appliances_details['user_id'] = $user_id;
+       
 	    $appliances_details['brand'] = $services_details['appliance_brand'] = $value; // brand
+	    
 	    // get category from appiance category array for only specific key.
 	    $appliances_details['category'] = $services_details['appliance_category'] = $appliance_category[$key];
 	    // get appliance_capacity from appliance_capacity array for only specific key.
@@ -235,16 +237,20 @@ class Booking extends CI_Controller {
 		log_message('info', __METHOD__ . " New Appliance ID created: " . print_r($services_details['appliance_id'], true));
 	    }
 	    log_message('info', __METHOD__ . "Appliance details data" . print_r($appliances_details, true));
+	    $where  = array('service_id' => $booking['service_id'],'brand_name' => $value);
+        $brand_id_array  = $this->booking_model->get_brand($where);
+        $brand_id =  $brand_id_array[0]['id'];
 	    //Array ( ['brand'] => Array ( [0] => id_price ) )
-	    foreach ($pricesWithId[$value] as $values) {
+	    foreach ($pricesWithId[$brand_id] as $values) {
 
 		$prices = explode("_", $values);  // split string..
 		$services_details['id'] = $prices[0]; // This is id of service_centre_charges table.
 		// discount for appliances. Array ( [BPL] => Array ( [100] => Array ( [0] => 200 ) [102] => Array ( [0] => 100 ) [103] => Array ( [0] => 0 ) )
-		$services_details['around_paid_basic_charges'] = $discount[$value][$services_details['id']][0];
-		$services_details['partner_paid_basic_charges'] = $partner_net_payable[$value][$services_details['id']][0];
+		$services_details['around_paid_basic_charges'] = $discount[$brand_id][$services_details['id']][0];
+		$services_details['partner_paid_basic_charges'] = $partner_net_payable[$brand_id][$services_details['id']][0];
 
 		if ($booking_id == "") {
+			
 		    log_message('info', __METHOD__ . " Insert Booking Unit Details: " . print_r($services_details, true));
 		    $result = $this->booking_model->insert_data_in_booking_unit_details($services_details, $booking['state']);
 
@@ -812,6 +818,9 @@ class Booking extends CI_Controller {
 	$partner_id = $this->booking_model->get_price_mapping_partner_code($parter_code);
 
 	$result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $state['state']);
+    $where  = array('service_id' => $service_id,'brand_name' => $brand);
+    $brand_id_array  = $this->booking_model->get_brand($where);
+    $brand_id = $brand_id_array[0]['id'];
 	if (!empty($result)) {
 
 	    echo "<tr><th>Service Category</th><th>Std. Charges</th><th>Partner Discount</th><th>Final Charges</th><th>247around Discount</th><th>Selected Services</th></tr>";
@@ -824,16 +833,16 @@ class Booking extends CI_Controller {
 
 		$html .="<tr><td>" . $prices['service_category'] . "</td>";
 		$html .= "<td>" . $prices['customer_total'] . "</td>";
-		$html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly/></td>";
+		$html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly/></td>";
 		$html .= "<td>" . $prices['customer_net_payable'] . "</td>";
-		$html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '0' placeholder='Enter discount' readonly></td>";
+		$html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '0' placeholder='Enter discount' readonly></td>";
 		$html .= "<td><input class='price_checkbox'";
 		if ($prices['service_category'] == 'Repair') {
 		    $html .= "checked";
 		}
 
 		$html .=" type='checkbox' id='checkbox_" . $i . "_" . $clone_number . "'";
-		$html .= "name='prices[$brand][]'";
+		$html .= "name='prices[$brand_id][]'";
 		$html .= "  onclick='final_price(), enable_discount(this.id)'" .
 		    "value=" . $prices['id'] . "_" . intval($prices['customer_net_payable']) . " ></td><tr>";
 
@@ -1045,6 +1054,8 @@ class Booking extends CI_Controller {
 	$partner_id = $this->booking_model->get_price_mapping_partner_code($booking_history[0]['source']);
 
 	$booking['category'] = $this->booking_model->getCategoryForService($booking_history[0]['service_id'], $booking_history[0]['state'], $partner_id);
+
+    
 	$booking['capacity'] = array();
 	$booking['prices'] = array();
 	$booking['appliance_id'] = $appliance_id;
@@ -1055,6 +1066,10 @@ class Booking extends CI_Controller {
 	    $capacity = $this->booking_model->getCapacityForCategory($booking_history[0]['service_id'], $booking['unit_details'][$key]['category'], $booking_history[0]['state'], $partner_id);
 
 	    $prices = $this->booking_model->getPricesForCategoryCapacity($booking_history[0]['service_id'], $booking['unit_details'][$key]['category'], $booking['unit_details'][$key]['capacity'], $partner_id, $booking_history[0]['state']);
+
+        $where  = array('service_id' => $booking_history[0]['service_id'],'brand_name' => $value['brand']);
+        $brand_id_array  = $this->booking_model->get_brand($where);
+        $booking['unit_details'][$key]['brand_id'] = $brand_id_array[0]['id'];
 
 	    array_push($booking['capacity'], $capacity);
 	    array_push($booking['prices'], $prices);

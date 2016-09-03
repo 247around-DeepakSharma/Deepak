@@ -1388,10 +1388,28 @@ class Booking_model extends CI_Model {
 
     function getpricesdetails_with_tax($service_centre_charges_id, $state){
 
-        $sql =" SELECT service_category as price_tags, customer_total, partner_net_payable, rate as tax_rate, product_or_services from service_centre_charges, tax_rates where `service_centre_charges`.id = '$service_centre_charges_id' AND `tax_rates`.tax_code = `service_centre_charges`.tax_code AND `tax_rates`.state = '$state' AND `tax_rates`.product_type = `service_centre_charges`.product_type AND (to_date is NULL or to_date >= CURDATE() ) AND `tax_rates`.active = 1 ";
+        $sql =" SELECT service_category as price_tags,tax_code, product_type, customer_total, partner_net_payable, product_or_services  from service_centre_charges where `service_centre_charges`.id = '$service_centre_charges_id' ";
 
         $query = $this->db->query($sql);
-        return $query->result_array();
+        $result =  $query->result_array();
+
+        $sql1 = " SELECT rate as tax_rate from tax_rates where `tax_rates`.state = '$state' 
+                  AND `tax_rates`.tax_code = '".$result[0]['tax_code']."' AND  `tax_rates`.product_type = '".$result[0]['product_type']."' AND (to_date is NULL or to_date >= CURDATE() ) AND `tax_rates`.active = 1 ";
+
+        $query1 = $this->db->query($sql1);
+        $result1 =  $query1->result_array();
+        if(!empty($result1)){
+
+            $result[0]['tax_rate'] = $result1[0]['tax_rate'];
+
+        } else {
+            $result[0]['tax_rate'] = DEFAULT_TAX_RATE;
+        }
+        unset($result[0]['tax_code']);
+        unset($result[0]['product_type']);
+        return$result;
+
+
     }
 
     /**
@@ -1406,13 +1424,11 @@ class Booking_model extends CI_Model {
         $data = $this->getpricesdetails_with_tax($services_details['id'], $state);
 
         $result = array_merge($services_details, $data[0]);
+            unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
+        $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
+	    log_message('info', __METHOD__ . "update booking_unit_details data" . print_r($result, true) . " Price data with tax: " . print_r($data, true));
 
-        unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
-         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
-
-	log_message('info', __METHOD__ . "update booking_unit_details data" . print_r($result, true) . " Price data with tax: " . print_r($data, true));
-
-	$this->db->select('id');
+	    $this->db->select('id');
         $this->db->where('appliance_id', $services_details['appliance_id']);
         $this->db->where('price_tags', $data[0]['price_tags']);
         $this->db->where('booking_id', $booking_id);
@@ -1599,15 +1615,16 @@ class Booking_model extends CI_Model {
     function insert_data_in_booking_unit_details($services_details, $state) {
 	log_message('info', __FUNCTION__);
 	$data = $this->getpricesdetails_with_tax($services_details['id'], $state);
-        log_message('info', __METHOD__ . " Get Price with Taxes" . print_r($data, true));
-	$result = array_merge($services_details, $data[0]);
 
+    log_message('info', __METHOD__ . " Get Price with Taxes" . print_r($data, true));
+    
+    $result = array_merge($services_details, $data[0]);
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
-        log_message('info', __METHOD__ . " Insert booking_unit_details data" . print_r($result, true));
+   
+    log_message('info', __METHOD__ . " Insert booking_unit_details data" . print_r($result, true));
 	$this->db->insert('booking_unit_details', $result);
-
-        return $result;
+    return $result;
     }
 
     /**
@@ -1669,8 +1686,12 @@ class Booking_model extends CI_Model {
         $this->db->where('id', $unit_id);
         $query = $this->db->get('booking_unit_details');
         $unit_details = $query->result_array();
-
-        $result = array_merge($price_data[0], $unit_details[0]);
+        if(!empty($data)){
+            $result = array_merge($price_data[0], $unit_details[0]);
+        } else {
+            $result = $unit_details[0];
+        }
+        
         $result['booking_status'] = $data['booking_status'];
 
         log_message('info', ": " . " insert new item in booking unit details data " . print_r($result, TRUE));
@@ -1706,7 +1727,14 @@ class Booking_model extends CI_Model {
         }
     }
 
+    function get_brand($where){
+        $this->db->select('*');
+        $this->db->where($where);   
+        $query = $this->db->get('appliance_brands');
 
+        return $query->result_array();
+
+    }
 
 
 }
