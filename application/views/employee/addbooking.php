@@ -323,7 +323,7 @@
                         <div class="form-group  col-md-12" >
                             <center>
                                 <button style="margin-right: 25px;" type="button" class="btn btn-info btn-md open-AddBookingDialog" data-toggle="modal" data-target="#myModal">Check Details</button>
-                                <input type="submit" id="submitform" class="btn btn-info disabled" value="Submit Bookings">
+                                <input type="submit" id="submitform" class="btn btn-info disabled" value="Submit Booking">
                         </div>
                         </center>
                     </div>
