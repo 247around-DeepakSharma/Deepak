@@ -177,52 +177,52 @@
                                        <?php  if($this->session->userdata('partner_id') == "247010"){ ?>
                                         <select class="form-control"  name="model_number" id="model_number_1" >
                                             <option value="">Select Model</option>
-                                            <option value='E-16'>E-16</option>
-                                            <option value='E-19'>E-19</option>
-                                            <option value='E-20'>E-20</option>
-                                            <option value='E-21'>E-21</option>
-                                            <option value='E-22'>E-22</option>
-                                            <option value='E-24'>E-24</option>
-                                            <option value='E-32'>E-32</option>
-                                            <option value='E-32 SMART'>E-32 SMART</option>
-                                            <option value='E-40 '>E-40 </option>
-                                            <option value='E-40 SMART'>E-40 SMART</option>
-                                            <option value='E-48'>E-48</option>
-                                            <option value='E-48 SMART'>E-48 SMART</option>
-                                            <option value='E-49 '>E-49 </option>
-                                            <option value='E-49 SMART'>E-49 SMART</option>
-                                            <option value='E-55 SMART'>E-55 SMART</option>
-                                            <option value='W-16'>W-16</option>
-                                            <option value='W-16'>W-16</option>
-                                            <option value='W-19'>W-19</option>
-                                            <option value='W-20'>W-20</option>
-                                            <option value='W-21'>W-21</option>
-                                            <option value='W-22'>W-22</option>
-                                            <option value='W-24'>W-24</option>
-                                            <option value='W-32'>W-32</option>
-                                            <option value='W-32 SMART'>W-32 SMART</option>
-                                            <option value='W-40 '>W-40 </option>
-                                            <option value='W-40 SMART'>W-40 SMART</option>
-                                            <option value='W-48'>W-48</option>
-                                            <option value='W-48 SMART'>W-48 SMART</option>
-                                            <option value='W-49 '>W-49 </option>
-                                            <option value='W-49 SMART'>W-49 SMART</option>
-                                            <option value='W-55 SMART'>W-55 SMART</option>
-                                            <option value='BL-16'>BL-16</option>
-                                            <option value='BL-19'>BL-19</option>
-                                            <option value='BL-20'>BL-20</option>
-                                            <option value='BL-21'>BL-21</option>
-                                            <option value='BL-22'>BL-22</option>
-                                            <option value='BL-24'>BL-24</option>
-                                            <option value='BL-32'>BL-32</option>
-                                            <option value='BL-32 SMART'>BL-32 SMART</option>
-                                            <option value='BL-40 '>BL-40 </option>
-                                            <option value='BL-40 SMART'>BL-40 SMART</option>
-                                            <option value='BL-48'>BL-48</option>
-                                            <option value='BL-48 SMART'>BL-48 SMART</option>
-                                            <option value='BL-49 '>BL-49 </option>
-                                            <option value='BL-49 SMART'>BL-49 SMART</option>
-                                            <option value='BL-55 SMART'>BL-55 SMART</option>
+                                            <option value='E-16' <?php if(set_value('model_number') == "E-16"){ echo "selected";} ?>>E-16</option>
+                                            <option value='E-19' <?php if(set_value('model_number') == "E-19"){ echo "selected";} ?>>E-19</option>
+                                            <option value='E-20' <?php if(set_value('model_number') == "E-20"){ echo "selected";} ?>>E-20</option>
+                                            <option value='E-21' <?php if(set_value('model_number') == "E-21"){ echo "selected";} ?>>E-21</option>
+                                            <option value='E-22' <?php if(set_value('model_number') == "E-22"){ echo "selected";} ?>>E-22</option>
+                                            <option value='E-24' <?php if(set_value('model_number') == "E-24"){ echo "selected";} ?>>E-24</option>
+                                            <option value='E-32' <?php if(set_value('model_number') == "E-32"){ echo "selected";} ?>>E-32</option>
+                                            <option value='E-32 SMART' <?php if(set_value('model_number') == "E-32 E-32 SMART"){ echo "selected";} ?>>E-32 SMART</option>
+                                            <option value='E-40' <?php if(set_value('model_number') == "E-32 SMART"){ echo "selected";} ?>>E-32 SMART</option>>E-40 </option>
+                                            <option value='E-40 SMART' <?php if(set_value('model_number') == "E-40 SMART"){ echo "selected";} ?>>E-32 SMART</option>>E-40 SMART</option>
+                                            <option value='E-48' <?php if(set_value('model_number') == "E-48"){ echo "selected";} ?>>E-32 SMART</option>>E-48</option>
+                                            <option value='E-48 SMART' <?php if(set_value('model_number') == "E-48 SMART"){ echo "selected";} ?>>E-32 SMART</option>>E-48 SMART</option>
+                                            <option value='E-49' <?php if(set_value('model_number') == "E-49"){ echo "selected";} ?>>E-32 SMART</option>>E-49 </option>
+                                            <option value='E-49 SMART' <?php if(set_value('model_number') == "E-49 SMART"){ echo "selected";} ?>>E-49 SMART</option>
+                                            <option value='E-55 SMART' <?php if(set_value('model_number') == "E-55 SMART"){ echo "selected";} ?>>E-55 SMART</option>
+                                            <option value='W-16' <?php if(set_value('model_number') == "W-16"){ echo "selected";} ?>>W-16</option>
+                                           
+                                            <option value='W-19' <?php if(set_value('model_number') == "W-19"){ echo "selected";} ?>>W-19</option>
+                                            <option value='W-20' <?php if(set_value('model_number') == "W-20"){ echo "selected";} ?>>W-20</option>
+                                            <option value='W-21' <?php if(set_value('model_number') == "W-21"){ echo "selected";} ?>>W-21</option>
+                                            <option value='W-22' <?php if(set_value('model_number') == "W-22"){ echo "selected";} ?>>W-22</option>
+                                            <option value='W-24' <?php if(set_value('model_number') == "W-24"){ echo "selected";} ?>>W-24</option>
+                                            <option value='W-32' <?php if(set_value('model_number') == "W-32"){ echo "selected";} ?>>W-32</option>
+                                            <option value='W-32 SMART' <?php if(set_value('model_number') == "W-32 SMART"){ echo "selected";} ?>>W-32 SMART</option>
+                                            <option value='W-40' <?php if(set_value('model_number') == "W-40"){ echo "selected";} ?>>W-40 </option>
+                                            <option value='W-40 SMART' <?php if(set_value('model_number') == "W-40 SMART"){ echo "selected";} ?>>W-40 SMART</option>
+                                            <option value='W-48' <?php if(set_value('model_number') == "W-48"){ echo "selected";} ?>>W-48</option>
+                                            <option value='W-48 SMART' <?php if(set_value('model_number') == "W-48 SMART"){ echo "selected";} ?>>W-48 SMART</option>
+                                            <option value='W-49' <?php if(set_value('model_number') == "W-49"){ echo "selected";} ?>>W-49 </option>
+                                            <option value='W-49 SMART' <?php if(set_value('model_number') == "W-49 SMART"){ echo "selected";} ?>>W-49 SMART</option>
+                                            <option value='W-55 SMART'  <?php if(set_value('model_number') == "W-55 SMART"){ echo "selected";} ?>>W-55 SMART</option>
+                                            <option value='BL-16' <?php if(set_value('model_number') == "BL-16"){ echo "selected";} ?>>BL-16</option>
+                                            <option value='BL-19'  <?php if(set_value('model_number') == "BL-19"){ echo "selected";} ?>>BL-19</option>
+                                            <option value='BL-20'  <?php if(set_value('model_number') == "BL-20"){ echo "selected";} ?>>BL-20</option>
+                                            <option value='BL-21'  <?php if(set_value('model_number') == "BL-21"){ echo "selected";} ?>>BL-21</option>
+                                            <option value='BL-22'  <?php if(set_value('model_number') == "BL-22"){ echo "selected";} ?>>BL-22</option>
+                                            <option value='BL-24'  <?php if(set_value('model_number') == "BL-24"){ echo "selected";} ?>>BL-24</option>
+                                            <option value='BL-32'  <?php if(set_value('model_number') == "BL-32"){ echo "selected";} ?>>BL-32</option>
+                                            <option value='BL-32 SMART'  <?php if(set_value('model_number') == "BL-32 SMART"){ echo "selected";} ?>>BL-32 SMART</option>
+                                            <option value='BL-40' <?php if(set_value('model_number') == "BL-40"){ echo "selected";} ?>>BL-40 </option>
+                                            <option value='BL-40 SMART' <?php if(set_value('model_number') == "BL-40 SMART"){ echo "selected";} ?>>BL-40 SMART</option>
+                                            <option value='BL-48' <?php if(set_value('model_number') == "BL-48"){ echo "selected";} ?>>BL-48</option>
+                                            <option value='BL-48 SMART' <?php if(set_value('model_number') == "BL-48 SMART"){ echo "selected";} ?>>BL-48 SMART</option>
+                                            <option value='BL-49' <?php if(set_value('model_number') == "BL-49"){ echo "selected";} ?>>BL-49 </option>
+                                            <option value='BL-49 SMART' <?php if(set_value('model_number') == "BL-49 SMART"){ echo "selected";} ?>>BL-49 SMART</option>
+                                            <option value='BL-55 SMART' <?php if(set_value('model_number') == "BL-55 SMART"){ echo "selected";} ?>>BL-55 SMART</option>
                                         </select>
                                         <?php } else { ?>
                                         <input  type="text" class="form-control"  name="model_number" id="model_number_1" value = "<?php echo set_value('model_number'); ?>" placeholder="Enter Model" >
