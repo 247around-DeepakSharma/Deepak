@@ -352,6 +352,29 @@ class Partner_model extends CI_Model {
           return false;
        }
     }
+  
+    /**
+     * @desc: This method gets price details for partner
+     */
+    function getPrices($service_id, $category, $capacity, $partner_id, $service_category) {
+
+        $this->db->distinct();
+        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable');
+        $this->db->where('service_id',$service_id);
+        $this->db->where('category', $category);
+        $this->db->where('active', 1);
+        $this->db->where('check_box', 1);
+        $this->db->where('partner_id', $partner_id);
+        $this->db->where('service_category', $service_category);
+
+      if (!empty($capacity)) {
+        $this->db->where('capacity', $capacity);
+      }
+
+      $query = $this->db->get('service_centre_charges');
+      
+      return $query->result_array();
+    }
 
 
 
