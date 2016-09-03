@@ -253,8 +253,7 @@
             var numberRegex = /^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$/;
             if(numberRegex.test(serial_number)) {
               if(serial_number > 0){
-                alert(serial_number);
-              
+                
                   flag = 0;
               } else {
                 alert(serial_number);

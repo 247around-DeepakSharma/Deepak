@@ -282,6 +282,7 @@
    });
 
 
+
    function onsubmit_form(){
       var flag = 0;
       $(':radio:checked').each(function(i){
@@ -298,20 +299,30 @@
             if(serial_number == "0"){
                document.getElementById('serial_number'+div_no[1]).style.borderColor = "red";
               flag = 1;
-            }
+            } 
 
-            var number = Number(serial_number);
+            var numberRegex = /^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$/;
+            if(numberRegex.test(serial_number)) {
+              if(serial_number > 0){
+                alert(serial_number);
+              
+                  flag = 0;
+              } else {
+                
+                  document.getElementById('serial_number'+div_no[1]).style.borderColor = "red";
+                  flag = 1;
+              }
+  
+            } 
 
-            if(number > 0){
-               flag = 0;
-            } else {
-               document.getElementById('serial_number'+div_no[1]).style.borderColor = "red";
-               flag = 1;
-            }
+           
+          
          }
 
+
       });
-   
+
+    
       if(flag == 0){
          return true;
 
