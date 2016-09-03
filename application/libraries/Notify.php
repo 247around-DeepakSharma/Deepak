@@ -245,7 +245,6 @@ class Notify {
 		$email['service'] = $query1[0]['services'];
 		$email['booking_date'] = $query1[0]['booking_date'];
 		$email['booking_timeslot'] = $query1[0]['booking_timeslot'];
-		$email['closed_date'] = $query1[0]['closed_date'];
 		$email['amount_paid'] = $query1[0]['amount_paid'];
 		$email['closing_remarks'] = $query1[0]['closing_remarks'];
 		if (isset($query1[0]['vendor_name'])) {
