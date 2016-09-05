@@ -1,3 +1,4 @@
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 <div id="page-wrapper" >
    <div class="container" >
       <div class="panel panel-info" style="margin-top:20px;">
@@ -23,7 +24,7 @@
                         <div class="form-group ">
                            <label for="booking_city" class="col-md-4">City *</label>
                            <div class="col-md-6">
-                              <select type="text" onchange= "select_state()" class="form-control"  id="booking_city" name="city" required>
+                              <select type="text" class="form-control"  id="booking_city" name="city" >
                                  <option value="<?php if (isset($booking_history[0]['city'])) {echo $booking_history[0]['city']; } ?>" selected="selected" disabled="disabled"><?php if (isset($booking_history[0]['city'])) {echo $booking_history[0]['city']; } ?></option>
                               </select>
                            </div>
@@ -49,7 +50,7 @@
                            <label for="service_name" class="col-md-4">Appliance *</label>
                            <div class="col-md-6">
                               <input type="hidden" name="service" id="services"/>
-                              <select type="text" class="form-control"  id="service_id" name="service_id" required>
+                              <select type="text" class="form-control"  id="service_id" name="service_id" >
                                  <option value="<?php if (isset($booking_history[0]['service_id'])) {echo $booking_history[0]['service_id']; } ?>" selected="selected" disabled="disabled"><?php if (isset($booking_history[0]['services'])) {echo $booking_history[0]['services']; } ?></option>
                               </select>
                            </div>
@@ -67,14 +68,14 @@
                         <div class="col-md-3">
                            <div class="form-group ">
                               <div class="col-md-12 ">
-                                 <select type="text" class="form-control appliance_brand"    name="appliance_brand[]" id="appliance_brand_1" required>
+                                 <select type="text" class="form-control appliance_brand"    name="appliance_brand[]" id="appliance_brand_1" >
                                     <option selected disabled><?php echo $unit_details['brand']; ?></option>
                                  </select>
                               </div>
                            </div>
                            <div class="form-group">
                               <div class="col-md-12 ">
-                                 <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  required>
+                                 <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  >
                                     <option selected disabled><?php echo $unit_details['category']; ?></option>
                                  </select>
                               </div>
@@ -290,4 +291,54 @@
 .panel-info {
     border-color: #bce8f1;
 }
+
+
+
+#booking_form .form-group label.error {
+    color: #FB3A3A;
+    display: inline-block;
+    margin: 0px 0 0px 125px;
+    padding: 0;
+    text-align: left;
+    width: 220px;
+    position: absolute;
+
+}
 </style>
+
+<script type="text/javascript">
+
+   (function($,W,D)
+{
+    var JQUERY4U = {};
+
+    JQUERY4U.UTIL =
+    {
+        setupFormValidation: function()
+        {
+            //form validation rules
+            $("#booking_form").validate({
+                rules: {
+                    booking_status: "required"
+                },
+                messages: {
+                    name: "Please Select Radio Button"
+                  
+                },
+                submitHandler: function(form) {
+                    form.submit();
+                }
+            });
+        }
+    }
+
+    //when the dom has loaded setup form validation rules
+    $(D).ready(function($) {
+        JQUERY4U.UTIL.setupFormValidation();
+    });
+
+})(jQuery, window, document);
+
+
+
+</script>
