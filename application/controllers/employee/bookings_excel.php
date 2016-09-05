@@ -665,7 +665,7 @@ class bookings_excel extends CI_Controller {
 		    }
 		} else {
 	    	
-	    	$output = "Please upload correct xlsx file";
+	    	$output = "File format is not correct. Only XLS or XLSX files are allowed.";
             $userSession = array('error' =>$output);
             $this->session->set_userdata($userSession);
 	    	redirect(base_url()."employee/bookings_excel/upload_delivered_products_for_paytm_excel");
