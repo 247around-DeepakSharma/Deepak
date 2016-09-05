@@ -703,3 +703,7 @@ CREATE TABLE IF NOT EXISTS `vendor_invoices_snapshot` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
+<!-- Abhay -->
+
+ALTER TABLE  `service_centre_charges` ADD  `pod` VARCHAR( 10 ) NOT NULL AFTER  `customer_net_payable` ;
+ALTER TABLE  `service_centre_charges` CHANGE  `pod`  `pod` VARCHAR( 10 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT  '1' COMMENT 'Proof of Delivery. Default 1 i.e. for every service, proof is required like S No of the unit. In some cases, PoD is not required like stand or out-of-warranty repair. So flag would be 0.';

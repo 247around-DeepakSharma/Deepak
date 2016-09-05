@@ -2,12 +2,12 @@
    <div class="container-fluid">
       <div class="row">
          <div class="col-lg-12">
-             <?php if(isset($error) && $error !==0) {
+             <?php if($this->session->userdata('error')) {
                echo '<div class="alert alert-danger alert-dismissible" role="alert">
                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                        <span aria-hidden="true">&times;</span>
                    </button>
-                   <strong>' . $error . '</strong>
+                   <strong>' . $this->session->userdata('error'). '</strong>
                </div>';
                }
                ?>
@@ -46,3 +46,5 @@
 <script>
 //$("input").tagsinput('services');
 </script>
+
+ <?php $this->session->unset_userdata('error'); ?>
