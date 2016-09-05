@@ -685,7 +685,7 @@ CREATE TABLE IF NOT EXISTS `vendor_invoices_snapshot` (
   `vendor_id` int(11) NOT NULL,
   `type_code` varchar(10) NOT NULL,
   `booking_id` varchar(100) NOT NULL,
-  `city` varchar(100) NOT NULL,
+  `city` varchar(100),
   `appliance` varchar(100) NOT NULL,
   `appliance_category` varchar(100) DEFAULT NULL,
   `appliance_capacity` varchar(100) DEFAULT NULL,
@@ -702,3 +702,4 @@ CREATE TABLE IF NOT EXISTS `vendor_invoices_snapshot` (
   `rating` varchar(10) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
