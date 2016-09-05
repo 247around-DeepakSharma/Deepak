@@ -1007,7 +1007,7 @@ class Booking extends CI_Controller {
 	    }
 	}
 	foreach ($arr as $service_id => $brand) {
-	    $this->booking_model->addNewApplianceBrand($service_id, $brand);
+	    $this->booking_model->addNewApplianceBrand($service_id, trim($brand));
 	}
 
 	redirect(base_url() . 'employee/booking/get_add_new_brand_form', 'refresh');
