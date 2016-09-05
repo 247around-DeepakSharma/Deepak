@@ -448,7 +448,6 @@ class Invoice extends CI_Controller {
 	    exec("rm -rf " . escapeshellarg($file_name));
 	}
 
-	exit(0);
     }
 
     function create_partner_invoices_summary($data, $invoice_type) {
@@ -516,15 +515,36 @@ class Invoice extends CI_Controller {
 
 		$files_name = $this->generate_pdf_with_data($excel_data, $data[$i], $R, $file_names);
 
+		//Send report via email
+		$this->email->clear(TRUE);
+		$this->email->from('billing@247around.com', '247around Team');
+		$to = "anuj@247around.com";
+		$subject = "DRAFT INVOICE (SUMMARY) - 247around - " . $data[$i][0]['company_name'];
+//		    . " Invoice for period: " . $start_date . " to " . $end_date;
+
+		$this->email->to($to);
+		$this->email->subject($subject);
+		$this->email->attach($files_name . ".xlsx", 'attachment');
+		$this->email->attach($files_name . ".pdf", 'attachment');
+
+		$mail_ret = $this->email->send();
+
+		if ($mail_ret) {
+		    log_message('info', __METHOD__ . ": Mail sent successfully");
+		} else {
+		    log_message('info', __METHOD__ . ": Mail could not be sent");
+		}
+
 		array_push($file_names, $files_name . ".xlsx");
 		array_push($file_names, $files_name . ".pdf");
-                if ($invoice_type === "final") {
-		    $bucket = 'bookings-collateral';
-		$directory_xls = "invoices-excel/" . $files_name . ".xlsx";
-		$directory_pdf = "invoices-pdf/" . $files_name . ".pdf";
 
-		$this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-		$this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+		if ($invoice_type === "final") {
+		    $bucket = 'bookings-collateral';
+		    $directory_xls = "invoices-excel/" . $files_name . ".xlsx";
+		    $directory_pdf = "invoices-pdf/" . $files_name . ".pdf";
+
+		    $this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+		    $this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
 		}
 	    }
 	}
@@ -534,7 +554,6 @@ class Invoice extends CI_Controller {
 	    exec("rm -rf " . escapeshellarg($file_name));
 	}
 
-	exit(0);
     }
 
     /**
