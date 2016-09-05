@@ -538,6 +538,12 @@ class Booking extends CI_Controller {
 	    log_message('info', __FUNCTION__ . " Prices " . print_r($prices, true));
 	    foreach ($value['quantity'] as $key => $price_tag) {
 		$service_center_data = $this->service_centers_model->get_prices_filled_by_service_center($price_tag['unit_id'], $booking_id);
+
+		$result = $this->partner_model->getPrices($data['booking_history'][0]['service_id'], $value['category'], $value['capacity'], $partner_id, $price_tag['price_tags']);
+        
+        $data['booking_unit_details'][$keys]['quantity'][$key]['pod'] = $result[0]['pod'];
+
+
 		// print_r($service_center_data);
 		if (!empty($service_center_data)) {
 		    $data['booking_unit_details'][$keys]['quantity'][$key]['customer_paid_basic_charges'] = $service_center_data[0]['service_charge'];

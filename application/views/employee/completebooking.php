@@ -1,3 +1,4 @@
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 <div id="page-wrapper" >
    <div class="container" >
       <div class="panel panel-info" style="margin-top:20px;">
@@ -18,7 +19,7 @@
                         <div class="form-group ">
                            <label for="booking_city" class="col-md-4">City *</label>
                            <div class="col-md-6">
-                              <select type="text" disabled="disabled" class="form-control"  id="booking_city" name="city" required>
+                              <select type="text" disabled="disabled" class="form-control"  id="booking_city" name="city" >
                                  <option value="<?php if (isset($booking_history[0]['city'])) {echo $booking_history[0]['city']; } ?>" selected="selected" ><?php if (isset($booking_history[0]['city'])) {echo $booking_history[0]['city']; } ?></option>
                               </select>
                            </div>
@@ -28,7 +29,7 @@
                            <label for="service_name" class="col-md-4">Appliance *</label>
                            <div class="col-md-6">
                               <input type="hidden" name="service" id="services"/>
-                              <select type="text" disabled="disabled"  class="form-control"  id="service_id" name="service_id" required>
+                              <select type="text" disabled="disabled"  class="form-control"  id="service_id" name="service_id" >
                                  <option value="<?php if (isset($booking_history[0]['service_id'])) {echo $booking_history[0]['service_id']; } ?>" selected="selected" disabled="disabled"><?php if (isset($booking_history[0]['services'])) {echo $booking_history[0]['services']; } ?></option>
                               </select>
                            </div>
@@ -53,7 +54,7 @@
                         <div class="form-group ">
                            <label for="source_name" class="col-md-4">Booking Source *</label>
                            <div class="col-md-6">
-                              <select type="text" disabled="disabled"  class="booking_source form-control"  id="source_code" name="source_code" required>
+                              <select type="text" disabled="disabled"  class="booking_source form-control"  id="source_code" name="source_code" >
                                  <option value="<?php if (isset($booking_history[0]['source'])) {echo $booking_history[0]['source']; } ?>" selected="selected" disabled="disabled"><?php if (isset($booking_history[0]['source'])) {echo $booking_history[0]['source_name']; } ?></option>
                               </select>
                            </div>
@@ -72,14 +73,14 @@
                         <div class="col-md-3">
                            <div class="form-group ">
                               <div class="col-md-12 ">
-                                 <select type="text" class="form-control appliance_brand"  disabled="disabled"   name="appliance_brand[]" id="appliance_brand_1" required>
+                                 <select type="text" class="form-control appliance_brand"  disabled="disabled"   name="appliance_brand[]" id="appliance_brand_1" >
                                     <option selected disabled><?php echo $unit_details['brand']; ?></option>
                                  </select>
                               </div>
                            </div>
                            <div class="form-group">
                               <div class="col-md-12 ">
-                                 <select type="text" class="form-control appliance_category" disabled="disabled"   id="appliance_category_1" name="appliance_category[]"  required>
+                                 <select type="text" class="form-control appliance_category" disabled="disabled"   id="appliance_category_1" name="appliance_category[]"  >
                                     <option selected disabled><?php echo $unit_details['category']; ?></option>
                                  </select>
                               </div>
@@ -114,11 +115,13 @@
                                  foreach ($unit_details['quantity'] as $key => $price) { ?>
                                  <tr style="background-color: white; ">
                                     <td>
+                                    <?php if($price['pod'] == "1"){ ?>
                                      <div class="form-group">
                                        <div class="col-md-12 ">
                                           <input type="text" class="form-control" id="<?php echo "serial_number".$count; ?>" name="<?php echo "serial_number[". $price['unit_id'] . "]"?>"  value="<?php echo $price['serial_number']; ?>" placeholder = "Enter Serial Number" />
                                        </div>
                                     </div>
+                                    <?php } ?>
                                     </td>
                                     <td><?php echo $price['price_tags'] ?></td>
                                     <td><?php echo $price['customer_net_payable']; ?></td>
@@ -137,9 +140,9 @@
                                                    
                                                     <div class="radio">
                                                       <label>
-                                                      <input type="radio" class="my_checkbox" id="<?php echo "completed_".$count; ?>" name="<?php echo "booking_status[". $price['unit_id'] . "]"?>"  value="Completed" <?php if($price['booking_status'] =="Completed"){ echo "checked"; } ?> required><?php if($price['product_or_services']=="Product"){ echo " Delivered";}else { echo " Completed"; } ?><br/>
+                                                      <input type="radio" class="my_checkbox" id="<?php echo "completed_". $price['pod'] . "_".$count; ?>" name="<?php echo "booking_status[". $price['unit_id'] . "]"?>"  value="Completed" <?php if($price['booking_status'] =="Completed"){ echo "checked"; } ?> required><?php if($price['product_or_services']=="Product"){ echo " Delivered";}else { echo " Completed"; } ?><br/>
                                                       
-                                                      <input type="radio" class="my_checkbox" id="<?php echo "cancelled_".$count; ?>" name="<?php echo "booking_status[". $price['unit_id'] . "]"?>"  value="Cancelled" <?php if($price['booking_status'] =="Cancelled"){ echo "checked"; } ?>  required><?php if($price['product_or_services']=="Product"){ echo " Not Delivered";}else { echo " Not Completed"; } ?>
+                                                      <input type="radio" class="my_checkbox" id="<?php echo "cancelled_". $price['pod'] . "_".$count; ?>" name="<?php echo "booking_status[". $price['unit_id'] . "]"?>"  value="Cancelled" <?php if($price['booking_status'] =="Cancelled"){ echo "checked"; } ?>  required><?php if($price['product_or_services']=="Product"){ echo " Not Delivered";}else { echo " Not Completed"; } ?>
                                                       </label>
                                                    </div>
                                                  
@@ -283,49 +286,106 @@
 
 
 
-   function onsubmit_form(){
-      var flag = 0;
-      $(':radio:checked').each(function(i){
-         //console.log($(this).val());
-         var div_no =  this.id.split('_');
-         if(div_no[0] == "completed"){
-            var serial_number = $("#serial_number"+div_no[1]).val();
-            if(serial_number == "" ){
-               
-              document.getElementById('serial_number'+div_no[1]).style.borderColor = "red";
-              flag = 1;
-            }
+   function onsubmit_form() {
+   var flag = 0;
+   $(':radio:checked').each(function (i) {
+       //console.log($(this).val());
+       var div_no = this.id.split('_');
+       if (div_no[0] == "completed") {
+      if (div_no[1] == "1") {
+          var serial_number = $("#serial_number" + div_no[2]).val();
+          if (serial_number == "") {
 
-            if(serial_number == "0"){
-               document.getElementById('serial_number'+div_no[1]).style.borderColor = "red";
-              flag = 1;
-            } 
+         document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+         flag = 1;
+          }
 
-            var numberRegex = /^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$/;
-            if(numberRegex.test(serial_number)) {
-              if(serial_number > 0){
-                  flag = 0;
-              } else {
-                  document.getElementById('serial_number'+div_no[1]).style.borderColor = "red";
-                  flag = 1;
-              }
-  
-            } 
+          if (serial_number == "0") {
+         document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+         flag = 1;
+          }
 
-           
-          
+          var numberRegex = /^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$/;
+          if (numberRegex.test(serial_number)) {
+         if (serial_number > 0) {
+
+             flag = 0;
+         } else {
+             alert(serial_number);
+             document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+             flag = 1;
          }
 
+          }
+      }
 
-      });
 
-    
-      if(flag == 0){
-         return true;
 
-      } else if(flag == 1){
+       }
 
-         return false;
-      }      
+
+   });
+
+
+   if (flag == 0) {
+       return true;
+
+   } else if (flag == 1) {
+
+       return false;
    }
+    }
+
+</script>
+<style type="text/css">
+   #booking_form .form-group label.error {
+   color: #FB3A3A;
+   display: inline-block;
+   margin: 0px 0 0px 125px;
+   padding: 0;
+   text-align: left;
+   width: 220px;
+   position: absolute;
+
+    }
+</style>
+
+
+<script type="text/javascript">
+
+    (function ($, W, D)
+    {
+   var JQUERY4U = {};
+
+   JQUERY4U.UTIL =
+      {
+          setupFormValidation: function ()
+          {
+         //form validation rules
+         $("#booking_form").validate({
+             rules: {
+            booking_status: "required",
+            serial_number: "required"
+             },
+             messages: {
+            booking_status: "Please select on of these button ",
+            serial_number: " Please Enter Serial Number"
+
+             },
+             submitHandler: function (form) {
+            form.submit();
+             }
+         });
+          }
+      }
+
+   //when the dom has loaded setup form validation rules
+   $(D).ready(function ($) {
+       JQUERY4U.UTIL.setupFormValidation();
+   });
+
+    })(jQuery, window, document);
+
+
+
 </script>

@@ -273,6 +273,7 @@ class service_centre_charges extends CI_Controller {
 	$data['partner_payable_tax'] = $row[22];
 	$data['partner_net_payable'] = $row[23];
 	$data['customer_net_payable'] = $row[24];
+	$data['pod'] = $row[25];
 
 	return $data;
     }

@@ -359,7 +359,7 @@ class Partner_model extends CI_Model {
     function getPrices($service_id, $category, $capacity, $partner_id, $service_category) {
 
         $this->db->distinct();
-        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable');
+        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod');
         $this->db->where('service_id',$service_id);
         $this->db->where('category', $category);
         $this->db->where('active', 1);
