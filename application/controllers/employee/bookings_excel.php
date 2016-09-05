@@ -10,7 +10,7 @@ if (!defined('BASEPATH'))
 //For infinite memory
 ini_set('memory_limit', '-1');
 //3600 seconds = 60 minutes
-ini_set('max_execution_time', 3600);
+ini_set('max_execution_time', 36000);
 
 define('EOL', (PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
 
@@ -658,14 +658,20 @@ class bookings_excel extends CI_Controller {
 		    $inputFileName = $_FILES['file']['tmp_name'];
 		    $inputFileExtn = 'Excel2007';
 		}
-	    } else {
-		if ($pathinfo['extension'] == 'xls') {
+	    } else if ($pathinfo['extension'] == 'xls') {
 		    if ($_FILES['file']['size'] > 0) {
 			$inputFileName = $_FILES['file']['tmp_name'];
 			$inputFileExtn = 'Excel5';
 		    }
+		} else {
+	    	
+	    	$output = "Please upload correct xlsx file";
+            $userSession = array('error' =>$output);
+            $this->session->set_userdata($userSession);
+	    	redirect(base_url()."employee/bookings_excel/upload_delivered_products_for_paytm_excel");
+	    
 		}
-	    }
+	    
 	}
 
 	try {
