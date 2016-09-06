@@ -912,11 +912,13 @@ class vendor extends CI_Controller {
     }
     /**
      * @desc: This method loads add engineer view. It gets active vendor and appliance to display in a form 
+     * This  function is used by vendor panel and admin panel to load add engineer view
      */
     function add_engineer(){
         $data['service_center'] = $this->vendor_model->getactive_vendor();
         $data['services'] = $this->booking_model->selectservice();
         if($this->session->userdata('userType') == 'service_center'){
+
             $this->load->view('service_centers/header');
             $this->load->view('service_centers/add_engineer', $data);
 
@@ -928,6 +930,7 @@ class vendor extends CI_Controller {
     }
     /**
      * @desc: This method gets all input and insert into table
+     *  This  function is used by vendor panel and admin panel to load add engineer details
      */
     function process_add_engineer(){
         $data['name'] = $this->input->post('name');
@@ -956,7 +959,7 @@ class vendor extends CI_Controller {
         $data['appliance_id'] = json_encode($services);
         $data['active'] = "1";
         $data['create_date'] =  date("Y-m-d H:i:s");
-
+        log_message('info', __FUNCTION__ . " Engineer data  " . print_r($data, true));
         $engineer_id = $this->vendor_model->insert_engineer($data);
         if($engineer_id){
             $output = "Engineer's Details Added.";
@@ -972,21 +975,25 @@ class vendor extends CI_Controller {
         $this->session->set_userdata($userSession);
 
         if($this->session->userdata('userType') == 'service_center'){
-
+            log_message('info', __FUNCTION__ . " Added By service center  " . print_r($data, true));
             redirect(base_url()."service_center/add_engineer");
 
         } else {
+            log_message('info', __FUNCTION__ . " Added By admin panel  " . print_r($data, true));
             redirect(base_url()."employee/vendor/add_engineer");
         }
     }
     /**
-     *
+     * @desc: This is used to view engineers details. This function is used by vendor panel and admin panel,
+     * If it used by vendor panel then it gets only particular vendor engineer's otherwise get all engineer
      */
 
     function get_engineers(){
         $service_center_id = "";
         if($this->session->userdata('userType') == 'service_center'){
+
             $service_center_id = $this->session->userdata('service_center_id');
+            log_message('info', __FUNCTION__ . " view service center Engineer View  " . print_r($service_center_id, true));
         } 
 
        $data['engineers'] =  $this->vendor_model->get_engineers($service_center_id);
@@ -1018,12 +1025,16 @@ class vendor extends CI_Controller {
      * @desc: this Method deactivate/ activate engineer
      */
      function change_engineer_activation($engineer_id, $active){
-
+        log_message('info', __FUNCTION__ . " Activate/Deactivate Engineer Id:  " . print_r($engineer_id, true).
+            "status" . print_r($active));
         $this->vendor_model->update_engineer($engineer_id, array('active'=> $active));
         redirect(base_url()."employee/vendor/get_engineers");
      }
-
+     /**
+      * @desc: Delete Engineer from database
+      */
     function delete_engineer($engineer_id){
+        log_message('info', __FUNCTION__ . " Delete Engineer Id:  " . print_r($engineer_id, true));
         $this->vendor_model->delete_engineer($engineer_id);
         redirect(base_url()."employee/vendor/get_engineers");
 
