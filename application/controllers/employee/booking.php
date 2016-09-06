@@ -40,7 +40,7 @@ class Booking extends CI_Controller {
 	$this->load->library('booking_utilities');
 	$this->load->library('partner_sd_cb');
 	$this->load->library('asynchronous_lib');
-	$this->load->library('gearman');
+	
 
 	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
 	    return TRUE;
@@ -106,6 +106,7 @@ class Booking extends CI_Controller {
 	$booking = $this->get_booking_input();
 	$user['user_id'] = $booking['user_id'] = $user_id;
 	$user_name = $this->input->post('user_name');
+	
 	if ($booking_id == "") {
 
 	    $booking['booking_id'] = $this->create_booking_id($user_id, $booking['source'], $booking['type'], $booking['booking_date']);
