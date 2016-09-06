@@ -414,8 +414,8 @@ class vendor extends CI_Controller {
 	//Replace new lines with line breaks for proper html formatting
 	$message = nl2br($this->input->post('mail_body'));
 
-	$tmpFile = $file['fileToUpload']['tmp_name'];
-        $fileName = $file['fileToUpload']['name'];
+	$tmpFile = $_FILES['fileToUpload']['tmp_name'];
+        $fileName = $_FILES['fileToUpload']['name'];
         move_uploaded_file($tmpFile, "/tmp/$fileName");
 
         //gets primary contact's email and owner's email
@@ -507,10 +507,10 @@ class vendor extends CI_Controller {
      *  @return : void
      */
     function process_pincode_excel_upload_form() {
-        $return = $this->partner_utilities->validate_file($file);
+        $return = $this->partner_utilities->validate_file($_FILES);
         if ($return == "true") {
 
-            $inputFileName = $file['file']['tmp_name'];
+            $inputFileName = $_FILES['file']['tmp_name'];
             $details_pincode['file_name'] = "Consolidated_Pin_Code" . date('d-M-Y') . ".xlsx";
             // move excel file in tmp folder.
             move_uploaded_file($inputFileName, "/tmp/" . $details_pincode['file_name']);
