@@ -40,6 +40,7 @@ class Booking extends CI_Controller {
 	$this->load->library('booking_utilities');
 	$this->load->library('partner_sd_cb');
 	$this->load->library('asynchronous_lib');
+	$this->load->library('gearman');
 
 	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
 	    return TRUE;
@@ -248,6 +249,8 @@ class Booking extends CI_Controller {
 		// discount for appliances. Array ( [BPL] => Array ( [100] => Array ( [0] => 200 ) [102] => Array ( [0] => 100 ) [103] => Array ( [0] => 0 ) )
 		$services_details['around_paid_basic_charges'] = $discount[$brand_id][$services_details['id']][0];
 		$services_details['partner_paid_basic_charges'] = $partner_net_payable[$brand_id][$services_details['id']][0];
+		$services_details['partner_net_payable'] = $services_details['partner_paid_basic_charges'];
+		$services_details['around_net_payable'] = $services_details['around_paid_basic_charges'];
 
 		if ($booking_id == "") {
 			
@@ -835,7 +838,7 @@ class Booking extends CI_Controller {
     
 	if (!empty($result)) {
 
-	    echo "<tr><th>Service Category</th><th>Std. Charges</th><th>Partner Discount</th><th>Final Charges</th><th>247around Discount</th><th>Selected Services</th></tr>";
+	    echo "<thead><tr><th>Service Category</th><th>Std. Charges</th><th>Partner Discount</th><th>Final Charges</th><th>247around Discount</th><th>Selected Services</th></tr></thead>";
 	    $html = "";
 
 	    $i = 0;

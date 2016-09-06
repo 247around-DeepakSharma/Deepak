@@ -1019,8 +1019,7 @@ class Booking_model extends CI_Model {
 
             } else if($limit == 'All') {
 
-                $where .= "AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR
-                booking_details.booking_date='') AND `booking_details`.current_status='$status' ";
+                $where .= " AND `booking_details`.current_status='$status' ";
             }
         }
 
@@ -1423,7 +1422,7 @@ class Booking_model extends CI_Model {
 
         $data = $this->getpricesdetails_with_tax($services_details['id'], $state);
 
-        $result = array_merge($services_details, $data[0]);
+        $result = array_merge($data[0], $services_details);
             unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
 	    log_message('info', __METHOD__ . "update booking_unit_details data" . print_r($result, true) . " Price data with tax: " . print_r($data, true));
@@ -1548,7 +1547,7 @@ class Booking_model extends CI_Model {
 
         foreach ($appliance as $key => $value) {
             // get data from booking unit details table on the basis of appliance id
-            $this->db->select('id as unit_id, price_tags, customer_total, around_net_payable, partner_net_payable, customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts, booking_status, partner_paid_basic_charges,product_or_services, serial_number');
+            $this->db->select('id as unit_id, price_tags, customer_total, around_net_payable, partner_net_payable, customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts, booking_status, partner_paid_basic_charges,product_or_services, serial_number, around_paid_basic_charges');
             $this->db->where('appliance_id', $value['appliance_id']);
             $this->db->where('booking_id', $value['booking_id']);
             $query2 = $this->db->get('booking_unit_details');
@@ -1618,7 +1617,7 @@ class Booking_model extends CI_Model {
 
     log_message('info', __METHOD__ . " Get Price with Taxes" . print_r($data, true));
     
-    $result = array_merge($services_details, $data[0]);
+    $result = array_merge($data[0], $services_details);
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
    
