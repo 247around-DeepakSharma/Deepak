@@ -21,7 +21,7 @@ class vendor_model extends CI_Model {
      * @param: $vendor_id
      * @return: array of vendor details
      */
-    function viewvendor($vendor_id = "") {
+    function viewvendor($vendor_id = "", $active = "") {
         $where = "";
 
         if ($vendor_id != "") {
@@ -927,5 +927,46 @@ class vendor_model extends CI_Model {
         $data = $this->db->query($sql);
         return $data->result_array();
     }
+    
+    /**
+     * @desc: get Active vendor
+     */
+    function getactive_vendor(){
+        $this->db->select('*');
+        $this->db->where('active',1);
+        $query = $this->db->get('service_centres');
+        return $query->result_array();
+    }
+    /**
+     * @desc: Insert Engineer details
+     */
+    function insert_engineer($data){
+        $this->db->insert('engineer_details', $data);
+        return $this->db->insert_id();
+    }
+    /**
+     * @desc: Get engineer  details
+     */
+    function get_engineers($service_center_id){
+        if($service_center_id != ""){
+            $this->db->where('service_center_id', $service_center_id);
+        }
+        $query = $this->db->get('engineer_details');
+        return $query->result_array();
+    }
+
+    function update_engineer($engineer_id, $data){
+        $this->db->where('id', $engineer_id);
+        $this->db->update('engineer_details', $data);
+
+    }
+
+    function delete_engineer($engineer_id){
+        $this->db->where('id', $engineer_id);
+        $this->db->delete('engineer_details');
+
+    }
+
+
 
 }

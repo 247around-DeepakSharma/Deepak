@@ -53,7 +53,15 @@ $route['service_center/cancelled_booking/(:any)'] = 'employee/service_centers/ca
 $route['service_center/booking_details/(:any)'] = 'employee/service_centers/booking_details/$1';
 $route['service_center/cancel_booking_form/(:any)'] = 'employee/service_centers/cancel_booking_form/$1';
 $route['service_center/complete_booking_form/(:any)'] = 'employee/service_centers/complete_booking_form/$1';
+$route['service_center/add_engineer'] = 'employee/vendor/add_engineer';
+$route['service_center/get_engineers'] = 'employee/vendor/get_engineers';
+
+
+
 $route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';
+
+
+
 $route['partner/login'] = 'employee/partner';
 $route['partner/pending_booking'] = 'employee/partner/pending_booking';
 $route['partner/pending_booking/(:any)'] = 'employee/partner/pending_booking/$1';
