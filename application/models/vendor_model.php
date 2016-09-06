@@ -21,7 +21,7 @@ class vendor_model extends CI_Model {
      * @param: $vendor_id
      * @return: array of vendor details
      */
-    function viewvendor($vendor_id = "", $active = "") {
+    function viewvendor($vendor_id = "") {
         $where = "";
 
         if ($vendor_id != "") {
