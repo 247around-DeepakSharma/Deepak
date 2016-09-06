@@ -106,7 +106,7 @@ class Booking extends CI_Controller {
 	$booking = $this->get_booking_input();
 	$user['user_id'] = $booking['user_id'] = $user_id;
 	$user_name = $this->input->post('user_name');
-	
+
 	if ($booking_id == "") {
 
 	    $booking['booking_id'] = $this->create_booking_id($user_id, $booking['source'], $booking['type'], $booking['booking_date']);
@@ -918,20 +918,9 @@ class Booking extends CI_Controller {
 	if ($this->input->post('rating_star') != "Select") {
 	    $data['rating_stars'] = $this->input->post('rating_star');
 	    $data['rating_comments'] = $this->input->post('rating_comments');
-	} else {
-	    $data['rating_stars'] = '';
-	    $data['rating_comments'] = '';
-	}
 
-	if ($this->input->post('vendor_rating_star') != "Select") {
-	    $data['vendor_rating_stars'] = $this->input->post('vendor_rating_star');
-	    $data['vendor_rating_comments'] = $this->input->post('vendor_rating_comments');
-	} else {
-	    $data['vendor_rating_stars'] = '';
-	    $data['vendor_rating_comments'] = '';
-	}
-
-	$this->booking_model->update_booking($booking_id, $data);
+	    $this->booking_model->update_booking($booking_id, $data);
+	} 
 
 	redirect(base_url() . 'employee/booking/viewclosedbooking/' . $status);
     }
