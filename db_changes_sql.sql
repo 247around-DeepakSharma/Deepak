@@ -707,3 +707,26 @@ CREATE TABLE IF NOT EXISTS `vendor_invoices_snapshot` (
 
 ALTER TABLE  `service_centre_charges` ADD  `pod` VARCHAR( 10 ) NOT NULL AFTER  `customer_net_payable` ;
 ALTER TABLE  `service_centre_charges` CHANGE  `pod`  `pod` VARCHAR( 10 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT  '1' COMMENT 'Proof of Delivery. Default 1 i.e. for every service, proof is required like S No of the unit. In some cases, PoD is not required like stand or out-of-warranty repair. So flag would be 0.';
+--
+
+CREATE TABLE IF NOT EXISTS `engineer_details` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(250) NOT NULL,
+  `phone` varchar(20) NOT NULL,
+  `alternate_phone` varchar(20) NOT NULL,
+  `phone_type` varchar(100) NOT NULL,
+  `address` text NOT NULL,
+  `identity_proof` varchar(250) NOT NULL,
+  `identity_proof_number` varchar(250) NOT NULL,
+  `bank_name` varchar(250) NOT NULL,
+  `banck_ac_no` varchar(250) NOT NULL,
+  `bank_ifsc_code` varchar(100) NOT NULL,
+  `bank_holder_name` varchar(250) NOT NULL,
+  `service_center_id` int(10) NOT NULL,
+  `appliance_id` text NOT NULL,
+  `active` int(10) NOT NULL DEFAULT '1',
+  `identity_proof_pic` varchar(250) NOT NULL,
+  `create_date` datetime NOT NULL,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
