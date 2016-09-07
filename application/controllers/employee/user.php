@@ -128,42 +128,7 @@ class User extends CI_Controller {
      *  @param: Array
      */
     function load_search_view($data){
-        if (!empty($data['Bookings'])) {
-            if (substr($data['Bookings'][0]->booking_id, 0, 2) === "Q-") {
-                //It is a query, check its status and assign appropriate view
-                switch ($data['Bookings'][0]->current_status) {
-                    case 'FollowUp':
-                    case 'Cancelled':
-                    $view = 'employee/viewpendingqueries';
-                    break;
-
-                    default:
-                        $view = 'employee/viewpendingqueries';
-                    break;
-                }
-            } else {
-                //It is a booking, find its status first.
-                switch ($data['Bookings'][0]->current_status) {
-                    case 'Pending':
-                    case 'Rescheduled':
-                    $view = 'employee/booking';
-                    break;
-
-                    case 'Cancelled':
-                    case 'Completed':
-                    $view = 'employee/viewcompletedbooking';
-                    break;
-
-                    default:
-                    $view = 'employee/booking';
-                    break;
-                }
-            }
-
-        } else {
-            $view = 'employee/booking';
-        }
-
+        $view = 'employee/search_result';
         $this->load->view('employee/header');
         $this->load->view($view, $data);
     }
