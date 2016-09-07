@@ -951,22 +951,16 @@ class vendor_model extends CI_Model {
         if($service_center_id != ""){
             $this->db->where('service_center_id', $service_center_id);
         }
+        $this->db->where('delete', 0);
         $query = $this->db->get('engineer_details');
         return $query->result_array();
     }
 
-    function update_engineer($engineer_id, $data){
-        $this->db->where('id', $engineer_id);
+    function update_engineer($where, $data){
+        $this->db->where($where);
         $this->db->update('engineer_details', $data);
 
     }
-
-    function delete_engineer($engineer_id){
-        $this->db->where('id', $engineer_id);
-        $this->db->delete('engineer_details');
-
-    }
-
 
 
 }

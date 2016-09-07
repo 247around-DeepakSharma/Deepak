@@ -730,3 +730,7 @@ CREATE TABLE IF NOT EXISTS `engineer_details` (
   `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE  `engineer_details` ADD  `delete` INT( 10 ) NOT NULL DEFAULT  '0' AFTER  `active` ;
+
+ALTER TABLE  `engineer_details` CHANGE  `delete`  `delete` INT( 10 ) NOT NULL DEFAULT  '0' COMMENT '0 means engineer not deleted and 1 means engineer deleted';

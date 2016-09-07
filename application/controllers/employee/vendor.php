@@ -1027,17 +1027,37 @@ class vendor extends CI_Controller {
      function change_engineer_activation($engineer_id, $active){
         log_message('info', __FUNCTION__ . " Activate/Deactivate Engineer Id:  " . print_r($engineer_id, true).
             "status" . print_r($active));
-        $this->vendor_model->update_engineer($engineer_id, array('active'=> $active));
-        redirect(base_url()."employee/vendor/get_engineers");
+
+        $where  = array('id' => $engineer_id );
+        $this->vendor_model->update_engineer($where, array('active'=> $active));
+        if($this->session->userdata('userType') == 'service_center'){
+
+           redirect(base_url()."service_center/get_engineers");
+
+       } else {
+
+            redirect(base_url()."service_center/get_engineers");
+       }
+        
      }
      /**
       * @desc: Delete Engineer from database
       */
     function delete_engineer($engineer_id){
-        log_message('info', __FUNCTION__ . " Delete Engineer Id:  " . print_r($engineer_id, true));
-        $this->vendor_model->delete_engineer($engineer_id);
-        redirect(base_url()."employee/vendor/get_engineers");
 
+        log_message('info', __FUNCTION__ . " Delete Engineer Id:  " . print_r($engineer_id, true));
+        $where  = array('id' => $engineer_id );
+        $this->vendor_model->update_engineer($where, array('delete'=> '1'));
+       
+        if($this->session->userdata('userType') == 'service_center'){
+
+           redirect(base_url()."service_center/get_engineers");
+
+       } else {
+
+            redirect(base_url()."service_center/get_engineers");
+       }
+        
     }
 
      
