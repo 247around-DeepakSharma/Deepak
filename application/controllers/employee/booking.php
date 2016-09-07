@@ -127,8 +127,9 @@ class Booking extends CI_Controller {
 
 	    log_message('info', __FUNCTION__ . $state_not_found_message);
 	}
-
-	$service = $booking['services'];
+    $service_name  = $this->booking_model->selectservicebyid($booking['service_id']);
+	$service  = $service_name[0]['services'];
+	$booking['services'] = $service;
 	$booking_remarks = $this->input->post('query_remarks');
 	// All brand comming in array eg-- array([0]=> LG, [1]=> BPL)
 	$appliance_brand = $this->input->post('appliance_brand');
@@ -327,7 +328,6 @@ class Booking extends CI_Controller {
 	// select state by pincode
 	$state = $this->vendor_model->get_state_from_pincode($booking['booking_pincode']);
 	$booking['state'] = $state['state'];
-	$booking['services'] = $this->input->post('service');
 	$booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
 	$booking['order_id'] = $this->input->post('order_id');
 	$booking['potential_value'] = $this->input->post('potential_value');
