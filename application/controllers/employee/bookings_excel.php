@@ -205,7 +205,7 @@ class bookings_excel extends CI_Controller {
 		    $prod = 'Chimney';
 		}
 		if (stristr($prod, "Geyser")) {
-		    $prod['Product'] = 'Geyser';
+		    $prod = 'Geyser';
 		}
 
 		$appliance_details['user_id'] = $booking['user_id'] = $user_id;
