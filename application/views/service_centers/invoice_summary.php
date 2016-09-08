@@ -39,7 +39,7 @@
          <td><?php echo $count;?></td>
          <td><?php echo $invoice['invoice_id']; ?></td>
          <td><?php echo $invoice['type']; ?></td>
-         <td><a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $invoice['invoice_file_excel']; ?>"><?php echo $invoice['invoice_file_excel']; ?></a></td>
+         <td><?php echo $invoice['invoice_file_excel']; ?></td>
          <td><a href="https://s3.amazonaws.com/bookings-collateral/invoices-pdf/<?php echo $invoice['invoice_file_pdf']; ?>"><?php echo $invoice['invoice_file_pdf']; ?></a></td>
          <td><?php echo date("jS F, Y", strtotime($invoice['from_date'])). " to ". date("jS F, Y", strtotime($invoice['to_date'])); ?></td>
          <td><?php echo $invoice['num_bookings'];  $sum_no_of_booking += $invoice['num_bookings']; ?></td>
