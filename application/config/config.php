@@ -31,6 +31,8 @@ $config['base_url']   = 'https://aroundhomzapp.com/';
 //$config['index_page'] = 'index.php';
 $config['index_page'] = '';
 
+
+
 /*
 |--------------------------------------------------------------------------
 | URI PROTOCOL
