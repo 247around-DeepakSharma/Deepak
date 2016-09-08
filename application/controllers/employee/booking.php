@@ -75,8 +75,7 @@ class Booking extends CI_Controller {
 	$this->booking_model->addbooking($booking);
 
 	if ($booking['type'] == 'Booking') {
-	    $to = "anuj@247around.com, nits@247around.com";
-	    //$to = "abhaya@247around.com";
+	    $to = "anuj@247around.com";
 	    $from = "booking@247around.com";
 	    $cc = "";
 	    $bcc = "";
@@ -201,9 +200,9 @@ class Booking extends CI_Controller {
 	    $services_details = "";
 	    $appliances_details = "";
 	    $appliances_details['user_id'] = $user_id;
-       
+
 	    $appliances_details['brand'] = $services_details['appliance_brand'] = $value; // brand
-	    
+
 	    // get category from appiance category array for only specific key.
 	    $appliances_details['category'] = $services_details['appliance_category'] = $appliance_category[$key];
 	    // get appliance_capacity from appliance_capacity array for only specific key.
@@ -250,7 +249,7 @@ class Booking extends CI_Controller {
 		$services_details['partner_paid_basic_charges'] = $partner_net_payable[$brand_id][$services_details['id']][0];
 
 		if ($booking_id == "") {
-			
+
 		    log_message('info', __METHOD__ . " Insert Booking Unit Details: " . print_r($services_details, true));
 		    $result = $this->booking_model->insert_data_in_booking_unit_details($services_details, $booking['state']);
 
@@ -540,7 +539,7 @@ class Booking extends CI_Controller {
 		$service_center_data = $this->service_centers_model->get_prices_filled_by_service_center($price_tag['unit_id'], $booking_id);
 
 		$result = $this->partner_model->getPrices($data['booking_history'][0]['service_id'], $value['category'], $value['capacity'], $partner_id, $price_tag['price_tags']);
-        
+
         $data['booking_unit_details'][$keys]['quantity'][$key]['pod'] = $result[0]['pod'];
 
 
@@ -832,7 +831,7 @@ class Booking extends CI_Controller {
     } else {
     	$brand_id = "";
     }
-    
+
 	if (!empty($result)) {
 
 	    echo "<tr><th>Service Category</th><th>Std. Charges</th><th>Partner Discount</th><th>Final Charges</th><th>247around Discount</th><th>Selected Services</th></tr>";
@@ -1067,7 +1066,7 @@ class Booking extends CI_Controller {
 
 	$booking['category'] = $this->booking_model->getCategoryForService($booking_history[0]['service_id'], $booking_history[0]['state'], $partner_id);
 
-    
+
 	$booking['capacity'] = array();
 	$booking['prices'] = array();
 	$booking['appliance_id'] = $appliance_id;
@@ -1087,7 +1086,7 @@ class Booking extends CI_Controller {
         } else {
     	$booking['unit_details'][$key]['brand_id'] = "";
         }
-       
+
 	    array_push($booking['capacity'], $capacity);
 	    array_push($booking['prices'], $prices);
 	}
@@ -1121,8 +1120,7 @@ class Booking extends CI_Controller {
 	    $send['state'] = "Newbooking";
 	    $this->asynchronous_lib->do_background_process($url, $send);
 
-	    $to = "anuj@247around.com, nits@247around.com";
-	    //$to = "abhaya@247around.com";
+	    $to = "anuj@247around.com";
 	    $from = "booking@247around.com";
 	    $cc = "";
 	    $bcc = "";
