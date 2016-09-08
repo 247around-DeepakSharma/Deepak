@@ -158,6 +158,23 @@
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-fw fa-arrows-v"></i> Engineers <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/vendor/add_engineer" ><i class="fa fa-fw fa-desktop"></i> <strong> Add Engineer</strong></a>
+                        </li>
+                         <li class="divider"></li>
+                         <li>
+                            <a href="<?php echo base_url() ?>employee/vendor/get_engineers" ><i class="fa fa-fw fa-desktop"></i> <strong> View Engineers</strong></a>
+                        </li>
+
+ 
+                    </ul>
+                    <!-- /.dropdown-user -->
+                </li>
                 <!-- /.dropdown -->
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">

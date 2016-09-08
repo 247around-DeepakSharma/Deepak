@@ -927,5 +927,40 @@ class vendor_model extends CI_Model {
         $data = $this->db->query($sql);
         return $data->result_array();
     }
+    
+    /**
+     * @desc: get Active vendor
+     */
+    function getactive_vendor(){
+        $this->db->select('*');
+        $this->db->where('active',1);
+        $query = $this->db->get('service_centres');
+        return $query->result_array();
+    }
+    /**
+     * @desc: Insert Engineer details
+     */
+    function insert_engineer($data){
+        $this->db->insert('engineer_details', $data);
+        return $this->db->insert_id();
+    }
+    /**
+     * @desc: Get engineer  details
+     */
+    function get_engineers($service_center_id){
+        if($service_center_id != ""){
+            $this->db->where('service_center_id', $service_center_id);
+        }
+        $this->db->where('delete', 0);
+        $query = $this->db->get('engineer_details');
+        return $query->result_array();
+    }
+
+    function update_engineer($where, $data){
+        $this->db->where($where);
+        $this->db->update('engineer_details', $data);
+
+    }
+
 
 }

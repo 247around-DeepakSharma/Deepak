@@ -123,12 +123,9 @@
                             <th>Booking Closed Date: </th>
                             <td><?php echo $booking_history[0]['closed_date']; ?></td>
                         </tr>
-                        <tr>
-                            <th>Potential Value: </th>
-                            <td><?php echo $booking_history[0]['potential_value']; ?></td>
-                        </tr>
-                        <!-- <tr><td>Amount Due: </td><td><?php echo $booking_history[0]['amount_due']; ?></td></tr>
-                            <tr><td>Amount Paid: </td><td><?php echo $booking_history[0]['amount_paid']; ?></td></tr>-->
+                       
+                         <tr><th>Amount Due: </th><td><?php echo $booking_history[0]['amount_due']; ?></td></tr>
+                        <tr><th>Amount Paid: </th><td><?php echo $booking_history[0]['amount_paid']; ?></td></tr>
                         <tr>
                             <th>Rating Stars: </th>
                             <td><?php echo $booking_history[0]['rating_stars']; ?></td>

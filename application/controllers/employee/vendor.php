@@ -910,5 +910,155 @@ class vendor extends CI_Controller {
         $this->load->view('employee/header');
         $this->load->view('employee/viewvendor', array('query' => $vendor_info));
     }
+    /**
+     * @desc: This method loads add engineer view. It gets active vendor and appliance to display in a form 
+     * This  function is used by vendor panel and admin panel to load add engineer view
+     */
+    function add_engineer(){
+        $data['service_center'] = $this->vendor_model->getactive_vendor();
+        $data['services'] = $this->booking_model->selectservice();
+        if($this->session->userdata('userType') == 'service_center'){
 
+            $this->load->view('service_centers/header');
+            $this->load->view('service_centers/add_engineer', $data);
+
+        } else {
+            $this->load->view('employee/header');
+            $this->load->view('employee/add_engineer', $data);
+        }
+        
+    }
+    /**
+     * @desc: This method gets all input and insert into table
+     *  This  function is used by vendor panel and admin panel to load add engineer details
+     */
+    function process_add_engineer(){
+        $data['name'] = $this->input->post('name');
+        $data['phone'] = $this->input->post('phone');
+        $data['alternate_phone'] =  $this->input->post('alternate_phone');
+        $data['phone_type'] = $this->input->post('phone_type');
+        $data['address'] = $this->input->post('address');
+        $data['identity_proof'] = $this->input->post('identity_proof');
+        $data['identity_proof_number'] = $this->input->post('identity_id_number');
+        $data['bank_name'] = $this->input->post('bank_name');
+        $data['banck_ac_no'] = $this->input->post('bank_account_no');
+        $data['bank_ifsc_code'] = $this->input->post('bank_ifsc_code');
+        $data['bank_holder_name'] = $this->input->post('bank_holder_name');
+        
+        if($this->session->userdata('userType') == 'service_center'){
+            $data['service_center_id'] = $this->session->userdata('service_center_id');
+        } else {
+            $data['service_center_id'] = $this->input->post('service_center_id');
+        }
+        $service_id = $this->input->post('service_id');
+        $services = array();
+        foreach($service_id as $id){
+           array_push($services,  array('service_id' => $id ));
+        }
+
+        $data['appliance_id'] = json_encode($services);
+        $data['active'] = "1";
+        $data['create_date'] =  date("Y-m-d H:i:s");
+        log_message('info', __FUNCTION__ . " Engineer data  " . print_r($data, true));
+        $engineer_id = $this->vendor_model->insert_engineer($data);
+        if($engineer_id){
+            $output = "Engineer's Details Added.";
+            $userSession = array('success' => $output);
+            
+            
+        } else {
+            $output = "Engineer's Details Not Added.";
+            $userSession = array('error' => $output);
+            $this->session->set_userdata($userSession);
+        }
+
+        $this->session->set_userdata($userSession);
+
+        if($this->session->userdata('userType') == 'service_center'){
+            log_message('info', __FUNCTION__ . " Added By service center  " . print_r($data, true));
+            redirect(base_url()."service_center/add_engineer");
+
+        } else {
+            log_message('info', __FUNCTION__ . " Added By admin panel  " . print_r($data, true));
+            redirect(base_url()."employee/vendor/add_engineer");
+        }
+    }
+    /**
+     * @desc: This is used to view engineers details. This function is used by vendor panel and admin panel,
+     * If it used by vendor panel then it gets only particular vendor engineer's otherwise get all engineer
+     */
+
+    function get_engineers(){
+        $service_center_id = "";
+        if($this->session->userdata('userType') == 'service_center'){
+
+            $service_center_id = $this->session->userdata('service_center_id');
+            log_message('info', __FUNCTION__ . " view service center Engineer View  " . print_r($service_center_id, true));
+        } 
+
+       $data['engineers'] =  $this->vendor_model->get_engineers($service_center_id);
+       foreach ($data['engineers'] as $key => $value) {
+           $service_center = $this->vendor_model->getVendorFromMapping($value['service_center_id']);
+           $data['engineers'][$key]['service_center_name'] = $service_center[0]['name'];
+           $service_id  = json_decode($value['appliance_id'],true);
+           $appliances = array();
+           foreach ($service_id as  $values) {
+                $service_name = $this->booking_model->selectservicebyid($values['service_id']);
+                array_push($appliances, $service_name[0]['services']);
+           }
+           
+           $data['engineers'][$key]['appliance_name'] = implode(",", $appliances);
+       }
+       if($this->session->userdata('userType') == 'service_center'){
+
+            $this->load->view('service_centers/header');
+            $this->load->view('service_centers/view_engineers', $data); 
+
+       } else {
+            $this->load->view('employee/header');
+            $this->load->view('employee/view_engineers', $data); 
+       }
+       
+    }
+
+    /**
+     * @desc: this Method deactivate/ activate engineer
+     */
+     function change_engineer_activation($engineer_id, $active){
+        log_message('info', __FUNCTION__ . " Activate/Deactivate Engineer Id:  " . print_r($engineer_id, true).
+            "status" . print_r($active));
+
+        $where  = array('id' => $engineer_id );
+        $this->vendor_model->update_engineer($where, array('active'=> $active));
+        if($this->session->userdata('userType') == 'service_center'){
+
+           redirect(base_url()."service_center/get_engineers");
+
+       } else {
+
+            redirect(base_url()."service_center/get_engineers");
+       }
+        
+     }
+     /**
+      * @desc: Delete Engineer from database
+      */
+    function delete_engineer($engineer_id){
+
+        log_message('info', __FUNCTION__ . " Delete Engineer Id:  " . print_r($engineer_id, true));
+        $where  = array('id' => $engineer_id );
+        $this->vendor_model->update_engineer($where, array('delete'=> '1'));
+       
+        if($this->session->userdata('userType') == 'service_center'){
+
+           redirect(base_url()."service_center/get_engineers");
+
+       } else {
+
+            redirect(base_url()."service_center/get_engineers");
+       }
+        
+    }
+
+     
 }

@@ -709,3 +709,29 @@ ALTER TABLE  `service_centre_charges` ADD  `pod` VARCHAR( 10 ) NOT NULL AFTER  `
 ALTER TABLE  `service_centre_charges` CHANGE  `pod`  `pod` VARCHAR( 10 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT  '1' COMMENT 'Proof of Delivery. Default 1 i.e. for every service, proof is required like S No of the unit. In some cases, PoD is not required like stand or out-of-warranty repair. So flag would be 0.';
 
 ALTER TABLE  `booking_details` CHANGE  `rating_stars`  `rating_stars` VARCHAR( 5 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
+
+CREATE TABLE IF NOT EXISTS `engineer_details` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(250) NOT NULL,
+  `phone` varchar(20) NOT NULL,
+  `alternate_phone` varchar(20) NOT NULL,
+  `phone_type` varchar(100) NOT NULL,
+  `address` text NOT NULL,
+  `identity_proof` varchar(250) NOT NULL,
+  `identity_proof_number` varchar(250) NOT NULL,
+  `bank_name` varchar(250) NOT NULL,
+  `banck_ac_no` varchar(250) NOT NULL,
+  `bank_ifsc_code` varchar(100) NOT NULL,
+  `bank_holder_name` varchar(250) NOT NULL,
+  `service_center_id` int(10) NOT NULL,
+  `appliance_id` text NOT NULL,
+  `active` int(10) NOT NULL DEFAULT '1',
+  `identity_proof_pic` varchar(250) NOT NULL,
+  `create_date` datetime NOT NULL,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE  `engineer_details` ADD  `delete` INT( 10 ) NOT NULL DEFAULT  '0' AFTER  `active` ;
+
+ALTER TABLE  `engineer_details` CHANGE  `delete`  `delete` INT( 10 ) NOT NULL DEFAULT  '0' COMMENT '0 means engineer not deleted and 1 means engineer deleted';

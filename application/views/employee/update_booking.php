@@ -263,11 +263,12 @@
                                                 <table class="table priceList table-striped table-bordered" name="priceList" id="priceList_1">
                                                     <tr>
                                                         <th>Service Category</th>
-                                                        <th>Charges</th>
-                                                        <th>Partner Offer</th>
-                                                        <th>Discount</th>
-                                                        <th>Total Charges</th>
-
+                                                        <th>Std. Charges</th>
+                                                        <th>Partner Discount</th>
+                                                        <th>Final Charges</th>
+                                                        <th>247around Discount</th>
+                                                        
+                                                        
                                                         <th>Selected Services</th>
                                                     </tr>
                                                     <tbody><?php if(!empty($prices)) { ?>
@@ -277,19 +278,67 @@
                                                             <td><?php echo $price['service_category']; ?></td>
                                                             <td><?php echo $price['customer_total']; ?></td>
                                                             <td>
-                                                            <input type="text" class="form-control " name="<?php echo "partner_paid_basic_charges[".$unit_details[0]['brand_id']."][". $price['id']."][]"; ?>" id="<?php echo "partner_paid_basic_charges". $i . "_1"; ?>" value = "<?php if(isset($unit_details[0]['quantity'][$k]['partner_net_payable'])){ echo $unit_details[0]['quantity'][$k]['partner_net_payable']; } else { echo $price['partner_net_payable']; }  ?>"  />
+
+                                                            <input type="text" class="form-control " name="<?php echo "partner_paid_basic_charges[".$unit_details[0]['brand_id']."][". $price['id']."][]"; ?>" id="<?php echo "partner_paid_basic_charges". $i . "_1"; ?>" value = "<?php  if(isset($unit_details[0]['quantity'])){
+                                                                $partner_net_payable = NUll;
+                                                                   foreach ($unit_details[0]['quantity'] as  $tags) {
+                                                                       if($tags['price_tags'] == $price['service_category'] ){
+                                                                          $partner_net_payable = $tags['partner_net_payable'];
+                                                                       } 
+                                                                    }
+                                                                } 
+
+                                                                if(is_null($partner_net_payable)){
+                                                                    echo $price['partner_net_payable'];
+                                                                } else {
+                                                                    echo $partner_net_payable;
+                                                                }?>"  />
 
                                                             </td>
+                                                             <td>
+                                                            <?php  if(isset($unit_details[0]['quantity'])){
+                                                                $customer_net_payable = NUll;
+                                                                   foreach ($unit_details[0]['quantity'] as  $tags) {
+                                                                       if($tags['price_tags'] == $price['service_category'] ){
+                                                                          $customer_net_payable = $tags['customer_net_payable'];
+                                                                       } 
+                                                                    }
+                                                                } 
+
+                                                                if(is_null($customer_net_payable)){
+                                                                    echo intval($price['customer_net_payable']);
+                                                                } else {
+                                                                    echo $customer_net_payable;
+                                                                }?>
+
+                                                            
+
+
+                                                           </td>
                                                               <td><input type="text" class="form-control discount" name="<?php echo "discount[".$unit_details[0]['brand_id']."][". $price['id']."][]"; ?>" id="<?php echo "discount_". $i . "_1"; ?>"
 
+                                                              value = "<?php  if(isset($unit_details[0]['quantity'])){
+                                                                $around_net_payable = NUll;
+                                                                   foreach ($unit_details[0]['quantity'] as  $tags) {
+                                                                       if($tags['price_tags'] == $price['service_category'] ){
+                                                                          $around_net_payable = $tags['around_net_payable'];
+                                                                       } 
+                                                                    }
+                                                                } 
 
-                                                            value="<?php if(isset($unit_details[0]['quantity'][$k]['around_net_payable'])){ if($unit_details[0]['quantity'][$k]['price_tags'] == $price['service_category'] ){ echo $unit_details[0]['quantity'][$k]['around_net_payable']; } else { echo "0"; } } else { echo "0"; }?>"
+                                                                if(is_null($around_net_payable)){
+                                                                    echo "0.00";
+                                                                } else {
+                                                                    echo $around_net_payable;
+                                                                }?>"
+
+                                                            
 
 
                                                             placeholder='Enter discount' readonly />
                                                             </td>
 
-                                                            <td><?php echo intval($price['customer_net_payable']) ;?></td>
+                                                           
 
                                                             <td>
                                                                <input class='price_checkbox' <?php if(isset($unit_details[0]['quantity'])){
@@ -439,10 +488,11 @@
                                                 <table class="table priceList table-striped table-bordered" name="priceList" id="<?php echo "priceList_".$number;?>">
                                                     <tr>
                                                         <th>Service Category</th>
-                                                        <th>Charges</th>
-                                                        <th>Partner Offer</th>
-                                                        <th>Total Charges</th>
-                                                        <th>Discount</th>
+                                                        <th>Std. Charges</th>
+                                                        <th>Partner Discount</th>
+                                                        <th>247around Discount</th>
+                                                        <th>Final Charges</th>
+                                                        
                                                         <th>Selected Services</th>
                                                     </tr>
                                                       <tbody>
@@ -452,7 +502,7 @@
                                                             <td><?php echo $price['service_category']; ?></td>
                                                             <td><?php echo intval($price['customer_total']); ?></td>
                                                             <td><?php echo intval($price['partner_net_payable']); ?></td>
-                                                            <td><?php echo intval($price['customer_net_payable']) ;?></td>
+                                                            <td><?php  echo intval($price['customer_net_payable']) ;?></td>
                                                             <?php foreach($booking_unit_details['quantity'] as $key => $quantity ){
                                                                     if($quantity['price_tags'] == $price['service_category'] ){?>
 

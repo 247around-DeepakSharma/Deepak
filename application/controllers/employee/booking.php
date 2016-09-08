@@ -40,6 +40,7 @@ class Booking extends CI_Controller {
 	$this->load->library('booking_utilities');
 	$this->load->library('partner_sd_cb');
 	$this->load->library('asynchronous_lib');
+	
 
 	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
 	    return TRUE;
@@ -104,6 +105,7 @@ class Booking extends CI_Controller {
 	$booking = $this->get_booking_input();
 	$user['user_id'] = $booking['user_id'] = $user_id;
 	$user_name = $this->input->post('user_name');
+
 	if ($booking_id == "") {
 
 	    $booking['booking_id'] = $this->create_booking_id($user_id, $booking['source'], $booking['type'], $booking['booking_date']);
@@ -124,8 +126,9 @@ class Booking extends CI_Controller {
 
 	    log_message('info', __FUNCTION__ . $state_not_found_message);
 	}
-
-	$service = $booking['services'];
+    $service_name  = $this->booking_model->selectservicebyid($booking['service_id']);
+	$service  = $service_name[0]['services'];
+	$booking['services'] = $service;
 	$booking_remarks = $this->input->post('query_remarks');
 	// All brand comming in array eg-- array([0]=> LG, [1]=> BPL)
 	$appliance_brand = $this->input->post('appliance_brand');
@@ -247,6 +250,8 @@ class Booking extends CI_Controller {
 		// discount for appliances. Array ( [BPL] => Array ( [100] => Array ( [0] => 200 ) [102] => Array ( [0] => 100 ) [103] => Array ( [0] => 0 ) )
 		$services_details['around_paid_basic_charges'] = $discount[$brand_id][$services_details['id']][0];
 		$services_details['partner_paid_basic_charges'] = $partner_net_payable[$brand_id][$services_details['id']][0];
+		$services_details['partner_net_payable'] = $services_details['partner_paid_basic_charges'];
+		$services_details['around_net_payable'] = $services_details['around_paid_basic_charges'];
 
 		if ($booking_id == "") {
 
@@ -322,7 +327,6 @@ class Booking extends CI_Controller {
 	// select state by pincode
 	$state = $this->vendor_model->get_state_from_pincode($booking['booking_pincode']);
 	$booking['state'] = $state['state'];
-	$booking['services'] = $this->input->post('service');
 	$booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
 	$booking['order_id'] = $this->input->post('order_id');
 	$booking['potential_value'] = $this->input->post('potential_value');
@@ -834,7 +838,7 @@ class Booking extends CI_Controller {
 
 	if (!empty($result)) {
 
-	    echo "<tr><th>Service Category</th><th>Std. Charges</th><th>Partner Discount</th><th>Final Charges</th><th>247around Discount</th><th>Selected Services</th></tr>";
+	    echo "<thead><tr><th>Service Category</th><th>Std. Charges</th><th>Partner Discount</th><th>Final Charges</th><th>247around Discount</th><th>Selected Services</th></tr></thead>";
 	    $html = "";
 
 	    $i = 0;
@@ -913,20 +917,9 @@ class Booking extends CI_Controller {
 	if ($this->input->post('rating_star') != "Select") {
 	    $data['rating_stars'] = $this->input->post('rating_star');
 	    $data['rating_comments'] = $this->input->post('rating_comments');
-	} else {
-	    $data['rating_stars'] = '';
-	    $data['rating_comments'] = '';
-	}
 
-	if ($this->input->post('vendor_rating_star') != "Select") {
-	    $data['vendor_rating_stars'] = $this->input->post('vendor_rating_star');
-	    $data['vendor_rating_comments'] = $this->input->post('vendor_rating_comments');
-	} else {
-	    $data['vendor_rating_stars'] = '';
-	    $data['vendor_rating_comments'] = '';
-	}
-
-	$this->booking_model->update_booking($booking_id, $data);
+	    $this->booking_model->update_booking($booking_id, $data);
+	} 
 
 	redirect(base_url() . 'employee/booking/viewclosedbooking/' . $status);
     }
