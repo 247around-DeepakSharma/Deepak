@@ -229,11 +229,14 @@ class Notify {
 
 	$query1 = $this->My_CI->booking_model->getbooking_filter_service_center($booking_id);
 
+	//SMS and Emails are sent using Templates which are defined in sms_template and
+	//email_template tables. These templates are given arguments like service name, customer
+	//name etc and then the email and sms is created and sent.
+	//Do not change the arguments order for email and sms unless you have already
+	//changed the template.
 
-	$sms['smsData']['service'] = $query1[0]['services'];
 	$sms['phone_no'] = $query1[0]['booking_primary_contact_no'];
 	$sms['booking_id'] = $query1[0]['booking_id'];
-
 
 	switch ($current_status) {
 	    case 'Completed':
@@ -247,10 +250,12 @@ class Notify {
 		$email['closed_date'] = $query1[0]['closed_date'];
 		$email['amount_paid'] = $query1[0]['amount_paid'];
 		$email['closing_remarks'] = $query1[0]['closing_remarks'];
+
 		if (isset($query1[0]['vendor_name'])) {
 		    $email['vendor_name'] = $query1[0]['vendor_name'];
 		    $email['city'] = $query1[0]['district'];
 		}
+
 		$email['tag'] = "complete_booking";
 		$email['subject'] = "Booking Completion-247AROUND";
 
@@ -265,6 +270,7 @@ class Notify {
 		    $sms['tag'] = "complete_booking_snapdeal";
 		}
 
+		$sms['smsData']['service'] = $query1[0]['services'];
 		$this->send_sms($sms);
 
 		break;
@@ -281,6 +287,7 @@ class Notify {
 		    $email_data['service'] = $query1[0]['services'];
 		    $email_data['booking_date'] = $query1[0]['booking_date'];
 		    $email_data['subject'] = "Pending Query Cancellation - 247AROUND";
+
 		    //Send internal mails now
 		    $this->send_email($email_data);
 		} else {
@@ -305,6 +312,8 @@ class Notify {
 
 		    if ($is_sd == FALSE) {
 			$sms['tag'] = "cancel_booking";
+
+			$sms['smsData']['service'] = $query1[0]['services'];
 			$this->send_sms($sms);
 		    }
 		}
@@ -332,6 +341,8 @@ class Notify {
 
 		if ($is_sd == FALSE) {
 		    $sms['tag'] = "reschedule_booking";
+
+		    $sms['smsData']['service'] = $query1[0]['services'];
 		    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
 		    $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
 		    $this->send_sms($sms);
@@ -347,11 +358,13 @@ class Notify {
 		$email['service'] = $query1[0]['services'];
 		$email['booking_date'] = $query1[0]['booking_date'];
 		$email['booking_timeslot'] = $query1[0]['booking_timeslot'];
+
 		if (isset($query1[0]['vendor_name'])) {
 		    $email['vendor_name'] = $query1[0]['vendor_name'];
 		    $email['city'] = $query1[0]['district'];
 		}
 		$email['agent'] = "";
+
 		if ($query1[0]['current_status'] == "Completed") {
 		    $email['tag'] = "open_completed_booking";
 		} else {
@@ -359,6 +372,7 @@ class Notify {
 		}
 
 		$email['subject'] = "Closed Booking Reopened - 247AROUND";
+
 		//Send internal mails now
 		$this->send_email($email);
 
@@ -370,7 +384,9 @@ class Notify {
 		} else {
 		    $sms['tag'] = "call_not_picked_other";
 		}
+
 		$sms['smsData']['name'] = $query1[0]['name'];
+		$sms['smsData']['service'] = $query1[0]['services'];
 
 		$this->send_sms($sms);
 		break;
@@ -378,12 +394,14 @@ class Notify {
 	    case 'Newbooking':
 		if ($is_sd == FALSE) {
 		    $sms['tag'] = "add_new_booking";
+		    $sms['smsData']['service'] = $query1[0]['services'];
 		    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
 		    $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
 
 		    $this->notify->send_sms($sms);
 		} else {
 		    $sms['tag'] = "new_snapdeal_booking";
+		    $sms['smsData']['service'] = $query1[0]['services'];
 		    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
 		    $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
 

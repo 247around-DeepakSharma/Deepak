@@ -175,19 +175,21 @@ class Partner extends CI_Controller {
                             $user_id = $output[0]['user_id'];
                         }
 
+                        //Add partner code from sources table
+			//All partners should have a valid partner code in the bookings_sources table
 			//Wybor brand should be tagged to Partner Wybor only if the
 			//state is Tamilnadu (pincode starts from 6). Else it would be
 			//tagged to Snapdeal.
 			//Ray brand should be tagged to Ray.
-			//All other brands would go to Snapdeal.
+			//All other brands would go to the original partner.
 			switch ($requestData['brand']) {
 			    case 'Wybor':
 				if (substr($requestData['pincode'], 0, 1) == "6") {
 				    $booking['partner_id'] = '247010';
 				    $booking['source'] = "SY";
 				} else {
-				    $booking['partner_id'] = '1';
-				    $booking['source'] = "SS";
+				    $booking['partner_id'] = $this->partner['id'];
+				    $booking['source'] = $this->partner_model->get_source_code_for_partner($this->partner['id']);
 				}
 
 				break;
@@ -198,8 +200,8 @@ class Partner extends CI_Controller {
 				break;
 
 			    default:
-				$booking['partner_id'] = '1';
-				$booking['source'] = "SS";
+				$booking['partner_id'] = $this->partner['id'];
+				$booking['source'] = $this->partner_model->get_source_code_for_partner($this->partner['id']);
 				break;
 			}
 
@@ -277,10 +279,6 @@ class Partner extends CI_Controller {
                         $dd = date("d");
                         $booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
                         $booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
-
-                        //Add partner code from sources table
-                        //All partners should have a valid partner code in the bookings_sources table
-                        $booking['source'] = $this->partner_model->get_source_code_for_partner($this->partner['id']);
 
                         $unit_details['booking_id'] = $booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
 
@@ -1453,11 +1451,11 @@ class Partner extends CI_Controller {
             $booking['state'] = $state['state'];
             //echo print_r($appliance_id, true) . "<br><br>";
             //$return_unit_id = $this->booking_model->addunitdetails($unit_details);
-            
+
             $partner_id = $this->booking_model->get_price_mapping_partner_code("", $booking['partner_id']);
-            
+
             $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_id, $unit_details['price_tags']);
-            
+
             $unit_details['id'] =  $prices[0]['id'];
             $unit_details['around_paid_basic_charges'] = "0.00";
             $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
@@ -1479,7 +1477,7 @@ class Partner extends CI_Controller {
             $booking['partner_source'] = (isset($requestData['partner_source']) ? $requestData['partner_source'] : "");
             $booking['booking_timeslot'] = "4PM-7PM";
 
-           
+
 	    if (empty($booking['state'])) {
 			    $to = "anuj@247around.com, nits@247around.com";
 			    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
