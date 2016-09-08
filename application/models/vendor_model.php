@@ -934,6 +934,7 @@ class vendor_model extends CI_Model {
     function getactive_vendor(){
         $this->db->select('*');
         $this->db->where('active',1);
+        $this->db->order_by("name");
         $query = $this->db->get('service_centres');
         return $query->result_array();
     }
@@ -961,6 +962,15 @@ class vendor_model extends CI_Model {
         $this->db->update('engineer_details', $data);
 
     }
+
+    // function test_upload($filename){
+    //      $sql = "LOAD DATA INFILE '".$filename."' INTO TABLE vendor_pincode_mapping_temp FIELDS TERMINATED BY ',' ENCLOSED BY '' LINES TERMINATED BY '\r\n' (Vendor_Name,Vendor_ID,Appliance,Appliance_ID,Brand,Area,Pincode,Region,City,State)";
+
+      
+    //     $query = $this->db->query($sql);
+    //     print_r($query).PHP_EOL;
+    //     echo $this->db->last_query();
+    // }
 
 
 }

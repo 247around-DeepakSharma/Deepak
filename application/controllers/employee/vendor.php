@@ -998,7 +998,7 @@ class vendor extends CI_Controller {
 
        $data['engineers'] =  $this->vendor_model->get_engineers($service_center_id);
        foreach ($data['engineers'] as $key => $value) {
-           $service_center = $this->vendor_model->getVendorFromMapping($value['service_center_id']);
+           $service_center = $this->vendor_model->getActiveVendor($value['service_center_id']);
            $data['engineers'][$key]['service_center_name'] = $service_center[0]['name'];
            $service_id  = json_decode($value['appliance_id'],true);
            $appliances = array();
@@ -1059,6 +1059,90 @@ class vendor extends CI_Controller {
        }
         
     }
+
+//     function process_upload_pincode_file(){
+//         if (!empty($_FILES['file']['name'])) {
+//         $pathinfo = pathinfo($_FILES["file"]["name"]);
+        
+
+//         if ($pathinfo['extension'] == 'xlsx') {
+//         if ($_FILES['file']['size'] > 0) {
+//             $inputFileName = $_FILES['file']['tmp_name'];
+//             $file_name =  $_FILES['file']['name'];
+//             $inputFileExtn = 'Excel2007';
+//         }
+//         } else {
+//         if ($pathinfo['extension'] == 'xls') {
+//             if ($_FILES['file']['size'] > 0) {
+//             $inputFileName = $_FILES['file']['tmp_name'];
+//             $file_name =  $_FILES['file']['name'];
+//             $inputFileExtn = 'Excel5';
+//             }
+//         }
+//         }
+//     }
+
+
+//     try {
+//         //$inputFileType = PHPExcel_IOFactory::identify($inputFileName);
+//         $objReader = PHPExcel_IOFactory::createReader($inputFileExtn);
+        
+//         $objPHPExcel = $objReader->load($inputFileName);
+
+//         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'CSV');
+//        // 
+//         $result = $objWriter->save('/mysql_tmp/'.$pathinfo['filename'].'.csv');
+        
+       
+//     } catch (Exception $e) {
+//         die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
+//     }
+//     $output = "";
+    
+//     $output1 = exec('chmod 777 /mysql_tmp/'.$pathinfo['filename'].'.csv', $output);
+//     // shell_exec(' chown  mysql:mysql /tmp/pincode_file.csv');
+//     // print_r($output1);
+    
+
+
+//     $row = 1;
+// if (($handle = fopen("/mysql_tmp/".$pathinfo['filename'].".csv", "r")) !== FALSE) {
+//     $dfp = fopen('/mysql_tmp/'.$pathinfo['filename'].'_tmp.csv','w'); 
+//     while (($data = fgetcsv($handle, 10000000, ",")) !== FALSE) {
+//         $num = count($data);
+       
+//         $row++;
+//         for ($c=0; $c < $num; $c++) {
+//             $col = trim(str_replace(','," ",$data[$c])); 
+//             if($c == $num-1){
+//                 $goodstuff = $col."\r\n";
+//             } else {
+//                 $goodstuff = $col . ",";
+                
+//             }
+            
+//              fwrite($dfp,$goodstuff); 
+//         }
+        
+//     }
+//     fclose($handle);
+//      fclose($dfp);
+
+// }
+// $output = "";
+// echo exec(' chmod 777 /mysql_tmp/'.$pathinfo['filename'].'_tmp.csv');
+
+// shell_exec(' chown -R  mysql:mysql /mysql_tmp/'.$pathinfo['filename'].'_tmp.csv');
+
+// // $this->vendor_model->test_upload('/tmp/pincode_file_tmp.csv');
+
+//     }
+
+//     function test_upload1(){
+//          $this->vendor_model->test_upload('/mysql_tmp/pincode_file_tmp.csv');
+//     }
+    
+    
 
      
 }
