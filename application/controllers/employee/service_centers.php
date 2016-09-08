@@ -358,7 +358,10 @@ class Service_centers extends CI_Controller {
         $this->vendor_model->update_service_center_action($data);
         print_r("success");
     }
-
+    /**
+     * @desc: get invoice details and bank transacton details to display in view
+     * Get Service center Id from session.
+     */
     function invoices_details() {
         $this->checkUserSession();
         $data['vendor_partner'] = "vendor";

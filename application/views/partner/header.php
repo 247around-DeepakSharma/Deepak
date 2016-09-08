@@ -57,6 +57,9 @@
                   <li>
                      <a data-toggle="modal" data-target="#myModal" style="cursor: pointer;">Add Booking</a>
                   </li>
+                   <li>
+                     <a href="<?php echo base_url();?>partner/invoices_details">Invoice</a>
+                  </li>
                </ul>
                <ul class="nav navbar-nav navbar-right">
                  

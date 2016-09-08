@@ -71,6 +71,7 @@ $route['partner/booking_details/(:any)'] = 'employee/partner/booking_details/$1'
 $route['partner/pending_queries'] = 'employee/partner/pending_queries';
 $route['partner/pending_queries/(:any)'] = 'employee/partner/pending_queries/$1';
 $route['partner/booking_form/(:any)'] = 'employee/partner/get_addbooking_form/$1';
+$route['partner/invoices_details'] = 'employee/partner/invoices_details';
 
 
 //$route['api/(:any)'] = 'partner/$2';

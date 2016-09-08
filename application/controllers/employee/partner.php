@@ -15,6 +15,7 @@ class Partner extends CI_Controller {
         $this->load->model('partner_model');
         $this->load->model('vendor_model');
         $this->load->model('user_model');
+        $this->load->model('invoices_model');
         $this->load->library("pagination");
         $this->load->library("session");
         $this->load->helper(array('form', 'url'));
@@ -372,6 +373,24 @@ class Partner extends CI_Controller {
         else {
             return true;
         }
+    }
+
+    /**
+     * @desc: get invoice details and bank transacton details to display in partner invoice view
+     * Get partner Id from session.
+     */
+    function invoices_details() {
+        $this->checkUserSession();
+        $partner_id =  $this->session->userdata('partner_id');
+        $data['vendor_partner'] = "partner";
+        $data['vendor_partner_id'] = $partner_id;
+        $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
+
+        $data2['partner_vendor'] = "partner";
+        $data2['partner_vendor_id'] = $partner_id;
+        $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details($data2);
+        $this->load->view('partner/header');
+        $this->load->view('partner/invoice_summary', $invoice);
     }
 
 
