@@ -67,6 +67,20 @@
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>
+
+                 <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i ></i> Invoice <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="<?php echo base_url() ?>service_center/invoices_details" ><i class="fa fa-fw fa-desktop"></i> <strong> Invoice Summary</strong></a>
+                        </li>
+                         
+ 
+                    </ul>
+                    <!-- /.dropdown-user -->
+                </li>
                </ul>
                <ul class="nav navbar-nav navbar-right">
                   <li style="margin-top: 11px;">
