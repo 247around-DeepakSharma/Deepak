@@ -76,8 +76,8 @@ class Do_background_process extends CI_Controller {
 
 	//COMMENTING TEMPORARILY AS IT IS NOT WORKING...
 //        //Send mail to vendor, no Note to vendor as of now
-       $message = "";
-       $this->booking_utilities->lib_send_mail_to_vendor($booking_id, $message);
+      // $message = "";
+      // $this->booking_utilities->lib_send_mail_to_vendor($booking_id, $message);
     }
 
     /**
