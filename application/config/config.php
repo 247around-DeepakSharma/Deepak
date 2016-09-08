@@ -16,7 +16,7 @@
 | path to your installation.
 |
 */
-$config['base_url']   = 'https://aroundhomzapp.com/';
+$config['base_url']   = 'http://247around';
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +30,8 @@ $config['base_url']   = 'https://aroundhomzapp.com/';
 */
 //$config['index_page'] = 'index.php';
 $config['index_page'] = '';
+
+
 
 /*
 |--------------------------------------------------------------------------

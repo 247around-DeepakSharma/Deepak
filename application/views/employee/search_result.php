@@ -133,12 +133,13 @@
     <div class="">
         <div class="row">
             <?php 
+
                 function search_for_key($array) {
                     $data  = array();
                     foreach ($array as $key => $val) {
                         if ($val->current_status === "Pending" || $val->current_status ==="Rescheduled") {
                             $data['Pending'] = 1;
-                        } else if($val->current_status === "Complete"){
+                        } else if($val->current_status === "Completed"){
                             $data['Completed'] = 1;
                         } else if($val->current_status === "Cancelled"){
                             $data['Cancelled'] = 1;
@@ -152,6 +153,7 @@
                 }
                 
                 $data = search_for_key($Bookings);
+                $count = 1;
                 
                 
                  ?>
@@ -179,7 +181,7 @@
                         <th width="60px;">Cancel</th>
                     </tr>
                 </thead>
-                <?php $count = 1; if($offset ==0){ $offset = 1;} else { $offset = $offset+1; } ?>
+                <?php  if($offset ==0){ $offset = 1;} else { $offset = $offset+1; } ?>
                 <?php foreach($Bookings as $key =>$row){?>
                 <tr <?php if (isset($row->OrderID)) { if($row->OrderID !=null) { ?>
                     style="background-color:#EC8484"
@@ -253,7 +255,7 @@
                     <thead>
                         <tr>
                             <th></th>
-                            <th>S No.</th>
+                            
                             <th>Booking Id</th>
                             <th>User Name</th>
                             <th>Phone No.</th>
@@ -278,7 +280,7 @@
                     <?php foreach($Bookings as $key =>$row){ if($row->current_status == "Pending" || $row->current_status == "Rescheduled"){ ?>
                     <tr id="row_color<?php echo $count;?>">
                         <td><input type="hidden" class="mail_to_vendor<?php echo $count;?>" id="mail_to_vendor<?php echo $count;?>" value="<?php echo $row->mail_to_vendor;?>"></td>
-                        <td><?php echo $count;?>.</td>
+                        
                         <td>
                             <?php
                                 if (is_null($row->booking_jobcard_filename)) {
@@ -426,7 +428,7 @@
                 <table >
                     <thead>
                         <tr>
-                            <th >S No.</th>
+                            
                             <th width="150px;">
                                 <a href="<?php echo base_url();?>employee/booking/view">Booking Id</a>
                             </th>
@@ -447,7 +449,7 @@
                     <?php foreach($Bookings as $key =>$row){
                         if($row->current_status == "Completed"){ ?>
                     <tr>
-                        <td><?php echo $count;?>.</td>
+                        
                         <td><?php
                             echo '<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';?>
                         </td>
@@ -505,7 +507,7 @@
                 <table style="margin-bottom:50px;">
                     <thead>
                         <tr>
-                            <th >S No.</th>
+                            
                             <th width="150px;">
                                 <a href="<?php echo base_url();?>employee/booking/view">Booking Id</a>
                             </th>
@@ -524,7 +526,7 @@
                     <?php foreach($Bookings as $key =>$row){
                         if($row->current_status == "Cancelled"){ ?>
                     <tr>
-                        <td><?php echo $count;?>.</td>
+                       
                         <td><?php
                             echo '<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';?>
                         </td>
@@ -562,6 +564,7 @@
                         } } ?>
                 </table>
                 <?php } ?>
+                <?php if(isset($data['Pending']) || isset($data['Cancelled']) || isset($data['FollowUp']) || isset($data['Completed'])){} else { ?><h1><b>Booking Not Found</b></h1><?php }?>
             </div>
         </div>
     </div>
