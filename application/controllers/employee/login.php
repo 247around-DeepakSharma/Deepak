@@ -67,11 +67,11 @@ class Login extends CI_Controller {
      */
     function dashboard() {
         $this->checkUserSession();
-        
+
 
         //$this->load->view('employee/header',$result);
         //$this->load->view('employee/finduser',$result);
-        redirect(base_url().search_page);
+        redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
     /**
@@ -105,7 +105,7 @@ class Login extends CI_Controller {
     }
 
     /**
-     *  @desc :This funtion will check Session of an employee before taking any 
+     *  @desc :This funtion will check Session of an employee before taking any
      *         action that he is logged in or not and is his session active or expired.
      *  param : void
      *  @return : void
@@ -121,9 +121,9 @@ class Login extends CI_Controller {
 
     /**
      *  @desc : This funtion is for logout of an employee
-     * 
+     *
      *  This function distroys the login session of an employee.
-     * 
+     *
      *  param : void
      *  @return : void
      */

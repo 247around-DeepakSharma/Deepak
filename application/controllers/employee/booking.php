@@ -40,7 +40,6 @@ class Booking extends CI_Controller {
 	$this->load->library('booking_utilities');
 	$this->load->library('partner_sd_cb');
 	$this->load->library('asynchronous_lib');
-	
 
 	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
 	    return TRUE;
@@ -91,7 +90,7 @@ class Booking extends CI_Controller {
 	    $this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
 	}
 
-	redirect(base_url() . search_page);
+	redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
     /**
@@ -150,7 +149,7 @@ class Booking extends CI_Controller {
 	if(isset($appliance_id_array)){
       $appliance_id = array_unique($appliance_id_array);
 	}
-	
+
 	$serial_number = $this->input->post('serial_number');
 	$partner_id = $this->partner_model->get_all_partner_source("", $booking['source']);
 	$partner_net_payable = $this->input->post('partner_paid_basic_charges');
@@ -234,13 +233,13 @@ class Booking extends CI_Controller {
 	    log_message('info', __METHOD__ . "Appliance ID" . print_r($appliance_id, true));
 	    /* if appliance id exist the initialize appliance id in array and update appliance details other wise it insert appliance details and return appliance id
 	     * */
-	    
+
 	    if (isset($appliance_id[$key])) {
-        
+
 		$services_details['appliance_id'] = $appliance_id[$key];
 		$this->booking_model->update_appliances($services_details['appliance_id'], $appliances_details);
 	    } else {
-        
+
 		$services_details['appliance_id'] = $this->booking_model->addappliance($appliances_details);
 		log_message('info', __METHOD__ . " New Appliance ID created: " . print_r($services_details['appliance_id'], true));
 	    }
@@ -659,7 +658,7 @@ class Booking extends CI_Controller {
 	// call partner callback
 	$this->partner_cb->partner_callback($booking_id);
 
-	redirect(base_url() . search_page);
+	redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
     function update_price_while_cancel_booking($booking_id) {
@@ -750,7 +749,7 @@ class Booking extends CI_Controller {
 
 	    log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $this->session->userdata('employee_id') . " data " . print_r($data, true));
 
-	    redirect(base_url() . search_page);
+	    redirect(base_url() . DEFAULT_SEARCH_PAGE);
 	}
     }
 
@@ -925,7 +924,7 @@ class Booking extends CI_Controller {
 	    $data['rating_comments'] = $this->input->post('rating_comments');
 
 	    $this->booking_model->update_booking($booking_id, $data);
-	} 
+	}
 
 	redirect(base_url() . 'employee/booking/viewclosedbooking/' . $status);
     }
@@ -1129,7 +1128,7 @@ class Booking extends CI_Controller {
 	log_message('info', __FUNCTION__ . " Partner callback  " . print_r($booking_id, true));
 	$this->partner_cb->partner_callback($booking_id);
 
-	redirect(base_url() . search_page);
+	redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
     /**
@@ -1483,7 +1482,8 @@ class Booking extends CI_Controller {
      *  @return : Converts the booking to Pending stage and load view
      */
     function process_convert_booking_to_pending_form($booking_id, $status) {
-	log_message('info', __FUNCTION__ . " Booking id: " . print_r($booking_id, true) . " status: " . print_r($status));
+	log_message('info', __FUNCTION__ . " Booking id: " . $booking_id . " Status: " . $status);
+
 	$data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
 	$data['booking_timeslot'] = $this->input->post('booking_timeslot');
 	$data['current_status'] = 'Pending';
@@ -1541,7 +1541,7 @@ class Booking extends CI_Controller {
 
 	    log_message('info', $status . ' Booking Opened - Booking id: ' . $booking_id . " Opened By: " . $this->session->userdata('employee_id') . " => " . print_r($data, true));
 
-	    redirect(base_url() . search_page);
+	    redirect(base_url() . DEFAULT_SEARCH_PAGE);
 	}
     }
 

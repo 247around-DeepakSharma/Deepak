@@ -309,7 +309,7 @@ class bookings_excel extends CI_Controller {
 	    }
 	}
 
-	redirect(base_url() . search_page);
+	redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
     /*
@@ -627,7 +627,7 @@ class bookings_excel extends CI_Controller {
 	    }
 	}
 
-	redirect(base_url() . search_page);
+	redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
     /*
@@ -664,14 +664,14 @@ class bookings_excel extends CI_Controller {
 			$inputFileExtn = 'Excel5';
 		    }
 		} else {
-	    	
+
 	    	$output = "File format is not correct. Only XLS or XLSX files are allowed.";
             $userSession = array('error' =>$output);
             $this->session->set_userdata($userSession);
 	    	redirect(base_url()."employee/bookings_excel/upload_delivered_products_for_paytm_excel");
-	    
+
 		}
-	    
+
 	}
 
 	try {
@@ -883,7 +883,7 @@ class bookings_excel extends CI_Controller {
 	    }
 	}
 
-	redirect(base_url() . search_page);
+	redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
 }
