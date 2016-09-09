@@ -308,14 +308,10 @@ class bookingjobcard extends CI_Controller {
                 $bookingdate = $dd . " " . $mm;
             }
 
-            // $smsBody = "Congrats! You Have New Booking For " . $bookingdate . " On Email From 247Around. Pls Assign Engineer. Dont Forget To Smile When You Meet Customer. 247Around - 8130572244";
-
             $smsBody = "Booking - " . $getbooking[0]['name'] . ", " . $getbooking[0]['booking_primary_contact_no'] . ", " . $getbooking[0]['services'] . ", " . $bookingdate ."/" . $getbooking[0]['booking_timeslot'] .  ", " . $getbooking[0]['booking_address'] . ", ". $getbooking[0]['booking_pincode'] . ". 247around";
-
-            //Send SMS to vendor
-//            $this->sendTransactionalSms($servicecentredetails[0]['primary_contact_phone_1'], $smsBody);
             $this->notify->sendTransactionalSms($getbooking[0]['primary_contact_phone_1'], $smsBody);
-            //Save email in database
+
+	    //Save email in database
             $details = array("booking_id" => $booking_id, "subject" => $subject,
                 "body" => $message, "type" => "Booking",
                 "attachment" => $getbooking[0]['booking_jobcard_filename']);
@@ -333,7 +329,7 @@ class bookingjobcard extends CI_Controller {
                 $this->session->set_flashdata('result', 'Mail could not be sent, please try again');
             }
 
-           // redirect(base_url() . 'employee/booking/view');
+            redirect(base_url() . 'employee/booking/view');
         } else {
             echo "Booking does not exist.";
         }
