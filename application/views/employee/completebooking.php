@@ -216,7 +216,7 @@
                         <label for="rating_star" class="col-md-2">Star Rating</label>
                         <div class="col-md-4">
                            <Select type="text" class="form-control"  name="rating_stars" value="">
-                              <option>Select</option>
+                              <option value="">Select</option>
                               <option <?php if($booking_history[0]['rating_stars'] =='1'){ echo "selected"; } ?>>1</option>
                               <option <?php if($booking_history[0]['rating_stars'] =='2'){ echo "selected"; } ?>>2</option>
                               <option <?php if($booking_history[0]['rating_stars'] =='3'){ echo "selected"; } ?>>3</option>

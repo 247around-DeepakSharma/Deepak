@@ -865,7 +865,7 @@ class Booking extends CI_Controller {
 		$html .=" type='checkbox' id='checkbox_" . $i . "_" . $clone_number . "'";
 		$html .= "name='prices[$brand_id][]'";
 		$html .= "  onclick='final_price(), enable_discount(this.id)'" .
-		    "value=" . $prices['id'] . "_" . intval($prices['customer_net_payable']) . " ></td><tr>";
+		    "value=" . $prices['id'] . "_" . intval($prices['customer_total'])."_".$i ."_".$clone_number. " ></td><tr>";
 
 		$i++;
 	    }
@@ -1424,7 +1424,7 @@ class Booking extends CI_Controller {
 	$booking['internal_status'] = $internal_status;
 	$booking['booking_id'] = $booking_id;
 
-	if ($this->input->post('rating_stars') !== 'Selec') {
+	if ($this->input->post('rating_stars') !== "") {
 	    $booking['rating_stars'] = $this->input->post('rating_stars');
 	    $booking['rating_comments'] = $this->input->post('rating_comments');
 	}

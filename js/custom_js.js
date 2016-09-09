@@ -106,84 +106,40 @@
   }
 
   function final_price(){
-
-    var discount = 0;
-    var price = 0;
-    var partner_discount = 0;
-    
-    $("input.discount").each(function(){
-          discount += Number($(this).val());        
-    });
-
-    $("input.partner_discount").each(function(){
-          partner_discount += Number($(this).val());
-        
-    });
-  
-   price = get_selected_price();
-    console.log(partner_discount);
-    var final_price = Number(price) - Number(discount) - Number(partner_discount);
-    $("#grand_total_price").val(final_price);
-
-  }
-
-  $(document).on('keyup', '.discount', function(e) {
-
-    var discount = 0;
-    var price = 0;
-    var partner_discount = 0;
-    $("input.discount").each(function(){
-          discount += Number($(this).val());
-        
-    });
-
-    $("input.partner_discount").each(function(){
-          partner_discount += Number($(this).val());
-        
-    });
-    
-    price = get_selected_price();
-    
-    var final_price = Number(price) - Number(discount) - Number(partner_discount);
-
-    $("#grand_total_price").val(final_price);
-});
-
-  $(document).on('keyup', '.partner_discount', function(e) {
-
-    var discount = 0;
-    var price = 0;
-    var partner_discount = 0;
-    $("input.discount").each(function(){
-          discount += Number($(this).val());
-        
-    });
-
-    $("input.partner_discount").each(function(){
-          partner_discount += Number($(this).val());
-        
-    });
-    
-    price = get_selected_price();
-    
-    var final_price = Number(price) - Number(discount) - Number(partner_discount);
-
-    $("#grand_total_price").val(final_price);
-});
-
-
-  function get_selected_price(){
-    var price = 0;
+     var price = 0;
     var price_array ;
+    var around_discount = 0;
+    var partner_discount = 0;
+    var get_around_discount = 0;
+    var get_partner_discount = 0;
 
      $("input[type=checkbox]:checked").each(function(i) {
         price_array = $(this).val().split('_');
+        //console.log(price_array);
         price += Number(price_array[1]);
+        get_around_discount = $('#discount_'+price_array[2]+"_"+price_array[3]).val();
+        around_discount += Number(get_around_discount);
+       // console.log('#partner_paid_basic_charges_'+price_array[2]+"_"+price_array[3]);
+        get_partner_discount = $('#partner_paid_basic_charges_'+price_array[2]+"_"+price_array[3]).val();
+        
+        partner_discount += Number(get_partner_discount);
    
     });
 
-    return price;
+     var final_price = Number(price) - Number(around_discount) - Number(partner_discount);
+  
+    $("#grand_total_price").val(final_price);
+    
   }
+
+  $(document).on('keyup', '.discount', function(e) {
+    final_price();    
+});
+
+  $(document).on('keyup', '.partner_discount', function(e) {
+    final_price();    
+});
+
 
   $(document).on("click", ".open-AddBookingDialog", function () {
 
@@ -443,11 +399,10 @@ function enable_discount(div_id){
      $("#discount_"+div_no[1]+"_"+div_no[2]).attr("readonly", true);
     
       $("#partner_paid_basic_charges_"+div_no[1]+"_"+div_no[2]).attr("readonly", true);
-      $("#partner_paid_basic_charges_"+div_no[1]+"_"+div_no[2]).val("0.00");
-     $("#discount_"+div_no[1]+"_"+div_no[2]).val("0.00");
+
   }
 
-  final_price();
+  //final_price();
 }
 
  $(document).ready(function () {
