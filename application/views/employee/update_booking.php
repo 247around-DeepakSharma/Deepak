@@ -18,7 +18,7 @@
                                 <div class="form-group ">
                                     <label for="booking_primary_contact_no" class="col-md-4">Mobile *</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php echo $booking_history[0]['phone_number']?>" required/>
+                                        <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php echo $booking_history[0]['booking_primary_contact_no']?>" required/>
                                     </div>
                                 </div>
                                 <div class="form-group <?php
