@@ -1107,17 +1107,21 @@ class Booking_model extends CI_Model {
     $this->db->like($where);
     $query =  $this->db->get();
     $temp = $query->result();
-    if(!empty($temp[0]->assigned_vendor_id)){
+    for ($i=0; $i < count($temp) ; $i++) { 
+       if(!empty($temp[$i]->assigned_vendor_id)){
            $this->db->select('service_centres.name as service_centre_name,
             service_centres.primary_contact_name,service_centres.primary_contact_phone_1 ');
-           $this->db->where('id', $temp[0]->assigned_vendor_id);
+           $this->db->where('id', $temp[$i]->assigned_vendor_id);
            $query1 = $this->db->get('service_centres');
            $result = $query1->result_array();
-           $temp[0]->service_centre_name =  $result[0]['service_centre_name'];
-           $temp[0]->primary_contact_name = $result[0]['primary_contact_name'];
-           $temp[0]->primary_contact_phone_1 = $result[0]['primary_contact_phone_1'];
+        
+           $temp[$i]->service_centre_name =  $result[0]['service_centre_name'];
+           $temp[$i]->primary_contact_name = $result[0]['primary_contact_name'];
+           $temp[$i]->primary_contact_phone_1 = $result[0]['primary_contact_phone_1'];
 
     }
+    }
+    
 
     usort($temp, array($this, 'date_compare_queries'));
     if($query->num_rows>0){
