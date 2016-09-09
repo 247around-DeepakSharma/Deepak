@@ -94,7 +94,8 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
 
                                 <td style="width:200px;">
                                     <select type="text" class="js-example form-control" id="service_center<?php echo $count; ?>" name="service_center[<?= $row['booking_id']; ?>]" value="<?php echo set_value('service_center'); ?>">
-                                        <option selected>Select</option>
+                                        <option selected disabled>Select</option>
+                                        <option value=""> Select</option>
                                         <?php foreach($results[$count] as $key => $values) {?>
                                             <option value=<?=$values['id'];?>>
                                                 <?php echo $values['name'];

@@ -116,23 +116,22 @@ class Booking_utilities {
 
     //This function sends email to the assigned vendor
     function lib_send_mail_to_vendor($booking_id, $additional_note) {
-	//log_message('info', __FUNCTION__);
+        log_message('info', __FUNCTION__." Booking Id: ". print_r($booking_id));
 
-	    $getbooking = $this->My_CI->booking_model->getbooking_history($booking_id,"join");
+        $getbooking = $this->My_CI->booking_model->getbooking_history($booking_id,"join");
 
         if (!empty($getbooking)) {
+            $salutation = "Dear " . $getbooking[0]['primary_contact_name'];
+            $heading = "<br><br>Please find attached job card " . $getbooking[0]['booking_id'] . " for "
+                    . $getbooking[0]['services'] .
+                    "<br><br>Date: " . $getbooking[0]['booking_date'] .
+                    "<br>Time Slot: " . $getbooking[0]['booking_timeslot'];
 
-	    $salutation = "Dear " . $getbooking[0]['primary_contact_name'];
-	    $heading = "<br><br>Please find attached job card " . $getbooking[0]['booking_id'] . " for "
-		. $getbooking[0]['services'] .
-		"<br><br>Date: " . $getbooking[0]['booking_date'] .
-		"<br>Time Slot: " . $getbooking[0]['booking_timeslot'];
+            $booking_remarks = "<br><br>Booking remarks: " . $getbooking[0]['booking_remarks'];
+            $heading .= $booking_remarks;
+            $note = "<br>Special Note: " . urldecode($additional_note) . "<br>";
 
-	    $booking_remarks = "<br><br>Booking remarks: " . $getbooking[0]['booking_remarks'];
-	    $heading .= $booking_remarks;
-	    $note = "<br>Special Note: " . urldecode($additional_note) . "<br>";
-
-	    $fixedPara = "<br><br>Engineer should follow below guidelines:<br>
+            $fixedPara = "<br><br>Engineer should follow below guidelines:<br>
                         <br>1. Be very polite,
                         <br>2. Carry tools, No service to be attended without tools,
                         <br>3. Carry soap in case of AC Service,
@@ -150,73 +149,71 @@ class Booking_utilities {
                         <br>https://play.google.com/store/apps/details?id=com.handymanapp
                         ";
 
-	    $message = $salutation . $heading . $note . $fixedPara;
+            $message = $salutation . $heading . $note . $fixedPara;
 
-	    $to = $getbooking[0]['primary_contact_email'];
-	    $owner = $getbooking[0]['owner_email'];
-	    $cc = $owner;
-	    $bcc = 'anuj@247around.com';
-        $from = "booking@247around.com";
-	    $subject = "247Around / Job Card " . $getbooking[0]['booking_id'] . " / " . $getbooking[0]['booking_date'] .
-		" / " . $getbooking[0]['booking_timeslot'];
+            $to = $getbooking[0]['primary_contact_email'];
+            $owner = $getbooking[0]['owner_email'];
+            $from = "booking@247around.com";
+            $cc = $owner;
+            //$bcc = 'anuj@247around.com';
+            $bcc = '';
 
-	    $file_pdf = $getbooking[0]['booking_jobcard_filename'];
-	    $output_file_pdf = "/tmp/" . $getbooking[0]['booking_jobcard_filename'];
+            $subject = "247Around / Job Card " . $getbooking[0]['booking_id'] . " / " . $getbooking[0]['booking_date'] .
+                    " / " . $getbooking[0]['booking_timeslot'];
 
-	    $cmd = "curl https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/" . $file_pdf . " -o " . $output_file_pdf;
-	    exec($cmd);
+            $file_pdf = $getbooking[0]['booking_jobcard_filename'];
+            $output_file_pdf = "/tmp/" . $getbooking[0]['booking_jobcard_filename'];
 
-	    $date1 = date('d-m-Y', strtotime('now'));
-	    $date2 = $getbooking[0]['booking_date'];
-	    $datediff = ($date1 - $date2) / (60 * 60 * 24);
+            $cmd = "curl https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/" . $file_pdf . " -o " . $output_file_pdf;
+            exec($cmd);
 
-	    $month = date("m", strtotime($getbooking[0]['booking_date']));
-	    $dd = date("d", strtotime($getbooking[0]['booking_date']));
-	    $months = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
-	    $mm = $months[$month - 1];
+            $date1 = date('d-m-Y', strtotime('now'));
+            $date2 = $getbooking[0]['booking_date'];
+            $datediff = ($date1 - $date2) / (60 * 60 * 24);
 
-	    if ($datediff == 0) {
-		$bookingdate = "Today";
-	    } elseif ($datediff == 1) {
-		$bookingdate = "Tomorrow";
-	    } else {
-		$bookingdate = $dd . " " . $mm;
-	    }
+            $month = date("m", strtotime($getbooking[0]['booking_date']));
+            $dd = date("d", strtotime($getbooking[0]['booking_date']));
+            $months = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
+            $mm = $months[$month - 1];
 
-	    if ($getbooking[0]['booking_timeslot'] == '10AM-1PM') {
-	    	$getbooking[0]['booking_timeslot']= '10AM';
-	    }elseif ($getbooking[0]['booking_timeslot'] == '1PM-4PM') {
-	    	$getbooking[0]['booking_timeslot']= '1PM';
-	    }
-	    else {
-	    	$getbooking[0]['booking_timeslot']= '4PM';
-	    }
-
-	    $smsBody = "Booking - " . $getbooking[0]['name'] . ", " . $getbooking[0]['booking_primary_contact_no'] . ", " . $getbooking[0]['services'] . ", " . $bookingdate ."/" . $getbooking[0]['booking_timeslot'] .  ", " . $getbooking[0]['booking_address'] . ", ". $getbooking[0]['booking_pincode'] . ". 247around";
-
-	    //Send SMS to vendor
-	    $this->My_CI->notify->sendTransactionalSms($getbooking[0]['primary_contact_phone_1'], $smsBody);
-	    //Save email in database
-	    $details = array("booking_id" => $booking_id, "subject" => $subject,
-		"body" => $message, "type" => "Booking",
-		"attachment" => $getbooking[0]['booking_jobcard_filename']);
-	    $this->My_CI->booking_model->save_vendor_email($details);
-	    log_message('info', " Send job card to vendor " . print_r($booking_id, true) . ", Service centre: " .  print_r($to,true). print_r($cc, true). print_r($bcc, true). print_r($subject, true). print_r($message, true). print_r($output_file_pdf, true));
-
-        $notify = $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $output_file_pdf);
-            if($notify){
-		//Setting flag to 1, once mail is sent.
-                $this->My_CI->booking_model->set_mail_to_vendor($booking_id);
-
+            if ($datediff == 0) {
+                $bookingdate = "Today";
+            } elseif ($datediff == 1) {
+                $bookingdate = "Tomorrow";
             } else {
-//		$data['success'] = "Mail could not be sent, please try again.";
-//		$this->My_CI->session->set_flashdata('result', 'Mail could not be sent, please try again');
-	    }
+                $bookingdate = $dd . " " . $mm;
+            }
 
-//	    redirect(base_url() . 'employee/booking/view');
-	} else {
-//	    echo "Booking does not exist.";
-	}
+            // $smsBody = "Congrats! You Have New Booking For " . $bookingdate . " On Email From 247Around. Pls Assign Engineer. Dont Forget To Smile When You Meet Customer. 247Around - 8130572244";
+
+            $smsBody = "Booking - " . $getbooking[0]['name'] . ", " . $getbooking[0]['booking_primary_contact_no'] . ", " . $getbooking[0]['services'] . ", " . $bookingdate ."/" . $getbooking[0]['booking_timeslot'] .  ", " . $getbooking[0]['booking_address'] . ", ". $getbooking[0]['booking_pincode'] . ". 247around";
+
+            //Send SMS to vendor
+//            $this->sendTransactionalSms($servicecentredetails[0]['primary_contact_phone_1'], $smsBody);
+            //$this->My_CI->notify->sendTransactionalSms($getbooking[0]['primary_contact_phone_1'], $smsBody);
+            //Save email in database
+            $details = array("booking_id" => $booking_id, "subject" => $subject,
+                "body" => $message, "type" => "Booking",
+                "attachment" => $getbooking[0]['booking_jobcard_filename']);
+            $this->My_CI->booking_model->save_vendor_email($details);
+
+	    $is_mail = $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $output_file_pdf);
+
+	    if ($is_mail) {
+		$data['success'] = "Mail sent to Service Center successfully.";
+                $this->session->set_flashdata('result', 'Mail sent to Service Center successfully');
+                //Setting flag to 1, once mail is sent.
+                $this->booking_model->set_mail_to_vendor($booking_id);
+            } else {
+                $data['success'] = "Mail could not be sent, please try again.";
+                $this->session->set_flashdata('result', 'Mail could not be sent, please try again');
+            }
+
+           // redirect(base_url() . 'employee/booking/view');
+        } else {
+            echo "Booking does not exist.";
+        }
     }
+
 
 }
