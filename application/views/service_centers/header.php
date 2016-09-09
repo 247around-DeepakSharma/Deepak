@@ -50,37 +50,6 @@
                        
                      </ul>
                   </li>
-                   <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i ></i> Engineers <i class="fa fa-caret-down"></i>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a href="<?php echo base_url() ?>service_center/add_engineer" ><i class="fa fa-fw fa-desktop"></i> <strong> Add Engineer</strong></a>
-                        </li>
-                         <li role="separator" class="divider" style="height: 2px;"></li>
-                         <li>
-                            <a href="<?php echo base_url() ?>service_center/get_engineers" ><i class="fa fa-fw fa-desktop"></i> <strong> View Engineers</strong></a>
-                        </li>
-
- 
-                    </ul>
-                    <!-- /.dropdown-user -->
-                </li>
-
-                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i ></i> Invoice <i class="fa fa-caret-down"></i>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a href="<?php echo base_url() ?>service_center/invoices_details" ><i class="fa fa-fw fa-desktop"></i> <strong> Invoice Summary</strong></a>
-                        </li>
-                         
- 
-                    </ul>
-                    <!-- /.dropdown-user -->
-                </li>
                </ul>
                <ul class="nav navbar-nav navbar-right">
                   <li style="margin-top: 11px;">
