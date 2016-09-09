@@ -230,7 +230,7 @@ class Notify {
 	$query1 = $this->My_CI->booking_model->getbooking_filter_service_center($booking_id);
 
 
-	$sms['smsData']['service'] = $query1[0]['services'];
+	
 	$sms['phone_no'] = $query1[0]['booking_primary_contact_no'];
 	$sms['booking_id'] = $query1[0]['booking_id'];
 
@@ -256,9 +256,10 @@ class Notify {
 
 		//Send internal mails now
 		$this->send_email($email);
+		$sms['smsData']['service'] = $query1[0]['services'];
 
 		if ($is_sd == FALSE) {
-
+            
 		    $sms['tag'] = "complete_booking";
 		} else {
 
@@ -304,6 +305,7 @@ class Notify {
 		    $this->send_email($email);
 
 		    if ($is_sd == FALSE) {
+		    $sms['smsData']['service'] = $query1[0]['services'];
 			$sms['tag'] = "cancel_booking";
 			$this->send_sms($sms);
 		    }
@@ -332,6 +334,7 @@ class Notify {
 
 		if ($is_sd == FALSE) {
 		    $sms['tag'] = "reschedule_booking";
+		    $sms['smsData']['service'] = $query1[0]['services'];
 		    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
 		    $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
 		    $this->send_sms($sms);
@@ -365,30 +368,31 @@ class Notify {
 		break;
 
 	    case 'Customer not reachable':
+	    $sms['smsData']['name'] = $query1[0]['name'];
+	    $sms['smsData']['service'] = $query1[0]['services'];
 		if ($is_sd) {
 		    $sms['tag'] = "call_not_picked_snapdeal";
 		} else {
 		    $sms['tag'] = "call_not_picked_other";
 		}
-		$sms['smsData']['name'] = $query1[0]['name'];
+		
 
 		$this->send_sms($sms);
 		break;
 
 	    case 'Newbooking':
+	    $sms['smsData']['service'] = $query1[0]['services'];
+	    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
+		$sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
 		if ($is_sd == FALSE) {
 		    $sms['tag'] = "add_new_booking";
-		    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
-		    $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
-
-		    $this->notify->send_sms($sms);
+		    
 		} else {
 		    $sms['tag'] = "new_snapdeal_booking";
-		    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
-		    $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
-
-		    $this->notify->send_sms($sms);
+		    	    
 		}
+		$this->notify->send_sms($sms);
+		break;
 	}
     }
 
