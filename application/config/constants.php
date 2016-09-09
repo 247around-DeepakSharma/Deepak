@@ -37,7 +37,7 @@ define('FOPEN_WRITE_CREATE_STRICT',				'xb');
 define('FOPEN_READ_WRITE_CREATE_STRICT',		'x+b');
 
 define('INT_STATUS_CUSTOMER_NOT_REACHABLE', 'Customer Not Reachable');
-define('search_page', 'employee/user');
+define('DEFAULT_SEARCH_PAGE', 'employee/user');
 define('short_url_key', 'AIzaSyBPTsxWtCYUBfq_GqcRisN-MsWU8dT2HeI');
 define('short_api_url', 'https://www.googleapis.com/urlshortener/v1/url');
 

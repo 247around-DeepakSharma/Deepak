@@ -291,7 +291,6 @@ class Notify {
 		    //Send internal mails now
 		    $this->send_email($email_data);
 		} else {
-
 		    $email['name'] = $query1[0]['name'];
 		    $email['phone_no'] = $query1[0]['phone_number'];
 		    $email['user_email'] = $query1[0]['user_email'];
@@ -314,7 +313,6 @@ class Notify {
 			$sms['smsData']['service'] = $query1[0]['services'];
 			$sms['tag'] = "cancel_booking";
 
-			$sms['smsData']['service'] = $query1[0]['services'];
 			$this->send_sms($sms);
 		    }
 		}
@@ -379,13 +377,13 @@ class Notify {
 	    case 'Customer not reachable':
 		$sms['smsData']['name'] = $query1[0]['name'];
 		$sms['smsData']['service'] = $query1[0]['services'];
+
 		if ($is_sd) {
 		    $sms['tag'] = "call_not_picked_snapdeal";
 		} else {
 		    $sms['tag'] = "call_not_picked_other";
 		}
-		$sms['smsData']['name'] = $query1[0]['name'];
-		$sms['smsData']['service'] = $query1[0]['services'];
+
 		$this->send_sms($sms);
 		break;
 
@@ -393,21 +391,13 @@ class Notify {
 		$sms['smsData']['service'] = $query1[0]['services'];
 		$sms['smsData']['booking_date'] = $query1[0]['booking_date'];
 		$sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
+
 		if ($is_sd == FALSE) {
 		    $sms['tag'] = "add_new_booking";
-		    $sms['smsData']['service'] = $query1[0]['services'];
-		    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
-		    $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
-
-		    $this->notify->send_sms($sms);
 		} else {
 		    $sms['tag'] = "new_snapdeal_booking";
-		    $sms['smsData']['service'] = $query1[0]['services'];
-		    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
-		    $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
-
-		    $this->notify->send_sms($sms);
 		}
+
 		$this->notify->send_sms($sms);
 		break;
 	}

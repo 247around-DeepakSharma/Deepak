@@ -331,6 +331,7 @@
 	    //console.log($(this).val());
 	    var div_no = this.id.split('_');
 	    if (div_no[0] == "completed") {
+        //if POD is also 1, only then check for serial number.    
 		if (div_no[1] == "1") {
 		    var serial_number = $("#serial_number" + div_no[2]).val();
 		    if (serial_number == "") {
@@ -347,10 +348,8 @@
 		    var numberRegex = /^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$/;
 		    if (numberRegex.test(serial_number)) {
 			if (serial_number > 0) {
-
 			    flag = 0;
 			} else {
-			    alert(serial_number);
 			    document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
 			    flag = 1;
 			}

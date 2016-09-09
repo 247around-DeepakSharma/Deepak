@@ -300,7 +300,6 @@ class vendor extends CI_Controller {
         $url = base_url() . "employee/do_background_process/assign_booking";
         foreach ($service_center as $booking_id => $service_center_id) {
             if ($service_center_id != "") {
-                
                 $data = array();
                 $data['booking_id'] = $booking_id;
                 $data['service_center_id'] = $service_center_id;
@@ -313,8 +312,8 @@ class vendor extends CI_Controller {
             }
 
         }
-    
-        redirect(base_url() . search_page);
+
+        redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
 
@@ -348,15 +347,15 @@ class vendor extends CI_Controller {
 
 	if ($service_center_id != "Select") {
             $this->booking_model->assign_booking($booking_id, $service_center_id);
-            
+
            // $pre_service_center_data['current_status'] = "Cancelled";
             //$pre_service_center_data['internal_status'] = "Cancelled";
 
            // $this->service_centers_model->update_service_centers_action_table($booking_id, $pre_service_center_data);
             $this->vendor_model->delete_previous_service_center_action($booking_id);
             $unit_details = $this->booking_model->getunit_details($booking_id);
-           
-            foreach ($unit_details[0]['quantity'] as $value ) { 
+
+            foreach ($unit_details[0]['quantity'] as $value ) {
                 $data = array();
                 $data['current_status'] = "Pending";
                 $data['internal_status'] = "Pending";
@@ -373,9 +372,8 @@ class vendor extends CI_Controller {
 	     log_message('info', "Reassigned - Booking id: " . $booking_id . "  By " .
 		$this->session->userdata('employee_id') . " service center id " . $service_center_id);
 
-            redirect(base_url() . search_page);
-
-        } else {
+            redirect(base_url() . DEFAULT_SEARCH_PAGE);
+	} else {
             $output = "Please select any service center.";
             $userSession = array('error' => $output);
             $this->session->set_userdata($userSession);
@@ -434,7 +432,7 @@ class vendor extends CI_Controller {
 
         $this->notify->sendEmail("sales@247around.com", $to, $cc, $bcc, $subject, $message, $attachment);
 
-       redirect(base_url() . search_page);
+       redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
     /**
@@ -532,8 +530,8 @@ class vendor extends CI_Controller {
             $url = base_url() . "employee/do_background_process/upload_pincode_file";
             $this->asynchronous_lib->do_background_process($url, array());
 
-            redirect(base_url() . search_page);
-        } else {
+            redirect(base_url() . DEFAULT_SEARCH_PAGE);
+	} else {
 
             $this->get_pincode_excel_upload_form("Not valid File");
         }
@@ -603,8 +601,8 @@ class vendor extends CI_Controller {
                 //$output = "Vendor Escalation Process Completed.";
                 //$userSession = array('success' => $output);
                 //$this->session->set_userdata($userSession);
-                redirect(base_url() . search_page);
-            }
+                redirect(base_url() . DEFAULT_SEARCH_PAGE);
+	    }
         } else {
             $this->get_vendor_escalation_form($escalation['booking_id']);
         }
@@ -911,7 +909,7 @@ class vendor extends CI_Controller {
         $this->load->view('employee/viewvendor', array('query' => $vendor_info));
     }
     /**
-     * @desc: This method loads add engineer view. It gets active vendor and appliance to display in a form 
+     * @desc: This method loads add engineer view. It gets active vendor and appliance to display in a form
      * This  function is used by vendor panel and admin panel to load add engineer view
      */
     function add_engineer(){
@@ -926,7 +924,7 @@ class vendor extends CI_Controller {
             $this->load->view('employee/header');
             $this->load->view('employee/add_engineer', $data);
         }
-        
+
     }
     /**
      * @desc: This method gets all input and insert into table
@@ -944,7 +942,7 @@ class vendor extends CI_Controller {
         $data['banck_ac_no'] = $this->input->post('bank_account_no');
         $data['bank_ifsc_code'] = $this->input->post('bank_ifsc_code');
         $data['bank_holder_name'] = $this->input->post('bank_holder_name');
-        
+
         if($this->session->userdata('userType') == 'service_center'){
             $data['service_center_id'] = $this->session->userdata('service_center_id');
         } else {
@@ -964,8 +962,8 @@ class vendor extends CI_Controller {
         if($engineer_id){
             $output = "Engineer's Details Added.";
             $userSession = array('success' => $output);
-            
-            
+
+
         } else {
             $output = "Engineer's Details Not Added.";
             $userSession = array('error' => $output);
@@ -994,7 +992,7 @@ class vendor extends CI_Controller {
 
             $service_center_id = $this->session->userdata('service_center_id');
             log_message('info', __FUNCTION__ . " view service center Engineer View  " . print_r($service_center_id, true));
-        } 
+        }
 
        $data['engineers'] =  $this->vendor_model->get_engineers($service_center_id);
        foreach ($data['engineers'] as $key => $value) {
@@ -1006,19 +1004,19 @@ class vendor extends CI_Controller {
                 $service_name = $this->booking_model->selectservicebyid($values['service_id']);
                 array_push($appliances, $service_name[0]['services']);
            }
-           
+
            $data['engineers'][$key]['appliance_name'] = implode(",", $appliances);
        }
        if($this->session->userdata('userType') == 'service_center'){
 
             $this->load->view('service_centers/header');
-            $this->load->view('service_centers/view_engineers', $data); 
+            $this->load->view('service_centers/view_engineers', $data);
 
        } else {
             $this->load->view('employee/header');
-            $this->load->view('employee/view_engineers', $data); 
+            $this->load->view('employee/view_engineers', $data);
        }
-       
+
     }
 
     /**
@@ -1038,7 +1036,7 @@ class vendor extends CI_Controller {
 
             redirect(base_url()."service_center/get_engineers");
        }
-        
+
      }
      /**
       * @desc: Delete Engineer from database
@@ -1048,7 +1046,7 @@ class vendor extends CI_Controller {
         log_message('info', __FUNCTION__ . " Delete Engineer Id:  " . print_r($engineer_id, true));
         $where  = array('id' => $engineer_id );
         $this->vendor_model->update_engineer($where, array('delete'=> '1'));
-       
+
         if($this->session->userdata('userType') == 'service_center'){
 
            redirect(base_url()."service_center/get_engineers");
@@ -1057,13 +1055,13 @@ class vendor extends CI_Controller {
 
             redirect(base_url()."service_center/get_engineers");
        }
-        
+
     }
 
 //     function process_upload_pincode_file(){
 //         if (!empty($_FILES['file']['name'])) {
 //         $pathinfo = pathinfo($_FILES["file"]["name"]);
-        
+
 
 //         if ($pathinfo['extension'] == 'xlsx') {
 //         if ($_FILES['file']['size'] > 0) {
@@ -1086,44 +1084,44 @@ class vendor extends CI_Controller {
 //     try {
 //         //$inputFileType = PHPExcel_IOFactory::identify($inputFileName);
 //         $objReader = PHPExcel_IOFactory::createReader($inputFileExtn);
-        
+
 //         $objPHPExcel = $objReader->load($inputFileName);
 
 //         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'CSV');
-//        // 
+//        //
 //         $result = $objWriter->save('/mysql_tmp/'.$pathinfo['filename'].'.csv');
-        
-       
+
+
 //     } catch (Exception $e) {
 //         die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
 //     }
 //     $output = "";
-    
+
 //     $output1 = exec('chmod 777 /mysql_tmp/'.$pathinfo['filename'].'.csv', $output);
 //     // shell_exec(' chown  mysql:mysql /tmp/pincode_file.csv');
 //     // print_r($output1);
-    
+
 
 
 //     $row = 1;
 // if (($handle = fopen("/mysql_tmp/".$pathinfo['filename'].".csv", "r")) !== FALSE) {
-//     $dfp = fopen('/mysql_tmp/'.$pathinfo['filename'].'_tmp.csv','w'); 
+//     $dfp = fopen('/mysql_tmp/'.$pathinfo['filename'].'_tmp.csv','w');
 //     while (($data = fgetcsv($handle, 10000000, ",")) !== FALSE) {
 //         $num = count($data);
-       
+
 //         $row++;
 //         for ($c=0; $c < $num; $c++) {
-//             $col = trim(str_replace(','," ",$data[$c])); 
+//             $col = trim(str_replace(','," ",$data[$c]));
 //             if($c == $num-1){
 //                 $goodstuff = $col."\r\n";
 //             } else {
 //                 $goodstuff = $col . ",";
-                
+
 //             }
-            
-//              fwrite($dfp,$goodstuff); 
+
+//              fwrite($dfp,$goodstuff);
 //         }
-        
+
 //     }
 //     fclose($handle);
 //      fclose($dfp);
@@ -1141,8 +1139,8 @@ class vendor extends CI_Controller {
 //     function test_upload1(){
 //          $this->vendor_model->test_upload('/mysql_tmp/pincode_file_tmp.csv');
 //     }
-    
-    
 
-     
+
+
+
 }
