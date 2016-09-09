@@ -108,7 +108,7 @@ class Notify {
 	    $subject = 'Booking SMS not sent';
 	    $message = "Please check SMS tag and phone number. Booking id is : " .
 		$sms['booking_id'] . " Tag is '" . $sms['tag'] . "' & phone number is :" . $sms['phone_no'];
-	    $to = "anuj@247around.com, nits@247around.com";
+	    $to = "anuj@247around.com";
 	    $this->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
 	}
     }
@@ -262,7 +262,7 @@ class Notify {
 		//Send internal mails now
 		$this->send_email($email);
 
-if ($is_sd == FALSE) {
+		if ($is_sd == FALSE) {
 
 		    $sms['tag'] = "complete_booking";
 		} else {
@@ -311,7 +311,7 @@ if ($is_sd == FALSE) {
 		    $this->send_email($email);
 
 		    if ($is_sd == FALSE) {
-		    $sms['smsData']['service'] = $query1[0]['services'];
+			$sms['smsData']['service'] = $query1[0]['services'];
 			$sms['tag'] = "cancel_booking";
 
 			$sms['smsData']['service'] = $query1[0]['services'];
@@ -377,8 +377,8 @@ if ($is_sd == FALSE) {
 		break;
 
 	    case 'Customer not reachable':
-	    $sms['smsData']['name'] = $query1[0]['name'];
-	    $sms['smsData']['service'] = $query1[0]['services'];
+		$sms['smsData']['name'] = $query1[0]['name'];
+		$sms['smsData']['service'] = $query1[0]['services'];
 		if ($is_sd) {
 		    $sms['tag'] = "call_not_picked_snapdeal";
 		} else {
@@ -390,8 +390,8 @@ if ($is_sd == FALSE) {
 		break;
 
 	    case 'Newbooking':
-	    $sms['smsData']['service'] = $query1[0]['services'];
-	    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
+		$sms['smsData']['service'] = $query1[0]['services'];
+		$sms['smsData']['booking_date'] = $query1[0]['booking_date'];
 		$sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
 		if ($is_sd == FALSE) {
 		    $sms['tag'] = "add_new_booking";
