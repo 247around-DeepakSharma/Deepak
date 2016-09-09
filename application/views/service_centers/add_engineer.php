@@ -61,9 +61,9 @@
                             <!-- end div -->
                             <div class="col-md-6">
                                 <div class="form-group ">
-                                    <label for="Mobile" class="col-md-4">Address *</label>
+                                    <label for="Mobile" class="col-md-4">Address </label>
                                     <div class="col-md-6">
-                                        <textarea name="address" class="form-control" id="address" rows="4" placeholder="Please Enter Address" required></textarea>
+                                        <textarea name="address" class="form-control" id="address" rows="4" placeholder="Please Enter Address" ></textarea>
                                     </div>
                                 </div>
                                 <div class="form-group ">
@@ -137,19 +137,13 @@
                                     <label for="bank name" class="col-md-4">Bank Name </label>
                                     <div class="col-md-6">
                                         <select type="text" class="form-control"  id="bank_name" name="bank_name"  >
-                                            <option disabled selected>Select Bank Name</option>
-                                            <option value="SBI">State Bank of India</option>
-                                            <option value="HDFC">HDFC Bank</option>
-                                            <option value="CITI">Citibank</option>
-                                            <option value="ICICI">ICICI Bank</option>
-                                            <option value="AXIS">Axis Bank</option>
-                                            <option value="PNB">Punjab National Bank</option>
-                                            <option value="KOTAK" >Kotak Bank</option>
-                                            <option value="BHARAT">Bharat Bank</option>
+                                             <option disabled selected>Select Bank Name</option>
                                             <option value="ANDHRA">Andhra Bank</option>
-                                            <option value="BBK">Bank of Bahrain and Kuwait</option>
+                                            <option value="AXIS">Axis Bank</option>
                                             <option value="BOB">Bank of Baroda</option>
+                                            <option value="BHARAT">Bharat Bank</option>
                                             <option value="BOI">Bank of India</option>
+                                             <option value="BBK">Bank of Bahrain and Kuwait</option>
                                             <option value="BOM">Bank of Maharashtra</option>
                                             <option value="CANARA">Canara Bank</option>
                                             <option value="CSB">Catholic Syrian Bank</option>
@@ -157,8 +151,14 @@
                                             <option value="CITIUB">City Union Bank</option>
                                             <option value="CORP">Corporation Bank</option>
                                             <option value="COSMOS">Cosmos Bank</option>
+                                            <option value="CITI">Citibank</option>
+                                            <option value="ICICI">ICICI Bank</option>
                                             <option value="DEUTS">Deutsche Bank</option>
+                                            <option value="HDFC">HDFC Bank</option>
                                             <option value="JSB">Janata Sahakari Bank Ltd Pune</option>
+                                            <option value="KOTAK">Kotak Bank</option>
+                                           <option value="PNB">Punjab National Bank</option>
+                                            <option value="SBI">State Bank of India</option>                        
                                             <option value="Others">Others</option>
                                         </select>
                                     </div>
@@ -247,7 +247,6 @@
                         minlength: 10
                     },
                 
-                address: "required",
                 service_id: "required",
                 bank_account_no: {
                         digits: true
@@ -257,8 +256,6 @@
                 messages: {
                 name: "Please Enter Name",
                 phone: "Please Enter Mobile Number",
-                
-                address:"Please Enter Address",
                 service_id:"Please Select Appliances",
                 bank_account_no: "Please Enter Only Digits"
 

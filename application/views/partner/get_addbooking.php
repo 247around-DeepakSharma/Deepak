@@ -481,3 +481,8 @@
     }
 </style>
 <?php $this->session->unset_userdata('success'); ?>
+<script type="text/javascript">
+    $("#booking_city").select2({
+         tags: true
+    });
+</script>

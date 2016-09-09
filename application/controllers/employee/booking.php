@@ -8,7 +8,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
 ini_set('memory_limit', '-1');
-ini_set('max_execution_time', 3600);
+ini_set('max_execution_time', 36000);
 
 define('Partner_Integ_Complete', TRUE);
 
@@ -145,7 +145,12 @@ class Booking extends CI_Controller {
 	// All purchase month comming in array eg-- array([0]=> Jan, [1]=> Feb)
 	$months = $this->input->post('purchase_month');
 	$booking['quantity'] = count($appliance_brand);
-	$appliance_id = $this->input->post('appliance_id');
+	$appliance_id_array = $this->input->post('appliance_id');
+	$appliance_id =  array();;
+	if(isset($appliance_id_array)){
+      $appliance_id = array_unique($appliance_id_array);
+	}
+	
 	$serial_number = $this->input->post('serial_number');
 	$partner_id = $this->partner_model->get_all_partner_source("", $booking['source']);
 	$partner_net_payable = $this->input->post('partner_paid_basic_charges');
@@ -229,12 +234,13 @@ class Booking extends CI_Controller {
 	    log_message('info', __METHOD__ . "Appliance ID" . print_r($appliance_id, true));
 	    /* if appliance id exist the initialize appliance id in array and update appliance details other wise it insert appliance details and return appliance id
 	     * */
+	    
 	    if (isset($appliance_id[$key])) {
-
+        
 		$services_details['appliance_id'] = $appliance_id[$key];
 		$this->booking_model->update_appliances($services_details['appliance_id'], $appliances_details);
 	    } else {
-
+        
 		$services_details['appliance_id'] = $this->booking_model->addappliance($appliances_details);
 		log_message('info', __METHOD__ . " New Appliance ID created: " . print_r($services_details['appliance_id'], true));
 	    }
@@ -1323,7 +1329,7 @@ class Booking extends CI_Controller {
      * @return :void
      */
     function process_complete_booking($booking_id, $status = "") {
-	log_message('info', __FUNCTION__ . " Booking id: " . print_r($booking_id, true) . " Status: " . print_r($status));
+	log_message('info', __FUNCTION__ . " Booking id: " . print_r($booking_id, true) . " Status: " . print_r($status, true));
 	// customer paid basic charge is comming in array
 	// Array ( [100] =>  500 , [102] =>  300 )
 	$customer_basic_charge = $this->input->post('customer_basic_charge');
@@ -1477,7 +1483,7 @@ class Booking extends CI_Controller {
      *  @return : Converts the booking to Pending stage and load view
      */
     function process_convert_booking_to_pending_form($booking_id, $status) {
-	log_message('info', __FUNCTION__ . " Booking id: " . print_r($booking_id) . " status: " . print_r($status));
+	log_message('info', __FUNCTION__ . " Booking id: " . print_r($booking_id, true) . " status: " . print_r($status));
 	$data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
 	$data['booking_timeslot'] = $this->input->post('booking_timeslot');
 	$data['current_status'] = 'Pending';

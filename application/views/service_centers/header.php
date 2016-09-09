@@ -50,7 +50,6 @@
                        
                      </ul>
                   </li>
-                  
                </ul>
                <ul class="nav navbar-nav navbar-right">
                   <li style="margin-top: 11px;">
