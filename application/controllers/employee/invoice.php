@@ -351,14 +351,28 @@ class Invoice extends CI_Controller {
 		$end_date = date("jS F, Y", strtotime($data[$i][0]['end_date']));
 
 		foreach ($data[$i] as $key => $value) {
-		    if ($value['price_tags'] == "Wall Mount Stand") {
+			switch ($value['price_tags']) {
+				case 'Wall Mount Stand':
+					$data[$i][$key]['remarks'] = "Completed TV With Stand";
+					break;
 
-			$data[$i][$key]['remarks'] = "Completed TV With Stand";
-		    } else {
+				case 'Repair':
+					$data[$i][$key]['remarks'] = "Repair";
+					break;
 
-			$data[$i][$key]['remarks'] = "Completed Installation & Demo";
-		    }
+				case 'Repair - In Warranty':
+					$data[$i][$key]['remarks'] = "Repair - In Warranty";
+					break;
 
+			    case 'Repair - Out Of Warranty':
+					$data[$i][$key]['remarks'] = "Repair - Out Of Warranty";
+					break;
+				
+				default:
+					$data[$i][$key]['remarks'] = "Completed Installation & Demo";
+					break;
+			}
+		    
 		    $data[$i][$key]['closed_date'] = date("jS F, Y", strtotime($value['closed_date']));
 		    $data[$i][$key]['reference_date'] = date("jS F, Y", strtotime($value['reference_date']));
 
