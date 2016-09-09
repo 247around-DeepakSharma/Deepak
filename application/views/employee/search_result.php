@@ -549,10 +549,19 @@
                                     . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Edit'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
                                 } ?>
                         </td>
-                        <td><?php
+                        <td>
+                        <?php if (substr($row->booking_id, 0, 2) == 'Q-') { ?>
+                        <?php echo "<a class='btn btn-sm btn-warning' "
+                        . "href=" . base_url() . "employee/booking/open_cancelled_query/$row->booking_id target='_blank'  title='open'><i class='fa fa-calendar' aria-hidden='true'></i></a>";
+    ?>
+                    
+                        <?php } else { ?>
+
+                        <?php
                             echo "<a id='edit' class='btn btn-sm btn-warning' "
                                 . "href=" . base_url() . "employee/booking/get_convert_booking_to_pending_form/$row->booking_id/$row->current_status title='Open' target='_blank'> <i class='fa fa-calendar' aria-hidden='true'></i></a>";
                             ?>
+                            <?php } ?>
                         </td>
                         <td>
                             <?php echo "<a class='btn btn-sm btn-primary' "
