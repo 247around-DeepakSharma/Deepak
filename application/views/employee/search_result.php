@@ -158,7 +158,7 @@
                 
                  ?>
             <?php if(isset($data['FollowUp'])){ ?>
-            <h1><b>Pending Query</b></h1>
+            <h1><b>Pending Queries</b></h1>
             <table >
                 <thead>
                     <tr>
@@ -238,7 +238,7 @@
             </table>
             <?php } if(isset($data['Pending'])){ ?>
             <h1 align="left">
-                <b>Pending Boooking</b>
+                <b>Pending Boookings</b>
             </h1>
             <?php
                 if (isset($success) && $success !== 0) {
@@ -424,7 +424,7 @@
                     <input type="hidden" id="total_no_rows" value="<?php echo $count;?>">
                 </table>
                 <?php } if(isset($data['Completed'])){ ?>
-                <h2 style="margin-top: 50px;"><b>Completed Booking</b></h2>
+                <h1 style="margin-top: 50px;"><b>Completed Bookings</b></h1>
                 <table >
                     <thead>
                         <tr>
@@ -502,7 +502,7 @@
                         } }?>
                 </table>
                 <?php } if(isset($data['Cancelled'])){?>
-                <h1 align="left" style="margin-top: 30px;"><b>Cancelled Booking<b></b></h1>
+                <h1 align="left" style="margin-top: 30px;"><b>Cancelled Bookings<b></b></h1>
                 </b>
                 <table style="margin-bottom:50px;">
                     <thead>
