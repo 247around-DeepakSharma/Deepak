@@ -155,9 +155,8 @@ class Booking_utilities {
             $owner = $getbooking[0]['owner_email'];
             $from = "booking@247around.com";
             $cc = $owner;
-            //$bcc = 'anuj@247around.com';
-            $bcc = '';
-
+            $bcc = 'anuj@247around.com';
+            
             $subject = "247Around / Job Card " . $getbooking[0]['booking_id'] . " / " . $getbooking[0]['booking_date'] .
                     " / " . $getbooking[0]['booking_timeslot'];
 
@@ -184,13 +183,11 @@ class Booking_utilities {
                 $bookingdate = $dd . " " . $mm;
             }
 
-            // $smsBody = "Congrats! You Have New Booking For " . $bookingdate . " On Email From 247Around. Pls Assign Engineer. Dont Forget To Smile When You Meet Customer. 247Around - 8130572244";
 
             $smsBody = "Booking - " . $getbooking[0]['name'] . ", " . $getbooking[0]['booking_primary_contact_no'] . ", " . $getbooking[0]['services'] . ", " . $bookingdate ."/" . $getbooking[0]['booking_timeslot'] .  ", " . $getbooking[0]['booking_address'] . ", ". $getbooking[0]['booking_pincode'] . ". 247around";
 
             //Send SMS to vendor
-//            $this->sendTransactionalSms($servicecentredetails[0]['primary_contact_phone_1'], $smsBody);
-            //$this->My_CI->notify->sendTransactionalSms($getbooking[0]['primary_contact_phone_1'], $smsBody);
+            $this->My_CI->notify->sendTransactionalSms($getbooking[0]['primary_contact_phone_1'], $smsBody);
             //Save email in database
             $details = array("booking_id" => $booking_id, "subject" => $subject,
                 "body" => $message, "type" => "Booking",
