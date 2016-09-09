@@ -4,8 +4,8 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
-//error_reporting(E_ALL);
-//ini_set('display_errors', '1');
+ini_set('memory_limit', '-1');
+ini_set('max_execution_time', 36000);
 
 use Box\Spout\Reader\ReaderFactory;
 use Box\Spout\Common\Type;
@@ -76,8 +76,8 @@ class Do_background_process extends CI_Controller {
 
 	//COMMENTING TEMPORARILY AS IT IS NOT WORKING...
 //        //Send mail to vendor, no Note to vendor as of now
-      // $message = "";
-      // $this->booking_utilities->lib_send_mail_to_vendor($booking_id, $message);
+       $message = "";
+       $this->booking_utilities->lib_send_mail_to_vendor($booking_id, $message);
     }
 
     /**

@@ -205,8 +205,7 @@ class bookingjobcard extends CI_Controller {
 
         //$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=278325305" . " -o " . $output_file_pdf;
         putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-        //$tmp_path = '/home/around/libreoffice_tmp';
-       // $tmp_output_file = '/home/around/libreoffice_tmp/output.txt';
+
         $tmp_path = libreoffice_pdf;
         $tmp_output_file = libreoffice_output_file;
         $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
@@ -226,7 +225,7 @@ class bookingjobcard extends CI_Controller {
         $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
 
         $this->session->set_flashdata('result', 'Job card generated successfully');
-        //redirect(base_url() . 'employee/booking/view', 'refresh');
+        redirect(base_url() . 'employee/booking/view');
     }
 
     /*

@@ -7,7 +7,7 @@ if (!defined('BASEPATH')) {
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
-ini_set('max_execution_time', 3600); //3600 seconds = 60 minutes
+ini_set('max_execution_time', 36000); //3600 seconds = 60 minutes
 
 use Box\Spout\Reader\ReaderFactory;
 use Box\Spout\Common\Type;
@@ -299,15 +299,14 @@ class vendor extends CI_Controller {
         $service_center = $this->input->post('service_center');
         $url = base_url() . "employee/do_background_process/assign_booking";
         foreach ($service_center as $booking_id => $service_center_id) {
-            if ($service_center_id != "Select") {
-
+            if ($service_center_id != "") {
                 $data = array();
                 $data['booking_id'] = $booking_id;
                 $data['service_center_id'] = $service_center_id;
                 //Assign service centre
                 $this->booking_model->assign_booking($booking_id, $service_center_id);
                 // Delete Previous Assigned vendor data from service center action table
-                $this->vendor_model->delete_previous_service_center_action($booking_id);
+                //$this->vendor_model->delete_previous_service_center_action($booking_id);
 
                 $this->asynchronous_lib->do_background_process($url, $data);
             }
