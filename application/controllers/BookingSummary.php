@@ -546,8 +546,10 @@ EOD;
 	$this->email->from('booking@247around.com', '247around Team');
 	$this->email->to("alok.singh@snapdeal.com");
 	$cc = "dhananjay.shashidharan@snapdeal.com,"
-	    . "soumendra.choudhury@snapdeal.com, somya.kaila@snapdeal.com, "
-	    . "shivalini.verma@snapdeal.com, abhinaw.sinha@snapdeal.com, "
+	    . "soumendra.choudhury@snapdeal.com, shivalini.verma@snapdeal.com,"
+	    . "rameen.khan@snapdeal.com, sunil.gurubhagwatla@snapdeal.com,"
+	    . "ashish.dudeja@snapdeal.com, sanju.khatri@snapdeal.com, harjinder.singh01@snapdeal.com"
+	    . "abhinaw.sinha@snapdeal.com, "
 	    . "nits@247around.com, anuj@247around.com";
 	$this->email->cc($cc);
 	$this->email->bcc("anuj.aggarwal@gmail.com");
@@ -688,8 +690,8 @@ EOD;
             $subject = "247Around Booking Summary Mail";
             $this->notify->sendEmail($from, $to, $cc, "", $subject, $html, "");
         }
-       
-        
+
+
     }
     /**
      * @desc: this method set header for summary table
@@ -721,15 +723,15 @@ EOD;
        $html = "";
         for($i =0; $i <3;$i++ ){
         $total_booking = 0; $total_followup = 0; $total_scheduled = 0;
-        $total_completed = 0; $total_cancelled = 0; 
+        $total_completed = 0; $total_cancelled = 0;
         $html .= $this->set_mail_table_head();
         foreach ($data['data'.$i] as $value){
-            
-            $total_booking += $value['total_booking']; 
+
+            $total_booking += $value['total_booking'];
             $total_followup += $value['queries'];
             $total_scheduled += $value['scheduled']; $total_completed += $value['completed'];
             $total_cancelled += $value['cancelled'];
-           
+
             $html .= "<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'>"
                     . " <td style='text-align: center;border: 1px solid #ddd;'>" . $value['partner_source'] . "</td>"
                     . "<td style='text-align: center;border: 1px solid #ddd;'>" . $value['total_booking'] . "</td>"
@@ -739,15 +741,15 @@ EOD;
                     . "<td style='text-align: center;border: 1px solid #ddd;'>" . $value['cancelled'] . " </td>"
                     . "</td></tr>";
         }
-        
+
         $html .="<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'>"
-                . "<td  style='text-align: center;border: 1px solid #ddd;' >Total</td>" 
+                . "<td  style='text-align: center;border: 1px solid #ddd;' >Total</td>"
                 ."<td style='text-align: center;border: 1px solid #ddd;'>" . $total_booking . "</td>"
                 . "<td style='text-align: center;border: 1px solid #ddd;'>" . $total_followup . "</td>"
                 . "<td style='text-align: center;border: 1px solid #ddd;'>" . $total_scheduled . "</td>"
                 . "<td style='text-align: center;border: 1px solid #ddd;'>" . $total_completed . "</td>"
                 . "<td style='text-align: center;border: 1px solid #ddd;'>" . $total_cancelled . "</td>";
-        
+
         $html .= "</body></html>";
         if($i ==0){
             $html .= '<p>Today Booking Summary</p>';
@@ -756,9 +758,9 @@ EOD;
         } else {
             $html .= '<p>Overall Booking Summary</p>';
         }
-        
+
         }
-        
+
         return $html;
     }
 

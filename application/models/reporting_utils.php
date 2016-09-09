@@ -539,16 +539,18 @@ class Reporting_utils extends CI_Model {
 
     function get_all_sd_leads() {
 //	$query = $this->db->query("SELECT * FROM snapdeal_leads");
-	$query = $this->db->query("SELECT booking_id, order_id, booking_date, booking_timeslot,
-			current_status, internal_status, rating_stars,
-			DATE_FORMAT(booking_details.create_date, '%d/%M') as create_date,
-			services, brand, model_number, description, name, phone_number, home_address, pincode, users.city
-			FROM booking_details, users, services, appliance_details
-			WHERE booking_details.appliance_id = appliance_details.id AND
-			booking_details.service_id = services.id AND
-			booking_details.user_id = users.user_id AND
-			booking_details.source = 'SS' AND
-			booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)");
+	$query = $this->db->query("SELECT BD.booking_id, order_id, booking_date, booking_timeslot,
+			BD.current_status, BD.internal_status, rating_stars,
+			DATE_FORMAT(BD.create_date, '%d/%M') as create_date,
+			services,
+			UD.appliance_brand, UD.appliance_description,
+			name, phone_number, home_address, pincode, users.city
+			FROM booking_details as BD, users, services, booking_unit_details as UD
+			WHERE BD.booking_id = UD.booking_id AND
+			BD.service_id = services.id AND
+			BD.user_id = users.user_id AND
+			BD.source = 'SS' AND
+			BD.create_date > (CURDATE() - INTERVAL 1 MONTH)");
 
 	//$result = (bool) ($this->db->affected_rows() > 0);
 
@@ -712,9 +714,9 @@ class Reporting_utils extends CI_Model {
 
         return $result;
     }
-    
+
     /**
-     * @desc: This method is used to return all partner booking summary details for today, 
+     * @desc: This method is used to return all partner booking summary details for today,
      * within month and total
      * @return array
      */
@@ -742,20 +744,20 @@ class Reporting_utils extends CI_Model {
             $data = $this->db->query($sql);
             $partner[$key]['data'.$i] = $data->result_array();
             }
-            
-            
+
+
         }
         return $partner;
     }
     /**
-     *  @desc: This Method returns all partner details who have email id in the 
+     *  @desc: This Method returns all partner details who have email id in the
      *  bookings_sources table
-     */      
+     */
     function get_partner_to_send_mail(){
         $this->db->select('*');
         $this->db->where_not_in('partner_email_for_to','');
         $query = $this->db->get('bookings_sources');
         return $query->result_array();
     }
-    
+
 }
