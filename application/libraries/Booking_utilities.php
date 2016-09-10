@@ -200,7 +200,7 @@ class Booking_utilities {
 		$data['success'] = "Mail sent to Service Center successfully.";
                 $this->session->set_flashdata('result', 'Mail sent to Service Center successfully');
                 //Setting flag to 1, once mail is sent.
-                $this->booking_model->set_mail_to_vendor($booking_id);
+                $this->My_CI->booking_model->set_mail_to_vendor($booking_id);
             } else {
                 $data['success'] = "Mail could not be sent, please try again.";
                 $this->session->set_flashdata('result', 'Mail could not be sent, please try again');
