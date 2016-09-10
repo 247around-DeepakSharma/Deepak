@@ -258,8 +258,9 @@ class Booking extends CI_Controller {
 		$services_details['partner_paid_basic_charges'] = $partner_net_payable[$brand_id][$services_details['id']][0];
 		$services_details['partner_net_payable'] = $services_details['partner_paid_basic_charges'];
 		$services_details['around_net_payable'] = $services_details['around_paid_basic_charges'];
+        log_message('info', __METHOD__ . " Before booking is insert/update: ". $booking_id );
 
-		if ($booking_id == "") {
+		if (empty($booking_id)) {
 
 		    log_message('info', __METHOD__ . " Insert Booking Unit Details: " . print_r($services_details, true));
 		    $result = $this->booking_model->insert_data_in_booking_unit_details($services_details, $booking['state']);
@@ -274,7 +275,7 @@ class Booking extends CI_Controller {
 		    }
 		} else {
 		    $services_details['booking_status'] = "";
-		    log_message('info', __METHOD__ . " Update Booking Unit Details: " . print_r($services_details, true));
+		    log_message('info', __METHOD__ . " Update Booking Unit Details: " . print_r($services_details, true). " Previous booking id: ". print_r($booking_id));
 		    $price_tag = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state']);
 
 		    array_push($price_tags, $price_tag);
@@ -367,12 +368,12 @@ class Booking extends CI_Controller {
 		    $booking_id_array = explode("Q-", $booking_id);
 		    $data['booking_id'] = $booking_id_array[1];
 		    $data['query_to_booking'] = '1';
-		    log_message('info', __FUNCTION__ . " Query Converted to Booking Booking ID" . print_r($data['booking_id']));
+		    log_message('info', __FUNCTION__ . " Query Converted to Booking Booking ID" . print_r($data['booking_id'], true));
 		    $this->notify->insert_state_change($data['booking_id'], "Pending", "FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 		} else {
 		    //Booking to be updated to booking
 		    $data['booking_id'] = $booking_id;
-		    log_message('info', __FUNCTION__ . " Booking Updateded to Booking Booking ID" . print_r($data['booking_id']));
+		    log_message('info', __FUNCTION__ . " Booking Updateded to Booking Booking ID" . print_r($data['booking_id'], true));
 		    $this->notify->insert_state_change($data['booking_id'], "Pending", "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 		}
 
@@ -382,13 +383,13 @@ class Booking extends CI_Controller {
 		if (strpos($booking_id, "Q-") === FALSE) {
 		    //Booking to be converted to query
 		    $data['booking_id'] = "Q-" . $booking_id;
-		    log_message('info', __FUNCTION__ . " Booking to be Converted to Query Booking ID" . print_r($data['booking_id']));
+		    log_message('info', __FUNCTION__ . " Booking to be Converted to Query Booking ID" . print_r($data['booking_id'], true));
 		    //param:-- booking id, new state, old state, employee id, employee name
 		    $this->notify->insert_state_change($data['booking_id'], "FollowUp", "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 		} else {
 		    //Query to be updated to query
 		    $data['booking_id'] = $booking_id;
-		    log_message('info', __FUNCTION__ . " Query to be updated to Query Booking ID" . print_r($data['booking_id']));
+		    log_message('info', __FUNCTION__ . " Query to be updated to Query Booking ID" . print_r($data['booking_id'], true));
 		    $this->notify->insert_state_change($data['booking_id'], "FollowUp", "FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 		}
 
