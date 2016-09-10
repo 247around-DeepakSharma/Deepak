@@ -77,10 +77,10 @@
                             <a href="<?php echo base_url() ?>employee/vendor/get_assign_booking_form"><i class="fa fa-fw fa-desktop"></i> <strong>Assign Vendor</strong></a>
                         </li>
                         <li class="divider"></li>
-                       <!-- <li>
+                        <!-- <li>
                             <a href="<?php echo base_url()?>employee/vendor/get_reassign_vendor_form"><i class="fa fa-fw fa-desktop"></i> <strong> Re-assign Vendor</strong></a>
-                        </li>
-                        <li class="divider"></li>-->
+                            </li>
+                            <li class="divider"></li>-->
                         <li>
                             <a href="<?php echo base_url()?>employee/booking/review_bookings"><i class="fa fa-fw fa-desktop"></i> <strong> Review Bookings</strong></a>
                         </li>
@@ -110,9 +110,8 @@
                         <li class="divider"></li>
                         <li >
                             <a href="<?php echo base_url() ?>employee/bookings_excel/upload_delivered_products_for_paytm_excel"><i class="fa fa-fw fa-desktop "></i> <strong> Upload Paytm Booking</strong></a>
-                            </li>
+                        </li>
                         <li class="divider"></li>
-                       
                         <li>
                             <a href="<?php echo base_url() ?>employee/invoice/show_all_transactions/partner"><i class="fa fa-fw fa-desktop "></i> <strong>Show All Transactions</strong></a>
                         </li>
@@ -146,8 +145,6 @@
                             <a href="<?php echo base_url() ?>employee/vendor/get_broadcast_mail_to_vendors_form"><i class="fa fa-fw fa-desktop"></i> <strong> Send Broadcast Email</strong></a>
                         </li>
                         <li class="divider"></li>
-                       
-                        
                         <li>
                             <a href="<?php echo base_url() ?>employee/invoice/get_add_new_transaction"><i class="fa fa-fw fa-desktop "></i> <strong>Add New Transaction</strong></a>
                         </li>
@@ -155,23 +152,19 @@
                         <li>
                             <a href="<?php echo base_url() ?>employee/invoice/show_all_transactions/vendor"><i class="fa fa-fw fa-desktop "></i> <strong>Show All Transactions</strong></a>
                         </li>
-                    </ul>
-                    <!-- /.dropdown-user -->
-                </li>
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i class="fa fa-fw fa-arrows-v"></i> Engineers <i class="fa fa-caret-down"></i>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a href="<?php echo base_url() ?>employee/vendor/add_engineer" ><i class="fa fa-fw fa-desktop"></i> <strong> Add Engineer</strong></a>
+                        <li class="divider"></li>
+                        <li class="dropdown dropdown-submenu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-fw fa-desktop "></i> <strong>Engineers</strong></a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="<?php echo base_url() ?>employee/vendor/add_engineer" ><i class="fa fa-fw fa-desktop"></i> <strong> Add Engineer</strong></a>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="<?php echo base_url() ?>employee/vendor/get_engineers" ><i class="fa fa-fw fa-desktop"></i> <strong> View Engineers</strong></a>
+                                </li>
+                            </ul>
                         </li>
-                         <li class="divider"></li>
-                         <li>
-                            <a href="<?php echo base_url() ?>employee/vendor/get_engineers" ><i class="fa fa-fw fa-desktop"></i> <strong> View Engineers</strong></a>
-                        </li>
-
- 
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>
@@ -200,7 +193,7 @@
                     <!-- /.dropdown-user -->
                 </li>
                 <!-- /.dropdown -->
-                 <li class="dropdown">
+                <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     <i class="fa fa-fw fa-arrows-v"></i> Invoices <i class="fa fa-caret-down"></i>
                     </a>
@@ -209,7 +202,7 @@
                             <a href="<?php echo base_url() ?>employee/invoice"><i class="fa fa-fw fa-desktop "></i> <strong> Service Center Invoices</strong></a>
                         </li>
                         <li class="divider"></li>
-                         <li >
+                        <li >
                             <a href="<?php echo base_url() ?>employee/invoice/invoice_partner_view"><i class="fa fa-fw fa-desktop"></i> <strong> Partner Invoices</strong></a>
                         </li>
                         <li class="divider"></li>
@@ -219,7 +212,6 @@
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>
-
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     <i class="fa fa-fw fa-arrows-v"></i> Reports <i class="fa fa-caret-down"></i>
@@ -273,3 +265,23 @@
             <!-- /.navbar-top-links -->
             <!-- /.navbar-static-side -->
         </nav>
+        <script type="text/javascript">
+            (function($){
+            $(document).ready(function(){
+            $('ul.dropdown-menu [data-toggle=dropdown]').on('click', function(event) {
+            event.preventDefault(); 
+            event.stopPropagation(); 
+            $(this).parent().siblings().removeClass('open');
+            $(this).parent().toggleClass('open');
+            });
+            });
+            })(jQuery);
+        </script>
+        <style type="text/css">
+            .marginBottom-0 {margin-bottom:0;}
+            .dropdown-submenu{position:relative;}
+            .dropdown-submenu>.dropdown-menu{top:0;left:100%;margin-top:-6px;margin-left:-1px;-webkit-border-radius:0 6px 6px 6px;-moz-border-radius:0 6px 6px 6px;border-radius:0 6px 6px 6px;}
+            .dropdown-submenu>a:after{display:block;content:" ";float:right;width:0;height:0;border-color:transparent;border-style:solid;border-width:5px 0 5px 5px;border-left-color:#cccccc;margin-top:5px;margin-right:-10px;}
+            .dropdown-submenu:hover>a:after{border-left-color:#555;}
+            .dropdown-submenu.pull-left{float:none;}.dropdown-submenu.pull-left>.dropdown-menu{left:-100%;margin-left:10px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
+        </style>
