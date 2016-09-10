@@ -119,6 +119,10 @@
                             <th>Booking Internal Status: </th>
                             <td><?php echo $booking_history[0]['internal_status']; ?></td>
                         </tr>
+                         <tr>
+                            <th>Booking Create Date: </th>
+                            <td><?php echo $booking_history[0]['create_date']; ?></td>
+                        </tr>
                         <tr>
                             <th>Booking Closed Date: </th>
                             <td><?php echo $booking_history[0]['closed_date']; ?></td>
