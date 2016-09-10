@@ -141,11 +141,11 @@
                             <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
                             <th>Charges</th>
                             <th>Partner Offer</th>
-                            <th>Discount</th>
+                            <th>247Around Offer</th>
                             <th>Total Charges</th>
                             <?php } else { ?>
                             <th>Partner Offer</th>
-                            <th>Discount</th>
+                            <th>247Around Offer</th>
                             <th>Paid Service Charges</th>
                             <th>Paid Additional Charges</th>
                             <th>Paid Parts Cost</th>

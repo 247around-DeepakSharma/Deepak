@@ -141,12 +141,12 @@
                             <th>Call Type</th>
                             <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
                             <th>Charges</th>
-                            <th>Partner Offer</th>
-                            <th>Discount</th>
+                            <th>247Around Discount</th>
+                        
                             <th>Total Charges</th>
                             <?php } else { ?>
-                            <th>Partner Offer</th>
-                            <th>Discount</th>
+                            <th>Charges</th>
+                            <th>247Around Discount</th>
                             <th>Paid Service Charges</th>
                             <th>Paid Additional Charges</th>
                             <th>Paid Parts Cost</th>
@@ -169,13 +169,14 @@
                                 <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
                                 <td><?php  print_r($unit_detail['price_tags']); ?></td>
                                 <td><?php  print_r($unit_detail['customer_total']); ?></td>
-                                <td><?php print_r($unit_detail['partner_net_payable']);  ?></td>
-                                <td><?php print_r($unit_detail['around_net_payable']);  ?></td>
+                                <td><?php print_r($unit_detail['partner_net_payable'] + $unit_detail['around_net_payable'] );  ?></td>
+                               
                                 <td><?php print_r($unit_detail['customer_net_payable']);  ?></td>
                                 <?php } else {   ?>
                                 <td><?php  print_r($unit_detail['price_tags']); ?></td>
-                                <td><?php print_r($unit_detail['partner_net_payable']);  ?></td>
-                                <td><?php print_r($unit_detail['around_net_payable']);  ?></td>
+                                <td><?php  print_r($unit_detail['customer_total']); ?></td>
+                                <td><?php echo ($unit_detail['partner_net_payable'] + $unit_detail['around_net_payable']);  ?></td>
+                                
                                 <td><?php  print_r($unit_detail['customer_paid_basic_charges']); ?></td>
                                 <td><?php print_r($unit_detail['customer_paid_extra_charges']);  ?></td>
                                 <td><?php print_r($unit_detail['customer_paid_parts']);  ?></td>
