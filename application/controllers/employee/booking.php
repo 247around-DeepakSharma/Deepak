@@ -91,7 +91,7 @@ class Booking extends CI_Controller {
 	    $this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
 	}
 
-	redirect(base_url() . search_page);
+	redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
     /**
@@ -659,7 +659,7 @@ class Booking extends CI_Controller {
 	// call partner callback
 	$this->partner_cb->partner_callback($booking_id);
 
-	redirect(base_url() . search_page);
+	redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
     function update_price_while_cancel_booking($booking_id) {
@@ -750,7 +750,7 @@ class Booking extends CI_Controller {
 
 	    log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $this->session->userdata('employee_id') . " data " . print_r($data, true));
 
-	    redirect(base_url() . search_page);
+	    redirect(base_url() . DEFAULT_SEARCH_PAGE);
 	}
     }
 
@@ -1129,7 +1129,7 @@ class Booking extends CI_Controller {
 	log_message('info', __FUNCTION__ . " Partner callback  " . print_r($booking_id, true));
 	$this->partner_cb->partner_callback($booking_id);
 
-	redirect(base_url() . search_page);
+	redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
     /**
@@ -1541,7 +1541,7 @@ class Booking extends CI_Controller {
 
 	    log_message('info', $status . ' Booking Opened - Booking id: ' . $booking_id . " Opened By: " . $this->session->userdata('employee_id') . " => " . print_r($data, true));
 
-	    redirect(base_url() . search_page);
+	    redirect(base_url() . DEFAULT_SEARCH_PAGE);
 	}
     }
 

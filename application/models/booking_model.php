@@ -1410,7 +1410,7 @@ class Booking_model extends CI_Model {
         }
         unset($result[0]['tax_code']);
         unset($result[0]['product_type']);
-        return$result;
+        return $result;
 
 
     }
