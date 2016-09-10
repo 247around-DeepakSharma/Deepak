@@ -560,7 +560,7 @@ class bookings_excel extends CI_Controller {
 		    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
 		    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
 		}
-		$booking['create_date'] = date('Y-m-d H:i:s', strtotime("4 days"));
+		$booking['create_date'] = date('Y-m-d H:i:s');
 
 
 		//Insert query
