@@ -145,6 +145,9 @@
 
 <script type="text/javascript">
   $('#state').select2();
+  $("#city").select2({
+         tags: true
+    });
 
   function getcity(){
      var state = $("#state").val();
