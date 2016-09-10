@@ -154,10 +154,10 @@ class Booking_utilities {
             $to = $getbooking[0]['primary_contact_email'];
             $owner = $getbooking[0]['owner_email'];
             $from = "booking@247around.com";
-            $cc = $owner;
-            $bcc = 'anuj@247around.com';
-            
-            $subject = "247Around / Job Card " . $getbooking[0]['booking_id'] . " / " . $getbooking[0]['booking_date'] .
+            $cc = $owner . ',anuj@247around.com';
+	    $bcc = '';
+
+	    $subject = "247Around / Job Card " . $getbooking[0]['booking_id'] . " / " . $getbooking[0]['booking_date'] .
                     " / " . $getbooking[0]['booking_timeslot'];
 
             $file_pdf = $getbooking[0]['booking_jobcard_filename'];
