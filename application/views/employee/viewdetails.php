@@ -163,6 +163,7 @@
                             <th>Discount</th>
                             <th>Total Charges</th>
                             <?php } else { ?>
+                            <th>Charges</th>
                             <th>Partner Offer</th>
                             <th>Discount</th>
                             <th>Paid Service Charges</th>
@@ -193,6 +194,7 @@
                                 <td><?php print_r($unit_detail['customer_net_payable']);  ?></td>
                                 <?php } else {   ?>
                                 <td><?php  print_r($unit_detail['price_tags']); ?></td>
+                                 <td><?php  print_r($unit_detail['customer_total']); ?></td>
                                 <td><?php print_r($unit_detail['partner_net_payable']);  ?></td>
                                 <td><?php print_r($unit_detail['around_net_payable']);  ?></td>
                                 <td><?php  print_r($unit_detail['customer_paid_basic_charges']); ?></td>
