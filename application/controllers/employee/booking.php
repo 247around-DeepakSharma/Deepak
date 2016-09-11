@@ -40,7 +40,7 @@ class Booking extends CI_Controller {
 	$this->load->library('booking_utilities');
 	$this->load->library('partner_sd_cb');
 	$this->load->library('asynchronous_lib');
-	
+
 
 	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
 	    return TRUE;
@@ -150,7 +150,7 @@ class Booking extends CI_Controller {
 	if(isset($appliance_id_array)){
       $appliance_id = array_unique($appliance_id_array);
 	}
-	
+
 	$serial_number = $this->input->post('serial_number');
 	$partner_id = $this->partner_model->get_all_partner_source("", $booking['source']);
 	$partner_net_payable = $this->input->post('partner_paid_basic_charges');
@@ -234,13 +234,13 @@ class Booking extends CI_Controller {
 	    log_message('info', __METHOD__ . "Appliance ID" . print_r($appliance_id, true));
 	    /* if appliance id exist the initialize appliance id in array and update appliance details other wise it insert appliance details and return appliance id
 	     * */
-	    
+
 	    if (isset($appliance_id[$key])) {
-        
+
 		$services_details['appliance_id'] = $appliance_id[$key];
 		$this->booking_model->update_appliances($services_details['appliance_id'], $appliances_details);
 	    } else {
-        
+
 		$services_details['appliance_id'] = $this->booking_model->addappliance($appliances_details);
 		log_message('info', __METHOD__ . " New Appliance ID created: " . print_r($services_details['appliance_id'], true));
 	    }
@@ -275,7 +275,7 @@ class Booking extends CI_Controller {
 		    }
 		} else {
 		    $services_details['booking_status'] = "";
-		    log_message('info', __METHOD__ . " Update Booking Unit Details: " . print_r($services_details, true). " Previous booking id: ". print_r($booking_id));
+		    log_message('info', __METHOD__ . " Update Booking Unit Details: " . print_r($services_details, true). " Previous booking id: ". $booking_id);
 		    $price_tag = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state']);
 
 		    array_push($price_tags, $price_tag);
@@ -926,7 +926,7 @@ class Booking extends CI_Controller {
 	    $data['rating_comments'] = $this->input->post('rating_comments');
 
 	    $this->booking_model->update_booking($booking_id, $data);
-	} 
+	}
 
 	redirect(base_url() . 'employee/booking/viewclosedbooking/' . $status);
     }
