@@ -735,3 +735,12 @@ CREATE TABLE IF NOT EXISTS `engineer_details` (
 ALTER TABLE  `engineer_details` ADD  `delete` INT( 10 ) NOT NULL DEFAULT  '0' AFTER  `active` ;
 
 ALTER TABLE  `engineer_details` CHANGE  `delete`  `delete` INT( 10 ) NOT NULL DEFAULT  '0' COMMENT '0 means engineer not deleted and 1 means engineer deleted';
+
+ALTER TABLE  `vendor_partner_invoices` CHANGE  `total_service_charge`  `total_service_charge` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0.00';
+ALTER TABLE  `vendor_partner_invoices` CHANGE  `total_additional_service_charge`  `total_additional_service_charge` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0.00';
+ALTER TABLE  `vendor_partner_invoices` CHANGE  `service_tax`  `service_tax` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0.00';
+ALTER TABLE  `vendor_partner_invoices` CHANGE  `parts_cost`  `parts_cost` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0.00';
+ALTER TABLE  `vendor_partner_invoices` CHANGE  `vat`  `vat` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0.00';
+ALTER TABLE  `vendor_partner_invoices` CHANGE  `total_amount_collected`  `total_amount_collected` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0.00';
+ALTER TABLE  `vendor_partner_invoices` CHANGE  `around_royalty`  `around_royalty` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0.00';
+ALTER TABLE  `vendor_partner_invoices` CHANGE  `amount_collected_paid`  `amount_collected_paid` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0.00';
