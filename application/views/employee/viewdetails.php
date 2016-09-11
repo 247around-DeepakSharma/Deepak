@@ -61,7 +61,7 @@
                         </tr>
                         <tr>
                             <th>Source: </th>
-                            <td><?php echo $booking_history[0]['source']; ?></td>
+                            <td><?php echo $booking_history[0]['source'] . ' / ' . $booking_history[0]['partner_source']; ?></td>
                         </tr>
                         <tr>
                             <th>Units: </th>
@@ -91,18 +91,14 @@
                             <th>Booking Pincode: </th>
                             <td><?php echo $booking_history[0]['booking_pincode']; ?></td>
                         </tr>
+                        <tr>
+                            <th>Contact No: </th>
+                            <td><?php echo $booking_history[0]['booking_primary_contact_no'] . ' / ' . $booking_history[0]['booking_alternate_contact_no']; ?></td>
+                        </tr>
                     </table>
                 </div>
                 <div class="col-md-6">
                     <table class="table  table-striped table-bordered">
-                        <tr>
-                            <th>Primary Contact No.: </th>
-                            <td><?php echo $booking_history[0]['booking_primary_contact_no']; ?></td>
-                        </tr>
-                        <tr>
-                            <th>Alternate Contact No.: </th>
-                            <td><?php echo $booking_history[0]['booking_alternate_contact_no']; ?></td>
-                        </tr>
                         <tr>
                             <th>Booking Remarks: </th>
                             <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
@@ -141,6 +137,10 @@
                         <tr>
                             <th>Closing Remarks: </th>
                             <td><?php echo $booking_history[0]['closing_remarks']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Reschedule Reason: </th>
+                            <td><?php echo $booking_history[0]['reschedule_reason']; ?></td>
                         </tr>
                         <tr>
                             <th>Cancellation Reason: </th>
@@ -215,7 +215,7 @@
                 </div>
                 <?php } if(!empty($service_center)){?>
                 <div class="col-md-6">
-                    <b >Service Centre Details:</b><br>
+                    <h3>Service Centre Details:</h3>
                     <table class="table  table-striped table-bordered">
                         <tr>
                             <th>Service Centre Name: </th>
