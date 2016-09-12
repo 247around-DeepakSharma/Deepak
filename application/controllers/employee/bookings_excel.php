@@ -498,11 +498,11 @@ class bookings_excel extends CI_Controller {
 		    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Delivery_Date']);
 
 		if ($dateObj2->format('d') == date('d')) {
-		    //If date is NULL, add 4 days from today in EDD.
-		    $dateObj2 = date_create('+4days');
+		    //If date is NULL, add 3 days from today in EDD.
+		    $dateObj2 = date_create('+3days');
 		} else {
-		    //If date is NOT NULL, add 2 days in EDD.
-		    $dateObj2 = date_add($dateObj2, date_interval_create_from_date_string('2 days'));
+		    //If date is NOT NULL, leave EDD as it is.
+		    //$dateObj2 = date_add($dateObj2, date_interval_create_from_date_string('2 days'));
 		}
 		log_message('info', print_r($dateObj2, true));
 
@@ -560,7 +560,7 @@ class bookings_excel extends CI_Controller {
 		    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
 		    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
 		}
-		$booking['create_date'] = date('Y-m-d H:i:s', strtotime("4 days"));
+		$booking['create_date'] = date('Y-m-d H:i:s');
 
 
 		//Insert query

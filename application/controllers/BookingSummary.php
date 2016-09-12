@@ -557,7 +557,7 @@ EOD;
 	$this->email->subject("247around Installation Report - " . date('d-M-Y'));
 	$summary_table = $this->get_sd_summary_table();
 
-	$message = "Dear Alok,<br/><br/>";
+	$message = "Dear Partner,<br/><br/>";
 	$message .= "Please find updated summary table below.<br/><br/>";
 	$message .= $summary_table;
 	$message .= "<br><br>Best Regards,
