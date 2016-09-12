@@ -66,7 +66,8 @@ class Service_centers_model extends CI_Model {
                            From  booking_details 
                            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
                            JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-                           WHERE booking_details.booking_id = '$value[booking_id]' AND (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled') ";
+                           WHERE booking_details.booking_id = '$value[booking_id]' AND (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled')
+                            AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0)  ";
 
                 $query1 = $this->db->query($sql);
                 $result = $query1->result();
