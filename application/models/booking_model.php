@@ -550,7 +550,7 @@ class Booking_model extends CI_Model {
     function getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $state) {
 
         $this->db->distinct();
-        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable');
+        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod');
         $this->db->where('service_id',$service_id);
         $this->db->where('category', $category);
         $this->db->where('active', 1);
@@ -638,6 +638,7 @@ class Booking_model extends CI_Model {
 //    	$query = $this->db->query("UPDATE booking_details set mail_to_vendor= 1 where booking_id
 //                ='$booking_id'");
         $this->db->query("UPDATE booking_details set mail_to_vendor= 1 where booking_id ='$booking_id'");
+        echo $this->db->last_query();
     }
 
     /**
@@ -996,8 +997,8 @@ class Booking_model extends CI_Model {
         return $result;
     }
 
-    /**
-     *  @desc : Function to get pending queries according to pagination.
+    /**set_mail_to_vendor
+     *  @desc : Function to get pending queriesset_mail_to_vendor according to pagination.
      *          Queries which have booking date of future are not shown. Queries with
      *          empty booking dates are shown.
      *  @param : start and limit for the query

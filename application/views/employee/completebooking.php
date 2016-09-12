@@ -157,7 +157,13 @@
                                  <?php
                                  foreach ($prices[$keys] as $index => $value) { ?>
                                    <tr style="background-color:   #FF4500; color: white;">
-                                     <td> <input type="text" class="form-control"  id="<?php echo "serial_number".$count; ?>" name="<?php echo "serial_number[". $price['unit_id'] . "new".$value['id']."]"?>"  value="" placeholder= "Enter Serial Number" /></td>
+                                   
+                                     <td> <?php if($value['pod'] == "1"){ ?>
+                                     <input type="text" class="form-control"  id="<?php echo "serial_number".$count; ?>" name="<?php echo "serial_number[". $price['unit_id'] . "new".$value['id']."]"?>"  value="" placeholder= "Enter Serial Number" />
+                                     <?php } ?>
+
+                                     </td>
+                                     
                                      <td> <?php echo $value['service_category']; ?> </td>
                                      <td> <?php echo $value['customer_net_payable']; ?> </td>
                                      <td>  <input  type="text" class="form-control cost"   name="<?php echo "customer_basic_charge[". $price['unit_id'] . "new".$value['id']."]"?>"  value = "0.00">
