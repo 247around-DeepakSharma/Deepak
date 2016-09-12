@@ -116,7 +116,7 @@ class Booking_utilities {
 
     //This function sends email to the assigned vendor
     function lib_send_mail_to_vendor($booking_id, $additional_note) {
-        log_message('info', __FUNCTION__." Booking Id: ". print_r($booking_id));
+        log_message('info', __FUNCTION__." Booking Id: ". print_r($booking_id, true));
 
         $getbooking = $this->My_CI->booking_model->getbooking_history($booking_id,"join");
 
@@ -155,7 +155,7 @@ class Booking_utilities {
             $owner = $getbooking[0]['owner_email'];
             $from = "booking@247around.com";
             $cc = $owner . ',anuj@247around.com';
-	    $bcc = '';
+	        $bcc = '';
 
 	    $subject = "247Around / Job Card " . $getbooking[0]['booking_id'] . " / " . $getbooking[0]['booking_date'] .
                     " / " . $getbooking[0]['booking_timeslot'];
@@ -194,16 +194,16 @@ class Booking_utilities {
                 "attachment" => $getbooking[0]['booking_jobcard_filename']);
             $this->My_CI->booking_model->save_vendor_email($details);
 
-	    $is_mail = $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $output_file_pdf);
+	       $is_mail = $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $output_file_pdf);
 
 	    if ($is_mail) {
 		$data['success'] = "Mail sent to Service Center successfully.";
-                $this->session->set_flashdata('result', 'Mail sent to Service Center successfully');
+                //$this->session->set_flashdata('result', 'Mail sent to Service Center successfully');
                 //Setting flag to 1, once mail is sent.
                 $this->My_CI->booking_model->set_mail_to_vendor($booking_id);
             } else {
                 $data['success'] = "Mail could not be sent, please try again.";
-                $this->session->set_flashdata('result', 'Mail could not be sent, please try again');
+                //$this->session->set_flashdata('result', 'Mail could not be sent, please try again');
             }
 
            // redirect(base_url() . 'employee/booking/view');
