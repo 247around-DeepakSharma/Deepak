@@ -182,7 +182,7 @@
                     </tr>
                 </thead>
                 <?php  if($offset ==0){ $offset = 1;} else { $offset = $offset+1; } ?>
-                <?php foreach($Bookings as $key =>$row){?>
+                <?php foreach($Bookings as $key =>$row){ if($row->current_status == "FollowUp") {?>
                 <tr <?php if (isset($row->OrderID)) { if($row->OrderID !=null) { ?>
                     style="background-color:#EC8484"
                     <?php }  }?> >
@@ -234,7 +234,7 @@
                     </td>
                 </tr>
                 <?php $count++; $offset++;
-                    }?>
+                    } } ?>
             </table>
             <?php } if(isset($data['Pending'])){ ?>
             <h1 align="left">
