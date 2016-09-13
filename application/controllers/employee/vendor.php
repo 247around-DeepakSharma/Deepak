@@ -931,6 +931,8 @@ class vendor extends CI_Controller {
      *  This  function is used by vendor panel and admin panel to load add engineer details
      */
     function process_add_engineer(){
+        $engineer_form_validation = $this->engineer_form_validation();
+        if($engineer_form_validation){
         $data['name'] = $this->input->post('name');
         $data['phone'] = $this->input->post('phone');
         $data['alternate_phone'] =  $this->input->post('alternate_phone');
@@ -942,6 +944,8 @@ class vendor extends CI_Controller {
         $data['banck_ac_no'] = $this->input->post('bank_account_no');
         $data['bank_ifsc_code'] = $this->input->post('bank_ifsc_code');
         $data['bank_holder_name'] = $this->input->post('bank_holder_name');
+        $data['identity_proof_pic']   = $this->input->post('file');
+        $data['bank_proof_pic']   = $this->input->post('bank_proof_pic');
 
         if($this->session->userdata('userType') == 'service_center'){
             $data['service_center_id'] = $this->session->userdata('service_center_id');
@@ -979,6 +983,9 @@ class vendor extends CI_Controller {
         } else {
             log_message('info', __FUNCTION__ . " Added By admin panel  " . print_r($data, true));
             redirect(base_url()."employee/vendor/add_engineer");
+        }
+        } else {
+           $this->add_engineer(); 
         }
     }
     /**
@@ -1057,6 +1064,93 @@ class vendor extends CI_Controller {
        }
 
     }
+    /**
+     * @desc: This is used to validate engineer details form And also used to upload images
+     */
+    function engineer_form_validation(){
+        
+        $this->form_validation->set_rules('name', 'Name', 'required|xss_clean');
+        $this->form_validation->set_rules('phone', 'Mobile Number', 'trim|exact_length[10]|numeric|required|xss_clean');
+        $this->form_validation->set_rules('alternate_phone', 'Alternate Mobile Number', 'trim|exact_length[10]|numeric|xss_clean');
+        $this->form_validation->set_rules('identity_id_number', 'ID Number', 'numeric|xss_clean');
+        $this->form_validation->set_rules('identity_proof', 'Identity Proof', 'xss_clean');
+        $this->form_validation->set_rules('bank_account_no', 'Bank Account No', 'numeric|required|xss_clean');
+        $this->form_validation->set_rules('address', 'Address', 'xss_clean');
+        $this->form_validation->set_rules('service_id', 'Appliance ', 'xss_clean');
+        $this->form_validation->set_rules('bank_name', 'Bank Name', 'required|xss_clean');
+        $this->form_validation->set_rules('bank_ifsc_code', 'IFSC Code', 'required|xss_clean');
+        $this->form_validation->set_rules('bank_holder_name', 'Account Holder Name', 'required|xss_clean');
+        $this->form_validation->set_rules('file', 'Identity Proof Pic ', 'callback_uploadIdentity_proof_pic');
+        $this->form_validation->set_rules('bank_proof_pic', 'Bank Proof Pic', 'callback_upload_bank_proof_pic');
+     
+        if ($this->form_validation->run() == FALSE) {
+            return FALSE;
+        }
+        else {
+            return true;
+        }
+    }
+    
+    /**
+     * @desc: This is used to upload Bank Proof Image and return bank proof name
+     */
+    public function upload_bank_proof_pic() {
+        $allowedExts = array("png", "jpg", "jpeg","JPG","JPEG","PNG","GIF");
+        $temp        = explode(".", $_FILES["bank_proof_pic"]["name"]);
+        $extension   = end($temp);
+        $filename    = prev($temp);
+        if($_FILES["bank_proof_pic"]["name"]!=null) {
+            if (($_FILES["bank_proof_pic"]["size"] < 2e+6)&& in_array($extension, $allowedExts)) {
+                if ($_FILES["bank_proof_pic"]["error"] > 0) {
+                    $this->form_validation->set_message('upload_bank_proof_pic', $files["bank_proof_pic"]["error"]);
+                    
+                } 
+                else {
+                    $pic = str_replace(' ', '-', $this->input->post('name'))."_". str_replace(' ', '', $this->input->post('bank_ifsc_code'))."_". uniqid(rand());
+                    $picName = $pic.".".$extension;
+                    $_POST['bank_proof_pic']  = $picName;
+                    $bucket = "bookings-collateral";
+                    $directory = "engineer-bank-proofs/".$picName;
+                    $this->s3->putObjectFile($_FILES["bank_proof_pic"]["tmp_name"], $bucket ,$directory, S3::ACL_PUBLIC_READ);
+                }
+            }
+            else{
+                $this->form_validation->set_message('upload_bank_proof_pic', 'File size or file type is not supported.Allowed extentions are "png", "jpg", "jpeg". Maximum file size is 2MB.');
+                return FALSE;
+            }
+        } 
+    }
+    
+     /**
+     * @desc: This is used to upload Bank Proof Image and return Identity Proof Image
+     */
+    public function uploadIdentity_proof_pic() {
+        $allowedExts = array("png", "jpg", "jpeg","JPG","JPEG","PNG","GIF");
+        $temp        = explode(".", $_FILES["file"]["name"]);
+        $extension   = end($temp);
+        $filename    = prev($temp);
+        if($_FILES["file"]["name"]!=null) {
+            if (($_FILES["file"]["size"] < 2e+6)&& in_array($extension, $allowedExts)) {
+                if ($_FILES["file"]["error"] > 0) {
+                    $this->form_validation->set_message('uploadIdentity_proof_pic', $files["file"]["error"]);
+                    
+                } 
+                else {
+                    $pic = str_replace(' ', '-', $this->input->post('name'))."_". str_replace(' ', '', $this->input->post('identity_proof'))."_". uniqid(rand());
+                    $picName = $pic.".".$extension;
+                    $_POST['file']  = $picName;
+                    $bucket = "bookings-collateral";
+                    $directory = "engineer-id-proofs/".$picName;
+                    $this->s3->putObjectFile($_FILES["file"]["tmp_name"], $bucket ,$directory, S3::ACL_PUBLIC_READ);
+                }
+            }
+            else{
+                $this->form_validation->set_message('uploadIdentity_proof_pic', 'File size or file type is not supported.Allowed extentions are "png", "jpg", "jpeg". Maximum file size is 2MB.');
+                return FALSE;
+            }
+        } 
+    }
+
 
 //     function process_upload_pincode_file(){
 //         if (!empty($_FILES['file']['name'])) {
