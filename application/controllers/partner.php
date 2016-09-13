@@ -695,9 +695,9 @@ class Partner extends CI_Controller {
 
     //Validate new request data
     function validate_submit_request_data($request) {
-        log_message('info', "Entering: " . __METHOD__);
+        log_message('info', "Entering: " . __METHOD__ . ", Request data: " . print_r($request, true));
 
-        //Lead will store the booking entry if it exists
+	//Lead will store the booking entry if it exists
         $resultArr = array("result" => FALSE, "lead" => NULL, "code" => NULL, "msg" => NULL);
         $flag = TRUE;
 
@@ -744,7 +744,9 @@ class Partner extends CI_Controller {
         if ($flag === TRUE) {
             $lead = $this->partner_model->get_order_id_for_partner($this->partner['id'], $request['orderID']);
             if (!is_null($lead)) {
-                //order id exists, return booking id
+		log_message('info', "Lead details: " . print_r($lead, true));
+
+		//order id exists, return booking id
                 $resultArr['code'] = ERR_ORDER_ID_EXISTS_CODE;
                 $resultArr['msg'] = ERR_ORDER_ID_EXISTS_MSG;
                 $resultArr['lead'] = $lead;
@@ -755,11 +757,12 @@ class Partner extends CI_Controller {
 
         //Invalid Product
         $valid_products = array("Washing Machines & Dryers", "Televisions", "Air Conditioner",
-            "Refrigerator", "Microwave Ovens & OTGs", "Water Purifiers", "Chimney & Hoods");
-        if (($flag === TRUE) &&
+            "Refrigerator", "Microwave Ovens & OTGs", "Water Purifiers", "Chimney & Hoods",
+	    "Geyser");
+	if (($flag === TRUE) &&
                 (in_array($request['product'], $valid_products) == FALSE)) {
             //Do not return error as of now, just log this.
-            log_message('info', $request['product'] . ': Invalide product type');
+            log_message('info', $request['product'] . ': Invalid product type');
 
             //$resultArr['code'] = ERR_INVALID_PRODUCT_CODE;
             //$resultArr['msg'] = ERR_INVALID_PRODUCT_MSG;
@@ -805,9 +808,9 @@ class Partner extends CI_Controller {
 
     //Validate get order status API data
     function validate_get_request_data($request) {
-        log_message('info', "Entering: " . __METHOD__);
+        log_message('info', "Entering: " . __METHOD__ . ", Request data: " . print_r($request, true));
 
-        //Lead will store the booking entry if it exists
+	//Lead will store the booking entry if it exists
         $resultArr = array("result" => FALSE, "lead" => NULL, "code" => NULL, "msg" => NULL);
         $flag = TRUE;
 
@@ -836,7 +839,9 @@ class Partner extends CI_Controller {
             if (!is_null($lead)) {
                 //order id found, check booking id
                 if ($lead['booking_id'] != $request['247aroundBookingID']) {
-                    $resultArr['code'] = ERR_INVALID_BOOKING_ID_CODE;
+		    log_message('info', "Lead details: " . print_r($lead, true));
+
+		    $resultArr['code'] = ERR_INVALID_BOOKING_ID_CODE;
                     $resultArr['msg'] = ERR_INVALID_BOOKING_ID_MSG;
 
                     $flag = FALSE;
@@ -863,9 +868,9 @@ class Partner extends CI_Controller {
 
     //Validate get booking details API data
     function validate_get_booking_details_data($request) {
-        log_message('info', "Entering: " . __METHOD__);
+        log_message('info', "Entering: " . __METHOD__ . ", Request data: " . print_r($request, true));
 
-        //Lead will store the booking entry if it exists
+	//Lead will store the booking entry if it exists
         $resultArr = array("result" => FALSE, "lead" => NULL, "code" => NULL, "msg" => NULL);
         $flag = TRUE;
 
@@ -905,9 +910,9 @@ class Partner extends CI_Controller {
 
     //Validate cancel order API data
     function validate_cancel_request_data($request) {
-        log_message('info', "Entering: " . __METHOD__);
+        log_message('info', "Entering: " . __METHOD__ . ", Request data: " . print_r($request, true));
 
-        //Lead will store the booking entry if it exists
+	//Lead will store the booking entry if it exists
         $resultArr = array("result" => FALSE, "lead" => NULL, "code" => NULL, "msg" => NULL);
         $flag = TRUE;
 
@@ -939,14 +944,18 @@ class Partner extends CI_Controller {
 
                 //order id found, check booking id
                 if ($lead['booking_id'] != $request['247aroundBookingID']) {
-                    $resultArr['code'] = ERR_INVALID_BOOKING_ID_CODE;
+		    log_message('info', "Lead details: " . print_r($lead, true));
+
+		    $resultArr['code'] = ERR_INVALID_BOOKING_ID_CODE;
                     $resultArr['msg'] = ERR_INVALID_BOOKING_ID_MSG;
 
                     $flag = FALSE;
                 } else {
                     //Check request status
                     if ($lead['current_status'] == "Cancelled") {
-                        $resultArr['code'] = ERR_REQUEST_ALREADY_CANCELLED_CODE;
+			log_message('info', "Lead details: " . print_r($lead, true));
+
+			$resultArr['code'] = ERR_REQUEST_ALREADY_CANCELLED_CODE;
                         $resultArr['msg'] = ERR_REQUEST_ALREADY_CANCELLED_MSG;
 
                         $flag = FALSE;
@@ -954,7 +963,9 @@ class Partner extends CI_Controller {
 
                     if (($flag === TRUE) &&
                             ($lead['current_status'] == "Completed")) {
-                        $resultArr['code'] = ERR_REQUEST_ALREADY_COMPLETED_CODE;
+			log_message('info', "Lead details: " . print_r($lead, true));
+
+			$resultArr['code'] = ERR_REQUEST_ALREADY_COMPLETED_CODE;
                         $resultArr['msg'] = ERR_REQUEST_ALREADY_COMPLETED_MSG;
 
                         $flag = FALSE;
@@ -987,9 +998,9 @@ class Partner extends CI_Controller {
 
     //Validate update timeslot API data
     function validate_update_timeslot_data($request) {
-        log_message('info', "Entering: " . __METHOD__);
+        log_message('info', "Entering: " . __METHOD__ . ", Request data: " . print_r($request, true));
 
-        //Lead will store the booking entry if it exists
+	//Lead will store the booking entry if it exists
         $resultArr = array("result" => FALSE, "lead" => NULL, "code" => NULL, "msg" => NULL);
         $flag = TRUE;
 
@@ -1022,14 +1033,18 @@ class Partner extends CI_Controller {
 
                 //order id found, check booking id
                 if ($lead['booking_id'] != $request['247aroundBookingID']) {
-                    $resultArr['code'] = ERR_INVALID_BOOKING_ID_CODE;
+		    log_message('info', "Lead details: " . print_r($lead, true));
+
+		    $resultArr['code'] = ERR_INVALID_BOOKING_ID_CODE;
                     $resultArr['msg'] = ERR_INVALID_BOOKING_ID_MSG;
 
                     $flag = FALSE;
                 } else {
                     //Check request status
                     if ($lead['current_status'] == "Cancelled") {
-                        $resultArr['code'] = ERR_REQUEST_ALREADY_CANCELLED_CODE;
+			log_message('info', "Lead details: " . print_r($lead, true));
+
+			$resultArr['code'] = ERR_REQUEST_ALREADY_CANCELLED_CODE;
                         $resultArr['msg'] = ERR_REQUEST_ALREADY_CANCELLED_MSG;
 
                         $flag = FALSE;
@@ -1037,7 +1052,9 @@ class Partner extends CI_Controller {
 
                     if (($flag === TRUE) &&
                             ($lead['current_status'] == "Completed")) {
-                        $resultArr['code'] = ERR_REQUEST_ALREADY_COMPLETED_CODE;
+			log_message('info', "Lead details: " . print_r($lead, true));
+
+			$resultArr['code'] = ERR_REQUEST_ALREADY_COMPLETED_CODE;
                         $resultArr['msg'] = ERR_REQUEST_ALREADY_COMPLETED_MSG;
 
                         $flag = FALSE;
@@ -1186,7 +1203,8 @@ class Partner extends CI_Controller {
     }
 
     function validate_timeslot_format($timeslot) {
-        //json_decode($timeslot);
+        log_message('info', "Entering: " . __METHOD__ . ", Timeslot: " . print_r($timeslot, true));
+//json_decode($timeslot);
 
         if (!(json_last_error() === JSON_ERROR_NONE)) {
             return FALSE;
@@ -1579,9 +1597,9 @@ class Partner extends CI_Controller {
 
     //Validate new request data
     function validate_request_data($request) {
-    log_message('info', "Entering: " . __METHOD__);
+    log_message('info', "Entering: " . __METHOD__ . ", Request data: " . print_r($request, true));
 
-    //Lead will store the booking entry if it exists
+	//Lead will store the booking entry if it exists
     $resultArr = array("result" => FALSE, "lead" => NULL, "code" => NULL, "msg" => NULL);
     $flag = TRUE;
 
