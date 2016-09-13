@@ -904,8 +904,9 @@ class vendor_model extends CI_Model {
         $this->db->where('booking_id', $booking_id);
         $query = $this->db->get('service_center_booking_action');
         if ($query->num_rows() > 0) {
+            $result = $query->result_array();
 	    log_message('info', __METHOD__ . "=> Booking ID: " . $booking_id . "=> Old vendor data " .
-		print_r($query->result_array(), TRUE));
+		print_r($result, TRUE));
 
 	    $this->db->where('booking_id', $booking_id);
         $this->db->delete("service_center_booking_action");
