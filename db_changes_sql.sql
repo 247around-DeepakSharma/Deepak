@@ -1,7 +1,10 @@
 <!--  --Abhay 9/4/16-->
 
 ALTER TABLE  `bookings_sources` ADD  `partner_email_for_to` VARCHAR( 100 ) NOT NULL AFTER  `partner_id` ,
-ADD  `partner_email_for_cc` VARCHAR( 100 ) NOT NULL AFTER  `patner_email_for_to` ;
+ADD  `partner_email_for_cc` VARCHAR( 100 ) NOT NULL 
+
+ALTER TABLE  `bank_transactions` ADD  `tds_amount` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0.00' AFTER  `debit_amount` ;
+ALTER TABLE  `vendor_partner_invoices` ADD  `settel_mount` INT( 10 ) NOT NULL DEFAULT  '0' AFTER  `tds_amount` ;  `patner_email_for_to` ;
 
 UPDATE  `247around_test`.`bookings_sources` SET  `partner_email_for_cc` =  'heyrajcool@gmail.com,abhaya@247around' WHERE  `bookings_sources`.`id` =8;
 
@@ -744,3 +747,23 @@ ALTER TABLE  `vendor_partner_invoices` CHANGE  `vat`  `vat` DECIMAL( 10, 2 ) NOT
 ALTER TABLE  `vendor_partner_invoices` CHANGE  `total_amount_collected`  `total_amount_collected` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0.00';
 ALTER TABLE  `vendor_partner_invoices` CHANGE  `around_royalty`  `around_royalty` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0.00';
 ALTER TABLE  `vendor_partner_invoices` CHANGE  `amount_collected_paid`  `amount_collected_paid` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0.00';
+
+
+
+
+ALTER TABLE  `engineer_details` CHANGE  `delete`  `delete` INT( 10 ) NOT NULL DEFAULT  '0' COMMENT '0 means engineer not deleted and 1 means engineer deleted';
+ALTER TABLE  `vendor_partner_invoices` ADD  `tds_amount` DECIMAL( 10, 2 ) NOT NULL AFTER  `amount_collected_paid` ;
+ALTER TABLE  `vendor_partner_invoices` CHANGE  `total_service_charge`  `total_service_charge` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0',
+CHANGE  `total_additional_service_charge`  `total_additional_service_charge` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0',
+CHANGE  `service_tax`  `service_tax` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0',
+CHANGE  `parts_cost`  `parts_cost` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0',
+CHANGE  `vat`  `vat` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0',
+CHANGE  `total_amount_collected`  `total_amount_collected` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0',
+CHANGE  `around_royalty`  `around_royalty` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0',
+CHANGE  `amount_collected_paid`  `amount_collected_paid` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0' COMMENT 'Final amount which needs to be collected from vendor or to be paid to vendor. +ve => collect from vendor, -ve => pay to vendor',
+CHANGE  `tds_amount`  `tds_amount` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0';
+
+ALTER TABLE  `bank_transactions` ADD  `tds_amount` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0.00' AFTER  `debit_amount` ;
+ALTER TABLE  `vendor_partner_invoices` ADD  `settle_amount` INT( 10 ) NOT NULL DEFAULT  '0' AFTER  `tds_amount` ;
+ALTER TABLE  `engineer_details` CHANGE  `identity_proof_pic`  `identity_proof_pic` VARCHAR( 250 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
+ALTER TABLE  `engineer_details` ADD  `bank_proof_pic` VARCHAR( 250 ) NULL AFTER  `identity_proof_pic` ;
