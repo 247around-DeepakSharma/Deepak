@@ -276,17 +276,25 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 
                      /* get sum of vat charges if product_or_services is product else sum of vat is zero  */
                      (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (around_st_or_vat_basic_charges + vendor_st_or_vat_basic_charges) ELSE 0 END) as vat,
+
+                     (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN ( vendor_st_or_vat_basic_charges) ELSE 0 END) as vendor_vat,
                     /* get sum of st charges if product_or_services is Service else sum of vat is zero  */
                      (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (around_st_or_vat_basic_charges + vendor_st_or_vat_basic_charges) ELSE 0 END) as st,
+
+                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (vendor_st_or_vat_basic_charges) ELSE 0 END) as vendor_st,
                      /* get installation charge if product_or_services is Service else installation_charge is zero
                       * installation charge is the sum of around_comm_basic_charge and vendor_basic_charge
                       */
                      (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (around_comm_basic_charges +vendor_basic_charges) ELSE 0 END) as installation_charge,
+
+                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (vendor_basic_charges) ELSE 0 END) as vendor_installation_charge,
                       /* get stand charge if product_or_services is Product else stand charge is zero
                       * Stand charge is the sum of around_comm_basic_charge and vendor_basic_charge
                       */
 
                      (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (around_comm_basic_charges +vendor_basic_charges) ELSE 0 END) as stand,
+
+                     (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (vendor_basic_charges) ELSE 0 END) as vendor_stand,
                      /* get sum of service charge, sum of service charge is the sum of customer paid basic charge and around net payable*/
 
                      (SELECT SUM(customer_paid_basic_charges + around_net_payable ) $condition ) AS sum_service_charge,
@@ -435,5 +443,85 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
     function insert_invoice_row($invoices_data) {
 	$this->db->insert('vendor_invoices_snapshot', $invoices_data);
     }
+    /**
+     * @desc: This method settle invoices
+     * First it get amount_collected_paid value for selected invoice id and push it in array
+     *
+     */
+    function update_settle_invoices($invoice_id, $paid_amount, $vendor_partner, $vendor_partner_id){
+    	$sum_amount_to_be_paid = 0;
+    	$data  = array();
+    	//Push all amount_collected_paid value for selected invoices
+    	foreach ($invoice_id as $key => $custom_invoices) {
+    		$this->db->select('invoice_id, amount_collected_paid');
+    	    $this->db->where('invoice_id', $custom_invoices);
+    	    $query = $this->db->get('vendor_partner_invoices');
+
+    	    if($query->num_rows > 0){
+    		    $result =  $query->result_array();
+    		    array_push($data, $result);
+    	    }
+    	}
+        // Get final settlement amount
+        $credit_debit_amount = $this->get_final_settlement_amount($vendor_partner_id, $vendor_partner);
+        // if amount paid is equal to final settlement price. It settle all selected invoices
+        if(intval($paid_amount) == intval($credit_debit_amount)){
+        	foreach ($invoice_id as  $value) {
+        		$this->update_partner_invoices(array('invoice_id' => $value), array('settle_amount' => 1));
+        	}
+           
+        } else {
+        	$paid_amount = abs($paid_amount);
+        	foreach ($data[0] as $value) {
+        		$amount_collected = abs($value['amount_collected_paid']);
+        		//if paid amount is greater or equal to amount_collected_paid then settle that invoice id
+        		if($paid_amount >= $amount_collected ){
+            			//echo "settle";
+            	    $this->update_partner_invoices(array('invoice_id' => $value['invoice_id']), array('settle_amount' => 1));
+            		$paid_amount = $paid_amount - $amount_collected;
+            	}	
+        	}
+        }
+    }
+    /**
+     * @desc: Update Vendor partner invoice table
+     */
+    function update_partner_invoices($where, $details) {
+	    $this->db->where($where);
+	    $this->db->update('vendor_partner_invoices', $details);
+    }
+    
+    /**
+     * @desc: This method retuns final settlement price
+     * @param: Vendor Partner ID
+     * @param: Vendor Partner Type
+     * @return: Final sattlement Amt
+     */
+    function get_final_settlement_amount($vendor_partner_id, $vendor_partner){
+	   	$data['vendor_partner'] = $vendor_partner;
+	   	$data['vendor_partner_id'] = $vendor_partner_id;
+		$invoice_array = $this->getInvoicingData($data);
+
+		$data2['partner_vendor'] = $vendor_partner;
+		$data2['partner_vendor_id'] = $vendor_partner_id;
+		$bank_statement = $this->get_bank_transactions_details($data2);
+		$total_amount_paid = 0;
+		$credit_amount = 0;
+		$debit_amount = 0;
+		foreach ($invoice_array as  $value) {
+			$total_amount_paid += $value['amount_collected_paid'];
+		}
+		foreach ($bank_statement as  $statement) {
+			$credit_amount += $statement['credit_amount'];
+			$debit_amount += $statement['debit_amount'];
+		}
+
+		$final_settlement = $total_amount_paid + $debit_amount - $credit_amount;
+
+		return round($final_settlement, 2);
+    }
+
+
+
 
 }

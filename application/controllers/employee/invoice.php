@@ -962,18 +962,14 @@ class Invoice extends CI_Controller {
 
 		// Calculate charges
 		for ($j = 0; $j < count($data[$i]); $j++) {
-		    $total_inst_charge += $data[$i][$j]['installation_charge'];
-		    $total_st_charge += $data[$i][$j]['st'];
-		    $total_stand_charge += $data[$i][$j]['stand'];
-		    $total_vat_charge += $data[$i][$j]['vat'];
-		    $invoices[$j]['amount_paid'] = $data[$i][$j]['installation_charge'] + $data[$i][$j]['st'] + $data[$i][$j]['stand'] + $data[$i][$j]['vat'];
+		    $total_inst_charge += $data[$i][$j]['vendor_installation_charge'];
+		    $total_st_charge += $data[$i][$j]['vendor_st'];
+		    $total_stand_charge += $data[$i][$j]['vendor_stand'];
+		    $total_vat_charge += $data[$i][$j]['vendor_vat'];
+		    $invoices[$j]['amount_paid'] = $data[$i][$j]['vendor_installation_charge'] + $data[$i][$j]['vendor_st'] + $data[$i][$j]['vendor_stand'] + $data[$i][$j]['vendor_vat'];
 
 		}
 
-		$r_ic = $total_inst_charge * .30;
-		$r_st = $total_st_charge * .30;
-		$r_vat = $total_vat_charge * .30;
-		$r_stand = $total_stand_charge * .30;
 		$t_total = $total_inst_charge + $total_stand_charge + $total_st_charge + $total_vat_charge;
 
 		//this array stores unique booking id
@@ -1007,15 +1003,24 @@ class Invoice extends CI_Controller {
 		//B means it is for the FOC type of invoice as explained above
 		//Make sure it is unique
 		$invoice_id = $invoices[0]['sc_code'] . "-" . date("dMY") . "-B-" . rand(100, 999);
+		if($t_total >= 20000){
+			$tds = $t_total * 0.1;
+			$t_w_total = ($t_total - $tds);
+
+		} else {
+			$t_w_total = $t_total;
+            $tds = 0;
+		}
 
 		// stores charges
 		$excel_data = array(
-		    't_ic' => $total_inst_charge, 't_st' => $total_st_charge, 't_stand' => $total_stand_charge,
+		    't_ic' => $total_inst_charge,
+		    't_st' => $total_st_charge, 
+		    't_stand' => $total_stand_charge,
 		    't_vat' => $total_vat_charge, 't_total' => $t_total,
 		    't_rating' => $invoices[0]['avg_rating'],
-		    'r_ic' => $r_ic, 'r_st' => $r_st, 'r_stand' => $r_stand,
-		    'r_total' => round($t_total * 0.3, 0), 'r_vat' => $r_vat,
-		    't_vp_wo_tds' => round($t_total * 0.7, 0) // vendor payment without TDS
+		    'tds' => $tds,
+		    't_vp_wo_tds' => round($t_w_total, 0) // vendor payment without TDS
 		);
 
 		$excel_data['invoice_id'] = $invoice_id;
@@ -1167,7 +1172,8 @@ class Invoice extends CI_Controller {
 			'service_tax' => $excel_data['t_st'],
 			'parts_cost' => $excel_data['t_stand'],
 			'vat' => $excel_data['t_vat'],
-			'total_amount_collected' => $excel_data['t_total'],
+			'total_amount_collected' => $excel_data['t_vp_wo_tds'],
+			'tds_amount' => $excel_data['tds'];
 			'rating' => $excel_data['t_rating'],
 			'around_royalty' => $excel_data['r_total'],
 			//Amount needs to be Paid to Vendor
