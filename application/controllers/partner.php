@@ -74,6 +74,7 @@ class Partner extends CI_Controller {
 
         $this->load->library('email');
         $this->load->library('notify');
+        $this->load->library('partner_utilities');
         $this->load->helper(array('form', 'url'));
     }
 
@@ -172,6 +173,8 @@ class Partner extends CI_Controller {
                         } else {
                             log_message('info', $requestData['mobile'] . ' exists');
                             //User exists
+                            $user['name'] = $requestData['name'];
+                            $user['user_email'] = (isset($requestData['email']) ? $requestData['email'] : "");
                             $user_id = $output[0]['user_id'];
                         }
 
@@ -306,6 +309,8 @@ class Partner extends CI_Controller {
                         //Insert query
                         //echo print_r($booking, true) . "<br><br>";
                         $this->booking_model->addbooking($booking);
+
+                        $this->partner_utilities->insert_booking_in_partner_leads($booking, $unit_details,$user, $lead_details['Product'] );
 
 
                         //Send response
@@ -1357,7 +1362,9 @@ class Partner extends CI_Controller {
             } else {
                 log_message('info', $requestData['mobile'] . ' exists');
                 //User exists
+                $user['name'] = $requestData['name'];
                 $user_id = $output[0]['user_id'];
+                $user['user_email'] = (isset($requestData['email']) ? $requestData['email'] : "");
             }
 
             $booking['partner_id'] = $unit_details['partner_id'] = $this->partner['id'];
@@ -1487,6 +1494,9 @@ class Partner extends CI_Controller {
 			//Insert query
             //echo print_r($booking, true) . "<br><br>";
             $return_id = $this->booking_model->addbooking($booking);
+
+            $this->partner_utilities->insert_booking_in_partner_leads($booking, $unit_details,$user, $lead_details['Product'] );
+
             if (!$return_id) {
                 log_message('info', __FUNCTION__ . ' Error Partner booking details not inserted: ' . print_r($booking, true));
             }
