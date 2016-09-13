@@ -25,11 +25,13 @@ class bookings_excel extends CI_Controller {
 	$this->load->library('s3');
 	$this->load->library('PHPReport');
 	$this->load->library('notify');
+	$this->load->library('partner_utilities');
 
 	$this->load->model('user_model');
 	$this->load->model('booking_model');
 	$this->load->model('partner_model');
 	$this->load->model('vendor_model');
+
 
 	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
 	    return TRUE;
@@ -146,6 +148,8 @@ class bookings_excel extends CI_Controller {
 	    } else {
 		//User exists
 		$user_id = $output[0]['user_id'];
+		$user['user_email'] = (isset($rowData[0]['Email_ID']) ? $rowData[0]['Email_ID'] : "");
+		$user['name'] = $rowData[0]['Customer_Name'];
 	    }
 
 	    //Wybor brand should be tagged to Partner Wybor only if the
@@ -277,6 +281,7 @@ class bookings_excel extends CI_Controller {
 		//Insert query
 		//echo print_r($booking, true) . "<br><br>";
 		$this->booking_model->addbooking($booking);
+		$this->partner_utilities->insert_booking_in_partner_leads($booking, $unit_details,$user, $prod );
 		//Reset
 		unset($appliance_details);
 		unset($booking);
@@ -411,6 +416,8 @@ class bookings_excel extends CI_Controller {
 	    } else {
 		//User exists
 		$user_id = $output[0]['user_id'];
+		$user['name'] = $rowData[0]['Customer_Name'];
+		$user['user_email'] = (isset($rowData[0]['Email_ID']) ? $rowData[0]['Email_ID'] : "");
 	    }
 
 	    //Wybor brand should be tagged to Partner Wybor only if the
@@ -549,6 +556,7 @@ class bookings_excel extends CI_Controller {
 		$booking['city'] = $rowData[0]['CITY'];
 		$booking['booking_primary_contact_no'] = $rowData[0]['Phone'];
 		$booking['partner_source'] = "Snapdeal-shipped-excel";
+		$booking['request_type'] = "";
 		$booking['amount_due'] = '';
 		$booking['booking_remarks'] = '';
 		$booking['query_remarks'] = 'Product Shipped, Call Customer For Booking';
@@ -613,6 +621,8 @@ class bookings_excel extends CI_Controller {
 		    default:
 			break;
 		}
+
+		$this->partner_utilities->insert_booking_in_partner_leads($booking, $unit_details,$user, $lead_details['Product'] );
 
 		//$sms['phone_no'] = $lead_details['Phone'];
 		//$sms['booking_id'] = $booking['booking_id'];
@@ -736,6 +746,8 @@ class bookings_excel extends CI_Controller {
 		}
 	    } else {
 		//User exists
+	    $user['name'] = $rowData[0]['CustomerName'];
+	    $user['user_email'] = $rowData[0]['customer_email'];
 		$user_id = $output[0]['user_id'];
 	    }
 
@@ -875,6 +887,8 @@ class bookings_excel extends CI_Controller {
 		if (!$return_id) {
 		    log_message('info', __FUNCTION__ . 'Error Paytm booking details not inserted: ' . print_r($booking, true));
 		}
+
+		$this->partner_utilities->insert_booking_in_partner_leads($booking, $unit_details,$user, $lead_details['Product'] );
 
 		//Reset
 		unset($booking);

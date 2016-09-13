@@ -244,31 +244,29 @@ class Partner extends CI_Controller {
 
             $authToken =  $this->partner_model->get_authentication_code($this->session->userdata('partner_id'));
             if($authToken){
-            $postData = '{'
-                    . '"partnerName" : "'.$this->session->userdata('partner_name').'",'
-                    . '"orderID" : "'.$order_id.'",'
-                    . '"name" : "'.$this->input->post('user_name').'",'
-                    . '"mobile" : "'. $this->input->post('booking_primary_contact_no').'",'
-                    . '"email" : "'. $this->input->post('user_email').'",'
-                    . '"address" : "'. $this->input->post('booking_address').'",'
-                    . '"pincode" : "'. $this->input->post('booking_pincode').'",'
-                    . '"city" : "'. $this->input->post('city').'",'
-                    . '"requestType" : "'. $this->input->post('price_tag').'",'
-                    . '"alternatePhone" : "'. $this->input->post('booking_alternate_contact_no').'",'
-                    . '"landmark" : "'. $this->input->post('landmark').'",'
-                    . '"product" : "'. $this->input->post('service_name').'",'
-                    . '"brand" : "'. $this->input->post('appliance_brand').'",'
-                    . '"productType" : "'. $description.'",'
-                    . '"category" : "'. $this->input->post('appliance_category').'",'
-                    . '"capacity" : "'. $this->input->post('appliance_capacity').'",'
-                    . '"model" : "'. $this->input->post('model_number').'",'
-                    . '"serial_number" : "'. $this->input->post('serial_number').'",'
-                    . '"booking_date" : "'. $booking_date.'",'
-                    . '"purchase_month" : "'. $this->input->post('purchase_month').'",'
-                    . '"purchase_year" : "'. $this->input->post('purchase_year').'",'
-                    . '"partner_source" : "'. $this->input->post('partner_source').'",'
-                    . '"remarks" : "'. $this->input->post('query_remarks').'"'
-                    . '}';
+                $post['partnerName'] = $this->session->userdata('partner_name');
+                $post['name'] = $this->input->post('user_name');
+                $post['mobile'] = $this->input->post('booking_primary_contact_no');
+                $post['email'] = $this->input->post('user_email');
+                $post['address'] = $this->input->post('booking_address');
+                $post['pincode'] = $this->input->post('booking_pincode');
+                $post['city'] = $this->input->post('city');
+                $post['requestType'] = $this->input->post('price_tag');
+                $post['landmark'] = $this->input->post('landmark');
+                $post['product'] = $this->input->post('service_name');
+                $post['brand'] = $this->input->post('appliance_brand');
+                $post['productType'] = $description;
+                $post['category'] = $this->input->post('appliance_category');
+                $post['capacity'] = $this->input->post('appliance_capacity');
+                $post['model'] = $this->input->post('model_number');
+                $post['serial_number'] = $this->input->post('serial_number');
+                $post['purchase_month'] = $this->input->post('purchase_month');
+                $post['purchase_year'] = $this->input->post('purchase_year');
+                $post['partner_source'] = $this->input->post('partner_source');
+                $post['remarks'] = $this->input->post('query_remarks');
+                $post['orderID'] = $order_id;
+                $post['booking_date'] = $booking_date;
+                $postData = json_encode($post, true);
 
             $ch = curl_init(base_url().'partner/insertBookingByPartner');
             curl_setopt_array($ch, array(
@@ -291,8 +289,8 @@ class Partner extends CI_Controller {
             if(isset($responseData['data']['result'])){
 
                 if($responseData['data']['result'] != "Success"){
-                    log_message('info', ' Partner ' .$this->session->userdata('partner_name')."  booking not Inserted ". print_r($_POST, true)." error mgs". print_r($responseData['data'], true) );
-                   $this->insertion_failure($_POST);
+                    log_message('info', ' Partner ' .$this->session->userdata('partner_name')."  booking not Inserted ". print_r($postData, true)." error mgs". print_r($responseData['data'], true) );
+                   $this->insertion_failure($postData);
                    $output = "Soory, Booking is not inserted. ";
                    $userSession = array('success' =>$output);
                    $this->session->set_userdata($userSession);
@@ -305,14 +303,14 @@ class Partner extends CI_Controller {
                     $userSession = array('success' =>$output);
                     $this->session->set_userdata($userSession);
 
-                    log_message('info', 'Partner ' .$this->session->userdata('partner_name')."  booking Inserted ". print_r($_POST, true));
+                    log_message('info', 'Partner ' .$this->session->userdata('partner_name')."  booking Inserted ". print_r($postData, true));
                     // Print the date from the response
                     //echo $responseData['data'];
                      redirect(base_url()."partner/pending_booking");
                 }
              } else {
-                log_message('info', 'Partner ' .$this->session->userdata('partner_name')."  booking not Inserted ". print_r($_POST, true)." error mgs". print_r($responseData['data'], true) );
-                $this->insertion_failure($_POST);
+                log_message('info', 'Partner ' .$this->session->userdata('partner_name')."  booking not Inserted ". print_r($postData, true)." error mgs". print_r($responseData['data'], true) );
+                $this->insertion_failure($postData);
                 $output = "Soory, Booking is not inserted. ";
                 $userSession = array('success' =>$output);
                 $this->session->set_userdata($userSession);
@@ -327,7 +325,7 @@ class Partner extends CI_Controller {
                 //echo "Authentication fail:";
             }
         } else {
-            log_message('info', 'Partner add booking' .$this->session->userdata('partner_name')." Validation failed ". print_r($_POST, true));
+            log_message('info', 'Partner add booking' .$this->session->userdata('partner_name')." Validation failed ");
             $data = $this->booking_model->get_city_booking_source_services($this->input->post('booking_primary_contact_no'));
             $this->load->view('partner/header');
             $this->load->view('partner/get_addbooking', $data);

@@ -44,4 +44,47 @@ class partner_utilities {
 	}
     }
 
+     /**
+     * @desc: This method used to insert data into partner leads table.
+     * @param: Array Booking details
+     * @param: Array Unit details
+     * @param: Array User details
+     * @param: String Service Name
+     */
+    function insert_booking_in_partner_leads($booking, $unit_details, $user_details, $product){
+    	$partner_booking['PartnerID'] = $booking['partner_id'];
+    	$partner_booking['OrderID'] = $booking['order_id'];
+    	$partner_booking['247aroundBookingID'] = $booking['booking_id'];
+    	$partner_booking['Product'] = $product;
+    	$partner_booking['Brand'] = $unit_details['appliance_brand'];
+    	$partner_booking['Model'] = $unit_details['model_number'];
+    	$partner_booking['ProductType'] = $unit_details['appliance_description'];
+    	$partner_booking['Category'] = $unit_details['appliance_category'];
+    	$partner_booking['Name'] = $user_details['name'];
+    	$partner_booking['Mobile'] =  $booking['booking_primary_contact_no'];
+    	$partner_booking['AlternatePhone'] =  $booking['booking_alternate_contact_no'];
+    	$partner_booking['Email'] = $user_details['user_email'];
+    	$partner_booking['Landmark'] = $booking['booking_landmark'];
+    	$partner_booking['Address'] = $booking['booking_address'];
+    	$partner_booking['Pincode'] = $booking['booking_pincode'];
+    	$partner_booking['City'] = $booking['city'];
+    	$partner_booking['DeliveryDate'] = $booking['delivery_date'];
+    	$partner_booking['RequestType'] = $booking['request_type'];
+    	$partner_booking['ScheduledAppointmentDate'] = $booking['booking_date'];
+    	$partner_booking['ScheduledAppointmentTime'] = $booking['booking_timeslot'];
+    	$partner_booking['Remarks'] = $booking['booking_remarks'];
+    	$partner_booking['PartnerRequestStatus'] = "";
+    	$partner_booking['247aroundBookingStatus'] = "FollowUp";
+    	$partner_booking['247aroundBookingRemarks'] = "FollowUp";
+    	$partner_booking['create_date'] = date('Y-m-d H:i:s');
+
+    	$partner_leads_id = $this->My_CI->partner_model->insert_partner_lead($partner_booking);
+    	if($partner_leads_id){
+    		return true;
+    	} else {
+
+    	}
+
+    }
+
 }
