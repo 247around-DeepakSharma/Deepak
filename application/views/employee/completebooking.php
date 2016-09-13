@@ -181,9 +181,9 @@
                                                    
                                                     <div class="radio">
                                                       <label>
-                                                      <input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "new".$value['id']."]"?>"  value="Completed" id="<?php echo "completed_".$count; ?>" > Completed<br/>
+                                                      <input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "new".$value['id']."]"?>"  value="Completed" id="<?php echo "completed_".$value['pod'] . "_".$count; ?>" > Completed<br/>
                                                       
-                                                      <input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "new".$value['id']."]"?>"  value="Cancelled" id="<?php echo "cancelled_".$count; ?>" > Not Completed
+                                                      <input type="radio" name="<?php echo "booking_status[". $price['unit_id'] . "new".$value['id']."]"?>"  value="Cancelled" id="<?php echo "cancelled_". $value['pod'] . "_".$count; ?>" > Not Completed
                                                       </label>
                                                    </div>
                                                  
