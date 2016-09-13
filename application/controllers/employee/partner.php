@@ -228,7 +228,7 @@ class Partner extends CI_Controller {
         $this->load->view('partner/header');
         $this->load->view('partner/get_addbooking', $data);
     }
-    
+
     /**
      * @desc: This method is used to process to add booking by partner
      */
@@ -286,10 +286,10 @@ class Partner extends CI_Controller {
              log_message('info', ' Partner ' .$this->session->userdata('partner_name')."  booking not Inserted error mgs". print_r($response, true) );
             // Decode the response
             $responseData = json_decode($response, TRUE);
-           
-            
+
+
             if(isset($responseData['data']['result'])){
-               
+
                 if($responseData['data']['result'] != "Success"){
                     log_message('info', ' Partner ' .$this->session->userdata('partner_name')."  booking not Inserted ". print_r($_POST, true)." error mgs". print_r($responseData['data'], true) );
                    $this->insertion_failure($_POST);
@@ -322,8 +322,6 @@ class Partner extends CI_Controller {
 
              }
 
-
-
             } else {
                 log_message('info', 'Partner ' .$this->session->userdata('partner_name')."  Authentication failed");
                 //echo "Authentication fail:";
@@ -337,8 +335,8 @@ class Partner extends CI_Controller {
     }
 
     function insertion_failure($post){
-        $to = "anuj@247around.com, abhay@247around.com";
-        $cc = "";
+        $to = "anuj@247around.com, abhaya@247around.com";
+	$cc = "";
         $bcc = "";
         $subject = "Booking Insertion Failure By ".$this->session->userdata('partner_name');
         $message = $post;
