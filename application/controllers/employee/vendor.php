@@ -985,7 +985,7 @@ class vendor extends CI_Controller {
             redirect(base_url()."employee/vendor/add_engineer");
         }
         } else {
-           $this->add_engineer(); 
+           $this->add_engineer();
         }
     }
     /**
@@ -1030,10 +1030,10 @@ class vendor extends CI_Controller {
      * @desc: this Method deactivate/ activate engineer
      */
      function change_engineer_activation($engineer_id, $active){
-        log_message('info', __FUNCTION__ . " Activate/Deactivate Engineer Id:  " . print_r($engineer_id, true).
-            "status" . print_r($active));
+        log_message('info', __FUNCTION__ . " Activate/Deactivate Engineer Id:  " . $engineer_id .
+	    "status: " . $active);
 
-        $where  = array('id' => $engineer_id );
+	$where  = array('id' => $engineer_id );
         $this->vendor_model->update_engineer($where, array('active'=> $active));
         if($this->session->userdata('userType') == 'service_center'){
 
@@ -1068,7 +1068,7 @@ class vendor extends CI_Controller {
      * @desc: This is used to validate engineer details form And also used to upload images
      */
     function engineer_form_validation(){
-        
+
         $this->form_validation->set_rules('name', 'Name', 'required|xss_clean');
         $this->form_validation->set_rules('phone', 'Mobile Number', 'trim|exact_length[10]|numeric|required|xss_clean');
         $this->form_validation->set_rules('alternate_phone', 'Alternate Mobile Number', 'trim|exact_length[10]|numeric|xss_clean');
@@ -1082,7 +1082,7 @@ class vendor extends CI_Controller {
         $this->form_validation->set_rules('bank_holder_name', 'Account Holder Name', 'required|xss_clean');
         $this->form_validation->set_rules('file', 'Identity Proof Pic ', 'callback_uploadIdentity_proof_pic');
         $this->form_validation->set_rules('bank_proof_pic', 'Bank Proof Pic', 'callback_upload_bank_proof_pic');
-     
+
         if ($this->form_validation->run() == FALSE) {
             return FALSE;
         }
@@ -1090,7 +1090,7 @@ class vendor extends CI_Controller {
             return true;
         }
     }
-    
+
     /**
      * @desc: This is used to upload Bank Proof Image and return bank proof name
      */
@@ -1103,8 +1103,8 @@ class vendor extends CI_Controller {
             if (($_FILES["bank_proof_pic"]["size"] < 2e+6)&& in_array($extension, $allowedExts)) {
                 if ($_FILES["bank_proof_pic"]["error"] > 0) {
                     $this->form_validation->set_message('upload_bank_proof_pic', $files["bank_proof_pic"]["error"]);
-                    
-                } 
+
+                }
                 else {
                     $pic = str_replace(' ', '-', $this->input->post('name'))."_". str_replace(' ', '', $this->input->post('bank_ifsc_code'))."_". uniqid(rand());
                     $picName = $pic.".".$extension;
@@ -1118,9 +1118,9 @@ class vendor extends CI_Controller {
                 $this->form_validation->set_message('upload_bank_proof_pic', 'File size or file type is not supported.Allowed extentions are "png", "jpg", "jpeg". Maximum file size is 2MB.');
                 return FALSE;
             }
-        } 
+        }
     }
-    
+
      /**
      * @desc: This is used to upload Bank Proof Image and return Identity Proof Image
      */
@@ -1133,8 +1133,8 @@ class vendor extends CI_Controller {
             if (($_FILES["file"]["size"] < 2e+6)&& in_array($extension, $allowedExts)) {
                 if ($_FILES["file"]["error"] > 0) {
                     $this->form_validation->set_message('uploadIdentity_proof_pic', $files["file"]["error"]);
-                    
-                } 
+
+                }
                 else {
                     $pic = str_replace(' ', '-', $this->input->post('name'))."_". str_replace(' ', '', $this->input->post('identity_proof'))."_". uniqid(rand());
                     $picName = $pic.".".$extension;
@@ -1148,7 +1148,7 @@ class vendor extends CI_Controller {
                 $this->form_validation->set_message('uploadIdentity_proof_pic', 'File size or file type is not supported.Allowed extentions are "png", "jpg", "jpeg". Maximum file size is 2MB.');
                 return FALSE;
             }
-        } 
+        }
     }
 
 

@@ -1130,9 +1130,9 @@ class Partner extends CI_Controller {
 
     //Cancels an order, returns true/false if cancellation is success/failure
     function process_cancel_request($request) {
-        log_message('info', "Entering: " . __METHOD__);
+        log_message('info', "Entering: " . __METHOD__ . ", Request data: " . print_r($request, true));
 
-        $booking_id = $request['247aroundBookingID'];
+	$booking_id = $request['247aroundBookingID'];
         $booking['current_status'] = $details['current_status'] = $details['internal_status'] = $unit_details['booking_status'] = "Cancelled";
         $booking['internal_status'] = $request['cancellationReason'];
         $booking['cancellation_reason'] = $details['cancellation_reason'] = "Other : " . $request['cancellationReason'];
@@ -1152,9 +1152,9 @@ class Partner extends CI_Controller {
      */
 
     function process_schedule_request($request) {
-        log_message('info', "Entering: " . __METHOD__);
+        log_message('info', "Entering: " . __METHOD__ . ", Request data: " . print_r($request, true));
 
-        $booking_id = $request['247aroundBookingID'];
+	$booking_id = $request['247aroundBookingID'];
 
         $tsStart = $request['installationTimeslotStart'];
         $tsEnd = $request['installationTimeslotEnd'];
@@ -1204,9 +1204,9 @@ class Partner extends CI_Controller {
 
     function validate_timeslot_format($timeslot) {
         log_message('info', "Entering: " . __METHOD__ . ", Timeslot: " . print_r($timeslot, true));
-//json_decode($timeslot);
+	//json_decode($timeslot);
 
-        if (!(json_last_error() === JSON_ERROR_NONE)) {
+	if (!(json_last_error() === JSON_ERROR_NONE)) {
             return FALSE;
         } else {
             if (
@@ -1650,7 +1650,7 @@ class Partner extends CI_Controller {
     if (($flag === TRUE) &&
         (in_array($request['product'], $valid_products) == FALSE)) {
         //Do not return error as of now, just log this.
-        log_message('info', $request['product'] . ': Invalide product type');
+        log_message('info', $request['product'] . ': Invalid product type');
 
         //$resultArr['code'] = ERR_INVALID_PRODUCT_CODE;
         //$resultArr['msg'] = ERR_INVALID_PRODUCT_MSG;
