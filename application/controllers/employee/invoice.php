@@ -367,12 +367,12 @@ class Invoice extends CI_Controller {
 			    case 'Repair - Out Of Warranty':
 					$data[$i][$key]['remarks'] = "Repair - Out Of Warranty";
 					break;
-				
+
 				default:
 					$data[$i][$key]['remarks'] = "Completed Installation & Demo";
 					break;
 			}
-		    
+
 		    $data[$i][$key]['closed_date'] = date("jS F, Y", strtotime($value['closed_date']));
 		    $data[$i][$key]['reference_date'] = date("jS F, Y", strtotime($value['reference_date']));
 
@@ -1014,7 +1014,8 @@ class Invoice extends CI_Controller {
 		    't_vat' => $total_vat_charge, 't_total' => $t_total,
 		    't_rating' => $invoices[0]['avg_rating'],
 		    'r_ic' => $r_ic, 'r_st' => $r_st, 'r_stand' => $r_stand,
-		    'r_total' => round($t_total * 0.3, 0), 'r_vat' => $r_vat, 't_vp' => round($t_total * 0.7, 0)
+		    'r_total' => round($t_total * 0.3, 0), 'r_vat' => $r_vat,
+		    't_vp_wo_tds' => round($t_total * 0.7, 0) // vendor payment without TDS
 		);
 
 		$excel_data['invoice_id'] = $invoice_id;
@@ -1028,7 +1029,6 @@ class Invoice extends CI_Controller {
 		$excel_data['msg'] = 'Thanks 247around Partner for your support, we completed ' . $count .
 		    ' bookings with you from ' . $start_date . ' to ' . $end_date .
 		    '. Total transaction value for the bookings was Rs. ' . $excel_data['t_total'] .
-		    '. Around royalty for this invoice is Rs. ' . $excel_data['r_total'] .
 		    '. Your rating for completed bookings is ' . $excel_data['t_rating'] .
 		    '. We look forward to your continued support in future. As next step, 247around will pay you remaining amount as per our agreement.';
 
