@@ -44,14 +44,12 @@ function partner_vendor1(vendor_partner_id){
                     credit_debit: "required",
                     amount: "required",
                     tdate: "required",
-                    tds_amount: "required",
                 },
                 messages: {
                    // partner_vendor: "Please select Partner/Vendor",
                     credit_debit: "Please select credit/debit.",
                     amount: "Please enter credit/debit amount.",
                     tdate: "Please enter transaction date",
-                    tds_amount: "Please enter TDA",
                 },
                 submitHandler: function(form) {
                     form.submit();
@@ -124,7 +122,7 @@ color: red;
               <div class="form-group">
                 <label for="invoice_id" class="col-md-2">Invoice ID</label>
                 <div class="col-md-6">
-                  <input type="text" class="form-control"  name="invoice_id" placeholder="Enter Invoice ID" value="<?php if(!empty($invoice_id)){ echo implode(',', $invoice_id); }?>">
+                  <input type="text" class="form-control"  name="invoice_id" placeholder="Enter Invoice ID">
                   <span id="errmsg"></span>
                 </div>
               </div>
@@ -142,19 +140,10 @@ color: red;
               <div class="form-group">
                 <label for="name" class="col-md-2">Amount <span class="red">*</span></label>
                 <div class="col-md-6">
-		                <input type="text" class="form-control" id="amount" name="amount" value="<?php if(isset($selected_amount_collected)){ echo abs($selected_amount_collected); }?>" required>
+		                <input type="text" class="form-control" id="amount" name="amount" required>
                 </div>
                 <span id="errmsg4"></span>
               </div>
-
-               <div class="form-group">
-                <label for="name" class="col-md-2">TDS <span class="red">*</span></label>
-                <div class="col-md-6">
-                    <input type="text" class="form-control" id="tds_amount" name="tds_amount" value="<?php if(isset($selected_tds)){ echo $selected_tds; }?>" required>
-                </div>
-                <span id="errmsg4"></span>
-              </div>
-
 
               <div class="form-group">
 		  <label for="name" class="col-md-2">Transaction Mode<span class="red">*</span></label>

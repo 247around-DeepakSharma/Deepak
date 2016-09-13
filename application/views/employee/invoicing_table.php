@@ -1,9 +1,5 @@
 <?php if(isset($invoice_array)){ ?>
 <p><h2>Invoices Generated</h2></p>
-
-<form class="form-horizontal" method="POST" action="<?php echo base_url()?>employee/invoice/get_add_new_transaction/<?php echo $invoice_array[0]['vendor_partner'];?>/<?php echo $invoice_array[0]['vendor_partner_id']; ?>" >
- <input type="text" name="selected_amount_collected" id="selected_amount_collected" value="" hidden />
-         <input type="text" name="selected_tds" id="selected_tds" value="" hidden />
   <table class="table table-bordered  table-hover table-striped data"  >
    <thead>
       <tr >
@@ -20,15 +16,12 @@
          <th>Total Amount Collected</th>
          <th>Around Royalty</th>
          <th>Amount to be Collected / Paid</th>
-         <th>TDS Amount</th>
          <th>Rating</th>
          <th>Sent Date</th>
-         <th>Checkbox</th>
          <th>Send Email</th>
       </tr>
    </thead>
    <tbody>
-   
       <?php
        $count = 1;
        $sum_no_of_booking = 0;
@@ -38,12 +31,10 @@
        $total_amount_collected =0;
        $around_royalty = 0;
        $amount_collected_paid = 0;
-
        if(!empty($invoice_array)){
-
          foreach($invoice_array as $key =>$invoice) {?>
 
-      <tr <?php if($invoice['settle_amount'] == 1){ ?> style="background-color:yellow; " <?php } ?>>
+      <tr>
          <td><?php echo $count;?></td>
          <td><?php echo $invoice['invoice_id']; ?></td>
          <td><?php echo $invoice['type']; ?></td>
@@ -55,19 +46,14 @@
          <td><?php echo $invoice['total_additional_service_charge']; $sum_total_additional_service_charge += $invoice['total_additional_service_charge'];?></td>
          <td><?php echo $invoice['parts_cost']; $sum_total_parts_cost += $invoice['parts_cost']; ?></td>
          <td><?php echo $invoice['total_amount_collected']; $total_amount_collected += $invoice['total_amount_collected'];?></td>
-         <td><?php echo $invoice['around_royalty']; $around_royalty += $invoice['around_royalty']; ?></td><?php $amount_collected_paid = ($invoice['amount_collected_paid'] + $amount_collected_paid ); ?>
-         <td id="<?php echo 'amount_collected_paid_'.$count; ?>"><?php echo $invoice['amount_collected_paid']; ?></td>
-         <td id="<?php echo 'tds_'.$count; ?>"><?php echo $invoice['tds_amount'];?></td>
+         <td><?php echo $invoice['around_royalty']; $around_royalty += $invoice['around_royalty']; ?></td>
+         <td><?php echo $invoice['amount_collected_paid']; $amount_collected_paid += $invoice['amount_collected_paid']; ?></td>
          <td><?php echo $invoice['rating']; ?></td>
          <td><?php echo date("jS F, Y", strtotime($invoice['create_date'])); ?></td>
-        
-         <td ><?php if($invoice['settle_amount'] == 0){ ?><input type="checkbox" class="form-control" name ="invoice_id[]" value="<?php echo $invoice['invoice_id'] ?>" id="<?php echo 'checkbox_'.$count; ?>" onclick="sum_amount()" />
-         <?php } ?>
-        
+         <?php  $count = $count+1;  ?>
 
-         </td>
 
-          <?php  $count = $count+1;  ?>
+
          <td class="col-md-6">
           <form class="form-horizontal" method="POST" action="<?php echo base_url()?>employee/invoice/sendInvoiceMail/<?php echo $invoice['invoice_id'].'/'.$invoice['vendor_partner_id'].'/'.$invoice['from_date'].'/'.$invoice['to_date'].'/'.$invoice['vendor_partner']; ?>" >
 
@@ -79,7 +65,6 @@
 
       </tr>
       <?php }} ?>
-
 
       <tr>
          <td><b>Total</b></td>
@@ -94,8 +79,8 @@
          <td><?php echo $sum_total_parts_cost; ?></td>
          <td><?php echo $total_amount_collected; ?></td>
          <td><?php echo $around_royalty; ?></td>
-         <td id="final_amount_selected"></td>
-         <td id ="final_tds_selected"></td>
+         <td></td>
+         <td></td>
          <td></td>
          <td></td>
          <td></td>
@@ -103,32 +88,6 @@
    </tbody>
    </tbody>
 </table>
- <input type="submit" class="form-control btn btn-lg btn-primary" value="Pay">
-      </form>
-  <script type="text/javascript">
-     
-     
-      function sum_amount(){
-              var total_amount_collected = 0;
-              var total_tds = 0;
-              $("input[type=checkbox]:checked").each(function(i) {
-              div = this.id .split('_');
-            
-              var amount_collected_paid = $('#amount_collected_paid_'+ div[1]).text();
-              var tds_amount = $('#tds_'+ div[1]).text();
-              
-              total_amount_collected += Number(amount_collected_paid);
-              total_tds += Number(tds_amount);
-        
-              });
-              
-              $('#selected_amount_collected').val(total_amount_collected.toFixed(2));
-              $('#selected_tds').val(total_tds.toFixed(2))
-              document.getElementById("final_amount_selected").innerHTML = total_amount_collected.toFixed(2)
-              document.getElementById("final_tds_selected").innerHTML = total_tds.toFixed(2);
-              
-      }
-  </script>
 <?php } 
     if(isset($bank_statement)) { ?>
     <br>
@@ -180,10 +139,7 @@
         $final_settlement = 0;
         $final_settlement = $amount_collected_paid + $debit_amount - $credit_amount;
     ?>
-    <p><h4>Vendor has to pay to 247around = Rs. <?php if($final_settlement >= 0) echo sprintf("%.2f", $final_settlement); else echo 0; ?></h4></p>
-    <p><h4>247around has to pay to vendor = Rs. <?php if($final_settlement < 0) echo sprintf("%.2f", (0-$final_settlement)); else echo 0; ?></h4></p>
+    <p><h4>Vendor has to pay to 247around = Rs. <?php if($final_settlement >= 0) echo $final_settlement; else echo 0; ?></h4></p>
+    <p><h4>247around has to pay to vendor = Rs. <?php if($final_settlement < 0) echo (0-$final_settlement); else echo 0; ?></h4></p>
     
     <?php } ?>
-
-    
-
