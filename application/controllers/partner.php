@@ -835,7 +835,7 @@ class Partner extends CI_Controller {
             $lead = $this->partner_model->get_order_id_for_partner($this->partner['id'], $request['orderID']);
             if (!is_null($lead)) {
                 //order id found, check booking id
-                if ($lead['247aroundBookingID'] != $request['247aroundBookingID']) {
+                if ($lead['booking_id'] != $request['247aroundBookingID']) {
                     $resultArr['code'] = ERR_INVALID_BOOKING_ID_CODE;
                     $resultArr['msg'] = ERR_INVALID_BOOKING_ID_MSG;
 
