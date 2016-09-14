@@ -104,7 +104,7 @@
 
          <div class="modal-footer">
 
-            <button type="button" class="btn btn-info" data-dismiss="modal">Press Submit Button Now...</button>
+            <button type="button" class="btn btn-info" onclick="enable_submit_button()" data-dismiss="modal">Press Submit Button Now...</button>
 
          </div>
       </div>

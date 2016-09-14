@@ -436,6 +436,12 @@ function outbound_call(phone_number){
 
 }
 
+function enable_submit_button(){
+   $("#submitform").button('reset');
+}
+
+
+
 
 
        

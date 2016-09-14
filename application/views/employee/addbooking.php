@@ -343,6 +343,11 @@
     });
     $("#partner_source").select2();
     //$(".appliance_capacity").select2();
+    $(document).ready(function(){
+        $("#submitform").click(function(){
+            $(this).button('loading');
+        });
+    });
 </script>
 <script type="text/javascript">
     var regex = /^(.+?)(\d+)$/i;
