@@ -50,31 +50,12 @@
                                     </div>
                                     <?php echo form_error('alternate_phone'); ?>
                                 </div>
-                                <div class="form-group <?php if( form_error('service_center_id') ) { echo 'has-error';} ?>">
-                                    <label for="Mobile" class="col-md-4">Service Center *</label>
-                                    <div class="col-md-6">
-                                        <select type="text" class="form-control"  id="service_center_id" name="service_center_id"  required>
-                                            <option disabled selected>Select Service Center</option>
-                                            <?php foreach ($service_center as $key => $values) { ?>
-                                            <option <?php if(set_value('service_center_id') == $values['id']){ echo "selected"; }  ?> value=<?php echo $values['id']; ?>>
-                                                <?php echo $values['name']; }    ?>
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <?php echo form_error('service_center_id'); ?>
-
-                                </div>
+                               
                                 
                             </div>
                             <!-- end div -->
                             <div class="col-md-6">
-                                <div class="form-group <?php if( form_error('address') ) { echo 'has-error';} ?>">
-                                    <label for="address" class="col-md-4">Address </label>
-                                    <div class="col-md-6">
-                                        <textarea name="address" class="form-control" id="address" rows="4" placeholder="Please Enter Address" ><?php echo set_value('address');  ?></textarea>
-                                    </div>
-                                    <?php echo form_error('address'); ?>
-                                </div>
+                                
                                 <div class="form-group <?php if( form_error('phone_type') ) { echo 'has-error';} ?>">
                                     <label for="phone type" class="col-md-4">Phone Type </label>
                                     <div class="col-md-6">
@@ -98,6 +79,20 @@
                                         </select>
                                     </div>
                                      <?php echo form_error('service_id'); ?>
+                                </div>
+                                 <div class="form-group <?php if( form_error('service_center_id') ) { echo 'has-error';} ?>">
+                                    <label for="Mobile" class="col-md-4">Service Center *</label>
+                                    <div class="col-md-6">
+                                        <select type="text" class="form-control"  id="service_center_id" name="service_center_id"  required>
+                                            <option disabled selected>Select Service Center</option>
+                                            <?php foreach ($service_center as $key => $values) { ?>
+                                            <option <?php if(set_value('service_center_id') == $values['id']){ echo "selected"; }  ?> value=<?php echo $values['id']; ?>>
+                                                <?php echo $values['name']; }    ?>
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <?php echo form_error('service_center_id'); ?>
+
                                 </div>
 
                             </div>
@@ -128,14 +123,7 @@
                                     </div>
                                     <?php echo form_error('identity_proof'); ?>
                                 </div>
-                                 <div class="form-group <?php if( form_error('file') ) { echo 'has-error';} ?>">
-                                    <label for="Identity Picture" class="col-md-4">ID Picture</label>
-                                    <div class="col-md-6" >
-                                       <input type="file" class="form-control" name="file" >
-                                    </div>
-                                    
-                                    <?php echo form_error('file'); ?>
-                                </div>
+                                
                             </div>
                             <!-- end -->
                             <div class="col-md-6 <?php if( form_error('identity_id_number') ) { echo 'has-error';} ?>">
@@ -176,14 +164,7 @@
                                     </div>
                                     <?php echo form_error('bank_ifsc_code'); ?>
                                 </div>
-                                 <div class="form-group <?php if( form_error('bank_proof_pic') ) { echo 'has-error';} ?>">
-                                    <label for="Identity Picture" class="col-md-4">Bank Passbook / Cancelled Cheque Picture</label>
-                                    <div class="col-md-6" >
-                                       <input type="file" class="form-control" name="bank_proof_pic" >
-                                    </div>
-                                    
-                                    <?php echo form_error('bank_proof_pic'); ?>
-                                </div>
+                               
                                 
                             </div>
                             <!-- end div -->
