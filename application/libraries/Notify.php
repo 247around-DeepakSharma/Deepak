@@ -398,7 +398,8 @@ class Notify {
 		    $sms['tag'] = "new_snapdeal_booking";
 		}
 
-		$this->notify->send_sms($sms);
+		$this->send_sms($sms);
+
 		break;
 	}
     }
