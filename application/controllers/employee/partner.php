@@ -217,6 +217,7 @@ class Partner extends CI_Controller {
      * it gets user details(if exist), city, source, services
      */
     function get_addbooking_form($phone_number) {
+    $this->checkUserSession();
 	$data = $this->booking_model->get_city_booking_source_services($phone_number);
 	$this->load->view('partner/header');
 	$this->load->view('partner/get_addbooking', $data);
@@ -226,6 +227,7 @@ class Partner extends CI_Controller {
      * @desc: This method is used to process to add booking by partner
      */
     function process_addbooking() {
+    $this->checkUserSession();
 	$validate = $this->set_form_validation();
 	log_message('info', 'Partner initiate add booking' . $this->session->userdata('partner_name'));
 
