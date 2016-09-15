@@ -186,7 +186,13 @@ class invoices_model extends CI_Model {
 	    $result = $data->result_array();
 	    $bank_transactions = $this->getbank_transaction_summary($vendor_partner, $value['id']);
 	    $result[0]['vendor_partner'] = $vendor_partner;
-	    $result[0]['name'] = $value['name'];
+
+	    if (isset($value['name'])) {
+		$result[0]['name'] = $value['name'];
+	    } else if (isset($value['public_name'])) {
+		$result[0]['name'] = $value['public_name'];
+	    }
+
 	    $result[0]['id'] = $value['id'];
 	    $result[0]['final_amount'] = $result[0]['amount_collected_paid'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount'];
 
@@ -449,9 +455,9 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 
      /**
      * @desc: This method settle invoices
-     * First it get amount collected for particular invoices And 
-     * Calculate total amount to be pay, postive amount(FOC), negative amount(CASH), 
-     * net collected amount(If already paid amount corresponding that invoice id 
+     * First it get amount collected for particular invoices And
+     * Calculate total amount to be pay, postive amount(FOC), negative amount(CASH),
+     * net collected amount(If already paid amount corresponding that invoice id
      * then we will minus in amount_collected_paind amount).
      * @param: Array Invoice ID
      * @param: Net Amount Transfered
@@ -504,17 +510,17 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 		// Vendor Pays
 	    $settled_amount = abs($total_negative_amount_to_be_pay);
 	    $txn_settled_amount = $settled_amount + abs($paid_amount);
-       
+
 	    foreach ($invoices as $key => $value) {
-         //Assume:-- If the vendor will pay, then we settle all invoice id in which 247Around to be paid 
+         //Assume:-- If the vendor will pay, then we settle all invoice id in which 247Around to be paid
 		if ($value[0] < 0) {
 		    $settle_data['invoice_id'] = $key;
 		    $settle_data['settle_amount'] = 1;
 		    $settle_data['amount_paid'] = abs($value[0]);
-     
+
 		    $this->update_partner_invoices(array('invoice_id' => $key), $settle_data);
 		} else if ($txn_settled_amount > 0) {
-            
+
 		    $txn_settled_amount = $this->update_settlement($value, $key, $txn_settled_amount);
 		}
 	    }
@@ -525,7 +531,7 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 	    $txn_settled_amount = $settled_amount + abs($paid_amount);
 
 	    foreach ($invoices as $key => $value) {
-	    //Assume:-- If the 247Around will pay, then we settle all invoice id in which Vendor to be paid 
+	    //Assume:-- If the 247Around will pay, then we settle all invoice id in which Vendor to be paid
 		if ($value[0] > 0) {
 		    $settle_data['invoice_id'] = $key;
 		    $settle_data['settle_amount'] = 1;
@@ -542,12 +548,12 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 
     }
     /**
-     * @desc: Update Invoice id 
-     * It checks, net collected amount is greater than or less than  
+     * @desc: Update Invoice id
+     * It checks, net collected amount is greater than or less than
      * from sum of settled amount and paid amount.
      * If sum of settled amount and paid amount is greater then we will settle these invoice id
      * AND minus net collected amount from sum of settled amount and paid amount(txn_settled_amount).
-     * If sum of settled amount and paid amount is less than then we will  minus net collected amount 
+     * If sum of settled amount and paid amount is less than then we will  minus net collected amount
      * from sum of settled amount and paid amount(txn_settled_amount).
      * And Checks txn_settled amount is greater then we will settle these invoice id
      * AND txn_settled amount is less than than insert amount paid for that invoice id
