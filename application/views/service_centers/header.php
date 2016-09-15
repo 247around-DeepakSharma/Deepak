@@ -51,7 +51,6 @@
                      </ul>
                   </li>
 
-<!--
                    <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     <i ></i> Engineers <i class="fa fa-caret-down"></i>
@@ -66,7 +65,6 @@
                         </li>
                     </ul>
                 </li>
--->
 
                  <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
