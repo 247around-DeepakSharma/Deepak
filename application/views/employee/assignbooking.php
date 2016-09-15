@@ -111,7 +111,7 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
                         <center>
                             <div>
                                 <input type="Submit" value="Save" class="btn btn-primary btn-lg">
-                                <input type="Reset" value="Cancel" class="btn btn-danger btn-lg">
+<!--                                <input type="Reset" value="Cancel" class="btn btn-danger btn-lg">-->
                             </div>
                         </center>
                     </form>
