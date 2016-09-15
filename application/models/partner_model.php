@@ -157,9 +157,10 @@ class Partner_model extends CI_Model {
 	if ($partner_id != "") {
 	    $this->db->where('id', $partner_id);
 	}
-	$this->db->select('id,public_name as name');
+	//$this->db->select('id,public_name as name');
 	$this->db->where('is_active', '1');
 	$query = $this->db->get('partners');
+
 	return $query->result_array();
     }
 
@@ -332,10 +333,8 @@ class Partner_model extends CI_Model {
 	$this->db->where('is_active', '1');
 	$query = $this->db->get('partners');
 	if ($query->num_rows > 0) {
-
 	    return $query->result_array()[0]['auth_token'];
 	} else {
-
 	    return false;
 	}
     }
@@ -344,7 +343,6 @@ class Partner_model extends CI_Model {
      * @desc: This method gets price details for partner
      */
     function getPrices($service_id, $category, $capacity, $partner_id, $service_category) {
-
 	$this->db->distinct();
 	$this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod');
 	$this->db->where('service_id', $service_id);
@@ -361,6 +359,145 @@ class Partner_model extends CI_Model {
 	$query = $this->db->get('service_centre_charges');
 
 	return $query->result_array();
+    }
+
+    //Return all leads shared by Partner in the last 30 days
+    function get_partner_leads_for_summary_email($partner_id) {
+	$query = $this->db->query("SELECT BD.booking_id, order_id, booking_date, booking_timeslot,
+			BD.current_status, BD.internal_status, rating_stars,
+			DATE_FORMAT(BD.create_date, '%d/%M') as create_date,
+			services,
+			UD.appliance_brand, UD.appliance_description,
+			name, phone_number, home_address, pincode, users.city
+			FROM booking_details as BD, users, services, booking_unit_details as UD
+			WHERE BD.booking_id = UD.booking_id AND
+			BD.service_id = services.id AND
+			BD.user_id = users.user_id AND
+			BD.partner_id = $partner_id AND
+			BD.create_date > (CURDATE() - INTERVAL 1 MONTH)");
+
+	return $query->result_array();
+    }
+
+    //Get partner summary parameters for daily report
+    function get_partner_summary_params($partner_id) {
+	$partner_source_code = $this->get_source_code_for_partner($partner_id);
+
+	//Count all Snapdeal leads
+	$this->db->like('source', $partner_source_code);
+	$total_install_req = $this->db->count_all_results('booking_details');
+
+	//Count today leads which has create_date as today
+	$this->db->where('source', $partner_source_code);
+	$this->db->where('create_date >= ', date('Y-m-d'));
+	$today_install_req = $this->db->count_all_results('booking_details');
+
+	//Count y'day leads
+	$this->db->where('source', $partner_source_code);
+	$this->db->where('create_date >= ', date('Y-m-d', strtotime("-1 days")));
+	$this->db->where('create_date < ', date('Y-m-d'));
+	$yday_install_req = $this->db->count_all_results('booking_details');
+
+	//Count total installations scheduled
+	$this->db->where('source', $partner_source_code);
+	$this->db->where_in('current_status', array('Pending', 'Rescheduled'));
+	$total_install_sched = $this->db->count_all_results('booking_details');
+
+	//Count today installations scheduled
+	$this->db->like('booking_id', $partner_source_code);
+	$this->db->where('new_state', 'Pending');
+	$this->db->where('create_date >= ', date('Y-m-d'));
+	$today_install_sched = $this->db->count_all_results('booking_state_change');
+
+	//Count y'day installations scheduled
+	$this->db->like('booking_id', $partner_source_code);
+	$this->db->where('new_state', 'Pending');
+	$this->db->where('create_date >= ', date('Y-m-d', strtotime("-1 days")));
+	$this->db->where('create_date < ', date('Y-m-d'));
+	$yday_install_sched = $this->db->count_all_results('booking_state_change');
+
+	//Count total installations completed
+	$this->db->where('source', $partner_source_code);
+	$this->db->where_in('current_status', array('Completed'));
+	$total_install_compl = $this->db->count_all_results('booking_details');
+
+	//Count today installations completed
+	$this->db->where('source', $partner_source_code);
+	$this->db->where_in('current_status', array('Completed'));
+	$this->db->where('closed_date >= ', date('Y-m-d'));
+	$today_install_compl = $this->db->count_all_results('booking_details');
+
+	//Count y'day installations completed
+	$this->db->where('source', $partner_source_code);
+	$this->db->where_in('current_status', array('Completed'));
+	$this->db->where('closed_date >= ', date('Y-m-d', strtotime("-1 days")));
+	$this->db->where('closed_date < ', date('Y-m-d'));
+	$yday_install_compl = $this->db->count_all_results('booking_details');
+
+	//Count total follow-ups pending
+	$this->db->where('source', $partner_source_code);
+	$this->db->where('current_status', 'FollowUp');
+	$total_followup_pend = $this->db->count_all_results('booking_details');
+
+	//Count today follow-ups pending
+	$today = date("d-m-Y");
+	$where_today = "`source` LIKE '%SS%' AND `current_status`='FollowUp' AND (`booking_date`='' OR `booking_date`=$today)";
+	$this->db->where($where_today);
+	$today_followup_pend = $this->db->count_all_results('booking_details');
+
+	//Count yday follow-ups pending
+	$yday = date("d-m-Y", strtotime("-1 days"));
+	$where_yday = "`source` LIKE '%SS%' AND `current_status`='FollowUp' AND `booking_date`=$yday";
+	$this->db->where($where_yday);
+	$yday_followup_pend = $this->db->count_all_results('booking_details');
+
+	//Count total installations Cancelled
+	$this->db->where('source', $partner_source_code);
+	$this->db->where('current_status', 'Cancelled');
+	$total_install_cancl = $this->db->count_all_results('booking_details');
+
+	//Count today installations Cancelled
+	$this->db->like('booking_id', $partner_source_code);
+	$this->db->where('new_state', 'Cancelled');
+	$this->db->where('create_date >= ', date('Y-m-d'));
+	$today_install_cancl = $this->db->count_all_results('booking_state_change');
+
+	//Count y'day installations Cancelled
+	$this->db->like('booking_id', $partner_source_code);
+	$this->db->where('new_state', 'Cancelled');
+	$this->db->where('create_date >= ', date('Y-m-d', strtotime("-1 days")));
+	$this->db->where('create_date < ', date('Y-m-d'));
+	$yday_install_cancl = $this->db->count_all_results('booking_state_change');
+
+	//TAT calculation
+	$tat = "100";
+	//SELECT DATEDIFF(`closed_date`, STR_TO_DATE(`booking_date`,"%d-%m-%Y")) FROM `booking_details` where source=$partner_source_code AND current_status='Completed'
+	//Average Rating
+//	$this->db->where('Rating_Stars !=', '');
+//	$this->db->select_avg('Rating_Stars');
+//	$query = $this->db->get('snapdeal_leads');
+//	$avg_rating = $query->result_array()[0]['Rating_Stars'];
+
+	$result = array(
+	    "total_install_req" => $total_install_req,
+	    "today_install_req" => $today_install_req,
+	    "yday_install_req" => $yday_install_req,
+	    "total_install_sched" => $total_install_sched,
+	    "today_install_sched" => $today_install_sched,
+	    "yday_install_sched" => $yday_install_sched,
+	    "total_install_compl" => $total_install_compl,
+	    "today_install_compl" => $today_install_compl,
+	    "yday_install_compl" => $yday_install_compl,
+	    "total_followup_pend" => $total_followup_pend,
+	    "today_followup_pend" => $today_followup_pend,
+	    "yday_followup_pend" => $yday_followup_pend,
+	    "total_install_cancl" => $total_install_cancl,
+	    "today_install_cancl" => $today_install_cancl,
+	    "yday_install_cancl" => $yday_install_cancl,
+	    "tat" => $tat,
+	);
+
+	return $result;
     }
 
 }

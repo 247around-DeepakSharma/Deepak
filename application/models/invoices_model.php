@@ -52,6 +52,8 @@ class invoices_model extends CI_Model {
 	$this->db->insert('vendor_partner_invoices', $details);
     }
 
+    //TODO: This should be moved to Partner model
+    //
     // Get Poc and owner email id for patticular vendor id
     function getEmailIdForVendor($vendor_id) {
 	$this->db->select('primary_contact_email, owner_email');
