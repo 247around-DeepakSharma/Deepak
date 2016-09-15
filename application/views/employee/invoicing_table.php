@@ -1,7 +1,7 @@
 <?php if(isset($invoice_array)){ ?>
 <p><h2>Invoices Generated</h2></p>
 
-<form class="form-horizontal" method="POST" action="<?php echo base_url()?>employee/invoice/get_add_new_transaction/<?php if(isset(!empty($invoice_array))){ ?><?php echo $invoice_array[0]['vendor_partner'];?>/<?php echo $invoice_array[0]['vendor_partner_id']; } ?>" >
+<form class="form-horizontal" method="POST" action="<?php echo base_url()?>employee/invoice/get_add_new_transaction/<?php if(!empty($invoice_array)){ ?><?php echo $invoice_array[0]['vendor_partner'];?>/<?php echo $invoice_array[0]['vendor_partner_id']; } ?>" >
  <input type="text" name="selected_amount_collected" id="selected_amount_collected" value="" hidden />
          <input type="text" name="selected_tds" id="selected_tds" value="" hidden />
   <table class="table table-bordered  table-hover table-striped data"  >
