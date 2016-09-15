@@ -51,8 +51,8 @@ class Partner extends CI_Controller {
 	    //get partner details now
 	    $partner_details = $this->partner_model->getpartner($partner_id);
 
-	    $this->setSession($partner_details[0]['id'], $partner_details[0]['name']);
-	    log_message('info', 'Partner loggedIn  partner id' . $partner_details[0]['id'] . " Partner name" . $partner_details[0]['name']);
+	    $this->setSession($partner_details[0]['id'], $partner_details[0]['public_name']);
+	    log_message('info', 'Partner loggedIn  partner id' . $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
 
 	    redirect(base_url() . "partner/pending_booking");
 	} else {
