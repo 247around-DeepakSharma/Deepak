@@ -927,67 +927,76 @@ class vendor extends CI_Controller {
 
     }
     /**
-     * @desc: This method gets all input and insert into table
-     *  This  function is used by vendor panel and admin panel to load add engineer details
+     * @desc: This method adds engineers for a service center.
+     *  This  function is used by vendor panel and admin panel to load add engineer details.
      */
-    function process_add_engineer(){
-        $engineer_form_validation = $this->engineer_form_validation();
-        if($engineer_form_validation){
-        $data['name'] = $this->input->post('name');
-        $data['phone'] = $this->input->post('phone');
-        $data['alternate_phone'] =  $this->input->post('alternate_phone');
-        $data['phone_type'] = $this->input->post('phone_type');
-        $data['address'] = $this->input->post('address');
-        $data['identity_proof'] = $this->input->post('identity_proof');
-        $data['identity_proof_number'] = $this->input->post('identity_id_number');
-        $data['bank_name'] = $this->input->post('bank_name');
-        $data['banck_ac_no'] = $this->input->post('bank_account_no');
-        $data['bank_ifsc_code'] = $this->input->post('bank_ifsc_code');
-        $data['bank_holder_name'] = $this->input->post('bank_holder_name');
-        $data['identity_proof_pic']   = $this->input->post('file');
-        $data['bank_proof_pic']   = $this->input->post('bank_proof_pic');
+    function process_add_engineer() {
+	$engineer_form_validation = $this->engineer_form_validation();
 
-        if($this->session->userdata('userType') == 'service_center'){
-            $data['service_center_id'] = $this->session->userdata('service_center_id');
-        } else {
-            $data['service_center_id'] = $this->input->post('service_center_id');
-        }
-        $service_id = $this->input->post('service_id');
-        $services = array();
-        foreach($service_id as $id){
-           array_push($services,  array('service_id' => $id ));
-        }
+	if ($engineer_form_validation) {
+	    $data['name'] = $this->input->post('name');
+	    $data['phone'] = $this->input->post('phone');
+	    $data['alternate_phone'] = $this->input->post('alternate_phone');
+	    $data['phone_type'] = $this->input->post('phone_type');
+	    //$data['address'] = $this->input->post('address');
+	    $data['identity_proof'] = $this->input->post('identity_proof');
+	    $data['identity_proof_number'] = $this->input->post('identity_id_number');
+	    $data['bank_name'] = $this->input->post('bank_name');
+	    $data['banck_ac_no'] = $this->input->post('bank_account_no');
+	    $data['bank_ifsc_code'] = $this->input->post('bank_ifsc_code');
+	    $data['bank_holder_name'] = $this->input->post('bank_holder_name');
+	    //$data['identity_proof_pic'] = $this->input->post('file');
+	    //$data['bank_proof_pic'] = $this->input->post('bank_proof_pic');
+	    //
+	    //Get vendor ID from session if form sent thru vendor CRM
+	    //Else from POST variable.
+	    if ($this->session->userdata('userType') == 'service_center') {
+		$data['service_center_id'] = $this->session->userdata('service_center_id');
+	    } else {
+		$data['service_center_id'] = $this->input->post('service_center_id');
+	    }
 
-        $data['appliance_id'] = json_encode($services);
-        $data['active'] = "1";
-        $data['create_date'] =  date("Y-m-d H:i:s");
-        log_message('info', __FUNCTION__ . " Engineer data  " . print_r($data, true));
-        $engineer_id = $this->vendor_model->insert_engineer($data);
-        if($engineer_id){
-            $output = "Engineer's Details Added.";
-            $userSession = array('success' => $output);
+	    //applicable services for an engineer come as array in service_id field.
+	    $service_id = $this->input->post('service_id');
+	    $services = array();
+	    foreach ($service_id as $id) {
+		array_push($services, array('service_id' => $id));
+	    }
 
+	    $data['appliance_id'] = json_encode($services);
+	    $data['active'] = "1";
+	    $data['create_date'] = date("Y-m-d H:i:s");
 
-        } else {
-            $output = "Engineer's Details Not Added.";
-            $userSession = array('error' => $output);
-            $this->session->set_userdata($userSession);
-        }
+	    $engineer_id = $this->vendor_model->insert_engineer($data);
 
-        $this->session->set_userdata($userSession);
+	    if ($engineer_id) {
+		log_message('info', __METHOD__ . "=> Engineer Details Added.");
 
-        if($this->session->userdata('userType') == 'service_center'){
-            log_message('info', __FUNCTION__ . " Added By service center  " . print_r($data, true));
-            redirect(base_url()."service_center/add_engineer");
+		$output = "Engineer Details Added.";
+		$userSession = array('success' => $output);
+	    } else {
+		log_message('info', __METHOD__ . "=> Engineer Details Not Added. Engineer data  " . print_r($data, true));
 
-        } else {
-            log_message('info', __FUNCTION__ . " Added By admin panel  " . print_r($data, true));
-            redirect(base_url()."employee/vendor/add_engineer");
-        }
-        } else {
-           $this->add_engineer();
-        }
+		$output = "Engineer Details Not Added.";
+		$userSession = array('error' => $output);
+	    }
+
+	    $this->session->set_userdata($userSession);
+
+	    if ($this->session->userdata('userType') == 'service_center') {
+		log_message('info', __FUNCTION__ . " Engineer addition initiated By Service Center");
+
+		redirect(base_url() . "service_center/add_engineer");
+	    } else {
+		log_message('info', __FUNCTION__ . " Engineer addition initiated By 247around");
+
+		redirect(base_url() . "employee/vendor/add_engineer");
+	    }
+	} else { //form validation failed
+	    $this->add_engineer();
+	}
     }
+
     /**
      * @desc: This is used to view engineers details. This function is used by vendor panel and admin panel,
      * If it used by vendor panel then it gets only particular vendor engineer's otherwise get all engineer
@@ -1072,18 +1081,18 @@ class vendor extends CI_Controller {
         $this->form_validation->set_rules('name', 'Name', 'required|xss_clean');
         $this->form_validation->set_rules('phone', 'Mobile Number', 'trim|exact_length[10]|numeric|required|xss_clean');
         $this->form_validation->set_rules('alternate_phone', 'Alternate Mobile Number', 'trim|exact_length[10]|numeric|xss_clean');
-        $this->form_validation->set_rules('identity_id_number', 'ID Number', 'numeric|xss_clean');
+        $this->form_validation->set_rules('identity_id_number', 'ID Number', 'xss_clean');
         $this->form_validation->set_rules('identity_proof', 'Identity Proof', 'xss_clean');
         $this->form_validation->set_rules('bank_account_no', 'Bank Account No', 'numeric|required|xss_clean');
-        $this->form_validation->set_rules('address', 'Address', 'xss_clean');
-        $this->form_validation->set_rules('service_id', 'Appliance ', 'xss_clean');
+//        $this->form_validation->set_rules('address', 'Address', 'xss_clean');
+	$this->form_validation->set_rules('service_id', 'Appliance ', 'xss_clean');
         $this->form_validation->set_rules('bank_name', 'Bank Name', 'required|xss_clean');
         $this->form_validation->set_rules('bank_ifsc_code', 'IFSC Code', 'required|xss_clean');
         $this->form_validation->set_rules('bank_holder_name', 'Account Holder Name', 'required|xss_clean');
-        $this->form_validation->set_rules('file', 'Identity Proof Pic ', 'callback_uploadIdentity_proof_pic');
-        $this->form_validation->set_rules('bank_proof_pic', 'Bank Proof Pic', 'callback_upload_bank_proof_pic');
+//        $this->form_validation->set_rules('file', 'Identity Proof Pic ', 'callback_upload_identity_proof_pic');
+//	$this->form_validation->set_rules('bank_proof_pic', 'Bank Proof Pic', 'callback_upload_bank_proof_pic');
 
-        if ($this->form_validation->run() == FALSE) {
+	if ($this->form_validation->run() == FALSE) {
             return FALSE;
         }
         else {
@@ -1092,65 +1101,66 @@ class vendor extends CI_Controller {
     }
 
     /**
-     * @desc: This is used to upload Bank Proof Image and return bank proof name
+     * @desc: This is used to upload Bank Proof Image and return true/false depending on result
      */
     public function upload_bank_proof_pic() {
-        $allowedExts = array("png", "jpg", "jpeg","JPG","JPEG","PNG","GIF");
-        $temp        = explode(".", $_FILES["bank_proof_pic"]["name"]);
-        $extension   = end($temp);
-        $filename    = prev($temp);
-        if($_FILES["bank_proof_pic"]["name"]!=null) {
-            if (($_FILES["bank_proof_pic"]["size"] < 2e+6)&& in_array($extension, $allowedExts)) {
-                if ($_FILES["bank_proof_pic"]["error"] > 0) {
-                    $this->form_validation->set_message('upload_bank_proof_pic', $files["bank_proof_pic"]["error"]);
+	$allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+	$temp = explode(".", $_FILES["bank_proof_pic"]["name"]);
+	$extension = end($temp);
+	//$filename = prev($temp);
 
-                }
-                else {
-                    $pic = str_replace(' ', '-', $this->input->post('name'))."_". str_replace(' ', '', $this->input->post('bank_ifsc_code'))."_". uniqid(rand());
-                    $picName = $pic.".".$extension;
-                    $_POST['bank_proof_pic']  = $picName;
-                    $bucket = "bookings-collateral";
-                    $directory = "engineer-bank-proofs/".$picName;
-                    $this->s3->putObjectFile($_FILES["bank_proof_pic"]["tmp_name"], $bucket ,$directory, S3::ACL_PUBLIC_READ);
-                }
-            }
-            else{
-                $this->form_validation->set_message('upload_bank_proof_pic', 'File size or file type is not supported.Allowed extentions are "png", "jpg", "jpeg". Maximum file size is 2MB.');
-                return FALSE;
-            }
-        }
+	if ($_FILES["bank_proof_pic"]["name"] != null) {
+	    if (($_FILES["bank_proof_pic"]["size"] < 2e+6) && in_array($extension, $allowedExts)) {
+		if ($_FILES["bank_proof_pic"]["error"] > 0) {
+		    $this->form_validation->set_message('upload_bank_proof_pic', $_FILES["bank_proof_pic"]["error"]);
+		} else {
+		    $pic = str_replace(' ', '-', $this->input->post('name')) . "_" . str_replace(' ', '', $this->input->post('bank_name')) . "_" . uniqid(rand());
+		    $picName = $pic . "." . $extension;
+		    $_POST['bank_proof_pic'] = $picName;
+		    $bucket = "bookings-collateral";
+		    $directory = "engineer-bank-proofs/" . $picName;
+		    $this->s3->putObjectFile($_FILES["bank_proof_pic"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+
+		    return TRUE;
+		}
+	    } else {
+		$this->form_validation->set_message('upload_bank_proof_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+		    . 'Maximum file size is 2 MB.');
+		return FALSE;
+	    }
+	}
     }
 
-     /**
-     * @desc: This is used to upload Bank Proof Image and return Identity Proof Image
+    /**
+     * @desc: This is used to upload ID Proof Image and return true/false depending on result
      */
-    public function uploadIdentity_proof_pic() {
-        $allowedExts = array("png", "jpg", "jpeg","JPG","JPEG","PNG","GIF");
-        $temp        = explode(".", $_FILES["file"]["name"]);
-        $extension   = end($temp);
-        $filename    = prev($temp);
-        if($_FILES["file"]["name"]!=null) {
-            if (($_FILES["file"]["size"] < 2e+6)&& in_array($extension, $allowedExts)) {
-                if ($_FILES["file"]["error"] > 0) {
-                    $this->form_validation->set_message('uploadIdentity_proof_pic', $files["file"]["error"]);
+    public function upload_identity_proof_pic() {
+	$allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+	$temp = explode(".", $_FILES["file"]["name"]);
+	$extension = end($temp);
+	//$filename = prev($temp);
 
-                }
-                else {
-                    $pic = str_replace(' ', '-', $this->input->post('name'))."_". str_replace(' ', '', $this->input->post('identity_proof'))."_". uniqid(rand());
-                    $picName = $pic.".".$extension;
-                    $_POST['file']  = $picName;
-                    $bucket = "bookings-collateral";
-                    $directory = "engineer-id-proofs/".$picName;
-                    $this->s3->putObjectFile($_FILES["file"]["tmp_name"], $bucket ,$directory, S3::ACL_PUBLIC_READ);
-                }
-            }
-            else{
-                $this->form_validation->set_message('uploadIdentity_proof_pic', 'File size or file type is not supported.Allowed extentions are "png", "jpg", "jpeg". Maximum file size is 2MB.');
-                return FALSE;
-            }
-        }
+	if ($_FILES["file"]["name"] != null) {
+	    if (($_FILES["file"]["size"] < 2e+6) && in_array($extension, $allowedExts)) {
+		if ($_FILES["file"]["error"] > 0) {
+		    $this->form_validation->set_message('upload_identity_proof_pic', $_FILES["file"]["error"]);
+		} else {
+		    $pic = str_replace(' ', '-', $this->input->post('name')) . "_" . str_replace(' ', '', $this->input->post('identity_proof')) . "_" . uniqid(rand());
+		    $picName = $pic . "." . $extension;
+		    $_POST['file'] = $picName;
+		    $bucket = "bookings-collateral";
+		    $directory = "engineer-id-proofs/" . $picName;
+		    $this->s3->putObjectFile($_FILES["file"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+
+		    return TRUE;
+		}
+	    } else {
+		$this->form_validation->set_message('upload_identity_proof_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+		    . 'Maximum file size is 2 MB.');
+		return FALSE;
+	    }
+	}
     }
-
 
 //     function process_upload_pincode_file(){
 //         if (!empty($_FILES['file']['name'])) {
