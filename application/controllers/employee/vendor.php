@@ -942,7 +942,7 @@ class vendor extends CI_Controller {
 	    $data['identity_proof'] = $this->input->post('identity_proof');
 	    $data['identity_proof_number'] = $this->input->post('identity_id_number');
 	    $data['bank_name'] = $this->input->post('bank_name');
-	    $data['banck_ac_no'] = $this->input->post('bank_account_no');
+	    $data['bank_ac_no'] = $this->input->post('bank_account_no');
 	    $data['bank_ifsc_code'] = $this->input->post('bank_ifsc_code');
 	    $data['bank_holder_name'] = $this->input->post('bank_holder_name');
 	    //$data['identity_proof_pic'] = $this->input->post('file');
