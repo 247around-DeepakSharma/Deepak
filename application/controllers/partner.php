@@ -303,15 +303,13 @@ class Partner extends CI_Controller {
                         $booking['type'] = "Query";
                         $booking['booking_date'] = '';
                         $booking['booking_timeslot'] = '';
+                        $booking['partner_source'] = 'STS';
                         $booking['amount_due'] = '';
                         $booking['booking_remarks'] = '';
 
                         //Insert query
                         //echo print_r($booking, true) . "<br><br>";
                         $this->booking_model->addbooking($booking);
-
-                        $this->partner_utilities->insert_booking_in_partner_leads($booking, $unit_details,$user, $lead_details['Product'] );
-
 
                         //Send response
                         $this->jsonResponseString['response'] = array(
@@ -1512,8 +1510,6 @@ class Partner extends CI_Controller {
 			//Insert query
             //echo print_r($booking, true) . "<br><br>";
             $return_id = $this->booking_model->addbooking($booking);
-
-            $this->partner_utilities->insert_booking_in_partner_leads($booking, $unit_details,$user, $lead_details['Product'] );
 
             if (!$return_id) {
                 log_message('info', __FUNCTION__ . ' Error Partner booking details not inserted: ' . print_r($booking, true));

@@ -281,7 +281,7 @@ class bookings_excel extends CI_Controller {
 		//Insert query
 		//echo print_r($booking, true) . "<br><br>";
 		$this->booking_model->addbooking($booking);
-		$this->partner_utilities->insert_booking_in_partner_leads($booking, $unit_details,$user, $prod );
+		$this->insert_booking_in_partner_leads($booking, $unit_details,$user, $prod );
 		//Reset
 		unset($appliance_details);
 		unset($booking);
@@ -622,7 +622,7 @@ class bookings_excel extends CI_Controller {
 			break;
 		}
 
-		$this->partner_utilities->insert_booking_in_partner_leads($booking, $unit_details,$user, $lead_details['Product'] );
+		$this->insert_booking_in_partner_leads($booking, $unit_details,$user, $lead_details['Product'] );
 
 		//$sms['phone_no'] = $lead_details['Phone'];
 		//$sms['booking_id'] = $booking['booking_id'];
@@ -888,7 +888,7 @@ class bookings_excel extends CI_Controller {
 		    log_message('info', __FUNCTION__ . 'Error Paytm booking details not inserted: ' . print_r($booking, true));
 		}
 
-		$this->partner_utilities->insert_booking_in_partner_leads($booking, $unit_details,$user, $lead_details['Product'] );
+		$this->insert_booking_in_partner_leads($booking, $unit_details,$user, $lead_details['Product'] );
 
 		//Reset
 		unset($booking);
@@ -898,6 +898,49 @@ class bookings_excel extends CI_Controller {
 	}
 
 	redirect(base_url() . DEFAULT_SEARCH_PAGE);
+    }
+
+     /**
+     * @desc: This method used to insert data into partner leads table.
+     * @param: Array Booking details
+     * @param: Array Unit details
+     * @param: Array User details
+     * @param: String Service Name
+     */
+    function insert_booking_in_partner_leads($booking, $unit_details, $user_details, $product){
+    	$partner_booking['PartnerID'] = $booking['partner_id'];
+    	$partner_booking['OrderID'] = $booking['order_id'];
+    	$partner_booking['247aroundBookingID'] = $booking['booking_id'];
+    	$partner_booking['Product'] = $product;
+    	$partner_booking['Brand'] = $unit_details['appliance_brand'];
+    	$partner_booking['Model'] = $unit_details['model_number'];
+    	$partner_booking['ProductType'] = $unit_details['appliance_description'];
+    	$partner_booking['Category'] = $unit_details['appliance_category'];
+    	$partner_booking['Name'] = $user_details['name'];
+    	$partner_booking['Mobile'] =  $booking['booking_primary_contact_no'];
+    	$partner_booking['AlternatePhone'] =  $booking['booking_alternate_contact_no'];
+    	$partner_booking['Email'] = $user_details['user_email'];
+    	$partner_booking['Landmark'] = $booking['booking_landmark'];
+    	$partner_booking['Address'] = $booking['booking_address'];
+    	$partner_booking['Pincode'] = $booking['booking_pincode'];
+    	$partner_booking['City'] = $booking['city'];
+    	$partner_booking['DeliveryDate'] = $booking['delivery_date'];
+    	$partner_booking['RequestType'] = $booking['request_type'];
+    	$partner_booking['ScheduledAppointmentDate'] = $booking['booking_date'];
+    	$partner_booking['ScheduledAppointmentTime'] = $booking['booking_timeslot'];
+    	$partner_booking['Remarks'] = $booking['booking_remarks'];
+    	$partner_booking['PartnerRequestStatus'] = "";
+    	$partner_booking['247aroundBookingStatus'] = "FollowUp";
+    	$partner_booking['247aroundBookingRemarks'] = "FollowUp";
+    	$partner_booking['create_date'] = date('Y-m-d H:i:s');
+
+    	$partner_leads_id = $this->partner_model->insert_partner_lead($partner_booking);
+    	if($partner_leads_id){
+    		return true;
+    	} else {
+           log_message('info', __FUNCTION__." Booking is not inserted into Partner Leads table:". print_r($partner_booking, true));
+    	}
+
     }
 
 }
