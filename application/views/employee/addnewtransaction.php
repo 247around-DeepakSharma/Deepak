@@ -44,12 +44,14 @@ function partner_vendor1(vendor_partner_id){
                     credit_debit: "required",
                     amount: "required",
                     tdate: "required",
+                    tds_amount: "required",
                 },
                 messages: {
                    // partner_vendor: "Please select Partner/Vendor",
                     credit_debit: "Please select credit/debit.",
                     amount: "Please enter credit/debit amount.",
                     tdate: "Please enter transaction date",
+                    tds_amount: "Please enter TDA",
                 },
                 submitHandler: function(form) {
                     form.submit();
@@ -102,12 +104,12 @@ color: red;
                     ?>
           <form name="myForm1" id="myForm1" class="form-horizontal" action="<?php echo base_url()?>employee/invoice/post_add_new_transaction" method="POST">
               <h1>Add New Transaction</h1>
-	      <br>
-	      <div class="form-group ">
+        <br>
+        <div class="form-group ">
                   <label class="col-md-2">Select Party<span class="red">*</span></label>
-		  <div class="col-md-6">
-		      <input type="radio" onclick="partner_vendor1(<?php echo $id; ?>);"  name="partner_vendor" <?php if($vendor_partner ==""){ echo "checked"; } else if($vendor_partner == "vendor"){ echo "checked"; }?> value = "vendor">    Service Centre &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		      <input type="radio" <?php if($vendor_partner == "partner"){ echo "checked"; } ?>onclick="partner_vendor1(<?php echo $id; ?>);" name="partner_vendor" value = "partner" >    Partner &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <div class="col-md-6">
+          <input type="radio" onclick="partner_vendor1(<?php echo $id; ?>);"  name="partner_vendor" <?php if($vendor_partner ==""){ echo "checked"; } else if($vendor_partner == "vendor"){ echo "checked"; }?> value = "vendor">    Service Centre &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <input type="radio" <?php if($vendor_partner == "partner"){ echo "checked"; } ?>onclick="partner_vendor1(<?php echo $id; ?>);" name="partner_vendor" value = "partner" >    Partner &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 </div>
               </div>
               <center><img id="loader_gif" src=""></center>
@@ -122,16 +124,16 @@ color: red;
               <div class="form-group">
                 <label for="invoice_id" class="col-md-2">Invoice ID</label>
                 <div class="col-md-6">
-                  <input type="text" class="form-control"  name="invoice_id" placeholder="Enter Invoice ID">
+                  <input type="text" class="form-control"  name="invoice_id" placeholder="Enter Invoice ID" value="<?php if(!empty($invoice_id)){ echo implode(',', $invoice_id); }?>">
                   <span id="errmsg"></span>
                 </div>
               </div>
 
               <div class="form-group ">
-		  <label for="name" class="col-md-2">Credit / Debit in 247Around <span class="red">*</span></label>
-		  <div class="col-md-6">
-		      <input type="radio" onclick="cre_deb_validation1()"  name="credit_debit" value = "Credit" checked>   Credit &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		      <input type="radio" onclick="cre_deb_validation1()"  name="credit_debit" value = "Debit">    Debit &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <label for="name" class="col-md-2">Credit / Debit in 247Around <span class="red">*</span></label>
+      <div class="col-md-6">
+          <input type="radio" onclick="cre_deb_validation1()"  name="credit_debit" value = "Credit" <?php if($selected_amount_collected > 0){ echo "checked";}?>>   Credit &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <input type="radio" onclick="cre_deb_validation1()"  name="credit_debit" value = "Debit" <?php if($selected_amount_collected < 0){ echo "checked";}?>>    Debit &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
                 </div>
             <span id="errmsg1"></span>
@@ -140,31 +142,40 @@ color: red;
               <div class="form-group">
                 <label for="name" class="col-md-2">Amount <span class="red">*</span></label>
                 <div class="col-md-6">
-		                <input type="text" class="form-control" id="amount" name="amount" required>
+                    <input type="text" class="form-control" id="amount" name="amount" value="<?php if(isset($selected_amount_collected)){ echo abs($selected_amount_collected); }?>" required>
                 </div>
                 <span id="errmsg4"></span>
               </div>
 
+               <div class="form-group">
+                <label for="name" class="col-md-2">TDS <span class="red">*</span></label>
+                <div class="col-md-6">
+                    <input type="text" class="form-control" id="tds_amount" name="tds_amount" value="<?php if(isset($selected_tds)){ echo $selected_tds; }?>" required>
+                </div>
+                <span id="errmsg4"></span>
+              </div>
+
+
               <div class="form-group">
-		  <label for="name" class="col-md-2">Transaction Mode<span class="red">*</span></label>
-		  <div>
-		    <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Cash" checked>    Cash &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		    <input type="radio" onclick="cre_deb_validation1()"  name="transaction_mode" value = "Cheque">    Cheque &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		    <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Transfer">    Transfer &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		    <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Other">    Other
+      <label for="name" class="col-md-2">Transaction Mode<span class="red">*</span></label>
+      <div>
+        <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Cash" checked>    Cash &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" onclick="cre_deb_validation1()"  name="transaction_mode" value = "Cheque">    Cheque &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Transfer">    Transfer &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Other">    Other
                 </div>
 
               </div>
 
               <div class="form-group">
-		  <label for="name" class="col-md-2">Party Bank Name</label>
-		  <div class="col-md-6">
+      <label for="name" class="col-md-2">Party Bank Name</label>
+      <div class="col-md-6">
                   <input type="text" class="form-control"  name="bankname">
                 </div>
               </div>
 
               <div class="form-group">
-            	<label for="name" class="col-md-2">Transaction Date <span class="red">*</span></label>
+              <label for="name" class="col-md-2">Transaction Date <span class="red">*</span></label>
                 <div class="col-md-2">
                 <div class="input-group input-append date" >
                     <input type="text" id="datepicker" class="form-control" name="tdate" >
@@ -177,7 +188,7 @@ color: red;
             <div class="form-group">
               <label for="name" class="col-md-2">Description</label>
               <div class="col-md-6">
-		  <textarea class="form-control"  name="description" cols="5" rows="5" placeholder="Add transaction remarks"></textarea>
+      <textarea class="form-control"  name="description" cols="5" rows="5" placeholder="Add transaction remarks"></textarea>
               </div>
             </div>
         <div class="col-md-12" style="text-align: center;">
@@ -206,4 +217,3 @@ color: red;
 
 <?php if($this->session->userdata('success')) { $this->session->unset_userdata('success'); } ?>
  
-

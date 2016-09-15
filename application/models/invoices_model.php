@@ -206,7 +206,7 @@ class invoices_model extends CI_Model {
 	$this->db->delete("bank_transactions");
     }
 
-    /**
+   /**
      * @desc : get all vendor invoice for previous month. it get both type A and type B invoice
      *
      * @param: void
@@ -253,7 +253,7 @@ class invoices_model extends CI_Model {
 
 		if ($date_range != "") {
 		    $where .= "  AND booking_details.closed_date >= '$from_date' AND booking_details.closed_date < '$to_date' ";
-		    $date = "  '$from_date' as start_date,  '".date('Y-m-d', strtotime($to_date . " - 1 day"))."'  as end_date,  ";
+		    $date = "  '$from_date' as start_date,  '" . date('Y-m-d', strtotime($to_date . " - 1 day")) . "'  as end_date,  ";
 		} else {
 		    $where .=" AND  booking_details.closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
 AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
@@ -278,17 +278,25 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 
                      /* get sum of vat charges if product_or_services is product else sum of vat is zero  */
                      (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (around_st_or_vat_basic_charges + vendor_st_or_vat_basic_charges) ELSE 0 END) as vat,
+
+                     (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN ( vendor_st_or_vat_basic_charges) ELSE 0 END) as vendor_vat,
                     /* get sum of st charges if product_or_services is Service else sum of vat is zero  */
                      (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (around_st_or_vat_basic_charges + vendor_st_or_vat_basic_charges) ELSE 0 END) as st,
+
+                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (vendor_st_or_vat_basic_charges) ELSE 0 END) as vendor_st,
                      /* get installation charge if product_or_services is Service else installation_charge is zero
                       * installation charge is the sum of around_comm_basic_charge and vendor_basic_charge
                       */
                      (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (around_comm_basic_charges +vendor_basic_charges) ELSE 0 END) as installation_charge,
+
+                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (vendor_basic_charges) ELSE 0 END) as vendor_installation_charge,
                       /* get stand charge if product_or_services is Product else stand charge is zero
                       * Stand charge is the sum of around_comm_basic_charge and vendor_basic_charge
                       */
 
                      (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (around_comm_basic_charges +vendor_basic_charges) ELSE 0 END) as stand,
+
+                     (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (vendor_basic_charges) ELSE 0 END) as vendor_stand,
                      /* get sum of service charge, sum of service charge is the sum of customer paid basic charge and around net payable*/
 
                      (SELECT SUM(customer_paid_basic_charges + around_net_payable ) $condition ) AS sum_service_charge,
@@ -332,6 +340,7 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 
 	return $invoice;
     }
+
 
         /**
      * @desc: this method generates invoice summary and also details. when this method executes 1st for loop then  get all data  for invoices details and executes 2nd for loop then get add data for invoice summary.
@@ -436,6 +445,145 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 
     function insert_invoice_row($invoices_data) {
 	$this->db->insert('vendor_invoices_snapshot', $invoices_data);
+    }
+
+     /**
+     * @desc: This method settle invoices
+     * First it get amount collected for particular invoices And 
+     * Calculate total amount to be pay, postive amount(FOC), negative amount(CASH), 
+     * net collected amount(If already paid amount corresponding that invoice id 
+     * then we will minus in amount_collected_paind amount).
+     * @param: Array Invoice ID
+     * @param: Net Amount Transfered
+     */
+    function update_settle_invoices($invoice_id, $txn_paid_amount) {
+	$total_amount_to_be_pay = 0;
+	$total_positive_amount_to_be_pay = 0;
+	$total_negative_amount_to_be_pay = 0;
+	$net_collected_amount = 0;
+	$invoices = array();
+	//Get amount for invoices
+	foreach ($invoice_id as $custom_invoices) {
+	    $this->db->select('invoice_id, amount_collected_paid, amount_paid');
+	    $this->db->where('invoice_id', $custom_invoices);
+	    $query = $this->db->get('vendor_partner_invoices');
+
+	    if ($query->num_rows > 0) {
+		$result = $query->result_array();
+		// Check Postive Amount
+		if ($result[0]['amount_collected_paid'] >= 0) {
+            // Already paid amount but not settle
+		    $net_collected_amount = ($result[0]['amount_collected_paid'] - $result[0]['amount_paid']);
+		    //total positive amount to be pay
+		    $total_positive_amount_to_be_pay += $net_collected_amount;
+
+		} else {
+            // Already paid amount but not settle
+		    $net_collected_amount = ($result[0]['amount_collected_paid'] + $result[0]['amount_paid']);
+		    //total negative amount to be pay
+		    $total_negative_amount_to_be_pay += $net_collected_amount;
+		}
+		//Array with index key Invoice ID
+		$invoices[$result[0]['invoice_id']]['net_collected_amount'] = $net_collected_amount;
+		//Array with index key Invoice ID
+		$invoices[$result[0]['invoice_id']][] = $result[0]['amount_collected_paid'];
+		//Final amount to be pay for these Invoice ID
+		$total_amount_to_be_pay += $net_collected_amount;
+	    }
+	}
+	$paid_amount = sprintf("%.2f", $txn_paid_amount);
+	//Sort Array
+	asort($invoices);
+	// Check if Paid amount is equal to  total amount to be pay then we settle all invoices.
+	if (intval(abs($paid_amount)) == intval(abs($total_amount_to_be_pay))) {
+	    foreach ($invoice_id as $id_invoice) {
+
+		$this->update_partner_invoices(array('invoice_id' => $id_invoice), array('settle_amount' => 1, 'amount_paid' => abs($invoices[$id_invoice][0])));
+	    }
+	} else if ($total_positive_amount_to_be_pay > abs($total_negative_amount_to_be_pay)) {
+		// Vendor Pays
+	    $settled_amount = abs($total_negative_amount_to_be_pay);
+	    $txn_settled_amount = $settled_amount + abs($paid_amount);
+       
+	    foreach ($invoices as $key => $value) {
+         //Assume:-- If the vendor will pay, then we settle all invoice id in which 247Around to be paid 
+		if ($value[0] < 0) {
+		    $settle_data['invoice_id'] = $key;
+		    $settle_data['settle_amount'] = 1;
+		    $settle_data['amount_paid'] = abs($value[0]);
+     
+		    $this->update_partner_invoices(array('invoice_id' => $key), $settle_data);
+		} else if ($txn_settled_amount > 0) {
+            
+		    $txn_settled_amount = $this->update_settlement($value, $key, $txn_settled_amount);
+		}
+	    }
+	} else if ($total_positive_amount_to_be_pay < abs($total_negative_amount_to_be_pay)) {
+		//247Around Pay
+
+	    $settled_amount = abs($total_positive_amount_to_be_pay);
+	    $txn_settled_amount = $settled_amount + abs($paid_amount);
+
+	    foreach ($invoices as $key => $value) {
+	    //Assume:-- If the 247Around will pay, then we settle all invoice id in which Vendor to be paid 
+		if ($value[0] > 0) {
+		    $settle_data['invoice_id'] = $key;
+		    $settle_data['settle_amount'] = 1;
+		    $settle_data['amount_paid'] = $value[0];
+
+
+		    $this->update_partner_invoices(array('invoice_id' => $key), $settle_data);
+		} else if ($txn_settled_amount > 0) {
+
+		    $txn_settled_amount = $this->update_settlement($value, $key, $txn_settled_amount);
+		}
+	    }
+	}
+
+    }
+    /**
+     * @desc: Update Invoice id 
+     * It checks, net collected amount is greater than or less than  
+     * from sum of settled amount and paid amount.
+     * If sum of settled amount and paid amount is greater then we will settle these invoice id
+     * AND minus net collected amount from sum of settled amount and paid amount(txn_settled_amount).
+     * If sum of settled amount and paid amount is less than then we will  minus net collected amount 
+     * from sum of settled amount and paid amount(txn_settled_amount).
+     * And Checks txn_settled amount is greater then we will settle these invoice id
+     * AND txn_settled amount is less than than insert amount paid for that invoice id
+     */
+    function update_settlement($value, $key, $txn_settled_amount) {
+	if ($txn_settled_amount >= abs($value['net_collected_amount'])) {
+	    $settle_data['invoice_id'] = $key;
+	    $settle_data['settle_amount'] = 1;
+	    $settle_data['amount_paid'] = abs($value[0]);
+
+	    $txn_settled_amount = $txn_settled_amount - abs($value['net_collected_amount']);
+
+	    $this->update_partner_invoices(array('invoice_id' => $key), $settle_data);
+	} else if ($txn_settled_amount < abs($value['net_collected_amount'])) {
+
+	    $settle_data['invoice_id'] = $key;
+	    $txn_settled_amount = $txn_settled_amount - abs($value['net_collected_amount']);
+	    if ($txn_settled_amount >= 0) {
+	    	$settle_data['settle_amount'] = 1;
+		    $settle_data['amount_paid'] = abs($value[0]);
+	    } else {
+	    	$settle_data['settle_amount'] = 0;
+		    $settle_data['amount_paid'] = abs($value['net_collected_amount']) - abs($txn_settled_amount);
+	    }
+
+	    $this->update_partner_invoices(array('invoice_id' => $key), $settle_data);
+	}
+	return $txn_settled_amount;
+    }
+
+    /**
+     * @desc: Update Vendor partner invoice table
+     */
+    function update_partner_invoices($where, $details) {
+	$this->db->where($where);
+	$this->db->update('vendor_partner_invoices', $details);
     }
 
 }

@@ -109,7 +109,7 @@ class Invoice extends CI_Controller {
                     <br>Playstore - 247around -
                     <br>https://play.google.com/store/apps/details?id=com.handymanapp";
 
-	log_message('info', "To- EmailId" . print_r($to));
+	log_message('info', "To- EmailId" . print_r($to, true));
 
 	$this->notify->sendEmail("billing@247around.com", $to, $cc, '', $subject, $message, $attachment);
 	if ($vendor_partner == "vendor") {
@@ -177,6 +177,9 @@ class Invoice extends CI_Controller {
     function get_add_new_transaction($vendor_partner = "", $id = "") {
 	$data['vendor_partner'] = $vendor_partner;
 	$data['id'] = $id;
+	$data['invoice_id'] = $this->input->post('invoice_id');
+	$data['selected_amount_collected'] = $this->input->post('selected_amount_collected');
+	$data['selected_tds'] = $this->input->post('selected_tds');
 	$this->load->view('employee/header');
 	$this->load->view('employee/addnewtransaction', $data);
     }
@@ -194,24 +197,30 @@ class Invoice extends CI_Controller {
 	$account_statement['credit_debit'] = $this->input->post('credit_debit');
 	$account_statement['transaction_mode'] = $this->input->post('transaction_mode');
 	$amount = $this->input->post('amount');
-
+    $paid_amount = 0;
 	if ($account_statement['credit_debit'] == 'Credit') {
 	    $account_statement['debit_amount'] = '0';
 	    $account_statement['credit_amount'] = $amount;
+        $paid_amount = -$amount;
 	} else if ($account_statement['credit_debit'] == 'Debit') {
 	    $account_statement['credit_amount'] = '0';
 	    $account_statement['debit_amount'] = $amount;
+	    $paid_amount = $amount;
 	}
 
 	$transaction_date = $this->input->post('tdate');
 	$account_statement['transaction_date'] = date("Y-m-d", strtotime($transaction_date));
 	$account_statement['description'] = $this->input->post('description');
 
-	$this->invoices_model->bankAccountTransaction($account_statement);
+	$invoice_id = explode(',', $account_statement['invoice_id']);
 
-	$output = "Transaction added successfully.";
-	$userSession = array('success' => $output);
-	$this->session->set_userdata($userSession);
+	$this->invoices_model->update_settle_invoices($invoice_id, $paid_amount, $account_statement['partner_vendor'], $account_statement['partner_vendor_id']);
+
+	//$this->invoices_model->bankAccountTransaction($account_statement);
+
+	// $output = "Transaction added successfully.";
+	// $userSession = array('success' => $output);
+	// $this->session->set_userdata($userSession);
 
 	//Send SMS to vendors about payment
 	if ($account_statement['partner_vendor'] == 'vendor') {
@@ -222,10 +231,10 @@ class Invoice extends CI_Controller {
 	    $sms['phone_no'] = $v['owner_phone_1'];
 	    $sms['smsData'] = "previous month";
 
-	    $this->notify->send_sms($sms);
+	   // $this->notify->send_sms($sms);
 	}
 
-	redirect(base_url() . 'employee/invoice/get_add_new_transaction');
+	//redirect(base_url() . 'employee/invoice/invoice_summary/'.$account_statement['partner_vendor']."/".$account_statement['partner_vendor_id']);
     }
 
     /**
@@ -278,9 +287,9 @@ class Invoice extends CI_Controller {
      * @param: bank account transaction id, partner vender id
      * @return: void
      */
-    function delete_banktransaction($transaction_id) {
+    function delete_banktransaction($transaction_id,$vendor_partner, $vendor_partner_id) {
 	$this->invoices_model->delete_banktransaction($transaction_id);
-	echo "success";
+	redirect(base_url() . 'employee/invoice/invoice_summary/'.$vendor_partner."/".$vendor_partner_id);
     }
 
     /*
@@ -959,21 +968,34 @@ class Invoice extends CI_Controller {
 		$total_vat_charge = 0;
 		$rating_count = 0;
 		$t_rating = 0;
+		$s_inst_charge = 0;
+		$s_st_charge = 0;
+		$s_stand_charge = 0;
+		$s_vat_charge = 0;
 
 		// Calculate charges
 		for ($j = 0; $j < count($data[$i]); $j++) {
-		    $total_inst_charge += $data[$i][$j]['installation_charge'];
-		    $total_st_charge += $data[$i][$j]['st'];
-		    $total_stand_charge += $data[$i][$j]['stand'];
-		    $total_vat_charge += $data[$i][$j]['vat'];
-		    $invoices[$j]['amount_paid'] = $data[$i][$j]['installation_charge'] + $data[$i][$j]['st'] + $data[$i][$j]['stand'] + $data[$i][$j]['vat'];
+		    $total_inst_charge += $data[$i][$j]['vendor_installation_charge'];
+		    $total_st_charge += $data[$i][$j]['vendor_st'];
+		    $total_stand_charge += $data[$i][$j]['vendor_stand'];
+		    $total_vat_charge += $data[$i][$j]['vendor_vat'];
+		    $invoices[$j]['amount_paid'] = $data[$i][$j]['vendor_installation_charge'] + $data[$i][$j]['vendor_st'] + $data[$i][$j]['vendor_stand'] + $data[$i][$j]['vendor_vat'];
 
+		    $s_inst_charge += $data[$i][$j]['installation_charge'];
+		    $s_st_charge += $data[$i][$j]['st'];
+		    $s_stand_charge += $data[$i][$j]['stand'];
+		    $s_vat_charge += $data[$i][$j]['vat'];
+ 
 		}
 
-		$r_ic = $total_inst_charge * .30;
-		$r_st = $total_st_charge * .30;
-		$r_vat = $total_vat_charge * .30;
-		$r_stand = $total_stand_charge * .30;
+		$r_ic = $s_inst_charge * .30;
+		$r_st = $s_st_charge * .30;
+		$r_vat = $s_vat_charge * .30;
+		$r_stand = $s_stand_charge * .30;
+		$s_total =  $s_inst_charge + $s_stand_charge + $s_st_charge + $s_vat_charge;
+		$r_total = round($s_total * 0.3, 0);
+
+		
 		$t_total = $total_inst_charge + $total_stand_charge + $total_st_charge + $total_vat_charge;
 
 		//this array stores unique booking id
@@ -1007,15 +1029,24 @@ class Invoice extends CI_Controller {
 		//B means it is for the FOC type of invoice as explained above
 		//Make sure it is unique
 		$invoice_id = $invoices[0]['sc_code'] . "-" . date("dMY") . "-B-" . rand(100, 999);
+		if($t_total >= 20000){
+			$tds = $t_total * 0.1;
+			$t_w_total = ($t_total - $tds);
+
+		} else {
+			$t_w_total = $t_total;
+            $tds = 0;
+		}
 
 		// stores charges
 		$excel_data = array(
-		    't_ic' => $total_inst_charge, 't_st' => $total_st_charge, 't_stand' => $total_stand_charge,
+		    't_ic' => $total_inst_charge,
+		    't_st' => $total_st_charge, 
+		    't_stand' => $total_stand_charge,
 		    't_vat' => $total_vat_charge, 't_total' => $t_total,
 		    't_rating' => $invoices[0]['avg_rating'],
-		    'r_ic' => $r_ic, 'r_st' => $r_st, 'r_stand' => $r_stand,
-		    'r_total' => round($t_total * 0.3, 0), 'r_vat' => $r_vat,
-		    't_vp_wo_tds' => round($t_total * 0.7, 0) // vendor payment without TDS
+		    'tds' => $tds,
+		    't_vp_w_tds' => round($t_w_total, 0) // vendor payment without TDS
 		);
 
 		$excel_data['invoice_id'] = $invoice_id;
@@ -1092,10 +1123,11 @@ class Invoice extends CI_Controller {
 
 		if ($invoice_type === "final") {
 		    $to = $invoices[0]['owner_email'] . ", " . $invoices[0]['primary_contact_email'];
-		    $cc = "billing@247around.com, nits@247around.com, anuj@247around.com";
+		    //$cc = "billing@247around.com, nits@247around.com, anuj@247around.com";
+		    $cc = "";
 		    $subject = "247around - " . $invoices[0]['name'] . " - Invoice for period: " . $start_date . " to " . $end_date;
 		} else {
-		    $to = "anuj@247around.com";
+		    $to = "";
 		    $cc = "";
 		    $subject = "DRAFT INVOICE - 247around - " . $invoices[0]['name'] . " - Invoice for period: " . $start_date . " to " . $end_date;
 		}
@@ -1148,8 +1180,12 @@ class Invoice extends CI_Controller {
 		    $directory_xls = "invoices-excel/" . $output_file . ".xlsx";
 //		    $directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
 
-		    $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+		    //$this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 //		    $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+		    $s_inst_charge += $data[$i][$j]['installation_charge'];
+		    $s_st_charge += $data[$i][$j]['st'];
+		    $s_stand_charge += $data[$i][$j]['stand'];
+		    $s_vat_charge += $data[$i][$j]['vat'];
 		    //Save this invoice info in table
 		    $invoice_details = array(
 			'invoice_id' => $invoice_id,
@@ -1162,16 +1198,17 @@ class Invoice extends CI_Controller {
 			'from_date' => date("Y-m-d", strtotime($start_date)),
 			'to_date' => date("Y-m-d", strtotime($end_date)),
 			'num_bookings' => $count,
-			'total_service_charge' => $excel_data['t_ic'],
+			'total_service_charge' => $s_inst_charge,
 			'total_additional_service_charge' => 0,
-			'service_tax' => $excel_data['t_st'],
-			'parts_cost' => $excel_data['t_stand'],
-			'vat' => $excel_data['t_vat'],
-			'total_amount_collected' => $excel_data['t_total'],
+			'service_tax' => $s_st_charge,
+			'parts_cost' => $s_stand_charge,
+			'vat' => $s_vat_charge,
+			'total_amount_collected' => $s_total,
+			'tds_amount' => $excel_data['tds'],
 			'rating' => $excel_data['t_rating'],
-			'around_royalty' => $excel_data['r_total'],
+			'around_royalty' => $r_total,
 			//Amount needs to be Paid to Vendor
-			'amount_collected_paid' => ( $excel_data['r_total'] - $excel_data['t_total']),
+			'amount_collected_paid' => ( $excel_data['t_vp_w_tds']),
 			//Mail has been sent or not
 			'mail_sent' => $mail_sent,
 			//Add 1 month to end date to calculate due date
@@ -1195,8 +1232,8 @@ class Invoice extends CI_Controller {
 		array_push($file_names, $output_file_excel);
 //		array_push($file_names, $output_file_pdf);
 
-		$summary = $invoices[0]['id'] . "," . $invoices[0]['name'] . "," . $count . "," . $excel_data['t_total'] . "," . $excel_data['r_total']
-		    . "," . ( $excel_data['r_total'] - $excel_data['t_total']) . "<br>";
+		$summary = $invoices[0]['id'] . "," . $invoices[0]['name'] . "," . $count . "," . $s_total . "," . $r_total
+		    . "," . ( $r_total - $s_total) . "<br>";
 
 		array_push($summary_foc, $summary);
 
@@ -1207,9 +1244,9 @@ class Invoice extends CI_Controller {
 	}
 
 	//Delete XLS files now
-	foreach ($file_names as $file_name) {
-	    exec("rm -rf " . escapeshellarg($file_name));
-	}
+	// foreach ($file_names as $file_name) {
+	//     exec("rm -rf " . escapeshellarg($file_name));
+	// }
 
 	return $summary_foc;
     }
@@ -1281,8 +1318,6 @@ class Invoice extends CI_Controller {
 	    $this->generate_partner_invoices($vendor_partner_id, $date_range, $invoice_version);
 	}
 
-
-
 	redirect(base_url() . "employee/invoice/get_invoices_form");
     }
 
@@ -1352,6 +1387,19 @@ class Invoice extends CI_Controller {
 	    default:
 		break;
 	}
+
+    }
+    /**
+     * @desc: This Method is used to load Invoice details for particular Vendor
+     * @param: Vendor Partner
+     * @param: Vendor id
+     */
+    function invoice_summary($vendor_partner, $vendor_partner_id){
+	    $data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
+	    $data['vendor_partner_id'] = $vendor_partner_id;
+	    $data['vendor_partner'] = $vendor_partner;
+	    $this->load->view('employee/header');
+		$this->load->view('employee/invoices_details', $data);
 
     }
 
