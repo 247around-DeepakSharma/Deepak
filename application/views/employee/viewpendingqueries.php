@@ -80,8 +80,7 @@ function outbound_call(phone_number){
                     <thead>
                     <tr>
                     <th>S No.</th>
-                    <th width="160px;">
-                    <a href="<?php echo base_url();?>employee/booking/view">Booking Id</a></th>
+                    <th width="160px;">Booking Id</th>
                     <th width="140px;">User Name</th>
                     <th width="125px;">Phone No.</th>
                     <th width="125px;">Service Name</th>
