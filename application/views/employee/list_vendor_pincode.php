@@ -66,7 +66,7 @@
                               <select type="text" class="form-control"  id="service_id_<?php echo $i?>" name="service_id[]" value = "<?php echo set_value('service_id'); ?>">
                                            <option value="">Select Appliance</option>
                                             <?php foreach ($appliance as $key => $value) { ?>
-                                            <option  value=<?php echo $value['Appliance_ID'];?> > <?php echo $value['Appliance']; } ?></option>
+                                           <option  value=<?php echo $value->id;?> > <?php echo $value->services; } ?></option>
                                </select>
 
                            	</div>
@@ -93,7 +93,7 @@
                                <select type="text" class="form-control"  id="vendor_<?php echo $i?>" name="vendor_id[]">
                                             <option value="">Select Vendor</option>
                                             <?php foreach ($vendor_details as $key => $values) { ?>
-                                            <option  value=<?= $values['Vendor_ID']; ?> > <?php echo $values['Vendor_Name']; } ?></option>
+                                           <option  value=<?= $values['id']; ?> > <?php echo $values['name']; } ?></option>
                                </select>
                                <?php echo form_error('vendor_id'); ?>
                            </div>
