@@ -9,17 +9,14 @@
 <div id="page-wrapper" >
    <div class="container" >
       	<div class="panel panel-info" style="margin-top:20px;">
-         	<div class="panel-heading"><center>DELETE VENDOR</center></div>
-         	<div class="panel panel-default">
-    			<div class="panel-body"><strong>Select Vendors</strong></div>
-  			</div>
+         	<div class="panel-heading"><center>Delete Vendor Pincode Mappings</center></div>
          	<div class="panel-body">
         		  <?php if(isset($delete)){
                     echo '<div class="alert alert-success alert-dismissible" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <strong>Vendor has been Deleted</strong>
+                        <strong>Vendor pincodes have been deleted</strong>
                     </div>';
                     }
                     if(isset($not_found)){

@@ -40,7 +40,7 @@
                                     <label for="Mobile" class="col-md-4">Mobile *</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  id="mobile" name="phone" value = "<?php echo set_value('phone');  ?>" placeholder="Enter Mobile Number" required>
-                                        SMS will be delivered to this Mobile No.
+                                        SMS will be delivered to this Mobile
                                     </div>
                                     <?php echo form_error('phone'); ?>
                                 </div>
@@ -113,7 +113,7 @@
                                 </div>
 
                                  <div class="form-group <?php if( form_error('file') ) { echo 'has-error';} ?>">
-                                    <label for="Identity Picture" class="col-md-4">Identity Proof Picture</label>
+                                    <label for="Identity Picture" class="col-md-4">ID Photo</label>
                                     <div class="col-md-6" >
                                        <input type="file" class="form-control" name="file" >
                                     </div>
@@ -162,7 +162,7 @@
                                 </div>
 
                                 <div class="form-group <?php if( form_error('bank_proof_pic') ) { echo 'has-error';} ?>">
-                                    <label for="Identity Picture" class="col-md-4">Bank Proof Picture</label>
+                                    <label for="Identity Picture" class="col-md-4">Bank Passbook/Cheque Photo</label>
                                     <div class="col-md-6" >
                                        <input type="file" class="form-control" name="bank_proof_pic" >
                                     </div>

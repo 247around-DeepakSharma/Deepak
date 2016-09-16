@@ -1163,19 +1163,19 @@ class vendor extends CI_Controller {
     }
 
      /**
-     *  @desc : This function is used to Add Vendor for a particular Pincode 
+     *  @desc : This function is used to Add Vendor for a particular Pincode
      *  @param : String(Booking Id)
      *  @return : void
      */
     function get_add_vendor_to_pincode_form($pincode,$appliance,$appliance_id,$city){
-        
+
         $data['Pincode'] = $pincode;
         $data['Appliance'] = $appliance;
         $data['Appliance_ID'] = $appliance_id;
         $data['City'] = urldecode($city);
-        
+
         //Getting data from Database using Booking ID
-        
+
         $data['vendor_details'] = $this->vendor_model->get_distinct_vendor_details($data['Appliance_ID']);
         $data['state'] = $this->vendor_model->getall_state();
 
@@ -1184,13 +1184,13 @@ class vendor extends CI_Controller {
         $this->load->view('employee/add_vendor_to_pincode', $data);
 
     }
-    
+
     /**
-     *  @desc : This function is used to Process Add Vendor to pincode Form 
+     *  @desc : This function is used to Process Add Vendor to pincode Form
      *  @param : Array of $_POST data
      *  @return : void
      */
-    
+
     function process_add_vendor_to_pincode_form(){
         //Getting Post data
         if($this->input->post()){
@@ -1202,7 +1202,7 @@ class vendor extends CI_Controller {
             $this->form_validation->set_rules('vendor_id', 'Vendor Id', 'required');
             $this->form_validation->set_rules('choice', 'Services', 'required');
 
-            //Check for Validation 
+            //Check for Validation
             if ($this->form_validation->run() == FALSE) {
 
             $this->load->view('employee/header');
@@ -1230,18 +1230,18 @@ class vendor extends CI_Controller {
                     $appliance = $this->booking_model->selectservicebyid($value);
                     //Getting Vendor Name
                     $vendor_name = $this->vendor_model->getActiveVendor($this->input->post('vendor_id'));
-                    //Appending Array 
+                    //Appending Array
                     $vendor_mapping['Vendor_Name'] = $vendor_name[0]['name'];
                     $vendor_mapping['Appliance'] = $appliance[0]['services'];
                     $vendor_mapping['Appliance_ID'] = $value;
-                    
+
                     //Checking for already entered Record
                     $result = $this->vendor_model->check_vendor_details($vendor_mapping);
-                    
+
                     if($result){
                         //Setting Flash data on success
                         $this->session->set_flashdata('success','Vendor assigned successfully.');
-                        
+
                         //Echoing sucess to Log file
                         log_message('info',__FUNCTION__.' Vendor assigned successfully in Vendor Mapping Table. ');
                         $this->vendor_model->insert_vendor_pincode_mapping($vendor_mapping);
@@ -1251,10 +1251,10 @@ class vendor extends CI_Controller {
                         log_message('info',__FUNCTION__.'Vendor already assigned to '.$vendor_mapping['Appliance'] );
                         //Setting Flash variable on Error
                         $this->session->set_flashdata('error','Vendor already assigned to '.$vendor_mapping['Appliance']  );
-                    }   
+                    }
             }
-                
-            
+
+
             redirect(site_url('employee/booking/view_queries/FollowUp'));
 
             }
@@ -1263,10 +1263,10 @@ class vendor extends CI_Controller {
     }
 
      /**
-     *  @desc : This function is used get vendor services based on vendor id  
+     *  @desc : This function is used get vendor services based on vendor id
      * Call: This function is called using AJAX from Vendor Pincode adding form.
      *  @param : Vendor ID
-     *  @return : JSON 
+     *  @return : JSON
      */
 
      function get_vendor_services($vendor_id){
@@ -1275,7 +1275,7 @@ class vendor extends CI_Controller {
 
         foreach ($vendor_services as $key => $value) {
             $data['Appliance'][] = $value['Appliance'];
-            $data['Appliance_ID'][] = $value['Appliance_ID']; 
+            $data['Appliance_ID'][] = $value['Appliance_ID'];
         }
         //Returning data in Json Encoded form
         print_r(json_encode($data));
@@ -1283,60 +1283,53 @@ class vendor extends CI_Controller {
      }
 
     /**
-     *  @desc : This function is used to Delete assigned vendor to vendor_pincode_mapping 
+     *  @desc : This function is used to Delete assigned vendor to vendor_pincode_mapping
      *          and  process form data
      *  @param : void
      *  @return : array
     */
-      function get_process_vendor_delete_pincode_form(){
+      function process_vendor_pincode_delete_form() {
 
-        $data = array();
-        //Getting data from database
-        $data['vendor_details'] = $this->vendor_model->getActiveVendor();
-        $data['appliance'] = $this->booking_model->selectservice();
-        $data['state'] = $this->vendor_model->getall_state();
-        
-        //Process Form
-        if($this->input->post()){
-            if(!empty($this->input->post('service_id')[0])){
-            $service_id = $this->input->post('service_id');
+	$data = array();
+	//Getting data from database
+	$data['vendor_details'] = $this->vendor_model->getActiveVendor();
+	$data['appliance'] = $this->booking_model->selectservice();
+	$data['state'] = $this->vendor_model->getall_state();
 
-            foreach($service_id as $key=>$value){
-                if(!empty($value)){   
+	//Process Form
+	if ($this->input->post()) {
+	    if (!empty($this->input->post('service_id')[0])) {
+		$service_id = $this->input->post('service_id');
 
-                $data_post = array(
+		foreach ($service_id as $key => $value) {
+		    if (!empty($value)) {
 
-                        'Appliance_ID' =>   $value,
-                        'Pincode'   =>  $this->input->post('pincode')[$key],
-                        'Vendor_ID' =>  $this->input->post('vendor_id')[$key]
+			$data_post = array(
+			    'Appliance_ID' => $value,
+			    'Pincode' => $this->input->post('pincode')[$key],
+			    'Vendor_ID' => $this->input->post('vendor_id')[$key]
+			);
 
-                    );
-                //Deleting data
-                if($this->vendor_model->delete_vendor($data_post) == '1'){
-                    //Echoing ID to log file
-                    log_message('info',__FUNCTION__.' Vendor has been deleted in Vendor_Pincode_Mapping table. '.print_r($data_post,TRUE));
-                    
-                    $data['delete'] = TRUE;
-                }
-                else{
-                    log_message('info',__FUNCTION__.' Following pincode NOT found in Vendor_Pincode_Mapping table =  '.$this->input->post('pincode')[$key]);
-                    $data['not_found'][] = $this->input->post('pincode')[$key];
-                }
+			//Deleting data
+			if ($this->vendor_model->delete_vendor($data_post) == '1') {
+			    //Echoing ID to log file
+			    log_message('info', __FUNCTION__ . ' Vendor has been deleted in Vendor_Pincode_Mapping table. ' . print_r($data_post, TRUE));
 
-            }
-        }
-        }else{
+			    $data['delete'] = TRUE;
+			} else {
+			    log_message('info', __FUNCTION__ . ' Following pincode NOT found in Vendor_Pincode_Mapping table =  ' . $this->input->post('pincode')[$key]);
 
-            $data['no_input'] = '';
-        }
-        }
-        $this->load->view('employee/header');
-        $this->load->view('employee/list_vendor_pincode', $data);
+			    $data['not_found'][] = $this->input->post('pincode')[$key];
+			}
+		    }
+		}
+	    } else {
 
+		$data['no_input'] = '';
+	    }
+	}
+	$this->load->view('employee/header');
+	$this->load->view('employee/list_vendor_pincode', $data);
     }
-
-
-
-
 
 }

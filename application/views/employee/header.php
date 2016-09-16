@@ -22,7 +22,7 @@
         <script src="<?php echo base_url();?>js/select2.min.js"></script>
           <!-- Load jQuery UI Main CSS-->
         <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
-    
+
         <!-- Load jQuery UI Main JS  -->
         <script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
     </head>
@@ -94,7 +94,7 @@
                             <li>
                                <a href="<?php echo base_url() ?>employee/bookingjobcard"><i class="fa fa-fw fa-desktop"></i> <strong>Prepare Job Card </strong></a>
                             </li>
-                            
+
                             -->
                     </ul>
                     <!-- /.dropdown-tasks -->
@@ -116,7 +116,7 @@
                         <li >
                             <a href="<?php echo base_url() ?>employee/bookings_excel/upload_delivered_products_for_paytm_excel"><i class="fa fa-fw fa-desktop "></i> <strong> Upload Paytm Booking</strong></a>
                         </li>
-                        
+
                     </ul>
                     <!-- /.dropdown-alerts -->
                 </li>
@@ -140,7 +140,7 @@
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url() ?>employee/vendor/get_process_vendor_delete_pincode_form"><i class="fa fa-fw fa-desktop "></i> <strong>Delete Vendor Pincode Mapping</strong></a>
+                            <a href="<?php echo base_url() ?>employee/vendor/process_vendor_pincode_delete_form"><i class="fa fa-fw fa-desktop "></i> <strong>Delete Vendor Pincode Mapping</strong></a>
                         </li>
 <!--
                         <li class="divider"></li>
@@ -268,7 +268,7 @@
                             <a href="<?php echo base_url() ?>employee/" ><i class="fa fa-fw fa-desktop"></i> <strong>Upload Paytm Excel</strong></a>
                         </li>
                     </ul>
-                     /.dropdown-user 
+                     /.dropdown-user
                 </li>
 -->
             </ul>
@@ -285,8 +285,8 @@
             (function($){
             $(document).ready(function(){
             $('ul.dropdown-menu [data-toggle=dropdown]').on('click', function(event) {
-            event.preventDefault(); 
-            event.stopPropagation(); 
+            event.preventDefault();
+            event.stopPropagation();
             $(this).parent().siblings().removeClass('open');
             $(this).parent().toggleClass('open');
             });

@@ -40,7 +40,7 @@
                                     <label for="Mobile" class="col-md-4">Mobile *</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  id="mobile" name="phone" value = "<?php echo set_value('phone');  ?>" placeholder="Enter Mobile Number" required>
-                                        SMS will be delivered on this Mobile No.
+                                        SMS will be delivered to this Mobile
                                     </div>
 
                                     <?php echo form_error('phone'); ?>
@@ -53,12 +53,12 @@
                                     </div>
                                     <?php echo form_error('alternate_phone'); ?>
                                 </div>
-                               
-                                
+
+
                             </div>
                             <!-- end div -->
                             <div class="col-md-6">
-                                
+
                                 <div class="form-group <?php if( form_error('phone_type') ) { echo 'has-error';} ?>">
                                     <label for="phone type" class="col-md-4">Phone Type </label>
                                     <div class="col-md-6">
@@ -129,14 +129,14 @@
 
 
                                  <div class="form-group <?php if( form_error('file') ) { echo 'has-error';} ?>">
-                                    <label for="Identity Picture" class="col-md-4">Identity Proof Picture</label>
+                                    <label for="Identity Picture" class="col-md-4">ID Photo</label>
                                     <div class="col-md-6" >
                                        <input type="file" class="form-control" name="file" >
                                     </div>
-                                    
+
                                     <?php echo form_error('file'); ?>
                                 </div>
-                                
+
                             </div>
                             <!-- end -->
                             <div class="col-md-6 <?php if( form_error('identity_id_number') ) { echo 'has-error';} ?>">
@@ -159,11 +159,11 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="col-md-6">
-                               
+
                                 <div class="form-group <?php if( form_error('bank_name') ) { echo 'has-error';} ?>">
                                     <label for="bank name" class="col-md-4">Bank Name </label>
                                     <div class="col-md-6">
-                                  
+
                                     <input type="text" class="form-control"  id="bank_name" name="bank_name" value = "<?php echo set_value('bank_name');  ?>" placeholder="Enter Bank Name" >
 
                                     </div>
@@ -179,19 +179,19 @@
                                 </div>
 
                                  <div class="form-group <?php if( form_error('bank_proof_pic') ) { echo 'has-error';} ?>">
-                                    <label for="Identity Picture" class="col-md-4">Bank Proof Picture</label>
+                                    <label for="Identity Picture" class="col-md-4">Bank Passbook/Cheque Photo</label>
                                     <div class="col-md-6" >
                                        <input type="file" class="form-control" name="bank_proof_pic" >
                                     </div>
-                                    
+
                                     <?php echo form_error('bank_proof_pic'); ?>
                                 </div>
-                               
-                                
+
+
                             </div>
                             <!-- end div -->
                             <div class="col-md-6">
-                                
+
                                 <div class="form-group <?php if( form_error('bank_account_no') ) { echo 'has-error';} ?>">
                                     <label for="bank account no" class="col-md-4">Bank Account No. </label>
                                     <div class="col-md-6">
@@ -200,7 +200,7 @@
                                      <?php echo form_error('bank_account_no'); ?>
                                     <span id="bank_account_no1" style="color: red; "></span>
                                 </div>
-                                 
+
                                 <div class="form-group <?php if( form_error('bank_holder_name') ) { echo 'has-error';} ?>">
                                     <label for="bank account no" class="col-md-4">Bank Account Holder Name </label>
                                     <div class="col-md-6">
@@ -208,7 +208,7 @@
                                     </div>
                                      <?php echo form_error('bank_holder_name'); ?>
                                 </div>
-                               
+
                             </div>
                         </div>
                     </div>
@@ -217,7 +217,7 @@
             <div class="col-md-4 col-md-offset-4" style="margin-bottom: 50px;">
             <input type="submit" class="form-control btn btn-md btn-primary" onclick="return validate_bank_ac()"  value="Save Engineer"></input>
             </div>
-            
+
         </form>
     </div>
 </div>
@@ -225,17 +225,17 @@
 <?php $this->session->unset_userdata('error'); ?>
 <script type="text/javascript">
     $("#service_center_id").select2();
-    
-    
+
+
     $("#service_id").select2({
     tags: "true",
     placeholder: " Select Appliances",
     allowClear: true
     });
-    
+
 </script>
 <style type="text/css">
-    
+
 
     #engineer_form .form-group label.error {
     color: #FB3A3A;
@@ -243,15 +243,15 @@
     margin: 0px 0 0px 0px;
     padding: 0;
     text-align: left;
-    
-    
+
+
     }
 </style>
 
 <script type="text/javascript">
 
     function onsubmit(){
-    
+
         var bank_account_no = $('#bank_account_no').val();
         alert(bank_account_no);
     }
@@ -273,7 +273,7 @@
                         minlength: 10
                     },
                 alternate_phone:{
-                    
+
                     minlength: 10
                     },
                 service_center_id:"required",
@@ -294,7 +294,7 @@
                     digits: true,
                     required:true,
                     minlength:5
-                        
+
                     }
                 },
                 messages: {
@@ -323,7 +323,7 @@
     })(jQuery, window, document);
 
     function validate_bank_ac(){
-       
+
         var bank_account_no = Number($("#bank_account_no").val());
         if(bank_account_no > 0){
              document.getElementById('bank_account_no').style.borderColor = "#ccc";
