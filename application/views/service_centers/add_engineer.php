@@ -40,6 +40,7 @@
                                     <label for="Mobile" class="col-md-4">Mobile *</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  id="mobile" name="phone" value = "<?php echo set_value('phone');  ?>" placeholder="Enter Mobile Number" required>
+                                        SMS will be delivered on this Mobile No.
                                     </div>
                                     <?php echo form_error('phone'); ?>
                                 </div>
@@ -110,7 +111,7 @@
                                     </div>
                                     <?php echo form_error('identity_proof'); ?>
                                 </div>
-<!--
+
                                  <div class="form-group <?php if( form_error('file') ) { echo 'has-error';} ?>">
                                     <label for="Identity Picture" class="col-md-4">Identity Proof Picture</label>
                                     <div class="col-md-6" >
@@ -119,7 +120,7 @@
                                     
                                     <?php echo form_error('file'); ?>
                                 </div>
--->
+
                             </div>
                             <!-- end -->
                             <div class="col-md-6 <?php if( form_error('identity_id_number') ) { echo 'has-error';} ?>">
@@ -159,16 +160,16 @@
                                      <?php echo form_error('bank_account_no'); ?>
                                      <span id="bank_account_no1" style="color: red; "></span>
                                 </div>
-<!--
+
                                 <div class="form-group <?php if( form_error('bank_proof_pic') ) { echo 'has-error';} ?>">
-                                    <label for="Identity Picture" class="col-md-4">Bank Proof Pic</label>
+                                    <label for="Identity Picture" class="col-md-4">Bank Proof Picture</label>
                                     <div class="col-md-6" >
                                        <input type="file" class="form-control" name="bank_proof_pic" >
                                     </div>
                                     
                                     <?php echo form_error('bank_proof_pic'); ?>
                                 </div>
--->
+
                                 
                             </div>
                             <!-- end div -->
@@ -248,11 +249,11 @@
                 name: "required",
                 phone: {
                         required: true,
-                        minlength: 10
+                        rangelength: [10, 10]
                     },
                 alternate_phone:{
                     
-                    minlength: 10
+                    rangelength: [10, 10]
                     },
                 
                 bank_ifsc_code: {

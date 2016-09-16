@@ -40,9 +40,12 @@
                                     <label for="Mobile" class="col-md-4">Mobile *</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  id="mobile" name="phone" value = "<?php echo set_value('phone');  ?>" placeholder="Enter Mobile Number" required>
+                                        SMS will be delivered on this Mobile No.
                                     </div>
+
                                     <?php echo form_error('phone'); ?>
                                 </div>
+
                                 <div class="form-group  <?php if( form_error('phone') ) { echo 'has-error';} ?>">
                                     <label for="Mobile" class="col-md-4">Alternate Mobile </label>
                                     <div class="col-md-6">
@@ -123,6 +126,16 @@
                                     </div>
                                     <?php echo form_error('identity_proof'); ?>
                                 </div>
+
+
+                                 <div class="form-group <?php if( form_error('file') ) { echo 'has-error';} ?>">
+                                    <label for="Identity Picture" class="col-md-4">Identity Proof Picture</label>
+                                    <div class="col-md-6" >
+                                       <input type="file" class="form-control" name="file" >
+                                    </div>
+                                    
+                                    <?php echo form_error('file'); ?>
+                                </div>
                                 
                             </div>
                             <!-- end -->
@@ -164,6 +177,15 @@
                                     </div>
                                     <?php echo form_error('bank_ifsc_code'); ?>
                                 </div>
+
+                                 <div class="form-group <?php if( form_error('bank_proof_pic') ) { echo 'has-error';} ?>">
+                                    <label for="Identity Picture" class="col-md-4">Bank Proof Picture</label>
+                                    <div class="col-md-6" >
+                                       <input type="file" class="form-control" name="bank_proof_pic" >
+                                    </div>
+                                    
+                                    <?php echo form_error('bank_proof_pic'); ?>
+                                </div>
                                
                                 
                             </div>
@@ -184,8 +206,9 @@
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  id="bank_holder_name" name="bank_holder_name" value = "<?php echo set_value('bank_holder_name');  ?>" placeholder="Enter Account Holder Name" >
                                     </div>
+                                     <?php echo form_error('bank_holder_name'); ?>
                                 </div>
-                                <?php echo form_error('bank_holder_name'); ?>
+                               
                             </div>
                         </div>
                     </div>

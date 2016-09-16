@@ -945,8 +945,8 @@ class vendor extends CI_Controller {
 	    $data['bank_ac_no'] = $this->input->post('bank_account_no');
 	    $data['bank_ifsc_code'] = $this->input->post('bank_ifsc_code');
 	    $data['bank_holder_name'] = $this->input->post('bank_holder_name');
-	    //$data['identity_proof_pic'] = $this->input->post('file');
-	    //$data['bank_proof_pic'] = $this->input->post('bank_proof_pic');
+	    $data['identity_proof_pic'] = $this->input->post('file');
+	    $data['bank_proof_pic'] = $this->input->post('bank_proof_pic');
 	    //
 	    //Get vendor ID from session if form sent thru vendor CRM
 	    //Else from POST variable.
@@ -1085,12 +1085,12 @@ class vendor extends CI_Controller {
         $this->form_validation->set_rules('identity_proof', 'Identity Proof', 'xss_clean');
         $this->form_validation->set_rules('bank_account_no', 'Bank Account No', 'numeric|required|xss_clean');
 //        $this->form_validation->set_rules('address', 'Address', 'xss_clean');
-	$this->form_validation->set_rules('service_id', 'Appliance ', 'xss_clean');
+	    $this->form_validation->set_rules('service_id', 'Appliance ', 'xss_clean');
         $this->form_validation->set_rules('bank_name', 'Bank Name', 'required|xss_clean');
         $this->form_validation->set_rules('bank_ifsc_code', 'IFSC Code', 'required|xss_clean');
         $this->form_validation->set_rules('bank_holder_name', 'Account Holder Name', 'required|xss_clean');
-//        $this->form_validation->set_rules('file', 'Identity Proof Pic ', 'callback_upload_identity_proof_pic');
-//	$this->form_validation->set_rules('bank_proof_pic', 'Bank Proof Pic', 'callback_upload_bank_proof_pic');
+        $this->form_validation->set_rules('file', 'Identity Proof Pic ', 'callback_upload_identity_proof_pic');
+	    $this->form_validation->set_rules('bank_proof_pic', 'Bank Proof Pic', 'callback_upload_bank_proof_pic');
 
 	if ($this->form_validation->run() == FALSE) {
             return FALSE;
