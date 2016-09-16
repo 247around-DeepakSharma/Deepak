@@ -324,8 +324,8 @@ class Invoice extends CI_Controller {
 	log_message('info', __METHOD__ . "=> " . $invoice_type);
 
 	$file_names = array();
-	$template = 'partner_invoices.xlsx';
-        //set absolute path to directory with template files
+	$template = 'Partner_invoice_detail_template-v1.xlsx';
+	//set absolute path to directory with template files
 	$templateDir = __DIR__ . "/../excel-templates/";
 
 	for ($i = 0; $i < count($data); $i++) {
@@ -362,8 +362,8 @@ class Invoice extends CI_Controller {
 		foreach ($data[$i] as $key => $value) {
 			switch ($value['price_tags']) {
 				case 'Wall Mount Stand':
-					$data[$i][$key]['remarks'] = "Completed TV With Stand";
-					break;
+					$data[$i][$key]['remarks'] = "Stand Delivered";
+			    break;
 
 				case 'Repair':
 					$data[$i][$key]['remarks'] = "Repair";
@@ -373,13 +373,13 @@ class Invoice extends CI_Controller {
 					$data[$i][$key]['remarks'] = "Repair - In Warranty";
 					break;
 
-			    case 'Repair - Out Of Warranty':
-					$data[$i][$key]['remarks'] = "Repair - Out Of Warranty";
+				case 'Repair - Out Of Warranty':
+			    $data[$i][$key]['remarks'] = "Repair - Out Of Warranty";
 					break;
 
 				default:
-					$data[$i][$key]['remarks'] = "Completed Installation & Demo";
-					break;
+					$data[$i][$key]['remarks'] = "Installation Completed";
+			    break;
 			}
 
 		    $data[$i][$key]['closed_date'] = date("jS F, Y", strtotime($value['closed_date']));
@@ -401,6 +401,8 @@ class Invoice extends CI_Controller {
 		$excel_data['total_stand_charge'] = $total_stand_charge;
 		$excel_data['total_vat_charge'] = $total_vat_charge;
 		$excel_data['total_charges'] = $total_charges;
+		$excel_data['period'] = '01-16 Sept 2016';
+		$excel_data['vendor_num'] = 'Vendor Number: 252752';
 
 		log_message('info', 'Excel data: ' . print_r($excel_data, true));
 
@@ -985,7 +987,7 @@ class Invoice extends CI_Controller {
 		    $s_st_charge += $data[$i][$j]['st'];
 		    $s_stand_charge += $data[$i][$j]['stand'];
 		    $s_vat_charge += $data[$i][$j]['vat'];
- 
+
 		}
 
 		$r_ic = $s_inst_charge * .30;
@@ -995,7 +997,7 @@ class Invoice extends CI_Controller {
 		$s_total =  $s_inst_charge + $s_stand_charge + $s_st_charge + $s_vat_charge;
 		$r_total = round($s_total * 0.3, 0);
 
-		
+
 		$t_total = $total_inst_charge + $total_stand_charge + $total_st_charge + $total_vat_charge;
 
 		//this array stores unique booking id
@@ -1041,7 +1043,7 @@ class Invoice extends CI_Controller {
 		// stores charges
 		$excel_data = array(
 		    't_ic' => $total_inst_charge,
-		    't_st' => $total_st_charge, 
+		    't_st' => $total_st_charge,
 		    't_stand' => $total_stand_charge,
 		    't_vat' => $total_vat_charge, 't_total' => $t_total,
 		    't_rating' => $invoices[0]['avg_rating'],
