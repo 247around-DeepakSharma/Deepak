@@ -176,7 +176,9 @@
                                         <input type="text" class="form-control"  id="bank_account_no" name="bank_account_no" value = "<?php echo set_value('bank_account_no');  ?>" placeholder="Enter Account Number" >
                                     </div>
                                      <?php echo form_error('bank_account_no'); ?>
+                                    <span id="bank_account_no1" style="color: red; "></span>
                                 </div>
+                                 
                                 <div class="form-group <?php if( form_error('bank_holder_name') ) { echo 'has-error';} ?>">
                                     <label for="bank account no" class="col-md-4">Bank Account Holder Name </label>
                                     <div class="col-md-6">
@@ -190,7 +192,7 @@
                 </div>
             </div>
             <div class="col-md-4 col-md-offset-4" style="margin-bottom: 50px;">
-            <input type="submit" class="form-control btn btn-md btn-primary" value="Save Engineer"></input>
+            <input type="submit" class="form-control btn btn-md btn-primary" onclick="return validate_bank_ac()"  value="Save Engineer"></input>
             </div>
             
         </form>
@@ -225,6 +227,12 @@
 
 <script type="text/javascript">
 
+    function onsubmit(){
+    
+        var bank_account_no = $('#bank_account_no').val();
+        alert(bank_account_no);
+    }
+
     (function ($, W, D)
     {
     var JQUERY4U = {};
@@ -246,9 +254,18 @@
                     minlength: 10
                     },
                 service_center_id:"required",
-                bank_ifsc_code: "required",
-                bank_name:"required",
-                bank_holder_name:"required",
+                bank_ifsc_code: {
+                        required: true,
+                        rangelength: [11, 11]
+                    },
+                bank_name:{
+                        required: true,
+                        minlength: 3
+                    },
+                bank_holder_name:{
+                        required: true,
+                        minlength: 3
+                    },
                 service_id: "required",
                 bank_account_no: {
                     digits: true,
@@ -261,7 +278,7 @@
                 phone: "Please Enter Mobile Number",
                 service_center_id: "Please Select Service Center",
                 bank_name: "Please Enter Bank Name",
-                bank_ifsc_code:"Please Enter IFSC Code",
+                bank_ifsc_code:"Please Enter Correct IFSC Code",
                 bank_holder_name: "Please Enter Account Holder Name",
                 bank_account_no: "Please Enter Account Number",
                 service_id:"Please Select Appliances"
@@ -281,7 +298,21 @@
 
     })(jQuery, window, document);
 
-  
+    function validate_bank_ac(){
+       
+        var bank_account_no = Number($("#bank_account_no").val());
+        if(bank_account_no > 0){
+             document.getElementById('bank_account_no').style.borderColor = "#ccc";
+            document.getElementById("bank_account_no1").innerHTML = "";
+          return true;
 
+        } else {
+            document.getElementById('bank_account_no').style.borderColor = "red";
+            document.getElementById("bank_account_no1").innerHTML = "Please Enter Valid Account Number";
+            return false;
+        }
+
+    }
 
 </script>
+
