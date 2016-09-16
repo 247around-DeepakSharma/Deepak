@@ -40,7 +40,7 @@
                                     <label for="Mobile" class="col-md-4">Mobile *</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  id="mobile" name="phone" value = "<?php echo set_value('phone');  ?>" placeholder="Enter Mobile Number" required>
-                                        SMS will be delivered on this Mobile No.
+                                        SMS will be delivered to this Mobile No.
                                     </div>
                                     <?php echo form_error('phone'); ?>
                                 </div>

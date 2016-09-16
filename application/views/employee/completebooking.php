@@ -11,7 +11,7 @@
                   <div class="col-md-12">
                      <div class="col-md-6">
                      <div class="form-group ">
-                           <label for="booking_id" class="col-md-4">Booking ID*</label>
+                           <label for="booking_id" class="col-md-4">Booking ID</label>
                            <div class="col-md-6">
                               <input type="text" class="form-control"  id="booking_id" name="booking_id" value = "<?php if (isset($booking_history[0]['booking_id'])) {echo $booking_history[0]['booking_id']; } ?>" readonly="readonly">
                            </div>
@@ -24,7 +24,7 @@
                            </div>
                         </div>
                         <div class="form-group ">
-                           <label for="booking_city" class="col-md-4">City *</label>
+                           <label for="booking_city" class="col-md-4">City</label>
                            <div class="col-md-6">
                               <select type="text" disabled="disabled" class="form-control"  id="booking_city" name="city" >
                                  <option value="<?php if (isset($booking_history[0]['city'])) {echo $booking_history[0]['city']; } ?>" selected="selected" ><?php if (isset($booking_history[0]['city'])) {echo $booking_history[0]['city']; } ?></option>
@@ -33,7 +33,7 @@
                         </div>
 
                         <div class="form-group <?php if (form_error('service_id')) { echo 'has-error';} ?>">
-                           <label for="service_name" class="col-md-4">Appliance *</label>
+                           <label for="service_name" class="col-md-4">Appliance</label>
                            <div class="col-md-6">
                               <input type="hidden" name="service" id="services"/>
                               <select type="text" disabled="disabled"  class="form-control"  id="service_id" name="service_id" >
@@ -46,20 +46,20 @@
                      <!--  start col-md-6  -->
                      <div class="col-md-6">
                         <div class="form-group ">
-                           <label for="booking_primary_contact_no" class="col-md-4">Mobile *</label>
+                           <label for="booking_primary_contact_no" class="col-md-4">Mobile</label>
                            <div class="col-md-6">
                               <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php if (isset($booking_history[0]['booking_primary_contact_no'])) {echo $booking_history[0]['booking_primary_contact_no']; } ?>" readonly="readonly">
                            </div>
                         </div>
 
                         <div class="form-group ">
-                           <label for="booking_primary_contact_no" class="col-md-4">Pincoce *</label>
+                           <label for="booking_primary_contact_no" class="col-md-4">Pincoce</label>
                            <div class="col-md-6">
                               <input type="text" class="form-control"  id="booking_pincode" name="booking_pincode" value = "<?php if (isset($booking_history[0]['booking_pincode'])) {echo $booking_history[0]['booking_pincode']; } ?>" readonly="readonly">
                            </div>
                         </div>
                         <div class="form-group ">
-                           <label for="source_name" class="col-md-4">Booking Source *</label>
+                           <label for="source_name" class="col-md-4">Booking Source</label>
                            <div class="col-md-6">
                               <select type="text" disabled="disabled"  class="booking_source form-control"  id="source_code" name="source_code" >
                                  <option value="<?php if (isset($booking_history[0]['source'])) {echo $booking_history[0]['source']; } ?>" selected="selected" disabled="disabled"><?php if (isset($booking_history[0]['source'])) {echo $booking_history[0]['source_name']; } ?></option>
