@@ -964,6 +964,72 @@ class vendor_model extends CI_Model {
 
     }
 
+    /**
+     *  @desc: get distinct vendor details
+     *
+     *  @param : Service ID(Appliance ID)
+     *  @return : array of all data
+     */
+    function get_distinct_vendor_details($service_id){
+         $query = $this->db->query("SELECT DISTINCT Vendor_ID,Vendor_Name from vendor_pincode_mapping where Appliance_ID = ". $service_id. ' Order By Vendor_Name');
+         return $query->result_array();
+    }
+    /**
+     *  @desc: get distinct Appliance details
+     *
+     *  @param : Service ID(Appliance ID)
+     *  @return : array of all data
+     */
+     function get_distinct_vendor_service_details($vendor_id){
+         $query = $this->db->query("SELECT DISTINCT Appliance,Appliance_ID from vendor_pincode_mapping where Vendor_ID = ". $vendor_id. ' Order By Appliance');
+         return $query->result_array();
+    }
+    
+    /**
+     *  @desc: get Vendor Details
+     *
+     *  @param : array
+     *  @return : array of all data
+     */
+    function check_vendor_details($data){
+        $this->db->select('*');
+        $this->db->where('Vendor_ID', $data['Vendor_ID']);
+        $this->db->where('Pincode', $data['Pincode']);
+        $this->db->where('Area', $data['Area']);
+        $this->db->where('City', $data['City']);
+        $this->db->where('State', $data['State']);
+        $this->db->where('Appliance_ID', $data['Appliance_ID']);
+        $query = $this->db->get('vendor_pincode_mapping');
+        
+        if($query->num_rows >0){
+
+            return false;
+
+        } else {
+            return true;
+        }
+       
+    }
+
+    function insert_vendor_pincode_mapping($data){
+
+        $this->db->insert('vendor_pincode_mapping', $data);
+        
+        return $this->db->insert_id();
+    }
+
+    function delete_vendor($data){
+        $this->db->where('Appliance_ID', $data['Appliance_ID']);
+        $this->db->where('Pincode', $data['Pincode']);
+        $this->db->where('Vendor_ID', $data['Vendor_ID']);
+        $this->db->delete('vendor_pincode_mapping'); 
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }  
+
     // function test_upload($filename){
     //      $sql = "LOAD DATA INFILE '".$filename."' INTO TABLE vendor_pincode_mapping_temp FIELDS TERMINATED BY ',' ENCLOSED BY '' LINES TERMINATED BY '\r\n' (Vendor_Name,Vendor_ID,Appliance,Appliance_ID,Brand,Area,Pincode,Region,City,State)";
 

@@ -75,13 +75,30 @@ function outbound_call(phone_number){
              <div class="input-filter-container"><label for="input-filter">Search:</label> <input type="search" id="input-filter" size="15" placeholder="search"></div>
             <div style="margin-left:10px;margine-right:5px;">
                 <h1 align="left"><b><?php if($status == "FollowUp"){ echo "Pending Queries"; } else if($Bookings[0]->current_status == "FollowUp"){ echo "Pending Queries";} else { echo "Cancelled Queries"; } ?> </b></h1>
+                    <?php
+                    if (!empty($this->session->flashdata('success'))) {
+                    echo '<div class="alert alert-success alert-dismissible" role="alert">
+                       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                           <span aria-hidden="true">&times;</span>
+                       </button>
+                       <strong>' . $this->session->flashdata('success') . '</strong>
+                   </div>';
+                }  
+                 if (!empty($this->session->flashdata('error'))) {
+                    echo '<div class="alert alert-danger alert-dismissible" role="alert">
+                       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                           <span aria-hidden="true">&times;</span>
+                       </button>
+                       <strong>' . $this->session->flashdata('error') . '</strong>
+                   </div>';
+                }
+                ?>
                 <table >
 
                     <thead>
                     <tr>
                     <th>S No.</th>
-                    <th width="160px;">
-                    <a href="<?php echo base_url();?>employee/booking/view">Booking Id</a></th>
+                    <th width="160px;">Booking Id</th>
                     <th width="140px;">User Name</th>
                     <th width="125px;">Phone No.</th>
                     <th width="125px;">Service Name</th>
@@ -135,7 +152,7 @@ function outbound_call(phone_number){
                       <?php if($status !="Cancelled"){ ?>
                     <?php if($row->vendor_status =="Vendor Not Available"){ ?>
 
-                          <td><p style="color: red;"><?php print_r($row->vendor_status); ?></p></td>
+                          <td><a href="<?php echo base_url().'employee/vendor/get_add_vendor_to_pincode_form/'.$row->booking_pincode.'/'.$row->services.'/'.$row->service_id.'/'.$row->city?>" style="color: red;"><?php print_r($row->vendor_status); ?></a></td>
 
                     <?php } else { ?>
 
