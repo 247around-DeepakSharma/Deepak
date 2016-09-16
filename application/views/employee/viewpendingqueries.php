@@ -99,6 +99,7 @@ function outbound_call(phone_number){
                     <tr>
                     <th>S No.</th>
                     <th width="160px;">Booking Id</th>
+                    
                     <th width="140px;">User Name</th>
                     <th width="125px;">Phone No.</th>
                     <th width="125px;">Service Name</th>
@@ -134,6 +135,7 @@ function outbound_call(phone_number){
                     <td><?php echo $offset; ?></td>
 
                 <td><?= $row->booking_id; ?></td>
+                
                         <td><a target='_blank' href="<?php echo base_url(); ?>employee/user/finduser/0/0/<?php echo $row->phone_number; ?>"><?php echo $row->customername; ?></a></td>
                         <td><a target='_blank' href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $row->phone_number;?>"><?php echo $row->booking_primary_contact_no; ?></a></td>
                     <td><?= $row->services; ?></td>
