@@ -157,6 +157,7 @@
                                         <input type="text" class="form-control"  id="bank_account_no" name="bank_account_no" value = "<?php echo set_value('bank_account_no');  ?>" placeholder="Enter Account Number" >
                                     </div>
                                      <?php echo form_error('bank_account_no'); ?>
+                                     <span id="bank_account_no1" style="color: red; "></span>
                                 </div>
 <!--
                                 <div class="form-group <?php if( form_error('bank_proof_pic') ) { echo 'has-error';} ?>">
@@ -198,7 +199,7 @@
                 </div>
             </div>
             <div class="col-md-4 col-md-offset-4" style="margin-bottom: 50px;">
-            <input type="submit" class="form-control btn btn-md btn-primary" value="Save Engineer"></input>
+            <input type="submit" class="form-control btn btn-md btn-primary"  onclick="return validate_bank_ac()" value="Save Engineer"></input>
             </div>
             
         </form>
@@ -254,9 +255,18 @@
                     minlength: 10
                     },
                 
-                bank_ifsc_code: "required",
-                bank_name:"required",
-                bank_holder_name:"required",
+                bank_ifsc_code: {
+                        required: true,
+                        rangelength: [11, 11]
+                    },
+                bank_name:{
+                        required: true,
+                        minlength: 3
+                    },
+                bank_holder_name:{
+                        required: true,
+                        minlength: 3
+                    },
                 service_id: "required",
                 bank_account_no: {
                     digits: true,
@@ -288,6 +298,22 @@
     });
 
     })(jQuery, window, document);
+
+    function validate_bank_ac(){
+       
+        var bank_account_no = Number($("#bank_account_no").val());
+        if(bank_account_no > 0){
+             document.getElementById('bank_account_no').style.borderColor = "#ccc";
+            document.getElementById("bank_account_no1").innerHTML = "";
+          return true;
+
+        } else {
+            document.getElementById('bank_account_no').style.borderColor = "red";
+            document.getElementById("bank_account_no1").innerHTML = "Please Enter Valid Account Number";
+            return false;
+        }
+
+    }
 
   
 
