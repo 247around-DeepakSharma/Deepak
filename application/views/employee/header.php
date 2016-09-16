@@ -20,6 +20,11 @@
         <link href="<?php echo base_url()?>css/select2.min.css" rel="stylesheet" />
         <link href="<?php echo base_url()?>css/style.css" rel="stylesheet" />
         <script src="<?php echo base_url();?>js/select2.min.js"></script>
+          <!-- Load jQuery UI Main CSS-->
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+    
+        <!-- Load jQuery UI Main JS  -->
+        <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
     </head>
     <body>
         <div id="wrapper">
@@ -115,6 +120,7 @@
                         <li>
                             <a href="<?php echo base_url() ?>employee/invoice/show_all_transactions/partner"><i class="fa fa-fw fa-desktop "></i> <strong>Show All Transactions</strong></a>
                         </li>
+                        
                     </ul>
                     <!-- /.dropdown-alerts -->
                 </li>
@@ -151,6 +157,10 @@
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url() ?>employee/invoice/show_all_transactions/vendor"><i class="fa fa-fw fa-desktop "></i> <strong>Show All Transactions</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/vendor/get_process_vendor_delete_pincode_form"><i class="fa fa-fw fa-desktop "></i> <strong>Delete Vendor</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown dropdown-submenu">

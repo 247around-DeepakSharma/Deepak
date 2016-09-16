@@ -203,7 +203,7 @@
                     <td><?= $row->city; ?></td>
                     <?php if($row->vendor_status =="Vendor Not Available"){ ?>
                     <td>
-                        <p style="color: red;"><?php print_r($row->vendor_status); ?></p>
+                         <td><a href="<?php echo base_url().'employee/vendor/get_add_vendor_to_pincode_form/'.$row->booking_pincode.'/'.$row->services.'/'.$row->service_id.'/'.$row->city?>" style="color: red;"><?php print_r($row->vendor_status); ?></a></td>
                     </td>
                     <?php } else { ?>
                     <td>

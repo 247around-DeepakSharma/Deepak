@@ -257,7 +257,10 @@
                             <div class="form-group ">
                                 <label for="booking_date" class="col-md-4">Booking Date *</label>
                                 <div class="col-md-6">
-                                    <input type="date" class="form-control"  id="booking_date" min="<?php echo date("Y-m-d") ?>" name="booking_date" value = "<?php echo  date("Y-m-d", strtotime("+1 day")); ?>" required>
+                                <div class="input-group input-append date">
+                                    <input id="booking_date" class="form-control" style="z-index: 10000;" name="booking_date" type="date" value = "<?php echo  date("Y-m-d", strtotime("+1 day")); ?>" required>
+                                    <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                                </div>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -348,6 +351,7 @@
             $(this).button('loading');
         });
     });
+    $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
 </script>
 <script type="text/javascript">
     var regex = /^(.+?)(\d+)$/i;
