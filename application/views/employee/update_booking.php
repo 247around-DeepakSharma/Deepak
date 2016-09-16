@@ -526,7 +526,10 @@
                             <div class="form-group ">
                                 <label for="booking_date" class="col-md-4">Booking Date *</label>
                                 <div class="col-md-6">
-                                    <input type="date" class="form-control"  id="booking_date" min="<?php echo date("Y-m-d") ?>" name="booking_date" value = "<?php if(!empty($booking_history[0]['booking_date'])){ echo  date("Y-m-d", strtotime($booking_history[0]['booking_date'])); } else { echo date("Y-m-d", strtotime('+1 days')); } ?>" required>
+                                <div class="input-group input-append date">
+                                    <input id="booking_date" class="form-control" style="z-index: 10000;" name="booking_date" type="date" value = "<?php if(!empty($booking_history[0]['booking_date'])){ echo  date("Y-m-d", strtotime($booking_history[0]['booking_date'])); } else { echo date("Y-m-d", strtotime('+1 days')); } ?>" required>
+                                    <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                                </div>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -609,6 +612,9 @@
     </div>
 </div>
 <script>
+
+    $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
+
     $(".booking_source").select2();
 </script>
 <script>

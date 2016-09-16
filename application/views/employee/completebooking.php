@@ -10,6 +10,13 @@
                <div class="row">
                   <div class="col-md-12">
                      <div class="col-md-6">
+                     <div class="form-group ">
+                           <label for="booking_id" class="col-md-4">Booking ID*</label>
+                           <div class="col-md-6">
+                              <input type="text" class="form-control"  id="booking_id" name="booking_id" value = "<?php if (isset($booking_history[0]['booking_id'])) {echo $booking_history[0]['booking_id']; } ?>" readonly="readonly">
+                           </div>
+                        </div>
+
                         <div class="form-group">
                            <label for="name" class="col-md-4">Name</label>
                            <div class="col-md-6">
@@ -57,6 +64,12 @@
                               <select type="text" disabled="disabled"  class="booking_source form-control"  id="source_code" name="source_code" >
                                  <option value="<?php if (isset($booking_history[0]['source'])) {echo $booking_history[0]['source']; } ?>" selected="selected" disabled="disabled"><?php if (isset($booking_history[0]['source'])) {echo $booking_history[0]['source_name']; } ?></option>
                               </select>
+                           </div>
+                        </div>
+                        <div class="form-group ">
+                           <label for="booking_date" class="col-md-4">Booking Date</label>
+                           <div class="col-md-6">
+                              <input type="text" class="form-control"  id="booking_date" name="booking_date" value = "<?php if (isset($booking_history[0]['booking_date'])) {echo $booking_history[0]['booking_date']; } ?>" readonly="readonly">
                            </div>
                         </div>
                         <!-- end col-md-6 -->

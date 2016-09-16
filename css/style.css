@@ -23,3 +23,12 @@
     padding: 14px 16px;
     text-decoration: none;
 }
+
+.form-group-cancel{
+    margin-bottom:30px;
+    padding-bottom: 15px;
+}
+
+#grand_total_price{
+    z-index: 1;
+}
