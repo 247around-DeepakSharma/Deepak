@@ -269,7 +269,8 @@
                 service_id: "required",
                 bank_account_no: {
                     digits: true,
-                    required:true
+                    required:true,
+                    minlength:5
                         
                     }
                 },
