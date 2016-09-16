@@ -25,6 +25,9 @@ class Api extends CI_Controller {
         $this->load->model('apis');
         $this->load->model('diagnostics');
         $this->load->model('discount');
+        $this->load->model('booking_model');
+        $this->load->model('user_model');
+
         $this->load->library('s3');
         $this->load->library('email');
         $this->load->helper(array('form', 'url'));
