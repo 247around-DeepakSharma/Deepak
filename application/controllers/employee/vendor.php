@@ -99,8 +99,8 @@ class vendor extends CI_Controller {
                 //if vendor do not exists, vendor is added
                 $sc_id = $this->vendor_model->add_vendor($_POST);
 
-		        $this->sendWelcomeSms($_POST['primary_contact_phone_1'], $_POST['name']);
-                $this->sendWelcomeSms($_POST['owner_phone_1'], $_POST['owner_name']);
+		        $this->sendWelcomeSms($_POST['primary_contact_phone_1'], $_POST['name'],$sc_id);
+                $this->sendWelcomeSms($_POST['owner_phone_1'], $_POST['owner_name'],$sc_id);
 
                 $this->notify->sendEmail("booking@247around.com", $to , 'anuj@247around.com', '', $subject , $message, "");
 
@@ -147,11 +147,17 @@ class vendor extends CI_Controller {
      * @param: String(District)
      * @return : String (Service center code)
      */
-    function sendWelcomeSms($phone_number, $vendor_name) {
+    function sendWelcomeSms($phone_number, $vendor_name,$id) {
         $template = $this->vendor_model->getVendorSmsTemplate("new_vendor_creation");
         $smsBody = sprintf($template, $vendor_name);
 
-        $this->notify->sendTransactionalSms($phone_number, $smsBody);
+        $sms_details = $this->notify->sendTransactionalSms($phone_number, $smsBody);
+        //For saving SMS to the database on sucess
+        if(isset($sms_details['info']) && $sms_details['info'] == '200'){
+                $this->notify->add_sms_sent_details($id, 'vendor' , $phone_number,
+                    $smsBody, '');
+    }
+
     }
 
     /**
@@ -611,7 +617,7 @@ class vendor extends CI_Controller {
                     $this->notify->sendEmail('booking@247around.com', $return_mail_to, '', '', $escalation_policy_details[0]['mail_subject'], $escalation_policy_details[0]['mail_body'], '');
                 }
 
-                $this->sendSmsToVendor($escalation_policy_details, $vendorContact, $escalation['booking_id'], $userDetails);
+                $this->sendSmsToVendor($escalation,$escalation_policy_details, $vendorContact, $escalation['booking_id'], $userDetails);
 
                 //$output = "Vendor Escalation Process Completed.";
                 //$userSession = array('success' => $output);
@@ -632,26 +638,49 @@ class vendor extends CI_Controller {
      * @param : user's details
      * @return : void
      */
-    function sendSmsToVendor($escalation_policy, $contact, $booking_id, $userDetails) {
+    function sendSmsToVendor($escalation,$escalation_policy, $contact, $booking_id, $userDetails) {
+        
+        $id = $escalation['vendor_id'];
+       
         if ($escalation_policy[0]['sms_to_owner'] == 1 && $escalation_policy[0]['sms_to_poc'] == 1) {
 
             $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
 
-            $this->notify->sendTransactionalSms($contact[0]['primary_contact_phone_1'], $smsBody);
+            $sms_details = $this->notify->sendTransactionalSms($contact[0]['primary_contact_phone_1'], $smsBody);
+            //For saving SMS to the database on sucess
+            if(isset($sms_details['info']) && $sms_details['info'] == '200'){
+                $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['primary_contact_phone_1'],
+                    $smsBody, $booking_id);
+            }
 
-
-            $this->notify->sendTransactionalSms($contact[0]['owner_phone_1'], $smsBody);
+            $sms_details = $this->notify->sendTransactionalSms($contact[0]['owner_phone_1'], $smsBody);
+            //For saving SMS to the database on sucess
+            if(isset($sms_details['info']) && $sms_details['info'] == '200'){
+                $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['owner_phone_1'],
+                    $smsBody, $booking_id);
+            }
         } else if ($escalation_policy[0]['sms_to_owner'] == 0 && $escalation_policy[0]['sms_to_poc'] == 1) {
 
             $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
 
-            $this->notify->sendTransactionalSms($contact[0]['primary_contact_phone_1'], $smsBody);
+            $sms_details = $this->notify->sendTransactionalSms($contact[0]['primary_contact_phone_1'], $smsBody);
+            //For saving SMS to the database on sucess
+            if(isset($sms_details['info']) && $sms_details['info'] == '200'){
+                $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['primary_contact_phone_1'],
+                    $smsBody, $booking_id);
+            }
         } else if ($escalation_policy[0]['sms_to_owner'] == 1 && $escalation_policy[0]['sms_to_poc'] == 0) {
 
             $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
 
-            $this->notify->sendTransactionalSms($contact[0]['owner_phone_1'], $smsBody);
+            $sms_details = $this->notify->sendTransactionalSms($contact[0]['owner_phone_1'], $smsBody);
+            //For saving SMS to the database on sucess
+            if(isset($sms_details['info']) && $sms_details['info'] == '200'){
+                $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['owner_phone_1'],
+                    $smsBody, $booking_id);
         }
+            
+    }
     }
 
     /**

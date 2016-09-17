@@ -1751,5 +1751,14 @@ class Booking_model extends CI_Model {
 
     }
 
+    /*This function is used to insert Sent SMS to database
+     * 
+     * params: Array
+     * return: Int(ID) of inserted sms
+     */
+    function add_sms_sent_details($data){
+        $this->db->insert('sms_sent_details', $data);
+        return $this->db->insert_id();
+    }
 
 }
