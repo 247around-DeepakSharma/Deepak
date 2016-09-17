@@ -19,6 +19,7 @@ class Notify {
 	$this->My_CI->load->helper(array('form', 'url'));
 	$this->My_CI->load->library('email');
 	$this->My_CI->load->model('vendor_model');
+	$this->My_CI->load->model('booking_model');
     }
 
     /**
@@ -55,8 +56,13 @@ class Notify {
 		break;
 	}
     }
-
+    /*
+     * Desc: Used to send SMS 
+     * param: phone, sms body
+     * return: Array
+     */
     function sendTransactionalSms($phone_number, $body) {
+        $data = array();
 	switch (ENVIRONMENT) {
 	    case 'production':
 		$post_data = array(
@@ -82,14 +88,41 @@ class Notify {
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
 
-		curl_exec($ch);
-		curl_error($ch);
-		curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$data['content'] = curl_exec($ch);
+		$data['error'] = curl_error($ch);
+                $data['info'] = curl_getinfo($ch, CURLINFO_HTTP_CODE); 
 
 		curl_close($ch);
-
 		break;
 	}
+        return $data;
+    }
+
+    /*This function is used to save sent sms to the database
+     * Desc: Saves the succesffuly sent SMS to the Database else Log's the error
+     * 
+     * params: user_id, user_type, phone no., sms content, booking ID
+     * return: Null
+     */
+    function add_sms_sent_details($user_id,$user_type,$phone,$content,$booking_id){
+        $data = array();
+        
+        $data['user_id'] = $user_id;
+        $data['user_type'] = $user_type;
+        $data['phone'] = $phone;
+        $data['booking_id'] = $booking_id;
+        $data['content'] = $content;
+        
+        //Add SMS to Database
+        $sms_id = $this->My_CI->booking_model->add_sms_sent_details($data);
+        if(!empty($sms_id)){
+            //Echoing success message on Log
+            log_message('info',__FUNCTION__.' SMS has been saved to Database "sms_sent_details" with ID '.$sms_id);
+        }else{
+            //Echoing Error message in Log
+            log_message('info',__FUNCTION__.' Error on saving SMS to Database "sms_sent_details" '.print_r($data,TRUE));
+        }       
+        
     }
 
     /**
