@@ -32,3 +32,17 @@
 #grand_total_price{
     z-index: 1;
 }
+.clear { 
+    clear:both; margin-top:20px;
+}
+.clear_bottom { 
+    clear:both; margin-bottom:30px;height:30px;
+}
+#booking_form .form-group label.error {
+    color: #FB3A3A;
+    display: inline-block;
+    margin: 4px 0 5px 125px;
+    padding: 0;
+    text-align: left;
+    width: 220px;
+}

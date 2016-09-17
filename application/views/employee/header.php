@@ -107,6 +107,10 @@
                     </a>
                     <ul class="dropdown-menu ">
                         <li >
+                            <a href="<?php echo base_url() ?>employee/partner/viewpartner"><i class="fa fa-fw fa-desktop"></i> <strong> View Partners List</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li >
                             <a href="<?php echo base_url() ?>employee/bookings_excel"><i class="fa fa-fw fa-desktop"></i> <strong> Upload Snapdeal Products - Delivered</strong></a>
                         </li>
                         <li class="divider"></li>
