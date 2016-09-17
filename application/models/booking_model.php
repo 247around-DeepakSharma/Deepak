@@ -1023,20 +1023,21 @@ class Booking_model extends CI_Model {
                 $where .= " AND `booking_details`.current_status='$status' ";
             }
         }
-
+        
+       // Need to get brand to send to vendor pincode mapping add form, So we will use join with booking_unit_details
         $sql = "SELECT services.services,
             users.name as customername, users.phone_number,
-            booking_details.*
+            booking_details.*, booking_unit_details.*
             from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
+            JOIN  `booking_unit_details` ON `booking_unit_details`.booking_id = `booking_details`.booking_id
+            WHERE `booking_details`.booking_id LIKE '%Q-%' $where
 
-            WHERE `booking_id` LIKE '%Q-%' $where
-
-            order by CASE booking_date
+            order by CASE `booking_details`.booking_date
             WHEN '' THEN 'a'
             ELSE 'b'
-            END, STR_TO_DATE(booking_date,'%d-%m-%Y') desc $add_limit";
+            END, STR_TO_DATE(`booking_details`.booking_date,'%d-%m-%Y') desc $add_limit";
 
         $query = $this->db->query($sql);
         
@@ -1095,16 +1096,18 @@ class Booking_model extends CI_Model {
     }
 
     function search_bookings($where, $partner_id = "") {
-
+    // Need to get brand to send to vendor pincode mapping add form, So we will use join with booking_unit_details
+       
     if($partner_id !=""){
-        $this->db->where('partner_id', $partner_id);
+        $this->db->where('booking_details.partner_id', $partner_id);
     }
 
     $this->db->select("services.services, users.name as customername,
-            users.phone_number, booking_details.*");
+            users.phone_number, booking_details.*, booking_unit_details.* ");
     $this->db->from('booking_details');
     $this->db->join('users',' users.user_id = booking_details.user_id');
     $this->db->join('services', 'services.id = booking_details.service_id');
+    $this->db->join('booking_unit_details', 'booking_unit_details.booking_id = booking_details.booking_id');
     $this->db->like($where);
     $query =  $this->db->get();
     $temp = $query->result();

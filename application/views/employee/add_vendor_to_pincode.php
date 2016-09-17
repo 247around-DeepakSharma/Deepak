@@ -25,38 +25,49 @@ select[multiple], select[size]{
          			<div class="container">
          				<div class="col-md-12">
          			<div class="col-md-7">
+               <input type="hidden" value="<?php echo isset($Appliance)?$Appliance:''?>" name="Appliance"/>   
+                   <input type="hidden" value="<?php echo isset($Appliance_ID)?$Appliance_ID:''?>" name="Appliance_ID"/>    
                
+                   
          				<div class="form-group">
                            <label for="name" class="col-md-4">Appliance</label>
                            <div class="col-md-6">
                               <select type="text" class="form-control"  id="service_id" name="service_id[]" value = "<?php echo set_value('service_id'); ?>" required readonly>
-                                            <option value=<?= $Appliance_ID; ?>>
+                                  <option value=<?= $Appliance_ID; ?>>
                                                 <?php echo $Appliance; 
                                                 ?>
-                                            </option>
+                                  </option>
                                </select>
 
                            </div>
                       </div>
 
+                       <div class="form-group <?php if( form_error('brand') ) { echo 'has-error';} ?>">
+                           <label for="name" class="col-md-4">Brand</label>
+                           <div class="col-md-6">
+                              <input type="text" class="form-control" id="brand" name="brand" value = "<?php if (isset($brand)) {echo $brand; }  ?>" >
+                           </div>
+                            <?php echo form_error('pincode'); ?>
+                        </div>
+
                         <div class="form-group <?php if( form_error('pincode') ) { echo 'has-error';} ?>">
                            <label for="name" class="col-md-4">Pincode</label>
                            <div class="col-md-6">
-                              <input type="text" class="form-control" id="pincode" name="pincode" value = "<?php if (isset($Pincode)) {echo $Pincode; } ?>" >
+                            <input type="text" class="form-control" id="pincode" name="pincode" value = "<?php if (isset($pincode)) {echo $pincode; } ?>" >
                            </div>
                             <?php echo form_error('pincode'); ?>
                         </div>
                         <div class="form-group <?php if( form_error('city') ) { echo 'has-error';} ?>">
                            <label for="name" class="col-md-4">City</label>
                            <div class="col-md-6">
-                            <input type="text" class="form-control" id="city" name="city" value = "<?php if (isset($City)) {echo $City; } ?>" >
+                           <input type="text" class="form-control" id="city" name="city" value = "<?php if (isset($city)) {echo $city; } ?>" >
                            </div>
                            <?php echo form_error('city'); ?>
                         </div>
                         <div class="form-group <?php if( form_error('area') ) { echo 'has-error';} ?>">
                            <label for="name" class="col-md-4">Area</label>
                            <div class="col-md-6">
-                              <input type="text" class="form-control" id="area" name="area" value = "" >
+                               <input type="text" class="form-control" id="area" name="area" value = "<?php if (isset($area)) {echo $area; } ?>" >
                            </div>
                            <?php echo form_error('area'); ?>
                         </div>
@@ -66,7 +77,7 @@ select[multiple], select[size]{
                             <select type="text" class="form-control"  class="form-control" id="state" name="state" >
                                             <option value="">Select State</option>
                                             <?php foreach ($state as $key => $value) { ?>
-                                            <option  value=<?= $value['state']; ?> > <?php echo $value['state']; } ?></option>
+                                             <option  value=<?= $value['state']; ?> <?php echo (isset($state))?'selected="selected"':''?> > <?php echo $value['state']; } ?></option>
                                </select>
                            </div>
                            <?php echo form_error('state'); ?>
@@ -77,7 +88,7 @@ select[multiple], select[size]{
                                <select type="text" class="form-control"  id="vendor" name="vendor_id">
                                             <option value="">Select Vendor</option>
                                             <?php foreach ($vendor_details as $key => $values) { ?>
-                                            <option  value=<?= $values['Vendor_ID']; ?> > <?php echo $values['Vendor_Name']; } ?></option>
+                                             <option  value=<?= $values['Vendor_ID']; ?> <?php if(isset($vendor_id)){ if(!empty($vendor_id)){ echo "selected"; } }?> > <?php echo $values['Vendor_Name']; } ?></option>
                                </select>
                            </div>
                            <?php echo form_error('vendor_id'); ?>
@@ -121,31 +132,45 @@ select[multiple], select[size]{
 
 <script type="text/javascript">
 
-var base_url = '<?php echo base_url()?>';
-var pincode = "<?php echo $Pincode?>";
 //Making request Onchange 
 $('#vendor').on('change',function(){
 
 //Making an AJAX request to get data
-$.ajax({
-  type: "GET",
-  url: base_url +'employee/vendor/get_vendor_services/' + this.value + '/' + pincode,
-  success: function(data){
-    var appliance = JSON.parse(data).Appliance;
-    var appliance_id = JSON.parse(data).Appliance_ID;
-
-      //Assigning value to div
-      $("#vendor_services" ).empty();
-      $('#vendor_services').append("<ul id='newList'></ul>");
-        for (cnt = 0; cnt < appliance.length; cnt++) {
-          $("#newList").append("<li><input type='checkbox'  name='choice[]' value='"+appliance_id[cnt]+"' />&nbsp;&nbsp;"+appliance[cnt] +"</li>");
-          // $("#newList").append("<li>"+appliance[cnt] +"</li>");
-        }
-
-    }
+call_get_vendor_services();
 
 });
 
+$(document).ready(function () {
+  
+ call_get_vendor_services();
 });
+
+function call_get_vendor_services(){
+  var vendor_id = $('#vendor').val();
+  if(vendor_id !=""){
+    $.ajax({
+        type: "GET",
+        url: '<?php echo base_url()?>employee/vendor/get_vendor_services/' + vendor_id,
+        success: function(data){
+          var appliance = JSON.parse(data).Appliance;
+          var appliance_id = JSON.parse(data).Appliance_ID;
+
+            //Assigning value to div
+            $("#vendor_services" ).empty();
+            $('#vendor_services').append("<ul id='newList'></ul>");
+              for (cnt = 0; cnt < appliance.length; cnt++) {
+                $("#newList").append("<li><input type='checkbox'  name='choice[]' value='"+appliance_id[cnt]+"' />&nbsp;&nbsp;"+appliance[cnt] +"</li>");
+                // $("#newList").append("<li>"+appliance[cnt] +"</li>");
+              }
+
+          }
+
+      });
+
+  }
+  
+
+}
+
 
 </script>

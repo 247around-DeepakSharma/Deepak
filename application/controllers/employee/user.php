@@ -108,7 +108,7 @@ class User extends CI_Controller {
             }
         } elseif ($booking_id != "") {  //if booking id given and matched, will be displayed
             
-            $where  = array('booking_id' => $booking_id );
+            $where  = array('booking_details.booking_id' => $booking_id );
             $data['Bookings'] = $this->booking_model->search_bookings($where);
             $this->load_search_view($data);
 

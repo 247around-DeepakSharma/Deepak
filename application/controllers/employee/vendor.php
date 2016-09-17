@@ -1167,12 +1167,14 @@ class vendor extends CI_Controller {
      *  @param : String(Booking Id)
      *  @return : void
      */
-    function get_add_vendor_to_pincode_form($pincode,$appliance,$appliance_id,$city){
 
-        $data['Pincode'] = $pincode;
+    function get_add_vendor_to_pincode_form($pincode,$appliance,$appliance_id,$city, $brand){
+        
+        $data['pincode'] = $pincode;
         $data['Appliance'] = $appliance;
         $data['Appliance_ID'] = $appliance_id;
-        $data['City'] = urldecode($city);
+        $data['brand'] = $brand;
+        $data['city'] = urldecode($city);
 
         //Getting data from Database using Booking ID
 
@@ -1200,11 +1202,17 @@ class vendor extends CI_Controller {
             $this->form_validation->set_rules('area', 'Area', 'trim|required');
             $this->form_validation->set_rules('state', 'State', 'trim|required');
             $this->form_validation->set_rules('vendor_id', 'Vendor Id', 'required');
+            $this->form_validation->set_rules('brand', 'Brand', 'trim');
             $this->form_validation->set_rules('choice', 'Services', 'required');
 
             //Check for Validation
             if ($this->form_validation->run() == FALSE) {
 
+            $data = $this->input->post();
+            
+            $data['vendor_details'] = $this->vendor_model->get_distinct_vendor_details($data['Appliance_ID']);
+            $data['state'] = $this->vendor_model->getall_state();    
+            
             $this->load->view('employee/header');
             $this->load->view('employee/add_vendor_to_pincode', $data);
 
@@ -1215,7 +1223,7 @@ class vendor extends CI_Controller {
             $vendor_mapping = array(
 
                                 'Vendor_ID'=>$this->input->post('vendor_id'),
-                                'Brand'=>'Brand',
+                                'Brand'=>$this->input->post('brand'),
                                 'Pincode'=>$this->input->post('pincode'),
                                 'Region'=>'Region',
                                 'Area'=>$this->input->post('area'),
