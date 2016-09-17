@@ -258,7 +258,7 @@
                                 <label for="booking_date" class="col-md-4">Booking Date *</label>
                                 <div class="col-md-6">
                                 <div class="input-group input-append date">
-                                    <input id="booking_date" class="form-control" style="z-index: 10000;" name="booking_date" type="date" value = "<?php echo  date("Y-m-d", strtotime("+1 day")); ?>" required>
+                                    <input id="booking_date" class="form-control"  name="booking_date" type="date" value = "<?php echo  date("Y-m-d", strtotime("+1 day")); ?>" required>
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
@@ -326,11 +326,12 @@
                         <div class="form-group  col-md-12" >
                             <center>
                                 <button style="margin-right: 25px;" type="button" class="btn btn-info btn-md open-AddBookingDialog" data-toggle="modal" data-target="#myModal">Check Details</button>
-                                <input type="submit" id="submitform" class="btn btn-info disabled" value="Submit Booking">
+                                <input type="submit" id="submitform" class="btn btn-primary disabled" value="Submit Booking">
                         </div>
                         </center>
                     </div>
                 </form>
+
                 <!-- end Panel Body  -->
             </div>
         </div>
@@ -345,12 +346,7 @@
          tags: true
     });
     $("#partner_source").select2();
-    //$(".appliance_capacity").select2();
-    $(document).ready(function(){
-        $("#submitform").click(function(){
-            $(this).button('loading');
-        });
-    });
+
     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
 </script>
 <script type="text/javascript">

@@ -366,7 +366,7 @@ function setAppliances(i){
             
             var id = this.id || "";
             var match = id.match(regex1) || [];
-            console.log(match[1]);
+            //console.log(match[1]);
             if (match.length == 3) {
                 this.id = match[1] + (indexClone);
             }
