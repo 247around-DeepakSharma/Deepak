@@ -775,3 +775,7 @@ ALTER TABLE  `engineer_details` ADD  `bank_proof_pic` VARCHAR( 250 ) NULL AFTER 
 ALTER TABLE  `vendor_partner_invoices` ADD  `amount_paid` DECIMAL( 10, 2 ) NOT NULL AFTER  `tds_amount` ;
 ALTER TABLE  `vendor_partner_invoices` CHANGE  `amount_paid`  `amount_paid` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0.00';
 ALTER TABLE  `engineer_details` CHANGE  `banck_ac_no`  `bank_ac_no` VARCHAR( 250 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
+
+
+<-- Abhay 17Sept -->
+ALTER TABLE  `booking_state_change` ADD  `partner_id` INT( 10 ) NOT NULL AFTER  `agent_id` ;
