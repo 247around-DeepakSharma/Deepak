@@ -1405,15 +1405,21 @@ class Booking_model extends CI_Model {
 
         $query1 = $this->db->query($sql1);
         $result1 =  $query1->result_array();
+
         if(!empty($result1)){
 
             $result[0]['tax_rate'] = $result1[0]['tax_rate'];
+            //Default tax rate is not used
+            $result['DEFAULT_TAX_RATE'] = 0;
 
         } else {
+             //Default tax rate is used
             $result[0]['tax_rate'] = DEFAULT_TAX_RATE;
+            $result['DEFAULT_TAX_RATE'] = 1;
         }
         unset($result[0]['tax_code']);
         unset($result[0]['product_type']);
+       
         return $result;
 
 
@@ -1460,8 +1466,9 @@ class Booking_model extends CI_Model {
             }
 
          }
-
-         return $data[0]['price_tags'];
+         $return_details['price_tags'] = $data[0]['price_tags'];
+         $return_details['DEFAULT_TAX_RATE'] = $data['DEFAULT_TAX_RATE'];
+         return $return_details;
     }
 
     // Update Price in unit details
@@ -1631,6 +1638,7 @@ class Booking_model extends CI_Model {
    
     log_message('info', __METHOD__ . " Insert booking_unit_details data" . print_r($result, true));
 	$this->db->insert('booking_unit_details', $result);
+    $result['DEFAULT_TAX_RATE'] = $data['DEFAULT_TAX_RATE'];
     return $result;
     }
 

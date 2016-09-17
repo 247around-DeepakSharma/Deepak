@@ -62,6 +62,7 @@ class Booking extends CI_Controller {
      *  @return : void
      */
     public function index($user_id) {
+    	
 	log_message('info', __FUNCTION__);
 	log_message('info', " Booking Insert User ID: " . print_r($user_id, true));
 	$booking = $this->getAllBookingInput($user_id);
@@ -77,6 +78,7 @@ class Booking extends CI_Controller {
 
 	if ($booking['type'] == 'Booking') {
 	    $to = "anuj@247around.com";
+	    //$to = "abhaya@247around.com";
 	    $from = "booking@247around.com";
 	    $cc = "";
 	    $bcc = "";
@@ -120,11 +122,9 @@ class Booking extends CI_Controller {
 	}
 
 	if (empty($booking['state']) && $booking['type'] != 'Query') {
-	    $to = "anuj@247around.com, nits@247around.com";
-	    $state_not_found_message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
-	    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $state_not_found_message, "");
-
-	    log_message('info', __FUNCTION__ . $state_not_found_message);
+		log_message('info', __FUNCTION__ . " Pincode Not Found Booking Id: ".$booking['booking_pincode']);
+		$this->send_sms_email($booking_id, "Pincode_not_found");
+	    
 	}
     $service_name  = $this->booking_model->selectservicebyid($booking['service_id']);
 	$service  = $service_name[0]['services'];
@@ -148,7 +148,10 @@ class Booking extends CI_Controller {
 	$appliance_id_array = $this->input->post('appliance_id');
 	$appliance_id =  array();;
 	if(isset($appliance_id_array)){
-      $appliance_id = array_unique($appliance_id_array);
+		if(!empty($appliance_id_array)){
+			$appliance_id = array_unique($appliance_id_array);
+		}
+      
 	}
 
 	$serial_number = $this->input->post('serial_number');
@@ -196,7 +199,7 @@ class Booking extends CI_Controller {
 		$booking['internal_status'] = "FollowUp";
 	    }
 	    if ($booking['internal_status'] == INT_STATUS_CUSTOMER_NOT_REACHABLE) {
-		$this->send_sms_while_not_picked($booking_id);
+		$this->send_sms_email($booking_id, "Customer not reachable");
 	    }
 	    $booking['query_remarks'] = $booking_remarks;
 
@@ -276,9 +279,9 @@ class Booking extends CI_Controller {
 		} else {
 		    $services_details['booking_status'] = "";
 		    log_message('info', __METHOD__ . " Update Booking Unit Details: " . print_r($services_details, true). " Previous booking id: ". $booking_id);
-		    $price_tag = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state']);
+		    $result = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state']);
 
-		    array_push($price_tags, $price_tag);
+		    array_push($price_tags, $result['price_tags']);
 		}
 	    }
 	}
@@ -295,7 +298,14 @@ class Booking extends CI_Controller {
 	    $booking['message'] = $message;
 	}
 	$this->user_model->edit_user($user);
-	log_message('info', __METHOD__ . " Return Booking: " . print_r($booking, true));
+	//log_message('info', __METHOD__ . " Return Booking: " . print_r($booking, true));
+
+	if($result['DEFAULT_TAX_RATE'] == 1){
+        log_message('info', __METHOD__ . " Default_tax_rate: " .$result['DEFAULT_TAX_RATE']);
+		$this->send_sms_email($booking['booking_id'], "Default_tax_rate");
+		
+		
+	}
 
 	return $booking;
     }
@@ -305,12 +315,12 @@ class Booking extends CI_Controller {
      * This is Asynchronous Process
      * @param  $booking_id
      */
-    function send_sms_while_not_picked($booking_id) {
+    function send_sms_email($booking_id, $state) {
 	log_message('info', __FUNCTION__);
 	log_message('info', __FUNCTION__ . " Booking ID :" . print_r($booking_id, true));
 	$url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
 	$send['booking_id'] = $booking_id;
-	$send['state'] = "Customer not reachable";
+	$send['state'] = $state;
 	$this->asynchronous_lib->do_background_process($url, $send);
     }
 
@@ -332,7 +342,7 @@ class Booking extends CI_Controller {
 	$booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
 	$booking['booking_pincode'] = $this->input->post('booking_pincode');
 	// select state by pincode
-	$state = $this->vendor_model->get_state_from_pincode($booking['booking_pincode']);
+	$state = $this->vendor_model->get_state_from_pincode(trim($booking['booking_pincode']));
 	$booking['state'] = $state['state'];
 	$booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
 	$booking['order_id'] = $this->input->post('order_id');
@@ -1121,6 +1131,7 @@ class Booking extends CI_Controller {
 	    $this->asynchronous_lib->do_background_process($url, $send);
 
 	    $to = "anuj@247around.com";
+	    //$to = "abhaya@247around.com";
 	    $from = "booking@247around.com";
 	    $cc = "";
 	    $bcc = "";

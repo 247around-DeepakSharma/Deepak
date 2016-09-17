@@ -354,16 +354,17 @@ class vendor_model extends CI_Model {
 
     /**
      *  @desc : This function is to get State specific to a Pincode
-     *
+     *  
      *  @param : $pincode
      *  @return : State
      */
     function get_state_from_pincode($pincode) {
 	$this->db->distinct();
-	$this->db->select('state');
-	$this->db->where('pincode', $pincode);
+    // Do not make state capital. It should be 'state'.
+	$this->db->select('State as state');
+	$this->db->where('Pincode', $pincode);
 
-	$query = $this->db->get('india_pincode');
+	$query = $this->db->get('vendor_pincode_mapping');
     if($query->num_rows > 0){
         return $query->result_array()[0];
     } else {

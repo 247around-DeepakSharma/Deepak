@@ -401,6 +401,25 @@ class Notify {
 		$this->send_sms($sms);
 
 		break;
+
+		case 'Default_tax_rate':
+		sleep(180);
+            $to = "anuj@247around.com, nits@247around.com";
+		//$to = "abhaya@247around.com";
+	        $default_tax_rate = " Default Tax Rate is used in the Booking ID: " . $query1[0]['booking_id'];
+	        $this->sendEmail("booking@247around.com", $to, "", "", ' Default Tax Rate is used ', $default_tax_rate, "");
+			break;
+
+		case 'Pincode_not_found':
+		log_message('info', __METHOD__ . "Applianc" . print_r($appliance_id, true));
+		sleep(180);
+	    $to = "anuj@247around.com, nits@247around.com";
+		//$to = "abhaya@247around.com";
+	        $state_not_found_message = " Pincode(".$query1[0]['booking_pincode'].") is not found booking id is " . $query1[0]['booking_id'];
+	        $this->sendEmail("booking@247around.com", $to, "", "", ' Pincode Not Found', $state_not_found_message, "");
+
+
+			break;
 	}
     }
 
