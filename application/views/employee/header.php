@@ -15,16 +15,17 @@
         <!-- Custom Fonts -->
         <link href="<?php echo base_url()?>font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
         <script src="<?php echo base_url()?>js/jquery.js"></script>
+         <!-- Load jQuery UI Main CSS-->
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+
+        <!-- Load jQuery UI Main JS  -->
+        <script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
         <!-- Bootstrap Core JavaScript -->
         <script src="<?php echo base_url()?>js/bootstrap.min.js"></script>
         <link href="<?php echo base_url()?>css/select2.min.css" rel="stylesheet" />
         <link href="<?php echo base_url()?>css/style.css" rel="stylesheet" />
         <script src="<?php echo base_url();?>js/select2.min.js"></script>
-          <!-- Load jQuery UI Main CSS-->
-        <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
-
-        <!-- Load jQuery UI Main JS  -->
-        <script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+         
     </head>
     <body>
         <div id="wrapper">

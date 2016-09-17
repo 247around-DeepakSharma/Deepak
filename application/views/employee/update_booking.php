@@ -527,7 +527,7 @@
                                 <label for="booking_date" class="col-md-4">Booking Date *</label>
                                 <div class="col-md-6">
                                 <div class="input-group input-append date">
-                                    <input id="booking_date" class="form-control" style="z-index: 10000;" name="booking_date" type="date" value = "<?php if(!empty($booking_history[0]['booking_date'])){ echo  date("Y-m-d", strtotime($booking_history[0]['booking_date'])); } else { echo date("Y-m-d", strtotime('+1 days')); } ?>" required>
+                                    <input id="booking_date" class="form-control"  name="booking_date" type="date" value = "<?php if(!empty($booking_history[0]['booking_date'])){ echo  date("Y-m-d", strtotime($booking_history[0]['booking_date'])); } else { echo date("Y-m-d", strtotime('+1 days')); } ?>" required>
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
@@ -613,11 +613,11 @@
 </div>
 <script>
 
-    $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
-
-    $(".booking_source").select2();
+   
 </script>
 <script>
+
+    $(".booking_source").select2();
     $("#service_id").select2();
     $("#booking_city").select2({
          tags: true
@@ -630,6 +630,8 @@
             $(this).button('loading');
         });
     });
+     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
+
 </script>
 </script>
 
