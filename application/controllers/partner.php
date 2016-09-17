@@ -311,6 +311,8 @@ class Partner extends CI_Controller {
                         //echo print_r($booking, true) . "<br><br>";
                         $this->booking_model->addbooking($booking);
 
+                       $this->notify->insert_state_change($booking['booking_id'], "FollowUp", "New_Query", "", $requestData['partnerName'], $booking['partner_id']);
+
                         //Send response
                         $this->jsonResponseString['response'] = array(
                             "orderID" => $booking['order_id'],
@@ -1549,6 +1551,7 @@ class Partner extends CI_Controller {
                     $booking['booking_date'] . ", " . $booking['booking_timeslot'] .
                     ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";
 
+
             $sms_details = $this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
             //For saving SMS to the database on sucess
             if(isset($sms_details['info']) && $sms_details['info'] == '200'){
@@ -1556,8 +1559,8 @@ class Partner extends CI_Controller {
                     $smsBody, $booking['booking_id']);
             }
 
-        }
-
+            $this->notify->insert_state_change($booking['booking_id'], "Pending", "New_Booking", "", $requestData['partnerName'], $booking['partner_id']);
+            }
 
             //Send response
             $this->jsonResponseString['response'] = array(
