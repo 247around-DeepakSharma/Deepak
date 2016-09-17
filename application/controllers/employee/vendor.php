@@ -79,6 +79,21 @@ class vendor extends CI_Controller {
                 redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
             } else {
                 // get service center code by calling generate_service_center_code() method
+                $email = $this->input->post('email');
+                $primary_contact_email = $this->input->post('primary_contact_email');
+                $to = $email.','.$primary_contact_email;
+                
+                $subject = "247around - Closure of Bookings";
+                $message = "Dear Partner,<br><br>"
+                        . "As informed earlier, serial number of appliance is mandatory to be entered in the system while closure. All bookings without serial numbers will be cancelled.<br><br> "
+                        . "In case serial number is not found on the appliance you need to bring one of the following.<br> "
+                        . "1st Option Serial Number Of Appliance<br><br>"
+                        . "2nd Option Invoice Number Of The Appliance<br><br>"
+                        . "3rd Option Customer ID Card Number - PAN / Aadhar / Driving License<br><br>"
+                        . "No completion will be allowed to without one of the above.<br><br><br>"
+                        . "Regards,<br>"
+                        . "247around Team";
+                
                 $_POST['sc_code'] = $this->generate_service_center_code($_POST['name'], $_POST['district']);
 
                 //if vendor do not exists, vendor is added
@@ -87,7 +102,7 @@ class vendor extends CI_Controller {
 		        $this->sendWelcomeSms($_POST['primary_contact_phone_1'], $_POST['name']);
                 $this->sendWelcomeSms($_POST['owner_phone_1'], $_POST['owner_name']);
 
-                $this->notify->sendEmail("booking@247around.com", 'anuj@247around.com', '', '', 'New Vendor Creation', json_encode($_POST), "");
+                $this->notify->sendEmail("booking@247around.com", $to , 'anuj@247around.com', '', $subject , $message, "");
 
 		  //create vendor login details as well
 		   $sc_login_uname = strtolower($_POST['sc_code']);
