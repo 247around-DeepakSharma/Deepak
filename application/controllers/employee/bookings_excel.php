@@ -282,6 +282,8 @@ class bookings_excel extends CI_Controller {
 		//echo print_r($booking, true) . "<br><br>";
 		$this->booking_model->addbooking($booking);
 		$this->insert_booking_in_partner_leads($booking, $unit_details,$user, $prod );
+
+		$this->notify->insert_state_change($booking['booking_id'], "FollowUp", "New_Query", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 		//Reset
 		unset($appliance_details);
 		unset($booking);
@@ -623,6 +625,7 @@ class bookings_excel extends CI_Controller {
 		}
 
 		$this->insert_booking_in_partner_leads($booking, $unit_details,$user, $lead_details['Product'] );
+		$this->notify->insert_state_change($booking['booking_id'], "FollowUp", "New_Query", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 
 		//$sms['phone_no'] = $lead_details['Phone'];
 		//$sms['booking_id'] = $booking['booking_id'];
@@ -889,7 +892,7 @@ class bookings_excel extends CI_Controller {
 		}
 
 		$this->insert_booking_in_partner_leads($booking, $unit_details,$user, $lead_details['Product'] );
-
+		$this->notify->insert_state_change($booking['booking_id'], "FollowUp", "New_Query", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 		//Reset
 		unset($booking);
 		unset($unit_details);

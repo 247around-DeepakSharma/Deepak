@@ -76,7 +76,11 @@ class Booking extends CI_Controller {
 
 	$this->booking_model->addbooking($booking);
 
+
 	if ($booking['type'] == 'Booking') {
+
+		$this->notify->insert_state_change($booking['booking_id'], "Pending", "New_Booking", $this->session->userdata('id'), $this->session->userdata('employee_id'));
+
 	    $to = "anuj@247around.com";
 	    //$to = "abhaya@247around.com";
 	    $from = "booking@247around.com";
@@ -91,6 +95,8 @@ class Booking extends CI_Controller {
 		". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";
 
 	    $this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
+	} else {
+		$this->notify->insert_state_change($booking['booking_id'], "FollowUp", "New_Query", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 	}
 
 	redirect(base_url() . DEFAULT_SEARCH_PAGE);
