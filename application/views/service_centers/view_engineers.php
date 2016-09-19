@@ -28,7 +28,7 @@
           	<th>Alternate Mobile</th>
           	<th>ID Proof</th>
           	<th>Bank Name</th>
-            <th colspan="2">Actions</th>
+            <th colspan="3">Actions</th>
           </tr>
 
           
@@ -53,6 +53,8 @@
                 }
               ?>
             </td>
+            <td><?php  echo "<a id='edit' class='btn btn-small btn-primary' "
+                                    . "href=" . base_url() . "employee/vendor/get_edit_engineer_form/$row[id]>Edit</a>";?></td>
             <td><?php  echo "<a onClick=\"javascript: return confirm('Delete engineer?');\" id='edit' class='btn btn-small btn-danger' "
                                     . "href=" . base_url() . "employee/vendor/delete_engineer/$row[id]>Delete</a>";                ?></td>
           </tr>
