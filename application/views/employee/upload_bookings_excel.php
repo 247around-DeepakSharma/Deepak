@@ -1,3 +1,5 @@
+
+
 <div id="page-wrapper">
    <div class="container-fluid">
       <div class="row">
@@ -21,12 +23,13 @@
                </div>';
                }
                ?>  
+
                
             <h1 class="page-header">
                <b> Upload Delivered Products Excel</b>
             </h1>
             
-            <form class="form-horizontal" action="<?php echo base_url()?>employee/bookings_excel/add_booking_from_excel" method="POST" enctype="multipart/form-data">
+            <form class="form-horizontal"  id="fileinfo" onsubmit="return submitForm();" name="fileinfo"  method="POST" enctype="multipart/form-data">
                 <div class="form-group  <?php if( form_error('excel') ) { echo 'has-error';} ?>">
                   <label for="excel" class="col-md-1">Delivered Products Excel</label>
                   <div class="col-md-4">
@@ -42,7 +45,91 @@
       </div>
    </div>
 </div>
-
+<!-- -->
 <script>
-//$("input").tagsinput('services');
+function submitForm() {
+           
+  var fd = new FormData(document.getElementById("fileinfo"));
+  fd.append("label", "WEBUPLOAD");
+  $.ajax({
+      url: "<?php echo base_url()?>employee/do_background_upload_excel/upload_snapdeal_file/delivered",
+      type: "POST",
+      data: fd,
+      processData: false,  // tell jQuery not to process the data
+      contentType: false   // tell jQuery not to set contentType
+  }).done(function( data ) {
+    //console.log(data);
+      
+  });
+    window.location.assign("<?php echo base_url(); ?>employee/user");
+  //window.open('<?php echo base_url(); ?>employee/user');    
+}
 </script>
+<!-- 
+<div class="chat-box">
+    <input type="checkbox" />
+    <label data-expanded="Close Notification" data-collapsed="Open Notification"></label>
+    <div class="chat-box-content"><p id="notification"></p>
+        <br/>
+        <br/>
+     
+     
+  <style type="text/css">
+
+.chat-box {
+  height: 300;
+  font:normal normal 11px/1.4 Tahoma,Verdana,Sans-Serif;
+  color:#333;
+  width:100%; /* Chatbox width */
+  border:1px solid #344150;
+  border-bottom:none;
+  background-color:white;
+  position:fixed;
+  
+  bottom:0;
+  z-index:9999;
+  -webkit-box-shadow:1px 1px 5px rgba(0,0,0,.2);
+  -moz-box-shadow:1px 1px 5px rgba(0,0,0,.2);
+  box-shadow:1px 1px 5px rgba(0,0,0,.2);
+}
+
+.chat-box > input[type="checkbox"] {
+  display:block;
+  margin:0 0;
+  padding:0 0;
+  position:absolute;
+  top:0;
+  right:0;
+  left:0;
+  width:100%;
+  height:26px;
+  z-index:4;
+  cursor:pointer;
+  opacity:0;
+  filter:alpha(opacity=0);
+}
+
+.chat-box > label {
+  display:block;
+  height:24px;
+  line-height:24px;
+  background-color:#344150;
+  color:white;
+  font-weight:bold;
+  padding:0 1em 1px;
+}
+
+.chat-box > label:before {content:attr(data-collapsed)}
+
+.chat-box .chat-box-content {
+  padding:10px;
+  display:none;
+}
+
+/* hover state */
+.chat-box > input[type="checkbox"]:hover + label {background-color:#404D5A}
+
+/* checked state */
+.chat-box > input[type="checkbox"]:checked + label {background-color:#212A35}
+.chat-box > input[type="checkbox"]:checked + label:before {content:attr(data-expanded)}
+.chat-box > input[type="checkbox"]:checked ~ .chat-box-content {display:block}</style> -->
