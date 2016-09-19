@@ -807,8 +807,13 @@ class Booking_model extends CI_Model {
         $sql = "SELECT * FROM services WHERE services='$service_name'";
         $query = $this->db->query($sql);
 
-        $services = $query->result_array();
-        return $services[0]['id'];
+        if($query->num_rows > 0){
+            $services = $query->result_array();
+            return $services[0]['id'];
+        } else {
+            return false;
+        }
+        
     }
 
     /**
