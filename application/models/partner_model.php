@@ -509,6 +509,81 @@ class Partner_model extends CI_Model {
 
 	return $result;
     }
+    /**
+     * @desc: This function is to add a new partner
+     *
+     * partner details like Service Center's name, owners name, ph no., email, poc name, email, services, brands covered,
+     *      bank details, etc.
+     *
+     * @param: $partner
+     *          - partner details to be added.
+     * @return: ID for the new partner
+     */
+    function add_partner($partner) {
+        $this->db->insert('partners', $partner);
+        return $this->db->insert_id();
+    }
+    /**
+     * @desc: This function is to view partner details
+     *
+     * If partner_id is given then the details of the specific partner will come else
+     *  the details of all the partner will be be returned
+     *
+     * @param: $partner_id
+     * @return: array of partner details
+     */
+    function viewpartner($partner_id = "") {
+        $where = "";
+
+        if ($partner_id != "") {
+            $where .= "where id= '$partner_id'";
+        }
+
+        $sql = "Select * from partners $where";
+
+        $query = $this->db->query($sql);
+
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc: This function is to activate partner who is already registered with us and are inactive/deactivated.
+     *
+     * @param: $id
+     *         - Id of partner to whom we would like to activate
+     * @return: void
+     */
+    function activate($id) {
+        $sql = "Update partners set is_active= 1 where id='$id'";
+        $this->db->query($sql);
+    }
+
+    /**
+     * @desc: This function is to deactivate partner who is already registered with us and are active.
+     *
+     * @param: $id
+     *         - Id of partner to whom we would like to deactivate
+     * @return: void
+     */
+    function deactivate($id) {
+        $sql = "Update partners set is_active= 0 where id='$id'";
+        $this->db->query($sql);
+    }
+    /**
+     * @desc: This function edits partner's details
+     *
+     * If details of partner that are edited will be modified else others details will remain same.
+     *
+     * @param: $partner
+     *          - Array of all the partner details to be edited.
+     * @param: $id(partner_id)
+     *          - Id of partner which is to be edited.
+     * @return: none
+     */
+    function edit_partner($partner, $id) {
+        $this->db->where('id', $id);
+        $this->db->update('partners', $partner);
+    }
 
 }
 

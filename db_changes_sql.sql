@@ -779,3 +779,48 @@ ALTER TABLE  `engineer_details` CHANGE  `banck_ac_no`  `bank_ac_no` VARCHAR( 250
 
 <-- Abhay 17Sept -->
 ALTER TABLE  `booking_state_change` ADD  `partner_id` INT( 10 ) NOT NULL AFTER  `agent_id` ;
+
+<-- Belal 19Sept -->
+
+CREATE TABLE `partners` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `company_name` varchar(100) NOT NULL,
+ `public_name` varchar(100) NOT NULL,
+ `address` varchar(100) NOT NULL,
+ `district` varchar(50) NOT NULL,
+ `state` varchar(50) NOT NULL,
+ `pincode` varchar(10) DEFAULT NULL,
+ `landmark` varchar(500) DEFAULT NULL,
+ `registration_number` varchar(50) DEFAULT NULL,
+ `primary_contact_name` varchar(50) DEFAULT NULL,
+ `primary_contact_email` varchar(50) DEFAULT NULL,
+ `primary_contact_phone_1` varchar(20) DEFAULT NULL,
+ `primary_contact_phone_2` varchar(20) DEFAULT NULL,
+ `owner_name` varchar(50) DEFAULT NULL,
+ `owner_email` varchar(50) DEFAULT NULL,
+ `owner_phone_1` varchar(20) DEFAULT NULL,
+ `owner_phone_2` varchar(20) DEFAULT NULL,
+ `invoice_email_to` varchar(50) DEFAULT NULL,
+ `invoice_email_cc` varchar(100) DEFAULT NULL,
+ `invoice_email_bcc` varchar(100) DEFAULT NULL,
+ `summary_email_to` varchar(50) DEFAULT NULL,
+ `summary_email_cc` varchar(100) DEFAULT NULL,
+ `summary_email_bcc` varchar(100) DEFAULT NULL,
+ `auth_token` varchar(100) NOT NULL,
+ `is_active` varchar(1) NOT NULL,
+ `is_verified` varchar(1) NOT NULL,
+ `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`),
+ UNIQUE KEY `auth_token` (`auth_token`)
+) ENGINE=InnoDB AUTO_INCREMENT=247012 DEFAULT CHARSET=latin1 COMMENT='e-comm partners';
+
+CREATE TABLE `sms_sent_details` (
+ `id` int(10) NOT NULL AUTO_INCREMENT,
+ `user_id` int(20) NOT NULL,
+ `user_type` varchar(20) NOT NULL,
+ `phone` varchar(20) NOT NULL,
+ `booking_id` varchar(50) NOT NULL,
+ `content` mediumtext NOT NULL,
+ `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
