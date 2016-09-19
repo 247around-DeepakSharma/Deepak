@@ -28,7 +28,15 @@
         <div style="margin-bottom: 20px;">
             <a href="<?php echo base_url();?>employee/vendor/add_engineer"><input class="btn btn-primary" type="Button" value="Add Engineer"></a>
         </div>
-        
+        <?php if($this->session->userdata('update_success')) {
+                    echo '<div class="alert alert-success alert-dismissible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <strong>' . $this->session->userdata('update_success') . '</strong>
+                    </div>';
+                    }
+        ?>
         <table  class="table table-striped table-bordered">
           
           <tr>
@@ -49,7 +57,7 @@
           <tr>
             <td><?=$row['id'];?></td>
             <td><?php  echo $row['service_center_name']; ?></td>
-            <td><?php echo $row['name'];?></td>
+            <td><a href="<?php echo base_url()?>employee/vendor/get_edit_engineer_form/<?php echo $row['id']?>"><?php echo $row['name'];?></a></td>
             <td><?php echo $row['appliance_name']; ?></td>
             <td>
                 <?php echo $row['phone'];?>

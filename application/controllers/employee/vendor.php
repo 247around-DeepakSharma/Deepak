@@ -971,6 +971,27 @@ class vendor extends CI_Controller {
 
     }
     /**
+     * @desc: This is used to Edit Engineer
+     * params: Engineer ID
+     * return : View of Engineer along with Engineer Data Array
+     */
+    function get_edit_engineer_form($id){
+        $data['service_center'] = $this->vendor_model->getactive_vendor();
+        $data['services'] = $this->booking_model->selectservice();
+        if(!empty($id)){
+            $data['data'] = $this->vendor_model->get_engg_by_id($id); 
+        }
+        if($this->session->userdata('userType') == 'service_center'){
+
+            $this->load->view('service_centers/header');
+            $this->load->view('service_centers/add_engineer', $data);
+
+        } else {
+            $this->load->view('employee/header');
+            $this->load->view('employee/add_engineer', $data);
+        }
+    }
+    /**
      * @desc: This method adds engineers for a service center.
      *  This  function is used by vendor panel and admin panel to load add engineer details.
      */
@@ -1038,6 +1059,77 @@ class vendor extends CI_Controller {
 	    }
 	} else { //form validation failed
 	    $this->add_engineer();
+	}
+    }
+    /**
+     * @desc: This method is used to process edit engineer form
+     * params: Post data array
+     * 
+     */
+    function process_edit_engineer(){
+        $engineer_form_validation = $this->engineer_form_validation();
+        $engineer_id = $this->input->post('id');
+        if ($engineer_form_validation) {
+	    $data['name'] = $this->input->post('name');
+	    $data['phone'] = $this->input->post('phone');
+	    $data['alternate_phone'] = $this->input->post('alternate_phone');
+	    $data['phone_type'] = $this->input->post('phone_type');
+	    $data['identity_proof'] = $this->input->post('identity_proof');
+	    $data['identity_proof_number'] = $this->input->post('identity_id_number');
+	    $data['bank_name'] = $this->input->post('bank_name');
+	    $data['bank_ac_no'] = $this->input->post('bank_account_no');
+	    $data['bank_ifsc_code'] = $this->input->post('bank_ifsc_code');
+	    $data['bank_holder_name'] = $this->input->post('bank_holder_name');
+            if($this->input->post('file')){
+	    $data['identity_proof_pic'] = $this->input->post('file');
+            }
+            if($this->input->post('bank_proof_pic')){
+	    $data['bank_proof_pic'] = $this->input->post('bank_proof_pic');
+            }
+            
+	    //Get vendor ID from session if form sent thru vendor CRM
+	    //Else from POST variable.
+	    if ($this->session->userdata('userType') == 'service_center') {
+		$data['service_center_id'] = $this->session->userdata('service_center_id');
+	    } else {
+		$data['service_center_id'] = $this->input->post('service_center_id');
+	    }
+
+	    //applicable services for an engineer come as array in service_id field.
+	    $service_id = $this->input->post('service_id');
+	    $services = array();
+	    foreach ($service_id as $id) {
+		array_push($services, array('service_id' => $id));
+	    }
+
+	    $data['appliance_id'] = json_encode($services);
+	    $data['update_date'] = date("Y-m-d H:i:s");
+            
+            $where = array('id' => $engineer_id );
+	    $engineer_id = $this->vendor_model->update_engineer($where,$data);
+
+                log_message('info', __METHOD__ . "=> Engineer Details Added.");
+
+		$output = "Engineer Details Updated.";
+		$userSession = array('update_success' => $output);
+
+	    $this->session->set_userdata($userSession);
+
+	    if ($this->session->userdata('userType') == 'service_center') {
+		log_message('info', __FUNCTION__ . " Engineer updation initiated By Service Center ID ". $engineer_id);
+
+		redirect(base_url() . "employee/vendor/get_engineers");
+	    } else {
+		log_message('info', __FUNCTION__ . " Engineer updation initiated By 247around ID ". $engineer_id);
+
+		redirect(base_url() . "employee/vendor/get_engineers");
+	    }
+	} else { //form validation failed
+            $output = "Engineer Updation Error.";
+            $userSession = array('update_error' => $output);
+            $this->session->set_userdata($userSession);
+            
+	    $this->get_edit_engineer_form($engineer_id);
 	}
     }
 

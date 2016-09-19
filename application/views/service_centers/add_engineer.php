@@ -1,7 +1,7 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 <div id="page-wrapper" >
    <h1>
-       Add Engineer
+       <?php echo (isset($data)?'Edit Engineer':'Add Engineer')?>
    </h1>
     <div class="container" >
        <?php if($this->session->userdata('success')) {
@@ -22,24 +22,36 @@
                     </div>';
                     }
         ?>
-        <form name="myForm" class="form-horizontal" id ="engineer_form" action="<?php echo base_url();?>employee/vendor/process_add_engineer"  method="POST" enctype="multipart/form-data">
+        <?php if($this->session->userdata('update_error')) {
+                    echo '<div class="alert alert-danger alert-dismissible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <strong>' . $this->session->userdata('update_error') . '</strong>
+                    </div>';
+                    }
+        ?>
+        <form name="myForm" class="form-horizontal" id ="engineer_form" action="<?php echo base_url();?>employee/vendor/<?php echo isset($data)?'process_edit_engineer':'process_add_engineer'?>"  method="POST" enctype="multipart/form-data">
             <div class="panel panel-info" style="margin-top:20px;">
                 <div class="panel-heading">Engineer Details</div>
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="col-md-6">
+                                <?php if(!empty($data)){?>
+                                <input type="hidden" value="<?php echo $data[0]['id']?>" name="id"/>
+                                <?php }?>
                                 <div class="form-group <?php if( form_error('name') ) { echo 'has-error';} ?>">
                                     <label for="name" class="col-md-4">Name *</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="name" name="name" value = "<?php echo set_value('name');  ?>" placeholder="Enter Engineer Name" required>
+                                        <input type="text" class="form-control" id="name" name="name" value = "<?php echo isset($data[0]['name'])?$data[0]['name']:set_value('name');  ?>" placeholder="Enter Engineer Name" required>
                                     </div>
                                     <?php echo form_error('name'); ?>
                                 </div>
                                 <div class="form-group <?php if( form_error('phone') ) { echo 'has-error';} ?>" >
                                     <label for="Mobile" class="col-md-4">Mobile *</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control"  id="mobile" name="phone" value = "<?php echo set_value('phone');  ?>" placeholder="Enter Mobile Number" required>
+                                        <input type="text" class="form-control"  id="mobile" name="phone" value = "<?php echo isset($data[0]['phone'])?$data[0]['phone']:set_value('phone');  ?>" placeholder="Enter Mobile Number" required>
                                         SMS will be delivered to this Mobile
                                     </div>
                                     <?php echo form_error('phone'); ?>
@@ -49,11 +61,11 @@
                                     <label for="phone type" class="col-md-4">Phone Type </label>
                                     <div class="col-md-6">
                                         <select type="text" class="form-control"  id="phone_type" name="phone_type"  >
-                                            <option disabled selected>Select Phone type</option>
-                                            <option  <?php if(set_value('phone_type') == 'Android'){ echo "selected"; }  ?>>Android</option>
-                                            <option <?php if(set_value('phone_type') == 'Windows'){ echo "selected"; }  ?>>Windows</option>
-                                            <option <?php if(set_value('phone_type') == 'Apple'){ echo "selected"; }  ?>>Apple</option>
-                                            <option <?php if(set_value('phone_type') == 'Other'){ echo "selected"; }  ?>>Other</option>
+                                            <option disabled <?php echo isset($data[0]['phone_type'])?'':'selected'?>>Select Phone type</option>
+                                            <option  <?php echo (isset($data[0]['phone_type']) && $data[0]['phone_type'] == 'Android' )?"selected":(set_value('phone_type') == 'Android')?"selected":'';   ?>>Android</option>
+                                            <option <?php echo (isset($data[0]['phone_type']) && $data[0]['phone_type'] == 'Windows' )?"selected":(set_value('phone_type') == 'Windows')?"selected":'';   ?>>Windows</option>
+                                            <option <?php echo (isset($data[0]['phone_type']) && $data[0]['phone_type'] == 'Apple' )?"selected":(set_value('phone_type') == 'Apple')?"selected":'';   ?>>Apple</option>
+                                            <option <?php echo (isset($data[0]['phone_type']) && $data[0]['phone_type'] == 'Other' )?"selected":(set_value('phone_type') == 'Other')?"selected":'';   ?>>Other</option>
                                         </select>
                                     </div>
                                     <?php echo form_error('phone_type'); ?>
@@ -66,8 +78,14 @@
                                     <label for="Appliances" class="col-md-4">Appliances *</label>
                                     <div class="col-md-6">
                                         <select type="text" class="form-control"  id="service_id" name="service_id[]" multiple="multiple"  required>
+                                             <?php if(isset($data)){
+                                                    $appliance_id = json_decode($data[0]['appliance_id'], TRUE);
+                                                    foreach($appliance_id as $key =>$value){
+                                                        $list[] = $value['service_id'];
+                                                    }
+                                                }?>
                                             <?php foreach ($services as $key => $values) { ?>
-                                            <option <?php if(set_value('service_id') == $values->id){ echo "selected"; }  ?> value=<?php echo $values->id; ?>>
+                                            <option <?php echo isset($data)?(in_array($values->id,$list))?"selected":'':(set_value('service_id') == $values->id)?"selected":'';  ?> value=<?php echo $values->id; ?>>
                                                 <?php echo $values->services; }    ?>
                                             </option>
                                         </select>
@@ -78,7 +96,7 @@
                                 <div class="form-group  <?php if( form_error('phone') ) { echo 'has-error';} ?>">
                                     <label for="Mobile" class="col-md-4">Alternate Mobile </label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control"  id="alternate_phone" name="alternate_phone" value = "<?php echo set_value('alternate_phone');  ?>" placeholder="Enter Mobile Number" >
+                                        <input type="text" class="form-control"  id="alternate_phone" name="alternate_phone" value = "<?php echo isset($data[0]['alternate_phone'])?$data[0]['alternate_phone']:set_value('alternate_phone');  ?>" placeholder="Enter Mobile Number" >
                                     </div>
                                     <?php echo form_error('alternate_phone'); ?>
                                 </div>                                
@@ -100,13 +118,13 @@
                                     <div class="col-md-6">
                                         <select type="text" class="form-control"  id="identity_proof" name="identity_proof"  >
                                             <option disabled selected>Select ID Proof</option>
-                                            <option <?php if(set_value('identity_proof') == 'Aadhar Card'){ echo "selected"; }  ?> value="Aadhar Card">Aadhar Card</option>
-                                            <option <?php if(set_value('identity_proof') == 'Driving License'){ echo "selected"; }  ?> value="Driving License">Driving License</option>
-                                            <option <?php if(set_value('identity_proof') == 'Voter ID Card'){ echo "selected"; }  ?> value="Voter ID Card">Voter ID Card</option>
-                                            <option <?php if(set_value('identity_proof') == 'PAN Card'){ echo "selected"; }  ?> value="PAN Card">PAN Card</option>
-                                            <option <?php if(set_value('identity_proof') == 'Ration Card'){ echo "selected"; }  ?> value="Ration Card">Ration Card</option>
-                                            <option <?php if(set_value('identity_proof') == 'Passport'){ echo "selected"; }  ?> value="Passport">Passport</option>
-                                            <option <?php if(set_value('identity_proof') == 'Others'){ echo "selected"; }  ?> value="Others">Others</option>
+                                            <option <?php echo (isset($data[0]['identity_proof']) && $data[0]['identity_proof'] == 'Aadhar Card' )?"selected":(set_value('identity_proof') == 'Aadhar Card')?"selected":'';   ?> value="Aadhar Card">Aadhar Card</option>
+                                            <option <?php echo (isset($data[0]['identity_proof']) && $data[0]['identity_proof'] == 'Driving License' )?"selected":(set_value('identity_proof') == 'Driving License')?"selected":'';   ?> value="Driving License">Driving License</option>
+                                            <option <?php echo (isset($data[0]['identity_proof']) && $data[0]['identity_proof'] == 'Voter ID Card' )?"selected":(set_value('identity_proof') == 'Voter ID Card')?"selected":'';   ?> value="Voter ID Card">Voter ID Card</option>
+                                            <option <?php echo (isset($data[0]['identity_proof']) && $data[0]['identity_proof'] == 'PAN Card' )?"selected":(set_value('identity_proof') == 'PAN Card')?"selected":'';   ?> value="PAN Card">PAN Card</option>
+                                            <option <?php echo (isset($data[0]['identity_proof']) && $data[0]['identity_proof'] == 'Ration Card' )?"selected":(set_value('identity_proof') == 'Ration Card')?"selected":'';   ?> value="Ration Card">Ration Card</option>
+                                            <option <?php echo (isset($data[0]['identity_proof']) && $data[0]['identity_proof'] == 'Passport' )?"selected":(set_value('identity_proof') == 'Passport')?"selected":'';   ?> value="Passport">Passport</option>
+                                            <option <?php echo (isset($data[0]['identity_proof']) && $data[0]['identity_proof'] == 'Others' )?"selected":(set_value('identity_proof') == 'Others')?"selected":'';   ?> value="Others">Others</option>
                                         </select>
                                     </div>
                                     <?php echo form_error('identity_proof'); ?>
@@ -127,7 +145,7 @@
                              <div class="form-group">
                                     <label for="Identity ID Number" class="col-md-4">ID Number *</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="identity_id_number" name="identity_id_number" value = "<?php echo set_value('identity_id_number');  ?>" placeholder="Enter ID Number" >
+                                        <input type="text" class="form-control" id="identity_id_number" name="identity_id_number" value = "<?php echo isset($data[0]['identity_proof_number'])?$data[0]['identity_proof_number']:set_value('identity_proof_number');  ?>" placeholder="Enter ID Number" >
                                     </div>
                                 </div>
                                 <?php echo form_error('identity_id_number'); ?>
@@ -147,7 +165,7 @@
                                 <div class="form-group <?php if( form_error('bank_holder_name') ) { echo 'has-error';} ?>">
                                     <label for="bank_holder_name" class="col-md-4">Account Holder *</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control"  id="bank_holder_name" name="bank_holder_name" value = "<?php echo set_value('bank_holder_name');  ?>" placeholder="Enter Account Holder Name" >
+                                        <input type="text" class="form-control"  id="bank_holder_name" name="bank_holder_name" value = "<?php echo isset($data[0]['bank_holder_name'])?$data[0]['bank_holder_name']:set_value('bank_holder_name');  ?>" placeholder="Enter Account Holder Name" >
                                     </div>
                                     <?php echo form_error('bank_holder_name'); ?>
                                 </div>
@@ -155,7 +173,7 @@
                                 <div class="form-group <?php if( form_error('bank_account_no') ) { echo 'has-error';} ?>">
                                     <label for="bank_account_no" class="col-md-4">Account No *</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control"  id="bank_account_no" name="bank_account_no" value = "<?php echo set_value('bank_account_no');  ?>" placeholder="Enter Account Number" >
+                                        <input type="text" class="form-control"  id="bank_account_no" name="bank_account_no" value = "<?php echo isset($data[0]['bank_ac_no'])?$data[0]['bank_ac_no']:set_value('bank_ac_no');  ?>" placeholder="Enter Account Number" >
                                     </div>
                                      <?php echo form_error('bank_account_no'); ?>
                                      <span id="bank_account_no1" style="color: red; "></span>
@@ -178,7 +196,7 @@
                                     <label for="bank_name" class="col-md-4">Bank Name *</label>
                                     <div class="col-md-6">
                                   
-                                    <input type="text" class="form-control"  id="bank_name" name="bank_name" value = "<?php echo set_value('bank_name');  ?>" placeholder="Enter Bank Name" >
+                                    <input type="text" class="form-control"  id="bank_name" name="bank_name" value = "<?php echo isset($data[0]['bank_name'])?$data[0]['bank_name']:set_value('bank_name');  ?>" placeholder="Enter Bank Name" >
 
                                     </div>
                                     <span id="errmsg1"></span>
@@ -188,7 +206,7 @@
                                 <div class="form-group <?php if( form_error('bank_ifsc_code') ) { echo 'has-error';} ?>">
                                     <label for="bank_ifsc_code" class="col-md-4">IFSC Code *</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control"  id="bank_ifsc_code" name="bank_ifsc_code" value = "<?php echo set_value('bank_ifsc_code');  ?>" placeholder="Enter Bank IFSC code" >
+                                        <input type="text" class="form-control"  id="bank_ifsc_code" name="bank_ifsc_code" value = "<?php echo isset($data[0]['bank_ifsc_code'])?$data[0]['bank_ifsc_code']:set_value('bank_ifsc_code');  ?>" placeholder="Enter Bank IFSC code" >
                                     </div>
                                     <?php echo form_error('bank_ifsc_code'); ?>
                                 </div>
@@ -200,7 +218,9 @@
                 </div>
             </div>
             <div class="col-md-4 col-md-offset-4" style="margin-bottom: 50px;">
-            <input type="submit" class="form-control btn btn-md btn-primary"  onclick="return validate_bank_ac()" value="Save Engineer"></input>
+                <center>
+            <input type="submit" class="btn btn-primary"  onclick="return validate_bank_ac()" value="<?php echo isset($data)?'Update Engineer':'Save Engineer'?>" />
+            <a href='<?php echo base_url()?>service_center/get_engineers' class='btn btn-primary' >Cancel</a></center>
             </div>
             
         </form>
@@ -208,6 +228,7 @@
 </div>
 <?php $this->session->unset_userdata('success'); ?>
 <?php $this->session->unset_userdata('error'); ?>
+<?php $this->session->unset_userdata('update_error'); ?>
 <script type="text/javascript">
     $("#service_center_id").select2();
     
