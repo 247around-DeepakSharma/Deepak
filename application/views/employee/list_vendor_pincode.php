@@ -46,7 +46,7 @@
                     }
                     ?>
          		<div class="row">
-               <form name="myForm" class="form-horizontal" id ="vendor_form"   method="POST" enctype="form-data">
+                            <form name="myForm" class="form-horizontal" id ="vendor_form"   method="POST" enctype="form-data" onsubmit="return validate()">
          			<div class="container">
          			<div class="col-md-12">
 
@@ -160,5 +160,44 @@ $(document).ready(function(){
       }    
   });
 });
+
+function validate(){
+    var check_0 = document.getElementById('check_0');
+    var check_1 = document.getElementById('check_1');
+    var check_2 = document.getElementById('check_2');
+    var check_3 = document.getElementById('check_3');
+    var check_4 = document.getElementById('check_4');
+    if($('#service_id_0').val() || $('#pincode_0').val() || $('#vendor_0').val()){
+        if(!check_0.checked){
+          alert('Please select CheckBox 1');
+            return false;
+        }
+    }
+    if($('#service_id_1').val() || $('#pincode_1').val() || $('#vendor_1').val()){
+        if(!check_1.checked){
+         alert('Please select CheckBox 2');
+            return false;  
+        }
+    }
+    if($('#service_id_2').val() || $('#pincode_2').val()  || $('#vendor_2').val() ){
+        if(!check_2.checked){
+           alert('Please select CheckBox 3');
+            return false;
+        }
+    }
+    if($('#service_id_3').val() || $('#pincode_3').val() || $('#vendor_3').val() ){
+        if(!check_3.checked){
+            alert('Please select CheckBox 4');
+            return false;
+        }
+    }
+      if($('#service_id_4').val() || $('#pincode_4').val() || $('#vendor_4').val() ){
+        if(!check_4.checked){
+            alert('Please select CheckBox 5');
+            return false;
+        }
+    }
+
+}
 
 </script>
