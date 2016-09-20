@@ -89,14 +89,15 @@ class Do_background_upload_excel extends CI_Controller {
             
             array_push($data, $rowData);
         }
-       // print_r($data);
-
+    
        $validate_data =  $this->validate_phone_number($data);
        $row_data1 =  $this->validate_product($validate_data);
        $row_data2 = $this->validate_delivery_date($row_data1, $file_type);
+       print_r($row_data2);
        $row_data =  $this->validate_pincode($row_data2);
+      // print_r($row_data);
 
-       foreach ($row_data as $key => $value) {
+       foreach ($row_data['valid_data'] as $key => $value) {
            //echo print_r($rowData[0], true), EOL;
             if ($value['Phone'] == "") {
             //echo print_r("Phone number null, break from this loop", true), EOL;
@@ -104,8 +105,8 @@ class Do_background_upload_excel extends CI_Controller {
             }
 
             //Insert user if phone number doesn't exist
-           $output = $this->user_model->search_user(trim($row['Phone']));
-           $state = $this->vendor_model->get_state_from_pincode($row['Pincode']);
+           $output = $this->user_model->search_user(trim($value['Phone']));
+           $state = $this->vendor_model->get_state_from_pincode($value['Pincode']);
 
             if (empty($output)) {
                 //User doesn't exist
@@ -225,7 +226,7 @@ class Do_background_upload_excel extends CI_Controller {
                         $booking['booking_timeslot'] = '';
                         $booking['request_type'] = 'Installation & Demo';
                         $booking['delivery_date'] = $dateObj2->format('Y-m-d H:i:s');
-                        $booking['estimated_delivery_date'] = $dateObj2->format('d/m/Y');
+                        $booking['estimated_delivery_date'] = $dateObj2->format('Y-m-d');
                         $booking['booking_primary_contact_no'] = $value['Phone'];
                         $booking['current_status'] = "FollowUp";
                         $booking['internal_status'] = "FollowUp";
@@ -236,7 +237,18 @@ class Do_background_upload_excel extends CI_Controller {
                         $booking['state'] = $state['state'];
                         $booking['quantity'] = '1';
                         $booking_details_id = $this->booking_model->addbooking($booking);
-                        if($booking_details_id){} else {
+                        if($booking_details_id){
+                            $this->notify->insert_state_change($booking['booking_id'], "FollowUp", "New_Query", $this->session->userdata('id'), $this->session->userdata('employee_id'));
+                            if($file_type == "shipped"){
+                               if(date("Y-m-d", strtotime("+1 day")) == $booking['estimated_delivery_date']){
+                                    $sms['tag'] = "missed_call_sd_sms";
+                                    $sms['phone_no'] = $booking['booking_primary_contact_no'];
+                                    $sms['smsData']['service'] = $booking['services'];
+                                    $this->notify->send_sms($sms);
+                               } 
+                                
+                            }
+                        } else {
 
                              log_message('info', __FUNCTION__ . ' =>  Booking is not inserted in booking details: ' . print_r($value, true));
 
@@ -252,11 +264,6 @@ class Do_background_upload_excel extends CI_Controller {
                         }
 
                         $this->insert_booking_in_partner_leads($booking, $unit_details,$user, $value['Product'] );
-
-                        $this->notify->insert_state_change($booking['booking_id'], "FollowUp", "New_Query", $this->session->userdata('id'), $this->session->userdata('employee_id'));
-
-                        // $userSession = array('success' => 'Please enter correct user name and password');
-                        // $this->session->set_userdata($userSession);
 
                         //Reset
                         unset($appliance_details);
@@ -308,6 +315,7 @@ class Do_background_upload_excel extends CI_Controller {
             }
 
         }
+
         if(isset($row_data['error'])){
             $this->get_invalid_data($row_data['error']);
         }
@@ -326,6 +334,7 @@ class Do_background_upload_excel extends CI_Controller {
      */
     function validate_phone_number($data){
         $invalid_data = array();
+        $valid_data = array();
         foreach ($data as $key => $value) {
             
             if(count($invalid_data) > 4){
@@ -349,13 +358,13 @@ class Do_background_upload_excel extends CI_Controller {
             $data['error']['reason_phone'] = "Phone Number is not valid";
             $data['error']['validate_phone'] =  $invalid_data;
         }
-
-        return $data;
+        $valid_data['valid_data'] = $data;
+        return $valid_data;
     }
 
     function validate_product($data){
         $invalid_data = array();
-        foreach($data as $key => $value){
+        foreach($data['valid_data'] as $key => $value){
             $flag = 0;
             if(count($invalid_data) > 4){
 
@@ -393,19 +402,19 @@ class Do_background_upload_excel extends CI_Controller {
 
             if (stristr($prod, "microwave cooking")) {
                 $flag = 1;
-                unset($data[$key]);
+                unset($data['valid_data'][$key]);
                 array_push($invalid_data, $value);
             }
 
             if (stristr($prod, "Tds Meter")) {
                 $flag = 1;
-                unset($data[$key]);
+                unset($data['valid_data'][$key]);
                 array_push($invalid_data, $value);
             }
 
             if (stristr($prod, "Accessories")) {
                 $flag = 1;
-                unset($data[$key]);
+                unset($data['valid_data'][$key]);
                 array_push($invalid_data, $value);
             }
 
@@ -413,10 +422,10 @@ class Do_background_upload_excel extends CI_Controller {
                 $service_id =  $this->booking_model->getServiceId($prod);
                 if($service_id){
 
-                    $data[$key]['service_id'] = $service_id;
+                    $data['valid_data'][$key]['service_id'] = $service_id;
 
                 } else {
-                    unset($data[$key]);
+                    unset($data['valid_data'][$key]);
                     array_push($invalid_data, $value);
                 }
             } 
@@ -437,7 +446,7 @@ class Do_background_upload_excel extends CI_Controller {
      */
     function validate_pincode($data){
         $invalid_data = array();
-        foreach ($data as $key => $value) {
+        foreach ($data['valid_data'] as $key => $value) {
             if(count($invalid_data) > 4){
 
                 $status['reason'] = " Pincode is not valid in File";
@@ -448,7 +457,7 @@ class Do_background_upload_excel extends CI_Controller {
             // check pincode is 6 digit
             if(!preg_match('/^\d{6}$/',$value['Pincode'])) {
 
-                unset($data[$key]);
+                unset($data['valid_data'][$key]);
                 array_push($invalid_data, $value);
             } 
         }
@@ -473,19 +482,19 @@ class Do_background_upload_excel extends CI_Controller {
         $invalid_data = array();
         $future_date = 0;
         $past_date = 0;
-        foreach ($data as $key => $value) {
+        foreach ($data['valid_data'] as $key => $value) {
             $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
             if(count($invalid_data) > 4){
 
-                $status['reason'] = " Delivery is not valid in Excel data";
+                $status['reason'] = " Delivery Date is not valid in Excel data";
                 $status['validate'] =  $invalid_data;
                 $this->get_invalid_data($status);
                 exit();
-            }
+            }                 
             if($file_type == "delivered"){
                  if(date('Y-m-d') < $dateObj2->format('Y-m-d')) {
                     //Future Date
-                    unset($data[$key]);
+                    unset($data['valid_data'][$key]);
                     array_push($invalid_data, $value);
                  } 
 
@@ -510,69 +519,20 @@ class Do_background_upload_excel extends CI_Controller {
             $data['error']['count_past_delivery_date'] = $past_date;
             $data['error']['count_future_delivery_date'] = $future_date;
         }
+
         return $data;
     }
     
     function get_invalid_data($invalid_data_with_reason){
         
         $to = "anuj@247around.com";
-        //$to = "abhaya@247around.com";
+      //  $to = "abhaya@247around.com";
         $from = "booking@247around.com";
         $cc = "";
         $bcc = "";
         $subject = 'Invalidate Data in Excel File';
         $message = json_encode($invalid_data_with_reason);
         $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
-    }
-
-    function send_sms($product){
-        //Send SMS to customer about free installation
-        switch ($product) {
-            case 'Washing Machine':
-            $sms['tag'] = "sd_shipped_free";
-            $sms['smsData']['service'] = 'Washing Machine';
-            $sms['smsData']['message'] = 'free installation';
-            break;
-
-            case 'Refrigerator':
-            $sms['tag'] = "sd_shipped_free";
-            $sms['smsData']['service'] = 'Refrigerator';
-            $sms['smsData']['message'] = 'free installation';
-            break;
-
-            case 'Microwave':
-            $sms['tag'] = "sd_shipped_free";
-            $sms['smsData']['service'] = 'Microwave';
-            $sms['smsData']['message'] = 'free installation';
-            break;
-
-            case 'Television':
-            $sms['tag'] = "sd_shipped_free";
-            $sms['smsData']['service'] = 'TV';
-            $sms['smsData']['message'] = 'free installation and wall-mounted stand';
-            break;
-
-            case 'Water Purifier':
-            $sms['tag'] = "sd_shipped_free";
-            $sms['smsData']['service'] = 'Water Purifier';
-            $sms['smsData']['message'] = 'free installation';
-            break;
-
-            case 'Air Conditioner':
-            $sms['tag'] = "sd_shipped_ac";
-
-            if ($ac_type == 'Window') {
-                $sms['smsData']['message'] = 'Rs550';
-            } else {
-                $sms['smsData']['message'] = 'Rs1400';
-            }
-
-            break;
-
-            default:
-            break;
-        }
-        
     }
 
      /**
