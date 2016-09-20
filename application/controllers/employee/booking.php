@@ -1603,12 +1603,8 @@ class Booking extends CI_Controller {
      * return: Array of Data for View
      */
     function get_booking_life_cycle($booking_id){
-        //Trimming Booking to search data only from Digits
-        $data = array();
-        $this->load->model('service_model');
-        $this->load->model('employee_model');
         $data['data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
-        $data['booking_details'] = $this->booking_model->getbooking($booking_id);
+        $data['booking_details'] = $this->booking_model->getbooking_history($booking_id);
         
         $this->load->view('employee/header');
         $this->load->view('employee/show_booking_life_cycle', $data);

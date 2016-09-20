@@ -1773,7 +1773,7 @@ class Booking_model extends CI_Model {
      */
     function get_booking_state_change_by_id($booking_id){
         
-        $trimed_booking_id = explode('S-',$booking_id)[1];
+        $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
         $this->db->select('*');
         $this->db->like('booking_id',$trimed_booking_id);
         $this->db->order_by('id');

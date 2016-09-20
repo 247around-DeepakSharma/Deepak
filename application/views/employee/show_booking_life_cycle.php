@@ -1,5 +1,4 @@
 <script type="text/javascript" src="<?php echo base_url();?>js/jquery-1.3.2.min.js"></script>
-<?php //echo '<pre>';print_r($booking_details);echo '</pre>';exit;?>
 <div  id="page-wrapper">
     <div class="row">
        
@@ -13,14 +12,14 @@
                     <div class="form-group-space">
                         <label for="booking_id" class="col-md-4">Booking ID</label>
                         <div class="col-md-8">
-                        <input type="text" class="form-control"  name="phone_number" value = "<?php echo $booking_details[0]['booking_id']?>"  disabled>
+                        <input type="text" class="form-control"  name="phone_number" value = "<?php echo isset($booking_details[0]['booking_id'])?$booking_details[0]['booking_id']:''?>"  disabled>
                         </div>
                     </div>
                     
                     <div class="form-group-space">
                         <label for="name" class="col-md-4">Booking Date</label>
                         <div class="col-md-8">
-                        <input type="text" class="form-control"  name="name" value = "<?php echo $booking_details[0]['booking_date']?>"  disabled>
+                        <input type="text" class="form-control"  name="name" value = "<?php echo isset($booking_details[0]['booking_date'])?$booking_details[0]['booking_date']:''?>"  disabled>
                         </div>
                     </div>
                     
@@ -31,13 +30,13 @@
                     <div class="form-group-space">
                         <label for="service" class="col-md-4">Service</label>
                         <div class="col-md-8">
-                            <input type="text" class="form-control"  name="service" value = "<?php echo $this->service_model->getserviceid($booking_details[0]['service_id'])[0]['services']?>"  disabled>
+                            <input type="text" class="form-control"  name="service" value = "<?php echo isset($booking_details[0]['services'])?$booking_details[0]['services']:''?>"  disabled>
                         </div>
                     </div>
                     <div class="form-group-space">
                         <label for="service" class="col-md-4">Booking Time Slot</label>
                         <div class="col-md-8">
-                        <input type="text" class="form-control"  name="service" value = "<?php echo $booking_details[0]['booking_timeslot']?>"  disabled>
+                        <input type="text" class="form-control"  name="service" value = "<?php echo isset($booking_details[0]['booking_timeslot'])?$booking_details[0]['booking_timeslot']:''?>"  disabled>
                         </div>
                     </div>
                     
@@ -77,4 +76,5 @@
           <?php } ?>
           </div>
         </table>
-</div>      
+</div> 
+</div>
