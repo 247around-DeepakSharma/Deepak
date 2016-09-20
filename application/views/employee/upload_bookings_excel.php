@@ -61,7 +61,7 @@ function submitForm() {
     //console.log(data);
       
   });
-    window.location.assign("<?php echo base_url(); ?>employee/user");
+    alert('File is under Process');
   //window.open('<?php echo base_url(); ?>employee/user');    
 }
 </script>
