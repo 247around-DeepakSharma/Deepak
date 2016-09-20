@@ -41,7 +41,7 @@
                     <br>
                 </div>
                 <div class="col-md-12"><h3>Booking Details</h3>
-                    <a href="<?php echo base_url()?>employee/booking/get_booking_life_cycle/<?php echo $booking_history[0]['booking_id']?>" class="btn btn-info" style="margin-left:87%;margin-top:-5%;" target="_blank">View Booking Life Cycle</a>
+                    <a href="<?php echo base_url()?>employee/booking/get_booking_life_cycle/<?php echo $booking_history[0]['booking_id']?>" class="btn btn-info" style="margin-left:87%;margin-top:-5%;" target="_blank">View Booking History</a>
                 </div>
                 <div class="col-md-6">
                     <table class="table  table-striped table-bordered" >

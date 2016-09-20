@@ -3,7 +3,7 @@
     <div class="row">
        
         <div class="panel panel-info clear">
-            <div class="panel-heading"><center><strong>Booking Life Cycle Details</strong></center></div>
+            <div class="panel-heading"><center><strong>Booking History</strong></center></div>
         </div>
         <div>
             <div class="col-md-12 " style="margin-bottom: 15px;">
