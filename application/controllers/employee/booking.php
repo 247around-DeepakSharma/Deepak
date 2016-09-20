@@ -1073,6 +1073,7 @@ class Booking extends CI_Controller {
      * @return : void
      */
     function get_edit_booking_form($booking_id, $appliance_id = "") {
+        $data['booking_id'] = $booking_id;
 	log_message('info', __FUNCTION__ . " Appliance ID  " . print_r($appliance_id, true) . " Booking ID: " . print_r($booking_id, true));
 	if ($booking_id != "") {
 	    $booking_history = $this->booking_model->getbooking_history($booking_id);
@@ -1114,7 +1115,7 @@ class Booking extends CI_Controller {
 	}
 
 	$this->load->view('employee/header');
-	$this->load->view('employee/addbookingmodel');
+	$this->load->view('employee/addbookingmodel',$data);
 	$this->load->view('employee/update_booking', $booking);
     }
 
@@ -1594,6 +1595,23 @@ class Booking extends CI_Controller {
 	$this->booking_model->change_booking_status($booking_id);
 
 	redirect(base_url() . 'employee/booking/view_queries/FollowUp/0/0/' . $booking_id);
+    }
+    /**
+     * @desc: This is used to show Booking Life Cycle of particular Booking
+     * params: String Booking_ID
+     * return: Array of Data for View
+     */
+    function get_booking_life_cycle($booking_id){
+        //Trimming Booking to search data only from Digits
+        $data = array();
+        $this->load->model('service_model');
+        $this->load->model('employee_model');
+        $data['data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
+        $data['booking_details'] = $this->booking_model->getbooking($booking_id);
+        
+        $this->load->view('employee/header');
+        $this->load->view('employee/show_booking_life_cycle', $data);
+        
     }
 
 }
