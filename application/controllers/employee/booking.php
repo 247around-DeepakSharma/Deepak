@@ -1075,7 +1075,6 @@ class Booking extends CI_Controller {
      * @return : void
      */
     function get_edit_booking_form($booking_id, $appliance_id = "") {
-        $data['booking_id'] = $booking_id;
 	log_message('info', __FUNCTION__ . " Appliance ID  " . print_r($appliance_id, true) . " Booking ID: " . print_r($booking_id, true));
 	if ($booking_id != "") {
 	    $booking_history = $this->booking_model->getbooking_history($booking_id);
@@ -1117,7 +1116,7 @@ class Booking extends CI_Controller {
 	}
 
 	$this->load->view('employee/header');
-	$this->load->view('employee/addbookingmodel',$data);
+	$this->load->view('employee/addbookingmodel');
 	$this->load->view('employee/update_booking', $booking);
     }
 

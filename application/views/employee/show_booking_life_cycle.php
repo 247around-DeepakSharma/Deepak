@@ -7,11 +7,7 @@
             <div class="panel-heading"><center><strong>Booking Life Cycle Details</strong></center></div>
         </div>
         <div>
-            <div class="panel panel-default">
-            <div class="panel-heading"><strong>Booking Details</strong></div>
-            </div>
-            <div class="col-md-12">
-                    <div class="container">
+            <div class="col-md-12 " style="margin-bottom: 15px;">
                 <div class="col-md-6">
                     
                     <div class="form-group-space">
@@ -48,13 +44,11 @@
                 </div>
             
             </div>
-            </div>
         </div>
         
         <div class="panel panel-default clear">
             <div class="panel-heading"><strong>State Transitions</strong></div>
         </div>  
-        <div style="min-height:auto;max-height: 520px;overflow-y : scroll;margin-bottom: 30px;">
         <table  class="table table-striped table-bordered">
           <tr>
                 <th>S.N</th>
@@ -83,5 +77,4 @@
           <?php } ?>
           </div>
         </table>
-    </div>
 </div>      
