@@ -782,37 +782,7 @@ ALTER TABLE  `booking_state_change` ADD  `partner_id` INT( 10 ) NOT NULL AFTER  
 
 <-- Belal 19Sept -->
 
-CREATE TABLE `partners` (
- `id` int(11) NOT NULL AUTO_INCREMENT,
- `company_name` varchar(100) NOT NULL,
- `public_name` varchar(100) NOT NULL,
- `address` varchar(100) NOT NULL,
- `district` varchar(50) NOT NULL,
- `state` varchar(50) NOT NULL,
- `pincode` varchar(10) DEFAULT NULL,
- `landmark` varchar(500) DEFAULT NULL,
- `registration_number` varchar(50) DEFAULT NULL,
- `primary_contact_name` varchar(50) DEFAULT NULL,
- `primary_contact_email` varchar(50) DEFAULT NULL,
- `primary_contact_phone_1` varchar(20) DEFAULT NULL,
- `primary_contact_phone_2` varchar(20) DEFAULT NULL,
- `owner_name` varchar(50) DEFAULT NULL,
- `owner_email` varchar(50) DEFAULT NULL,
- `owner_phone_1` varchar(20) DEFAULT NULL,
- `owner_phone_2` varchar(20) DEFAULT NULL,
- `invoice_email_to` varchar(50) DEFAULT NULL,
- `invoice_email_cc` varchar(100) DEFAULT NULL,
- `invoice_email_bcc` varchar(100) DEFAULT NULL,
- `summary_email_to` varchar(50) DEFAULT NULL,
- `summary_email_cc` varchar(100) DEFAULT NULL,
- `summary_email_bcc` varchar(100) DEFAULT NULL,
- `auth_token` varchar(100) NOT NULL,
- `is_active` varchar(1) NOT NULL,
- `is_verified` varchar(1) NOT NULL,
- `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
- PRIMARY KEY (`id`),
- UNIQUE KEY `auth_token` (`auth_token`)
-) ENGINE=InnoDB AUTO_INCREMENT=247012 DEFAULT CHARSET=latin1 COMMENT='e-comm partners';
+ALTER TABLE `partners`  ADD `address` VARCHAR(100) NOT NULL  AFTER `public_name`,  ADD `district` VARCHAR(50) NOT NULL  AFTER `address`,  ADD `state` VARCHAR(50) NOT NULL  AFTER `district`,  ADD `pincode` VARCHAR(10) NOT NULL  AFTER `state`,  ADD `landmark` VARCHAR(500) NOT NULL  AFTER `pincode`,  ADD `registration_number` VARCHAR(50) NOT NULL  AFTER `landmark`,  ADD `primary_contact_name` VARCHAR(50) NOT NULL  AFTER `registration_number`,  ADD `primary_contact_email` VARCHAR(50) NOT NULL  AFTER `primary_contact_name`,  ADD `primary_contact_phone_1` VARCHAR(20) NOT NULL  AFTER `primary_contact_email`,  ADD `primary_contact_phone_2` VARCHAR(20) NOT NULL  AFTER `primary_contact_phone_1`,  ADD `owner_name` VARCHAR(50) NOT NULL  AFTER `primary_contact_phone_2`,  ADD `owner_email` VARCHAR(50) NOT NULL  AFTER `owner_name`,  ADD `owner_phone_1` VARCHAR(20) NOT NULL  AFTER `owner_email`,  ADD `owner_phone_2` VARCHAR(20) NOT NULL  AFTER `owner_phone_1`,  ADD `invoice_email_to` VARCHAR(50) NOT NULL  AFTER `owner_phone_2`,  ADD `invoice_email_cc` VARCHAR(100) NOT NULL  AFTER `invoice_email_to`,  ADD `invoice_email_bcc` VARCHAR(100) NOT NULL  AFTER `invoice_email_cc`,  ADD `summary_email_to` VARCHAR(50) NOT NULL  AFTER `invoice_email_bcc`,  ADD `summary_email_cc` VARCHAR(100) NOT NULL  AFTER `summary_email_to`,  ADD `summary_email_bcc` VARCHAR(100) NOT NULL  AFTER `summary_email_cc`;
 
 CREATE TABLE `sms_sent_details` (
  `id` int(10) NOT NULL AUTO_INCREMENT,
