@@ -241,7 +241,7 @@ class Do_background_upload_excel extends CI_Controller {
                             $this->notify->insert_state_change($booking['booking_id'], "FollowUp", "New_Query", $this->session->userdata('id'), $this->session->userdata('employee_id'));
                             if($file_type == "shipped"){
                                if(date("Y-m-d", strtotime("+1 day")) == $booking['estimated_delivery_date']){
-                                    $sms['tag'] = "missed_call_sd_sms";
+                                    $sms['tag'] = "new_snapdeal_booking";
                                     $sms['phone_no'] = $booking['booking_primary_contact_no'];
                                     $sms['smsData']['service'] = $booking['services'];
                                     $this->notify->send_sms($sms);
