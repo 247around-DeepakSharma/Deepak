@@ -645,7 +645,7 @@ class Booking extends CI_Controller {
      *  @param : booking id
      *  @return : cancels the booking and load view
      */
-    function process_cancel_form($booking_id) {
+    function process_cancel_form($booking_id, $status) {
 	log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
 	$data['cancellation_reason'] = $this->input->post('cancellation_reason');
 	$data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
@@ -673,12 +673,14 @@ class Booking extends CI_Controller {
 	//Log this state change as well for this booking
 	//param:-- booking id, new state, old state, employee id, employee name
 	$this->notify->insert_state_change($booking_id, $data['current_status'], "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
-
-	// this is used to send email or sms while booking cancelled
-	$url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-	$send['booking_id'] = $booking_id;
-	$send['state'] = $data['current_status'];
-	$this->asynchronous_lib->do_background_process($url, $send);
+	// Not send Cancallation sms to customer for Query booking
+    if($status != "FollowUp"){
+		// this is used to send email or sms while booking cancelled
+		$url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+		$send['booking_id'] = $booking_id;
+		$send['state'] = $data['current_status'];
+		$this->asynchronous_lib->do_background_process($url, $send);
+    }
 	// call partner callback
 	$this->partner_cb->partner_callback($booking_id);
 

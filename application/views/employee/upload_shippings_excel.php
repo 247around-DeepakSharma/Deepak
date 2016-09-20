@@ -52,7 +52,7 @@ function submitForm() {
   var fd = new FormData(document.getElementById("fileinfo"));
   fd.append("label", "WEBUPLOAD");
   $.ajax({
-      url: "<?php echo base_url()?>employee/bookings_excel/add_snapdeal_shipped_products_from_excel/shipped",
+      url: "<?php echo base_url()?>employee/do_background_upload_excel/upload_snapdeal_file/shipped",
       type: "POST",
       data: fd,
       processData: false,  // tell jQuery not to process the data
@@ -61,7 +61,8 @@ function submitForm() {
     console.log(data);
       
   });
-  window.location.assign("<?php echo base_url(); ?>employee/user");
+  alert('File is under Process');
+  //window.location.assign("<?php echo base_url(); ?>employee/user");
   //window.open('<?php echo base_url(); ?>employee/user');     
   
 }
