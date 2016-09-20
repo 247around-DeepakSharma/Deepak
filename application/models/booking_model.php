@@ -1765,5 +1765,21 @@ class Booking_model extends CI_Model {
         $this->db->insert('sms_sent_details', $data);
         return $this->db->insert_id();
     }
+    /**
+     * @desc: This is used to get Booking_state_change data
+     * params: String Booking ID
+     * return: Array of data
+     * 
+     */
+    function get_booking_state_change_by_id($booking_id){
+        
+        $trimed_booking_id = explode('S-',$booking_id)[1];
+        $this->db->select('*');
+        $this->db->like('booking_id',$trimed_booking_id);
+        $this->db->order_by('id');
+        $query = $this->db->get('booking_state_change');
+        return $query->result_array();
+        
+    }
 
 }

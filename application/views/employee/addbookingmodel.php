@@ -6,6 +6,7 @@
          <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal">&times;</button>
             <h4 class="modal-title">Please Verify All Booking Details</h4>
+            <a href="<?php echo base_url()?>employee/booking/get_booking_life_cycle/<?php echo isset($booking_id)?$booking_id:''?>" class="btn btn-info" style="margin-left:76%;margin-top:-5%;" target="_blank">View Booking Life Cycle</a>
          </div>
          <div class="modal-body col-md-12">
             <table class="table table-bordered">
@@ -72,7 +73,7 @@
                                  <tr>
                                     <th>Capacity</th>
                                     <td id="bcapacity_1"></td>
-                                    <th>Model NUmber</th>
+                                    <th>Model Number</th>
                                     <td id="bmodel_1"></td>
                                  </tr>
 

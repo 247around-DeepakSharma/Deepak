@@ -28,6 +28,10 @@
     margin-bottom:30px;
     padding-bottom: 15px;
 }
+.form-group-space{
+    margin-bottom:30px;
+    padding-bottom: 15px;
+}
 
 #grand_total_price{
     z-index: 1;
