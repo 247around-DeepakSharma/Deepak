@@ -1219,10 +1219,39 @@ class Api extends CI_Controller {
         $num = substr($callDetails['from_number'], '-10');
         //var_dump($num);
 
+	//User could give missed call on 011-30017601 to verify the App
+	//as well as to confirm her istallation. Try both steps below and then
+	//leave.
 	//If user has given a missed call on 011-30017601 to verify the App,
-	//verify the user no in the database. Else skip this step
-	if ($callDetails['To'] == '01130017601')
+	//verify the user no in the database.
+	//Also, If user has given a missed call on 011-30017601 to confirm installation,
+	//tag the booking accordingly.
+	if ($callDetails['To'] == '01130017601') {
+	    //verify user phone no first
 	    $this->apis->verifyUserNumber($num);
+
+	    //find all pending queries for this user now
+	    $bookings = $this->user_model->booking_history($num, 100, 0);
+
+	    //change internal status to show missed call activity if it is
+	    //a pending query waiting for confirmation and user has given missed
+	    //call to confirm the installation
+	    foreach ($bookings as $b) {
+		if ($b['type'] === 'Query' AND $b['current_status'] === 'FollowUp') {
+		    $d = array('internal_status' => 'Missed_call_confirmed',
+			'booking_date' => '', 'booking_timeslot' => '',
+			'query_remarks' => 'Missed call received, Convert to Booking NOW !!!');
+		    $r = $this->booking_model->update_booking($b['booking_id'], $d);
+
+		    if ($r === FALSE) {
+			log_message('info', __METHOD__ . '=> Booking confirmation '
+			    . 'through missed call failed for ' . $b['booking_id']);
+
+			//Send email
+		    }
+		}
+	    }
+	}
 
 	$this->output->set_header("HTTP/1.1 200 OK");
     }
