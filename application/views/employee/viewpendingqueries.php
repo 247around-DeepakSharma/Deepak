@@ -129,9 +129,7 @@ function outbound_call(phone_number){
                     <?php $count = 1; if($offset ==0){ $offset = 1;} else { $offset = $offset+1; } ?>
                     <?php foreach($Bookings as $key =>$row){?>
 
-                    <tr <?php if (isset($row->OrderID)) { if($row->OrderID !=null) { ?>
-                                style="background-color:#EC8484"
-                        <?php }  }?> >
+                    <tr <?php if($row->internal_status == "Missed_call_confirmed"){ ?> style="background-color:rgb(0,255,0); color:#000;"<?php } ?> >
                     <td><?php echo $offset; ?></td>
 
                 <td><?= $row->booking_id; ?></td>

@@ -183,9 +183,7 @@
                 </thead>
                 <?php  if($offset ==0){ $offset = 1;} else { $offset = $offset+1; } ?>
                 <?php foreach($Bookings as $key =>$row){ if($row->current_status == "FollowUp") {?>
-                <tr <?php if (isset($row->OrderID)) { if($row->OrderID !=null) { ?>
-                    style="background-color:#EC8484"
-                    <?php }  }?> >
+                 <tr <?php if($row->internal_status == "Missed_call_confirmed"){ ?> style="background-color:rgb(0,255,0); color:#000;"<?php } ?> >
                     <td><?php echo $count; ?></td>
                     <td><?= $row->booking_id; ?></td>
                     <td><a target='_blank' href="<?php echo base_url(); ?>employee/user/finduser/0/0/<?php echo $row->phone_number; ?>"><?php echo $row->customername; ?></a></td>
@@ -203,7 +201,7 @@
                     <td><?= $row->city; ?></td>
                     <?php if($row->vendor_status =="Vendor Not Available"){ ?>
                     <td>
-                         <td><a href="<?php echo base_url().'employee/vendor/get_add_vendor_to_pincode_form/'.$row->booking_pincode.'/'.$row->services.'/'.$row->service_id.'/'.$row->city.'/'.$row->appliance_brand;?>" style="color: red;"><?php print_r($row->vendor_status); ?></a></td>
+                         <a href="<?php echo base_url().'employee/vendor/get_add_vendor_to_pincode_form/'.$row->booking_pincode.'/'.$row->services.'/'.$row->service_id.'/'.$row->city.'/'.$row->appliance_brand;?>" style="color: red;"><?php print_r($row->vendor_status); ?></a>
                     </td>
                     <?php } else { ?>
                     <td>
