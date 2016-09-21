@@ -79,18 +79,19 @@ class vendor extends CI_Controller {
                 redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
             } else {
                 // get service center code by calling generate_service_center_code() method
-                $email = $this->input->post('email');
+                $owner_email = $this->input->post('owner_email');
                 $primary_contact_email = $this->input->post('primary_contact_email');
-                $to = $email.','.$primary_contact_email;
+                $to = $owner_email.','.$primary_contact_email;
                 
-                $subject = "247around - Closure of Bookings";
+                $subject = "Welcome to 247around";
                 $message = "Dear Partner,<br><br>"
-                        . "As informed earlier, serial number of appliance is mandatory to be entered in the system while closure. All bookings without serial numbers will be cancelled.<br><br> "
-                        . "In case serial number is not found on the appliance you need to bring one of the following.<br> "
-                        . "1st Option Serial Number Of Appliance<br><br>"
-                        . "2nd Option Invoice Number Of The Appliance<br><br>"
-                        . "3rd Option Customer ID Card Number - PAN / Aadhar / Driving License<br><br>"
-                        . "No completion will be allowed to without one of the above.<br><br><br>"
+                        . "247around welcomes you to its Partner Network, we hope to have a long lasting relationship with you.<br><br>"
+                        . "As informed earlier, serial number of appliance is mandatory when you close a booking. All bookings without serial numbers will be cancelled.<br><br> "
+                        . "Engineer has to note the serial number when installation is done. In case serial number is not found on the appliance, he needs to bring one of the following proofs:<br><br> "
+                        . "1st Option : Serial Number Of Appliance<br><br>"
+                        . "2nd Option : Invoice Number Of The Appliance<br><br>"
+                        . "3rd Option : Customer ID Card Number - PAN / Aadhar / Driving License etc.<br><br>"
+                        . "No completion will be allowed without any one of the above. For any confusion, write to us or call us.<br><br><br>"
                         . "Regards,<br>"
                         . "247around Team";
                 
@@ -99,10 +100,10 @@ class vendor extends CI_Controller {
                 //if vendor do not exists, vendor is added
                 $sc_id = $this->vendor_model->add_vendor($_POST);
 
-		        $this->sendWelcomeSms($_POST['primary_contact_phone_1'], $_POST['name'],$sc_id);
+                $this->sendWelcomeSms($_POST['primary_contact_phone_1'], $_POST['name'],$sc_id);
                 $this->sendWelcomeSms($_POST['owner_phone_1'], $_POST['owner_name'],$sc_id);
 
-                $this->notify->sendEmail("booking@247around.com", $to , 'anuj@247around.com', '', $subject , $message, "");
+                $this->notify->sendEmail("booking@247around.com", $to , 'anuj@247around.com, nits@247around.com', '', $subject , $message, "");
 
 		  //create vendor login details as well
 		   $sc_login_uname = strtolower($_POST['sc_code']);
