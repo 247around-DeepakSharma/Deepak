@@ -287,19 +287,19 @@ class Do_background_upload_excel extends CI_Controller {
                 //If the booking query remarks or internal status has been changed, then also leave it.
                 //Update delivery date in both the cases
                 $dateObj = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
-                $data['delivery_date'] = $dateObj->format('Y-m-d H:i:s');
+                $update_data['delivery_date'] = $dateObj->format('Y-m-d H:i:s');
 
                 if ($status == 'FollowUp' && $int_status == 'FollowUp') {
-                    $data['booking_date'] = '';
-                    $data['booking_timeslot'] = '';
+                    $update_data['booking_date'] = '';
+                    $update_data['booking_timeslot'] = '';
                 }
 
                 log_message('info', __FUNCTION__ . 'Update Partned Lead (Delivered): ' .
-                        print_r(array($partner_booking['booking_id'], $data), true));
+                        print_r(array($partner_booking['booking_id'], $update_data), true));
 
-                $this->booking_model->update_booking($partner_booking['booking_id'], $data);
+                $this->booking_model->update_booking($partner_booking['booking_id'], $update_data);
 
-                unset($data);
+                unset($update_data);
             }
         }
 
@@ -323,8 +323,8 @@ class Do_background_upload_excel extends CI_Controller {
 
             if (count($invalid_data) > 4) {
 
-                $status['reason'] = "Phone Number is not valid";
-                $status['validate'] = $invalid_data;
+                $status['reason_phone'] = "Phone Number is not valid";
+                $status['validate_phone'] = $invalid_data;
                 $this->get_invalid_data($status);
                 exit();
             }
@@ -353,12 +353,13 @@ class Do_background_upload_excel extends CI_Controller {
             if (count($invalid_data) > 4) {
 
                 $status['reason_product'] = "Product is not valid";
-                $status['validate_phone'] = $invalid_data;
+                $status['validate_product'] = $invalid_data;
                 $this->get_invalid_data($status);
                 exit();
             }
 
             $prod = trim($value['Product']);
+            
             if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
                 $prod = 'Washing Machine';
             }
@@ -414,7 +415,7 @@ class Do_background_upload_excel extends CI_Controller {
             }
         }
 
-        if (!empty($valid_data)) {
+        if (!empty($invalid_data)) {
             log_message('info', __FUNCTION__ . ' =>  Product is not valid in Excel data: ' .
                     print_r($invalid_data, true));
             $data['error']['reason_product'] = "Product is not valid";
@@ -436,8 +437,8 @@ class Do_background_upload_excel extends CI_Controller {
         foreach ($data['valid_data'] as $key => $value) {
             if (count($invalid_data) > 4) {
 
-                $status['reason'] = " Pincode is not valid in File";
-                $status['validate'] = $invalid_data;
+                $status['reason_pincode'] = " Pincode is not valid in File";
+                $status['validate_pincode'] = $invalid_data;
                 $this->get_invalid_data($status);
                 exit();
             }
@@ -449,7 +450,7 @@ class Do_background_upload_excel extends CI_Controller {
             }
         }
         // append invalidate data. size of invalidate data is less than 5
-        if (!empty($valid_data)) {
+        if (!empty($invalid_data)) {
             log_message('info', __FUNCTION__ . ' =>  Pincode is not valid in Excel data: ' .
                     print_r($invalid_data, true));
 
@@ -461,7 +462,7 @@ class Do_background_upload_excel extends CI_Controller {
     }
 
     /**
-     * @desc: This is used to validate delivery date.
+     * @desc: This is used to validate delivery date for both type of files.
      * if delivery file is uploaded then it unset future date and 
      * if count is greater than 5, it exit and trigger mail.
      * If shipped file is uploded then return count future and past date
@@ -474,8 +475,8 @@ class Do_background_upload_excel extends CI_Controller {
             $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
             if (count($invalid_data) > 4) {
 
-                $status['reason'] = " Delivery Date is not valid in Excel data";
-                $status['validate'] = $invalid_data;
+                $status['reason_date'] = " Shipped/Delivery Date is not valid in Excel data";
+                $status['validate_date'] = $invalid_data;
                 $this->get_invalid_data($status);
                 exit();
             }
@@ -495,10 +496,10 @@ class Do_background_upload_excel extends CI_Controller {
             }
         }
 
-        if (!empty($valid_data)) {
-            log_message('info', __FUNCTION__ . ' =>  Product is not valid in Excel data: ' .
+        if (!empty($invalid_data)) {
+            log_message('info', __FUNCTION__ . ' =>  Shipped/delivered date is not valid in Excel data: ' .
                     print_r($invalid_data, true));
-            $data['error']['reason_delivery_date'] = "Product is not valid";
+            $data['error']['reason_delivery_date'] = "Shipped/delivered date is not valid";
             $data['error']['validate_delivery_date'] = $invalid_data;
         }
         // Past date and future date 
