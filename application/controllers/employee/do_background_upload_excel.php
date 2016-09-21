@@ -93,9 +93,7 @@ class Do_background_upload_excel extends CI_Controller {
        $validate_data =  $this->validate_phone_number($data);
        $row_data1 =  $this->validate_product($validate_data);
        $row_data2 = $this->validate_delivery_date($row_data1, $file_type);
-       print_r($row_data2);
        $row_data =  $this->validate_pincode($row_data2);
-      // print_r($row_data);
 
        foreach ($row_data['valid_data'] as $key => $value) {
            //echo print_r($rowData[0], true), EOL;
@@ -240,7 +238,7 @@ class Do_background_upload_excel extends CI_Controller {
                         if($booking_details_id){
                             $this->notify->insert_state_change($booking['booking_id'], "FollowUp", "New_Query", $this->session->userdata('id'), $this->session->userdata('employee_id'));
                             if($file_type == "shipped"){
-                               if(date("Y-m-d", strtotime("+1 day")) == $booking['estimated_delivery_date']){
+                               if(date("Y-m-d", strtotime("+1 day")) != $booking['estimated_delivery_date']){
                                     $sms['tag'] = "new_snapdeal_booking";
                                     $sms['phone_no'] = $booking['booking_primary_contact_no'];
                                     $sms['smsData']['service'] = $booking['services'];
