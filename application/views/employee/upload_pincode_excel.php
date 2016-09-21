@@ -54,7 +54,7 @@
                                         <input type= "submit"  class="btn btn-danger btn-md" value ="Upload" >
                                         <input type="hidden" value="https://s3.amazonaws.com/bookings-collateral/vendor-pincodes/<?php echo $pincode_mapping_file[0]['file_name']; ?>" id="fileUrl"></input>
 
-                                        <a href="https://s3.amazonaws.com/bookings-collateral/vendor-pincodes/<?php echo $pincode_mapping_file[0]['file_name']; ?>" class="btn btn-primary btn-md" target="_blank">Download latest File</a>  
+                                        <a href="<?php echo base_url()?>employee/vendor/download_latest_pincode_excel" class="btn btn-primary btn-md">Download latest File</a> 
                                         <a href="#" onclick="sendEmail()" class="btn btn-success btn-md" >Send Email</a>
                                     </center>
                                 </div>
