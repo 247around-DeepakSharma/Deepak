@@ -21,7 +21,7 @@ class Do_background_upload_excel extends CI_Controller {
         parent::__Construct();
 
         $this->load->helper(array('form', 'url'));
-       
+
         $this->load->library('asynchronous_lib');
         $this->load->library('notify');
         $this->load->helper(array('form', 'url'));
@@ -39,36 +39,35 @@ class Do_background_upload_excel extends CI_Controller {
         $this->load->model('vendor_model');
         $this->load->library('s3');
         $this->load->library('email');
-
     }
 
-    function upload_snapdeal_file($file_type){
+    function upload_snapdeal_file($file_type) {
         //$objPHPExcel, file_type
         if (!empty($_FILES['file']['name'])) {
-        $pathinfo = pathinfo($_FILES["file"]["name"]);
+            $pathinfo = pathinfo($_FILES["file"]["name"]);
 
-        if ($pathinfo['extension'] == 'xlsx') {
-        if ($_FILES['file']['size'] > 0) {
-            $inputFileName = $_FILES['file']['tmp_name'];
-            $inputFileExtn = 'Excel2007';
-        }
-        } else {
-        if ($pathinfo['extension'] == 'xls') {
-            if ($_FILES['file']['size'] > 0) {
-            $inputFileName = $_FILES['file']['tmp_name'];
-            $inputFileExtn = 'Excel5';
+            if ($pathinfo['extension'] == 'xlsx') {
+                if ($_FILES['file']['size'] > 0) {
+                    $inputFileName = $_FILES['file']['tmp_name'];
+                    $inputFileExtn = 'Excel2007';
+                }
+            } else {
+                if ($pathinfo['extension'] == 'xls') {
+                    if ($_FILES['file']['size'] > 0) {
+                        $inputFileName = $_FILES['file']['tmp_name'];
+                        $inputFileExtn = 'Excel5';
+                    }
+                }
             }
         }
-        }
-    }
 
-    try {
-        //$inputFileType = PHPExcel_IOFactory::identify($inputFileName);
-        $objReader = PHPExcel_IOFactory::createReader($inputFileExtn);
-        $objPHPExcel = $objReader->load($inputFileName);
-    } catch (Exception $e) {
-        die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
-    }
+        try {
+            //$inputFileType = PHPExcel_IOFactory::identify($inputFileName);
+            $objReader = PHPExcel_IOFactory::createReader($inputFileExtn);
+            $objPHPExcel = $objReader->load($inputFileName);
+        } catch (Exception $e) {
+            die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
+        }
         //  Get worksheet dimensions
         $sheet = $objPHPExcel->getSheet(0);
         $highestRow = $sheet->getHighestRow();
@@ -86,25 +85,25 @@ class Do_background_upload_excel extends CI_Controller {
             //  Read a row of data into an array
             $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
             $rowData = array_combine($headings_new[0], $rowData[0]);
-            
+
             array_push($data, $rowData);
         }
-    
-       $validate_data =  $this->validate_phone_number($data);
-       $row_data1 =  $this->validate_product($validate_data);
-       $row_data2 = $this->validate_delivery_date($row_data1, $file_type);
-       $row_data =  $this->validate_pincode($row_data2);
 
-       foreach ($row_data['valid_data'] as $key => $value) {
-           //echo print_r($rowData[0], true), EOL;
+        $validate_data = $this->validate_phone_number($data);
+        $row_data1 = $this->validate_product($validate_data);
+        $row_data2 = $this->validate_delivery_date($row_data1, $file_type);
+        $row_data = $this->validate_pincode($row_data2);
+
+        foreach ($row_data['valid_data'] as $key => $value) {
+            //echo print_r($rowData[0], true), EOL;
             if ($value['Phone'] == "") {
-            //echo print_r("Phone number null, break from this loop", true), EOL;
-            break;
+                //echo print_r("Phone number null, break from this loop", true), EOL;
+                break;
             }
 
             //Insert user if phone number doesn't exist
-           $output = $this->user_model->search_user(trim($value['Phone']));
-           $state = $this->vendor_model->get_state_from_pincode($value['Pincode']);
+            $output = $this->user_model->search_user(trim($value['Phone']));
+            $state = $this->vendor_model->get_state_from_pincode($value['Pincode']);
 
             if (empty($output)) {
                 //User doesn't exist
@@ -140,11 +139,11 @@ class Do_background_upload_excel extends CI_Controller {
             switch ($value['Brand']) {
                 case 'Wybor':
                     if (substr($value['Pincode'], 0, 1) == "6") {
-                    $booking['partner_id'] = '247010';
-                    $booking['source'] = "SY";
+                        $booking['partner_id'] = '247010';
+                        $booking['source'] = "SY";
                     } else {
-                    $booking['partner_id'] = '1';
-                    $booking['source'] = "SS";
+                        $booking['partner_id'] = '1';
+                        $booking['source'] = "SS";
                     }
 
                     break;
@@ -164,18 +163,17 @@ class Do_background_upload_excel extends CI_Controller {
             if (is_null($partner_booking)) {
 
                 $appliance_details['user_id'] = $booking['user_id'] = $user_id;
-                $appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] =$value['service_id'];
+                $appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $value['service_id'];
                 $booking['booking_pincode'] = $value['Pincode'];
                 $appliance_details['brand'] = $unit_details['appliance_brand'] = $value['Brand'];
 
-                if (isset($value['Expected_Delivery_Date'])){
+                if (isset($value['Expected_Delivery_Date'])) {
                     $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Expected_Delivery_Date']);
-
-                } else{
+                } else {
                     $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
                 }
-                        
-                if($file_type == "shipped"){
+
+                if ($file_type == "shipped") {
                     if ($dateObj2->format('d') == date('d')) {
                         //If date is NULL, add 3 days from today in EDD.
                         $dateObj2 = date_create('+3days');
@@ -183,13 +181,11 @@ class Do_background_upload_excel extends CI_Controller {
 
                     $yy = $dateObj2->format('y');
                     $mm = $dateObj2->format('m');
-                    $dd = $dateObj2->format('d'); 
+                    $dd = $dateObj2->format('d');
                     $booking['partner_source'] = "Snapdeal-shipped-excel";
                     $booking['booking_date'] = $dateObj2->format('d-m-Y');
+                } else if ($file_type == "delivered") {
 
-                    
-                } else if($file_type == "delivered") {
-  
                     $yy = date("y");
                     $mm = date("m");
                     $dd = date("d");
@@ -207,7 +203,7 @@ class Do_background_upload_excel extends CI_Controller {
                 $appliance_details['category'] = $unit_details['appliance_category'] = '';
                 $appliance_details['capacity'] = $unit_details['appliance_capacity'] = '';
                 $appliance_details['model_number'] = $unit_details['model_number'] = $value['Model'];
-                $appliance_details['tag'] = $unit_details['appliance_tag'] = $value['Brand'] . " " .$value['Product'];
+                $appliance_details['tag'] = $unit_details['appliance_tag'] = $value['Brand'] . " " . $value['Product'];
                 $booking['booking_remarks'] = '';
                 $booking['booking_alternate_contact_no'] = '';
                 $appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
@@ -215,9 +211,9 @@ class Do_background_upload_excel extends CI_Controller {
                 $appliance_details['last_service_date'] = date('d-m-Y');
 
                 $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
-                if($unit_details['appliance_id']){
+                if ($unit_details['appliance_id']) {
                     $unit_id = $this->booking_model->addunitdetails($unit_details);
-                    if($unit_id){
+                    if ($unit_id) {
                         $booking['order_id'] = $value['Sub_Order_ID'];
                         $ref_date = PHPExcel_Shared_Date::ExcelToPHPObject($value['Referred_Date_and_Time']);
                         $booking['reference_date'] = $ref_date->format('Y-m-d H:i:s');
@@ -235,20 +231,19 @@ class Do_background_upload_excel extends CI_Controller {
                         $booking['state'] = $state['state'];
                         $booking['quantity'] = '1';
                         $booking_details_id = $this->booking_model->addbooking($booking);
-                        if($booking_details_id){
+                        if ($booking_details_id) {
                             $this->notify->insert_state_change($booking['booking_id'], "FollowUp", "New_Query", $this->session->userdata('id'), $this->session->userdata('employee_id'));
-                            if($file_type == "shipped"){
-                               if(date("Y-m-d", strtotime("+1 day")) != $booking['estimated_delivery_date']){
+                            if ($file_type == "shipped") {
+                                if (date("Y-m-d", strtotime("+1 day")) != $booking['estimated_delivery_date']) {
                                     $sms['tag'] = "new_snapdeal_booking";
                                     $sms['phone_no'] = $booking['booking_primary_contact_no'];
                                     $sms['smsData']['service'] = $booking['services'];
                                     $this->notify->send_sms($sms);
-                               } 
-                                
+                                }
                             }
                         } else {
 
-                             log_message('info', __FUNCTION__ . ' =>  Booking is not inserted in booking details: ' . print_r($value, true));
+                            log_message('info', __FUNCTION__ . ' =>  Booking is not inserted in booking details: ' . print_r($value, true));
 
                             $row_data['error'][$key]['booking_details'] = " Booking Unit Id is not inserted";
                             $row_data['error'][$key]['invalide_data'] = $value;
@@ -261,33 +256,28 @@ class Do_background_upload_excel extends CI_Controller {
                             $this->asynchronous_lib->do_background_process($url, $send);
                         }
 
-                        $this->insert_booking_in_partner_leads($booking, $unit_details,$user, $value['Product'] );
+                        $this->insert_booking_in_partner_leads($booking, $unit_details, $user, $value['Product']);
 
                         //Reset
                         unset($appliance_details);
                         unset($booking);
                         unset($unit_details);
-
                     } else {
 
                         log_message('info', __FUNCTION__ . ' =>  Appliance is not inserted: ' .
-                          print_r($value, true));
+                                print_r($value, true));
 
                         $row_data['error'][$key]['unit_details'] = " Booking Unit Id is not inserted";
                         $row_data['error'][$key]['invalide_data'] = $value;
                     }
-                    
                 } else {
                     log_message('info', __FUNCTION__ . ' =>  Appliance is not inserted: ' .
-                     print_r($value, true));
+                            print_r($value, true));
 
                     $row_data['error'][$key]['appliance'] = "Appliance is not inserted";
                     $row_data['error'][$key]['invalide_data'] = $value;
-
                 }
-               
-
-            } else if($file_type == "delivered"){
+            } else if ($file_type == "delivered") {
                 $status = $partner_booking['current_status'];
                 $int_status = $partner_booking['internal_status'];
 
@@ -303,9 +293,9 @@ class Do_background_upload_excel extends CI_Controller {
                     $data['booking_date'] = '';
                     $data['booking_timeslot'] = '';
                 }
- 
+
                 log_message('info', __FUNCTION__ . 'Update Partned Lead (Delivered): ' .
-            print_r(array($partner_booking['booking_id'], $data), true));
+                        print_r(array($partner_booking['booking_id'], $data), true));
 
                 $this->booking_model->update_booking($partner_booking['booking_id'], $data);
 
@@ -313,11 +303,11 @@ class Do_background_upload_excel extends CI_Controller {
             }
         }
 
-        if(isset($row_data['error'])){
+        if (isset($row_data['error'])) {
             $this->get_invalid_data($row_data['error']);
         }
     }
-    
+
     /**
      * @desc: This method is used to validate Phone number while upload excel file
      * We will count of invalidate data, If count is greater or equal to five. 
@@ -326,44 +316,44 @@ class Do_background_upload_excel extends CI_Controller {
      * @param: Array
      * @param: Array
      */
-    function validate_phone_number($data){
+    function validate_phone_number($data) {
         $invalid_data = array();
         $valid_data = array();
         foreach ($data as $key => $value) {
-            
-            if(count($invalid_data) > 4){
+
+            if (count($invalid_data) > 4) {
 
                 $status['reason'] = "Phone Number is not valid";
-                $status['validate'] =  $invalid_data;
+                $status['validate'] = $invalid_data;
                 $this->get_invalid_data($status);
                 exit();
             }
             // check mobile number validation
-            if(!preg_match('/^\d{10}$/',$value['Phone'])) {
+            if (!preg_match('/^\d{10}$/', $value['Phone'])) {
                 unset($data[$key]);
                 array_push($invalid_data, $value);
-            } 
+            }
         }
         // append invalidate data. size of invalidate data is less than 5
-        if(!empty($valid_data)){
+        if (!empty($valid_data)) {
             log_message('info', __FUNCTION__ . ' =>  Phone Number is not valid Excel data: ' .
-            print_r($invalid_data, true));
+                    print_r($invalid_data, true));
 
             $data['error']['reason_phone'] = "Phone Number is not valid";
-            $data['error']['validate_phone'] =  $invalid_data;
+            $data['error']['validate_phone'] = $invalid_data;
         }
         $valid_data['valid_data'] = $data;
         return $valid_data;
     }
 
-    function validate_product($data){
+    function validate_product($data) {
         $invalid_data = array();
-        foreach($data['valid_data'] as $key => $value){
+        foreach ($data['valid_data'] as $key => $value) {
             $flag = 0;
-            if(count($invalid_data) > 4){
+            if (count($invalid_data) > 4) {
 
                 $status['reason_product'] = "Product is not valid";
-                $status['validate_phone'] =  $invalid_data;
+                $status['validate_phone'] = $invalid_data;
                 $this->get_invalid_data($status);
                 exit();
             }
@@ -412,29 +402,28 @@ class Do_background_upload_excel extends CI_Controller {
                 array_push($invalid_data, $value);
             }
 
-            if($flag == 0){
-                $service_id =  $this->booking_model->getServiceId($prod);
-                if($service_id){
+            if ($flag == 0) {
+                $service_id = $this->booking_model->getServiceId($prod);
+                if ($service_id) {
 
                     $data['valid_data'][$key]['service_id'] = $service_id;
-
                 } else {
                     unset($data['valid_data'][$key]);
                     array_push($invalid_data, $value);
                 }
-            } 
+            }
         }
 
-        if(!empty($valid_data)){
+        if (!empty($valid_data)) {
             log_message('info', __FUNCTION__ . ' =>  Product is not valid in Excel data: ' .
-            print_r($invalid_data, true));
+                    print_r($invalid_data, true));
             $data['error']['reason_product'] = "Product is not valid";
-            $data['error']['validate_product'] =  $invalid_data;
+            $data['error']['validate_product'] = $invalid_data;
         }
 
         return $data;
     }
-    
+
     /**
      * @desc: This is used to validate pincode. pincode must be 6 digit integer.
      * If count of invalid pincode is greater than 4 then it trigger a mail and exit function.
@@ -442,90 +431,89 @@ class Do_background_upload_excel extends CI_Controller {
      * @param: Array
      * @return: Array 
      */
-    function validate_pincode($data){
+    function validate_pincode($data) {
         $invalid_data = array();
         foreach ($data['valid_data'] as $key => $value) {
-            if(count($invalid_data) > 4){
+            if (count($invalid_data) > 4) {
 
                 $status['reason'] = " Pincode is not valid in File";
-                $status['validate'] =  $invalid_data;
+                $status['validate'] = $invalid_data;
                 $this->get_invalid_data($status);
                 exit();
             }
             // check pincode is 6 digit
-            if(!preg_match('/^\d{6}$/',$value['Pincode'])) {
+            if (!preg_match('/^\d{6}$/', $value['Pincode'])) {
 
                 unset($data['valid_data'][$key]);
                 array_push($invalid_data, $value);
-            } 
+            }
         }
         // append invalidate data. size of invalidate data is less than 5
-        if(!empty($valid_data)){
+        if (!empty($valid_data)) {
             log_message('info', __FUNCTION__ . ' =>  Pincode is not valid in Excel data: ' .
-            print_r($invalid_data, true));
+                    print_r($invalid_data, true));
 
             $data['error']['reason_pincode'] = "Pincode is not valid";
-            $data['error']['validate_pincode'] =  $invalid_data;
+            $data['error']['validate_pincode'] = $invalid_data;
         }
-       // print_r($data);
+        // print_r($data);
         return $data;
     }
+
     /**
      * @desc: This is used to validate delivery date.
      * if delivery file is uploaded then it unset future date and 
      * if count is greater than 5, it exit and trigger mail.
      * If shipped file is uploded then return count future and past date
      */
-    function validate_delivery_date($data, $file_type){
+    function validate_delivery_date($data, $file_type) {
         $invalid_data = array();
         $future_date = 0;
         $past_date = 0;
         foreach ($data['valid_data'] as $key => $value) {
             $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
-            if(count($invalid_data) > 4){
+            if (count($invalid_data) > 4) {
 
                 $status['reason'] = " Delivery Date is not valid in Excel data";
-                $status['validate'] =  $invalid_data;
+                $status['validate'] = $invalid_data;
                 $this->get_invalid_data($status);
                 exit();
-            }                 
-            if($file_type == "delivered"){
-                 if(date('Y-m-d') < $dateObj2->format('Y-m-d')) {
+            }
+            if ($file_type == "delivered") {
+                if (date('Y-m-d') < $dateObj2->format('Y-m-d')) {
                     //Future Date
                     unset($data['valid_data'][$key]);
                     array_push($invalid_data, $value);
-                 } 
-
-            } else if($file_type == "shipped"){
-                if(date('Y-m-d') < $dateObj2->format('Y-m-d')) {
+                }
+            } else if ($file_type == "shipped") {
+                if (date('Y-m-d') < $dateObj2->format('Y-m-d')) {
                     //Future Date
                     $future_date++;
-                
                 } else {
                     $past_date++;
                 }
             }
         }
-         
-        if(!empty($valid_data)){
+
+        if (!empty($valid_data)) {
             log_message('info', __FUNCTION__ . ' =>  Product is not valid in Excel data: ' .
-            print_r($invalid_data, true));
+                    print_r($invalid_data, true));
             $data['error']['reason_delivery_date'] = "Product is not valid";
-            $data['error']['validate_delivery_date'] =  $invalid_data;
+            $data['error']['validate_delivery_date'] = $invalid_data;
         }
         // Past date and future date 
-        if($file_type == "shipped"){
+        if ($file_type == "shipped") {
             $data['error']['count_past_delivery_date'] = $past_date;
             $data['error']['count_future_delivery_date'] = $future_date;
         }
 
         return $data;
     }
-    
-    function get_invalid_data($invalid_data_with_reason){
-        
+
+    function get_invalid_data($invalid_data_with_reason) {
+
         $to = "anuj@247around.com";
-      //  $to = "abhaya@247around.com";
+        //  $to = "abhaya@247around.com";
         $from = "booking@247around.com";
         $cc = "";
         $bcc = "";
@@ -534,14 +522,14 @@ class Do_background_upload_excel extends CI_Controller {
         $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
     }
 
-     /**
+    /**
      * @desc: This method used to insert data into partner leads table.
      * @param: Array Booking details
      * @param: Array Unit details
      * @param: Array User details
      * @param: String Service Name
      */
-    function insert_booking_in_partner_leads($booking, $unit_details, $user_details, $product){
+    function insert_booking_in_partner_leads($booking, $unit_details, $user_details, $product) {
         $partner_booking['PartnerID'] = $booking['partner_id'];
         $partner_booking['OrderID'] = $booking['order_id'];
         $partner_booking['247aroundBookingID'] = $booking['booking_id'];
@@ -551,8 +539,8 @@ class Do_background_upload_excel extends CI_Controller {
         $partner_booking['ProductType'] = $unit_details['appliance_description'];
         $partner_booking['Category'] = $unit_details['appliance_category'];
         $partner_booking['Name'] = $user_details['name'];
-        $partner_booking['Mobile'] =  $booking['booking_primary_contact_no'];
-        $partner_booking['AlternatePhone'] =  $booking['booking_alternate_contact_no'];
+        $partner_booking['Mobile'] = $booking['booking_primary_contact_no'];
+        $partner_booking['AlternatePhone'] = $booking['booking_alternate_contact_no'];
         $partner_booking['Email'] = $user_details['user_email'];
         //$partner_booking['Landmark'] = $booking['booking_landmark'];
         $partner_booking['Address'] = $booking['booking_address'];
@@ -569,11 +557,11 @@ class Do_background_upload_excel extends CI_Controller {
         $partner_booking['create_date'] = date('Y-m-d H:i:s');
 
         $partner_leads_id = $this->partner_model->insert_partner_lead($partner_booking);
-        if($partner_leads_id){
+        if ($partner_leads_id) {
             return true;
         } else {
-           log_message('info', __FUNCTION__." Booking is not inserted into Partner Leads table:". print_r($partner_booking, true));
+            log_message('info', __FUNCTION__ . " Booking is not inserted into Partner Leads table:" . print_r($partner_booking, true));
         }
-
     }
+
 }
