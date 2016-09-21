@@ -1478,46 +1478,25 @@ class vendor extends CI_Controller {
     }
     
     /**
-     * @desc: download latest Pincode Mapping Excel File
-     *
+     * @desc: This method is used to send mail with Vendor Pincode Mapping file.
+     * This is called by Ajax. It gets email and notes by form. Pass it to asynchronous method.
      * @param: void
-     * @return: void
+     * @return: print success
      */
     function download_latest_pincode_excel(){
 
         log_message('info', __FUNCTION__);
 
-        $template = 'Vendor_Pincode_Mapping_Template.xlsx';
-        //set absolute path to directory with template files
-        $templateDir = __DIR__ . "/../excel-templates/";
-        //set config for report
-        $config = array(
-            'template' => $template,
-            'templateDir' => $templateDir
-        );
-        //load template
-        $R = new PHPReport($config);
-        $vendor = $this->vendor_model->get_all_pincode_mapping();
-
-        $R->load(array(
-
-                 'id' => 'vendor',
-                'repeat' => TRUE,
-                'data' => $vendor
-            ));
-
-        $output_file_dir = "/tmp/";
-        $output_file = "Vendor_Pincode_Mapping" . date('y-m-d');                                                       
-        $output_file_name = $output_file . ".xlsx";
-        $output_file_excel = $output_file_dir . $output_file_name;
-        $R->render('excel', $output_file_excel);
-
-        //Downloading File after creation
-
-        header("Content-Description: File Transfer"); 
-        header("Content-Type: application/octet-stream"); 
-        header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
-        readfile ($output_file_excel);
+        $mail['email'] = $this->input->post('email');
+        $mail['notes'] = $this->input->post('notes');
+        $url = base_url() . "employee/do_background_process/download_latest_pincode_excel";
+        $this->asynchronous_lib->do_background_process($url, $mail);
+        echo '<div class="alert alert-success alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span ;aria-hidden="true">&times;</span>
+                    </button>
+                    <strong> Excel file will be Send to mail. </strong>
+                </div>';
 
     }
     
