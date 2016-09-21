@@ -1300,8 +1300,8 @@ class vendor extends CI_Controller {
 
      /**
      *  @desc : This function is used to Add Vendor for a particular Pincode
-     *  @param : String(Booking Id)
-     *  @return : void
+     *  @param : Pincode, appliance, appliance ID, city, brand
+     *  @return : View to add Vendor to pincode.
      */
 
     function get_add_vendor_to_pincode_form($pincode,$appliance,$appliance_id,$city, $brand){

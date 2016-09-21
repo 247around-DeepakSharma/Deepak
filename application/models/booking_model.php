@@ -1756,9 +1756,9 @@ class Booking_model extends CI_Model {
 
     }
 
-    /*This function is used to insert Sent SMS to database
-     * 
-     * params: Array
+    /**
+     * @desc: This function is used to insert Sent SMS to database
+     * params: Array of data  to be inserted in sms_send_details
      * return: Int(ID) of inserted sms
      */
     function add_sms_sent_details($data){
