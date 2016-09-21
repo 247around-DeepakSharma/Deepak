@@ -1756,9 +1756,9 @@ class Booking_model extends CI_Model {
 
     }
 
-    /*This function is used to insert Sent SMS to database
-     * 
-     * params: Array
+    /**
+     * @desc: This function is used to insert Sent SMS to database
+     * params: Array of data  to be inserted in sms_send_details
      * return: Int(ID) of inserted sms
      */
     function add_sms_sent_details($data){
@@ -1773,7 +1773,7 @@ class Booking_model extends CI_Model {
      */
     function get_booking_state_change_by_id($booking_id){
         
-        $trimed_booking_id = explode('S-',$booking_id)[1];
+        $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
         $this->db->select('*');
         $this->db->like('booking_id',$trimed_booking_id);
         $this->db->order_by('id');

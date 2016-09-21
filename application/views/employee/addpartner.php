@@ -1,6 +1,11 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 <script src="<?php echo base_url()?>js/custom_js.js"></script>
-
+<style type="text/css">
+    #booking_form .form-group label.error {
+        margin:4px 0 5px !important;
+        width:auto !important;
+    }
+</style>
 <div id="page-wrapper">
   <div class="row">
       <div class="container">
@@ -331,24 +336,24 @@
                     district: "required",
                     phone_1: {
                         required: true,
-                        minlength: 10
+                        rangelength: [10,10]
                     },
                     phone_2: {
-                        minlength: 10
+                        rangelength: [10,10]
                     },
                     primary_contact_phone_1: {
                         required: true,
-                        minlength: 10
+                        rangelength: [10,10]
                     },
                     primary_contact_phone_2: {
-                        minlength: 10
+                        rangelength: [10,10]
                     },
                     owner_phone_1: {
                         required: true,
-                        minlength: 10
+                        rangelength: [10,10]
                     },
                     owner_phone_2: {
-                        minlength: 10
+                        rangelength: [10,10]
                     },
                     state: "required",
                     primary_contact_name: "required",
