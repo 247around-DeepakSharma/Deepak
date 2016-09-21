@@ -89,12 +89,13 @@ class Do_background_upload_excel extends CI_Controller {
             array_push($data, $rowData);
         }
 
-        $validate_data = $this->validate_phone_number($data);
-        $row_data1 = $this->validate_product($validate_data);
+        $validate_data = $this->validate_phone_number($data, $file_type);
+        $row_data1 = $this->validate_product($validate_data, $file_type);
         $row_data2 = $this->validate_delivery_date($row_data1, $file_type);
-        $row_data = $this->validate_pincode($row_data2);
+        $row_data = $this->validate_pincode($row_data2, $file_type);
+        $count_booking_inserted = 0;
 
-        foreach ($row_data['valid_data'] as $key => $value) {
+	    foreach ($row_data['valid_data'] as $key => $value) {
             //echo print_r($rowData[0], true), EOL;
             if ($value['Phone'] == "") {
                 //echo print_r("Phone number null, break from this loop", true), EOL;
@@ -232,14 +233,15 @@ class Do_background_upload_excel extends CI_Controller {
                         $booking['quantity'] = '1';
                         $booking_details_id = $this->booking_model->addbooking($booking);
                         if ($booking_details_id) {
+                            $count_booking_inserted++;
                             $this->notify->insert_state_change($booking['booking_id'], "FollowUp", "New_Query", $this->session->userdata('id'), $this->session->userdata('employee_id'));
                             if ($file_type == "shipped") {
                                 if (date("Y-m-d", strtotime("+1 day")) != $booking['estimated_delivery_date']) {
                                     $sms['tag'] = "new_snapdeal_booking";
                                     $sms['phone_no'] = $booking['booking_primary_contact_no'];
                                     $sms['smsData']['service'] = $booking['services'];
-                                    $this->notify->send_sms($sms);
-                                }
+                                    //$this->notify->send_sms($sms);
+				}
                             }
                         } else {
 
@@ -253,8 +255,8 @@ class Do_background_upload_excel extends CI_Controller {
                             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
                             $send['booking_id'] = $booking['booking_id'];
                             $send['state'] = "Pincode_not_found";
-                            $this->asynchronous_lib->do_background_process($url, $send);
-                        }
+                            //$this->asynchronous_lib->do_background_process($url, $send);
+			}
 
                         $this->insert_booking_in_partner_leads($booking, $unit_details, $user, $value['Product']);
 
@@ -302,21 +304,21 @@ class Do_background_upload_excel extends CI_Controller {
                 unset($update_data);
             }
         }
-
+        $row_data['error']['total_booking_inserted'] = $count_booking_inserted;
         if (isset($row_data['error'])) {
-            $this->get_invalid_data($row_data['error']);
-        }
+            $this->get_invalid_data($row_data['error'], $file_type);
+	}
     }
 
     /**
      * @desc: This method is used to validate Phone number while upload excel file
-     * We will count of invalidate data, If count is greater or equal to five. 
-     * It will send Invalidate data to mail and exit from function 
+     * We will count of invalidate data, If count is greater or equal to five.
+     * It will send Invalidate data to mail and exit from function
      * Otherwise return data with inavlidate data
      * @param: Array
      * @param: Array
      */
-    function validate_phone_number($data) {
+    function validate_phone_number($data, $filetype) {
         $invalid_data = array();
         $valid_data = array();
         foreach ($data as $key => $value) {
@@ -324,8 +326,8 @@ class Do_background_upload_excel extends CI_Controller {
             if (count($invalid_data) > 4) {
 
                 $status['reason_phone'] = "Phone Number is not valid";
-                $status['validate_phone'] = $invalid_data;
-                $this->get_invalid_data($status);
+                $status['invalid_phone'] = $invalid_data;
+		$this->get_invalid_data($status, $filetype);
                 exit();
             }
             // check mobile number validation
@@ -335,32 +337,32 @@ class Do_background_upload_excel extends CI_Controller {
             }
         }
         // append invalidate data. size of invalidate data is less than 5
-        if (!empty($valid_data)) {
-            log_message('info', __FUNCTION__ . ' =>  Phone Number is not valid Excel data: ' .
+        if (!empty($invalid_data)) {
+	    log_message('info', __FUNCTION__ . ' =>  Phone Number is not valid Excel data: ' .
                     print_r($invalid_data, true));
 
             $data['error']['reason_phone'] = "Phone Number is not valid";
-            $data['error']['validate_phone'] = $invalid_data;
-        }
+            $data['error']['invalid_phone'] = $invalid_data;
+	}
         $valid_data['valid_data'] = $data;
         return $valid_data;
     }
 
-    function validate_product($data) {
+    function validate_product($data, $filetype) {
         $invalid_data = array();
         foreach ($data['valid_data'] as $key => $value) {
             $flag = 0;
             if (count($invalid_data) > 4) {
 
-                $status['reason_product'] = "Product is not valid";
-                $status['validate_product'] = $invalid_data;
-                $this->get_invalid_data($status);
+		$status['reason_product'] = "Product is not valid";
+                $status['invalid_product'] = $invalid_data;
+		$this->get_invalid_data($status, $filetype);
                 exit();
             }
 
             $prod = trim($value['Product']);
-            
-            if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
+
+	    if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
                 $prod = 'Washing Machine';
             }
             if (stristr($prod, "Television")) {
@@ -379,7 +381,7 @@ class Do_background_upload_excel extends CI_Controller {
                 $prod = 'Water Purifier';
             }
             if (stristr($prod, "Chimney")) {
-                $prod = 'Chimney';
+		$prod = 'Chimney';
             }
             if (stristr($prod, "Geyser")) {
                 $prod = 'Geyser';
@@ -398,7 +400,7 @@ class Do_background_upload_excel extends CI_Controller {
             }
             // Block Accessories. If its exist in the Excel file
             if (stristr($prod, "Accessories")) {
-                $flag = 1;
+		        $flag = 1;
                 unset($data['valid_data'][$key]);
                 array_push($invalid_data, $value);
             }
@@ -419,8 +421,8 @@ class Do_background_upload_excel extends CI_Controller {
             log_message('info', __FUNCTION__ . ' =>  Product is not valid in Excel data: ' .
                     print_r($invalid_data, true));
             $data['error']['reason_product'] = "Product is not valid";
-            $data['error']['validate_product'] = $invalid_data;
-        }
+            $data['error']['invalidate_product'] = $invalid_data;
+	}
 
         return $data;
     }
@@ -430,16 +432,16 @@ class Do_background_upload_excel extends CI_Controller {
      * If count of invalid pincode is greater than 4 then it trigger a mail and exit function.
      * If count of invalid pincode is less than 4 then we will append invalid array into error index
      * @param: Array
-     * @return: Array 
+     * @return: Array
      */
-    function validate_pincode($data) {
+    function validate_pincode($data, $filetype) {
         $invalid_data = array();
         foreach ($data['valid_data'] as $key => $value) {
             if (count($invalid_data) > 4) {
 
                 $status['reason_pincode'] = " Pincode is not valid in File";
-                $status['validate_pincode'] = $invalid_data;
-                $this->get_invalid_data($status);
+                $status['invalid_pincode'] = $invalid_data;
+		$this->get_invalid_data($status, $filetype);
                 exit();
             }
             // check pincode is 6 digit
@@ -455,15 +457,15 @@ class Do_background_upload_excel extends CI_Controller {
                     print_r($invalid_data, true));
 
             $data['error']['reason_pincode'] = "Pincode is not valid";
-            $data['error']['validate_pincode'] = $invalid_data;
-        }
+            $data['error']['invalidate_pincode'] = $invalid_data;
+	}
         // print_r($data);
         return $data;
     }
 
     /**
      * @desc: This is used to validate delivery date for both type of files.
-     * if delivery file is uploaded then it unset future date and 
+     * if delivery file is uploaded then it unset future date and
      * if count is greater than 5, it exit and trigger mail.
      * If shipped file is uploded then return count future and past date
      */
@@ -476,8 +478,8 @@ class Do_background_upload_excel extends CI_Controller {
             if (count($invalid_data) > 4) {
 
                 $status['reason_date'] = " Shipped/Delivery Date is not valid in Excel data";
-                $status['validate_date'] = $invalid_data;
-                $this->get_invalid_data($status);
+                $status['invalid_date'] = $invalid_data;
+		$this->get_invalid_data($status, $filetype);
                 exit();
             }
             if ($file_type == "delivered") {
@@ -500,31 +502,41 @@ class Do_background_upload_excel extends CI_Controller {
             log_message('info', __FUNCTION__ . ' =>  Shipped/delivered date is not valid in Excel data: ' .
                     print_r($invalid_data, true));
             $data['error']['reason_delivery_date'] = "Shipped/delivered date is not valid";
-            $data['error']['validate_delivery_date'] = $invalid_data;
-        }
-        // Past date and future date 
+            $data['error']['invalid_delivery_date'] = $invalid_data;
+	}
+        // Past date and future date
         if ($file_type == "shipped") {
             $data['error']['count_past_delivery_date'] = $past_date;
-            $data['error']['count_future_delivery_date'] = $future_date;
-        }
+            $data['error']['cunt_future_delivery_date'] = $future_date;
+	}
 
         return $data;
     }
 
-    function get_invalid_data($invalid_data_with_reason) {
+    function get_invalid_data($invalid_data_with_reason, $filetype) {
 
-        $to = "anuj@247around.com";
-        //  $to = "abhaya@247around.com";
-        $from = "booking@247around.com";
+       // $to = "anuj@247around.com";
+	$to = "abhaya@247around.com";
+	$from = "booking@247around.com";
         $cc = "";
         $bcc = "";
-        $subject = 'Invalidate Data in Excel File';
-        $message = json_encode($invalid_data_with_reason);
+        $subject = "";
+        if($filetype == "shipped"){
+
+            $subject = "Shipped File is uploaded";
+            $message = " Please check shipped file data:<br/>";
+
+        } else {
+            $subject = "Delivered File is uploaded";
+            $message = " Please check delivered file data:<br/>";
+        }
+
+        $message .= json_encode($invalid_data_with_reason);
         $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
     }
 
     /**
-     * @desc: This method used to insert data into partner leads table.
+     * @desc: This method ued to insert data into partner leads table.
      * @param: Array Booking details
      * @param: Array Unit details
      * @param: Array User details
