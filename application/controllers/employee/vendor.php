@@ -1308,9 +1308,9 @@ class vendor extends CI_Controller {
     function get_add_vendor_to_pincode_form($pincode,$appliance,$appliance_id,$city, $brand){
         
         $data['pincode'] = $pincode;
-        $data['Appliance'] = $appliance;
+        $data['Appliance'] = urldecode($appliance);
         $data['Appliance_ID'] = $appliance_id;
-        $data['brand'] = $brand;
+        $data['brand'] = urldecode($brand);
         $data['city'] = urldecode($city);
 
         //Getting data from Database using Booking ID
