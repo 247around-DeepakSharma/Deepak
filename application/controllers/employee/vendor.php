@@ -1496,7 +1496,7 @@ class vendor extends CI_Controller {
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span ;aria-hidden="true">&times;</span>
                     </button>
-                    <strong> Excel file will be Send to mail. </strong>
+                    <strong> Excel file has been emailed to you, please check after sometime. </strong>
                 </div>';
 
     }

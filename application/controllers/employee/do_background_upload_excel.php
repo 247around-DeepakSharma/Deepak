@@ -88,6 +88,8 @@ class Do_background_upload_excel extends CI_Controller {
 
             array_push($data, $rowData);
         }
+        
+        log_message('info', print_r($data, true));
 
         $validate_data = $this->validate_phone_number($data, $file_type);
         $row_data1 = $this->validate_product($validate_data, $file_type);
@@ -240,6 +242,9 @@ class Do_background_upload_excel extends CI_Controller {
                                     $sms['tag'] = "new_snapdeal_booking";
                                     $sms['phone_no'] = $booking['booking_primary_contact_no'];
                                     $sms['smsData']['service'] = $booking['services'];
+                                    
+                                    
+                                    //THIS NEEDS TO BE TOGGLED
                                     //$this->notify->send_sms($sms);
 				}
                             }
@@ -255,6 +260,9 @@ class Do_background_upload_excel extends CI_Controller {
                             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
                             $send['booking_id'] = $booking['booking_id'];
                             $send['state'] = "Pincode_not_found";
+                            
+                            
+                                    //THIS NEEDS TO BE TOGGLED
                             //$this->asynchronous_lib->do_background_process($url, $send);
 			}
 
@@ -265,7 +273,6 @@ class Do_background_upload_excel extends CI_Controller {
                         unset($booking);
                         unset($unit_details);
                     } else {
-
                         log_message('info', __FUNCTION__ . ' =>  Appliance is not inserted: ' .
                                 print_r($value, true));
 
@@ -514,9 +521,7 @@ class Do_background_upload_excel extends CI_Controller {
     }
 
     function get_invalid_data($invalid_data_with_reason, $filetype) {
-
-       // $to = "anuj@247around.com";
-	$to = "abhaya@247around.com";
+        $to = "anuj@247around.com";
 	$from = "booking@247around.com";
         $cc = "";
         $bcc = "";
