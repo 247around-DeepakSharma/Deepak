@@ -480,11 +480,10 @@ EOD;
 	$R->render('excel', $output_file);
 	//Send report via email
 	$this->email->from('booking@247around.com', '247around Team');
-	$this->email->to("alok.singh@snapdeal.com");
-	$cc = "dhananjay.shashidharan@snapdeal.com,"
-	    . "soumendra.choudhury@snapdeal.com, shivalini.verma@snapdeal.com,"
+	$this->email->to("dhananjay.shashidharan@snapdeal.com");
+	$cc = "soumendra.choudhury@snapdeal.com, shivalini.verma@snapdeal.com,"
 	    . "rameen.khan@snapdeal.com, sunil.gurubhagwatla@snapdeal.com,"
-	    . "ashish.dudeja@snapdeal.com, sanju.khatri@snapdeal.com, harjinder.singh01@snapdeal.com"
+	    . "ashish.dudeja@snapdeal.com, sanju.khatri@snapdeal.com, harjinder.singh01@snapdeal.com, "
 	    . "abhinaw.sinha@snapdeal.com, "
 	    . "nits@247around.com, anuj@247around.com";
 	$this->email->cc($cc);
