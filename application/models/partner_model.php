@@ -154,14 +154,14 @@ class Partner_model extends CI_Model {
     }
 
     function getpartner($partner_id = "") {
-	if ($partner_id != "") {
-	    $this->db->where('id', $partner_id);
-	}
-	$this->db->select('*');
-	$this->db->where('is_active', '1');
-	$query = $this->db->get('partners');
+	    if ($partner_id != "") {
+	        $this->db->where('id', $partner_id);
+	    }
+	    $this->db->select('*');
+	    $this->db->where('is_active', '1');
+	    $query = $this->db->get('partners');
 
-	return $query->result_array();
+	    return $query->result_array();
     }
 
     /**
