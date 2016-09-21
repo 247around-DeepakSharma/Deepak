@@ -29,7 +29,7 @@ class Notify {
      */
     function sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment) {
 	switch (ENVIRONMENT) {
-	    case 'testing_abhay':
+	    case 'production':
 		//Clear previous email
 		$this->My_CI->email->clear(TRUE);
 
@@ -339,7 +339,7 @@ class Notify {
 			$email['city'] = $query1[0]['district'];
 		    } else {
 		    	$email['vendor_name'] = "";
-			    $email['city'] = "";
+			$email['city'] = "";
 		    }
 		    $email['tag'] = "cancel_booking";
 		    $email['subject'] = "Pending Booking Cancellation - 247AROUND";
