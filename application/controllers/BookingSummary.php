@@ -384,8 +384,8 @@ EOD;
 	    'templateDir' => $templateDir
 	);
 
-	//Get all Active partners
-	$partners = $this->partner_model->getpartner();
+	//Get all Active partners who has "is_reporting_mail" column 1
+	$partners = $this->partner_model->getpartner("",'1');
 
 	foreach ($partners as $p) {
 	    //load template
@@ -410,9 +410,9 @@ EOD;
 	    //Send report via email
 	    $this->email->clear(TRUE);
 	    $this->email->from('booking@247around.com', '247around Team');
-	    $this->email->to($p['summary_email_to']);
-	    $this->email->cc($p['summary_email_cc']);
-	    $this->email->bcc($p['summary_email_bcc']);
+	   // $this->email->to($p['summary_email_to']);
+	   // $this->email->cc($p['summary_email_cc']);
+	   // $this->email->bcc($p['summary_email_bcc']);
 
 	    $this->email->subject("247around Services Report - " . date('d-M-Y'));
 	    $summary_table = $this->get_partner_summary_table($p['id']);
@@ -430,22 +430,22 @@ EOD;
 	    $this->email->message($message);
 	    $this->email->attach($output_file, 'attachment');
 
-	    if ($this->email->send()) {
-		log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $p['public_name']);
-	    } else {
-		log_message('info', __METHOD__ . ": Mail could not be sent for Partner: " . $p['public_name']);
-	    }
+	 //    if ($this->email->send()) {
+		// log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $p['public_name']);
+	 //    } else {
+		// log_message('info', __METHOD__ . ": Mail could not be sent for Partner: " . $p['public_name']);
+	 //    }
 
 	    //Upload Excel to AWS/FTP
 	    $bucket = 'bookings-collateral';
 	    $directory_xls = "summary-excels/" . $output_file;
-	    $this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
+	    //$this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
 
 	    //Delete this file
-	    exec("rm -rf " . escapeshellarg($output_file));
+	   // exec("rm -rf " . escapeshellarg($output_file));
 	}
 
-	exit(0);
+	//exit(0);
     }
 
     public function send_summary_mail_to_snapdeal() {
