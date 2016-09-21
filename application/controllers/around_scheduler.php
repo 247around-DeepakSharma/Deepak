@@ -20,12 +20,14 @@ class Around_scheduler extends CI_Controller {
     
     /**
      * @desc: This is used to send SMS to customer who have given miss call to customer support number.
-     * Note: SMS will not send those customers who has EDD tomorrow and pincode is not available 
+     * Note: SMS will not be sent to those customers who has EDD as tomorrow and vendor is not available
+     * in their pincode.
      */
-    function send_remainder_installation_sms(){
-    	$data = $this->around_scheduler_model->send_remainder_installation_sms();
+    function send_reminder_installation_sms(){
+    	$data = $this->around_scheduler_model->get_reminder_installation_sms_data();
+        
         //TODO: This sms tag will be changed
-    	$sms['tag'] = "remainder_installation_sms";
+    	$sms['tag'] = "reminder_installation_sms";
     	foreach ($data as $key => $value) {
     		$sms['phone_no'] = $data[0]['booking_primary_contact_no'];
     		$sms['smsData']['service'] = $data[0]['services'];

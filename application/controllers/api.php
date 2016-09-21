@@ -30,6 +30,8 @@ class Api extends CI_Controller {
 
         $this->load->library('s3');
         $this->load->library('email');
+	$this->load->library('notify');
+        
         $this->load->helper(array('form', 'url'));
     }
 
@@ -1240,6 +1242,7 @@ class Api extends CI_Controller {
 		if ($b['type'] === 'Query' AND $b['current_status'] === 'FollowUp') {
 		    $d = array('internal_status' => 'Missed_call_confirmed',
 			'booking_date' => '', 'booking_timeslot' => '',
+                        'delivery_date' => date('Y-m-d H:i:s'),
 			'query_remarks' => 'Missed call received, Convert to Booking NOW !!!');
 		    $r = $this->booking_model->update_booking($b['booking_id'], $d);
 
@@ -1248,7 +1251,12 @@ class Api extends CI_Controller {
 			    . 'through missed call failed for ' . $b['booking_id']);
 
 			//Send email
-		    }
+                        $this->notify->sendEmail("booking@247around.com", "anuj@247around.com", 
+                                "", "", "Query update Failed after Missed Call for Booking ID: " . $b['booking_id'], "", "");
+		    } else {
+			log_message('info', __METHOD__ . '=> Booking confirmation '
+			    . 'through missed call succeeded for ' . $b['booking_id']);
+                    }
 		}
 	    }
 	}

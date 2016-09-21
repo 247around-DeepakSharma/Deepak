@@ -252,7 +252,7 @@ class bookings_excel extends CI_Controller {
 		$booking['partner_source'] = "Snapdeal-delivered-excel";
 		$del_date = PHPExcel_Shared_Date::ExcelToPHPObject($rowData[0]['Delivery_Date']);
 		$booking['delivery_date'] = $del_date->format('Y-m-d H:i:s');
-		//since product is already delivered
+		//since product is already delivered and this is a new lead
 		$booking['estimated_delivery_date'] = $del_date->format('Y-m-d H:i:s');
 
 		$booking['booking_primary_contact_no'] = $rowData[0]['Phone'];
@@ -289,8 +289,6 @@ class bookings_excel extends CI_Controller {
 		unset($booking);
 		//unset($lead_details);
 	    } else {
-
-
 		$status = $partner_booking['current_status'];
 		$int_status = $partner_booking['internal_status'];
 

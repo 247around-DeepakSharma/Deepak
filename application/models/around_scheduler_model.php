@@ -19,7 +19,9 @@ class Around_scheduler_model extends CI_Model {
      * Edd => Tommorrow
      * Current status => FollowUp
      */
-    function send_remainder_installation_sms(){
+    function get_reminder_installation_sms_data(){
+        //todo:
+        //do not send sms when customer has already given the missed call
     	$sql = " SELECT booking_details.*, `services`.services from booking_details, services "
                 . "where partner_source = 'Snapdeal-shipped-excel' AND internal_status = 'Missed_call_confirmed' "
                 . "AND estimated_delivery_date > CURDATE() AND estimated_delivery_date = (CURDATE() + INTERVAL 1 DAY) "
