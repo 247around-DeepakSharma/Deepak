@@ -1384,10 +1384,10 @@ class vendor extends CI_Controller {
 
                     if($result){
                         //Setting Flash data on success
-                        $this->session->set_flashdata('success','Vendor assigned successfully.');
+                        $this->session->set_flashdata('success', 'Pincode Mapped to Vendor successfully.');
 
                         //Echoing sucess to Log file
-                        log_message('info',__FUNCTION__.' Vendor assigned successfully in Vendor Mapping Table. ');
+                        log_message('info',__FUNCTION__.' Pincode Mapped to Vendor successfully.');
                         $this->vendor_model->insert_vendor_pincode_mapping($vendor_mapping);
 
                     } else {

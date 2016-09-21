@@ -328,7 +328,6 @@ class Booking extends CI_Controller {
      * @param  $booking_id
      */
     function send_sms_email($booking_id, $state) {
-	log_message('info', __FUNCTION__);
 	log_message('info', __FUNCTION__ . " Booking ID :" . print_r($booking_id, true));
 	$url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
 	$send['booking_id'] = $booking_id;

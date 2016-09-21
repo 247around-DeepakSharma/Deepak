@@ -16,7 +16,7 @@
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <strong>Vendor pincodes have been deleted</strong>
+                        <strong>Vendor pincode mappings have been deleted</strong>
                     </div>';
                     }
                     if(isset($not_found)){
