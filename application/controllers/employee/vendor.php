@@ -6,7 +6,7 @@ if (!defined('BASEPATH')) {
 
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
-
+ini_set('memory_limit', '-1');
 ini_set('max_execution_time', 360000); //3600 seconds = 60 minutes
 
 use Box\Spout\Reader\ReaderFactory;
@@ -36,6 +36,7 @@ class vendor extends CI_Controller {
         $this->load->library("session");
         $this->load->library('s3');
         $this->load->library('email');
+        $this->load->helper('download');
     }
 
     /**
@@ -1301,16 +1302,16 @@ class vendor extends CI_Controller {
 
      /**
      *  @desc : This function is used to Add Vendor for a particular Pincode
-     *  @param : String(Booking Id)
-     *  @return : void
+     *  @param : Pincode, appliance, appliance ID, city, brand
+     *  @return : View to add Vendor to pincode.
      */
 
     function get_add_vendor_to_pincode_form($pincode,$appliance,$appliance_id,$city, $brand){
         
         $data['pincode'] = $pincode;
-        $data['Appliance'] = $appliance;
+        $data['Appliance'] = urldecode($appliance);
         $data['Appliance_ID'] = $appliance_id;
-        $data['brand'] = $brand;
+        $data['brand'] = urldecode($brand);
         $data['city'] = urldecode($city);
 
         //Getting data from Database using Booking ID
@@ -1476,5 +1477,28 @@ class vendor extends CI_Controller {
 	$this->load->view('employee/header');
 	$this->load->view('employee/list_vendor_pincode', $data);
     }
+    
+    /**
+     * @desc: This method is used to send mail with Vendor Pincode Mapping file.
+     * This is called by Ajax. It gets email and notes by form. Pass it to asynchronous method.
+     * @param: void
+     * @return: print success
+     */
+    function download_latest_pincode_excel(){
 
+        log_message('info', __FUNCTION__);
+
+        $mail['email'] = $this->input->post('email');
+        $mail['notes'] = $this->input->post('notes');
+        $url = base_url() . "employee/do_background_process/download_latest_pincode_excel";
+        $this->asynchronous_lib->do_background_process($url, $mail);
+        echo '<div class="alert alert-success alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span ;aria-hidden="true">&times;</span>
+                    </button>
+                    <strong> Excel file will be Send to mail. </strong>
+                </div>';
+
+    }
+    
 }

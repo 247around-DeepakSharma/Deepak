@@ -51,11 +51,9 @@ class Service_centers_model extends CI_Model {
         $query = $this->db->get('service_center_booking_action');
         $pending_booking = $query->result_array();
 
-        if ($limit != "count") {
-            $data = array();
-
-            foreach ($pending_booking as $key => $value) {
-                $sql = "Select  services.services,
+        $data = array();
+        foreach ($pending_booking as $key => $value) {
+            $sql = "Select  services.services,
                            users.name as customername, 
                            users.phone_number,
                            booking_details.booking_id,
@@ -69,19 +67,19 @@ class Service_centers_model extends CI_Model {
                            WHERE booking_details.booking_id = '$value[booking_id]' AND (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled')
                             AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0)  ";
 
-                $query1 = $this->db->query($sql);
-                $result = $query1->result();
-                if ($query1->num_rows > 0) {
-                    $result[0]->age_of_booking = $value['age_of_booking'];
-                    $result[0]->admin_remarks = $value['admin_remarks'];
-                    array_push($data, $result[0]);
-                }
+            $query1 = $this->db->query($sql);
+            $result = $query1->result();
+            if ($query1->num_rows > 0) {
+                $result[0]->age_of_booking = $value['age_of_booking'];
+                $result[0]->admin_remarks = $value['admin_remarks'];
+                array_push($data, $result[0]);
             }
         }
+        
 
         if ($limit == "count") {
 
-            return count($pending_booking);
+            return count($data);
         } else {
 
 

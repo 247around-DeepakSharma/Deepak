@@ -6,7 +6,7 @@
       <div class="col-md-12">
          <div class="panel panel-default">
             <div class="panel-heading">
-               <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Pending Booking</h2>
+               <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Pending Booking (<?php echo $count; ?>)</h2>
             </div>
             <div class="panel-body">
                <div class="table-responsive">

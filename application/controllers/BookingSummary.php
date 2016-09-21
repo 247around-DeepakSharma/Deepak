@@ -384,7 +384,7 @@ EOD;
 	    'templateDir' => $templateDir
 	);
 
-	//Get all Active partners
+	//Get all Active partners who has "is_reporting_mail" column 1
 	$partners = $this->partner_model->getpartner();
 
 	foreach ($partners as $p) {
@@ -430,11 +430,11 @@ EOD;
 	    $this->email->message($message);
 	    $this->email->attach($output_file, 'attachment');
 
-	    if ($this->email->send()) {
-		log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $p['public_name']);
-	    } else {
-		log_message('info', __METHOD__ . ": Mail could not be sent for Partner: " . $p['public_name']);
-	    }
+	     if ($this->email->send()) {
+		    log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $p['public_name']);
+	     } else {
+		 log_message('info', __METHOD__ . ": Mail could not be sent for Partner: " . $p['public_name']);
+	     }
 
 	    //Upload Excel to AWS/FTP
 	    $bucket = 'bookings-collateral';

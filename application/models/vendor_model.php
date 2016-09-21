@@ -1041,15 +1041,18 @@ class vendor_model extends CI_Model {
             return false;
         }
     }  
+    
+    /**
+     *  @desc: get all data from vendor_pincode_mapping
+     *
+     *  @param : void
+     *  @return : array of all data
+     */
 
-    // function test_upload($filename){
-    //      $sql = "LOAD DATA INFILE '".$filename."' INTO TABLE vendor_pincode_mapping_temp FIELDS TERMINATED BY ',' ENCLOSED BY '' LINES TERMINATED BY '\r\n' (Vendor_Name,Vendor_ID,Appliance,Appliance_ID,Brand,Area,Pincode,Region,City,State)";
-
-      
-    //     $query = $this->db->query($sql);
-    //     print_r($query).PHP_EOL;
-    //     echo $this->db->last_query();
-    // }
+    function get_all_pincode_mapping(){
+        $query = $this->db->query("SELECT * from vendor_pincode_mapping");
+        return $query->result_array();
+    }
 
 
 }

@@ -24,6 +24,7 @@ class Around_scheduler extends CI_Controller {
      */
     function send_remainder_installation_sms(){
     	$data = $this->around_scheduler_model->send_remainder_installation_sms();
+        //TODO: This sms tag will be changed
     	$sms['tag'] = "remainder_installation_sms";
     	foreach ($data as $key => $value) {
     		$sms['phone_no'] = $data[0]['booking_primary_contact_no'];

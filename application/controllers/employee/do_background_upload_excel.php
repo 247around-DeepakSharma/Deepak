@@ -93,9 +93,7 @@ class Do_background_upload_excel extends CI_Controller {
        $validate_data =  $this->validate_phone_number($data);
        $row_data1 =  $this->validate_product($validate_data);
        $row_data2 = $this->validate_delivery_date($row_data1, $file_type);
-       print_r($row_data2);
        $row_data =  $this->validate_pincode($row_data2);
-      // print_r($row_data);
 
        foreach ($row_data['valid_data'] as $key => $value) {
            //echo print_r($rowData[0], true), EOL;
@@ -240,8 +238,8 @@ class Do_background_upload_excel extends CI_Controller {
                         if($booking_details_id){
                             $this->notify->insert_state_change($booking['booking_id'], "FollowUp", "New_Query", $this->session->userdata('id'), $this->session->userdata('employee_id'));
                             if($file_type == "shipped"){
-                               if(date("Y-m-d", strtotime("+1 day")) == $booking['estimated_delivery_date']){
-                                    $sms['tag'] = "missed_call_sd_sms";
+                               if(date("Y-m-d", strtotime("+1 day")) != $booking['estimated_delivery_date']){
+                                    $sms['tag'] = "new_snapdeal_booking";
                                     $sms['phone_no'] = $booking['booking_primary_contact_no'];
                                     $sms['smsData']['service'] = $booking['services'];
                                     $this->notify->send_sms($sms);
@@ -313,15 +311,11 @@ class Do_background_upload_excel extends CI_Controller {
 
                 unset($data);
             }
-
         }
 
         if(isset($row_data['error'])){
             $this->get_invalid_data($row_data['error']);
         }
-        
-       
-
     }
     
     /**
@@ -399,19 +393,19 @@ class Do_background_upload_excel extends CI_Controller {
             if (stristr($prod, "Geyser")) {
                 $prod = 'Geyser';
             }
-
+            // Block Microvare cooking. If its exist in the Excel file
             if (stristr($prod, "microwave cooking")) {
                 $flag = 1;
                 unset($data['valid_data'][$key]);
                 array_push($invalid_data, $value);
             }
-
+            // Block Tds Meter. If its exist in the Excel file
             if (stristr($prod, "Tds Meter")) {
                 $flag = 1;
                 unset($data['valid_data'][$key]);
                 array_push($invalid_data, $value);
             }
-
+            // Block Accessories. If its exist in the Excel file
             if (stristr($prod, "Accessories")) {
                 $flag = 1;
                 unset($data['valid_data'][$key]);
@@ -442,7 +436,11 @@ class Do_background_upload_excel extends CI_Controller {
     }
     
     /**
-     * @desc: This is used to validate pincode. pincode must be 6 digit integer
+     * @desc: This is used to validate pincode. pincode must be 6 digit integer.
+     * If count of invalid pincode is greater than 4 then it trigger a mail and exit function.
+     * If count of invalid pincode is less than 4 then we will append invalid array into error index
+     * @param: Array
+     * @return: Array 
      */
     function validate_pincode($data){
         $invalid_data = array();
@@ -508,13 +506,14 @@ class Do_background_upload_excel extends CI_Controller {
                 }
             }
         }
-
+         
         if(!empty($valid_data)){
             log_message('info', __FUNCTION__ . ' =>  Product is not valid in Excel data: ' .
             print_r($invalid_data, true));
             $data['error']['reason_delivery_date'] = "Product is not valid";
             $data['error']['validate_delivery_date'] =  $invalid_data;
         }
+        // Past date and future date 
         if($file_type == "shipped"){
             $data['error']['count_past_delivery_date'] = $past_date;
             $data['error']['count_future_delivery_date'] = $future_date;
