@@ -21,10 +21,12 @@ class Do_background_process extends CI_Controller {
         parent::__Construct();
 
         $this->load->helper(array('form', 'url'));
+
         $this->load->model('booking_model');
         $this->load->model('vendor_model');
         $this->load->model('invoices_model');
         $this->load->model('partner_model');
+
         $this->load->library('booking_utilities');
         $this->load->library('partner_sd_cb');
         $this->load->library('asynchronous_lib');
@@ -47,7 +49,7 @@ class Do_background_process extends CI_Controller {
         log_message('info', "Async Process to assign booking - Booking ID: " . $booking_id . ", Service centre: " . $service_center_id);
 
         $unit_details = $this->booking_model->getunit_details($booking_id);
-        foreach ($unit_details[0]['quantity'] as $value ) {
+        foreach ($unit_details[0]['quantity'] as $value) {
             $data = array();
             $data['current_status'] = "Pending";
             $data['internal_status'] = "Pending";
@@ -68,16 +70,16 @@ class Do_background_process extends CI_Controller {
         $sms_sent = $this->notify->send_sms($sms);
         if ($sms_sent === FALSE) {
             log_message('info', "SMS not sent to user while assigning vendor. User's Phone: " .
-            $query1[0]['phone_number']);
+                    $query1[0]['phone_number']);
         }
 
         //Prepare job card
         $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
 
-	//COMMENTING TEMPORARILY AS IT IS NOT WORKING...
+        //COMMENTING TEMPORARILY AS IT IS NOT WORKING...
 //        //Send mail to vendor, no Note to vendor as of now
-       $message = "";
-       $this->booking_utilities->lib_send_mail_to_vendor($booking_id, $message);
+        $message = "";
+        $this->booking_utilities->lib_send_mail_to_vendor($booking_id, $message);
     }
 
     /**
@@ -171,7 +173,7 @@ class Do_background_process extends CI_Controller {
 
         foreach ($data as $key => $value) {
             $current_status1 = "Cancelled";
-            if($value['internal_status'] == "Completed"){
+            if ($value['internal_status'] == "Completed") {
                 $current_status1 = "Completed";
                 $current_status = "Completed";
             }
@@ -183,7 +185,7 @@ class Do_background_process extends CI_Controller {
             $unit_details['booking_status'] = $service_center['internal_status'] = $value['internal_status'];
             $unit_details['id'] = $service_center['unit_details_id'] = $value['unit_details_id'];
 
-            $service_center['update_date'] =  date('Y-m-d H:i:s');
+            $service_center['update_date'] = date('Y-m-d H:i:s');
 
             log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
 
@@ -194,7 +196,7 @@ class Do_background_process extends CI_Controller {
             $unit_details['customer_paid_parts'] = $value['parts_cost'];
 
             log_message('info', ": " . " update booking unit details data " . print_r($unit_details, TRUE));
-             // update price in the booking unit details page
+            // update price in the booking unit details page
             $this->booking_model->update_unit_details($unit_details);
         }
 
@@ -205,12 +207,11 @@ class Do_background_process extends CI_Controller {
         $booking['closing_remarks'] = $service_center['closing_remarks'];
 
         //update booking_details table
-        log_message('info', ": " . " update booking details data (" .$current_status .")".print_r($booking, TRUE));
+        log_message('info', ": " . " update booking details data (" . $current_status . ")" . print_r($booking, TRUE));
 
-        if($current_status == "Cancelled"){
+        if ($current_status == "Cancelled") {
 
             $booking['cancellation_reason'] = $data[0]['cancellation_reason'];
-
         } else {
 
             //Save this booking id in booking_invoices_mapping table as well now
@@ -223,7 +224,7 @@ class Do_background_process extends CI_Controller {
         $this->notify->insert_state_change($booking_id, $current_status, "Pending", $agent_id, $agent_name);
 
         $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-        $send['booking_id']  = $booking_id;
+        $send['booking_id'] = $booking_id;
         $send['state'] = $current_status;
         $this->asynchronous_lib->do_background_process($url, $send);
 
@@ -236,17 +237,15 @@ class Do_background_process extends CI_Controller {
      * @desc : this method send request to send sms and email for completed, cancelled, Rescheduled, open completed/cancelled booking
      */
     function send_sms_email_for_booking() {
-	log_message('info', __FUNCTION__);
-	$booking_id = $this->input->post('booking_id');
+        log_message('info', __FUNCTION__);
+        $booking_id = $this->input->post('booking_id');
         $state = $this->input->post('state');
 
-	log_message('info', __FUNCTION__ . " Booking ID :" . print_r($booking_id, true) . " Sms OR EMAIL tag: " . print_r($state, true));
+        log_message('info', __FUNCTION__ . " Booking ID :" . print_r($booking_id, true) . " Sms OR EMAIL tag: " . print_r($state, true));
 
-	$this->notify->send_sms_email_for_booking($booking_id, $state);
-        log_message('info', ":  Send sms and email request for booking_id" .print_r($booking_id, TRUE). " and state ". print_r($state, TRUE));
-
+        $this->notify->send_sms_email_for_booking($booking_id, $state);
+        log_message('info', ":  Send sms and email request for booking_id" . print_r($booking_id, TRUE) . " and state " . print_r($state, TRUE));
     }
-
 
     /**
      * @desc: This method is used to dump all vendor mapping Pincode data into excel and sen to mail. 
@@ -254,11 +253,11 @@ class Do_background_process extends CI_Controller {
      * @param: void
      * @return: void
      */
-    function download_latest_pincode_excel(){
-
+    function download_latest_pincode_excel() {
         log_message('info', __FUNCTION__);
-        $to_email = $this->input->post('email'); 
-        $notes = $this->input->post('notes'); 
+
+        $to_email = $this->input->post('email');
+        $notes = $this->input->post('notes');
 
         $template = 'Vendor_Pincode_Mapping_Template.xlsx';
         //set absolute path to directory with template files
@@ -270,30 +269,31 @@ class Do_background_process extends CI_Controller {
         );
         //load template
         $R = new PHPReport($config);
+
         $vendor = $this->vendor_model->get_all_pincode_mapping();
 
         $R->load(array(
-
-                 'id' => 'vendor',
-                'repeat' => TRUE,
-                'data' => $vendor
-            ));
+            'id' => 'vendor',
+            'repeat' => TRUE,
+            'data' => $vendor
+        ));
 
         $output_file_dir = "/tmp/";
-        $output_file = "Vendor_Pincode_Mapping" . date('y-m-d');                                                       
+        $output_file = "Vendor_Pincode_Mapping-" . date('d-M-Y');
         $output_file_name = $output_file . ".xlsx";
         $output_file_excel = $output_file_dir . $output_file_name;
+
         $response = $R->render('excel', $output_file_excel);
+
         //Attach file with mail
         $cc = $bcc = "";
-        $from ="booking@247around.com";
-        $subject = "Vendor Mapping Pincode File";
+        $from = "booking@247around.com";
+        $subject = "Vendor Pincode Mapping File - " . date('d-M-Y');
         $message = $notes;
-        log_message('info', __FUNCTION__." => Pincode File Sent to email: ". $to_email. " File ". $output_file_excel);
+        log_message('info', __FUNCTION__ . " => Pincode File Sent to email: " . $to_email . " File " . $output_file_excel);
 
         $this->notify->sendEmail($from, $to_email, $cc, $bcc, $subject, $message, $output_file_excel);
     }
 
     /* end controller */
-
 }
