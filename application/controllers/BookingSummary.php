@@ -385,7 +385,7 @@ EOD;
 	);
 
 	//Get all Active partners who has "is_reporting_mail" column 1
-	$partners = $this->partner_model->getpartner("",'1');
+	$partners = $this->partner_model->getpartner();
 
 	foreach ($partners as $p) {
 	    //load template
