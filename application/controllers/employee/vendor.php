@@ -6,7 +6,7 @@ if (!defined('BASEPATH')) {
 
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
-
+ini_set('memory_limit', '-1');
 ini_set('max_execution_time', 360000); //3600 seconds = 60 minutes
 
 use Box\Spout\Reader\ReaderFactory;
@@ -36,6 +36,7 @@ class vendor extends CI_Controller {
         $this->load->library("session");
         $this->load->library('s3');
         $this->load->library('email');
+        $this->load->helper('download');
     }
 
     /**
@@ -1475,5 +1476,49 @@ class vendor extends CI_Controller {
 	$this->load->view('employee/header');
 	$this->load->view('employee/list_vendor_pincode', $data);
     }
+    
+    /**
+     * @desc: download latest Pincode Mapping Excel File
+     *
+     * @param: void
+     * @return: void
+     */
+    function download_latest_pincode_excel(){
 
+        log_message('info', __FUNCTION__);
+
+        $template = 'Vendor_Pincode_Mapping_Template.xlsx';
+        //set absolute path to directory with template files
+        $templateDir = __DIR__ . "/../excel-templates/";
+        //set config for report
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+        //load template
+        $R = new PHPReport($config);
+        $vendor = $this->vendor_model->get_all_pincode_mapping();
+
+        $R->load(array(
+
+                 'id' => 'vendor',
+                'repeat' => TRUE,
+                'data' => $vendor
+            ));
+
+        $output_file_dir = "/tmp/";
+        $output_file = "Vendor_Pincode_Mapping" . date('y-m-d');                                                       
+        $output_file_name = $output_file . ".xlsx";
+        $output_file_excel = $output_file_dir . $output_file_name;
+        $R->render('excel', $output_file_excel);
+
+        //Downloading File after creation
+
+        header("Content-Description: File Transfer"); 
+        header("Content-Type: application/octet-stream"); 
+        header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
+        readfile ($output_file_excel);
+
+    }
+    
 }
