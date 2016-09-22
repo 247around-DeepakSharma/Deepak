@@ -29,7 +29,7 @@ class Notify {
      */
     function sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment) {
 	switch (ENVIRONMENT) {
-	    case 'testing_abhay':
+	    case 'production':
 		//Clear previous email
 		$this->My_CI->email->clear(TRUE);
 
@@ -262,6 +262,7 @@ class Notify {
 	}
 
 	$query1 = $this->My_CI->booking_model->getbooking_filter_service_center($booking_id);
+	if(!empty($query1)){
 
 	//SMS and Emails are sent using Templates which are defined in sms_template and
 	//email_template tables. These templates are given arguments like service name, customer
@@ -458,6 +459,7 @@ class Notify {
 
 			break;
 	}
+    }
     }
 
 }
