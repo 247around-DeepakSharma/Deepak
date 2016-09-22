@@ -765,7 +765,8 @@ CHANGE  `tds_amount`  `tds_amount` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0';
 
 ALTER TABLE  `bank_transactions` ADD  `tds_amount` DECIMAL( 10, 2 ) NOT NULL DEFAULT  '0.00' AFTER  `debit_amount` ;
 ALTER TABLE  `vendor_partner_invoices` ADD  `settle_amount` INT( 10 ) NOT NULL DEFAULT  '0' AFTER  `tds_amount` ;
-ALTER TABLE  `engineer_details` CHANGE  `identity_proof_pic`  `identity_proof_pic` VARCHAR( 250 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
+ALTER TABLE  `engineer_details` CHANGE  `identity_proof_pic`  `identity_proof_pic` VARCHAR( 250 ) CHARACTER SET latin1 
+COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
 ALTER TABLE  `engineer_details` ADD  `bank_proof_pic` VARCHAR( 250 ) NULL AFTER  `identity_proof_pic` ;
 
 
@@ -782,7 +783,24 @@ ALTER TABLE  `booking_state_change` ADD  `partner_id` INT( 10 ) NOT NULL AFTER  
 
 <-- Belal 19Sept -->
 
-ALTER TABLE `partners`  ADD `address` VARCHAR(100) NOT NULL  AFTER `public_name`,  ADD `district` VARCHAR(50) NOT NULL  AFTER `address`,  ADD `state` VARCHAR(50) NOT NULL  AFTER `district`,  ADD `pincode` VARCHAR(10) NOT NULL  AFTER `state`,  ADD `landmark` VARCHAR(500) NOT NULL  AFTER `pincode`,  ADD `registration_number` VARCHAR(50) NOT NULL  AFTER `landmark`,  ADD `primary_contact_name` VARCHAR(50) NOT NULL  AFTER `registration_number`,  ADD `primary_contact_email` VARCHAR(50) NOT NULL  AFTER `primary_contact_name`,  ADD `primary_contact_phone_1` VARCHAR(20) NOT NULL  AFTER `primary_contact_email`,  ADD `primary_contact_phone_2` VARCHAR(20) NOT NULL  AFTER `primary_contact_phone_1`,  ADD `owner_name` VARCHAR(50) NOT NULL  AFTER `primary_contact_phone_2`,  ADD `owner_email` VARCHAR(50) NOT NULL  AFTER `owner_name`,  ADD `owner_phone_1` VARCHAR(20) NOT NULL  AFTER `owner_email`,  ADD `owner_phone_2` VARCHAR(20) NOT NULL  AFTER `owner_phone_1`,  ADD `invoice_email_to` VARCHAR(50) NOT NULL  AFTER `owner_phone_2`,  ADD `invoice_email_cc` VARCHAR(100) NOT NULL  AFTER `invoice_email_to`,  ADD `invoice_email_bcc` VARCHAR(100) NOT NULL  AFTER `invoice_email_cc`,  ADD `summary_email_to` VARCHAR(50) NOT NULL  AFTER `invoice_email_bcc`,  ADD `summary_email_cc` VARCHAR(100) NOT NULL  AFTER `summary_email_to`,  ADD `summary_email_bcc` VARCHAR(100) NOT NULL  AFTER `summary_email_cc`;
+ALTER TABLE `partners`  ADD `address` VARCHAR(100) NOT NULL  AFTER `public_name`,  
+ADD `district` VARCHAR(50) NOT NULL  AFTER `address`,  ADD `state` VARCHAR(50) NOT NULL  AFTER `district`,  
+ADD `pincode` VARCHAR(10) NOT NULL  AFTER `state`,  ADD `landmark` VARCHAR(500) NOT NULL  AFTER `pincode`,  
+ADD `registration_number` VARCHAR(50) NOT NULL  AFTER `landmark`,  
+ADD `primary_contact_name` VARCHAR(50) NOT NULL  AFTER `registration_number`,  
+ADD `primary_contact_email` VARCHAR(50) NOT NULL  AFTER `primary_contact_name`,  
+ADD `primary_contact_phone_1` VARCHAR(20) NOT NULL  AFTER `primary_contact_email`,  
+ADD `primary_contact_phone_2` VARCHAR(20) NOT NULL  AFTER `primary_contact_phone_1`,  
+ADD `owner_name` VARCHAR(50) NOT NULL  AFTER `primary_contact_phone_2`,  
+ADD `owner_email` VARCHAR(50) NOT NULL  AFTER `owner_name`,  
+ADD `owner_phone_1` VARCHAR(20) NOT NULL  AFTER `owner_email`,  
+ADD `owner_phone_2` VARCHAR(20) NOT NULL  AFTER `owner_phone_1`,  
+ADD `invoice_email_to` VARCHAR(2048) NOT NULL  AFTER `owner_phone_2`,  
+ADD `invoice_email_cc` VARCHAR(2048) NOT NULL  AFTER `invoice_email_to`,  
+ADD `invoice_email_bcc` VARCHAR(2048) NOT NULL  AFTER `invoice_email_cc`,  
+ADD `summary_email_to` VARCHAR(2048) NOT NULL  AFTER `invoice_email_bcc`,  
+ADD `summary_email_cc` VARCHAR(2048) NOT NULL  AFTER `summary_email_to`,  
+ADD `summary_email_bcc` VARCHAR(2048) NOT NULL  AFTER `summary_email_cc`;
 
 CREATE TABLE `sms_sent_details` (
  `id` int(10) NOT NULL AUTO_INCREMENT,
@@ -798,3 +816,8 @@ CREATE TABLE `sms_sent_details` (
 
 <!-- Abhay 20 Sept -->
 ALTER TABLE  `partners` ADD  `is_reporting_mail` INT( 11 ) NOT NULL DEFAULT  '0' AFTER  `auth_token` ;
+
+-- ANUJ 21 Sept --
+ALTER TABLE  `vendor_partner_invoices` CHANGE  `settle_amount`  `settle_amount` INT( 10 ) NOT NULL 
+DEFAULT  '0' COMMENT 'Flag to check whether invoice is settled fully or not';
+
