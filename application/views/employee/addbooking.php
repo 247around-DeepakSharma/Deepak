@@ -258,7 +258,7 @@
                                 <label for="booking_date" class="col-md-4">Booking Date *</label>
                                 <div class="col-md-6">
                                 <div class="input-group input-append date">
-                                    <input id="booking_date" class="form-control"  name="booking_date" type="date" value = "<?php echo  date("Y-m-d", strtotime("+1 day")); ?>" required>
+                                    <input id="booking_date" class="form-control"  name="booking_date" type="date" value = "<?php echo  date("Y-m-d", strtotime("+1 day")); ?>" required readonly='true'>
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
