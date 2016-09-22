@@ -527,7 +527,7 @@
                                 <label for="booking_date" class="col-md-4">Booking Date *</label>
                                 <div class="col-md-6">
                                 <div class="input-group input-append date">
-                                    <input id="booking_date" class="form-control"  name="booking_date" type="date" value = "<?php if(!empty($booking_history[0]['booking_date'])){ echo  date("Y-m-d", strtotime($booking_history[0]['booking_date'])); } else { echo date("Y-m-d", strtotime('+1 days')); } ?>" required>
+                                    <input id="booking_date" class="form-control"  name="booking_date" type="date" value = "<?php if(!empty($booking_history[0]['booking_date'])){ echo  date("Y-m-d", strtotime($booking_history[0]['booking_date'])); } else { echo date("Y-m-d", strtotime('+1 days')); } ?>" required readonly='true'>
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
