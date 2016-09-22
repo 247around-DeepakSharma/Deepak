@@ -691,7 +691,7 @@ class Booking_model extends CI_Model {
      *  @param : booking id
      *  @return : all the unit booking detais
      */
-    function get_unit_details($booking_id="", $unit_details_id="") {
+    function get_unit_details($booking_id="", $unit_details_id="",$partner_id="") {
         $this->db->select('*');
         if($booking_id != ""){
             $this->db->where('booking_id', $booking_id);
