@@ -1263,8 +1263,7 @@ class Api extends CI_Controller {
     }
 
     function send_missed_call_confirmation_sms($booking) {
-
-	$sms['tag'] = "sd_shipped_missed_call_initial";
+	$sms['tag'] = "missed_call_confirmed";
 	$sms['phone_no'] = $booking['booking_primary_contact_no'];
 	$sms['smsData']['message'] = $this->notify->get_product_free_not($booking['services']);
 	$sms['smsData']['service'] = $booking['services'];
@@ -1277,6 +1276,7 @@ class Api extends CI_Controller {
 	$sms['booking_id'] = $booking['booking_id'];
 	$sms['type'] = "user";
 	$sms['type_id'] = $booking['user_id'];
+        
 	$this->notify->send_sms($sms);
     }
 

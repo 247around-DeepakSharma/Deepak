@@ -15,8 +15,8 @@ class Around_scheduler_model extends CI_Model {
     /*
      * @desc: This method is used to get data who has
      * Partner source => Snapdeal-shipped-excel
-     * Internal Status => Missed_call_confirmed
-     * Edd => Tommorrow
+     * Internal Status => Missed_call_not_confirmed
+     * EDD => Tommorrow
      * Current status => FollowUp
      */
     function get_reminder_installation_sms_data() {

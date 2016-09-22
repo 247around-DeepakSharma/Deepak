@@ -47,8 +47,9 @@ class Booking_model extends CI_Model {
      * @return: appliance id
      */
     function addappliance($appliance_detail){
-        log_message ('info', __METHOD__ . "appliance_detail data". print_r($appliance_detail, true));
+        //log_message ('info', __METHOD__ . "appliance_detail data". print_r($appliance_detail, true));
         $this->db->insert('appliance_details', $appliance_detail);
+        
         return $this->db->insert_id();
     }
 
@@ -87,9 +88,9 @@ class Booking_model extends CI_Model {
      */
 
     function addbooking($booking){
-        log_message('info', __METHOD__ . " booking details data: " . print_r($booking, true));
 	$this->db->insert('booking_details', $booking);
-    log_message ('info', __METHOD__ . "booking  SQL ". $this->db->last_query());
+        
+        log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
 
         return $this->db->insert_id();
     }

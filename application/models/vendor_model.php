@@ -1054,5 +1054,26 @@ class vendor_model extends CI_Model {
         return $query->result_array();
     }
 
+    /**
+     * @desc : Check whether vendor is available in a Pincode for a particular appliance or not
+     * @param : $pincode String Pincode
+     * @param : $service_id Integer Service ID (TV, AC etc)
+     * 
+     * @return : $vendor_ids Array containing list of Vendor IDs which are available
+     */
+    function check_vendor_availability($pincode, $service_id) {
+        $this->db->distinct();
+        $this->db->select('Vendor_ID, Vendor_Name');
+        $this->db->where('vendor_pincode_mapping.Appliance_ID', $service_id);
+        $this->db->where('vendor_pincode_mapping.Pincode', $pincode);
+        $this->db->where('vendor_pincode_mapping.active', "1");
+        $this->db->from('vendor_pincode_mapping');
+        $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
+        $this->db->where('service_centres.active', "1");
+        
+        $data = $this->db->get();
+        
+        return $data->result_array();
+    }
 
 }
