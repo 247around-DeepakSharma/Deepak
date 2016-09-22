@@ -588,8 +588,10 @@ class Partner extends CI_Controller {
             }
         } elseif ($booking_id != "") {  //if booking id given and matched, will be displayed
             $where = array('booking_details.booking_id' => $booking_id);
-            $data['Bookings'] = $this->booking_model->search_bookings($where);
-            $this->load_search_view($data);
+            $data['bookings'] = $this->booking_model->search_bookings($where,$partner_id);
+            
+            $this->load->view('partner/header');
+            $this->load->view('partner/pending_booking',$data);
         } else if (!empty($order_id)) {
 
             $where = array('order_id' => $order_id);
