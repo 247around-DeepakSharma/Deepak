@@ -45,9 +45,6 @@
             </div>
         </div>
         
-        <div class="panel panel-default clear">
-            <div class="panel-heading"><strong>State Transitions</strong></div>
-        </div>  
         <table  class="table table-striped table-bordered">
           <tr>
                 <th>S.N</th>

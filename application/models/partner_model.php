@@ -152,7 +152,11 @@ class Partner_model extends CI_Model {
     function insert_data_in_batch($table_name, $rows){
         return $this->db->insert_batch($table_name, $rows);
     }
-
+    
+    /*
+     * @desc: This is used to get active partner details and also get partner details by partner id
+     * By default is_reporting variable is get
+     */
     function getpartner($partner_id = "") {
 	    if ($partner_id != "") {
 	        $this->db->where('id', $partner_id);

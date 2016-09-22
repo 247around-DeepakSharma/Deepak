@@ -1493,7 +1493,7 @@ class Partner extends CI_Controller {
             $booking['current_status'] = "Pending";
             $booking['internal_status'] = "Scheduled";
             $booking['type'] = "Booking";
-            $booking['booking_date'] = (isset($requestData['booking_date']) ? $requestData['booking_date'] : "");;
+            $booking['booking_date'] = (isset($requestData['booking_date']) ? $requestData['booking_date'] : "");
             $booking['booking_timeslot'] = '';
             $booking['booking_address'] =$requestData['address'] . ", " . $requestData['landmark'] ;
             $booking['amount_due'] = '';

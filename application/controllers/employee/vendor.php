@@ -80,18 +80,19 @@ class vendor extends CI_Controller {
                 redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
             } else {
                 // get service center code by calling generate_service_center_code() method
-                $email = $this->input->post('email');
+                $owner_email = $this->input->post('owner_email');
                 $primary_contact_email = $this->input->post('primary_contact_email');
-                $to = $email.','.$primary_contact_email;
+                $to = $owner_email.','.$primary_contact_email;
                 
-                $subject = "247around - Closure of Bookings";
+                $subject = "Welcome to 247around";
                 $message = "Dear Partner,<br><br>"
-                        . "As informed earlier, serial number of appliance is mandatory to be entered in the system while closure. All bookings without serial numbers will be cancelled.<br><br> "
-                        . "In case serial number is not found on the appliance you need to bring one of the following.<br> "
-                        . "1st Option Serial Number Of Appliance<br><br>"
-                        . "2nd Option Invoice Number Of The Appliance<br><br>"
-                        . "3rd Option Customer ID Card Number - PAN / Aadhar / Driving License<br><br>"
-                        . "No completion will be allowed to without one of the above.<br><br><br>"
+                        . "247around welcomes you to its Partner Network, we hope to have a long lasting relationship with you.<br><br>"
+                        . "As informed earlier, serial number of appliance is mandatory when you close a booking. All bookings without serial numbers will be cancelled.<br><br> "
+                        . "Engineer has to note the serial number when installation is done. In case serial number is not found on the appliance, he needs to bring one of the following proofs:<br><br> "
+                        . "1st Option : Serial Number Of Appliance<br><br>"
+                        . "2nd Option : Invoice Number Of The Appliance<br><br>"
+                        . "3rd Option : Customer ID Card Number - PAN / Aadhar / Driving License etc.<br><br>"
+                        . "No completion will be allowed without any one of the above. For any confusion, write to us or call us.<br><br><br>"
                         . "Regards,<br>"
                         . "247around Team";
                 
@@ -100,10 +101,10 @@ class vendor extends CI_Controller {
                 //if vendor do not exists, vendor is added
                 $sc_id = $this->vendor_model->add_vendor($_POST);
 
-		        $this->sendWelcomeSms($_POST['primary_contact_phone_1'], $_POST['name'],$sc_id);
+                $this->sendWelcomeSms($_POST['primary_contact_phone_1'], $_POST['name'],$sc_id);
                 $this->sendWelcomeSms($_POST['owner_phone_1'], $_POST['owner_name'],$sc_id);
 
-                $this->notify->sendEmail("booking@247around.com", $to , 'anuj@247around.com', '', $subject , $message, "");
+                $this->notify->sendEmail("booking@247around.com", $to , 'anuj@247around.com, nits@247around.com', '', $subject , $message, "");
 
 		  //create vendor login details as well
 		   $sc_login_uname = strtolower($_POST['sc_code']);
@@ -1308,9 +1309,9 @@ class vendor extends CI_Controller {
     function get_add_vendor_to_pincode_form($pincode,$appliance,$appliance_id,$city, $brand){
         
         $data['pincode'] = $pincode;
-        $data['Appliance'] = $appliance;
+        $data['Appliance'] = urldecode($appliance);
         $data['Appliance_ID'] = $appliance_id;
-        $data['brand'] = $brand;
+        $data['brand'] = urldecode($brand);
         $data['city'] = urldecode($city);
 
         //Getting data from Database using Booking ID
@@ -1385,10 +1386,10 @@ class vendor extends CI_Controller {
 
                     if($result){
                         //Setting Flash data on success
-                        $this->session->set_flashdata('success','Vendor assigned successfully.');
+                        $this->session->set_flashdata('success', 'Pincode Mapped to Vendor successfully.');
 
                         //Echoing sucess to Log file
-                        log_message('info',__FUNCTION__.' Vendor assigned successfully in Vendor Mapping Table. ');
+                        log_message('info',__FUNCTION__.' Pincode Mapped to Vendor successfully.');
                         $this->vendor_model->insert_vendor_pincode_mapping($vendor_mapping);
 
                     } else {
@@ -1478,46 +1479,25 @@ class vendor extends CI_Controller {
     }
     
     /**
-     * @desc: download latest Pincode Mapping Excel File
-     *
+     * @desc: This method is used to send mail with Vendor Pincode Mapping file.
+     * This is called by Ajax. It gets email and notes by form. Pass it to asynchronous method.
      * @param: void
-     * @return: void
+     * @return: print success
      */
     function download_latest_pincode_excel(){
 
         log_message('info', __FUNCTION__);
 
-        $template = 'Vendor_Pincode_Mapping_Template.xlsx';
-        //set absolute path to directory with template files
-        $templateDir = __DIR__ . "/../excel-templates/";
-        //set config for report
-        $config = array(
-            'template' => $template,
-            'templateDir' => $templateDir
-        );
-        //load template
-        $R = new PHPReport($config);
-        $vendor = $this->vendor_model->get_all_pincode_mapping();
-
-        $R->load(array(
-
-                 'id' => 'vendor',
-                'repeat' => TRUE,
-                'data' => $vendor
-            ));
-
-        $output_file_dir = "/tmp/";
-        $output_file = "Vendor_Pincode_Mapping" . date('y-m-d');                                                       
-        $output_file_name = $output_file . ".xlsx";
-        $output_file_excel = $output_file_dir . $output_file_name;
-        $R->render('excel', $output_file_excel);
-
-        //Downloading File after creation
-
-        header("Content-Description: File Transfer"); 
-        header("Content-Type: application/octet-stream"); 
-        header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
-        readfile ($output_file_excel);
+        $mail['email'] = $this->input->post('email');
+        $mail['notes'] = $this->input->post('notes');
+        $url = base_url() . "employee/do_background_process/download_latest_pincode_excel";
+        $this->asynchronous_lib->do_background_process($url, $mail);
+        echo '<div class="alert alert-success alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span ;aria-hidden="true">&times;</span>
+                    </button>
+                    <strong> Excel file will be Send to mail. </strong>
+                </div>';
 
     }
     

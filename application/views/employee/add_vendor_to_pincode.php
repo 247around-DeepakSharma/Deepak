@@ -102,7 +102,7 @@ select[multiple], select[size]{
 
          			<div class="col-md-5">
          				<div class="form-group <?php if( form_error('choice') ) { echo 'has-error';} ?>">
-         					<label for="name">Vendor Availiable Services</label><hr>
+         					<label for="name">Vendor Available Services</label><hr>
 
                    <?php if(!empty(form_error('choice'))){?>
                       <div class="alert alert-danger">

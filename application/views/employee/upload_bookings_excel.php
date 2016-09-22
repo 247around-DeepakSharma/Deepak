@@ -61,7 +61,7 @@ function submitForm() {
     //console.log(data);
       
   });
-    alert('File is under Process');
+    alert('File upload will continue in the background...');
   //window.open('<?php echo base_url(); ?>employee/user');    
 }
 </script>

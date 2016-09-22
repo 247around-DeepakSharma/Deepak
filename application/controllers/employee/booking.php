@@ -50,62 +50,63 @@ class Booking extends CI_Controller {
     }
 
     /**
-     *  @desc : This method is used to add booking.
+     *  @desc : This method is used to add a NEW Booking or Query. This is NOT used
+     * to update existing Booking or Query.
      *
      * This function will get all the booking details.
-     * These booking details are the details which are inserted in booking details table while taking the actual booking.
+     * These booking details are the details which are inserted in booking details table 
+     * while taking the actual booking.
      *
-     * After insertion of booking details, if it is not a query then an email and SMS will be sent to the user for booking confirmation.
+     * After insertion of booking details, if it is not a query, then an email and SMS 
+     * will be sent to the user for booking confirmation.
 
      *  @param : user id
      *
      *  @return : void
      */
     public function index($user_id) {
-    	
-	log_message('info', __FUNCTION__);
-	log_message('info', " Booking Insert User ID: " . print_r($user_id, true));
-	$booking = $this->getAllBookingInput($user_id);
+        log_message('info', __FUNCTION__);
+        log_message('info', " Booking Insert User ID: " . print_r($user_id, true));
+        $booking = $this->getAllBookingInput($user_id);
 
-	$service = $booking['services'];
-	$message = $booking['message'];
-	unset($booking['message']); // unset message body from booking deatils array
-	unset($booking['services']); // unset service name from booking details array
+        $service = $booking['services'];
+        $message = $booking['message'];
+        unset($booking['message']); // unset message body from booking deatils array
+        unset($booking['services']); // unset service name from booking details array
 
-	log_message('info', " Booking to be insert: " . print_r($booking, true));
+        log_message('info', " Booking to be insert: " . print_r($booking, true));
 
-	$this->booking_model->addbooking($booking);
+        $this->booking_model->addbooking($booking);
 
+        if ($booking['type'] == 'Booking') {
+            $this->notify->insert_state_change($booking['booking_id'], "Pending", "New_Booking", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 
-	if ($booking['type'] == 'Booking') {
+            $to = "anuj@247around.com";
+            //$to = "abhaya@247around.com";
+            $from = "booking@247around.com";
+            $cc = "";
+            $bcc = "";
+            $subject = 'Booking Confirmation-AROUND';
+            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
+            //-------Sending SMS on booking--------//
 
-		$this->notify->insert_state_change($booking['booking_id'], "Pending", "New_Booking", $this->session->userdata('id'), $this->session->userdata('employee_id'));
-
-	    $to = "anuj@247around.com";
-	    //$to = "abhaya@247around.com";
-	    $from = "booking@247around.com";
-	    $cc = "";
-	    $bcc = "";
-	    $subject = 'Booking Confirmation-AROUND';
-	    $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
-	    //-------Sending SMS on booking--------//
-
-	    $smsBody = "Got it! Request for " . trim($service) . " Repair is confirmed for " .
-		$booking['booking_date'] . ", " . $booking['booking_timeslot'] .
-		". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";
+            $smsBody = "Got it! Request for " . trim($service) . " Repair is confirmed for " .
+                    $booking['booking_date'] . ", " . $booking['booking_timeslot'] .
+                    ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";
 
 
-	    $sms_details = $this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
+            $sms_details = $this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
             //For saving SMS to the database on sucess
-            if(isset($sms_details['info']) && $sms_details['info'] == '200'){
-                $this->notify->add_sms_sent_details($user_id, 'user' , $booking['booking_primary_contact_no'],
-                    $smsBody, $booking['booking_id']);
+            if (isset($sms_details['info']) && $sms_details['info'] == '200') {
+                $this->notify->add_sms_sent_details($user_id, 'user', $booking['booking_primary_contact_no'], $smsBody, $booking['booking_id']);
 
-	    $this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
-	} 
-    }
+                $this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
+            }
+	} else {
+		$this->notify->insert_state_change($booking['booking_id'], "FollowUp", "New_Query", $this->session->userdata('id'), $this->session->userdata('employee_id'));
+        }
 
-	redirect(base_url() . DEFAULT_SEARCH_PAGE);
+        redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
     /**
@@ -328,7 +329,6 @@ class Booking extends CI_Controller {
      * @param  $booking_id
      */
     function send_sms_email($booking_id, $state) {
-	log_message('info', __FUNCTION__);
 	log_message('info', __FUNCTION__ . " Booking ID :" . print_r($booking_id, true));
 	$url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
 	$send['booking_id'] = $booking_id;

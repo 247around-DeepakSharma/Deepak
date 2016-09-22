@@ -201,14 +201,14 @@ class Booking_model extends CI_Model {
 
         if ($booking_id != "") {
             $where .= "AND `booking_details`.`booking_id` = '$booking_id'";
+        } else {
+            $where .= "AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
         }
 
         if ($service_center_id != "") {
             $where .= " AND assigned_vendor_id = '" . $service_center_id . "'";
             $where .= "AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
-        } else {
-            $where .= "AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
-        }
+        } 
 
         $query = $this->db->query("Select count(*) as count from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
@@ -237,15 +237,16 @@ class Booking_model extends CI_Model {
 
         if ($booking_id != "") {
             $where .= "AND `booking_details`.`booking_id` = '$booking_id'";
+
+        } else {
+            $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
         }
 
         if ($service_center_id != "") {
             $where .= " AND assigned_vendor_id = '" . $service_center_id . "'";
             $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
 
-        } else {
-            $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
-        }
+        } 
 
         $query = $this->db->query("Select services.services,
             users.name as customername, users.phone_number,
