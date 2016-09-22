@@ -1349,12 +1349,12 @@ class vendor extends CI_Controller {
         //Getting Post data
         if($this->input->post()){
             //Adding Validation Rules
-            $this->form_validation->set_rules('pincode', 'Pincode', 'trim|required');
+            $this->form_validation->set_rules('pincode', 'Pincode', 'trim|required|numeric|min_length[6]|max_length[6]');
             $this->form_validation->set_rules('city', 'City', 'trim|required');
             $this->form_validation->set_rules('area', 'Area', 'trim|required');
             $this->form_validation->set_rules('state', 'State', 'trim|required');
             $this->form_validation->set_rules('vendor_id', 'Vendor Id', 'required');
-            $this->form_validation->set_rules('brand', 'Brand', 'trim');
+            $this->form_validation->set_rules('brand', 'Brand', 'trim|required');
             $this->form_validation->set_rules('choice', 'Services', 'required');
 
             //Check for Validation
