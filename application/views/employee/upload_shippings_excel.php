@@ -25,7 +25,7 @@
             <h1 class="page-header">
                <b> Upload Shipped Products Excel</b>
             </h1>
-              <form class="form-horizontal"  id="fileinfo" action ="<?php echo base_url()?>employee/do_background_upload_excel/upload_snapdeal_file/shipped" name="fileinfo"  method="POST" enctype="multipart/form-data">
+              <form class="form-horizontal"  id="fileinfo" onsubmit="return submitForm();"  name="fileinfo"  method="POST" enctype="multipart/form-data">
           
                 <div class="form-group  <?php if( form_error('excel') ) { echo 'has-error';} ?>">
                   <label for="excel" class="col-md-1">Shipped Products Excel</label>
