@@ -137,7 +137,6 @@ class Notify {
 	if (!empty($template)) {
 	    $smsBody = vsprintf($template, $sms['smsData']);
 	    $response = $this->sendTransactionalSms($sms['phone_no'], $smsBody);
-	    print_r($response);
 	    if (isset($response['info']) && $response['info'] == '200') {
 		$this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['tag'], $smsBody, $sms['booking_id']);
 	    }
@@ -491,7 +490,8 @@ class Notify {
      * @return string free or ''
      */
     function get_product_free_not($appliance) {
-	$status;
+	$status = '';
+        
 	switch ($appliance) {
 	    case 'Washing Machine':
 		$status = 'free';
@@ -514,21 +514,16 @@ class Notify {
 		$status = 'free';
 		break;
 
+            //Leave blank
 	    case 'Air Conditioner':
-		$status = '';
-		break;
-
 	    case 'Chimney':
-		$status = '';
 		break;
+            
 	    case 'Geyser':
 		$status = 'free';
-
-		break;
-
-	    default:
 		break;
 	}
+        
 	return $status;
     }
 
