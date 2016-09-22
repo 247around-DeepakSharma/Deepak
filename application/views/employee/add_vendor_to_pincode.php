@@ -45,36 +45,36 @@ select[multiple], select[size]{
                               <?php }?>
 
                        <div class="form-group <?php if( form_error('brand') ) { echo 'has-error';} ?>">
-                           <label for="name" class="col-md-4">Brand</label>
+                           <label for="name" class="col-md-4">Brand*</label>
                            <div class="col-md-6">
                               <input type="text" class="form-control" id="brand" name="brand" value = "<?php if (isset($brand)) {echo $brand; }  ?>" >
                            </div>
-                            <?php echo form_error('brand'); ?>
+                           <div style="margin-left:40%;margin-top:40px;"><?php echo form_error('brand'); ?></div>
                         </div>
 
                         <div class="form-group <?php if( form_error('pincode') ) { echo 'has-error';} ?>">
-                           <label for="name" class="col-md-4">Pincode</label>
+                           <label for="name" class="col-md-4">Pincode*</label>
                            <div class="col-md-6">
                             <input type="text" class="form-control" id="pincode" name="pincode" value = "<?php if (isset($pincode)) {echo $pincode; } ?>" >
                            </div>
-                            <?php echo form_error('pincode'); ?>
+                           <div style="margin-left:25%;margin-top:40px;"><?php echo form_error('pincode'); ?></div>
                         </div>
                         <div class="form-group <?php if( form_error('city') ) { echo 'has-error';} ?>">
-                           <label for="name" class="col-md-4">City</label>
+                           <label for="name" class="col-md-4">City*</label>
                            <div class="col-md-6">
                            <input type="text" class="form-control" id="city" name="city" value = "<?php if (isset($city)) {echo $city; } ?>" >
                            </div>
-                           <?php echo form_error('city'); ?>
+                           <div style="margin-left:40%;margin-top:40px;"><?php echo form_error('city'); ?></div>
                         </div>
                         <div class="form-group <?php if( form_error('area') ) { echo 'has-error';} ?>">
-                           <label for="name" class="col-md-4">Area</label>
+                           <label for="name" class="col-md-4">Area*</label>
                            <div class="col-md-6">
                                <input type="text" class="form-control" id="area" name="area" value = "<?php if (isset($area)) {echo $area; } ?>" >
                            </div>
-                           <?php echo form_error('area'); ?>
+                           <div style="margin-left:40%;margin-top:40px;"><?php echo form_error('area'); ?></div>
                         </div>
                         <div class="form-group <?php if( form_error('state') ) { echo 'has-error';} ?>">
-                           <label for="name" class="col-md-4">State</label>
+                           <label for="name" class="col-md-4">State*</label>
                            <div class="col-md-6">
                             <select type="text" class="form-control"  class="form-control" id="state" name="state" >
                                 <option value="">Select State</option>
@@ -82,10 +82,10 @@ select[multiple], select[size]{
                                              <option  value=<?= $value['state']; ?> <?php echo (isset($Appliance_ID)&& $Appliance_ID)?(isset($state))?'selected="selected"':'':''?> > <?php echo $value['state']; } ?></option>
                                </select>
                            </div>
-                           <?php echo form_error('state'); ?>
+                           <div style="margin-left:40%;margin-top:40px;"> <?php echo form_error('state'); ?></div>
                         </div>
                         <div class="form-group <?php if( form_error('vendor_id') ) { echo 'has-error';} ?>">
-                           <label for="name" class="col-md-4">Vendor</label>
+                           <label for="name" class="col-md-4">Vendor*</label>
                            <div class="col-md-6">
                                <select type="text" class="form-control"  id="vendor" name="vendor_id">
                                             <option value="">Select Vendor</option>
@@ -98,7 +98,7 @@ select[multiple], select[size]{
                                             <?php }?>
                                </select>
                            </div>
-                           <?php echo form_error('vendor_id'); ?>
+                           <div style="margin-left:40%;margin-top:40px;"><?php echo form_error('vendor_id'); ?></div>
                         </div>
                         <div class="form-group">
                           <center>
@@ -109,7 +109,7 @@ select[multiple], select[size]{
 
          			<div class="col-md-5">
          				<div class="form-group <?php if( form_error('choice') ) { echo 'has-error';} ?>">
-         					<label for="name">Vendor Available Services</label><hr>
+         					<label for="name">Vendor Available Services*</label><hr>
 
                    <?php if(!empty(form_error('choice'))){?>
                       <div class="alert alert-danger">
