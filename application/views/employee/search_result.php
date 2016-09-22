@@ -500,7 +500,7 @@
                         } }?>
                 </table>
                 <?php } if(isset($data['Cancelled'])){?>
-                <h1 align="left" style="margin-top: 30px;"><b>Cancelled Bookings<b></b></h1>
+                <h1 align="left" style="margin-top: 30px;"><b>Cancelled Bookings/Queries<b></b></h1>
                 </b>
                 <table style="margin-bottom:50px;">
                     <thead>

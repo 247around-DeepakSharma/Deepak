@@ -794,3 +794,7 @@ CREATE TABLE `sms_sent_details` (
  `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
+
+
+<!-- Abhay 20 Sept -->
+ALTER TABLE  `partners` ADD  `is_reporting_mail` INT( 11 ) NOT NULL DEFAULT  '0' AFTER  `auth_token` ;
