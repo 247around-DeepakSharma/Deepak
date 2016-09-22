@@ -512,5 +512,109 @@ class Partner extends CI_Controller {
         $this->load->view('employee/header');
         $this->load->view('employee/addpartner', array('query' => $query,'results'=>$results));
     }
-        
+    
+    /**
+     * @desc: This is used to get find user form in Partner CRM
+     * params: void
+     * return: View form to find user
+     */
+    function get_user_form() {
+
+        $this->load->view('partner/header');
+        $this->load->view('partner/finduser');
     }
+
+    /**
+     * @desc : This function is to find/search user in Partner CRM
+     *
+     * Searches user details with booking id, order id/serial number and phone number
+     *
+     * Complete or partial detail entered to search will show all the matching users/bookings in a list,
+     *      from which we can select the required one by looking at other details shown.
+     *
+     * @param: offset, per page number and phone number
+     * @return : print Booking on Booking Page
+     */
+    function finduser($offset = 0, $page = 0, $phone_number = '') {
+        $booking_id = $this->input->post('booking_id');
+        $order_id = $this->input->post('order_id');
+        $partner_id = $this->session->userdata('partner_id');
+
+        if ($this->input->post('phone_number')) {
+            $phone_number = $this->input->post('phone_number');
+        }
+
+        if ($phone_number != "") {
+            //search user by phone number
+            $output = $this->user_model->search_user($phone_number);
+
+            if (empty($output)) {
+                //if user not found set error session data
+                $this->session->set_flashdata('error', 'User Not Found');
+
+                redirect(base_url() . 'employee/partner/get_user_form');
+            } else {
+                //if entered detail matches it will be displayed in a page
+                $page = 0;
+                $offset = 0;
+                if ($page == 0) {
+                    $page = 50;
+                }
+                $offset = ($this->uri->segment(7) != '' ? $this->uri->segment(7) : 0);
+
+                $config['base_url'] = base_url() . "employee/partner/finduser/" . $offset . "/" . $page . "/" . $phone_number;
+                $config['total_rows'] = $this->partner_model->total_user_booking($output[0]['user_id'], $partner_id);
+                $config['per_page'] = $page;
+                $config['uri_segment'] = 7;
+                $config['first_link'] = 'First';
+                $config['last_link'] = 'Last';
+
+                $this->pagination->initialize($config);
+                $data['links'] = $this->pagination->create_links();
+
+                $data['data'] = $this->user_model->partner_booking_history($phone_number, $partner_id, $config['per_page'], $offset);
+
+                if (empty($data['data'])) {
+
+                    $data['data'] = $output;
+                }
+
+                $data['appliance_details'] = $this->user_model->appliance_details($phone_number);
+
+
+                $this->load->view('partner/header');
+                $this->load->view('partner/bookinghistory', $data);
+            }
+        } elseif ($booking_id != "") {  //if booking id given and matched, will be displayed
+            $where = array('booking_details.booking_id' => $booking_id);
+            $data['Bookings'] = $this->booking_model->search_bookings($where);
+            $this->load_search_view($data);
+        } else if (!empty($order_id)) {
+
+            $where = array('order_id' => $order_id);
+            $data['Bookings'] = $this->booking_model->search_bookings($where, $partner_id);
+            $data['search'] = "Search";
+
+            $this->load_search_view($data);
+        }
+    }
+
+    /**
+     *  @desc : This function is to view details of any particular booking to partner
+     *
+     * 	We get all the details like User's details, booking details, and also the appliance's unit details of particular partner
+     *
+     *  @param : booking id, partner ID
+     *  @return : booking details and load view
+     */
+    function viewdetails($booking_id, $partner_id) {
+        $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
+        $data['unit_details'] = $this->booking_model->get_unit_details($booking_id, $partner_id);
+
+        $data['service_center'] = $this->booking_model->selectservicecentre($booking_id);
+
+        $this->load->view('partner/header');
+        $this->load->view('partner/viewdetails', $data);
+    }
+
+}

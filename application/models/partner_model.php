@@ -584,6 +584,21 @@ class Partner_model extends CI_Model {
         $this->db->where('id', $id);
         $this->db->update('partners', $partner);
     }
+    
+    /**
+     * @desc : This funtion counts total number of bookings for a particular user of the concerned partner
+     *
+     * Counts the number of bookings with same user id and partner  id
+     *
+     * @param : user id, partner ID
+     * @return : total number of bookings for particular user and partner
+     */
+    public function total_user_booking($user_id,$partner_id) {
+        $this->db->where("user_id = '$user_id'");
+        $this->db->where("partner_id = '$partner_id'");
+        $result = $this->db->count_all_results("booking_details");
+        return $result;
+    }
 
 }
 

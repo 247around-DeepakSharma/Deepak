@@ -224,6 +224,24 @@ class User_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+    
+    /** @description : Search user and booking details for a particular user through his phone number,partner ID also for pagination
+     * 
+     *  This gets the basic user and booking details and services name as well
+     * 
+     *  @param : phone no,partner ID start and limit
+     *  @return : array of user and booking details
+     */
+    function partner_booking_history($phone_number,$partner_id, $limit, $start) {
+        $sql = "Select services.services, users.user_id, users.city, users.state, users.phone_number, users.user_email, users.home_address, users.name, users.pincode, booking_details.booking_id,"
+                . "booking_details.booking_date, booking_details.booking_timeslot, booking_details.current_status,"
+                . "booking_details.closed_date from booking_details, users,services where "
+                . "users.phone_number='$phone_number' and booking_details.user_id=users.user_id and "
+                . "booking_details.partner_id='$partner_id' and booking_details.user_id=users.user_id and "
+                . "services.id=booking_details.service_id LIMIT $start, $limit";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
 
     /** @description : Function to edit user's details
      *  @param : user's details to be updated
@@ -249,7 +267,7 @@ class User_model extends CI_Model {
        appliance_details.user_id AND services.id = appliance_details.service_id");
         return $query->result_array();
     }
-
+    
     /**
      * @desc : This function is used to get unique user
      * 

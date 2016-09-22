@@ -699,6 +699,10 @@ class Booking_model extends CI_Model {
         if($unit_details_id !=""){
             $this->db->where('id', $unit_details_id);
         }
+        
+        if($partner_id != ""){
+            $this->db->where('partner_id',$partner_id);
+        }
 
 
         $query = $this->db->get('booking_unit_details');
