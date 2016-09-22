@@ -25,8 +25,7 @@ class Around_scheduler extends CI_Controller {
      */
     function send_reminder_installation_sms() {
 	$data = $this->around_scheduler_model->get_reminder_installation_sms_data();
-	
-    	$sms['tag'] = "sd_edd_missed_call_reminder";
+	$sms['tag'] = "sd_edd_missed_call_reminder";
 	foreach ($data as $value) {
 	    $sms['phone_no'] = $value['booking_primary_contact_no'];
 	    $sms['smsData']['service'] = $value['services'];

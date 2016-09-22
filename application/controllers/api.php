@@ -1262,11 +1262,16 @@ class Api extends CI_Controller {
 	$this->output->set_header("HTTP/1.1 200 OK");
     }
 
+    /**
+     * @desc: This is used to send sms when customer gived a missed call
+     * @param string $booking
+     */
     function send_missed_call_confirmation_sms($booking) {
 	$sms['tag'] = "missed_call_confirmed";
 	$sms['phone_no'] = $booking['booking_primary_contact_no'];
 	$sms['smsData']['message'] = $this->notify->get_product_free_not($booking['services']);
 	$sms['smsData']['service'] = $booking['services'];
+	// Check time is greater than 2PM. If time is greater than PM then set date tommorrow otherwise Today
 	if (date('H') > 14) {
 	    $sms['smsData']['date'] = "Tomorrow";
 	} else {
@@ -1276,7 +1281,7 @@ class Api extends CI_Controller {
 	$sms['booking_id'] = $booking['booking_id'];
 	$sms['type'] = "user";
 	$sms['type_id'] = $booking['user_id'];
-        
+
 	$this->notify->send_sms($sms);
     }
 
