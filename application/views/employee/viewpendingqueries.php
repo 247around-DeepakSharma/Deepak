@@ -1,8 +1,4 @@
-
 <?php $offset = $this->uri->segment(5);  ?>
-
-<script type="text/javascript" src="<?php echo base_url();?>js/jquery-1.3.2.min.js"></script>
-<script type="text/javascript" src="<?php echo base_url();?>js/jquery-ui-1.7.1.custom.min.js"></script>
 <script>
     $(function(){
 
@@ -152,7 +148,7 @@ function outbound_call(phone_number){
                       <?php if($status !="Cancelled"){ ?>
                     <?php if($row->vendor_status =="Vendor Not Available"){ ?>
 
-                          <td><a href="<?php echo base_url().'employee/vendor/get_add_vendor_to_pincode_form/'.$row->booking_pincode.'/'.$row->services.'/'.$row->service_id.'/'.$row->city.'/'.$row->appliance_brand;?>" style="color: red;"><?php print_r($row->vendor_status); ?></a></td>
+                          <td><a href="#" style="color: red;" onclick='form_submit("<?php echo $row->booking_pincode?>","<?php echo $row->services?>","<?php echo $row->service_id ?>","<?php echo $row->city?>","<?php echo $row->appliance_brand?>")'><?php print_r($row->vendor_status); ?></a></td>
 
                     <?php } else { ?>
 
@@ -210,7 +206,6 @@ function outbound_call(phone_number){
         </div>
     </div>
 </div>
-
 <script src="<?php echo base_url();?>js/jquery.filtertable.min.js"></script>
 
 <script>
@@ -225,8 +220,17 @@ function outbound_call(phone_number){
         var vendor_id = $("#vendor_avalilabe"+div).val();
         document.location.href= '<?php echo base_url(); ?>employee/vendor/viewvendor/'+vendor_id;
     }
-
-
+    
+    function form_submit(pincode,service,service_id,city,brand){
+        $.ajax({
+                type:"POST",
+                data:{pincode:pincode,appliance:service,appliance_id:service_id,brand:brand,city:city},
+                url:"<?php echo base_url()?>employee/vendor/get_add_vendor_to_pincode_form",
+                success: function(data){
+                    $("#page-wrapper").html(data);
+                }
+        });
+    }
 </script>
 <style>
     /* generic table styling */

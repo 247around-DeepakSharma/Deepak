@@ -28,11 +28,12 @@ select[multiple], select[size]{
                <input type="hidden" value="<?php echo isset($Appliance)?$Appliance:''?>" name="Appliance"/>   
                    <input type="hidden" value="<?php echo isset($Appliance_ID)?$Appliance_ID:''?>" name="Appliance_ID"/>    
                
-                   
+                              <?php if(isset($Appliance_ID) && $Appliance_ID){ ?>
          				<div class="form-group">
                            <label for="name" class="col-md-4">Appliance</label>
                            <div class="col-md-6">
-                              <select type="text" class="form-control"  id="service_id" name="service_id[]" value = "<?php echo set_value('service_id'); ?>" required readonly>
+                              <select type="text" class="form-control"  id="service_id" name="service_id[]" value = "<?php echo set_value('service_id'); ?>" readonly>
+                                
                                   <option value=<?= $Appliance_ID; ?>>
                                                 <?php echo $Appliance; 
                                                 ?>
@@ -41,13 +42,14 @@ select[multiple], select[size]{
 
                            </div>
                       </div>
+                              <?php }?>
 
                        <div class="form-group <?php if( form_error('brand') ) { echo 'has-error';} ?>">
                            <label for="name" class="col-md-4">Brand</label>
                            <div class="col-md-6">
                               <input type="text" class="form-control" id="brand" name="brand" value = "<?php if (isset($brand)) {echo $brand; }  ?>" >
                            </div>
-                            <?php echo form_error('pincode'); ?>
+                            <?php echo form_error('brand'); ?>
                         </div>
 
                         <div class="form-group <?php if( form_error('pincode') ) { echo 'has-error';} ?>">
@@ -75,9 +77,9 @@ select[multiple], select[size]{
                            <label for="name" class="col-md-4">State</label>
                            <div class="col-md-6">
                             <select type="text" class="form-control"  class="form-control" id="state" name="state" >
-                                            <option value="">Select State</option>
+                                <option value="">Select State</option>
                                             <?php foreach ($state as $key => $value) { ?>
-                                             <option  value=<?= $value['state']; ?> <?php echo (isset($state))?'selected="selected"':''?> > <?php echo $value['state']; } ?></option>
+                                             <option  value=<?= $value['state']; ?> <?php echo (isset($Appliance_ID)&& $Appliance_ID)?(isset($state))?'selected="selected"':'':''?> > <?php echo $value['state']; } ?></option>
                                </select>
                            </div>
                            <?php echo form_error('state'); ?>
@@ -87,8 +89,13 @@ select[multiple], select[size]{
                            <div class="col-md-6">
                                <select type="text" class="form-control"  id="vendor" name="vendor_id">
                                             <option value="">Select Vendor</option>
-                                            <?php foreach ($vendor_details as $key => $values) { ?>
+                                            <?php if (isset($vendors)){?>
+                                            <?php foreach ($vendors as $key => $values) { ?>
                                              <option  value=<?= $values['Vendor_ID']; ?> <?php if(isset($vendor_id)){ if(!empty($vendor_id)){ echo "selected"; } }?> > <?php echo $values['Vendor_Name']; } ?></option>
+                                            <?php } else { ?>
+                                             <?php foreach ($vendor_details as $key => $values) { ?>
+                                             <option  value=<?= $values['id']; ?> <?php if(isset($vendor_id)){ if(!empty($vendor_id)){ echo "selected"; } }?> > <?php echo $values['name']; } ?></option>
+                                            <?php }?>
                                </select>
                            </div>
                            <?php echo form_error('vendor_id'); ?>

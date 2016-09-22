@@ -1302,26 +1302,40 @@ class vendor extends CI_Controller {
 
      /**
      *  @desc : This function is used to Add Vendor for a particular Pincode
-     *  @param : Pincode, appliance, appliance ID, city, brand
-     *  @return : View to add Vendor to pincode.
+     *  
+     *  It is being called using AJAX request.
+     * 
+     *  @param : POST data like Pincode, appliance, appliance ID, city, brand
+      *         or Empty for New entry of Vendor Pincode Mapping
+     *  @return : Mixed  
+     *           print variable storing view of Vendor Pincode Form.
      */
 
-    function get_add_vendor_to_pincode_form($pincode,$appliance,$appliance_id,$city, $brand){
+    function get_add_vendor_to_pincode_form(){
         
-        $data['pincode'] = $pincode;
-        $data['Appliance'] = urldecode($appliance);
-        $data['Appliance_ID'] = $appliance_id;
-        $data['brand'] = urldecode($brand);
-        $data['city'] = urldecode($city);
-
+        if(!empty($this->input->post())){
+        $data['pincode'] = $this->input->post('pincode');
+        $data['Appliance'] = urldecode($this->input->post('appliance'));
+        $data['Appliance_ID'] = $this->input->post('appliance_id');
+        $data['brand'] = urldecode($this->input->post('brand'));
+        $data['city'] = urldecode($this->input->post('city'));
+        
         //Getting data from Database using Booking ID
 
-        $data['vendor_details'] = $this->vendor_model->get_distinct_vendor_details($data['Appliance_ID']);
-        $data['state'] = $this->vendor_model->getall_state();
-
-        //Loading view
-        $this->load->view('employee/header');
-        $this->load->view('employee/add_vendor_to_pincode', $data);
+            $data['vendors'] = $this->vendor_model->get_distinct_vendor_details($data['Appliance_ID']);
+            $data['state'] = $this->vendor_model->getall_state();
+        
+        //Loading view in $data for parsin response in Ajax success
+        $data = $this->load->view('employee/add_vendor_to_pincode', $data, TRUE);
+        print_r($data);
+        }else{
+            
+            $data['vendor_details'] = $this->vendor_model->getActiveVendor();
+            $data['state'] = $this->vendor_model->getall_state();
+            // Return view for adding of New Vendor to Pincode
+            $this->load->view('employee/header');
+            $this->load->view('employee/add_vendor_to_pincode',$data);
+        }
 
     }
 
@@ -1348,7 +1362,7 @@ class vendor extends CI_Controller {
 
             $data = $this->input->post();
             
-            $data['vendor_details'] = $this->vendor_model->get_distinct_vendor_details($data['Appliance_ID']);
+            $data['vendor_details'] = $this->vendor_model->getActiveVendor();
             $data['state'] = $this->vendor_model->getall_state();    
             
             $this->load->view('employee/header');
