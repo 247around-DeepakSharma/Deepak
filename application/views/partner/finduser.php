@@ -6,7 +6,7 @@
                 <div class="panel-heading"><center><strong style="font-size:130%;">Search User</strong></center></div>
             </div>
             <div class="clear search_panel">
-                <div class="container" style="margin-left:50px;">
+                <div class="container" style="margin-left:50px;width:90%;">
                     <?php
                     if ($this->session->flashdata('error')) {
                         echo '<div class="alert alert-danger alert-dismissible partner_error" role="alert">
@@ -24,31 +24,31 @@
                             echo 'has-error';
                         }
                         ?>">
-                            <label for="phone_number" class="col-md-2 search_col">Phone Number</label>
-                            <div class="col-md-4">
+                            <label for="phone_number" class="col-md-4">Phone Number</label>
+                            <div class="col-md-8">
                                 <input type="text" class="form-control fa fa-search" name="phone_number" value="<?php echo set_value('phone_number'); ?>" placeholder="Enter Phone No.">
                                 <?php echo form_error('phone_number'); ?>
                             </div>
 
                         </div>
-                        <img src="<?php echo base_url() ?>images/or.png" height="25px" width="25px" style="margin-left:24%;"/>
+                        <img src="<?php echo base_url() ?>images/or.png" height="25px" width="25px" style="margin-left:35%;"/>
                         <div class="clear"></div>
                         <div class="form-group">
-                            <label for="order id" class="col-md-2 search_col">Order ID/ Serial No</label>
-                            <div class="col-md-4">
+                            <label for="order id" class="col-md-4">Order ID/ Serial No</label>
+                            <div class="col-md-8">
                                 <input type="text" class="form-control fa fa-search" id="order_id" name="order_id" value="<?php echo set_value('order_id'); ?>" placeholder="Enter Order ID / Serial No">
                             </div>
 
                         </div>
-                        <img src="<?php echo base_url() ?>images/or.png" height="25px" width="25px" style="margin-left:24%;"/>
+                        <img src="<?php echo base_url() ?>images/or.png" height="25px" width="25px" style="margin-left:35%;"/>
                         <div class="clear"></div>
                         <div class="form-group <?php
                         if (form_error('booking_id')) {
                             echo 'has-error';
                         }
                         ?>">
-                            <label for="booking_id" class="col-md-2 search_col">247 Booking ID</label>
-                            <div class="col-md-4">
+                            <label for="booking_id" class="col-md-4">247 Booking ID</label>
+                            <div class="col-md-8">
                                 <input type="text" class="form-control fa fa-search" id="booking_id" name="booking_id" value="<?php echo set_value('booking_id'); ?>" placeholder="Enter Booking ID">
                                 <?php echo form_error('booking_id'); ?>
                             </div>
@@ -56,9 +56,9 @@
                 </div>
             </div>
             <div class="form-group">
-                <div class="col-sm-offset-6">
+                <center>
                     <?php echo "<input type='submit' value='Find' class='btn btn-lg btn-primary clear'>" ?>
-                </div>
+                </center>
             </div>
 
             </form>
