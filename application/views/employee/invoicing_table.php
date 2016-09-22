@@ -160,6 +160,7 @@
            
            <?php $count=1; $debit_amount=0; $credit_amount=0 ?>
            <?php foreach($bank_statement as $value){?>
+           
                <tr id="<?php echo "row".$count;?>">
                <td><?php echo $count;$count++;?></td>
                <td><?php echo $value['transaction_date']; ?></td>
@@ -169,7 +170,7 @@
                <td><?php echo $value['invoice_id']; ?></td>
                <td><?php echo $value['bankname']; ?> / <?php echo $value['transaction_mode']; ?></td>   
                <td><!--<button onclick="delete_banktransaction(<?php echo $value['id']?>)" class="btn btn-sm btn-danger">Delete</button>-->
-               <a href="<?php echo base_url();?>employee/invoice/delete_banktransaction/<?php echo $value['id'];?>/<?php echo $invoice_array[0]['vendor_partner'];?>/<?php echo $invoice_array[0]['vendor_partner_id']; ?>" class="btn btn-sm btn-danger">Delete</a>
+               <a href="<?php echo base_url();?>employee/invoice/delete_banktransaction/<?php echo $value['id'];?>/<?php echo $value['partner_vendor'];?>/<?php echo $value['partner_vendor_id']; ?>" class="btn btn-sm btn-danger">Delete</a>
 
                </td>                  
            <?php } ?>
