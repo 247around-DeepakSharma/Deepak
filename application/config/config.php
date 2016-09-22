@@ -16,7 +16,7 @@
 | path to your installation.
 |
 */
-$config['base_url']   = 'http://247around-adminp-aws/';
+$config['base_url']   = 'https://aroundhomzapp.com/';
 
 /*
 |--------------------------------------------------------------------------
