@@ -70,7 +70,7 @@
         var ph_no = document.forms["my_Search_Form"]["phone_number"].value;
         var booking_id = document.forms["my_Search_Form"]["booking_id"].value;
         var order_id = document.forms["my_Search_Form"]["order_id"].value;
-        var exp1 = /^[1-9]{1}[0-9]{9}$/;
+        var exp1 = /^[7-9]{1}[0-9]{9}$/;
 
         if (ph_no == "" && booking_id == "" && order_id == "") {
             alert("Please enter atleast one detail to search.");
