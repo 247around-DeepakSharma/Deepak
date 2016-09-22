@@ -56,13 +56,15 @@ class Notify {
 		break;
 	}
     }
+
     /*
-     * Desc: Used to send SMS 
+     * Desc: Used to send SMS
      * param: phone, sms body
      * return: Array
      */
+
     function sendTransactionalSms($phone_number, $body) {
-        $data = array();
+	$data = array();
 	switch (ENVIRONMENT) {
 	    case 'production':
 		$post_data = array(
@@ -90,39 +92,39 @@ class Notify {
 
 		$data['content'] = curl_exec($ch);
 		$data['error'] = curl_error($ch);
-                $data['info'] = curl_getinfo($ch, CURLINFO_HTTP_CODE); 
+		$data['info'] = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
 		curl_close($ch);
 		break;
 	}
-        return $data;
+	return $data;
     }
 
-    /*This function is used to save sent sms to the database
+    /* This function is used to save sent sms to the database
      * Desc: Saves the succesffuly sent SMS to the Database else Log's the error
-     * 
+     *
      * params: user_id, user_type, phone no., sms content, booking ID
      * return: Null
      */
-    function add_sms_sent_details($user_id,$user_type,$phone,$content,$booking_id){
-        $data = array();
-        
-        $data['user_id'] = $user_id;
-        $data['user_type'] = $user_type;
-        $data['phone'] = $phone;
-        $data['booking_id'] = $booking_id;
-        $data['content'] = $content;
-        
-        //Add SMS to Database
-        $sms_id = $this->My_CI->booking_model->add_sms_sent_details($data);
-        if(!empty($sms_id)){
-            //Echoing success message on Log
-            log_message('info',__FUNCTION__.' SMS has been saved to Database "sms_sent_details" with ID '.$sms_id);
-        }else{
-            //Echoing Error message in Log
-            log_message('info',__FUNCTION__.' Error on saving SMS to Database "sms_sent_details" '.print_r($data,TRUE));
-        }       
-        
+
+    function add_sms_sent_details($type_id, $type, $phone, $content, $booking_id) {
+	$data = array();
+
+	$data['type_id'] = $type_id;
+	$data['type'] = $type;
+	$data['phone'] = $phone;
+	$data['booking_id'] = $booking_id;
+	$data['content'] = $content;
+
+	//Add SMS to Database
+	$sms_id = $this->My_CI->booking_model->add_sms_sent_details($data);
+	if (!empty($sms_id)) {
+	    //Echoing success message on Log
+	    log_message('info', __FUNCTION__ . ' SMS has been saved to Database "sms_sent_details" with ID ' . $sms_id);
+	} else {
+	    //Echoing Error message in Log
+	    log_message('info', __FUNCTION__ . ' Error on saving SMS to Database "sms_sent_details" ' . print_r($data, TRUE));
+	}
     }
 
     /**
@@ -134,7 +136,11 @@ class Notify {
 	$template = $this->My_CI->vendor_model->getVendorSmsTemplate($sms['tag']);
 	if (!empty($template)) {
 	    $smsBody = vsprintf($template, $sms['smsData']);
-	    $this->sendTransactionalSms($sms['phone_no'], $smsBody);
+	    $response = $this->sendTransactionalSms($sms['phone_no'], $smsBody);
+	    print_r($response);
+	    if (isset($response['info']) && $response['info'] == '200') {
+		$this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['tag'], $smsBody, $sms['booking_id']);
+	    }
 	} else {
 	    log_message('info', "Message Not Sent - Booking id: " . $sms['booking_id'] . ",
         		please recheck tag: '" . $sms['tag'] . "' & Phone Number - " . $sms['phone_no']);
@@ -236,7 +242,7 @@ class Notify {
      * @param: String(booking id, agent id, agent name, booking status)
      * @return: void
      */
-    function insert_state_change($booking_id, $new_state, $old_state, $agent_id, $agent_name, $partner_id="") {
+    function insert_state_change($booking_id, $new_state, $old_state, $agent_id, $agent_name, $partner_id = "") {
 	//Log this state change as well for this booking
 	//Log this state change as well for this booking
 	$state_change['booking_id'] = $booking_id;
@@ -262,70 +268,109 @@ class Notify {
 	}
 
 	$query1 = $this->My_CI->booking_model->getbooking_filter_service_center($booking_id);
-	if(!empty($query1)){
+	if (!empty($query1)) {
 
-	//SMS and Emails are sent using Templates which are defined in sms_template and
-	//email_template tables. These templates are given arguments like service name, customer
-	//name etc and then the email and sms is created and sent.
-	//Do not change the arguments order for email and sms unless you have already
-	//changed the template.
+	    //SMS and Emails are sent using Templates which are defined in sms_template and
+	    //email_template tables. These templates are given arguments like service name, customer
+	    //name etc and then the email and sms is created and sent.
+	    //Do not change the arguments order for email and sms unless you have already
+	    //changed the template.
 
-	$sms['phone_no'] = $query1[0]['booking_primary_contact_no'];
-	$sms['booking_id'] = $query1[0]['booking_id'];
+	    $sms['phone_no'] = $query1[0]['booking_primary_contact_no'];
+	    $sms['booking_id'] = $query1[0]['booking_id'];
 
-	switch ($current_status) {
-	    case 'Completed':
-		$email = array();
-		$email['name'] = $query1[0]['name'];
-		$email['phone_no'] = $query1[0]['phone_number'];
-		$email['user_email'] = $query1[0]['user_email'];
-		$email['booking_id'] = $query1[0]['booking_id'];
-		$email['service'] = $query1[0]['services'];
-		$email['booking_date'] = $query1[0]['booking_date'];
-		$email['closed_date'] = $query1[0]['closed_date'];
-		$email['amount_paid'] = $query1[0]['amount_paid'];
-		$email['closing_remarks'] = $query1[0]['closing_remarks'];
+	    switch ($current_status) {
+		case 'Completed':
+		    $email = array();
+		    $email['name'] = $query1[0]['name'];
+		    $email['phone_no'] = $query1[0]['phone_number'];
+		    $email['user_email'] = $query1[0]['user_email'];
+		    $email['booking_id'] = $query1[0]['booking_id'];
+		    $email['service'] = $query1[0]['services'];
+		    $email['booking_date'] = $query1[0]['booking_date'];
+		    $email['closed_date'] = $query1[0]['closed_date'];
+		    $email['amount_paid'] = $query1[0]['amount_paid'];
+		    $email['closing_remarks'] = $query1[0]['closing_remarks'];
 
-		if (isset($query1[0]['vendor_name'])) {
-		    $email['vendor_name'] = $query1[0]['vendor_name'];
-		    $email['city'] = $query1[0]['district'];
-		}
+		    if (isset($query1[0]['vendor_name'])) {
+			$email['vendor_name'] = $query1[0]['vendor_name'];
+			$email['city'] = $query1[0]['district'];
+		    }
 
-		$email['tag'] = "complete_booking";
-		$email['subject'] = "Booking Completion-247AROUND";
-
-		//Send internal mails now
-		$this->send_email($email);
-
-		if ($is_sd == FALSE) {
-
-		    $sms['tag'] = "complete_booking";
-		} else {
-
-		    $sms['tag'] = "complete_booking_snapdeal";
-		}
-
-		$sms['smsData']['service'] = $query1[0]['services'];
-		$this->send_sms($sms);
-
-		break;
-
-	    case 'Cancelled':
-		$email = array();
-		if (substr($booking_id, 0, 2) === 'Q-') {
-		    $email_data['name'] = $query1[0]['name'];
-		    $email_data['phone_no'] = $query1[0]['phone_number'];
-		    $email_data['booking_id'] = $query1[0]['booking_id'];
-		    $email_data['cancellation_reason'] = $query1[0]['cancellation_reason'];
-
-		    $email_data['tag'] = "cancel_query";
-		    $email_data['service'] = $query1[0]['services'];
-		    $email_data['booking_date'] = $query1[0]['booking_date'];
-		    $email_data['subject'] = "Pending Query Cancellation - 247AROUND";
+		    $email['tag'] = "complete_booking";
+		    $email['subject'] = "Booking Completion-247AROUND";
 
 		    //Send internal mails now
-		    $this->send_email($email_data);
-		} else {
+		    $this->send_email($email);
+
+		    if ($is_sd == FALSE) {
+
+			$sms['tag'] = "complete_booking";
+		    } else {
+
+			$sms['tag'] = "complete_booking_snapdeal";
+		    }
+
+		    $sms['smsData']['service'] = $query1[0]['services'];
+		    $sms['booking_id'] = $query1[0]['booking_id'];
+		    $sms['type'] = "user";
+		    $sms['type_id'] = $query1[0]['user_id'];
+		    $this->send_sms($sms);
+
+		    break;
+
+		case 'Cancelled':
+		    $email = array();
+		    if (substr($booking_id, 0, 2) === 'Q-') {
+			$email_data['name'] = $query1[0]['name'];
+			$email_data['phone_no'] = $query1[0]['phone_number'];
+			$email_data['booking_id'] = $query1[0]['booking_id'];
+			$email_data['cancellation_reason'] = $query1[0]['cancellation_reason'];
+
+			$email_data['tag'] = "cancel_query";
+			$email_data['service'] = $query1[0]['services'];
+			$email_data['booking_date'] = $query1[0]['booking_date'];
+			$email_data['subject'] = "Pending Query Cancellation - 247AROUND";
+
+			//Send internal mails now
+			$this->send_email($email_data);
+		    } else {
+			$email['name'] = $query1[0]['name'];
+			$email['phone_no'] = $query1[0]['phone_number'];
+			$email['user_email'] = $query1[0]['user_email'];
+			$email['booking_id'] = $query1[0]['booking_id'];
+			$email['service'] = $query1[0]['services'];
+			$email['booking_date'] = $query1[0]['booking_date'];
+			$email['booking_timeslot'] = $query1[0]['booking_timeslot'];
+			$email['closed_date'] = $query1[0]['closed_date'];
+			$email['cancellation_reason'] = $query1[0]['cancellation_reason'];
+			if (isset($query1[0]['vendor_name'])) {
+			    $email['vendor_name'] = $query1[0]['vendor_name'];
+			    $email['city'] = $query1[0]['district'];
+			} else {
+			    $email['vendor_name'] = "";
+			    $email['city'] = "";
+			}
+			$email['tag'] = "cancel_booking";
+			$email['subject'] = "Pending Booking Cancellation - 247AROUND";
+			//Send internal mails now
+			$this->send_email($email);
+
+			if ($is_sd == FALSE) {
+			    $sms['smsData']['service'] = $query1[0]['services'];
+			    $sms['tag'] = "cancel_booking";
+			    $sms['booking_id'] = $query1[0]['booking_id'];
+			    $sms['type'] = "user";
+			    $sms['type_id'] = $query1[0]['user_id'];
+
+			    $this->send_sms($sms);
+			}
+		    }
+
+		    break;
+
+		case 'Rescheduled':
+		    $email = array();
 		    $email['name'] = $query1[0]['name'];
 		    $email['phone_no'] = $query1[0]['phone_number'];
 		    $email['user_email'] = $query1[0]['user_email'];
@@ -333,133 +378,158 @@ class Notify {
 		    $email['service'] = $query1[0]['services'];
 		    $email['booking_date'] = $query1[0]['booking_date'];
 		    $email['booking_timeslot'] = $query1[0]['booking_timeslot'];
-		    $email['closed_date'] = $query1[0]['closed_date'];
-		    $email['cancellation_reason'] = $query1[0]['cancellation_reason'];
-		    if (isset($query1[0]['vendor_name'])) {
-			$email['vendor_name'] = $query1[0]['vendor_name'];
-			$email['city'] = $query1[0]['district'];
-		    } else {
-		    	$email['vendor_name'] = "";
-			    $email['city'] = "";
-		    }
-		    $email['tag'] = "cancel_booking";
-		    $email['subject'] = "Pending Booking Cancellation - 247AROUND";
+		    $email['update_date'] = $query1[0]['update_date'];
+		    $email['booking_address'] = $query1[0]['booking_address'] . ", "
+			. $query1[0]['city'] . ", " . $query1[0]['booking_pincode'];
+		    $email['tag'] = "reschedule_booking";
+		    $email['subject'] = "Booking Rescheduled-247AROUND";
 		    //Send internal mails now
 		    $this->send_email($email);
 
 		    if ($is_sd == FALSE) {
+			$sms['tag'] = "reschedule_booking";
 			$sms['smsData']['service'] = $query1[0]['services'];
-			$sms['tag'] = "cancel_booking";
-
+			$sms['smsData']['booking_date'] = $query1[0]['booking_date'];
+			$sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
+			$sms['booking_id'] = $query1[0]['booking_id'];
+			$sms['type'] = "user";
+			$sms['type_id'] = $query1[0]['user_id'];
 			$this->send_sms($sms);
 		    }
-		}
 
-		break;
+		    break;
 
-	    case 'Rescheduled':
-		$email = array();
-		$email['name'] = $query1[0]['name'];
-		$email['phone_no'] = $query1[0]['phone_number'];
-		$email['user_email'] = $query1[0]['user_email'];
-		$email['booking_id'] = $query1[0]['booking_id'];
-		$email['service'] = $query1[0]['services'];
-		$email['booking_date'] = $query1[0]['booking_date'];
-		$email['booking_timeslot'] = $query1[0]['booking_timeslot'];
-		$email['update_date'] = $query1[0]['update_date'];
-		$email['booking_address'] = $query1[0]['booking_address'] . ", "
-		    . $query1[0]['city'] . ", " . $query1[0]['booking_pincode'];
-		$email['tag'] = "reschedule_booking";
-		$email['subject'] = "Booking Rescheduled-247AROUND";
-		//Send internal mails now
-		$this->send_email($email);
+		case 'OpenBooking':
+		    $email = array();
+		    $email['booking_id'] = $query1[0]['booking_id'];
+		    $email['name'] = $query1[0]['name'];
+		    $email['phone_no'] = $query1[0]['phone_number'];
+		    $email['service'] = $query1[0]['services'];
+		    $email['booking_date'] = $query1[0]['booking_date'];
+		    $email['booking_timeslot'] = $query1[0]['booking_timeslot'];
 
-		if ($is_sd == FALSE) {
-		    $sms['tag'] = "reschedule_booking";
+		    if (isset($query1[0]['vendor_name'])) {
+			$email['vendor_name'] = $query1[0]['vendor_name'];
+			$email['city'] = $query1[0]['district'];
+		    }
+		    $email['agent'] = "";
+
+		    if ($query1[0]['current_status'] == "Completed") {
+			$email['tag'] = "open_completed_booking";
+		    } else {
+			$email['tag'] = "open_cancelled_booking";
+		    }
+
+		    $email['subject'] = "Closed Booking Reopened - 247AROUND";
+
+		    //Send internal mails now
+		    $this->send_email($email);
+
+		    break;
+
+		case 'Customer not reachable':
+		    $sms['smsData']['name'] = $query1[0]['name'];
+		    $sms['smsData']['service'] = $query1[0]['services'];
+
+		    if ($is_sd) {
+			$sms['tag'] = "call_not_picked_snapdeal";
+		    } else {
+			$sms['tag'] = "call_not_picked_other";
+		    }
+
+		    $sms['booking_id'] = $query1[0]['booking_id'];
+		    $sms['type'] = "user";
+		    $sms['type_id'] = $query1[0]['user_id'];
+
+		    $this->send_sms($sms);
+		    break;
+
+		case 'Newbooking':
 		    $sms['smsData']['service'] = $query1[0]['services'];
 		    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
 		    $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
+
+		    if ($is_sd == FALSE) {
+			$sms['tag'] = "add_new_booking";
+		    } else {
+			$sms['tag'] = "new_snapdeal_booking";
+		    }
+
+		    $sms['booking_id'] = $query1[0]['booking_id'];
+		    $sms['type'] = "user";
+		    $sms['type_id'] = $query1[0]['user_id'];
+
 		    $this->send_sms($sms);
-		}
 
-		break;
-
-	    case 'OpenBooking':
-		$email = array();
-		$email['booking_id'] = $query1[0]['booking_id'];
-		$email['name'] = $query1[0]['name'];
-		$email['phone_no'] = $query1[0]['phone_number'];
-		$email['service'] = $query1[0]['services'];
-		$email['booking_date'] = $query1[0]['booking_date'];
-		$email['booking_timeslot'] = $query1[0]['booking_timeslot'];
-
-		if (isset($query1[0]['vendor_name'])) {
-		    $email['vendor_name'] = $query1[0]['vendor_name'];
-		    $email['city'] = $query1[0]['district'];
-		}
-		$email['agent'] = "";
-
-		if ($query1[0]['current_status'] == "Completed") {
-		    $email['tag'] = "open_completed_booking";
-		} else {
-		    $email['tag'] = "open_cancelled_booking";
-		}
-
-		$email['subject'] = "Closed Booking Reopened - 247AROUND";
-
-		//Send internal mails now
-		$this->send_email($email);
-
-		break;
-
-	    case 'Customer not reachable':
-		$sms['smsData']['name'] = $query1[0]['name'];
-		$sms['smsData']['service'] = $query1[0]['services'];
-
-		if ($is_sd) {
-		    $sms['tag'] = "call_not_picked_snapdeal";
-		} else {
-		    $sms['tag'] = "call_not_picked_other";
-		}
-
-		$this->send_sms($sms);
-		break;
-
-	    case 'Newbooking':
-		$sms['smsData']['service'] = $query1[0]['services'];
-		$sms['smsData']['booking_date'] = $query1[0]['booking_date'];
-		$sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
-
-		if ($is_sd == FALSE) {
-		    $sms['tag'] = "add_new_booking";
-		} else {
-		    $sms['tag'] = "new_snapdeal_booking";
-		}
-
-		$this->send_sms($sms);
-
-		break;
+		    break;
 
 		case 'Default_tax_rate':
-		sleep(180);
-            $to = "anuj@247around.com, nits@247around.com";
-		//$to = "abhaya@247around.com";
-	        $default_tax_rate = " Default Tax Rate is used in the Booking ID: " . $query1[0]['booking_id'];
-	        $this->sendEmail("booking@247around.com", $to, "", "", ' Default Tax Rate is used ', $default_tax_rate, "");
-			break;
+		    sleep(180);
+		    $to = "anuj@247around.com, nits@247around.com";
+		    //$to = "abhaya@247around.com";
+		    $default_tax_rate = " Default Tax Rate is used in the Booking ID: " . $query1[0]['booking_id'];
+		    $this->sendEmail("booking@247around.com", $to, "", "", ' Default Tax Rate is used ', $default_tax_rate, "");
+		    break;
 
 		case 'Pincode_not_found':
-		log_message('info', __METHOD__ . "Applianc" . print_r($appliance_id, true));
-		sleep(180);
-	    $to = "anuj@247around.com, nits@247around.com";
-		//$to = "abhaya@247around.com";
-	        $state_not_found_message = " Pincode(".$query1[0]['booking_pincode'].") is not found booking id is " . $query1[0]['booking_id'];
-	        $this->sendEmail("booking@247around.com", $to, "", "", ' Pincode Not Found', $state_not_found_message, "");
+		    log_message('info', __METHOD__ . "Applianc" . print_r($appliance_id, true));
+		    sleep(180);
+		    $to = "anuj@247around.com, nits@247around.com";
+		    //$to = "abhaya@247around.com";
+		    $state_not_found_message = " Pincode(" . $query1[0]['booking_pincode'] . ") is not found booking id is " . $query1[0]['booking_id'];
+		    $this->sendEmail("booking@247around.com", $to, "", "", ' Pincode Not Found', $state_not_found_message, "");
 
 
-			break;
+		    break;
+	    }
 	}
     }
+
+    /**
+     *  @desc: This is used to return free or empty according to given appliance
+     * @param string $appliance
+     * @return string free or ''
+     */
+    function get_product_free_not($appliance) {
+	$status;
+	switch ($appliance) {
+	    case 'Washing Machine':
+		$status = 'free';
+		break;
+
+	    case 'Refrigerator':
+		$status = 'free';
+		break;
+
+	    case 'Microwave':
+		$status = 'free';
+		break;
+
+	    case 'Television':
+
+		$status = 'free';
+		break;
+
+	    case 'Water Purifier':
+		$status = 'free';
+		break;
+
+	    case 'Air Conditioner':
+		$status = '';
+		break;
+
+	    case 'Chimney':
+		$status = '';
+		break;
+	    case 'Geyser':
+		$status = 'free';
+
+		break;
+
+	    default:
+		break;
+	}
+	return $status;
     }
 
 }

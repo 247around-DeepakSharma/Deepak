@@ -17,21 +17,25 @@ class Around_scheduler extends CI_Controller {
         $this->load->library('notify');
         $this->load->helper(array('form', 'url'));
     }
-    
+
     /**
      * @desc: This is used to send SMS to customer who have given miss call to customer support number.
-     * Note: SMS will not send those customers who has EDD tomorrow and pincode is not available 
+     * Note: SMS will not be sent to those customers who has EDD as tomorrow and vendor is not available
+     * in their pincode.
      */
-    function send_remainder_installation_sms(){
-    	$data = $this->around_scheduler_model->send_remainder_installation_sms();
-        //TODO: This sms tag will be changed
-    	$sms['tag'] = "remainder_installation_sms";
-    	foreach ($data as $key => $value) {
-    		$sms['phone_no'] = $data[0]['booking_primary_contact_no'];
-    		$sms['smsData']['service'] = $data[0]['services'];
-			$this->notify->send_sms($sms);
-    	}
+    function send_reminder_installation_sms() {
+	$data = $this->around_scheduler_model->get_reminder_installation_sms_data();
+	//TODO: This sms tag will be changed
+    	$sms['tag'] = "sd_edd_missed_call_reminder";
+	foreach ($data as $value) {
+	    $sms['phone_no'] = $value['booking_primary_contact_no'];
+	    $sms['smsData']['service'] = $value['services'];
+	    $sms['booking_id'] = $value['booking_id'];
+	    $sms['type'] = "user";
+	    $sms['type_id'] = $value['user_id'];
+	    $this->notify->send_sms($sms);
+	}
     }
-    	
+
 
 }
