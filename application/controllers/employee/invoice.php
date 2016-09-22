@@ -216,7 +216,7 @@ class Invoice extends CI_Controller {
 
 	$this->invoices_model->update_settle_invoices($invoice_id, $paid_amount, $account_statement['partner_vendor'], $account_statement['partner_vendor_id']);
 
-	//$this->invoices_model->bankAccountTransaction($account_statement);
+	$this->invoices_model->bankAccountTransaction($account_statement);
 
 	// $output = "Transaction added successfully.";
 	// $userSession = array('success' => $output);
@@ -234,10 +234,10 @@ class Invoice extends CI_Controller {
 	    $sms['type'] = $account_statement['partner_vendor'];
 	    $sms['type_id'] = $account_statement['partner_vendor_id'];
 
-	    // $this->notify->send_sms($sms);
+	    $this->notify->send_sms($sms);
 	}
 
-	//redirect(base_url() . 'employee/invoice/invoice_summary/'.$account_statement['partner_vendor']."/".$account_statement['partner_vendor_id']);
+	redirect(base_url() . 'employee/invoice/invoice_summary/'.$account_statement['partner_vendor']."/".$account_statement['partner_vendor_id']);
     }
 
     /**
