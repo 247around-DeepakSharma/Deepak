@@ -272,7 +272,7 @@ class Do_background_upload_excel extends CI_Controller {
                             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
                             $send['booking_id'] = $booking['booking_id'];
                             $send['state'] = "Pincode_not_found";
-                            //$this->asynchronous_lib->do_background_process($url, $send);
+                            $this->asynchronous_lib->do_background_process($url, $send);
 			}
 
                         $this->insert_booking_in_partner_leads($booking, $unit_details, $user, $value['Product']);
