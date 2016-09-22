@@ -61,9 +61,11 @@ class Do_background_process extends CI_Controller {
         //Send SMS to customer
         $query1 = $this->booking_model->getbooking_history($booking_id);
         $sms['tag'] = "service_centre_assigned";
-        $sms['phone_no'] = $query1[0]['phone_number'];
-        $sms['booking_id'] = $booking_id;
-        $sms['smsData'] = "";
+        $sms['phone_no'] = $query1[0]['booking_primary_contact_no'];
+	$sms['booking_id'] = $booking_id;
+	$sms['type'] = "user";
+	$sms['type_id'] = $query1[0]['user_id'];
+	$sms['smsData'] = "";
 
         $sms_sent = $this->notify->send_sms($sms);
         if ($sms_sent === FALSE) {
@@ -249,7 +251,7 @@ class Do_background_process extends CI_Controller {
 
 
     /**
-     * @desc: This method is used to dump all vendor mapping Pincode data into excel and sen to mail. 
+     * @desc: This method is used to dump all vendor mapping Pincode data into excel and sen to mail.
      * Email id provided by form
      * @param: void
      * @return: void
@@ -257,8 +259,8 @@ class Do_background_process extends CI_Controller {
     function download_latest_pincode_excel(){
 
         log_message('info', __FUNCTION__);
-        $to_email = $this->input->post('email'); 
-        $notes = $this->input->post('notes'); 
+        $to_email = $this->input->post('email');
+        $notes = $this->input->post('notes');
 
         $template = 'Vendor_Pincode_Mapping_Template.xlsx';
         //set absolute path to directory with template files
@@ -280,7 +282,7 @@ class Do_background_process extends CI_Controller {
             ));
 
         $output_file_dir = "/tmp/";
-        $output_file = "Vendor_Pincode_Mapping" . date('y-m-d');                                                       
+        $output_file = "Vendor_Pincode_Mapping" . date('y-m-d');
         $output_file_name = $output_file . ".xlsx";
         $output_file_excel = $output_file_dir . $output_file_name;
         $response = $R->render('excel', $output_file_excel);

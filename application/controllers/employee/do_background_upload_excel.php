@@ -186,12 +186,9 @@ class Do_background_upload_excel extends CI_Controller {
                     $booking['partner_source'] = "Snapdeal-shipped-excel";
                     $booking['booking_date'] = $dateObj2->format('d-m-Y');
                 } else if ($file_type == "delivered") {
-
-                    $yy = date("y");
-                    $mm = date("m");
-                    $dd = date("d");
-                    $booking['booking_date'] = '';
+                    //For delivered file, set booking date empty so that the queries come on top of the page
                     $booking['partner_source'] = "Snapdeal-delivered-excel";
+                    $booking['booking_date'] = '';
                 }
                 log_message('info', print_r($dateObj2, true));
 
@@ -212,23 +209,46 @@ class Do_background_upload_excel extends CI_Controller {
                 $appliance_details['last_service_date'] = date('d-m-Y');
 
                 $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
+
                 if ($unit_details['appliance_id']) {
+                    log_message ('info', __METHOD__ . "=> Appliance added: ". $unit_details['appliance_id']);
+
                     $unit_id = $this->booking_model->addunitdetails($unit_details);
                     if ($unit_id) {
+                        log_message ('info', __METHOD__ . "=> Unit details added: ". $unit_id);
+
                         $booking['order_id'] = $value['Sub_Order_ID'];
+
                         $ref_date = PHPExcel_Shared_Date::ExcelToPHPObject($value['Referred_Date_and_Time']);
                         $booking['reference_date'] = $ref_date->format('Y-m-d H:i:s');
                         $booking['booking_timeslot'] = '';
                         $booking['request_type'] = 'Installation & Demo';
-                        $booking['delivery_date'] = $dateObj2->format('Y-m-d H:i:s');
-                        $booking['estimated_delivery_date'] = $dateObj2->format('Y-m-d');
+
+                        switch ($file_type) {
+                            case 'shipped':
+                                //Set EDD only
+                                $booking['estimated_delivery_date'] = $dateObj2->format('Y-m-d');
+                                $booking['delivery_date'] = '';
+				//Tag internal status for missed call
+                                $booking['internal_status'] = "Missed_call_not_confirmed";
+				$booking['query_remarks'] = 'Product Shipped, Call Customer For Booking';
+
+				break;
+
+                            case 'delivered':
+                                //Set delivered date only
+                                $booking['delivery_date'] = $dateObj2->format('Y-m-d H:i:s');
+                                $booking['estimated_delivery_date'] = '';
+				$booking['internal_status'] = "FollowUp";
+				$booking['query_remarks'] = 'Product Delivered, Call Customer For Booking';
+				break;
+                        }
+
                         $booking['booking_primary_contact_no'] = $value['Phone'];
                         $booking['current_status'] = "FollowUp";
-                        $booking['internal_status'] = "FollowUp";
                         $booking['type'] = "Query";
                         $booking['booking_address'] = $value['Customer_Address'];
-                        $booking['query_remarks'] = 'Product Shipped, Call Customer For Booking';
-                        $booking['city'] = $value['CITY'];
+			$booking['city'] = $value['CITY'];
                         $booking['state'] = $state['state'];
                         $booking['quantity'] = '1';
                         $booking_details_id = $this->booking_model->addbooking($booking);
@@ -237,10 +257,7 @@ class Do_background_upload_excel extends CI_Controller {
                             $this->notify->insert_state_change($booking['booking_id'], "FollowUp", "New_Query", $this->session->userdata('id'), $this->session->userdata('employee_id'));
                             if ($file_type == "shipped") {
                                 if (date("Y-m-d", strtotime("+1 day")) != $booking['estimated_delivery_date']) {
-                                    $sms['tag'] = "new_snapdeal_booking";
-                                    $sms['phone_no'] = $booking['booking_primary_contact_no'];
-                                    $sms['smsData']['service'] = $booking['services'];
-                                    //$this->notify->send_sms($sms);
+				    $this->send_sms_to_snapdeal_customer($value['appliance'], $booking['booking_primary_contact_no'], $user_id, $booking['booking_id']);
 				}
                             }
                         } else {
@@ -363,29 +380,29 @@ class Do_background_upload_excel extends CI_Controller {
             $prod = trim($value['Product']);
 
 	    if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
-                $prod = 'Washing Machine';
-            }
+		$data['valid_data'][$key]['appliance'] = 'Washing Machine';
+	    }
             if (stristr($prod, "Television")) {
-                $prod = 'Television';
-            }
+		$data['valid_data'][$key]['appliance'] = 'Television';
+	    }
             if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
-                $prod = 'Air Conditioner';
-            }
+		$data['valid_data'][$key]['appliance'] = 'Air Conditioner';
+	    }
             if (stristr($prod, "Refrigerator")) {
-                $prod = 'Refrigerator';
-            }
+		$data['valid_data'][$key]['appliance'] = 'Refrigerator';
+	    }
             if (stristr($prod, "Microwave")) {
-                $prod = 'Microwave';
-            }
+		$data['valid_data'][$key]['appliance'] = 'Microwave';
+	    }
             if (stristr($prod, "Purifier")) {
-                $prod = 'Water Purifier';
-            }
+		$data['valid_data'][$key]['appliance'] = 'Water Purifier';
+	    }
             if (stristr($prod, "Chimney")) {
-		$prod = 'Chimney';
-            }
+		$data['valid_data'][$key]['appliance'] = 'Chimney';
+	    }
             if (stristr($prod, "Geyser")) {
-                $prod = 'Geyser';
-            }
+		$data['valid_data'][$key]['appliance'] = 'Geyser';
+	    }
             // Block Microvare cooking. If its exist in the Excel file
             if (stristr($prod, "microwave cooking")) {
                 $flag = 1;
@@ -406,8 +423,8 @@ class Do_background_upload_excel extends CI_Controller {
             }
 
             if ($flag == 0) {
-                $service_id = $this->booking_model->getServiceId($prod);
-                if ($service_id) {
+                $service_id = $this->booking_model->getServiceId($data['valid_data'][$key]['appliance']);
+		if ($service_id) {
 
                     $data['valid_data'][$key]['service_id'] = $service_id;
                 } else {
@@ -513,10 +530,15 @@ class Do_background_upload_excel extends CI_Controller {
         return $data;
     }
 
+    /**
+     * @desc: This is used to send Json invalid data to mail
+     * @param Array $invalid_data_with_reason
+     * @param string $filetype
+     */
     function get_invalid_data($invalid_data_with_reason, $filetype) {
 
-       // $to = "anuj@247around.com";
-	$to = "abhaya@247around.com";
+        $to = "anuj@247around.com";
+	//$to = "abhaya@247around.com";
 	$from = "booking@247around.com";
         $cc = "";
         $bcc = "";
@@ -533,6 +555,26 @@ class Do_background_upload_excel extends CI_Controller {
 
         $message .= json_encode($invalid_data_with_reason);
         $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
+    }
+
+    /**
+     * @desc: This method is used to send sms to snapdeal shipped customer, whose edd is not tommorrow. It gets appliance free or not from notify.
+     * Make sure array of smsData has index services first then message
+     * @param string $appliance
+     * @param string $phone_number
+     * @param string $user_id
+     * @param string $booking_id
+     */
+    function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id) {
+	$sms['tag'] = "sd_shipped_missed_call_initial";
+	$sms['phone_no'] = $phone_number;
+	$sms['smsData']['service'] = $appliance;
+	$sms['smsData']['message'] = $this->notify->get_product_free_not($appliance);
+	$sms['booking_id'] = $booking_id;
+	$sms['type'] = "user";
+	$sms['type_id'] = $user_id;
+
+	$this->notify->send_sms($sms);
     }
 
     /**

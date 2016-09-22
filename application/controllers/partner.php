@@ -1440,6 +1440,7 @@ class Partner extends CI_Controller {
             $booking['request_type'] = $requestData['requestType'];
             $unit_details['price_tags'] = $requestData['requestType'];
             $booking['booking_remarks'] = (isset($requestData['remarks']) ? $requestData['remarks'] : "");
+            $agent_id = $requestData['agent_id'];
 
 
             //Add this as a Query now
@@ -1559,7 +1560,7 @@ class Partner extends CI_Controller {
                     $smsBody, $booking['booking_id']);
             }
 
-            $this->notify->insert_state_change($booking['booking_id'], "Pending", "New_Booking", "", $requestData['partnerName'], $booking['partner_id']);
+            $this->notify->insert_state_change($booking['booking_id'], "Pending", "New_Booking", $agent_id, $requestData['partnerName'], $booking['partner_id']);
             }
 
             //Send response

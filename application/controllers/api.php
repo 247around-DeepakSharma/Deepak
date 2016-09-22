@@ -27,8 +27,8 @@ class Api extends CI_Controller {
         $this->load->model('discount');
         $this->load->model('booking_model');
         $this->load->model('user_model');
-
-        $this->load->library('s3');
+        $this->load->library('notify');
+	$this->load->library('s3');
         $this->load->library('email');
         $this->load->helper(array('form', 'url'));
     }
@@ -1237,23 +1237,47 @@ class Api extends CI_Controller {
 	    //a pending query waiting for confirmation and user has given missed
 	    //call to confirm the installation
 	    foreach ($bookings as $b) {
-		if ($b['type'] === 'Query' AND $b['current_status'] === 'FollowUp') {
+		if ($b['type'] === 'Query' && $b['current_status'] === 'FollowUp' && $b['internal_status'] == "Missed_call_not_confirmed") {
 		    $d = array('internal_status' => 'Missed_call_confirmed',
 			'booking_date' => '', 'booking_timeslot' => '',
+			'delivery_date' => date('Y-m-d H:i:s'),
 			'query_remarks' => 'Missed call received, Convert to Booking NOW !!!');
 		    $r = $this->booking_model->update_booking($b['booking_id'], $d);
+		    $this->send_missed_call_confirmation_sms($b);
 
 		    if ($r === FALSE) {
 			log_message('info', __METHOD__ . '=> Booking confirmation '
 			    . 'through missed call failed for ' . $b['booking_id']);
 
 			//Send email
+			$this->notify->sendEmail("booking@247around.com", "anuj@247around.com", "", "", "Query update Failed after Missed Call for Booking ID: " . $b['booking_id'], "", "");
+		    } else {
+			log_message('info', __METHOD__ . '=> Booking confirmation '
+			    . 'through missed call succeeded for ' . $b['booking_id']);
 		    }
 		}
 	    }
 	}
 
 	$this->output->set_header("HTTP/1.1 200 OK");
+    }
+
+    function send_missed_call_confirmation_sms($booking) {
+
+	$sms['tag'] = "sd_shipped_missed_call_initial";
+	$sms['phone_no'] = $booking['booking_primary_contact_no'];
+	$sms['smsData']['message'] = $this->notify->get_product_free_not($booking['services']);
+	$sms['smsData']['service'] = $booking['services'];
+	if (date('H') > 14) {
+	    $sms['smsData']['date'] = "Tomorrow";
+	} else {
+	    $sms['smsData']['date'] = "Today";
+	}
+
+	$sms['booking_id'] = $booking['booking_id'];
+	$sms['type'] = "user";
+	$sms['type_id'] = $booking['user_id'];
+	$this->notify->send_sms($sms);
     }
 
     /**

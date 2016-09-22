@@ -244,6 +244,7 @@ class Partner extends CI_Controller {
         $authToken = $this->partner_model->get_authentication_code($this->session->userdata('partner_id'));
         if ($authToken) {
         $post['partnerName'] = $this->session->userdata('partner_name');
+        $post['agent_id'] = $this->session->userdata('partner_id');
         $post['name'] = $this->input->post('user_name');
         $post['mobile'] = $this->input->post('booking_primary_contact_no');
         $post['email'] = $this->input->post('user_email');
