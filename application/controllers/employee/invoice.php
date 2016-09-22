@@ -230,8 +230,11 @@ class Invoice extends CI_Controller {
 	    $sms['tag'] = "payment_made_to_vendor";
 	    $sms['phone_no'] = $v['owner_phone_1'];
 	    $sms['smsData'] = "previous month";
+	    $sms['booking_id'] = "";
+	    $sms['type'] = $account_statement['partner_vendor'];
+	    $sms['type_id'] = $account_statement['partner_vendor_id'];
 
-	   // $this->notify->send_sms($sms);
+	    // $this->notify->send_sms($sms);
 	}
 
 	//redirect(base_url() . 'employee/invoice/invoice_summary/'.$account_statement['partner_vendor']."/".$account_statement['partner_vendor_id']);
@@ -815,6 +818,9 @@ class Invoice extends CI_Controller {
 		    $sms['smsData']['month'] = date('M Y', strtotime($start_date));
 		    $sms['smsData']['amount'] = $invoices[0]['total_amount_paid'];
 		    $sms['phone_no'] = $invoices[0]['owner_phone_1'];
+		    $sms['booking_id'] = "";
+		    $sms['type'] = "vendor";
+		    $sms['type_id'] = $invoices[0]['id'];
 
 		    $this->notify->send_sms($sms);
 		    //Upload Excel files to AWS
@@ -1174,6 +1180,9 @@ class Invoice extends CI_Controller {
 		    $sms['smsData']['month'] = date('M Y', strtotime($start_date));
 		    $sms['smsData']['amount'] = $excel_data['t_total'];
 		    $sms['phone_no'] = $invoices[0]['owner_phone_1'];
+		    $sms['booking_id'] = "";
+		    $sms['type'] = "vendor";
+		    $sms['type_id'] = $invoices[0]['id'];
 
 		    $this->notify->send_sms($sms);
 

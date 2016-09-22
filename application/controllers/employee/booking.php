@@ -54,10 +54,10 @@ class Booking extends CI_Controller {
      * to update existing Booking or Query.
      *
      * This function will get all the booking details.
-     * These booking details are the details which are inserted in booking details table 
+     * These booking details are the details which are inserted in booking details table
      * while taking the actual booking.
      *
-     * After insertion of booking details, if it is not a query, then an email and SMS 
+     * After insertion of booking details, if it is not a query, then an email and SMS
      * will be sent to the user for booking confirmation.
 
      *  @param : user id
@@ -99,9 +99,7 @@ class Booking extends CI_Controller {
             //For saving SMS to the database on sucess
             if (isset($sms_details['info']) && $sms_details['info'] == '200') {
                 $this->notify->add_sms_sent_details($user_id, 'user', $booking['booking_primary_contact_no'], $smsBody, $booking['booking_id']);
-
-                $this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
-            }
+	    }
 	} else {
 		$this->notify->insert_state_change($booking['booking_id'], "FollowUp", "New_Query", $this->session->userdata('id'), $this->session->userdata('employee_id'));
         }
@@ -137,7 +135,7 @@ class Booking extends CI_Controller {
 	if (empty($booking['state']) && $booking['type'] != 'Query') {
 		log_message('info', __FUNCTION__ . " Pincode Not Found Booking Id: ".$booking['booking_pincode']);
 		$this->send_sms_email($booking_id, "Pincode_not_found");
-	    
+
 	}
     $service_name  = $this->booking_model->selectservicebyid($booking['service_id']);
 	$service  = $service_name[0]['services'];
@@ -164,7 +162,7 @@ class Booking extends CI_Controller {
 		if(!empty($appliance_id_array)){
 			$appliance_id = array_unique($appliance_id_array);
 		}
-      
+
 	}
 
 	$serial_number = $this->input->post('serial_number');
@@ -316,8 +314,8 @@ class Booking extends CI_Controller {
 	if($result['DEFAULT_TAX_RATE'] == 1){
         log_message('info', __METHOD__ . " Default_tax_rate: " .$result['DEFAULT_TAX_RATE']);
 		$this->send_sms_email($booking['booking_id'], "Default_tax_rate");
-		
-		
+
+
 	}
 
 	return $booking;
@@ -1605,10 +1603,10 @@ class Booking extends CI_Controller {
     function get_booking_life_cycle($booking_id){
         $data['data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
         $data['booking_details'] = $this->booking_model->getbooking_history($booking_id);
-        
+
         $this->load->view('employee/header');
         $this->load->view('employee/show_booking_life_cycle', $data);
-        
+
     }
 
 }

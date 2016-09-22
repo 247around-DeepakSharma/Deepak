@@ -216,6 +216,9 @@ class vendor_partner_invoice extends CI_Controller {
 		$sms['smsData']['month'] = date('M Y', strtotime($start_date));
 		$sms['smsData']['amount'] = $tot_ch_rat['t_ap'];
 		$sms['phone_no'] = $sc['owner_phone_1'];
+		$sms['booking_id'] = "";
+		$sms['type'] = "vendor";
+		$sms['type_id'] = $sc['id'];
 
 		$this->notify->send_sms($sms);
 
@@ -454,6 +457,9 @@ class vendor_partner_invoice extends CI_Controller {
 		$sms['smsData']['month'] = date('M Y', strtotime($start_date));
 		$sms['smsData']['amount'] = $tot_ch_rat['t_total'];
 		$sms['phone_no'] = $sc['owner_phone_1'];
+		$sms['booking_id'] = "";
+		$sms['type'] = "vendor";
+		$sms['type_id'] = $sc['id'];
 
 		$this->notify->send_sms($sms);
 
@@ -686,6 +692,9 @@ class vendor_partner_invoice extends CI_Controller {
 		$sms['smsData']['month'] = date('M Y', strtotime($start_date));
 		$sms['smsData']['amount'] = $tot_ch_rat['t_ap'];
 		$sms['phone_no'] = $sc['owner_phone_1'];
+		$sms['booking_id'] = "";
+		$sms['type'] = "vendor";
+		$sms['type_id'] = $sc['id'];
 
 		$this->notify->send_sms($sms);
 
