@@ -1780,7 +1780,7 @@ class Api extends CI_Controller {
         $booking_time_strings = explode("-", $booking_time);
         $booking_time_by = trim($booking_time_strings[1]);
 
-        $message = "Got it! Request for $searched_service Repair confirmed for $booking_date_strings[0], will be attended by $booking_time_by. 247Around Indias 1st Appliance repair App goo.gl/m0iAcS 011-39595200";
+        $message = "Got it! Request for $searched_service Repair confirmed for $booking_date_strings[0], will be attended by $booking_time_by. 247Around Indias 1st Appliance repair App goo.gl/m0iAcS 9555000247";
         //log_message('info', "SMS text: " . $message);
 
         $notify = $this->sendTransactionalSms($user_phone, $message);
@@ -1962,7 +1962,7 @@ class Api extends CI_Controller {
         //Send cancellation mails to Admin, Vendor and User
         $this->sendCancellationMails($user_profile[0], $result);
 
-        $message = "Request for $searched_service Repair for $booking_date_strings[0], $booking_time_by cancelled. Hope to serve next time. 247Around Indias 1st Appliance repair App goo.gl/m0iAcS 011-39595200";
+        $message = "Request for $searched_service Repair for $booking_date_strings[0], $booking_time_by cancelled. Hope to serve next time. 247Around Indias 1st Appliance repair App goo.gl/m0iAcS 9555000247";
 
         log_message('info', "SMS text: " . $message);
 
@@ -2021,7 +2021,7 @@ class Api extends CI_Controller {
         //Send cancellation mails to Admin, Vendor and User
         $this->sendRescheduleMails($user_profile[0], $result);
 
-        $message = "Got It ! Your request for $searched_service Repair is rescheduled to $booking_date_strings[0], $booking_time_by. Like us on Facebook goo.gl/Y4L6Hj / 011-39595200 - 247Around";
+        $message = "Got It ! Your request for $searched_service Repair is rescheduled to $booking_date_strings[0], $booking_time_by. Like us on Facebook goo.gl/Y4L6Hj / 9555000247 - 247Around";
 
         //log_message('info', "SMS text: " . $message);
 

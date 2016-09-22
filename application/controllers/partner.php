@@ -1549,7 +1549,7 @@ class Partner extends CI_Controller {
 
             $smsBody = "Got it! Request for " . trim($lead_details['Product']) . " Repair is confirmed for " .
                     $booking['booking_date'] . ", " . $booking['booking_timeslot'] .
-                    ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 011-39595200";
+                    ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 9555000247";
 
 
             $sms_details = $this->notify->sendTransactionalSms($booking['booking_primary_contact_no'], $smsBody);
