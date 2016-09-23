@@ -665,8 +665,6 @@ class Booking_model extends CI_Model {
     //TODO: Merge with update_booking_details function
     function update_booking($booking_id, $data) {
         $this->db->where(array("booking_id" => $booking_id));
-        $this->db->update("booking_details", $data);
-        
         $result =  $this->db->update("booking_details", $data);
         
         log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
