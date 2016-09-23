@@ -92,7 +92,8 @@ class Do_background_upload_excel extends CI_Controller {
 	$validate_data = $this->validate_phone_number($data, $file_type);
 	$row_data1 = $this->validate_product($validate_data, $file_type);
 	$row_data2 = $this->validate_delivery_date($row_data1, $file_type);
-	$row_data = $this->validate_pincode($row_data2, $file_type);
+	$row_data3 = $this->validate_pincode($row_data2, $file_type);
+	$row_data = $this->validate_order_id($row_data3);
 	$count_total_leads_came_today = count($data);
 	$count_booking_inserted = 0;
 
@@ -551,6 +552,28 @@ class Do_background_upload_excel extends CI_Controller {
 	}
 
 	return $data;
+    }
+
+    /**
+     * @desc: This method is used to check order id. Order Id should not be null or order id
+     * If order id is null or empty then it unset row and continue.
+     * @param array $data
+     * @return array
+     */
+    function validate_order_id($data){
+        $invalid_data = array();
+        foreach ($data['valid_data'] as $key => $value) {
+            if (is_null($value['Sub_Order_ID']) || $value['Sub_Order_ID'] = "") {
+
+		unset($data['valid_data'][$key]);
+                array_push($invalid_data, $value);
+	    }
+	}
+
+        if(!empty($invalid_data)){
+            $data['error']['invalid_order_id'] = $invalid_data;
+        }
+        return $data;
     }
 
     /**
