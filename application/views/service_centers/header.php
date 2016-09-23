@@ -19,6 +19,7 @@
          .navbar{
          min-height: 80px;
          }
+         #datepicker{cursor:pointer;}
       </style>
    </head>
    <body>

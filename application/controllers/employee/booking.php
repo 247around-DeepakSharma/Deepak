@@ -406,20 +406,20 @@ class Booking extends CI_Controller {
 		    log_message('info', __FUNCTION__ . " Booking to be Converted to Query Booking ID" . print_r($data['booking_id'], true));
 		    //param:-- booking id, new state, old state, employee id, employee name
 		    $this->notify->insert_state_change($data['booking_id'], "FollowUp", "Pending", $this->session->userdata('id'), $this->session->userdata('employee_id'));
+                    
+                    //Since booking has been converted to query, delete this entry from
+                    //service center booking action table as well.
+                    log_message('info', __FUNCTION__ . " Request to delete booking from service center action table Booking ID" . $data['booking_id']);
+                    $this->service_centers_model->delete_booking_id($booking_id);
+
+                    //Reset the assigned vendor ID for this booking
+                    $this->booking_model->update_booking($booking_id, array("assigned_vendor_id" => NULL));
 		} else {
 		    //Query to be updated to query
 		    $data['booking_id'] = $booking_id;
 		    log_message('info', __FUNCTION__ . " Query to be updated to Query Booking ID" . print_r($data['booking_id'], true));
 		    $this->notify->insert_state_change($data['booking_id'], "FollowUp", "FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'));
 		}
-
-		//Since booking has been converted to query, delete this entry from
-		//service center booking action table as well.
-		log_message('info', __FUNCTION__ . " Request to delete booking from service center action table Booking ID" . print_r($data['booking_id']));
-		$this->service_centers_model->delete_booking_id($booking_id);
-
-		//Reset the assigned vendor ID for this booking
-		$this->booking_model->update_booking($booking_id, array("assigned_vendor_id" => NULL));
 
 		break;
 	}
