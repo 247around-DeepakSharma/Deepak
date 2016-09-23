@@ -51,16 +51,18 @@
           	<th>Old State</th>
           	<th>New State</th>
                 <th>Response</th>
-          	<th>Employee ID</th>
+          	<th>Agent</th>
+          	<th>Partner</th>
           	<th>Date</th>
           </tr>
           <?php foreach($data as $key =>$row){?>
           <tr>
-            <td><?php echo ($key+1);?></td>
+            <td><?php echo ($key+1).'.';?></td> 
             <td><?php echo $row['old_state']; ?></td>
             <td><?php echo $row['new_state'];?></td>
             <td><?php echo $row['response']; ?></td>
             <td><?php echo $this->employee_model->getemployeefromid($row['agent_id'])[0]['employee_id'];?></td>
+            <td><?php echo (!empty($this->partner_model->getpartner($row['partner_id'])))?$this->partner_model->getpartner($row['partner_id'])[0]['public_name']:'';?></td>
             <td><?php 
                 $old_date = $row['create_date'];
                 $old_date_timestamp = strtotime($old_date);
