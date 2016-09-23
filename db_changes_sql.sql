@@ -846,3 +846,15 @@ CURRENT_TIMESTAMP
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES 
 (NULL, 'sd_edd_missed_call_reminder', 'Your %s from Snapdeal will be delivered tomorrow. Give Missed Call @ 011-30017601 for %s Installation. Installation Powered by 247around.com', 'Reminder SMS to SD customer before EDD for delivery confirmation', '1', CURRENT_TIMESTAMP);
 
+INSERT INTO  `sms_template` (
+`id` ,
+`tag` ,
+`template` ,
+`comments` ,
+`active` ,
+`create_date`
+)
+VALUES (
+NULL ,  'missed_call_booking_not_found', 'Oops, we could not find your booking. Please give missed call from your registered mobile no for Installation & Demo. Installation Powered by 247around.com.', 'SMS sent when missed call is received but no booking is found for user',  '1',  '2016-09-22 12:37:24'
+);
+
