@@ -539,6 +539,7 @@ class Partner extends CI_Controller {
     function finduser($offset = 0, $page = 0, $phone_number = '') {
         $booking_id = $this->input->post('booking_id');
         $order_id = $this->input->post('order_id');
+        $serial_no = $this->input->post('serial_number');
         $partner_id = $this->session->userdata('partner_id');
 
         if ($this->input->post('phone_number')) {
@@ -588,17 +589,26 @@ class Partner extends CI_Controller {
             }
         } elseif ($booking_id != "") {  //if booking id given and matched, will be displayed
             $where = array('booking_details.booking_id' => $booking_id);
-            $data['bookings'] = $this->booking_model->search_bookings($where,$partner_id);
+            $data['Bookings'] = $this->booking_model->search_bookings($where,$partner_id);
             
             $this->load->view('partner/header');
-            $this->load->view('partner/pending_booking',$data);
+            $this->load->view('partner/search_result',$data);
         } else if (!empty($order_id)) {
 
             $where = array('order_id' => $order_id);
+            $data['Bookings'] = $this->booking_model->search_bookings($where, $partner_id);            
+            $data['search'] = "Search";
+
+            $this->load->view('partner/header');
+            $this->load->view('partner/search_result',$data);
+        } else if (!empty($serial_no)) {
+
+            $where = array('serial_number' => $serial_no);
             $data['Bookings'] = $this->booking_model->search_bookings($where, $partner_id);
             $data['search'] = "Search";
 
-            $this->load_search_view($data);
+            $this->load->view('partner/header');
+            $this->load->view('partner/search_result', $data);
         }
     }
 
