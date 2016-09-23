@@ -124,11 +124,11 @@
             }
             
             if (order_id != "" && !order_id.match(exp2)) {
-                alert("Order ID must be atleast of 6 characters");
+                alert("Please enter valid Order ID");
                 return false;
             }
             if (serial_no != "" && !serial_no.match(exp2)) {
-                alert("Serial no must be atleast of 6 characters");
+                alert("Please enter valid Serial No.");
                 return false;
             }
             

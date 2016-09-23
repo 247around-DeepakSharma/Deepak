@@ -50,8 +50,7 @@
                 <th>S.N</th>
           	<th>Old State</th>
           	<th>New State</th>
-                <th>Old Reason</th>
-          	<th>New Reason</th>
+                <th>Response</th>
           	<th>Employee ID</th>
           	<th>Date</th>
           </tr>
@@ -60,8 +59,7 @@
             <td><?php echo ($key+1);?></td>
             <td><?php echo $row['old_state']; ?></td>
             <td><?php echo $row['new_state'];?></td>
-            <td><?php echo $row['old_reason']; ?></td>
-            <td><?php echo $row['new_reason'];?></td>
+            <td><?php echo $row['response']; ?></td>
             <td><?php echo $this->employee_model->getemployeefromid($row['agent_id'])[0]['employee_id'];?></td>
             <td><?php 
                 $old_date = $row['create_date'];
