@@ -1312,13 +1312,14 @@ class vendor extends CI_Controller {
      */
 
     function get_add_vendor_to_pincode_form(){
-        
+        $data = array();
         if(!empty($this->input->post())){
-        $data['pincode'] = $this->input->post('pincode');
-        $data['Appliance'] = urldecode($this->input->post('appliance'));
-        $data['Appliance_ID'] = $this->input->post('appliance_id');
-        $data['brand'] = urldecode($this->input->post('brand'));
-        $data['city'] = urldecode($this->input->post('city'));
+        $booking_data  = $this->booking_model->getbooking_history($this->input->post('booking_id'));
+        $data['pincode'] = $booking_data[0]['booking_pincode'];
+        $data['Appliance'] = $booking_data[0]['services'];
+        $data['Appliance_ID'] = $booking_data[0]['service_id'];
+        $data['brand'] = $booking_data[0]['appliance_brand'];
+        $data['city'] = $booking_data[0]['city'];
         
         //Getting data from Database using Booking ID
 
