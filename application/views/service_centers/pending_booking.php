@@ -112,7 +112,7 @@
                <label for="name" class="col-sm-3">Booking Date </label>
                <div class="col-md-6">
                   <div class="input-group input-append date" >
-                     <input type="text" id="datepicker" class="form-control "  name="booking_date" required readonly='true'>
+                     <input type="text" id="datepicker" class="form-control "  style="z-index:9999;" name="booking_date" required readonly='true'>
                      <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                   </div>
                </div>
