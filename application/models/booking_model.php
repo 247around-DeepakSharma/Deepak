@@ -1042,11 +1042,11 @@ class Booking_model extends CI_Model {
        // Need to get brand to send to vendor pincode mapping add form, So we will use join with booking_unit_details
         $sql = "SELECT services.services,
             users.name as customername, users.phone_number,
-            booking_details.*, booking_unit_details.*
+            booking_details.*
             from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-            JOIN  `booking_unit_details` ON `booking_unit_details`.booking_id = `booking_details`.booking_id
+           
             WHERE `booking_details`.booking_id LIKE '%Q-%' $where
 
             order by CASE `booking_details`.booking_date

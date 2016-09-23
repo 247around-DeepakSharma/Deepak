@@ -148,7 +148,7 @@ function outbound_call(phone_number){
                       <?php if($status !="Cancelled"){ ?>
                     <?php if($row->vendor_status =="Vendor Not Available"){ ?>
 
-                          <td><a href="#" style="color: red;" onclick='form_submit("<?php echo $row->booking_pincode?>","<?php echo $row->services?>","<?php echo $row->service_id ?>","<?php echo $row->city?>","<?php echo $row->appliance_brand?>")'><?php print_r($row->vendor_status); ?></a></td>
+                          <td><a href="#" style="color: red;" onclick='form_submit("<?php echo $row->booking_id?>")'><?php print_r($row->vendor_status); ?></a></td>
 
                     <?php } else { ?>
 
@@ -221,10 +221,10 @@ function outbound_call(phone_number){
         document.location.href= '<?php echo base_url(); ?>employee/vendor/viewvendor/'+vendor_id;
     }
     
-    function form_submit(pincode,service,service_id,city,brand){
+    function form_submit(booking_id){
         $.ajax({
                 type:"POST",
-                data:{pincode:pincode,appliance:service,appliance_id:service_id,brand:brand,city:city},
+                data:{booking_id:booking_id},
                 url:"<?php echo base_url()?>employee/vendor/get_add_vendor_to_pincode_form",
                 success: function(data){
                     $("#page-wrapper").html(data);
