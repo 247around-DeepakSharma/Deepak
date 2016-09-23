@@ -232,7 +232,7 @@ class Do_background_upload_excel extends CI_Controller {
 			switch ($file_type) {
 			    case 'shipped':
 				//Set EDD only
-				$booking['estimated_delivery_date'] = $dateObj2->format('Y-m-d');
+				$booking['estimated_delivery_date'] = $dateObj2->format('Y-m-d H:i:s');
 				$booking['delivery_date'] = '';
 				//Tag internal status for missed call
 				$booking['internal_status'] = "Missed_call_not_confirmed";
