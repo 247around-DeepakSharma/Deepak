@@ -1193,7 +1193,7 @@ class Api extends CI_Controller {
      * @output: None
      */
     public function pass_through() {
-//        log_message('info', "Entering: " . __METHOD__);
+        //log_message('info', "Entering: " . __METHOD__);
 
 	$activity = array('activity' => 'process exotel request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
         $this->apis->logTable($activity);
@@ -1236,42 +1236,50 @@ class Api extends CI_Controller {
 	    //change internal status to show missed call activity if it is
 	    //a pending query waiting for confirmation and user has given missed
 	    //call to confirm the installation
-	    foreach ($bookings as $b) {
-		if ($b['type'] === 'Query' && $b['current_status'] === 'FollowUp' && $b['internal_status'] == "Missed_call_not_confirmed") {
-		    $d = array('internal_status' => 'Missed_call_confirmed',
-			'booking_date' => '', 'booking_timeslot' => '',
-			'delivery_date' => date('Y-m-d H:i:s'),
-			'query_remarks' => 'Missed call received, Convert to Booking NOW !!!');
-		    $r = $this->booking_model->update_booking($b['booking_id'], $d);
-		    $this->send_missed_call_confirmation_sms($b);
+            if (count($bookings) > 0) {
+                foreach ($bookings as $b) {
+                    if ($b['type'] === 'Query' && $b['current_status'] === 'FollowUp' && $b['internal_status'] == "Missed_call_not_confirmed") {
+                        $d = array('internal_status' => 'Missed_call_confirmed',
+                            'booking_date' => '', 'booking_timeslot' => '',
+                            'delivery_date' => date('Y-m-d H:i:s'),
+                            'query_remarks' => 'Missed call received, Convert to Booking NOW !!!');
+                        $r = $this->booking_model->update_booking($b['booking_id'], $d);
+                        $this->send_missed_call_confirmation_sms($b);
 
-		    if ($r === FALSE) {
-			log_message('info', __METHOD__ . '=> Booking confirmation '
-			    . 'through missed call failed for ' . $b['booking_id']);
+                        if ($r === FALSE) {
+                            log_message('info', __METHOD__ . '=> Booking confirmation '
+                                . 'through missed call failed for ' . $b['booking_id']);
 
-			//Send email
-			$this->notify->sendEmail("booking@247around.com", "anuj@247around.com", "", "", "Query update Failed after Missed Call for Booking ID: " . $b['booking_id'], "", "");
-		    } else {
-			log_message('info', __METHOD__ . '=> Booking confirmation '
-			    . 'through missed call succeeded for ' . $b['booking_id']);
-		    }
-		}
-	    }
+                            //Send email
+                            $this->notify->sendEmail("booking@247around.com", "anuj@247around.com", "", "", "Query update Failed after Missed Call for Booking ID: " . $b['booking_id'], "", "");
+                        } else {
+                            log_message('info', __METHOD__ . '=> Booking confirmation '
+                                . 'through missed call succeeded for ' . $b['booking_id']);
+                        }
+                    }
+                }
+            } else {
+                //No bookings found, send sms asking him to call from his registered mobile no.
+                $this->send_missed_call_booking_not_found_sms($num);
+            }
 	}
 
 	$this->output->set_header("HTTP/1.1 200 OK");
     }
 
     /**
-     * @desc: This is used to send sms when customer gived a missed call
+     * @desc: This is used to send sms when customer gave a missed call and booking is found
      * @param string $booking
      */
     function send_missed_call_confirmation_sms($booking) {
+        //log_message ('info', __METHOD__);
+        
 	$sms['tag'] = "missed_call_confirmed";
 	$sms['phone_no'] = $booking['booking_primary_contact_no'];
 	$sms['smsData']['message'] = $this->notify->get_product_free_not($booking['services']);
 	$sms['smsData']['service'] = $booking['services'];
-	// Check time is greater than 2PM. If time is greater than PM then set date tommorrow otherwise Today
+	// Check time is greater than 2PM. If time is greater than 2 PM,
+        // then set installation date Tommorrow otherwise Today.
 	if (date('H') > 14) {
 	    $sms['smsData']['date'] = "Tomorrow";
 	} else {
@@ -1281,6 +1289,23 @@ class Api extends CI_Controller {
 	$sms['booking_id'] = $booking['booking_id'];
 	$sms['type'] = "user";
 	$sms['type_id'] = $booking['user_id'];
+
+	$this->notify->send_sms($sms);
+    }
+
+    /**
+     * @desc: This is used to send sms when customer gave a missed call and booking is NOT found
+     * @param string Mobile no
+     */
+    function send_missed_call_booking_not_found_sms($mobile) {
+        //log_message ('info', __METHOD__);
+        
+	$sms['tag'] = "missed_call_booking_not_found";
+	$sms['phone_no'] = $mobile;
+        $sms['smsData'] = '';
+	$sms['booking_id'] = '';
+	$sms['type'] = "user";
+	$sms['type_id'] = '';
 
 	$this->notify->send_sms($sms);
     }
