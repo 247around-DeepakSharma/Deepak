@@ -825,6 +825,7 @@ DEFAULT  '0' COMMENT 'Flag to check whether invoice is settled fully or not';
 ALTER TABLE  `sms_sent_details` CHANGE  `user_id`  `type_id` INT( 20 ) NULL DEFAULT NULL ,
 CHANGE  `user_type`  `type` VARCHAR( 20 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
 
+
 -- ANUJ 22 Sept --
 
 INSERT INTO  `sms_template` (
@@ -859,8 +860,15 @@ NULL ,  'missed_call_booking_not_found', 'Oops, we could not find your booking. 
 );
 
 
+
 --Abhay 23Sept
 
 ALTER TABLE  `booking_state_change` CHANGE  `agent_id`  `agent_id` INT( 11 ) NULL ,
 CHANGE  `partner_id`  `partner_id` INT( 10 ) NULL ;
+
+
+-- Belal 23 Sep
+
+ALTER TABLE `booking_state_change` DROP `old_reason`, DROP `new_reason`;
+ALTER TABLE `booking_state_change` ADD `response` VARCHAR(500) NOT NULL AFTER `new_reason`;
 
