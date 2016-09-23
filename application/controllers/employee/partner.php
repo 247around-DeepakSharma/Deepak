@@ -591,24 +591,53 @@ class Partner extends CI_Controller {
             $where = array('booking_details.booking_id' => $booking_id);
             $data['Bookings'] = $this->booking_model->search_bookings($where,$partner_id);
             
-            $this->load->view('partner/header');
-            $this->load->view('partner/search_result',$data);
+            $data_value = search_for_key($data['Bookings']);
+            
+            if (isset($data_value['Pending']) || isset($data_value['Cancelled']) || isset($data_value['Completed'])){
+                $this->load->view('partner/header');
+                $this->load->view('partner/search_result',$data);
+            }else{
+                //if user not found set error session data
+                $this->session->set_flashdata('error', 'User Not Found');
+
+                redirect(base_url() . 'employee/partner/get_user_form');
+            }
+            
+            
         } else if (!empty($order_id)) {
 
             $where = array('order_id' => $order_id);
             $data['Bookings'] = $this->booking_model->search_bookings($where, $partner_id);            
             $data['search'] = "Search";
 
-            $this->load->view('partner/header');
-            $this->load->view('partner/search_result',$data);
+           $data_value = search_for_key($data['Bookings']);
+            
+            if (isset($data_value['Pending']) || isset($data_value['Cancelled']) || isset($data_value['Completed'])){
+                $this->load->view('partner/header');
+                $this->load->view('partner/search_result',$data);
+            }else{
+                //if user not found set error session data
+                $this->session->set_flashdata('error', 'User Not Found');
+
+                redirect(base_url() . 'employee/partner/get_user_form');
+            }
         } else if (!empty($serial_no)) {
 
             $where = array('serial_number' => $serial_no);
             $data['Bookings'] = $this->booking_model->search_bookings($where, $partner_id);
             $data['search'] = "Search";
 
-            $this->load->view('partner/header');
-            $this->load->view('partner/search_result', $data);
+            $data_value = search_for_key($data['Bookings']);
+            
+            if (isset($data_value['Pending']) || isset($data_value['Cancelled']) || isset($data_value['Completed'])){
+                $this->load->view('partner/header');
+                $this->load->view('partner/search_result',$data);
+            }else{
+                //if user not found set error session data
+                $this->session->set_flashdata('error', 'User Not Found');
+
+                redirect(base_url() . 'employee/partner/get_user_form');
+            }
         }
     }
 

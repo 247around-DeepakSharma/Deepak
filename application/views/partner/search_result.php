@@ -168,18 +168,6 @@
                         ?>
                     </table>
                 <?php } ?>
-                <?php
-                if (isset($data['Pending']) || isset($data['Cancelled']) || isset($data['Completed'])) {
-                    
-                } else {
-                    ?>
-                    <div class="panel-group clear">
-                        <div class="panel panel-danger">
-                            <div class="panel-heading"><center><h4><b>No Bookings Found</b></h4></center></div>
-                        </div>
-                    </div>
-                        
-                        <?php } ?>
             </div>
         </div>
     </div>
