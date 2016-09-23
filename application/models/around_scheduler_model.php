@@ -18,6 +18,7 @@ class Around_scheduler_model extends CI_Model {
      * Current status => FollowUp
      */
     function get_reminder_installation_sms_data() {
+        /*
 	$sql = " SELECT booking_details.*, `services`.services from booking_details, services "
                 . " where partner_source = 'Snapdeal-shipped-excel' AND internal_status = 'Missed_call_not_confirmed' "
 	    . " AND estimated_delivery_date > CURDATE() AND estimated_delivery_date = (CURDATE() + INTERVAL 1 DAY) "
@@ -25,7 +26,18 @@ class Around_scheduler_model extends CI_Model {
 	    . " AND booking_pincode In (Select vendor_pincode_mapping.Pincode from vendor_pincode_mapping, "
 	    . " service_centres where service_centres.id = vendor_pincode_mapping.Vendor_ID AND service_centres.active = '1' "
 	    . " AND vendor_pincode_mapping.active = '1' );";
+         * 
+         */
 
+        //Filter using booking_date instead of EDD
+        $sql = "SELECT booking_details.*, `services`.services from booking_details, services 
+              WHERE partner_source = 'Snapdeal-shipped-excel' 
+	      AND booking_date = DATE_FORMAT( CURDATE() + INTERVAL 1 DAY ,  '%d-%m-%Y' )
+	      AND current_status= 'FollowUp' AND `booking_details`.service_id = `services`.id 
+	      AND booking_pincode In (Select vendor_pincode_mapping.Pincode from vendor_pincode_mapping, 
+	      service_centres where service_centres.id = vendor_pincode_mapping.Vendor_ID AND service_centres.active = '1' 
+	      AND vendor_pincode_mapping.active = '1' );";
+        
 	$query = $this->db->query($sql);
         
         log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
