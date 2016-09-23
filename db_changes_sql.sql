@@ -858,3 +858,9 @@ VALUES (
 NULL ,  'missed_call_booking_not_found', 'Oops, we could not find your booking. Please give missed call from your registered mobile no for Installation & Demo. Installation Powered by 247around.com.', 'SMS sent when missed call is received but no booking is found for user',  '1',  '2016-09-22 12:37:24'
 );
 
+
+--Abhay 23Sept
+
+ALTER TABLE  `booking_state_change` CHANGE  `agent_id`  `agent_id` INT( 11 ) NULL ,
+CHANGE  `partner_id`  `partner_id` INT( 10 ) NULL ;
+
