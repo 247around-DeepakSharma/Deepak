@@ -31,7 +31,7 @@
                             </div>
 
                         </div>
-                        <img src="<?php echo base_url() ?>images/or.png" height="25px" width="25px" style="margin-left:45%;"/>
+                        <img src="<?php echo base_url() ?>images/or.png" height="25px" width="25px" style="margin-left:45%;margin-top: -10px;margin-bottom: -10px;"/>
                         <div class="clear"></div>
                         <div class="form-group">
                             <label for="order id" class="col-md-4">Order ID</label>
@@ -40,7 +40,7 @@
                             </div>
 
                         </div>
-                        <img src="<?php echo base_url() ?>images/or.png" height="25px" width="25px" style="margin-left:45%;"/>
+                        <img src="<?php echo base_url() ?>images/or.png" height="25px" width="25px" style="margin-left:45%;margin-top: -10px;margin-bottom: -10px;"/>
                         <div class="clear"></div>
                         <div class="form-group">
                             <label for="serial_number" class="col-md-4">Serial No</label>
@@ -49,7 +49,7 @@
                             </div>
 
                         </div>
-                        <img src="<?php echo base_url() ?>images/or.png" height="25px" width="25px" style="margin-left:45%;"/>
+                        <img src="<?php echo base_url() ?>images/or.png" height="25px" width="25px" style="margin-left:45%;margin-top: -10px;margin-bottom: -10px;"/>
                         <div class="clear"></div>
                         <div class="form-group <?php
                         if (form_error('booking_id')) {
