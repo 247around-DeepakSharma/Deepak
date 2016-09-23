@@ -825,3 +825,24 @@ DEFAULT  '0' COMMENT 'Flag to check whether invoice is settled fully or not';
 ALTER TABLE  `sms_sent_details` CHANGE  `user_id`  `type_id` INT( 20 ) NULL DEFAULT NULL ,
 CHANGE  `user_type`  `type` VARCHAR( 20 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
 
+-- ANUJ 22 Sept --
+
+INSERT INTO  `sms_template` (
+`id` ,
+`tag` ,
+`template` ,
+`comments` ,
+`active` ,
+`create_date`
+)
+VALUES (
+NULL ,  'missed_call_confirmed', 'Thank you for the delivery confirmation, %s Installation & Demo of your %s would be done %s. Installation Powered by 247around.com', 'SMS sent when customer gives a missed call to confirm delivery',  '1', 
+CURRENT_TIMESTAMP
+), (
+NULL ,  'sd_shipped_missed_call_initial', 'Your %s from Snapdeal is shipped. After delivery give Missed Call at 011-30017601 for %s Installation. Installation Powered by 247around.com', '1st SMS sent to customer when SD shipped file is uploaded.',  '1', 
+CURRENT_TIMESTAMP
+);
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES 
+(NULL, 'sd_edd_missed_call_reminder', 'Your %s from Snapdeal will be delivered tomorrow. Give Missed Call @ 011-30017601 for %s Installation. Installation Powered by 247around.com', 'Reminder SMS to SD customer before EDD for delivery confirmation', '1', CURRENT_TIMESTAMP);
+
