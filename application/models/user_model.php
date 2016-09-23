@@ -223,6 +223,7 @@ class User_model extends CI_Model {
                 . " services.id=booking_details.service_id LIMIT $start, $limit";
         $query = $this->db->query($sql);
         
+        log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
         
         return $query->result_array();
     }
