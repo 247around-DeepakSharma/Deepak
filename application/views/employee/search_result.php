@@ -109,7 +109,16 @@
     
         $("#reminderMailForm"+i).toggle(500);
     }
-    
+      function form_submit(booking_id){
+        $.ajax({
+                type:"POST",
+                data:{booking_id:booking_id},
+                url:"<?php echo base_url() ?>employee/vendor/get_add_vendor_to_pincode_form",
+                  success: function (data) {
+                      $("#page-wrapper").html(data);
+                  }
+              });
+          }
     
 </script>
 <style type="text/css">
@@ -180,7 +189,7 @@
                     <td><?= $row->city; ?></td>
                     <?php if($row->vendor_status =="Vendor Not Available"){ ?>
                     <td>
-                         <a href="<?php echo base_url().'employee/vendor/get_add_vendor_to_pincode_form/'.$row->booking_id;?>" style="color: red;"><?php print_r($row->vendor_status); ?></a>
+                         <a href="#" onclick='form_submit("<?php echo $row->booking_id?>")' style="color: red;"><?php print_r($row->vendor_status); ?></a>
                     </td>
                     <?php } else { ?>
                     <td>
