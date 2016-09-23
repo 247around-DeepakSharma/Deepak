@@ -152,10 +152,9 @@ class Partner_model extends CI_Model {
     function insert_data_in_batch($table_name, $rows){
         return $this->db->insert_batch($table_name, $rows);
     }
-    
+
     /*
      * @desc: This is used to get active partner details and also get partner details by partner id
-     * By default is_reporting variable is get
      */
     function getpartner($partner_id = "") {
 	    if ($partner_id != "") {
@@ -381,7 +380,7 @@ class Partner_model extends CI_Model {
 			BD.current_status, BD.internal_status, rating_stars,
 			DATE_FORMAT(BD.create_date, '%d/%M') as create_date,
 			services,
-			UD.appliance_brand, UD.appliance_description,
+			UD.appliance_brand as brand, UD.model_number, UD.appliance_description as description,
 			name, phone_number, home_address, pincode, users.city
 			FROM booking_details as BD, users, services, booking_unit_details as UD
 			WHERE BD.booking_id = UD.booking_id AND
@@ -397,23 +396,31 @@ class Partner_model extends CI_Model {
     function get_partner_summary_params($partner_id) {
 	$partner_source_code = $this->get_source_code_for_partner($partner_id);
 
-	//Count all Snapdeal leads
-	$this->db->like('source', $partner_source_code);
+	//Count all partner leads
+	$this->db->like('partner_id', $partner_id);
 	$total_install_req = $this->db->count_all_results('booking_details');
 
 	//Count today leads which has create_date as today
-	$this->db->where('source', $partner_source_code);
+	$this->db->where('partner_id', $partner_id);
 	$this->db->where('create_date >= ', date('Y-m-d'));
 	$today_install_req = $this->db->count_all_results('booking_details');
 
 	//Count y'day leads
-	$this->db->where('source', $partner_source_code);
+	$this->db->where('partner_id', $partner_id);
 	$this->db->where('create_date >= ', date('Y-m-d', strtotime("-1 days")));
 	$this->db->where('create_date < ', date('Y-m-d'));
 	$yday_install_req = $this->db->count_all_results('booking_details');
 
+	//Count This month leads
+	$sql = "SELECT * FROM booking_details WHERE partner_id = '" . $partner_id . "'"
+	    . " AND create_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH)";
+	$query = $this->db->query($sql);
+	$month_array = $query->result_array();
+	$month_install_req = count($month_array);
+
+
 	//Count total installations scheduled
-	$this->db->where('source', $partner_source_code);
+	$this->db->where('partner_id', $partner_id);
 	$this->db->where_in('current_status', array('Pending', 'Rescheduled'));
 	$total_install_sched = $this->db->count_all_results('booking_details');
 
@@ -430,40 +437,65 @@ class Partner_model extends CI_Model {
 	$this->db->where('create_date < ', date('Y-m-d'));
 	$yday_install_sched = $this->db->count_all_results('booking_state_change');
 
+	//Count This month installation scheduled
+	$sql = "SELECT * FROM booking_state_change WHERE booking_id LIKE '%" . $partner_source_code . "%'"
+	    . " AND create_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH) "
+	    . " AND (new_state = 'Pending' OR new_state = 'Rescheduled') "
+	    . " AND (old_state = 'FollowUp' OR old_state = 'New_Booking' ) ";
+	$install_query = $this->db->query($sql);
+	$month__scheduled = $install_query->result_array();
+	$month_install_scheduled = count($month__scheduled);
+
 	//Count total installations completed
-	$this->db->where('source', $partner_source_code);
+	$this->db->where('partner_id', $partner_id);
 	$this->db->where_in('current_status', array('Completed'));
 	$total_install_compl = $this->db->count_all_results('booking_details');
 
 	//Count today installations completed
-	$this->db->where('source', $partner_source_code);
+	$this->db->where('partner_id', $partner_id);
 	$this->db->where_in('current_status', array('Completed'));
 	$this->db->where('closed_date >= ', date('Y-m-d'));
 	$today_install_compl = $this->db->count_all_results('booking_details');
 
 	//Count y'day installations completed
-	$this->db->where('source', $partner_source_code);
+	$this->db->where('partner_id', $partner_id);
 	$this->db->where_in('current_status', array('Completed'));
 	$this->db->where('closed_date >= ', date('Y-m-d', strtotime("-1 days")));
 	$this->db->where('closed_date < ', date('Y-m-d'));
 	$yday_install_compl = $this->db->count_all_results('booking_details');
 
+	//Count this month installations completed
+	$sql = "SELECT * FROM booking_details WHERE partner_id = '" . $partner_id . "'"
+	    . " AND closed_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH) "
+	    . "AND current_status = 'Completed' ";
+	$comp_query = $this->db->query($sql);
+	$month_comp = $comp_query->result_array();
+	$month_install_comp = count($month_comp);
+
 	//Count total follow-ups pending
-	$this->db->where('source', $partner_source_code);
+	$this->db->where('partner_id', $partner_id);
 	$this->db->where('current_status', 'FollowUp');
 	$total_followup_pend = $this->db->count_all_results('booking_details');
 
 	//Count today follow-ups pending
 	$today = date("d-m-Y");
-	$where_today = "`source` LIKE '%SS%' AND `current_status`='FollowUp' AND (`booking_date`='' OR `booking_date`=$today)";
+	$where_today = "`partner_id` =  '" . $partner_id . "' AND `current_status`='FollowUp' AND (`booking_date`='' OR `booking_date`=$today)";
 	$this->db->where($where_today);
 	$today_followup_pend = $this->db->count_all_results('booking_details');
 
 	//Count yday follow-ups pending
 	$yday = date("d-m-Y", strtotime("-1 days"));
-	$where_yday = "`source` LIKE '%SS%' AND `current_status`='FollowUp' AND `booking_date`=$yday";
+	$where_yday = "`partner_id` = '" . $partner_id . "' AND `current_status`='FollowUp' AND `booking_date`=$yday";
 	$this->db->where($where_yday);
 	$yday_followup_pend = $this->db->count_all_results('booking_details');
+
+	//Count this follow-ups pending
+	$sql = "SELECT * FROM booking_state_change WHERE booking_id LIKE '%" . $partner_source_code . "%'"
+	    . " AND create_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH) "
+	    . "AND (new_state = 'FollowUp' OR old_state = 'New_Query' ) ";
+	$followUp_query = $this->db->query($sql);
+	$followUp_comp = $followUp_query->result_array();
+	$month_followup_pend = count($followUp_comp);
 
 	//Count total installations Cancelled
 	$this->db->where('source', $partner_source_code);
@@ -483,6 +515,14 @@ class Partner_model extends CI_Model {
 	$this->db->where('create_date < ', date('Y-m-d'));
 	$yday_install_cancl = $this->db->count_all_results('booking_state_change');
 
+	//Count this month installations Cancelled
+	$sql = "SELECT * FROM booking_details WHERE partner_id = '" . $partner_id . "'"
+	    . " AND closed_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH) "
+	    . "AND current_status = 'Cancelled' ";
+	$can_query = $this->db->query($sql);
+	$month_install_can = $can_query->result_array();
+	$month_install_cancl = count($month_install_can);
+
 	//TAT calculation
 	$tat = "100";
 	//SELECT DATEDIFF(`closed_date`, STR_TO_DATE(`booking_date`,"%d-%m-%Y")) FROM `booking_details` where source=$partner_source_code AND current_status='Completed'
@@ -496,18 +536,23 @@ class Partner_model extends CI_Model {
 	    "total_install_req" => $total_install_req,
 	    "today_install_req" => $today_install_req,
 	    "yday_install_req" => $yday_install_req,
+	    "month_install_req" => $month_install_req,
 	    "total_install_sched" => $total_install_sched,
 	    "today_install_sched" => $today_install_sched,
 	    "yday_install_sched" => $yday_install_sched,
+	    "month_install_sched" => $month_install_scheduled,
 	    "total_install_compl" => $total_install_compl,
 	    "today_install_compl" => $today_install_compl,
 	    "yday_install_compl" => $yday_install_compl,
+	    "month_install_compl" => $month_install_comp,
 	    "total_followup_pend" => $total_followup_pend,
 	    "today_followup_pend" => $today_followup_pend,
 	    "yday_followup_pend" => $yday_followup_pend,
+	    "month_followup_pend" => $month_followup_pend,
 	    "total_install_cancl" => $total_install_cancl,
 	    "today_install_cancl" => $today_install_cancl,
 	    "yday_install_cancl" => $yday_install_cancl,
+	    "month_install_cancl" => $month_install_cancl,
 	    "tat" => $tat,
 	);
 
@@ -549,7 +594,7 @@ class Partner_model extends CI_Model {
 
         return $query->result_array();
     }
-    
+
     /**
      * @desc: This function is to activate partner who is already registered with us and are inactive/deactivated.
      *
@@ -588,7 +633,7 @@ class Partner_model extends CI_Model {
         $this->db->where('id', $id);
         $this->db->update('partners', $partner);
     }
-    
+
     /**
      * @desc : This funtion counts total number of bookings for a particular user of the concerned partner
      *
@@ -602,6 +647,24 @@ class Partner_model extends CI_Model {
         $this->db->where("partner_id = '$partner_id'");
         $result = $this->db->count_all_results("booking_details");
         return $result;
+    }
+
+    /**
+     *
+     * @param Array $where
+     * @param String $is_reporting_mail (O or 1)
+     * @return Array
+     */
+    function getpartner_details($where, $is_reporting_mail) {
+
+	$this->db->select('*');
+	$this->db->where($where);
+	if ($is_reporting_mail != "") {
+	    $this->db->where_in('is_reporting_mail', $is_reporting_mail);
+	}
+	$query = $this->db->get('partners');
+
+	return $query->result_array();
     }
 
 }

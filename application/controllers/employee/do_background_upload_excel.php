@@ -252,28 +252,28 @@ class Do_background_upload_excel extends CI_Controller {
 			$booking['city'] = $value['CITY'];
                         $booking['state'] = $state['state'];
                         $booking['quantity'] = '1';
-                        
+
                         $booking_details_id = $this->booking_model->addbooking($booking);
-                        
+
                         if ($booking_details_id) {
                             log_message('info', __FUNCTION__ . ' =>  Booking is inserted in booking details: ' . $booking['booking_id']);
-                            
+
                             $count_booking_inserted++;
-                            
+
                             $this->notify->insert_state_change($booking['booking_id'], "FollowUp", "New_Query", $this->session->userdata('id'), $this->session->userdata('employee_id'));
-                            
+
                             //Send SMS to customers regarding delivery confirmation through missed call
                             if ($file_type == "shipped") {
-                                //If EDD is tomorrow, don't send SMS now as another SMS will go automatically in the evening                                
+                                //If EDD is tomorrow, don't send SMS now as another SMS will go automatically in the evening
                                 if (date("Y-m-d", strtotime("+1 day")) != $booking['estimated_delivery_date']) {
                                     //Check whether vendor is available or not
                                     $vendors = $this->vendor_model->check_vendor_availability($booking['booking_pincode'], $booking['service_id']);
-                                    
+
                                     if (count($vendors) > 0) {
                                         $this->send_sms_to_snapdeal_customer($value['appliance'], $booking['booking_primary_contact_no'], $user_id, $booking['booking_id']);
                                     } else {
                                         log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
-                                    }                                    
+                                    }
 				}
                             }
                         } else {
@@ -283,7 +283,7 @@ class Do_background_upload_excel extends CI_Controller {
                             $row_data['error'][$key]['booking_details'] = " Booking Unit Id is not inserted";
                             $row_data['error'][$key]['invalid_data'] = $value;
                         }
-                        
+
                         if (empty($booking['state'])) {
                             log_message('info', __FUNCTION__ . " Pincode is not found booking id: " . print_r($booking['booking_id'], true));
                             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
@@ -340,7 +340,7 @@ class Do_background_upload_excel extends CI_Controller {
         }
         $row_data['error']['total_booking_inserted'] = $count_booking_inserted;
         $row_data['error']['total_booking_came_today'] = $count_total_leads_came_today;
-        
+
         if (isset($row_data['error'])) {
             $this->get_invalid_data($row_data['error'], $file_type);
 	}

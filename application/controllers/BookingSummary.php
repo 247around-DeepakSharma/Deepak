@@ -305,22 +305,27 @@ EOD;
 	$total_install_req = $partner_summary_params['total_install_req'];
 	$today_install_req = $partner_summary_params['today_install_req'];
 	$yday_install_req = $partner_summary_params['yday_install_req'];
+	$month_install_req = $partner_summary_params['month_install_req'];
 
 	$total_install_sched = $partner_summary_params['total_install_sched'];
 	$today_install_sched = $partner_summary_params['today_install_sched'];
 	$yday_install_sched = $partner_summary_params['yday_install_sched'];
+	$month_install_sched = $partner_summary_params['month_install_sched'];
 
 	$total_install_compl = $partner_summary_params['total_install_compl'];
 	$today_install_compl = $partner_summary_params['today_install_compl'];
 	$yday_install_compl = $partner_summary_params['yday_install_compl'];
+	$month_install_compl = $partner_summary_params['month_install_compl'];
 
 	$total_followup_pend = $partner_summary_params['total_followup_pend'];
 	$today_followup_pend = $partner_summary_params['today_followup_pend'];
 	$yday_followup_pend = $partner_summary_params['yday_followup_pend'];
+	$month_followup_pend = $partner_summary_params['month_followup_pend'];
 
 	$total_install_cancl = $partner_summary_params['total_install_cancl'];
 	$today_install_cancl = $partner_summary_params['today_install_cancl'];
 	$yday_install_cancl = $partner_summary_params['yday_install_cancl'];
+	$month_install_cancl = $partner_summary_params['month_install_cancl'];
 
 	$tat = $partner_summary_params['tat'];
 
@@ -356,6 +361,17 @@ EOD;
 		<td>NA</td>
 	    </tr>
 
+	     <tr>
+		<td>Month</td>
+		<td>$month_install_req</td>
+		<td>$month_install_compl</td>
+		<td>$month_install_sched</td>
+		<td>$month_followup_pend</td>
+		<td>$month_install_cancl</td>
+		<td>NA</td>
+	    </tr>
+
+
 	    <tr>
 		<td>Total</td>
 		<td>$total_install_req</td>
@@ -377,15 +393,17 @@ EOD;
 
 	$template = 'SD_Summary_Template-v2.xlsx';
 	$templateDir = __DIR__ . "/excel-templates/";
-
+	//print_r($templateDir);
 	//set config for report
 	$config = array(
 	    'template' => $template,
 	    'templateDir' => $templateDir
 	);
 
+	$where_get_partner = array('is_active' => '1');
+
 	//Get all Active partners who has "is_reporting_mail" column 1
-	$partners = $this->partner_model->getpartner();
+	$partners = $this->partner_model->getpartner_details($where_get_partner, '1');
 
 	foreach ($partners as $p) {
 	    //load template
@@ -403,10 +421,9 @@ EOD;
 	    ));
 
 	    //Get populated XLS with data
-	    $output_file = "247around Services Consolidated Data - " . date('d-M-Y') . ".xlsx";
+	    $output_file = "/tmp/247around-Services-Consolidated-Data - " . date('d-M-Y') . ".xlsx";
 	    //for xlsx: excel, for xls: excel2003
 	    $R->render('excel', $output_file);
-
 	    //Send report via email
 	    $this->email->clear(TRUE);
 	    $this->email->from('booking@247around.com', '247around Team');
@@ -427,20 +444,20 @@ EOD;
 				<br>Playstore - 247around -
 				<br>https://play.google.com/store/apps/details?id=com.handymanapp";
 
+
+
 	    $this->email->message($message);
 	    $this->email->attach($output_file, 'attachment');
 
-	     if ($this->email->send()) {
-		    log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $p['public_name']);
-	     } else {
-		 log_message('info', __METHOD__ . ": Mail could not be sent for Partner: " . $p['public_name']);
-	     }
-
+	    if ($this->email->send()) {
+		log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $p['public_name']);
+	    } else {
+		log_message('info', __METHOD__ . ": Mail could not be sent for Partner: " . $p['public_name']);
+	    }
 	    //Upload Excel to AWS/FTP
 	    $bucket = 'bookings-collateral';
 	    $directory_xls = "summary-excels/" . $output_file;
 	    $this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
-
 	    //Delete this file
 	    exec("rm -rf " . escapeshellarg($output_file));
 	}
@@ -617,18 +634,17 @@ EOD;
 //     * @desc: This method used to send booking summary mail to all partners
 //     */
 //    function get_partner_summary_table() {
-//        $data = $this->reporting_utils->get_partner_summary_data();
-//        for($i =0; $i<count($data); $i++){
-//            $html = $this->set_data_in_table($data[$i]);
-//            $from = "booking@247around.com";
-//            $to = $data[0]['partner_email_for_to'];
-//            $cc =  $data[0]['partner_email_for_cc'];
-//            $subject = "247Around Booking Summary Mail";
-//            $this->notify->sendEmail($from, $to, $cc, "", $subject, $html, "");
-//        }
-//
-//
+//	$data = $this->reporting_utils->get_partner_summary_data();
+//	for ($i = 0; $i < count($data); $i++) {
+//	    $html = $this->set_data_in_table($data[$i]);
+//	    $from = "booking@247around.com";
+//	    $to = $data[0]['partner_email_for_to'];
+//	    $cc = $data[0]['partner_email_for_cc'];
+//	    $subject = "247Around Booking Summary Mail";
+//	    $this->notify->sendEmail($from, $to, $cc, "", $subject, $html, "");
+//	}
 //    }
+
     /**
      * @desc: this method set header for summary table
      * @return string
