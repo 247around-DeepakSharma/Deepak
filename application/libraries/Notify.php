@@ -138,7 +138,7 @@ class Notify {
 	    $smsBody = vsprintf($template, $sms['smsData']);
 	    $response = $this->sendTransactionalSms($sms['phone_no'], $smsBody);
 	    if (isset($response['info']) && $response['info'] == '200') {
-		$this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['tag'], $smsBody, $sms['booking_id']);
+		$this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['phone_no'], $smsBody, $sms['booking_id']);
 	    }
 	} else {
 	    log_message('info', "Message Not Sent - Booking id: " . $sms['booking_id'] . ",
@@ -494,24 +494,23 @@ class Notify {
         
 	switch ($appliance) {
 	    case 'Washing Machine':
-		$status = 'free';
+		$status = 'Free';
 		break;
 
 	    case 'Refrigerator':
-		$status = 'free';
+		$status = 'Free';
 		break;
 
 	    case 'Microwave':
-		$status = 'free';
+		$status = 'Free';
 		break;
 
 	    case 'Television':
-
-		$status = 'free';
+		$status = 'Free';
 		break;
 
 	    case 'Water Purifier':
-		$status = 'free';
+		$status = 'Free';
 		break;
 
             //Leave blank
@@ -520,7 +519,7 @@ class Notify {
 		break;
             
 	    case 'Geyser':
-		$status = 'free';
+		$status = 'Free';
 		break;
 	}
         

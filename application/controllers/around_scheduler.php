@@ -24,11 +24,14 @@ class Around_scheduler extends CI_Controller {
      * in their pincode.
      */
     function send_reminder_installation_sms() {
+        log_message ('info', __METHOD__);
+        
 	$data = $this->around_scheduler_model->get_reminder_installation_sms_data();
 	$sms['tag'] = "sd_edd_missed_call_reminder";
 	foreach ($data as $value) {
 	    $sms['phone_no'] = $value['booking_primary_contact_no'];
 	    $sms['smsData']['service'] = $value['services'];
+            $sms['smsData']['message'] = $this->notify->get_product_free_not($value['services']);
 	    $sms['booking_id'] = $value['booking_id'];
 	    $sms['type'] = "user";
 	    $sms['type_id'] = $value['user_id'];

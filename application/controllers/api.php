@@ -1193,7 +1193,7 @@ class Api extends CI_Controller {
      * @output: None
      */
     public function pass_through() {
-//        log_message('info', "Entering: " . __METHOD__);
+        //log_message('info', "Entering: " . __METHOD__);
 
 	$activity = array('activity' => 'process exotel request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
         $this->apis->logTable($activity);
@@ -1267,11 +1267,14 @@ class Api extends CI_Controller {
      * @param string $booking
      */
     function send_missed_call_confirmation_sms($booking) {
+        //log_message ('info', __METHOD__);
+        
 	$sms['tag'] = "missed_call_confirmed";
 	$sms['phone_no'] = $booking['booking_primary_contact_no'];
 	$sms['smsData']['message'] = $this->notify->get_product_free_not($booking['services']);
 	$sms['smsData']['service'] = $booking['services'];
-	// Check time is greater than 2PM. If time is greater than PM then set date tommorrow otherwise Today
+	// Check time is greater than 2PM. If time is greater than 2 PM,
+        // then set installation date Tommorrow otherwise Today.
 	if (date('H') > 14) {
 	    $sms['smsData']['date'] = "Tomorrow";
 	} else {
