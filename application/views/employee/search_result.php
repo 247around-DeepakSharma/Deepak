@@ -132,31 +132,10 @@
 <div id="page-wrapper">
     <div class="">
         <div class="row">
-            <?php 
-
-                function search_for_key($array) {
-                    $data  = array();
-                    foreach ($array as $key => $val) {
-                        if ($val->current_status === "Pending" || $val->current_status ==="Rescheduled") {
-                            $data['Pending'] = 1;
-                        } else if($val->current_status === "Completed"){
-                            $data['Completed'] = 1;
-                        } else if($val->current_status === "Cancelled"){
-                            $data['Cancelled'] = 1;
-                        } else if($val->current_status === "FollowUp"){
-                            $data['FollowUp'] = 1;
-                        }
-                
-                    }
-                    return $data;
-                   
-                }
-                
-                $data = search_for_key($Bookings);
-                $count = 1;
-                
-                
-                 ?>
+            <?php
+            $data = search_for_key($Bookings);
+            $count = 1;
+            ?>
             <?php if(isset($data['FollowUp'])){ ?>
             <h1><b>Pending Queries</b></h1>
             <table >
@@ -183,7 +162,7 @@
                 </thead>
                 <?php  if($offset ==0){ $offset = 1;} else { $offset = $offset+1; } ?>
                 <?php foreach($Bookings as $key =>$row){ if($row->current_status == "FollowUp") {?>
-                 <tr <?php if($row->internal_status == "Missed_call_confirmed"){ ?> style="background-color:rgb(0,255,0); color:#000;"<?php } ?> >
+                 <tr <?php if($row->internal_status == "Missed_call_confirmed"){ ?> style="background-color:rgb(162, 230, 162); color:#000;"<?php } ?> >
                     <td><?php echo $count; ?></td>
                     <td><?= $row->booking_id; ?></td>
                     <td><a target='_blank' href="<?php echo base_url(); ?>employee/user/finduser/0/0/<?php echo $row->phone_number; ?>"><?php echo $row->customername; ?></a></td>

@@ -1,8 +1,6 @@
 <?php
 
 class Around_scheduler_model extends CI_Model {
-
-
     /**
      * @desc load both db
      */
@@ -29,6 +27,9 @@ class Around_scheduler_model extends CI_Model {
 	    . " AND vendor_pincode_mapping.active = '1' );";
 
 	$query = $this->db->query($sql);
+        
+        log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
+        
     	return  $query->result_array();
 
     }

@@ -216,12 +216,14 @@ class User_model extends CI_Model {
      *  @return : array of user and booking details
      */
     function booking_history($phone_number, $limit, $start) {
-        $sql = "Select services.services, users.user_id, users.city, users.state, users.phone_number, users.user_email, users.home_address, users.name, users.pincode, booking_details.booking_id,"
-                . "booking_details.booking_date, booking_details.booking_timeslot, booking_details.current_status,"
-                . "booking_details.closed_date from booking_details, users,services where "
-                . "users.phone_number='$phone_number' and booking_details.user_id=users.user_id and "
-                . "services.id=booking_details.service_id LIMIT $start, $limit";
+        $sql = " SELECT services.services, users.user_id, users.city, users.state, users.phone_number, users.user_email, users.home_address, users.name, users.pincode, "
+                . " booking_details.* "
+                . " FROM booking_details, users,services WHERE "
+                . " users.phone_number='$phone_number' AND booking_details.user_id=users.user_id AND "
+                . " services.id=booking_details.service_id LIMIT $start, $limit";
         $query = $this->db->query($sql);
+        
+        
         return $query->result_array();
     }
     
