@@ -132,31 +132,10 @@
 <div id="page-wrapper">
     <div class="">
         <div class="row">
-            <?php 
-
-                function search_for_key($array) {
-                    $data  = array();
-                    foreach ($array as $key => $val) {
-                        if ($val->current_status === "Pending" || $val->current_status ==="Rescheduled") {
-                            $data['Pending'] = 1;
-                        } else if($val->current_status === "Completed"){
-                            $data['Completed'] = 1;
-                        } else if($val->current_status === "Cancelled"){
-                            $data['Cancelled'] = 1;
-                        } else if($val->current_status === "FollowUp"){
-                            $data['FollowUp'] = 1;
-                        }
-                
-                    }
-                    return $data;
-                   
-                }
-                
-                $data = search_for_key($Bookings);
-                $count = 1;
-                
-                
-                 ?>
+            <?php
+            $data = search_for_key($Bookings);
+            $count = 1;
+            ?>
             <?php if(isset($data['FollowUp'])){ ?>
             <h1><b>Pending Queries</b></h1>
             <table >
