@@ -25,8 +25,59 @@
             $data = search_for_key($Bookings);
             $count = 1;
             ?>
-            
-            <?php if (isset($data['Pending'])) { ?>
+            <?php if (isset($data['FollowUp'])) { ?>
+                <div class="panel-heading">
+                    <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Pending Queries </h2>
+                </div>
+                <table >
+                    <thead>
+                        <tr>
+                            <th>S.No.</th>
+                            <th>Order ID</th>
+                            <th>247around Booking ID</th>
+                            <th>User Name</th>
+                            <th>Mobile</th>
+                            <th>City</th>
+                            <th>Booking Date</th>
+                            <th>Status</th>
+                            <th>View</th>
+                        </tr>
+                    </thead>
+                    <?php
+                    if ($offset == 0) {
+                        $offset = 1;
+                    } else {
+                        $offset = $offset + 1;
+                    }
+                    ?>
+                    <?php
+                    foreach ($Bookings as $key => $row) {
+                        if ($row->current_status == "FollowUp") {
+                            ?>
+                            <tr <?php if ($row->internal_status == "Missed_call_confirmed") { ?> style="background-color:rgb(0,255,0); color:#000;"<?php } ?> >
+                                <td><?php echo $count . '.'; ?></td>
+                                <td><?php echo $row->customername ?></td>
+                                <td><?php echo $row->booking_id ?></td>
+                                <td><?= $row->customername; ?></td>
+                                <td><?= $row->booking_primary_contact_no; ?></td>
+                                <td><?= $row->city; ?></td>
+                                <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
+                                <td id="status_<?php echo $row->booking_id; ?>"><?php echo $row->current_status; ?></td>
+                                <td>
+                                    <?php
+                                    echo "<a class='btn btn-sm btn-primary' "
+                                    . "href=" . base_url() . "partner/booking_details/$row->booking_id target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
+                                    ?>
+                                </td>
+                            </tr>
+                            <?php
+                            $count++;
+                            $offset++;
+                        }
+                    }
+                    ?>
+                </table>
+            <?php } if (isset($data['Pending'])) { ?>
                 <div class="panel-heading">
                     <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Pending Bookings </h2>
                 </div>

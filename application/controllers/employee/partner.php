@@ -552,7 +552,7 @@ class Partner extends CI_Controller {
 
             if (empty($output)) {
                 //if user not found set error session data
-                $this->session->set_flashdata('error', 'User Not Found');
+                $this->session->set_flashdata('error', 'Booking Not Found');
 
                 redirect(base_url() . 'employee/partner/get_user_form');
             } else {
@@ -598,7 +598,7 @@ class Partner extends CI_Controller {
                 $this->load->view('partner/search_result',$data);
             }else{
                 //if user not found set error session data
-                $this->session->set_flashdata('error', 'User Not Found');
+                $this->session->set_flashdata('error', 'Booking Not Found');
 
                 redirect(base_url() . 'employee/partner/get_user_form');
             }
@@ -617,7 +617,7 @@ class Partner extends CI_Controller {
                 $this->load->view('partner/search_result',$data);
             }else{
                 //if user not found set error session data
-                $this->session->set_flashdata('error', 'User Not Found');
+                $this->session->set_flashdata('error', 'Booking Not Found');
 
                 redirect(base_url() . 'employee/partner/get_user_form');
             }
@@ -634,7 +634,7 @@ class Partner extends CI_Controller {
                 $this->load->view('partner/search_result',$data);
             }else{
                 //if user not found set error session data
-                $this->session->set_flashdata('error', 'User Not Found');
+                $this->session->set_flashdata('error', 'Booking Not Found');
 
                 redirect(base_url() . 'employee/partner/get_user_form');
             }
