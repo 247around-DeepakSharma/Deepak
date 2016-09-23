@@ -189,7 +189,7 @@
                     <td><?= $row->city; ?></td>
                     <?php if($row->vendor_status =="Vendor Not Available"){ ?>
                     <td>
-                         <a href="#" onclick='form_submit("<?php echo $row->booking_id?>")' style="color: red;"><?php print_r($row->vendor_status); ?></a>
+                         <a href="javascript:void(0)" onclick='form_submit("<?php echo $row->booking_id?>")' style="color: red;"><?php print_r($row->vendor_status); ?></a>
                     </td>
                     <?php } else { ?>
                     <td>

@@ -148,7 +148,7 @@ function outbound_call(phone_number){
                       <?php if($status !="Cancelled"){ ?>
                     <?php if($row->vendor_status =="Vendor Not Available"){ ?>
 
-                          <td><a href="#" style="color: red;" onclick='form_submit("<?php echo $row->booking_id?>")'><?php print_r($row->vendor_status); ?></a></td>
+                          <td><a href="javascript:void(0)" style="color: red;" onclick='form_submit("<?php echo $row->booking_id?>")'><?php print_r($row->vendor_status); ?></a></td>
 
                     <?php } else { ?>
 
