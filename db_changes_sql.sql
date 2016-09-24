@@ -876,8 +876,6 @@ ALTER TABLE `booking_state_change` ADD `response` VARCHAR(500) NOT NULL AFTER `n
 ALTER TABLE `booking_state_change` CHANGE `response` `remarks` VARCHAR(500) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
 
 -- Belal 24 Sep
-ALTER TABLE `booking_details` ADD `reschedule_remarks` VARCHAR(1000) NOT NULL AFTER `query_remarks`;
-ALTER TABLE `booking_details` ADD `complete_pending_reason` VARCHAR(1000) NOT NULL AFTER `reschedule_reason`, ADD `cancelled_pending_reason` VARCHAR(1000) NOT NULL AFTER `complete_pending_reason`;
 
 CREATE TABLE `booking_updation_reasons` (
   `id` int(11) NOT NULL,
