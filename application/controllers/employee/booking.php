@@ -670,7 +670,7 @@ class Booking extends CI_Controller {
 
 	//Log this state change as well for this booking
 	//param:-- booking id, new state, old state, employee id, employee name
-	$this->notify->insert_state_change($booking_id, $data['current_status'], "Pending",$data_vendor['current_status']." - ".$data['cancellation_reason'], $this->session->userdata('id'), $this->session->userdata('employee_id'),$booking_data[0]['partner_id']);
+	$this->notify->insert_state_change($booking_id, $data['current_status'], $status ,$data_vendor['current_status']." - ".$data['cancellation_reason'], $this->session->userdata('id'), $this->session->userdata('employee_id'),$booking_data[0]['partner_id']);
 	// Not send Cancallation sms to customer for Query booking
     if($status != "FollowUp"){
 		// this is used to send email or sms while booking cancelled
