@@ -872,3 +872,5 @@ CHANGE  `partner_id`  `partner_id` INT( 10 ) NULL ;
 ALTER TABLE `booking_state_change` DROP `old_reason`, DROP `new_reason`;
 ALTER TABLE `booking_state_change` ADD `response` VARCHAR(500) NOT NULL AFTER `new_reason`;
 
+--  Belal 24 Sep
+ALTER TABLE `booking_state_change` CHANGE `response` `remarks` VARCHAR(500) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
