@@ -47,7 +47,7 @@
                       </div>
                     </div>
 
-                    <hr>
+                    <hr style="width:200%;">
                     <div class="form-group <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
                       <label for="reason" class="col-md-4"> New Booking Date</label>
                       <div class="col-md-6">
@@ -100,8 +100,14 @@
                         <?php echo form_error('services'); ?>
                       </div>
                     </div>
-                  
-                   
+                      
+                    <div class="form-group <?php if( form_error('reschedule_reason') ) { echo 'has-error';} ?>" style="margin-top:55px;">
+                      <label for="reschedule_reason" class="col-md-4">Reschedule Reason</label>
+                      <div class="col-md-6">
+                          <textarea class="form-control"  name="reschedule_reason" ></textarea>
+                        <?php echo form_error('reschedule_reason'); ?>
+                      </div>
+                    </div>
 
                   </div>
 

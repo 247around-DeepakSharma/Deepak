@@ -60,6 +60,23 @@
                     <?php echo form_error('booking_timeslot'); ?>
                   </div>
                 </div>
+                <?php if($status =="Completed"){?>
+                <div class="form-group <?php if( form_error('complete_pending_reason') ) { echo 'has-error';} ?>">
+                  <label for="complete_pending_reason" class="col-md-2">Reason</label>
+                  <div class="col-md-6">
+                      <textarea class="form-control"  name="complete_pending_reason" ></textarea>
+                        <?php echo form_error('complete_pending_reason'); ?>
+                  </div>
+                </div>
+                <?php }else{?>
+                  <div class="form-group <?php if( form_error('cancelled_pending_reason') ) { echo 'has-error';} ?>">
+                  <label for="cancelled_pending_reason" class="col-md-2">Reason</label>
+                  <div class="col-md-6">
+                      <textarea class="form-control"  name="cancelled_pending_reason" ></textarea>
+                        <?php echo form_error('cancelled_pending_reason'); ?>
+                  </div>
+                </div>
+                <?php }?>
 
                 <div>
                   <center>

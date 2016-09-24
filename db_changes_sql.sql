@@ -874,3 +874,17 @@ ALTER TABLE `booking_state_change` ADD `response` VARCHAR(500) NOT NULL AFTER `n
 
 --  Belal 24 Sep
 ALTER TABLE `booking_state_change` CHANGE `response` `remarks` VARCHAR(500) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
+-- Belal 24 Sep
+ALTER TABLE `booking_details` ADD `reschedule_remarks` VARCHAR(1000) NOT NULL AFTER `query_remarks`;
+ALTER TABLE `booking_details` ADD `complete_pending_reason` VARCHAR(1000) NOT NULL AFTER `reschedule_reason`, ADD `cancelled_pending_reason` VARCHAR(1000) NOT NULL AFTER `complete_pending_reason`;
+
+CREATE TABLE `booking_updation_reasons` (
+  `id` int(11) NOT NULL,
+  `old_state` varchar(30) NOT NULL,
+  `new_state` varchar(30) NOT NULL,
+  `reason` varchar(100) NOT NULL,
+  `reason_of` varchar(25) NOT NULL,
+  `show_on_app` varchar(1) NOT NULL COMMENT 'Will this be shown to mobile app users?',
+  `active` int(1) NOT NULL DEFAULT '1' COMMENT '1->Enabled, 0->Disabled'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;

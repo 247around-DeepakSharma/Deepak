@@ -311,7 +311,7 @@ class Partner extends CI_Controller {
                         //echo print_r($booking, true) . "<br><br>";
                         $this->booking_model->addbooking($booking);
 
-                       $this->notify->insert_state_change($booking['booking_id'], "FollowUp", "New_Query", "New Query to FollowUp", $requestData['partnerName'], $booking['partner_id']);
+                       $this->notify->insert_state_change($booking['booking_id'], "FollowUp", "New_Query", $booking['query_remarks'], $requestData['partnerName'], $booking['partner_id']);
 
                         //Send response
                         $this->jsonResponseString['response'] = array(
@@ -1560,7 +1560,7 @@ class Partner extends CI_Controller {
                     $smsBody, $booking['booking_id']);
             }
 
-            $this->notify->insert_state_change($booking['booking_id'], "Pending", "New_Booking","New Booking to Pending", $agent_id, $requestData['partnerName'], $booking['partner_id']);
+            $this->notify->insert_state_change($booking['booking_id'], "Pending", "New_Booking",$booking['query_remarks'], $agent_id, $requestData['partnerName'], $booking['partner_id']);
             }
 
             //Send response
