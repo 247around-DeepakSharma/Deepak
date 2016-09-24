@@ -1620,7 +1620,7 @@ class Booking extends CI_Controller {
         //Log this state change as well for this booking
 	//param:-- booking id, new state, old state, employee id, employee name
         $booking_data = $this->booking_model->getbooking_history($booking_id);
-        $this->notify->insert_state_change($booking_id, "FollowUp", "Cancelled_Query"," Cancelled_Query to FollowUp ", $this->session->userdata('id'), $this->session->userdata('employee_id'),$booking_data[0]['partner_id']);
+        $this->notify->insert_state_change($booking_id, "FollowUp", "Cancelled"," Cancelled_Query to FollowUp ", $this->session->userdata('id'), $this->session->userdata('employee_id'),$booking_data[0]['partner_id']);
 	redirect(base_url() . 'employee/booking/view_queries/FollowUp/0/0/' . $booking_id);
     }
     /**
