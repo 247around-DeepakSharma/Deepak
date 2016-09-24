@@ -86,13 +86,15 @@ class Do_background_upload_excel extends CI_Controller {
 
 	    array_push($data, $rowData);
 	}
-
+	// Warning: Donot Change Validation Order
 	$validate_data = $this->validate_phone_number($data, $file_type);
 	$row_data1 = $this->validate_product($validate_data, $file_type);
 	$row_data2 = $this->validate_delivery_date($row_data1, $file_type);
 	$row_data3 = $this->validate_pincode($row_data2, $file_type);
 	$row_data4 = $this->validate_order_id($row_data3);
-	$row_data = $this->validate_product_type($row_data4, $file_type);
+	$row_data5 = $this->validate_product_type($row_data4, $file_type);
+	$row_data = $this->validate_order_id_same_as_phone($row_data5, $file_type);
+
 	$count_total_leads_came_today = count($data);
 	$count_booking_inserted = 0;
 
@@ -342,6 +344,7 @@ class Do_background_upload_excel extends CI_Controller {
 	if (isset($row_data['error'])) {
 	    $this->get_invalid_data($row_data['error'], $file_type);
 	}
+
     }
 
     /**
@@ -375,13 +378,21 @@ class Do_background_upload_excel extends CI_Controller {
 	    log_message('info', __FUNCTION__ . ' =>  Phone Number is not valid Excel data: ' .
 		print_r($invalid_data, true));
 
-	    $data['error']['reason_phone'] = "Phone Number is not valid";
 	    $data['error']['invalid_phone'] = $invalid_data;
 	}
 	$valid_data['valid_data'] = $data;
 	return $valid_data;
     }
 
+    /**
+     * @desc: This method is used to validate Product number while upload excel file
+     * We will count of invalidate data, If count is greater or equal to five.
+     * It will send Invalidate data to mail and exit from function
+     * Otherwise return data with inavlidate data
+     * In Case valid row, we will append service id in the data row
+     * @param: Array $data
+     * @param: String $filetype
+     */
     function validate_product($data, $filetype) {
 	$invalid_data = array();
 	foreach ($data['valid_data'] as $key => $value) {
@@ -454,7 +465,7 @@ class Do_background_upload_excel extends CI_Controller {
 	if (!empty($invalid_data)) {
 	    log_message('info', __FUNCTION__ . ' =>  Product is not valid in Excel data: ' .
 		print_r($invalid_data, true));
-	    $data['error']['reason_product'] = "Product is not valid";
+
 	    $data['error']['invalidate_product'] = $invalid_data;
 	}
 
@@ -463,39 +474,30 @@ class Do_background_upload_excel extends CI_Controller {
 
     /**
      * @desc: This is used to remove unproductive row. it validate in Product type.
+     * We will store key which we have to remove data, if it exist in the file
      * @param array $data
      * @param String $filetype
      * @return array
      */
-    function validate_product_type($data, $filetype) {
+    function validate_product_type($data) {
 	$invalid_data = array();
+	// get unproductive description array
+	$unproductive_description = $this->unproductive_product();
 	foreach ($data['valid_data'] as $key => $value) {
-	    $flag = 0;
-	    if (count($invalid_data) > 4) {
-
-		$status['reason_product_description'] = "Product Description is not valid";
-		$status['invalid_product_description'] = $invalid_data;
-		$this->get_invalid_data($status, $filetype);
-		exit();
-	    }
 
 	    $prod = trim($value['Product_Type']);
-	    // Remove unproductive row
-	    switch ($prod) {
-		case 'Immersion Rod':
-		case 'Room Heater':
-		    $flag = 1;
+
+	    foreach ($unproductive_description as $un_description) {
+		if (stristr($prod, $un_description)) {
 		    unset($data['valid_data'][$key]);
 		    array_push($invalid_data, $value);
-
-		    break;
+		}
 	    }
 	}
-
 	if (!empty($invalid_data)) {
 	    log_message('info', __FUNCTION__ . ' =>  Product description is not valid in Excel data: ' .
 		print_r($invalid_data, true));
-	    $data['error']['reason_product_description'] = "Product is not valid";
+
 	    $data['error']['invalidate_product_description'] = $invalid_data;
 	}
 
@@ -531,7 +533,6 @@ class Do_background_upload_excel extends CI_Controller {
 	    log_message('info', __FUNCTION__ . ' =>  Pincode is not valid in Excel data: ' .
 		print_r($invalid_data, true));
 
-	    $data['error']['reason_pincode'] = "Pincode is not valid";
 	    $data['error']['invalidate_pincode'] = $invalid_data;
 	}
 	// print_r($data);
@@ -597,7 +598,8 @@ class Do_background_upload_excel extends CI_Controller {
     function validate_order_id($data){
         $invalid_data = array();
         foreach ($data['valid_data'] as $key => $value) {
-            if (is_null($value['Sub_Order_ID']) || $value['Sub_Order_ID'] = "") {
+
+	    if (is_null($value['Sub_Order_ID']) || $value['Sub_Order_ID'] = "") {
 
 		unset($data['valid_data'][$key]);
                 array_push($invalid_data, $value);
@@ -608,6 +610,38 @@ class Do_background_upload_excel extends CI_Controller {
             $data['error']['invalid_order_id'] = $invalid_data;
         }
         return $data;
+    }
+
+    /**
+     * @desc: This method checks, Order should not be equal to Phone number
+     * @param Array $data
+     * @param String $filetype
+     * @return Array
+     */
+    function validate_order_id_same_as_phone($data, $filetype) {
+	$invalid_data = array();
+	foreach ($data['valid_data'] as $key => $value) {
+	    if (count($invalid_data) > 4) {
+
+		$status['reason_order_id_same_as_phone'] = "Order ID is same as Phone Number in Excel data";
+		$status['invalid_order_id_same_as_phone'] = $invalid_data;
+		$this->get_invalid_data($status, $filetype);
+		exit();
+	    }
+	    if ($value['Sub_Order_ID'] == $value['Phone']) {
+		unset($data['valid_data'][$key]);
+		array_push($invalid_data, $value);
+	    }
+	}
+
+	if (!empty($invalid_data)) {
+	    log_message('info', __FUNCTION__ . ' =>  Pincode is not valid in Excel data: ' .
+		print_r($invalid_data, true));
+
+	    $data['error']['invalid_order_id_same_as_phone'] = $invalid_data;
+	}
+
+	return $data;
     }
 
     /**
@@ -696,6 +730,21 @@ class Do_background_upload_excel extends CI_Controller {
 	} else {
 	    log_message('info', __FUNCTION__ . " Booking is not inserted into Partner Leads table:" . print_r($partner_booking, true));
 	}
+    }
+
+    /**
+     * @desc: This is used to store key. If this key exists in the SD dile then we will remove that row.
+     * @return array
+     */
+    function unproductive_product() {
+	$unproductive_description = array(
+	    'Tds Meter',
+	    'Accessories',
+	    'Room Heater',
+	    'Immersion Rod'
+	);
+
+	return $unproductive_description;
     }
 
 }
