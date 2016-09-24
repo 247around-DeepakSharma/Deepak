@@ -222,8 +222,7 @@ class Do_background_upload_excel extends CI_Controller {
 		$appliance_details['category'] = $unit_details['appliance_category'] = '';
 		$appliance_details['capacity'] = $unit_details['appliance_capacity'] = '';
 		$appliance_details['model_number'] = $unit_details['model_number'] = $value['Model'];
-		$tag = explode('&', $value['Brand']);
-		$appliance_details['tag'] = $unit_details['appliance_tag'] = $tag . " " . $value['Product'];
+		$appliance_details['tag'] = $unit_details['appliance_tag'] = $value['Brand'] . " " . $value['Product'];
 		$booking['booking_remarks'] = '';
 		$booking['booking_alternate_contact_no'] = '';
 		$appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
@@ -740,7 +739,7 @@ class Do_background_upload_excel extends CI_Controller {
     function unproductive_product() {
 	$unproductive_description = array(
 	    'Tds Meter',
-	    'Accessories',
+	    'Water Purifier Accessories',
 	    'Room Heater',
 	    'Immersion Rod'
 	);
