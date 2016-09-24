@@ -315,7 +315,7 @@ function setAppliances(i){
     return false;
   }
 
-  var appliance_tags =$("#appliance_tags_"+i).val();
+  //var appliance_tags =$("#appliance_tags_"+i).val();
   var purchase_year =$("#purchase_year_"+i).val();
 
   var month = $("#purchase_month_"+i).val();
@@ -325,7 +325,7 @@ function setAppliances(i){
   document.getElementById("bcategory_"+i).innerHTML = appliance_category;
   document.getElementById("bcapacity_"+i).innerHTML = appliance_capacity;
   document.getElementById("bmodel_"+i).innerHTML = model_number;
-  document.getElementById("btags_"+i).innerHTML = appliance_tags;  
+  //document.getElementById("btags_"+i).innerHTML = appliance_tags;  
   document.getElementById("bpurchase_year_"+i).innerHTML = purchase_year;
   document.getElementById("bpurchase_month_"+i).innerHTML = month;
 }  
