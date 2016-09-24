@@ -189,13 +189,13 @@
 
                                             </div>
                                         </div>
-                                        <div class="form-group <?php if( form_error('appliance_tags') ) { echo 'has-error';} ?>">
+                                        <!--<div class="form-group <?php if( form_error('appliance_tags') ) { echo 'has-error';} ?>">
                                             <label for="type" class="col-md-4">Appliance Tag</label>
                                             <div class="col-md-6">
                                                 <input  type="text" class="form-control"  name="appliance_tags[]" id="appliance_tags_1" value = "<?php echo set_value('appliance_tags'); ?>" placeholder="Enter Tag" >
                                                 <?php echo form_error('appliance_tags'); ?>
                                             </div>
-                                        </div>
+                                        </div>-->
                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Purchase Year</label>
                                             <div class="col-md-4">

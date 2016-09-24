@@ -159,7 +159,7 @@ class Booking extends CI_Controller {
 	// All model number comming in array eg-- array([0]=> ABC123, [1]=> CDE1478)
 	$model_number = $this->input->post('model_number');
 	// All price tag comming in array  eg-- array([0]=> Appliance tag1, [1]=> Appliance tag1)
-	$appliance_tags = $this->input->post('appliance_tags');
+	//$appliance_tags = $this->input->post('appliance_tags');
 	// All purchase year comming in array eg-- array([0]=> 2016, [1]=> 2002)
 	$purchase_year = $this->input->post('purchase_year');
 	// All purchase month comming in array eg-- array([0]=> Jan, [1]=> Feb)
@@ -241,7 +241,7 @@ class Booking extends CI_Controller {
 	    // get model_number from appliance_capacity array for only specific key such as $model_number[0].
 	    $appliances_details['model_number'] = $services_details['model_number'] = $model_number[$key];
 	    // get appliance tag from appliance_tag array for only specific key such as $appliance_tag[0].
-	    $appliances_details['tag'] = $services_details['appliance_tag'] = $appliance_tags[$key];
+	    //$appliances_details['tag'] = $services_details['appliance_tag'] = $appliance_tags[$key];
 	    // get purchase year from purchase year array for only specific key such as $purchase_year[0].
 	    $appliances_details['purchase_year'] = $services_details['purchase_year'] = $purchase_year[$key];
 	    $services_details['booking_id'] = $booking['booking_id'];
@@ -679,7 +679,7 @@ class Booking extends CI_Controller {
 
 	//Log this state change as well for this booking
 	//param:-- booking id, new state, old state, employee id, employee name
-	$this->notify->insert_state_change($booking_id, $data['current_status'], "Pending",$data_vendor['current_status']." - ".$data['cancellation_reason'], $this->session->userdata('id'), $this->session->userdata('employee_id'),$booking_data[0]['partner_id']);
+	$this->notify->insert_state_change($booking_id, $data['current_status'], $status ,$data_vendor['current_status']." - ".$data['cancellation_reason'], $this->session->userdata('id'), $this->session->userdata('employee_id'),$booking_data[0]['partner_id']);
 	// Not send Cancallation sms to customer for Query booking
     if($status != "FollowUp"){
 		// this is used to send email or sms while booking cancelled

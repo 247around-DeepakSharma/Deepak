@@ -739,7 +739,7 @@ class Do_background_upload_excel extends CI_Controller {
     function unproductive_product() {
 	$unproductive_description = array(
 	    'Tds Meter',
-	    'Accessories',
+	    'Water Purifier Accessories',
 	    'Room Heater',
 	    'Immersion Rod'
 	);
