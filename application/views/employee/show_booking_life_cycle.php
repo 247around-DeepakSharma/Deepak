@@ -50,7 +50,7 @@
                 <th>S.N</th>
           	<th>Old State</th>
           	<th>New State</th>
-                <th>Response</th>
+                <th>Remarks</th>
           	<th>Agent</th>
           	<th>Partner</th>
           	<th>Date</th>
@@ -60,7 +60,7 @@
             <td><?php echo ($key+1).'.';?></td> 
             <td><?php echo $row['old_state']; ?></td>
             <td><?php echo $row['new_state'];?></td>
-            <td><?php echo $row['response']; ?></td>
+            <td><?php echo $row['remarks']; ?></td>
             <td><?php echo $this->employee_model->getemployeefromid($row['agent_id'])[0]['employee_id'];?></td>
             <td><?php echo (!empty($this->partner_model->getpartner($row['partner_id'])))?$this->partner_model->getpartner($row['partner_id'])[0]['public_name']:'';?></td>
             <td><?php 
