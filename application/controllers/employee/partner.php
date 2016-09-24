@@ -15,11 +15,15 @@ class Partner extends CI_Controller {
         $this->load->model('partner_model');
         $this->load->model('vendor_model');
         $this->load->model('user_model');
-        $this->load->library("pagination");
+	$this->load->model('invoices_model');
+
+	$this->load->library("pagination");
         $this->load->library("session");
-        $this->load->helper(array('form', 'url'));
-        $this->load->library('form_validation');
-        $this->load->library('notify');
+	$this->load->library('form_validation');
+	$this->load->library('notify');
+
+	$this->load->helper(array('form', 'url'));
+
     }
 
     /**
@@ -226,7 +230,7 @@ class Partner extends CI_Controller {
         $this->load->view('partner/header');
         $this->load->view('partner/get_addbooking', $data);
     }
-    
+
  /**
      * @desc: This method is used to process to add booking by partner
      */
@@ -370,7 +374,7 @@ class Partner extends CI_Controller {
             return true;
         }
     }
-    
+
     /**
      * @desc: This function is used to edit/add partner
      *
@@ -378,7 +382,7 @@ class Partner extends CI_Controller {
      * @return : array(result) to view
      */
     function get_add_partner_form() {
-        
+
         $results['services'] = $this->vendor_model->selectservice();
         $results['brands'] = $this->vendor_model->selectbrand();
         $results['select_state'] = $this->vendor_model->getall_state();
@@ -396,7 +400,7 @@ class Partner extends CI_Controller {
      * @return : void
      */
     function process_add_edit_partner_form(){
-        
+
         //Check form validation
         $checkValidation = $this->check_partner_Validation();
         if ($checkValidation) {
@@ -411,13 +415,13 @@ class Partner extends CI_Controller {
                 $_POST['is_active'] = '1';
                 //Temporary value
                 $_POST['auth_token'] = rand(1,100);
-                
+
                 //Sending POST array to Model
                 $partner_id = $this->partner_model->add_partner($this->input->post());
                 //Set Flashdata on success or on Error of Data insert in table
                 if(!empty($partner_id)){
                     $this->session->set_flashdata('success','Partner added successfully.');
-                    
+
                     //Echoing inserted ID in Log file
                     log_message('info',__FUNCTION__.' New Partner has been added with ID '.  $partner_id);
                 }else{
@@ -453,7 +457,7 @@ class Partner extends CI_Controller {
             return TRUE;
         }
     }
-    
+
     /**
      * @desc: This function is to view Partner's list
      *
@@ -469,7 +473,7 @@ class Partner extends CI_Controller {
 
         $this->load->view('employee/viewpartner', array('query' => $query));
     }
-    
+
     /**
      * @desc: This function is to activate a particular partner
      *
@@ -497,7 +501,7 @@ class Partner extends CI_Controller {
 
         redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
     }
-    
+
     /**
      * @desc: This function is to edit partner's details
      *
@@ -513,7 +517,7 @@ class Partner extends CI_Controller {
         $this->load->view('employee/header');
         $this->load->view('employee/addpartner', array('query' => $query,'results'=>$results));
     }
-    
+
     /**
      * @desc: This is used to get find user form in Partner CRM
      * params: void
@@ -590,9 +594,9 @@ class Partner extends CI_Controller {
         } elseif ($booking_id != "") {  //if booking id given and matched, will be displayed
             $where = array('booking_details.booking_id' => $booking_id);
             $data['Bookings'] = $this->booking_model->search_bookings($where,$partner_id);
-            
+
             $data_value = search_for_key($data['Bookings']);
-            
+
             if (isset($data_value['Pending']) || isset($data_value['Cancelled']) || isset($data_value['Completed'])){
                 $this->load->view('partner/header');
                 $this->load->view('partner/search_result',$data);
@@ -602,16 +606,16 @@ class Partner extends CI_Controller {
 
                 redirect(base_url() . 'employee/partner/get_user_form');
             }
-            
-            
+
+
         } else if (!empty($order_id)) {
 
             $where = array('order_id' => $order_id);
-            $data['Bookings'] = $this->booking_model->search_bookings($where, $partner_id);            
+            $data['Bookings'] = $this->booking_model->search_bookings($where, $partner_id);
             $data['search'] = "Search";
 
            $data_value = search_for_key($data['Bookings']);
-            
+
             if (isset($data_value['Pending']) || isset($data_value['Cancelled']) || isset($data_value['Completed'])){
                 $this->load->view('partner/header');
                 $this->load->view('partner/search_result',$data);
@@ -628,7 +632,7 @@ class Partner extends CI_Controller {
             $data['search'] = "Search";
 
             $data_value = search_for_key($data['Bookings']);
-            
+
             if (isset($data_value['Pending']) || isset($data_value['Cancelled']) || isset($data_value['Completed'])){
                 $this->load->view('partner/header');
                 $this->load->view('partner/search_result',$data);
@@ -657,6 +661,24 @@ class Partner extends CI_Controller {
 
         $this->load->view('partner/header');
         $this->load->view('partner/viewdetails', $data);
+    }
+
+    /**
+     * @desc: get invoice details and bank transacton details to display in partner invoice view
+     * Get partner Id from session.
+     */
+    function invoices_details() {
+	$this->checkUserSession();
+	$partner_id = $this->session->userdata('partner_id');
+	$data['vendor_partner'] = "partner";
+	$data['vendor_partner_id'] = $partner_id;
+	$invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
+
+	$data2['partner_vendor'] = "partner";
+	$data2['partner_vendor_id'] = $partner_id;
+	$invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details($data2);
+	$this->load->view('partner/header');
+	$this->load->view('partner/invoice_summary', $invoice);
     }
 
 }
