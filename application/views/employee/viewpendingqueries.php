@@ -58,7 +58,7 @@ function outbound_call(phone_number){
             <?php  if($this->uri->segment(3) == 'view_queries' || $this->uri->segment(3) == 'finduser'){ $status = $this->uri->segment(4); ?>
             <div class="pagination">
                 <select id="dynamic_select">
-                    <option value="<?php echo base_url().'employee/booking/view_queries'?>" <?php if($this->uri->segment(5) == 50){ echo 'selected';}?>>50</option>
+                    <option value="<?php echo base_url().'employee/booking/view_queries/'.$status; ?>" <?php if($this->uri->segment(5) == 50){ echo 'selected';}?>>50</option>
                     <option value="<?php echo base_url().'employee/booking/view_queries/'.$status.'/0/100'?>" <?php if($this->uri->segment(6) == 100){ echo 'selected';}?>>100</option>
                     <option value="<?php echo base_url().'employee/booking/view_queries/'.$status.'/0/200'?>" <?php if($this->uri->segment(6) == 200){ echo 'selected';}?>>200</option>
                     <option value="<?php echo base_url().'employee/booking/view_queries/'.$status.'/0/All'?>" <?php if($this->uri->segment(6) == 'All'){ echo 'selected';}?>>All</option>
