@@ -1260,7 +1260,9 @@ class Api extends CI_Controller {
                 }
             } else {
                 //No bookings found, send sms asking him to call from his registered mobile no.
-                $this->send_missed_call_booking_not_found_sms($num);
+                //Do not send this SMS now as it will also go to customer downloading our APP
+                //Check whether this customer has downloaded App and then decide
+                //$this->send_missed_call_booking_not_found_sms($num);
             }
 	}
 
