@@ -116,7 +116,7 @@ class Booking extends CI_Controller {
 	log_message('info', __FUNCTION__);
 	log_message('info', " Booking Insert User ID: " . print_r($user_id, true) . " Booking ID" . print_r($booking_id, true));
 	$booking = $this->get_booking_input();
-        
+
 	$user['user_id'] = $booking['user_id'] = $user_id;
 	$user_name = $this->input->post('user_name');
 
@@ -133,7 +133,7 @@ class Booking extends CI_Controller {
                 if(strpos($booking_id, "Q-") === FALSE){
                 $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id,$this->input->post('query_remarks'));
                 }else{
-                  $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id,$this->input->post('internal_status'));  
+                  $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id,$this->input->post('internal_status'));
                 }
             }
 	    $booking['booking_id'] = $booking_id_with_flag['booking_id'];
@@ -415,7 +415,7 @@ class Booking extends CI_Controller {
 		    log_message('info', __FUNCTION__ . " Booking to be Converted to Query Booking ID" . print_r($data['booking_id'], true));
 		    //param:-- booking id, new state, old state, employee id, employee name
 		    $this->notify->insert_state_change($data['booking_id'], "FollowUp", "Pending",$remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'),$booking_data[0]['partner_id']);
-                    
+
                     //Since booking has been converted to query, delete this entry from
                     //service center booking action table as well.
                     log_message('info', __FUNCTION__ . " Request to delete booking from service center action table Booking ID" . $data['booking_id']);
@@ -681,13 +681,13 @@ class Booking extends CI_Controller {
 	//param:-- booking id, new state, old state, employee id, employee name
 	$this->notify->insert_state_change($booking_id, $data['current_status'], $status ,$data_vendor['current_status']." - ".$data['cancellation_reason'], $this->session->userdata('id'), $this->session->userdata('employee_id'),$booking_data[0]['partner_id']);
 	// Not send Cancallation sms to customer for Query booking
-    if($status != "FollowUp"){
-		// this is used to send email or sms while booking cancelled
-		$url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-		$send['booking_id'] = $booking_id;
-		$send['state'] = $data['current_status'];
-		$this->asynchronous_lib->do_background_process($url, $send);
-    }
+
+	// this is used to send email or sms while booking cancelled
+	$url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+	$send['booking_id'] = $booking_id;
+	$send['state'] = $data['current_status'];
+	$this->asynchronous_lib->do_background_process($url, $send);
+
 	// call partner callback
 	$this->partner_cb->partner_callback($booking_id);
 
@@ -758,12 +758,12 @@ class Booking extends CI_Controller {
 	} else {
 	    log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));
 	    $this->booking_model->update_booking($booking_id, $data);
-            
+
             //Log this state change as well for this booking
 	    //param:-- booking id, new state, old state, employee id, employee name
             $booking_data = $this->booking_model->getbooking_history($booking_id);
 	    $this->notify->insert_state_change($booking_id, "Rescheduled", "Pending", $data['reschedule_reason'] , $this->session->userdata('id'), $this->session->userdata('employee_id'),$booking_data[0]['partner_id']);
-            
+
 	    $service_center_data['booking_id'] = $booking_id;
 	    $service_center_data['internal_status'] = "Pending";
 	    $service_center_data['current_status'] = "Pending";
@@ -1579,7 +1579,7 @@ class Booking extends CI_Controller {
             if(!empty($this->input->post('complete_pending_reason'))){
 	    $this->notify->insert_state_change($booking_id, "Pending", $status,$this->input->post('complete_pending_reason'), $this->session->userdata('id'), $this->session->userdata('employee_id'),$booking_details[0]['partner_id']);
             }else{
-            $this->notify->insert_state_change($booking_id, "Pending", $status,$this->input->post('cancelled_pending_reason'), $this->session->userdata('id'), $this->session->userdata('employee_id'),$booking_details[0]['partner_id']);  
+            $this->notify->insert_state_change($booking_id, "Pending", $status,$this->input->post('cancelled_pending_reason'), $this->session->userdata('id'), $this->session->userdata('employee_id'),$booking_details[0]['partner_id']);
             }
 
 	    $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
@@ -1616,7 +1616,7 @@ class Booking extends CI_Controller {
      */
     function open_cancelled_query($booking_id) {
 	$this->booking_model->change_booking_status($booking_id);
-        
+
         //Log this state change as well for this booking
 	//param:-- booking id, new state, old state, employee id, employee name
         $booking_data = $this->booking_model->getbooking_history($booking_id);
