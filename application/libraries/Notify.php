@@ -241,7 +241,7 @@ class Notify {
      * @param: String(booking id, agent id, agent name, booking status)
      * @return: void
      */
-    function insert_state_change($booking_id, $new_state, $old_state,$remarks = "", $agent_id, $agent_name, $partner_id = "") {
+    function insert_state_change($booking_id, $new_state, $old_state,$remarks, $agent_id, $agent_name, $partner_id = "") {
 	//Log this state change as well for this booking
 	//Log this state change as well for this booking
 	$state_change['booking_id'] = $booking_id;

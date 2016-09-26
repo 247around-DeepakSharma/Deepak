@@ -1,3 +1,7 @@
+<?php if(!empty($data['updation_reason'])){
+        $reason = $data['updation_reason'];
+        
+} ?>
 <div id="page-wrapper"> 
    <div class="container-fluid">
         <div class="row">
@@ -101,14 +105,24 @@
                       </div>
                     </div>
                       
-                    <div class="form-group <?php if( form_error('reschedule_reason') ) { echo 'has-error';} ?>" style="margin-top:55px;">
-                      <label for="reschedule_reason" class="col-md-4">Reschedule Reason</label>
-                      <div class="col-md-6">
-                          <textarea class="form-control"  name="reschedule_reason" ></textarea>
-                        <?php echo form_error('reschedule_reason'); ?>
-                      </div>
+                    <?php if(isset($reason)){?>  
+                <div class="form-group <?php if( form_error('reason') ) { echo 'has-error';} ?>" style="margin-top:50px;">
+                  <label for="reason" class="col-md-2">Reason</label>
+                  <div class="col-md-6">
+                      <ul>
+                <?php foreach($reason as $value){ ?>
+                    <div class="radio">
+                        <label>
+                        <input type="radio" name="reason"  value="<?php  echo $value['reason']?>" required>
+                        <?php  echo $value['reason'];?>
+                        </label>
+                     </div>
+                       
+                <?php }?>
                     </div>
-
+                  </div>
+                    <?php }  echo form_error('reason'); ?>
+                      
                   </div>
 
                 </div>

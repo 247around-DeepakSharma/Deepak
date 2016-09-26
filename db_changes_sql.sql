@@ -875,8 +875,8 @@ ALTER TABLE `booking_state_change` ADD `response` VARCHAR(500) NOT NULL AFTER `n
 --  Belal 24 Sep
 ALTER TABLE `booking_state_change` CHANGE `response` `remarks` VARCHAR(500) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
 
--- Belal 24 Sep
 
+-- Belal 26 Sep
 CREATE TABLE `booking_updation_reasons` (
   `id` int(11) NOT NULL,
   `old_state` varchar(30) NOT NULL,
@@ -886,3 +886,60 @@ CREATE TABLE `booking_updation_reasons` (
   `show_on_app` varchar(1) NOT NULL COMMENT 'Will this be shown to mobile app users?',
   `active` int(1) NOT NULL DEFAULT '1' COMMENT '1->Enabled, 0->Disabled'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `booking_updation_reasons`
+--
+
+INSERT INTO `booking_updation_reasons` (`id`, `old_state`, `new_state`, `reason`, `reason_of`, `show_on_app`, `active`) VALUES
+(1, '', '', 'Your problem is resolved.', '247around', '1', 1),
+(2, '', '', 'You entered a wrong booking.', '247around', '1', 1),
+(3, '', '', 'You found a better option for this job.', '247around', '1', 1),
+(4, '', '', 'You will not be available at this time.', '247around', '1', 1),
+(5, '', '', 'You believe someone else did this booking.', '247around', '1', 1),
+(7, '', '', 'Customer is not reachable.', '247around', '0', 1),
+(8, '', '', 'Vendor issue', '247around', '0', 1),
+(9, '', '', 'Other', '247around', '1', 1),
+(10, '', '', 'Our charges are higher.', '247around', '0', 1),
+(11, '', '', 'Customer will contact Brand Service Centre directly.', '247around', '0', 1),
+(12, '', '', 'Installation already done.', 'vendor', '0', 1),
+(13, '', '', 'Installation not required.', 'vendor', '0', 1),
+(14, '', '', 'Customer problem is solved.', 'vendor', '0', 1),
+(15, '', '', 'Repair not required.', 'vendor', '0', 1),
+(16, '', '', 'Customer is not reachable.', 'vendor', '0', 1),
+(17, '', '', 'Damaged product, customer will return it.', 'vendor', '0', 1),
+(18, '', '', 'Customer will gift the product.', 'vendor', '0', 1),
+(19, '', '', 'Wrong call - Not in our area.', 'vendor', '0', 1),
+(20, '', '', 'Wrong call - We do not handle TV.', 'vendor', '0', 1),
+(21, '', '', 'Wrong call - We do not handle AC.', 'vendor', '0', 1),
+(22, '', '', 'Wrong call - We do not handle Refrigerator.', 'vendor', '0', 1),
+(23, '', '', 'Wrong call - We do not handle Water Purifier.', 'vendor', '0', 1),
+(24, '', '', 'Wrong call - We do not handle Chimney.', 'vendor', '0', 1),
+(25, '', '', 'Wrong call - We do not handle Washing Machine.', 'vendor', '0', 1),
+(26, '', '', 'Wrong call - We do not handle Microwave.', 'vendor', '0', 1),
+(27, '', '', 'Vendor provided wrong information', '247around', '0', 1),
+(28, 'Completed', 'Pending', 'Problem Not Resolved.', '247around', '1', 1),
+(29, 'Completed', 'Pending', 'Customer  Not Satisfied.', '247around', '1', 1),
+(31, 'Cancelled', 'Pending', 'Customer Request', '247around', '1', 1),
+(32, 'Pending', 'Pending', 'Customer late response.', '247around', '1', 1),
+(33, 'Pending', 'Pending', 'Customer Rescheduled', '247around', '1', 1);
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `booking_updation_reasons`
+--
+ALTER TABLE `booking_updation_reasons`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `booking_updation_reasons`
+--
+ALTER TABLE `booking_updation_reasons`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;

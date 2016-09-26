@@ -223,8 +223,7 @@ class Do_background_process extends CI_Controller {
         $this->booking_model->update_booking($booking_id, $booking);
 
         //Log this state change as well for this booking
-        $booking_details = $this->booking_model($booking_id);
-        $this->notify->insert_state_change($booking_id, $current_status, "Pending", $remarks , $agent_id, $agent_name,$booking_details[0]['partner_id']);
+        $this->notify->insert_state_change($booking_id, $current_status, "Pending", $remarks , $agent_id, $agent_name,_247AROUND);
 
         $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
         $send['booking_id']  = $booking_id;
