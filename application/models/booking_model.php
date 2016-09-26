@@ -1046,18 +1046,20 @@ class Booking_model extends CI_Model {
             from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-           
             WHERE `booking_details`.booking_id LIKE '%Q-%' $where
 
-            order by CASE `booking_details`.booking_date
-            WHEN '' THEN 'a'
-            ELSE 'b'
+            order by
+                CASE 
+                WHEN `booking_details`.internal_status = 'Missed_call_confirmed' THEN 'a'
+
+                WHEN  `booking_details`.booking_date = '' THEN 'b'
+                ELSE 'c'
             END, STR_TO_DATE(`booking_details`.booking_date,'%d-%m-%Y') desc $add_limit";
 
         $query = $this->db->query($sql);
         
         $temp = $query->result();
-        usort($temp, array($this, 'date_compare_queries'));
+        //usort($temp, array($this, 'date_compare_queries'));
 
         $data = $this->searchPincodeAvailable($temp);
 

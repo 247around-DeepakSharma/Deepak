@@ -1195,7 +1195,22 @@ class CI_DB_driver {
 		}
 
 		$error =& load_class('Exceptions', 'core');
-		echo $error->show_error($heading, $message, 'error_db');
+		log_message('info', " Database Error: " . print_r($heading, true)."<br/>". print_r($message, true));
+		//Sending the corresponding mail
+                  
+        $CI =& get_instance();
+        $CI->load->library('email');
+        $load_view = $error->show_error($heading, $message, 'error_db');
+
+        $CI->email->from('booking@247around.com', '247Around Team');
+        $CI->email->to('abhaya@247around.com, anuj@247around.com');
+        $CI->email->subject('Database Error');
+        $CI->email->message($load_view);
+
+        $CI->email->send();
+        //echo $CI->email->print_debugger();
+        echo $error->show_error($heading, $message, 'oops');
+		
 		exit;
 	}
 

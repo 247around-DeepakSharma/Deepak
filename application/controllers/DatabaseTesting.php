@@ -11,7 +11,7 @@ if (!defined('BASEPATH')) {
  */
 
 /**
- * This Controller checks database
+ * This Controller checks database consistency
  *
  * @author Abhay Anand
  */
@@ -48,15 +48,14 @@ class DatabaseTesting extends CI_Controller {
 	    log_message('info', " Unit details have some inconsistent data(unit details): " . print_r($is_unit_status, true));
 	}
 
-	$is_booking_details = $this->database_testing_model->check_booking_details();
-	if ($is_booking_details) {
-
-	    log_message('info', " Unit details have some inconsistent data(booking details): " . print_r($is_booking_details, true));
-	}
+	// $is_booking_details = $this->database_testing_model->check_booking_details();
+	// if ($is_booking_details) {
+	//     log_message('info', " Unit details have some inconsistent data(booking details): " . print_r($is_booking_details, true));
+	// }
 
 	$is_booking_id = $this->database_testing_model->check_booking_exist_in_unit_details();
 	if ($is_booking_id) {
-	    log_message('info', " Unit details have some inconsistent data(booking id): " . print_r($is_booking_id, true));
+	    log_message('info', " Booking Id is not exist in the unit details" . print_r($is_booking_id, true));
 	}
 	$is_service_center = $this->database_testing_model->check_booking_exist_in_service_center();
 	if ($is_service_center) {
@@ -73,6 +72,31 @@ class DatabaseTesting extends CI_Controller {
 	$is_pending = $this->database_testing_model->check_pending_booking_in_action_table();
 	if ($is_pending) {
 	    log_message('info', " Unit details have some inconsistent data( Pending Booking not show in service center panel): " . print_r($is_pending, true));
+	}
+
+	$is_service_center_action = $this->database_testing_model->check_booking_exist_in_service_center_action_table();
+
+	if ($is_service_center_action) {
+	    log_message('info', " Assigned Booking is not exist in the service center action table: " . print_r($is_service_center_action, true));
+	}
+
+	$is_booking_status = $this->database_testing_model->check_in_closed_booking_booking_status_notempty();
+	if ($is_booking_status) {
+	    log_message('info', " Booking Status is empty: " . print_r($is_booking_status, true));
+	}
+
+	$is_product_or_services = $this->database_testing_model->check_product_or_services();
+	if ($is_product_or_services) {
+	    log_message('info', " Product_or_services is empty for completed booking: " . print_r($is_product_or_services, true));
+	}
+	$is_prices_negative = $this->database_testing_model->check_prices_should_not_be_negative();
+	if ($is_prices_negative) {
+	    log_message('info', " Prices becomes negative " . print_r($is_prices_negative, true));
+	}
+
+        $is_emial_flag = $this->database_testing_model->check_assigned_vendor_email_flag();
+	if ($is_emial_flag) {
+	    log_message('info', " Assigned booking has mail flag 0 " . print_r($is_emial_flag, true));
 	}
     }
 

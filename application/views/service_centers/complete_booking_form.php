@@ -34,14 +34,14 @@
 				    <div class="col-md-6">
 					<select type="text" class="form-control"  id="booking_city" name="city" >
 					    <option value="<?php
-					if (isset($booking_history[0]['city'])) {
-					    echo $booking_history[0]['city'];
-					}
-					?>" selected="selected" disabled="disabled"><?php
-					if (isset($booking_history[0]['city'])) {
-					    echo $booking_history[0]['city'];
-					}
-					?></option>
+					    if (isset($booking_history[0]['city'])) {
+						echo $booking_history[0]['city'];
+					    }
+					    ?>" selected="selected" disabled="disabled"><?php
+							if (isset($booking_history[0]['city'])) {
+							    echo $booking_history[0]['city'];
+							}
+							?></option>
 					</select>
 				    </div>
 				</div>
@@ -64,10 +64,10 @@
 				    <label for="booking_primary_contact_no" class="col-md-4">Mobile *</label>
 				    <div class="col-md-6">
 					<input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php
-					    if (isset($booking_history[0]['booking_primary_contact_no'])) {
-						echo $booking_history[0]['booking_primary_contact_no'];
-					    }
-					    ?>" readonly="readonly">
+					       if (isset($booking_history[0]['booking_primary_contact_no'])) {
+						   echo $booking_history[0]['booking_primary_contact_no'];
+					       }
+					       ?>" readonly="readonly">
 				    </div>
 				</div>
 				<div class="form-group">
@@ -76,14 +76,14 @@
 					<input type="hidden" name="service" id="services"/>
 					<select type="text" class="form-control"  id="service_id" name="service_id" >
 					    <option value="<?php
-							if (isset($booking_history[0]['service_id'])) {
-							    echo $booking_history[0]['service_id'];
-							}
+					    if (isset($booking_history[0]['service_id'])) {
+						echo $booking_history[0]['service_id'];
+					    }
 					    ?>" selected="selected" disabled="disabled"><?php
 							if (isset($booking_history[0]['services'])) {
 							    echo $booking_history[0]['services'];
 							}
-					    ?></option>
+		    ?></option>
 					</select>
 				    </div>
 				</div>
@@ -93,7 +93,7 @@
 		    </div>
 		    <!-- row End  -->
 
-<?php foreach ($bookng_unit_details as $key => $unit_details) { ?>
+		    <?php foreach ($bookng_unit_details as $key => $unit_details) { ?>
     		    <div class="clonedInput panel panel-info " id="clonedInput1">
     			<div class="panel-body">
     			    <div class="row">
@@ -112,7 +112,7 @@
     					    </select>
     					</div>
     				    </div>
-    <?php if (!empty($unit_details['capacity'])) { ?>
+					<?php if (!empty($unit_details['capacity'])) { ?>
 					    <div class="form-group">
 						<div class="col-md-12">
 						    <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]" >
@@ -120,9 +120,9 @@
 						    </select>
 						</div>
 					    </div>
-						<?php } ?>
+					<?php } ?>
 
-    				</div>
+				</div>
     				<div class="col-md-9">
     				    <table class="table priceList table-striped table-bordered" name="priceList" >
     					<tr>
@@ -134,47 +134,47 @@
     					    <th style="width: 112px;">Parts Cost</th>
     					    <th style="width:265px;">Status</th>
 
-    					</tr>
+					</tr>
     					<tbody>
-							<?php
-							$count = 0;
-							$paid_basic_charges = 0;
-							$paid_additional_charges = 0;
-							$paid_parts_cost = 0;
-							foreach ($unit_details['quantity'] as $key => $price) {
-							    ?>
+						<?php
+						$count = 0;
+						$paid_basic_charges = 0;
+						$paid_additional_charges = 0;
+						$paid_parts_cost = 0;
+						foreach ($unit_details['quantity'] as $key => $price) {
+						    ?>
 						    <tr>
 							<td>
 							    <?php if ($price['pod'] == "1") { ?>
 	    						    <div class="form-group">
 	    							<div class="col-md-12">
 
-	    							    <input type="text" id="<?php echo "serial_number" . $count ?>" class="form-control" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['serial_number']; ?>" placeholder="Enter Serial No"   />
+	    	    								    <input type="text" id="<?php echo "serial_number" . $count ?>" class="form-control" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['serial_number']; ?>" placeholder="Enter Serial No"   />
 
-	    							</div>
-	    						    </div>
-								      <?php } ?>
+	    	    								</div>
+	    							    </div>
+								    <?php } ?>
 
-							</td>
-							<td><?php echo $price['price_tags'] ?></td>
-							<td><?php echo $price['customer_net_payable']; ?></td>
-							<td>  <input  type="text" class="form-control cost"  name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "]" ?>"  value = "<?php
-							      $paid_basic_charges += $price['customer_paid_basic_charges'];
-							      if (!empty($price['customer_paid_basic_charges'])) {
-								  echo $price['customer_paid_basic_charges'];
-							      } else {
-								  echo "0";
-							      }
-							      ?>">
-							</td>
-							<td>  <input  type="text" class="form-control cost"  name="<?php echo "additional_charge[" . $price['unit_id'] . "]" ?>"  value = "<?php
-							      $paid_additional_charges += $price['customer_paid_extra_charges'];
-							      if (!empty($price['customer_paid_extra_charges'])) {
-								  echo $price['customer_paid_extra_charges'];
-							      } else {
-								  echo "0";
-							      }
-							      ?>">
+									</td>
+								<td><?php echo $price['price_tags'] ?></td>
+								<td><?php echo $price['customer_net_payable']; ?></td>
+								<td>  <input  type="text" class="form-control cost"  name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "]" ?>"  value = "<?php
+								    $paid_basic_charges += $price['customer_paid_basic_charges'];
+								    if (!empty($price['customer_paid_basic_charges'])) {
+									echo $price['customer_paid_basic_charges'];
+								    } else {
+									echo "0";
+								    }
+								    ?>">
+								</td>
+								<td>  <input  type="text" class="form-control cost"  name="<?php echo "additional_charge[" . $price['unit_id'] . "]" ?>"  value = "<?php
+								    $paid_additional_charges += $price['customer_paid_extra_charges'];
+								    if (!empty($price['customer_paid_extra_charges'])) {
+									echo $price['customer_paid_extra_charges'];
+								    } else {
+									echo "0";
+								    }
+								    ?>">
 
 									</td>
 								<td>  <input  type="text" class="form-control cost"  name="<?php echo "parts_cost[" . $price['unit_id'] . "]" ?>"  value = "<?php
@@ -189,45 +189,46 @@
 								    <div class="row">
 									<div class="col-md-12">
 
-									    <div class="form-group ">
+										    <div class="form-group ">
 										<div class="col-md-10">
 
-										    <div class="radio">
+											    <div class="radio">
 											<label><input type="radio"  name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Completed" <?php
-												      if ($price['booking_status'] == "Completed") {
-													  echo "checked";
+											    if ($price['booking_status'] == "Completed") {
+												echo "checked";
+											    }
+											    ?> id="<?php echo "completed_" . $price['pod'] . "_" . $count; ?>" required ><?php
+												      if ($price['product_or_services'] == "Product") {
+													  echo " Delivered";
+												      } else {
+													  echo " Completed";
 												      }
-												      ?> id="<?php echo "completed_" . $price['pod'] . "_" . $count; ?>" required ><?php
-										    if ($price['product_or_services'] == "Product") {
-											echo " Delivered";
-										    } else {
-											echo " Completed";
-										    }
 												      ?><br/>
 											    <input type="radio" id="<?php echo "cancelled_" . $price['pod'] . "_" . $count; ?>" name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Cancelled" <?php
-											   if ($price['booking_status'] == "Cancelled") {
-											       echo "checked";
-											   }
-											   ?>  required><?php
-											   if ($price['product_or_services'] == "Product") {
+											    if ($price['booking_status'] == "Cancelled") {
+												echo "checked";
+											    }
+											    ?>  required><?php
+											    if ($price['product_or_services'] == "Product") {
 											       echo " Not Delivered";
 											   } else {
 											       echo " Not Completed";
 											   }
 											   ?>
-											</label>
+												</label>
 										    </div>
 
-										</div>
+											</div>
 									    </div>
 
-									</div>
+										</div>
 								    </div>
 								</td>
 							    </tr>
-	<?php $count++;
-    }
-    ?>
+							    <?php
+							    $count++;
+							}
+							?>
     					</tbody>
     				    </table>
     				    <span class="error_msg" style="color: red"></span>
@@ -235,7 +236,7 @@
     			    </div>
     			</div>
     		    </div>
-<?php } ?>
+		    <?php } ?>
 		    <div class="row">
 			<div class ="col-md-12">
 			    <div class="form-group col-md-offset-1">
@@ -327,11 +328,13 @@
 
     function onsubmit_form() {
 	var flag = 0;
+	var is_completed_checkbox = [];
 	$(':radio:checked').each(function (i) {
 	    //console.log($(this).val());
 	    var div_no = this.id.split('_');
+	    is_completed_checkbox[i] = div_no[0];
 	    if (div_no[0] == "completed") {
-        //if POD is also 1, only then check for serial number.    
+		//if POD is also 1, only then check for serial number.
 		if (div_no[1] == "1") {
 		    var serial_number = $("#serial_number" + div_no[2]).val();
 		    if (serial_number == "") {
@@ -362,9 +365,18 @@
 	    }
 
 
+
 	});
 
+	if ($.inArray('completed', is_completed_checkbox) !== -1)
+	{
 
+	} else {
+	    alert('Please Select atleast one Completed or Delivered checkbox.');
+	    $flag = 0;
+	    return false;
+
+	}
 	if (flag == 0) {
 	    return true;
 
