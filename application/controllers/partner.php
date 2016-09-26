@@ -310,8 +310,9 @@ class Partner extends CI_Controller {
                         //Insert query
                         //echo print_r($booking, true) . "<br><br>";
                         $this->booking_model->addbooking($booking);
-
-                       $this->notify->insert_state_change($booking['booking_id'], "FollowUp", "New_Query", $booking['query_remarks'], $requestData['partnerName'], $booking['partner_id']);
+                        
+                        
+                       $this->notify->insert_state_change($booking['booking_id'], "FollowUp", "New_Query", $booking['query_remarks'],PARTNER_API_CALL, $requestData['partnerName'], $booking['partner_id']);
 
                         //Send response
                         $this->jsonResponseString['response'] = array(

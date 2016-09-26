@@ -1791,5 +1791,20 @@ class Booking_model extends CI_Model {
         return $query->result_array();
         
     }
+    /**
+     * @desc: Get booking updation reason
+     * parmas: old state, new state, reason_of
+     * return: Array 
+     */
+    function get_booking_updation_reason($old_state,$new_state,$reason_of){
+        $this->db->select('*');
+        $this->db->where('old_state',$old_state);   
+        $this->db->where('new_state',$new_state);   
+        $this->db->where('reason_of',$reason_of);   
+        $this->db->where('active',1);   
+        $query = $this->db->get('booking_updation_reasons');
 
+        return $query->result_array();
+    }
+    
 }

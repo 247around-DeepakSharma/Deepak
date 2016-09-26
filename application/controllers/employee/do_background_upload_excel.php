@@ -260,7 +260,7 @@ class Do_background_upload_excel extends CI_Controller {
 
 			    $count_booking_inserted++;
 
-			    $this->notify->insert_state_change($booking['booking_id'], "FollowUp", "New_Query",$booking['internal_status'], $this->session->userdata('id'), $this->session->userdata('employee_id'),$booking['partner_id']);
+			    $this->notify->insert_state_change($booking['booking_id'], "FollowUp", "New_Query",$booking['internal_status'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
 
 			    //Send SMS to customers regarding delivery confirmation through missed call
 			    if ($file_type == "shipped") {
