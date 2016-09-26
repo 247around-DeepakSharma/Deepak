@@ -316,16 +316,14 @@ class Booking extends CI_Controller {
 	} else {
 
 	    $booking['message'] = $message;
+	    
+	    if($result['DEFAULT_TAX_RATE'] == 1 ){
+            log_message('info', __METHOD__ . " Default_tax_rate: " .$result['DEFAULT_TAX_RATE']);
+		    $this->send_sms_email($booking['booking_id'], "Default_tax_rate");
+	    }
 	}
 	$this->user_model->edit_user($user);
 	//log_message('info', __METHOD__ . " Return Booking: " . print_r($booking, true));
-
-	if($result['DEFAULT_TAX_RATE'] == 1){
-        log_message('info', __METHOD__ . " Default_tax_rate: " .$result['DEFAULT_TAX_RATE']);
-		$this->send_sms_email($booking['booking_id'], "Default_tax_rate");
-
-
-	}
 
 	return $booking;
     }
