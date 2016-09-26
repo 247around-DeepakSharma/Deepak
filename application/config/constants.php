@@ -47,7 +47,7 @@ define('parts_percentage', .95);
 define('SERVICE_TAX_RATE', 0.15);
 define('DEFAULT_TAX_RATE', 15);
 define('PARTNER_API_CALL',978978);
-define('_247AROUND',247010);
+define('_247AROUND',247001);
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

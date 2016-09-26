@@ -130,11 +130,7 @@ class Booking extends CI_Controller {
             if($booking['type'] == "Booking"){
 	    $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id,$this->input->post('query_remarks'));
             }else{
-                if(strpos($booking_id, "Q-") === FALSE){
-                $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id,$this->input->post('query_remarks'));
-                }else{
-                  $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id,$this->input->post('internal_status'));
-                }
+            $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id,$this->input->post('internal_status'));
             }
 	    $booking['booking_id'] = $booking_id_with_flag['booking_id'];
 	    $booking['query_to_booking'] = $booking_id_with_flag['query_to_booking'];
@@ -383,7 +379,7 @@ class Booking extends CI_Controller {
      *
      * @return booking id
      */
-    function change_in_booking_id($booking_type, $booking_id,$remarks = "") {
+    function change_in_booking_id($booking_type, $booking_id,$remarks) {
 	$data['booking_id'] = $booking_id;
         $booking_data = $this->booking_model->getbooking_history($booking_id);
 	$data['query_to_booking'] = '0';
