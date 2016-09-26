@@ -1578,17 +1578,8 @@ class Booking extends CI_Controller {
 
 	    //Log this state change as well for this booking
 	    //param:-- booking id, new state, old state, employee id, employee name
-<<<<<<< HEAD
           
             $this->notify->insert_state_change($booking_id, "Pending", $status,$data['booking_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);  
-=======
-            $booking_details = $this->booking_model->getbooking_history($booking_id);
-            if(!empty($this->input->post('complete_pending_reason'))){
-	    $this->notify->insert_state_change($booking_id, "Pending", $status,$this->input->post('complete_pending_reason'), $this->session->userdata('id'), $this->session->userdata('employee_id'),$booking_details[0]['partner_id']);
-            }else{
-            $this->notify->insert_state_change($booking_id, "Pending", $status,$this->input->post('cancelled_pending_reason'), $this->session->userdata('id'), $this->session->userdata('employee_id'),$booking_details[0]['partner_id']);
-            }
->>>>>>> c15fffc45616b51a0a5e6874ba4ce20e4f120eff
 
 	    $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
 	    $send['booking_id'] = $booking_id;
