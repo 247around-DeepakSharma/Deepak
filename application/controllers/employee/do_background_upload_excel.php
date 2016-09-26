@@ -360,6 +360,10 @@ class Do_background_upload_excel extends CI_Controller {
 	$valid_data = array();
 	foreach ($data as $key => $value) {
 
+	    if ($value['Phone'] == "" || is_null($value['Phone'])) {
+		//echo print_r("Phone number null, break from this loop", true), EOL;
+		break;
+	    }
 	    if (count($invalid_data) > 4) {
 
 		$status['reason_phone'] = "Phone Number is not valid";
@@ -401,6 +405,8 @@ class Do_background_upload_excel extends CI_Controller {
 
 		$status['reason_product'] = "Product is not valid";
 		$status['invalid_product'] = $invalid_data;
+		// Add Only user
+		$this->add_user_for_invalid($invalid_data);
 		$this->get_invalid_data($status, $filetype);
 		exit();
 	    }
@@ -467,6 +473,8 @@ class Do_background_upload_excel extends CI_Controller {
 		print_r($invalid_data, true));
 
 	    $data['error']['invalidate_product'] = $invalid_data;
+	    // Add Only user
+	    $this->add_user_for_invalid($invalid_data);
 	}
 
 	return $data;
@@ -499,6 +507,8 @@ class Do_background_upload_excel extends CI_Controller {
 		print_r($invalid_data, true));
 
 	    $data['error']['invalidate_product_description'] = $invalid_data;
+	    // Add Only user
+	    $this->add_user_for_invalid($invalid_data);
 	}
 
 	return $data;
@@ -518,6 +528,8 @@ class Do_background_upload_excel extends CI_Controller {
 
 		$status['reason_pincode'] = " Pincode is not valid in File";
 		$status['invalid_pincode'] = $invalid_data;
+		// Add Only user
+		$this->add_user_for_invalid($invalid_data);
 		$this->get_invalid_data($status, $filetype);
 		exit();
 	    }
@@ -534,6 +546,8 @@ class Do_background_upload_excel extends CI_Controller {
 		print_r($invalid_data, true));
 
 	    $data['error']['invalidate_pincode'] = $invalid_data;
+	    // Add Only user
+	    $this->add_user_for_invalid($invalid_data);
 	}
 	// print_r($data);
 	return $data;
@@ -555,6 +569,8 @@ class Do_background_upload_excel extends CI_Controller {
 
 		$status['reason_date'] = " Shipped/Delivery Date is not valid in Excel data";
 		$status['invalid_date'] = $invalid_data;
+		// Add Only user
+		$this->add_user_for_invalid($invalid_data);
 		$this->get_invalid_data($status, $filetype);
 		exit();
 	    }
@@ -579,6 +595,8 @@ class Do_background_upload_excel extends CI_Controller {
 		print_r($invalid_data, true));
 	    $data['error']['reason_delivery_date'] = "Shipped/delivered date is not valid";
 	    $data['error']['invalid_delivery_date'] = $invalid_data;
+	    // Add Only user
+	    $this->add_user_for_invalid($invalid_data);
 	}
 	// Past date and future date
 	if ($file_type == "shipped") {
@@ -608,7 +626,9 @@ class Do_background_upload_excel extends CI_Controller {
 
         if(!empty($invalid_data)){
             $data['error']['invalid_order_id'] = $invalid_data;
-        }
+	    // Add Only user
+	    $this->add_user_for_invalid($invalid_data);
+	}
         return $data;
     }
 
@@ -625,6 +645,8 @@ class Do_background_upload_excel extends CI_Controller {
 
 		$status['reason_order_id_same_as_phone'] = "Order ID is same as Phone Number in Excel data";
 		$status['invalid_order_id_same_as_phone'] = $invalid_data;
+		// Add Only user
+		$this->add_user_for_invalid($invalid_data);
 		$this->get_invalid_data($status, $filetype);
 		exit();
 	    }
@@ -639,6 +661,8 @@ class Do_background_upload_excel extends CI_Controller {
 		print_r($invalid_data, true));
 
 	    $data['error']['invalid_order_id_same_as_phone'] = $invalid_data;
+	    // Add Only user
+	    $this->add_user_for_invalid($invalid_data);
 	}
 
 	return $data;
@@ -745,6 +769,41 @@ class Do_background_upload_excel extends CI_Controller {
 	);
 
 	return $unproductive_description;
+    }
+
+    /**
+     * @desc: This function is used to add user only incase invalid data
+     * @param Array $row_data
+     * @return boolean true
+     */
+    function add_user_for_invalid($row_data) {
+	foreach ($row_data as $value) {
+
+	    $output = $this->user_model->search_user(trim($value['Phone']));
+	    $state = $this->vendor_model->get_state_from_pincode($value['Pincode']);
+
+	    if (empty($output)) {
+		//User doesn't exist
+		$user['name'] = $value['Customer_Name'];
+		$user['phone_number'] = $value['Phone'];
+		$user['user_email'] = (isset($value['Email_ID']) ? $value['Email_ID'] : "");
+		$user['home_address'] = $value['Customer_Address'];
+		$user['pincode'] = $value['Pincode'];
+		$user['city'] = $value['CITY'];
+		$user['state'] = $state['state'];
+
+		$user_id = $this->user_model->add_user($user);
+
+		//echo print_r($user, true), EOL;
+		//Add sample appliances for this user
+		$count = $this->booking_model->getApplianceCountByUser($user_id);
+		//Add sample appliances if user has < 5 appliances in wallet
+		if ($count < 5) {
+		    $this->booking_model->addSampleAppliances($user_id, 5 - intval($count));
+		}
+	    }
+	}
+	return true;
     }
 
 }
