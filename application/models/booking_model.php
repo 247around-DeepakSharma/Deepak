@@ -1806,5 +1806,32 @@ class Booking_model extends CI_Model {
 
         return $query->result_array();
     }
+        /**
+     *  @desc : This function selects specific source code for the given partner ID
+     *
+     *  @param  : partner ID
+     *  @return : source code of the name
+     */
+    function get_booking_source_code($partner_id) {
+        $query = $this->db->query("SELECT code FROM bookings_sources WHERE partner_id='$partner_id'");
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc: This is used to get daily and monthly bookings completed and reports
+     * params: void
+     * return: array
+     * 
+     */
+    function get_completed_booking_details(){
+        $where_rating = "where DATE_FORMAT(update_date,'%y-%m-%d') = CURDATE() " ;
+        $where_booking = "where DATE_FORMAT(closed_date,'%m') = MONTH(CURDATE())";
+        $sql_rating = "SELECT COUNT(id) as ratings from booking_details $where_rating";
+        $sql_booking = "SELECT COUNT(id) as bookings from booking_details $where_booking";
+                         
+        $data['ratings'] = $this->db->query($sql_rating)->row();
+        $data['bookings'] = $this->db->query($sql_booking)->row();
+        return $data;
+    }
     
 }

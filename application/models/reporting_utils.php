@@ -759,5 +759,30 @@ class Reporting_utils extends CI_Model {
         $query = $this->db->get('bookings_sources');
         return $query->result_array();
     }
+    
+    function get_report_data(){
+        
+        for($i = 1; $i < 3; $i++){
+            $where = "where DATE_FORMAT(create_date,'%y-%m-%d') = CURDATE() " ;
+
+            if($i == 2){
+                $where = " where DATE_FORMAT(create_date,'%m') = MONTH(CURDATE()) ";
+            }
+
+            $sql = "SELECT partner_id,
+                 SUM(CASE WHEN `new_state` LIKE '%FollowUp%' THEN 1 ELSE 0 END) AS queries,
+                 SUM(CASE WHEN `new_state` LIKE '%Cancelled%' THEN 1 ELSE 0 END) AS cancelled,
+                 SUM(CASE WHEN `new_state` LIKE '%Completed%' THEN 1 ELSE 0 END) AS completed,
+                 SUM(CASE WHEN `new_state` LIKE '%Pending%' OR `new_state` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) as scheduled,
+                 SUM(CASE WHEN `new_state` LIKE '%FollowUp%' OR `new_state` LIKE '%Completed%' OR `new_state` LIKE '%Cancelled%' OR `new_state` LIKE '%Pending%' OR `new_state` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) AS total
+                from booking_state_change $where Group By partner_id ;
+                 ";
+
+            $data = $this->db->query($sql);
+            $result['data'.$i] = $data->result_array();
+        }
+        
+        return $result;
+    }
 
 }

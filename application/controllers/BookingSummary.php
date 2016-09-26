@@ -539,13 +539,16 @@ EOD;
     }
 
     function booking_report() {
-        $data = $this->reporting_utils->booking_report();
+        $data = $this->reporting_utils->get_report_data();
+        $today_ratings = $this->booking_model->get_completed_booking_details();
         $html = '
                     <html xmlns="http://www.w3.org/1999/xhtml">
                       <head>
                         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
                       </head>
                       <body>
+                      <p><b>Today Ratings: '.$today_ratings['ratings']->ratings.'</b></p>
+                      <p><b>Total Bookings Completed:  '.$today_ratings['bookings']->bookings.'</b></p>
                       <p>Today Booking Summary:</p>
                         <div style="margin-top: 30px;">
                           <table style="width: 100%;max-width: 100%;margin-bottom: 20px;border: 1px solid #ddd;">
@@ -566,8 +569,9 @@ EOD;
         $total_today_queries = 0;
         $total_today_completed = 0;
         $total_total_cancelled = 0;
-        foreach ($data['data2'] as $key => $value) {
-            $html .= "<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'><td style='text-align: center;border: 1px solid #ddd;'>" . $value['source'] . "</td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['total'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['scheduled'] . " </td></td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['queries'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['completed'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['cancelled'] . " </td></tr>";
+        foreach ($data['data1'] as $key => $value) {
+             if($value['partner_id'] != 0){
+            $html .= "<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'><td style='text-align: center;border: 1px solid #ddd;'>" . $this->booking_model->get_booking_source_code($value['partner_id'])[0]['code'] . "</td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['total'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['scheduled'] . " </td></td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['queries'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['completed'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['cancelled'] . " </td></tr>";
             $total_today += $value['total'];
             $total_today_scheduled += $value['scheduled'];
             $total_today_completed += $value['completed'];
@@ -575,6 +579,7 @@ EOD;
             $total_today_queries += $value['queries'];
 
             $html .= "</tr>";
+        }
         }
 
         $html .="<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'><td style='text-align: center;border: 1px solid #ddd;'>Total</td><td style='text-align: center;border: 1px solid #ddd;'>" . $total_today . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $total_today_scheduled . " </td></td><td style='text-align: center;border: 1px solid #ddd;'>" . $total_today_queries . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $total_today_completed . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $total_total_cancelled . " </td></tr>";
@@ -604,14 +609,16 @@ EOD;
         $completed = 0;
         $cancelled = 0;
         $queries = 0;
-        foreach ($data['data1'] as $key => $value) {
-            $html .= "<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'><td style='text-align: center;border: 1px solid #ddd;'>" . $value['source'] . "</td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['total'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['scheduled'] . " </td></td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['queries'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['completed'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['cancelled'] . " </td></tr>";
+        foreach ($data['data2'] as $key => $value) {
+            if($value['partner_id'] != 0){
+            $html .= "<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'><td style='text-align: center;border: 1px solid #ddd;'>" . $this->booking_model->get_booking_source_code($value['partner_id'])[0]['code'] . "</td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['total'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['scheduled'] . " </td></td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['queries'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['completed'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['cancelled'] . " </td></tr>";
 
             $total += $value['total'];
             $scheduled += $value['scheduled'];
             $completed += $value['completed'];
             $cancelled += $value['cancelled'];
             $queries += $value['queries'];
+        }
         }
 
         $html .="<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'><td style='text-align: center;border: 1px solid #ddd;'>Total</td><td style='text-align: center;border: 1px solid #ddd;'>" . $total . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $scheduled . " </td></td><td style='text-align: center;border: 1px solid #ddd;'>" . $queries . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $completed . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $cancelled . " </td></tr>";
@@ -624,7 +631,7 @@ EOD;
 
         $html .= '</body>
                     </html>';
-
+        _pr($html);exit;
         $to = "anuj@247around.com, nits@247around.com";
 
         $this->notify->sendEmail("booking@247around.com", $to, "", "", "Booking Summary", $html, "");
