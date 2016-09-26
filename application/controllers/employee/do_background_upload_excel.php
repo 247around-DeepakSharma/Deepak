@@ -360,6 +360,10 @@ class Do_background_upload_excel extends CI_Controller {
 	$valid_data = array();
 	foreach ($data as $key => $value) {
 
+	    if ($value['Phone'] == "" || is_null($value['Phone'])) {
+		//echo print_r("Phone number null, break from this loop", true), EOL;
+		break;
+	    }
 	    if (count($invalid_data) > 4) {
 
 		$status['reason_phone'] = "Phone Number is not valid";
