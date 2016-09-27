@@ -632,7 +632,7 @@ EOD;
 
 
         $html .= '</body>
-                    </html>';
+                    </html>'; 
         $to = "anuj@247around.com, nits@247around.com";
 
         $this->notify->sendEmail("booking@247around.com", $to, "", "", "Booking Summary", $html, "");
