@@ -547,8 +547,9 @@ EOD;
                         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
                       </head>
                       <body>
-                      <p><b>Today Ratings: '.$today_ratings['ratings']->ratings.'</b></p>
-                      <p><b>Total Bookings Completed:  '.$today_ratings['bookings']->bookings.'</b></p>
+                      <p><b>Total Ratings in  '.date('M'). ' : '.$today_ratings['ratings']->ratings.'</b></p>
+                      <p><b>Total Bookings Completed in '.date('M'). ' :  '.$today_ratings['bookings']->bookings.'</b></p>
+                      <p><b>Total Bookings Completed in '.date("M", strtotime("-1 months")).' :  '.$today_ratings['bookings_previous']->bookings.'</b></p>
                       <p>Today Booking Summary:</p>
                         <div style="margin-top: 30px;">
                           <table style="width: 100%;max-width: 100%;margin-bottom: 20px;border: 1px solid #ddd;">
@@ -592,7 +593,7 @@ EOD;
                           </table>
                         </div>';
 
-        $html .= ' <p style="margin-top: 30px;" >Overall Booking Summary:</p>
+        $html .= ' <p style="margin-top: 30px;" >MTD Booking Summary:</p>
                         <div style="margin-top: 30px;" >
                           <table style="width: 100%;max-width: 100%;margin-bottom: 20px;border: 1px solid #ddd;">
                             <thead>
@@ -633,6 +634,7 @@ EOD;
 
         $html .= '</body>
                     </html>'; 
+        _pr($html);
         $to = "anuj@247around.com, nits@247around.com";
 
         $this->notify->sendEmail("booking@247around.com", $to, "", "", "Booking Summary", $html, "");
