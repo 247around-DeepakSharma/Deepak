@@ -114,7 +114,23 @@ class vendor extends CI_Controller {
 		   $login['active'] = 1;
 
 		   $this->vendor_model->add_vendor_login($login);
-
+                   
+                   // Sending Login details mail to Vendor using Template
+                   $email = array();
+                   //Getting template from Database
+                   $template = $this->booking_model->get_booking_email_template("vendor_login_details");
+                   if(!empty($template)){
+                   $email['username'] = $sc_login_uname;
+                   $email['password'] = $sc_login_uname;
+                   $subject = "Login Details";
+                   
+                   log_message('info', " Email Body" . print_r($email, true));
+                   $emailBody = vsprintf($template[0], $email);
+                   
+                   $this->notify->sendEmail("booking@247around.com", $to , 'anuj@247around.com, nits@247around.com', '', $subject , $emailBody, "");
+                   }else{
+                       log_message('info', " Login Email Send Error" . print_r($email, true));
+                   }
 		   redirect(base_url() . 'employee/vendor/viewvendor');
             }
         } else {

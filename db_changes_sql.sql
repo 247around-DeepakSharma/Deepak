@@ -943,3 +943,7 @@ ALTER TABLE `booking_updation_reasons`
 --
 ALTER TABLE `booking_updation_reasons`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+
+-- Belal 27 Sep
+
+INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'vendor_login_details', 'Dear Partner,<br><br> Following are the login credentials to 247Around CRM.<br><br> <b>Username : </b> %s <br> <b>Password : </b> %s <br> For any confusion, write to us or call us.<br><br> Regards,<br> 247around Team', '', '', '', '', '1', '2016-09-27 00:00:00');
