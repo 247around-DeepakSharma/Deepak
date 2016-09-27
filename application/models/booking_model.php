@@ -1816,7 +1816,7 @@ class Booking_model extends CI_Model {
      * 
      */
     function get_completed_booking_details(){
-        $where_rating = "where DATE_FORMAT(update_date,'%y-%m-%d') = CURDATE() " ;
+        $where_rating = "where DATE_FORMAT(closed_date,'%y-%m-%d') = CURDATE() AND (rating_stars IS NOT NULL OR rating_stars !='')" ;
         $where_booking = "where DATE_FORMAT(closed_date,'%m') = MONTH(CURDATE())";
         $sql_rating = "SELECT COUNT(id) as ratings from booking_details $where_rating";
         $sql_booking = "SELECT COUNT(id) as bookings from booking_details $where_booking";
