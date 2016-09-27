@@ -1808,16 +1808,6 @@ class Booking_model extends CI_Model {
 
         return $query->result_array();
     }
-        /**
-     *  @desc : This function selects specific source code for the given partner ID
-     *
-     *  @param  : partner ID
-     *  @return : source code of the name
-     */
-    function get_booking_source_code($partner_id) {
-        $query = $this->db->query("SELECT code FROM bookings_sources WHERE partner_id='$partner_id'");
-        return $query->result_array();
-    }
     
     /**
      * @desc: This is used to get daily and monthly bookings completed and reports

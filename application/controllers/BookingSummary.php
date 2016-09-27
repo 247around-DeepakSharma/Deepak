@@ -570,7 +570,8 @@ EOD;
         $total_today_completed = 0;
         $total_total_cancelled = 0;
         foreach ($data['data1'] as $key => $value) {
-            $html .= "<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'><td style='text-align: center;border: 1px solid #ddd;'>" . $value['code'] . "</td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['total'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['scheduled'] . " </td></td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['queries'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['completed'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['cancelled'] . " </td></tr>";
+            $html .= "<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'>"
+                    . "<td style='text-align: center;border: 1px solid #ddd;'>" . $value['source'] . "</td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['total'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['scheduled'] . " </td></td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['queries'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['completed'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['cancelled'] . " </td></tr>";
             $total_today += $value['total'];
             $total_today_scheduled += $value['scheduled'];
             $total_today_completed += $value['completed'];
@@ -580,7 +581,11 @@ EOD;
             $html .= "</tr>";
         }
 
-        $html .="<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'><td style='text-align: center;border: 1px solid #ddd;'>Total</td><td style='text-align: center;border: 1px solid #ddd;'>" . $total_today . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $total_today_scheduled . " </td></td><td style='text-align: center;border: 1px solid #ddd;'>" . $total_today_queries . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $total_today_completed . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $total_total_cancelled . " </td></tr>";
+        $html .="<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'>"
+                . "<td style='text-align: center;border: 1px solid #ddd;'>Total</td>"
+                . "<td style='text-align: center;border: 1px solid #ddd;'>" . $total_today . " </td>"
+                . "<td style='text-align: center;border: 1px solid #ddd;'>" . $total_today_scheduled . " </td></td>"
+                . "<td style='text-align: center;border: 1px solid #ddd;'>" . $total_today_queries . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $total_today_completed . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $total_total_cancelled . " </td></tr>";
 
 
         $html .= '</tbody>
@@ -608,7 +613,8 @@ EOD;
         $cancelled = 0;
         $queries = 0;
         foreach ($data['data2'] as $key => $value) {
-            $html .= "<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'><td style='text-align: center;border: 1px solid #ddd;'>" . $value['code'] . "</td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['total'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['scheduled'] . " </td></td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['queries'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['completed'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['cancelled'] . " </td></tr>";
+            $html .= "<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'>"
+                    . "<td style='text-align: center;border: 1px solid #ddd;'>" . $value['source'] . "</td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['total'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['scheduled'] . " </td></td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['queries'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['completed'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['cancelled'] . " </td></tr>";
 
             $total += $value['total'];
             $scheduled += $value['scheduled'];

@@ -761,7 +761,6 @@ class Reporting_utils extends CI_Model {
     }
     
     function get_report_data(){
-        
         for($i = 1; $i < 3; $i++){
             $where = "where DATE_FORMAT(booking_state_change.create_date,'%y-%m-%d') = CURDATE() " ;
 
@@ -769,15 +768,15 @@ class Reporting_utils extends CI_Model {
                 $where = " where DATE_FORMAT(booking_state_change.create_date,'%m') = MONTH(CURDATE()) ";
             }
 
-            $sql = "SELECT booking_state_change.partner_id,bookings_sources.code,
+            $sql = "SELECT booking_details.source,booking_details.partner_id,
                  SUM(CASE WHEN `new_state` LIKE '%FollowUp%' THEN 1 ELSE 0 END) AS queries,
                  SUM(CASE WHEN `new_state` LIKE '%Cancelled%' THEN 1 ELSE 0 END) AS cancelled,
                  SUM(CASE WHEN `new_state` LIKE '%Completed%' THEN 1 ELSE 0 END) AS completed,
                  SUM(CASE WHEN `new_state` LIKE '%Pending%' OR `new_state` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) as scheduled,
                  SUM(CASE WHEN `new_state` LIKE '%FollowUp%' OR `new_state` LIKE '%Completed%' OR `new_state` LIKE '%Cancelled%' OR `new_state` LIKE '%Pending%' OR `new_state` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) AS total
                     from booking_state_change 
-                        JOIN bookings_sources ON booking_state_change.partner_id = bookings_sources.partner_id
-                 $where Group By booking_state_change.partner_id ;";
+                        JOIN booking_details ON booking_state_change.booking_id = booking_details.booking_id
+                 $where GROUP BY booking_details.source ;";
             
             $data = $this->db->query($sql);
             $result['data'.$i] = $data->result_array();
