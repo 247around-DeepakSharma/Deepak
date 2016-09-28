@@ -169,14 +169,14 @@ class Do_background_process extends CI_Controller {
         log_message('info', "Booking Id " . print_r($booking_id, TRUE));
 
         $data = $this->booking_model->getbooking_charges($booking_id);
-        $current_status = "Cancelled";
+        $current_status = _247AROUND_CANCELLED ;
         log_message('info', ": " . " service center data " . print_r($data, TRUE));
 
         foreach ($data as $key => $value) {
-            $current_status1 = "Cancelled";
-            if($value['internal_status'] == "Completed"){
-                $current_status1 = "Completed";
-                $current_status = "Completed";
+            $current_status1 = _247AROUND_CANCELLED ;
+            if($value['internal_status'] == _247AROUND_COMPLETED){
+                $current_status1 = _247AROUND_COMPLETED;
+                $current_status = _247AROUND_COMPLETED;
             }
 
             $service_center['booking_id'] = $booking_id;
@@ -210,7 +210,7 @@ class Do_background_process extends CI_Controller {
         //update booking_details table
         log_message('info', ": " . " update booking details data (" .$current_status .")".print_r($booking, TRUE));
 
-        if($current_status == "Cancelled"){
+        if($current_status == _247AROUND_CANCELLED){
 
             $booking['cancellation_reason'] = $data[0]['cancellation_reason'];
 
@@ -223,7 +223,7 @@ class Do_background_process extends CI_Controller {
         $this->booking_model->update_booking($booking_id, $booking);
 
         //Log this state change as well for this booking
-        $this->notify->insert_state_change($booking_id, $current_status, "Pending", $remarks , $agent_id, $agent_name,_247AROUND);
+        $this->notify->insert_state_change($booking_id, $current_status, _247AROUND_PENDING, $remarks , $agent_id, $agent_name,_247AROUND);
 
         $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
         $send['booking_id']  = $booking_id;

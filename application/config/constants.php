@@ -48,6 +48,13 @@ define('SERVICE_TAX_RATE', 0.15);
 define('DEFAULT_TAX_RATE', 15);
 define('PARTNER_API_CALL',978978);
 define('_247AROUND',247001);
+define('_247AROUND_PENDING','Pending');
+define('_247AROUND_NEW_BOOKING','New_Booking');
+define('_247AROUND_FOLLOWUP','FollowUp');
+define('_247AROUND_NEW_QUERY','New_Query');
+define('_247AROUND_CANCELLED','Cancelled');
+define('_247AROUND_RESCHEDULED','Rescheduled');
+define('_247AROUND_COMPLETED','Completed');
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
