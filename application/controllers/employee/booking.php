@@ -1465,7 +1465,11 @@ class Booking extends CI_Controller {
 	}
 
 	$booking['closing_remarks'] = $service_center['closing_remarks'];
-	$booking['closed_date'] = date('Y-m-d H:i:s');
+        if($service_center_details[0]['closed_date'] === NULL){
+            $booking['closed_date'] = date('Y-m-d H:i:s');
+        }else{
+            $booking['closed_date'] = $service_center_details[0]['closed_date'];
+        }
 	$booking['amount_paid'] = $total_amount_paid;
 
 	//update booking_details table
