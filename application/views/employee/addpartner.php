@@ -342,22 +342,18 @@
                         rangelength: [10,10]
                     },
                     primary_contact_phone_1: {
-                        required: true,
                         rangelength: [10,10]
                     },
                     primary_contact_phone_2: {
                         rangelength: [10,10]
                     },
                     owner_phone_1: {
-                        required: true,
                         rangelength: [10,10]
                     },
                     owner_phone_2: {
                         rangelength: [10,10]
                     },
                     state: "required",
-                    primary_contact_name: "required",
-                    owner_name: "required",
                     email: {
 
                         email: true
