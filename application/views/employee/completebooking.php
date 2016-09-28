@@ -477,7 +477,6 @@
 	   return false;
 
 	}
-	return false;
 	if (flag === 0) {
 	    return true;
 
