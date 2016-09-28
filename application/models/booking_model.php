@@ -1667,8 +1667,7 @@ class Booking_model extends CI_Model {
      */
     function insert_booking_state_change($details) {
     $this->db->insert('booking_state_change', $details);
-
-    //return $this->db->insert_id();
+    return $this->db->insert_id();
     }
 
     /**

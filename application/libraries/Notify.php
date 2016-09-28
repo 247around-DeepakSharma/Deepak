@@ -239,7 +239,7 @@ class Notify {
     /**
      * @desc: this is used to insert agent record while update booking
      * @param: String(booking id, agent id, agent name, booking status)
-     * @return: void
+     * @return: void 
      */
     function insert_state_change($booking_id, $new_state, $old_state,$remarks, $agent_id, $agent_name, $partner_id = "") {
 	//Log this state change as well for this booking
@@ -250,8 +250,12 @@ class Notify {
         $state_change['remarks'] = $remarks;
 	$state_change['agent_id'] = $agent_id;
 	$state_change['partner_id'] = $partner_id;
-	$this->My_CI->booking_model->insert_booking_state_change($state_change);
-	log_message('info', 'Booking Status Change - Booking id: ' . $booking_id . $new_state . "  By " . $agent_name);
+	$insert_id = $this->My_CI->booking_model->insert_booking_state_change($state_change);
+        if($insert_id){
+            log_message('info', 'Booking Status Change - Booking id: ' . $booking_id . $new_state . "  By " . $agent_name);
+        }else{
+            log_message('info', 'Error in Booking Status Change - Booking id: ' . $booking_id . $new_state . "  By " . $agent_name);
+        }
     }
 
     /**
