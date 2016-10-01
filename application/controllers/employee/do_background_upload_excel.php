@@ -318,7 +318,6 @@ class Do_background_upload_excel extends CI_Controller {
                                 log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
                             }         
 			} else {
-
 			    log_message('info', __FUNCTION__ . ' =>  Booking is not inserted in booking details: ' . print_r($value, true));
 
 			    $row_data['error'][$key]['booking_details'] = " Booking Unit Id is not inserted";
