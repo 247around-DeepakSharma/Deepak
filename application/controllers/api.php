@@ -1238,7 +1238,7 @@ class Api extends CI_Controller {
 	    //call to confirm the installation
             if (count($bookings) > 0) {
                 foreach ($bookings as $b) {
-                    if ($b['type'] === 'Query' && $b['current_status'] === 'FollowUp' && $b['internal_status'] == "Missed_call_not_confirmed") {
+                    if ($b['type'] === 'Query' && $b['current_status'] === 'FollowUp') {
                         $d = array('internal_status' => 'Missed_call_confirmed',
                             'booking_date' => '', 'booking_timeslot' => '',
                             'delivery_date' => date('Y-m-d H:i:s'),

@@ -42,7 +42,7 @@ class Do_background_upload_excel extends CI_Controller {
     }
 
     function upload_snapdeal_file($file_type) {
-	log_message('info', __FUNCTION__);
+	log_message('info', __FUNCTION__ . "=> File type: " . $file_type);
 
 	if (!empty($_FILES['file']['name']) && $_FILES['file']['size'] > 0) {
 	    $pathinfo = pathinfo($_FILES["file"]["name"]);
@@ -260,7 +260,7 @@ class Do_background_upload_excel extends CI_Controller {
 
 			    $count_booking_inserted++;
 
-			    $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY ,$booking['internal_status'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+			    $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , $booking['query_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
 
 			    //Send SMS to customers regarding delivery confirmation through missed call
 			    if ($file_type == "shipped") {
@@ -325,7 +325,9 @@ class Do_background_upload_excel extends CI_Controller {
 		$dateObj = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
 		$update_data['delivery_date'] = $dateObj->format('Y-m-d H:i:s');
 
-		if ($status == 'FollowUp' && $int_status == 'FollowUp') {
+                //Do not check for Internal Status
+		//if ($status == 'FollowUp' && $int_status == 'FollowUp') {
+                if ($status == 'FollowUp') {    
 		    $update_data['booking_date'] = '';
 		    $update_data['booking_timeslot'] = '';
 		}
@@ -338,12 +340,15 @@ class Do_background_upload_excel extends CI_Controller {
 		unset($update_data);
 	    }
 	}
+        
 	$row_data['error']['total_booking_inserted'] = $count_booking_inserted;
 	$row_data['error']['total_booking_came_today'] = $count_total_leads_came_today;
 
 	if (isset($row_data['error'])) {
 	    $this->get_invalid_data($row_data['error'], $file_type);
 	}
+
+        log_message('info', __FUNCTION__ . "=> Exiting now...");
 
     }
 
@@ -365,7 +370,6 @@ class Do_background_upload_excel extends CI_Controller {
 		break;
 	    }
 	    if (count($invalid_data) > 4) {
-
 		$status['reason_phone'] = "Phone Number is not valid";
 		$status['invalid_phone'] = $invalid_data;
 		$this->get_invalid_data($status, $filetype);

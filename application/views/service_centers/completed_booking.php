@@ -3,7 +3,7 @@
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> <?php echo $status." Booking" ?>  (<?php echo $count; ?>)</h2>
+                    <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> <?php echo $status." Bookings" ?></h2>
                 </div>
 
                 <div class="panel-body">
@@ -17,6 +17,7 @@
                                     <th>Mobile</th>
                                     <th>Service Name</th>
                                     <th>Booking Date</th>
+                                    <th>Closing Date</th>
                                     <th>Closing Remarks</th>
                                     <th>View</th>
                                    
@@ -46,11 +47,23 @@
                                                     <?php echo $row['booking_timeslot']; ?>
                                             </td>
                                         
-                                             <td data-popover="true" style="position: absolute; border:0px; width: 12%" data-html=true data-content="<?php echo $row['closing_remarks'];?>">
+                                            <td><?php echo $row['closed_date']; ?></td>
+                                        
+                                            <td data-popover="true" style="position: absolute; border:0px; width: 12%" data-html=true       data-content="
+                                                    <?php if ($status == "Completed")
+                                                            echo $row['closing_remarks'];
+                                                          else 
+                                                            echo $row['cancellation_reason'];  
+                                                    ?>">
                                                 <div class="marquee">
-                                                    <div><span><?php echo $row['closing_remarks'];?></span></div>
+                                                    <div><span><?php if ($status == "Completed")
+                                                            echo $row['closing_remarks'];
+                                                          else 
+                                                            echo $row['cancellation_reason'];  
+                                                    ?></span></div>
                                                 </div>
                                             </td>
+                                            
                                             <td><a class='btn btn-sm btn-primary' href="<?php echo base_url();?>service_center/booking_details/<?php echo $row['booking_id']?>" target='_blank' title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>
                 
 

@@ -79,28 +79,25 @@ class Booking extends CI_Controller {
         $this->booking_model->addbooking($booking);
 
         if ($booking['type'] == 'Booking') {
-            $this->notify->insert_state_change($booking['booking_id'], _247AROUND_PENDING, _247AROUND_NEW_BOOKING,$booking['booking_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+            $this->notify->insert_state_change($booking['booking_id'], _247AROUND_PENDING, _247AROUND_NEW_BOOKING,
+                    $booking['booking_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
 
+            //Send mail to Admin
             $to = "anuj@247around.com";
-            //$to = "abhaya@247around.com";
             $from = "booking@247around.com";
             $cc = "";
             $bcc = "";
             $subject = 'Booking Confirmation-AROUND';
             $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
-            //-------Sending SMS on booking--------//
-
+            
+            //Send SMS to customer
             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
 	    $send['booking_id'] = $booking['booking_id'];
 	    $send['state'] = "Newbooking";
-	    $this->asynchronous_lib->do_background_process($url, $send);
-            
-            //For saving SMS to the database on sucess
-            if (isset($sms_details['info']) && $sms_details['info'] == '200') {
-                $this->notify->add_sms_sent_details($user_id, 'user', $booking['booking_primary_contact_no'], $smsBody, $booking['booking_id']);
-	    }
+	    $this->asynchronous_lib->do_background_process($url, $send);            
 	} else {
-		$this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY ,$booking['internal_status'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+		$this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY,
+                        $booking['query_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
         }
 
         redirect(base_url() . DEFAULT_SEARCH_PAGE);
@@ -127,9 +124,11 @@ class Booking extends CI_Controller {
 	} else {
 	    $price_tags = array();
             if($booking['type'] == "Booking"){
-	    $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id,$this->input->post('query_remarks'));
+                //Query remarks has either query or booking remarks
+                $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id,$this->input->post('query_remarks'));
             }else{
-            $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id,$this->input->post('internal_status'));
+                //Internal status has query remarks only
+                $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id,$this->input->post('internal_status'));
             }
 	    $booking['booking_id'] = $booking_id_with_flag['booking_id'];
 	    $booking['query_to_booking'] = $booking_id_with_flag['query_to_booking'];
@@ -306,10 +305,8 @@ class Booking extends CI_Controller {
 	}
 
 	if ($booking['type'] == 'Query') {
-
 	    $booking['message'] = "";
 	} else {
-
 	    $booking['message'] = $message;
 	    
 	    if($result['DEFAULT_TAX_RATE'] == 1 ){
@@ -367,10 +364,10 @@ class Booking extends CI_Controller {
     }
 
     /**
-     * @desc: This method returns booking id when booking updated
+     * @desc: This method returns booking id when booking is updated:
      * Pending Booking to Pending Query
      * OR Pending Query to Pending Booking
-     * OR Pending Booking to pending booking
+     * OR Pending Booking to Pending booking
      * OR Pending Query to Pending Query
      *
      * @param type $booking_type - New type to which booking would be converted
@@ -378,11 +375,12 @@ class Booking extends CI_Controller {
      *
      * @return booking id
      */
-    function change_in_booking_id($booking_type, $booking_id,$remarks) {
+    function change_in_booking_id($booking_type, $booking_id, $remarks) {
 	$data['booking_id'] = $booking_id;
-        $booking_data = $this->booking_model->getbooking_history($booking_id);
 	$data['query_to_booking'] = '0';
-	log_message('info', __FUNCTION__ . " Booking ID" . print_r($booking_id, true));
+        
+	log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id);
+        
 	switch ($booking_type) {
 	    case "Booking":
 		if (strpos($booking_id, "Q-") !== FALSE) {
@@ -626,11 +624,11 @@ class Booking extends CI_Controller {
      *  @return : user details and booking history to view
      */
     function get_cancel_form($booking_id, $status = "") {
-	log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
+	log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id);
+        
 	$data['user_and_booking_details'] = $this->booking_model->getbooking_history($booking_id);
 	$data['reason'] = $this->booking_model->cancelreason("247around");
-	if ($status == _247AROUND_FOLLOWUP ) {
-
+	if ($status == "followup" ) {
 	    $data['internal_status'] = $this->booking_model->get_internal_status("Cancel");
 	}
 
@@ -722,7 +720,7 @@ class Booking extends CI_Controller {
 	    $query = $this->booking_model->getbooking_history($booking_id);
 
 	    $data1['booking_id'] = $query;
-            $data['updation_reason'] = $this->booking_model->get_booking_updation_reason('Pending','Pending','247around');
+            //$data['updation_reason'] = $this->booking_model->get_booking_updation_reason('Pending','Pending','247around');
 
 	    $this->load->view('employee/header');
 	    $this->load->view('employee/reschedulebooking', array('data' => $data, 'data1' => $data1));
@@ -742,9 +740,10 @@ class Booking extends CI_Controller {
      */
     function process_reschedule_booking_form($booking_id) {
 	log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
+        
 	$data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
 	$data['booking_timeslot'] = $this->input->post('booking_timeslot');
-        $data['booking_remarks'] = $this->input->post('reason');
+        //$data['booking_remarks'] = $this->input->post('reason');
 	$data['current_status'] = 'Rescheduled';
 	$data['internal_status'] = 'Rescheduled';
 	$data['update_date'] = date("Y-m-d H:i:s");
@@ -757,30 +756,33 @@ class Booking extends CI_Controller {
 
             //Log this state change as well for this booking
 	    //param:-- booking id, new state, old state, employee id, employee name
-	    $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED , _247AROUND_PENDING , $data['booking_remarks'] , $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+	    $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED , _247AROUND_PENDING , "", $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
 
 	    $service_center_data['booking_id'] = $booking_id;
 	    $service_center_data['internal_status'] = "Pending";
 	    $service_center_data['current_status'] = "Pending";
 	    $service_center_data['update_date'] = date("Y-m-d H:i:s");
-	    log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($service_center_data, true));
-	    $this->vendor_model->update_service_center_action($service_center_data);
+	    
+            log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($service_center_data, true));
+	    
+            $this->vendor_model->update_service_center_action($service_center_data);
 
 	    $send_data['booking_id'] = $booking_id;
 	    $send_data['current_status'] = "Rescheduled";
-
 	    $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
 	    $this->asynchronous_lib->do_background_process($url, $send_data);
 	    log_message('info', __FUNCTION__ . " Set mail to vendor flag to 0  " . print_r($booking_id, true));
-	    //Setting mail to vendor flag to 0, once booking is rescheduled
+	    
+            //Setting mail to vendor flag to 0, once booking is rescheduled
 	    $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
 	    log_message('info', __FUNCTION__ . " Request to prepare Job Card  " . print_r($booking_id, true));
-	    //Prepare job card
+	    
+            //Prepare job card
 	    $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
 	    log_message('info', __FUNCTION__ . " Partner Callback  " . print_r($booking_id, true));
-	    // Partner Call back
+	    
+            // Partner Call back
 	    $this->partner_cb->partner_callback($booking_id);
-
 	    log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $this->session->userdata('employee_id') . " data " . print_r($data, true));
 
 	    redirect(base_url() . DEFAULT_SEARCH_PAGE);
@@ -1387,7 +1389,7 @@ class Booking extends CI_Controller {
 	    $data['customer_paid_extra_charges'] = $additional_charge[$unit_id];
 	    $data['customer_paid_parts'] = $parts_cost[$unit_id];
 	    $data['serial_number'] = $serial_number[$unit_id];
-	    // it checks sting new in unit_id variable
+	    // it checks string new in unit_id variable
 	    if (strpos($unit_id, 'new') !== false) {
 		if (isset($booking_status[$unit_id])) {
 		    if ($booking_status[$unit_id] == "Completed") {
@@ -1479,7 +1481,8 @@ class Booking extends CI_Controller {
 
 	//Log this state change as well for this booking
 	//param:-- booking id, new state, old state, employee id, employee name
-	$this->notify->insert_state_change($booking_id, $internal_status, _247AROUND_PENDING ,$this->input->post('admin_remarks'), $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+	$this->notify->insert_state_change($booking_id, $internal_status, _247AROUND_PENDING ,
+                $booking['closing_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
 
 	$url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
 	$send['booking_id'] = $booking_id;
@@ -1507,33 +1510,36 @@ class Booking extends CI_Controller {
     function get_convert_booking_to_pending_form($booking_id, $status) {
 	$bookings = $this->booking_model->getbooking_history($booking_id);
 	$bookings[0]['status'] = $status;
-        if($status == "Completed"){
-        $bookings[0]['updation_reason'] = $this->booking_model->get_booking_updation_reason('Completed','Pending','247around');
-        }else{
-            $bookings[0]['updation_reason'] = $this->booking_model->get_booking_updation_reason('Cancelled','Pending','247around');
-        }
+        
+//        if($status == "Completed"){
+//            $bookings[0]['updation_reason'] = $this->booking_model->get_booking_updation_reason('Completed','Pending','247around');
+//        }else{
+//            $bookings[0]['updation_reason'] = $this->booking_model->get_booking_updation_reason('Cancelled','Pending','247around');
+//        }
 
 	$this->load->view('employee/header');
 	$this->load->view('employee/complete_to_pending', $bookings[0]);
     }
 
     /**
-     *  @desc : This function is to process form to open completed bookings
+     *  @desc : This function is to process form to open completed/cancelled bookings
      *
      * Accepts the new booking date and timeslot povided in form and then opens
-     * a completed booking.
+     * a completed or cancelled booking.
      *
      *  @param : booking id
-     *  @return : Converts the booking to Pending stage and load view
+     *  @return : Converts the Completed/Cancelled booking to Pending stage and load view
      */
     function process_convert_booking_to_pending_form($booking_id, $status) {
-	log_message('info', __FUNCTION__ . " Booking id: " . print_r($booking_id, true) . " status: " . print_r($status));
+	log_message('info', __FUNCTION__ . " Booking id: " . $booking_id . " status: " . $status);
+        
 	$data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
 	$data['booking_timeslot'] = $this->input->post('booking_timeslot');
 	$data['current_status'] = 'Pending';
 	$data['internal_status'] = 'Scheduled';
 	$data['update_date'] = date("Y-m-d H:i:s");
-	$data['closed_date'] = NULL;
+	$data['cancellation_reason'] = NULL;
+        $data['closed_date'] = NULL;
 	$data['vendor_rating_stars'] = NULL;
 	$data['vendor_rating_comments'] = NULL;
 	$data['amount_paid'] = NULL;
@@ -1542,8 +1548,7 @@ class Booking extends CI_Controller {
 	$data['closing_remarks'] = NULL;
 	$data['booking_jobcard_filename'] = NULL;
 	$data['mail_to_vendor'] = 0;
-	$data['booking_remarks'] = $this->input->post('reason');
-
+	//$data['booking_remarks'] = $this->input->post('reason');
 
 	if ($data['booking_timeslot'] == "Select") {
 	    echo "Please Select Booking Timeslot.";
@@ -1571,14 +1576,13 @@ class Booking extends CI_Controller {
 	    $unit_details['around_comm_basic_charges'] = $unit_details['around_to_vendor'] = "0.00";
 	    $unit_details['customer_paid_extra_charges'] = $unit_details['around_comm_extra_charges'] = "0.00";
 	    $unit_details['around_st_extra_charges'] = $unit_details['vendor_extra_charges'] = "0.00";
-	    log_message('info', __FUNCTION__ . " Convert booking, unit details  data : " . print_r($unit_details, true));
+	    log_message('info', __FUNCTION__ . " Convert Unit Details - data : " . print_r($unit_details, true));
 
 	    $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
 
-	    //Log this state change as well for this booking
-	    //param:-- booking id, new state, old state, employee id, employee name
-          
-            $this->notify->insert_state_change($booking_id, _247AROUND_PENDING , $status,$data['booking_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);  
+	    //Log this state change as well for this booking          
+            $this->notify->insert_state_change($booking_id, _247AROUND_PENDING , $status,
+                    "", $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
 
 	    $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
 	    $send['booking_id'] = $booking_id;
@@ -1616,8 +1620,9 @@ class Booking extends CI_Controller {
 	$this->booking_model->change_booking_status($booking_id);
 
         //Log this state change as well for this booking
-	//param:-- booking id, new state, old state, employee id, employee name
-        $this->notify->insert_state_change($booking_id, _247AROUND_FOLLOWUP , _247AROUND_CANCELLED ," Cancelled_Query to FollowUp ", $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+        $this->notify->insert_state_change($booking_id, _247AROUND_FOLLOWUP , _247AROUND_CANCELLED ,
+                "Cancelled_Query to FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+        
 	redirect(base_url() . 'employee/booking/view_queries/FollowUp/0/0/' . $booking_id);
     }
     /**

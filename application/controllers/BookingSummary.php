@@ -421,7 +421,7 @@ EOD;
 	    ));
 
 	    //Get populated XLS with data
-	    $output_file = "/tmp/247around-Services-Consolidated-Data - " . date('d-M-Y') . ".xlsx";
+	    $output_file = "247around-Services-Consolidated-Data - " . date('d-M-Y') . ".xlsx";
 	    //for xlsx: excel, for xls: excel2003
 	    $R->render('excel', $output_file);
 	    //Send report via email
@@ -444,8 +444,6 @@ EOD;
 				<br>Playstore - 247around -
 				<br>https://play.google.com/store/apps/details?id=com.handymanapp";
 
-
-
 	    $this->email->message($message);
 	    $this->email->attach($output_file, 'attachment');
 
@@ -454,6 +452,7 @@ EOD;
 	    } else {
 		log_message('info', __METHOD__ . ": Mail could not be sent for Partner: " . $p['public_name']);
 	    }
+            
 	    //Upload Excel to AWS/FTP
 	    $bucket = 'bookings-collateral';
 	    $directory_xls = "summary-excels/" . $output_file;
@@ -633,27 +632,12 @@ EOD;
 
 
         $html .= '</body>
-                    </html>'; 
-        _pr($html);
+                    </html>';
+        
         $to = "anuj@247around.com, nits@247around.com";
 
         $this->notify->sendEmail("booking@247around.com", $to, "", "", "Booking Summary", $html, "");
     }
-
-//    /**
-//     * @desc: This method used to send booking summary mail to all partners
-//     */
-//    function get_partner_summary_table() {
-//	$data = $this->reporting_utils->get_partner_summary_data();
-//	for ($i = 0; $i < count($data); $i++) {
-//	    $html = $this->set_data_in_table($data[$i]);
-//	    $from = "booking@247around.com";
-//	    $to = $data[0]['partner_email_for_to'];
-//	    $cc = $data[0]['partner_email_for_cc'];
-//	    $subject = "247Around Booking Summary Mail";
-//	    $this->notify->sendEmail($from, $to, $cc, "", $subject, $html, "");
-//	}
-//    }
 
     /**
      * @desc: this method set header for summary table

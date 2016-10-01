@@ -60,6 +60,8 @@
                     <?php echo form_error('booking_timeslot'); ?>
                   </div>
                 </div>
+<!--
+                  
                 <?php if(!empty($updation_reason)){?>  
                 <div class="form-group <?php if( form_error('reason') ) { echo 'has-error';} ?>">
                   <label for="reason" class="col-md-2">Reason</label>
@@ -78,6 +80,7 @@
                   </div>
                 <?php  } echo form_error('reason'); ?>
                      
+-->
 
                 <div>
                   <center>

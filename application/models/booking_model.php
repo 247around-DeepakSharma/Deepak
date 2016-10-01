@@ -1218,13 +1218,16 @@ class Booking_model extends CI_Model {
     function change_booking_status($booking_id) {
         $status = array("current_status" => "FollowUp",
             "internal_status" => "FollowUp",
-            "cancellation_reason" => NULL);
+            "cancellation_reason" => NULL,
+            "closed_date" => NULL);
 
         $this->db->where("booking_id", $booking_id);
         $this->db->update("booking_details", $status);
-    $booking_status = array('booking_status' => '' );
+        
+        $booking_status = array('booking_status' => '');
 	$this->db->where("booking_id", $booking_id);
 	$this->db->update("booking_unit_details", $booking_status);
+        
 	return true;
     }
 
@@ -1666,8 +1669,9 @@ class Booking_model extends CI_Model {
      *  @return :
      */
     function insert_booking_state_change($details) {
-    $this->db->insert('booking_state_change', $details);
-    return $this->db->insert_id();
+        $this->db->insert('booking_state_change', $details);
+        
+        return $this->db->insert_id();
     }
 
     /**

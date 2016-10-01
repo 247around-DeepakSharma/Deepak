@@ -237,12 +237,18 @@ class Notify {
     }
 
     /**
-     * @desc: this is used to insert agent record while update booking
-     * @param: String(booking id, agent id, agent name, booking status)
+     * @desc: This is used to insert agent record while updating a booking
+     * @param: Booking ID
+     * @param: New State - New booking state
+     * @param: Old State - Old booking state
+     * @param: Remarks - Any remarks which were added during the state change
+     * @param: Agent ID - Agent ID (agent could belong to 247around or partner)
+     * @param: Agent Name - Agent name
+     * @param: Partner ID - Partner to which Agent belongs to, NOT the Partner ID who provided this booking
+     * 
      * @return: void 
      */
-    function insert_state_change($booking_id, $new_state, $old_state,$remarks, $agent_id, $agent_name, $partner_id = "") {
-	//Log this state change as well for this booking
+    function insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name, $partner_id) {
 	//Log this state change as well for this booking
 	$state_change['booking_id'] = $booking_id;
 	$state_change['old_state'] = $old_state;
@@ -250,6 +256,7 @@ class Notify {
         $state_change['remarks'] = $remarks;
 	$state_change['agent_id'] = $agent_id;
 	$state_change['partner_id'] = $partner_id;
+        
 	$insert_id = $this->My_CI->booking_model->insert_booking_state_change($state_change);
         if($insert_id){
             log_message('info', 'Booking Status Change - Booking id: ' . $booking_id . $new_state . "  By " . $agent_name);

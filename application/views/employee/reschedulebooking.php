@@ -1,7 +1,3 @@
-<?php if(!empty($data['updation_reason'])){
-        $reason = $data['updation_reason'];
-        
-} ?>
 <div id="page-wrapper"> 
    <div class="container-fluid">
         <div class="row">
@@ -105,6 +101,7 @@
                       </div>
                     </div>
                       
+<!--
                     <?php if(isset($reason)){?>  
                 <div class="form-group <?php if( form_error('reason') ) { echo 'has-error';} ?>" style="margin-top:50px;">
                   <label for="reason" class="col-md-2">Reason</label>
@@ -122,6 +119,7 @@
                     </div>
                   </div>
                     <?php }  echo form_error('reason'); ?>
+-->
                       
                   </div>
 

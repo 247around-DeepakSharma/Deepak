@@ -46,7 +46,10 @@ define('addtitional_percentage', .85);
 define('parts_percentage', .95);
 define('SERVICE_TAX_RATE', 0.15);
 define('DEFAULT_TAX_RATE', 15);
-define('PARTNER_API_CALL',978978);
+
+//Agent ID used when Partner inserts a Booking by calling our API
+define('DEFAULT_PARTNER_AGENT', 978978);
+
 define('_247AROUND',247001);
 define('_247AROUND_PENDING','Pending');
 define('_247AROUND_NEW_BOOKING','New_Booking');

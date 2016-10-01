@@ -312,7 +312,7 @@ class Partner extends CI_Controller {
                         $this->booking_model->addbooking($booking);
                         
                         
-                       $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , $booking['query_remarks'],PARTNER_API_CALL, $requestData['partnerName'], $booking['partner_id']);
+                       $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , $booking['query_remarks'], DEFAULT_PARTNER_AGENT, $requestData['partnerName'], $booking['partner_id']);
 
                         //Send response
                         $this->jsonResponseString['response'] = array(
@@ -1443,8 +1443,7 @@ class Partner extends CI_Controller {
             $booking['booking_remarks'] = (isset($requestData['remarks']) ? $requestData['remarks'] : "");
             $agent_id = $requestData['agent_id'];
 
-
-            //Add this as a Query now
+            //Add this as a Booking now
             $booking['booking_id'] = '';
             $booking['user_id'] = $user_id;
             $appliance_details['user_id'] = $booking['user_id'];
@@ -1490,7 +1489,6 @@ class Partner extends CI_Controller {
             // if (!$return_unit_id) {
             //     log_message('info', __FUNCTION__ . ' Error Partner booking unit not inserted: ' . print_r($unit_details, true));
             // }
-
 
             $booking['current_status'] = "Pending";
             $booking['internal_status'] = "Scheduled";
@@ -1541,7 +1539,7 @@ class Partner extends CI_Controller {
                                 $unit_details['appliance_category'] . "<br>Capacity : " . $unit_details['appliance_capacity'] .
                                 "<br>Selected service is: " . $unit_details['price_tags'] . "<br>";
 
-            $to = "anuj@247around.com, nits@247around.com";
+            $to = "anuj@247around.com";
             $from = "booking@247around.com";
             $cc = "";
             $bcc = "";
@@ -1561,7 +1559,8 @@ class Partner extends CI_Controller {
                     $smsBody, $booking['booking_id']);
             }
 
-            $this->notify->insert_state_change($booking['booking_id'], _247AROUND_PENDING , _247AROUND_NEW_BOOKING ,$booking['query_remarks'], $agent_id, $requestData['partnerName'], $booking['partner_id']);
+            $this->notify->insert_state_change($booking['booking_id'], _247AROUND_PENDING , _247AROUND_NEW_BOOKING , 
+                    $booking['booking_remarks'], $agent_id, $requestData['partnerName'], $booking['partner_id']);
             }
 
             //Send response
