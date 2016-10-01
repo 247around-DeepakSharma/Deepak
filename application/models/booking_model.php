@@ -1820,8 +1820,8 @@ class Booking_model extends CI_Model {
      */
     function get_completed_booking_details(){
         $where_rating = "where DATE_FORMAT(closed_date,'%m') = MONTH(CURDATE()) AND (rating_stars IS NOT NULL OR rating_stars !='')" ;
-        $where_booking = "where DATE_FORMAT(closed_date,'%m') = MONTH(CURDATE())";
-        $where_booking_previous = "where DATE_FORMAT(closed_date,'%m') = MONTH(CURRENT_DATE - INTERVAL 1 MONTH)";
+        $where_booking = "where DATE_FORMAT(closed_date,'%m') = MONTH(CURDATE()) AND current_status='"._247AROUND_COMPLETED."'";
+        $where_booking_previous = "where DATE_FORMAT(closed_date,'%m') = MONTH(CURRENT_DATE - INTERVAL 1 MONTH) AND current_status='"._247AROUND_COMPLETED."'";
         $sql_rating = "SELECT COUNT(id) as ratings from booking_details $where_rating";
         $sql_booking = "SELECT COUNT(id) as bookings from booking_details $where_booking";
         $sql_booking_previous = "SELECT COUNT(id) as bookings from booking_details $where_booking_previous";
