@@ -197,11 +197,11 @@ class Invoice extends CI_Controller {
 	$account_statement['credit_debit'] = $this->input->post('credit_debit');
 	$account_statement['transaction_mode'] = $this->input->post('transaction_mode');
 	$amount = $this->input->post('amount');
-    $paid_amount = 0;
+	$paid_amount = 0;
 	if ($account_statement['credit_debit'] == 'Credit') {
 	    $account_statement['debit_amount'] = '0';
 	    $account_statement['credit_amount'] = $amount;
-        $paid_amount = -$amount;
+	    $paid_amount = -$amount;
 	} else if ($account_statement['credit_debit'] == 'Debit') {
 	    $account_statement['credit_amount'] = '0';
 	    $account_statement['debit_amount'] = $amount;
@@ -221,7 +221,6 @@ class Invoice extends CI_Controller {
 	// $output = "Transaction added successfully.";
 	// $userSession = array('success' => $output);
 	// $this->session->set_userdata($userSession);
-
 	//Send SMS to vendors about payment
 	if ($account_statement['partner_vendor'] == 'vendor') {
 	    $vendor_arr = $this->vendor_model->getVendorContact($account_statement['partner_vendor_id']);
@@ -237,7 +236,7 @@ class Invoice extends CI_Controller {
 	    $this->notify->send_sms($sms);
 	}
 
-	redirect(base_url() . 'employee/invoice/invoice_summary/'.$account_statement['partner_vendor']."/".$account_statement['partner_vendor_id']);
+	redirect(base_url() . 'employee/invoice/invoice_summary/' . $account_statement['partner_vendor'] . "/" . $account_statement['partner_vendor_id']);
     }
 
     /**
@@ -290,9 +289,9 @@ class Invoice extends CI_Controller {
      * @param: bank account transaction id, partner vender id
      * @return: void
      */
-    function delete_banktransaction($transaction_id,$vendor_partner, $vendor_partner_id) {
+    function delete_banktransaction($transaction_id, $vendor_partner, $vendor_partner_id) {
 	$this->invoices_model->delete_banktransaction($transaction_id);
-	redirect(base_url() . 'employee/invoice/invoice_summary/'.$vendor_partner."/".$vendor_partner_id);
+	redirect(base_url() . 'employee/invoice/invoice_summary/' . $vendor_partner . "/" . $vendor_partner_id);
     }
 
     /*
@@ -363,27 +362,27 @@ class Invoice extends CI_Controller {
 		$end_date = date("jS F, Y", strtotime($data[$i][0]['end_date']));
 
 		foreach ($data[$i] as $key => $value) {
-			switch ($value['price_tags']) {
-				case 'Wall Mount Stand':
-					$data[$i][$key]['remarks'] = "Stand Delivered";
+		    switch ($value['price_tags']) {
+			case 'Wall Mount Stand':
+			    $data[$i][$key]['remarks'] = "Stand Delivered";
 			    break;
 
-				case 'Repair':
-					$data[$i][$key]['remarks'] = "Repair";
-					break;
+			case 'Repair':
+			    $data[$i][$key]['remarks'] = "Repair";
+			    break;
 
-				case 'Repair - In Warranty':
-					$data[$i][$key]['remarks'] = "Repair - In Warranty";
-					break;
+			case 'Repair - In Warranty':
+			    $data[$i][$key]['remarks'] = "Repair - In Warranty";
+			    break;
 
-				case 'Repair - Out Of Warranty':
+			case 'Repair - Out Of Warranty':
 			    $data[$i][$key]['remarks'] = "Repair - Out Of Warranty";
-					break;
-
-				default:
-					$data[$i][$key]['remarks'] = "Installation Completed";
 			    break;
-			}
+
+			default:
+			    $data[$i][$key]['remarks'] = "Installation Completed";
+			    break;
+		    }
 
 		    $data[$i][$key]['closed_date'] = date("jS F, Y", strtotime($value['closed_date']));
 		    $data[$i][$key]['reference_date'] = date("jS F, Y", strtotime($value['reference_date']));
@@ -475,7 +474,6 @@ class Invoice extends CI_Controller {
 	foreach ($file_names as $file_name) {
 	    exec("rm -rf " . escapeshellarg($file_name));
 	}
-
     }
 
     function create_partner_invoices_summary($data, $invoice_type) {
@@ -581,7 +579,6 @@ class Invoice extends CI_Controller {
 	foreach ($file_names as $file_name) {
 	    exec("rm -rf " . escapeshellarg($file_name));
 	}
-
     }
 
     /**
@@ -993,14 +990,13 @@ class Invoice extends CI_Controller {
 		    $s_st_charge += $data[$i][$j]['st'];
 		    $s_stand_charge += $data[$i][$j]['stand'];
 		    $s_vat_charge += $data[$i][$j]['vat'];
-
 		}
 
 		$r_ic = $s_inst_charge * .30;
 		$r_st = $s_st_charge * .30;
 		$r_vat = $s_vat_charge * .30;
 		$r_stand = $s_stand_charge * .30;
-		$s_total =  $s_inst_charge + $s_stand_charge + $s_st_charge + $s_vat_charge;
+		$s_total = $s_inst_charge + $s_stand_charge + $s_st_charge + $s_vat_charge;
 		$r_total = round($s_total * 0.3, 0);
 
 
@@ -1037,13 +1033,12 @@ class Invoice extends CI_Controller {
 		//B means it is for the FOC type of invoice as explained above
 		//Make sure it is unique
 		$invoice_id = $invoices[0]['sc_code'] . "-" . date("dMY") . "-B-" . rand(100, 999);
-		if($t_total >= 20000){
-			$tds = $t_total * 0.1;
-			$t_w_total = ($t_total - $tds);
-
+		if ($t_total >= 20000) {
+		    $tds = $t_total * 0.1;
+		    $t_w_total = ($t_total - $tds);
 		} else {
-			$t_w_total = $t_total;
-            $tds = 0;
+		    $t_w_total = $t_total;
+		    $tds = 0;
 		}
 
 		// stores charges
@@ -1190,7 +1185,6 @@ class Invoice extends CI_Controller {
 		    $bucket = 'bookings-collateral';
 		    $directory_xls = "invoices-excel/" . $output_file . ".xlsx";
 //		    $directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
-
 		    //$this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 //		    $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
 		    $s_inst_charge += $data[$i][$j]['installation_charge'];
@@ -1398,20 +1392,19 @@ class Invoice extends CI_Controller {
 	    default:
 		break;
 	}
-
     }
+
     /**
      * @desc: This Method is used to load Invoice details for particular Vendor
      * @param: Vendor Partner
      * @param: Vendor id
      */
-    function invoice_summary($vendor_partner, $vendor_partner_id){
-	    $data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
-	    $data['vendor_partner_id'] = $vendor_partner_id;
-	    $data['vendor_partner'] = $vendor_partner;
-	    $this->load->view('employee/header');
-		$this->load->view('employee/invoices_details', $data);
-
+    function invoice_summary($vendor_partner, $vendor_partner_id) {
+	$data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
+	$data['vendor_partner_id'] = $vendor_partner_id;
+	$data['vendor_partner'] = $vendor_partner;
+	$this->load->view('employee/header');
+	$this->load->view('employee/invoices_details', $data);
     }
 
 }
