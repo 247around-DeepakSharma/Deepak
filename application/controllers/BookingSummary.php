@@ -421,7 +421,7 @@ EOD;
 	    ));
 
 	    //Get populated XLS with data
-	    $output_file = "247around-Services-Consolidated-Data - " . date('d-M-Y') . ".xlsx";
+	    $output_file = "/tmp/247around-Services-Consolidated-Data - " . date('d-M-Y') . ".xlsx";
 	    //for xlsx: excel, for xls: excel2003
 	    $R->render('excel', $output_file);
 	    //Send report via email
@@ -444,6 +444,8 @@ EOD;
 				<br>Playstore - 247around -
 				<br>https://play.google.com/store/apps/details?id=com.handymanapp";
 
+
+
 	    $this->email->message($message);
 	    $this->email->attach($output_file, 'attachment');
 
@@ -452,7 +454,6 @@ EOD;
 	    } else {
 		log_message('info', __METHOD__ . ": Mail could not be sent for Partner: " . $p['public_name']);
 	    }
-            
 	    //Upload Excel to AWS/FTP
 	    $bucket = 'bookings-collateral';
 	    $directory_xls = "summary-excels/" . $output_file;
@@ -540,6 +541,7 @@ EOD;
     function booking_report() {
         $data = $this->reporting_utils->get_report_data();
         $today_ratings = $this->booking_model->get_completed_booking_details();
+        $agents_data = $this->reporting_utils->get_247_agent_report_data();
         $html = '
                     <html xmlns="http://www.w3.org/1999/xhtml">
                       <head>
@@ -629,15 +631,89 @@ EOD;
         $html .= '</tbody>
                           </table>
                         </div>';
+        
+        $html .= ' <p style="margin-top: 30px;" >Today Agent Summary:</p>
+                        <div style="margin-top: 30px;" >
+                          <table style="width: 100%;max-width: 100%;margin-bottom: 20px;border: 1px solid #ddd;">
+                            <thead>
+                              <tr style="padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd">
+
+                                <th style="border: 1px solid #ddd;">Agent</th>
+                                <th style="border: 1px solid #ddd;">Total</th>
+                                <th style="border: 1px solid #ddd;">Scheduled</th>
+                                <th style="border: 1px solid #ddd;">Re-Scheduled</th>
+                                <th style="border: 1px solid #ddd;">Follow Up</th>
+                                <th style="border: 1px solid #ddd;">Completed</th>
+                                <th style="border: 1px solid #ddd;">Cancelled Query</th>
+                                <th style="border: 1px solid #ddd;">Cancelled Booking</th>
+                              </tr>
+                            </thead>
+                            <tbody >';
+        $total = 0;
+        $scheduled = 0;
+        $rescheduled = 0;
+        $completed = 0;
+        $cancelled_query = 0;
+        $cancelled_booking = 0;
+        $queries = 0;
+        foreach ($agents_data as $key => $value) {
+            $html .= "<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'>"
+                    . "<td style='text-align: center;border: 1px solid #ddd;'>" . $value['employee_id'] . 
+                    "</td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['total'] . 
+                    " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['scheduled'] . 
+                    " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['rescheduled'] . 
+                    " </td></td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['queries'] . 
+                    " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['completed'] . 
+                    " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['cancelled_query'] . 
+                    " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['cancelled_booking'] . 
+                    " </td></tr>";
+
+            $total += $value['total'];
+            $scheduled += $value['scheduled'];
+            $rescheduled += $value['rescheduled'];
+            $completed += $value['completed'];
+            $cancelled_query += $value['cancelled_query'];
+            $cancelled_booking += $value['cancelled_booking'];
+            $queries += $value['queries'];
+        }
+
+        $html .="<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'><td style='text-align: center;border: 1px solid #ddd;'>Total</td><td style='text-align: center;border: 1px solid #ddd;'>" . $total . " "
+                . "</td><td style='text-align: center;border: 1px solid #ddd;'>" . $scheduled . " "
+                . "</td><td style='text-align: center;border: 1px solid #ddd;'>" . $rescheduled . " "
+                . "</td></td><td style='text-align: center;border: 1px solid #ddd;'>" . $queries . " "
+                . "</td><td style='text-align: center;border: 1px solid #ddd;'>" . $completed . " "
+                . "</td><td style='text-align: center;border: 1px solid #ddd;'>" . $cancelled_query . " "
+                . "</td><td style='text-align: center;border: 1px solid #ddd;'>" . $cancelled_booking . " "
+                . "</td></tr>";
+
+
+        $html .= '</tbody>
+                          </table>
+                        </div>';
 
 
         $html .= '</body>
-                    </html>';
-        
+                    </html>'; 
         $to = "anuj@247around.com, nits@247around.com";
 
         $this->notify->sendEmail("booking@247around.com", $to, "", "", "Booking Summary", $html, "");
+        log_message('info',__FUNCTION__.'Booking Report mail sent.');
     }
+
+//    /**
+//     * @desc: This method used to send booking summary mail to all partners
+//     */
+//    function get_partner_summary_table() {
+//	$data = $this->reporting_utils->get_partner_summary_data();
+//	for ($i = 0; $i < count($data); $i++) {
+//	    $html = $this->set_data_in_table($data[$i]);
+//	    $from = "booking@247around.com";
+//	    $to = $data[0]['partner_email_for_to'];
+//	    $cc = $data[0]['partner_email_for_cc'];
+//	    $subject = "247Around Booking Summary Mail";
+//	    $this->notify->sendEmail($from, $to, $cc, "", $subject, $html, "");
+//	}
+//    }
 
     /**
      * @desc: this method set header for summary table
