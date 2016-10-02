@@ -129,6 +129,7 @@ class Do_background_upload_excel extends CI_Controller {
 
 	    array_push($data, $rowData);
 	}
+        
 	// Warning: Do not Change Validation Order
 	$validate_data = $this->validate_phone_number($data, $file_type);
 	$row_data1 = $this->validate_product($validate_data, $file_type);
@@ -761,10 +762,14 @@ class Do_background_upload_excel extends CI_Controller {
      * @param string $booking_id
      */
     function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id) {
-	$sms['tag'] = "sd_shipped_missed_call_initial";
+	//$sms['tag'] = "sd_shipped_missed_call_initial";
+	$sms['tag'] = "sd_delivered_missed_call_initial";
 	$sms['phone_no'] = $phone_number;
-	$sms['smsData']['service'] = $appliance;
+        
+        //ordering of smsData is important, it should be as per the %s in the SMS
 	$sms['smsData']['message'] = $this->notify->get_product_free_not($appliance);
+	$sms['smsData']['service'] = $appliance;
+        
 	$sms['booking_id'] = $booking_id;
 	$sms['type'] = "user";
 	$sms['type_id'] = $user_id;

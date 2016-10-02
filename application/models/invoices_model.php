@@ -354,6 +354,7 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
      * @return: Array()
      */
     function getpartner_invoices($partner_id, $date_range) {
+        log_message('info', __FUNCTION__);
 
 	$where_partner_id = "";
 
