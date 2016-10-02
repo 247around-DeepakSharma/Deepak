@@ -86,6 +86,7 @@ class Do_background_upload_excel extends CI_Controller {
 
 	    array_push($data, $rowData);
 	}
+        
 	// Warning: Donot Change Validation Order
 	$validate_data = $this->validate_phone_number($data, $file_type);
 	$row_data1 = $this->validate_product($validate_data, $file_type);
@@ -165,7 +166,6 @@ class Do_background_upload_excel extends CI_Controller {
 
 	    $partner_booking = $this->partner_model->get_order_id_for_partner($booking['partner_id'], $value['Sub_Order_ID']);
 	    if (is_null($partner_booking)) {
-
 		$appliance_details['user_id'] = $booking['user_id'] = $user_id;
 		$appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $value['service_id'];
 		$booking['booking_pincode'] = $value['Pincode'];
@@ -262,7 +262,8 @@ class Do_background_upload_excel extends CI_Controller {
 
 			    $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , $booking['query_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
 
-			    //Send SMS to customers regarding delivery confirmation through missed call
+			    //Send SMS to customers regarding delivery confirmation through missed call                            
+                            /*
 			    if ($file_type == "shipped") {
                                 //Check whether vendor is available or not
                                 $vendors = $this->vendor_model->check_vendor_availability($booking['booking_pincode'], $booking['service_id']);
@@ -273,8 +274,21 @@ class Do_background_upload_excel extends CI_Controller {
                                     log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
                                 }
 			    }
-			} else {
+                             */
+                            
+                            //Send SMS to customers who are getting their appliances today
+			    if ($file_type == "delivered") {
+                                //Check whether vendor is available or not
+                                $vendors = $this->vendor_model->check_vendor_availability($booking['booking_pincode'], $booking['service_id']);
+                                $vendors_count = count($vendors);
 
+                                if ($vendors_count > 0) {
+                                    $this->send_sms_to_snapdeal_customer($value['appliance'], $booking['booking_primary_contact_no'], $user_id, $booking['booking_id']);
+                                } else {
+                                    log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
+                                }
+			    }                            
+			} else {
 			    log_message('info', __FUNCTION__ . ' =>  Booking is not inserted in booking details: ' . print_r($value, true));
 
 			    $row_data['error'][$key]['booking_details'] = " Booking Unit Id is not inserted";
@@ -312,12 +326,11 @@ class Do_background_upload_excel extends CI_Controller {
 		}
 	    } else if ($file_type == "delivered") {
 		$status = $partner_booking['current_status'];
-		$int_status = $partner_booking['internal_status'];
+		//$int_status = $partner_booking['internal_status'];
 
 		//Clear the booking date so that it starts reflecting on our panel & update booking.
 		//This should be done only if the booking has not been updated in the meanwhile.
 		//If the booking has already been scheduled or cancelled, leave this as it is.
-		//If the booking query remarks or internal status has been changed, then also leave it.
 		//Update delivery date in both the cases
 		$dateObj = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
 		$update_data['delivery_date'] = $dateObj->format('Y-m-d H:i:s');
@@ -333,6 +346,19 @@ class Do_background_upload_excel extends CI_Controller {
 		    print_r(array($partner_booking['booking_id'], $update_data), true));
 
 		$this->booking_model->update_booking($partner_booking['booking_id'], $update_data);
+                
+                //Send SMS to customer as well, check whether vendor is available or not
+                $vendors2 = $this->vendor_model->check_vendor_availability($partner_booking['booking_pincode'], 
+                        $partner_booking['service_id']);
+                $vendors_count2 = count($vendors2);
+
+                if ($vendors_count2 > 0) {
+                    $this->send_sms_to_snapdeal_customer($value['appliance'], 
+                            $partner_booking['booking_primary_contact_no'], $user_id,
+                            $partner_booking['booking_id']);
+                } else {
+                    log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
+                }
 
 		unset($update_data);
 	    }
@@ -704,10 +730,14 @@ class Do_background_upload_excel extends CI_Controller {
      * @param string $booking_id
      */
     function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id) {
-	$sms['tag'] = "sd_shipped_missed_call_initial";
+	//$sms['tag'] = "sd_shipped_missed_call_initial";
+	$sms['tag'] = "sd_delivered_missed_call_initial";
 	$sms['phone_no'] = $phone_number;
-	$sms['smsData']['service'] = $appliance;
+        
+        //ordering of smsData is important, it should be as per the %s in the SMS
 	$sms['smsData']['message'] = $this->notify->get_product_free_not($appliance);
+	$sms['smsData']['service'] = $appliance;
+        
 	$sms['booking_id'] = $booking_id;
 	$sms['type'] = "user";
 	$sms['type_id'] = $user_id;

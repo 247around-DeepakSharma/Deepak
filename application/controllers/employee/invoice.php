@@ -479,6 +479,8 @@ class Invoice extends CI_Controller {
     }
 
     function create_partner_invoices_summary($data, $invoice_type) {
+        log_message('info', __FUNCTION__);
+
 	$file_names = array();
 
 	$template = 'partner_invoice_summary.xlsx';
@@ -635,6 +637,8 @@ class Invoice extends CI_Controller {
      * @param: Array()
      */
     function generate_cash_invoices_for_vendors($data, $invoice_type) {
+        log_message('info', __FUNCTION__ . '=> Entering...');
+        
 	$unique_booking_cash = array();
 	$summary_cash = array();
 	$file_names = array();
@@ -890,6 +894,8 @@ class Invoice extends CI_Controller {
 	    exec("rm -rf " . escapeshellarg($file_name));
 	}
 
+        log_message('info', __FUNCTION__ . '=> Exiting...');
+        
 	return $summary_cash;
     }
 
@@ -957,6 +963,8 @@ class Invoice extends CI_Controller {
      * @return: Array (booking id)
      */
     function generate_foc_invoices_for_vendors($data, $invoice_type) {
+        log_message('info', __FUNCTION__ . '=> Entering...');
+        
 	$unique_booking_foc = array();
 	$file_names = array();
 	$summary = '';
@@ -974,8 +982,6 @@ class Invoice extends CI_Controller {
 		$total_st_charge = 0;
 		$total_stand_charge = 0;
 		$total_vat_charge = 0;
-		$rating_count = 0;
-		$t_rating = 0;
 		$s_inst_charge = 0;
 		$s_st_charge = 0;
 		$s_stand_charge = 0;
@@ -996,14 +1002,8 @@ class Invoice extends CI_Controller {
 
 		}
 
-		$r_ic = $s_inst_charge * .30;
-		$r_st = $s_st_charge * .30;
-		$r_vat = $s_vat_charge * .30;
-		$r_stand = $s_stand_charge * .30;
 		$s_total =  $s_inst_charge + $s_stand_charge + $s_st_charge + $s_vat_charge;
 		$r_total = round($s_total * 0.3, 0);
-
-
 		$t_total = $total_inst_charge + $total_stand_charge + $total_st_charge + $total_vat_charge;
 
 		//this array stores unique booking id
@@ -1259,6 +1259,8 @@ class Invoice extends CI_Controller {
 	//     exec("rm -rf " . escapeshellarg($file_name));
 	// }
 
+        log_message('info', __FUNCTION__ . '=> Exiting...');
+        
 	return $summary_foc;
     }
 
@@ -1339,11 +1341,14 @@ class Invoice extends CI_Controller {
      * @param type $invoice_type
      */
     function generate_partner_invoices($partner_id, $date_range, $invoice_type) {
+        log_message('info', __FUNCTION__ . '=> Entering...');
 
 	$data = $this->invoices_model->getpartner_invoices($partner_id, $date_range);
 
 	$this->create_partner_invoices_detailed($data['invoice1'], $invoice_type);
 	$this->create_partner_invoices_summary($data['invoice2'], $invoice_type);
+        
+        log_message('info', __FUNCTION__ . '=> Exiting...');        
     }
 
     /**

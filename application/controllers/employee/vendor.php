@@ -122,7 +122,7 @@ class vendor extends CI_Controller {
                    if(!empty($template)){
                    $email['username'] = $sc_login_uname;
                    $email['password'] = $sc_login_uname;
-                   $subject = "Login Details";
+                   $subject = "Partner ERP URL and Login - 247around";
                    
                    log_message('info', " Email Body" . print_r($email, true));
                    $emailBody = vsprintf($template[0], $email);

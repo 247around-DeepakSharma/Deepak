@@ -506,23 +506,23 @@ class Notify {
         
 	switch ($appliance) {
 	    case 'Washing Machine':
-		$status = 'Free';
+		$status = 'FREE';
 		break;
 
 	    case 'Refrigerator':
-		$status = 'Free';
+		$status = 'FREE';
 		break;
 
 	    case 'Microwave':
-		$status = 'Free';
+		$status = 'FREE';
 		break;
 
 	    case 'Television':
-		$status = 'Free';
+		$status = 'FREE';
 		break;
 
 	    case 'Water Purifier':
-		$status = 'Free';
+		$status = 'FREE';
 		break;
 
             //Leave blank
@@ -531,7 +531,7 @@ class Notify {
 		break;
             
 	    case 'Geyser':
-		$status = 'Free';
+		$status = 'FREE';
 		break;
 	}
         

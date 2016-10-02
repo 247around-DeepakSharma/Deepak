@@ -240,7 +240,7 @@ class bookingjobcard extends CI_Controller {
      */
 
     function send_mail_to_vendor($booking_id, $additional_note) {
-        //log_message('info', __FUNCTION__);
+        log_message('info', __FUNCTION__ . "=> Booking ID: " . $booking_id);
 
         $getbooking = $this->booking_model->getbooking_history($booking_id,"join");
 
