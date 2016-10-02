@@ -1346,7 +1346,11 @@ class Booking extends CI_Controller {
 	    //Log this state change as well for this booking
 	    //param:-- booking id, new state, old state, employee id, employee name
             $booking_details = $this->booking_model->getbooking_history($booking_id);
-	    $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED , _247AROUND_PENDING , $booking['reschedule_reason'] , PARTNER_API_CALL, $this->session->userdata('employee_id'),$booking_details[0]['partner_id']);
+	    $this->notify->insert_state_change($booking_id, 
+                    _247AROUND_RESCHEDULED , _247AROUND_PENDING , 
+                    $booking['reschedule_reason'] , 
+                    $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                    $booking_details[0]['partner_id']);
 
 	    log_message('info', __FUNCTION__ . " Set Mail flag to 0 : " . print_r($booking_id, true));
 	    //Setting mail to vendor flag to 0, once booking is rescheduled
