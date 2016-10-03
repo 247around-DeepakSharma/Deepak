@@ -763,15 +763,13 @@ class Reporting_utils extends CI_Model {
     function get_report_data(){
         for($i = 1; $i < 3; $i++){
             $where = "where DATE_FORMAT(booking_state_change.create_date,'%y-%m-%d') = CURDATE() " ;
-
+            
             if($i == 2){
                 $where = " where DATE_FORMAT(booking_state_change.create_date,'%m') = MONTH(CURDATE()) ";
             }
 
             $sql = "SELECT booking_details.source,booking_details.partner_id,
                  SUM(CASE WHEN `new_state` LIKE '%FollowUp%' THEN 1 ELSE 0 END) AS queries,
-                 SUM(CASE WHEN `new_state` LIKE '%Cancelled%' THEN 1 ELSE 0 END) AS cancelled,
-                 SUM(CASE WHEN `new_state` LIKE '%Completed%' THEN 1 ELSE 0 END) AS completed,
                  SUM(CASE WHEN `new_state` LIKE '%Pending%' OR `new_state` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) as scheduled,
                  SUM(CASE WHEN `new_state` LIKE '%FollowUp%' OR `new_state` LIKE '%Completed%' OR `new_state` LIKE '%Cancelled%' OR `new_state` LIKE '%Pending%' OR `new_state` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) AS total
                     from booking_state_change 
@@ -779,10 +777,49 @@ class Reporting_utils extends CI_Model {
                  $where GROUP BY booking_details.source ;";
             
             $data = $this->db->query($sql);
-            $result['data'.$i] = $data->result_array();
+            $result_data = $data->result_array();
+            
+            foreach($result_data as $value){
+                if($i == 1){
+                    
+                    //Today completed Bookings
+                    $this->db->where('partner_id', $value['partner_id']);
+                    $this->db->where_in('current_status', array(_247AROUND_COMPLETED));
+                    $this->db->like('closed_date ', date('Y-m-d'));
+                    $today_install_comp = $this->db->count_all_results('booking_details');
+                    $result['today_completed'][] = $today_install_comp;
+                    
+                    //Today cancelled Bookings
+                    $this->db->where('partner_id', $value['partner_id']);
+                    $this->db->where_in('current_status', array(_247AROUND_CANCELLED));
+                    $this->db->like('closed_date ', date('Y-m-d'));
+                    $today_install_cancelled = $this->db->count_all_results('booking_details');
+                    $result['today_cancelled'][] = $today_install_cancelled;
+                    
+                }else{
+                    
+                    //Count this month installations Completed
+                    $sql = "SELECT * FROM booking_details WHERE partner_id = '" . $value['partner_id'] . "'"
+                    . " AND closed_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH) "
+                    . "AND current_status = '"._247AROUND_COMPLETED."'";
+                    $can_query = $this->db->query($sql);
+                    $month_install_can = $can_query->result_array();
+                    $month_install_comp = count($month_install_can);
+                    $result['month_completed'][] = $month_install_comp;
+                    
+                    //Count this month installations Cancelled
+                    $sql = "SELECT * FROM booking_details WHERE partner_id = '" . $value['partner_id'] . "'"
+                    . " AND closed_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH) "
+                    . "AND current_status = '"._247AROUND_CANCELLED."'";
+                    $can_query = $this->db->query($sql);
+                    $month_install_can = $can_query->result_array();
+                    $month_install_cancl = count($month_install_can);
+                    $result['month_cancelled'][] = $month_install_cancl;
+                    
+                }
+            }
+            $result['data'.$i] = $result_data;
         }
-        
         return $result;
-    }
 
 }
