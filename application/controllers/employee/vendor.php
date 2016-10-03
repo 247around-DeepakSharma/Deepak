@@ -1419,9 +1419,25 @@ class vendor extends CI_Controller {
                         //Setting Flash data on success
                         $this->session->set_flashdata('success', 'Pincode Mapped to Vendor successfully.');
 
-                        //Echoing sucess to Log file
-                        log_message('info',__FUNCTION__.' Pincode Mapped to Vendor successfully.');
-                        $this->vendor_model->insert_vendor_pincode_mapping($vendor_mapping);
+                          //Insert Data in vendor_pincode_mapping table
+                        $vendor_id = $this->vendor_model->insert_vendor_pincode_mapping($vendor_mapping);
+                        if(!empty($vendor_id)){
+                            //Logging
+                            log_message('info',__FUNCTION__.'Vendor assigned to Pincode in vendor_picode_mapping table. '.print_r($vendor_mapping,TRUE));
+                        }else{
+                            //Logging
+                            log_message('info',__FUNCTION__.' Error in adding vendor to pincode in vendor_pincode_mapping table '.print_r($vendor_mapping,TRUE));
+                        }
+                        
+                        //Replicating data in 247Aroung_vendor_pincode_mapping table
+                        $_247_vendor_id = $this->vendor_model->insert_247Around_vendor_pincode_mapping($vendor_mapping);
+                        if(!empty($_247_vendor_id)){
+                            //Logging
+                            log_message('info',__FUNCTION__.'Vendor assigned to Pincode in 247Around_vendor_pincode_mapping table. '.print_r($vendor_mapping,TRUE));
+                        }else{
+                            //Logging
+                            log_message('info',__FUNCTION__.'Error in addding vendor to pincode in 247Around_vendor_pincode_mapping table '.print_r($vendor_mapping,TRUE));
+                        }
 
                     } else {
                         //Echoing duplicay error in Log file

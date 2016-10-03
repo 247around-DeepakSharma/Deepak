@@ -947,3 +947,24 @@ ALTER TABLE `booking_updation_reasons`
 -- Belal 27 Sep
 
 INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'vendor_login_details', 'Dear Partner,<br><br> Following are the login credentials to 247Around CRM.<br><br> <b>Username : </b> %s <br> <b>Password : </b> %s <br> For any confusion, write to us or call us.<br><br> Regards,<br> 247around Team', '', '', '', '', '1', '2016-09-27 00:00:00');
+
+-- Belal 03 Oct 
+
+-- Belal 29 Sep
+
+CREATE TABLE `247around_vendor_pincode_mapping` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `Vendor_Name` varchar(200) NOT NULL,
+ `Vendor_ID` int(11) NOT NULL,
+ `Appliance` varchar(100) NOT NULL,
+ `Appliance_ID` int(11) NOT NULL,
+ `Brand` varchar(50) NOT NULL,
+ `Area` varchar(50) NOT NULL,
+ `Pincode` varchar(6) NOT NULL,
+ `Region` varchar(25) NOT NULL,
+ `City` varchar(255) NOT NULL,
+ `State` varchar(255) NOT NULL,
+ `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `active` int(1) NOT NULL DEFAULT '1',
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=38861 DEFAULT CHARSET=latin1;
