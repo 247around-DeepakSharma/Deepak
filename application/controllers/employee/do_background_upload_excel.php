@@ -41,6 +41,47 @@ class Do_background_upload_excel extends CI_Controller {
 	$this->load->library('email');
     }
 
+    /*
+     * @desc: In case of Delivered file:
+     * 
+     * Case a) Order ID is NOT found
+     * 
+     * 1. Send SMS to customer
+     * 2. Insert new booking
+     * 
+     * Case b) Order ID is found
+     * 
+     * 1. If the (current booking date) - (today date) >= 4 days, Send SMS since 
+     * we have not sent SMS for this booking today.
+     * For eg, we send SMS everyday for bookings where booking date is of today (T0),
+     * T1, T2 or T3. If a booking has EDD as T4, we have not sent SMS to that booking.
+     * Since appliance has been delivered now, inform customer by sending an SMS.
+     * 
+     * 2. If Current Status = FollowUp, reset the booking date as well.
+     * 3. Update delivery date.
+     * 
+     * 
+     * In case of Shipped file:
+     * 
+     * Case a) Order ID is NOT found
+     * 
+     * 1. Send SMS to customer
+     * 2. Insert new booking
+     * 
+     * Case b) Order ID is found
+     * 
+     * 1. If the (current booking date) - (today date) >= 4 days, Send SMS since 
+     * we have not sent SMS for this booking today.
+     * For eg, we send SMS everyday for bookings where booking date is of today (T0),
+     * T1, T2 or T3. If a booking has EDD as T4, we have not sent SMS to that booking.
+     * Since appliance EDD has been pulled in, inform customer by sending an SMS.
+     * 
+     * 2. If Current Status = FollowUp, update the booking date as per the new EDD if required.
+     * 3. Update EDD.
+     * 
+     * 
+     * @param: File type - Delivered or Shipped
+     */
     function upload_snapdeal_file($file_type) {
 	log_message('info', __FUNCTION__ . "=> File type: " . $file_type);
 
@@ -66,6 +107,7 @@ class Do_background_upload_excel extends CI_Controller {
 	} catch (Exception $e) {
 	    die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
 	}
+        
 	//  Get worksheet dimensions
 	$sheet = $objPHPExcel->getSheet(0);
 	$highestRow = $sheet->getHighestRow();
@@ -74,7 +116,8 @@ class Do_background_upload_excel extends CI_Controller {
 	$headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
 	$headings_new = array();
 	$data = array();
-	foreach ($headings as $heading) {
+	
+        foreach ($headings as $heading) {
 	    $heading = str_replace(array("/", "(", ")", "."), "", $heading);
 	    array_push($headings_new, str_replace(array(" "), "_", $heading));
 	}
@@ -86,7 +129,7 @@ class Do_background_upload_excel extends CI_Controller {
 
 	    array_push($data, $rowData);
 	}
-	// Warning: Donot Change Validation Order
+	// Warning: Do not Change Validation Order
 	$validate_data = $this->validate_phone_number($data, $file_type);
 	$row_data1 = $this->validate_product($validate_data, $file_type);
 	$row_data2 = $this->validate_delivery_date($row_data1, $file_type);
@@ -164,8 +207,10 @@ class Do_background_upload_excel extends CI_Controller {
 	    }
 
 	    $partner_booking = $this->partner_model->get_order_id_for_partner($booking['partner_id'], $value['Sub_Order_ID']);
+            
+            //Check whether order id exists or not
 	    if (is_null($partner_booking)) {
-
+                //order id not found
 		$appliance_details['user_id'] = $booking['user_id'] = $user_id;
 		$appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $value['service_id'];
 		$booking['booking_pincode'] = $value['Pincode'];
@@ -262,20 +307,16 @@ class Do_background_upload_excel extends CI_Controller {
 
 			    $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , $booking['query_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
 
-			    //Send SMS to customers regarding delivery confirmation through missed call
-			    if ($file_type == "shipped") {
-				//If EDD is tomorrow, don't send SMS now as another SMS will go automatically in the evening
-				if (date("Y-m-d", strtotime("+1 day")) != $booking['estimated_delivery_date']) {
-				    //Check whether vendor is available or not
-				    $vendors = $this->vendor_model->check_vendor_availability($booking['booking_pincode'], $booking['service_id']);
+			    //Send SMS to customers regarding delivery confirmation through missed call for both shipped / delivered files
+                            //Check whether vendor is available or not
+                            $vendors = $this->vendor_model->check_vendor_availability($booking['booking_pincode'], $booking['service_id']);
+                            $vendors_count = count($vendors);
 
-				    if (count($vendors) > 0) {
-					$this->send_sms_to_snapdeal_customer($value['appliance'], $booking['booking_primary_contact_no'], $user_id, $booking['booking_id']);
-				    } else {
-					log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
-				    }
-				}
-			    }
+                            if ($vendors_count > 0) {
+                                $this->send_sms_to_snapdeal_customer($value['appliance'], $booking['booking_primary_contact_no'], $user_id, $booking['booking_id']);
+                            } else {
+                                log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
+                            }         
 			} else {
 
 			    log_message('info', __FUNCTION__ . ' =>  Booking is not inserted in booking details: ' . print_r($value, true));
@@ -299,7 +340,6 @@ class Do_background_upload_excel extends CI_Controller {
 			unset($booking);
 			unset($unit_details);
 		    } else {
-
 			log_message('info', __FUNCTION__ . ' =>  Appliance is not inserted: ' .
 			    print_r($value, true));
 
@@ -313,32 +353,47 @@ class Do_background_upload_excel extends CI_Controller {
 		    $row_data['error'][$key]['appliance'] = "Appliance is not inserted";
 		    $row_data['error'][$key]['invalid_data'] = $value;
 		}
-	    } else if ($file_type == "delivered") {
-		$status = $partner_booking['current_status'];
-		$int_status = $partner_booking['internal_status'];
+	    } else {
+                //Order ID found
+                if ($file_type == "delivered") {
+                    $status = $partner_booking['current_status'];
+                    //$int_status = $partner_booking['internal_status'];
 
-		//Clear the booking date so that it starts reflecting on our panel & update booking.
-		//This should be done only if the booking has not been updated in the meanwhile.
-		//If the booking has already been scheduled or cancelled, leave this as it is.
-		//If the booking query remarks or internal status has been changed, then also leave it.
-		//Update delivery date in both the cases
-		$dateObj = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
-		$update_data['delivery_date'] = $dateObj->format('Y-m-d H:i:s');
+                    //Clear the booking date so that it starts reflecting on our panel & update booking.
+                    //This should be done only if the booking has not been updated in the meanwhile.
+                    //If the booking has already been scheduled or cancelled, leave this as it is.
+                    //Update delivery date in both the cases
+                    $dateObj = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
+                    $update_data['delivery_date'] = $dateObj->format('Y-m-d H:i:s');
 
-                //Do not check for Internal Status
-		//if ($status == 'FollowUp' && $int_status == 'FollowUp') {
-                if ($status == 'FollowUp') {    
-		    $update_data['booking_date'] = '';
-		    $update_data['booking_timeslot'] = '';
-		}
+                    //Do not check for Internal Status
+                    //if ($status == 'FollowUp' && $int_status == 'FollowUp') {
+                    if ($status == 'FollowUp') {    
+                        $update_data['booking_date'] = '';
+                        $update_data['booking_timeslot'] = '';
+                    }
 
-		log_message('info', __FUNCTION__ . 'Update Partned Lead (Delivered): ' .
-		    print_r(array($partner_booking['booking_id'], $update_data), true));
+                    log_message('info', __FUNCTION__ . 'Update Partned Lead (Delivered): ' .
+                        print_r(array($partner_booking['booking_id'], $update_data), true));
 
-		$this->booking_model->update_booking($partner_booking['booking_id'], $update_data);
+                    $this->booking_model->update_booking($partner_booking['booking_id'], $update_data);
 
-		unset($update_data);
-	    }
+                    //Send SMS to customer as well, check whether vendor is available or not
+                    $vendors2 = $this->vendor_model->check_vendor_availability($partner_booking['booking_pincode'], 
+                            $partner_booking['service_id']);
+                    $vendors_count2 = count($vendors2);
+
+                    if ($vendors_count2 > 0) {
+                        $this->send_sms_to_snapdeal_customer($value['appliance'], 
+                                $partner_booking['booking_primary_contact_no'], $user_id,
+                                $partner_booking['booking_id']);
+                    } else {
+                        log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
+                    }
+
+                    unset($update_data);
+                }
+            }
 	}
         
 	$row_data['error']['total_booking_inserted'] = $count_booking_inserted;
