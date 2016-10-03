@@ -11,11 +11,11 @@ class Around_scheduler_model extends CI_Model {
     }
 
     /*
-     * @desc: This method is used to get data who has
-     * Partner source => Snapdeal-shipped-excel
-     * Internal Status => Missed_call_not_confirmed
-     * EDD => Tommorrow
+     * @desc: This method is used to send reminder SMS to users for whom:
+     * Partner source => Snapdeal-shipped-excel, Snapdeal-delivered-excel
+     * EDD => Tommorrow (T+1), T+2, T+3 days
      * Current status => FollowUp
+     * Vendor => Available
      */
     function get_reminder_installation_sms_data() {
         /*
@@ -31,8 +31,12 @@ class Around_scheduler_model extends CI_Model {
 
         //Filter using booking_date instead of EDD
         $sql = "SELECT booking_details.*, `services`.services from booking_details, services 
-              WHERE partner_source = 'Snapdeal-shipped-excel' 
-	      AND booking_date = DATE_FORMAT( CURDATE() + INTERVAL 1 DAY ,  '%d-%m-%Y' )
+              WHERE partner_source IN ('Snapdeal-shipped-excel', 'Snapdeal-delivered-excel' )
+	      AND booking_date IN (
+              DATE_FORMAT( CURDATE() + INTERVAL 1 DAY ,  '%d-%m-%Y' ),
+              DATE_FORMAT( CURDATE() + INTERVAL 2 DAY ,  '%d-%m-%Y' ),
+              DATE_FORMAT( CURDATE() + INTERVAL 3 DAY ,  '%d-%m-%Y' )
+              )
 	      AND current_status= 'FollowUp' AND `booking_details`.service_id = `services`.id 
 	      AND booking_pincode In (Select vendor_pincode_mapping.Pincode from vendor_pincode_mapping, 
 	      service_centres where service_centres.id = vendor_pincode_mapping.Vendor_ID AND service_centres.active = '1' 
@@ -43,6 +47,5 @@ class Around_scheduler_model extends CI_Model {
         log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
         
     	return  $query->result_array();
-
     }
 }

@@ -30,11 +30,15 @@ class Around_scheduler extends CI_Controller {
 	$sms['tag'] = "sd_edd_missed_call_reminder";
 	foreach ($data as $value) {
 	    $sms['phone_no'] = $value['booking_primary_contact_no'];
-	    $sms['smsData']['service'] = $value['services'];
+            
+            //Ordering of SMS data is important, check SMS template before changing it
             $sms['smsData']['message'] = $this->notify->get_product_free_not($value['services']);
-	    $sms['booking_id'] = $value['booking_id'];
+	    $sms['smsData']['service'] = $value['services'];
+	    
+            $sms['booking_id'] = $value['booking_id'];
 	    $sms['type'] = "user";
 	    $sms['type_id'] = $value['user_id'];
+            
 	    $this->notify->send_sms($sms);
 	}
     }
