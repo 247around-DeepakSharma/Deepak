@@ -1,4 +1,4 @@
-<?php $offset = $this->uri->segment(5);  ?>
+<?php $offset = $this->uri->segment(6);  ?>
 <script>
     $(function(){
 
@@ -59,11 +59,11 @@ function outbound_call(phone_number){
             <div class="pagination">
                 <select id="dynamic_select">
                     <option value="<?php echo base_url().'employee/booking/view_queries/'.$status; ?>" <?php if($this->uri->segment(5) == 50){ echo 'selected';}?>>50</option>
-                    <option value="<?php echo base_url().'employee/booking/view_queries/'.$status.'/0/100'?>" <?php if($this->uri->segment(6) == 100){ echo 'selected';}?>>100</option>
-                    <option value="<?php echo base_url().'employee/booking/view_queries/'.$status.'/0/200'?>" <?php if($this->uri->segment(6) == 200){ echo 'selected';}?>>200</option>
-                    <option value="<?php echo base_url().'employee/booking/view_queries/'.$status.'/0/All'?>" <?php if($this->uri->segment(6) == 'All'){ echo 'selected';}?>>All</option>
-                    <?php if ($this->uri->segment(6)){if($this->uri->segment(6) != 50 || $this->uri->segment(6) != 100 || $this->uri->segment(6) != 200 ){?>
-                    <option value="" <?php if($this->uri->segment(6) == count($Bookings)){ echo 'selected';}?>><?php echo $this->uri->segment(6);?></option>
+                    <option value="<?php echo base_url().'employee/booking/view_queries/'.$status.'/100/0'?>" <?php if($this->uri->segment(5) == 100){ echo 'selected';}?>>100</option>
+                    <option value="<?php echo base_url().'employee/booking/view_queries/'.$status.'/200/0'?>" <?php if($this->uri->segment(5) == 200){ echo 'selected';}?>>200</option>
+                    <option value="<?php echo base_url().'employee/booking/view_queries/'.$status.'/All/0'?>" <?php if($this->uri->segment(5) == 'All'){ echo 'selected';}?>>All</option>
+                    <?php if ($this->uri->segment(5)){if($this->uri->segment() != 50 || $this->uri->segment(5) != 100 || $this->uri->segment(5) != 200 ){?>
+                    <option value="" <?php if($this->uri->segment(5) == count($Bookings)){ echo 'selected';}?>><?php echo $this->uri->segment(5);?></option>
                     <?php } }?>
                 </select>
             </div>

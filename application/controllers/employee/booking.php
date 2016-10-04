@@ -473,17 +473,17 @@ class Booking extends CI_Controller {
      *  @param : Starting page & number of results per page
      *  @return : pending bookings according to pagination
      */
-    function view($offset = 0, $page = 0, $booking_id = "") {
+    function view($page = 0, $offset = 0, $booking_id = "") {
 
 	if ($page == '0') {
 	    $page = 50;
 	}
-	//$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
-	$config['base_url'] = base_url() . 'employee/booking/view';
+	$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
+	$config['base_url'] = base_url() . 'employee/booking/view/'.$offset;
 	$config['total_rows'] = $this->booking_model->total_pending_booking($booking_id);
 
 	$config['per_page'] = $page;
-	$config['uri_segment'] = 4;
+	$config['uri_segment'] = 5;
 	$config['first_link'] = 'First';
 	$config['last_link'] = 'Last';
 
@@ -1057,17 +1057,17 @@ class Booking extends CI_Controller {
      *  @param : offset and per page number
      *  @return : list of pending queries according to pagination
      */
-    function view_queries($status, $offset = 0, $page = 0, $booking_id = "") {
+    function view_queries($status, $page = 0, $offset = 0, $booking_id = "") {
 	if ($page == '0') {
 	    $page = 50;
 	}
 
 	$offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
-	$config['base_url'] = base_url() . 'employee/booking/view_queries/' . $status;
+	$config['base_url'] = base_url() . 'employee/booking/view_queries/' . $status."/".$offset;
 	$config['total_rows'] = $this->booking_model->total_queries($status, $booking_id);
 
 	$config['per_page'] = $page;
-	$config['uri_segment'] = 5;
+	$config['uri_segment'] = 6;
 	$config['first_link'] = 'First';
 	$config['last_link'] = 'Last';
 
