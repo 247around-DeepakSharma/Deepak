@@ -630,7 +630,7 @@ class Do_background_upload_excel extends CI_Controller {
 		$status['invalid_date'] = $invalid_data;
 		// Add Only user
 		$this->add_user_for_invalid($invalid_data);
-		$this->get_invalid_data($status, $filetype);
+		$this->get_invalid_data($status, $file_type);
 		exit();
 	    }
 	    if ($file_type == "delivered") {

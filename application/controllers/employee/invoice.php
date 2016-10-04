@@ -310,8 +310,9 @@ class Invoice extends CI_Controller {
     function show_all_transactions($type = 'vendor') {
 	//Reset type to vendor if some other value is there
 	$possible_type = array('vendor', 'partner', 'all');
-	if (!in_array($type, $possible_type))
+	if (!in_array($type, $possible_type)) {
 	    $type = 'vendor';
+        }
 
 	$invoice['bank_statement'] = $this->invoices_model->get_all_bank_transactions($type);
 
@@ -501,7 +502,7 @@ class Invoice extends CI_Controller {
 		$total_service_tax = 0;
 		$total_stand_charge = 0;
 		$total_vat_charge = 0;
-		$total_charges = 0;
+		//$total_charges = 0;
 		$total_unit = 0;
 
 		$invoice_id = $data[$i][0]['source'] . date('dMY');
@@ -1130,7 +1131,7 @@ class Invoice extends CI_Controller {
 		    $cc = "";
 		    $subject = "247around - " . $invoices[0]['name'] . " - Invoice for period: " . $start_date . " to " . $end_date;
 		} else {
-		    $to = "";
+		    $to = "anuj@247around.com";
 		    $cc = "";
 		    $subject = "DRAFT INVOICE - 247around - " . $invoices[0]['name'] . " - Invoice for period: " . $start_date . " to " . $end_date;
 		}
