@@ -65,8 +65,13 @@ class Booking extends CI_Controller {
      *  @return : void
      */
     public function index($user_id) {
+        if($this->input->post()){
+            //Check Validation
+            $checkValidation  = $this->validate_booking();
+            
+        if($checkValidation){
         log_message('info', __FUNCTION__);
-        log_message('info', " Booking Insert User ID: " . print_r($user_id, true));
+        log_message('info', " Booking Insert User ID: " . $user_id);
         $booking = $this->getAllBookingInput($user_id);
 
         $service = $booking['services'];
@@ -99,8 +104,25 @@ class Booking extends CI_Controller {
 		$this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY,
                         $booking['query_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
         }
-
+        //Redirect to Default Search Page
         redirect(base_url() . DEFAULT_SEARCH_PAGE);
+
+        }else{  
+                //Logging error message if Validation Error occurs
+                log_message('info', __FUNCTION__." Error in Booking Insert User ID: " . $user_id);
+                $heading = "247Around Booking Error";
+                $message = "Oops... The values provided are invalid !";
+                $error =& load_class('Exceptions', 'core');
+		echo $error->show_error($heading, $message, 'custom_error');
+        }
+        }else{
+                //Logging error message if No input is provided
+                log_message('info', __FUNCTION__." Error in Booking Insert User ID: " . $user_id);
+                $heading = "247Around Booking Error";
+                $message = "Oops... No input provided !";
+                $error =& load_class('Exceptions', 'core');
+		echo $error->show_error($heading, $message, 'custom_error');
+        }
     }
 
     /**
@@ -1134,12 +1156,16 @@ class Booking extends CI_Controller {
      * @desc: This function is used to update both Bookings and Queries.
      */
     function update_booking($user_id, $booking_id) {
-	log_message('info', __FUNCTION__ . " Booking ID  " . print_r($booking_id, true) . " User ID: " . print_r($user_id, true));
+        if($this->input->post()){
+            $checkValidation  = $this->validate_booking();
+            
+        if($checkValidation){
+	log_message('info', __FUNCTION__ . " Booking ID  " . $booking_id . " User ID: " . $user_id);
 
 	$booking = $this->getAllBookingInput($user_id, $booking_id);
 	$query_to_booking = $booking['query_to_booking'];
 	$message = $booking['message'];
-    log_message('info', __FUNCTION__ . " Update booking befor unset " . print_r($booking, true));
+        log_message('info', __FUNCTION__ . " Update booking befor unset " . print_r($booking, true));
 
 	unset($booking['message']); // unset message body from booking deatils array
 	unset($booking['services']); // unset service name from booking details array
@@ -1155,17 +1181,34 @@ class Booking extends CI_Controller {
 	    $this->asynchronous_lib->do_background_process($url, $send);
 
 	    $to = "anuj@247around.com";
-	    //$to = "abhaya@247around.com";
 	    $from = "booking@247around.com";
 	    $cc = "";
 	    $bcc = "";
 	    $subject = 'Booking Confirmation-AROUND';
 	    $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
 	}
-	log_message('info', __FUNCTION__ . " Partner callback  " . print_r($booking_id, true));
+	log_message('info', __FUNCTION__ . " Partner callback  " . $booking_id);
 	$this->partner_cb->partner_callback($booking_id);
 
+        //Redirect to Default Search Page
 	redirect(base_url() . DEFAULT_SEARCH_PAGE);
+
+        }else{
+                //Logging error if Validation Error occurs
+                log_message('info', __FUNCTION__ . "Error in Update Booking ID  " . $booking_id . " User ID: " . $user_id);
+                $heading = "247Around Booking Error";
+                $message = "Oops... The values provided are invalid !";
+                $error =& load_class('Exceptions', 'core');
+		echo $error->show_error($heading, $message, 'custom_error');
+        }
+        }else{
+                //Logging error if No input is provided
+                log_message('info', __FUNCTION__ . "Error in Update Booking ID  " . $booking_id . " User ID: " . $user_id);
+                $heading = "247Around Booking Error";
+                $message = "Oops... No input provided !";
+                $error =& load_class('Exceptions', 'core');
+		echo $error->show_error($heading, $message, 'custom_error');
+        }
     }
 
     /**
@@ -1637,6 +1680,28 @@ class Booking extends CI_Controller {
         $this->load->view('employee/header');
         $this->load->view('employee/show_booking_life_cycle', $data);
 
+    }
+
+    /**
+     * @desc: This function is used to validate Bookings New/Update
+     * 
+     * params: Array of inputs
+     * return: void
+     */
+    function validate_booking(){
+            $this->form_validation->set_rules('service_id', 'Appliance', 'required|is_natural');
+            $this->form_validation->set_rules('source_code', 'Source Code', 'required|is_natural');
+            $this->form_validation->set_rules('type', 'Booking Type', 'required|is_natural');
+            $this->form_validation->set_rules('grand_total_price', 'Total Price', 'required');
+            $this->form_validation->set_rules('city', 'City', 'required');
+            $this->form_validation->set_rules('booking_date', 'Date', 'required');
+            $this->form_validation->set_rules('booking_primary_contact_no', 'Contact No', 'required|regex_match[/^[7-9]{1}[0-9]{9}$/]');
+            $this->form_validation->set_rules('booking_timeslot', 'Time Slot', 'required|is_natural');
+            if ($this->form_validation->run() == FALSE) {
+                return FALSE;
+            } else {
+                return true;
+            }
     }
 
 }
