@@ -1022,10 +1022,26 @@ class vendor_model extends CI_Model {
         }
        
     }
-
+    /**
+     * @desc: This is used to insert value in vendor_pincode_mapping table
+     * @param Array
+     * @return Int ID of inserted data
+     */
     function insert_vendor_pincode_mapping($data){
 
         $this->db->insert('vendor_pincode_mapping', $data);
+        
+        return $this->db->insert_id();
+    }
+    
+    /**
+     * @desc: This is used to insert value in vendor_pincode_mapping table
+     * @param Array
+     * @return Int ID of inserted data
+     */
+    function insert_247Around_vendor_pincode_mapping($data){
+
+        $this->db->insert('247Around_vendor_pincode_mapping', $data);
         
         return $this->db->insert_id();
     }
