@@ -968,3 +968,35 @@ CREATE TABLE `247around_vendor_pincode_mapping` (
  `active` int(1) NOT NULL DEFAULT '1',
  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=38861 DEFAULT CHARSET=latin1;
+
+-- Anuj 04 Oct
+CREATE TABLE `vendor_invoices_snapshot_draft` (
+  `id` int(11) NOT NULL,
+  `invoice_id` varchar(255) NOT NULL,
+  `vendor_id` int(11) NOT NULL,
+  `type_code` varchar(10) NOT NULL,
+  `booking_id` varchar(100) NOT NULL,
+  `city` varchar(100) DEFAULT NULL,
+  `appliance` varchar(100) NOT NULL,
+  `appliance_category` varchar(100) DEFAULT NULL,
+  `appliance_capacity` varchar(100) DEFAULT NULL,
+  `closed_date` datetime NOT NULL,
+  `service_category` varchar(100) NOT NULL,
+  `service_charge` decimal(10,2) DEFAULT '0.00',
+  `service_tax` decimal(10,2) DEFAULT '0.00',
+  `stand` decimal(10,2) DEFAULT '0.00',
+  `vat` decimal(10,2) DEFAULT '0.00',
+  `around_discount` decimal(10,2) DEFAULT '0.00',
+  `addtional_service_charge` decimal(10,2) DEFAULT '0.00',
+  `parts_cost` decimal(10,2) DEFAULT '0.00',
+  `amount_paid` decimal(10,2) DEFAULT '0.00',
+  `rating` varchar(10) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+ALTER TABLE `vendor_invoices_snapshot_draft`
+  ADD PRIMARY KEY (`id`);
+
+
+ALTER TABLE `vendor_invoices_snapshot_draft`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

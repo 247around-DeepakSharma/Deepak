@@ -769,7 +769,6 @@ class Invoice extends CI_Controller {
 		if ($invoice_type === "final") {
 		    $to = $invoices[0]['owner_email'] . ", " . $invoices[0]['primary_contact_email'];
 		    $cc = "billing@247around.com, nits@247around.com, anuj@247around.com";
-
 		    $subject = "247around - " . $invoices[0]['name'] . " - Invoice for period: " . $start_date . " to " . $end_date;
 		} else if ($invoice_type === "draft") {
 		    $to = "anuj@247around.com";
@@ -828,10 +827,11 @@ class Invoice extends CI_Controller {
 		    //Upload Excel files to AWS
 		    $bucket = 'bookings-collateral';
 		    $directory_xls = "invoices-excel/" . $output_file . ".xlsx";
-//		    $directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
+		    //$directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
 
 		    $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-//		    $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+		    //$this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+                    //
 		    //Save this invoice info in table
 		    $invoice_details = array(
 			'invoice_id' => $invoice_id,
@@ -840,7 +840,7 @@ class Invoice extends CI_Controller {
 			'vendor_partner' => 'vendor',
 			'vendor_partner_id' => $invoices[0]['id'],
 			'invoice_file_excel' => $output_file . '.xlsx',
-//			'invoice_file_pdf' => $output_file . '.pdf',
+			//'invoice_file_pdf' => $output_file . '.pdf',
 			'from_date' => date("Y-m-d", strtotime($start_date)),
 			'to_date' => date("Y-m-d", strtotime($end_date)),
 			'num_bookings' => $count,
@@ -857,6 +857,8 @@ class Invoice extends CI_Controller {
 			'amount_collected_paid' => $excel_data['r_total'],
 			//Mail has been sent or not
 			'mail_sent' => $mail_sent,
+			//SMS has been sent or not
+			'sms_sent' => 1,
 			//Add 1 month to end date to calculate due date
 			'due_date' => date("Y-m-d", strtotime($end_date . "+1 month"))
 		    );
@@ -868,14 +870,14 @@ class Invoice extends CI_Controller {
 		     * Since this is a type 'Cash' invoice, it would be stored as a vendor-debit invoice.
 		     */
 		    $this->update_booking_invoice_mappings_repairs($invoices, $invoice_id);
-
-		    // insert data into vendor invoices snapshot
-		    $this->insert_cash_invoices_snapshot($invoices, $invoice_id);
 		}
-
+                
+                // insert data into vendor invoices snapshot or draft table as per the invoice type
+                $this->insert_cash_invoices_snapshot($invoices, $invoice_id, $invoice_type);
+                
 		//Save filenames to delete later on
 		array_push($file_names, $output_file_excel);
-//		array_push($file_names, $output_file_pdf);
+		//array_push($file_names, $output_file_pdf);
 
 		$summary = $invoices[0]['id'] . "," . $invoices[0]['name'] . "," . $count . "," . $excel_data['t_ap'] . "," . $excel_data['r_total']
 		    . "," . $excel_data['r_total'] . "<br>";
@@ -899,10 +901,11 @@ class Invoice extends CI_Controller {
 
     /**
      * @desc: This Method used to insert foc invoice snapshot into vendor invoices snapshot table
-     * @param type $invoices_data
-     * @param type $invoice_id
+     * @param $invoices_data Array Misc data about Invoice
+     * @param $invoice_id String Invoice ID
+     * @param $invoice_type String Invoice Type (draft/final)
      */
-    function insert_foc_invoices_snapshot($invoices_data, $invoice_id) {
+    function insert_foc_invoices_snapshot($invoices_data, $invoice_id, $invoice_type) {
 	$data = array();
 	foreach ($invoices_data as $value) {
 	    $data['booking_id'] = $value['booking_id'];
@@ -922,17 +925,19 @@ class Invoice extends CI_Controller {
 	    $data['amount_paid'] = $value['amount_paid'];
 	    $data['rating'] = $value['rating_stars'];
 
-	    $this->invoices_model->insert_invoice_row($data);
+	    $this->invoices_model->insert_invoice_row($data, $invoice_type);
 	}
     }
 
     /**
      * @desc: This Method used to insert Cash invoice snapshot into vendor invoices snapshot table
-     * @param type $invoices_data
-     * @param type $invoice_id
+     * @param $invoices_data Array Misc data about Invoice
+     * @param $invoice_id String Invoice ID
+     * @param $invoice_type String Invoice Type (draft/final)
      */
-    function insert_cash_invoices_snapshot($invoices_data, $invoice_id) {
+    function insert_cash_invoices_snapshot($invoices_data, $invoice_id, $invoice_type) {
 	$data = array();
+        
 	foreach ($invoices_data as $value) {
 	    $data['booking_id'] = $value['booking_id'];
 	    $data['invoice_id'] = $invoice_id;
@@ -951,7 +956,7 @@ class Invoice extends CI_Controller {
 	    $data['amount_paid'] = $value['amount_paid'];
 	    $data['rating'] = $value['rating_stars'];
 
-	    $this->invoices_model->insert_invoice_row($data);
+	    $this->invoices_model->insert_invoice_row($data, $invoice_type);
 	}
     }
 
@@ -1127,8 +1132,7 @@ class Invoice extends CI_Controller {
 
 		if ($invoice_type === "final") {
 		    $to = $invoices[0]['owner_email'] . ", " . $invoices[0]['primary_contact_email'];
-		    //$cc = "billing@247around.com, nits@247around.com, anuj@247around.com";
-		    $cc = "";
+		    $cc = "billing@247around.com, nits@247around.com, anuj@247around.com";
 		    $subject = "247around - " . $invoices[0]['name'] . " - Invoice for period: " . $start_date . " to " . $end_date;
 		} else {
 		    $to = "anuj@247around.com";
@@ -1185,13 +1189,14 @@ class Invoice extends CI_Controller {
 		    //Upload Excel files to AWS
 		    $bucket = 'bookings-collateral';
 		    $directory_xls = "invoices-excel/" . $output_file . ".xlsx";
-//		    $directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
-		    //$this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-//		    $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+		    //$directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
+		    $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+		    //$this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
 		    $s_inst_charge += $data[$i][$j]['installation_charge'];
 		    $s_st_charge += $data[$i][$j]['st'];
 		    $s_stand_charge += $data[$i][$j]['stand'];
 		    $s_vat_charge += $data[$i][$j]['vat'];
+                    
 		    //Save this invoice info in table
 		    $invoice_details = array(
 			'invoice_id' => $invoice_id,
@@ -1200,7 +1205,7 @@ class Invoice extends CI_Controller {
 			'vendor_partner' => 'vendor',
 			'vendor_partner_id' => $invoices[0]['id'],
 			'invoice_file_excel' => $output_file . '.xlsx',
-//			'invoice_file_pdf' => $output_file . '.pdf',
+			//'invoice_file_pdf' => $output_file . '.pdf',
 			'from_date' => date("Y-m-d", strtotime($start_date)),
 			'to_date' => date("Y-m-d", strtotime($end_date)),
 			'num_bookings' => $count,
@@ -1217,11 +1222,13 @@ class Invoice extends CI_Controller {
 			'amount_collected_paid' => ( $excel_data['t_vp_w_tds']),
 			//Mail has been sent or not
 			'mail_sent' => $mail_sent,
+			//SMS has been sent or not
+			'sms_sent' => 1,
 			//Add 1 month to end date to calculate due date
 			'due_date' => date("Y-m-d", strtotime($end_date . "+1 month"))
 		    );
 
-		    // insert invoice details into partner invoices table
+		    // insert invoice details into vendor partner invoices table
 		    $this->invoices_model->insert_new_invoice($invoice_details);
 
 		    /*
@@ -1229,14 +1236,14 @@ class Invoice extends CI_Controller {
 		     * Since this is a type B invoice, it would be stored as a vendor-credit invoice.
 		     */
 		    $this->update_booking_invoice_mappings_installations($invoices, $invoice_id);
-
-		    // insert data into vendor invoices snapshot
-		    $this->insert_foc_invoices_snapshot($invoices, $invoice_id);
 		}
+                
+                // insert data into vendor invoices snapshot or draft table as per the invoice type
+                $this->insert_foc_invoices_snapshot($invoices, $invoice_id, $invoice_type);
 
 		//Save filenames to delete later on
 		array_push($file_names, $output_file_excel);
-//		array_push($file_names, $output_file_pdf);
+		//array_push($file_names, $output_file_pdf);
 
 		$summary = $invoices[0]['id'] . "," . $invoices[0]['name'] . "," . $count . "," . $s_total . "," . $r_total
 		    . "," . ( $r_total - $s_total) . "<br>";
@@ -1250,9 +1257,9 @@ class Invoice extends CI_Controller {
 	}
 
 	//Delete XLS files now
-	// foreach ($file_names as $file_name) {
-	//     exec("rm -rf " . escapeshellarg($file_name));
-	// }
+	foreach ($file_names as $file_name) {
+	    exec("rm -rf " . escapeshellarg($file_name));
+	}
 
         log_message('info', __FUNCTION__ . '=> Exiting...');
         

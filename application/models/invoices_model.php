@@ -450,8 +450,19 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 	return $return[0]['count'];
     }
 
-    function insert_invoice_row($invoices_data) {
-	$this->db->insert('vendor_invoices_snapshot', $invoices_data);
+    function insert_invoice_row($invoices_data, $invoice_type) {
+        switch ($invoice_type) {
+            case "final":
+                $this->db->insert('vendor_invoices_snapshot', $invoices_data);
+                break;
+
+            case "draft":
+                $this->db->insert('vendor_invoices_snapshot_draft', $invoices_data);
+                break;
+
+            default:
+                break;
+        }
     }
 
      /**
