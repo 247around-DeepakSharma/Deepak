@@ -282,6 +282,7 @@ class Booking extends CI_Controller {
 	    
 	    $where  = array('service_id' => $booking['service_id'],'brand_name' => trim($value));
         $brand_id_array  = $this->booking_model->get_brand($where);
+
         if(!empty($brand_id_array)){
         	$brand_id =  $brand_id_array[0]['id'];
 
@@ -289,7 +290,7 @@ class Booking extends CI_Controller {
         	$brand_id =  "";
 
         }
-        
+
 
 	    //Array ( ['brand'] => Array ( [0] => id_price ) )
 	    foreach ($pricesWithId[$brand_id] as $values) {
