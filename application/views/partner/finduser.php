@@ -17,6 +17,16 @@
                     </div>';
                     }
                     ?>
+                    <?php
+                if ($this->session->flashdata('success')) {
+                    echo '<div class="alert alert-success alert-dismissible partner_error" role="alert">
+                       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                           <span aria-hidden="true">&times;</span>
+                       </button>
+                       <strong>' . $this->session->flashdata('success') . '</strong>
+                   </div>';
+                }
+                ?>
                     <form name="my_Search_Form" class="form-horizontal" action="<?php echo base_url() ?>employee/partner/finduser" method="POST" onsubmit="return phonevalidate()">
                         <div class="clear"></div>
                         <div class="form-group <?php
