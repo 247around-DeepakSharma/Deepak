@@ -279,9 +279,18 @@ class Booking extends CI_Controller {
 		log_message('info', __METHOD__ . " New Appliance ID created: " . print_r($services_details['appliance_id'], true));
 	    }
 	    log_message('info', __METHOD__ . "Appliance details data" . print_r($appliances_details, true));
-	    $where  = array('service_id' => $booking['service_id'],'brand_name' => $value);
+	    
+	    $where  = array('service_id' => $booking['service_id'],'brand_name' => trim($value));
         $brand_id_array  = $this->booking_model->get_brand($where);
-        $brand_id =  $brand_id_array[0]['id'];
+        if(!empty($brand_id_array)){
+        	$brand_id =  $brand_id_array[0]['id'];
+
+        } else {
+        	$brand_id =  "";
+
+        }
+        
+
 	    //Array ( ['brand'] => Array ( [0] => id_price ) )
 	    foreach ($pricesWithId[$brand_id] as $values) {
 
@@ -490,16 +499,22 @@ class Booking extends CI_Controller {
      *  @param : Starting page & number of results per page
      *  @return : pending bookings according to pagination
      */
-    function view($page = 0, $offset = 0, $booking_id = "") {
+    function view($page = 0, $offset = '0', $booking_id = "") {
 
-	if ($page == '0') {
+	if ($page == 0) {
 	    $page = 50;
 	}
-	$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
-	$config['base_url'] = base_url() . 'employee/booking/view/'.$offset;
-	$config['total_rows'] = $this->booking_model->total_pending_booking($booking_id);
-
-	$config['per_page'] = $page;
+	// $offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
+   
+	$config['base_url'] = base_url() . 'employee/booking/view/'.$page;
+	$config['total_rows'] = count($this->booking_model->date_sorted_booking(0, "All", $booking_id));
+	
+	if($offset != "All"){
+		$config['per_page'] = $page;
+	} else {
+		$config['per_page'] = $config['total_rows'];
+	}	
+	
 	$config['uri_segment'] = 5;
 	$config['first_link'] = 'First';
 	$config['last_link'] = 'Last';
@@ -511,6 +526,7 @@ class Booking extends CI_Controller {
 	$data['Bookings'] = $this->booking_model->date_sorted_booking($config['per_page'], $offset, $booking_id);
 	if ($this->session->flashdata('result') != '')
 	    $data['success'] = $this->session->flashdata('result');
+
 
 	$this->load->view('employee/header');
 	$this->load->view('employee/booking', $data);
@@ -524,16 +540,16 @@ class Booking extends CI_Controller {
      *  @param : Starting page & number of results per page
      *  @return : completed bookings according to pagination
      */
-    function viewclosedbooking($status, $offset = 0, $page = 0, $booking_id = "") {
+    function viewclosedbooking($status, $page = 0, $offset = 0, $booking_id = "") {
 	if ($page == '0') {
 	    $page = 50;
 	}
 
 	//$offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
-	$config['base_url'] = base_url() . 'employee/booking/viewclosedbooking/' . $status;
+	$config['base_url'] = base_url() . 'employee/booking/viewclosedbooking/' . $status."/".$page;
 	$config['total_rows'] = $this->booking_model->total_closed_booking($status, $booking_id);
 	$config['per_page'] = $page;
-	$config['uri_segment'] = 5;
+	$config['uri_segment'] = 6;
 	$config['first_link'] = 'First';
 	$config['last_link'] = 'Last';
 
@@ -874,8 +890,10 @@ class Booking extends CI_Controller {
 	$partner_id = $this->booking_model->get_price_mapping_partner_code($parter_code);
 
 	$result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $state['state']);
+	
     $where  = array('service_id' => $service_id,'brand_name' => $brand);
     $brand_id_array  = $this->booking_model->get_brand($where);
+
     if(!empty($brand_id_array)){
     	$brand_id = $brand_id_array[0]['id'];
 
@@ -1063,23 +1081,31 @@ class Booking extends CI_Controller {
      *  @param : offset and per page number
      *  @return : list of pending queries according to pagination
      */
-    function view_queries($status, $page = 0, $offset = 0, $booking_id = "") {
-	if ($page == '0') {
+    function view_queries($status, $p_av, $page = 0, $offset = '0', $booking_id = "") {
+	if ($page == 0) {
 	    $page = 50;
 	}
 
-	$offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
-	$config['base_url'] = base_url() . 'employee/booking/view_queries/' . $status."/".$offset;
-	$config['total_rows'] = $this->booking_model->total_queries($status, $booking_id);
+	//$offset = ($this->uri->segment(7) != '' ? $this->uri->segment(7) : 0);
+	$config['base_url'] = base_url() . 'employee/booking/view_queries/' . $status."/".$p_av."/".$page;
+	$total_queries = $this->booking_model->get_queries(0, "All", $status, $p_av, $booking_id);
 
-	$config['per_page'] = $page;
-	$config['uri_segment'] = 6;
+	$config['total_rows'] = count($total_queries); 
+	if($offset == "All"){
+		$config['per_page'] = $config['total_rows'];
+
+	} else {
+		$config['per_page'] = $page;  
+	}
+	
+	$config['uri_segment'] = 7;
 	$config['first_link'] = 'First';
 	$config['last_link'] = 'Last';
 
 	$this->pagination->initialize($config);
 	$data['links'] = $this->pagination->create_links();
-	$data['Bookings'] = $this->booking_model->get_queries($config['per_page'], $offset, $status, $booking_id);
+	$data['Bookings'] = $this->booking_model->get_queries($config['per_page'], $offset, $status, $p_av, $booking_id);
+	$data['p_av'] = $p_av;
 
 	$this->load->view('employee/header');
 	$this->load->view('employee/viewpendingqueries', $data);
@@ -1175,7 +1201,7 @@ class Booking extends CI_Controller {
 	$this->partner_cb->partner_callback($booking_id);
         
         //Redirect to Default Search Page
-	redirect(base_url() . DEFAULT_SEARCH_PAGE);
+	//redirect(base_url() . DEFAULT_SEARCH_PAGE);
         }else{
                 //Redirect to edit booking page if validation err occurs
                 $this->get_edit_booking_form($booking_id);
@@ -1645,7 +1671,7 @@ class Booking extends CI_Controller {
         $this->notify->insert_state_change($booking_id, _247AROUND_FOLLOWUP , _247AROUND_CANCELLED ,
                 "Cancelled_Query to FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
         
-	redirect(base_url() . 'employee/booking/view_queries/FollowUp/0/0/' . $booking_id);
+	redirect(base_url() . 'employee/booking/view_queries/FollowUp/0/0/'.PINCODE_ALL_AVAILABLE."/" . $booking_id);
     }
     /**
      * @desc: This is used to show Booking Life Cycle of particular Booking
