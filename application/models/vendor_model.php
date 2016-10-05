@@ -1092,4 +1092,39 @@ class vendor_model extends CI_Model {
         return $data->result_array();
     }
 
+    /**
+     *@desc: This function is used to get Active email templates from 247around_email_template
+     * params: Array consists of  
+     *        select, where values 
+     * return: Array of data
+     */
+    function get_247around_email_template($data){
+        if(!isset($data['select'])){
+            $data['select'] = '*';
+        }
+        $this->db->select($data['select']);
+        if(isset($data['where'])){
+            $this->db->where($data['where']);
+        }
+        $this->db->where('active',1);
+        $query = $this->db->get('247around_email_template');
+        return $query->result_array();
+    }
+    /**
+     * @desc: This function is used to fetch values acc to table name and columns, where provided
+     * params: Array consisting of table name, primary key column(where clause column),column value to be searched, columns to be selected
+     * return: Array if table name provided is present, else FALSE
+     * 
+     */
+    function get_data($data) {
+        $this->db->select($data['column_name']);
+        $this->db->where($data['primary_key'], $data['id']);
+        if ($this->db->table_exists($data['table_name'])) {
+            $query = $this->db->get($data['table_name']);
+        } else {
+            return false;
+        }
+        return $query->result_array();
+    }
+
 }
