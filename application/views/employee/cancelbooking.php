@@ -141,7 +141,7 @@ function check_text(){
                  <div class="col-md-6 col-md-offset-4">
                   
                      <input type="submit" value="<?php if(isset($internal_status)){ echo "Cancel Query "; } else { echo "Cancel Booking"; } ?>" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return(check_text())" class="btn btn-danger btn-large">
-                     <a href="<?php if(isset($internal_status)){ echo base_url()."employee/booking/view_queries/FollowUp/0/All"; } else { echo base_url()."employee/booking/view";} ?>"><input type="Button" value="Back" class="btn btn-primary"></a>
+                     <a href="<?php if(isset($internal_status)){ echo base_url()."employee/booking/view_queries/FollowUp/p_all/0/All"; } else { echo base_url()."employee/booking/view";} ?>"><input type="Button" value="Back" class="btn btn-primary"></a>
                   
                 </div>
               </form>

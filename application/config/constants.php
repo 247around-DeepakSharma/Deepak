@@ -66,6 +66,12 @@ define('_247AROUND_CANCELLED','Cancelled');
 define('_247AROUND_RESCHEDULED','Rescheduled');
 //constant to define Completed state
 define('_247AROUND_COMPLETED','Completed');
+//Only Pincode available Queries
+define('PINCODE_AVAILABLE','p_av');
+//Only Pincode not available Queies
+define('PINCODE_NOT_AVAILABLE','p_nav');
+//Pincode not available OR Pincode Avaliable Queies
+define('PINCODE_ALL_AVAILABLE','p_all');
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

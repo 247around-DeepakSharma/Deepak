@@ -1,9 +1,4 @@
 
-<?php 
-$this->db_location = $this->load->database('default1', TRUE,TRUE);
-        $this->db = $this->load->database('default', TRUE,TRUE);
-?>
-
 <html>
 <script type="text/javascript" src="<?php echo base_url();?>js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="<?php echo base_url();?>js/jquery-ui-1.7.1.custom.min.js"></script>
@@ -108,15 +103,15 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
                             //It is a query, check its status and assign appropriate view
                           switch ($row['current_status']) {
                               case 'FollowUp':
-                              $view = 'employee/booking/view_queries/FollowUp/0/0/'.$row['booking_id'];
+                              $view = 'employee/booking/view_queries/FollowUp/p_all/0/0/'.$row['booking_id'];
                               break;
 
                               case 'Cancelled':
-                                $view = 'employee/booking/view_queries/Cancelled/0/0/'.$row['booking_id'];
+                                $view = 'employee/booking/view_queries/Cancelled/p_all/0/0/'.$row['booking_id'];
                                 break;
 
                                 default:
-                                $view = 'employee/booking/view_queries/FollowUp/0/0/'.$row['booking_id'];
+                                $view = 'employee/booking/view_queries/FollowUp/p_all/0/0/'.$row['booking_id'];
                                 break;
                           }
 

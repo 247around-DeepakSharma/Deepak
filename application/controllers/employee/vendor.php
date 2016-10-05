@@ -1448,7 +1448,8 @@ class vendor extends CI_Controller {
             }
 
 
-            redirect(site_url('employee/booking/view_queries/FollowUp'));
+            //redirect(site_url('employee/booking/view_queries/FollowUp'));
+            redirect(base_url() . DEFAULT_SEARCH_PAGE);
 
             }
 

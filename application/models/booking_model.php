@@ -246,8 +246,14 @@ class Booking_model extends CI_Model {
         if ($service_center_id != "") {
             $where .= " AND assigned_vendor_id = '" . $service_center_id . "'";
             $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
-
         } 
+
+        $add_limit = "";
+
+        if($start !== "All"){
+            $add_limit = " limit $start, $limit ";
+        }
+
 
         $query = $this->db->query("Select services.services,
             users.name as customername, users.phone_number,
@@ -258,21 +264,11 @@ class Booking_model extends CI_Model {
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id` WHERE
     		`booking_id` NOT LIKE 'Q-%' $where AND
-            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled')"
+            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled') order by STR_TO_DATE(`booking_details`.booking_date,'%d-%m-%Y') desc $add_limit"
         );
 
-        $temp = $query->result();
-
-        if($limit =="All"){
-
-            usort($temp, array($this, 'date_compare_bookings'));
-            return $temp;
-        } else  {
-
-             //return slice of the sorted array
-            usort($temp, array($this, 'date_compare_bookings'));
-            return array_slice($temp, $start, $limit);
-        }
+       // echo $this->db->last_query();
+        return $query->result();
 
     }
 
@@ -1019,21 +1015,21 @@ class Booking_model extends CI_Model {
      *  @param : start and limit for the query
      *  @return : array(specific no of pending query detils)
      */
-    function get_queries($limit, $start, $status, $booking_id = "") {
+    function get_queries($limit, $start, $status, $p_av, $booking_id = "") {
         $where = "";
         $add_limit = "";
 
         if ($booking_id != "") {
             $where .= "AND `booking_details`.`booking_id` = '$booking_id' AND `booking_details`.current_status='$status'  ";
         } else {
-            if ($limit != 'All') {
+            if ($start != 'All') {
                 $where .= "AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR
                 booking_details.booking_date='') AND `booking_details`.current_status='$status' ";
 
                 $add_limit = " limit $start, $limit ";
 
 
-            } else if($limit == 'All') {
+            } else if($start == 'All') {
 
                 $where .= " AND `booking_details`.current_status='$status' ";
             }
@@ -1060,8 +1056,13 @@ class Booking_model extends CI_Model {
         
         $temp = $query->result();
         //usort($temp, array($this, 'date_compare_queries'));
+        if($status != "Cancelled"){
+            $data = $this->searchPincodeAvailable($temp, $p_av);
 
-        $data = $this->searchPincodeAvailable($temp);
+        } else {
+            $data = $temp;
+
+        }
 
         return $data;
 
@@ -1073,7 +1074,7 @@ class Booking_model extends CI_Model {
      * @param : Array
      * @return : Array
      */
-    function searchPincodeAvailable($temp) {
+    function searchPincodeAvailable($temp, $pv) {
         foreach ($temp as $key => $value) {
             $this->db->distinct();
             $this->db->select('Vendor_ID, Vendor_Name');
@@ -1087,9 +1088,23 @@ class Booking_model extends CI_Model {
             $this->db->where('service_centres.active', "1");
             $data = $this->db->get();
             if ($data->num_rows() > 0) {
-                $temp[$key]->vendor_status = $data->result_array();
+                if($pv == PINCODE_AVAILABLE){
+                    $temp[$key]->vendor_status = $data->result_array();
+                } else if($pv == PINCODE_NOT_AVAILABLE) {
+                    unset($temp[$key]);
+                } else if($pv == PINCODE_ALL_AVAILABLE){
+                     $temp[$key]->vendor_status = $data->result_array();
+                }
+                
             } else {
-                $temp[$key]->vendor_status = "Vendor Not Available";
+                if($pv == PINCODE_AVAILABLE){
+                    unset($temp[$key]);
+                } else if($pv == PINCODE_NOT_AVAILABLE) {
+                    $temp[$key]->vendor_status = "Vendor Not Available";
+                } else if($pv == PINCODE_ALL_AVAILABLE){
+                    $temp[$key]->vendor_status = "Vendor Not Available";
+                }
+                
             }
         }
 
@@ -1149,7 +1164,7 @@ class Booking_model extends CI_Model {
 
         if (strpos($temp[0]->booking_id, "Q-") !== FALSE) {
 
-            $data = $this->searchPincodeAvailable($temp);
+            $data = $this->searchPincodeAvailable($temp, PINCODE_ALL_AVAILABLE);
             return $data;
         }
     }
