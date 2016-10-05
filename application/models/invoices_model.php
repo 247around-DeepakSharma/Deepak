@@ -267,7 +267,7 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 		}
 
 		$condition = "  From booking_details, booking_unit_details, services, service_centres
-                          WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id AND `services`.id = `booking_details`.service_id  AND `booking_details`.assigned_vendor_id = `service_centres`.id AND current_status = 'Completed' AND assigned_vendor_id = $value[vendor_id] AND `booking_unit_details`.booking_status = 'Completed' $where ";
+                          WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id AND `services`.id = `booking_details`.service_id  AND `booking_details`.assigned_vendor_id = `service_centres`.id AND current_status = 'Completed' AND assigned_vendor_id = '" . $value['vendor_id'] . "' AND `booking_unit_details`.booking_status = 'Completed' $where ";
 
 		$sql1 = "SELECT  `booking_details`.booking_id, `booking_details`.city, `booking_details`.internal_status,
 		     date_format(`booking_details`.`closed_date`,'%d/%m/%Y') as closed_date, `booking_details`.closed_date as closed_booking_date, rating_stars, `booking_unit_details`.price_tags,
