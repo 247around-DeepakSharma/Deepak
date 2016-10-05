@@ -213,9 +213,10 @@
                         echo "<a target='_blank' class='btn btn-small btn-success btn-sm' href=".base_url()."employee/booking/get_edit_booking_form/$row->booking_id title='Update'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
                         ?>
                     </td>
+                    
                     <td>
                         <?php
-                            echo "<a target='_blank' class='btn btn-small btn-warning btn-sm' href=".base_url()."employee/booking/get_cancel_form/$row->booking_id/followup title='Cancel'> <i class='fa fa-times' aria-hidden='true'></i></a>";
+                            echo "<a target='_blank' class='btn btn-small btn-warning btn-sm' href=".base_url()."employee/booking/get_cancel_form/$row->booking_id/FollowUp title='Cancel'> <i class='fa fa-times' aria-hidden='true'></i></a>";
                             ?>
                     </td>
                 </tr>

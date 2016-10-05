@@ -186,7 +186,7 @@ function outbound_call(phone_number){
 
                     <td>
                         <?php
-                        echo "<a target='_blank' class='btn btn-small btn-warning btn-sm' href=".base_url()."employee/booking/get_cancel_form/$row->booking_id/followup title='Cancel'> <i class='fa fa-times' aria-hidden='true'></i></a>";
+                        echo "<a target='_blank' class='btn btn-small btn-warning btn-sm' href=".base_url()."employee/booking/get_cancel_form/$row->booking_id/FollowUp title='Cancel'> <i class='fa fa-times' aria-hidden='true'></i></a>";
                         ?>
                     </td>
                     <?php } if($status == "Cancelled"){  ?>

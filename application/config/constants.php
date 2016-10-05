@@ -46,17 +46,25 @@ define('addtitional_percentage', .85);
 define('parts_percentage', .95);
 define('SERVICE_TAX_RATE', 0.15);
 define('DEFAULT_TAX_RATE', 15);
-
+//constant to define partner API during booking_state_change
+define('PARTNER_API_CALL',978978);
 //Agent ID used when Partner inserts a Booking by calling our API
 define('DEFAULT_PARTNER_AGENT', 978978);
 
 define('_247AROUND',247001);
+//constant to define Pending state
 define('_247AROUND_PENDING','Pending');
+//constant to define New Booking state
 define('_247AROUND_NEW_BOOKING','New_Booking');
+//constant to define Follow up state
 define('_247AROUND_FOLLOWUP','FollowUp');
+//constant to define New Query state
 define('_247AROUND_NEW_QUERY','New_Query');
+//constant to define Cancelled state
 define('_247AROUND_CANCELLED','Cancelled');
+//constant to define Rescheduled state
 define('_247AROUND_RESCHEDULED','Rescheduled');
+//constant to define Completed state
 define('_247AROUND_COMPLETED','Completed');
 
 /* End of file constants.php */
