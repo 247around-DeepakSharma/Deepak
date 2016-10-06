@@ -1613,29 +1613,20 @@ class Booking_model extends CI_Model {
      * @desc: update price in booking unit details
      */
     function update_unit_details($data){
-        // get booking unit data on the basis of id
-        $this->db->select('around_net_payable, partner_net_payable, tax_rate, price_tags, partner_paid_basic_charges, around_paid_basic_charges');
-        $this->db->where('id', $data['id']);
-        $query = $this->db->get('booking_unit_details');
-        $unit_details = $query->result_array();
-
+        
         if($data['booking_status'] == "Completed"){
+            // get booking unit data on the basis of id
+            $this->db->select('around_net_payable, partner_net_payable, tax_rate, price_tags, partner_paid_basic_charges, around_paid_basic_charges');
+            $this->db->where('id', $data['id']);
+            $query = $this->db->get('booking_unit_details');
+            $unit_details = $query->result_array();
 
             $this->update_price_in_unit_details($data, $unit_details);
 
-        } else {
-
-            $data['customer_total'] = 0;
-            $unit_details[0]['partner_net_payable'] = 0;
-            $unit_details[0]['around_net_payable'] =0;
-            $unit_details[0]['tax_rate'] = 0;
-            $data['customer_net_payable'] = 0;
-            $data['partner_paid_basic_charges'] = 0;
-            $data['around_paid_basic_charges'] = 0;
-
-
+        } else if($data['booking_status'] == "Cancelled") {
             // Update price in unit table
-            $this->update_price_in_unit_details($data, $unit_details);
+            $this->db->where('id', $data['id']);
+            $this->db->update('booking_unit_details', array('booking_status' => 'Cancelled'));
         }
 
     }
@@ -1743,6 +1734,8 @@ class Booking_model extends CI_Model {
         }
         
         $result['booking_status'] = $data['booking_status'];
+        $result['partner_paid_basic_charges'] = $result['partner_net_payable'];
+        $result['around_paid_basic_charges'] = $result['around_net_payable'] = 0;
 
         log_message('info', ": " . " insert new item in booking unit details data " . print_r($result, TRUE));
 
@@ -1752,7 +1745,7 @@ class Booking_model extends CI_Model {
         log_message('info', ": " . " insert new item in booking unit details returned id " . print_r($new_unit_id, TRUE));
 
         $data['id'] = $new_unit_id;
-         log_message('info', ": " . " update booking unit details data " . print_r($data, TRUE));
+        log_message('info', ": " . " update booking unit details data " . print_r($data, TRUE));
 
         $this->update_unit_details($data);
 
