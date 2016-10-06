@@ -88,10 +88,12 @@ class Partner extends CI_Controller {
         $data['count'] = $config['total_rows'];
         $data['bookings'] = $this->partner_model->getPending_booking($config['per_page'], $offset, $partner_id);
 
-        if ($this->session->flashdata('result') != '')
+        if ($this->session->flashdata('result') != '') {
             $data['success'] = $this->session->flashdata('result');
+        }
         
-        log_message('info', 'Partner View: Pending booking: Partner id: ' . $partner_id . ", Partner name: " . $this->session->userdata('partner_name'));
+        log_message('info', 'Partner View: Pending booking: Partner id: ' . $partner_id . ", Partner name: " . 
+                $this->session->userdata('partner_name'));
         
         $this->load->view('partner/header');
         $this->load->view('partner/pending_booking', $data);
@@ -118,9 +120,13 @@ class Partner extends CI_Controller {
         $data['count'] = $config['total_rows'];
         $data['bookings'] = $this->partner_model->getPending_queries($config['per_page'], $offset, $partner_id);
 
-        if ($this->session->flashdata('result') != '')
+        if ($this->session->flashdata('result') != '') {
             $data['success'] = $this->session->flashdata('result');
-         log_message('info', 'Partner view Pending query  partner id' . $partner_id . " Partner name" . $this->session->userdata('partner_name')." data ". print_r($data, true));
+        }
+        
+        log_message('info', 'Partner View: Pending query: Partner id' . $partner_id . ", Partner name: " . 
+                $this->session->userdata('partner_name'));
+        
         $this->load->view('partner/header');
         $this->load->view('partner/pending_queries', $data);
 
@@ -147,16 +153,17 @@ class Partner extends CI_Controller {
         $data['count'] = $config['total_rows'];
         $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state);
 
-        if ($this->session->flashdata('result') != '')
+        if ($this->session->flashdata('result') != '') {
             $data['success'] = $this->session->flashdata('result');
+        }
 
         $data['status'] = $state;
 
-        log_message('info', 'Partner view '.$state.' booking  partner id' . $partner_id . " Partner name" . $this->session->userdata('partner_name'). " data ". print_r($data, true));
+        log_message('info', 'Partner view ' . $state . ' booking: Partner id: ' . $partner_id . ", Partner name: " . 
+                $this->session->userdata('partner_name'));
 
         $this->load->view('partner/header');
         $this->load->view('partner/closed_booking', $data);
-
     }
 
         /**

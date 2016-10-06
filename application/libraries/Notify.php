@@ -202,13 +202,11 @@ class Notify {
 	//Callback fn called by Exotel
 	switch (ENVIRONMENT) {
 	    case 'production':
-		$cb = base_url() . 'call-customer-status-callback';
 		$post_data = array(
 		    'From' => $agent_phone,
 		    'To' => $customer_phone,
 		    'CallerId' => '01139595200', //247around call centre exophone number
-		    'CallType' => 'trans',
-		    'StatusCallback' => $cb
+		    'CallType' => 'trans'
 		);
 
 		$exotel_sid = "aroundhomz";

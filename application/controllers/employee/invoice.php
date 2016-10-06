@@ -831,7 +831,9 @@ class Invoice extends CI_Controller {
 
 		    $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 		    //$this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
-                    //
+                    
+                    log_message('info', __METHOD__ . ": Invoices uploaded to S3");
+                    
 		    //Save this invoice info in table
 		    $invoice_details = array(
 			'invoice_id' => $invoice_id,
@@ -864,6 +866,8 @@ class Invoice extends CI_Controller {
 		    );
 
 		    $this->invoices_model->insert_new_invoice($invoice_details);
+
+                    log_message('info', __METHOD__ . ': Invoice ' . $invoice_id . ' details  entered into invoices table');
 
 		    /*
 		     * Update booking-invoice table to capture this new invoice against these bookings.
@@ -1233,6 +1237,8 @@ class Invoice extends CI_Controller {
 
 		    // insert invoice details into vendor partner invoices table
 		    $this->invoices_model->insert_new_invoice($invoice_details);
+                    
+                    log_message('info', __METHOD__ . ': Invoice ' . $invoice_id . ' details  entered into invoices table');
 
 		    /*
 		     * Update booking-invoice table to capture this new invoice against these bookings.

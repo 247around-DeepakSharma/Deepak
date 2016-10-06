@@ -314,7 +314,9 @@ class Do_background_upload_excel extends CI_Controller {
                             $vendors_count = count($vendors);
 
                             if ($vendors_count > 0) {
-                                $this->send_sms_to_snapdeal_customer($value['appliance'], $booking['booking_primary_contact_no'], $user_id, $booking['booking_id']);
+                                $this->send_sms_to_snapdeal_customer($value['appliance'], 
+                                        $booking['booking_primary_contact_no'], $user_id, 
+                                        $booking['booking_id'], $file_type);
                             } else {
                                 log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
                             }         
@@ -357,7 +359,7 @@ class Do_background_upload_excel extends CI_Controller {
                 //Order ID found
                 if ($file_type == "delivered") {
                     $status = $partner_booking['current_status'];
-                    //$int_status = $partner_booking['internal_status'];
+                    $int_status = $partner_booking['internal_status'];
 
                     //Clear the booking date so that it starts reflecting on our panel & update booking.
                     //This should be done only if the booking has not been updated in the meanwhile.
@@ -373,22 +375,24 @@ class Do_background_upload_excel extends CI_Controller {
                         $update_data['booking_timeslot'] = '';
                     }
 
-                    log_message('info', __FUNCTION__ . 'Update Partned Lead (Delivered): ' .
+                    log_message('info', __FUNCTION__ . 'Update Partner Lead (Delivered): ' .
                         print_r(array($partner_booking['booking_id'], $update_data), true));
 
                     $this->booking_model->update_booking($partner_booking['booking_id'], $update_data);
 
                     //Send SMS to customer as well, check whether vendor is available or not
-                    $vendors2 = $this->vendor_model->check_vendor_availability($partner_booking['booking_pincode'], 
-                            $partner_booking['service_id']);
-                    $vendors_count2 = count($vendors2);
+                    if ($status == 'FollowUp' && $int_status == 'Missed_call_not_confirmed') {
+                        $vendors2 = $this->vendor_model->check_vendor_availability($partner_booking['booking_pincode'], 
+                                $partner_booking['service_id']);
+                        $vendors_count2 = count($vendors2);
 
-                    if ($vendors_count2 > 0) {
-                        $this->send_sms_to_snapdeal_customer($value['appliance'], 
-                                $partner_booking['booking_primary_contact_no'], $user_id,
-                                $partner_booking['booking_id']);
-                    } else {
-                        log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
+                        if ($vendors_count2 > 0) {
+                            $this->send_sms_to_snapdeal_customer($value['appliance'], 
+                                    $partner_booking['booking_primary_contact_no'], $user_id,
+                                    $partner_booking['booking_id'], $file_type);
+                        } else {
+                            log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
+                        }
                     }
 
                     unset($update_data);
@@ -761,15 +765,31 @@ class Do_background_upload_excel extends CI_Controller {
      * @param string $user_id
      * @param string $booking_id
      */
-    function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id) {
-	//$sms['tag'] = "sd_shipped_missed_call_initial";
-	$sms['tag'] = "sd_delivered_missed_call_initial";
-	$sms['phone_no'] = $phone_number;
+    function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id, $file_type) {
+        switch ($file_type) {
+            case "shipped":
+                $sms['tag'] = "sd_shipped_missed_call_initial";
+
+                //ordering of smsData is important, it should be as per the %s in the SMS
+                $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance);
+                $sms['smsData']['service'] = $appliance;
+
+                break;
+            
+            case "delivered":
+                $sms['tag'] = "sd_delivered_missed_call_initial";
+
+                //ordering of smsData is important, it should be as per the %s in the SMS
+                $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance);
+                $sms['smsData']['service'] = $appliance;
+                
+                break;
+
+            default:
+                return 0;
+        }
         
-        //ordering of smsData is important, it should be as per the %s in the SMS
-	$sms['smsData']['message'] = $this->notify->get_product_free_not($appliance);
-	$sms['smsData']['service'] = $appliance;
-        
+	$sms['phone_no'] = $phone_number;        
 	$sms['booking_id'] = $booking_id;
 	$sms['type'] = "user";
 	$sms['type_id'] = $user_id;
