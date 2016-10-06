@@ -1202,7 +1202,7 @@ class Booking extends CI_Controller {
 	$this->partner_cb->partner_callback($booking_id);
         
         //Redirect to Default Search Page
-	//redirect(base_url() . DEFAULT_SEARCH_PAGE);
+	redirect(base_url() . DEFAULT_SEARCH_PAGE);
         }else{
                 //Redirect to edit booking page if validation err occurs
                 $this->get_edit_booking_form($booking_id);
