@@ -90,7 +90,9 @@ class Partner extends CI_Controller {
 
         if ($this->session->flashdata('result') != '')
             $data['success'] = $this->session->flashdata('result');
-         log_message('info', 'Partner view Pending booking  partner id' . $partner_id . " Partner name" . $this->session->userdata('partner_name')." data ". print_r($data, true));
+        
+        log_message('info', 'Partner View: Pending booking: Partner id: ' . $partner_id . ", Partner name: " . $this->session->userdata('partner_name'));
+        
         $this->load->view('partner/header');
         $this->load->view('partner/pending_booking', $data);
     }

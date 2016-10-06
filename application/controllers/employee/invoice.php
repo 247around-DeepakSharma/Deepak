@@ -1169,7 +1169,7 @@ class Invoice extends CI_Controller {
 		} else {
 		    $mail_sent = FALSE;
 
-		    log_message('error', __METHOD__ . ": Mail could not be sent");
+		    log_message('info', __METHOD__ . ": Mail could not be sent");
 		    echo "Mail could not be sent" . PHP_EOL;
 		}
 
@@ -1192,6 +1192,9 @@ class Invoice extends CI_Controller {
 		    //$directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
 		    $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 		    //$this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+                    
+                    log_message('info', __METHOD__ . ": Invoices uploaded to S3");
+                    
 		    $s_inst_charge += $data[$i][$j]['installation_charge'];
 		    $s_st_charge += $data[$i][$j]['st'];
 		    $s_stand_charge += $data[$i][$j]['stand'];
@@ -1219,7 +1222,7 @@ class Invoice extends CI_Controller {
 			'rating' => $excel_data['t_rating'],
 			'around_royalty' => $r_total,
 			//Amount needs to be Paid to Vendor
-			'amount_collected_paid' => ( $excel_data['t_vp_w_tds']),
+			'amount_collected_paid' => (0 - $excel_data['t_vp_w_tds']),
 			//Mail has been sent or not
 			'mail_sent' => $mail_sent,
 			//SMS has been sent or not
