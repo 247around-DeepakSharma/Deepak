@@ -80,7 +80,8 @@ $route['partner/invoices_details'] = 'employee/partner/invoices_details';
 $route['partner/get_cancel_form/(:any)/(:any)'] = 'employee/partner/get_cancel_form/$1/$2';
 $route['partner/get_reschedule_booking_form/(:any)'] = 'employee/partner/get_reschedule_booking_form/$1';
 $route['partner/process_reschedule_booking/(:any)'] = 'employee/partner/process_reschedule_booking/$1';
-
+$route['partner/escalation_form/(:any)'] = 'employee/partner/escalation_form/$1';
+$route['partner/process_escalation/(:any)'] = 'employee/partner/process_escalation/$1';
 
 //$route['api/(:any)'] = 'partner/$2';
 

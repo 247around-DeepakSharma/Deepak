@@ -229,9 +229,9 @@ class vendor_model extends CI_Model {
      *  @param : void
      *  @return : array of id and escalation reasons
      */
-    function getEscalationReason() {
+    function getEscalationReason($entity) {
         $this->db->select('id,escalation_reason');
-        $this->db->where('active', '1');
+        $this->db->where($entity);
         $query = $this->db->get("vendor_escalation_policy");
         return $query->result_array();
     }
@@ -551,10 +551,14 @@ class vendor_model extends CI_Model {
         unset($flag[0]['create_date']);
 
         $reason_flag['escalation_policy_flag'] = json_encode($flag);
+        return $this->update_esclation_policy_flag($id, $reason_flag, $booking_id);
+    }
 
+    function update_esclation_policy_flag($id, $reason_flag, $booking_id){
         $this->db->where('id', $id);
         $this->db->update('vendor_escalation_log', $reason_flag);
         return $this->getUserDetails($booking_id);
+
     }
 
     /**

@@ -587,7 +587,7 @@ class vendor extends CI_Controller {
      */
     function get_vendor_escalation_form($booking_id) {
 
-        $data['escalation_reason'] = $this->vendor_model->getEscalationReason();
+        $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'vendor','active'=> '1'));
         $data['vendor_details'] = $this->vendor_model->getVendor($booking_id);
         $data['booking_id'] = $booking_id;
 

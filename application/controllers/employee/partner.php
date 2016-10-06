@@ -781,6 +781,8 @@ class Partner extends CI_Controller {
      *  @return : user details and booking history to view
      */
     function get_reschedule_booking_form($booking_id) {
+        log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
+        $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Booking Id  " . $booking_id);
         $getbooking = $this->booking_model->getbooking_history($booking_id);
         if ($getbooking) {
@@ -793,6 +795,8 @@ class Partner extends CI_Controller {
     }
 
     function process_reschedule_booking($booking_id) {
+        log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
+        $this->checkUserSession();
         $this->form_validation->set_rules('booking_date', 'Booking Date', 'trim|required');
 
         if ($this->form_validation->run() == FALSE) {
@@ -837,6 +841,63 @@ class Partner extends CI_Controller {
                 log_message('info', __FUNCTION__ . " Booking is not updated  " . print_r($data, true));
             }
         }
+    }
+    
+    /**
+     * @desc: Load escalation form  in the partner panel. Partner esclates on booking.
+     * That will send notification to 247Around.
+     * @param String $booking_id
+     */
+    function escalation_form($booking_id){
+        log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
+        $this->checkUserSession();
+        $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'partner', 'active'=> '1'));
+        $data['booking_id'] = $booking_id;
+
+        $this->load->view('partner/header');
+        $this->load->view('partner/escalation_form', $data);
+    }
+    /**
+     * @desc: This is used to insert escalation into escalation log table. 
+     * Upadte escalation log table when mail sent
+     * @param String $booking_id
+     */
+    function process_escalation($booking_id){
+        log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
+        $this->checkUserSession();
+        $this->form_validation->set_rules('escalation_reason_id', 'Escalation Reason', 'trim|required');
+
+        if ($this->form_validation->run() == FALSE) {
+            $this->escalation_form($booking_id);
+        } else {
+            $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
+            $booking_date_timeslot = $this->vendor_model->getBookingDateFromBookingID($booking_id);
+            $escalation['booking_date'] = date('Y-m-d', strtotime($booking_date_timeslot[0]['booking_date']));
+            $escalation['booking_time'] = $booking_date_timeslot[0]['booking_timeslot'];
+            log_message('info', __FUNCTION__ . " escalation_reason  " . print_r($escalation, true));
+            
+            //inserts vendor escalation details
+            $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
+            if($escalation_id){
+                log_message('info', __FUNCTION__ . " Escalation INSERTED ");
+                $to = "abhaya@247around.com"; $cc =""; $bcc=""; $attachment = "";
+                $from = "booking@247around.com";
+                $subject = "Escalate booking " .$booking_id." from partner ". $this->session->userdata('partner_name');
+                $message = "Escalate booking " .$booking_id." from partner ". $this->session->userdata('partner_name');
+                $is_mail = $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
+                if($is_mail){
+                    log_message('info', __FUNCTION__ . " Mail Sent ");
+                    
+                    $reason_flag['escalation_policy_flag'] = json_encode(array('mail_to_anuj'=>1), true);
+                    $this->vendor_model->update_esclation_policy_flag($escalation_id, $reason_flag, $booking_id);
+                    $this->session->set_flashdata('success', 'Booking '. $booking_id. " Escalated");
+                }
+            }
+            log_message('info', __FUNCTION__ . " Exist from method ");
+
+            redirect(base_url() . "partner/escalation_form/".$booking_id);
+        }
+        
     }
 
 }

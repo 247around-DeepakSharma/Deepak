@@ -1015,3 +1015,5 @@ INSERT INTO `247around_email_template` (`id`, `entity`, `template`, `subject`, `
 --Belal 04 Oct
 INSERT INTO `247around_email_template` (`id`, `entity`, `template`, `subject`, `body`, `from`, `to`, `cc`, `bcc`, `template_values`, `attachment`, `active`, `create_date`) VALUES (NULL, 'partner', 'partner_login_details', '247Around Login Details', 'Dear Partner,<br><br> Following are the login credentials to 247Around CRM.<br><br> <b>Username : </b> %s <br> <b>Password : </b> %s <br> For any confusion, write to us or call us.<br><br> Regards,<br> 247around Team', 'booking@247around.com', '', '', '', 'partner_login.user_name.partner_id,partner_login.user_name.partner_id', '', '1', '2016-09-30 11:38:55');
 
+-- Abhay 06 OCT
+ALTER TABLE `vendor_escalation_policy` ADD `entity` VARCHAR(20) NULL DEFAULT NULL AFTER `escalation_reason`;
