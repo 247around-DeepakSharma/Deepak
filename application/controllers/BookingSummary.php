@@ -693,7 +693,7 @@ EOD;
 
         $html .= '</body>
                     </html>'; 
-        
+        echo $html;exit;
         $to = "anuj@247around.com, nits@247around.com";
         $this->notify->sendEmail("booking@247around.com", $to, "", "", "Booking Summary", $html, "");
          log_message('info',__FUNCTION__.'Booking Report mail sent.');
@@ -768,6 +768,82 @@ EOD;
         }
 
         return $html;
+    }
+    
+    /*
+     * @desc: This function is used to create acc to Service center, state and city
+     * 
+     * params: void
+     * return :void
+     * 
+     */
+
+    function booking_report_by_service_center() {
+        $data = $this->reporting_utils->get_booking_by_service_center();
+        //Generating HTML for the email
+        $html = '
+                    <html xmlns="http://www.w3.org/1999/xhtml">
+                      <head>
+                        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+                      </head>
+                      <body><div style="margin-top: 30px;font-family:Helvetica;" class="container-fluid">
+                          <table style="width: 90%;margin-bottom: 20px;border: 1px solid #ddd; border-collapse: collapse;">
+                            <thead>
+                              <tr style="padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd">
+                                <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">State</th>
+                                <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE"></th>
+                                <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">Today Completed</th>
+                                <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">Today Cancelled</th>
+                                <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">Yesterday Completed</th>
+                                <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">Yesterday Cancelled</th>
+                                <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">' . date('M') . ' Booking Completed</th>
+                                <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">' . date('M') . ' Booking Cancelled</th>
+                                <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">Last 3 Days Booking Pending</th>
+                                <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">Pending > 5 Days Booking</th>
+
+                              </tr>
+                            </thead>
+                            <tbody >';
+        foreach ($data as $key => $val) {
+
+            //Setting State value
+            if (isset($val['today']['state'])) {
+                $state = $val['today']['state'];
+            } elseif (isset($val['yesterday']['state'])) {
+                $state = $val['yesterday']['state'];
+            } elseif (isset($val['month']['state'])) {
+                $state = $val['month']['state'];
+            } elseif (isset($val['last_3_day']['state'])) {
+                $state = $val['last_3_day']['state'];
+            } elseif (isset($val['greater_than_5_days']['state'])) {
+                $state = $val['greater_than_5_days']['state'];
+            }
+
+            $html.= "<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'>"
+                    . "<td colspan='2'><span style='color:#FF9900;'>" . $state . "</span></td></tr>";
+
+            $html.="<tr>" .
+                    "<td style='text-align: center;border: 1px solid #ddd;'>" . $this->vendor_model->getVendorContact($key)[0]['district'] .
+                    "</td><td style='text-align: center;border: 1px solid #ddd;font-size:80%;'>" . $this->vendor_model->getActiveVendor($key)[0]['name'] .
+                    " </td><td style='text-align: center;border: 1px solid #ddd;background:#E5E0D1'>" . (isset($val['today']['completed']) ? $val['today']['completed'] : '  ') .
+                    " </td><td style='text-align: center;border: 1px solid #ddd;background:#E5E0D1'>" . (isset($val['today']['cancelled']) ? $val['today']['cancelled'] : ' ') .
+                    " </td><td style='text-align: center;border: 1px solid #ddd;background:#E5E0D1'>" . (isset($val['yesterday']['completed']) ? $val['yesterday']['completed'] : '  ') .
+                    " </td><td style='text-align: center;border: 1px solid #ddd;background:#E5E0D1'>" . (isset($val['yesterday']['cancelled']) ? $val['yesterday']['cancelled'] : '  ') .
+                    " </td><td style='text-align: center;border: 1px solid #ddd;background:#E5E0D1'>" . (isset($val['month']['completed']) ? $val['month']['completed'] : '  ') .
+                    " </td><td style='text-align: center;border: 1px solid #ddd;background:#E5E0D1'>" . (isset($val['month']['cancelled']) ? $val['month']['cancelled'] : '  ') .
+                    " </td><td style='text-align: center;border: 1px solid #ddd;background:#E5E0D1'>" . (isset($val['last_3_day']['pending']) ? $val['last_3_day']['pending'] : '  ') .
+                    " </td><td style='text-align: center;border: 1px solid #ddd;background:#E5E0D1'>" . (isset($val['greater_than_5_days']['pending']) ? $val['greater_than_5_days']['pending'] : '  ') .
+                    " </td></tr>";
+        }
+        $html .= '</tbody>
+                          </table>
+                        </div>';
+        $html .= '</body>
+                    </html>';
+
+        $to = "anuj@247around.com, nits@247around.com";
+        $this->notify->sendEmail("booking@247around.com", $to, "", "", "Service Center Report", $html, "");
+        log_message('info', __FUNCTION__ . 'Service Center Report mail sent.');
     }
 
 }
