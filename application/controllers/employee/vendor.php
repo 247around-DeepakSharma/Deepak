@@ -337,6 +337,7 @@ class vendor extends CI_Controller {
     function process_assign_booking_form() {
         $service_center = $this->input->post('service_center');
         $url = base_url() . "employee/do_background_process/assign_booking";
+
         foreach ($service_center as $booking_id => $service_center_id) {
             if ($service_center_id != "") {
                 $data = array();
@@ -344,6 +345,9 @@ class vendor extends CI_Controller {
                 $data['service_center_id'] = $service_center_id;
                 //Assign service centre
                 $this->booking_model->assign_booking($booking_id, $service_center_id);
+
+                $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR,_247AROUND_PENDING,"", $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+
                 // Delete Previous Assigned vendor data from service center action table
                 //$this->vendor_model->delete_previous_service_center_action($booking_id);
 
@@ -352,7 +356,7 @@ class vendor extends CI_Controller {
 
         }
 
-        redirect(base_url() . DEFAULT_SEARCH_PAGE);
+        //redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
 
@@ -404,6 +408,8 @@ class vendor extends CI_Controller {
                 $data['unit_details_id'] = $value['unit_id'];
                 $this->vendor_model->insert_service_center_action($data);
             }
+
+            $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR,"", $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
 
             //Setting mail to vendor flag to 0, once booking is re-assigned
             $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);

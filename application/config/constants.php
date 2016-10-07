@@ -72,6 +72,12 @@ define('PINCODE_AVAILABLE','p_av');
 define('PINCODE_NOT_AVAILABLE','p_nav');
 //Pincode not available OR Pincode Avaliable Queies
 define('PINCODE_ALL_AVAILABLE','p_all');
+// Assigned Vendor
+define('ASSIGNED_VENDOR','Assigned_vendor');
+//Re-Assigned Vendor
+define('RE_ASSIGNED_VENDOR','Re-Assigned_vendor');
+
+
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
