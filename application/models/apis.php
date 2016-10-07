@@ -1441,7 +1441,7 @@ class Apis extends CI_Model {
 
         //log_message('info', "service id: " . $service_id);
         //2. find pricing info from table based on the service id
-        $this->db->select('category, capacity, service_category, check_box, total_charges');
+        $this->db->select('category, capacity, service_category, check_box, customer_total');
         $this->db->where(array('service_id' => $service_id, 'active' => '1'));
         //$this->db->group_by(array("category", "capacity"));
         $query = $this->db->get("service_centre_charges");
