@@ -37,7 +37,7 @@
                     }
                     ?>
                 <img src="<?php echo base_url()?>images/logo.jpg" style="display: inline;">
-                <p style="display: inline; color: #fff;margin-left:33px;font-size: 22px; ">Welcome to Partner Portal</p>
+                <p style="display: inline; color: #fff;margin-left:33px;font-size: 22px; ">Welcome to 247around Partner Portal</p>
                 <div class="col-md-offset-3">
                     <form class="form-horizontal" action="<?php echo base_url(); ?>employee/partner/partner_login" style="margin-top:45px;" method="post" id="login_form">
                         <div class="form-group">

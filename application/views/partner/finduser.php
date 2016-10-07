@@ -2,9 +2,6 @@
     <div class="container-fluid">
         <div class="row">
 
-            <div class="panel panel-info" style="margin-top:8px;">
-                <div class="panel-heading"><center><strong style="font-size:140%;">Search Booking</strong></center></div>
-            </div>
             <div class="search_panel">
                 <div class="container" style="margin-left:90px;width:90%;">
                     <?php
@@ -76,7 +73,7 @@
             </div>
             <div class="form-group">
                 <center>
-                    <?php echo "<input type='submit' value='Find' class='btn btn-lg btn-primary clear'>" ?>
+                    <?php echo "<input type='submit' value='Find' class='btn btn-lg btn-primary clear' style='background-color: #2C9D9C;border-color: #2C9D9C;'>" ?>
                 </center>
             </div>
 

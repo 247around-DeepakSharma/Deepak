@@ -37,7 +37,7 @@
                               <label for="Service" class="col-md-2">Reason</label>
                               <div class="col-md-6">
                                  <select class=" form-control" name ="escalation_reason_id" >
-                                    <option selected disabled>-----------Select Reason Any One------------</option>
+                                    <option selected disabled>----------- Select Reason ------------</option>
                                     <?php 
                                        foreach ($escalation_reason as $reason) {     
                                        ?>

@@ -986,7 +986,7 @@ CREATE TABLE `247around_vendor_pincode_mapping` (
  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
  `active` int(1) NOT NULL DEFAULT '1',
  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=38861 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
 -- Anuj 04 Oct
 CREATE TABLE `vendor_invoices_snapshot_draft` (
@@ -1023,22 +1023,22 @@ ALTER TABLE `vendor_invoices_snapshot_draft`
 
 -- Belal 01 Oct
 
-CREATE TABLE `247around_email_template` (
- `id` int(5) NOT NULL AUTO_INCREMENT,
- `entity` varchar(50) NOT NULL,
- `template` varchar(50) NOT NULL,
- `subject` varchar(200) NOT NULL,
- `body` varchar(1000) NOT NULL,
- `from` varchar(50) NOT NULL,
- `to` varchar(100) NOT NULL,
- `cc` varchar(100) NOT NULL,
- `bcc` varchar(100) NOT NULL,
- `template_values` varchar(256) NOT NULL COMMENT 'tablename.columnname.primarykey',
- `attachment` varchar(100) NOT NULL,
- `active` varchar(1) NOT NULL COMMENT '1->Active, 0->Disabled',
- `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
- PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+CREATE TABLE  `247around_email_template` (
+ `id` INT( 11 ) NOT NULL AUTO_INCREMENT ,
+ `entity` VARCHAR( 50 ) NOT NULL ,
+ `template` VARCHAR( 4096 ) NOT NULL ,
+ `subject` VARCHAR( 512 ) NOT NULL ,
+ `body` VARCHAR( 4096 ) NOT NULL ,
+ `from` VARCHAR( 128 ) NOT NULL ,
+ `to` VARCHAR( 1024 ) NOT NULL ,
+ `cc` VARCHAR( 1024 ) NOT NULL ,
+ `bcc` VARCHAR( 1024 ) NOT NULL ,
+ `template_values` VARCHAR( 1024 ) NOT NULL COMMENT  'tablename.columnname.primarykey',
+ `attachment` VARCHAR( 128 ) NOT NULL ,
+ `active` VARCHAR( 1 ) NOT NULL COMMENT  '1->Active, 0->Disabled',
+ `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+PRIMARY KEY (  `id` )
+) ENGINE = INNODB AUTO_INCREMENT =1 DEFAULT CHARSET = latin1
 
 INSERT INTO `247around_email_template` (`id`, `entity`, `template`, `subject`, `body`, `from`, `to`, `cc`, `bcc`, `template_values`, `attachment`, `active`, `create_date`) VALUES
 (1, 'vendor', 'vendor_login_details', '247Around Login Details', 'Dear Partner,<br><br>\nFollowing are the login credentials to 247Around CRM.<br><br>\n<b>Username : </b> %s <br>\n<b>Password : </b> %s <br>\nFor any confusion, write to us or call us.<br><br>\nRegards,<br>\n247around Team', 'booking@247around.com', '', '', '', 'service_centers_login.user_name.service_center_id,service_centers_login.user_name.service_center_id', '', '1', '2016-09-30 06:08:55');

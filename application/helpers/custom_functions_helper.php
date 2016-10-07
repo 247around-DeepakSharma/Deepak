@@ -40,9 +40,9 @@ if (!function_exists('search_for_key')) {
 if (!function_exists('minimumCheck')) {
 
     function minimumCheck($num) {
-        if ($num > 0) {
+        if ($num == 0) {
             $this->form_validation->set_message(
-                    'your_number_field', 'The %s field must be greater than 0'
+                    'your_number_field', 'Invalid data in %s field'
             );
             return FALSE;
         } else {

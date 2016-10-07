@@ -144,8 +144,8 @@
                     <option value="<?php echo base_url().'employee/booking/view'?>" <?php if($this->uri->segment(4) == 50){ echo 'selected';}?>>50</option>
                     <option value="<?php echo base_url().'employee/booking/view/100/0'?>" <?php if($this->uri->segment(4) == 100){ echo 'selected';}?>>100</option>
                     <option value="<?php echo base_url().'employee/booking/view/200/0'?>" <?php if($this->uri->segment(4) == 200){ echo 'selected';}?>>200</option>
-                    <option value="<?php echo base_url().'employee/booking/view/400/0'?>" <?php if($this->uri->segment(4) == 400){ echo 'selected';}?>>400</option>
-                    <option value="<?php echo base_url().'employee/booking/view/0/All'?>"<?php if($this->uri->segment(5) == "All"){ echo 'selected';}?> >All</option>
+                    <!--<option value="<?php echo base_url().'employee/booking/view/400/0'?>" <?php if($this->uri->segment(4) == 400){ echo 'selected';}?>>400</option>-->
+                    <!--<option value="<?php echo base_url().'employee/booking/view/0/All'?>"<?php if($this->uri->segment(5) == "All"){ echo 'selected';}?> >All</option>-->
 
                 </select>
             </div>

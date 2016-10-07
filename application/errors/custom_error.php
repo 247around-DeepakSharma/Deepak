@@ -2,7 +2,6 @@
 <html>
     <head>
 	<title>Page Not Found</title>
-	<meta name="keywords" content="404 iphone web template, Andriod web template, Smartphone web template, free webdesigns for Nokia, Samsung, LG, SonyErricsson, Motorola web design" />
 	<link href="<?php echo base_url(); ?>css/404.css" rel="stylesheet" type="text/css"  media="all" />
     </head>
     <body>

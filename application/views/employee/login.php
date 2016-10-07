@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <title>
-            Welcome
+            Welcome to 247around CRM
         </title>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -66,7 +66,7 @@
                 <div class="col-md-5 login_tab"  style="background-color: #2C9D9C; margin-right: 20px;">
                     <div class="tab-content"  style="padding:20px; ">
                         <img src="<?php echo base_url()?>images/logo.jpg" style="display: inline;">
-                        <p style="display: inline; color: #fff;margin-left:33px;font-size: 22px; ">Welcome to  Telecaller Portal</p>
+                        <p style="display: inline; color: #fff;margin-left:33px;font-size: 22px; ">Welcome to  247around CRM</p>
                         <div class="tab-pane fade in active">
                             <form class="home_form" action="<?php echo base_url(); ?>employee/login" style="margin-top:45px;" method="post" id="login_form">
                                 <div class="form-group col-md-offset-2" style="margin-bottom: 39px;">

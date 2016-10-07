@@ -872,8 +872,10 @@ class Partner extends CI_Controller {
      * @param String $booking_id
      */
     function process_escalation($booking_id){
-        log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
+        log_message('info', __FUNCTION__ . " Booking Id: " . $booking_id);
+        
         $this->checkUserSession();
+        
         $this->form_validation->set_rules('escalation_reason_id', 'Escalation Reason', 'trim|required');
 
         if ($this->form_validation->run() == FALSE) {
@@ -881,28 +883,42 @@ class Partner extends CI_Controller {
         } else {
             $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
             $booking_date_timeslot = $this->vendor_model->getBookingDateFromBookingID($booking_id);
+            
+            $escalation['booking_id'] = $booking_id;
+            //TODO:
+            //Add vendor id as well
+            
             $escalation['booking_date'] = date('Y-m-d', strtotime($booking_date_timeslot[0]['booking_date']));
             $escalation['booking_time'] = $booking_date_timeslot[0]['booking_timeslot'];
+            
             log_message('info', __FUNCTION__ . " escalation_reason  " . print_r($escalation, true));
             
             //inserts vendor escalation details
             $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
             if($escalation_id){
                 log_message('info', __FUNCTION__ . " Escalation INSERTED ");
-                $to = "abhaya@247around.com"; $cc =""; $bcc=""; $attachment = "";
-                $from = "booking@247around.com";
-                $subject = "Escalate booking " .$booking_id." from partner ". $this->session->userdata('partner_name');
-                $message = "Escalate booking " .$booking_id." from partner ". $this->session->userdata('partner_name');
+                $from = "escalations@247around.com";
+                $to = "escalations@247around.com"; 
+                $cc = "escalations@247around.com, nits@247around.com"; 
+                $bcc=""; $attachment = "";
+                
+                $subject = "Booking " . $booking_id . " Escalated By Partner " . $this->session->userdata('partner_name');
+                $message = "Booking " . $booking_id . " Escalated By Partner " . $this->session->userdata('partner_name');
+                
                 $is_mail = $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
+                
                 if($is_mail){
-                    log_message('info', __FUNCTION__ . " Mail Sent ");
+                    log_message('info', __FUNCTION__ . " Escalation Mail Sent ");
                     
-                    $reason_flag['escalation_policy_flag'] = json_encode(array('mail_to_anuj'=>1), true);
+                    $reason_flag['escalation_policy_flag'] = json_encode(array('mail_to_escalation_team'=>1), true);
+                    
                     $this->vendor_model->update_esclation_policy_flag($escalation_id, $reason_flag, $booking_id);
-                    $this->session->set_flashdata('success', 'Booking '. $booking_id. " Escalated");
                 }
             }
-            log_message('info', __FUNCTION__ . " Exist from method ");
+            
+            log_message('info', __FUNCTION__ . " Exiting");
+            
+            $this->session->set_flashdata('success', 'Booking '. $booking_id. " has been escalated, our team will look into this immediately.");
 
             redirect(base_url() . "partner/escalation_form/".$booking_id);
         }

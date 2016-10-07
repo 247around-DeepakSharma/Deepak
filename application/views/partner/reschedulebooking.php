@@ -21,11 +21,11 @@
                                     <input type="text" class="form-control"  name="current_booking_date" value = "<?php if (isset($data[0]['booking_date'])) {echo $data[0]['booking_date']; }?>"  disabled>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="reason" class="col-md-4">Current Booking Timeslot</label>
+                            <div class="form-group ">
+                                <label for="services" class="col-md-4">Appliance</label>
                                 <div class="col-md-6">
-                                    <input type="text"  class="form-control" name="booking_timeslot" value="<?php if (isset($data[0]['booking_timeslot'])) {echo $data[0]['booking_timeslot']; }?>"  disabled>
-                                    <?php echo form_error('booking_timeslot'); ?>
+                                    <input type="text" class="form-control"  name="services" value = "<?php if (isset($data[0]['services'])) {echo $data[0]['services']; }?>"  disabled>
+                                   
                                 </div>
                             </div>
                             <hr style="width:200%;">
@@ -55,19 +55,11 @@
                                    
                                 </div>
                             </div>
-                            <div class="form-group ">
-                                <label for="services" class="col-md-4">Appliance</label>
-                                <div class="col-md-6">
-                                    <input type="text" class="form-control"  name="services" value = "<?php if (isset($data[0]['services'])) {echo $data[0]['services']; }?>"  disabled>
-                                   
-                                </div>
-                            </div>
                         </div>
                     </div>
                     <div>
                         <center>
                             <input type="submit" value="Reschedule Booking" class="btn btn-danger" style="background-color: #2C9D9C;border-color: #2C9D9C;">
-                            
                         </center>
                     </div>
                 </form>
