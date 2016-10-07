@@ -27,6 +27,10 @@
                            <th>City</th>
                            <th>Booking Date</th>
                            <th>View</th>
+                           <th>Reschedule</th>
+                           <th>Cancel</th>
+                           <th>Job Card</th>
+                           <th>Escalate</th>
                           
                         </tr>
                      </thead>
@@ -42,7 +46,13 @@
                               <?=$row->order_id; ?>
                            </td>
                            <td >
-                              <?=$row->booking_id?>
+                              <?php
+                            if (is_null($row->booking_jobcard_filename)) {
+                                echo $row->booking_id;
+                            } else {
+                                echo '<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';
+                            }
+                            ?>
                            </td>
                            <td>
                               <?=$row->customername;?>
@@ -62,6 +72,17 @@
                            
                          
                            <td><a class='btn btn-sm btn-primary' href="<?php echo base_url();?>partner/booking_details/<?=$row->booking_id?>" target='_blank' title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>
+                           <td>
+                           <a href="<?php echo base_url(); ?>partner/get_reschedule_booking_form/<?php echo $row->booking_id; ?>" id="reschedule" class="btn btn-sm btn-success" title ="Reschedule"><i class='fa fa-calendar' aria-hidden='true' ></i></a>
+                            
+                           </td>
+
+                            <td><a href="<?php echo base_url(); ?>partner/get_cancel_form/Pending/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
+                           </td>
+                            <td><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm' download><i class="fa fa-download" aria-hidden="true"></i></a></td>
+                            <td>
+                                <a href="<?php echo base_url(); ?>partner/escalation_form/<?php echo $row->booking_id; ?>" <?php if($row->assigned_vendor_id == null){ echo "disabled"; }?> class='btn btn-sm btn-danger' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
+                            </td>
                            
                         </tr>
                         <?php $sn_no++; } ?>

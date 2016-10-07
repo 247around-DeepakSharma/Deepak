@@ -246,8 +246,14 @@ class Booking_model extends CI_Model {
         if ($service_center_id != "") {
             $where .= " AND assigned_vendor_id = '" . $service_center_id . "'";
             $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
-
         } 
+
+        $add_limit = "";
+
+        if($start !== "All"){
+            $add_limit = " limit $start, $limit ";
+        }
+
 
         $query = $this->db->query("Select services.services,
             users.name as customername, users.phone_number,
@@ -258,21 +264,11 @@ class Booking_model extends CI_Model {
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id` WHERE
     		`booking_id` NOT LIKE 'Q-%' $where AND
-            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled')"
+            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled') order by STR_TO_DATE(`booking_details`.booking_date,'%d-%m-%Y') desc $add_limit"
         );
 
-        $temp = $query->result();
-
-        if($limit =="All"){
-
-            usort($temp, array($this, 'date_compare_bookings'));
-            return $temp;
-        } else  {
-
-             //return slice of the sorted array
-            usort($temp, array($this, 'date_compare_bookings'));
-            return array_slice($temp, $start, $limit);
-        }
+       // echo $this->db->last_query();
+        return $query->result();
 
     }
 
@@ -1019,21 +1015,21 @@ class Booking_model extends CI_Model {
      *  @param : start and limit for the query
      *  @return : array(specific no of pending query detils)
      */
-    function get_queries($limit, $start, $status, $booking_id = "") {
+    function get_queries($limit, $start, $status, $p_av, $booking_id = "") {
         $where = "";
         $add_limit = "";
 
         if ($booking_id != "") {
             $where .= "AND `booking_details`.`booking_id` = '$booking_id' AND `booking_details`.current_status='$status'  ";
         } else {
-            if ($limit != 'All') {
+            if ($start != 'All') {
                 $where .= "AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR
                 booking_details.booking_date='') AND `booking_details`.current_status='$status' ";
 
                 $add_limit = " limit $start, $limit ";
 
 
-            } else if($limit == 'All') {
+            } else if($start == 'All') {
 
                 $where .= " AND `booking_details`.current_status='$status' ";
             }
@@ -1060,8 +1056,13 @@ class Booking_model extends CI_Model {
         
         $temp = $query->result();
         //usort($temp, array($this, 'date_compare_queries'));
+        if($status != "Cancelled"){
+            $data = $this->searchPincodeAvailable($temp, $p_av);
 
-        $data = $this->searchPincodeAvailable($temp);
+        } else {
+            $data = $temp;
+
+        }
 
         return $data;
 
@@ -1073,7 +1074,7 @@ class Booking_model extends CI_Model {
      * @param : Array
      * @return : Array
      */
-    function searchPincodeAvailable($temp) {
+    function searchPincodeAvailable($temp, $pv) {
         foreach ($temp as $key => $value) {
             $this->db->distinct();
             $this->db->select('Vendor_ID, Vendor_Name');
@@ -1087,9 +1088,23 @@ class Booking_model extends CI_Model {
             $this->db->where('service_centres.active', "1");
             $data = $this->db->get();
             if ($data->num_rows() > 0) {
-                $temp[$key]->vendor_status = $data->result_array();
+                if($pv == PINCODE_AVAILABLE){
+                    $temp[$key]->vendor_status = $data->result_array();
+                } else if($pv == PINCODE_NOT_AVAILABLE) {
+                    unset($temp[$key]);
+                } else if($pv == PINCODE_ALL_AVAILABLE){
+                     $temp[$key]->vendor_status = $data->result_array();
+                }
+                
             } else {
-                $temp[$key]->vendor_status = "Vendor Not Available";
+                if($pv == PINCODE_AVAILABLE){
+                    unset($temp[$key]);
+                } else if($pv == PINCODE_NOT_AVAILABLE) {
+                    $temp[$key]->vendor_status = "Vendor Not Available";
+                } else if($pv == PINCODE_ALL_AVAILABLE){
+                    $temp[$key]->vendor_status = "Vendor Not Available";
+                }
+                
             }
         }
 
@@ -1149,7 +1164,7 @@ class Booking_model extends CI_Model {
 
         if (strpos($temp[0]->booking_id, "Q-") !== FALSE) {
 
-            $data = $this->searchPincodeAvailable($temp);
+            $data = $this->searchPincodeAvailable($temp, PINCODE_ALL_AVAILABLE);
             return $data;
         }
     }
@@ -1598,29 +1613,20 @@ class Booking_model extends CI_Model {
      * @desc: update price in booking unit details
      */
     function update_unit_details($data){
-        // get booking unit data on the basis of id
-        $this->db->select('around_net_payable, partner_net_payable, tax_rate, price_tags, partner_paid_basic_charges, around_paid_basic_charges');
-        $this->db->where('id', $data['id']);
-        $query = $this->db->get('booking_unit_details');
-        $unit_details = $query->result_array();
-
+        
         if($data['booking_status'] == "Completed"){
+            // get booking unit data on the basis of id
+            $this->db->select('around_net_payable, partner_net_payable, tax_rate, price_tags, partner_paid_basic_charges, around_paid_basic_charges');
+            $this->db->where('id', $data['id']);
+            $query = $this->db->get('booking_unit_details');
+            $unit_details = $query->result_array();
 
             $this->update_price_in_unit_details($data, $unit_details);
 
-        } else {
-
-            $data['customer_total'] = 0;
-            $unit_details[0]['partner_net_payable'] = 0;
-            $unit_details[0]['around_net_payable'] =0;
-            $unit_details[0]['tax_rate'] = 0;
-            $data['customer_net_payable'] = 0;
-            $data['partner_paid_basic_charges'] = 0;
-            $data['around_paid_basic_charges'] = 0;
-
-
+        } else if($data['booking_status'] == "Cancelled") {
             // Update price in unit table
-            $this->update_price_in_unit_details($data, $unit_details);
+            $this->db->where('id', $data['id']);
+            $this->db->update('booking_unit_details', array('booking_status' => 'Cancelled'));
         }
 
     }
@@ -1728,6 +1734,8 @@ class Booking_model extends CI_Model {
         }
         
         $result['booking_status'] = $data['booking_status'];
+        $result['partner_paid_basic_charges'] = $result['partner_net_payable'];
+        $result['around_paid_basic_charges'] = $result['around_net_payable'] = 0;
 
         log_message('info', ": " . " insert new item in booking unit details data " . print_r($result, TRUE));
 
@@ -1737,7 +1745,7 @@ class Booking_model extends CI_Model {
         log_message('info', ": " . " insert new item in booking unit details returned id " . print_r($new_unit_id, TRUE));
 
         $data['id'] = $new_unit_id;
-         log_message('info', ": " . " update booking unit details data " . print_r($data, TRUE));
+        log_message('info', ": " . " update booking unit details data " . print_r($data, TRUE));
 
         $this->update_unit_details($data);
 

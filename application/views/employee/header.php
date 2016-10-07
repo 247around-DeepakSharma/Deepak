@@ -12,6 +12,8 @@
         <link href="<?php echo base_url()?>css/bootstrap.min.css" rel="stylesheet">
         <!-- Custom CSS -->
         <link href="<?php echo base_url()?>css/sb-admin.css" rel="stylesheet">
+        <!-- Animate CSS -->
+        <link href="<?php echo base_url()?>css/animate.css" rel="stylesheet">
         <!-- Custom Fonts -->
         <link href="<?php echo base_url()?>font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
         <script src="<?php echo base_url()?>js/jquery.js"></script>
@@ -25,6 +27,10 @@
         <link href="<?php echo base_url()?>css/select2.min.css" rel="stylesheet" />
         <link href="<?php echo base_url()?>css/style.css" rel="stylesheet" />
         <script src="<?php echo base_url();?>js/select2.min.js"></script>
+        <!-- Loading Form js -->
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
+        <!-- Loading Noty script library -->
+        <script type="text/javascript" src="<?php echo base_url()?>js/plugins/noty/packaged/jquery.noty.packaged.min.js"></script>
          
     </head>
     <body>
@@ -52,11 +58,15 @@
                     </a>
                     <ul class="dropdown-menu  ">
                         <li >
-                            <a  href="<?php echo base_url() ?>employee/booking/view_queries/FollowUp"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Queries</a></strong>
+                            <a  href="<?php echo base_url() ?>employee/booking/view_queries/FollowUp/p_av"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Queries</a></strong>
                         </li>
                         <li class="divider"></li>
                         <li >
-                            <a href="<?php echo base_url() ?>employee/booking/view_queries/Cancelled"><i class="fa fa-fw fa-desktop"></i> <strong> Cancelled Queries</strong></a>
+                            <a  href="<?php echo base_url() ?>employee/booking/view_queries/FollowUp/p_nav"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Queries Pincode Not Available</a></strong>
+                        </li>
+                        <li class="divider"></li>
+                        <li >
+                            <a href="<?php echo base_url() ?>employee/booking/view_queries/Cancelled/p_all"><i class="fa fa-fw fa-desktop"></i> <strong> Cancelled Queries</strong></a>
                         </li>
                     </ul>
                     <!-- /.dropdown-messages -->

@@ -229,9 +229,9 @@ class vendor_model extends CI_Model {
      *  @param : void
      *  @return : array of id and escalation reasons
      */
-    function getEscalationReason() {
+    function getEscalationReason($entity) {
         $this->db->select('id,escalation_reason');
-        $this->db->where('active', '1');
+        $this->db->where($entity);
         $query = $this->db->get("vendor_escalation_policy");
         return $query->result_array();
     }
@@ -551,10 +551,14 @@ class vendor_model extends CI_Model {
         unset($flag[0]['create_date']);
 
         $reason_flag['escalation_policy_flag'] = json_encode($flag);
+        return $this->update_esclation_policy_flag($id, $reason_flag, $booking_id);
+    }
 
+    function update_esclation_policy_flag($id, $reason_flag, $booking_id){
         $this->db->where('id', $id);
         $this->db->update('vendor_escalation_log', $reason_flag);
         return $this->getUserDetails($booking_id);
+
     }
 
     /**
@@ -1090,6 +1094,41 @@ class vendor_model extends CI_Model {
         $data = $this->db->get();
         
         return $data->result_array();
+    }
+
+    /**
+     *@desc: This function is used to get Active email templates from 247around_email_template
+     * params: Array consists of  
+     *        select, where values 
+     * return: Array of data
+     */
+    function get_247around_email_template($data){
+        if(!isset($data['select'])){
+            $data['select'] = '*';
+        }
+        $this->db->select($data['select']);
+        if(isset($data['where'])){
+            $this->db->where($data['where']);
+        }
+        $this->db->where('active',1);
+        $query = $this->db->get('247around_email_template');
+        return $query->result_array();
+    }
+    /**
+     * @desc: This function is used to fetch values acc to table name and columns, where provided
+     * params: Array consisting of table name, primary key column(where clause column),column value to be searched, columns to be selected
+     * return: Array if table name provided is present, else FALSE
+     * 
+     */
+    function get_data($data) {
+        $this->db->select($data['column_name']);
+        $this->db->where($data['primary_key'], $data['id']);
+        if ($this->db->table_exists($data['table_name'])) {
+            $query = $this->db->get($data['table_name']);
+        } else {
+            return false;
+        }
+        return $query->result_array();
     }
 
 }

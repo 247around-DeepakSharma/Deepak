@@ -1,8 +1,5 @@
-<?php
-$this->db_location = $this->load->database('default1', TRUE,TRUE);
-        $this->db = $this->load->database('default', TRUE,TRUE);
-?>
-    <script>
+<!-- 
+<script>
         function get_non_working_days_for_vendor(i) {
             var booking_date = $("#particular_booking_date" + i).val().split("-");
             //converting booking date into javascript date format
@@ -37,23 +34,20 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
             });
         }
 
-    </script>
+    </script> -->
+
     <div id="page-wrapper">
         <div class="">
             <div class="row">
                 <div style="width:auto;margin:50px;">
                     <h2><b>Assign Booking to Service Center</b></h2>
-                    <form id="myForm" class="form-horizontal" action="<?php echo base_url() ?>employee/vendor/process_assign_booking_form" method="POST">
+                    <form id="myForm" class="form-horizontal"  method="POST"  onsubmit="return submitForm();" name="fileinfo">
                         <table class="table table-striped table-bordered">
                             <tr>
                                 <th>Serial No.</th>
                                 <th>Booking Id</th>
                                 <th>Customer Name</th>
                                 <th>Appliance</th>
-<!--
-                                <th>Brand</th>
-                                <th>Category</th>
--->
                                 <th>Booking Date</th>
                                 <th>Booking Address</th>
                                 <th>Pincode</th>
@@ -73,14 +67,6 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
                                 <td>
                                     <?=$row['services'];?>
                                 </td>
-<!--
-                                <td>
-                                    <?=$row['appliance_brand'];?>
-                                </td>
-                                <td>
-                                    <?= $row['appliance_category']; ?>
-                                </td>
--->
                                 <td>
                                     <input type="hidden" id="particular_booking_date<?php echo $count; ?>" name="particular_booking_date<?php echo $count; ?>" value="<?= $row['booking_date']; ?>">
                                     <?= $row['booking_date']; ?>
@@ -109,8 +95,8 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
                             <input type="hidden" name="count" id="count" value="<?php echo $count; ?>">
                         </table>
                         <center>
-                            <div>
-                                <input type="Submit" value="Save" class="btn btn-primary btn-lg">
+                            <div id="loading">
+                                <input type="Submit" id="submit_button" value="Save" class="btn btn-primary btn-lg">
 <!--                                <input type="Reset" value="Cancel" class="btn btn-danger btn-lg">-->
                             </div>
                         </center>
@@ -124,4 +110,29 @@ $this->db_location = $this->load->database('default1', TRUE,TRUE);
    $('#myForm').one('submit', function() {
     $(this).find('input[type="submit"]').attr('disabled','disabled');
 });
+</script>
+
+<script>
+function submitForm() {
+  var html = "<img src='<?php echo base_url(); ?>images/loader.gif' />";
+  $('#submit_button').hide();
+  $('#loading').append(html);
+           
+  var fd = new FormData(document.getElementById("myForm"));
+  fd.append("label", "WEBUPLOAD");
+  $.ajax({
+      url: "<?php echo base_url() ?>employee/vendor/process_assign_booking_form",
+      type: "POST",
+      data: fd,
+      processData: false,  // tell jQuery not to process the data
+      contentType: false   // tell jQuery not to set contentType
+  }).done(function( data ) {
+    //console.log(data);
+     location.reload();
+      
+  });
+
+  return false;
+   
+}
 </script>

@@ -1,4 +1,4 @@
-<?php $offset = $this->uri->segment(4); ?>
+<?php $offset = $this->uri->segment(5); ?>
 
 <script type="text/javascript" src="<?php echo base_url();?>js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="<?php echo base_url();?>js/jquery-ui-1.7.1.custom.min.js"></script>
@@ -142,12 +142,11 @@
             <div class="pagination">
                 <select id="dynamic_select">
                     <option value="<?php echo base_url().'employee/booking/view'?>" <?php if($this->uri->segment(4) == 50){ echo 'selected';}?>>50</option>
-                    <option value="<?php echo base_url().'employee/booking/view/0/100'?>" <?php if($this->uri->segment(5) == 100){ echo 'selected';}?>>100</option>
-                    <option value="<?php echo base_url().'employee/booking/view/0/200'?>" <?php if($this->uri->segment(5) == 200){ echo 'selected';}?>>200</option>
-                    <option value="<?php echo base_url().'employee/booking/view/0/All'?>" <?php if($this->uri->segment(3) == 'view_all_pending_booking'){ echo 'selected';}?>>All</option>
-                    <?php if ($this->uri->segment(5)){if($this->uri->segment(5) != 50 || $this->uri->segment(5) != 100 || $this->uri->segment(5) != 200 || $this->uri->segment(5) != 'All'  ){?>
-                    <option value="" <?php if($this->uri->segment(5) == count($Bookings)){ echo 'selected';}?>><?php echo $this->uri->segment(5);?></option>
-                    <?php } }?>
+                    <option value="<?php echo base_url().'employee/booking/view/100/0'?>" <?php if($this->uri->segment(4) == 100){ echo 'selected';}?>>100</option>
+                    <option value="<?php echo base_url().'employee/booking/view/200/0'?>" <?php if($this->uri->segment(4) == 200){ echo 'selected';}?>>200</option>
+                    <option value="<?php echo base_url().'employee/booking/view/400/0'?>" <?php if($this->uri->segment(4) == 400){ echo 'selected';}?>>400</option>
+                    <option value="<?php echo base_url().'employee/booking/view/0/All'?>"<?php if($this->uri->segment(5) == "All"){ echo 'selected';}?> >All</option>
+
                 </select>
             </div>
             <?php } ?>

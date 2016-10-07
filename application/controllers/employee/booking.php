@@ -65,8 +65,13 @@ class Booking extends CI_Controller {
      *  @return : void
      */
     public function index($user_id) {
+         if($this->input->post()){
+            //Check Validation
+            $checkValidation  = $this->validate_booking();
+            
+        if($checkValidation){
         log_message('info', __FUNCTION__);
-        log_message('info', " Booking Insert User ID: " . print_r($user_id, true));
+        log_message('info', " Booking Insert User ID: " . $user_id);
         $booking = $this->getAllBookingInput($user_id);
 
         $service = $booking['services'];
@@ -79,8 +84,7 @@ class Booking extends CI_Controller {
         $this->booking_model->addbooking($booking);
 
         if ($booking['type'] == 'Booking') {
-            $this->notify->insert_state_change($booking['booking_id'], _247AROUND_PENDING, _247AROUND_NEW_BOOKING,
-                    $booking['booking_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            $this->notify->insert_state_change($booking['booking_id'], _247AROUND_PENDING, _247AROUND_NEW_BOOKING,$booking['booking_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
 
             //Send mail to Admin
             $to = "anuj@247around.com";
@@ -89,8 +93,8 @@ class Booking extends CI_Controller {
             $bcc = "";
             $subject = 'Booking Confirmation-AROUND';
             $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
-            
-            //Send SMS to customer
+            //-------Sending SMS on booking--------//
+
             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
 	    $send['booking_id'] = $booking['booking_id'];
 	    $send['state'] = "Newbooking";
@@ -99,8 +103,21 @@ class Booking extends CI_Controller {
 		$this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY,
                         $booking['query_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
         }
-
+        //Redirect to Default Search Page
         redirect(base_url() . DEFAULT_SEARCH_PAGE);
+        
+        }else{  
+               //Redirect to edit booking page if validation err occurs
+                $this->get_edit_booking_form($booking_id);
+        }
+        }else{
+                //Logging error message if No input is provided
+                log_message('info', __FUNCTION__." Error in Booking Insert User ID: " . print_r($user_id, true));
+                $heading = "247Around Booking Error";
+                $message = "Oops... No input provided !";
+                $error =& load_class('Exceptions', 'core');
+		echo $error->show_error($heading, $message, 'custom_error');
+        }
     }
 
     /**
@@ -262,9 +279,19 @@ class Booking extends CI_Controller {
 		log_message('info', __METHOD__ . " New Appliance ID created: " . print_r($services_details['appliance_id'], true));
 	    }
 	    log_message('info', __METHOD__ . "Appliance details data" . print_r($appliances_details, true));
-	    $where  = array('service_id' => $booking['service_id'],'brand_name' => $value);
+	    
+	    $where  = array('service_id' => $booking['service_id'],'brand_name' => trim($value));
         $brand_id_array  = $this->booking_model->get_brand($where);
-        $brand_id =  $brand_id_array[0]['id'];
+
+        if(!empty($brand_id_array)){
+        	$brand_id =  $brand_id_array[0]['id'];
+
+        } else {
+        	$brand_id =  "";
+
+        }
+
+
 	    //Array ( ['brand'] => Array ( [0] => id_price ) )
 	    foreach ($pricesWithId[$brand_id] as $values) {
 
@@ -473,17 +500,23 @@ class Booking extends CI_Controller {
      *  @param : Starting page & number of results per page
      *  @return : pending bookings according to pagination
      */
-    function view($offset = 0, $page = 0, $booking_id = "") {
+    function view($page = 0, $offset = '0', $booking_id = "") {
 
-	if ($page == '0') {
+	if ($page == 0) {
 	    $page = 50;
 	}
-	//$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
-	$config['base_url'] = base_url() . 'employee/booking/view';
-	$config['total_rows'] = $this->booking_model->total_pending_booking($booking_id);
-
-	$config['per_page'] = $page;
-	$config['uri_segment'] = 4;
+	// $offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
+   
+	$config['base_url'] = base_url() . 'employee/booking/view/'.$page;
+	$config['total_rows'] = count($this->booking_model->date_sorted_booking(0, "All", $booking_id));
+	
+	if($offset != "All"){
+		$config['per_page'] = $page;
+	} else {
+		$config['per_page'] = $config['total_rows'];
+	}	
+	
+	$config['uri_segment'] = 5;
 	$config['first_link'] = 'First';
 	$config['last_link'] = 'Last';
 
@@ -494,6 +527,7 @@ class Booking extends CI_Controller {
 	$data['Bookings'] = $this->booking_model->date_sorted_booking($config['per_page'], $offset, $booking_id);
 	if ($this->session->flashdata('result') != '')
 	    $data['success'] = $this->session->flashdata('result');
+
 
 	$this->load->view('employee/header');
 	$this->load->view('employee/booking', $data);
@@ -507,16 +541,16 @@ class Booking extends CI_Controller {
      *  @param : Starting page & number of results per page
      *  @return : completed bookings according to pagination
      */
-    function viewclosedbooking($status, $offset = 0, $page = 0, $booking_id = "") {
+    function viewclosedbooking($status, $page = 0, $offset = 0, $booking_id = "") {
 	if ($page == '0') {
 	    $page = 50;
 	}
 
 	//$offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
-	$config['base_url'] = base_url() . 'employee/booking/viewclosedbooking/' . $status;
+	$config['base_url'] = base_url() . 'employee/booking/viewclosedbooking/' . $status."/".$page;
 	$config['total_rows'] = $this->booking_model->total_closed_booking($status, $booking_id);
 	$config['per_page'] = $page;
-	$config['uri_segment'] = 5;
+	$config['uri_segment'] = 6;
 	$config['first_link'] = 'First';
 	$config['last_link'] = 'Last';
 
@@ -689,10 +723,8 @@ class Booking extends CI_Controller {
     function update_price_while_cancel_booking($booking_id) {
 	log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
 	$unit_details['booking_status'] = "Cancelled";
-	$unit_details['tax_rate'] = $unit_details['customer_total'] = 0;
-	$unit_details['customer_paid_basic_charges'] = $unit_details['partner_paid_basic_charges'] = 0;
-	$unit_details['around_paid_basic_charges'] = $unit_details['around_comm_basic_charges'] = 0;
 	$unit_details['vendor_to_around'] = $unit_details['around_to_vendor'] = 0;
+
 	log_message('info', __FUNCTION__ . " Update unit details  " . print_r($unit_details, true));
 	$this->booking_model->update_booking_unit_details($booking_id, $unit_details);
     }
@@ -709,21 +741,12 @@ class Booking extends CI_Controller {
      */
     function get_reschedule_booking_form($booking_id) {
 	log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
-	$getbooking = $this->booking_model->getbooking($booking_id);
+	$getbooking = $this->booking_model->getbooking_history($booking_id);
         
-
 	if ($getbooking) {
 
-	    $this->session->userdata('employee_id');
-	    $data['booking_id'] = $getbooking;
-
-	    $query = $this->booking_model->getbooking_history($booking_id);
-
-	    $data1['booking_id'] = $query;
-            //$data['updation_reason'] = $this->booking_model->get_booking_updation_reason('Pending','Pending','247around');
-
 	    $this->load->view('employee/header');
-	    $this->load->view('employee/reschedulebooking', array('data' => $data, 'data1' => $data1));
+	    $this->load->view('employee/reschedulebooking', array('data' => $getbooking));
 	} else {
 	    echo "This Id doesn't Exists";
 	}
@@ -868,8 +891,10 @@ class Booking extends CI_Controller {
 	$partner_id = $this->booking_model->get_price_mapping_partner_code($parter_code);
 
 	$result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $state['state']);
+	
     $where  = array('service_id' => $service_id,'brand_name' => $brand);
     $brand_id_array  = $this->booking_model->get_brand($where);
+
     if(!empty($brand_id_array)){
     	$brand_id = $brand_id_array[0]['id'];
 
@@ -1057,23 +1082,31 @@ class Booking extends CI_Controller {
      *  @param : offset and per page number
      *  @return : list of pending queries according to pagination
      */
-    function view_queries($status, $offset = 0, $page = 0, $booking_id = "") {
-	if ($page == '0') {
+    function view_queries($status, $p_av, $page = 0, $offset = '0', $booking_id = "") {
+	if ($page == 0) {
 	    $page = 50;
 	}
 
-	$offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
-	$config['base_url'] = base_url() . 'employee/booking/view_queries/' . $status;
-	$config['total_rows'] = $this->booking_model->total_queries($status, $booking_id);
+	//$offset = ($this->uri->segment(7) != '' ? $this->uri->segment(7) : 0);
+	$config['base_url'] = base_url() . 'employee/booking/view_queries/' . $status."/".$p_av."/".$page;
+	$total_queries = $this->booking_model->get_queries(0, "All", $status, $p_av, $booking_id);
 
-	$config['per_page'] = $page;
-	$config['uri_segment'] = 5;
+	$config['total_rows'] = count($total_queries); 
+	if($offset == "All"){
+		$config['per_page'] = $config['total_rows'];
+
+	} else {
+		$config['per_page'] = $page;  
+	}
+	
+	$config['uri_segment'] = 7;
 	$config['first_link'] = 'First';
 	$config['last_link'] = 'Last';
 
 	$this->pagination->initialize($config);
 	$data['links'] = $this->pagination->create_links();
-	$data['Bookings'] = $this->booking_model->get_queries($config['per_page'], $offset, $status, $booking_id);
+	$data['Bookings'] = $this->booking_model->get_queries($config['per_page'], $offset, $status, $p_av, $booking_id);
+	$data['p_av'] = $p_av;
 
 	$this->load->view('employee/header');
 	$this->load->view('employee/viewpendingqueries', $data);
@@ -1134,12 +1167,16 @@ class Booking extends CI_Controller {
      * @desc: This function is used to update both Bookings and Queries.
      */
     function update_booking($user_id, $booking_id) {
-	log_message('info', __FUNCTION__ . " Booking ID  " . print_r($booking_id, true) . " User ID: " . print_r($user_id, true));
+        if($this->input->post()){
+            $checkValidation  = $this->validate_booking();
+            
+        if($checkValidation){
+	log_message('info', __FUNCTION__ . " Booking ID  " . $booking_id . " User ID: " . $user_id);
 
 	$booking = $this->getAllBookingInput($user_id, $booking_id);
 	$query_to_booking = $booking['query_to_booking'];
 	$message = $booking['message'];
-    log_message('info', __FUNCTION__ . " Update booking befor unset " . print_r($booking, true));
+        log_message('info', __FUNCTION__ . " Update booking befor unset " . print_r($booking, true));
 
 	unset($booking['message']); // unset message body from booking deatils array
 	unset($booking['services']); // unset service name from booking details array
@@ -1155,17 +1192,29 @@ class Booking extends CI_Controller {
 	    $this->asynchronous_lib->do_background_process($url, $send);
 
 	    $to = "anuj@247around.com";
-	    //$to = "abhaya@247around.com";
 	    $from = "booking@247around.com";
 	    $cc = "";
 	    $bcc = "";
 	    $subject = 'Booking Confirmation-AROUND';
 	    $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
 	}
-	log_message('info', __FUNCTION__ . " Partner callback  " . print_r($booking_id, true));
+	log_message('info', __FUNCTION__ . " Partner callback  " . $booking_id);
 	$this->partner_cb->partner_callback($booking_id);
-
+        
+        //Redirect to Default Search Page
 	redirect(base_url() . DEFAULT_SEARCH_PAGE);
+        }else{
+                //Redirect to edit booking page if validation err occurs
+                $this->get_edit_booking_form($booking_id);
+        }
+        }else{
+                //Logging error if No input is provided
+                log_message('info', __FUNCTION__ . "Error in Update Booking ID  " . print_r($booking_id, true) . " User ID: " . print_r($user_id, true));
+                $heading = "247Around Booking Error";
+                $message = "Oops... No input provided !";
+                $error =& load_class('Exceptions', 'core');
+		echo $error->show_error($heading, $message, 'custom_error');
+        }
     }
 
     /**
@@ -1627,7 +1676,7 @@ class Booking extends CI_Controller {
         $this->notify->insert_state_change($booking_id, _247AROUND_FOLLOWUP , _247AROUND_CANCELLED ,
                 "Cancelled_Query to FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
         
-	redirect(base_url() . 'employee/booking/view_queries/FollowUp/0/0/' . $booking_id);
+	redirect(base_url() . 'employee/booking/view_queries/FollowUp/0/0/'.PINCODE_ALL_AVAILABLE."/" . $booking_id);
     }
     /**
      * @desc: This is used to show Booking Life Cycle of particular Booking
@@ -1641,6 +1690,28 @@ class Booking extends CI_Controller {
         $this->load->view('employee/header');
         $this->load->view('employee/show_booking_life_cycle', $data);
 
+    }
+
+    /**
+     * @desc: This function is used to validate Bookings New/Update
+     * 
+     * params: Array of inputs
+     * return: void
+     */
+    function validate_booking(){
+            $this->form_validation->set_rules('service_id', 'Appliance', 'required|callback_minimumCheck');
+            $this->form_validation->set_rules('source_code', 'Source Code', 'required|callback_minimumCheck');
+            $this->form_validation->set_rules('type', 'Booking Type', 'required|callback_minimumCheck');
+            $this->form_validation->set_rules('grand_total_price', 'Total Price', 'required');
+            $this->form_validation->set_rules('city', 'City', 'required');
+            $this->form_validation->set_rules('booking_date', 'Date', 'required');
+            $this->form_validation->set_rules('booking_primary_contact_no', 'Mobile', 'required|regex_match[/^[7-9]{1}[0-9]{9}$/]');
+            $this->form_validation->set_rules('booking_timeslot', 'Time Slot', 'required|callback_minimumCheck');
+            if ($this->form_validation->run() == FALSE) {
+                return FALSE;
+            } else {
+                return true;
+            }
     }
 
 }

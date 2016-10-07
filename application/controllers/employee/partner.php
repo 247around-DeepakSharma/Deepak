@@ -15,15 +15,16 @@ class Partner extends CI_Controller {
         $this->load->model('partner_model');
         $this->load->model('vendor_model');
         $this->load->model('user_model');
-	$this->load->model('invoices_model');
+        $this->load->model('invoices_model');
 
-	$this->load->library("pagination");
+        $this->load->library("pagination");
         $this->load->library("session");
-	$this->load->library('form_validation');
-	$this->load->library('notify');
+        $this->load->library('form_validation');
+        $this->load->library('notify');
+        $this->load->library('asynchronous_lib');
+        $this->load->library('booking_utilities');
 
-	$this->load->helper(array('form', 'url'));
-
+        $this->load->helper(array('form', 'url'));
     }
 
     /**
@@ -166,7 +167,7 @@ class Partner extends CI_Controller {
         $this->load->view('partner/closed_booking', $data);
     }
 
-        /**
+    /**
      * @desc: this is used to get booking details by using booking ID And load booking booking details view
      * @param: booking id
      * @return: void
@@ -677,17 +678,235 @@ class Partner extends CI_Controller {
      * Get partner Id from session.
      */
     function invoices_details() {
-	$this->checkUserSession();
-	$partner_id = $this->session->userdata('partner_id');
-	$data['vendor_partner'] = "partner";
-	$data['vendor_partner_id'] = $partner_id;
-	$invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
+        $this->checkUserSession();
+        $partner_id = $this->session->userdata('partner_id');
+        $data['vendor_partner'] = "partner";
+        $data['vendor_partner_id'] = $partner_id;
+        $invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
 
-	$data2['partner_vendor'] = "partner";
-	$data2['partner_vendor_id'] = $partner_id;
-	$invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details($data2);
-	$this->load->view('partner/header');
-	$this->load->view('partner/invoice_summary', $invoice);
+        $data2['partner_vendor'] = "partner";
+        $data2['partner_vendor_id'] = $partner_id;
+        $invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details($data2);
+        $this->load->view('partner/header');
+        $this->load->view('partner/invoice_summary', $invoice);
+    }
+
+    /**
+     *  @desc : This function is to select booking/Query to be canceled.
+     *
+     * If $status is followup means it Query and its load internal status
+     *
+     * Opens a form with user's name and option to be choosen to cancel the booking.
+     *
+     * Atleast one booking/Query cancellation reason must be selected.
+     *
+     * If others option is choosen, then the cancellation reason must be entered in the textarea.
+     *
+     *  @param : booking id
+     *  @return : user details and booking history to view
+     */
+    function get_cancel_form($status, $booking_id) {
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id);
+        $data['user_and_booking_details'] = $this->booking_model->getbooking_history($booking_id);
+        if (!empty($data['user_and_booking_details'])) {
+            $data['reason'] = $this->booking_model->cancelreason("partner");
+            $data['status'] = $status;
+            $this->load->view('partner/header');
+            $this->load->view('partner/cancel_form', $data);
+        } else {
+            echo "Booking Id is not exist";
+        }
+    }
+
+    /**
+     *  @desc : This function is to cancels the booking/Query
+     *
+     * Accepts the cancellation reason provided in cancel booking/Query form and then cancels booking with the reason provided.
+     *
+     *  @param : booking id
+     *  @return : cancels the booking and load view
+     */
+    function process_cancel_form($booking_id, $status) {
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
+        $data['cancellation_reason'] = $this->input->post('cancellation_reason');
+        $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
+        $data['current_status'] = $data['internal_status'] = _247AROUND_CANCELLED;
+        $update_status = $this->booking_model->update_booking($booking_id, $data);
+        if ($update_status) {
+            //Update in booking uunit details
+            $this->update_price_while_cancel_booking($booking_id);
+            $booking_data = $this->booking_model->getbooking_history($booking_id);
+            // Update in service center action table is booking is assigned
+            if (!is_null($booking_data[0]['assigned_vendor_id'])) {
+
+                $data_vendor['cancellation_reason'] = $data['cancellation_reason'];
+                //Update this booking in vendor action table
+                $data_vendor['update_date'] = date("Y-m-d H:i:s");
+                $data_vendor['current_status'] = $data_vendor['internal_status'] = _247AROUND_CANCELLED;
+                $data_vendor['booking_id'] = $booking_id;
+                $this->vendor_model->update_service_center_action($data_vendor);
+            }
+
+            //Log this state change as well for this booking
+            //param:-- booking id, new state, old state, employee id, employee name
+            $this->notify->insert_state_change($booking_id, $data['current_status'], $status, $data['cancellation_reason'], $this->session->userdata('partner_id'), $this->session->userdata('partner_name'), $this->session->userdata('partner_id'));
+
+            // this is used to send email or sms while booking cancelled
+            $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+            $send['booking_id'] = $booking_id;
+            $send['state'] = $data['current_status'];
+            $this->asynchronous_lib->do_background_process($url, $send);
+            $this->My_CI->session->set_flashdata('success', $booking_id . ' Booking Cancelled');
+
+            redirect(base_url() . "partner/get_user_form");
+        } else {
+            // Booking isnot updated
+            log_message('info', __FUNCTION__ . " Booking is not updated  " . print_r($data, true));
+        }
+    }
+
+    /**
+     * @desc: This method calls for cancel booking to update booking unit details
+     * @param: String $booking_id
+     */
+    function update_price_while_cancel_booking($booking_id) {
+        log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
+        $unit_details['booking_status'] = "Cancelled";
+        $unit_details['vendor_to_around'] = $unit_details['around_to_vendor'] = 0;
+        log_message('info', __FUNCTION__ . " Update unit details  " . print_r($unit_details, true));
+        $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
+    }
+
+    /**
+     *  @desc : This function is to select booking to be rescheduled
+     *
+     * Opens a form with user's name and current date and timeslot.
+     *
+     * Select the new date and timeslot for current booking.
+     *
+     *  @param : booking id
+     *  @return : user details and booking history to view
+     */
+    function get_reschedule_booking_form($booking_id) {
+        log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__ . " Booking Id  " . $booking_id);
+        $getbooking = $this->booking_model->getbooking_history($booking_id);
+        if ($getbooking) {
+
+            $this->load->view('partner/header');
+            $this->load->view('partner/reschedulebooking', array('data' => $getbooking));
+        } else {
+            echo "This Id doesn't Exists";
+        }
+    }
+
+    function process_reschedule_booking($booking_id) {
+        log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
+        $this->checkUserSession();
+        $this->form_validation->set_rules('booking_date', 'Booking Date', 'trim|required');
+
+        if ($this->form_validation->run() == FALSE) {
+            $this->get_reschedule_booking_form($booking_id);
+        } else {
+            log_message('info', __FUNCTION__ . " Booking Id  " . $booking_id);
+            $booking_date = $this->input->post('booking_date');
+
+            $data['booking_date'] = date('d-m-Y', strtotime($booking_date));
+            $data['current_status'] = 'Rescheduled';
+            $data['internal_status'] = 'Rescheduled';
+            $data['update_date'] = date("Y-m-d H:i:s");
+            $update_status = $this->booking_model->update_booking($booking_id, $data);
+            if ($update_status) {
+                $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING, "", $this->session->userdata('partner_id'), $this->session->userdata('partner_name'), $this->session->userdata('partner_id'));
+
+                $service_center_data['booking_id'] = $booking_id;
+                $service_center_data['internal_status'] = "Pending";
+                $service_center_data['current_status'] = "Pending";
+                $service_center_data['update_date'] = date("Y-m-d H:i:s");
+
+                log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($service_center_data, true));
+
+                $this->vendor_model->update_service_center_action($service_center_data);
+
+                $send_data['booking_id'] = $booking_id;
+                $send_data['current_status'] = "Rescheduled";
+                $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+                $this->asynchronous_lib->do_background_process($url, $send_data);
+                log_message('info', __FUNCTION__ . " Set mail to vendor flag to 0  " . print_r($booking_id, true));
+
+                //Setting mail to vendor flag to 0, once booking is rescheduled
+                $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
+                log_message('info', __FUNCTION__ . " Request to prepare Job Card  " . print_r($booking_id, true));
+
+                //Prepare job card
+                $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+
+                $this->session->set_flashdata('success', $booking_id . ' Booking Rescheduled');
+                redirect(base_url() . "partner/get_user_form");
+            } else {
+                log_message('info', __FUNCTION__ . " Booking is not updated  " . print_r($data, true));
+            }
+        }
+    }
+    
+    /**
+     * @desc: Load escalation form  in the partner panel. Partner esclates on booking.
+     * That will send notification to 247Around.
+     * @param String $booking_id
+     */
+    function escalation_form($booking_id){
+        log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
+        $this->checkUserSession();
+        $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'partner', 'active'=> '1'));
+        $data['booking_id'] = $booking_id;
+
+        $this->load->view('partner/header');
+        $this->load->view('partner/escalation_form', $data);
+    }
+    /**
+     * @desc: This is used to insert escalation into escalation log table. 
+     * Upadte escalation log table when mail sent
+     * @param String $booking_id
+     */
+    function process_escalation($booking_id){
+        log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
+        $this->checkUserSession();
+        $this->form_validation->set_rules('escalation_reason_id', 'Escalation Reason', 'trim|required');
+
+        if ($this->form_validation->run() == FALSE) {
+            $this->escalation_form($booking_id);
+        } else {
+            $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
+            $booking_date_timeslot = $this->vendor_model->getBookingDateFromBookingID($booking_id);
+            $escalation['booking_date'] = date('Y-m-d', strtotime($booking_date_timeslot[0]['booking_date']));
+            $escalation['booking_time'] = $booking_date_timeslot[0]['booking_timeslot'];
+            log_message('info', __FUNCTION__ . " escalation_reason  " . print_r($escalation, true));
+            
+            //inserts vendor escalation details
+            $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
+            if($escalation_id){
+                log_message('info', __FUNCTION__ . " Escalation INSERTED ");
+                $to = "abhaya@247around.com"; $cc =""; $bcc=""; $attachment = "";
+                $from = "booking@247around.com";
+                $subject = "Escalate booking " .$booking_id." from partner ". $this->session->userdata('partner_name');
+                $message = "Escalate booking " .$booking_id." from partner ". $this->session->userdata('partner_name');
+                $is_mail = $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
+                if($is_mail){
+                    log_message('info', __FUNCTION__ . " Mail Sent ");
+                    
+                    $reason_flag['escalation_policy_flag'] = json_encode(array('mail_to_anuj'=>1), true);
+                    $this->vendor_model->update_esclation_policy_flag($escalation_id, $reason_flag, $booking_id);
+                    $this->session->set_flashdata('success', 'Booking '. $booking_id. " Escalated");
+                }
+            }
+            log_message('info', __FUNCTION__ . " Exist from method ");
+
+            redirect(base_url() . "partner/escalation_form/".$booking_id);
+        }
+        
     }
 
 }

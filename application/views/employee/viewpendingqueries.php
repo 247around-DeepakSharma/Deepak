@@ -1,4 +1,4 @@
-<?php $offset = $this->uri->segment(5);  ?>
+<?php $offset = $this->uri->segment(7);  ?>
 <script>
     $(function(){
 
@@ -55,16 +55,15 @@ function outbound_call(phone_number){
 <div id="page-wrapper" >
     <div class="">
         <div class="row">
-            <?php  if($this->uri->segment(3) == 'view_queries' || $this->uri->segment(3) == 'finduser'){ $status = $this->uri->segment(4); ?>
+            <?php  if($this->uri->segment(3) == 'view_queries' || $this->uri->segment(3) == 'finduser'){ $status = $this->uri->segment(4); $pv = $this->uri->segment(5);; ?>
             <div class="pagination">
                 <select id="dynamic_select">
-                    <option value="<?php echo base_url().'employee/booking/view_queries/'.$status; ?>" <?php if($this->uri->segment(5) == 50){ echo 'selected';}?>>50</option>
-                    <option value="<?php echo base_url().'employee/booking/view_queries/'.$status.'/0/100'?>" <?php if($this->uri->segment(6) == 100){ echo 'selected';}?>>100</option>
-                    <option value="<?php echo base_url().'employee/booking/view_queries/'.$status.'/0/200'?>" <?php if($this->uri->segment(6) == 200){ echo 'selected';}?>>200</option>
-                    <option value="<?php echo base_url().'employee/booking/view_queries/'.$status.'/0/All'?>" <?php if($this->uri->segment(6) == 'All'){ echo 'selected';}?>>All</option>
-                    <?php if ($this->uri->segment(6)){if($this->uri->segment(6) != 50 || $this->uri->segment(6) != 100 || $this->uri->segment(6) != 200 ){?>
-                    <option value="" <?php if($this->uri->segment(6) == count($Bookings)){ echo 'selected';}?>><?php echo $this->uri->segment(6);?></option>
-                    <?php } }?>
+                    <option value="<?php echo base_url().'employee/booking/view_queries/'.$status."/".$pv; ?>" <?php if($this->uri->segment(6) == 50){ echo 'selected';}?>>50</option>
+                    <option value="<?php echo base_url().'employee/booking/view_queries/'.$status."/".$pv.'/100/0'?>" <?php if($this->uri->segment(6) == 100){ echo 'selected';}?>>100</option>
+                    <option value="<?php echo base_url().'employee/booking/view_queries/'.$status."/".$pv.'/200/0'?>" <?php if($this->uri->segment(6) == 200){ echo 'selected';}?>>200</option>
+                    <option value="<?php echo base_url().'employee/booking/view_queries/'.$status."/".$pv.'/400/0'?>" <?php if($this->uri->segment(6) == 400){ echo 'selected';}?>>400</option>
+                    <option value="<?php echo base_url().'employee/booking/view_queries/'.$status."/".$pv.'/0/All'?>" <?php if($this->uri->segment(7) == 'All'){ echo 'selected';}?>>All</option>
+ 
                 </select>
             </div>
             <?php } ?>
@@ -186,7 +185,7 @@ function outbound_call(phone_number){
 
                     <td>
                         <?php
-                        echo "<a target='_blank' class='btn btn-small btn-warning btn-sm' href=".base_url()."employee/booking/get_cancel_form/$row->booking_id/followup title='Cancel'> <i class='fa fa-times' aria-hidden='true'></i></a>";
+                        echo "<a target='_blank' class='btn btn-small btn-warning btn-sm' href=".base_url()."employee/booking/get_cancel_form/$row->booking_id/FollowUp title='Cancel'> <i class='fa fa-times' aria-hidden='true'></i></a>";
                         ?>
                     </td>
                     <?php } if($status == "Cancelled"){  ?>

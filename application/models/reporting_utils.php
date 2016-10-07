@@ -811,15 +811,39 @@ class Reporting_utils extends CI_Model {
                     $sql = "SELECT * FROM booking_details WHERE partner_id = '" . $value['partner_id'] . "'"
                     . " AND closed_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH) "
                     . "AND current_status = '"._247AROUND_CANCELLED."'";
-                    $can_query = $this->db->query($sql);
-                    $month_install_can = $can_query->result_array();
-                    $month_install_cancl = count($month_install_can);
-                    $result['month_cancelled'][] = $month_install_cancl;
-                    
+                    $can_query1 = $this->db->query($sql);
+                    $month_can = $can_query1->result_array();
+                    $month_cancl = count($month_can);
+                    $result['month_cancelled'][] = $month_cancl;
+
                 }
             }
             $result['data'.$i] = $result_data;
         }
         return $result;
+    }
+    /**
+     * @desc: This function is used to get data of Agents doing current date's booking 
+     *        from 247Around CRM. It is used to send details in daily_report mail.
+     * params:void
+     * return: array
+     */
+    function get_247_agent_report_data(){
+        $where = "where DATE_FORMAT(booking_state_change.create_date,'%y-%m-%d') = CURDATE() AND partner_id = "._247AROUND ;
+        $sql = "SELECT booking_state_change.agent_id,employee.employee_id,
+                 SUM(CASE WHEN `new_state` LIKE '%FollowUp%' THEN 1 ELSE 0 END) AS queries,
+                 SUM(CASE WHEN `new_state` LIKE '%Cancelled%' AND `booking_id` LIKE 'Q-%' THEN 1 ELSE 0 END) AS cancelled_query,
+                 SUM(CASE WHEN `new_state` LIKE '%Cancelled%' AND `booking_id` LIKE 'S%' THEN 1 ELSE 0 END) AS cancelled_booking,
+                 SUM(CASE WHEN `new_state` LIKE '%Completed%' THEN 1 ELSE 0 END) AS completed,
+                 SUM(CASE WHEN `new_state` LIKE '%Pending%'  THEN 1 ELSE 0 END) as scheduled,
+                 SUM(CASE WHEN `new_state` LIKE '%Rescheduled%'  THEN 1 ELSE 0 END) as rescheduled,
+                 SUM(CASE WHEN `new_state` LIKE '%FollowUp%' OR `new_state` LIKE '%Completed%' OR `new_state` LIKE '%Cancelled%' OR `new_state` LIKE '%Pending%' OR `new_state` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) AS total
+                 from booking_state_change 
+                 JOIN employee ON booking_state_change.agent_id = employee.id
+                 $where GROUP BY booking_state_change.agent_id ;";
+            
+        $data = $this->db->query($sql);
+        return $data->result_array();
+    }
 
 }

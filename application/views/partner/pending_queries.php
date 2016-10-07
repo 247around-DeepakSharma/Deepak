@@ -18,6 +18,8 @@
                            <th>City</th>
                            <th>Booking Date</th>
                            <th>View</th>
+                           <th>Cancel</th>
+                          
                           
                         </tr>
                      </thead>
@@ -52,7 +54,11 @@
                           
                            
                          
-                           <td><a class='btn btn-sm btn-primary' href="<?php echo base_url();?>partner/booking_details/<?=$row->booking_id?>" target='_blank' title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>
+                           <td><a class='btn btn-sm btn-primary' href="<?php echo base_url();?>partner/booking_details/<?=$row->booking_id?>" target='_blank' title='View'><i class='fa fa-eye' aria-hidden='true'></i></a>
+                           </td>
+                            <td><a href="<?php echo base_url(); ?>partner/get_cancel_form/FollowUp/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
+                           </td>
+                            
                            
                         </tr>
                         <?php $sn_no++; } ?>

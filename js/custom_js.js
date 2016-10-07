@@ -188,7 +188,7 @@
          $('#myModal').modal('toggle');
          return false;
       }
-
+      
       if(service == null || service == "" || service == "Select Service"){
          $('#myModal').modal('toggle');
          alert('Please Select Booking Service');
@@ -201,6 +201,18 @@
         $('#myModal').modal('toggle');
         alert("Please fill Booking date "); 
         return false;
+     }else{
+         //Adding Previous date validation on Booking Edit
+        var selectedDate = booking_date;
+        var d = new Date();
+        var today = formatDate(d);
+        selectedDate = new Date(selectedDate);
+        today = new Date(today);
+        if (selectedDate < today) {
+            $('#myModal').modal('toggle');
+            alert("Please select Today or Future date ");
+            return false;
+        }
      }
 
       if(timeslot == null){
@@ -438,6 +450,23 @@ function outbound_call(phone_number){
 
 function enable_submit_button(){
    $("#submitform").button('reset');
+}
+
+/**
+ * @desc: This function is used to format date 
+ * @param {type} date
+ * @returns {Array}
+ */
+function formatDate(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
 }
 
 

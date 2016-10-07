@@ -337,6 +337,7 @@ class vendor extends CI_Controller {
     function process_assign_booking_form() {
         $service_center = $this->input->post('service_center');
         $url = base_url() . "employee/do_background_process/assign_booking";
+
         foreach ($service_center as $booking_id => $service_center_id) {
             if ($service_center_id != "") {
                 $data = array();
@@ -344,6 +345,9 @@ class vendor extends CI_Controller {
                 $data['service_center_id'] = $service_center_id;
                 //Assign service centre
                 $this->booking_model->assign_booking($booking_id, $service_center_id);
+
+                $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR,_247AROUND_PENDING,"", $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+
                 // Delete Previous Assigned vendor data from service center action table
                 //$this->vendor_model->delete_previous_service_center_action($booking_id);
 
@@ -352,7 +356,7 @@ class vendor extends CI_Controller {
 
         }
 
-        redirect(base_url() . DEFAULT_SEARCH_PAGE);
+        //redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
 
@@ -404,6 +408,8 @@ class vendor extends CI_Controller {
                 $data['unit_details_id'] = $value['unit_id'];
                 $this->vendor_model->insert_service_center_action($data);
             }
+
+            $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR,"", $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
 
             //Setting mail to vendor flag to 0, once booking is re-assigned
             $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
@@ -587,7 +593,7 @@ class vendor extends CI_Controller {
      */
     function get_vendor_escalation_form($booking_id) {
 
-        $data['escalation_reason'] = $this->vendor_model->getEscalationReason();
+        $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'vendor','active'=> '1'));
         $data['vendor_details'] = $this->vendor_model->getVendor($booking_id);
         $data['booking_id'] = $booking_id;
 
@@ -1448,7 +1454,8 @@ class vendor extends CI_Controller {
             }
 
 
-            redirect(site_url('employee/booking/view_queries/FollowUp'));
+            //redirect(site_url('employee/booking/view_queries/FollowUp'));
+            redirect(base_url() . DEFAULT_SEARCH_PAGE);
 
             }
 
@@ -1547,5 +1554,226 @@ class vendor extends CI_Controller {
                 </div>';
 
     }
+
+        /**
+     * @desc: This function to send mails to vendors
+     * @param: void
+     * @return : void
+     */
+    function get_mail_to_vendors_form() {
+        $data = array();
+        $data['vendors'] = $this->vendor_model->getActiveVendor();
+        $data['partners'] = $this->partner_model->getpartner();
+
+        //Declaring array for modal call to get_247around_email_template function
+        //For vendors
+        $email = array();
+        $email['where'] = array(
+            'entity' => 'vendor'
+        );
+        $email['select'] = 'id,template,subject';
+        $data['email_template'] = $this->vendor_model->get_247around_email_template($email);
+        
+        //For partners
+        $partner_email = array();
+        $partner_email['where'] = array(
+            'entity' => 'partner'
+        );
+        $partner_email['select'] = 'id,template,subject';
+        $data['partner_email_template'] = $this->vendor_model->get_247around_email_template($partner_email);
+        
+        
+        $this->load->view('employee/header');
+        $this->load->view('employee/sendemailtovendor', $data);
+    }
+
+    /**
+     * @desc: This function is used to send mails to the selected vendor along with emails 
+     *        It is being called using AJAX
+     * params: $_FILES, POST array
+     * return: void
+     * 
+     */
+    function process_mail_to_vendor($id) {
+        //Setting flag as TRUE ->Success and FALSE -> Failure
+        $flag = TRUE;
+        $attachment = "";
+        //Do file upload if attachment is provided
+        if (!empty($_FILES)) {
+            $tmpFile = $_FILES['attachment_'.$id]['tmp_name'];
+            $fileName = $_FILES['attachment_'.$id]['name'];
+
+           move_uploaded_file($tmpFile, "/tmp/$fileName");
+            // move_uploaded_file($tmpFile, "c:\users\bredkhan"."\\$fileName");
+            if (!empty($fileName)) {
+               $attachment = "/tmp/$fileName";
+                // $attachment = "c:\users\bredkhan"."\\$fileName";
+
+            }
+        }
+        if ($this->input->post()) {
+            $vendors = $this->input->post('vendors');
+            //Checking for ALL vendors selected
+            if($vendors[0] == 0){
+                $vendors_array = $this->vendor_model->getActiveVendor();
+                foreach ($vendors_array as $value) {
+                    $vendors_list[] = $value['id'];
+                }
+            }else{
+                $vendors_list = $vendors;
+            }
+            //Get email template values
+            $email = array();
+            $email['where'] = array(
+                'entity' => 'vendor',
+                'id' => $id
+            );
+            $email['select'] = '*';
+            $email_template = $this->vendor_model->get_247around_email_template($email);
+
+            if (!empty($email_template)) {
+                $template_value = $email_template[0]['template_values'];
+                //Making array for template values 
+                $template_array = explode(',', $template_value);
+
+                //Getting value in array from template_values column
+                foreach ($template_array as $val) {
+                    $table['table_name'] = explode('.', $val)[0];
+                    $table['column_name'] = explode('.', $val)[1];
+                    $table['primary_key'] = explode('.', $val)[2];
+                    $template[] = $table;
+                }
+
+                foreach ($vendors_list as $value) {
+                    $vendor_details = $this->vendor_model->getVendorContact($value);
+                    //Setting TO for Email
+                    $to = $vendor_details[0]['owner_email'] . ',' . $vendor_details[0]['primary_contact_email'];
+
+                    foreach ($template as $value) {
+                        $value['id'] = $vendor_details[0]['id'];
+                        //Getting vendor details
+                        $vendor_data = $this->vendor_model->get_data($value);
+
+                        if ($vendor_data) {
+                            $temp[] = $vendor_data[0]['user_name'];
+                        } else {
+                            //Logging error when values not found
+                            log_message('info', __FUNCTION__ . ' Mail send Error. No data found to the following vendor ID ' . $vendor_details[0]['id']);
+                            log_message('info', __FUNCTION__ . ' Template values are - ' . print_r($value, TRUE));
+                            //Set Flag to check success or error of AJAX call
+                            $flag = FALSE;
+                        }
+                    }
+                    //Sending Mail to the vendor
+                    if (isset($temp)) {
+                        $emailBody = vsprintf($email_template[0]['body'], $temp);
+                        //Sending Mail
+                        $this->notify->sendEmail($email_template[0]['from'], $to, 'belal@247around.com', '', $email_template[0]['subject'], $emailBody, $attachment);
+                        //Loggin send mail details
+                        log_message('info', __FUNCTION__ . ' Mail send to the following vendor ID ' . $vendor_details[0]['id']);
+                        //Set Flag to check success or error of AJAX call
+                        $flag = TRUE;
+                    }
+                }
+            }
+        } else {
+            $flag = FALSE;
+        }
+        //Returning Flag value to AJAX request
+            echo $flag;
+    }
     
+     /**
+     * @desc: This function is used to send mails to the selected partner along with emails 
+     *        It is being called using AJAX
+     * params: $_FILES, POST array
+     * return: void
+     * 
+     */
+     function process_mail_to_partner($id) {
+        //Setting flag as TRUE ->Success and FALSE -> Failure
+        $flag = TRUE;
+        $attachment = "";
+        //Do file upload if attachment is provided
+        if (!empty($_FILES)) {
+            $tmpFile = $_FILES['attachment_' . $id]['tmp_name'];
+            $fileName = $_FILES['attachment_' . $id]['name'];
+
+            move_uploaded_file($tmpFile, "/tmp/$fileName");
+            if (!empty($fileName)) {
+                $attachment = "/tmp/$fileName";
+}
+        }
+        if ($this->input->post()) {
+            $partners = $this->input->post('partners');
+            //Checking for ALL vendors selected
+            if ($partners[0] == 0) {
+                $partners_array = $this->partner_model->getpartner();
+                foreach ($partners_array as $value) {
+                    $partners_list[] = $value['id'];
+                }
+            } else {
+                $partners_list = $partners;
+            }
+            //Get email template values for partners
+            $email = array();
+            $email['where'] = array(
+                'entity' => 'partner',
+                'id' => $id
+            );
+            $email['select'] = '*';
+            $email_template = $this->vendor_model->get_247around_email_template($email);
+
+            if (!empty($email_template)) {
+                $template_value = $email_template[0]['template_values'];
+                //Making array for template values 
+                $template_array = explode(',', $template_value);
+
+                //Getting value in array from template_values column
+                foreach ($template_array as $val) {
+                    $table['table_name'] = explode('.', $val)[0];
+                    $table['column_name'] = explode('.', $val)[1];
+                    $table['primary_key'] = explode('.', $val)[2];
+                    $template[] = $table;
+                }
+
+                foreach ($partners_list as $value) {
+                    $partner_details = $this->partner_model->getpartner($value);
+                    //Setting TO for Email
+                    $to = $partner_details[0]['owner_email'] . ',' . $partner_details[0]['primary_contact_email'];
+
+                    foreach ($template as $value) {
+                        $value['id'] = $partner_details[0]['id'];
+                        //Getting vendor details
+                        $partner_data = $this->vendor_model->get_data($value);
+
+                        if ($partner_data) {
+                            $temp[] = $partner_data[0]['user_name'];
+                        } else {
+                            //Logging error when values not found
+                            log_message('info', __FUNCTION__ . ' Mail send Error. No data found to the following vendor ID ' . $partner_details[0]['id']);
+                            log_message('info', __FUNCTION__ . ' Template values are - ' . print_r($value, TRUE));
+                            //Set Flag to check success or error of AJAX call
+                            $flag = FALSE;
+                        }
+                    }
+                    //Sending Mail to the vendor
+                    if (isset($temp)) {
+                        $emailBody = vsprintf($email_template[0]['body'], $temp);
+                        //Sending Mail
+                        $this->notify->sendEmail($email_template[0]['from'], $to, 'belal@247around.com', '', $email_template[0]['subject'], $emailBody, $attachment);
+                        //Loggin send mail details
+                        log_message('info', __FUNCTION__ . ' Mail send to the following vendor ID ' . $partner_details[0]['id']);
+                        //Set Flag to check success or error of AJAX call
+                        $flag = TRUE;
+                    }
+                }
+            }
+        } else {
+            $flag = FALSE;
+        }
+        //Returning Flag value to AJAX request
+        echo $flag;
+    }
+
 }

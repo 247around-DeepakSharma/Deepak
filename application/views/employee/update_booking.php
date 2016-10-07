@@ -2,6 +2,13 @@
 <script src="<?php echo base_url();?>js/custom_js.js"></script>
 <div id="page-wrapper" >
     <div class="container" >
+        <?php if(validation_errors()){?>
+        <div class="panel panel-danger" style="margin-top:10px;margin-bottom:-10px;">
+            <div class="panel-heading" style="padding:7px 0px 0px 13px">
+            <?php echo validation_errors(); ?>
+            </div>
+        </div>
+        <?php }?>
         <div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">Update Booking</div>
             <div class="panel-body">

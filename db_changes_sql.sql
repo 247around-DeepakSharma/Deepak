@@ -944,11 +944,30 @@ ALTER TABLE `booking_updation_reasons`
 ALTER TABLE `booking_updation_reasons`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
+
 -- Belal 27 Sep
 
 INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'vendor_login_details', 'Dear Partner,<br><br> Following are the login credentials to 247Around CRM.<br><br> <b>Username : </b> %s <br> <b>Password : </b> %s <br> For any confusion, write to us or call us.<br><br> Regards,<br> 247around Team', '', '', '', '', '1', '2016-09-27 00:00:00');
 
--- Belal 03 Oct 
+-- Abhay 27 Sept --
+ALTER TABLE  `booking_details` ADD  `assigned_engineer_id` INT( 20 ) NOT NULL AFTER  `assigned_vendor_id` ;
+ALTER TABLE  `booking_details` CHANGE  `assigned_engineer_id`  `assigned_engineer_id` INT( 20 ) NULL ;
+
+
+--
+-- Table structure for table `assigned_engineer`
+--
+
+CREATE TABLE IF NOT EXISTS `assigned_engineer` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `booking_id` varchar(250) NOT NULL,
+  `engineer_id` varchar(20) NOT NULL,
+  `current_state` varchar(100) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE  `booking_state_change` ADD  `service_center_id` INT( 20 ) NULL AFTER  `partner_id` ;
 
 -- Belal 29 Sep
 
@@ -1000,3 +1019,32 @@ ALTER TABLE `vendor_invoices_snapshot_draft`
 
 ALTER TABLE `vendor_invoices_snapshot_draft`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+-- Belal 01 Oct
+
+CREATE TABLE `247around_email_template` (
+ `id` int(5) NOT NULL AUTO_INCREMENT,
+ `entity` varchar(50) NOT NULL,
+ `template` varchar(50) NOT NULL,
+ `subject` varchar(200) NOT NULL,
+ `body` varchar(1000) NOT NULL,
+ `from` varchar(50) NOT NULL,
+ `to` varchar(100) NOT NULL,
+ `cc` varchar(100) NOT NULL,
+ `bcc` varchar(100) NOT NULL,
+ `template_values` varchar(256) NOT NULL COMMENT 'tablename.columnname.primarykey',
+ `attachment` varchar(100) NOT NULL,
+ `active` varchar(1) NOT NULL COMMENT '1->Active, 0->Disabled',
+ `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+
+INSERT INTO `247around_email_template` (`id`, `entity`, `template`, `subject`, `body`, `from`, `to`, `cc`, `bcc`, `template_values`, `attachment`, `active`, `create_date`) VALUES
+(1, 'vendor', 'vendor_login_details', '247Around Login Details', 'Dear Partner,<br><br>\nFollowing are the login credentials to 247Around CRM.<br><br>\n<b>Username : </b> %s <br>\n<b>Password : </b> %s <br>\nFor any confusion, write to us or call us.<br><br>\nRegards,<br>\n247around Team', 'booking@247around.com', '', '', '', 'service_centers_login.user_name.service_center_id,service_centers_login.user_name.service_center_id', '', '1', '2016-09-30 06:08:55');
+
+--Belal 04 Oct
+INSERT INTO `247around_email_template` (`id`, `entity`, `template`, `subject`, `body`, `from`, `to`, `cc`, `bcc`, `template_values`, `attachment`, `active`, `create_date`) VALUES (NULL, 'partner', 'partner_login_details', '247Around Login Details', 'Dear Partner,<br><br> Following are the login credentials to 247Around CRM.<br><br> <b>Username : </b> %s <br> <b>Password : </b> %s <br> For any confusion, write to us or call us.<br><br> Regards,<br> 247around Team', 'booking@247around.com', '', '', '', 'partner_login.user_name.partner_id,partner_login.user_name.partner_id', '', '1', '2016-09-30 11:38:55');
+
+-- Abhay 06 OCT
+ALTER TABLE `vendor_escalation_policy` ADD `entity` VARCHAR(20) NULL DEFAULT NULL AFTER `escalation_reason`;
