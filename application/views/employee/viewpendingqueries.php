@@ -103,9 +103,7 @@ function outbound_call(phone_number){
                     <th width="100px;">Status</th>
                      <?php } ?>
                     <th width="100px;">City</th>
-                    <?php if($status != "Cancelled"){?>
-                    <th width="100px;">Vendor Status</th>
-                    <?php } ?>
+                    
                     <th width="250px;">Query Remarks</th>
                     <th width="60px;">Call</th>
                     <th width="60px;">View</th>
@@ -143,29 +141,7 @@ function outbound_call(phone_number){
                     </td>
                     <?php } ?>
                      <td><?= $row->city; ?></td>
-                      <?php if($status !="Cancelled"){ ?>
-                    <?php if($row->vendor_status =="Vendor Not Available"){ ?>
-
-                          <td><a href="javascript:void(0)" style="color: red;" onclick='form_submit("<?php echo $row->booking_id?>")'><?php print_r($row->vendor_status); ?></a></td>
-
-                    <?php } else { ?>
-
-                    <td>
-                        Vendor Available
-
-<!--                    <select onchange="load_vendor_details(<?php echo $count; ?>)" id="vendor_avalilabe<?php echo $count;?>"  class="form-control" style="width:156px;">
-                        <option selected disabled>Vendor Available</option>
-
-                    <?php foreach ($row->vendor_status as  $value) { ?>
-                     <option value="<?php echo $value['Vendor_ID']; ?>"><?php echo $value['Vendor_Name']; ?></option>
-
-                    <?php  } ?>
-                    </select>-->
-
-                    </td>
-
-
-                   <?php  } } ?>
+                      
 
                     <td><?= $row->query_remarks; ?></td>
 

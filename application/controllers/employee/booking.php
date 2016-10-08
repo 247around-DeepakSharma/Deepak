@@ -505,8 +505,7 @@ class Booking extends CI_Controller {
 	// $offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
    
 	$config['base_url'] = base_url() . 'employee/booking/view/'.$page;
-        $total_rows = $this->booking_model->date_sorted_booking(0, "All", $booking_id);
-	$config['total_rows'] = count($total_rows);
+	$config['total_rows'] = $this->booking_model->total_pending_booking($booking_id);
 	
 	if($offset != "All"){
 		$config['per_page'] = $page;
@@ -522,12 +521,7 @@ class Booking extends CI_Controller {
 	$data['links'] = $this->pagination->create_links();
 
 	$data['Count'] = $config['total_rows'];
-	//$data['Bookings'] = $this->booking_model->date_sorted_booking($config['per_page'], $offset, $booking_id);
-        if($offset == "All"){
-            $data['Bookings']= $total_rows;
-        } else {
-            $data['Bookings']= array_slice($total_rows, $offset, $config['per_page']);
-        }
+	$data['Bookings'] = $this->booking_model->date_sorted_booking($config['per_page'], $offset, $booking_id);
         
 	if ($this->session->flashdata('result') != ''){
 	    $data['success'] = $this->session->flashdata('result');
@@ -1096,7 +1090,7 @@ class Booking extends CI_Controller {
 	$config['base_url'] = base_url() . 'employee/booking/view_queries/' . $status."/".$p_av."/".$page;
 	$total_queries = $this->booking_model->get_queries(0, "All", $status, $p_av, $booking_id);
 
-	$config['total_rows'] = count($total_queries); 
+	$config['total_rows'] = $total_queries[0]->count;
 	if($offset == "All"){
 		$config['per_page'] = $config['total_rows'];
 
@@ -1110,13 +1104,8 @@ class Booking extends CI_Controller {
 
 	$this->pagination->initialize($config);
 	$data['links'] = $this->pagination->create_links();
-	//$data['Bookings'] = $this->booking_model->get_queries($config['per_page'], $offset, $status, $p_av, $booking_id);
-	
-         if($offset == "All"){
-            $data['Bookings']= $total_queries;
-        } else {
-            $data['Bookings']= array_slice($total_queries, $offset, $config['per_page']);
-        }
+	$data['Bookings'] = $this->booking_model->get_queries($config['per_page'], $offset, $status, $p_av, $booking_id);
+
         $data['p_av'] = $p_av;
 
 	$this->load->view('employee/header');

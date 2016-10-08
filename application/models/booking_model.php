@@ -272,6 +272,7 @@ class Booking_model extends CI_Model {
 
     }
 
+
     /**
      * @desc : This funtion counts total number of completed or cancelled bookings
      *
@@ -1016,55 +1017,66 @@ class Booking_model extends CI_Model {
      *  @return : array(specific no of pending query detils)
      */
     function get_queries($limit, $start, $status, $p_av, $booking_id = "") {
+        $check_vendor_status = "";
         $where = "";
         $add_limit = "";
+        $get_field = " services.services,
+            users.name as customername, users.phone_number,
+            bd.* ";
+        
+        $where .= "AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) >= 0 OR
+                bd.booking_date='') AND `bd`.current_status='$status' ";
+
 
         if ($booking_id != "") {
-            $where .= "AND `booking_details`.`booking_id` = '$booking_id' AND `booking_details`.current_status='$status'  ";
+            $where .= "AND `bd`.`booking_id` = '$booking_id' AND `bd`.current_status='$status'  ";
         } else {
             if ($start != 'All') {
-                $where .= "AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR
-                booking_details.booking_date='') AND `booking_details`.current_status='$status' ";
-
+                
                 $add_limit = " limit $start, $limit ";
 
 
             } else if($start == 'All') {
 
-                $where .= " AND `booking_details`.current_status='$status' ";
+                $get_field = " Count(bd.booking_id) as count ";
             }
         }
-        
-       // Need to get brand to send to vendor pincode mapping add form, So we will use join with booking_unit_details
-        $sql = "SELECT services.services,
-            users.name as customername, users.phone_number,
-            booking_details.*
-            from booking_details
-            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
-            JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-            WHERE `booking_details`.booking_id LIKE '%Q-%' $where
-
+        if($p_av == PINCODE_AVAILABLE || $p_av == PINCODE_ALL_AVAILABLE){
+            $is_exist = ' EXISTS ';
+            
+        } else if($p_av == PINCODE_NOT_AVAILABLE){
+            $is_exist = ' NOT EXISTS ';
+        }
+        // If request for FollowUp then check Vendor Available or Not
+        if($status != "Cancelled"){
+            $check_vendor_status = " AND $is_exist 
+                (SELECT 1
+                FROM (`vendor_pincode_mapping`) 
+                JOIN `service_centres` ON `service_centres`.`id` = `vendor_pincode_mapping`.`Vendor_ID` 
+                WHERE `vendor_pincode_mapping`.`Appliance_ID` = bd.service_id 
+                AND `vendor_pincode_mapping`.`Pincode` = bd.booking_pincode 
+                AND `vendor_pincode_mapping`.`active` = '1' 
+                AND `service_centres`.`active` = '1')  ";
+        }
+       
+        $sql = "SELECT $get_field
+            from booking_details as bd
+            JOIN  `users` ON  `users`.`user_id` =  `bd`.`user_id`
+            JOIN  `services` ON  `services`.`id` =  `bd`.`service_id`
+            WHERE `bd`.booking_id LIKE '%Q-%' $where
+                $check_vendor_status
+                
             order by
                 CASE 
-                WHEN `booking_details`.internal_status = 'Missed_call_confirmed' THEN 'a'
+                WHEN `bd`.internal_status = 'Missed_call_confirmed' THEN 'a'
 
-                WHEN  `booking_details`.booking_date = '' THEN 'b'
+                WHEN  `bd`.booking_date = '' THEN 'b'
                 ELSE 'c'
-            END, STR_TO_DATE(`booking_details`.booking_date,'%d-%m-%Y') desc $add_limit";
+            END, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc $add_limit";
 
         $query = $this->db->query($sql);
         
-        $temp = $query->result();
-        //usort($temp, array($this, 'date_compare_queries'));
-        if($status != "Cancelled"){
-            $data = $this->searchPincodeAvailable($temp, $p_av);
-
-        } else {
-            $data = $temp;
-
-        }
-
-        return $data;
+        return $query->result();
 
     }
 
@@ -1087,6 +1099,7 @@ class Booking_model extends CI_Model {
 
             $this->db->where('service_centres.active', "1");
             $data = $this->db->get();
+           
             $count = $data->result_array()[0]['count'];
             if ($count > 0) {
                 if($pv == PINCODE_AVAILABLE){
