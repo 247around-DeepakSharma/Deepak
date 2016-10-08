@@ -230,7 +230,7 @@ class Partner_model extends CI_Model {
       * @param: end limit, start limit, partner id
       * @return: Pending booking
       */
-     function getPending_booking($limit="", $start="", $partner_id ){
+     function getPending_booking($partner_id ){
         $where = "";
         $where .= " AND partner_id = '" . $partner_id . "'";
         //do not show bookings for future as of now
@@ -248,19 +248,10 @@ class Partner_model extends CI_Model {
             `booking_details`.booking_id NOT LIKE 'Q-%' $where AND
             (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled')"
         );
-
-
-        if($limit =="count"){
-            $temp1 = $query->result_array();
-           // echo $this->db->last_query();
-            return count($temp1);
-
-        } else {
-            $temp = $query->result();
-            usort($temp, array($this, 'date_compare_bookings'));
-
-            return array_slice($temp, $start, $limit);
-        }
+          
+          $temp = $query->result();
+          usort($temp, array($this, 'date_compare_bookings'));
+          return $temp;
      }
 
 
@@ -269,13 +260,13 @@ class Partner_model extends CI_Model {
       * @param: end limit, start limit, partner id
       * @return: Pending Queries
       */
-     function getPending_queries($limit="", $start="", $partner_id ){
+     function getPending_queries($partner_id ){
         $where = "";
         $where .= " AND partner_id = '" . $partner_id . "'";
-    $where .= " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR
+        $where .= " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR
                 booking_details.booking_date='')";
 
-    $query = $this->db->query("Select services.services,
+        $query = $this->db->query("Select services.services,
             users.name as customername, users.phone_number,
             booking_details.*
 
@@ -287,19 +278,11 @@ class Partner_model extends CI_Model {
             `booking_details`.booking_id LIKE 'Q-%' $where AND
              booking_details.current_status='FollowUp' "
         );
+        
+        $temp = $query->result();
+        usort($temp, array($this, 'date_compare_bookings'));
 
-
-        if($limit =="count"){
-            $temp1 = $query->result_array();
-           // echo $this->db->last_query();
-            return count($temp1);
-
-        } else {
-            $temp = $query->result();
-            usort($temp, array($this, 'date_compare_bookings'));
-
-            return array_slice($temp, $start, $limit);
-        }
+        return $temp;
 
      }
 
@@ -311,11 +294,7 @@ class Partner_model extends CI_Model {
       * @param: Booking Status(Cancelled or Completed)
       * @return: Array()
       */
-     function getclosed_booking($limit="", $start="", $partner_id, $status){
-        if($limit!="count"){
-            $this->db->limit($limit, $start);
-        }
-
+     function getclosed_booking($partner_id, $status){
         $this->db->select('booking_details.booking_id, users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.closing_remarks, booking_details.booking_timeslot, booking_details.city, booking_details.cancellation_reason, booking_details.order_id');
         $this->db->from('booking_details');
         $this->db->join('services','services.id = booking_details.service_id');
@@ -325,11 +304,6 @@ class Partner_model extends CI_Model {
         $query = $this->db->get();
 
         $result = $query->result_array();
-
-        if($limit == "count"){
-
-            return count($result);
-        }
         return $result;
     }
 

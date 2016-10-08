@@ -505,7 +505,8 @@ class Booking extends CI_Controller {
 	// $offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
    
 	$config['base_url'] = base_url() . 'employee/booking/view/'.$page;
-	$config['total_rows'] = count($this->booking_model->date_sorted_booking(0, "All", $booking_id));
+        $total_rows = $this->booking_model->date_sorted_booking(0, "All", $booking_id);
+	$config['total_rows'] = count($total_rows);
 	
 	if($offset != "All"){
 		$config['per_page'] = $page;
@@ -521,9 +522,11 @@ class Booking extends CI_Controller {
 	$data['links'] = $this->pagination->create_links();
 
 	$data['Count'] = $config['total_rows'];
-	$data['Bookings'] = $this->booking_model->date_sorted_booking($config['per_page'], $offset, $booking_id);
-	if ($this->session->flashdata('result') != '')
+	//$data['Bookings'] = $this->booking_model->date_sorted_booking($config['per_page'], $offset, $booking_id);
+        $data['Bookings']= array_slice($total_rows, $offset, $config['per_page']);
+	if ($this->session->flashdata('result') != ''){
 	    $data['success'] = $this->session->flashdata('result');
+        }
 
 
 	$this->load->view('employee/header');
@@ -659,7 +662,7 @@ class Booking extends CI_Controller {
         
 	$data['user_and_booking_details'] = $this->booking_model->getbooking_history($booking_id);
 	$data['reason'] = $this->booking_model->cancelreason("247around");
-	if ($status == "followup" ) {
+	if ($status == _247AROUND_FOLLOWUP ) {
 	    $data['internal_status'] = $this->booking_model->get_internal_status("Cancel");
 	}
 
@@ -1102,8 +1105,9 @@ class Booking extends CI_Controller {
 
 	$this->pagination->initialize($config);
 	$data['links'] = $this->pagination->create_links();
-	$data['Bookings'] = $this->booking_model->get_queries($config['per_page'], $offset, $status, $p_av, $booking_id);
-	$data['p_av'] = $p_av;
+	//$data['Bookings'] = $this->booking_model->get_queries($config['per_page'], $offset, $status, $p_av, $booking_id);
+	$data['Bookings'] = array_slice($total_queries, $offset, $config['per_page']);
+        $data['p_av'] = $p_av;
 
 	$this->load->view('employee/header');
 	$this->load->view('employee/viewpendingqueries', $data);

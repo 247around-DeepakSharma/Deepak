@@ -1077,7 +1077,7 @@ class Booking_model extends CI_Model {
     function searchPincodeAvailable($temp, $pv) {
         foreach ($temp as $key => $value) {
             $this->db->distinct();
-            $this->db->select('Vendor_ID, Vendor_Name');
+            $this->db->select('count(Vendor_ID) as count');
             $this->db->where('vendor_pincode_mapping.Appliance_ID', $value->service_id);
             $this->db->where('vendor_pincode_mapping.Pincode', $value->booking_pincode);
             $this->db->where('vendor_pincode_mapping.active', "1");
@@ -1087,13 +1087,14 @@ class Booking_model extends CI_Model {
 
             $this->db->where('service_centres.active', "1");
             $data = $this->db->get();
-            if ($data->num_rows() > 0) {
+            $count = $data->result_array()[0]['count'];
+            if ($count > 0) {
                 if($pv == PINCODE_AVAILABLE){
-                    $temp[$key]->vendor_status = $data->result_array();
+                    $temp[$key]->vendor_status ="Vendor Available";
                 } else if($pv == PINCODE_NOT_AVAILABLE) {
                     unset($temp[$key]);
                 } else if($pv == PINCODE_ALL_AVAILABLE){
-                     $temp[$key]->vendor_status = $data->result_array();
+                     $temp[$key]->vendor_status = "Vendor Available";
                 }
                 
             } else {

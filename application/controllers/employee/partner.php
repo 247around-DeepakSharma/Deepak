@@ -77,7 +77,8 @@ class Partner extends CI_Controller {
        $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         $config['base_url'] = base_url() . 'partner/pending_booking';
-        $config['total_rows'] = $this->partner_model->getPending_booking("count","",$partner_id);
+        $total_rows = $this->partner_model->getPending_booking($partner_id);
+        $config['total_rows'] = count($total_rows);
 
         $config['per_page'] = 50;
         $config['uri_segment'] = 3;
@@ -87,8 +88,8 @@ class Partner extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        $data['bookings'] = $this->partner_model->getPending_booking($config['per_page'], $offset, $partner_id);
-
+        $data['bookings'] = array_slice($total_rows, $offset, $config['per_page']);
+               
         if ($this->session->flashdata('result') != '') {
             $data['success'] = $this->session->flashdata('result');
         }
@@ -109,7 +110,8 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         $config['base_url'] = base_url() . 'partner/pending_queries';
-        $config['total_rows'] = $this->partner_model->getPending_queries("count","",$partner_id);
+        $total_rows = $this->partner_model->getPending_queries($partner_id);
+        $config['total_rows'] = count($total_rows);
 
         $config['per_page'] = 50;
         $config['uri_segment'] = 3;
@@ -119,7 +121,7 @@ class Partner extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        $data['bookings'] = $this->partner_model->getPending_queries($config['per_page'], $offset, $partner_id);
+        $data['bookings'] = array_slice($total_rows, $offset, $config['per_page']);
 
         if ($this->session->flashdata('result') != '') {
             $data['success'] = $this->session->flashdata('result');
@@ -142,7 +144,8 @@ class Partner extends CI_Controller {
         $partner_id = $this->session->userdata('partner_id');
 
         $config['base_url'] = base_url() . 'partner/closed_booking/'.$state;
-        $config['total_rows'] = $this->partner_model->getclosed_booking("count","",$partner_id, $state);
+        $total_rows = $this->partner_model->getclosed_booking($partner_id, $state);
+        $config['total_rows'] = count($total_rows);
 
         $config['per_page'] = 50;
         $config['uri_segment'] = 4;
@@ -152,14 +155,14 @@ class Partner extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state);
+        //$data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state);
+        $data['bookings'] = array_slice($config['total_rows'], $offset, $config['per_page']);
 
         if ($this->session->flashdata('result') != '') {
             $data['success'] = $this->session->flashdata('result');
         }
 
         $data['status'] = $state;
-
         log_message('info', 'Partner view ' . $state . ' booking: Partner id: ' . $partner_id . ", Partner name: " . 
                 $this->session->userdata('partner_name'));
 
@@ -176,8 +179,7 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
         $data['unit_details'] = $this->booking_model->get_unit_details($booking_id);
-
-
+        
         log_message('info', 'Partner view booking details booking  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'). " data ". print_r($data, true));
 
         $this->load->view('partner/header');
@@ -882,14 +884,23 @@ class Partner extends CI_Controller {
             $this->escalation_form($booking_id);
         } else {
             $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
-            $booking_date_timeslot = $this->vendor_model->getBookingDateFromBookingID($booking_id);
+            $bookinghistory = $this->vendor_model->getbooking_history($booking_id);
             
             $escalation['booking_id'] = $booking_id;
-            //TODO:
-            //Add vendor id as well
+            if(!is_null($bookinghistory[0]['assigned_vendor_id'])){
+                $escalation['vendor_id'] = $bookinghistory[0]['assigned_vendor_id'];
+                $vendorContact = $this->vendor_model->getVendorContact($escalation['vendor_id']);
+                $to = $vendorContact[0]['primary_contact_email'];
+                $cc = $vendorContact[0]['owner_email'].",nits@247around.com,escalations@247around.com";
+                
+            } else {
+                $escalation['vendor_id'] = "";
+                $to = "escalations@247around.com"; 
+                $cc = "nits@247around.com";
+            }
             
-            $escalation['booking_date'] = date('Y-m-d', strtotime($booking_date_timeslot[0]['booking_date']));
-            $escalation['booking_time'] = $booking_date_timeslot[0]['booking_timeslot'];
+            $escalation['booking_date'] = date('Y-m-d', strtotime($bookinghistory[0]['booking_date']));
+            $escalation['booking_time'] = $bookinghistory[0]['booking_timeslot'];
             
             log_message('info', __FUNCTION__ . " escalation_reason  " . print_r($escalation, true));
             
@@ -898,8 +909,6 @@ class Partner extends CI_Controller {
             if($escalation_id){
                 log_message('info', __FUNCTION__ . " Escalation INSERTED ");
                 $from = "escalations@247around.com";
-                $to = "escalations@247around.com"; 
-                $cc = "escalations@247around.com, nits@247around.com"; 
                 $bcc=""; $attachment = "";
                 
                 $subject = "Booking " . $booking_id . " Escalated By Partner " . $this->session->userdata('partner_name');

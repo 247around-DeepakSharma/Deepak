@@ -346,7 +346,7 @@ class vendor extends CI_Controller {
                 //Assign service centre
                 $this->booking_model->assign_booking($booking_id, $service_center_id);
 
-                $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR,_247AROUND_PENDING,"", $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+                $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR,_247AROUND_PENDING, "Service Ceneter Id: ".$service_center_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
 
                 // Delete Previous Assigned vendor data from service center action table
                 //$this->vendor_model->delete_previous_service_center_action($booking_id);
@@ -409,7 +409,7 @@ class vendor extends CI_Controller {
                 $this->vendor_model->insert_service_center_action($data);
             }
 
-            $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR,"", $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+            $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, "Re-Service Ceneter Id: ".$service_center_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
 
             //Setting mail to vendor flag to 0, once booking is re-assigned
             $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
