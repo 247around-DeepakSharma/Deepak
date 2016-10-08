@@ -61,8 +61,8 @@
             <td><?php echo $row['old_state']; ?></td>
             <td><?php echo $row['new_state'];?></td>
             <td><?php echo $row['remarks']; ?></td>
-            <td><?php echo (!empty($this->employee_model->getemployeefromid($row['agent_id'])[0]['employee_id']))?$this->employee_model->getemployeefromid($row['agent_id'])[0]['employee_id']:'';?></td>
-            <td><?php echo (!empty($this->partner_model->getpartner($row['partner_id'])))?$this->partner_model->getpartner($row['partner_id'])[0]['public_name']:'';?></td>
+            <td><?php echo $row['employee_id'];?></td>
+            <td><?php echo $row['public_name'];?></td>
             <td><?php 
                 $old_date = $row['create_date'];
                 $old_date_timestamp = strtotime($old_date);

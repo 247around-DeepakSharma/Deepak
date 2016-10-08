@@ -65,55 +65,62 @@ class Booking extends CI_Controller {
      *  @return : void
      */
     public function index($user_id) {
-        if ($this->input->post()) {
-            //Check Validation
-            $checkValidation = $this->validate_booking();
+        if($this->input->post()){
+        $primary_contact_no = $this->input->post('booking_primary_contact_no');
+        //Check Validation
+        $checkValidation  = $this->validate_booking();
+            
+        if($checkValidation){
+        log_message('info', __FUNCTION__);
+        log_message('info', " Booking Insert User ID: " . $user_id);
+        $booking = $this->getAllBookingInput($user_id);
 
-            if ($checkValidation) {
-                log_message('info', __FUNCTION__);
-                log_message('info', " Booking Insert User ID: " . $user_id);
-                $booking = $this->getAllBookingInput($user_id);
+        $service = $booking['services'];
+        $message = $booking['message'];
+        unset($booking['message']); // unset message body from booking deatils array
+        unset($booking['services']); // unset service name from booking details array
 
-                $message = $booking['message'];
-                unset($booking['message']); // unset message body from booking deatils array
-                unset($booking['services']); // unset service name from booking details array
+        log_message('info', " Booking to be insert: " . print_r($booking, true));
 
-                log_message('info', " Booking to be insert: " . print_r($booking, true));
+        $this->booking_model->addbooking($booking);
 
-                $this->booking_model->addbooking($booking);
+        if ($booking['type'] == 'Booking') {
+            $this->notify->insert_state_change($booking['booking_id'], _247AROUND_PENDING, _247AROUND_NEW_BOOKING,$booking['booking_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
 
-                if ($booking['type'] == 'Booking') {
-                    $this->notify->insert_state_change($booking['booking_id'], _247AROUND_PENDING, _247AROUND_NEW_BOOKING, $booking['booking_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            $to = "anuj@247around.com";
+            $from = "booking@247around.com";
+            $cc = "";
+            $bcc = "";
+            $subject = 'Booking Confirmation-AROUND';
+            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
+            //-------Sending SMS on booking--------//
 
-                    //Send mail to Admin
-                    $to = "anuj@247around.com";
-                    $from = "booking@247around.com";
-                    $cc = "";
-                    $bcc = "";
-                    $subject = 'Booking Confirmation-AROUND';
-                    $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
-
-                    //Send SMS to customer
-                    $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-                    $send['booking_id'] = $booking['booking_id'];
-                    $send['state'] = "Newbooking";
-                    $this->asynchronous_lib->do_background_process($url, $send);
-                } else {
-                    $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['query_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+	    $send['booking_id'] = $booking['booking_id'];
+	    $send['state'] = "Newbooking";
+	    $this->asynchronous_lib->do_background_process($url, $send);
+        }else{
+            $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY ,$booking['internal_status'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+        }
+        //Redirect to Default Search Page
+        redirect(base_url() . DEFAULT_SEARCH_PAGE);
+        
+        }else{  
+               //Redirect to edit booking page if validation err occurs
+                if(!empty($primary_contact_no)){
+                $this->addbooking($primary_contact_no);
+                }else{
+                    //Redirect to Default Search Page if Primary Phone number not found in Post
+                    redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 }
-                //Redirect to Default Search Page
-                redirect(base_url() . DEFAULT_SEARCH_PAGE);
-            } else {
-                //Redirect to edit booking page if validation err occurs
-                //$this->get_edit_booking_form($booking_id);
-            }
-        } else {
-            //Logging error message if No input is provided
-            log_message('info', __FUNCTION__ . " Error in Booking Insert User ID: " . print_r($user_id, true));
-            $heading = "247Around Booking Error";
-            $message = "Oops... No input provided !";
-            $error = & load_class('Exceptions', 'core');
-            echo $error->show_error($heading, $message, 'custom_error');
+        }
+        }else{
+                //Logging error message if No input is provided
+                log_message('info', __FUNCTION__." Error in Booking Insert User ID: " . print_r($user_id, true));
+                $heading = "247Around Booking Error";
+                $message = "Oops... No input provided !";
+                $error =& load_class('Exceptions', 'core');
+		echo $error->show_error($heading, $message, 'custom_error');
         }
     }
 
@@ -1700,14 +1707,14 @@ class Booking extends CI_Controller {
      * return: void
      */
     function validate_booking(){
-            $this->form_validation->set_rules('service_id', 'Appliance', 'required|callback_minimumCheck');
-            $this->form_validation->set_rules('source_code', 'Source Code', 'required|callback_minimumCheck');
-            $this->form_validation->set_rules('type', 'Booking Type', 'required|callback_minimumCheck');
+            $this->form_validation->set_rules('service_id', 'Appliance', 'required|xss_clean');
+            $this->form_validation->set_rules('source_code', 'Source Code', 'required|xss_clean');
+            $this->form_validation->set_rules('type', 'Booking Type', 'required|xss_clean');
             $this->form_validation->set_rules('grand_total_price', 'Total Price', 'required');
-            $this->form_validation->set_rules('city', 'City', 'required');
+            $this->form_validation->set_rules('city', 'City', 'required|xss_clean');
             $this->form_validation->set_rules('booking_date', 'Date', 'required');
-            $this->form_validation->set_rules('booking_primary_contact_no', 'Mobile', 'required|regex_match[/^[7-9]{1}[0-9]{9}$/]');
-            $this->form_validation->set_rules('booking_timeslot', 'Time Slot', 'required|callback_minimumCheck');
+            $this->form_validation->set_rules('booking_primary_contact_no', 'Mobile', 'required|xss_clean|regex_match[/^[7-9]{1}[0-9]{9}$/]');
+            $this->form_validation->set_rules('booking_timeslot', 'Time Slot', 'required|xss_clean');
             
             return $this->form_validation->run();
     }
