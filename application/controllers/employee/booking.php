@@ -523,7 +523,12 @@ class Booking extends CI_Controller {
 
 	$data['Count'] = $config['total_rows'];
 	//$data['Bookings'] = $this->booking_model->date_sorted_booking($config['per_page'], $offset, $booking_id);
-        $data['Bookings']= array_slice($total_rows, $offset, $config['per_page']);
+        if($offset == "All"){
+            $data['Bookings']= $total_rows;
+        } else {
+            $data['Bookings']= array_slice($total_rows, $offset, $config['per_page']);
+        }
+        
 	if ($this->session->flashdata('result') != ''){
 	    $data['success'] = $this->session->flashdata('result');
         }
@@ -1106,7 +1111,12 @@ class Booking extends CI_Controller {
 	$this->pagination->initialize($config);
 	$data['links'] = $this->pagination->create_links();
 	//$data['Bookings'] = $this->booking_model->get_queries($config['per_page'], $offset, $status, $p_av, $booking_id);
-	$data['Bookings'] = array_slice($total_queries, $offset, $config['per_page']);
+	
+         if($offset == "All"){
+            $data['Bookings']= $total_queries;
+        } else {
+            $data['Bookings']= array_slice($total_queries, $offset, $config['per_page']);
+        }
         $data['p_av'] = $p_av;
 
 	$this->load->view('employee/header');
