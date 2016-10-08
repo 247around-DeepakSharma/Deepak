@@ -768,10 +768,10 @@ class Reporting_utils extends CI_Model {
                 $where = " where DATE_FORMAT(booking_state_change.create_date,'%m') = MONTH(CURDATE()) ";
             }
 
-            $sql = "SELECT booking_details.source,booking_details.partner_id,
+            $sql = "SELECT distinct booking_details.source,booking_details.partner_id,
                  SUM(CASE WHEN `new_state` LIKE '%FollowUp%' THEN 1 ELSE 0 END) AS queries,
                  SUM(CASE WHEN `new_state` LIKE '%Pending%' OR `new_state` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) as scheduled,
-                 SUM(CASE WHEN `new_state` LIKE '%FollowUp%' OR `new_state` LIKE '%Completed%' OR `new_state` LIKE '%Cancelled%' OR `new_state` LIKE '%Pending%' OR `new_state` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) AS total
+                 SUM(CASE WHEN `new_state` LIKE '%FollowUp%' OR `new_state` LIKE '%Pending%' OR `new_state` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) AS total
                     from booking_state_change 
                         JOIN booking_details ON booking_state_change.booking_id = booking_details.booking_id
                  $where GROUP BY booking_details.source ;";
@@ -800,7 +800,7 @@ class Reporting_utils extends CI_Model {
                     
                     //Count this month installations Completed
                     $sql = "SELECT * FROM booking_details WHERE partner_id = '" . $value['partner_id'] . "'"
-                    . " AND closed_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH) "
+                    . " AND month(closed_date) = month(CURRENT_DATE) "
                     . "AND current_status = '"._247AROUND_COMPLETED."'";
                     $can_query = $this->db->query($sql);
                     $month_install_can = $can_query->result_array();
@@ -809,7 +809,7 @@ class Reporting_utils extends CI_Model {
                     
                     //Count this month installations Cancelled
                     $sql = "SELECT * FROM booking_details WHERE partner_id = '" . $value['partner_id'] . "'"
-                    . " AND closed_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH) "
+                    . " AND month(closed_date) = month(CURRENT_DATE) "
                     . "AND current_status = '"._247AROUND_CANCELLED."'";
                     $can_query1 = $this->db->query($sql);
                     $month_can = $can_query1->result_array();

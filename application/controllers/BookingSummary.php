@@ -572,7 +572,7 @@ EOD;
         $total_total_cancelled = 0;
         foreach ($data['data1'] as $key => $value) {
             $html .= "<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'>"
-                    . "<td style='text-align: center;border: 1px solid #ddd;'>" . $value['source'] . "</td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['total'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['scheduled'] . " </td></td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['queries'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $data['today_completed'][$key] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $data['today_cancelled'][$key] . " </td></tr>";
+                    . "<td style='text-align: center;border: 1px solid #ddd;'>" . $value['source'] . "</td><td style='text-align: center;border: 1px solid #ddd;'>" . ($value['total']+$data['today_completed'][$key]+$data['today_cancelled'][$key]) . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['scheduled'] . " </td></td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['queries'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $data['today_completed'][$key] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $data['today_cancelled'][$key] . " </td></tr>";
             $total_today += $value['total'];
             $total_today_scheduled += $value['scheduled'];
             $total_today_completed += $data['today_completed'][$key];
@@ -615,8 +615,7 @@ EOD;
         $queries = 0;
         foreach ($data['data2'] as $key => $value) {
             $html .= "<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'>"
-                    . "<td style='text-align: center;border: 1px solid #ddd;'>" . $value['source'] . "</td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['total'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['scheduled'] . " </td></td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['queries'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $data['month_completed'][$key] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $data['month_cancelled'][$key] . " </td></tr>";
-
+                    . "<td style='text-align: center;border: 1px solid #ddd;'>" . $value['source'] . "</td><td style='text-align: center;border: 1px solid #ddd;'>" . ($value['total']+$data['month_completed'][$key]+$data['month_cancelled'][$key]) . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['scheduled'] . " </td></td><td style='text-align: center;border: 1px solid #ddd;'>" . $value['queries'] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $data['month_completed'][$key] . " </td><td style='text-align: center;border: 1px solid #ddd;'>" . $data['month_cancelled'][$key] . " </td></tr>";
             $total += $value['total'];
             $scheduled += $value['scheduled'];
             $completed += $data['month_completed'][$key];
@@ -693,7 +692,7 @@ EOD;
 
         $html .= '</body>
                     </html>'; 
-        echo $html;exit;
+        
         $to = "anuj@247around.com, nits@247around.com";
         $this->notify->sendEmail("booking@247around.com", $to, "", "", "Booking Summary", $html, "");
          log_message('info',__FUNCTION__.'Booking Report mail sent.');
