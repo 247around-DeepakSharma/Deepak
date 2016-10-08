@@ -629,7 +629,7 @@ class vendor extends CI_Controller {
                 // Update escalation flag and return userDeatils
                 $userDetails = $this->vendor_model->updateEscalationFlag($escalation_id, $escalation_policy_details, $escalation['booking_id']);
 
-                log_message('info', "User Details " . print_r($userDetails));
+                log_message('info', "User Details " . print_r($userDetails, TRUE));
                 log_message('info', "Vendor_ID " . $escalation['vendor_id']);
 
                 $vendorContact = $this->vendor_model->getVendorContact($escalation['vendor_id']);
@@ -642,6 +642,11 @@ class vendor extends CI_Controller {
                 }
 
                 $this->sendSmsToVendor($escalation,$escalation_policy_details, $vendorContact, $escalation['booking_id'], $userDetails);
+                $escalation_reason  = $this->vendor_model->getEscalationReason(array('id'=>$escalation['escalation_reason']));
+                $this->notify->insert_state_change($escalation['booking_id'], 
+                    "Escalation" , "Pending" , $escalation_reason[0]['escalation_reason'], 
+                    $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                    _247AROUND);
 
                 //$output = "Vendor Escalation Process Completed.";
                 //$userSession = array('success' => $output);

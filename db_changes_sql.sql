@@ -1048,3 +1048,8 @@ INSERT INTO `247around_email_template` (`id`, `entity`, `template`, `subject`, `
 
 -- Abhay 06 OCT
 ALTER TABLE `vendor_escalation_policy` ADD `entity` VARCHAR(20) NULL DEFAULT NULL AFTER `escalation_reason`;
+
+
+--Abhay 08 OCT
+
+ALTER TABLE  `booking_state_change` ADD  `service_center_id` VARCHAR( 20 ) NULL DEFAULT NULL AFTER  `partner_id` 

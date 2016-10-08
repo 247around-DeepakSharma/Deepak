@@ -753,7 +753,11 @@ class Partner extends CI_Controller {
 
             //Log this state change as well for this booking
             //param:-- booking id, new state, old state, employee id, employee name
-            $this->notify->insert_state_change($booking_id, $data['current_status'], $status, $data['cancellation_reason'], $this->session->userdata('partner_id'), $this->session->userdata('partner_name'), $this->session->userdata('partner_id'));
+            $this->notify->insert_state_change($booking_id, $data['current_status'],
+                    $status, $data['cancellation_reason'], 
+                    $this->session->userdata('partner_id'),
+                    $this->session->userdata('partner_name'),
+                    $this->session->userdata('partner_id'));
 
             // this is used to send email or sms while booking cancelled
             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
@@ -832,6 +836,11 @@ class Partner extends CI_Controller {
                 log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($service_center_data, true));
 
                 $this->vendor_model->update_service_center_action($service_center_data);
+                
+                $this->notify->insert_state_change($booking_id, 
+                    _247AROUND_RESCHEDULED , _247AROUND_PENDING , "", 
+                    $this->session->userdata('partner_id'), $this->session->userdata('partner_name'),
+                    $this->session->userdata('partner_id'));
 
                 $send_data['booking_id'] = $booking_id;
                 $send_data['current_status'] = "Rescheduled";
@@ -906,6 +915,11 @@ class Partner extends CI_Controller {
             
             //inserts vendor escalation details
             $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
+            $escalation_reason  = $this->vendor_model->getEscalationReason(array('id'=>$escalation['escalation_reason']));
+            $this->notify->insert_state_change($escalation['booking_id'], 
+                    "Escalation" , _247AROUND_PENDING , $escalation_reason[0]['escalation_reason'], 
+                    $this->session->userdata('partner_id'), $this->session->userdata('partner_name'),
+                    $this->session->userdata('partner_id'));
             if($escalation_id){
                 log_message('info', __FUNCTION__ . " Escalation INSERTED ");
                 $from = "escalations@247around.com";
