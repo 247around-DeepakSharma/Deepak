@@ -399,20 +399,26 @@ class Partner_model extends CI_Model {
 	$total_install_sched = $this->db->count_all_results('booking_details');
 
 	//Count today installations scheduled
+        $this->db->distinct();
+        $this->db->select('count(booking_id) as count');
 	$this->db->like('booking_id', $partner_source_code);
 	$this->db->where('new_state', 'Pending');
 	$this->db->where('create_date >= ', date('Y-m-d'));
-	$today_install_sched = $this->db->count_all_results('booking_state_change');
+        $sched_count = $this->db->get('booking_state_change');
+	$today_install_sched = $sched_count[0]['count'];
 
 	//Count y'day installations scheduled
+        $this->db->distinct();
+        $this->db->select('count(booking_id) as count');
 	$this->db->like('booking_id', $partner_source_code);
 	$this->db->where('new_state', 'Pending');
 	$this->db->where('create_date >= ', date('Y-m-d', strtotime("-1 days")));
 	$this->db->where('create_date < ', date('Y-m-d'));
-	$yday_install_sched = $this->db->count_all_results('booking_state_change');
+        $y_day_count = $this->db->get('booking_state_change');
+	$yday_install_sched = $y_day_count[0]['count'];
 
 	//Count This month installation scheduled
-	$sql = "SELECT * FROM booking_state_change WHERE booking_id LIKE '%" . $partner_source_code . "%'"
+	$sql = "SELECT distinct(booking_id) FROM booking_state_change WHERE booking_id LIKE '%" . $partner_source_code . "%'"
 	    . " AND create_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH) "
 	    . " AND (new_state = 'Pending' OR new_state = 'Rescheduled') "
 	    . " AND (old_state = 'FollowUp' OR old_state = 'New_Booking' ) ";
@@ -464,7 +470,7 @@ class Partner_model extends CI_Model {
 	$yday_followup_pend = $this->db->count_all_results('booking_details');
 
 	//Count this follow-ups pending
-	$sql = "SELECT * FROM booking_state_change WHERE booking_id LIKE '%" . $partner_source_code . "%'"
+	$sql = "SELECT distinct(booking_id) FROM booking_state_change WHERE booking_id LIKE '%" . $partner_source_code . "%'"
 	    . " AND create_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH) "
 	    . "AND (new_state = 'FollowUp' OR old_state = 'New_Query' ) ";
 	$followUp_query = $this->db->query($sql);
