@@ -896,7 +896,8 @@ class Partner extends CI_Controller {
         //Order ID / Booking ID validation
         if ($flag === TRUE) {
             $lead['query1'] = $this->booking_model->getbooking_history($request['247aroundBookingID']);
-            $lead['query2'] = $this->booking_model->get_unit_details($request['247aroundBookingID']);
+            $unit_where = array('booking_id'=> $request['247aroundBookingID']);
+            $lead['query2'] = $this->booking_model->get_unit_details($unit_where);
 
             $resultArr['lead'] = $lead;
         }
@@ -1347,27 +1348,26 @@ class Partner extends CI_Controller {
             //Search for user
             //Insert user if phone number doesn't exist
             $output = $this->user_model->search_user($requestData['mobile']);
+            $state = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
+            $user['name'] = $requestData['name'];
+            $user['phone_number'] = $requestData['mobile'];
+            $user['alternate_phone_number'] = (isset($requestData['alternate_phone_number']) ? $requestData['alternate_phone_number'] : "");
+            $user['user_email'] = (isset($requestData['email']) ? $requestData['email'] : "");
+
+            isset($requestData['landmark']) ?
+                    ($address = $requestData['address'] . ", " . $requestData['landmark']) :
+                    ($address = $requestData['address']);
+
+            $user['home_address'] = $address;
+            $user['pincode'] = $requestData['pincode'];
+            $user['city'] = $requestData['city'];
+                
+            $user['state'] = $state['state'];
 
             if (empty($output)) {
                 log_message('info', $requestData['mobile'] . ' does not exist');
 
                 //User doesn't exist
-                $user['name'] = $requestData['name'];
-                $user['phone_number'] = $requestData['mobile'];
-                $user['alternate_phone_number'] = (isset($requestData['alternatePhone']) ? $requestData['alternatePhone'] : "");
-                $user['user_email'] = (isset($requestData['email']) ? $requestData['email'] : "");
-
-                isset($requestData['landmark']) ?
-                    ($address = $requestData['address'] . ", " . $requestData['landmark']) :
-                    ($address = $requestData['address']);
-
-                $user['home_address'] = $address;
-                $user['pincode'] = $requestData['pincode'];
-                $user['city'] = $requestData['city'];
-                $state = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
-
-                $user['state'] = $state['state'];
-
                 $user_id = $this->user_model->add_user($user);
 
                 //echo print_r($user, true), EOL;
@@ -1381,9 +1381,10 @@ class Partner extends CI_Controller {
             } else {
                 log_message('info', $requestData['mobile'] . ' exists');
                 //User exists
-                $user['name'] = $requestData['name'];
-                $user_id = $output[0]['user_id'];
-                $user['user_email'] = (isset($requestData['email']) ? $requestData['email'] : "");
+                 $user_id = $output[0]['user_id'];
+                 $user['user_id'] = $user_id;
+                 $this->user_model->edit_user($user);
+                 
             }
 
             $booking['partner_id'] = $unit_details['partner_id'] = $this->partner['id'];
@@ -1429,7 +1430,7 @@ class Partner extends CI_Controller {
             $unit_details['appliance_capacity'] = $appliance_details['capacity'] =  (isset($requestData['capacity']) ? $requestData['capacity'] : "");
 
             $booking['booking_primary_contact_no'] = $requestData['mobile'];
-            $lead_details['booking_alternate_contact_no'] = (isset($requestData['alternatePhone']) ? $requestData['alternatePhone'] : "");
+            $lead_details['booking_alternate_contact_no'] = (isset($requestData['alternate_phone_number']) ? $requestData['alternate_phone_number'] : "");
 
            // $booking['booking_address'] = $requestData['address'];
             $booking['booking_landmark'] = (isset($requestData['landmark']) ? $requestData['landmark'] : "");
@@ -1473,7 +1474,7 @@ class Partner extends CI_Controller {
 
 
             $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
-            $state = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
+           
             $booking['state'] = $state['state'];
             //echo print_r($appliance_id, true) . "<br><br>";
             //$return_unit_id = $this->booking_model->addunitdetails($unit_details);

@@ -178,7 +178,8 @@ class Partner extends CI_Controller {
     function booking_details($booking_id) {
         $this->checkUserSession();
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
-        $data['unit_details'] = $this->booking_model->get_unit_details($booking_id);
+        $unit_where = array('booking_id'=>$booking_id);
+        $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
         
         log_message('info', 'Partner view booking details booking  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'). " data ". print_r($data, true));
 
@@ -236,29 +237,103 @@ class Partner extends CI_Controller {
      * @desc: This method loads abb booking form
      * it gets user details(if exist), city, source, services
      */
-    function get_addbooking_form($phone_number){
+    function get_addbooking_form(){
         $this->checkUserSession();
-        $data = $this->booking_model->get_city_booking_source_services($phone_number);
-        $this->load->view('partner/header');
-        $this->load->view('partner/get_addbooking', $data);
+        $this->form_validation->set_rules('phone_number', 'Phone Number', 'trim|required|regex_match[/^[7-9]{1}[0-9]{9}$/]');
+
+        if ($this->form_validation->run() == FALSE) {
+            redirect(base_url()."partner/get_user_form");
+        } else {
+            $phone_number = $this->input->post('phone_number');
+            $data = $this->booking_model->get_city_booking_source_services($phone_number);
+            $this->load->view('partner/header');
+            $this->load->view('partner/get_addbooking', $data);
+        }
+        
     }
 
  /**
      * @desc: This method is used to process to add booking by partner
      */
     function process_addbooking() {
-    $this->checkUserSession();
-    $validate = $this->set_form_validation();
-    log_message('info', 'Partner initiate add booking' . $this->session->userdata('partner_name'));
+        $this->checkUserSession();
+        $validate = $this->set_form_validation();
+        log_message('info', 'Partner initiate add booking' . $this->session->userdata('partner_name'));
 
-    if ($validate) {
+        if ($validate) {
+
+            $authToken = $this->partner_model->get_authentication_code($this->session->userdata('partner_id'));
+            if ($authToken) {
+                $post = $this->get_booking_form_data();
+
+                $postData = json_encode($post, true);
+
+                $ch = curl_init(base_url() . 'partner/insertBookingByPartner');
+                curl_setopt_array($ch, array(
+                    CURLOPT_POST => TRUE,
+                    CURLOPT_RETURNTRANSFER => TRUE,
+                    CURLOPT_HTTPHEADER => array(
+                        'Authorization: ' . $authToken,
+                        'Content-Type: application/json'
+                    ),
+                    CURLOPT_POSTFIELDS => $postData
+                ));
+
+                // Send the request
+                $response = curl_exec($ch);
+                log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted error mgs" . print_r($response, true));
+                // Decode the response
+                $responseData = json_decode($response, TRUE);
+
+                if (isset($responseData['data']['result'])) {
+
+                    if ($responseData['data']['result'] != "Success") {
+                        log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
+                        $this->insertion_failure($postData);
+
+                        $output = "Sorry, Booking could not be inserted. Please check the input and try again.";
+                        $userSession = array('success' => $output);
+                        $this->session->set_userdata($userSession);
+
+                        $data = $this->booking_model->get_city_booking_source_services($this->input->post('booking_primary_contact_no'));
+                        $this->load->view('partner/header');
+                        $this->load->view('partner/get_addbooking', $data);
+                    } else {
+                        $output = "Booking inserted successfully.";
+                        $userSession = array('success' => $output);
+                        $this->session->set_userdata($userSession);
+
+                        log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  booking Inserted " . print_r($postData, true));
+                        // Print the date from the response
+                        //echo $responseData['data'];
+                        redirect(base_url() . "partner/pending_booking");
+                    }
+                } else {
+                    log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
+                    $this->insertion_failure($postData);
+
+                    $output = "Sorry, Booking could not be inserted. Please check the input and try again.";
+                    $userSession = array('success' => $output);
+                    $this->session->set_userdata($userSession);
+
+                    $data = $this->booking_model->get_city_booking_source_services($this->input->post('booking_primary_contact_no'));
+                    $this->load->view('partner/header');
+                    $this->load->view('partner/get_addbooking', $data);
+                }
+            } else {
+                log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  Authentication failed");
+                //echo "Authentication fail:";
+            }
+        } else {
+            log_message('info', 'Partner add booking' . $this->session->userdata('partner_name') . " Validation failed ");
+            $data = $this->booking_model->get_city_booking_source_services($this->input->post('booking_primary_contact_no'));
+            $this->load->view('partner/header');
+            $this->load->view('partner/get_addbooking', $data);
+        }
+    }
+    
+    function get_booking_form_data(){
         $booking_date = date('d-m-Y', strtotime($this->input->post('booking_date')));
-        $order_id = $this->input->post('order_id');
-
-        $description = $this->input->post('description');
-
-        $authToken = $this->partner_model->get_authentication_code($this->session->userdata('partner_id'));
-        if ($authToken) {
         $post['partnerName'] = $this->session->userdata('partner_name');
         $post['agent_id'] = $this->session->userdata('partner_id');
         $post['name'] = $this->input->post('user_name');
@@ -271,7 +346,7 @@ class Partner extends CI_Controller {
         $post['landmark'] = $this->input->post('landmark');
         $post['product'] = $this->input->post('service_name');
         $post['brand'] = $this->input->post('appliance_brand');
-        $post['productType'] = $description;
+        $post['productType'] = $this->input->post('description');
         $post['category'] = $this->input->post('appliance_category');
         $post['capacity'] = $this->input->post('appliance_capacity');
         $post['model'] = $this->input->post('model_number');
@@ -280,72 +355,12 @@ class Partner extends CI_Controller {
         $post['purchase_year'] = $this->input->post('purchase_year');
         $post['partner_source'] = $this->input->post('partner_source');
         $post['remarks'] = $this->input->post('query_remarks');
-        $post['orderID'] = $order_id;
+        $post['orderID'] = $this->input->post('order_id');;
+        $post['alternate_phone_number'] = $this->input->post('alternate_phone_number');
         $post['booking_date'] = $booking_date;
-        $postData = json_encode($post, true);
-
-        $ch = curl_init(base_url() . 'partner/insertBookingByPartner');
-        curl_setopt_array($ch, array(
-            CURLOPT_POST => TRUE,
-            CURLOPT_RETURNTRANSFER => TRUE,
-            CURLOPT_HTTPHEADER => array(
-            'Authorization: ' . $authToken,
-            'Content-Type: application/json'
-            ),
-            CURLOPT_POSTFIELDS => $postData
-        ));
-
-        // Send the request
-        $response = curl_exec($ch);
-        log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted error mgs" . print_r($response, true));
-        // Decode the response
-        $responseData = json_decode($response, TRUE);
-
-        if (isset($responseData['data']['result'])) {
-
-            if ($responseData['data']['result'] != "Success") {
-            log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
-            $this->insertion_failure($postData);
-
-            $output = "Sorry, Booking could not be inserted. Please check the input and try again.";
-            $userSession = array('success' => $output);
-            $this->session->set_userdata($userSession);
-
-            $data = $this->booking_model->get_city_booking_source_services($this->input->post('booking_primary_contact_no'));
-            $this->load->view('partner/header');
-            $this->load->view('partner/get_addbooking', $data);
-            } else {
-            $output = "Booking inserted successfully.";
-            $userSession = array('success' => $output);
-            $this->session->set_userdata($userSession);
-
-            log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  booking Inserted " . print_r($postData, true));
-            // Print the date from the response
-            //echo $responseData['data'];
-            redirect(base_url() . "partner/pending_booking");
-            }
-        } else {
-            log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted " . print_r($postData, true) . " error mgs" . print_r($responseData['data'], true));
-            $this->insertion_failure($postData);
-
-            $output = "Sorry, Booking could not be inserted. Please check the input and try again.";
-            $userSession = array('success' => $output);
-            $this->session->set_userdata($userSession);
-
-            $data = $this->booking_model->get_city_booking_source_services($this->input->post('booking_primary_contact_no'));
-            $this->load->view('partner/header');
-            $this->load->view('partner/get_addbooking', $data);
-        }
-        } else {
-        log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  Authentication failed");
-        //echo "Authentication fail:";
-        }
-    } else {
-        log_message('info', 'Partner add booking' . $this->session->userdata('partner_name') . " Validation failed ");
-        $data = $this->booking_model->get_city_booking_source_services($this->input->post('booking_primary_contact_no'));
-        $this->load->view('partner/header');
-        $this->load->view('partner/get_addbooking', $data);
-    }
+        
+        return $post;
+        
     }
 
     function insertion_failure($post){
@@ -667,7 +682,8 @@ class Partner extends CI_Controller {
      */
     function viewdetails($booking_id, $partner_id) {
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
-        $data['unit_details'] = $this->booking_model->get_unit_details($booking_id, $partner_id);
+        $unit_where = array('booking_id'=>$booking_id, 'partner_id' => $partner_id);
+        $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
 
         $data['service_center'] = $this->booking_model->selectservicecentre($booking_id);
 
@@ -945,6 +961,124 @@ class Partner extends CI_Controller {
 
             redirect(base_url() . "partner/escalation_form/".$booking_id);
         }
+        
+    }
+    /**
+     * @desc: This is used to load update booking form
+     * @param String $booking_id
+     */ 
+    function get_editbooking_form($booking_id){
+        log_message('info', __FUNCTION__ . " Booking Id: " . $booking_id);
+        $this->checkUserSession();
+
+        $booking_history = $this->booking_model->getbooking_history($booking_id);
+        if(!empty($booking_history)){
+            $data = $this->booking_model->get_city_booking_source_services($booking_history[0]['booking_primary_contact_no']);
+            $data['booking_history'] = $booking_history;
+            $unit_where = array('booking_id'=>$booking_id);
+            $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
+            $this->load->view('partner/header');
+            $this->load->view('partner/edit_booking', $data);
+
+        } else {
+            echo "Booking Not Find";
+        }
+        
+    }
+    
+    function process_editbooking($booking_id){
+        log_message('info', __FUNCTION__ . " Booking Id: " . $booking_id);
+        $this->checkUserSession();
+        $validate = $this->set_form_validation();
+        log_message('info', 'Partner initiate Edit booking' . $this->session->userdata('partner_name'));
+       // $authToken = $this->partner_model->get_authentication_code($this->session->userdata('partner_id'));
+      
+        if ($validate == true && !empty($booking_id)) {
+            log_message('info', 'Edit booking validation true' . $this->session->userdata('partner_name'));
+            $post = $this->get_booking_form_data();
+            $user['name'] = $post['name'];
+            $user['phone_number'] = $post['mobile'];
+            $user['user_email'] = $post['email'];
+            $user['city'] = $post['city'];
+            $user['pincode'] = $post['pincode'];
+            $user['home_address'] = $post['address'];
+            $user['alternate_phone_number'] = $post['alternate_phone_number'];
+            $state = $this->vendor_model->get_state_from_pincode($post['pincode']);
+
+            $user['state'] = $state['state'];
+            $booking_details['booking_date'] = $post['booking_date'];
+            $booking_details['booking_primary_contact_no'] = $post['mobile'];
+            $booking_details['booking_alternate_contact_no'] = $post['alternate_phone_number'];
+            $booking_details['booking_address'] = $post['address'];
+            $booking_details['booking_pincode'] = $post['pincode'];
+            $booking_details['state'] = $state['state'];
+            $booking_details['city'] = $post['city'];
+            $booking_details['request_type'] = $post['requestType'];
+            $booking_details['booking_landmark'] = $post['landmark'];
+            $booking_details['partner_source'] = $post['partner_source'];
+            $booking_details['order_id'] = $post['orderID'];
+            $booking_details['service_id'] =  $this->booking_model->getServiceId($post['product']);
+            $booking_details['booking_remarks'] =  $post['remarks'];
+
+            $unit_details['price_tags'] = $post['requestType'];
+            $unit_details['service_id'] = $appliance_details['service_id'] = $booking_details['service_id'];
+            $unit_details['appliance_brand'] = $appliance_details['brand'] = $post['brand'];
+            $unit_details['appliance_description'] = $appliance_details['description'] = $post['productType'];
+            $unit_details['appliance_category'] =  $appliance_details['category'] = $post['category'];
+            $unit_details['appliance_capacity'] = $appliance_details['capacity'] = $post['capacity'];
+            $unit_details['model_number'] = $appliance_details['model_number'] =  $post['model'];
+            $unit_details['serial_number'] = $appliance_details['serial_number'] =  $post['serial_number'];
+            $unit_details['purchase_month'] = $appliance_details['purchase_month'] = $post['purchase_month'];
+            $unit_details['purchase_year'] = $appliance_details['purchase_year'] = $post['purchase_year'];
+            
+            $update_status = $this->booking_model->update_booking($booking_id, $booking_details);
+            if($update_status){
+                $user['user_id'] = $this->input->post('user_id');
+                $user_status = $this->user_model->edit_user($user);
+                if($user_status){} else {
+                    log_message('info', 'User table is not updated booking Id: '. $booking_id . " User Id". print_r($user, true) );
+                    
+                }
+                $unit_details['appliance_id'] = $this->input->post('appliance_id');
+                $appliance_status = $this->booking_model->update_appliances($unit_details['appliance_id'],$appliance_details );
+                if($appliance_status){} else {
+                    log_message('info', 'Appliance is not update in Appliance details: '. $booking_id . " Appliance data". print_r($appliance_details, true). "Appliamce id ". $unit_details['appliance_id'] );
+                }
+                
+                $unit_details_status = $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
+                if($unit_details_status){
+                    $partner_id = $this->session->userdata('partner_id');                
+                    $partner_mapping_id = $this->booking_model->get_price_mapping_partner_code("", $partner_id);
+
+                    $prices = $this->partner_model->getPrices($booking_details['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id, $unit_details['price_tags']);
+
+                    $unit_details['id'] =  $prices[0]['id'];
+                    $unit_details['around_paid_basic_charges'] = "0.00";
+                    $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
+                    $unit_status = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state']);
+                    if($unit_status) {} else {
+                        log_message('info', 'Booking unit details data is not update in : '. $booking_id . " Appliance data". print_r($unit_details, true) );
+                    }
+                    
+                    $this->notify->insert_state_change($booking_id, 
+                    _247AROUND_PENDING , _247AROUND_PENDING ,  $booking_details['booking_remarks'], 
+                    $this->session->userdata('partner_id'), $this->session->userdata('partner_name'),
+                    $this->session->userdata('partner_id'));
+                    
+                    $this->session->set_flashdata('success', $booking_id . ' Booking  is updated.');
+                    redirect(base_url() . "partner/get_user_form");
+                }
+                $this->session->set_flashdata('error', $booking_id . ' Booking  is not updated.');
+                $this->get_editbooking_form($booking_id); 
+            }
+            $this->session->set_flashdata('error', $booking_id . ' Booking  is not updated.');
+            $this->get_editbooking_form($booking_id); 
+            
+            
+        } else {
+            $this->get_editbooking_form($booking_id); 
+        }
+        
         
     }
 

@@ -27,6 +27,7 @@
                            <th>City</th>
                            <th>Booking Date</th>
                            <th>View</th>
+                           <th>Update Booking</th>
                            <th>Reschedule</th>
                            <th>Cancel</th>
                            <th>Job Card</th>
@@ -70,7 +71,8 @@
                            </td>
                          
                            <td><a class='btn btn-sm btn-primary' href="<?php echo base_url();?>partner/booking_details/<?=$row->booking_id?>" target='_blank' title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>
-                           
+                           <td><a class='btn btn-sm btn-primary' href="<?php echo base_url();?>partner/update_booking/<?=$row->booking_id?>"  title='View' style="background-color:#2C9D9C; border-color: #2C9D9C;"><i class='fa fa-pencil-square-o' aria-hidden='true' ></i></a></td>
+
                            <td>
                            <a href="<?php echo base_url(); ?>partner/get_reschedule_booking_form/<?php echo $row->booking_id; ?>" id="reschedule" class="btn btn-sm btn-success" title ="Reschedule"><i class='fa fa-calendar' aria-hidden='true' ></i></a>                            
                            </td>
