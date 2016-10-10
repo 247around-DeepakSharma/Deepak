@@ -48,7 +48,8 @@ class Booking_utilities {
 	$R = new PHPReport($config);
 	//log_message('info', "PHP report");
 	$booking_details = $this->My_CI->booking_model->getbooking_history($booking_id);
-	$unit_details = $this->My_CI->booking_model->get_unit_details($booking_id);
+        $unit_where = array('booking_id'=>$booking_id);
+	$unit_details = $this->My_CI->booking_model->get_unit_details($unit_where);
 	$R->load(array(
 	    array(
 		'id' => 'booking',

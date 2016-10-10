@@ -252,8 +252,8 @@ class User_model extends CI_Model {
      */
     function edit_user($edit) {
         $this->db->where('user_id', $edit['user_id']);
-        $this->db->update('users', $edit);
-        //return $sql;
+        $result = $this->db->update('users', $edit);
+        return $result;
     }
 
     /* @description : Function to get appliance details and user details for users booking history page(appliance wallet)

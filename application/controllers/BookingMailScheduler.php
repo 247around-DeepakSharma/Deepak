@@ -74,10 +74,11 @@ class BookingMailScheduler extends CI_Controller {
             //Get booking details first
             $booking_details = $this->reporting_utils->get_booking_details($booking_id);
             echo "Booking Details: " . "\n";
-            print_r($booking_details);
+            //print_r($booking_details);
 
             //Find unit details for this booking
-            $unit_details = $this->reporting_utils->get_unit_details($booking_id);
+            $unit_where = array('booking_id'=>$booking_id);
+            $unit_details = $this->reporting_utils->get_unit_details($unit_where);
             echo "Unit Details: " . "\n";
             print_r($unit_details);
             //log_message('info', "Units fetched: " . count($unit_details));
@@ -195,9 +196,9 @@ class BookingMailScheduler extends CI_Controller {
         $booking_details = $this->reporting_utils->get_booking_details($booking_id);
         echo "Booking Details: " . "\n";
         print_r($booking_details);
-
+        $unit_where = array('booking_id'=>$booking_id);
         //Find unit details for this booking
-        $unit_details = $this->reporting_utils->get_unit_details($booking_id);
+        $unit_details = $this->reporting_utils->get_unit_details($unit_where);
         echo "Unit Details: " . "\n";
         print_r($unit_details);
         //log_message('info', "Units fetched: " . count($unit_details));
