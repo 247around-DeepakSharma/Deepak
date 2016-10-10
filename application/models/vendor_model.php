@@ -1130,5 +1130,38 @@ class vendor_model extends CI_Model {
         }
         return $query->result_array();
     }
+    
+    /**
+     * @desc: This is used get query report data
+     * params: Array consists of  
+     *        select, where values 
+     * return: void
+     */
+    function get_active_query_report($data){
+        if(!isset($data['select'])){
+            $data['select'] = '*';
+        }
+        $this->db->select($data['select']);
+        if(isset($data['where'])){
+            $this->db->where($data['where']);
+        }
+        $this->db->where('active',1);
+        $query = $this->db->get('query_report');
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc: This function is used to execute query form query report
+     * params: STRING query
+     * return : ARRAY query result
+     */
+    function execute_query($query){
+        
+        foreach($query as $key=>$value){
+            $query = $this->db->query($value['query']);
+            $count[$key] = $query->result_array();
+        }
+        return $count;
+    }
 
 }

@@ -1775,5 +1775,20 @@ class vendor extends CI_Controller {
         //Returning Flag value to AJAX request
         echo $flag;
     }
-
+    
+    /**
+     * @desc: This function is used to show report queries
+     * params: void
+     * return: view
+     * 
+     */
+    function get_report_query(){
+        //Initializing array data for where and select clause
+        $data = [];
+        $data_report['query'] = $this->vendor_model->get_active_query_report($data);
+        $data_report['data'] = $this->vendor_model->execute_query($data_report['query']);
+        
+        $this->load->view('employee/header');
+        $this->load->view('employee/query_report',$data_report);
+    }
 }
