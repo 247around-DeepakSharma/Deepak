@@ -1050,6 +1050,25 @@ INSERT INTO `247around_email_template` (`id`, `entity`, `template`, `subject`, `
 ALTER TABLE `vendor_escalation_policy` ADD `entity` VARCHAR(20) NULL DEFAULT NULL AFTER `escalation_reason`;
 
 
+
 --Abhay 08 OCT
 
 ALTER TABLE  `booking_state_change` ADD  `service_center_id` VARCHAR( 20 ) NULL DEFAULT NULL AFTER  `partner_id` 
+
+--Belal 10 Oct
+
+CREATE TABLE `query_report` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `description` varchar(500) NOT NULL,
+ `query` varchar(1000) NOT NULL,
+ `active` int(11) NOT NULL DEFAULT '1' COMMENT '1->Active, 0->Disabled',
+ `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1
+
+
+INSERT INTO `query_report` (`id`, `description`, `query`, `active`, `create_date`) VALUES
+(1, 'Count completed booking this month.', 'SELECT COUNT(id) as count from booking_details where current_status=''Completed'' AND MONTH(closed_date) = MONTH(CURDATE())', 1, '2016-10-10 06:18:03'),
+(2, 'Count completed booking this month.', 'SELECT COUNT(id) as count from booking_details where current_status=''Completed'' AND MONTH(closed_date) = MONTH(CURDATE())', 1, '2016-10-10 05:41:56'),
+(3, 'Count completed booking this month.', 'SELECT COUNT(id) as count from booking_details where current_status=''Completed'' AND MONTH(closed_date) = MONTH(CURDATE())', 1, '2016-10-10 05:41:56');
+

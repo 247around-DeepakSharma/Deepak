@@ -1801,10 +1801,13 @@ class Booking_model extends CI_Model {
     function get_booking_state_change_by_id($booking_id){
         
         $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
-        $this->db->select('*');
-        $this->db->like('booking_id',$trimed_booking_id);
-        $this->db->order_by('id');
-        $query = $this->db->get('booking_state_change');
+        $this->db->select('partners.public_name,employee.employee_id,booking_state_change.old_state,booking_state_change.new_state,booking_state_change.remarks,booking_state_change.create_date');
+        $this->db->like('booking_state_change.booking_id',$trimed_booking_id);
+        $this->db->from('booking_state_change');
+        $this->db->join('employee', 'employee.id = booking_state_change.agent_id');
+        $this->db->join('partners', 'partners.id = booking_state_change.partner_id');
+        $this->db->order_by('booking_state_change.id');
+        $query = $this->db->get();
         return $query->result_array();
         
     }

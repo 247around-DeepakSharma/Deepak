@@ -768,10 +768,10 @@ class Reporting_utils extends CI_Model {
                 $where = " where DATE_FORMAT(booking_state_change.create_date,'%m') = MONTH(CURDATE()) ";
             }
 
-            $sql = "SELECT booking_details.source,booking_details.partner_id,
+            $sql = "SELECT distinct booking_details.source,booking_details.partner_id,
                  SUM(CASE WHEN `new_state` LIKE '%FollowUp%' THEN 1 ELSE 0 END) AS queries,
                  SUM(CASE WHEN `new_state` LIKE '%Pending%' OR `new_state` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) as scheduled,
-                 SUM(CASE WHEN `new_state` LIKE '%FollowUp%' OR `new_state` LIKE '%Completed%' OR `new_state` LIKE '%Cancelled%' OR `new_state` LIKE '%Pending%' OR `new_state` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) AS total
+                 SUM(CASE WHEN `new_state` LIKE '%FollowUp%' OR `new_state` LIKE '%Pending%' OR `new_state` LIKE '%Rescheduled%' THEN 1 ELSE 0 END) AS total
                     from booking_state_change 
                         JOIN booking_details ON booking_state_change.booking_id = booking_details.booking_id
                  $where GROUP BY booking_details.source ;";
@@ -800,7 +800,7 @@ class Reporting_utils extends CI_Model {
                     
                     //Count this month installations Completed
                     $sql = "SELECT * FROM booking_details WHERE partner_id = '" . $value['partner_id'] . "'"
-                    . " AND closed_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH) "
+                    . " AND month(closed_date) = month(CURRENT_DATE) "
                     . "AND current_status = '"._247AROUND_COMPLETED."'";
                     $can_query = $this->db->query($sql);
                     $month_install_can = $can_query->result_array();
@@ -809,7 +809,7 @@ class Reporting_utils extends CI_Model {
                     
                     //Count this month installations Cancelled
                     $sql = "SELECT * FROM booking_details WHERE partner_id = '" . $value['partner_id'] . "'"
-                    . " AND closed_date >= DATE_SUB(NOW(), INTERVAL 1 MONTH) "
+                    . " AND month(closed_date) = month(CURRENT_DATE) "
                     . "AND current_status = '"._247AROUND_CANCELLED."'";
                     $can_query1 = $this->db->query($sql);
                     $month_can = $can_query1->result_array();
@@ -844,6 +844,155 @@ class Reporting_utils extends CI_Model {
             
         $data = $this->db->query($sql);
         return $data->result_array();
+    }
+    
+    /*
+     * @desc: This function is used to get reporting data acc to service center
+     * params: void
+     * return: Array
+     */
+
+    function get_booking_by_service_center() {
+
+        $where_today = "where DATE_FORMAT(service_center_booking_action.closed_date,'%y-%m-%d') = CURDATE()";
+        $where_yesterday = "where DATE_FORMAT(service_center_booking_action.closed_date,'%y-%m-%d') = CURDATE() - INTERVAL 1 day";
+        $where_month = "where DATE_FORMAT(service_center_booking_action.closed_date,'%m') = MONTH(CURDATE())";
+        $where_last_3_days = "where DATE_FORMAT(service_center_booking_action.closed_date,'%y-%m-%d') >= CURDATE() - INTERVAL 3 day";
+        $where_greater_than_5_days = "where DATE_FORMAT(service_center_booking_action.closed_date,'%y-%m-%d') <= CURDATE() - INTERVAL 5 day";
+
+        //Sql query for Completed, Cancelled, Pending state
+        $sql = "SELECT service_center_booking_action.service_center_id, service_centres.state, service_centres.district,
+                 SUM(CASE WHEN `current_status` LIKE '%Cancelled%' AND `booking_id` LIKE 'S%' THEN 1 ELSE 0 END) AS cancelled,
+                 SUM(CASE WHEN `current_status` LIKE '%Completed%' AND `booking_id` LIKE 'S%' THEN 1 ELSE 0 END) AS completed,
+                 SUM(CASE WHEN `current_status` LIKE '%Pending%' AND `booking_id` LIKE 'S%' THEN 1 ELSE 0 END) AS pending
+                 from service_center_booking_action
+                 JOIN service_centres ON service_centres.id = service_center_booking_action.service_center_id";
+
+
+
+        $sql_today = $sql . ' ' . $where_today . " GROUP BY service_centres.state";
+        $sql_yesterday = $sql . ' ' . $where_yesterday . " GROUP BY  service_centres.state";
+        $sql_month = $sql . ' ' . $where_month . " GROUP BY  service_centres.state";
+        $sql_last_3_day = $sql . ' ' . $where_last_3_days . " GROUP BY service_centres.state";
+        $sql_greater_than_5_days = $sql . ' ' . $where_greater_than_5_days . " GROUP BY  service_centres.state";
+
+        $data_today = $this->db->query($sql_today);
+        $data_yesterday = $this->db->query($sql_yesterday);
+        $data_month = $this->db->query($sql_month);
+        $data_last_3_day = $this->db->query($sql_last_3_day);
+        $data_greater_than_5_days = $this->db->query($sql_greater_than_5_days);
+
+        //Setting $result array with all values
+        $result['today'] = $data_today->result_array();
+        $result['yesterday'] = $data_yesterday->result_array();
+        $result['month'] = $data_month->result_array();
+        $result['last_3_day'] = $data_last_3_day->result_array();
+        $result['greater_than_5_days'] = $data_greater_than_5_days->result_array();
+
+        //Genearting Final Array 
+        return $this->make_final_array($result);
+    }
+
+    /**
+     * @desc: This function is used to make Final Array to Service Center Report Mail
+     * params: Array
+     * return : Array
+     */
+    function make_final_array($result) {
+
+        //Getting max length of array from array's
+        $max_length = max(sizeof($result['today']), sizeof($result['yesterday']), sizeof($result['month']), sizeof($result['last_3_day']), sizeof($result['greater_than_5_days']));
+        //Getting service_center_id array
+        $service_center_id = $this->get_service_center_id_array($result, $max_length);
+
+        for ($i = 0; $i < $max_length; $i++) {
+
+            // Setting value in final data array according to service center id
+            if (!empty($result['today'][$i])) {
+                $data['today'] = $this->search_service_center_id($service_center_id, $result['today'][$i]);
+            }
+            if (!empty($result['yesterday'][$i])) {
+                $data['yesterday'] = $this->search_service_center_id($service_center_id, $result['yesterday'][$i]);
+            }
+            if (!empty($result['month'][$i])) {
+                $data['month'] = $this->search_service_center_id($service_center_id, $result['month'][$i]);
+            }
+            if (!empty($result['last_3_day'][$i])) {
+                $data['last_3_day'] = $this->search_service_center_id($service_center_id, $result['last_3_day'][$i]);
+            }
+            if (!empty($result['greater_than_5_days'][$i])) {
+                $data['greater_than_5_days'] = $this->search_service_center_id($service_center_id, $result['greater_than_5_days'][$i]);
+            }
+
+            //Pushing each data value to data_final array
+            $data_final[$i] = $data;
+        }
+
+        return $this->get_final_array($service_center_id, $data_final);
+    }
+
+    /**
+     * @desc: This fucntion is used to match array values to the set of service_center_id's
+     * params: Array, Array
+     *         sevice_center_id array, array to be searched
+     * return: Array or void 
+     */
+    private function search_service_center_id($service_center, $data) {
+        foreach ($service_center as $value) {
+            if ($data['service_center_id'] == $value) {
+                return $data;
+            }
+        }
+    }
+
+    /**
+     * @desc: This function is used to get service center id's from following arrays
+     * params: Array, INT
+     *         array of values and Looping max value limit for searching value
+     * return: Array
+     * 
+     */
+    private function get_service_center_id_array($result, $max_length) {
+        for ($i = 0; $i < $max_length; $i++) {
+
+            //Setting Service Center ID
+            if (isset($result['today'][$i]['service_center_id'])) {
+                $service_center_id[] = $result['today'][$i]['service_center_id'];
+            }
+            if (isset($result['month'][$i]['service_center_id'])) {
+                $service_center_id[] = $result['month'][$i]['service_center_id'];
+            }
+            if (isset($result['last_3_day'][$i]['service_center_id'])) {
+                $service_center_id[] = $result['last_3_day'][$i]['service_center_id'];
+            }
+            if (isset($result['yesterday'][$i]['service_center_id'])) {
+                $service_center_id[] = $result['yesterday'][$i]['service_center_id'];
+            }
+            if (isset($result['greater_than_5_days'][$i]['service_center_id'])) {
+                $service_center_id[] = $result['greater_than_5_days'][$i]['service_center_id'];
+            }
+        }
+        return array_unique($service_center_id);
+    }
+
+    /**
+     * @desc: Making Final array according to service_center_id
+     * parmas: Array, Array
+     * return :Array
+     * 
+     */
+    private function get_final_array($service_center_id, $data_final) {
+        $final_data = [];
+        foreach ($service_center_id as $value) {
+            foreach ($data_final as $val) {
+                foreach ($val as $k => $v) {
+                    if ($v['service_center_id'] == $value) {
+                        $final_data[$value][$k] = $v;
+                    }
+                }
+            }
+        }
+        return $final_data;
     }
 
 }

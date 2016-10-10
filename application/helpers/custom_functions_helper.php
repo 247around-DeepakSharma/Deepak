@@ -31,23 +31,3 @@ if (!function_exists('search_for_key')) {
     }
 
 }
-
-/**
- * @desc: This function is used to check min value on form validation (Booking Add/Update)
- * params: INT 
- * void: boolean
- */
-if (!function_exists('minimumCheck')) {
-
-    function minimumCheck($num) {
-        if ($num == 0) {
-            $this->form_validation->set_message(
-                    'your_number_field', 'Invalid data in %s field'
-            );
-            return FALSE;
-        } else {
-            return TRUE;
-        }
-    }
-
-}
