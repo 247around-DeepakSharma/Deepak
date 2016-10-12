@@ -1168,5 +1168,70 @@ class vendor_model extends CI_Model {
         }
         return $count;
     }
+    
+    /**
+     *  @desc : To get All Active vendor SMS templates
+     *
+     *  To get the active template for all sms template which are enabled.
+     *
+     *  @param : void
+     *  @return : Array
+     */
+    function get_all_active_sms_template($start,$limit,$sidx,$sord,$where) {
+
+        $this->db->select('id,tag,template,comments,active');
+        $this->db->limit($limit);
+        if ($where != NULL)
+            $this->db->where($where, NULL, FALSE);
+        $this->db->order_by($sidx, $sord);
+        $query = $this->db->get('sms_template', $limit, $start);
+       
+        return $query->result();
+    }
+    
+    /**
+     * @desc: This is used to insert value in sms template table
+     * @param Array
+     * @return Int ID of inserted data
+     */
+    function insert_sms_template($data){
+
+        $this->db->insert('sms_template', $data);
+        
+        return $this->db->insert_id();
+    }
+    
+    /**
+     * @desc: This fucntion is used to delete sms template 
+     * params: INT 
+     *         id sms template to be deleted
+     * 
+     * return: Boolean
+     */
+    function delete_sms_template($id) {
+        $this->db->where('id', $id);
+        $this->db->delete('sms_template');
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    /**
+     * @desc: This is used to update sms_template
+     * @param ARRAY $data, INT id 
+     * return: Boolean
+     * 
+     */
+    function update_sms_template($data,$id){
+        $this->db->where('id', $id);
+        $this->db->update('sms_template', $data);
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
 
 }
