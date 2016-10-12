@@ -877,6 +877,11 @@ class vendor_model extends CI_Model {
      */
     function insert_service_center_action($data) {
         $this->db->insert('service_center_booking_action', $data);
+        log_message('info', __METHOD__ . "=> Insert Service center Action table SQL: " . $this->db->last_query() );
+        $assign_sc_id = $this->db->insert_id();
+         
+        return $assign_sc_id;
+
     }
 
     /**

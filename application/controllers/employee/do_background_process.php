@@ -42,21 +42,8 @@ class Do_background_process extends CI_Controller {
         log_message('info', "Entering: " . __METHOD__);
 
         $booking_id = $this->input->post('booking_id');
-        $service_center_id = $this->input->post('service_center_id');
 
-        log_message('info', "Async Process to assign booking - Booking ID: " . $booking_id . ", Service centre: " . $service_center_id);
-
-        $unit_details = $this->booking_model->getunit_details($booking_id);
-        foreach ($unit_details[0]['quantity'] as $value ) {
-            $data = array();
-            $data['current_status'] = "Pending";
-            $data['internal_status'] = "Pending";
-            $data['service_center_id'] = $service_center_id;
-            $data['booking_id'] = $booking_id;
-            $data['create_date'] = date('Y-m-d H:i:s');
-            $data['unit_details_id'] = $value['unit_id'];
-            $this->vendor_model->insert_service_center_action($data);
-        }
+        log_message('info', "Async Process to assign booking - Booking ID: " . $booking_id );
 
         //Send SMS to customer
         $query1 = $this->booking_model->getbooking_history($booking_id);
@@ -72,14 +59,19 @@ class Do_background_process extends CI_Controller {
             log_message('info', "SMS not sent to user while assigning vendor. User's Phone: " .
             $query1[0]['phone_number']);
         }
+        log_message('info', "Async Process to create Job card " . $booking_id );
 
         //Prepare job card
         $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+        log_message('info', "Async Process to created Job card " . $booking_id );
 
 	//COMMENTING TEMPORARILY AS IT IS NOT WORKING...
 //        //Send mail to vendor, no Note to vendor as of now
        $message = "";
        $this->booking_utilities->lib_send_mail_to_vendor($booking_id, $message);
+       
+       log_message('info', "Async Process Exist " . $booking_id );
+
     }
 
     /**
