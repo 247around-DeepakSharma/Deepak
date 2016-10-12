@@ -337,12 +337,10 @@ class vendor extends CI_Controller {
     function process_assign_booking_form() {
         $service_center = $this->input->post('service_center');
         $url = base_url() . "employee/do_background_process/assign_booking";
-
+        $count = 0;
         foreach ($service_center as $booking_id => $service_center_id) {
             if ($service_center_id != "") {
 
-                $data = array();
-                $data['booking_id'] = $booking_id;
                 //Assign service centre
                 $this->booking_model->assign_booking($booking_id, $service_center_id);
                 
@@ -367,11 +365,15 @@ class vendor extends CI_Controller {
 
                 // Delete Previous Assigned vendor data from service center action table
                 //$this->vendor_model->delete_previous_service_center_action($booking_id);
+                $count++;
 
-                $this->asynchronous_lib->do_background_process($url, $data);
             }
-
         }
+
+        $async_data['booking_id'] = $service_center;
+        $this->asynchronous_lib->do_background_process($url, $async_data);
+
+        echo " Request Assgin Booking: ". count($service_center). "  Assigned Booking: ". $count;
 
         //redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }

@@ -179,6 +179,8 @@ class Reporting_utils extends CI_Model {
         $sql = "UPDATE booking_details SET booking_jobcard_filename='$output_file_pdf' "
             . "WHERE id='$id';";
         $this->db->query($sql);
+        
+        log_message('info', __FUNCTION__. " SQL: ". $this->db->last_query());
 
         //echo $this->db->last_query();
     }

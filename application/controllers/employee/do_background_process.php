@@ -41,37 +41,40 @@ class Do_background_process extends CI_Controller {
     function assign_booking() {
         log_message('info', "Entering: " . __METHOD__);
 
-        $booking_id = $this->input->post('booking_id');
+        $data = $this->input->post('booking_id');
+        foreach ($data as $booking_id => $service_center_id) {
+            if ($service_center_id != "") {
 
-        log_message('info', "Async Process to assign booking - Booking ID: " . $booking_id );
+                log_message('info', "Async Process to assign booking - Booking ID: " . $booking_id . " Service center Id: " . $service_center_id);
 
-        //Send SMS to customer
-        $query1 = $this->booking_model->getbooking_history($booking_id);
-        $sms['tag'] = "service_centre_assigned";
-        $sms['phone_no'] = $query1[0]['booking_primary_contact_no'];
-	$sms['booking_id'] = $booking_id;
-	$sms['type'] = "user";
-	$sms['type_id'] = $query1[0]['user_id'];
-	$sms['smsData'] = "";
+                //Send SMS to customer
+                $query1 = $this->booking_model->getbooking_history($booking_id);
+                $sms['tag'] = "service_centre_assigned";
+                $sms['phone_no'] = $query1[0]['booking_primary_contact_no'];
+                $sms['booking_id'] = $booking_id;
+                $sms['type'] = "user";
+                $sms['type_id'] = $query1[0]['user_id'];
+                $sms['smsData'] = "";
 
-        $sms_sent = $this->notify->send_sms($sms);
-        if ($sms_sent === FALSE) {
-            log_message('info', "SMS not sent to user while assigning vendor. User's Phone: " .
-            $query1[0]['phone_number']);
+//                $sms_sent = $this->notify->send_sms($sms);
+//                if ($sms_sent === FALSE) {
+//                    log_message('info', "SMS not sent to user while assigning vendor. User's Phone: " .
+//                            $query1[0]['phone_number']);
+//                }
+                log_message('info', "Async Process to create Job card " . $booking_id);
+
+                //Prepare job card
+                $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+                log_message('info', "Async Process to created Job card " . $booking_id);
+
+                //COMMENTING TEMPORARILY AS IT IS NOT WORKING...
+                //        //Send mail to vendor, no Note to vendor as of now
+                $message = "";
+                $this->booking_utilities->lib_send_mail_to_vendor($booking_id, $message);
+
+                log_message('info', "Async Process Exist " . $booking_id);
+            }
         }
-        log_message('info', "Async Process to create Job card " . $booking_id );
-
-        //Prepare job card
-        $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
-        log_message('info', "Async Process to created Job card " . $booking_id );
-
-	//COMMENTING TEMPORARILY AS IT IS NOT WORKING...
-//        //Send mail to vendor, no Note to vendor as of now
-       $message = "";
-       $this->booking_utilities->lib_send_mail_to_vendor($booking_id, $message);
-       
-       log_message('info', "Async Process Exist " . $booking_id );
-
     }
 
     /**

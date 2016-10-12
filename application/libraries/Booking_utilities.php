@@ -102,6 +102,8 @@ class Booking_utilities {
 	$output = '';
 	$result_var = '';
 	exec($cmd, $output, $result_var);
+        
+        log_message('info', __FUNCTION__. " Result Var Job card creation ". print_r($result_var, true));
 
 	//Upload Excel & PDF files to AWS
 	$bucket = 'bookings-collateral';
@@ -111,8 +113,6 @@ class Booking_utilities {
 	$directory_pdf = "jobcards-pdf/" . $output_file . ".pdf";
 	$this->My_CI->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
 
-//	$this->My_CI->session->set_flashdata('result', 'Job card generated successfully');
-//	redirect(base_url() . 'employee/booking/view', 'refresh');*/
     }
 
     //This function sends email to the assigned vendor
@@ -204,10 +204,10 @@ class Booking_utilities {
                 $this->My_CI->booking_model->set_mail_to_vendor($booking_id);
             } else {
                 $data['success'] = "Mail could not be sent, please try again.";
-                //$this->session->set_flashdata('result', 'Mail could not be sent, please try again');
+                
             }
 
-           // redirect(base_url() . 'employee/booking/view');
+           
         } else {
             echo "Booking does not exist.";
         }
