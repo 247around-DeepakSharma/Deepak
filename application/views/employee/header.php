@@ -19,7 +19,11 @@
         <script src="<?php echo base_url()?>js/jquery.js"></script>
          <!-- Load jQuery UI Main CSS-->
         <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
-
+        <!-- Load jqgrid -->
+        <script type='text/javascript' src='<?php echo base_url()?>js/jquery.jqGrid.js'></script>
+        <link rel='stylesheet' type='text/css' href='<?php echo base_url()?>css/ui.jqgrid.css' />
+        <link rel='stylesheet' type='text/css' href='https://code.jquery.com/ui/1.10.3/themes/redmond/jquery-ui.css' />
+        <script type='text/javascript' src='<?php echo base_url()?>js/grid.locale-en.js'></script>
         <!-- Load jQuery UI Main JS  -->
         <script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
         <!-- Bootstrap Core JavaScript -->
