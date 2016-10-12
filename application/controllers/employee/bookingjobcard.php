@@ -72,7 +72,8 @@ class bookingjobcard extends CI_Controller {
         //load template
         $R = new PHPReport($config);
         $booking_details = $this->booking_model->getbooking_history($booking_id);
-        $unit_details = $this->booking_model->get_unit_details($booking_id);
+        $unit_where = array('booking_id'=>$booking_id);
+        $unit_details = $this->booking_model->get_unit_details($unit_where);
         $R->load(array(
             array(
                 'id' => 'booking',
@@ -163,7 +164,8 @@ class bookingjobcard extends CI_Controller {
         $R = new PHPReport($config);
         //log_message('info', "PHP report");
         $booking_details = $this->booking_model->getbooking_history($booking_id);
-        $unit_details = $this->booking_model->get_unit_details($booking_id);
+        $unit_where = array('booking_id'=>$booking_id);
+        $unit_details = $this->booking_model->get_unit_details($unit_where);
         $R->load(array(
             array(
                 'id' => 'booking',

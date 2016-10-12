@@ -73,7 +73,7 @@ $route['partner/closed_booking/Cancelled/(:any)'] = 'employee/partner/closed_boo
 $route['partner/booking_details/(:any)'] = 'employee/partner/booking_details/$1';
 $route['partner/pending_queries'] = 'employee/partner/pending_queries';
 $route['partner/pending_queries/(:any)'] = 'employee/partner/pending_queries/$1';
-$route['partner/booking_form/(:any)'] = 'employee/partner/get_addbooking_form/$1';
+$route['partner/booking_form'] = 'employee/partner/get_addbooking_form';
 $route['partner/invoices_details'] = 'employee/partner/invoices_details';
 $route['partner/get_user_form'] = 'employee/partner/get_user_form';
 $route['partner/invoices_details'] = 'employee/partner/invoices_details';
@@ -82,6 +82,8 @@ $route['partner/get_reschedule_booking_form/(:any)'] = 'employee/partner/get_res
 $route['partner/process_reschedule_booking/(:any)'] = 'employee/partner/process_reschedule_booking/$1';
 $route['partner/escalation_form/(:any)'] = 'employee/partner/escalation_form/$1';
 $route['partner/process_escalation/(:any)'] = 'employee/partner/process_escalation/$1';
+$route['partner/update_booking/(:any)'] = 'employee/partner/get_editbooking_form/$1';
+$route['partner/process_update_booking/(:any)'] = 'employee/partner/process_editbooking/$1';
 
 //$route['api/(:any)'] = 'partner/$2';
 

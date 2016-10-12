@@ -78,7 +78,8 @@ class Booking_model extends CI_Model {
 
     function update_booking_unit_details($booking_id, $data){
         $this->db->where('booking_id', $booking_id);
-        $this->db->update('booking_unit_details', $data);
+        $result = $this->db->update('booking_unit_details', $data);
+        return $result;
     }
 
 
@@ -693,21 +694,9 @@ class Booking_model extends CI_Model {
      *  @param : booking id
      *  @return : all the unit booking detais
      */
-    function get_unit_details($booking_id="", $unit_details_id="",$partner_id="") {
+    function get_unit_details($where) {
         $this->db->select('*');
-        if($booking_id != ""){
-            $this->db->where('booking_id', $booking_id);
-        }
-
-        if($unit_details_id !=""){
-            $this->db->where('id', $unit_details_id);
-        }
-        
-        if($partner_id != ""){
-            $this->db->where('partner_id',$partner_id);
-        }
-
-
+        $this->db->where($where);
         $query = $this->db->get('booking_unit_details');
 
         return $query->result_array();
@@ -1504,7 +1493,8 @@ class Booking_model extends CI_Model {
             $this->db->update('booking_unit_details', $result);
 
          } else {
-            $unit_num = $this->get_unit_details($booking_id);
+            $unit_where = array('booking_id'=>$booking_id);
+            $unit_num = $this->get_unit_details($unit_where);
 	    log_message('info', __METHOD__ . " Price tags not found, This unit details to be insert: " . print_r($unit_num, true));
 	    if(count($unit_num >1)){
                 $this->db->insert('booking_unit_details', $result);
@@ -1856,5 +1846,6 @@ class Booking_model extends CI_Model {
         $data['bookings_previous'] = $this->db->query($sql_booking_previous)->row();
         return $data;
     }
+   
     
 }

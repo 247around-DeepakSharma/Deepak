@@ -76,7 +76,7 @@
                                 <div class="form-group  <?php if( form_error('alternate_phone_number') ) { echo 'has-error';} ?>">
                                     <label for="booking_alternate_contact_no" class="col-md-4">Alternate Number</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="booking_alternate_contact_no" value = "<?php if(isset($user[0]['alternate_phone_number'])){  echo $user[0]['alternate_phone_number']; } else { echo set_value('alternate_phone_number');} ?>" placeholder ="Please Enter Alternate Contact No" >
+                                        <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="alternate_phone_number" value = "<?php if(isset($user[0]['alternate_phone_number'])){  echo $user[0]['alternate_phone_number']; } else { echo set_value('alternate_phone_number');} ?>" placeholder ="Please Enter Alternate Contact No" >
                                     </div>
                                      <?php echo form_error('alternate_phone_number'); ?>
                                 </div>
@@ -185,11 +185,11 @@
                                             <option value='E-24' <?php if(set_value('model_number') == "E-24"){ echo "selected";} ?>>E-24</option>
                                             <option value='E-32' <?php if(set_value('model_number') == "E-32"){ echo "selected";} ?>>E-32</option>
                                             <option value='E-32 SMART' <?php if(set_value('model_number') == "E-32 E-32 SMART"){ echo "selected";} ?>>E-32 SMART</option>
-                                            <option value='E-40' <?php if(set_value('model_number') == "E-32 SMART"){ echo "selected";} ?>>E-32 SMART</option>>E-40 </option>
-                                            <option value='E-40 SMART' <?php if(set_value('model_number') == "E-40 SMART"){ echo "selected";} ?>>E-32 SMART</option>>E-40 SMART</option>
-                                            <option value='E-48' <?php if(set_value('model_number') == "E-48"){ echo "selected";} ?>>E-32 SMART</option>>E-48</option>
-                                            <option value='E-48 SMART' <?php if(set_value('model_number') == "E-48 SMART"){ echo "selected";} ?>>E-32 SMART</option>>E-48 SMART</option>
-                                            <option value='E-49' <?php if(set_value('model_number') == "E-49"){ echo "selected";} ?>>E-32 SMART</option>>E-49 </option>
+                                            <option value='E-40' <?php if(set_value('model_number') == "E-40"){ echo "selected";} ?>>E-40 </option>
+                                            <option value='E-40 SMART' <?php if(set_value('model_number') == "E-40 SMART"){ echo "selected";} ?>>E-40 SMART</option>
+                                            <option value='E-48' <?php if(set_value('model_number') == "E-48"){ echo "selected";} ?>>E-48</option>
+                                            <option value='E-48 SMART' <?php if(set_value('model_number') == "E-48 SMART"){ echo "selected";} ?>>E-48 SMART</option>
+                                            <option value='E-49' <?php if(set_value('model_number') == "E-49"){ echo "selected";} ?>>E-49 </option>
                                             <option value='E-49 SMART' <?php if(set_value('model_number') == "E-49 SMART"){ echo "selected";} ?>>E-49 SMART</option>
                                             <option value='E-55 SMART' <?php if(set_value('model_number') == "E-55 SMART"){ echo "selected";} ?>>E-55 SMART</option>
                                             <option value='W-16' <?php if(set_value('model_number') == "W-16"){ echo "selected";} ?>>W-16</option>

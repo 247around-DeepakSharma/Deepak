@@ -1050,6 +1050,11 @@ INSERT INTO `247around_email_template` (`id`, `entity`, `template`, `subject`, `
 ALTER TABLE `vendor_escalation_policy` ADD `entity` VARCHAR(20) NULL DEFAULT NULL AFTER `escalation_reason`;
 
 
+
+--Abhay 08 OCT
+
+ALTER TABLE  `booking_state_change` ADD  `service_center_id` VARCHAR( 20 ) NULL DEFAULT NULL AFTER  `partner_id` 
+
 --Belal 10 Oct
 
 CREATE TABLE `query_report` (
@@ -1066,3 +1071,4 @@ INSERT INTO `query_report` (`id`, `description`, `query`, `active`, `create_date
 (1, 'Count completed booking this month.', 'SELECT COUNT(id) as count from booking_details where current_status=''Completed'' AND MONTH(closed_date) = MONTH(CURDATE())', 1, '2016-10-10 06:18:03'),
 (2, 'Count completed booking this month.', 'SELECT COUNT(id) as count from booking_details where current_status=''Completed'' AND MONTH(closed_date) = MONTH(CURDATE())', 1, '2016-10-10 05:41:56'),
 (3, 'Count completed booking this month.', 'SELECT COUNT(id) as count from booking_details where current_status=''Completed'' AND MONTH(closed_date) = MONTH(CURDATE())', 1, '2016-10-10 05:41:56');
+

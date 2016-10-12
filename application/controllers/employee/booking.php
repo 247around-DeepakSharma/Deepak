@@ -1025,7 +1025,8 @@ class Booking extends CI_Controller {
      */
     function viewdetails($booking_id) {
 	$data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
-	$data['unit_details'] = $this->booking_model->get_unit_details($booking_id);
+        $unit_where = array('booking_id'=>$booking_id);
+	$data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
 
 	$data['service_center'] = $this->booking_model->selectservicecentre($booking_id);
 
@@ -1326,6 +1327,12 @@ class Booking extends CI_Controller {
 	$data['admin_remarks'] = date("F j") . "  :-" . $admin_remarks;
 	log_message('info', __FUNCTION__ . " Update service center action table: " . print_r($data, true));
 	$this->vendor_model->update_service_center_action($data);
+        
+         $this->notify->insert_state_change($data['booking_id'], 
+                    "Reject" , "InProcess" , 
+                    $admin_remarks , 
+                    $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                    _247AROUND);
     }
 
     /**
@@ -1402,12 +1409,12 @@ class Booking extends CI_Controller {
 
 	    //Log this state change as well for this booking
 	    //param:-- booking id, new state, old state, employee id, employee name
-            $booking_details = $this->booking_model->getbooking_history($booking_id);
+           
 	    $this->notify->insert_state_change($booking_id, 
                     _247AROUND_RESCHEDULED , _247AROUND_PENDING , 
                     $booking['reschedule_reason'] , 
                     $this->session->userdata('id'), $this->session->userdata('employee_id'),
-                    $booking_details[0]['partner_id']);
+                    _247AROUND);
 
 	    log_message('info', __FUNCTION__ . " Set Mail flag to 0 : " . print_r($booking_id, true));
 	    //Setting mail to vendor flag to 0, once booking is rescheduled
@@ -1571,13 +1578,7 @@ class Booking extends CI_Controller {
     function get_convert_booking_to_pending_form($booking_id, $status) {
 	$bookings = $this->booking_model->getbooking_history($booking_id);
 	$bookings[0]['status'] = $status;
-        
-//        if($status == "Completed"){
-//            $bookings[0]['updation_reason'] = $this->booking_model->get_booking_updation_reason('Completed','Pending','247around');
-//        }else{
-//            $bookings[0]['updation_reason'] = $this->booking_model->get_booking_updation_reason('Cancelled','Pending','247around');
-//        }
-
+     
 	$this->load->view('employee/header');
 	$this->load->view('employee/complete_to_pending', $bookings[0]);
     }
@@ -1630,13 +1631,10 @@ class Booking extends CI_Controller {
 	    $this->vendor_model->update_service_center_action($service_center_data);
 
 	    $unit_details['serial_number'] = "";
-	    $unit_details['booking_status'] = NULL;
-	    $unit_details['customer_paid_basic_charges'] = $unit_details['around_st_or_vat_basic_charges'] = "0.00";
-	    $unit_details['partner_paid_basic_charges'] = $unit_details['vendor_basic_charges'] = "0.00";
-	    $unit_details['around_paid_basic_charges'] = $unit_details['vendor_to_around'] = "0.00";
-	    $unit_details['around_comm_basic_charges'] = $unit_details['around_to_vendor'] = "0.00";
-	    $unit_details['customer_paid_extra_charges'] = $unit_details['around_comm_extra_charges'] = "0.00";
-	    $unit_details['around_st_extra_charges'] = $unit_details['vendor_extra_charges'] = "0.00";
+	    $unit_details['booking_status'] = "";
+	    $unit_details['vendor_to_around'] = "0.00";
+	    $unit_details['around_to_vendor'] = "0.00";
+
 	    log_message('info', __FUNCTION__ . " Convert Unit Details - data : " . print_r($unit_details, true));
 
 	    $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
@@ -1667,6 +1665,8 @@ class Booking extends CI_Controller {
      */
     function get_convert_cancelled_booking_to_pending_form($booking_id) {
 	$bookings = $this->booking_model->booking_history_by_booking_id($booking_id);
+        $this->notify->insert_state_change($booking_id, _247AROUND_PENDING , _247AROUND_CANCELLED,
+                    "", $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
 
 	$this->load->view('employee/header');
 	$this->load->view('employee/cancelled_to_pending', $bookings[0]);

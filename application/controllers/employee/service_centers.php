@@ -50,7 +50,7 @@ class Service_centers extends CI_Controller {
         if ($service_center_id) {
 	    //get sc details now
 	    $sc_details = $this->vendor_model->getVendorContact($service_center_id);
-	    $this->setSession($sc_details[0]['id'], $sc_details[0]['name']);
+        $this->setSession($sc_details[0]['id'], $sc_details[0]['name'], $service_center_id['id']);
 
 	    redirect(base_url() . "service_center/pending_booking");
         } else {
@@ -102,7 +102,8 @@ class Service_centers extends CI_Controller {
     function booking_details($booking_id) {
         $this->checkUserSession();
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
-        $data['unit_details'] = $this->booking_model->get_unit_details($booking_id);
+        $unit_where = array('booking_id'=>$booking_id);
+        $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
 
 
         $this->load->view('service_centers/header');
@@ -142,6 +143,14 @@ class Service_centers extends CI_Controller {
      */
     function process_complete_booking($booking_id) {
         $this->checkUserSession();
+        $this->form_validation->set_rules('customer_basic_charge', 'Basic Charge', 'required');
+        $this->form_validation->set_rules('additional_charge', 'Additional Service Charge', 'required');
+        $this->form_validation->set_rules('parts_cost', 'Parts Cost', 'required');
+        $this->form_validation->set_rules('booking_status', 'Status', 'required');
+
+        if ($this->form_validation->run() == FALSE || $booking_id =="" || $booking_id == NULL) {
+            $this->complete_booking_form($booking_id);
+        } else {
           // customer paid basic charge is comming in array
        // Array ( [100] =>  500 , [102] =>  300 )  
        $customer_basic_charge = $this->input->post('customer_basic_charge');
@@ -184,9 +193,20 @@ class Service_centers extends CI_Controller {
             $i++;
 
             $this->vendor_model->update_service_center_action($data);
+
        }
 
+        $state_change['booking_id'] = $booking_id;
+        $state_change['new_state'] = 'InProcess';
+        $state_change['old_state'] = "Pending";
+        $state_change['agent_id'] = $this->session->userdata('service_center_agent_id');
+        $state_change['service_center_id'] = $this->session->userdata('service_center_id');
+        $state_change['remarks'] = $closing_remarks;
+            // Insert data into booking state change
+        $this->booking_model->insert_booking_state_change($state_change);
+
         redirect(base_url() . "service_center/pending_booking");
+        }
     }
 
     /**
@@ -210,6 +230,11 @@ class Service_centers extends CI_Controller {
      */
     function process_cancel_booking($booking_id) {
         $this->checkUserSession();
+        $this->form_validation->set_rules('cancellation_reason', 'Cancellation Reason', 'required');
+
+        if ($this->form_validation->run() == FALSE || $booking_id =="" || $booking_id == NULL) {
+            $this->cancel_booking_form($booking_id);
+        } else {
 
         $cancellation_reason = $this->input->post('cancellation_reason');
         if ($cancellation_reason === 'Other') {
@@ -226,7 +251,17 @@ class Service_centers extends CI_Controller {
 
         $this->vendor_model->update_service_center_action($data);
 
+        $state_change['booking_id'] = $booking_id;
+        $state_change['new_state'] = 'Cancelled';
+        $state_change['old_state'] = "Pending";
+        $state_change['agent_id'] = $this->session->userdata('service_center_agent_id');
+        $state_change['service_center_id'] = $this->session->userdata('service_center_id');
+        $state_change['remarks'] = $data['cancellation_reason'];
+            // Insert data into booking state change
+        $this->booking_model->insert_booking_state_change($state_change);
+
         redirect(base_url() . "service_center/pending_booking");
+        }
     }
 
     /**
@@ -235,11 +270,12 @@ class Service_centers extends CI_Controller {
      * @param: Service center name
      * @return: void
      */
-    function setSession($service_center_id, $service_center_name) {
+    function setSession($service_center_id, $service_center_name, $sc_agent_id) {
 	$userSession = array(
 	    'session_id' => md5(uniqid(mt_rand(), true)),
 	    'service_center_id' => $service_center_id,
 	    'service_center_name' => $service_center_name,
+            'service_center_agent_id' => $sc_agent_id,
 	    'sess_expiration' => 30000,
 	    'loggedIn' => TRUE,
 	    'userType' => 'service_center'
@@ -348,6 +384,12 @@ class Service_centers extends CI_Controller {
      * @return : void
      */
     function save_reschedule_request(){
+        $this->form_validation->set_rules('booking_id', 'Booking ID', 'trim|required');
+       
+
+        if ($this->form_validation->run() == FALSE ) {
+            echo "Please Reschedule Again";
+        } else {
         $data['booking_id'] = $this->input->post('booking_id');
         $data['booking_date'] = date('Y-m-d',strtotime($this->input->post('booking_date')));
         $data['booking_timeslot'] = $this->input->post('booking_timeslot');
@@ -356,7 +398,17 @@ class Service_centers extends CI_Controller {
         $data['reschedule_reason'] = $this->input->post('remarks');
         $data['update_date'] = date("Y-m-d H:i:s");
         $this->vendor_model->update_service_center_action($data);
+
+        $state_change['booking_id'] = $data['booking_id'];
+        $state_change['new_state'] = 'Reschedule';
+        $state_change['old_state'] = "Pending";
+        $state_change['agent_id'] = $this->session->userdata('service_center_agent_id');
+        $state_change['service_center_id'] = $this->session->userdata('service_center_id');
+        $state_change['remarks'] = $data['reschedule_reason'];
+            // Insert data into booking state change
+        $this->booking_model->insert_booking_state_change($state_change);
         print_r("success");
+        }
     }
     /**
      * @desc: get invoice details and bank transacton details to display in view
