@@ -56,11 +56,11 @@ class Do_background_process extends CI_Controller {
                 $sms['type_id'] = $query1[0]['user_id'];
                 $sms['smsData'] = "";
 
-//                $sms_sent = $this->notify->send_sms($sms);
-//                if ($sms_sent === FALSE) {
-//                    log_message('info', "SMS not sent to user while assigning vendor. User's Phone: " .
-//                            $query1[0]['phone_number']);
-//                }
+                $sms_sent = $this->notify->send_sms($sms);
+                if ($sms_sent === FALSE) {
+                    log_message('info', "SMS not sent to user while assigning vendor. User's Phone: " .
+                            $query1[0]['phone_number']);
+                }
                 log_message('info', "Async Process to create Job card " . $booking_id);
 
                 //Prepare job card
