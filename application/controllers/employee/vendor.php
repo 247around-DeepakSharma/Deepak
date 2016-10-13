@@ -340,40 +340,44 @@ class vendor extends CI_Controller {
         $count = 0;
         foreach ($service_center as $booking_id => $service_center_id) {
             if ($service_center_id != "") {
+                $bookings = $this->booking_model->getbooking_history($booking_id);
+                if (is_null($bookings[0]['assigned_vendor_id'])) {
 
-                //Assign service centre
-                $this->booking_model->assign_booking($booking_id, $service_center_id);
-                
-                // Data to be insert in service center
-                $sc_data['current_status'] = "Pending";
-                $sc_data['internal_status'] = "Pending";
-                $sc_data['service_center_id'] = $service_center_id;
-                $sc_data['booking_id'] = $booking_id;
-                // Unit Details Data
-                $where = array('booking_id' => $booking_id);
-                $unit_details = $this->booking_model->get_unit_details($where);
-                foreach ($unit_details as $value ) {
-                    
-                    $sc_data['unit_details_id'] = $value['id'];
-                    $sc_id = $this->vendor_model->insert_service_center_action($sc_data);
-                    if($sc_id){} else {
-                        log_message('info', __METHOD__ . "=> Data is not inserted into service center action table booking_id: " . $booking_id. " data: ". print_r($data, true) );
+                    //Assign service centre
+                    $this->booking_model->assign_booking($booking_id, $service_center_id);
+
+                    // Data to be insert in service center
+                    $sc_data['current_status'] = "Pending";
+                    $sc_data['internal_status'] = "Pending";
+                    $sc_data['service_center_id'] = $service_center_id;
+                    $sc_data['booking_id'] = $booking_id;
+                    // Unit Details Data
+                    $where = array('booking_id' => $booking_id);
+                    $unit_details = $this->booking_model->get_unit_details($where);
+                    foreach ($unit_details as $value) {
+
+                        $sc_data['unit_details_id'] = $value['id'];
+                        $sc_id = $this->vendor_model->insert_service_center_action($sc_data);
+                        if ($sc_id) {
+                            
+                        } else {
+                            log_message('info', __METHOD__ . "=> Data is not inserted into service center action table booking_id: " . $booking_id . " data: " . print_r($data, true));
+                        }
                     }
+                    // Insert log into booking state change
+                    $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Ceneter Id: " . $service_center_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+
+                    // Delete Previous Assigned vendor data from service center action table
+                    //$this->vendor_model->delete_previous_service_center_action($booking_id);
+                    $count++;
                 }
-                // Insert log into booking state change
-                $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR,_247AROUND_PENDING, "Service Ceneter Id: ".$service_center_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
-
-                // Delete Previous Assigned vendor data from service center action table
-                //$this->vendor_model->delete_previous_service_center_action($booking_id);
-                $count++;
-
             }
         }
 
         $async_data['booking_id'] = $service_center;
         $this->asynchronous_lib->do_background_process($url, $async_data);
 
-        echo " Request Assgin Booking: ". count($service_center). "  Assigned Booking: ". $count;
+        echo " Request Assgin Booking: " . count($service_center) . "  Assigned Booking: " . $count;
 
         //redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
