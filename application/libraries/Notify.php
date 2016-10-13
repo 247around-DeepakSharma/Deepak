@@ -503,33 +503,20 @@ class Notify {
 	$status = '';
         
 	switch ($appliance) {
+            
+            case 'Geyser':
+            case 'Television':
+            case 'Microwave':
+            case 'Refrigerator':
 	    case 'Washing Machine':
-		$status = 'FREE';
-		break;
-
-	    case 'Refrigerator':
-		$status = 'FREE';
-		break;
-
-	    case 'Microwave':
-		$status = 'FREE';
-		break;
-
-	    case 'Television':
-		$status = 'FREE';
-		break;
-
-	    case 'Water Purifier':
+            case 'Water Purifier':
 		$status = 'FREE';
 		break;
 
             //Leave blank
 	    case 'Air Conditioner':
 	    case 'Chimney':
-		break;
-            
-	    case 'Geyser':
-		$status = 'FREE';
+                $status = '';
 		break;
 	}
         
