@@ -217,7 +217,8 @@ class Service_centers extends CI_Controller {
     function cancel_booking_form($booking_id) {
         $this->checkUserSession();
         $data['user_and_booking_details'] = $this->booking_model->getbooking_history($booking_id);
-        $data['reason'] = $this->booking_model->cancelreason("vendor");
+        $where = array('reason_of' => 'vendor');
+        $data['reason'] = $this->booking_model->cancelreason($where);
 
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/cancel_booking_form', $data);

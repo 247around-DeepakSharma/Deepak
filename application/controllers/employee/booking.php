@@ -574,7 +574,8 @@ class Booking extends CI_Controller {
      *  @return : all the cancelation reasons present in the database
      */
     function cancelreason() {
-	$query = $this->booking_model->cancelreason("247around");
+        $where = array('reason_of' => '247around');
+	$query = $this->booking_model->cancelreason($where);
 	$data['reason'] = null;
 	if ($query) {
 
@@ -667,7 +668,8 @@ class Booking extends CI_Controller {
 	log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id);
         
 	$data['user_and_booking_details'] = $this->booking_model->getbooking_history($booking_id);
-	$data['reason'] = $this->booking_model->cancelreason("247around");
+        $where = array('reason_of' => '247around');
+	$data['reason'] = $this->booking_model->cancelreason($where);
 	if ($status == _247AROUND_FOLLOWUP ) {
 	    $data['internal_status'] = $this->booking_model->get_internal_status("Cancel");
 	}

@@ -728,7 +728,8 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id);
         $data['user_and_booking_details'] = $this->booking_model->getbooking_history($booking_id);
         if (!empty($data['user_and_booking_details'])) {
-            $data['reason'] = $this->booking_model->cancelreason("partner");
+            $where = array('reason_of' => 'partner');
+            $data['reason'] = $this->booking_model->cancelreason($where);
             $data['status'] = $status;
             $this->load->view('partner/header');
             $this->load->view('partner/cancel_form', $data);
