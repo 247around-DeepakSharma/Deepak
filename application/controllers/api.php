@@ -26,6 +26,7 @@ class Api extends CI_Controller {
         $this->load->model('diagnostics');
         $this->load->model('discount');
         $this->load->model('booking_model');
+        $this->load->model('vendor_model');
         $this->load->model('user_model');
         $this->load->library('notify');
 	$this->load->library('s3');
@@ -1238,12 +1239,15 @@ class Api extends CI_Controller {
 	    //call to confirm the installation
             if (count($bookings) > 0) {
                 foreach ($bookings as $b) {
-                    if ($b['type'] === 'Query' && $b['current_status'] === 'FollowUp') {
+                    if (($b['type'] === 'Query' && $b['current_status'] === 'FollowUp') || 
+                            $b['current_status'] === "Cancelled" && $b['type'] === 'Query') {
                         $d = array('internal_status' => 'Missed_call_confirmed',
                             'booking_date' => '', 'booking_timeslot' => '',
                             'delivery_date' => date('Y-m-d H:i:s'),
+                            'current_status' => 'FollowUp',
                             'query_remarks' => 'Missed call received, Convert to Booking NOW !!!');
                         $r = $this->booking_model->update_booking($b['booking_id'], $d);
+  
                         $this->send_missed_call_confirmation_sms($b);
 
                         if ($r === FALSE) {
@@ -1255,8 +1259,44 @@ class Api extends CI_Controller {
                         } else {
                             log_message('info', __METHOD__ . '=> Booking confirmation '
                                 . 'through missed call succeeded for ' . $b['booking_id']);
+                            $u = array('booking_status'=> '');
+                            //Update unit details
+                            $this->booking_model->update_booking_unit_details($b['booking_id'], $u);
                         }
-                    }
+                    } 
+//                    else if( $b['current_status'] === "Cancelled" && $b['type'] === 'Booking'){
+//                        $d = array('internal_status' => 'Missed_call_confirmed',
+//                            'booking_date' => '', 'booking_timeslot' => '',
+//                            'current_status' => 'FollowUp',
+//                            'delivery_date' => date('Y-m-d H:i:s'),
+//                            'booking_id' => 'Q-'.$b['booking_id'],
+//                            'assigned_vendor_id' => NULL,
+//                            'query_remarks' => 'Missed call received, Convert to Booking NOW !!!');
+//                        
+//                        $r = $this->booking_model->update_booking($b['booking_id'], $d);
+//                        
+//                        if ($r === FALSE) {
+//                            log_message('info', __METHOD__ . '=> Booking confirmation '
+//                                . 'through missed call failed for Cancelled Booking' . $b['booking_id']);
+//
+//                            //Send email
+//                            $this->notify->sendEmail("booking@247around.com", "anuj@247around.com", "", "", "Query update Failed after Missed Call for Cancelled Booking ID: " . $b['booking_id'], "", "");
+//                        } else {
+//                            log_message('info', __METHOD__ . '=> Booking confirmation '
+//                                . 'through missed call succeeded for Cancelled ' . $b['booking_id']);
+//                            
+//                            $u = array('booking_status'=> '',
+//                            'booking_id' => 'Q-'.$b['booking_id']);
+//                            //Update unit details
+//                            $this->booking_model->update_booking_unit_details($b['booking_id'], $u);
+//                        
+//                            $this->vendor_model->delete_previous_service_center_action($b['booking_id']);
+//                        
+//                            $this->send_missed_call_confirmation_sms($b);
+//
+//                        }
+//                        
+//                    }
                 }
             } else {
                 //No bookings found, send sms asking him to call from his registered mobile no.
