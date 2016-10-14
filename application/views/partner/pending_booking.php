@@ -20,17 +20,17 @@
                      <thead>
                         <tr>
                            <th>S No.</th>
-                           <th>Order ID</th>
-                           <th>247around Booking ID</th>
-                           <th>User Name</th>
+                           <th>Booking ID</th>
+                           <th>Call Type</th>
+                           <th>User</th>
                            <th>Mobile</th>
                            <th>City</th>
                            <th>Booking Date</th>
                            <th>View</th>
-                           <th>Update Booking</th>
+                           <th>Edit Booking</th>
                            <th>Reschedule</th>
                            <th>Cancel</th>
-                           <th>Job Card</th>
+                           <th>JobCard</th>
                            <th>Escalate</th>
                           
                         </tr>
@@ -43,17 +43,29 @@
                               <?php echo $sn_no; ?>
                            </td>
                            
-                           <td>
-                              <?=$row->order_id; ?>
-                           </td>
+                           
                            <td >
                               <?php
-                            if (is_null($row->booking_jobcard_filename)) {
-                                echo $row->booking_id;
-                            } else {
-                                echo '<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';
-                            }
+
+                              echo  $row->booking_id;
+                            
                             ?>
+                           </td>
+                           <td>
+                              <?php switch ($row->request_type){
+                                  case "Installation & Demo":
+                                      echo "Installation";
+                                       break;
+                                  case "Repair - In Warranty":
+                                  case "Repair - Out Of Warranty": 
+                                      echo "Repair";
+                                       break;
+                                  default: 
+                                          echo $row->request_type;
+                                          break;
+                                      
+                                  break;
+                              }  ?>
                            </td>
                            <td>
                               <?=$row->customername;?>
@@ -66,8 +78,7 @@
                            </td>
                           
                            <td>
-                              <?= $row->booking_date; ?> /
-                              <?= $row->booking_timeslot; ?>
+                              <?= $row->booking_date; ?> 
                            </td>
                          
                            <td><a class='btn btn-sm btn-primary' href="<?php echo base_url();?>partner/booking_details/<?=$row->booking_id?>" target='_blank' title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>

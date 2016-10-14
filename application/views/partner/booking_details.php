@@ -10,111 +10,85 @@
     <div class="">
         <div class="row">
             <div>
-                <h2 >Details:</h2>
-                <div class="col-md-12">
-                    <b >Customer Details:-</b><br>
-                    <table class="table  table-striped table-bordered">
-                        <tr>
-                            <th >Name: </th>
-                            <td><?php echo $booking_history[0]['name']; ?></td>
-                            <th>Mobile: </th>
-                            <td><?php echo $booking_history[0]['phone_number']; ?></td>
-                            <th>Alternate No.: </th>
-                            <td><?php echo $booking_history[0]['alternate_phone_number']; ?></td>
-                        </tr>
-                        <tr>
-                            <th>Email ID: </th>
-                            <td><?php echo $booking_history[0]['user_email']; ?></td>
-                            <th>Address: </th>
-                            <td><?php echo $booking_history[0]['home_address'];?></td>
-                            <th>City:</th>
-                            <td><?php echo $booking_history[0]['city'];  ?></td>
-                        </tr>
-                        <tr>
-                            <th>Landmark: </th>
-                            <td><?php echo $booking_history[0]['booking_landmark']; ?></td>
-                            <th>State: </th>
-                            <td><?php echo $booking_history[0]['state'];?></td>
-                            <th>Pincode:</th>
-                            <td><?php echo $booking_history[0]['pincode']  ?></td>
-                        </tr>
-                    </table>
-                    <br>
-                </div>
-                <div class="col-md-12"><b >Booking Details:-</b></div>
+               
+                <div class="col-md-12"><h2 >Booking Details:-</h2></div>
                 <div class="col-md-6">
                     <table class="table  table-striped table-bordered" >
+                         <tr>
+                            <th >Name: </th>
+                            <td><?php echo $booking_history[0]['name']; ?></td>
+                         </tr>
+                         <tr>
+                            <th>Mobile: </th>
+                            <td><?php echo $booking_history[0]['booking_primary_contact_no']; 
+                            if(!empty( $booking_history[0]['booking_alternate_contact_no'])){ echo "/". $booking_history[0]['booking_alternate_contact_no'];} ?>
+                            </td>
+                        </tr>
+
                         <tr>
                             <th >Booking ID: </th>
                             <td><?php echo $booking_history[0]['booking_id']; ?></td>
                         </tr>
+                        
                         <tr>
                             <th >Platform / Order ID: </th>
                             <td><?php  echo $booking_history[0]['partner_source']." / "; if(!empty($booking_history[0]['order_id'])) { echo $booking_history[0]['order_id']; }  ?>
 
                           </td>
                         </tr>
+                         <tr>
+                            <th>Serial Number: </th>
+                            <td><?php if(isset($unit_details[0]['serial_number'])) { echo $unit_details[0]['serial_number'];} ?></td>
+                        </tr>
                         <tr>
-                            <th>Booking Type: </th>
-                            <td><?php echo $booking_history[0]['type']; ?></td>
+                            <th>Call Type: </th>
+                            <td><?php echo $booking_history[0]['request_type']; ?></td>
                         </tr>
                        
-                      
-                        <tr>
-                            <th>Number of appliances: </th>
-                            <td><?php echo $booking_history[0]['quantity']; ?></td>
-                        </tr>
+                     
                         <tr>
                             <th>Booking date: </th>
                             <td><?php echo $booking_history[0]['booking_date']; ?></td>
                         </tr>
+                       
                         <tr>
-                            <th>Booking time slot: </th>
-                            <td><?php echo $booking_history[0]['booking_timeslot']; ?></td>
-                        </tr>
-                        <tr>
-                            <th>Booking address: </th>
+                            <th>Address: </th>
                             <td><?php echo $booking_history[0]['booking_address'];?></td>
                         </tr>
-                         <tr>
-                            <th>Booking City: </th>
-                            <td><?php echo $booking_history[0]['city']; ?></td>
-                        </tr>
+                        
                        
                     </table>
                 </div>
                 <div class="col-md-6">
                     <table class="table  table-striped table-bordered">
+                         <tr>
+                            <th>City: </th>
+                            <td><?php echo $booking_history[0]['city']; ?></td>
+                        </tr>
 
                         <tr>
-                            <th>Booking State: </th>
+                            <th>State: </th>
                             <td><?php echo $booking_history[0]['state']; ?></td>
                         </tr>
                         <tr>
-                            <th>Booking Pincode: </th>
+                            <th>Pincode: </th>
                             <td><?php echo $booking_history[0]['booking_pincode']; ?></td>
                         </tr>
+                       
                         <tr>
-                            <th>Booking Primary Contact No.: </th>
-                            <td><?php echo $booking_history[0]['booking_primary_contact_no']; ?></td>
-                        </tr>
-                        <tr>
-                            <th>Booking Alternate Contact No.: </th>
-                            <td><?php echo $booking_history[0]['booking_alternate_contact_no']; ?></td>
-                        </tr>
-                        <tr>
-                            <th>Booking Remarks: </th>
+                            <th>Remarks: </th>
                             <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
                         </tr>
                         
                         <tr>
-                            <th>Booking current status: </th>
+                            <th>Status: </th>
                             <td><?php echo $booking_history[0]['current_status']; ?></td>
                         </tr>
-                        <tr>
-                            <th>Booking internal status: </th>
-                            <td><?php echo $booking_history[0]['internal_status']; ?></td>
+                         <tr>
+                            <th>Cancellation Reason: </th>
+                            <td><?php echo $booking_history[0]['cancellation_reason']; ?></td>
                         </tr>
+                        
                         <tr>
                             <th>Booking closed date: </th>
                             <td><?php echo $booking_history[0]['closed_date']; ?></td>

@@ -97,10 +97,6 @@
                             <th>Contact No: </th>
                             <td><?php echo $booking_history[0]['booking_primary_contact_no'] . ' / ' . $booking_history[0]['booking_alternate_contact_no']; ?></td>
                         </tr>
-                    </table>
-                </div>
-                <div class="col-md-6">
-                    <table class="table  table-striped table-bordered">
                         <tr>
                             <th>Booking Remarks: </th>
                             <td><?php echo $booking_history[0]['booking_remarks']; ?></td>
@@ -109,6 +105,12 @@
                             <th>Query Remarks: </th>
                             <td><?php echo $booking_history[0]['query_remarks']; ?></td>
                         </tr>
+                        
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <table class="table  table-striped table-bordered">
+                        
                         <tr>
                             <th>Booking Current Status: </th>
                             <td><?php echo $booking_history[0]['current_status']; ?></td>
@@ -124,6 +126,14 @@
                         <tr>
                             <th>Booking Closed Date: </th>
                             <td><?php echo $booking_history[0]['closed_date']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>EDD: </th>
+                            <td><?php echo $booking_history[0]['estimated_delivery_date']; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Delivered Date: </th>
+                            <td><?php echo $booking_history[0]['delivery_date']; ?></td>
                         </tr>
                        
                          <tr><th>Amount Due: </th><td><?php echo $booking_history[0]['amount_due']; ?></td></tr>
