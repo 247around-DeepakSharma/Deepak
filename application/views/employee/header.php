@@ -125,6 +125,10 @@
                         </li>
                         <li class="divider"></li>
                         <li >
+                            <a href="<?php echo base_url() ?>employee/vendor/get_mail_to_vendors_form"><i class="fa fa-fw fa-desktop"></i> <strong> Send Mail from Template</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li >
                             <a href="<?php echo base_url() ?>employee/bookings_excel"><i class="fa fa-fw fa-desktop"></i> <strong> Upload Snapdeal Products - Delivered</strong></a>
                         </li>
                         <li class="divider"></li>
@@ -174,6 +178,10 @@
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url() ?>employee/vendor/get_broadcast_mail_to_vendors_form"><i class="fa fa-fw fa-desktop"></i> <strong> Send Broadcast Email</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li >
+                            <a href="<?php echo base_url() ?>employee/vendor/get_mail_to_vendors_form"><i class="fa fa-fw fa-desktop"></i> <strong> Send Mail from Template</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown dropdown-submenu">
