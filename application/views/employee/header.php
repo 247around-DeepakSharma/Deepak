@@ -254,6 +254,10 @@
                     <i class="fa fa-fw fa-arrows-v"></i> Reports <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu">
+                      <li>
+                          <a href="<?php echo base_url()?>BookingSummary/booking_report_by_service_center/0"><i class="fa fa-fw fa-desktop "></i> <strong>SF Bookings Summary</strong></a>
+                      </li>
+                      <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>employee/vendor/vendor_performance_view"><i class="fa fa-fw fa-desktop "></i> <strong>Vendor Performance</strong></a>
                         </li>
