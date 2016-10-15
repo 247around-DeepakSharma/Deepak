@@ -107,7 +107,7 @@ class Notify {
      * return: Null
      */
 
-    function add_sms_sent_details($type_id, $type, $phone, $content, $booking_id) {
+    function add_sms_sent_details($type_id, $type, $phone, $content, $booking_id, $sms_tag) {
 	$data = array();
 
 	$data['type_id'] = $type_id;
@@ -115,6 +115,7 @@ class Notify {
 	$data['phone'] = $phone;
 	$data['booking_id'] = $booking_id;
 	$data['content'] = $content;
+        $data['sms_tag'] = $sms_tag;
 
 	//Add SMS to Database
 	$sms_id = $this->My_CI->booking_model->add_sms_sent_details($data);
@@ -138,7 +139,7 @@ class Notify {
 	    $smsBody = vsprintf($template, $sms['smsData']);
 	    $response = $this->sendTransactionalSms($sms['phone_no'], $smsBody);
 	    if (isset($response['info']) && $response['info'] == '200') {
-		$this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['phone_no'], $smsBody, $sms['booking_id']);
+		$this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['phone_no'], $smsBody, $sms['booking_id'], $sms['tag']);
 	    }
 	} else {
 	    log_message('info', "Message Not Sent - Booking id: " . $sms['booking_id'] . ",
