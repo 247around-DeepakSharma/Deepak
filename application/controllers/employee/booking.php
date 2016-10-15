@@ -1098,6 +1098,8 @@ class Booking extends CI_Controller {
 
 	//$offset = ($this->uri->segment(7) != '' ? $this->uri->segment(7) : 0);
 	$config['base_url'] = base_url() . 'employee/booking/view_queries/' . $status."/".$p_av."/".$page;
+        
+        //Get count of all pending queries
 	$total_queries = $this->booking_model->get_queries(0, "All", $status, $p_av, $booking_id);
 
 	$config['total_rows'] = $total_queries[0]->count;
@@ -1114,6 +1116,8 @@ class Booking extends CI_Controller {
 
 	$this->pagination->initialize($config);
 	$data['links'] = $this->pagination->create_links();
+        
+        //Get actual data for all pending queries now
 	$data['Bookings'] = $this->booking_model->get_queries($config['per_page'], $offset, $status, $p_av, $booking_id);
 
         $data['p_av'] = $p_av;
@@ -1331,7 +1335,7 @@ class Booking extends CI_Controller {
 	$this->vendor_model->update_service_center_action($data);
         
          $this->notify->insert_state_change($data['booking_id'], 
-                    "Reject" , "InProcess" , 
+                    "Rejected" , "InProcess_Completed" , 
                     $admin_remarks , 
                     $this->session->userdata('id'), $this->session->userdata('employee_id'),
                     _247AROUND);

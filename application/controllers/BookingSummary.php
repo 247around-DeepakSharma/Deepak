@@ -35,7 +35,7 @@ class BookingSummary extends CI_Controller {
     }
 
     public function get_pending_bookings() {
-        //log_message('info', __FUNCTION__);
+        log_message('info', __FUNCTION__ . ' => Entering');
 
         $template = 'BookingSummary_Template-v7.xls';
         //set absolute path to directory with template files
@@ -95,14 +95,14 @@ class BookingSummary extends CI_Controller {
             $this->email->to("nits@247around.com, anuj@247around.com, booking@247around.com, sales@247around.com, suresh@247around.com");
             //$this->email->to("anuj.aggarwal@gmail.com");
 
-            $this->email->subject("Booking Summary: " . date('Y-m-d'));
+            $this->email->subject("Booking Summary: " . date('Y-m-d H:i:s'));
             $this->email->message("Bookings pending as of today: " . $count . "<br/>");
             $this->email->attach($output_file, 'attachment');
 
             if ($this->email->send()) {
-                //log_message('info', __METHOD__ . ": Mail sent successfully");
+                log_message('info', __METHOD__ . ": Mail sent successfully");
             } else {
-                log_message('error', __METHOD__ . ": Mail could not be sent");
+                log_message('info', __METHOD__ . ": Mail could not be sent");
             }
 
             //Upload Excel to AWS
@@ -114,6 +114,7 @@ class BookingSummary extends CI_Controller {
             exec("rm -rf " . $output_file);
         }
 
+        log_message('info', __FUNCTION__ . ' => Exiting');
         exit(0);
     }
 
@@ -777,8 +778,11 @@ EOD;
      * 
      */
 
-    function booking_report_by_service_center() {
+    function booking_report_by_service_center($mail_to_be_sent) {
+        log_message('info', __FUNCTION__ . " => Entering, Mail Required: " . $mail_to_be_sent);
+        
         $data = $this->reporting_utils->get_booking_by_service_center();
+        
         //Generating HTML for the email
         $html = '
                     <html xmlns="http://www.w3.org/1999/xhtml">
@@ -799,7 +803,6 @@ EOD;
                                 <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">' . date('M') . ' Booking Cancelled</th>
                                 <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">3-5 Days</th>
                                 <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE"> > 5 Days</th>
-
                               </tr>
                             </thead>
                             <tbody >';
@@ -874,7 +877,6 @@ EOD;
                     if($value['state'] == $val){
                     
                          //For calculating row total
-                $row_total = 0;
                 $row_total =  $value['yesterday_booked']
                             + $value['yesterday_completed']
                             + $value['yesterday_cancelled']
@@ -947,10 +949,21 @@ EOD;
                         </div>';
         $html .= '</body>
                     </html>';
-
-        $to = "anuj@247around.com, nits@247around.com";
-        $this->notify->sendEmail("booking@247around.com", $to, "", "", "Service Center Report", $html, "");
-        log_message('info', __FUNCTION__ . 'Service Center Report mail sent.');
+        
+        if ($mail_to_be_sent) {
+            $to = "anuj@247around.com, nits@247around.com";
+            $subject = "SF Bookings Summary Report - " . date("d-M-Y");
+            $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $html, "");
+            
+            log_message('info', __FUNCTION__ . " => " . $subject . " Mailed");            
+        } else {
+            $data['html'] = $html;
+            
+            //$this->load->view('employee/header');
+            $this->load->view('employee/sd_booking_summary_report', $data);            
+        }
+        
+        log_message('info', __FUNCTION__ . " => Exiting");
     }
 
 }

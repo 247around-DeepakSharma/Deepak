@@ -121,6 +121,7 @@ class Service_centers extends CI_Controller {
         $data['booking_id'] = $booking_id;
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
         $data['bookng_unit_details'] = $this->booking_model->getunit_details($booking_id);
+        
         foreach ($data['bookng_unit_details'] as $key => $value) {
             foreach ($value['quantity'] as $keys => $line_item) {
                 $partner_id = $this->booking_model->get_price_mapping_partner_code("", $data['booking_history'][0]['partner_id']);
@@ -128,7 +129,6 @@ class Service_centers extends CI_Controller {
             $result = $this->partner_model->getPrices($data['booking_history'][0]['service_id'], $value['category'], $value['capacity'], $partner_id, $line_item['price_tags']);
         
             $data['bookng_unit_details'][$key]['quantity'][$keys]['pod'] = $result[0]['pod'];
-
             }
         }
          
@@ -143,69 +143,71 @@ class Service_centers extends CI_Controller {
      */
     function process_complete_booking($booking_id) {
         $this->checkUserSession();
+        
         $this->form_validation->set_rules('customer_basic_charge', 'Basic Charge', 'required');
         $this->form_validation->set_rules('additional_charge', 'Additional Service Charge', 'required');
         $this->form_validation->set_rules('parts_cost', 'Parts Cost', 'required');
         $this->form_validation->set_rules('booking_status', 'Status', 'required');
 
-        if ($this->form_validation->run() == FALSE || $booking_id =="" || $booking_id == NULL) {
+        if (($this->form_validation->run() == FALSE) || ($booking_id =="") || (is_null($booking_id))) {
             $this->complete_booking_form($booking_id);
         } else {
-          // customer paid basic charge is comming in array
-       // Array ( [100] =>  500 , [102] =>  300 )  
-       $customer_basic_charge = $this->input->post('customer_basic_charge');
-        // Additional service charge is comming in array
-       $additional_charge =  $this->input->post('additional_charge');
-        // Parts cost is comming in array
-       $parts_cost =  $this->input->post('parts_cost');
-       $booking_status = $this->input->post('booking_status');
-       $total_amount_paid =  $this->input->post('grand_total_price');
-       $closing_remarks = $this->input->post('closing_remarks');
-       $serial_number = $this->input->post('serial_number');
-       //$internal_status = "Cancelled";
-       $getremarks = $this->booking_model->getbooking_charges($booking_id);
-       $i = 0;
-       foreach ($customer_basic_charge as $unit_id => $value) {
-            // variable $unit_id  is existing id in booking unit details table of given booking id 
-            $data = array();
-            $data['unit_details_id'] = $unit_id;
-            $data['service_center_id'] = $this->session->userdata('service_center_id');
-            $data['service_charge'] = $value;
-            $data['additional_service_charge'] = $additional_charge[$unit_id];
-            $data['parts_cost'] = $parts_cost[$unit_id];
-            $data['internal_status'] = $booking_status[$unit_id];
-            $data['current_status'] = "InProcess";
-            $data['closed_date'] = date('Y-m-d H:i:s');
-            $data['booking_id'] =  $booking_id;
-            $data['amount_paid'] = $total_amount_paid;
-            $data['serial_number'] =  $serial_number[$unit_id];
+            // customer paid basic charge is comming in array
+            // Array ( [100] =>  500 , [102] =>  300 )  
+            $customer_basic_charge = $this->input->post('customer_basic_charge');
+             // Additional service charge is comming in array
+            $additional_charge =  $this->input->post('additional_charge');
+             // Parts cost is comming in array
+            $parts_cost =  $this->input->post('parts_cost');
+            $booking_status = $this->input->post('booking_status');
+            $total_amount_paid =  $this->input->post('grand_total_price');
+            $closing_remarks = $this->input->post('closing_remarks');
+            $serial_number = $this->input->post('serial_number');
+            //$internal_status = "Cancelled";
+            $getremarks = $this->booking_model->getbooking_charges($booking_id);
+            $i = 0;
+            foreach ($customer_basic_charge as $unit_id => $value) {
+                 // variable $unit_id  is existing id in booking unit details table of given booking id 
+                 $data = array();
+                 $data['unit_details_id'] = $unit_id;
+                 $data['service_center_id'] = $this->session->userdata('service_center_id');
+                 $data['service_charge'] = $value;
+                 $data['additional_service_charge'] = $additional_charge[$unit_id];
+                 $data['parts_cost'] = $parts_cost[$unit_id];
+                 $data['internal_status'] = $booking_status[$unit_id];
+                 $data['current_status'] = "InProcess";
+                 $data['closed_date'] = date('Y-m-d H:i:s');
+                 $data['booking_id'] =  $booking_id;
+                 $data['amount_paid'] = $total_amount_paid;
+                 $data['serial_number'] =  $serial_number[$unit_id];
 
-            if (!empty($getremarks[0]['service_center_remarks'])) {
-                
-               $data['service_center_remarks'] = date("F j") . ":- " . $closing_remarks." ". $getremarks[0]['service_center_remarks'];
+                 if (!empty($getremarks[0]['service_center_remarks'])) {
 
-            } else {
-                if(!empty($closing_remarks)){
-                    $data['service_center_remarks'] = date("F j") . ":- " .$closing_remarks;
-                }
+                    $data['service_center_remarks'] = date("F j") . ":- " . $closing_remarks." ". $getremarks[0]['service_center_remarks'];
+
+                 } else {
+                     if(!empty($closing_remarks)){
+                         $data['service_center_remarks'] = date("F j") . ":- " .$closing_remarks;
+                     }
+                 }
+
+                 $i++;
+
+                 $this->vendor_model->update_service_center_action($data);
+
             }
 
-            $i++;
+             $state_change['booking_id'] = $booking_id;
+             $state_change['new_state'] = 'InProcess_Completed';
+             $state_change['old_state'] = "Pending";
+             $state_change['agent_id'] = $this->session->userdata('service_center_agent_id');
+             $state_change['service_center_id'] = $this->session->userdata('service_center_id');
+             $state_change['remarks'] = $closing_remarks;
 
-            $this->vendor_model->update_service_center_action($data);
+             // Insert data into booking state change
+             $this->booking_model->insert_booking_state_change($state_change);
 
-       }
-
-        $state_change['booking_id'] = $booking_id;
-        $state_change['new_state'] = 'InProcess';
-        $state_change['old_state'] = "Pending";
-        $state_change['agent_id'] = $this->session->userdata('service_center_agent_id');
-        $state_change['service_center_id'] = $this->session->userdata('service_center_id');
-        $state_change['remarks'] = $closing_remarks;
-            // Insert data into booking state change
-        $this->booking_model->insert_booking_state_change($state_change);
-
-        redirect(base_url() . "service_center/pending_booking");
+             redirect(base_url() . "service_center/pending_booking");
         }
     }
 
@@ -233,35 +235,37 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
         $this->form_validation->set_rules('cancellation_reason', 'Cancellation Reason', 'required');
 
-        if ($this->form_validation->run() == FALSE || $booking_id =="" || $booking_id == NULL) {
+        if (($this->form_validation->run() == FALSE) || $booking_id =="" || $booking_id == NULL) {
             $this->cancel_booking_form($booking_id);
         } else {
 
-        $cancellation_reason = $this->input->post('cancellation_reason');
-        if ($cancellation_reason === 'Other') {
-            $cancellation_reason = "Other : " . $cancellation_reason;
-        }
+            $cancellation_reason = $this->input->post('cancellation_reason');
+            if ($cancellation_reason === 'Other') {
+                $cancellation_reason = "Other : " . $cancellation_reason;
+            }
 
-        $data['service_center_id'] = $this->session->userdata('service_center_id');
-        $data['booking_id'] = $booking_id;
-        $data['current_status'] = "InProcess";
-        $data['internal_status'] = "Cancelled";
-        $data['service_charge'] = $data['additional_service_charge'] = $data['parts_cost'] = $data['amount_paid'] = 0;
-        $data['cancellation_reason'] = $cancellation_reason;
-        $data['closed_date'] = date('Y-m-d H:i:s');
+            $data['service_center_id'] = $this->session->userdata('service_center_id');
+            $data['booking_id'] = $booking_id;
+            $data['current_status'] = "InProcess";
+            $data['internal_status'] = "Cancelled";
+            $data['service_charge'] = $data['additional_service_charge'] = $data['parts_cost'] = $data['amount_paid'] = 0;
+            $data['cancellation_reason'] = $cancellation_reason;
+            $data['closed_date'] = date('Y-m-d H:i:s');
 
-        $this->vendor_model->update_service_center_action($data);
+            $this->vendor_model->update_service_center_action($data);
 
-        $state_change['booking_id'] = $booking_id;
-        $state_change['new_state'] = 'Cancelled';
-        $state_change['old_state'] = "Pending";
-        $state_change['agent_id'] = $this->session->userdata('service_center_agent_id');
-        $state_change['service_center_id'] = $this->session->userdata('service_center_id');
-        $state_change['remarks'] = $data['cancellation_reason'];
+            //Save state change
+            $state_change['booking_id'] = $booking_id;
+            $state_change['new_state'] = 'InProcess_Cancelled';
+            $state_change['old_state'] = "Pending";
+            $state_change['agent_id'] = $this->session->userdata('service_center_agent_id');
+            $state_change['service_center_id'] = $this->session->userdata('service_center_id');
+            $state_change['remarks'] = $data['cancellation_reason'];
+
             // Insert data into booking state change
-        $this->booking_model->insert_booking_state_change($state_change);
+            $this->booking_model->insert_booking_state_change($state_change);
 
-        redirect(base_url() . "service_center/pending_booking");
+            redirect(base_url() . "service_center/pending_booking");
         }
     }
 
@@ -334,8 +338,9 @@ class Service_centers extends CI_Controller {
         $data['count'] = $config['total_rows'];
         $data['bookings'] = $this->service_centers_model->getcompleted_or_cancelled_booking($config['per_page'], $offset, $service_center_id, "Completed");
 
-        if ($this->session->flashdata('result') != '')
+        if ($this->session->flashdata('result') != '') {
             $data['success'] = $this->session->flashdata('result');
+        }
 
         $data['status'] = "Completed";
 
@@ -349,9 +354,9 @@ class Service_centers extends CI_Controller {
      */
     function cancelled_booking($offset = 0, $page = 0){
         $this->checkUserSession();
-    if ($page == 0) {
-        $page = 50;
-    }
+        if ($page == 0) {
+            $page = 50;
+        }
 
         $service_center_id = $this->session->userdata('service_center_id');
 
@@ -369,8 +374,9 @@ class Service_centers extends CI_Controller {
         $data['count'] = $config['total_rows'];
         $data['bookings'] = $this->service_centers_model->getcompleted_or_cancelled_booking($config['per_page'], $offset, $service_center_id, "Cancelled");
 
-        if ($this->session->flashdata('result') != '')
+        if ($this->session->flashdata('result') != '') {
             $data['success'] = $this->session->flashdata('result');
+        }
 
         $data['status'] = "Cancelled";
 
@@ -386,29 +392,29 @@ class Service_centers extends CI_Controller {
      */
     function save_reschedule_request(){
         $this->form_validation->set_rules('booking_id', 'Booking ID', 'trim|required');
-       
 
         if ($this->form_validation->run() == FALSE ) {
             echo "Please Reschedule Again";
         } else {
-        $data['booking_id'] = $this->input->post('booking_id');
-        $data['booking_date'] = date('Y-m-d',strtotime($this->input->post('booking_date')));
-        $data['booking_timeslot'] = $this->input->post('booking_timeslot');
-        $data['current_status'] = "InProcess";
-        $data['internal_status'] = 'Reschedule';
-        $data['reschedule_reason'] = $this->input->post('remarks');
-        $data['update_date'] = date("Y-m-d H:i:s");
-        $this->vendor_model->update_service_center_action($data);
+            $data['booking_id'] = $this->input->post('booking_id');
+            $data['booking_date'] = date('Y-m-d',strtotime($this->input->post('booking_date')));
+            $data['booking_timeslot'] = $this->input->post('booking_timeslot');
+            $data['current_status'] = "InProcess";
+            $data['internal_status'] = 'Reschedule';
+            $data['reschedule_reason'] = $this->input->post('remarks');
+            $data['update_date'] = date("Y-m-d H:i:s");
+            $this->vendor_model->update_service_center_action($data);
 
-        $state_change['booking_id'] = $data['booking_id'];
-        $state_change['new_state'] = 'Reschedule';
-        $state_change['old_state'] = "Pending";
-        $state_change['agent_id'] = $this->session->userdata('service_center_agent_id');
-        $state_change['service_center_id'] = $this->session->userdata('service_center_id');
-        $state_change['remarks'] = $data['reschedule_reason'];
+            //Save state change
+            $state_change['booking_id'] = $data['booking_id'];
+            $state_change['new_state'] = 'InProcess_Rescheduled';
+            $state_change['old_state'] = "Pending";
+            $state_change['agent_id'] = $this->session->userdata('service_center_agent_id');
+            $state_change['service_center_id'] = $this->session->userdata('service_center_id');
+            $state_change['remarks'] = $data['reschedule_reason'];
+
             // Insert data into booking state change
-        $this->booking_model->insert_booking_state_change($state_change);
-        print_r("success");
+            $this->booking_model->insert_booking_state_change($state_change);
         }
     }
     /**
@@ -427,7 +433,5 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/invoice_summary', $invoice);
     }
-
-
 
 }

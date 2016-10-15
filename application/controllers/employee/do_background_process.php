@@ -39,13 +39,15 @@ class Do_background_process extends CI_Controller {
      *  @return : void
      */
     function assign_booking() {
-        log_message('info', "Entering: " . __METHOD__);
+        log_message('info', __METHOD__ . " => Entering");
 
         $data = $this->input->post('booking_id');
+        
         foreach ($data as $booking_id => $service_center_id) {
             if ($service_center_id != "") {
 
-                log_message('info', "Async Process to assign booking - Booking ID: " . $booking_id . " Service center Id: " . $service_center_id);
+                log_message('info', "Async Process to Assign booking - Booking ID: " . 
+                        $booking_id . ", SF ID: " . $service_center_id);
 
                 //Send SMS to customer
                 $query1 = $this->booking_model->getbooking_history($booking_id);
@@ -61,20 +63,21 @@ class Do_background_process extends CI_Controller {
                     log_message('info', "SMS not sent to user while assigning vendor. User's Phone: " .
                             $query1[0]['phone_number']);
                 }
-                log_message('info', "Async Process to create Job card " . $booking_id);
+                log_message('info', "Send SMS to customer: " . $booking_id);
 
                 //Prepare job card
                 $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
-                log_message('info', "Async Process to created Job card " . $booking_id);
+                log_message('info', "Async Process to create Job card: " . $booking_id);
 
-                //COMMENTING TEMPORARILY AS IT IS NOT WORKING...
-                //        //Send mail to vendor, no Note to vendor as of now
+                //Send mail to vendor, no Note to vendor as of now
                 $message = "";
                 $this->booking_utilities->lib_send_mail_to_vendor($booking_id, $message);
 
-                log_message('info', "Async Process Exist " . $booking_id);
+                log_message('info', "Async Process Exiting for Booking ID: " . $booking_id);
             }
         }
+        
+        log_message('info', __METHOD__ . " => Exiting");
     }
 
     /**

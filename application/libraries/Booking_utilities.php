@@ -32,9 +32,8 @@ class Booking_utilities {
     }
 
     public function lib_prepare_job_card_using_booking_id($booking_id) {
-	log_message('info', __FUNCTION__);
+	log_message('info', __FUNCTION__ . " => Entering, Booking ID: " . $booking_id);
 
-	log_message('info', $booking_id);
 	$template = 'BookingJobCard_Template-v8.xlsx';
 	//set absolute path to directory with template files
 	$templateDir = __DIR__ . "/../controllers/";
@@ -113,11 +112,12 @@ class Booking_utilities {
 	$directory_pdf = "jobcards-pdf/" . $output_file . ".pdf";
 	$this->My_CI->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
 
+        log_message('info', __FUNCTION__ . " => Exiting, Booking ID: " . $booking_id);
     }
 
     //This function sends email to the assigned vendor
     function lib_send_mail_to_vendor($booking_id, $additional_note) {
-        log_message('info', __FUNCTION__." Booking Id: ". print_r($booking_id, true));
+        log_message('info', __FUNCTION__ . " => Entering, Booking Id: ". $booking_id);
 
         $getbooking = $this->My_CI->booking_model->getbooking_history($booking_id,"join");
 
@@ -211,6 +211,8 @@ class Booking_utilities {
         } else {
             echo "Booking does not exist.";
         }
+        
+        log_message('info', __FUNCTION__ . " => Exiting, Booking Id: ". $booking_id);
     }
 
 

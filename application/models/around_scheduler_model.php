@@ -25,7 +25,8 @@ class Around_scheduler_model extends CI_Model {
               DATE_FORMAT( CURDATE(),  '%d-%m-%Y' ),
               ''
               )
-	      AND current_status= 'FollowUp' AND `booking_details`.service_id = `services`.id;";
+	      AND current_status = 'FollowUp' AND internal_status != 'Missed_call_confirmed'
+              AND `booking_details`.service_id = `services`.id;";
         
 	$query = $this->db->query($sql);
         
@@ -62,7 +63,8 @@ class Around_scheduler_model extends CI_Model {
               DATE_FORMAT( CURDATE() + INTERVAL 2 DAY ,  '%d-%m-%Y' ),
               DATE_FORMAT( CURDATE() + INTERVAL 3 DAY ,  '%d-%m-%Y' )
               )
-	      AND current_status= 'FollowUp' AND `booking_details`.service_id = `services`.id;";
+	      AND current_status= 'FollowUp' AND internal_status != 'Missed_call_confirmed'
+              AND `booking_details`.service_id = `services`.id;";
         
 	$query = $this->db->query($sql);
         

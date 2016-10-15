@@ -999,12 +999,22 @@ class Booking_model extends CI_Model {
         return $result;
     }
 
-    /**set_mail_to_vendor
-     *  @desc : Function to get pending queriesset_mail_to_vendor according to pagination.
-     *          Queries which have booking date of future are not shown. Queries with
-     *          empty booking dates are shown.
-     *  @param : start and limit for the query
-     *  @return : array(specific no of pending query detils)
+    /** get_queries
+     * 
+     *  @desc : Function to get pending queries according to pagination and vendor availability.
+     * It can work in different ways:
+     * 
+     * 1. Return count of pending queries 
+     * 2. Return data for pending queries
+     * 
+     * Queries which have booking date of future are not shown. Queries with
+     * empty booking dates are shown.
+     * 
+     * @param : start and limit for the query
+     * @param : $status - Completed or Cancelled
+     * @p_av : Type of queries: Vendor Available or Vendor Not Available
+     * 
+     *  @return : Count of Queries or Data for Queries
      */
     function get_queries($limit, $start, $status, $p_av, $booking_id = "") {
         $check_vendor_status = "";
@@ -1488,13 +1498,14 @@ class Booking_model extends CI_Model {
         log_message('info', __METHOD__ . " Get Unit Details SQl" . $this->db->last_query());
 
         if($query->num_rows >0){
-
+            //if found, update this entry
 	    $unit_details = $query->result_array();
 	    log_message('info', __METHOD__ . " update booking_unit_details ID: " . print_r($unit_details[0]['id'], true));
 	        $this->db->where('id',  $unit_details[0]['id']);
             $this->db->update('booking_unit_details', $result);
 
          } else {
+             //if not found
             $unit_where = array('booking_id'=>$booking_id);
             $unit_num = $this->get_unit_details($unit_where);
             log_message('info', __METHOD__ . " count previous unit: " . count($unit_num));
@@ -1505,7 +1516,7 @@ class Booking_model extends CI_Model {
                 $this->db->insert('booking_unit_details', $result);
                 log_message('info', __METHOD__ . " Insert New Unit details SQL" . $this->db->last_query());
 
-            } else {
+                } else {
                 //$this->db->where('booking_id',  $booking_id);
                 if(empty($unit_num[0]['price_tags'])){
                     $this->db->where('id',  $unit_num[0]['id']);
