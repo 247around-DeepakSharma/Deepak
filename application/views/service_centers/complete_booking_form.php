@@ -93,7 +93,7 @@
 		    </div>
 		    <!-- row End  -->
 
-		    <?php foreach ($bookng_unit_details as $key => $unit_details) { ?>
+		    <?php $count = 0; foreach ($bookng_unit_details as $key => $unit_details) { ?>
     		    <div class="clonedInput panel panel-info " id="clonedInput1">
     			<div class="panel-body">
     			    <div class="row">
@@ -137,7 +137,7 @@
 					</tr>
     					<tbody>
 						<?php
-						$count = 0;
+						
 						$paid_basic_charges = 0;
 						$paid_additional_charges = 0;
 						$paid_parts_cost = 0;
@@ -157,8 +157,8 @@
 
 									</td>
 								<td><?php echo $price['price_tags'] ?></td>
-								<td><?php echo $price['customer_net_payable']; ?></td>
-								<td>  <input  type="text" class="form-control cost"  name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "]" ?>"  value = "<?php
+								<td id="<?php echo "amount_due".$count; ?>"><?php echo $price['customer_net_payable']; ?></td>
+								<td>  <input  id="<?php echo "basic_charge".$count; ?>" type="text" class="form-control cost"  name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "]" ?>"  value = "<?php
 								    $paid_basic_charges += $price['customer_paid_basic_charges'];
 								    if (!empty($price['customer_paid_basic_charges'])) {
 									echo $price['customer_paid_basic_charges'];
@@ -167,7 +167,7 @@
 								    }
 								    ?>">
 								</td>
-								<td>  <input  type="text" class="form-control cost"  name="<?php echo "additional_charge[" . $price['unit_id'] . "]" ?>"  value = "<?php
+								<td>  <input id="<?php echo "extra_charge".$count; ?>"  type="text" class="form-control cost"  name="<?php echo "additional_charge[" . $price['unit_id'] . "]" ?>"  value = "<?php
 								    $paid_additional_charges += $price['customer_paid_extra_charges'];
 								    if (!empty($price['customer_paid_extra_charges'])) {
 									echo $price['customer_paid_extra_charges'];
@@ -177,10 +177,10 @@
 								    ?>">
 
 									</td>
-								<td>  <input  type="text" class="form-control cost"  name="<?php echo "parts_cost[" . $price['unit_id'] . "]" ?>"  value = "<?php
-								    $paid_parts_cost += $price['customer_paid_extra_charges'];
-								    if (!empty($price['customer_paid_extra_charges'])) {
-									echo $price['customer_paid_extra_charges'];
+								<td>  <input id="<?php echo "parts_cost".$count; ?>"  type="text" class="form-control cost"  name="<?php echo "parts_cost[" . $price['unit_id'] . "]" ?>"  value = "<?php
+								    $paid_parts_cost += $price['customer_paid_parts'];
+								    if (!empty($price['customer_paid_parts'])) {
+									echo $price['customer_paid_parts'];
 								    } else {
 									echo "0";
 								    }
@@ -236,6 +236,7 @@
     			    </div>
     			</div>
     		    </div>
+                    
 		    <?php } ?>
 		    <div class="row">
 			<div class ="col-md-12">
@@ -356,16 +357,21 @@
 			    document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
 			    flag = 1;
 			}
-
 		    }
 		}
-
-
-
+                
+                var amount_due = $("#amount_due"+div_no[2]).text();
+                var basic_charge = $("#basic_charge"+div_no[2]).val();
+                var additional_charge = $("#extra_charge"+div_no[2]).val();
+                var parts_cost =$("#parts_cost"+div_no[2]).val();
+                if(Number(amount_due) > 0){
+                    var total_sf = Number(basic_charge) + Number(additional_charge) + Number(parts_cost);
+                    if(Number(total_sf) === 0){
+                        alert("Please fill amount collected from customer, Amount Due: Rs."+ amount_due );
+                        flag = 1;
+                    }
+                }
 	    }
-
-
-
 	});
 
 	if ($.inArray('completed', is_completed_checkbox) !== -1)
