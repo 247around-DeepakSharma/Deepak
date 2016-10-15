@@ -72,4 +72,31 @@ class Around_scheduler_model extends CI_Model {
         
     	return  $query->result();
     }
+    
+    
+    /*
+     * @desc: This method is used to send reminder SMS to users for whom:
+     * Partner source => Snapdeal-shipped-excel, Snapdeal-delivered-excel
+     * EDD => Past (T-1), T-2, T-3 days
+     * Current status => FollowUp
+     * Vendor => Available
+     */
+    function get_reminder_installation_sms_data_past() {
+        //Filter using booking_date instead of EDD
+        $sql = "SELECT booking_details.*, `services`.services from booking_details, services 
+              WHERE partner_source IN ('Snapdeal-shipped-excel', 'Snapdeal-delivered-excel' )
+	      AND booking_date IN (
+              DATE_FORMAT( CURDATE() - INTERVAL 1 DAY ,  '%d-%m-%Y' ),
+              DATE_FORMAT( CURDATE() - INTERVAL 2 DAY ,  '%d-%m-%Y' ),
+              DATE_FORMAT( CURDATE() - INTERVAL 3 DAY ,  '%d-%m-%Y' )
+              )
+	      AND current_status= 'FollowUp' AND internal_status != 'Missed_call_confirmed'
+              AND `booking_details`.service_id = `services`.id;";
+        
+	$query = $this->db->query($sql);
+        
+        log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
+        
+    	return  $query->result();
+    }
 }
