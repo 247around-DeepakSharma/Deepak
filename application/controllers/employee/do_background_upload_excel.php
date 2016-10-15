@@ -235,9 +235,13 @@ class Do_background_upload_excel extends CI_Controller {
 
 		if (isset($value['Expected_Delivery_Date'])) {
 		    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Expected_Delivery_Date']);
-		} else {
-		    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
-		}
+                    
+		} else if(isset($value['Delivery_Start_Date'])){
+                    
+                    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Start_Date']);
+                } else {
+                    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
+                }
 
 		switch ($file_type) {
 		    case 'shipped':
@@ -674,7 +678,12 @@ class Do_background_upload_excel extends CI_Controller {
 	$future_date = 0;
 	$past_date = 0;
 	foreach ($data['valid_data'] as $key => $value) {
-	    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
+            if(isset($value['Delivery_Start_Date'])){
+                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Start_Date']);
+            } else {
+                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
+            }
+	    
 	    if (count($invalid_data) > 4) {
             	$status['invalid_date'] = $invalid_data;
 

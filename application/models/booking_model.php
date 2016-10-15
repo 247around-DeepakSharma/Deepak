@@ -1041,14 +1041,17 @@ class Booking_model extends CI_Model {
                 $get_field = " Count(bd.booking_id) as count ";
             }
         }
-        if($p_av == PINCODE_AVAILABLE || $p_av == PINCODE_ALL_AVAILABLE){
+        if($p_av == PINCODE_AVAILABLE ){
             $is_exist = ' EXISTS ';
             
         } else if($p_av == PINCODE_NOT_AVAILABLE){
             $is_exist = ' NOT EXISTS ';
+        } else if($p_av == PINCODE_ALL_AVAILABLE){
+            $is_exist = '';
+            
         }
         // If request for FollowUp then check Vendor Available or Not
-        if($status != "Cancelled"){
+        if($status != "Cancelled" || $p_av != PINCODE_ALL_AVAILABLE){
             $check_vendor_status = " AND $is_exist 
                 (SELECT 1
                 FROM (`vendor_pincode_mapping`) 
@@ -1075,6 +1078,7 @@ class Booking_model extends CI_Model {
             END, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc $add_limit";
 
         $query = $this->db->query($sql);
+        log_message('info', __METHOD__ . "=> " . $this->db->last_query());
         
         return $query->result();
 
