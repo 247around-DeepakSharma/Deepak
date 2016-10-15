@@ -1813,15 +1813,15 @@ class vendor extends CI_Controller {
     }
     
     /**
-     * @desc: This function is used to show report queries
+     * @desc: This function is used to show misc counts for 247around
      * params: void
      * return: view
      * 
      */
-    function get_report_query(){
+    function show_around_dashboard(){
         //Initializing array data for where and select clause
-        $data_report['query'] = $this->vendor_model->get_active_query_report();
-        $data_report['data'] = $this->vendor_model->execute_query($data_report['query']);
+        $data_report['query'] = $this->vendor_model->get_around_dashboard_queries();
+        $data_report['data'] = $this->vendor_model->execute_around_dashboard_query($data_report['query']);
         
         $this->load->view('employee/header');
         $this->load->view('employee/247around_dashboard', $data_report);
@@ -1834,7 +1834,6 @@ class vendor extends CI_Controller {
      * 
      */
     function get_sms_template_editable_grid(){
-
         $this->load->view('employee/header');
         $this->load->view('employee/sms_template_editable_grid');
         
