@@ -31,8 +31,8 @@
                            <th>Reschedule</th>
                            <th>Cancel</th>
                            <th>JobCard</th>
-                           <th>Escalate</th>
-                          
+                           <!-- <th>Escalate</th> -->
+
                         </tr>
                      </thead>
                      <tbody>
@@ -42,13 +42,13 @@
                            <td>
                               <?php echo $sn_no; ?>
                            </td>
-                           
-                           
+
+
                            <td >
                               <?php
 
                               echo  $row->booking_id;
-                            
+
                             ?>
                            </td>
                            <td>
@@ -57,13 +57,13 @@
                                       echo "Installation";
                                        break;
                                   case "Repair - In Warranty":
-                                  case "Repair - Out Of Warranty": 
+                                  case "Repair - Out Of Warranty":
                                       echo "Repair";
                                        break;
-                                  default: 
+                                  default:
                                           echo $row->request_type;
                                           break;
-                                      
+
                                   break;
                               }  ?>
                            </td>
@@ -76,26 +76,26 @@
                            <td>
                               <?= $row->city; ?>
                            </td>
-                          
+
                            <td>
-                              <?= $row->booking_date; ?> 
+                              <?= $row->booking_date; ?>
                            </td>
-                         
+
                            <td><a class='btn btn-sm btn-primary' href="<?php echo base_url();?>partner/booking_details/<?=$row->booking_id?>" target='_blank' title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>
                            <td><a class='btn btn-sm btn-primary' href="<?php echo base_url();?>partner/update_booking/<?=$row->booking_id?>"  title='View' style="background-color:#2C9D9C; border-color: #2C9D9C;"><i class='fa fa-pencil-square-o' aria-hidden='true' ></i></a></td>
 
                            <td>
-                           <a href="<?php echo base_url(); ?>partner/get_reschedule_booking_form/<?php echo $row->booking_id; ?>" id="reschedule" class="btn btn-sm btn-success" title ="Reschedule"><i class='fa fa-calendar' aria-hidden='true' ></i></a>                            
+                           <a href="<?php echo base_url(); ?>partner/get_reschedule_booking_form/<?php echo $row->booking_id; ?>" id="reschedule" class="btn btn-sm btn-success" title ="Reschedule"><i class='fa fa-calendar' aria-hidden='true' ></i></a>
                            </td>
 
                             <td><a href="<?php echo base_url(); ?>partner/get_cancel_form/Pending/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a></td>
-                            
+
                             <td><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm' download><i class="fa fa-download" aria-hidden="true"></i></a></td>
-                            
-                            <td>
+
+                            <!-- <td>
                                 <a href="<?php echo base_url(); ?>partner/escalation_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-danger' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
-                            </td>
-                           
+                            </td> -->
+
                         </tr>
                         <?php $sn_no++; } ?>
                      </tbody>
@@ -110,4 +110,3 @@
  <div class="custom_pagination" style="margin-left: 16px;" > <?php if(isset($links)) echo $links; ?></div>
 
  <?php $this->session->unset_userdata('success'); ?>
-      

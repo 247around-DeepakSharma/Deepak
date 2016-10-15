@@ -50,8 +50,8 @@
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Bookings <span class="caret"></span></a>
                             <ul class="dropdown-menu">
-                         <li><a href="<?php echo base_url();?>partner/pending_queries">Pending Queries</a></li>
-                                <li role="separator" class="divider"></li>
+                         <!-- <li><a href="<?php echo base_url();?>partner/pending_queries">Pending Queries</a></li>
+                                <li role="separator" class="divider"></li> -->
                         <li><a href="<?php echo base_url();?>partner/pending_booking">Pending Bookings</a></li>
                                 <li role="separator" class="divider"></li>
                         <li><a href="<?php echo base_url();?>partner/closed_booking/Completed">Completed Bookings</a></li>
@@ -60,7 +60,7 @@
 
                             </ul>
                         </li>
-                        
+
                         <li>
                      <a href="<?php echo base_url();?>partner/invoices_details">Invoice</a>
                         </li>
@@ -111,19 +111,19 @@
 <script type="text/javascript">
     function submit_button(){
         var phone = $("#phone_number").val();
-        
+
             if(phone.length!=10){
                 return false;
 
             }
             intRegex = /^[7-9]{1}[0-9]{9}$/;
             if(intRegex.test(phone))
-            { 
+            {
                 return true;
             } else{
                 return false;
             }
-                 
-            
+
+
     }
 </script>
