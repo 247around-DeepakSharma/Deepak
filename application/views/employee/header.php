@@ -263,7 +263,11 @@
                     </a>
                     <ul class="dropdown-menu">
                       <li>
-                          <a href="<?php echo base_url()?>BookingSummary/booking_report_by_service_center/0"><i class="fa fa-fw fa-desktop "></i> <strong>SF Bookings Summary</strong></a>
+                          <a href="<?php echo base_url()?>BookingSummary/booking_report_by_service_center/0"><i class="fa fa-fw fa-desktop "></i> <strong>SF Bookings Snapshot</strong></a>
+                      </li>
+                      <li class="divider"></li>
+                       <li>
+                          <a href="<?php echo base_url()?>BookingSummary/get_pending_bookings/0"><i class="fa fa-fw fa-desktop "></i> <strong>Download SF Pending Summary</strong></a>
                       </li>
                       <li class="divider"></li>
                       <li>

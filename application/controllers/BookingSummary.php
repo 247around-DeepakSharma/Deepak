@@ -34,7 +34,7 @@ class BookingSummary extends CI_Controller {
         echo "B = " . $b . PHP_EOL;
     }
 
-    public function get_pending_bookings() {
+    public function get_pending_bookings($mail_flag) {
         log_message('info', __FUNCTION__ . ' => Entering');
 
         $template = 'BookingSummary_Template-v7.xls';
@@ -86,8 +86,10 @@ class BookingSummary extends CI_Controller {
             );
 
             //Get populated XLS with data
-            $output_file = "BookingSummary-" . date('d-M-Y') . ".xls";
+            $output_file = "/tmp/BookingSummary-" . date('d-M-Y') . ".xls";
             $R->render('excel2003', $output_file);
+            
+            if($mail_flag){
 
             //log_message('info', "Report generated with $count records");
             //Send report via email
@@ -112,6 +114,19 @@ class BookingSummary extends CI_Controller {
 
             //Delete this file
             exec("rm -rf " . $output_file);
+            } else {
+                if (file_exists($output_file)) {
+                    header('Content-Description: File Transfer');
+                    header('Content-Type: application/octet-stream');
+                    header('Content-Disposition: attachment; filename="'.basename($output_file).'"');
+                    header('Expires: 0');
+                    header('Cache-Control: must-revalidate');
+                    header('Pragma: public');
+                    header('Content-Length: ' . filesize($output_file));
+                    readfile($output_file);
+                    exit;
+                }
+            }
         }
 
         log_message('info', __FUNCTION__ . ' => Exiting');
@@ -779,10 +794,7 @@ EOD;
      */
 
     function booking_report_by_service_center($mail_to_be_sent) {
-        log_message('info', __FUNCTION__ . " => Entering, Mail Required: " . $mail_to_be_sent);
-
         $data = $this->reporting_utils->get_booking_by_service_center();
-
         //Generating HTML for the email
         $html = '
                     <html xmlns="http://www.w3.org/1999/xhtml">
@@ -802,6 +814,7 @@ EOD;
                                 <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">' . date('M') . ' Booking Cancelled</th>
                                 <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">3-5 Days</th>
                                 <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE"> > 5 Days</th>
+
                               </tr>
                             </thead>
                             <tbody >';
@@ -879,30 +892,24 @@ EOD;
         foreach ($state_final as $val) {
 
             foreach ($final_way as $key => $value) {
+
                 if ($value['state'] == $val) {
-
-                    //For calculating row total
-                    $row_total = $value['yesterday_booked'] + $value['yesterday_completed'] + $value['yesterday_cancelled'] + $value['month_completed'] + $value['month_cancelled'] + $value['last_3_day'] + $value['greater_than_5_days'];
-
-
 
                     $show_state[$key] = (in_array($val, $show_state)) ? '' : $val;
 
                     if ($show_state[$key] != '') {
                         if ($key >= 1) {
                             $html.="<tr>" .
-                                    "<td style='text-align: center;border: 1px solid #EEC;'>" . '' .
-                                    "</td><td style='text-align: center;border: 1px solid #EEC;font-size:80%;'>" . '' .
-                                    "</td><td style='text-align: center;border: 1px solid #EEC;background:#D3DCE3'>" . $row_sum .
-                                    " </td><td style='text-align: center;border: 1px solid #EEC;background:#D3DCE3'>" . $yesterday_booked .
-                                    " </td><td style='text-align: center;border: 1px solid #EEC;background:#D3DCE3'>" . $yesterday_completed .
-                                    " </td><td style='text-align: center;border: 1px solid #EEC;background:#D3DCE3'>" . $yesterday_cancelled .
-                                    " </td><td style='text-align: center;border: 1px solid #EEC;background:#D3DCE3'>" . $month_completed .
-                                    " </td><td style='text-align: center;border: 1px solid #EEC;background:#D3DCE3'>" . $month_cancelled .
-                                    " </td><td style='text-align: center;border: 1px solid #EEC;background:#D3DCE3'>" . $last_3_day .
-                                    " </td><td style='text-align: center;border: 1px solid #EEC;background:#D3DCE3'>" . $greater_than_5_days .
+                                    "<td style='text-align: center;border: 1px solid #001D48;'>" . '' .
+                                    "</td><td style='text-align: center;border: 1px solid #001D48;font-size:80%;'>" . '' .
+                                    " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $yesterday_booked .
+                                    " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $yesterday_completed .
+                                    " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $yesterday_cancelled .
+                                    " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $month_completed .
+                                    " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $month_cancelled .
+                                    " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $last_3_day .
+                                    " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $greater_than_5_days .
                                     " </td></tr>";
-                            $row_sum = 0;
                             $yesterday_booked = 0;
                             $yesterday_completed = 0;
                             $yesterday_cancelled = 0;
@@ -910,72 +917,72 @@ EOD;
                             $month_cancelled = 0;
                             $last_3_day = 0;
                             $greater_than_5_days = 0;
-                            $html.= "<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'>"
-                                    . "<td colspan='2'><span style='color:#FF9900;'>" .
-                                    $value['state'] . "</span></td></tr>";
                         }
-
-                        $html.="<tr>" .
-                                "<td style='text-align: center;border: 1px solid #001D48;'>" . $value['city'] .
-                                "</td><td style='text-align: center;border: 1px solid #001D48;font-size:80%;'>" . $value['service_center_name'] .
-                                " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1'>" . $value['yesterday_booked'] .
-                                " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1'>" . $value['yesterday_completed'] .
-                                " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1'>" . $value['yesterday_cancelled'] .
-                                " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1'>" . $value['month_completed'] .
-                                " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1'>" . $value['month_cancelled'] .
-                                " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1'>" . $value['last_3_day'] .
-                                " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1'>" . $value['greater_than_5_days'] .
-                                " </td></tr>";
-
-                        $yesterday_booked += $value['yesterday_booked'];
-                        $overall_yesterday_booked += $value['yesterday_booked'];
-                        $yesterday_completed += $value['yesterday_completed'];
-                        $overall_yesterday_completed += $value['yesterday_completed'];
-                        $yesterday_cancelled += $value['yesterday_booked'];
-                        $overall_yesterday_cancelled += $value['yesterday_booked'];
-                        $month_completed += $value['month_completed'];
-                        $overall_month_completed += $value['month_completed'];
-                        $month_cancelled += $value['month_cancelled'];
-                        $overall_month_cancelled += $value['month_cancelled'];
-                        $last_3_day += $value['last_3_day'];
-                        $overall_last_3_day += $value['last_3_day'];
-                        $greater_than_5_days += $value['greater_than_5_days'];
-                        $overall_greater_than_5_days += $value['greater_than_5_days'];
+                        $html.= "<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'>"
+                                . "<td colspan='2'><span style='color:#FF9900;'>" .
+                                $value['state'] . "</span></td></tr>";
                     }
+
+                    $html.="<tr>" .
+                            "<td style='text-align: center;border: 1px solid #001D48;'>" . $value['city'] .
+                            "</td><td style='text-align: center;border: 1px solid #001D48;font-size:80%;'>" . $value['service_center_name'] .
+                            " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1'>" . $value['yesterday_booked'] .
+                            " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1'>" . $value['yesterday_completed'] .
+                            " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1'>" . $value['yesterday_cancelled'] .
+                            " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1'>" . $value['month_completed'] .
+                            " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1'>" . $value['month_cancelled'] .
+                            " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1'>" . $value['last_3_day'] .
+                            " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1'>" . $value['greater_than_5_days'] .
+                            " </td></tr>";
+
+                    $yesterday_booked += $value['yesterday_booked'];
+                    $overall_yesterday_booked += $value['yesterday_booked'];
+                    $yesterday_completed += $value['yesterday_completed'];
+                    $overall_yesterday_completed += $value['yesterday_completed'];
+                    $yesterday_cancelled += $value['yesterday_booked'];
+                    $overall_yesterday_cancelled += $value['yesterday_booked'];
+                    $month_completed += $value['month_completed'];
+                    $overall_month_completed += $value['month_completed'];
+                    $month_cancelled += $value['month_cancelled'];
+                    $overall_month_cancelled += $value['month_cancelled'];
+                    $last_3_day += $value['last_3_day'];
+                    $overall_last_3_day += $value['last_3_day'];
+                    $greater_than_5_days += $value['greater_than_5_days'];
+                    $overall_greater_than_5_days += $value['greater_than_5_days'];
                 }
             }
-            $html.="<tr>" .
-                    "<td style='text-align: center;border: 1px solid #001D48;'>" . '' .
-                    "</td><td style='text-align: center;border: 1px solid #001D48;font-size:80%;'>" . '' .
-                    " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $yesterday_booked .
-                    " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $yesterday_completed .
-                    " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $yesterday_cancelled .
-                    " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $month_completed .
-                    " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $month_cancelled .
-                    " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $last_3_day .
-                    " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $greater_than_5_days .
-                    " </td></tr>";
+        }
+        $html.="<tr>" .
+                "<td style='text-align: center;border: 1px solid #001D48;'>" . '' .
+                "</td><td style='text-align: center;border: 1px solid #001D48;font-size:80%;'>" . '' .
+                " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $yesterday_booked .
+                " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $yesterday_completed .
+                " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $yesterday_cancelled .
+                " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $month_completed .
+                " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $month_cancelled .
+                " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $last_3_day .
+                " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $greater_than_5_days .
+                " </td></tr>";
 
-            $html.="<tr><td>&nbsp;</td></tr>";
-            $html.="<tr>" .
-                    "<td style='text-align: center;border: 1px solid #001D48;'>" . '' .
-                    "</td><td style='text-align: center;border: 1px solid #001D48;font-size:80%;background:#FF9900'>" . 'TOTAL' .
-                    " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900'><strong>" . $overall_yesterday_booked . '<strong>' .
-                    " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900'><strong>" . $overall_yesterday_completed . '<strong>' .
-                    " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900'><strong>" . $overall_yesterday_cancelled . '<strong>' .
-                    " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900'><strong>" . $overall_month_completed . '<strong>' .
-                    " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900'><strong>" . $overall_month_cancelled . '<strong>' .
-                    " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900'><strong>" . $overall_last_3_day . '<strong>' .
-                    " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900'><strong>" . $overall_greater_than_5_days . '<strong>' .
-                    " </td></tr>";
+        $html.="<tr><td>&nbsp;</td></tr>";
+        $html.="<tr>" .
+                "<td style='text-align: center;border: 1px solid #001D48;'>" . '' .
+                "</td><td style='text-align: center;border: 1px solid #001D48;font-size:80%;background:#FF9900'>" . 'TOTAL' .
+                " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900'><strong>" . $overall_yesterday_booked . '<strong>' .
+                " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900'><strong>" . $overall_yesterday_completed . '<strong>' .
+                " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900'><strong>" . $overall_yesterday_cancelled . '<strong>' .
+                " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900'><strong>" . $overall_month_completed . '<strong>' .
+                " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900'><strong>" . $overall_month_cancelled . '<strong>' .
+                " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900'><strong>" . $overall_last_3_day . '<strong>' .
+                " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900'><strong>" . $overall_greater_than_5_days . '<strong>' .
+                " </td></tr>";
 
-            $html .= '</tbody>
+        $html .= '</tbody>
                           </table>
                         </div>';
-            $html .= '</body>
+        $html .= '</body>
                     </html>';
-
-            if ($mail_to_be_sent) {
+        if ($mail_to_be_sent) {
                 $to = "anuj@247around.com, nits@247around.com";
                 $subject = "SF Bookings Summary Report - " . date("d-M-Y");
                 $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $html, "");
@@ -989,8 +996,7 @@ EOD;
             }
 
             log_message('info', __FUNCTION__ . " => Exiting");
-        }
-        
     }
+
 
 }
