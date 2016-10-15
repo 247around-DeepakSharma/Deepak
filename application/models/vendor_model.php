@@ -1144,16 +1144,10 @@ class vendor_model extends CI_Model {
      *        select, where values 
      * return: void
      */
-    function get_active_query_report($data){
-        if(!isset($data['select'])){
-            $data['select'] = '*';
-        }
-        $this->db->select($data['select']);
-        if(isset($data['where'])){
-            $this->db->where($data['where']);
-        }
-        $this->db->where('active',1);
+    function get_active_query_report(){
+        $this->db->where('active',1);        
         $query = $this->db->get('query_report');
+        
         return $query->result_array();
     }
     

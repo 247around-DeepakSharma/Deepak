@@ -1820,12 +1820,11 @@ class vendor extends CI_Controller {
      */
     function get_report_query(){
         //Initializing array data for where and select clause
-        $data = [];
-        $data_report['query'] = $this->vendor_model->get_active_query_report($data);
+        $data_report['query'] = $this->vendor_model->get_active_query_report();
         $data_report['data'] = $this->vendor_model->execute_query($data_report['query']);
         
         $this->load->view('employee/header');
-        $this->load->view('employee/query_report',$data_report);
+        $this->load->view('employee/247around_dashboard', $data_report);
     }
     
     /**
