@@ -188,13 +188,18 @@ class Do_background_upload_excel extends CI_Controller {
 	    }
 
 	    //Wybor brand should be tagged to Partner Wybor only if the
-	    //state is Tamilnadu (pincode starts from 6). Else it would be
+	    //States are:
+            // - Tamilnadu (pincode starts from 6).
+            // - AP / Telangana (pincode starts from 5)
+            // (Karnataka also starts from 5, we will leave that as of now)
+            // Else it would be
 	    //tagged to Snapdeal.
 	    //Ray brand should be tagged to Ray.
 	    //All other brands would go to Snapdeal.
 	    switch ($value['Brand']) {
 		case 'Wybor':
-		    if (substr($value['Pincode'], 0, 1) == "6") {
+		    if ((substr($value['Pincode'], 0, 1) == "5") || 
+                        (substr($value['Pincode'], 0, 1) == "6")) {
 			$booking['partner_id'] = '247010';
 			$booking['source'] = "SY";
 		    } else {
