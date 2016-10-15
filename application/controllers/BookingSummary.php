@@ -35,7 +35,7 @@ class BookingSummary extends CI_Controller {
     }
 
     public function get_pending_bookings($mail_flag) {
-        log_message('info', __FUNCTION__ . ' => Entering');
+        log_message('info', __FUNCTION__ . ' => Entering, Mail flag: ' . $mail_flag);
 
         $template = 'BookingSummary_Template-v7.xls';
         //set absolute path to directory with template files
@@ -794,6 +794,8 @@ EOD;
      */
 
     function booking_report_by_service_center($mail_to_be_sent) {
+        log_message('info', __FUNCTION__ . " => Entering, Mail Required: " . $mail_to_be_sent);
+        
         $data = $this->reporting_utils->get_booking_by_service_center();
         //Generating HTML for the email
         $html = '
