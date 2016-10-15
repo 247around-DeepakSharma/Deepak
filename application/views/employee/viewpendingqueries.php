@@ -13,15 +13,15 @@
 
 function outbound_call(phone_number){
         var confirm_call = confirm("Call Customer ?");
-       
+
         if (confirm_call == true) {
-            
+
              $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number,
                 success: function(response) {
                     console.log(response);
-                   
+
                 }
             });
         } else {
@@ -61,8 +61,9 @@ function outbound_call(phone_number){
                     <option value="<?php echo base_url().'employee/booking/view_queries/'.$status."/".$pv; ?>" <?php if($this->uri->segment(6) == 50){ echo 'selected';}?>>50</option>
                     <option value="<?php echo base_url().'employee/booking/view_queries/'.$status."/".$pv.'/100/0'?>" <?php if($this->uri->segment(6) == 100){ echo 'selected';}?>>100</option>
                     <option value="<?php echo base_url().'employee/booking/view_queries/'.$status."/".$pv.'/200/0'?>" <?php if($this->uri->segment(6) == 200){ echo 'selected';}?>>200</option>
+                    <option value="<?php echo base_url().'employee/booking/view_queries/'.$status."/".$pv.'/500/0'?>" <?php if($this->uri->segment(6) == 500){ echo 'selected';}?>>500</option>
                     <!--<option value="<?php echo base_url().'employee/booking/view_queries/'.$status."/".$pv.'/0/All'?>" <?php if($this->uri->segment(7) == 'All'){ echo 'selected';}?>>All</option>-->
- 
+
                 </select>
             </div>
             <?php } ?>
@@ -77,7 +78,7 @@ function outbound_call(phone_number){
                        </button>
                        <strong>' . $this->session->flashdata('success') . '</strong>
                    </div>';
-                }  
+                }
                  if (!empty($this->session->flashdata('error'))) {
                     echo '<div class="alert alert-danger alert-dismissible" role="alert">
                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -93,7 +94,7 @@ function outbound_call(phone_number){
                     <tr>
                     <th>S No.</th>
                     <th width="160px;">Booking Id</th>
-                    
+
                     <th width="140px;">User Name</th>
                     <th width="125px;">Phone No.</th>
                     <th width="125px;">Service Name</th>
@@ -103,7 +104,7 @@ function outbound_call(phone_number){
                     <th width="100px;">Status</th>
                      <?php } ?>
                     <th width="100px;">City</th>
-                    
+
                     <th width="250px;">Query Remarks</th>
                     <?php if($p_av == PINCODE_NOT_AVAILABLE){ ?>
                     <th>Pincode</th>
@@ -128,7 +129,7 @@ function outbound_call(phone_number){
                     <td><?php echo $offset; ?></td>
 
                 <td><?= $row->booking_id; ?></td>
-                
+
                     <td><a target='_blank' href="<?php echo base_url(); ?>employee/user/finduser/0/0/<?php echo $row->phone_number; ?>"><?php echo $row->customername; ?></a></td>
                     <td><a target='_blank' href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $row->phone_number;?>"><?php echo $row->booking_primary_contact_no; ?></a></td>
                     <td><?= $row->services;  ?></td>
@@ -144,7 +145,7 @@ function outbound_call(phone_number){
                     </td>
                     <?php } ?>
                      <td><?= $row->city; ?></td>
-                      
+
 
                     <td><?= $row->query_remarks; ?></td>
                     <?php if($p_av == PINCODE_NOT_AVAILABLE){ ?>
@@ -152,7 +153,7 @@ function outbound_call(phone_number){
                     <?php } ?>
 
                       <td><button type="button" onclick="outbound_call(<?php echo $row->booking_primary_contact_no; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
-                     </td> 
+                     </td>
 
                     <td>
                         <?php echo "<a class='btn btn-sm btn-primary' "
@@ -201,7 +202,7 @@ function outbound_call(phone_number){
         var vendor_id = $("#vendor_avalilabe"+div).val();
         document.location.href= '<?php echo base_url(); ?>employee/vendor/viewvendor/'+vendor_id;
     }
-    
+
     function form_submit(booking_id){
         $.ajax({
                 type:"POST",
@@ -224,4 +225,3 @@ function outbound_call(phone_number){
     /* special filter field styling for this example */
     .input-filter-container { position: absolute; top: 7em; right: 1em; border: 2px solid #66f; background-color: #eef; padding: 0.5em; }
 </style>
-
