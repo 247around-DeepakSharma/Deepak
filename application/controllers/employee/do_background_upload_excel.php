@@ -333,18 +333,20 @@ class Do_background_upload_excel extends CI_Controller {
 
 			    $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , $booking['query_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
 
-			    //Send SMS to customers regarding delivery confirmation through missed call for both shipped / delivered files
+			    //Send SMS to customers regarding delivery confirmation through missed call for delivered file only
                             //Check whether vendor is available or not
-                            $vendors = $this->vendor_model->check_vendor_availability($booking['booking_pincode'], $booking['service_id']);
-                            $vendors_count = count($vendors);
+                            if ($file_type == "delivered") {
+                                $vendors = $this->vendor_model->check_vendor_availability($booking['booking_pincode'], $booking['service_id']);
+                                $vendors_count = count($vendors);
 
-                            if ($vendors_count > 0) {
-                                $this->send_sms_to_snapdeal_customer($value['appliance'], 
-                                        $booking['booking_primary_contact_no'], $user_id, 
-                                        $booking['booking_id'], $file_type);
-                            } else {
-                                log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
-                            }         
+                                if ($vendors_count > 0) {
+                                    $this->send_sms_to_snapdeal_customer($value['appliance'], 
+                                            $booking['booking_primary_contact_no'], $user_id, 
+                                            $booking['booking_id'], $file_type);
+                                } else { //if ($vendors_count > 0) {
+                                    log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
+                                }
+                            }   //if ($file_type == "delivered") {
 			} else {
 			    log_message('info', __FUNCTION__ . ' =>  Booking is not inserted in booking details: ' . print_r($value, true));
 
