@@ -1893,6 +1893,37 @@ class Booking_model extends CI_Model {
         $data['bookings_previous'] = $this->db->query($sql_booking_previous)->row();
         return $data;
     }
+    
+    /**
+     * @desc : This funtion is to get all booking details of particular booking based on booking_primary_contact_no.
+     *
+     * Finds all the booking details of particular booking of a particular user.
+     *
+     * @param : booking_primary_contact_no
+     * @return : array of booking details
+     */
+    function getbooking_by_phone($phone) {
+        $this->db->select('*');
+        $this->db->where('booking_primary_contact_no', $phone);
+        $query = $this->db->get('booking_details');
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc: This fuction is used to delete particular email template from 247around_email_template table
+     * params: Int id of the mail template
+     * return : Boolean
+     * 
+     */
+    function delete_mail_template_by_id($id) {
+        $this->db->where('id', $id);
+        $this->db->delete('247around_email_template');
 
+        if ($this->db->affected_rows() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 }

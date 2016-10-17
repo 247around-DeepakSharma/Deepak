@@ -16,7 +16,7 @@
                     <th>Description</th>
                     <th>Vendor</th>
                     <th>Attachment</th>
-                    <th>Action</th>
+                    <th colspan="2">Action</th>
 
                 </tr>
             </thead>
@@ -43,6 +43,9 @@
                     <td>
                         <input type="button"  value="Send" id="<?php echo $value['id'] ?>" onClick="send_email(this.id)" class="btn btn-primary btn-sm"/>
                     </td>
+                    <td>
+                        <input type="button"  value="Delete" id="<?php echo $value['id'] ?>" onClick="delete_email(this.id)" class="btn btn-primary btn-sm"/>
+                    </td>
                 </form>
             </tr>  
             <?php } ?>
@@ -64,7 +67,7 @@
                     <th>Description</th>
                     <th>Partner</th>
                     <th>Attachment</th>
-                    <th>Action</th>
+                    <th colspan="2">Action</th>
 
             </tr>
             </thead>
@@ -92,6 +95,9 @@
                     <td>
                         <input type="button"  value="Send" id="partner_<?php echo $value['id'] ?>" onClick="send_partner_email(this.id)" class="btn btn-primary btn-sm"/>
                     </td>
+                    <td>
+                        <input type="button"  value="Delete" id="partner_<?php echo $value['id'] ?>" onClick="delete_email(<?php echo $value['id'] ?>)" class="btn btn-primary btn-sm"/>
+                    </td>
                 </form>
              </tr>
             <?php } ?>
@@ -114,6 +120,24 @@
             placeholder: "Select Partners",
             allowClear: true
     });
+    
+    var message = location.search.split('message=')[1];
+    if(message == 'success'){
+        noty({
+                text: 'Mail delete successfully.',
+                type: 'success',
+                layout: 'topCenter',
+                theme: 'relax',
+                killer:true,
+                animation: {
+                    open: 'animated bounceIn', // Animate.css class names
+                    close: 'animated flipOutX', // Animate.css class names
+                    easing: 'swing', // unavailable - no need
+                    speed: 500 // unavailable - no need
+                   }
+                }); 
+    }
+    
     });
 
 //This is used to send mail to Vendors
@@ -319,6 +343,63 @@
                 }
             });  
         }
+    }
+
+    //Function is used to Delete Send Mail Templates of Vendors
+    function delete_email(id){
+        
+        //Confirm before sending mails
+            noty({
+                text: 'Do you want to delete selected email template ?',
+                buttons: [
+        {addClass: 'btn btn-primary', text: 'Ok', onClick: function($noty) {
+                    $noty.close();
+                    
+                        //Submittting FORM Data through AJAX
+                            $.ajax({
+                            type: "POST",
+                            data: {id},
+                            url: '<?php echo base_url() ?>employee/vendor/delete_mail_template/'+id,
+                            success: function (data) {
+                                //Checking success or error in sending mail
+                                if(data == 1) {
+                                   window.location = "?message=success";
+                                } else {
+                                    noty({
+                                        text: 'Error in deleting mail template !',
+                                        type: 'error',
+                                        layout: 'topCenter',
+                                        theme: 'relax',
+                                        killer:true,
+                                        animation: {
+                                            open: 'animated bounceIn', // Animate.css class names
+                                            close: 'animated flipOutX', // Animate.css class names
+                                            easing: 'swing', // unavailable - no need
+                                            speed: 500 // unavailable - no need
+                                        }
+                                    });      
+                                }
+                            }
+                        });
+                    }
+        },
+        {addClass: 'btn btn-danger', text: 'Cancel', onClick: function($noty) {
+                    $noty.close();
+                    }
+        }
+            ],
+                type: 'confirm',
+                killer:true,
+                layout: 'topCenter',
+                theme: 'relax',
+                animation: {
+                    open: 'animated pulse', // Animate.css class names
+                    close: 'animated flipOutX', // Animate.css class names
+                    easing: 'swing', // unavailable - no need
+                    speed: 500 // unavailable - no need
+                }
+            });
+        
     }
 
 </script>
