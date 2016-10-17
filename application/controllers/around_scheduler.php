@@ -123,5 +123,35 @@ class Around_scheduler extends CI_Controller {
         log_message ('info', __METHOD__ . '=> Exiting...');
     }
 
+    /**
+     * @desc: This is used to send SMS to customers for whom Geyser delivery was scheduled for today 
+     * and yesterday to inform them about free installation when they give a missed call.
+     */
+    function send_reminder_installation_sms_geyser_in_delhi() {
+        log_message ('info', __METHOD__ . '=> Entering...');
+        
+        //Get all queries where SMS needs to be sent
+	$data1 = $this->around_scheduler_model->get_reminder_installation_sms_data_geyser_delhi();
+        
+        //Send SMS to only customers where Vendor is Available
+	$sms['tag'] = "sd_edd_missed_call_reminder";
+        
+	foreach ($data1 as $value) {
+            $sms['phone_no'] = $value->booking_primary_contact_no;
+
+            //Ordering of SMS data is important, check SMS template before changing it
+            $sms['smsData']['message'] = "Free";
+            $sms['smsData']['service'] = "Geyser";
+
+            $sms['booking_id'] = $value->booking_id;
+            $sms['type'] = "user";
+            $sms['type_id'] = $value->user_id;
+
+            $this->notify->send_sms($sms);                
+	}
+        
+        log_message ('info', __METHOD__ . '=> Exiting...');
+    }
+
 
 }
