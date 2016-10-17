@@ -99,4 +99,25 @@ class Around_scheduler_model extends CI_Model {
         
     	return  $query->result();
     }
+
+    
+    function get_reminder_installation_sms_data_geyser_delhi() {
+        //Filter using booking_date instead of EDD
+        $sql = "SELECT booking_details.* from booking_details 
+                WHERE partner_source IN ('Snapdeal-shipped-excel', 'Snapdeal-delivered-excel' )
+                AND booking_date IN (
+                    DATE_FORMAT( CURDATE() - INTERVAL 1 DAY,  '%d-%m-%Y' ),
+                    DATE_FORMAT( CURDATE(),  '%d-%m-%Y' ),
+                    ''
+                )
+                AND current_status = 'FollowUp' AND internal_status != 'Missed_call_confirmed'
+                AND service_id=32 and booking_pincode regexp '^11';";
+        
+	$query = $this->db->query($sql);
+        
+        log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
+        
+    	return  $query->result();
+    }
+    
 }

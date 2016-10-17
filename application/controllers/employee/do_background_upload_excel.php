@@ -441,7 +441,7 @@ class Do_background_upload_excel extends CI_Controller {
                         $date_diff1 = date_diff($current_date, $old_delivery_date);
                         $date_diff2 = date_diff($current_date, $new_delivery_date);
                         
-                        if ($date_diff1 > 4 && $date_diff2 < 4) {
+                        if ($date_diff1->days > 4 && $date_diff2->days < 4) {
                             $vendors2 = $this->vendor_model->check_vendor_availability($partner_booking['booking_pincode'], $partner_booking['service_id']);
 
                             //Send SMS to customer as well, check whether vendor is available or not
