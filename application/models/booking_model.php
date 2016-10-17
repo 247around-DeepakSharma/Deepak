@@ -1030,6 +1030,10 @@ class Booking_model extends CI_Model {
 
         if ($booking_id != "") {
             $where .= "AND `bd`.`booking_id` = '$booking_id' AND `bd`.current_status='$status'  ";
+            if($start == 'All') {
+                $get_field = " Count(bd.booking_id) as count ";
+            }
+            
         } else {
             if ($start != 'All') {
                 
@@ -1040,7 +1044,8 @@ class Booking_model extends CI_Model {
 
                 $get_field = " Count(bd.booking_id) as count ";
             }
-        }
+        } 
+       
         if($p_av == PINCODE_AVAILABLE ){
             $is_exist = ' EXISTS ';
             
@@ -1050,8 +1055,10 @@ class Booking_model extends CI_Model {
             $is_exist = '';
             
         }
+       
         // If request for FollowUp then check Vendor Available or Not
-        if($status != "Cancelled" || $p_av != PINCODE_ALL_AVAILABLE){
+        if($status != "Cancelled"){
+            if($p_av != PINCODE_ALL_AVAILABLE){
             $check_vendor_status = " AND $is_exist 
                 (SELECT 1
                 FROM (`vendor_pincode_mapping`) 
@@ -1060,7 +1067,9 @@ class Booking_model extends CI_Model {
                 AND `vendor_pincode_mapping`.`Pincode` = bd.booking_pincode 
                 AND `vendor_pincode_mapping`.`active` = '1' 
                 AND `service_centres`.`active` = '1')  ";
+            }
         }
+        
        
         $sql = "SELECT $get_field
             from booking_details as bd
@@ -1080,7 +1089,15 @@ class Booking_model extends CI_Model {
         $query = $this->db->query($sql);
         log_message('info', __METHOD__ . "=> " . $this->db->last_query());
         
-        return $query->result();
+        if($status == "FollowUp" && ($p_av == PINCODE_ALL_AVAILABLE) && !empty($booking_id) && $start !="All"){
+            $temp = $query->result();
+            $data = $this->searchPincodeAvailable($temp, $p_av);
+            return $data;
+            
+        }else {
+            return $query->result();
+        }
+        
 
     }
 
@@ -1091,7 +1108,9 @@ class Booking_model extends CI_Model {
      * @return : Array
      */
     function searchPincodeAvailable($temp, $pv) {
+       
         foreach ($temp as $key => $value) {
+             
             $this->db->distinct();
             $this->db->select('count(Vendor_ID) as count');
             $this->db->where('vendor_pincode_mapping.Appliance_ID', $value->service_id);
