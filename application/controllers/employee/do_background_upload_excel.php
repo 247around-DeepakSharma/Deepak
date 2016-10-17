@@ -403,7 +403,7 @@ class Do_background_upload_excel extends CI_Controller {
                     if (($value['Delivery_Date'] != '(null)') && ($status == 'FollowUp')) {
 
                         $dateObj = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
-                        $current_date = date('Y-m-d');
+                         $current_date = date_create(date('Y-m-d'));
 
                         if ($file_type == "shipped" && $partner_booking['estimated_delivery_date'] !== "0000-00-00 00:00:00") {
                             $old_delivery_date = date_create(date('Y-m-d', strtotime($partner_booking['estimated_delivery_date'])));
