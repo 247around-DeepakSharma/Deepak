@@ -2,6 +2,8 @@
     .ui-jqgrid {font-size:120%;}
     .ui-jqgrid tr.jqgrow td {font-size:120%;}
     ui-grid{ width:100% !important; }
+    #delmodlist{margin-left:30% !important;margin-top:15% !important;}
+    #editmodlist{margin-left:30% !important;margin-top:2% !important;}
 </style>
 <div class="container-fluid">
     <div class="container">
@@ -20,8 +22,8 @@
             datatype: "json", //supported formats XML, JSON or Arrray
             colNames: ['Tag', 'Template', 'Comments', 'Active'], //Grid column headings
             colModel: [
-                {name: 'tag', index: 'tag',edittype: "text", width: 150, align: "left", editable: true},
-                {name: 'template', index: 'template',edittype: "textarea", width: 450, align: "left", editable: true},
+                {name: 'tag', index: 'tag',edittype: "text", width: 150, align: "left", editable: true, editrules:{required:true}},
+                {name: 'template', index: 'template',edittype: "textarea", width: 450, align: "left", editable: true, editrules:{required:true}},
                 {name: 'comments', index: 'comments',edittype: "textarea", width: 200, align: "left", editable: true},
                 {name: 'active', index: 'active',edittype: "checkbox", width: 50, align: "center", editable: true},
             ],

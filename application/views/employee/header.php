@@ -35,7 +35,7 @@
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
         <!-- Loading Noty script library -->
         <script type="text/javascript" src="<?php echo base_url()?>js/plugins/noty/packaged/jquery.noty.packaged.min.js"></script>
-         
+
     </head>
     <body>
         <div id="wrapper">
@@ -169,6 +169,10 @@
                         <li>
                             <a href="<?php echo base_url() ?>employee/vendor/process_vendor_pincode_delete_form"><i class="fa fa-fw fa-desktop "></i> <strong>Delete Vendor Pincode Mapping</strong></a>
                         </li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/vendor/get_sms_template_editable_grid" ><i class="fa fa-fw fa-desktop"></i> <strong> SMS Template Grid</strong></a>
+                        </li>
+                        <li class="divider"></li>
 <!--
                         <li class="divider"></li>
                         <li>
