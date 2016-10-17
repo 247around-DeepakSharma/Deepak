@@ -1072,3 +1072,5 @@ INSERT INTO `query_report` (`id`, `description`, `query`, `active`, `create_date
 (2, 'Count completed booking this month.', 'SELECT COUNT(id) as count from booking_details where current_status=''Completed'' AND MONTH(closed_date) = MONTH(CURDATE())', 1, '2016-10-10 05:41:56'),
 (3, 'Count completed booking this month.', 'SELECT COUNT(id) as count from booking_details where current_status=''Completed'' AND MONTH(closed_date) = MONTH(CURDATE())', 1, '2016-10-10 05:41:56');
 
+-- Abhay 15OCT
+ALTER TABLE `sms_sent_details` ADD `sms_tag` VARCHAR(50) NULL AFTER `booking_id`;

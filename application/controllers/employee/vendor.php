@@ -173,7 +173,7 @@ class vendor extends CI_Controller {
         //For saving SMS to the database on sucess
         if(isset($sms_details['info']) && $sms_details['info'] == '200'){
                 $this->notify->add_sms_sent_details($id, 'vendor' , $phone_number,
-                    $smsBody, '');
+                    $smsBody, '','new_vendor_creation' );
     }
 
     }
@@ -326,10 +326,13 @@ class vendor extends CI_Controller {
     }
 
     /**
-     *  @desc : Function to assign vendors for pending bookings in background process,
-     *  it send a Post server request.
-     *
-     * We can select vendors available corresponding to each booking present and can assign that particular booking to vendor.
+     *  @desc : Function to assign vendors for pending bookings.
+     * 
+     * It is called via AJAX, SFs are assigned and entries in SF booking action table are created immediately in
+     * this function itself.
+     * 
+     * Post that, an async request is fired which sends SMS to customers and SFs and creates/emails Job cards
+     * for SFs.
      *
      *  @param : void
      *  @return : load pending booking view
@@ -351,33 +354,36 @@ class vendor extends CI_Controller {
                     $sc_data['internal_status'] = "Pending";
                     $sc_data['service_center_id'] = $service_center_id;
                     $sc_data['booking_id'] = $booking_id;
+                    
                     // Unit Details Data
                     $where = array('booking_id' => $booking_id);
                     $unit_details = $this->booking_model->get_unit_details($where);
+                    
                     foreach ($unit_details as $value) {
-
                         $sc_data['unit_details_id'] = $value['id'];
                         $sc_id = $this->vendor_model->insert_service_center_action($sc_data);
-                        if ($sc_id) {
-                            
-                        } else {
-                            log_message('info', __METHOD__ . "=> Data is not inserted into service center action table booking_id: " . $booking_id . " data: " . print_r($data, true));
+                        
+                        if (!$sc_id) {    
+                            log_message('info', __METHOD__ . "=> Data is not inserted into service center "
+                                    . "action table booking_id: " . $booking_id . ", data: " . print_r($sc_data, true));
                         }
                     }
+                    
                     // Insert log into booking state change
-                    $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Ceneter Id: " . $service_center_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                    $this->notify->insert_state_change($booking_id, 
+                            ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Ceneter Id: " . $service_center_id, 
+                            $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
 
-                    // Delete Previous Assigned vendor data from service center action table
-                    //$this->vendor_model->delete_previous_service_center_action($booking_id);
                     $count++;
                 }
             }
         }
 
+        //Send mail and SMS to SF in background
         $async_data['booking_id'] = $service_center;
         $this->asynchronous_lib->do_background_process($url, $async_data);
 
-        echo " Request Assgin Booking: " . count($service_center) . "  Assigned Booking: " . $count;
+        echo " Request to Assign Bookings: " . count($service_center) . ", Actual Assigned Bookings: " . $count;
 
         //redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
@@ -432,7 +438,9 @@ class vendor extends CI_Controller {
                 $this->vendor_model->insert_service_center_action($data);
             }
 
-            $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, "Re-Service Ceneter Id: ".$service_center_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+            $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, 
+                    "Re-Assigned SF ID: " . $service_center_id, $this->session->userdata('id'), 
+                    $this->session->userdata('employee_id'), _247AROUND);
 
             //Setting mail to vendor flag to 0, once booking is re-assigned
             $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
@@ -698,18 +706,18 @@ class vendor extends CI_Controller {
 
             $smsBody = $this->replaceSms_body($escalation_policy[0]['sms_body'], $booking_id, $userDetails);
 
-            $sms_details = $this->notify->sendTransactionalSms($contact[0]['primary_contact_phone_1'], $smsBody);
+            $sms_details1 = $this->notify->sendTransactionalSms($contact[0]['primary_contact_phone_1'], $smsBody);
             //For saving SMS to the database on sucess
-            if(isset($sms_details['info']) && $sms_details['info'] == '200'){
+            if(isset($sms_details1['info']) && $sms_details1['info'] == '200'){
                 $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['primary_contact_phone_1'],
-                    $smsBody, $booking_id);
+                    $smsBody, $booking_id, "Escalation");
             }
 
             $sms_details = $this->notify->sendTransactionalSms($contact[0]['owner_phone_1'], $smsBody);
             //For saving SMS to the database on sucess
             if(isset($sms_details['info']) && $sms_details['info'] == '200'){
                 $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['owner_phone_1'],
-                    $smsBody, $booking_id);
+                    $smsBody, $booking_id,"Escalation");
             }
         } else if ($escalation_policy[0]['sms_to_owner'] == 0 && $escalation_policy[0]['sms_to_poc'] == 1) {
 
@@ -719,7 +727,7 @@ class vendor extends CI_Controller {
             //For saving SMS to the database on sucess
             if(isset($sms_details['info']) && $sms_details['info'] == '200'){
                 $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['primary_contact_phone_1'],
-                    $smsBody, $booking_id);
+                    $smsBody, $booking_id, "Escalation");
             }
         } else if ($escalation_policy[0]['sms_to_owner'] == 1 && $escalation_policy[0]['sms_to_poc'] == 0) {
 
@@ -729,7 +737,7 @@ class vendor extends CI_Controller {
             //For saving SMS to the database on sucess
             if(isset($sms_details['info']) && $sms_details['info'] == '200'){
                 $this->notify->add_sms_sent_details($id, 'vendor' , $contact[0]['owner_phone_1'],
-                    $smsBody, $booking_id);
+                    $smsBody, $booking_id, "Escalation");
         }
             
     }
@@ -1805,19 +1813,18 @@ class vendor extends CI_Controller {
     }
     
     /**
-     * @desc: This function is used to show report queries
+     * @desc: This function is used to show misc counts for 247around
      * params: void
      * return: view
      * 
      */
-    function get_report_query(){
+    function show_around_dashboard(){
         //Initializing array data for where and select clause
-        $data = [];
-        $data_report['query'] = $this->vendor_model->get_active_query_report($data);
-        $data_report['data'] = $this->vendor_model->execute_query($data_report['query']);
+        $data_report['query'] = $this->vendor_model->get_around_dashboard_queries();
+        $data_report['data'] = $this->vendor_model->execute_around_dashboard_query($data_report['query']);
         
         $this->load->view('employee/header');
-        $this->load->view('employee/query_report',$data_report);
+        $this->load->view('employee/247around_dashboard', $data_report);
     }
     
     /**
@@ -1827,7 +1834,6 @@ class vendor extends CI_Controller {
      * 
      */
     function get_sms_template_editable_grid(){
-
         $this->load->view('employee/header');
         $this->load->view('employee/sms_template_editable_grid');
         

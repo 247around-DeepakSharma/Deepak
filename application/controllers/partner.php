@@ -180,14 +180,17 @@ class Partner extends CI_Controller {
 
                         //Add partner code from sources table
 			//All partners should have a valid partner code in the bookings_sources table
-			//Wybor brand should be tagged to Partner Wybor only if the
-			//state is Tamilnadu (pincode starts from 6). Else it would be
-			//tagged to Snapdeal.
+                        //Wybor brand should be tagged to Partner Wybor only if the
+                        //States are:
+                        // - Tamilnadu (pincode starts from 6).
+                        // - AP / Telangana (pincode starts from 5)
+                        // (Karnataka also starts from 5, we will leave that as of now)
 			//Ray brand should be tagged to Ray.
 			//All other brands would go to the original partner.
 			switch ($requestData['brand']) {
 			    case 'Wybor':
-				if (substr($requestData['pincode'], 0, 1) == "6") {
+				if ((substr($requestData['pincode'], 0, 1) == "5") || 
+                                        (substr($requestData['pincode'], 0, 1) == "6")) {
 				    $booking['partner_id'] = '247010';
 				    $booking['source'] = "SY";
 				} else {
@@ -1557,7 +1560,7 @@ class Partner extends CI_Controller {
             //For saving SMS to the database on sucess
             if(isset($sms_details['info']) && $sms_details['info'] == '200'){
                 $this->notify->add_sms_sent_details($user_id, 'partner' , $booking['booking_primary_contact_no'],
-                    $smsBody, $booking['booking_id']);
+                    $smsBody, $booking['booking_id'], "partner_added_new_booking");
             }
 
             $this->notify->insert_state_change($booking['booking_id'], _247AROUND_PENDING , _247AROUND_NEW_BOOKING , 

@@ -3,12 +3,12 @@
 </style>
 <div class="container-fluid">
     <div class="container">
-        <h2>Report Query</h2><br>
+        <h2>247around Dashboard</h2><br>
 
         <table class="table">
             <thead>
                 <tr class="info">
-                    <th>Query</th>
+                    <th>Description</th>
                     <th>Count</th>
 
                 </tr>
@@ -21,7 +21,7 @@
                         </td>
                         <td><?php echo $data[$key][0]['count'] ?> </td>
 
-                    </tr>  
+                    </tr>
                 <?php } ?>
 
 

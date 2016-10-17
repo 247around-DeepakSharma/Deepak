@@ -153,13 +153,16 @@ class bookings_excel extends CI_Controller {
 	    }
 
 	    //Wybor brand should be tagged to Partner Wybor only if the
-	    //state is Tamilnadu (pincode starts from 6). Else it would be
-	    //tagged to Snapdeal.
+	    //States are:
+            // - Tamilnadu (pincode starts from 6).
+            // - AP / Telangana (pincode starts from 5)
+            // (Karnataka also starts from 5, we will leave that as of now)
 	    //Ray brand should be tagged to Ray.
 	    //All other brands would go to Snapdeal.
 	    switch ($rowData[0]['Brand']) {
 		case 'Wybor':
-		    if (substr($rowData[0]['Pincode'], 0, 1) == "6") {
+		    if ((substr($rowData[0]['Pincode'], 0, 1) == "5") || 
+                            (substr($rowData[0]['Pincode'], 0, 1) == "6")) {
 			$booking['partner_id'] = '247010';
 			$booking['source'] = "SY";
 		    } else {
@@ -429,7 +432,8 @@ class bookings_excel extends CI_Controller {
 	    //All other brands would go to Snapdeal.
 	    switch ($rowData[0]['Brand']) {
 		case 'Wybor':
-		    if (substr($rowData[0]['Pincode'], 0, 1) == "6") {
+		    if ((substr($rowData[0]['Pincode'], 0, 1) == "5") || 
+                            (substr($rowData[0]['Pincode'], 0, 1) == "6")) {
 			$booking['partner_id'] = '247010';
 			$booking['source'] = "SY";
 		    } else {
@@ -835,7 +839,8 @@ class bookings_excel extends CI_Controller {
 		//All other brands would go to Paytm.
 		switch ($rowData[0]['Brand']) {
 		    case 'Wybor':
-			if (substr($rowData[0]['Pincode'], 0, 1) == "6") {
+			if ((substr($rowData[0]['Pincode'], 0, 1) == "5") ||
+                                (substr($rowData[0]['Pincode'], 0, 1) == "6")) {
 			    $booking['partner_id'] = '247010';
 			    $booking['source'] = "SY";
 			} else {

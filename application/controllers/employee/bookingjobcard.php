@@ -318,7 +318,7 @@ class bookingjobcard extends CI_Controller {
             //For saving SMS to the database on sucess
             if(isset($sms_details['info']) && $sms_details['info'] == '200'){
                 $this->notify->add_sms_sent_details($user_id, 'vendor' , $getbooking[0]['primary_contact_phone_1'],
-                    $smsBody, $getbooking[0]['booking_id']);
+                    $smsBody, $getbooking[0]['booking_id'],"booking_details_to_sf");
             }
             
 	    //Save email in database

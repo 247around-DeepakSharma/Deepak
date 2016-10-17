@@ -34,8 +34,8 @@ class BookingSummary extends CI_Controller {
         echo "B = " . $b . PHP_EOL;
     }
 
-    public function get_pending_bookings() {
-        //log_message('info', __FUNCTION__);
+    public function get_pending_bookings($mail_flag) {
+        log_message('info', __FUNCTION__ . ' => Entering, Mail flag: ' . $mail_flag);
 
         $template = 'BookingSummary_Template-v7.xls';
         //set absolute path to directory with template files
@@ -86,8 +86,10 @@ class BookingSummary extends CI_Controller {
             );
 
             //Get populated XLS with data
-            $output_file = "BookingSummary-" . date('d-M-Y') . ".xls";
+            $output_file = "/tmp/BookingSummary-" . date('d-M-Y') . ".xls";
             $R->render('excel2003', $output_file);
+            
+            if($mail_flag){
 
             //log_message('info', "Report generated with $count records");
             //Send report via email
@@ -95,14 +97,14 @@ class BookingSummary extends CI_Controller {
             $this->email->to("nits@247around.com, anuj@247around.com, booking@247around.com, sales@247around.com, suresh@247around.com");
             //$this->email->to("anuj.aggarwal@gmail.com");
 
-            $this->email->subject("Booking Summary: " . date('Y-m-d'));
+            $this->email->subject("Booking Summary: " . date('Y-m-d H:i:s'));
             $this->email->message("Bookings pending as of today: " . $count . "<br/>");
             $this->email->attach($output_file, 'attachment');
 
             if ($this->email->send()) {
-                //log_message('info', __METHOD__ . ": Mail sent successfully");
+                log_message('info', __METHOD__ . ": Mail sent successfully");
             } else {
-                log_message('error', __METHOD__ . ": Mail could not be sent");
+                log_message('info', __METHOD__ . ": Mail could not be sent");
             }
 
             //Upload Excel to AWS
@@ -112,8 +114,22 @@ class BookingSummary extends CI_Controller {
 
             //Delete this file
             exec("rm -rf " . $output_file);
+            } else {
+                if (file_exists($output_file)) {
+                    header('Content-Description: File Transfer');
+                    header('Content-Type: application/octet-stream');
+                    header('Content-Disposition: attachment; filename="'.basename($output_file).'"');
+                    header('Expires: 0');
+                    header('Cache-Control: must-revalidate');
+                    header('Pragma: public');
+                    header('Content-Length: ' . filesize($output_file));
+                    readfile($output_file);
+                    exit;
+                }
+            }
         }
 
+        log_message('info', __FUNCTION__ . ' => Exiting');
         exit(0);
     }
 
@@ -777,7 +793,9 @@ EOD;
      * 
      */
 
-    function booking_report_by_service_center() {
+    function booking_report_by_service_center($mail_to_be_sent) {
+        log_message('info', __FUNCTION__ . " => Entering, Mail Required: " . $mail_to_be_sent);
+        
         $data = $this->reporting_utils->get_booking_by_service_center();
         //Generating HTML for the email
         $html = '
@@ -966,10 +984,21 @@ EOD;
                         </div>';
         $html .= '</body>
                     </html>';
+        if ($mail_to_be_sent) {
+                $to = "anuj@247around.com, nits@247around.com";
+                $subject = "SF Bookings Summary Report - " . date("d-M-Y");
+                $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $html, "");
 
-        $to = "anuj@247around.com, nits@247around.com";
-        $this->notify->sendEmail("booking@247around.com", $to, "", "", "Service Center Report", $html, "");
-        log_message('info', __FUNCTION__ . 'Service Center Report mail sent.');
+                log_message('info', __FUNCTION__ . " => " . $subject . " Mailed");
+            } else {
+                $data['html'] = $html;
+
+                //$this->load->view('employee/header');
+                $this->load->view('employee/sd_booking_summary_report', $data);
+            }
+
+            log_message('info', __FUNCTION__ . " => Exiting");
     }
+
 
 }

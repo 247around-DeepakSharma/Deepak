@@ -877,7 +877,9 @@ class vendor_model extends CI_Model {
      */
     function insert_service_center_action($data) {
         $this->db->insert('service_center_booking_action', $data);
+        
         log_message('info', __METHOD__ . "=> Insert Service center Action table SQL: " . $this->db->last_query() );
+        
         $assign_sc_id = $this->db->insert_id();
          
         return $assign_sc_id;
@@ -1137,35 +1139,28 @@ class vendor_model extends CI_Model {
     }
     
     /**
-     * @desc: This is used get query report data
-     * params: Array consists of  
-     *        select, where values 
-     * return: void
+     * @desc: This is used to get all active queries which need to be executed
+     * 
+     * return: Array of Active queries
      */
-    function get_active_query_report($data){
-        if(!isset($data['select'])){
-            $data['select'] = '*';
-        }
-        $this->db->select($data['select']);
-        if(isset($data['where'])){
-            $this->db->where($data['where']);
-        }
-        $this->db->where('active',1);
+    function get_around_dashboard_queries(){
+        $this->db->where('active',1);        
         $query = $this->db->get('query_report');
+        
         return $query->result_array();
     }
     
     /**
      * @desc: This function is used to execute query form query report
      * params: STRING query
-     * return : ARRAY query result
+     * return : ARRAY containing counts for different queries
      */
-    function execute_query($query){
-        
+    function execute_around_dashboard_query($query){
         foreach($query as $key=>$value){
             $query = $this->db->query($value['query']);
             $count[$key] = $query->result_array();
         }
+        
         return $count;
     }
     
