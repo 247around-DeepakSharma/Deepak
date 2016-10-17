@@ -128,9 +128,17 @@ class Do_background_upload_excel extends CI_Controller {
 	    //  Read a row of data into an array
 	    $rowData_array = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
             
-            if ($rowData_array[0]['Phone'] == "") {
+            //Check if phone no is blank
+            //Not working hence commented
+            /*
+            if ($rowData_array[0][11] == "") {
+                log_message('info', __FUNCTION__ . "=> Phone: " . $rowData_array[0]['Phone']);
+                log_message('info', __FUNCTION__ . "=> Row data array: " . print_r($rowData_array, TRUE));
+                log_message('info', __FUNCTION__ . "=> Row count: " . $row);
+                
                 break;
             }
+             */
             
 	    $rowData = array_combine($headings_new[0], $rowData_array[0]);
 	    array_push($data, $rowData);
@@ -410,11 +418,11 @@ class Do_background_upload_excel extends CI_Controller {
                         //Check diff between new and old dates and update if diff > 0
                         if ($date_diff->days > 0) {
                             if ($file_type == "shipped") {
-                                $update_data['estimated_delivery_date'] = $new_delivery_date;
+                                $update_data['estimated_delivery_date'] = $new_delivery_date->date;
                             } else {
                                 //Clear the booking date so that it starts reflecting on our panel & update booking.
                                 //This should be done only if the booking has not been updated in the meanwhile.
-                                $update_data['delivery_date'] = $new_delivery_date;
+                                $update_data['delivery_date'] = $new_delivery_date->date;
                                 
                                 $update_data['booking_date'] = '';
                                 $update_data['booking_timeslot'] = '';
@@ -448,6 +456,7 @@ class Do_background_upload_excel extends CI_Controller {
                     }
                 }
             }
+            
         }
         
 	$row_data['error']['total_booking_inserted'] = $count_booking_inserted;
@@ -457,7 +466,7 @@ class Do_background_upload_excel extends CI_Controller {
 	    $this->get_invalid_data($row_data['error'], $file_type, $file_name);
 	}
 
-        log_message('info', __FUNCTION__ . "=> Exiting now...");
+        log_message('info', __FUNCTION__ . " => Exiting now...");
 
     }
 
@@ -803,9 +812,7 @@ class Do_background_upload_excel extends CI_Controller {
      * @param string $filetype
      */
     function get_invalid_data($invalid_data_with_reason, $filetype, $file_name) {
-
-	$to = "anuj@247around.com, nits@247around.com, sales@247around.com";
-	//$to = "abhaya@247around.com";
+	$to = "anuj@247around.com";
 	$from = "booking@247around.com";
 	$cc = "";
 	$bcc = "";
