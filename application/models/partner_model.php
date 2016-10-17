@@ -294,7 +294,11 @@ class Partner_model extends CI_Model {
       * @param: Booking Status(Cancelled or Completed)
       * @return: Array()
       */
-     function getclosed_booking($partner_id, $status){
+      function getclosed_booking($limit, $start, $partner_id, $status){
+        if($limit!="count"){
+            $this->db->limit($limit, $start);
+        }
+
         $this->db->select('booking_details.booking_id, users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.closing_remarks, booking_details.booking_timeslot, booking_details.city, booking_details.cancellation_reason, booking_details.order_id');
         $this->db->from('booking_details');
         $this->db->join('services','services.id = booking_details.service_id');
@@ -304,6 +308,11 @@ class Partner_model extends CI_Model {
         $query = $this->db->get();
 
         $result = $query->result_array();
+
+        if($limit == "count"){
+
+            return count($result);
+        }
         return $result;
     }
 

@@ -1,3 +1,4 @@
+<?php if($this->uri->segment(4)){ $count =  $this->uri->segment(4) +1; } else{ $count = 1;} ?>
 <div class="container-fluid">
     <div class="row" style="margin-top: 40px;">
         <div class="col-md-12">
@@ -26,7 +27,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php $count = 1; ?>
+                                
                                     <?php foreach($bookings as $key =>$row){?>
                                         <tr>
                                             <td>
