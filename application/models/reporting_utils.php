@@ -946,13 +946,13 @@ class Reporting_utils extends CI_Model {
         $data_greater_than_5_days = $this->db->query($sql_greater_than_5_days)->result_array();
 
         //Setting $result array with all values
-        $result['yesterday_booked'] = $data_yesterday['booked'];
-        $result['yesterday_completed'] = $data_yesterday['completed'];
-        $result['yesterday_cancelled'] = $data_yesterday['cancelled'];
-        $result['month_completed'] = $data_month['completed'];
-        $result['month_cancelled'] = $data_month['cancelled'];
-        $result['last_3_day'] = $data_last_3_day;
-        $result['greater_than_5_days'] = $data_greater_than_5_days;
+        $result['yesterday_booked'] = $this->remove_no_state_error($data_yesterday['booked'],'booked');
+        $result['yesterday_completed'] = $this->remove_no_state_error($data_yesterday['completed'],'completed');
+        $result['yesterday_cancelled'] = $this->remove_no_state_error($data_yesterday['cancelled'],'cancelled');
+        $result['month_completed'] = $this->remove_no_state_error($data_month['completed'],'completed');
+        $result['month_cancelled'] = $this->remove_no_state_error($data_month['cancelled'],'cancelled');
+        $result['last_3_day'] = $this->remove_no_state_error($data_last_3_day,'booked');
+        $result['greater_than_5_days'] = $this->remove_no_state_error($data_greater_than_5_days,'booked');
         
         //Genearting Final Array 
         return $this->make_final_array($result);
@@ -1071,6 +1071,51 @@ class Reporting_utils extends CI_Model {
             }
         }
         return $final_data;
+    }
+    
+    /**
+     * @desc: This function is used to removed err in bookings with No state
+     * params: Array, status like completed, cancelled, pending etc
+     *  return: Array
+     */
+    private function remove_no_state_error($data, $status) {
+        //For removing No State present err
+        $array_final = [];
+        $delete_key = [];
+        foreach ($data as $key => $value) {
+            if ($value['state'] == '') {
+                foreach ($data as $k => $v) {
+                    if ($k != $key) {
+                        if ($value['service_center_id'] == $v['service_center_id']) {
+                            $array_final_intermediate = [];
+                            $array_final_intermediate[$status] = $v[$status] + $value[$status];
+                            $array_final_intermediate['service_center_name'] = $v['service_center_name'];
+                            $array_final_intermediate['state'] = $v['state'];
+                            $array_final_intermediate['city'] = $v['city'];
+                            $array_final_intermediate['service_center_id'] = $v['service_center_id'];
+                            $array_final[] = $array_final_intermediate;
+                            
+                            //Making delete array key for dublicate values
+                            $delete_key[] = $k;
+                        }
+                    }
+                }
+            } else {
+                $array_final[] = $value;
+            }
+        }
+
+        //Deleting Dublicate Values of Common state
+        foreach ($delete_key as $values) {
+            if ($array_final[$values]) {
+                unset($array_final[$values]);
+            }
+        }
+
+        //Rebasing of array keys
+        $array_final = array_values($array_final);
+        
+        return $array_final;
     }
 
 }
