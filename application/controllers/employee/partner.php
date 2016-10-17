@@ -140,12 +140,11 @@ class Partner extends CI_Controller {
      * @desc: this is used to display completed booking for specific service center
      */
     function closed_booking($state, $offset = 0){
-        $this->checkUserSession();
+       $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
 
         $config['base_url'] = base_url() . 'partner/closed_booking/'.$state;
-        $total_rows = $this->partner_model->getclosed_booking($partner_id, $state);
-        $config['total_rows'] = count($total_rows);
+        $config['total_rows'] = $this->partner_model->getclosed_booking("count","",$partner_id, $state);
 
         $config['per_page'] = 50;
         $config['uri_segment'] = 4;
@@ -155,16 +154,14 @@ class Partner extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        //$data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state);
-        $data['bookings'] = array_slice($config['total_rows'], $offset, $config['per_page']);
+        $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state);
 
-        if ($this->session->flashdata('result') != '') {
+        if ($this->session->flashdata('result') != '')
             $data['success'] = $this->session->flashdata('result');
-        }
 
         $data['status'] = $state;
-        log_message('info', 'Partner view ' . $state . ' booking: Partner id: ' . $partner_id . ", Partner name: " . 
-                $this->session->userdata('partner_name'));
+
+        log_message('info', 'Partner view '.$state.' booking  partner id' . $partner_id . " Partner name" . $this->session->userdata('partner_name'). " data ". print_r($data, true));
 
         $this->load->view('partner/header');
         $this->load->view('partner/closed_booking', $data);
