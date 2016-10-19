@@ -24,6 +24,7 @@ class BookingSummary extends CI_Controller {
         $this->load->library('notify');
         $this->load->library('email');
         $this->load->library('s3');
+        $this->load->library('booking_utilities');
     }
 
     public function test($a = "a", $b = "b") {
@@ -793,7 +794,7 @@ EOD;
      */
     
     function send_service_center_report_mail(){
-        $html = booking_report_by_service_center();
+        $html = $this->booking_utilities->booking_report_by_service_center();
         $to = 'anuj@247around.com, nits@247around.com';
             
         $this->notify->sendEmail("booking@247around.com", $to, "", "", "Service Center Report", $html, "");

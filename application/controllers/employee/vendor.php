@@ -1987,7 +1987,7 @@ class vendor extends CI_Controller {
      * return: view
      */
     function show_service_center_report(){
-        $data['html'] = booking_report_by_service_center();
+        $data['html'] = $this->booking_utilities->booking_report_by_service_center();
         
         $this->load->view('employee/header');
         $this->load->view('employee/show_service_center_report',$data);
@@ -2002,7 +2002,7 @@ class vendor extends CI_Controller {
         $user =$this->session->userdata;
         $employee_details = $this->employee_model->getemployeefromid($user['id']);
         if(isset($employee_details[0]['official_mail']) && $employee_details[0]['official_mail']){
-            $html = booking_report_by_service_center();
+            $html = $this->booking_utilities->booking_report_by_service_center();
             $to = $employee_details[0]['official_mail'];
             
             $this->notify->sendEmail("booking@247around.com", $to, "", "", "Service Center Report", $html, "");
