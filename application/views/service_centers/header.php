@@ -24,6 +24,44 @@
    </head>
    <body>
       <nav class="navbar navbar-custom">
+
+            <!-- Modal -->
+            <div id="myModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">247around Contact Points:</h4>
+                        </div>
+                        <div class="modal-body">
+                            <ul>
+                                <li>Mr. Devendra – Back Office Closure Champion – Delhi Office – 8130572244 (English and Hindi)</li>
+                                <li>Mrs. Ranju - Back Office Closure – Delhi Office – 8130572244 (Bengali and Hindi)</li>
+                            </ul>
+                        </div>
+
+                        <div class="modal-header">
+                            <h4 class="modal-title">247around - Call Centre Number - 9555000247</h4>
+                        </div>
+                        <div class="modal-body">
+                            <ul>
+                                <li>Escalation South India – Mr. K Suresh – Regional Service Head South India – Based in Chennai Office – 9840492171 (English, Tamil, Malayalam, Telugu and Kannada)</li>
+                                <li>Escalation West India – Mr. Nitin Malhotra – Director & CEO – Based in Delhi Office – 9810872244 (English, Hindi and Punjabi)</li>
+                                <li>Escalation East India – Mr. Nitin Malhotra – Director & CEO – Based in Delhi Office – 9810872244 (English, Hindi and Punjabi)</li>
+                                <li>Escalation North India – Mr. Nitin Malhotra – Director & CEO – Based in Delhi Office – 9810872244 (English, Hindi and Punjabi)</li>
+                            </ul>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <!-- Modal End -->
+            
          <div class="container-fluid">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
@@ -82,6 +120,9 @@
                </ul>
                
                <ul class="nav navbar-nav navbar-right">
+                   <li>
+                       <a href="#" class="dropdown-toggle" data-toggle="modal" data-target="#myModal"><i class="fa fa-phone"></i>&nbsp;Contact Us&nbsp;</a>
+                  </li>
                   <li style="margin-top: 11px;">
                      <!-- <form class="navbar-form navbar-left" role="search">-->
                      <div class="form-group">
