@@ -1980,5 +1980,51 @@ class vendor extends CI_Controller {
                 break;
         }
     }
+    
+    /**
+     * @desc: This function is used to show Service Center Report
+     * params: void
+     * return: view
+     */
+    function show_service_center_report(){
+        $data['html'] = $this->booking_utilities->booking_report_by_service_center();
+        
+        $this->load->view('employee/header');
+        $this->load->view('employee/show_service_center_report',$data);
+    }
+    
+    /**
+     * @desc: This function is used to send Report Mail to logged user and is called using AJAX
+     * params: void
+     * return : Boolean
+     */
+    function send_report_to_mail(){
+        $user =$this->session->userdata;
+        $employee_details = $this->employee_model->getemployeefromid($user['id']);
+        if(isset($employee_details[0]['official_mail']) && $employee_details[0]['official_mail']){
+            $html = $this->booking_utilities->booking_report_by_service_center();
+            $to = $employee_details[0]['official_mail'];
+            
+            $this->notify->sendEmail("booking@247around.com", $to, "", "", "Service Center Report", $html, "");
+            log_message('info', __FUNCTION__ . ' Service Center Report mail sent to '. $to);
+            echo TRUE;
+        }else{
+            echo FALSE;
+        }
+    }
+    
+    /**
+     * @desc: This function is used to delete mail template 
+     * parmas: INT id of mail template
+     * return: Boolean
+     * 
+     */
+    function delete_mail_template($id) {
+        if ($this->booking_model->delete_mail_template_by_id($id)) {
+            echo TRUE;
+        } else {
+            echo FALSE;
+        }
+    }
 
-}
+}   

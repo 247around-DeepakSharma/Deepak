@@ -41,6 +41,7 @@
           	<th>Owner Name</th>
           	<th>Owner Phone No.</th>
           	<th>Owner Email</th>
+          	<th>Login</th>
           	<th colspan="2">Action</th>
           </tr>
 
@@ -71,6 +72,7 @@
           	</td>
           	
           	<td><?=$row['owner_email'];?></td>
+                <td><?=$row['user_name'];?> / <?=$row['user_name'];?></td>
           	<td><?php if($row['is_active']==1)
                 {
                   echo "<a id='edit' class='btn btn-small btn-primary' "

@@ -575,10 +575,13 @@ class Partner_model extends CI_Model {
 
         if ($partner_id != "") {
             $where .= "where id= '$partner_id'";
+            $sql = "Select * from partners $where";
+        } else {
+            $where .="JOIN partner_login ON partner_login.partner_id = partners.id";
+            $sql = "Select partners.id, partners.company_name, partners.public_name, partners.address, partners.primary_contact_name,"
+                    . "partners.primary_contact_phone_1, partners.primary_contact_email, partners.owner_name,"
+                    . "partners.owner_phone_1, partners.owner_email, partners.is_active, partner_login.user_name from partners $where";
         }
-
-        $sql = "Select * from partners $where";
-
         $query = $this->db->query($sql);
 
         return $query->result_array();

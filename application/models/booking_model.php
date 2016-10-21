@@ -49,7 +49,7 @@ class Booking_model extends CI_Model {
     function addappliance($appliance_detail){
         //log_message ('info', __METHOD__ . "appliance_detail data". print_r($appliance_detail, true));
         $this->db->insert('appliance_details', $appliance_detail);
-        
+
         return $this->db->insert_id();
     }
 
@@ -90,7 +90,7 @@ class Booking_model extends CI_Model {
 
     function addbooking($booking){
 	$this->db->insert('booking_details', $booking);
-        
+
         log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
 
         return $this->db->insert_id();
@@ -210,7 +210,7 @@ class Booking_model extends CI_Model {
         if ($service_center_id != "") {
             $where .= " AND assigned_vendor_id = '" . $service_center_id . "'";
             $where .= "AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
-        } 
+        }
 
         $query = $this->db->query("Select count(*) as count from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
@@ -247,7 +247,7 @@ class Booking_model extends CI_Model {
         if ($service_center_id != "") {
             $where .= " AND assigned_vendor_id = '" . $service_center_id . "'";
             $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
-        } 
+        }
 
         $add_limit = "";
 
@@ -439,7 +439,7 @@ class Booking_model extends CI_Model {
         $this->db->where('assigned_vendor_id is NOT NULL', NULL, true);
         $this->db->where('booking_id', $booking_id);
         $query = $this->db->get('booking_details');
-        
+
         if($query->num_rows > 0){
             // NOT NUll
             $data = $this->getbooking_history($booking_id, "Join");
@@ -450,7 +450,7 @@ class Booking_model extends CI_Model {
         } else {
             //NUll
             $sql = " SELECT `services`.`services`, users.*, booking_details.* "
-               . "from booking_details, users, services " 
+               . "from booking_details, users, services "
                . "where booking_details.booking_id='$booking_id' and "
                . "booking_details.user_id = users.user_id and "
                . "services.id = booking_details.service_id  ";
@@ -665,9 +665,9 @@ class Booking_model extends CI_Model {
     function update_booking($booking_id, $data) {
         $this->db->where(array("booking_id" => $booking_id));
         $result =  $this->db->update("booking_details", $data);
-        
+
         log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
-        
+
         return $result;
     }
 
@@ -810,7 +810,7 @@ class Booking_model extends CI_Model {
         } else {
             return false;
         }
-        
+
     }
 
     /**
@@ -1000,20 +1000,20 @@ class Booking_model extends CI_Model {
     }
 
     /** get_queries
-     * 
+     *
      *  @desc : Function to get pending queries according to pagination and vendor availability.
      * It can work in different ways:
-     * 
-     * 1. Return count of pending queries 
+     *
+     * 1. Return count of pending queries
      * 2. Return data for pending queries
-     * 
+     *
      * Queries which have booking date of future are not shown. Queries with
      * empty booking dates are shown.
-     * 
+     *
      * @param : start and limit for the query
      * @param : $status - Completed or Cancelled
      * @p_av : Type of queries: Vendor Available or Vendor Not Available
-     * 
+     *
      *  @return : Count of Queries or Data for Queries
      */
     function get_queries($limit, $start, $status, $p_av, $booking_id = "") {
@@ -1023,7 +1023,7 @@ class Booking_model extends CI_Model {
         $get_field = " services.services,
             users.name as customername, users.phone_number,
             bd.* ";
-        
+
         $where .= "AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) >= 0 OR
                 bd.booking_date='') AND `bd`.current_status='$status' ";
 
@@ -1033,10 +1033,10 @@ class Booking_model extends CI_Model {
             if($start == 'All') {
                 $get_field = " Count(bd.booking_id) as count ";
             }
-            
+
         } else {
             if ($start != 'All') {
-                
+
                 $add_limit = " limit $start, $limit ";
 
 
@@ -1044,42 +1044,42 @@ class Booking_model extends CI_Model {
 
                 $get_field = " Count(bd.booking_id) as count ";
             }
-        } 
-       
+        }
+
         if($p_av == PINCODE_AVAILABLE ){
             $is_exist = ' EXISTS ';
-            
+
         } else if($p_av == PINCODE_NOT_AVAILABLE){
             $is_exist = ' NOT EXISTS ';
         } else if($p_av == PINCODE_ALL_AVAILABLE){
             $is_exist = '';
-            
+
         }
-       
+
         // If request for FollowUp then check Vendor Available or Not
         if($status != "Cancelled"){
             if($p_av != PINCODE_ALL_AVAILABLE){
-            $check_vendor_status = " AND $is_exist 
+            $check_vendor_status = " AND $is_exist
                 (SELECT 1
-                FROM (`vendor_pincode_mapping`) 
-                JOIN `service_centres` ON `service_centres`.`id` = `vendor_pincode_mapping`.`Vendor_ID` 
-                WHERE `vendor_pincode_mapping`.`Appliance_ID` = bd.service_id 
-                AND `vendor_pincode_mapping`.`Pincode` = bd.booking_pincode 
-                AND `vendor_pincode_mapping`.`active` = '1' 
+                FROM (`vendor_pincode_mapping`)
+                JOIN `service_centres` ON `service_centres`.`id` = `vendor_pincode_mapping`.`Vendor_ID`
+                WHERE `vendor_pincode_mapping`.`Appliance_ID` = bd.service_id
+                AND `vendor_pincode_mapping`.`Pincode` = bd.booking_pincode
+                AND `vendor_pincode_mapping`.`active` = '1'
                 AND `service_centres`.`active` = '1')  ";
             }
         }
-        
-       
+
+
         $sql = "SELECT $get_field
             from booking_details as bd
             JOIN  `users` ON  `users`.`user_id` =  `bd`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `bd`.`service_id`
             WHERE `bd`.booking_id LIKE '%Q-%' $where
                 $check_vendor_status
-                
+
             order by
-                CASE 
+                CASE
                 WHEN `bd`.internal_status = 'Missed_call_confirmed' THEN 'a'
 
                 WHEN  `bd`.booking_date = '' THEN 'b'
@@ -1088,16 +1088,16 @@ class Booking_model extends CI_Model {
 
         $query = $this->db->query($sql);
         log_message('info', __METHOD__ . "=> " . $this->db->last_query());
-        
+
         if($status == "FollowUp" && ($p_av == PINCODE_ALL_AVAILABLE) && !empty($booking_id) && $start !="All"){
             $temp = $query->result();
             $data = $this->searchPincodeAvailable($temp, $p_av);
             return $data;
-            
+
         }else {
             return $query->result();
         }
-        
+
 
     }
 
@@ -1108,9 +1108,9 @@ class Booking_model extends CI_Model {
      * @return : Array
      */
     function searchPincodeAvailable($temp, $pv) {
-       
+
         foreach ($temp as $key => $value) {
-             
+
             $this->db->distinct();
             $this->db->select('count(Vendor_ID) as count');
             $this->db->where('vendor_pincode_mapping.Appliance_ID', $value->service_id);
@@ -1122,7 +1122,7 @@ class Booking_model extends CI_Model {
 
             $this->db->where('service_centres.active', "1");
             $data = $this->db->get();
-           
+
             $count = $data->result_array()[0]['count'];
             if ($count > 0) {
                 if($pv == PINCODE_AVAILABLE){
@@ -1132,7 +1132,7 @@ class Booking_model extends CI_Model {
                 } else if($pv == PINCODE_ALL_AVAILABLE){
                      $temp[$key]->vendor_status = "Vendor Available";
                 }
-                
+
             } else {
                 if($pv == PINCODE_AVAILABLE){
                     unset($temp[$key]);
@@ -1141,7 +1141,7 @@ class Booking_model extends CI_Model {
                 } else if($pv == PINCODE_ALL_AVAILABLE){
                     $temp[$key]->vendor_status = "Vendor Not Available";
                 }
-                
+
             }
         }
 
@@ -1166,7 +1166,7 @@ class Booking_model extends CI_Model {
 
     function search_bookings($where, $partner_id = "") {
     // Need to get brand to send to vendor pincode mapping add form, So we will use join with booking_unit_details
-       
+
     if($partner_id !=""){
         $this->db->where('booking_details.partner_id', $partner_id);
     }
@@ -1176,25 +1176,25 @@ class Booking_model extends CI_Model {
     $this->db->from('booking_details');
     $this->db->join('users',' users.user_id = booking_details.user_id');
     $this->db->join('services', 'services.id = booking_details.service_id');
-    
+
     $this->db->like($where);
     $query =  $this->db->get();
     $temp = $query->result();
-    for ($i=0; $i < count($temp) ; $i++) { 
+    for ($i=0; $i < count($temp) ; $i++) {
        if(!empty($temp[$i]->assigned_vendor_id)){
            $this->db->select('service_centres.name as service_centre_name,
             service_centres.primary_contact_name,service_centres.primary_contact_phone_1 ');
            $this->db->where('id', $temp[$i]->assigned_vendor_id);
            $query1 = $this->db->get('service_centres');
            $result = $query1->result_array();
-        
+
            $temp[$i]->service_centre_name =  $result[0]['service_centre_name'];
            $temp[$i]->primary_contact_name = $result[0]['primary_contact_name'];
            $temp[$i]->primary_contact_phone_1 = $result[0]['primary_contact_phone_1'];
 
     }
     }
-    
+
 
     usort($temp, array($this, 'date_compare_queries'));
     if($query->num_rows>0){
@@ -1275,11 +1275,11 @@ class Booking_model extends CI_Model {
 
         $this->db->where("booking_id", $booking_id);
         $this->db->update("booking_details", $status);
-        
+
         $booking_status = array('booking_status' => '');
 	$this->db->where("booking_id", $booking_id);
 	$this->db->update("booking_unit_details", $booking_status);
-        
+
 	return true;
     }
 
@@ -1472,7 +1472,7 @@ class Booking_model extends CI_Model {
         $query = $this->db->query($sql);
         $result =  $query->result_array();
 
-        $sql1 = " SELECT rate as tax_rate from tax_rates where `tax_rates`.state = '$state' 
+        $sql1 = " SELECT rate as tax_rate from tax_rates where `tax_rates`.state = '$state'
                   AND `tax_rates`.tax_code = '".$result[0]['tax_code']."' AND  `tax_rates`.product_type = '".$result[0]['product_type']."' AND (to_date is NULL or to_date >= CURDATE() ) AND `tax_rates`.active = 1 ";
 
         $query1 = $this->db->query($sql1);
@@ -1491,7 +1491,7 @@ class Booking_model extends CI_Model {
         }
         unset($result[0]['tax_code']);
         unset($result[0]['product_type']);
-       
+
         return $result;
 
 
@@ -1535,7 +1535,7 @@ class Booking_model extends CI_Model {
 	        log_message('info', __METHOD__ . " Price tags not found " . print_r($unit_num, true));
 
 	        if(count($unit_num) >1){
-                
+
                 $this->db->insert('booking_unit_details', $result);
                 log_message('info', __METHOD__ . " Insert New Unit details SQL" . $this->db->last_query());
 
@@ -1664,7 +1664,7 @@ class Booking_model extends CI_Model {
      * @desc: update price in booking unit details
      */
     function update_unit_details($data){
-        
+
         if($data['booking_status'] == "Completed"){
             // get booking unit data on the basis of id
             $this->db->select('around_net_payable, partner_net_payable, tax_rate, price_tags, partner_paid_basic_charges, around_paid_basic_charges');
@@ -1708,11 +1708,11 @@ class Booking_model extends CI_Model {
 	$data = $this->getpricesdetails_with_tax($services_details['id'], $state);
 
     log_message('info', __METHOD__ . " Get Price with Taxes" . print_r($data, true));
-    
+
     $result = array_merge($data[0], $services_details);
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
-   
+
     log_message('info', __METHOD__ . " Insert booking_unit_details data" . print_r($result, true));
 	$this->db->insert('booking_unit_details', $result);
     $result['DEFAULT_TAX_RATE'] = $data['DEFAULT_TAX_RATE'];
@@ -1727,7 +1727,7 @@ class Booking_model extends CI_Model {
      */
     function insert_booking_state_change($details) {
         $this->db->insert('booking_state_change', $details);
-        
+
         return $this->db->insert_id();
     }
 
@@ -1783,7 +1783,7 @@ class Booking_model extends CI_Model {
         } else {
             $result = $unit_details[0];
         }
-        
+
         $result['booking_status'] = $data['booking_status'];
         $result['partner_paid_basic_charges'] = $result['partner_net_payable'];
         $result['around_paid_basic_charges'] = $result['around_net_payable'] = 0;
@@ -1823,7 +1823,7 @@ class Booking_model extends CI_Model {
 
     function get_brand($where){
         $this->db->select('*');
-        $this->db->where($where);   
+        $this->db->where($where);
         $query = $this->db->get('appliance_brands');
 
         return $query->result_array();
@@ -1843,42 +1843,42 @@ class Booking_model extends CI_Model {
      * @desc: This is used to get Booking_state_change data
      * params: String Booking ID
      * return: Array of data
-     * 
+     *
      */
     function get_booking_state_change_by_id($booking_id){
-        
+
         $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
-        $this->db->select('partners.public_name,employee.employee_id,booking_state_change.old_state,booking_state_change.new_state,booking_state_change.remarks,booking_state_change.create_date');
+        $this->db->select('bookings_sources.source,employee.employee_id,booking_state_change.old_state,booking_state_change.new_state,booking_state_change.remarks,booking_state_change.create_date');
         $this->db->like('booking_state_change.booking_id',$trimed_booking_id);
         $this->db->from('booking_state_change');
         $this->db->join('employee', 'employee.id = booking_state_change.agent_id');
-        $this->db->join('partners', 'partners.id = booking_state_change.partner_id');
+        $this->db->join('bookings_sources', 'bookings_sources.partner_id = booking_state_change.partner_id');
         $this->db->order_by('booking_state_change.id');
         $query = $this->db->get();
         return $query->result_array();
-        
+
     }
     /**
      * @desc: Get booking updation reason
      * parmas: old state, new state, reason_of
-     * return: Array 
+     * return: Array
      */
     function get_booking_updation_reason($old_state,$new_state,$reason_of){
         $this->db->select('*');
-        $this->db->where('old_state',$old_state);   
-        $this->db->where('new_state',$new_state);   
-        $this->db->where('reason_of',$reason_of);   
-        $this->db->where('active',1);   
+        $this->db->where('old_state',$old_state);
+        $this->db->where('new_state',$new_state);
+        $this->db->where('reason_of',$reason_of);
+        $this->db->where('active',1);
         $query = $this->db->get('booking_updation_reasons');
 
         return $query->result_array();
     }
-    
+
     /**
      * @desc: This is used to get daily and monthly bookings completed and reports
      * params: void
      * return: array
-     * 
+     *
      */
     function get_completed_booking_details(){
         $where_rating = "where DATE_FORMAT(closed_date,'%m') = MONTH(CURDATE()) AND (rating_stars IS NOT NULL OR rating_stars !='')" ;
@@ -1887,12 +1887,43 @@ class Booking_model extends CI_Model {
         $sql_rating = "SELECT COUNT(id) as ratings from booking_details $where_rating";
         $sql_booking = "SELECT COUNT(id) as bookings from booking_details $where_booking";
         $sql_booking_previous = "SELECT COUNT(id) as bookings from booking_details $where_booking_previous";
-                         
+
         $data['ratings'] = $this->db->query($sql_rating)->row();
         $data['bookings'] = $this->db->query($sql_booking)->row();
         $data['bookings_previous'] = $this->db->query($sql_booking_previous)->row();
         return $data;
     }
-   
     
+    /**
+     * @desc : This funtion is to get all booking details of particular booking based on booking_primary_contact_no.
+     *
+     * Finds all the booking details of particular booking of a particular user.
+     *
+     * @param : booking_primary_contact_no
+     * @return : array of booking details
+     */
+    function getbooking_by_phone($phone) {
+        $this->db->select('*');
+        $this->db->where('booking_primary_contact_no', $phone);
+        $query = $this->db->get('booking_details');
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc: This fuction is used to delete particular email template from 247around_email_template table
+     * params: Int id of the mail template
+     * return : Boolean
+     * 
+     */
+    function delete_mail_template_by_id($id) {
+        $this->db->where('id', $id);
+        $this->db->delete('247around_email_template');
+
+        if ($this->db->affected_rows() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
