@@ -1690,7 +1690,7 @@ class Booking extends CI_Controller {
         $this->notify->insert_state_change($booking_id, _247AROUND_FOLLOWUP , _247AROUND_CANCELLED ,
                 "Cancelled_Query to FollowUp", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
         
-	redirect(base_url() . 'employee/booking/view_queries/FollowUp/0/0/'.PINCODE_ALL_AVAILABLE."/" . $booking_id);
+	redirect(base_url() . 'employee/booking/view_queries/FollowUp/'.PINCODE_ALL_AVAILABLE.'/0/0/' . $booking_id);
     }
     /**
      * @desc: This is used to show Booking Life Cycle of particular Booking
