@@ -106,9 +106,10 @@ function outbound_call(phone_number){
                     <th width="100px;">City</th>
 
                     <th width="250px;">Query Remarks</th>
-                    <?php if($p_av == PINCODE_NOT_AVAILABLE || $p_av == PINCODE_ALL_AVAILABLE){ ?>
+                     <?php if($p_av == PINCODE_NOT_AVAILABLE || $p_av == PINCODE_ALL_AVAILABLE ){ ?>
+                    <?php if($status != "Cancelled"){ ?>
                     <th>Pincode</th>
-                    <?php } ?>
+                    <?php } } ?>
                     <th width="60px;">Call</th>
                     <th width="60px;">View</th>
                      <?php if($status != "Cancelled"){?>
@@ -148,11 +149,11 @@ function outbound_call(phone_number){
 
 
                     <td><?= $row->query_remarks; ?></td>
-                    <?php if($p_av == PINCODE_NOT_AVAILABLE){ ?>
+                    <?php if($p_av == PINCODE_NOT_AVAILABLE){  if($status != "Cancelled"){  ?>
                     <td><a href="javascript:void(0)" style="color: red;" onclick='form_submit("<?php echo $row->booking_id?>")'><?php print_r($row->booking_pincode); ?></a></td>
                     <?php } else if($p_av == PINCODE_ALL_AVAILABLE || isset ($tow->vendor_status)){ ?>
                     <td><?php echo $row->vendor_status; ?></td>
-                    <?php }?>
+                    <?php } }?>
 
                       <td><button type="button" onclick="outbound_call(<?php echo $row->booking_primary_contact_no; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                      </td>
