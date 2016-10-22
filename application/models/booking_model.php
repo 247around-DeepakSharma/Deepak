@@ -1509,52 +1509,57 @@ class Booking_model extends CI_Model {
         $data = $this->getpricesdetails_with_tax($services_details['id'], $state);
 
         $result = array_merge($data[0], $services_details);
-            unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
+        unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
-	    log_message('info', __METHOD__ . " update booking_unit_details data " . print_r($result, true) . " Price data with tax: " . print_r($data, true));
+        log_message('info', __METHOD__ . " update booking_unit_details data " . print_r($result, true) . " Price data with tax: " . print_r($data, true));
 
-	    $this->db->select('id');
+        $this->db->select('id');
         $this->db->where('appliance_id', $services_details['appliance_id']);
         $this->db->where('price_tags', $data[0]['price_tags']);
         $this->db->where('booking_id', $booking_id);
         $query = $this->db->get('booking_unit_details');
         log_message('info', __METHOD__ . " Get Unit Details SQl" . $this->db->last_query());
 
-        if($query->num_rows >0){
+        if ($query->num_rows > 0) {
             //if found, update this entry
-	    $unit_details = $query->result_array();
-	    log_message('info', __METHOD__ . " update booking_unit_details ID: " . print_r($unit_details[0]['id'], true));
-	        $this->db->where('id',  $unit_details[0]['id']);
+            $unit_details = $query->result_array();
+            log_message('info', __METHOD__ . " update booking_unit_details ID: " . print_r($unit_details[0]['id'], true));
+            $this->db->where('id', $unit_details[0]['id']);
             $this->db->update('booking_unit_details', $result);
-
-         } else {
-             //if not found
-            $unit_where = array('booking_id'=>$booking_id);
+        } else {
+            //trim booking only digit
+            $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
+            $unit_where = array('booking_id' => $trimed_booking_id);
             $unit_num = $this->get_unit_details($unit_where);
+            echo "abhay";
             log_message('info', __METHOD__ . " count previous unit: " . count($unit_num));
-	        log_message('info', __METHOD__ . " Price tags not found " . print_r($unit_num, true));
+            log_message('info', __METHOD__ . " Price tags not found " . print_r($unit_num, true));
+            if (empty($unit_num)) {
 
-	        if(count($unit_num) >1){
+                if (count($unit_num) > 1) {
 
-                $this->db->insert('booking_unit_details', $result);
-                log_message('info', __METHOD__ . " Insert New Unit details SQL" . $this->db->last_query());
-
-                } else {
-                //$this->db->where('booking_id',  $booking_id);
-                if(empty($unit_num[0]['price_tags'])){
-                    $this->db->where('id',  $unit_num[0]['id']);
-                    $this->db->update('booking_unit_details', $result);
-                    log_message('info', __METHOD__ . " Update Unit details SQL" . $this->db->last_query());
-
-                } else {
                     $this->db->insert('booking_unit_details', $result);
                     log_message('info', __METHOD__ . " Insert New Unit details SQL" . $this->db->last_query());
+                } else {
+                    //$this->db->where('booking_id',  $booking_id);
+                    if (empty($unit_num[0]['price_tags'])) {
+                        $this->db->where('id', $unit_num[0]['id']);
+                        $this->db->update('booking_unit_details', $result);
+                        log_message('info', __METHOD__ . " Update Unit details SQL" . $this->db->last_query());
+                    } else {
+                        $this->db->insert('booking_unit_details', $result);
+                        log_message('info', __METHOD__ . " Insert New Unit details SQL" . $this->db->last_query());
+                    }
                 }
+            } else {
+                $this->db->insert('booking_unit_details', $result);
+                log_message('info', __METHOD__ . " Insert New Unit details SQL" . $this->db->last_query());
             }
-         }
-         $return_details['price_tags'] = $data[0]['price_tags'];
-         $return_details['DEFAULT_TAX_RATE'] = $data['DEFAULT_TAX_RATE'];
-         return $return_details;
+        }
+        $return_details['price_tags'] = $data[0]['price_tags'];
+        $return_details['DEFAULT_TAX_RATE'] = $data['DEFAULT_TAX_RATE'];
+
+        return $return_details;
     }
 
     // Update Price in unit details
