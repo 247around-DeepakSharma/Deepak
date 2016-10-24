@@ -581,36 +581,54 @@ class vendor extends CI_Controller {
      *  @return : void
      */
     function process_pincode_excel_upload_form() {
-        $return = $this->partner_utilities->validate_file($_FILES);
-        if ($return == "true") {
+        $inputFileName = $_FILES['file']['tmp_name'];
+        log_message('info', __FUNCTION__ . ' => Input ZIP file: ' . $inputFileName);
+        //echo $inputFileName;
+        //log_message('info', __FUNCTION__ . ' => Original CSV file: ' . $_FILES['file']['name']);
+        
+        $newZipFileName = "/tmp/vendor_pincode_mapping_temp.zip";
+        $newCSVFileName = "vendor_pincode_mapping_temp.csv";
+        move_uploaded_file($inputFileName, $newZipFileName);
+        
+        $res = 0; 
+        system("unzip " . $newZipFileName . " " . $newCSVFileName . " -d /tmp", $res);
+        //$out = system("unzip " . $newZipFileName, $res);
+       //echo 'result=' . $res . ', output=' . $out;
+        
+        log_message('info', __FUNCTION__ . ' => New CSV file: ' . $newCSVFileName);
+        
+        $sql_commands = array();
+        array_push($sql_commands, "TRUNCATE TABLE vendor_pincode_mapping_temp;");
+        
+        $this->vendor_model->execute_query($sql_commands);
+        unset($sql_commands);
 
-            $inputFileName = $_FILES['file']['tmp_name'];
-            $details_pincode['file_name'] = "Consolidated_Pin_Code" . date('d-M-Y') . ".xlsx";
-            // move excel file in tmp folder.
-            move_uploaded_file($inputFileName, "/tmp/" . $details_pincode['file_name']);
+        $dbHost="localhost";
+        $dbUser="root";
+        $dbPass="root";
+        $dbName="boloaaka";
 
-            if (!empty($_POST['emailID'])) {
-                $this->notify->sendEmail("booking@247around.com", $_POST['emailID'], '', '', 'Pincode Changes', $_POST['notes'], "/tmp/" . $details_pincode['file_name']);
-            }
+        $csv = "/tmp/vendor_pincode_mapping_temp.csv";
+        $sql = "LOAD DATA LOCAL INFILE '$csv' INTO TABLE vendor_pincode_mapping_temp "
+               . "FIELDS TERMINATED BY ',' ENCLOSED BY '' LINES TERMINATED BY '\r\n' "
+                . "(Vendor_Name,Vendor_ID,Appliance,Appliance_ID,Brand,Area,Pincode,Region,City,State);";
 
-
-            $bucket = 'bookings-collateral';
-            $details_pincode['bucket_name'] = "vendor-pincodes";
-            $directory_xls = $details_pincode['bucket_name'] . "/" . $details_pincode['file_name'];
-
-            // Insert file name and bucket name to S3
-            $this->vendor_model->insertS3FileDetails($details_pincode);
-            // Upload excel on S3
-            $this->s3->putObjectFile(realpath("/tmp/" . $details_pincode['file_name']), $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-            // Insert Pincode Mapping data into table by using Asynchronous
-            $url = base_url() . "employee/do_background_process/upload_pincode_file";
-            $this->asynchronous_lib->do_background_process($url, array());
-
-            redirect(base_url() . DEFAULT_SEARCH_PAGE);
-	} else {
-
-            $this->get_pincode_excel_upload_form("Not valid File");
-        }
+        $res1 = 0;
+        system("mysql -u $dbUser -h $dbHost --password=$dbPass --local_infile=1 -e \"$sql\" $dbName", $res1);
+        //echo 'result=' . $res1 . ', output=' . $out1;
+       
+        $sql_commands1 = array();
+        array_push($sql_commands1, "TRUNCATE TABLE vendor_pincode_mapping;");
+        array_push($sql_commands1, "INSERT vendor_pincode_mapping SELECT * FROM vendor_pincode_mapping_temp;");
+        
+        $this->vendor_model->execute_query($sql_commands1);
+ 
+       system ("rm -rf /tmp/vendor_pincode_mapping_temp.*"); 
+       log_message('info', __FUNCTION__ . ' => All queries executed: ' . print_r($sql_commands, TRUE));
+        //log_message('info', __FUNCTION__ . ' => New pincode count: ' . $count);
+        
+        redirect(base_url() . DEFAULT_SEARCH_PAGE);
+ 
     }
 
     /**
