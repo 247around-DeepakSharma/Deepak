@@ -1207,9 +1207,9 @@ class CI_DB_driver {
         $CI->email->subject('Database Error');
         $CI->email->message($load_view);
 
-        $CI->email->send();
+       // $CI->email->send();
         //echo $CI->email->print_debugger();
-        echo $error->show_error($heading, $message, 'oops');
+        echo $error->show_error($heading, $message, 'error_db');
 		
 		exit;
 	}

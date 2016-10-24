@@ -438,7 +438,7 @@ EOD;
 	    ));
 
 	    //Get populated XLS with data
-	    $output_file = "247around-Services-Consolidated-Data - " . date('d-M-Y') . ".xlsx";
+	    $output_file = "/tmp/247around-Services-Consolidated-Data - " . date('d-M-Y') . ".xlsx";
 	    //for xlsx: excel, for xls: excel2003
 	    $R->render('excel', $output_file);
 	    //Send report via email

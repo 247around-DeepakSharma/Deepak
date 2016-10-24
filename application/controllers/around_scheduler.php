@@ -46,7 +46,7 @@ class Around_scheduler extends CI_Controller {
             $sms['type'] = "user";
             $sms['type_id'] = $value->user_id;
 
-            $this->notify->send_sms($sms);                
+            $this->notify->send_sms_acl($sms)                
             
 	}
         
@@ -81,7 +81,7 @@ class Around_scheduler extends CI_Controller {
                 $sms['type'] = "user";
                 $sms['type_id'] = $value->user_id;
 
-                $this->notify->send_sms($sms);                
+                $this->notify->send_sms_acl($sms)                
             }
 	}
         
@@ -116,7 +116,7 @@ class Around_scheduler extends CI_Controller {
                 $sms['type'] = "user";
                 $sms['type_id'] = $value->user_id;
 
-                $this->notify->send_sms($sms);                
+                $this->notify->send_sms_acl($sms)                
             }
 	}
         
@@ -147,7 +147,7 @@ class Around_scheduler extends CI_Controller {
             $sms['type'] = "user";
             $sms['type_id'] = $value->user_id;
 
-            $this->notify->send_sms($sms);                
+            $this->notify->send_sms_acl($sms)                
 	}
         
         log_message ('info', __METHOD__ . '=> Exiting...');

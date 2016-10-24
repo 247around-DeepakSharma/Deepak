@@ -83,7 +83,7 @@ class Do_background_upload_excel extends CI_Controller {
      * @param: File type - Delivered or Shipped
      */
     function upload_snapdeal_file($file_type) {
-	log_message('info', __FUNCTION__ . "=> File type: " . $file_type);
+	log_message('info', __FUNCTION__ . "=> File type: " . $file_type . ", Beginning processing...");
 
 	if (!empty($_FILES['file']['name']) && $_FILES['file']['size'] > 0) {
 	    $pathinfo = pathinfo($_FILES["file"]["name"]);
@@ -154,7 +154,11 @@ class Do_background_upload_excel extends CI_Controller {
 	$row_data = $this->validate_order_id_same_as_phone($row_data5, $file_type,$file_name);
 
 	$count_total_leads_came_today = count($data);
+	log_message('info', __FUNCTION__ . "=> File type: " . $file_type . 
+                ", Count_total_leads_came_today: " . $count_total_leads_came_today);
 	$count_booking_inserted = 0;
+	$count_booking_updated = 0;
+	$count_booking_not_updated = 0;
 
 
 	foreach ($row_data['valid_data'] as $key => $value) {
@@ -229,9 +233,12 @@ class Do_background_upload_excel extends CI_Controller {
 	    }
 
 	    $partner_booking = $this->partner_model->get_order_id_for_partner($booking['partner_id'], $value['Sub_Order_ID']);
+	    //log_message('info', print_r($partner_booking, TRUE));
 
             //Check whether order id exists or not
 	    if (is_null($partner_booking)) {
+	    	log_message('info', __FUNCTION__ . "=> File type: " . $file_type . 
+                        ", Order ID NOT found: " . $value['Sub_Order_ID']);
                 //order id not found
 		$appliance_details['user_id'] = $booking['user_id'] = $user_id;
 		$appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $value['service_id'];
@@ -286,7 +293,7 @@ class Do_background_upload_excel extends CI_Controller {
 			//Set delivered date only
 			$booking['delivery_date'] = $dateObj2->format('Y-m-d H:i:s');
 			$booking['estimated_delivery_date'] = '';
-			$booking['internal_status'] = "FollowUp";
+			$booking['internal_status'] = "Missed_call_not_confirmed";
 			$booking['query_remarks'] = 'Product Delivered, Call Customer For Booking';
 		}
 
@@ -343,7 +350,7 @@ class Do_background_upload_excel extends CI_Controller {
 
 			    //Send SMS to customers regarding delivery confirmation through missed call for delivered file only
                             //Check whether vendor is available or not
-                            if ($file_type == "delivered") {
+                            // if ($file_type == "delivered") {
                                 $vendors = $this->vendor_model->check_vendor_availability($booking['booking_pincode'], $booking['service_id']);
                                 $vendors_count = count($vendors);
 
@@ -354,9 +361,10 @@ class Do_background_upload_excel extends CI_Controller {
                                 } else { //if ($vendors_count > 0) {
                                     log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
                                 }
-                            }   //if ($file_type == "delivered") {
+                            // }   //if ($file_type == "delivered") {
 			} else {
-			    log_message('info', __FUNCTION__ . ' =>  Booking is not inserted in booking details: ' . print_r($value, true));
+			    log_message('info', __FUNCTION__ . ' => ERROR: Booking is not inserted in booking details: ' 
+                                    . print_r($value, true));
 
 			    $row_data['error'][$key]['booking_details'] = " Booking Unit Id is not inserted";
 			    $row_data['error'][$key]['invalid_data'] = $value;
@@ -380,29 +388,35 @@ class Do_background_upload_excel extends CI_Controller {
 			unset($booking);
 			unset($unit_details);
 		    } else {
-			log_message('info', __FUNCTION__ . ' =>  Appliance is not inserted: ' .
+			log_message('info', __FUNCTION__ . ' => ERROR: UNIT is not inserted: ' .
 			    print_r($value, true));
 
 			$row_data['error'][$key]['unit_details'] = " Booking Unit Id is not inserted";
 			$row_data['error'][$key]['invalid_data'] = $value;
 		    }
 		} else {
-		    log_message('info', __FUNCTION__ . ' =>  Appliance is not inserted: ' .
+		    log_message('info', __FUNCTION__ . ' => ERROR: Appliance is not inserted: ' .
 			print_r($value, true));
 
 		    $row_data['error'][$key]['appliance'] = "Appliance is not inserted";
 		    $row_data['error'][$key]['invalid_data'] = $value;
 		}
 	    } else {
+	    	log_message('info', __FUNCTION__ . "=> File type: " . $file_type . 
+                        ", Order ID found: " . $value['Sub_Order_ID']);
                 //Order ID found
                 if ($file_type == "delivered" || $file_type == "shipped") {
                     $status = $partner_booking['current_status'];
-                    $int_status = $partner_booking['internal_status'];
+                    //$int_status = $partner_booking['internal_status'];
 
                     //If the booking has already been scheduled or cancelled, leave this as it is.
                     if (($value['Delivery_Date'] != '(null)') && ($status == 'FollowUp')) {
 
+                    	log_message('info', __FUNCTION__ . ' => Partner Lead needs update');
+                    	$count_booking_updated++;
+
                         $dateObj = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
+                        log_message('info', print_r($dateObj, true));
                          $current_date = date_create(date('Y-m-d'));
 
                         if ($file_type == "shipped" && $partner_booking['estimated_delivery_date'] !== "0000-00-00 00:00:00") {
@@ -412,29 +426,46 @@ class Do_background_upload_excel extends CI_Controller {
                         }
 
                         $new_delivery_date = date_create(date('Y-m-d', strtotime($dateObj->format('Y-m-d H:i:s'))));
+                        log_message('info', print_r($new_delivery_date, true));
 
-                        $date_diff = date_diff($new_delivery_date, $old_delivery_date);
+                       // $date_diff = date_diff($new_delivery_date, $old_delivery_date);
+                        $update = false;
+
 
                         //Check diff between new and old dates and update if diff > 0
-                        if ($date_diff->days > 0) {
-                            if ($file_type == "shipped") {
-                                $update_data['estimated_delivery_date'] = $new_delivery_date->date;
-                            } else {
-                                //Clear the booking date so that it starts reflecting on our panel & update booking.
-                                //This should be done only if the booking has not been updated in the meanwhile.
-                                $update_data['delivery_date'] = $new_delivery_date->date;
 
-                                $update_data['booking_date'] = '';
-                                $update_data['booking_timeslot'] = '';
-                            }
+                        // if ($date_diff->days > 0) {
+                        //     if ($file_type == "shipped") {
+                        //         $update_data['estimated_delivery_date'] = $new_delivery_date->date;
+                        //     } else {
+                        //         $update_data['delivery_date'] = $new_delivery_date->date;
 
-                            log_message('info', __FUNCTION__ . 'Update Partned Lead: ' .
-                                    print_r(array($partner_booking['booking_id'], $update_data), true));
+                        //         $update_data['booking_date'] = '';
+                        //         $update_data['booking_timeslot'] = '';
+                        //     }
 
-                            $this->booking_model->update_booking($partner_booking['booking_id'], $update_data);
+                        //     log_message('info', __FUNCTION__ . 'Update Partned Lead: ' .
+                        //             print_r(array($partner_booking['booking_id'], $update_data), true));
 
-                            unset($update_data);
+                        //     $this->booking_model->update_booking($partner_booking['booking_id'], $update_data);
+
+                        //     unset($update_data);
+                        // }
+
+                        //Clear the booking date so that it starts reflecting on our panel & update booking.
+                        //This should be done only if the booking has not been updated in the meanwhile.
+                        if ($file_type == "delivered") {
+                            $update_data['booking_date'] = '';
+                            $update_data['booking_timeslot'] = '';
                         }
+
+                        if ($file_type == "delivered" || $update == true) {
+                             $this->booking_model->update_booking($partner_booking['booking_id'], $update_data);
+
+                           log_message('info', __FUNCTION__ . ' => Updated Partner Lead: ' . $partner_booking['booking_id']);
+                         }
+
+                         unset($update_data);
 
                         //Check both the differences, new date should fall in 3 days window and old date should
                         //be outside this window, only then send SMS to customer
@@ -442,15 +473,19 @@ class Do_background_upload_excel extends CI_Controller {
                         $date_diff2 = date_diff($current_date, $new_delivery_date);
 
                         if ($date_diff1->days > 4 && $date_diff2->days < 4) {
-                            $vendors2 = $this->vendor_model->check_vendor_availability($partner_booking['booking_pincode'], $partner_booking['service_id']);
+                        	if ($file_type == "delivered") {
+                                    log_message('info', __FUNCTION__ . ' =>  SMS needs to be sent now');
+                                    $vendors2 = $this->vendor_model->check_vendor_availability($partner_booking['booking_pincode'], $partner_booking['service_id']);
 
-                            //Send SMS to customer as well, check whether vendor is available or not
-                            if (!empty($vendors2) && ($int_status == 'Missed_call_not_confirmed')) {
-                                $this->send_sms_to_snapdeal_customer($value['appliance'],
-                                        $partner_booking['booking_primary_contact_no'],
-                                        $user_id, $partner_booking['booking_id'], $file_type);
-                            } else {
-                                log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
+                                //Send SMS to customer as well, check whether vendor is available or not
+                                //if (!empty($vendors2) && ($int_status == 'Missed_call_not_confirmed')) {
+                                if (!empty($vendors2)) {
+                                    $this->send_sms_to_snapdeal_customer($value['appliance'],
+                                            $partner_booking['booking_primary_contact_no'],
+                                            $user_id, $partner_booking['booking_id'], $file_type);
+                                } else {
+                                    log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $partner_booking['booking_id']);
+                                }
                             }
                         }
                     }
@@ -459,26 +494,35 @@ class Do_background_upload_excel extends CI_Controller {
 
         }
 
+        log_message('info', __FUNCTION__ . " => Exiting the BIG for-each, some IMP counts: " . 
+                print_r(array($count_total_leads_came_today, $count_booking_inserted, 
+                    $count_booking_updated, $count_booking_not_updated), true));
+       
+
 	$row_data['error']['total_booking_inserted'] = $count_booking_inserted;
 	$row_data['error']['total_booking_came_today'] = $count_total_leads_came_today;
 
 	if (isset($row_data['error'])) {
+		log_message('info', __FUNCTION__ . "=> File type: " . $file_type . " => Errors found, sending mail now");
 	    $this->get_invalid_data($row_data['error'], $file_type, $file_name);
-	}
-
-        log_message('info', __FUNCTION__ . " => Exiting now...");
+	} else {
+            log_message('info', __FUNCTION__ . "=> File type: " . $file_type . " => Wow, no errors found !!!");
+    }
+ 
+    log_message('info', __FUNCTION__ . "=> File type: " . $file_type . " => Exiting now...");
 
     }
 
     /**
      * @desc: This method is used to validate Phone number while upload excel file
-     * We will count of invalidate data, If count is greater or equal to five.
+     * We will count of invalid data, If count is greater or equal to five.
      * It will send Invalidate data to mail and exit from function
      * Otherwise return data with inavlidate data
      * @param: Array
      * @param: Array
      */
     function validate_phone_number($data, $filetype, $file_name) {
+        log_message('info', __FUNCTION__ . "=> Entering validation routine...");
 	$invalid_data = array();
 	$valid_data = array();
         $status = array();
@@ -487,6 +531,7 @@ class Do_background_upload_excel extends CI_Controller {
 	    if (count($invalid_data) > 4) {
 		$status['invalid_phone'] = $invalid_data;
 		$this->get_invalid_data($status, $filetype, $file_name);
+                log_message('info', __FUNCTION__ . "=> Exiting validation routine: Limit Crossed");
 
 		exit();
 	    }
@@ -501,25 +546,28 @@ class Do_background_upload_excel extends CI_Controller {
         $valid_data['valid_data'] = $data;
 	// append invalid data. size of invalid data is less than 5
 	if (!empty($invalid_data)) {
-	    log_message('info', __FUNCTION__ . ' =>  Phone Number is not valid Excel data: ' .
+	    log_message('info', __FUNCTION__ . ' =>  Phone Number is not valid in Excel data: ' .
 		print_r($invalid_data, true));
 
 	    $valid_data['error']['invalid_phone'] = $invalid_data;
 	}
+        
+        log_message('info', __FUNCTION__ . "=> Exiting validation routine: Under Control");
 
 	return $valid_data;
     }
 
     /**
      * @desc: This method is used to validate Product number while upload excel file
-     * We will count of invalidate data, If count is greater or equal to five.
-     * It will send Invalidate data to mail and exit from function
+     * We will count of invalid data, If count is greater or equal to five.
+     * It will send Invalid data to mail and exit from function
      * Otherwise return data with inavlidate data
      * In Case valid row, we will append service id in the data row
      * @param: Array $data
      * @param: String $filetype
      */
     function validate_product($data, $filetype, $file_name) {
+        log_message('info', __FUNCTION__ . "=> Entering validation routine...");
 	$invalid_data = array();
         $status = array();
 	foreach ($data['valid_data'] as $key => $value) {
@@ -530,6 +578,8 @@ class Do_background_upload_excel extends CI_Controller {
 		// Add Only user
 		$this->add_user_for_invalid($invalid_data);
 		$this->get_invalid_data($status, $filetype, $file_name);
+                
+                log_message('info', __FUNCTION__ . "=> Exiting validation routine: Limit Crossed");
 
                 exit();
 	    }
@@ -601,7 +651,7 @@ class Do_background_upload_excel extends CI_Controller {
 	    $this->add_user_for_invalid($invalid_data);
 	}
 
-
+        log_message('info', __FUNCTION__ . "=> Exiting validation routine: Under Control");
 
 	return $data;
     }
@@ -614,6 +664,7 @@ class Do_background_upload_excel extends CI_Controller {
      * @return array
      */
     function validate_product_type($data) {
+        log_message('info', __FUNCTION__ . "=> Entering validation routine...");
 	$invalid_data = array();
 	// get unproductive description array
 	$unproductive_description = $this->unproductive_product();
@@ -637,6 +688,7 @@ class Do_background_upload_excel extends CI_Controller {
 	    // Add Only user
 	    $this->add_user_for_invalid($invalid_data);
 	}
+        log_message('info', __FUNCTION__ . "=> Exiting validation routine: Under Control");
 
 	return $data;
     }
@@ -649,6 +701,7 @@ class Do_background_upload_excel extends CI_Controller {
      * @return: Array
      */
     function validate_pincode($data, $filetype, $file_name) {
+        log_message('info', __FUNCTION__ . "=> Entering validation routine...");
         $status = array();
 	$invalid_data = array();
 	foreach ($data['valid_data'] as $key => $value) {
@@ -658,6 +711,7 @@ class Do_background_upload_excel extends CI_Controller {
                 // Add Only user
 		$this->add_user_for_invalid($invalid_data);
 		$this->get_invalid_data($status, $filetype, $file_name);
+                log_message('info', __FUNCTION__ . "=> Exiting validation routine: Limit Crossed");
 
 		exit();
 	    }
@@ -678,7 +732,9 @@ class Do_background_upload_excel extends CI_Controller {
 	    // Add Only user
 	    $this->add_user_for_invalid($invalid_data);
 	}
-
+        
+        log_message('info', __FUNCTION__ . "=> Exiting validation routine: Under Control");
+                    
         return $data;
     }
 
@@ -689,6 +745,7 @@ class Do_background_upload_excel extends CI_Controller {
      * If shipped file is uploded then return count future and past date
      */
     function validate_delivery_date($data, $file_type, $file_name) {
+        log_message('info', __FUNCTION__ . "=> Entering validation routine...");
         $status = array();
 	$invalid_data = array();
 	$future_date = 0;
@@ -706,13 +763,15 @@ class Do_background_upload_excel extends CI_Controller {
 		// Add Only user
 		$this->add_user_for_invalid($invalid_data);
 		$this->get_invalid_data($status, $file_type, $file_name);
+                log_message('info', __FUNCTION__ . "=> Exiting validation routine: Limit Crossed");
 		exit();
 	    }
 	    if ($file_type == "delivered") {
 		if (date('Y-m-d') < $dateObj2->format('Y-m-d')) {
+                    //Disabling this check as we always get future dates in delivery file
 		    //Future Date
-		    unset($data['valid_data'][$key]);
-		    array_push($invalid_data, $value);
+		    //unset($data['valid_data'][$key]);
+		    //array_push($invalid_data, $value);
 		}
 	    } else if ($file_type == "shipped") {
 		if (date('Y-m-d') < $dateObj2->format('Y-m-d')) {
@@ -738,7 +797,7 @@ class Do_background_upload_excel extends CI_Controller {
 	    $data['error']['count_past_delivery_date'] = $past_date;
 	    $data['error']['count_future_delivery_date'] = $future_date;
 	}
-
+         log_message('info', __FUNCTION__ . "=> Exiting validation routine: Under Control");            
 	return $data;
     }
 
@@ -749,6 +808,7 @@ class Do_background_upload_excel extends CI_Controller {
      * @return array
      */
     function validate_order_id($data){
+        log_message('info', __FUNCTION__ . "=> Entering validation routine...");
         $invalid_data = array();
         foreach ($data['valid_data'] as $key => $value) {
 
@@ -765,7 +825,7 @@ class Do_background_upload_excel extends CI_Controller {
 	    // Add Only user
 	    $this->add_user_for_invalid($invalid_data);
 	}
-
+        log_message('info', __FUNCTION__ . "=> Exiting validation routine: Under Control");            
         return $data;
     }
 
@@ -776,6 +836,7 @@ class Do_background_upload_excel extends CI_Controller {
      * @return Array
      */
     function validate_order_id_same_as_phone($data, $filetype,$file_name) {
+        log_message('info', __FUNCTION__ . "=> Entering validation routine...");
 	$invalid_data = array();
 	foreach ($data['valid_data'] as $key => $value) {
 	    if (count($invalid_data) > 4) {
@@ -785,6 +846,7 @@ class Do_background_upload_excel extends CI_Controller {
 		// Add Only user
 		$this->add_user_for_invalid($invalid_data);
 		$this->get_invalid_data($status, $filetype, $file_name);
+                 log_message('info', __FUNCTION__ . "=> Exiting validation routine: Limit Crossed");
 		exit();
 	    }
 	    if ($value['Sub_Order_ID'] == $value['Phone']) {
@@ -802,7 +864,7 @@ class Do_background_upload_excel extends CI_Controller {
 	    // Add Only user
 	    $this->add_user_for_invalid($invalid_data);
 	}
-
+        log_message('info', __FUNCTION__ . "=> Exiting validation routine: Under Control"); 
 	return $data;
     }
 
@@ -812,7 +874,7 @@ class Do_background_upload_excel extends CI_Controller {
      * @param string $filetype
      */
     function get_invalid_data($invalid_data_with_reason, $filetype, $file_name) {
-	$to = "anuj@247around.com";
+	$to = "anuj@247around.com, nits@247around.com";
 	$from = "booking@247around.com";
 	$cc = "";
 	$bcc = "";
@@ -872,7 +934,7 @@ class Do_background_upload_excel extends CI_Controller {
 	$sms['type'] = "user";
 	$sms['type_id'] = $user_id;
 
-	$this->notify->send_sms($sms);
+	$this->notify->send_sms_acl($sms);
     }
 
     /**

@@ -1228,5 +1228,12 @@ class vendor_model extends CI_Model {
             return false;
         }
     }
+    
+        //Array of queries
+    function execute_query($query) {
+        foreach ($query as $q) {
+            $this->db->query($q);
+       }
+    }
 
 }

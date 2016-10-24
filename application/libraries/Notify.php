@@ -522,11 +522,31 @@ class Notify {
             //Leave blank
 	    case 'Air Conditioner':
 	    case 'Chimney':
-                $status = '';
+                $status = 'PAID';
 		break;
 	}
         
 	return $status;
+    }
+    
+    function sendTransactionalSmsAcl($phone_number, $body) {
+        $message = urlencode($body);        
+        $url = "https://push3.maccesssmspush.com/servlet/com.aclwireless.pushconnectivity.listeners.TextListener?userId=blackmalt&pass=blackmalt67&appid=blackmalt&subappid=blackmalt&contenttype=1&"
+                    . "to=" . $phone_number . "&from=AROUND&text=" . $message . "&selfid=true&alert=1&dlrreq=true";
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_exec($ch);
+        curl_close($ch);
+    }
+
+    function send_sms_acl($sms) {
+        $template = $this->My_CI->vendor_model->getVendorSmsTemplate($sms['tag']);
+        if (!empty($template)) {
+            $smsBody = vsprintf($template, $sms['smsData']);
+            $this->sendTransactionalSmsAcl($sms['phone_no'], $smsBody);
+            $this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['phone_no'], $smsBody, $sms['booking_id'], $sms['tag']);
+        }
     }
 
 }

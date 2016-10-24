@@ -414,7 +414,8 @@ class Partner_model extends CI_Model {
 	$this->db->where('new_state', 'Pending');
 	$this->db->where('create_date >= ', date('Y-m-d'));
         $sched_count = $this->db->get('booking_state_change');
-	$today_install_sched = $sched_count[0]['count'];
+        $sched_c1 = $sched_count->result_array();
+	$today_install_sched = $sched_c1[0]['count'];
 
 	//Count y'day installations scheduled
         $this->db->distinct();
@@ -424,7 +425,8 @@ class Partner_model extends CI_Model {
 	$this->db->where('create_date >= ', date('Y-m-d', strtotime("-1 days")));
 	$this->db->where('create_date < ', date('Y-m-d'));
         $y_day_count = $this->db->get('booking_state_change');
-	$yday_install_sched = $y_day_count[0]['count'];
+        $yday_c1 = $y_day_count->result_array();
+	$yday_install_sched = $yday_c1[0]['count'];
 
 	//Count This month installation scheduled
 	$sql = "SELECT distinct(booking_id) FROM booking_state_change WHERE booking_id LIKE '%" . $partner_source_code . "%'"
