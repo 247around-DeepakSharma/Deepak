@@ -310,16 +310,15 @@ class bookingjobcard extends CI_Controller {
             }
 
             $smsBody = "Booking - " . $getbooking[0]['name'] . ", " . $getbooking[0]['booking_primary_contact_no'] . ", " . $getbooking[0]['services'] . ", " . $bookingdate ."/" . $getbooking[0]['booking_timeslot'] .  ", " . $getbooking[0]['booking_address'] . ", ". $getbooking[0]['booking_pincode'] . ". 247around";
-            $this->notify->sendTransactionalSms($getbooking[0]['primary_contact_phone_1'], $smsBody);
 
             //Send SMS to vendor
 //            $this->sendTransactionalSms($servicecentredetails[0]['primary_contact_phone_1'], $smsBody);
-            $sms_details = $this->notify->sendTransactionalSms($getbooking[0]['primary_contact_phone_1'], $smsBody);
+            $this->notify->sendTransactionalSmsAcl($getbooking[0]['primary_contact_phone_1'], $smsBody);
             //For saving SMS to the database on sucess
-            if(isset($sms_details['info']) && $sms_details['info'] == '200'){
-                $this->notify->add_sms_sent_details($user_id, 'vendor' , $getbooking[0]['primary_contact_phone_1'],
+
+           $this->notify->add_sms_sent_details($getbooking[0]['user_id'], 'vendor' , $getbooking[0]['primary_contact_phone_1'],
                     $smsBody, $getbooking[0]['booking_id'],"booking_details_to_sf");
-            }
+            
             
 	    //Save email in database
             $details = array("booking_id" => $booking_id, "subject" => $subject,

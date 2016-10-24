@@ -31,27 +31,29 @@ class Notify {
 	switch (ENVIRONMENT) {
 	    case 'production':
 		//Clear previous email
-		$this->My_CI->email->clear(TRUE);
+                if(!empty($to)){
+                    $this->My_CI->email->clear(TRUE);
 
-		//Attach file with mail
-		if (!empty($attachment)) {
-		    $this->My_CI->email->attach($attachment, 'attachment');
-		}
+                    //Attach file with mail
+                    if (!empty($attachment)) {
+                        $this->My_CI->email->attach($attachment, 'attachment');
+                    }
 
-		$this->My_CI->email->from($from, '247around Team');
+                    $this->My_CI->email->from($from, '247around Team');
 
-		$this->My_CI->email->to($to);
-		$this->My_CI->email->bcc($bcc);
-		$this->My_CI->email->cc($cc);
+                    $this->My_CI->email->to($to);
+                    $this->My_CI->email->bcc($bcc);
+                    $this->My_CI->email->cc($cc);
 
-		$this->My_CI->email->subject($subject);
-		$this->My_CI->email->message($message);
+                    $this->My_CI->email->subject($subject);
+                    $this->My_CI->email->message($message);
 
-		if ($this->My_CI->email->send()) {
-		    return true;
-		} else {
-		    return false;
-		}
+                    if ($this->My_CI->email->send()) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
 
 		break;
 	}
@@ -330,7 +332,7 @@ class Notify {
 		    $sms['booking_id'] = $query1[0]['booking_id'];
 		    $sms['type'] = "user";
 		    $sms['type_id'] = $query1[0]['user_id'];
-		    $this->send_sms($sms);
+		    $this->send_sms_acl($sms);
 
 		    break;
 
@@ -378,7 +380,7 @@ class Notify {
 			    $sms['type'] = "user";
 			    $sms['type_id'] = $query1[0]['user_id'];
 
-			    $this->send_sms($sms);
+			    $this->send_sms_acl($sms);
 			}
 		    }
 
@@ -409,7 +411,7 @@ class Notify {
 			$sms['booking_id'] = $query1[0]['booking_id'];
 			$sms['type'] = "user";
 			$sms['type_id'] = $query1[0]['user_id'];
-			$this->send_sms($sms);
+			$this->send_sms_acl($sms);
 		    }
 
 		    break;
@@ -456,7 +458,7 @@ class Notify {
 		    $sms['type'] = "user";
 		    $sms['type_id'] = $query1[0]['user_id'];
 
-		    $this->send_sms($sms);
+		    $this->send_sms_acl($sms);
 		    break;
 
 		case 'Newbooking':
@@ -474,7 +476,7 @@ class Notify {
 		    $sms['type'] = "user";
 		    $sms['type_id'] = $query1[0]['user_id'];
 
-		    $this->send_sms($sms);
+		    $this->send_sms_acl($sms);
 
 		    break;
 
@@ -530,14 +532,17 @@ class Notify {
     }
     
     function sendTransactionalSmsAcl($phone_number, $body) {
-        $message = urlencode($body);        
-        $url = "https://push3.maccesssmspush.com/servlet/com.aclwireless.pushconnectivity.listeners.TextListener?userId=blackmalt&pass=blackmalt67&appid=blackmalt&subappid=blackmalt&contenttype=1&"
-                    . "to=" . $phone_number . "&from=AROUND&text=" . $message . "&selfid=true&alert=1&dlrreq=true";
+        switch (ENVIRONMENT) {
+	    case 'production':
+                $message = urlencode($body);        
+                $url = "https://push3.maccesssmspush.com/servlet/com.aclwireless.pushconnectivity.listeners.TextListener?userId=blackmalt&pass=blackmalt67&appid=blackmalt&subappid=blackmalt&contenttype=1&"
+                            . "to=" . $phone_number . "&from=AROUND&text=" . $message . "&selfid=true&alert=1&dlrreq=true";
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_exec($ch);
-        curl_close($ch);
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                curl_exec($ch);
+                curl_close($ch);
+        }
     }
 
     function send_sms_acl($sms) {
@@ -545,7 +550,8 @@ class Notify {
         if (!empty($template)) {
             $smsBody = vsprintf($template, $sms['smsData']);
             $this->sendTransactionalSmsAcl($sms['phone_no'], $smsBody);
-            $this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['phone_no'], $smsBody, $sms['booking_id'], $sms['tag']);
+            $this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['phone_no'], 
+                    $smsBody, $sms['booking_id'], $sms['tag']);
         }
     }
 

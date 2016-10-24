@@ -233,7 +233,7 @@ class Invoice extends CI_Controller {
 	    $sms['type'] = $account_statement['partner_vendor'];
 	    $sms['type_id'] = $account_statement['partner_vendor_id'];
 
-	    $this->notify->send_sms($sms);
+	    $this->notify->send_sms_acl($sms);
 	}
 
 	redirect(base_url() . 'employee/invoice/invoice_summary/' . $account_statement['partner_vendor'] . "/" . $account_statement['partner_vendor_id']);
@@ -823,7 +823,7 @@ class Invoice extends CI_Controller {
 		    $sms['type'] = "vendor";
 		    $sms['type_id'] = $invoices[0]['id'];
 
-		    $this->notify->send_sms($sms);
+		     $this->notify->send_sms_acl($sms);
 		    //Upload Excel files to AWS
 		    $bucket = 'bookings-collateral';
 		    $directory_xls = "invoices-excel/" . $output_file . ".xlsx";
@@ -1188,7 +1188,7 @@ class Invoice extends CI_Controller {
 		    $sms['type'] = "vendor";
 		    $sms['type_id'] = $invoices[0]['id'];
 
-		    $this->notify->send_sms($sms);
+		     $this->notify->send_sms_acl($sms);
 
 		    //Upload Excel files to AWS
 		    $bucket = 'bookings-collateral';

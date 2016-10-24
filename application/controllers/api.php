@@ -1332,7 +1332,7 @@ class Api extends CI_Controller {
 	$sms['type'] = "user";
 	$sms['type_id'] = $booking['user_id'];
 
-	$this->notify->send_sms($sms);
+	$this->notify->send_sms_acl($sms);
     }
 
     /**
@@ -1349,7 +1349,7 @@ class Api extends CI_Controller {
 	$sms['type'] = "user";
 	$sms['type_id'] = '';
 
-	$this->notify->send_sms($sms);
+	$this->notify->send_sms_acl($sms);
     }
 
     /**
