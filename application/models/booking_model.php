@@ -1640,14 +1640,14 @@ class Booking_model extends CI_Model {
 
         if($booking_id !=""){
            $where = " `booking_unit_details`.booking_id = '$booking_id' ";
-            $sql = "SELECT distinct(appliance_id), appliance_brand as brand, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_month`, `booking_unit_details`.`purchase_year`, appliance_tag
+            $sql = "SELECT distinct(appliance_id), appliance_brand as brand, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_month`, `booking_unit_details`.`purchase_year`
             from booking_unit_details Where $where  ";
 
         } else if ($appliance_id != "") {
 
 	    $where = " `booking_unit_details`.appliance_id = '$appliance_id' ";
 
-            $sql = "SELECT distinct(appliance_id), brand, booking_id, category, capacity, `appliance_details`.`model_number`,description, `appliance_details`.`purchase_month`, `appliance_details`.`purchase_year`, appliance_tag, `appliance_details`.serial_number
+            $sql = "SELECT distinct(appliance_id), brand, booking_id, category, capacity, `appliance_details`.`model_number`,description, `appliance_details`.`purchase_month`, `appliance_details`.`purchase_year`, `appliance_details`.serial_number
             from booking_unit_details,  appliance_details Where $where  AND `appliance_details`.`id` = `booking_unit_details`.`appliance_id`  ";
 
         }

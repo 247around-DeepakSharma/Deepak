@@ -236,7 +236,7 @@ class bookings_excel extends CI_Controller {
 		$appliance_details['description'] = $unit_details['appliance_description'] = $rowData[0]['Product_Type'];
 		$appliance_details['model_number'] = $unit_details['model_number'] = $rowData[0]['Model'];
 		$appliance_details['serial_number'] = $unit_details['serial_number'] = '';
-		$appliance_details['tag'] = $unit_details['appliance_tag'] = $rowData[0]['Brand'] . " " . $prod;
+		$appliance_details['tag']  = $rowData[0]['Brand'] . " " . $prod;
 		$appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
 		$appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
 		$appliance_details['last_service_date'] = date('d-m-Y');
@@ -542,7 +542,7 @@ class bookings_excel extends CI_Controller {
 
 		$appliance_details['category'] = $unit_details['appliance_category'] = '';
 		$appliance_details['capacity'] = $unit_details['appliance_capacity'] = '';
-		$appliance_details['tag'] = $unit_details['appliance_tag'] = $unit_details['appliance_brand'] . " " . $lead_details['Product'];
+		$appliance_details['tag']  = $unit_details['appliance_brand'] . " " . $lead_details['Product'];
 		$appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
 		$appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
 
@@ -867,7 +867,7 @@ class bookings_excel extends CI_Controller {
 		$booking['quantity'] = '1';
 		$appliance_details['category'] = $unit_details['appliance_category'] = '';
 		$appliance_details['capacity'] = $unit_details['appliance_capacity'] = '';
-		$appliance_details['tag'] = $unit_details['appliance_tag'] = $unit_details['brand'] . " " . $unit_details['appliance_description'];
+		$appliance_details['tag'] = $unit_details['brand'] . " " . $unit_details['appliance_description'];
 		$appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
 		$appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
 		$booking['partner_source'] = "Paytm-delivered-excel";
