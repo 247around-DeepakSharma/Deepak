@@ -44,7 +44,7 @@ class Service_centers_model extends CI_Model {
             $this->db->limit($limit, $start);
         }
 
-        $this->db->select('booking_id, DATEDIFF(CURRENT_TIMESTAMP , create_date ) as age_of_booking,admin_remarks');
+        $this->db->select('booking_id,admin_remarks');
         $this->db->where('service_center_id', $service_center_id);
         $this->db->where('current_status', "Pending");
         $this->db->order_by('create_date  ASC');
@@ -60,6 +60,7 @@ class Service_centers_model extends CI_Model {
                            booking_details.booking_date,
                            booking_details. booking_primary_contact_no,
                            booking_details.booking_jobcard_filename,
+                           DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(`booking_details`.booking_date,'%d-%m-%Y') ) as age_of_booking,
                            booking_details.booking_timeslot
                            From  booking_details 
                            JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
@@ -70,7 +71,7 @@ class Service_centers_model extends CI_Model {
             $query1 = $this->db->query($sql);
             $result = $query1->result();
             if ($query1->num_rows > 0) {
-                $result[0]->age_of_booking = $value['age_of_booking'];
+                //$result[0]->age_of_booking = $value['age_of_booking'];
                 $result[0]->admin_remarks = $value['admin_remarks'];
                 array_push($data, $result[0]);
             }

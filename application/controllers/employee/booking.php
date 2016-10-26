@@ -690,7 +690,7 @@ class Booking extends CI_Controller {
 	log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
 	$data['cancellation_reason'] = $this->input->post('cancellation_reason');
 	$data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
-        $booking_data = $this->booking_model->getbooking_history($booking_id);
+        //$booking_data = $this->booking_model->getbooking_history($booking_id);
 	if ($data['cancellation_reason'] == 'Other') {
 	    $data['cancellation_reason'] = "Other : " . $this->input->post("cancellation_reason_text");
 	}
