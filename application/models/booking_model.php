@@ -1030,12 +1030,8 @@ class Booking_model extends CI_Model {
             users.name as customername, users.phone_number,
             bd.* ";
 
-        $where .= "AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) >= 0 OR
-                bd.booking_date='') AND `bd`.current_status='$status' ";
-
-
         if ($booking_id != "") {
-            $where .= "AND `bd`.`booking_id` = '$booking_id' AND `bd`.current_status='$status'  ";
+            $where = "AND `bd`.`booking_id` = '$booking_id' AND `bd`.current_status='$status'  ";
             if($start == 'All') {
                 $get_field = " Count(bd.booking_id) as count ";
             }
@@ -1050,6 +1046,9 @@ class Booking_model extends CI_Model {
 
                 $get_field = " Count(bd.booking_id) as count ";
             }
+
+            $where = "AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) >= 0 OR
+                bd.booking_date='') AND `bd`.current_status='$status' ";
         }
 
         if($p_av == PINCODE_AVAILABLE ){
@@ -1075,7 +1074,6 @@ class Booking_model extends CI_Model {
                 AND `service_centres`.`active` = '1')  ";
             }
         }
-
 
         $sql = "SELECT $get_field
             from booking_details as bd
