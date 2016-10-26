@@ -47,7 +47,7 @@
                            <input type="hidden" name="reschedule_reason[<?php echo $value['booking_id']; ?>]" value="<?php echo $value['reschedule_reason'] ?>" ></input>
                         </td>
                         <td><?php echo $value['reschedule_reason'];  ?></td>
-                        <td><input type="checkbox"  class="checkbox_reschedule" name="reschedule[]" value="<?php echo $value['booking_id']; ?>"></input>
+                        <td><input id="reschedule_checkbox" type="checkbox"  class="checkbox_reschedule" name="reschedule[]" value="<?php echo $value['booking_id']; ?>"></input>
                         </td>
                      </tr>
                      <?php $sno++;  } ?>
@@ -55,7 +55,7 @@
                </table>
                <?php if(!empty($data)){?>
                <div class"col-md-12">
-                  <center><input type="submit" value="Approve Bookings"  style=" background-color: #2C9D9C;
+                  <center><input onclick="check_limit_reschedule()" type="submit" value="Approve Bookings"  style=" background-color: #2C9D9C;
                      border-color: #2C9D9C;" class="btn btn-md btn-success"></input></center>
                </div>
                <?php } ?>
@@ -151,7 +151,7 @@
                               <td>
                                  <p id="<?php echo "cancellation_reason".$count; ?>"><?php echo $value['cancellation_reason']; ?></p>
                               </td>
-                              <td><input type="checkbox"  class="checkbox1" name="approved_booking[]" value="<?php echo $value['booking_id']; ?>"></input></td>
+                              <td><input id="approved_close" type="checkbox"  class="checkbox1" name="approved_booking[]" value="<?php echo $value['booking_id']; ?>"></input></td>
                               <td>
                                  <?php echo "<a class='btn btn-sm btn-primary' "
                                     . "href=" . base_url() . "employee/booking/viewdetails/$value[booking_id] target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
@@ -166,10 +166,11 @@
                      <?php if(!empty($charges)){?>
                      <div class"col-md-12">
                         <center><input type="submit" value="Approve Bookings"  style=" background-color: #2C9D9C;
-                           border-color: #2C9D9C;"  class="btn btn-md btn-success"></input></center>
+                           border-color: #2C9D9C;"  class="btn btn-md btn-success" onclick="check_limit_booking()"/></center>
                      </div>
                      <?php } ?>
                </form>
+               
                </div>
             </div>
          </div>
@@ -247,4 +248,39 @@
 </style>
 <script type="text/javascript">
    $('body').popover({ selector: '[data-popover]', trigger: 'click hover', placement: 'auto', delay: {show: 50, hide: 100}});
+
+   function check_limit_booking(){
+      
+      var count = 0;
+      $("#approved_close:checked").each(function(i) {
+         count = count+1;
+      });
+      if(count >40){
+         alert("We Can Approve Maximum 40 Bookings");
+         return false;
+      } else if(count ===0){
+         alert("Please select atleast one checkbox");
+         return false;
+      } else {
+          return true;
+      }
+       
+   }
+
+   function check_limit_reschedule(){
+      var count = 0;
+      $("#reschedule_checkbox:checked").each(function(i) {
+         count = count+1;
+      });
+     
+      if(count >40){
+         alert("We Can Approve Maximum 40 Bookings");
+         return false;
+      } else if(count ===0){
+         alert("Please select atleast one checkbox");
+         return false;
+      } else {
+          return true;
+      }
+   }
 </script>
