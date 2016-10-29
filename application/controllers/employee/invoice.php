@@ -1327,7 +1327,7 @@ class Invoice extends CI_Controller {
 	    $year = date('Y');
 	}
 
-	$date_range = date('Y') . "/" . $invoice_month . "/01-" . $year . "/" . $invoice_month . "/16";
+	$date_range = date('Y') . "/" . $invoice_month . "/01-" . $year . "/" . $next_month . "/01";
 
 	if ($vendor_partner === "vendor") {
 	    log_message('info', "Invoice generate - vendor id: " . print_r($vendor_partner_id, true) . ", Date Range" .

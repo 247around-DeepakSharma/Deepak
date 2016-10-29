@@ -60,7 +60,7 @@
                             </div>
                             &nbsp;<span id="errmsg1"></span>
                         </div>
-                        <a href="#" class="pull-right" style="color: #fff;margin-right: 77px;">Forgot password</a>
+                        <!--<a href="#" class="pull-right" style="color: #fff;margin-right: 77px;">Forgot password</a>-->
                         <div class="form-group">
                             <div class="col-sm-offset-3 col-sm-10">
                                 <button type="submit" class="login_btn">Sign in</button>

@@ -43,7 +43,8 @@
                         </div>
 
                         <div class="modal-header">
-                            <h4 class="modal-title">247around - Call Centre Number - 9555000247</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">247around Escalation:</h4>
                         </div>
                         <div class="modal-body">
                             <ul>
@@ -52,6 +53,10 @@
                                 <li>Escalation East India – Mr. Nitin Malhotra – Director & CEO – Based in Delhi Office – 9810872244 (English, Hindi and Punjabi)</li>
                                 <li>Escalation North India – Mr. Nitin Malhotra – Director & CEO – Based in Delhi Office – 9810872244 (English, Hindi and Punjabi)</li>
                             </ul>
+                            
+                            <br/>
+                            <h5>247around Call Center - 9555000247</h5>
+                            
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

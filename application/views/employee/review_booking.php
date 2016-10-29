@@ -256,10 +256,10 @@
          count = count+1;
       });
       if(count >40){
-         alert("We Can Approve Maximum 40 Bookings");
+         alert("Maximum 40 bookings can be completed/cancelled in one time.");
          return false;
       } else if(count ===0){
-         alert("Please select atleast one checkbox");
+         alert("Please select at least one booking to complete/cancel.");
          return false;
       } else {
           return true;
@@ -274,10 +274,10 @@
       });
      
       if(count >40){
-         alert("We Can Approve Maximum 40 Bookings");
+         alert("Maximum 40 bookings can be rescheduled in one time.");
          return false;
       } else if(count ===0){
-         alert("Please select atleast one checkbox");
+         alert("Please select at least one booking to reschedule.");
          return false;
       } else {
           return true;
