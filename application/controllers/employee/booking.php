@@ -87,14 +87,17 @@ class Booking extends CI_Controller {
         if ($booking['type'] == 'Booking') {
             $this->notify->insert_state_change($booking['booking_id'], _247AROUND_PENDING, _247AROUND_NEW_BOOKING,$booking['booking_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
 
+            /*
             $to = "anuj@247around.com";
             $from = "booking@247around.com";
             $cc = "";
             $bcc = "";
             $subject = 'Booking Confirmation-AROUND';
             $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
+             * 
+             */
+            
             //-------Sending SMS on booking--------//
-
             $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
 	    $send['booking_id'] = $booking['booking_id'];
 	    $send['state'] = "Newbooking";
@@ -690,7 +693,7 @@ class Booking extends CI_Controller {
 	log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
 	$data['cancellation_reason'] = $this->input->post('cancellation_reason');
 	$data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
-        //$booking_data = $this->booking_model->getbooking_history($booking_id);
+        
 	if ($data['cancellation_reason'] == 'Other') {
 	    $data['cancellation_reason'] = "Other : " . $this->input->post("cancellation_reason_text");
 	}
@@ -1206,12 +1209,15 @@ class Booking extends CI_Controller {
                     $send['state'] = "Newbooking";
                     $this->asynchronous_lib->do_background_process($url, $send);
 
+                    /*
                     $to = "anuj@247around.com";
                     $from = "booking@247around.com";
                     $cc = "";
                     $bcc = "";
                     $subject = 'Booking Confirmation-AROUND';
                     $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
+                     * 
+                     */
                 }
                 log_message('info', __FUNCTION__ . " Partner callback  " . $booking_id);
                 $this->partner_cb->partner_callback($booking_id);

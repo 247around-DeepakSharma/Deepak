@@ -3,8 +3,12 @@
 if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 
-//error_reporting(E_ALL);
-//ini_set('display_errors', '1');
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+
+ini_set('memory_limit', '-1');
+ini_set('max_execution_time', 36000);
+
 //ini_set('include_path', '/Applications/MAMP/htdocs/aroundlocalhost/system/libraries');
 //ini_set('include_path', '/var/www/aroundhomzapp.com/public_html/system/libraries');
 //require_once('simple_html_dom.php');
@@ -243,79 +247,6 @@ class BookingSummary extends CI_Controller {
         exit(0);
     }
 
-    public function get_sd_summary_table() {
-	$snapdeal_summary_params = $this->reporting_utils->get_snapdeal_summary_params_new();
-
-	$total_install_req = $snapdeal_summary_params['total_install_req'];
-	$today_install_req = $snapdeal_summary_params['today_install_req'];
-	$yday_install_req = $snapdeal_summary_params['yday_install_req'];
-
-	$total_install_sched = $snapdeal_summary_params['total_install_sched'];
-	$today_install_sched = $snapdeal_summary_params['today_install_sched'];
-	$yday_install_sched = $snapdeal_summary_params['yday_install_sched'];
-
-	$total_install_compl = $snapdeal_summary_params['total_install_compl'];
-	$today_install_compl = $snapdeal_summary_params['today_install_compl'];
-	$yday_install_compl = $snapdeal_summary_params['yday_install_compl'];
-
-	$total_followup_pend = $snapdeal_summary_params['total_followup_pend'];
-	$today_followup_pend = $snapdeal_summary_params['today_followup_pend'];
-	$yday_followup_pend = $snapdeal_summary_params['yday_followup_pend'];
-
-	$total_install_cancl = $snapdeal_summary_params['total_install_cancl'];
-	$today_install_cancl = $snapdeal_summary_params['today_install_cancl'];
-	$yday_install_cancl = $snapdeal_summary_params['yday_install_cancl'];
-
-	$tat = $snapdeal_summary_params['tat'];
-
-	$message = <<<EOD
-	<table border="1">
-	    <tr>
-		<td>Date</td>
-		<td>Requests Received</td>
-		<td>Requests Completed</td>
-		<td>Requests Scheduled</td>
-		<td>To be Followed Up</td>
-		<td>Requests Cancelled</td>
-		<td>TAT (%)</td>
-	    </tr>
-
-	    <tr>
-		<td>Yesterday</td>
-		<td>$yday_install_req</td>
-		<td>$yday_install_compl</td>
-		<td>$yday_install_sched</td>
-		<td>$yday_followup_pend</td>
-		<td>$yday_install_cancl</td>
-		<td>NA</td>
-	    </tr>
-
-	    <tr>
-		<td>Today</td>
-		<td>$today_install_req</td>
-		<td>$today_install_compl</td>
-		<td>$today_install_sched</td>
-		<td>$today_followup_pend</td>
-		<td>$today_install_cancl</td>
-		<td>NA</td>
-	    </tr>
-
-	    <tr>
-		<td>Total</td>
-		<td>$total_install_req</td>
-		<td>$total_install_compl</td>
-		<td>$total_install_sched</td>
-		<td>$total_followup_pend</td>
-		<td>$total_install_cancl</td>
-		<td>$tat</td>
-	    </tr>
-
-	</table>
-EOD;
-
-	return $message;
-    }
-
     public function get_partner_summary_table($partner_id) {
 	$partner_summary_params = $this->partner_model->get_partner_summary_params($partner_id);
 
@@ -421,6 +352,7 @@ EOD;
 
 	//Get all Active partners who has "is_reporting_mail" column 1
 	$partners = $this->partner_model->getpartner_details($where_get_partner, '1');
+        log_message('info', __FUNCTION__ . ' => Fetched active partners');
 
 	foreach ($partners as $p) {
 	    //load template
@@ -428,6 +360,7 @@ EOD;
 
 	    //Fetch partners' bookings
 	    $leads = $this->partner_model->get_partner_leads_for_summary_email($p['id']);
+            log_message('info', __FUNCTION__ . ' => Fetched partner bookings');
 
 	    $R->load(array(
 		array(
@@ -441,15 +374,17 @@ EOD;
 	    $output_file = "/tmp/247around-Services-Consolidated-Data - " . date('d-M-Y') . ".xlsx";
 	    //for xlsx: excel, for xls: excel2003
 	    $R->render('excel', $output_file);
-	    //Send report via email
+	    log_message('info' . __FUNCTION__ . ' => Rendered excel');
+            
 	    $this->email->clear(TRUE);
 	    $this->email->from('booking@247around.com', '247around Team');
 	    $this->email->to($p['summary_email_to']);
 	    $this->email->cc($p['summary_email_cc']);
 	    $this->email->bcc($p['summary_email_bcc']);
 
-	    $this->email->subject("247around Services Report - " . date('d-M-Y'));
+	    $this->email->subject("247around Services Report - " . $p['public_name'] . " - " . date('d-M-Y'));
 	    $summary_table = $this->get_partner_summary_table($p['id']);
+            log_message('info', __FUNCTION__ . ' => Prepared summary report');
 
 	    $message = "Dear Partner,<br/><br/>";
 	    $message .= "Please find updated summary table below.<br/><br/>";
@@ -474,82 +409,10 @@ EOD;
 	    $bucket = 'bookings-collateral';
 	    $directory_xls = "summary-excels/" . $output_file;
 	    $this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
+            
 	    //Delete this file
 	    exec("rm -rf " . escapeshellarg($output_file));
 	}
-
-	exit(0);
-    }
-
-    public function send_summary_mail_to_snapdeal() {
-	log_message('info', __FUNCTION__);
-
-	$template = 'SD_Summary_Template-v2.xlsx';
-	$templateDir = __DIR__ . "/excel-templates/";
-
-	//set config for report
-	$config = array(
-	    'template' => $template,
-	    'templateDir' => $templateDir
-	);
-
-	//load template
-	$R = new PHPReport($config);
-
-	//Fetch SD bookings
-	$leads = $this->reporting_utils->get_all_sd_leads();
-
-	$R->load(array(
-	    array(
-		'id' => 'bd',
-		'repeat' => true,
-		'data' => $leads,
-	    ),
-	));
-
-	//Get populated XLS with data
-	$output_file = "247around Installation Consolidated Data - " . date('d-M-Y') . ".xlsx";
-	//for xlsx: excel, for xls: excel2003
-	$R->render('excel', $output_file);
-	//Send report via email
-	$this->email->from('booking@247around.com', '247around Team');
-	$this->email->to("alok.singh@snapdeal.com");
-	$cc = "dhananjay.shashidharan@snapdeal.com,"
-	    . "soumendra.choudhury@snapdeal.com, shivalini.verma@snapdeal.com,"
-	    . "rameen.khan@snapdeal.com, sunil.gurubhagwatla@snapdeal.com,"
-	    . "ashish.dudeja@snapdeal.com, sanju.khatri@snapdeal.com, harjinder.singh01@snapdeal.com"
-	    . "abhinaw.sinha@snapdeal.com, "
-	    . "nits@247around.com, anuj@247around.com";
-	$this->email->cc($cc);
-	$this->email->bcc("anuj.aggarwal@gmail.com");
-
-	$this->email->subject("247around Installation Report - " . date('d-M-Y'));
-	$summary_table = $this->get_sd_summary_table();
-
-	$message = "Dear Partner,<br/><br/>";
-	$message .= "Please find updated summary table below.<br/><br/>";
-	$message .= $summary_table;
-	$message .= "<br><br>Best Regards,
-                        <br>247around Team
-                        <br><br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
-                        <br>Follow us on Facebook: www.facebook.com/247around | Website: www.247around.com
-                        <br>Playstore - 247around -
-                        <br>https://play.google.com/store/apps/details?id=com.handymanapp";
-
-	$this->email->message($message);
-	$this->email->attach($output_file, 'attachment');
-	if ($this->email->send()) {
-	    //log_message('info', __METHOD__ . ": Mail sent successfully");
-	} else {
-	    log_message('error', __METHOD__ . ": Mail could not be sent");
-	}
-	//Upload Excel to AWS/FTP
-	$bucket = 'bookings-collateral';
-	$directory_xls = "summary-excels/" . $output_file;
-	$this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
-
-	//Delete this file
-	exec("rm -rf " . escapeshellarg($output_file));
 
 	exit(0);
     }
@@ -787,19 +650,22 @@ EOD;
     }
     
     /**
-     * @desc: This function is used to send service center report mail(CRON)
+     * @desc: This function is used to send service center daily report on mail (CRON)
      * params: void
      * retunr :void
      * 
      */
-    
-    function send_service_center_report_mail(){
+    function send_service_center_report_mail() {
+        //Get summary table
         $html = $this->booking_utilities->booking_report_by_service_center();
-        $to = 'anuj@247around.com, nits@247around.com';
+        
+        //Send it to the team
+        $to = 'anuj@247around.com, nits@247around.com, suresh@247around.com';
+        $subject = "Service Center Report - " . date("d-M-Y");
             
-        $this->notify->sendEmail("booking@247around.com", $to, "", "", "Service Center Report", $html, "");
-        log_message('info', __FUNCTION__ . ' Service Center Report mail sent to '. $to);
+        $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $html, "");
+        
+        log_message('info', __FUNCTION__ . ' Service Center Report mail sent to ' . $to);
     }
-
 
 }

@@ -3,8 +3,8 @@
 if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 
-//error_reporting(E_ERROR);
-//ini_set('display_errors', '0');
+error_reporting(E_ERROR);
+ini_set('display_errors', '0');
 
 class Around_scheduler extends CI_Controller {
 	 function __Construct() {

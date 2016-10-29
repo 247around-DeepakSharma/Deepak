@@ -58,11 +58,7 @@ class Do_background_process extends CI_Controller {
                 $sms['type_id'] = $query1[0]['user_id'];
                 $sms['smsData'] = "";
 
-                $sms_sent =  $this->notify->send_sms_acl($sms);
-                if ($sms_sent === FALSE) {
-                    log_message('info', "SMS not sent to user while assigning vendor. User's Phone: " .
-                            $query1[0]['phone_number']);
-                }
+                $this->notify->send_sms_acl($sms);
                 log_message('info', "Send SMS to customer: " . $booking_id);
 
                 //Prepare job card
