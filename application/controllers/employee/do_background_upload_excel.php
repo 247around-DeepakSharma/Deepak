@@ -225,7 +225,12 @@ class Do_background_upload_excel extends CI_Controller {
 		    $booking['partner_id'] = '247011';
 		    $booking['source'] = "SR";
 		    break;
-
+/*
+		case 'Nacson':
+		    $booking['partner_id'] = '247013';
+		    $booking['source'] = "SN";
+		    break;
+ */
 		default:
 		    $booking['partner_id'] = '1';
 		    $booking['source'] = "SS";
@@ -297,7 +302,7 @@ class Do_background_upload_excel extends CI_Controller {
 			$booking['query_remarks'] = 'Product Delivered, Call Customer For Booking';
 		}
 
-		log_message('info', print_r($dateObj2, true));
+		//log_message('info', print_r($dateObj2, true));
 
 		$booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
 		$booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
@@ -371,7 +376,8 @@ class Do_background_upload_excel extends CI_Controller {
 			}
 
 			if (empty($booking['state'])) {
-			    log_message('info', __FUNCTION__ . " Pincode is not found booking id: " . $booking['booking_id']);
+			    log_message('info', __FUNCTION__ . " => Pincode is not found for booking id: " . 
+                                    $booking['booking_id']);
                             /*
 			    $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
 			    $send['booking_id'] = $booking['booking_id'];
@@ -407,7 +413,7 @@ class Do_background_upload_excel extends CI_Controller {
                 //Order ID found
                 if ($file_type == "delivered" || $file_type == "shipped") {
                     $status = $partner_booking['current_status'];
-                    //$int_status = $partner_booking['internal_status'];
+                    $int_status = $partner_booking['internal_status'];
 
                     //If the booking has already been scheduled or cancelled, leave this as it is.
                     if (($value['Delivery_Date'] != '(null)') && ($status == 'FollowUp')) {
@@ -428,30 +434,23 @@ class Do_background_upload_excel extends CI_Controller {
                         $new_delivery_date = date_create(date('Y-m-d', strtotime($dateObj->format('Y-m-d H:i:s'))));
                         log_message('info', print_r($new_delivery_date, true));
 
-                       // $date_diff = date_diff($new_delivery_date, $old_delivery_date);
+                        $date_diff = date_diff($new_delivery_date, $old_delivery_date);
                         $update = false;
 
-
                         //Check diff between new and old dates and update if diff > 0
+                        /*
+                        if ($date_diff->days > 0) {
+                            $update = true;
+                            log_message('info', "New date: " . $new_delivery_date->date);
 
-                        // if ($date_diff->days > 0) {
-                        //     if ($file_type == "shipped") {
-                        //         $update_data['estimated_delivery_date'] = $new_delivery_date->date;
-                        //     } else {
-                        //         $update_data['delivery_date'] = $new_delivery_date->date;
-
-                        //         $update_data['booking_date'] = '';
-                        //         $update_data['booking_timeslot'] = '';
-                        //     }
-
-                        //     log_message('info', __FUNCTION__ . 'Update Partned Lead: ' .
-                        //             print_r(array($partner_booking['booking_id'], $update_data), true));
-
-                        //     $this->booking_model->update_booking($partner_booking['booking_id'], $update_data);
-
-                        //     unset($update_data);
-                        // }
-
+                            if ($file_type == "shipped") {
+                                $update_data['estimated_delivery_date'] = $new_delivery_date->date;
+                            } else {
+                                $update_data['delivery_date'] = $new_delivery_date->date;
+                            }                            
+                        } 
+                         */                       
+                                
                         //Clear the booking date so that it starts reflecting on our panel & update booking.
                         //This should be done only if the booking has not been updated in the meanwhile.
                         if ($file_type == "delivered") {
@@ -472,22 +471,30 @@ class Do_background_upload_excel extends CI_Controller {
                         $date_diff1 = date_diff($current_date, $old_delivery_date);
                         $date_diff2 = date_diff($current_date, $new_delivery_date);
 
-                        if ($date_diff1->days > 4 && $date_diff2->days < 4) {
-                        	if ($file_type == "delivered") {
-                                    log_message('info', __FUNCTION__ . ' =>  SMS needs to be sent now');
-                                    $vendors2 = $this->vendor_model->check_vendor_availability($partner_booking['booking_pincode'], $partner_booking['service_id']);
+                        //  if ($date_diff1->days > 4 && $date_diff2->days < 4) {
+                        /*
+                        if ($file_type == "delivered") {
+                            log_message('info', __FUNCTION__ . ' =>  SMS needs to be sent now');
+                            
+                            $vendors2 = $this->vendor_model->check_vendor_availability($partner_booking['booking_pincode'], $partner_booking['service_id']);
 
-                                //Send SMS to customer as well, check whether vendor is available or not
-                                //if (!empty($vendors2) && ($int_status == 'Missed_call_not_confirmed')) {
-                                if (!empty($vendors2)) {
-                                    $this->send_sms_to_snapdeal_customer($value['appliance'],
-                                            $partner_booking['booking_primary_contact_no'],
-                                            $user_id, $partner_booking['booking_id'], $file_type);
-                                } else {
-                                    log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $partner_booking['booking_id']);
-                                }
+                            //Send SMS to customer as well, check whether vendor is available or not
+                            if (!empty($vendors2)) {
+                                $this->send_sms_to_snapdeal_customer($value['appliance'], 
+                                        $partner_booking['booking_primary_contact_no'], 
+                                        $user_id, $partner_booking['booking_id'], $file_type);
+                                
+                                log_message('info', __FUNCTION__ . ' =>  SMS Sent for Booking ID: ' . $partner_booking['booking_id']);
+                            } else {
+                                log_message('info', __FUNCTION__ . ' =>  SMS Not Sent because of Vendor Unavailability for Booking ID: ' . $partner_booking['booking_id']);
                             }
                         }
+                         */
+                         
+                    } else {
+                        log_message('info', __FUNCTION__ . ' => Booking Already scheduled, no update required');
+                        
+                        $count_booking_not_updated++;
                     }
                 }
             }
@@ -722,7 +729,7 @@ class Do_background_upload_excel extends CI_Controller {
 		array_push($invalid_data, $value);
 	    }
 	}
-	// append invalidate data. size of invalidate data is less than 5
+	// append invalid data. size of invalid data is less than 5
 	if (!empty($invalid_data)) {
 	    log_message('info', __FUNCTION__ . ' =>  Pincode is not valid in Excel data: ' .
 		print_r($invalid_data, true));
