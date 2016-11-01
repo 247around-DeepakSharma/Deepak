@@ -36,56 +36,58 @@ class Service_centers_model extends CI_Model {
      * @param: end limit, start limit, service center id
      * @return: Pending booking
      */
-    function getPending_booking($limit = "", $start = "", $service_center_id) {
-
-        //$where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
-        $this->db->distinct();
-        if ($limit != "count") {
-            $this->db->limit($limit, $start);
+    function pending_booking($service_center_id, $booking_id){
+        $booking = "";
+        if($booking_id !=""){
+            $booking = " AND bd.booking_id = '".$booking_id."' ";
         }
-
-        $this->db->select('booking_id,admin_remarks');
-        $this->db->where('service_center_id', $service_center_id);
-        $this->db->where('current_status', "Pending");
-        $this->db->order_by('create_date  ASC');
-        $query = $this->db->get('service_center_booking_action');
-        $pending_booking = $query->result_array();
-
-        $data = array();
-        foreach ($pending_booking as $key => $value) {
-            $sql = "Select  services.services,
-                           users.name as customername, 
-                           users.phone_number,
-                           booking_details.booking_id,
-                           booking_details.booking_date,
-                           booking_details. booking_primary_contact_no,
-                           booking_details.booking_jobcard_filename,
-                           DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(`booking_details`.booking_date,'%d-%m-%Y') ) as age_of_booking,
-                           booking_details.booking_timeslot
-                           From  booking_details 
-                           JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
-                           JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
-                           WHERE booking_details.booking_id = '$value[booking_id]' AND (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled')
-                            AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0)  ";
+        for($i =1; $i <3;$i++ ){
+            if($i ==1){
+                // Today Day
+                $day  = " (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) >= 0) ";
+            } else if($i==2) {
+                //Tomorrow
+                $day  = " (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) = -1) ";
+            }
+            
+            $sql = " SELECT DISTINCT (sc.`booking_id`), `sc`.admin_remarks, "
+                . " bd.booking_primary_contact_no, " 
+                . " users.name as customername,  "
+                . " bd.booking_date,"
+                . " bd.booking_jobcard_filename,"
+                . " bd.assigned_engineer_id,"
+                . " bd.booking_timeslot, "
+                . " bd.count_escalation, "
+                . " bd.count_reschedule, "
+                . " bd.booking_address, "
+                . " bd.booking_pincode, "
+                . " services, CASE
+                    WHEN EXISTS (SELECT *
+                                 FROM   penalty_on_booking as pb
+                                 WHERE  pb.booking_id = bd.booking_id AND pb.service_center_id = bd.assigned_vendor_id) 
+                                 THEN (SELECT SUM(penalty_amount) as penalty_amount FROM penalty_on_booking as pob
+                                 WHERE pob.booking_id = bd.booking_id AND pob.service_center_id = bd.assigned_vendor_id)
+                    ELSE '0'
+                  END AS penalty, "
+                . " DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') ) as age_of_booking "
+                . " FROM service_center_booking_action as sc, booking_details as bd, users, services, engineer_details "
+                . " WHERE sc.service_center_id = $service_center_id "
+                . " AND sc.current_status = 'Pending' "
+                . " AND bd.assigned_vendor_id = sc.service_center_id "
+                . " AND bd.booking_id =  sc.booking_id "
+                . " AND bd.user_id = users.user_id "
+                . " AND bd.service_id = services.id "
+                . " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled')"
+                . " AND ".$day . $booking
+                . " ORDER BY STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc ";
 
             $query1 = $this->db->query($sql);
-            $result = $query1->result();
-            if ($query1->num_rows > 0) {
-                //$result[0]->age_of_booking = $value['age_of_booking'];
-                $result[0]->admin_remarks = $value['admin_remarks'];
-                array_push($data, $result[0]);
-            }
+            $result[$i] = $query1->result();
+           
         }
         
-
-        if ($limit == "count") {
-
-            return count($data);
-        } else {
-
-
-            return $data;
-        }
+        return $result;
+        
     }
 
     /**
@@ -95,7 +97,7 @@ class Service_centers_model extends CI_Model {
      * @param: service center id
      * @param: Status+(Cancelled or Completed)
      */
-    function getcompleted_or_cancelled_booking($limit = "", $start = "", $service_center_id, $status) {
+    function getcompleted_or_cancelled_booking($limit, $start, $service_center_id, $status, $booking_id) {
         if ($limit != "count") {
             $this->db->limit($limit, $start);
         }
@@ -108,6 +110,9 @@ class Service_centers_model extends CI_Model {
         $this->db->join('users', 'users.user_id = booking_details.user_id');
         $this->db->where('booking_details.current_status', $status);
         $this->db->where('assigned_vendor_id', $service_center_id);
+        if($booking_id !=""){
+            $this->db->where('booking_details.booking_id', $booking_id);
+        }
         
         //Sort by Closure Date for both Cancelled and Completed bookings
         $this->db->order_by('closed_date', 'desc');
@@ -141,8 +146,9 @@ class Service_centers_model extends CI_Model {
         }
 
         //Status should NOT be Completed or Cancelled
-        if ($status != "")
+        if ($status != ""){
             $this->db->where_not_in('current_status', $status);
+        }
 
         $this->db->where_not_in('internal_status', "Reschedule");
         $query = $this->db->get('service_center_booking_action');
@@ -183,5 +189,106 @@ class Service_centers_model extends CI_Model {
         $query = $this->db->get('service_center_booking_action');
         return $query->result_array();
     }
+    
+    /**
+     * @desc: This is use to check, If where condition is satisfy then update 
+     * other wise insert details in spare_parts_details table
+     * @param Array $where
+     * @param Array $data
+     * @return boolean
+     */
+    function spare_parts_action($where, $data){
+        $this->db->where($where); 
+        $query = $this->db->get('spare_parts_details');
+        if($query->num_rows >0){
+           return $this->update_spare_parts($where, $data);
+            
+        } else {
+            return $this->insert_data_into_spare_parts($data);
+        }
+    }
+    /**
+     * @desc: This is used to update spare parts table
+     * @param Array $where
+     * @param Array $data
+     * @return boolean
+     */
+    function update_spare_parts($where, $data){
+        $this->db->where($where); 
+        $result = $this->db->update('spare_parts_details', $data);
+        log_message('info', __FUNCTION__ . '=> Update Spare Parts: ' .$this->db->last_query());
+        return $result;
+    }
+    /**
+     * @desc: Insert booking details for spare parts
+     * @param Array $data
+     * @return boolean
+     */
+    function insert_data_into_spare_parts($data){
+        $this->db->insert('spare_parts_details', $data);
+        log_message('info', __FUNCTION__ . '=> Insert Spare Parts: ' .$this->db->last_query());
+        return $this->db->insert_id();  
+    }
+    
+    /**
+     * @desc:This method ised to get all updated spare booking  by SF
+     * @param String $sc_id
+     * @return type Array
+     */
+    function get_updated_spare_parts_booking($sc_id){
+        $sql = "SELECT sp.* "
+                . " FROM spare_parts_details as sp, service_center_booking_action as sc "
+                . " WHERE  sp.booking_id = sc.booking_id "
+                . " AND (sp.status = '".SPARE_PARTS_REQUESTED."' OR sp.status = 'Shipped') AND (sc.current_status = 'InProcess' OR sc.current_status = 'Pending')"
+                . " AND ( sc.internal_status = '".SPARE_PARTS_REQUIRED."' OR sc.internal_status = '".SPARE_PARTS_SHIPPED."') "
+                . " AND sc.service_center_id = '$sc_id' ";
+        $query = $this->db->query($sql);
+         log_message('info', __FUNCTION__  .$this->db->last_query());
+         //echo $this->db->last_query();
+        return $query->result_array();
+    }
+    
+    /**
+     * @desc: This method is used to get Array whose booking is updated by SF.
+     * Need to update to display in SF panel next Day
+     * @return type Array
+     */
+    function get_updated_booking_to_convert_pending(){
+
+        $sql = " SELECT * FROM service_center_booking_action "
+                . " WHERE current_status ='InProcess' AND internal_status IN (".$this->stored_internal_status().") ";
+        $query = $this->db->query($sql);
+        log_message('info', __FUNCTION__  .$this->db->last_query());
+         
+        $result =  $query->result_array();
+        foreach ($result as $value) {
+            $this->db->where('id', $value['id']);
+            $this->db->update("service_center_booking_action", array('current_status'=>'Pending'));
+        }
+    }
+    
+    /**
+     * @desc: This is used to return those internal status whose booking will be display next day after updation
+     * @return String
+     */
+    function stored_internal_status(){
+        return "'Engineer on routes',"
+             . "'Customer not reachable'";
+    }
+    
+    function search_booking_history($where,$service_center_id) {
+       
+        $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot`, users.name, services.services, current_status, assigned_engineer_id "
+                . " FROM `booking_details`,users, services "
+                . " WHERE users.user_id = booking_details.user_id "
+                . " AND services.id = booking_details.service_id "
+                . " AND `assigned_vendor_id` = '$service_center_id' ". $where
+                . " ORDER BY booking_details.`id` DESC ";
+        $query = $this->db->query($sql);
+        //echo $this->db->last_query();
+        return $query->result_array();
+    }
+
+    
 
 }

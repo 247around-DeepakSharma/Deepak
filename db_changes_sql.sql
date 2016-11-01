@@ -1072,12 +1072,126 @@ INSERT INTO `query_report` (`id`, `description`, `query`, `active`, `create_date
 (2, 'Count completed booking this month.', 'SELECT COUNT(id) as count from booking_details where current_status=''Completed'' AND MONTH(closed_date) = MONTH(CURDATE())', 1, '2016-10-10 05:41:56'),
 (3, 'Count completed booking this month.', 'SELECT COUNT(id) as count from booking_details where current_status=''Completed'' AND MONTH(closed_date) = MONTH(CURDATE())', 1, '2016-10-10 05:41:56');
 
--- Abhay 15OCT
+
+
+--Abhay 21 OCT
+
+CREATE TABLE `assigned_engineer` (
+  `id` int(11) NOT NULL,
+  `booking_id` varchar(250) NOT NULL,
+  `service_center_id` int(20) DEFAULT NULL,
+  `engineer_id` varchar(20) DEFAULT NULL,
+  `current_state` varchar(100) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+--
+-- Indexes for table `assigned_engineer`
+--
+ALTER TABLE `assigned_engineer`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `assigned_engineer`
+--
+ALTER TABLE `assigned_engineer`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+ALTER TABLE  `booking_state_change` ADD  `service_center_id` VARCHAR( 20 ) NULL DEFAULT NULL AFTER  `partner_id` ;
+ALTER TABLE `vendor_escalation_policy` ADD `entity` VARCHAR(20) NULL DEFAULT NULL AFTER `escalation_reason`;
+
+CREATE TABLE `penalty_details` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(20) DEFAULT NULL,
+  `escalation_id` int(20) DEFAULT NULL,
+  `criteria` varchar(200) DEFAULT NULL,
+  `penalty_amount` varchar(20) DEFAULT NULL,
+  `unit_%_rate` int(20) DEFAULT NULL,
+  `active` int(10) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+--
+-- Indexes for table `penalty_details`
+--
+ALTER TABLE `penalty_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `penalty_details`
+--
+ALTER TABLE `penalty_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+ALTER TABLE `internal_status` ADD `sf_update_active` INT NULL DEFAULT '0' AFTER `active`, ADD `method_name` VARCHAR(100) NULL DEFAULT NULL AFTER `sf_update_active`, ADD `redirect_url` VARCHAR(100) NULL DEFAULT NULL AFTER `method_name`;
+ALTER TABLE `service_centres` ADD `is_update` INT NULL DEFAULT '0' AFTER `sc_code`, ADD `is_penalty` INT NULL DEFAULT '0' AFTER `is_update`;
+ALTER TABLE `service_centres` ADD `penalty_activation_date` DATE NULL DEFAULT NULL AFTER `is_penalty`;
+
 ALTER TABLE `sms_sent_details` ADD `sms_tag` VARCHAR(50) NULL AFTER `booking_id`;
--- Belal 14 Oct
+
+
+CREATE TABLE `penalty_on_booking` (
+  `id` int(11) NOT NULL,
+  `booking_id` varchar(100) NOT NULL,
+  `service_center_id` int(20) NOT NULL,
+  `criteria_id` int(20) NOT NULL,
+  `penalty_amount` int(20) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+--
+-- Indexes for table `penalty_on_booking`
+--
+ALTER TABLE `penalty_on_booking`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `penalty_on_booking`
+--
+ALTER TABLE `penalty_on_booking`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+ALTER TABLE `booking_details` ADD `count_reschedule` INT(10) NULL DEFAULT '0' AFTER `potential_value`, ADD `count_escalation` INT(10) NULL DEFAULT '0' AFTER `count_reschedule`;
+
+
+
+CREATE TABLE `sc_crimes` (
+  `id` int(11) NOT NULL,
+  `service_center_id` int(11) DEFAULT NULL,
+  `un_assigned_engineer` int(11) DEFAULT NULL,
+  `not_update_booking` int(11) DEFAULT NULL,
+  `old_crimes` int(11) DEFAULT NULL,
+  `create_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `sc_crimes`
+--
+ALTER TABLE `sc_crimes`
+  ADD PRIMARY KEY (`id`);
+
+
 
 -- ALTER TABLE `employee` ADD `official_mail` VARCHAR(128) NOT NULL AFTER `phone`, ADD `personal_mail` VARCHAR(128) NOT NULL AFTER `official_mail`;
 
 ALTER TABLE `employee` CHANGE `email` `official_email` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
 ALTER TABLE `employee` CHANGE `email_personal` `personal_email` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
-

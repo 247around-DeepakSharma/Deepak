@@ -21,6 +21,7 @@ class BookingSummary extends CI_Controller {
         $this->load->model('reporting_utils');
         $this->load->model('justdial_bookings');
         $this->load->model('user_model');
+        $this->load->model('reporting_utils');
         $this->load->model('booking_model');
         $this->load->model('partner_model');
 
@@ -667,5 +668,62 @@ EOD;
         
         log_message('info', __FUNCTION__ . ' Service Center Report mail sent to ' . $to);
     }
+    
+    /**
+     * @desc: 
+     * @param integer $is_mail
+     */
+    function get_sc_crimes($is_mail = 0){
+        log_message('info', __FUNCTION__ );
+        $data['data']= $this->reporting_utils->get_sc_crimes();
+        if($is_mail ==0){
+            $this->load->view('employee/header');
+            $this->load->view('employee/get_crimes', $data);
+        } else {
+            $view =  $this->load->view('employee/get_crimes', $data, TRUE); 
+            $to = "anuj@247around.com, nits@247around.com";
+            $subject = "SF Crimes Report " . date("d-M-Y");
+            $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $view, "");
+        }
+        
+         log_message('info', __FUNCTION__ ." Exit");
 
+    }
+    
+    /**
+     * @desc: If is_mal flag is 0 then it displays a table. In the table, we will show Today and Past Un-assignd booking
+     * If is_mail flag is 1 then send an email with attach a table, In the table, we will show Today and Past Un-assignd booking
+     */
+    
+    function get_un_assigned_crimes_for_247around($is_mail = 0){
+        log_message('info', __FUNCTION__ );
+        $data['data'] = $this->reporting_utils->get_unassigned_crimes();
+       
+        if($is_mail == 0){
+            
+             $this->load->view('employee/header');
+             $this->load->view('employee/unassigned_table', $data);
+        } else if($is_mail == 1){
+            
+            $view =  $this->load->view('employee/unassigned_table', $data, TRUE); 
+            $to = "anuj@247around.com, nits@247around.com";
+            $subject = "SF Engineer Assigned Crimes Report " . date("d-M-Y");
+            $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $view, "");
+        }
+    }
+    
+    /**
+     * @desc: This is used to send mail to SC(POC AND OWNER) with Un-Assigned booking
+     */
+    function get_un_assigned_crimes_for_sc(){
+        log_message('info', __FUNCTION__ );
+        $data = $this->reporting_utils->get_unassigned_crimes();
+        foreach ($data as $value){
+            $view = $this->load->view('employee/unassigned_table', $value, TRUE);
+            $to = $value['primary_contact_email'].",". $value['owner_email'];
+            //$to = "abhaya@247around.com";
+            $subject = $value['service_center_name']." Assigned Crimes Report " . date("d-M-Y");
+            $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $view, "");
+        }
+    }
 }

@@ -51,6 +51,10 @@ define('DEFAULT_TAX_RATE', 15);
 define('DEFAULT_PARTNER_AGENT', 978978);
 
 define('_247AROUND',247001);
+define('_247AROUND2',247002);
+define('_247AROUND3',247003);
+define('_247AROUND99',247999);
+
 //constant to define Pending state
 define('_247AROUND_PENDING','Pending');
 //constant to define New Booking state
@@ -71,11 +75,39 @@ define('PINCODE_AVAILABLE','p_av');
 define('PINCODE_NOT_AVAILABLE','p_nav');
 //Pincode not available OR Pincode Avaliable Queies
 define('PINCODE_ALL_AVAILABLE','p_all');
+// Vendor NOT Assign
+define('SC_NOT_ASSIGN','SC_not_assign');
 // Assigned Vendor
 define('ASSIGNED_VENDOR','Assigned_vendor');
 //Re-Assigned Vendor
 define('RE_ASSIGNED_VENDOR','Re-Assigned_vendor');
+//Engineer Assigned
+define('ENGG_ASSIGNED', "Engg_Assigned");
+//Re-Assigned Engineer
+define('RE_ASSIGNED_ENGINEER', "Re-Assigned_Engineer");
+define('UPDATED_SC', "upadted_sc");
+//Engineer Not Assign
+define('ENGG_NOT_ASSIGN', 'Engineer_Not_Assign');
+//Engineer Not Assign on Time
+define('ENGG_LATE_ASSIGN', 'Engineer_Not_Assign_With_In_Time');
+// Booking not updated by SF
+define('BOOKING_NOT_UPDATED_BY_SERVICE_CENTER', 'Booking is not updated by service center');
+//Spare Parts Received By SF
+define('SPARE_PARTS_DELIVERED', 'Spare Parts Delivered to SF');
+//Spare Parts Shipped By SF
+define('SPARE_PARTS_SHIPPED', 'Spare Parts Shipped by Partner');
+// Spare Reschedule 
+define('SPARE_RESCHEDULED', 'Spare_Rescheduled');
 
+define('SPARE_PARTS_REQUIRED', 'Spare Parts Required');
+
+define('SPARE_PARTS_REQUESTED', 'Spare Parts Requested');
+//
+define('Max_TIME_TO_BE_ASSIGNED_ENGINEER', 12);
+
+define('Max_TIME_WITH_IN_ASSIGNED_ENGINEER', 3);
+
+define('PRODUCT_NOT_DELIVERED_TO_CUSTOMER','Product not delivered to customer');
 
 
 /* End of file constants.php */

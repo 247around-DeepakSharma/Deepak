@@ -75,7 +75,7 @@ class Booking extends CI_Controller {
         log_message('info', " Booking Insert User ID: " . $user_id);
         $booking = $this->getAllBookingInput($user_id);
 
-        $service = $booking['services'];
+        
         $message = $booking['message'];
         unset($booking['message']); // unset message body from booking deatils array
         unset($booking['services']); // unset service name from booking details array
@@ -211,7 +211,7 @@ class Booking extends CI_Controller {
 
 	if ($booking['type'] == 'Booking') {
 	    $booking['current_status'] = 'Pending';
-	    $booking['internal_status'] = 'Scheduled';
+	    $booking['internal_status'] = SC_NOT_ASSIGN;
 	    $booking['booking_remarks'] = $booking_remarks;
 	    $message .= "Congratulations You have received new booking, details are mentioned below:
       <br>Customer Name: " . $user_name . "<br>Customer Phone Number: " . $booking['booking_primary_contact_no'] .
@@ -259,7 +259,7 @@ class Booking extends CI_Controller {
 	    // get model_number from appliance_capacity array for only specific key such as $model_number[0].
 	    $appliances_details['model_number'] = $services_details['model_number'] = $model_number[$key];
 	    // get appliance tag from appliance_tag array for only specific key such as $appliance_tag[0].
-	    //$appliances_details['tag']  = $appliance_tags[$key];
+	    //$appliances_details['tag'] = $services_details['appliance_tag'] = $appliance_tags[$key];
 	    // get purchase year from purchase year array for only specific key such as $purchase_year[0].
 	    $appliances_details['purchase_year'] = $services_details['purchase_year'] = $purchase_year[$key];
 	    $services_details['booking_id'] = $booking['booking_id'];
@@ -496,7 +496,8 @@ class Booking extends CI_Controller {
      */
     function addbooking($phone_number) {
 	$data = $this->booking_model->get_city_booking_source_services($phone_number);
-	$data['follow_up_internal_status'] = $this->booking_model->get_internal_status("FollowUp");
+        $where_internal_status = array("page" => "FollowUp", "active" => '1');
+	$data['follow_up_internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
 	$this->load->view('employee/header');
 	$this->load->view('employee/addbookingmodel');
 	$this->load->view('employee/addbooking', $data);
@@ -674,7 +675,8 @@ class Booking extends CI_Controller {
         $where = array('reason_of' => '247around');
 	$data['reason'] = $this->booking_model->cancelreason($where);
 	if ($status == _247AROUND_FOLLOWUP ) {
-	    $data['internal_status'] = $this->booking_model->get_internal_status("Cancel");
+            $where_internal_status = array("page" => "Cancel", "active" => '1');
+	    $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
 	}
 
 	$this->load->view('employee/header');
@@ -787,6 +789,7 @@ class Booking extends CI_Controller {
 	} else {
 	    log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));
 	    $this->booking_model->update_booking($booking_id, $data);
+            $this->booking_model->increase_escalation_reschedule($booking_id, "count_reschedule");
 
             //Log this state change as well for this booking
 	    //param:-- booking id, new state, old state, employee id, employee name
@@ -996,6 +999,12 @@ class Booking extends CI_Controller {
 	    $data['rating_comments'] = $this->input->post('rating_comments');
 
 	    $this->booking_model->update_booking($booking_id, $data);
+           
+            $this->notify->insert_state_change($booking_id, 
+                    "Rating: ".$data['rating_stars'], "Rating", 
+                    $data['rating_comments'] , 
+                    $this->session->userdata('id'), $this->session->userdata('employee_id'),
+                    _247AROUND);
 	}
 
 	redirect(base_url() . 'employee/booking/viewclosedbooking/' . $status);
@@ -1155,7 +1164,8 @@ class Booking extends CI_Controller {
 	$booking['capacity'] = array();
 	$booking['prices'] = array();
 	$booking['appliance_id'] = $appliance_id;
-	$booking['follow_up_internal_status'] = $this->booking_model->get_internal_status("FollowUp");
+        $where_internal_status = array("page" => "FollowUp", "active" => '1');
+	$booking['follow_up_internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
 
 	foreach ($booking['unit_details'] as $key => $value) {
 
@@ -1411,6 +1421,7 @@ class Booking extends CI_Controller {
 	    $booking['reschedule_reason'] = $reschedule_reason[$booking_id];
 	    log_message('info', __FUNCTION__ . " update booking: " . print_r($booking, true));
 	    $this->booking_model->update_booking($booking_id, $booking);
+            $this->booking_model->increase_escalation_reschedule($booking_id, "count_reschedule");
 	    $data['internal_status'] = "Pending";
 	    $data['current_status'] = "Pending";
 	    log_message('info', __FUNCTION__ . " update service cenetr action table: " . print_r($data, true));
@@ -1635,6 +1646,9 @@ class Booking extends CI_Controller {
 	    $service_center_data['current_status'] = "Pending";
 	    $service_center_data['update_date'] = date("Y-m-d H:i:s");
 	    $service_center_data['serial_number'] = "";
+            $service_center_data['cancellation_reason'] = NULL;
+            $service_center_data['reschedule_reason'] = NULL;
+            $service_center_data['admin_remarks'] = NULL;
 	    $service_center_data['service_center_remarks'] = $service_center_data['admin_remarks'] = NULL;
 	    $service_center_data['booking_date'] = $service_center_data['booking_timeslot'] = NUll;
 	    $service_center_data['closed_date'] = NUll;
@@ -1729,6 +1743,31 @@ class Booking extends CI_Controller {
             $this->form_validation->set_rules('booking_timeslot', 'Time Slot', 'required|xss_clean');
             
             return $this->form_validation->run();
+    }
+    
+    /**
+     * @desc: This is used to display all spare parts booking
+     */
+    function get_spare_parts(){
+
+	$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
+       
+	$config['base_url'] = base_url() . 'employee/booking/get_spare_parts/';
+        $total_rows =  $this->booking_model->get_spare_parts_booking(0, "All");
+        
+	$config['total_rows'] = $total_rows[0]['count'];
+
+	$config['per_page'] = 50;
+	
+	$config['uri_segment'] = 4;
+	$config['first_link'] = 'First';
+	$config['last_link'] = 'Last';
+
+	$this->pagination->initialize($config);
+	$data['links'] = $this->pagination->create_links();
+	$data['spare_parts'] = $this->booking_model->get_spare_parts_booking($config['per_page'], $offset);
+        $this->load->view('employee/header');
+        $this->load->view('employee/get_spare_parts', $data);
     }
 
 }

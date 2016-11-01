@@ -665,6 +665,8 @@ class vendor extends CI_Controller {
         if ($checkValidation) {
             $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
             $booking_date_timeslot = $this->vendor_model->getBookingDateFromBookingID($escalation['booking_id']);
+            
+            $this->booking_model->increase_escalation_reschedule($escalation['booking_id'], "count_escalation");
 
             $booking_date = strtotime($booking_date_timeslot[0]['booking_date']);
 

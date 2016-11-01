@@ -32,6 +32,7 @@
                            <th>Reschedule</th>
                            <th>Cancel</th>
                            <th>JobCard</th>
+                           
                            <!-- <th>Escalate</th> -->
 
                         </tr>
@@ -96,6 +97,7 @@
                             <!-- <td>
                                 <a href="<?php echo base_url(); ?>partner/escalation_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-danger' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
                             </td> -->
+                           
 
                         </tr>
                         <?php $sn_no++; } ?>

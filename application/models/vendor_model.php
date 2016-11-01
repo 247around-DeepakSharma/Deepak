@@ -959,7 +959,9 @@ class vendor_model extends CI_Model {
         return $this->db->insert_id();
     }
     /**
-     * @desc: Get engineer  details
+     * @desc: This is used to return Engineers details for custom vendor
+     * @param String $service_center_id
+     * @return Array
      */
     function get_engineers($service_center_id){
         if($service_center_id != ""){
@@ -1229,6 +1231,18 @@ class vendor_model extends CI_Model {
         }
     }
     
+
+    /**
+     * @desc: This is used to insert assigned engineer data into assigned engineer table
+     * @param Array $data
+     * @return Integer id
+     */
+    function insert_assigned_engineer($data) {
+    $this->db->insert('assigned_engineer', $data);
+    log_message('info', __METHOD__ . "=> Booking  SQL " . $this->db->last_query());
+    return $this->db->insert_id();
+    }
+
     //Array of queries
     function execute_query($query) {
         foreach ($query as $q) {

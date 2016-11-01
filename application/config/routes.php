@@ -59,7 +59,11 @@ $route['service_center/complete_booking_form/(:any)'] = 'employee/service_center
 $route['service_center/add_engineer'] = 'employee/vendor/add_engineer';
 $route['service_center/get_engineers'] = 'employee/vendor/get_engineers';
 $route['service_center/invoices_details'] = 'employee/service_centers/invoices_details';
-
+$route['service_center/update_booking_status/(:any)'] = 'employee/service_centers/update_booking_status/$1';
+$route['service_center/process_update_booking'] = 'employee/service_centers/process_update_booking';
+$route['service_center/acknowledge_delivered_spare_parts/(:any)'] = 'employee/service_centers/acknowledge_delivered_spare_parts/$1';
+$route['service_center/get_search_form'] = 'employee/service_centers/get_search_form';
+$route['service_center/search'] = 'employee/service_centers/search';
 
 $route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';
 
@@ -84,6 +88,10 @@ $route['partner/escalation_form/(:any)'] = 'employee/partner/escalation_form/$1'
 $route['partner/process_escalation/(:any)'] = 'employee/partner/process_escalation/$1';
 $route['partner/update_booking/(:any)'] = 'employee/partner/get_editbooking_form/$1';
 $route['partner/process_update_booking/(:any)'] = 'employee/partner/process_editbooking/$1';
+$route['partner/get_spare_parts_booking'] = 'employee/partner/get_spare_parts_booking';
+$route['partner/process_update_spare_parts/(:any)'] = 'employee/partner/process_update_spare_parts/$1';
+$route['partner/update_spare_parts_form/(:any)'] = 'employee/partner/update_spare_parts_form/$1';
+$route['partner/download_spare_parts'] = 'employee/partner/download_spare_parts';
 
 //$route['api/(:any)'] = 'partner/$2';
 

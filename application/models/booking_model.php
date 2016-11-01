@@ -62,6 +62,7 @@ class Booking_model extends CI_Model {
     function update_appliances($appliance_id, $appliance_details){
         $this->db->where('id', $appliance_id);
         $this->db->update('appliance_details', $appliance_details);
+        log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
     }
 
     /**
@@ -73,12 +74,19 @@ class Booking_model extends CI_Model {
     function addunitdetails($booking){
         log_message ('info', __METHOD__ . " booking unit details data". print_r($booking, true));
         $this->db->insert('booking_unit_details', $booking);
+        log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
         return $this->db->insert_id();
     }
-
+    /**
+     * @desc: Update unit details
+     * @param String $booking_id
+     * @param Array $data
+     * @return Array
+     */
     function update_booking_unit_details($booking_id, $data){
         $this->db->where('booking_id', $booking_id);
         $result = $this->db->update('booking_unit_details', $data);
+        log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
         return $result;
     }
 
@@ -90,7 +98,7 @@ class Booking_model extends CI_Model {
 
     function addbooking($booking){
 	$this->db->insert('booking_details', $booking);
-
+        
         log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
 
         return $this->db->insert_id();
@@ -414,7 +422,7 @@ class Booking_model extends CI_Model {
         $condition ="";
         $service_center_name ="";
         if($join !=""){
-            $service_center_name = ",service_centres.name as vendor_name, service_centres.district, "
+            $service_center_name = ",service_centres.name as vendor_name, service_centres.district,service_centres.address, "
 		. "service_centres.primary_contact_name, service_centres.owner_email, "
 		. "service_centres.primary_contact_phone_1, service_centres.primary_contact_email ";
 	    $service_centre = ", service_centres ";
@@ -428,9 +436,18 @@ class Booking_model extends CI_Model {
                . "services.id = booking_details.service_id  ". $condition;
 
         $query = $this->db->query($sql);
-        //echo $this->db->last_query();
-
-        return $query->result_array();
+        $result = $query->result_array();
+        
+        $this->db->Select('*');
+        $this->db->where('booking_id', $booking_id);
+        $query1 = $this->db->get('spare_parts_details');
+        if($query1->num_rows > 0){
+            $result1 = $query1->result_array();
+           
+            $result['spare_parts'] = $result1[0];
+           
+        }
+        return $result;
     }
 
     function getbooking_filter_service_center($booking_id){
@@ -439,7 +456,7 @@ class Booking_model extends CI_Model {
         $this->db->where('assigned_vendor_id is NOT NULL', NULL, true);
         $this->db->where('booking_id', $booking_id);
         $query = $this->db->get('booking_details');
-
+        
         if($query->num_rows > 0){
             // NOT NUll
             $data = $this->getbooking_history($booking_id, "Join");
@@ -450,7 +467,7 @@ class Booking_model extends CI_Model {
         } else {
             //NUll
             $sql = " SELECT `services`.`services`, users.*, booking_details.* "
-               . "from booking_details, users, services "
+               . "from booking_details, users, services " 
                . "where booking_details.booking_id='$booking_id' and "
                . "booking_details.user_id = users.user_id and "
                . "services.id = booking_details.service_id  ";
@@ -1218,12 +1235,16 @@ class Booking_model extends CI_Model {
      *  @param : void
      *  @return : all internal status present in database
      */
-    function get_internal_status($page) {
+    function get_internal_status($where) {
         $this->db->select('*');
-        $this->db->from("internal_status");
-        $this->db->where(array("page" => $page, "active" => '1'));
-        $query = $this->db->get();
-        return $query->result();
+        $this->db->where($where);
+        $query = $this->db->get('internal_status');
+        
+        if($query->num_rows > 0){
+            return $query->result();   
+        } else {
+            return FALSE;
+        }
     }
 
     /**
@@ -1279,11 +1300,11 @@ class Booking_model extends CI_Model {
 
         $this->db->where("booking_id", $booking_id);
         $this->db->update("booking_details", $status);
-
+        
         $booking_status = array('booking_status' => '');
 	$this->db->where("booking_id", $booking_id);
 	$this->db->update("booking_unit_details", $booking_status);
-
+        
 	return true;
     }
 
@@ -1864,8 +1885,26 @@ class Booking_model extends CI_Model {
         $this->db->join('bookings_sources', 'bookings_sources.partner_id = booking_state_change.partner_id');
         $this->db->order_by('booking_state_change.id');
         $query = $this->db->get();
+        
         return $query->result_array();
 
+    }
+    /**
+     * @desc: Get State Change  details
+     * @param String $booking_id
+     * @return boolean
+     */
+    function get_booking_state_change($booking_id){
+        $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
+        $this->db->like('booking_id',$trimed_booking_id);
+        $this->db->order_by('booking_state_change.id');
+        $query = $this->db->get('booking_state_change');
+
+        if($query->num_rows){
+            return $query->result_array();
+        } else {
+            return false;
+        }
     }
     /**
      * @desc: Get booking updation reason
@@ -1933,6 +1972,45 @@ class Booking_model extends CI_Model {
         } else {
             return false;
         }
+    }
+
+    /**
+     * @desc : This funtion is to get all booking details of particular booking based on booking_primary_contact_no.
+     *
+     * Finds all the booking details of particular booking of a particular user.
+     *
+     * @param : booking_primary_contact_no
+     * @return : array of booking details
+     */
+    function get_spare_parts_booking($limit, $start){
+        if($limit == "All"){
+            $select = "count(spare_parts_details.booking_id) as count";
+        } else {
+            $select = "spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, service_centres.name as sc_name, bookings_sources.source";
+            $this->db->limit($limit, $start);
+        }
+        $this->db->select($select);
+        $this->db->from('spare_parts_details'); 
+        $this->db->join('booking_details', 'booking_details.booking_id = spare_parts_details.booking_id');
+        $this->db->join('users', 'users.user_id = booking_details.user_id');
+        $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id');
+        $this->db->join('bookings_sources','bookings_sources.partner_id = booking_details.partner_id');
+        $this->db->order_by('spare_parts_details.create_date', 'desc');
+        
+        $query = $this->db->get();
+      
+        return $query->result_array();
+        
+    }
+    
+    /**
+     * @desc: This method increase count in the case reschedule or escalation
+     * @param String $booking_id
+     * @param String $column_name
+     */
+    function increase_escalation_reschedule($booking_id, $column_name){
+        $sql = "UPDATE booking_details SET $column_name= ($column_name+1) where booking_id = '$booking_id' ";
+        return $this->db->query($sql);
     }
 
 }

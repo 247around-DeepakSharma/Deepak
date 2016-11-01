@@ -54,6 +54,8 @@
                                 <li role="separator" class="divider"></li> -->
                         <li><a href="<?php echo base_url();?>partner/pending_booking">Pending Bookings</a></li>
                                 <li role="separator" class="divider"></li>
+                        <li><a href="<?php echo base_url();?>partner/get_spare_parts_booking">Pending Spare Parts Bookings</a></li>
+                                <li role="separator" class="divider"></li>
                         <li><a href="<?php echo base_url();?>partner/closed_booking/Completed">Completed Bookings</a></li>
                                 <li role="separator" class="divider"></li>
                         <li><a href="<?php echo base_url();?>partner/closed_booking/Cancelled">Cancelled Bookings</a></li>

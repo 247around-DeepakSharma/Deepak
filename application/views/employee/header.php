@@ -86,6 +86,10 @@
                         </li>
                         <li class="divider"></li>
                         <li>
+                            <a href="<?php echo base_url() ?>employee/booking/get_spare_parts"><i class="fa fa-fw fa-desktop"></i> <strong> View Spare Parts Booking</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
                             <a href="<?php echo base_url() ?>employee/booking/viewclosedbooking/Completed"><i class="fa fa-fw fa-desktop"></i> <strong>View Completed Booking</strong></a>
                         </li>
                         <li class="divider"></li>
@@ -277,7 +281,17 @@
                       <li>
                           <a href="<?php echo base_url()?>employee/vendor/show_around_dashboard"><i class="fa fa-fw fa-desktop "></i> <strong>Dashboard</strong></a>
                       </li>
-                        <li class="divider"></li>
+                      
+                      <li class="divider"></li>
+                       <li>
+                          <a href="<?php echo base_url()?>BookingSummary/get_sc_crimes/0"><i class="fa fa-fw fa-desktop "></i> <strong>SF All Missed Target Report</strong></a>
+                      </li>
+                       <li class="divider"></li>
+                       <li>
+                          <a href="<?php echo base_url()?>BookingSummary/get_un_assigned_crimes_for_247around/0"><i class="fa fa-fw fa-desktop "></i> <strong>SF Engineer Not Assigned Report</strong></a>
+                      </li>
+              
+                      <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>employee/vendor/vendor_performance_view"><i class="fa fa-fw fa-desktop "></i> <strong>Vendor Performance</strong></a>
                         </li>

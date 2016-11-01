@@ -489,7 +489,7 @@ class Notify {
 		    break;
 
 		case 'Pincode_not_found':
-		    log_message('info', __METHOD__ . "Applianc" . print_r($appliance_id, true));
+		   // log_message('info', __METHOD__ . "Applianc" . print_r($appliance_id, true));
 		    sleep(180);
 		    $to = "anuj@247around.com, nits@247around.com";
 		    //$to = "abhaya@247around.com";
@@ -498,6 +498,7 @@ class Notify {
 
 
 		    break;
+		   
 	    }
 	}
     }
@@ -554,5 +555,49 @@ class Notify {
                     $smsBody, $sms['booking_id'], $sms['tag']);
         }
     }
+    
+    /**
+     * @desc: This method is used to send sms to Engineer while assigned booking
+     */
+    function send_sms_to_assigned_engineer() {
+        $engineers_id_with_booking_id = $this->input->post('booking_id_with_engineer_id');
+        foreach ($engineers_id_with_booking_id as $booking_id => $engineer_id) {
+            if (!empty($engineer_id)) {
+                $query1 = $this->My_CI->booking_model->getbooking_filter_service_center($booking_id);
+                log_message('info', __METHOD__ . "Assigned Engineer");
+
+                $date1 = date('d-m-Y', strtotime('now'));
+                $date2 = $query1[0]['booking_date'];
+                $datediff = ($date1 - $date2) / (60 * 60 * 24);
+
+                $month = date("m", strtotime($query1[0]['booking_date']));
+                $dd = date("d", strtotime($query1[0]['booking_date']));
+                $months = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
+                $mm = $months[$month - 1];
+
+                if ($datediff == 0) {
+                    $bookingdate = "Today";
+                } elseif ($datediff == 1) {
+                    $bookingdate = "Tomorrow";
+                } else {
+                    $bookingdate = $dd . " " . $mm;
+                }
+
+                $sms['type'] = "engineer";
+                $sms['type_id'] = $query1[0]['assigned_engineer_id'];
+                $sms['tag'] = "assigned_engineer";
+                $sms['smsData']['customer_name'] = $query1[0]['name'];
+                $sms['smsData']['phone_number'] = $query1[0]['booking_primary_contact_no'];
+                $sms['smsData']['services'] = $query1[0]['services'];
+                $sms['smsData']['booking_date'] = $bookingdate;
+                $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
+                $sms['smsData']['booking_address'] = $query1[0]['booking_address'];
+                $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
+                $this->send_sms($sms);
+                break;
+            }
+        }
+    }
+
 
 }

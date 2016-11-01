@@ -234,15 +234,16 @@
                         <td>
                         <?php
                         if ($row->current_status == 'Pending' || $row->current_status == 'Rescheduled')
-                        {
-                            echo "<a target='_blank' id='edit' class='btn btn-sm btn-success' "
-                            . "href=" . base_url() . "employee/booking/get_reschedule_booking_form/$row->booking_id title='Reschedule'><i class='fa fa-calendar' aria-hidden='true' ></i></a>";
-                        }
+                        {?>
+                            
+                            <a target="_blank" id="edit" class='btn btn-sm btn-success' href="<?php echo base_url(); ?>employee/booking/get_reschedule_booking_form/<?php echo $row->booking_id; ?>"
+                               title='Reschedule'><i><i class='fa fa-calendar' aria-hidden='true' ></i></i><span class='sup'><?php if($row->count_reschedule !=0){ echo $row->count_reschedule;} ?></span></a>
+                        <?php }
                         else
-                        {
-                            echo "<a id='edit' target='_blank' class='btn btn-sm btn-success disabled' "
-                          . "href=" . base_url() . "employee/booking/get_reschedule_booking_form/$row->booking_id title='Reschedule'><i class='fa fa-calendar' aria-hidden='true' ></i></a>";
-                        }
+                        { ?>
+                            <a target="_blank" id="edit" class='btn btn-sm btn-success disabled' href="<?php echo base_url(); ?>employee/booking/get_reschedule_booking_form/<?php echo $row->booking_id; ?>"
+                               title='Reschedule'><i><i class='fa fa-calendar' aria-hidden='true' ></i></i><span class='sup'><?php if($row->count_reschedule !=0){ echo $row->count_reschedule;} ?></span></a>
+                        <?php }
                         ?>
                     </td>
 
@@ -352,8 +353,10 @@
                         <a target='_blank' href="<?php echo base_url();?>employee/vendor/get_reassign_vendor_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-success' title="Re- assign"><i class="fa fa-repeat" aria-hidden="true"></i></a>
                     </td>
                     <td>
-                                <a target='_blank' href="<?php echo base_url(); ?>employee/vendor/get_vendor_escalation_form/<?php echo $row->booking_id; ?>" <?php if($row->assigned_vendor_id == null){ echo "disabled"; }?> class='btn btn-sm btn-danger' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
+                                <a target='_blank' href="<?php echo base_url(); ?>employee/vendor/get_vendor_escalation_form/<?php echo $row->booking_id; ?>" <?php if($row->assigned_vendor_id == null){ echo "disabled"; }?> class='btn btn-sm btn-danger' title="Escalate"><i>
+                                        <i class="fa fa-circle" aria-hidden="true"></i></i><span class=sup><?php if($row->count_escalation !=0){ echo $row->count_escalation;} ?></span></a>
                         </td>
+                    
 
                 </tr>
                 <?php $count++; $offset++;
@@ -383,3 +386,10 @@
     });
 });
 </script>
+<style type="text/css">
+    .sup {
+  position: relative;
+  bottom: 1ex; 
+  font-size: 100%;
+}
+</style>

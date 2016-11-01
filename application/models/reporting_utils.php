@@ -1117,5 +1117,157 @@ class Reporting_utils extends CI_Model {
         
         return $array_final;
     }
+    
+    /**
+     * @desc: First gets all service center id who has is_update column value 1.
+     * Count those bookings who have not assigned(Booking date Past & Today).
+     * Count thpose bookings who have not any entry in booking state change, means not updated( except Assigned Engineer)
+     * It stores crime when this script excute after 8 PM
+     */
+    function get_sc_crimes(){
+        log_message('info', __FUNCTION__);
+        
+        // Get All Service center who has is_update filed is 1.
+        $sql = "SELECT id, name FROM service_centres WHERE "
+                . " active = '1' AND is_update = '1' ORDER BY name ";
+        $query = $this->db->query($sql);
+        $sc = $query->result_array();
+        
+        $data = array();
+        foreach ($sc as $value) {
+            $un_assigned = 0;
+            $not_update = 0;
+            //  Count,  booking is not assigned
+            $sql1 = "SELECT count(booking_id) as unassigned_engineer FROM booking_details as BD "
+                    . " WHERE BD.current_status = 'Pending' AND assigned_engineer_id IS  NULL "
+                    . " AND assigned_vendor_id = '$value[id]' AND "
+                    . " DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= -1";
+            $query1 = $this->db->query($sql1);
+            $result1 = $query1->result_array();
+            // Count, Booking is not updated
+             $sql2 = "SELECT count(distinct(BS.booking_id)) as not_update FROM booking_details as BD, "
+                     . " booking_state_change AS BS "
+                     . " WHERE BD.Current_status = 'Pending' "
+                     . " AND assigned_vendor_id = '$value[id]' "
+                     . " AND BD.booking_id = BS.booking_id "
+                     . " AND BS.service_center_id = '$value[id]' "
+                     . " AND new_state != '".ENGG_ASSIGNED."'"
+                     . " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= -1 ";
+            $query2 = $this->db->query($sql2);
+            $result2 = $query2->result_array();
+            
+            if(!empty($result1)){
+                    $un_assigned = $result1[0]['unassigned_engineer'];
+            }
+            
+             if(!empty($result2)){
+                 $not_update = $result2[0]['not_update'];
+             }
+             
+            $where = array('service_center_id'=>$value['id']);
+            // Get Old Crimes
+            $old_crimes = $this->get_crimes($where);
+            if(!empty($old_crimes)){
+                $data1['old_crimes'] = $old_crimes[0]['total_missed_target'];
+            } else {
+                 $data1['old_crimes'] = 0;
+            }
+            
+            // insert or update crimes after 8 PM
+           
+            if(date('H:i') > '20:00'){
+               
+                $sc_crimes['service_center_id'] = $value['id'];
+                if(!empty($result1)){
+                    $sc_crimes['engineer_not_assigned'] = $un_assigned;
+                   
+                }
+                
+                if(!empty($result2)){
+                    $sc_crimes['booking_not_updated'] = $not_update;
+                    
+                }
+                
+                $sc_crimes['total_missed_target'] = ($un_assigned + $not_update );
+                $sc_crimes['update_date'] = date('Y-m-d H:i:s');
+                
+                $this->store_old_sc_crimes($sc_crimes);
+            }
+            
+            $data1['service_center_id'] = $value['id'];
+            $data1['service_center_name'] = $value['name'];
+            $data1['un_assigned'] = $un_assigned;
+            $data1['not_update'] = $not_update;
+            $data1['total_crimes'] = ($un_assigned +$not_update );
+            
+            array_push($data, $data1);
+            unset($data1);
+
+        }
+        return $data;
+    }
+    /**
+     * @desc: store SF missed target
+     * @param Array $sc_crimes
+     */
+    function store_old_sc_crimes($sc_crimes){
+
+        $this->db->insert('sc_crimes', $sc_crimes);
+        
+    }
+    /**
+     * @desc: This meyhod returns crimes details as array
+     * @param Array $where
+     * @return Array
+     */
+    function get_crimes($where){
+        $this->db->where($where);
+        $this->db->order_by('id', 'desc');
+        $query = $this->db->get('sc_crimes');
+        return $query->result_array();
+    }
+    /**
+     * @desc:This method returns count of un-assigned today and past booking 
+     * @param String $sc_id
+     * @return array
+     */
+    function get_unassigned_crimes(){
+ 
+        $sql = "SELECT id, name, primary_contact_email, owner_email FROM service_centres WHERE "
+                . " active = '1' AND is_update = '1' "
+                . " ORDER BY name ";
+        $query = $this->db->query($sql);
+        $sc = $query->result_array();
+        
+        $data = array();
+        foreach ($sc as $value) {
+             //  Count,  Today booking is not assigned
+            $sql1 = "SELECT count(booking_id) as unassigned_engineer FROM booking_details as BD "
+                    . " WHERE BD.current_status = 'Pending' AND assigned_engineer_id IS  NULL "
+                    . " AND assigned_vendor_id = '$value[id]' AND "
+                    . " DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) = 0";
+            $query1 = $this->db->query($sql1);
+            $result1 = $query1->result_array();
+           
+            //  Count,  Past booking is not assigned
+            $sql2 = "SELECT count(booking_id) as unassigned_engineer FROM booking_details as BD "
+                    . " WHERE BD.current_status = 'Pending' AND assigned_engineer_id IS  NULL "
+                    . " AND assigned_vendor_id = '$value[id]' AND "
+                    . " DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) > 0";
+            $query2 = $this->db->query($sql2);
+            $result2 = $query2->result_array();
+            
+            $data1['today_unassigned'] = !empty($result1) ? $result1[0]['unassigned_engineer']:0;
+            $data1['past_unassigned'] = !empty($result2) ? $result2[0]['unassigned_engineer']:0;
+            $data1['service_center_name'] = $value['name'];
+            $data1['primary_contact_email'] = $value['primary_contact_email'];
+            $data1['owner_email'] = $value['owner_email'];
+            
+            array_push($data, $data1);
+        }
+        
+        return $data;
+        
+    }
 
 }

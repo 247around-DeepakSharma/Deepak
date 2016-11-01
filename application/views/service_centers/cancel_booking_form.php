@@ -1,18 +1,11 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 <script type="text/javascript">
-   function check() {
-       var reason = document.myForm.cancellation_reason.value;
-       if (reason == 'Other') {
-           document.getElementById("cancellation_reason_text").disabled = false;
-       } else {
-           document.getElementById("cancellation_reason_text").disabled = true;
-       }
-   }
+
    
    function check_text() {
        var reason = document.myForm.cancellation_reason.value;
-       var cancel_text = document.myForm.cancellation_reason_text.value;
-       if (reason === 'Other' && cancel_text === "") {
+       
+       if (reason === '' ) {
            alert("Cancellation reason is missing");
            return false;
        }
@@ -53,7 +46,7 @@
                <div class="form-group">
                   <label for="cancellation_reason" class="col-md-2"> </label>
                   <div class="col-md-6">
-                     <textarea class="form-control" id="cancellation_reason_text" name="cancellation_reason_text" value="<?php echo set_value('cancellation_reason'); ?>" rows="8" disabled></textarea>
+                     <textarea class="form-control" id="cancellation_reason_text" name="cancellation_reason_text" value="<?php echo set_value('cancellation_reason'); ?>" rows="8" ></textarea>
                   </div>
                </div>
                <div>

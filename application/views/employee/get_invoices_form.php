@@ -31,6 +31,7 @@ function partner_vendor1(vendor_partner_id){
                 success: function (data) {
 
                     $("#name").html(data);
+                    $("#name").val("All").change();
                     $('#loader_gif').attr('src',  "");
                     $('#loader_gif').css("display", "none");
 
@@ -75,6 +76,8 @@ function partner_vendor1(vendor_partner_id){
     });
 
 })(jQuery, window, document);
+
+
 
 </script>
 
@@ -155,7 +158,7 @@ color: red;
               <div class="form-group">
             	<label for="name" class="col-md-2">Month<span class="red">*</span></label>
                 <div class="col-md-2">
-                    <select name="invoice_month">
+                    <select name="invoice_month" id="invoice_month">
                         <option value="01">Jan</option>
                         <option value="02">Feb</option>
                         <option value="03">March</option>
@@ -183,5 +186,9 @@ color: red;
 </div>
 
 <?php if($this->session->userdata('success')) { $this->session->unset_userdata('success'); } ?>
+    <script type="text/javascript">
+     $("#name").select2();
+     $("#invoice_month").select2();
+    </script>
 
 

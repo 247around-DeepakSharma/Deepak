@@ -139,11 +139,13 @@ class Partner_model extends CI_Model {
     function get_all_partner_source($flag="", $source= ""){
       $this->db->select("partner_id,source,code");
         $this->db->order_by('source','ASC');
-        if($flag =="")
+        if($flag ==""){
         $this->db->where('partner_id !=', 'NULL');
+        }
 
-        if($source !="")
+        if($source !=""){
             $this->db->where('code', $source);
+        }
 
       $query = $this->db->get("bookings_sources");
       return $query->result_array();
@@ -659,6 +661,23 @@ class Partner_model extends CI_Model {
 	$query = $this->db->get('partners');
 
 	return $query->result_array();
+    }
+    
+    /**
+     * @desc: This is used to get required Spare Parts Booking
+     * @param Array $where
+     * @return Array
+     */
+    function get_spare_parts_booking($where){
+        $this->db->select('spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, '
+                . ' service_centres.address');
+        $this->db->from('spare_parts_details'); 
+        $this->db->where($where);
+        $this->db->join('booking_details', 'booking_details.booking_id = spare_parts_details.booking_id');
+        $this->db->join('users', 'users.user_id = booking_details.user_id');
+        $this->db->join('service_centres', 'service_centres.id = spare_parts_details.service_center_id');
+        $query = $this->db->get();
+        return $query->result_array();
     }
 
 }

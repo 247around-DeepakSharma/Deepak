@@ -1,7 +1,8 @@
 <?php
 
-if (!defined('BASEPATH'))
+if (!defined('BASEPATH')){
     exit('No direct script access allowed');
+}
 
 class Partner extends CI_Controller {
 
@@ -16,7 +17,7 @@ class Partner extends CI_Controller {
         $this->load->model('vendor_model');
         $this->load->model('user_model');
         $this->load->model('invoices_model');
-
+        $this->load->model('service_centers_model');
         $this->load->library("pagination");
         $this->load->library("session");
         $this->load->library('form_validation');
@@ -174,11 +175,11 @@ class Partner extends CI_Controller {
      */
     function booking_details($booking_id) {
         $this->checkUserSession();
-        $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
+        $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);
         $unit_where = array('booking_id'=>$booking_id);
         $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
         
-        log_message('info', 'Partner view booking details booking  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'). " data ". print_r($data, true));
+        log_message('info', 'Partner view booking details booking  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'));
 
         $this->load->view('partner/header');
         $this->load->view('partner/booking_details', $data);
@@ -609,7 +610,7 @@ class Partner extends CI_Controller {
                     $data['data'] = $output;
                 }
 
-                $data['appliance_details'] = $this->user_model->appliance_details($phone_number);
+                //$data['appliance_details'] = $this->user_model->appliance_details($phone_number);
 
 
                 $this->load->view('partner/header');
@@ -983,7 +984,10 @@ class Partner extends CI_Controller {
         }
         
     }
-    
+    /**
+     * @desc: This method is used to upade booking by Partner Panel
+     * @param String $booking_id
+     */
     function process_editbooking($booking_id){
         log_message('info', __FUNCTION__ . " Booking Id: " . $booking_id);
         $this->checkUserSession();
@@ -1028,31 +1032,35 @@ class Partner extends CI_Controller {
             $unit_details['serial_number'] = $appliance_details['serial_number'] =  $post['serial_number'];
             $unit_details['purchase_month'] = $appliance_details['purchase_month'] = $post['purchase_month'];
             $unit_details['purchase_year'] = $appliance_details['purchase_year'] = $post['purchase_year'];
-            
+            // Update booking details table
             $update_status = $this->booking_model->update_booking($booking_id, $booking_details);
             if($update_status){
                 $user['user_id'] = $this->input->post('user_id');
+                // Update users Table
                 $user_status = $this->user_model->edit_user($user);
                 if($user_status){} else {
                     log_message('info', 'User table is not updated booking Id: '. $booking_id . " User Id". print_r($user, true) );
                     
                 }
                 $unit_details['appliance_id'] = $this->input->post('appliance_id');
+                //Update appliance_details table
                 $appliance_status = $this->booking_model->update_appliances($unit_details['appliance_id'],$appliance_details );
                 if($appliance_status){} else {
                     log_message('info', 'Appliance is not update in Appliance details: '. $booking_id . " Appliance data". print_r($appliance_details, true). "Appliamce id ". $unit_details['appliance_id'] );
                 }
-                
+                //Update Booking unit details table
                 $unit_details_status = $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
                 if($unit_details_status){
-                    $partner_id = $this->session->userdata('partner_id');                
+                    $partner_id = $this->session->userdata('partner_id');
+                    //Get Partner Price Mapping Id
                     $partner_mapping_id = $this->booking_model->get_price_mapping_partner_code("", $partner_id);
-
+                    // Get Price details Array
                     $prices = $this->partner_model->getPrices($booking_details['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id, $unit_details['price_tags']);
 
                     $unit_details['id'] =  $prices[0]['id'];
                     $unit_details['around_paid_basic_charges'] = "0.00";
                     $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
+                    //Update price in unit details table
                     $unit_status = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state']);
                     if($unit_status) {} else {
                         log_message('info', 'Booking unit details data is not update in : '. $booking_id . " Appliance data". print_r($unit_details, true) );
@@ -1077,6 +1085,158 @@ class Partner extends CI_Controller {
             $this->get_editbooking_form($booking_id); 
         }
         
+    }
+    
+    /**
+     * @desc: This is used to get those booking who has requested to spare parts by SF
+     */
+    function get_spare_parts_booking(){
+        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
+        $this->checkUserSession();
+        $partner_id = $this->session->userdata('partner_id');
+        $where = array('spare_parts_details.partner_id'=> $partner_id, 'status'=> SPARE_PARTS_REQUESTED);
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
+        $this->load->view('partner/header');
+        $this->load->view('partner/spare_parts_booking', $data);
+    }
+   
+    /**
+     * @desc: This is used to insert details into insert change table
+     * @param String $booking_id
+     * @param String $new_state
+     * @param String $remarks
+     */
+    function insert_details_in_state_change($booking_id, $new_state, $remarks){
+           log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'). " Booking ID: ". $booking_id);
+           //Save state change
+            $state_change['booking_id'] = $booking_id;
+            $state_change['new_state'] =  $new_state;
+           
+            $booking_state_change = $this->booking_model->get_booking_state_change($state_change['booking_id']);
+            
+            if ($booking_state_change > 0) {
+                $state_change['old_state'] = $booking_state_change[count($booking_state_change) - 1]['new_state'];
+            } else { //count($booking_state_change)
+                $state_change['old_state'] = "Pending";
+            }
+            $state_change['agent_id'] = $this->session->userdata('partner_id');
+            $state_change['partner_id'] = $this->session->userdata('partner_id');
+            $state_change['remarks'] = $remarks;
+
+            // Insert data into booking state change
+            $state_change_id = $this->booking_model->insert_booking_state_change($state_change);
+            if($state_change_id){} else {
+                log_message('info', __FUNCTION__ . '=> Booking details is not inserted into state change '. print_r($state_change, true));
+            }
+    }
+    
+    /**
+     * @desc: This method is used to load update form(spare parts).
+     * @param String $booking_id
+     */
+    function update_spare_parts_form($booking_id){
+        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'). " Booking ID: ". $booking_id);
+        $this->checkUserSession();
+        $partner_id = $this->session->userdata('partner_id');
+        $where = array('spare_parts_details.partner_id'=> $partner_id, 'status'=> SPARE_PARTS_REQUESTED, 'spare_parts_details.booking_id'=> $booking_id);
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
+        
+        $this->load->view('partner/header');
+        $this->load->view('partner/update_spare_parts_form', $data);
+    }
+    
+    /**
+     * @desc: This method is used to update spare parts. If gets input from form.
+     * Insert data into booking state change and update sc action table
+     * @param String $booking_id
+     */
+    function process_update_spare_parts($booking_id){
+        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
+        $this->checkUserSession();
+        $this->form_validation->set_rules('shipped_parts_name', 'Parts Name', 'trim|required');
+        $this->form_validation->set_rules('remarks_by_partner', 'Remarks', 'trim|required');
+        $this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
+        $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
+
+        if ($this->form_validation->run() == FALSE) {
+             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Partner '. $this->session->userdata('partner_id').
+                        " booking id ". $booking_id. " Data". print_r($this->input->post(), true));
+            $this->update_spare_parts_form($booking_id);
+        } else { // if ($this->form_validation->run() == FALSE) {
+            $partner_id = $this->session->userdata('partner_id');
+            $data['parts_shipped'] = $this->input->post('shipped_parts_name');
+            $data['courier_name_by_partner'] = $this->input->post('courier_name');
+            $data['awb_by_partner'] = $this->input->post('awb');
+            $data['remarks_by_partner'] = $this->input->post('remarks_by_partner');
+            $data['shipped_date'] = $this->input->post('shipment_date');
+            $data['edd'] = $this->input->post('edd');
+           
+            $data['status'] = "Shipped";
+            $where  = array('booking_id'=> $booking_id, 'partner_id'=> $partner_id);
+            $response = $this->service_centers_model->update_spare_parts($where, $data);
+            if($response){
+                
+                $this->insert_details_in_state_change($booking_id, SPARE_PARTS_SHIPPED, "Partner acknowledged to shipped spare parts");
+                $sc_data['booking_id'] = $booking_id;
+                $sc_data['current_status'] = "InProcess";
+                $sc_data['internal_status'] = SPARE_PARTS_SHIPPED;
+                $this->vendor_model->update_service_center_action($sc_data);
+                
+                $userSession = array('success' => 'Parts Updated');
+                $this->session->set_userdata($userSession);
+                redirect(base_url()."partner/get_spare_parts_booking");
+                
+            } else { //if($response){
+                log_message('info', __FUNCTION__ . '=> Spare parts booking is not updated by Partner '. $this->session->userdata('partner_id').
+                        " booking id ". $booking_id. " Data". print_r($this->input->post(), true));
+                 $userSession = array('success' => 'Parts Not Updated');
+                $this->session->set_userdata($userSession);
+                redirect(base_url()."partner/update_spare_parts_form/".$booking_id);
+                
+            }
+        }
+    }
+    
+    function download_spare_parts(){
+        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
+        $this->checkUserSession();
+        $partner_id = $this->session->userdata('partner_id');
+        $where = array('spare_parts_details.partner_id'=> $partner_id, 'status'=> 'InProcess');
+        $data = $this->partner_model->get_spare_parts_booking($where);
+        $template = 'download_spare_parts.xlsx';
+	//set absolute path to directory with template files
+	$templateDir = __DIR__ . "/../excel-templates/";
+        $config = array(
+		'template' => $template,
+		'templateDir' => $templateDir
+            );
+
+        //load template
+        $R = new PHPReport($config);
+        
+        $R->load(array(
+                array(
+                    'id' => 'booking',
+                    'repeat' => true,
+                    'data' => $data,
+                ),
+	    )
+	);
+        
+        $output_file_excel  = "/tmp/spare_parts-".date('Y-m-d').".xlsx";
+        $R->render('excel', $output_file_excel);
+        if (file_exists($output_file_excel)) {
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header('Content-Disposition: attachment; filename="'.basename($output_file_excel).'"');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate');
+                header('Pragma: public');
+                header('Content-Length: ' . filesize($output_file_excel));
+                readfile($output_file_excel);
+                exec("rm -rf " . escapeshellarg($file_name));
+                exit;
+         }
         
     }
 
