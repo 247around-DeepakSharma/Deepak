@@ -17,7 +17,7 @@
             <ul class="nav nav-tabs" role="tablist" >
                 <li role="presentation" class="active"><a href="#today_booking" aria-controls="today_booking" role="tab" data-toggle="tab">Today & Past Bookings</a></li>
                 <?php if($this->session->userdata('is_update') == 1){ ?>
-                <li role="presentation"><a href="#tomorrow_booking" aria-controls="tomorrow_booking" role="tab" data-toggle="tab">Tomorrow Bookings</a></li>
+                <li role="presentation"><a href="#tomorrow_booking" aria-controls="tomorrow_booking" role="tab" data-toggle="tab">Future Bookings</a></li>
                 <li role="presentation"><a href="#spare_required" aria-controls="spare_required" role="tab" data-toggle="tab">Spare Required Bookings</a></li>
                 <?php } ?>
             </ul>

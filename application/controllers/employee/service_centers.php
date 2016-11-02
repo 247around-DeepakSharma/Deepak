@@ -712,7 +712,7 @@ class Service_centers extends CI_Controller {
         }
         
 
-        $data['date_of_request'] = date('Y-m-d H:i:s');
+        $data['date_of_request'] = $data['create_date'] = date('Y-m-d H:i:s');
         $data['remarks_by_sc'] = $this->input->post('reason_text');
         $data['service_center_id'] = $this->session->userdata('service_center_id');
         $data['booking_id'] = $booking_id;

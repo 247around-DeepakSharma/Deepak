@@ -38,6 +38,7 @@ class Service_centers_model extends CI_Model {
      */
     function pending_booking($service_center_id, $booking_id){
         $booking = "";
+        $day = "";
         if($booking_id !=""){
             $booking = " AND bd.booking_id = '".$booking_id."' ";
         }
@@ -46,8 +47,8 @@ class Service_centers_model extends CI_Model {
                 // Today Day
                 $day  = " (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) >= 0) ";
             } else if($i==2) {
-                //Tomorrow
-                $day  = " (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) = -1) ";
+                //Future Booking
+                $day  = " (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) <=- -1) ";
             }
             
             $sql = " SELECT DISTINCT (sc.`booking_id`), `sc`.admin_remarks, "
