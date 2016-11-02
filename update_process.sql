@@ -220,4 +220,6 @@ ALTER TABLE `spare_parts_details`
 ALTER TABLE `service_center_booking_action` CHANGE `update_date` `update_date` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT NULL;
 
 ALTER TABLE `booking_details` CHANGE `update_date` `update_date` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT NULL;
+
 ALTER TABLE  `booking_details` ADD  `assigned_engineer_id` INT( 20 ) NULL DEFAULT NULL AFTER  `assigned_vendor_id` ;
+
