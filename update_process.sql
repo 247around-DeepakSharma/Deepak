@@ -165,3 +165,58 @@ ALTER TABLE `service_centres` ADD `penalty_activation_date` DATE NULL DEFAULT NU
 
 ALTER TABLE `sms_sent_details` ADD `sms_tag` VARCHAR(50) NULL AFTER `booking_id`;
 
+
+
+
+--
+-- Table structure for table `spare_parts_details`
+--
+
+CREATE TABLE `spare_parts_details` (
+  `id` int(11) NOT NULL,
+  `booking_id` varchar(100) NOT NULL,
+  `partner_id` int(20) NOT NULL,
+  `service_center_id` int(20) NOT NULL,
+  `model_number` varchar(200) DEFAULT NULL,
+  `serial_number` varchar(200) DEFAULT NULL,
+  `date_of_purchase` date DEFAULT NULL,
+  `update_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `date_of_request` date DEFAULT NULL,
+  `shipped_date` date DEFAULT NULL,
+  `acknowledge_date` date DEFAULT NULL,
+  `parts_requested` varchar(200) DEFAULT NULL,
+  `parts_shipped` varchar(200) DEFAULT NULL,
+  `invoice_pic` varchar(200) DEFAULT NULL,
+  `panel_pic` varchar(200) DEFAULT NULL,
+  `create_date` timestamp NULL DEFAULT NULL,
+  `status` varchar(25) DEFAULT NULL,
+  `remarks_by_sc` varchar(250) DEFAULT NULL,
+  `remarks_by_partner` varchar(250) DEFAULT NULL,
+  `courier_name_by_partner` varchar(100) DEFAULT NULL,
+  `awb_by_partner` varchar(50) DEFAULT NULL,
+  `edd` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `spare_parts_details`
+--
+ALTER TABLE `spare_parts_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `spare_parts_details`
+--
+ALTER TABLE `spare_parts_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `service_center_booking_action` CHANGE `update_date` `update_date` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT NULL;
+
+ALTER TABLE `booking_details` CHANGE `update_date` `update_date` DATETIME on update CURRENT_TIMESTAMP NULL DEFAULT NULL;
