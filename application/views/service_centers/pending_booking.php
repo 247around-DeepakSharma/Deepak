@@ -2,6 +2,7 @@
 <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
 <div class="container-fluid">
     <div class="row" style="margin-top: 40px;">
+        <?php $booking_id = ($this->uri->segment(3) != '' ? $this->uri->segment(3) : ''); ?>
         <?php
     if ($this->session->userdata('success')) {
     echo '<div class="alert alert-success alert-dismissible" role="alert">
@@ -15,7 +16,7 @@
         <h2 style="margin-left:15px;margin-top:15px;">Pending Bookings</h2>
         <div class="col-md-6">
             <ul class="nav nav-tabs" role="tablist" >
-                <li role="presentation" class="active"><a href="#today_booking" aria-controls="today_booking" role="tab" data-toggle="tab">Today & Past Bookings</a></li>
+                <li role="presentation" class="active"><a href="#today_booking" aria-controls="today_booking" role="tab" data-toggle="tab"><?php if($booking_id == ''){ ?>Today & Past Bookings<?php } else { echo "Searched Booking";} ?></a></li>
                 <?php if($this->session->userdata('is_update') == 1){ ?>
                 <li role="presentation"><a href="#tomorrow_booking" aria-controls="tomorrow_booking" role="tab" data-toggle="tab">Future Bookings</a></li>
                 <li role="presentation"><a href="#spare_required" aria-controls="spare_required" role="tab" data-toggle="tab">Spare Required Bookings</a></li>
@@ -216,10 +217,10 @@
                                         </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach($bookings[2] as $key =>$row){?>
+                                    <?php $sn_no1 = 1 ; foreach($bookings[2] as $key =>$row){?>
                                     <tr  style="text-align: center;">
                                             <td>
-                                                <?php echo $sn_no; ?>
+                                                <?php echo $sn_no1; ?>
                                             </td>
                                             <td >
                                                 <?=$row->booking_id?>
@@ -309,7 +310,7 @@
                                         <i class="fa fa-circle" aria-hidden="true"></i></i><span class=sup><?php  echo $row->count_escalation; ?></span></a>
                         </td>
                          </tr>
-                    <?php $sn_no++; } ?>
+                    <?php $sn_no++;$sn_no1++; } ?>
                     </tbody>
                     </table>
                         <?php if($this->session->userdata('is_update') == 1){ ?>

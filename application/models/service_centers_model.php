@@ -38,18 +38,29 @@ class Service_centers_model extends CI_Model {
      */
     function pending_booking($service_center_id, $booking_id){
         $booking = "";
-        $day = "";
+        $day = " ";
         if($booking_id !=""){
             $booking = " AND bd.booking_id = '".$booking_id."' ";
-        }
-        for($i =1; $i <3;$i++ ){
-            if($i ==1){
-                // Today Day
-                $day  = " (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) >= 0) ";
-            } else if($i==2) {
+        } 
+        for($i =1; $i < 3;$i++ ){
+            if($booking_id !=""){
+                if($i==2){
                 //Future Booking
-                $day  = " (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) <=- -1) ";
+                    $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) <=- -1) ";
+                    $booking = " ";
+                }
+                
+            } else {
+                if($i ==1){
+                // Today Day
+                $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) >= 0) ";
+                } else if($i==2) {
+                //Future Booking
+                $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) <=- -1) ";
+                }
+                
             }
+            
             
             $sql = " SELECT DISTINCT (sc.`booking_id`), `sc`.admin_remarks, "
                 . " bd.booking_primary_contact_no, " 
@@ -79,7 +90,7 @@ class Service_centers_model extends CI_Model {
                 . " AND bd.user_id = users.user_id "
                 . " AND bd.service_id = services.id "
                 . " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled')"
-                . " AND ".$day . $booking
+                . "  ".$day . $booking
                 . " ORDER BY STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc ";
 
             $query1 = $this->db->query($sql);
