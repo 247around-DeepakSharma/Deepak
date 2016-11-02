@@ -223,3 +223,6 @@ ALTER TABLE `booking_details` CHANGE `update_date` `update_date` DATETIME on upd
 
 ALTER TABLE  `booking_details` ADD  `assigned_engineer_id` INT( 20 ) NULL DEFAULT NULL AFTER  `assigned_vendor_id` ;
 
+INSERT INTO `internal_status` ( `page`, `status`, `active`, `sf_update_active`, `method_name`, `redirect_url`) VALUES
+( 'update_sc', 'Engineer on route', '1', 1, NULL, NULL),
+('update_sc', 'Customer not reachable', '1', 1, NULL, NULL);

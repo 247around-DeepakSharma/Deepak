@@ -89,8 +89,9 @@ class Service_centers extends CI_Controller {
      * @return: void
      */
     function booking_details($code) {
+        log_message('info', __FUNCTION__ . " Booking ID: " . base64_decode(urldecode($code)));
         $this->checkUserSession();
-        $booking_id = base64_decode($code);
+        $booking_id =base64_decode(urldecode($code));
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
         $unit_where = array('booking_id'=>$booking_id);
         $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
@@ -106,8 +107,9 @@ class Service_centers extends CI_Controller {
      * @return: void
      */
     function complete_booking_form($code) {
+        log_message('info', __FUNCTION__ . " Booking ID: " . base64_decode(urldecode($code)));
         $this->checkUserSession();
-        $booking_id = base64_decode($code);
+        $booking_id = base64_decode(urldecode($code));
         $data['booking_id'] = $booking_id;
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
         $data['bookng_unit_details'] = $this->booking_model->getunit_details($booking_id);
@@ -207,8 +209,9 @@ class Service_centers extends CI_Controller {
      * @return: void
      */
     function cancel_booking_form($code) {
+        log_message('info', __FUNCTION__ . " Booking ID: " . base64_decode(urldecode($code)));
         $this->checkUserSession();
-        $booking_id = base64_decode($code);
+        $booking_id = base64_decode(urldecode($code));
         $data['user_and_booking_details'] = $this->booking_model->getbooking_history($booking_id);
         $where = array('reason_of' => 'vendor');
         $data['reason'] = $this->booking_model->cancelreason($where);
@@ -539,9 +542,9 @@ class Service_centers extends CI_Controller {
      * @param String Base_endode form - $booking_id
      */
     function update_booking_status($code) {
-    log_message('info', __FUNCTION__ . " Booking ID: " . base64_decode($code));
+    log_message('info', __FUNCTION__ . " Booking ID: " . base64_decode(urldecode($code)));
         $this->checkUserSession();
-        $booking_id = base64_decode($code);
+        $booking_id = base64_decode(urldecode($code));
         $data['booking_id'] = $booking_id;
         $where_internal_status = array("page" => "update_sc", "active" => '1');
         

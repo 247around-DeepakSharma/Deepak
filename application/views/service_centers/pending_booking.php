@@ -133,7 +133,7 @@
                         <?php if (!is_null($row->assigned_engineer_id)) { ?>  <button type="button"  class="btn btn-sm btn-success" onclick="edit_engineer(<?php echo $sn_no; ?>)"><i class="fa fa-user" aria-hidden='true'></i></button> <?php } ?>
                         </td>
                         <td>
-                        <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo base64_encode($row->booking_id);?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
+                        <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
                         </td>
                         <?php } else if($this->session->userdata('is_update') == 0){ ?>
                             <td>
@@ -141,11 +141,11 @@
                            </td>
 
                             <?php } ?>
-                        <td><a class='btn btn-sm btn-primary <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' href="<?php echo base_url();?>service_center/booking_details/<?php echo base64_encode($row->booking_id);?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>
-                        <td><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo base64_encode($row->booking_id); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
+                        <td><a class='btn btn-sm btn-primary <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>
+                        <td><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
                         </td>
                         <td>
-                        <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo base64_encode($row->booking_id);?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
+                        <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
                         </td>
                         <td><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm <?php if($this->session->userdata('is_update') == 1){ ?><?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
                         <?php if($this->session->userdata('is_update') == 1){ ?>
@@ -282,7 +282,7 @@
                         <?php if (!is_null($row->assigned_engineer_id)) { ?>  <button type="button"  class="btn btn-sm btn-success" onclick="edit_engineer(<?php echo $sn_no; ?>)"><i class="fa fa-user" aria-hidden='true'></i></button> <?php } ?>
                         </td>
                         <td>
-                        <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo base64_encode($row->booking_id);?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
+                        <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
                         </td>
                         <?php } else if($this->session->userdata('is_update') == 0){ ?>
                             <td>
@@ -290,11 +290,11 @@
                            </td>
 
                             <?php } ?>
-                        <td><a class='btn btn-sm btn-primary <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' href="<?php echo base_url();?>service_center/booking_details/<?php echo base64_encode($row->booking_id);?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>
-                        <td><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo base64_encode($row->booking_id); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
+                        <td><a class='btn btn-sm btn-primary <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>
+                        <td><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
                         </td>
                         <td>
-                        <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo base64_encode($row->booking_id);?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
+                        <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
                         </td>
                         <td><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm <?php if($this->session->userdata('is_update') == 1){ ?><?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
                         <?php if($this->session->userdata('is_update') == 1){ ?>
@@ -372,10 +372,10 @@
                                     </td>
                                    
                                     <td>
-                                        <a class='btn btn-sm btn-primary' href="<?php echo base_url();?>service_center/booking_details/<?php echo base64_encode($row['booking_id']);?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a>
+                                        <a class='btn btn-sm btn-primary' href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a>
                                     </td>
                                     <td>
-                                        <a href="<?php echo base_url(); ?>service_center/acknowledge_delivered_spare_parts/<?php echo$row['booking_id']; ?>" style="width:23px;"><img src="<?php echo base_url(); ?>images/icon_receiving.png" style="width:23px;" /></a>
+                                        <a href="<?php echo base_url(); ?>service_center/acknowledge_delivered_spare_parts/<?php echo $row['booking_id']; ?>" style="width:23px;"><img src="<?php echo base_url(); ?>images/icon_receiving.png" style="width:23px;" /></a>
                                     </td>
                                 </tr>
                                 <?php $sn_no1++; } ?>
