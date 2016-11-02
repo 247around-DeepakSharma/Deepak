@@ -51,14 +51,15 @@ class Partner extends CI_Controller {
 
         $data['user_name'] = $this->input->post('user_name');
         $data['password'] = md5($this->input->post('password'));
-        $partner_id = $this->partner_model->partner_login($data);
+        $partner = $this->partner_model->partner_login($data);
 
-        if ($partner_id) {
+        if ($partner) {
         //get partner details now
-        $partner_details = $this->partner_model->getpartner($partner_id);
+        $partner_details = $this->partner_model->getpartner($partner['partner_id']);
 
-        $this->setSession($partner_details[0]['id'], $partner_details[0]['public_name']);
-        log_message('info', 'Partner loggedIn  partner id' . $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
+        $this->setSession($partner_details[0]['id'], $partner_details[0]['public_name'], $partner['id']);
+        log_message('info', 'Partner loggedIn  partner id' .
+                $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
 
         redirect(base_url() . "partner/pending_booking");
         } else {
@@ -192,11 +193,12 @@ class Partner extends CI_Controller {
      * @param: Partner name
      * @return: void
      */
-    function setSession($partner_id, $partner_name) {
+    function setSession($partner_id, $partner_name, $agent_id) {
     $userSession = array(
         'session_id' => md5(uniqid(mt_rand(), true)),
         'partner_id' => $partner_id,
         'partner_name' => $partner_name,
+        'agent_id' => $agent_id,
         'sess_expiration' => 600000,
         'loggedIn' => TRUE,
         'userType' => 'partner'
@@ -767,10 +769,10 @@ class Partner extends CI_Controller {
             }
 
             //Log this state change as well for this booking
-            //param:-- booking id, new state, old state, employee id, employee name
+            //param:-- booking id, new state, old state, remarks, agent_id, partner  name, partner id
             $this->notify->insert_state_change($booking_id, $data['current_status'],
                     $status, $data['cancellation_reason'], 
-                    $this->session->userdata('partner_id'),
+                    $this->session->userdata('agent_id'),
                     $this->session->userdata('partner_name'),
                     $this->session->userdata('partner_id'));
 
@@ -841,7 +843,13 @@ class Partner extends CI_Controller {
             $data['update_date'] = date("Y-m-d H:i:s");
             $update_status = $this->booking_model->update_booking($booking_id, $data);
             if ($update_status) {
-                $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING, "", $this->session->userdata('partner_id'), $this->session->userdata('partner_name'), $this->session->userdata('partner_id'));
+                $this->notify->insert_state_change($booking_id,
+                        _247AROUND_RESCHEDULED,
+                        _247AROUND_PENDING, 
+                        " Rescheduled Booking BY Partner ",
+                        $this->session->userdata('agent_id'), 
+                        $this->session->userdata('partner_name'), 
+                        $this->session->userdata('partner_id'));
 
                 $service_center_data['booking_id'] = $booking_id;
                 $service_center_data['internal_status'] = "Pending";
@@ -851,12 +859,7 @@ class Partner extends CI_Controller {
                 log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($service_center_data, true));
 
                 $this->vendor_model->update_service_center_action($service_center_data);
-                
-                $this->notify->insert_state_change($booking_id, 
-                    _247AROUND_RESCHEDULED , _247AROUND_PENDING , "", 
-                    $this->session->userdata('partner_id'), $this->session->userdata('partner_name'),
-                    $this->session->userdata('partner_id'));
-
+               
                 $send_data['booking_id'] = $booking_id;
                 $send_data['current_status'] = "Rescheduled";
                 $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
@@ -933,7 +936,7 @@ class Partner extends CI_Controller {
             $escalation_reason  = $this->vendor_model->getEscalationReason(array('id'=>$escalation['escalation_reason']));
             $this->notify->insert_state_change($escalation['booking_id'], 
                     "Escalation" , _247AROUND_PENDING , $escalation_reason[0]['escalation_reason'], 
-                    $this->session->userdata('partner_id'), $this->session->userdata('partner_name'),
+                    $this->session->userdata('agent_id'), $this->session->userdata('partner_name'),
                     $this->session->userdata('partner_id'));
             if($escalation_id){
                 log_message('info', __FUNCTION__ . " Escalation INSERTED ");
@@ -1068,7 +1071,7 @@ class Partner extends CI_Controller {
                     
                     $this->notify->insert_state_change($booking_id, 
                     _247AROUND_PENDING , _247AROUND_PENDING ,  $booking_details['booking_remarks'], 
-                    $this->session->userdata('partner_id'), $this->session->userdata('partner_name'),
+                    $this->session->userdata('agent_id'), $this->session->userdata('partner_name'),
                     $this->session->userdata('partner_id'));
                     
                     $this->session->set_flashdata('success', $booking_id . ' Booking  is updated.');
@@ -1119,7 +1122,7 @@ class Partner extends CI_Controller {
             } else { //count($booking_state_change)
                 $state_change['old_state'] = "Pending";
             }
-            $state_change['agent_id'] = $this->session->userdata('partner_id');
+            $state_change['agent_id'] = $this->session->userdata('agent_id');
             $state_change['partner_id'] = $this->session->userdata('partner_id');
             $state_change['remarks'] = $remarks;
 
@@ -1201,7 +1204,7 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
-        $where = array('spare_parts_details.partner_id'=> $partner_id, 'status'=> 'InProcess');
+        $where = array('spare_parts_details.partner_id'=> $partner_id, 'status'=> SPARE_PARTS_REQUESTED);
         $data = $this->partner_model->get_spare_parts_booking($where);
         $template = 'download_spare_parts.xlsx';
 	//set absolute path to directory with template files

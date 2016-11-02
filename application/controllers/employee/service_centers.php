@@ -499,6 +499,7 @@ class Service_centers extends CI_Controller {
                 log_message('info', __FUNCTION__ . '=> Engineer ID: ' . $engineer_id . "Booking ID" . $booking_id);
 
                 $data['assigned_engineer_id'] = $engineer_id;
+                $data['internal_status'] = ENGG_ASSIGNED;
                 // Update Assigned Engineer
                 $updated_status = $this->booking_model->update_booking($booking_id, $data);
                 if ($updated_status) {
@@ -615,10 +616,10 @@ class Service_centers extends CI_Controller {
             default :
                 // this get method name and redirect url from database and call it other wise call default method
             log_message('info', __FUNCTION__. " Default ". $this->session->userdata('service_center_id'));
-                $where_updation = array('status' => $reason, 'status_of' => 'vendor', 'active' => 1, 'sf_update_active' => 1);
+                $where_updation = array('status' => $reason, 'active' => 1, 'sf_update_active' => 1);
                 $get_status_details = $this->booking_model->get_internal_status($where_updation);
 
-                if ($get_status_details) {
+                if ($get_status_details[0]->method_name) {
                     $method_name = explode(",", $get_status_details[0]->method_name);
                     $redirect_url = explode(",", $get_status_details[0]->redirect_url);
                     foreach ($method_name as $value) {
@@ -727,7 +728,7 @@ class Service_centers extends CI_Controller {
             $this->insert_details_in_state_change($booking_id, $reason, $data['remarks_by_sc']);
 
             $sc_data['booking_id'] = $booking_id;
-            $sc_data['current_status'] = SPARE_PARTS_REQUESTED;
+            $sc_data['current_status'] = "InProcess";
             $sc_data['internal_status'] = $reason;
 
             if($booking_date !=""){
