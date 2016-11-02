@@ -1243,6 +1243,22 @@ class vendor_model extends CI_Model {
     return $this->db->insert_id();
     }
 
+    /**
+     * @desc: Get data from assgined engineer table
+     * @param Array $where
+     * @return boolean
+     */
+    function get_engineer_assigned($where) {
+        $this->db->where($where);
+        $query = $this->db->get('assigned_engineer');
+        log_message('info', __METHOD__ . "=> Booking  SQL " . $this->db->last_query());
+        if ($query->num_rows > 0) {
+            return $query->result_array();
+        } else {
+            return false;
+        }
+    }
+
     //Array of queries
     function execute_query($query) {
         foreach ($query as $q) {
