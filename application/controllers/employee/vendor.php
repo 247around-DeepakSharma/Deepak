@@ -70,6 +70,7 @@ class vendor extends CI_Controller {
             if (!empty($brands)) {
                 $_POST['brands'] = implode(",", $brands);
             }
+            
 
             unset($_POST['day']);
 
@@ -114,6 +115,10 @@ class vendor extends CI_Controller {
 		   $login['active'] = 1;
 
 		   $this->vendor_model->add_vendor_login($login);
+                   
+                   $engineer['service_center_id'] =  $sc_id;
+                   $engineer['name'] = "Default Engineer";
+                   $this->vendor_model->insert_engineer($engineer);
                    
                    // Sending Login details mail to Vendor using Template
                    $email = array();
@@ -345,9 +350,14 @@ class vendor extends CI_Controller {
             if ($service_center_id != "") {
                 $bookings = $this->booking_model->getbooking_history($booking_id);
                 if (is_null($bookings[0]['assigned_vendor_id'])) {
-
-                    //Assign service centre
-                    $this->booking_model->assign_booking($booking_id, $service_center_id);
+                    
+                    $engineer = $this->vendor_model->get_engineers($service_center_id);
+                    $b['assigned_vendor_id'] = $service_center_id;
+                    if(!empty($engineer)){
+                        $b['assigned_engineer_id'] = $engineer[0]['id'];
+                    }
+                    //Assign service centre and engineer
+                    $this->booking_model->update_booking($booking_id, $b);
 
                     // Data to be insert in service center
                     $sc_data['current_status'] = "Pending";
@@ -418,7 +428,14 @@ class vendor extends CI_Controller {
         $service_center_id = $this->input->post('service');
 
 	if ($service_center_id != "Select") {
-            $this->booking_model->assign_booking($booking_id, $service_center_id);
+            $engineer = $this->vendor_model->get_engineers($service_center_id);
+            $b['assigned_vendor_id'] = $service_center_id;
+            if(!empty($engineer)){
+                $b['assigned_engineer_id'] = $engineer[0]['id'];
+            }
+            //Assign service centre and engineer
+            $this->booking_model->update_booking($booking_id, $b);
+            //$this->booking_model->assign_booking($booking_id, $service_center_id);
 
            // $pre_service_center_data['current_status'] = "Cancelled";
             //$pre_service_center_data['internal_status'] = "Cancelled";

@@ -42,21 +42,30 @@ class Service_centers_model extends CI_Model {
         if($booking_id !=""){
             $booking = " AND bd.booking_id = '".$booking_id."' ";
         } 
-        for($i =1; $i < 3;$i++ ){
+        $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled')";
+        for($i =1; $i < 4;$i++ ){
             if($booking_id !=""){
                 if($i==2){
                 //Future Booking
                     $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) <=- -1) ";
                     $booking = " ";
-                }
+                } else if($i == 3){
+                    // Rescheduled Booking
+                    $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) < -1) ";
+                    $status = " AND bd.current_status='Rescheduled' ";
+                } 
                 
             } else {
                 if($i ==1){
                 // Today Day
                 $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) >= 0) ";
                 } else if($i==2) {
-                //Future Booking
-                $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) < 0) ";
+                //Tomorrow Booking
+                $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) = -1) ";
+                } else if($i == 3){
+                    // Rescheduled Booking
+                    $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) < -1) ";
+                    $status = " AND bd.current_status='Rescheduled' ";
                 }
                 
             }
@@ -69,6 +78,7 @@ class Service_centers_model extends CI_Model {
                 . " bd.booking_jobcard_filename,"
                 . " bd.assigned_engineer_id,"
                 . " bd.booking_timeslot, "
+                . " bd.current_status, "
                 . " bd.count_escalation, "
                 . " bd.count_reschedule, "
                 . " bd.booking_address, "
@@ -89,7 +99,7 @@ class Service_centers_model extends CI_Model {
                 . " AND bd.booking_id =  sc.booking_id "
                 . " AND bd.user_id = users.user_id "
                 . " AND bd.service_id = services.id "
-                . " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled')"
+                . $status
                 . "  ".$day . $booking
                 . " ORDER BY STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc ";
 

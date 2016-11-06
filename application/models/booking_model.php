@@ -2040,5 +2040,31 @@ class Booking_model extends CI_Model {
         $sql = "UPDATE booking_details SET $column_name= ($column_name+1) where booking_id = '$booking_id' ";
         return $this->db->query($sql);
     }
+    
+    function test(){
+        $sql = " SELECT DISTINCT vendor_pincode_mapping.`Pincode` FROM `vendor_pincode_mapping`, `service_centres` WHERE `Vendor_ID` = `service_centres`.`id` AND `service_centres`.`active` = 1 ";
+        $query = $this->db->query($sql);
+        $result = $query->result_array();
+
+        foreach ($result as $key => $value) {
+            //print_r($value);
+            $sql1 = " SELECT DISTINCT(services) FROM vendor_pincode_mapping, services, service_centres WHERE `vendor_pincode_mapping`.Pincode = '".$value['Pincode']."' AND Vendor_ID != '0' AND Appliance_ID = services.id AND `Vendor_ID` = `service_centres`.`id` AND `service_centres`.`active` = 1";
+             $query1 = $this->db->query($sql1);
+             $result1 = $query1->result_array();
+
+             $appliance = array();
+              foreach ($result1 as $key => $value1) {
+                $appliance[] = $value1['services'];
+              }
+              $str =  implode(", ", $appliance);
+              $this->db->where('Pincode', $value['Pincode']);
+              $this->db->update('vendor_pincode_mapping_test', array('Appliance'=>$str));
+            
+
+        }
+        echo "Completed";
+
+    }
+
 
 }
