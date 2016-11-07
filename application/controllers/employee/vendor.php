@@ -9,6 +9,9 @@ ini_set('display_errors', '1');
 ini_set('memory_limit', '-1');
 ini_set('max_execution_time', 360000); //3600 seconds = 60 minutes
 
+define('IS_DEFAULT_ENGINEER', TRUE);
+define('DEFAULT_ENGINEER', 24700001);
+
 use Box\Spout\Reader\ReaderFactory;
 use Box\Spout\Common\Type;
 
@@ -351,10 +354,16 @@ class vendor extends CI_Controller {
                 $bookings = $this->booking_model->getbooking_history($booking_id);
                 if (is_null($bookings[0]['assigned_vendor_id'])) {
                     
-                    $engineer = $this->vendor_model->get_engineers($service_center_id);
                     $b['assigned_vendor_id'] = $service_center_id;
-                    if(!empty($engineer)){
-                        $b['assigned_engineer_id'] = $engineer[0]['id'];
+                    // Set Default Engineer 
+                    if(IS_DEFAULT_ENGINEER == TRUE){
+                        $b['assigned_engineer_id'] = DEFAULT_ENGINEER;
+                        
+                    } else {
+                       $engineer = $this->vendor_model->get_engineers($service_center_id); 
+                        if(!empty($engineer)){
+                            $b['assigned_engineer_id'] = $engineer[0]['id'];
+                        }
                     }
                     //Assign service centre and engineer
                     $this->booking_model->update_booking($booking_id, $b);
