@@ -153,5 +153,22 @@ class Around_scheduler extends CI_Controller {
         log_message ('info', __METHOD__ . '=> Exiting...');
     }
 
+     /**
+     * @desc: Process to cancel 6 days or greater than 6 days Snapdeal Pending Query.
+     */
+    function process_to_cancel_old_pending_query(){
+        log_message ('info', __METHOD__ . '=> Entering...');
+        $data = $this->around_scheduler_model->get_old_pending_query();
+        
+        foreach ($data as $value) {
+            echo "..".PHP_EOL;
+            $this->booking_model->update_booking($value['booking_id'], array('current_status'=> 'Cancelled', 
+                'internal_status' => 'Cancelled'));
+            $this->booking_model->update_booking_unit_details($value['booking_id'], array('booking_status' => 'Cancelled'));
+            
+        }
+        log_message ('info', __METHOD__ . '=> Exit...');
+    }
+
 
 }

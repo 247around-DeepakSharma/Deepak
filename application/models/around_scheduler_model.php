@@ -119,5 +119,23 @@ class Around_scheduler_model extends CI_Model {
         
     	return  $query->result();
     }
+
+   /**
+    * @desc: This method returns only 6 days old pending query
+    * @return Array
+    */
+    function get_old_pending_query(){
+        $sql = " SELECT booking_id FROM booking_details WHERE booking_id LIKE '%Q-%' "
+                . " AND partner_id = '1' "
+                . " AND current_status = 'FollowUp' "
+                . " AND CASE WHEN booking_date='' THEN DATEDIFF(CURRENT_TIMESTAMP , create_date) > 5 "
+                . " WHEN booking_date !='' THEN DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) > 5 "
+                . " END ";
+        $query  = $this->db->query($sql);
+        $result = $query->result_array();
+        
+        log_message ('info', __METHOD__ . "=> Count  Query to be Cancelled ". count($result));
+        return $result;
+    }
     
 }
