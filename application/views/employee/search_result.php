@@ -170,9 +170,11 @@
                     </tr>
                 </thead>
                 <?php  if($offset ==0){ $offset = 1;} else { $offset = $offset+1; } ?>
-                <?php foreach($Bookings as $key =>$row){ if($row->current_status == "FollowUp") {?>
+                <?php  foreach($Bookings as $key =>$row){ if($row->current_status == "FollowUp") { ?>
                  <tr <?php if($row->internal_status == "Missed_call_confirmed"){ ?> style="background-color:rgb(162, 230, 162); color:#000;"<?php } ?> >
                     <td><?php echo $count; ?></td>
+                    <input type="hidden" id="<?php echo "service_id_".$count; ?>"  value="<?php echo $row->service_id;?>"/>
+                    <input type="hidden" id="<?php echo "pincode_".$count ; ?>" value="<?php echo $row->booking_pincode; ?>" />
                     <td><?= $row->booking_id; ?></td>
                     <td><a target='_blank' href="<?php echo base_url(); ?>employee/user/finduser/0/0/<?php echo $row->phone_number; ?>"><?php echo $row->customername; ?></a></td>
                     <td><a target='_blank' href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $row->phone_number;?>"><?php echo $row->booking_primary_contact_no; ?></a></td>
@@ -187,27 +189,14 @@
                             ?>
                     </td>
                     <td><?= $row->city; ?></td>
-                    <?php if($row->vendor_status =="Vendor Not Available"){ ?>
-                    <td>
-                         <a href="javascript:void(0)" onclick='form_submit("<?php echo $row->booking_id?>")' style="color: red;"><?php print_r($row->vendor_status); ?></a>
+                    <td> 
+                        
+                        <select id="<?php  echo "av_vendor".$count; ?>" style="max-width:100px; display:none;">
+                            <option>Vendor Available</option>
+                        </select>
+                        <a href="javascript:void(0)" style="color: red; display:none" id="<?php echo "av_pincode".$count ; ?>" onclick='form_submit("<?php echo $row->booking_id?>")'><?php print_r($row->booking_pincode); ?></a>
+                         
                     </td>
-                    <?php } else { ?>
-                    <td>
-                       
-                        Vendor Available
-
-<!--                    <select onchange="load_vendor_details(<?php echo $count; ?>)" id="vendor_avalilabe<?php echo $count;?>"  class="form-control" style="width:156px;">
-                        <option selected disabled>Vendor Available</option>
-
-                    <?php foreach ($row->vendor_status as  $value) { ?>
-                     <option value="<?php echo $value['Vendor_ID']; ?>"><?php echo $value['Vendor_Name']; ?></option>
-
-                    <?php  } ?>
-                    </select>-->
-
-                  
-                    </td>
-                    <?php  }  ?>
                     <td><?= $row->query_remarks; ?></td>
                     <td><button type="button" onclick="outbound_call(<?php echo $row->booking_primary_contact_no; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                     </td>
@@ -573,3 +562,43 @@
     </div>
 </div>
 </div>
+
+<script type="text/javascript">
+        $(document).ready(function() {
+        <?php if(isset($data['FollowUp_count'])){ ?>
+        var total_booking = Number(<?php echo $data['FollowUp_count']; ?>);
+        for(var c = 1; c<= total_booking; c++  ){
+            var index = c;
+            var  service_id = $("#service_id_"+ c).val();
+            var pincode = $("#pincode_"+ c).val();
+            if(pincode !==""){            
+                get_vendor(pincode, service_id, index);
+            } 
+       
+        }
+        <?php } ?>
+    });
+    
+    function get_vendor(pincode, service_id, index){
+        
+        $.ajax({
+                type:"POST",
+                url:"<?php echo base_url()?>employee/vendor/get_vendor_availability/"+pincode+"/"+service_id,
+                
+                success: function(data){
+                    console.log(data);
+                    if(data ===""){
+                        
+                        $("#av_pincode"+index).css("display",'inherit');
+                    } else {
+                        $("#av_vendor"+index).css("display",'inherit');
+                        $("#av_vendor"+index).html(data);
+                        
+                    }
+                    
+                }
+        });
+        
+    }
+    
+</script>

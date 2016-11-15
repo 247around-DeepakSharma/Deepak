@@ -54,7 +54,7 @@ class Service_centers extends CI_Controller {
         if ($service_center_id) {
 	    //get sc details now
 	    $sc_details = $this->vendor_model->getVendorContact($service_center_id);
-        $this->setSession($sc_details[0]['id'], $sc_details[0]['name'], $service_center_id['id'], $sc_details[0]['is_update']);
+            $this->setSession($service_center_id, $sc_details[0]['name'], $sc_details[0]['id'], $sc_details[0]['is_update']);
 
 	    redirect(base_url() . "service_center/pending_booking");
         } else {
@@ -302,8 +302,8 @@ class Service_centers extends CI_Controller {
 	    'session_id' => md5(uniqid(mt_rand(), true)),
 	    'service_center_id' => $service_center_id,
 	    'service_center_name' => $service_center_name,
-        'service_center_agent_id' => $sc_agent_id,
-        'is_update' => $update,
+            'service_center_agent_id' => $sc_agent_id,
+            'is_update' => $update,
 	    'sess_expiration' => 30000,
 	    'loggedIn' => TRUE,
 	    'userType' => 'service_center'
@@ -418,7 +418,7 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . '=> Booking Id: '. $this->input->post('booking_id'));
         $this->form_validation->set_rules('booking_id', 'Booking ID', 'trim|required');
         $this->form_validation->set_rules('booking_date', 'Booking Date', 'required');
-        $this->form_validation->set_rules('reason_text', 'Reascheduled Reason', 'required');
+        $this->form_validation->set_rules('reason_text', 'Reascheduled Reason', 'trim');
 
         if ($this->form_validation->run() == FALSE ) {
              log_message('info', __FUNCTION__ . '=> Rescheduled Booking Validation failed ');
@@ -429,8 +429,15 @@ class Service_centers extends CI_Controller {
             $data['booking_date'] = date('Y-m-d',strtotime($this->input->post('booking_date')));
             $data['current_status'] = "InProcess";
             $data['internal_status'] = 'Reschedule';
-            
-            $data['reschedule_reason'] = $this->input->post('reason_text');
+            $reason = $this->input->post('reason');
+            if(isset($reason)){
+                
+                $data['reschedule_reason'] = $this->input->post('reason');
+            } else {
+                
+                $data['reschedule_reason'] = $this->input->post('reason_text');
+            }
+           
             $data['update_date'] = date("Y-m-d H:i:s");
             $this->vendor_model->update_service_center_action($data);
 
@@ -557,7 +564,7 @@ class Service_centers extends CI_Controller {
        
         $date_diff = date_diff($current_date, $current_booking_date);
         // We will not display internal status after 1st day.
-        if($date_diff->days <2){
+        if($date_diff->days <1){
             $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
             
         } else{
@@ -604,8 +611,13 @@ class Service_centers extends CI_Controller {
         $reason = $this->input->post('reason');
        
         switch ($reason) {
-            case 'Rescheduled':
-                log_message('info', __FUNCTION__. " Rescheduled Request: ". $this->session->userdata('service_center_id'));
+            case CUSTOMER_ASK_TO_RESCHEDULE:
+                log_message('info', __FUNCTION__. CUSTOMER_ASK_TO_RESCHEDULE." Request: ". $this->session->userdata('service_center_id'));
+                $this->save_reschedule_request();
+                break;
+            
+             case PRODUCT_NOT_DELIVERED_TO_CUSTOMER:
+                log_message('info', __FUNCTION__.PRODUCT_NOT_DELIVERED_TO_CUSTOMER. " Request: ". $this->session->userdata('service_center_id'));
                 $this->save_reschedule_request();
                 break;
                 
@@ -616,27 +628,28 @@ class Service_centers extends CI_Controller {
             default :
                 // this get method name and redirect url from database and call it other wise call default method
             log_message('info', __FUNCTION__. " Default ". $this->session->userdata('service_center_id'));
-                $where_updation = array('status' => $reason, 'active' => 1, 'sf_update_active' => 1);
-                $get_status_details = $this->booking_model->get_internal_status($where_updation);
-
-                if ($get_status_details[0]->method_name) {
-                    $method_name = explode(",", $get_status_details[0]->method_name);
-                    $redirect_url = explode(",", $get_status_details[0]->redirect_url);
-                    foreach ($method_name as $value) {
-
-                        if ($get_status_details[0]->redirect_url == 0) {
-                            $redirect_url = FALSE;
-                            
-                        } else if ($get_status_details[0]->redirect_url) {
-                            $redirect_url = TRUE;
-                        }
-                      
-                        $this->$value($redirect_url);
-                    }
-                } else { //$get_status_details
-                   
-                    $this->default_update(true, true);
-                }
+//                $where_updation = array('status' => $reason, 'active' => 1, 'sf_update_active' => 1);
+//                $get_status_details = $this->booking_model->get_internal_status($where_updation);
+//
+//                if ($get_status_details[0]->method_name) {
+//                    $method_name = explode(",", $get_status_details[0]->method_name);
+//                    $redirect_url = explode(",", $get_status_details[0]->redirect_url);
+//                    foreach ($method_name as $value) {
+//
+//                        if ($get_status_details[0]->redirect_url == 0) {
+//                            $redirect_url = FALSE;
+//                            
+//                        } else if ($get_status_details[0]->redirect_url) {
+//                            $redirect_url = TRUE;
+//                        }
+//                      
+//                        $this->$value($redirect_url);
+//                    }
+//                } else { //$get_status_details
+//                   
+//                    $this->default_update(true, true);
+//                }
+                $this->default_update(true, true);
                 break;
         }
         
@@ -652,14 +665,22 @@ class Service_centers extends CI_Controller {
                 $this->input->post('booking_id'));
         $sc_data['booking_id'] = $this->input->post('booking_id');
         $sc_data['internal_status'] =  $this->input->post('reason');
-//        $sc_data['service_center_remarks'] = $this->input->post('reason_text');
         $sc_data['current_status'] = 'InProcess';
-
+        // Update Service center Action table
         $this->service_centers_model->update_service_centers_action_table($sc_data['booking_id'], $sc_data);
         if($state_change){
+            // Insert data into state change
             $this->insert_details_in_state_change($sc_data['booking_id'], $sc_data['internal_status'], "" );
+            // Send sms to customer while customer not reachable
+            if($sc_data['internal_status'] == CUSTOMER_NOT_REACHABLE){
+                log_message('info', __FUNCTION__." Send Sms to customer => Customer not reachable");
+                $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+                $send['booking_id'] = $sc_data['booking_id'];
+                $send['state'] = CUSTOMER_NOT_REACHABLE;
+                $this->asynchronous_lib->do_background_process($url, $send);
+            }
         }
-       
+        
         if ($redirect) {
             $userSession = array('success' => 'Booking Updated');
             $this->session->set_userdata($userSession);
@@ -868,19 +889,9 @@ class Service_centers extends CI_Controller {
     function search(){
         log_message('info', __FUNCTION__ . "  Service_center ID: " . $this->session->userdata('service_center_id'));
         $this->checkUserSession();
-        $booking_id = trim($this->input->post('booking_id'));
-        $phone_number = trim($this->input->post('phone_number'));
+        $searched_text = trim($this->input->post('searched_text'));
         $service_center_id = $this->session->userdata('service_center_id');
-        $data['data'] = array();
-        if (!empty($phone_number)) {
-            log_message('info', __FUNCTION__ . "  Service_center ID: " . $this->session->userdata('service_center_id'). " Phone Number: ". $phone_number);
-            $where = "AND `booking_primary_contact_no` = '$phone_number'";
-            $data['data'] = $this->service_centers_model->search_booking_history($where, $service_center_id);
-        } else if (!empty($booking_id)) {
-             log_message('info', __FUNCTION__ . "  Service_center ID: " . $this->session->userdata('service_center_id'). " Booking Id: ". $booking_id);
-            $where = "AND `booking_id` LIKE '%$booking_id%'";
-            $data['data'] = $this->service_centers_model->search_booking_history($where, $service_center_id);
-        }
+        $data['data'] = $this->service_centers_model->search_booking_history($searched_text, $service_center_id);
 
         if (!empty($data['data'])) {
             $this->load->view('service_centers/header');
@@ -889,7 +900,7 @@ class Service_centers extends CI_Controller {
             //if user not found set error session data
             $this->session->set_flashdata('error', 'Booking Not Found');
 
-            redirect(base_url() . 'service_center/get_search_form');
+            redirect(base_url() . 'service_center/pending_booking');
         }
     }
 

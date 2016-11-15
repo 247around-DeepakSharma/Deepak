@@ -43,7 +43,7 @@
           	<th>Owner Phone No.</th>
           	<th>Owner Email</th>
           	<th>CRM Login / Password</th>
-          	<th colspan="2">Action</th>
+                <th colspan="2" style="text-align: center;">Action</th>
           </tr>
 
           
@@ -92,8 +92,20 @@
                 }
               ?>
             </td>
-            <td><?php  echo "<a onClick=\"javascript: return confirm('Please confirm, want to delete vendor');\" id='edit' class='btn btn-small btn-danger' "
-                                    . "href=" . base_url() . "employee/vendor/delete/$row[id]>Delete</a>";                ?></td>
+<!--            <td><?php  echo "<a onClick=\"javascript: return confirm('Please confirm, want to delete vendor');\" id='edit' class='btn btn-small btn-danger' "
+                                    . "href=" . base_url() . "employee/vendor/delete/$row[id]>Delete</a>";                ?></td>-->
+            <td><?php if($row['is_update']==1)
+                {
+                  echo "<a id='edit' class='btn btn-small btn-warning' "
+                                    . "href=" . base_url() . "employee/vendor/control_update_process/$row[id]/0>Disable Update</a>";                
+                }
+                else
+                {
+                  echo "<a id='edit' class='btn btn-small btn-info' "
+                                    . "href=" . base_url() . "employee/vendor/control_update_process/$row[id]/1>Enable Update</a>";                
+                }
+              ?>
+            </td>
           </tr>
           <?php } ?>
         </table>

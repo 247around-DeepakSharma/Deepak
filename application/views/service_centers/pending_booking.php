@@ -13,6 +13,18 @@
                  </div>';
     }
     ?>
+         <?php
+                    if ($this->session->flashdata('error')) {
+                        echo '<div class="alert alert-danger alert-dismissible partner_error" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <strong>' . $this->session->flashdata('error') . '</strong>
+                    </div>';
+                    }
+                    ?>
+      
+               
         <h2 style="margin-left:15px;margin-top:15px;">Pending Bookings</h2>
         <div class="col-md-10">
             <ul class="nav nav-tabs" role="tablist" >
@@ -41,13 +53,12 @@
                                             <th class="text-center">No</th>
                                             <th class="text-center">Booking Id</th>
                                             <th class="text-center">User</th>
-<!--                                            <th class="text-center">Mobile</th>-->
                                             <th class="text-center">Address</th>
                                             
                                             <th class="text-center">Appliance</th>
                                             <th class="text-center">Booking Date</th>
                                             <th class="text-center">Age</th>
-                                            <th class="text-center">Remarks</th>
+                                            <th class="text-center">Call Center Remarks</th>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
 <!--                                            <th class="text-center">Engineer</th>
                                             <th class="text-center">Re-Assign</th>-->
@@ -60,23 +71,20 @@
                                             <th class="text-center">Cancel</th>
                                             <th class="text-center">Complete</th>
                                             <th class="text-center">JobCard</th>
-                                            <?php if($this->session->userdata('is_update') == 1){ ?>
-<!--                                            <th class="text-center">Penalty</th>-->
-                                            <?php } ?>
-                                            <th  class="text-center">No of Reschedule</th>
-                                            <th  class="text-center">No of Escalation</th>
+                                          
+                                            <th  class="text-center">Escalation</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php $sn_no = 1; ?>
                                         <?php foreach($bookings[1] as $key =>$row){?>
-                                        <tr  style="text-align: center;">
+                                        <tr  style="text-align: center; <?php if($row->count_escalation > 0){ echo 'background-color:#F73006;color:black; font-weight:800px;';} ?>"  >
                                             <td>
                                                 <?php echo $sn_no; ?>
                                             </td>
                                           
                                                 <td>
-                                                    <a class='
+                                                    <a  target="_blank" class='
                                                         <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' 
                                                         href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
                                                         <?php echo $row->booking_id; ?>
@@ -87,9 +95,6 @@
                                             <td>
                                                 <?=$row->customername;?>
                                             </td>
-<!--                                            <td>
-                                                <?= $row->booking_primary_contact_no; ?>
-                                            </td>-->
                                             
                                             <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 85px;" data-html=true data-content="<?= $row->booking_address.", ".$row->booking_pincode; ?> ">
                                                 <?php echo $row->booking_address.", ".$row->booking_pincode; ?> 
@@ -105,10 +110,10 @@
                                                 <?= $row->booking_timeslot; ?>
                                             </td>
                                             <td> <?= $row->age_of_booking." day"; ?></td>
-                                            <td data-popover="true" style="position: absolute; border:0px; width: 10%" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
-                                                <div class="marquee">
-                                                    <div><span><?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?></span></div>
-                                                </div>
+                                            <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 155px;" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
+                                              
+                                               <?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>
+                                               
                                             </td>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
 <!--                                            <td>
@@ -159,14 +164,13 @@
                         <?php if($this->session->userdata('is_update') == 1){ ?>
 <!--                        <td><?php echo "Rs. ".$row->penalty; ?></td>-->
                         <?php } ?>
-                        <td>
+<!--                        <td>
                             <a target="_blank" id="edit" class='btn btn-sm btn-success' href="Javascript:void(0)"
                                title='Reschedule'><i><i class='fa fa-calendar' aria-hidden='true' ></i></i><span class='sup'><?php  echo $row->count_reschedule; ?></span></a>
                       
-                        </td>
+                        </td>-->
                         <td>
-                             <a target='_blank' href="Javascript:void(0)" class='btn btn-sm btn-danger' title="Escalate"><i>
-                                        <i class="fa fa-circle" aria-hidden="true"></i></i><span class=sup><?php  echo $row->count_escalation; ?></span></a>
+                             <?php  echo $row->count_escalation; ?>
                         </td>
                          </tr>
                         <?php $sn_no++; } ?>
@@ -198,13 +202,12 @@
                                             <th class="text-center">No</th>
                                             <th class="text-center">Booking Id</th>
                                             <th class="text-center">User</th>
-<!--                                            <th class="text-center">Mobile</th>-->
                                             <th class="text-center">Address</th>
                                             
                                             <th class="text-center">Appliance</th>
                                             <th class="text-center">Booking Date</th>
                                             <th class="text-center">Age</th>
-                                            <th class="text-center">Remarks</th>
+                                            <th class="text-center">Call Center Remarks</th>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
 <!--                                            <th class="text-center">Engineer</th>
                                             <th class="text-center">Re-Assign</th>-->
@@ -217,36 +220,32 @@
                                             <th class="text-center">Cancel</th>
                                             <th class="text-center">Complete</th>
                                             <th class="text-center">JobCard</th>
-                                            <?php if($this->session->userdata('is_update') == 1){ ?>
-<!--                                            <th class="text-center">Penalty</th>-->
-                                            <?php } ?>
-                                            <th  class="text-center">No of Reschedule</th>
-                                            <th  class="text-center">No of Escalation</th>
+                                          
+                                            <th  class="text-center">Escalation</th>
                                         </tr>
                                 </thead>
                                 <tbody>
                                     <?php $sn_no1 = 1 ; foreach($bookings[2] as $key =>$row){?>
-                                    <tr  style="text-align: center;">
+                                    <tr  style="text-align: center; <?php if($row->count_escalation > 0){ echo 'background-color:#F73006;color:black; font-weight:800px;';} ?>"  >
                                             <td>
                                                 <?php echo $sn_no1; ?>
                                             </td>
-                                            <td>
-                                                    <a class='
+                                          
+                                                <td>
+                                                    <a  target="_blank" class='
                                                         <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' 
                                                         href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
                                                         <?php echo $row->booking_id; ?>
                                                     </a>
                                                 </td>
                                               
+                                       
                                             <td>
                                                 <?=$row->customername;?>
                                             </td>
-<!--                                            <td>
-                                                <?= $row->booking_primary_contact_no; ?>
-                                            </td>-->
                                             
-                                            <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 85px;" data-html=true data-content="<?= $row->booking_address.", ". $row->booking_pincode; ?> ">
-                                                <?= $row->booking_address.", ". $row->booking_pincode; ?> 
+                                            <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 85px;" data-html=true data-content="<?= $row->booking_address.", ".$row->booking_pincode; ?> ">
+                                                <?php echo $row->booking_address.", ".$row->booking_pincode; ?> 
                                             </td>
 <!--                                            <td>
                                                 <?= $row->booking_pincode; ?> 
@@ -259,10 +258,10 @@
                                                 <?= $row->booking_timeslot; ?>
                                             </td>
                                             <td> <?= $row->age_of_booking." day"; ?></td>
-                                            <td data-popover="true" style="position: absolute; border:0px; width: 10%" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
-                                                <div class="marquee">
-                                                    <div><span><?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?></span></div>
-                                                </div>
+                                            <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 155px;" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
+                                              
+                                               <?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>
+                                               
                                             </td>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
 <!--                                            <td>
@@ -303,7 +302,7 @@
                            </td>
 
                             <?php } ?>
-                        <!--<td><a class='btn btn-sm btn-primary <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>-->
+<!--                        <td><a class='btn btn-sm btn-primary <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>-->
                         <td><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
                         </td>
                         <td>
@@ -313,14 +312,13 @@
                         <?php if($this->session->userdata('is_update') == 1){ ?>
 <!--                        <td><?php echo "Rs. ".$row->penalty; ?></td>-->
                         <?php } ?>
-                        <td>
+<!--                        <td>
                             <a target="_blank" id="edit" class='btn btn-sm btn-success' href="Javascript:void(0)"
                                title='Reschedule'><i><i class='fa fa-calendar' aria-hidden='true' ></i></i><span class='sup'><?php  echo $row->count_reschedule; ?></span></a>
                       
-                        </td>
+                        </td>-->
                         <td>
-                             <a target='_blank' href="Javascript:void(0)" class='btn btn-sm btn-danger' title="Escalate"><i>
-                                        <i class="fa fa-circle" aria-hidden="true"></i></i><span class=sup><?php  echo $row->count_escalation; ?></span></a>
+                             <?php  echo $row->count_escalation; ?>
                         </td>
                          </tr>
                     <?php $sn_no++;$sn_no1++; } ?>
@@ -354,13 +352,12 @@
                                             <th class="text-center">No</th>
                                             <th class="text-center">Booking Id</th>
                                             <th class="text-center">User</th>
-<!--                                            <th class="text-center">Mobile</th>-->
                                             <th class="text-center">Address</th>
                                             
                                             <th class="text-center">Appliance</th>
-                                            <th class="text-center">Booking Date</th>
+                                            <th class="text-center">Reschedule Date</th>
                                             <th class="text-center">Age</th>
-                                            <th class="text-center">Remarks</th>
+                                            <th class="text-center">Call Center Remarks</th>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
 <!--                                            <th class="text-center">Engineer</th>
                                             <th class="text-center">Re-Assign</th>-->
@@ -373,37 +370,33 @@
                                             <th class="text-center">Cancel</th>
                                             <th class="text-center">Complete</th>
                                             <th class="text-center">JobCard</th>
-                                            <?php if($this->session->userdata('is_update') == 1){ ?>
-<!--                                            <th class="text-center">Penalty</th>-->
-                                            <?php } ?>
-                                            <th  class="text-center">No of Reschedule</th>
-                                            <th  class="text-center">No of Escalation</th>
+                                          
+                                            <th  class="text-center">Escalation</th>
                                         </tr>
                                 </thead>
                                 <tbody>
                                     <?php $sn_no2 = 1 ; foreach($bookings[3] as $key =>$row){ 
                                         if($row->current_status== "Rescheduled"){?>
-                                    <tr  style="text-align: center;">
+                                <tr  style="text-align: center; <?php if($row->count_escalation > 0){ echo 'background-color:#F73006;color:black; font-weight:800px;';} ?>"  >
                                             <td>
-                                                <?php echo $sn_no2; ?>
+                                                <?php echo $sn_no; ?>
                                             </td>
-                                            <td>
-                                                    <a class='
+                                          
+                                                <td>
+                                                    <a  target="_blank" class='
                                                         <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' 
                                                         href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
                                                         <?php echo $row->booking_id; ?>
                                                     </a>
                                                 </td>
                                               
+                                       
                                             <td>
                                                 <?=$row->customername;?>
                                             </td>
-<!--                                            <td>
-                                                <?= $row->booking_primary_contact_no; ?>
-                                            </td>-->
                                             
-                                            <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 85px;" data-html=true data-content="<?= $row->booking_address.", ". $row->booking_pincode; ?> ">
-                                                <?= $row->booking_address.", ". $row->booking_pincode; ?> 
+                                            <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 85px;" data-html=true data-content="<?= $row->booking_address.", ".$row->booking_pincode; ?> ">
+                                                <?php echo $row->booking_address.", ".$row->booking_pincode; ?> 
                                             </td>
 <!--                                            <td>
                                                 <?= $row->booking_pincode; ?> 
@@ -416,10 +409,10 @@
                                                 <?= $row->booking_timeslot; ?>
                                             </td>
                                             <td> <?= $row->age_of_booking." day"; ?></td>
-                                            <td data-popover="true" style="position: absolute; border:0px; width: 10%" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
-                                                <div class="marquee">
-                                                    <div><span><?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?></span></div>
-                                                </div>
+                                            <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 155px;" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
+                                              
+                                               <?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>
+                                               
                                             </td>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
 <!--                                            <td>
@@ -460,7 +453,7 @@
                            </td>
 
                             <?php } ?>
-                        <!--<td><a class='btn btn-sm btn-primary <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>-->
+<!--                        <td><a class='btn btn-sm btn-primary <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>-->
                         <td><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
                         </td>
                         <td>
@@ -470,14 +463,13 @@
                         <?php if($this->session->userdata('is_update') == 1){ ?>
 <!--                        <td><?php echo "Rs. ".$row->penalty; ?></td>-->
                         <?php } ?>
-                        <td>
+<!--                        <td>
                             <a target="_blank" id="edit" class='btn btn-sm btn-success' href="Javascript:void(0)"
                                title='Reschedule'><i><i class='fa fa-calendar' aria-hidden='true' ></i></i><span class='sup'><?php  echo $row->count_reschedule; ?></span></a>
                       
-                        </td>
+                        </td>-->
                         <td>
-                             <a target='_blank' href="Javascript:void(0)" class='btn btn-sm btn-danger' title="Escalate"><i>
-                                        <i class="fa fa-circle" aria-hidden="true"></i></i><span class=sup><?php  echo $row->count_escalation; ?></span></a>
+                             <?php  echo $row->count_escalation; ?>
                         </td>
                          </tr>
                                     <?php $sn_no++;$sn_no1++; $sn_no2++;} } ?>
@@ -638,6 +630,8 @@
         });
     } );
     
+    
+    
      $('.engineers_id').select2();
     
     function edit_engineer(div) {
@@ -747,13 +741,13 @@
         var booking_date = $('#datepicker').val();
         
         var remarks = $('#remarks').val();
-        if(booking_date ==""){
+        if(booking_date ===""){
           
            $("#error").text('Plese Enter Booking Date');
             return false;
         }
 
-        if(remarks ==""){
+        if(remarks ===""){
            $("#error").text('Plese Enter Reschedule Reason');
             return false;
         }

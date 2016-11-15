@@ -80,17 +80,17 @@ class Service_centers_model extends CI_Model {
                 . " bd.booking_timeslot, "
                 . " bd.current_status, "
                 . " bd.count_escalation, "
-                . " bd.count_reschedule, "
                 . " bd.booking_address, "
                 . " bd.booking_pincode, "
-                . " services, CASE
-                    WHEN EXISTS (SELECT *
-                                 FROM   penalty_on_booking as pb
-                                 WHERE  pb.booking_id = bd.booking_id AND pb.service_center_id = bd.assigned_vendor_id) 
-                                 THEN (SELECT SUM(penalty_amount) as penalty_amount FROM penalty_on_booking as pob
-                                 WHERE pob.booking_id = bd.booking_id AND pob.service_center_id = bd.assigned_vendor_id)
-                    ELSE '0'
-                  END AS penalty, "
+                . " services," 
+//                . " CASE
+//                    WHEN EXISTS (SELECT *
+//                                 FROM   penalty_on_booking as pb
+//                                 WHERE  pb.booking_id = bd.booking_id AND pb.service_center_id = bd.assigned_vendor_id) 
+//                                 THEN (SELECT SUM(penalty_amount) as penalty_amount FROM penalty_on_booking as pob
+//                                 WHERE pob.booking_id = bd.booking_id AND pob.service_center_id = bd.assigned_vendor_id)
+//                    ELSE '0'
+//                  END AS penalty, "
                 . " DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') ) as age_of_booking "
                 . " FROM service_center_booking_action as sc, booking_details as bd, users, services, engineer_details "
                 . " WHERE sc.service_center_id = $service_center_id "
@@ -101,7 +101,7 @@ class Service_centers_model extends CI_Model {
                 . " AND bd.service_id = services.id "
                 . $status
                 . "  ".$day . $booking
-                . " ORDER BY STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc ";
+                . " ORDER BY count_escalation desc, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc ";
 
             $query1 = $this->db->query($sql);
             $result[$i] = $query1->result();
@@ -298,14 +298,23 @@ class Service_centers_model extends CI_Model {
              . "'Customer not reachable'";
     }
     
-    function search_booking_history($where,$service_center_id) {
+    function search_booking_history($searched_text,$service_center_id) {
+        $where_phone = "AND `booking_primary_contact_no` = '$searched_text'";
+        $where_booking_id = "AND `booking_id` LIKE '%$searched_text%'";
        
         $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot`, users.name, services.services, current_status, assigned_engineer_id "
                 . " FROM `booking_details`,users, services "
                 . " WHERE users.user_id = booking_details.user_id "
                 . " AND services.id = booking_details.service_id "
-                . " AND `assigned_vendor_id` = '$service_center_id' ". $where
-                . " ORDER BY booking_details.`id` DESC ";
+                . " AND `assigned_vendor_id` = '$service_center_id' ". $where_phone
+
+                . " UNION "
+                . "SELECT `booking_id`,`booking_date`,`booking_timeslot`, users.name, services.services, current_status, assigned_engineer_id "
+                . " FROM `booking_details`,users, services "
+                . " WHERE users.user_id = booking_details.user_id "
+                . " AND services.id = booking_details.service_id "
+                . " AND `assigned_vendor_id` = '$service_center_id' ". $where_booking_id
+                . " ";
         $query = $this->db->query($sql);
         //echo $this->db->last_query();
         return $query->result_array();

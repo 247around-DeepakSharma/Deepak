@@ -6,37 +6,30 @@
                     Update Booking
                 </h2>
                 <form class="form-horizontal" name="myForm" action="<?php echo base_url() ?>employee/service_centers/process_update_booking" method="POST" onsubmit="return submitForm();" enctype="multipart/form-data">
-                    
-
-                    <div class="form-group ">
-                      <label for="booking_id" class="col-md-2">Booking ID</label>
-                      <div class="col-md-4">
+                    <div class="col-md-12" style="margin-left:-31px;">
+                          <div class="col-md-3">
                         <input type="text" class="form-control"   value = "<?php if (isset($bookinghistory[0]['booking_id'])) {echo $bookinghistory[0]['booking_id']; }?>"  disabled>
                        
                       </div>
-                    </div>
-
-                    <div class="form-group">
-                      <label for="name" class="col-md-2">Name</label>
-                      <div class="col-md-4">
+                         <div class="col-md-3">
                         <input type="text" class="form-control"   value = "<?php if (isset($bookinghistory[0]['name'])) {echo $bookinghistory[0]['name']; }?>"  disabled>
                        
                       </div>
-                    </div>
-                    <div class="form-group">
-                      <label for="mobile" class="col-md-2">Mobile</label>
-                      <div class="col-md-4">
+                         <div class="col-md-3">
                         <input type="text" class="form-control"   value = "<?php if (isset($bookinghistory[0]['booking_primary_contact_no'])) {echo $bookinghistory[0]['booking_primary_contact_no']; }?>"  disabled>
                        
                       </div>
                     </div>
+                   
+                    
+                    
                     <input type="hidden" class="form-control"  name="booking_id" value = "<?php echo $booking_id;
                         ?>">
                     <input type="hidden" class="form-control"  name="partner_id" value = "<?php if (isset($bookinghistory[0]['partner_id'])) {echo $bookinghistory[0]['partner_id']; }?>">
                     <input type="hidden" class="form-control" id="partner_flag" name="partner_flag" value="<?php echo $around_flag ?>" />
                     <div class="form-group ">
-                        <label for="reason" class="col-md-2">Reason</label>
-                        <div class="col-md-6">
+                        <label for="reason" class="col-md-2" style="margin-top:39px;">Reason</label>
+                        <div class="col-md-6" style="margin-top:39px;">
                             <?php  ?>
                             
                             <?php foreach ($internal_status as $key => $data1) { ?>
@@ -49,8 +42,14 @@
                              <?php } ?>
                             <div class="radio ">
                                 <label>
-                                <input type="radio" id="rescheduled" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="Rescheduled" >
-                                Rescheduled
+                                <input type="radio" id="rescheduled" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo CUSTOMER_ASK_TO_RESCHEDULE; ?>" >
+                                <?php echo CUSTOMER_ASK_TO_RESCHEDULE; ?>
+                                </label>
+                            </div>
+                            <div class="radio ">
+                                <label>
+                                <input type="radio" id="product_not_delivered" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo PRODUCT_NOT_DELIVERED_TO_CUSTOMER; ?>" >
+                                <?php echo PRODUCT_NOT_DELIVERED_TO_CUSTOMER; ?>
                                 </label>
                             </div>
                             <?php if ($spare_flag == 1) { ?>
@@ -63,6 +62,7 @@
                             <?php } ?>
                         </div>
                     </div>
+                    
                     <div class="panel panel-default col-md-offset-2" id="hide_spare" >
                         <div class="panel-body" >
                             <div class="row">
@@ -179,15 +179,10 @@
                         </div>
                         
                     </div>
-                     <div class="form-group ">
-                            <label for="reason" class="col-md-2"> Rescheduled Reason</label>
-                            <div class="col-md-4" >
-                                    <textarea class="form-control rescheduled_form"  id="rescheduled_text" name="reason_text" value = "" rows="3" placeholder="Rescheduled Reason" ></textarea>
-                            </div>
-                        </div>
+                  
             </div>
                    
-                    <div class="col-md-6 col-md-offset-4">
+                    <div class="col-md-6 col-md-offset-2">
                         <input type="submit"  value="Update Booking" style="background-color: #2C9D9C; border-color: #2C9D9C; "  class="btn btn-danger btn-large">
                     </div>
                 </form>
@@ -207,23 +202,20 @@
     
      });
      
-     if(reason_text ==="" && checkbox_value ===0){
-     	  alert('Please select atleast one checkbox or type reason');
+     if(checkbox_value ===0){
+     	  alert('Please select atleast one checkbox.');
      	  checkbox_value = 0;
      }
      
       var reason = $("input[name='reason']:checked"). val();
-      if(reason === "Rescheduled"){
-          var res_text = $("#rescheduled_text").val();
+      if(reason === "<?php echo CUSTOMER_ASK_TO_RESCHEDULE; ?>" || reason === "<?php echo PRODUCT_NOT_DELIVERED_TO_CUSTOMER; ?>"){
+          
           var booking_date = $('#booking_date').val();
           if(booking_date === ""){
-              alert("Please Select Date");
+              alert("Please select new date");
               checkbox_value = 0;
           }
-          if(res_text ===""){
-              alert("Please Enter Rescheduled Reason in the Comment");
-              checkbox_value = 0;
-          }
+         
       } else if(reason === "Spare Parts required"){
           var around_flag = $('#partner_flag').val();
          
@@ -234,22 +226,22 @@
               var parts_name = $("#parts_name").val();
               var dop = $("#dop").val();
               if(parts_name === ""){
-                   alert("Please Enter Parts Number");
+                   alert("Please Enter parts number");
                   checkbox_value = 0;
                   return false;
               }
               if(model_number ===""){
-                  alert("Please Enter Model Number");
+                  alert("Please enter model number");
                   checkbox_value =0;
                   return false;
               }
               if(serial_number === ""){
-                   alert("Please Enter Serial Number");
+                   alert("Please Enter serial number");
                   checkbox_value = 0;
                   return false;
               }
               if(prob_des === ""){
-                   alert("Please Enter Problem Description");
+                   alert("Please Enter problem description");
                   checkbox_value = 0;
                   return false;
               }
@@ -265,18 +257,18 @@
               var reason_text = $("#247reason_text").val();
 
               if(parts_name1 === ""){
-                   alert("Please Enter Parts Name");
+                   alert("Please Enter parts name");
                   checkbox_value = 0;
                   return false;
               }
               
                if(reschduled_booking_date === ""){
-                  alert("Please Select Reschedule Date");
+                  alert("Please select reschedule date");
                   checkbox_value = 0; 
                   return false;
               }
               if(reason_text === ""){
-                  alert("Please Enter Problem Description");
+                  alert("Please enter problem description");
                   checkbox_value = 0; 
                   return false;
               }
@@ -284,7 +276,6 @@
           }
       }
            
-     
       if(checkbox_value === 0){
           return false;
           
@@ -303,13 +294,13 @@
             $(".rescheduled_form").attr("disabled", "true");
             $('#hide_rescheduled').hide();
           
-        } else  if(id ==="rescheduled"){
+        } else  if(id ==="rescheduled" || id === "product_not_delivered"){
             $(".spare_parts").attr("disabled", "true");
             $('#hide_spare').hide();
             $('#hide_rescheduled').show();
             $(".rescheduled_form").removeAttr("disabled");
     
-       } else {
+       }  else {
          $(".spare_parts").attr("disabled", "true");
          $(".rescheduled_form").attr("disabled", "true");
          $('#hide_spare').hide();

@@ -106,10 +106,13 @@ function outbound_call(phone_number){
                     <th width="100px;">City</th>
 
                     <th width="250px;">Query Remarks</th>
-                     <?php if($p_av == PINCODE_NOT_AVAILABLE || $p_av == PINCODE_ALL_AVAILABLE ){ ?>
+                     
                     <?php if($status != "Cancelled"){ ?>
+                    <?php if($p_av == PINCODE_NOT_AVAILABLE){ ?>
                     <th>Pincode</th>
-                    <?php } } ?>
+                    <?php } else { ?>
+                    <th>Vendor Status</th>
+                   <?php } } ?>
                     <th width="60px;">Call</th>
                     <th width="60px;">View</th>
                      <?php if($status != "Cancelled"){?>
@@ -129,8 +132,9 @@ function outbound_call(phone_number){
                     <tr <?php if($row->internal_status == "Missed_call_confirmed"){ ?> style="background-color:rgb(162, 230, 162); color:#000;"<?php } ?> >
                     <td><?php echo $offset; ?></td>
 
-                <td><?= $row->booking_id; ?></td>
-
+                    <td><?= $row->booking_id; ?></td>
+                    <input type="hidden" id="<?php echo "service_id_".($key +1); ?>"  value="<?php echo $row->service_id;?>"/>
+                    <input type="hidden" id="<?php echo "pincode_".($key +1); ?>" value="<?php echo $row->booking_pincode; ?>" />
                     <td><a target='_blank' href="<?php echo base_url(); ?>employee/user/finduser/0/0/<?php echo $row->phone_number; ?>"><?php echo $row->customername; ?></a></td>
                     <td><a target='_blank' href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $row->phone_number;?>"><?php echo $row->booking_primary_contact_no; ?></a></td>
                     <td><?= $row->services;  ?></td>
@@ -149,11 +153,20 @@ function outbound_call(phone_number){
 
 
                     <td><?= $row->query_remarks; ?></td>
-                    <?php if($p_av == PINCODE_NOT_AVAILABLE){  if($status != "Cancelled"){  ?>
+                    <?php  if($status != "Cancelled"){  if($p_av == PINCODE_NOT_AVAILABLE){?>
                     <td><a href="javascript:void(0)" style="color: red;" onclick='form_submit("<?php echo $row->booking_id?>")'><?php print_r($row->booking_pincode); ?></a></td>
-                    <?php } else if($p_av == PINCODE_ALL_AVAILABLE || isset ($tow->vendor_status)){ ?>
-                    <td><?php echo $row->vendor_status; ?></td>
-                    <?php } }?>
+                    <?php } else if($p_av == PINCODE_ALL_AVAILABLE || $p_av == PINCODE_AVAILABLE ){ ?>
+                    <td>
+                        
+                        <select id="<?php  echo "av_vendor". ($key+1); ?>" style="max-width:100px;">
+                            <option>Vendor Available</option>
+                            
+                        </select>
+                        
+                        <a href="javascript:void(0)" style="color: red; display:none" id="<?php echo "av_pincode".($key +1); ?>" onclick='form_submit("<?php echo $row->booking_id?>")'><?php print_r($row->booking_pincode); ?></a>
+                    
+                    </td>
+                    <?php } }  ?>
 
                       <td><button type="button" onclick="outbound_call(<?php echo $row->booking_primary_contact_no; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                      </td>
@@ -199,8 +212,43 @@ function outbound_call(phone_number){
         $('table').filterTable({ // apply filterTable to all tables on this page
             inputSelector: '#input-filter' // use the existing input instead of creating a new one
         });
+        <?php if($status  != "Cancelled" && $p_av != PINCODE_NOT_AVAILABLE){ ?>
+        var total_booking = Number(<?php echo count($Bookings); ?>);
+        for(var c = 1; c<= total_booking; c++  ){
+            var index = c;
+            var  service_id = $("#service_id_"+ c).val();
+            var pincode = $("#pincode_"+ c).val();
+            if(pincode !== ""){
+                get_vendor(pincode, service_id, index);
+            } else {
+                $("#av_vendor"+index).css("display","none");
+                 $("#av_pincode"+index).css("display","inherit");
+            }
+            
+            
+        }
+        <?php } ?>
     });
-
+    
+    function get_vendor(pincode, service_id, index){
+        $.ajax({
+                type:"POST",
+                url:"<?php echo base_url()?>employee/vendor/get_vendor_availability/"+pincode+"/"+service_id,
+                
+                success: function(data){
+                    if(data !== ""){
+                       $("#av_vendor"+index).html(data); 
+                    } else {
+                        $("#av_vendor"+index).css("display","none");
+                        $("#av_pincode"+index).css("display","inherit");
+                    }
+                    
+                }
+        });
+        
+    }
+    
+   
     function load_vendor_details(div){
         var vendor_id = $("#vendor_avalilabe"+div).val();
         document.location.href= '<?php echo base_url(); ?>employee/vendor/viewvendor/'+vendor_id;
@@ -216,6 +264,8 @@ function outbound_call(phone_number){
                 }
         });
     }
+    
+    
 </script>
 <style>
     /* generic table styling */

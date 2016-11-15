@@ -16,7 +16,8 @@ if (!function_exists('search_for_key')) {
 
     function search_for_key($array) {
         $data = array();
-        foreach ($array as $key => $val) {
+        $no= 1;
+        foreach ($array as  $val) {
             if ($val->current_status === "Pending" || $val->current_status === "Rescheduled") {
                 $data['Pending'] = 1;
             } else if ($val->current_status === "Completed") {
@@ -25,6 +26,8 @@ if (!function_exists('search_for_key')) {
                 $data['Cancelled'] = 1;
             } else if ($val->current_status === "FollowUp") {
                 $data['FollowUp'] = 1;
+                $data['FollowUp_count'] = $no;
+                $no++;
             }
         }
         return $data;

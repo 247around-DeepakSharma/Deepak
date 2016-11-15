@@ -109,6 +109,13 @@ define('Max_TIME_WITH_IN_ASSIGNED_ENGINEER', 3);
 
 define('PRODUCT_NOT_DELIVERED_TO_CUSTOMER','Product not delivered to customer');
 
+define('CUSTOMER_ASK_TO_RESCHEDULE','Customer ask to reschedule');
+
+define('CUSTOMER_NOT_REACHABLE','Customer not reachable');
+
+
+
+
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

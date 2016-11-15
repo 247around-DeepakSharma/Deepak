@@ -2073,4 +2073,30 @@ class vendor extends CI_Controller {
         }
     }
 
+    
+    /**
+     * @desc: This method called by ajax to display available vendor list in dropdown
+     * @param type $pincode
+     * @param type $service_id
+     */
+    function get_vendor_availability($pincode, $service_id){
+        $data = $this->vendor_model->check_vendor_availability($pincode, $service_id);
+        if (!empty($data)) {
+            foreach ($data as $value) {
+                echo "<option selected value='$value[Vendor_ID]'>$value[Vendor_Name]</option>";
+            }
+        } else {
+            echo "";
+        }
+    }
+    /**
+     * @desc: This method is used to update is_update field. It gets 0 Or 1 flag to update service center
+     * @param String $service_center_id
+     * @param String $flag
+     */
+    function control_update_process($service_center_id, $flag){
+        $this->vendor_model->edit_vendor(array('is_update'=> $flag), $service_center_id);
+        redirect(base_url() . 'employee/vendor/viewvendor');
+    }
+
 }   
