@@ -296,15 +296,15 @@
                                                 <?php echo $row->booking_address.", ".$row->booking_pincode; ?> 
                                             </td>
 
-                                            <td>
-                                                <?= $row->services; ?>
+                                            <td style="max-width: 100px; word-wrap:break-word;">
+                                                <?php if (stristr($row->request_type, "Installation")) { if($row->amount_due > 0){ echo "Paid ";} else { echo "Free "; } } echo $row->request_type." ". $row->services; ?>
                                             </td>
                                             <td>
                                                 <?= $row->booking_date."<br/>"; ?> 
                                                 <?= $row->booking_timeslot; ?>
                                             </td>
                                             <td> <?= $row->age_of_booking." day"; ?></td>
-                                            <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 155px;" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
+                                            <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 125px;" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
                                               
                                                <?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>
                                                
@@ -312,7 +312,7 @@
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
                                             <td><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc); ?>
                                                 <br/>
-                                               <?php if($row->penalty > 0){ ?><p class="incentive">Incentive Lost</p><?php } else { ?><div class="countdown"></div><?php } ?>
+                                               <?php if($row->penalty > 0){ ?><p class="incentive" style="color:#F26722;font-size: 14px;">Incentive Lost</p><?php } else { ?><div class="countdown" style="color:#F26722; font-size:13px;"></div><?php } ?>
                                             
                                             </td>
 <!--                                            <td>
@@ -467,15 +467,15 @@
                                                 <?php echo $row->booking_address.", ".$row->booking_pincode; ?> 
                                             </td>
 
-                                            <td>
-                                                <?= $row->services; ?>
+                                            <td style="max-width: 100px; word-wrap:break-word;">
+                                                <?php if (stristr($row->request_type, "Installation")) { if($row->amount_due > 0){ echo "Paid ";} else { echo "Free "; } } echo $row->request_type." ". $row->services; ?>
                                             </td>
                                             <td>
                                                 <?= $row->booking_date."<br/>"; ?> 
                                                 <?= $row->booking_timeslot; ?>
                                             </td>
                                             <td> <?= $row->age_of_booking." day"; ?></td>
-                                            <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 155px;" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
+                                            <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 125px;" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
                                               
                                                <?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>
                                                
@@ -483,7 +483,7 @@
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
                                             <td><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc); ?>
                                                 <br/>
-                                               <?php if($row->penalty > 0){ ?><p class="incentive">Incentive Lost</p><?php } else { ?><div class="countdown"></div><?php } ?>
+                                               <?php if($row->penalty > 0){ ?><p class="incentive" style="color:#F26722;font-size: 14px;">Incentive Lost</p><?php } else { ?><div class="countdown" style="color:#F26722; font-size:13px;"></div><?php } ?>
                                             
                                             </td>
 <!--                                            <td>
