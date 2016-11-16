@@ -94,8 +94,8 @@
                                             </td>
                                           
                                                 <td>
-                                                    <a  target="_blank" class='
-                                                        <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' 
+                                                    <a  target="_blank" 
+                                                        <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  style="pointer-events:none" <?php } } ?> 
                                                         href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
                                                         <?php echo $row->booking_id; ?>
                                                     </a>
@@ -262,8 +262,8 @@
                                             </td>
                                           
                                                 <td>
-                                                    <a  target="_blank" class='
-                                                        <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' 
+                                                    <a  target="_blank" 
+                                                        <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  style="pointer-events:none" <?php } } ?> 
                                                         href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
                                                         <?php echo $row->booking_id; ?>
                                                     </a>
@@ -433,8 +433,8 @@
                                             </td>
                                           
                                                 <td>
-                                                    <a  target="_blank" class='
-                                                        <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' 
+                                                    <a  target="_blank" 
+                                                        <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  style="pointer-events:none" <?php } } ?> 
                                                         href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
                                                         <?php echo $row->booking_id; ?>
                                                     </a>
