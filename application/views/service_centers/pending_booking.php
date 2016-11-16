@@ -258,7 +258,7 @@
                                     <?php $sn_no1 = 1 ; foreach($bookings[2] as $key =>$row){?>
                                      <tr  style="text-align: center; <?php if($row->count_escalation > 0){ echo 'background-color:#F73006;color:black; font-weight:800px;';} ?>"  >
                                             <td>
-                                                <?php echo $sn_no; ?>
+                                                <?php echo $sn_no1; ?>
                                             </td>
                                           
                                                 <td>
@@ -429,7 +429,7 @@
                                         if($row->current_status== "Rescheduled"){?>
                                <tr  style="text-align: center; <?php if($row->count_escalation > 0){ echo 'background-color:#F73006;color:black; font-weight:800px;';} ?>"  >
                                             <td>
-                                                <?php echo $sn_no; ?>
+                                                <?php echo $sn_no2; ?>
                                             </td>
                                           
                                                 <td>
