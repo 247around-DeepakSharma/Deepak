@@ -38,7 +38,6 @@
         </div>
     </div>
 </div>
-
 <div class="tab-content">
     <div role="tabpanel" class="tab-pane active" id="today_booking">
         <div class="container-fluid">
@@ -47,6 +46,7 @@
                     <div class="panel panel-default">
                         <div class="panel-body" >
                             <form   id="form1" onsubmit="return submitForm('form1');" name="fileinfo"  method="POST" enctype="multipart/form-data">
+<!--                                <div class="pull-right">Red Bookings are Escalation, Call Customer Immediately !!!</div>-->
                                 <table id="today_datatable" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                                     <thead >
                                         <tr>
@@ -60,19 +60,29 @@
                                             <th class="text-center">Age</th>
                                             <th class="text-center">Call Center Remarks</th>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
+                                            <th class="text-center">Amount</th>
 <!--                                            <th class="text-center">Engineer</th>
                                             <th class="text-center">Re-Assign</th>-->
+  
+                                            <?php } ?> 
+                                            <th  class="text-center">Escalation</th>
+                                            <?php if($this->session->userdata('is_update') == 1){ ?>
+
                                             <th class="text-center">Update</th>
-                                            <?php } else if($this->session->userdata('is_update') == 0){ ?>
+                                            <?php } ?>
+                                                
+                                            <?php if($this->session->userdata('is_update') == 0){ ?>
+                                            
                                             <th>Reschedule</th>
 
-                                                <?php }?>
+                                            <?php }?>
 <!--                                            <th class="text-center">View</th>-->
                                             <th class="text-center">Cancel</th>
                                             <th class="text-center">Complete</th>
                                             <th class="text-center">JobCard</th>
                                           
-                                            <th  class="text-center">Escalation</th>
+                                            
+                                            
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -92,21 +102,19 @@
                                                 </td>
                                               
                                        
-                                            <td>
+                                                <td style="max-width: 100px; word-wrap:break-word;">
                                                 <?=$row->customername;?>
                                             </td>
                                             
                                             <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 85px;" data-html=true data-content="<?= $row->booking_address.", ".$row->booking_pincode; ?> ">
                                                 <?php echo $row->booking_address.", ".$row->booking_pincode; ?> 
                                             </td>
-<!--                                            <td>
-                                                <?= $row->booking_pincode; ?> 
-                                            </td>-->
+
                                             <td>
                                                 <?= $row->services; ?>
                                             </td>
                                             <td>
-                                                <?= $row->booking_date; ?> /
+                                                <?= $row->booking_date."<br/>"; ?> 
                                                 <?= $row->booking_timeslot; ?>
                                             </td>
                                             <td> <?= $row->age_of_booking." day"; ?></td>
@@ -116,6 +124,11 @@
                                                
                                             </td>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
+                                            <td><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc); ?>
+                                                <br/>
+                                               <?php if($row->penalty > 0){ ?><p class="incentive" style="color:#F26722;">Incentive Lost</p><?php } else { ?><div class="countdown" style="color:#F26722;"></div><?php } ?>
+                                            
+                                            </td>
 <!--                                            <td>
                                                 <div  id= "<?php echo 'assign_engineer_div' . $sn_no; ?>" class="form-group " <?php if (!is_null($row->assigned_engineer_id)) { ?> style="display: none;" <?php } ?>>
                                                     <select name="engineer[<?php echo $row->booking_id; ?>]" id="<?php echo "engineer" . $sn_no ?>" class="form-control engineers_id" <?php if (!is_null($row->assigned_engineer_id)) { ?> disabled <?php } ?> style="width:100px;">
@@ -145,10 +158,21 @@
 <!--                        <td>
                         <?php if (!is_null($row->assigned_engineer_id)) { ?>  <button type="button"  class="btn btn-sm btn-success" onclick="edit_engineer(<?php echo $sn_no; ?>)"><i class="fa fa-user" aria-hidden='true'></i></button> <?php } ?>
                         </td>-->
+                        
+                        <?php } ?>
+                        
+                        <td>
+                             <?php  echo $row->count_escalation." times"; ?>
+                        </td>
+                        
+                         <?php if($this->session->userdata('is_update') == 1){ ?>
                         <td>
                         <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
                         </td>
-                        <?php } else if($this->session->userdata('is_update') == 0){ ?>
+                        
+                         <?php } ?>
+                        
+                        <?php if($this->session->userdata('is_update') == 0){ ?>
                             <td>
                               <button type="button"  class="btn btn-sm btn-success" onclick="setbooking_id('<?=$row->booking_id?>')" data-toggle="modal" data-target="#myModal" ><i class='fa fa-calendar' aria-hidden='true'></i></button>
                            </td>
@@ -161,17 +185,13 @@
                         <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
                         </td>
                         <td><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm <?php if($this->session->userdata('is_update') == 1){ ?><?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
-                        <?php if($this->session->userdata('is_update') == 1){ ?>
-<!--                        <td><?php echo "Rs. ".$row->penalty; ?></td>-->
-                        <?php } ?>
+                       
 <!--                        <td>
                             <a target="_blank" id="edit" class='btn btn-sm btn-success' href="Javascript:void(0)"
                                title='Reschedule'><i><i class='fa fa-calendar' aria-hidden='true' ></i></i><span class='sup'><?php  echo $row->count_reschedule; ?></span></a>
                       
                         </td>-->
-                        <td>
-                             <?php  echo $row->count_escalation; ?>
-                        </td>
+                        
                          </tr>
                         <?php $sn_no++; } ?>
                         </tbody>
@@ -209,26 +229,36 @@
                                             <th class="text-center">Age</th>
                                             <th class="text-center">Call Center Remarks</th>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
+                                            <th class="text-center">Amount</th>
 <!--                                            <th class="text-center">Engineer</th>
                                             <th class="text-center">Re-Assign</th>-->
+  
+                                            <?php } ?> 
+                                            <th  class="text-center">Escalation</th>
+                                            <?php if($this->session->userdata('is_update') == 1){ ?>
+
                                             <th class="text-center">Update</th>
-                                            <?php } else if($this->session->userdata('is_update') == 0){ ?>
+                                            <?php } ?>
+                                                
+                                            <?php if($this->session->userdata('is_update') == 0){ ?>
+                                            
                                             <th>Reschedule</th>
 
-                                                <?php }?>
+                                            <?php }?>
 <!--                                            <th class="text-center">View</th>-->
                                             <th class="text-center">Cancel</th>
                                             <th class="text-center">Complete</th>
                                             <th class="text-center">JobCard</th>
                                           
-                                            <th  class="text-center">Escalation</th>
+                                            
+                                            
                                         </tr>
                                 </thead>
                                 <tbody>
                                     <?php $sn_no1 = 1 ; foreach($bookings[2] as $key =>$row){?>
-                                    <tr  style="text-align: center; <?php if($row->count_escalation > 0){ echo 'background-color:#F73006;color:black; font-weight:800px;';} ?>"  >
+                                     <tr  style="text-align: center; <?php if($row->count_escalation > 0){ echo 'background-color:#F73006;color:black; font-weight:800px;';} ?>"  >
                                             <td>
-                                                <?php echo $sn_no1; ?>
+                                                <?php echo $sn_no; ?>
                                             </td>
                                           
                                                 <td>
@@ -240,21 +270,19 @@
                                                 </td>
                                               
                                        
-                                            <td>
+                                                <td style="max-width: 100px; word-wrap:break-word;">
                                                 <?=$row->customername;?>
                                             </td>
                                             
                                             <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 85px;" data-html=true data-content="<?= $row->booking_address.", ".$row->booking_pincode; ?> ">
                                                 <?php echo $row->booking_address.", ".$row->booking_pincode; ?> 
                                             </td>
-<!--                                            <td>
-                                                <?= $row->booking_pincode; ?> 
-                                            </td>-->
+
                                             <td>
                                                 <?= $row->services; ?>
                                             </td>
                                             <td>
-                                                <?= $row->booking_date; ?> /
+                                                <?= $row->booking_date."<br/>"; ?> 
                                                 <?= $row->booking_timeslot; ?>
                                             </td>
                                             <td> <?= $row->age_of_booking." day"; ?></td>
@@ -264,6 +292,11 @@
                                                
                                             </td>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
+                                            <td><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc); ?>
+                                                <br/>
+                                               <?php if($row->penalty > 0){ ?><p class="incentive">Incentive Lost</p><?php } else { ?><div class="countdown"></div><?php } ?>
+                                            
+                                            </td>
 <!--                                            <td>
                                                 <div  id= "<?php echo 'assign_engineer_div' . $sn_no; ?>" class="form-group " <?php if (!is_null($row->assigned_engineer_id)) { ?> style="display: none;" <?php } ?>>
                                                     <select name="engineer[<?php echo $row->booking_id; ?>]" id="<?php echo "engineer" . $sn_no ?>" class="form-control engineers_id" <?php if (!is_null($row->assigned_engineer_id)) { ?> disabled <?php } ?> style="width:100px;">
@@ -293,10 +326,21 @@
 <!--                        <td>
                         <?php if (!is_null($row->assigned_engineer_id)) { ?>  <button type="button"  class="btn btn-sm btn-success" onclick="edit_engineer(<?php echo $sn_no; ?>)"><i class="fa fa-user" aria-hidden='true'></i></button> <?php } ?>
                         </td>-->
+                        
+                        <?php } ?>
+                        
+                        <td>
+                             <?php  echo $row->count_escalation." times"; ?>
+                        </td>
+                        
+                         <?php if($this->session->userdata('is_update') == 1){ ?>
                         <td>
                         <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
                         </td>
-                        <?php } else if($this->session->userdata('is_update') == 0){ ?>
+                        
+                         <?php } ?>
+                        
+                        <?php if($this->session->userdata('is_update') == 0){ ?>
                             <td>
                               <button type="button"  class="btn btn-sm btn-success" onclick="setbooking_id('<?=$row->booking_id?>')" data-toggle="modal" data-target="#myModal" ><i class='fa fa-calendar' aria-hidden='true'></i></button>
                            </td>
@@ -309,17 +353,13 @@
                         <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
                         </td>
                         <td><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm <?php if($this->session->userdata('is_update') == 1){ ?><?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
-                        <?php if($this->session->userdata('is_update') == 1){ ?>
-<!--                        <td><?php echo "Rs. ".$row->penalty; ?></td>-->
-                        <?php } ?>
+                       
 <!--                        <td>
                             <a target="_blank" id="edit" class='btn btn-sm btn-success' href="Javascript:void(0)"
                                title='Reschedule'><i><i class='fa fa-calendar' aria-hidden='true' ></i></i><span class='sup'><?php  echo $row->count_reschedule; ?></span></a>
                       
                         </td>-->
-                        <td>
-                             <?php  echo $row->count_escalation; ?>
-                        </td>
+                        
                          </tr>
                     <?php $sn_no++;$sn_no1++; } ?>
                     </tbody>
@@ -348,36 +388,46 @@
                              <form   id="form3" onsubmit="return submitForm('form3');" name="fileinfo"  method="POST" enctype="multipart/form-data">
                             <table id="future_datatable" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                                 <thead >
-                                    <tr>
+                                  <tr>
                                             <th class="text-center">No</th>
                                             <th class="text-center">Booking Id</th>
                                             <th class="text-center">User</th>
                                             <th class="text-center">Address</th>
                                             
                                             <th class="text-center">Appliance</th>
-                                            <th class="text-center">Reschedule Date</th>
+                                            <th class="text-center">Rescheduled Date</th>
                                             <th class="text-center">Age</th>
                                             <th class="text-center">Call Center Remarks</th>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
+                                            <th class="text-center">Amount</th>
 <!--                                            <th class="text-center">Engineer</th>
                                             <th class="text-center">Re-Assign</th>-->
+  
+                                            <?php } ?> 
+                                            <th  class="text-center">Escalation</th>
+                                            <?php if($this->session->userdata('is_update') == 1){ ?>
+
                                             <th class="text-center">Update</th>
-                                            <?php } else if($this->session->userdata('is_update') == 0){ ?>
+                                            <?php } ?>
+                                                
+                                            <?php if($this->session->userdata('is_update') == 0){ ?>
+                                            
                                             <th>Reschedule</th>
 
-                                                <?php }?>
+                                            <?php }?>
 <!--                                            <th class="text-center">View</th>-->
                                             <th class="text-center">Cancel</th>
                                             <th class="text-center">Complete</th>
                                             <th class="text-center">JobCard</th>
                                           
-                                            <th  class="text-center">Escalation</th>
+                                            
+                                            
                                         </tr>
                                 </thead>
                                 <tbody>
                                     <?php $sn_no2 = 1 ; foreach($bookings[3] as $key =>$row){ 
                                         if($row->current_status== "Rescheduled"){?>
-                                <tr  style="text-align: center; <?php if($row->count_escalation > 0){ echo 'background-color:#F73006;color:black; font-weight:800px;';} ?>"  >
+                               <tr  style="text-align: center; <?php if($row->count_escalation > 0){ echo 'background-color:#F73006;color:black; font-weight:800px;';} ?>"  >
                                             <td>
                                                 <?php echo $sn_no; ?>
                                             </td>
@@ -391,21 +441,19 @@
                                                 </td>
                                               
                                        
-                                            <td>
+                                                <td style="max-width: 100px; word-wrap:break-word;">
                                                 <?=$row->customername;?>
                                             </td>
                                             
                                             <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 85px;" data-html=true data-content="<?= $row->booking_address.", ".$row->booking_pincode; ?> ">
                                                 <?php echo $row->booking_address.", ".$row->booking_pincode; ?> 
                                             </td>
-<!--                                            <td>
-                                                <?= $row->booking_pincode; ?> 
-                                            </td>-->
+
                                             <td>
                                                 <?= $row->services; ?>
                                             </td>
                                             <td>
-                                                <?= $row->booking_date; ?> /
+                                                <?= $row->booking_date."<br/>"; ?> 
                                                 <?= $row->booking_timeslot; ?>
                                             </td>
                                             <td> <?= $row->age_of_booking." day"; ?></td>
@@ -415,6 +463,11 @@
                                                
                                             </td>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
+                                            <td><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc); ?>
+                                                <br/>
+                                               <?php if($row->penalty > 0){ ?><p class="incentive">Incentive Lost</p><?php } else { ?><div class="countdown"></div><?php } ?>
+                                            
+                                            </td>
 <!--                                            <td>
                                                 <div  id= "<?php echo 'assign_engineer_div' . $sn_no; ?>" class="form-group " <?php if (!is_null($row->assigned_engineer_id)) { ?> style="display: none;" <?php } ?>>
                                                     <select name="engineer[<?php echo $row->booking_id; ?>]" id="<?php echo "engineer" . $sn_no ?>" class="form-control engineers_id" <?php if (!is_null($row->assigned_engineer_id)) { ?> disabled <?php } ?> style="width:100px;">
@@ -444,10 +497,21 @@
 <!--                        <td>
                         <?php if (!is_null($row->assigned_engineer_id)) { ?>  <button type="button"  class="btn btn-sm btn-success" onclick="edit_engineer(<?php echo $sn_no; ?>)"><i class="fa fa-user" aria-hidden='true'></i></button> <?php } ?>
                         </td>-->
+                        
+                        <?php } ?>
+                        
+                        <td>
+                             <?php  echo $row->count_escalation." times"; ?>
+                        </td>
+                        
+                         <?php if($this->session->userdata('is_update') == 1){ ?>
                         <td>
                         <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
                         </td>
-                        <?php } else if($this->session->userdata('is_update') == 0){ ?>
+                        
+                         <?php } ?>
+                        
+                        <?php if($this->session->userdata('is_update') == 0){ ?>
                             <td>
                               <button type="button"  class="btn btn-sm btn-success" onclick="setbooking_id('<?=$row->booking_id?>')" data-toggle="modal" data-target="#myModal" ><i class='fa fa-calendar' aria-hidden='true'></i></button>
                            </td>
@@ -460,17 +524,13 @@
                         <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
                         </td>
                         <td><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm <?php if($this->session->userdata('is_update') == 1){ ?><?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
-                        <?php if($this->session->userdata('is_update') == 1){ ?>
-<!--                        <td><?php echo "Rs. ".$row->penalty; ?></td>-->
-                        <?php } ?>
+                       
 <!--                        <td>
                             <a target="_blank" id="edit" class='btn btn-sm btn-success' href="Javascript:void(0)"
                                title='Reschedule'><i><i class='fa fa-calendar' aria-hidden='true' ></i></i><span class='sup'><?php  echo $row->count_reschedule; ?></span></a>
                       
                         </td>-->
-                        <td>
-                             <?php  echo $row->count_escalation; ?>
-                        </td>
+                        
                          </tr>
                                     <?php $sn_no++;$sn_no1++; $sn_no2++;} } ?>
                     </tbody>
@@ -610,14 +670,21 @@
     
         $('#today_datatable').dataTable( {
             "pageLength": 50
+           
         } );
+        
+        $("#today_datatable_filter").html("Red Bookings are Escalations, Call Customer Immediately !!!");
+        $("#today_datatable_filter").css("font-weight", "bold");
+        
     
         $('#tomorrow_datatable').dataTable( {
-            "pageLength": 50
+            "pageLength": 50,
+            "bFilter": false
         } );
     
         $('#spare_required_datatable').dataTable({
-            "pageLength": 50
+            "pageLength": 50,
+            "bFilter": false
         });
         $('body').popover({
            selector: '[data-popover]',
@@ -692,7 +759,7 @@
     .dataTables_filter, .dataTables_paginate{
     float:right;
     }
-    .marquee {
+/*    .marquee {
     height: 100%;
     width: 100%;
     color: red;
@@ -717,13 +784,13 @@
     100% {
     left: -100%;
     }
-    }
+    }*/
     
-  .sup {
+/*  .sup {
   position: relative;
   bottom: 1ex; 
  font-size: 100%;
-    }
+    }*/
 
 
 </style>
@@ -764,5 +831,46 @@
             }
          });
    }
+   
+    var date = new Date();
+    var end = new Date();
+    end.setHours(21);
+    end.setMinutes(0);
+    end.setMilliseconds(0);
+
+    var _second = 1000;
+    var _minute = _second * 60;
+    var _hour = _minute * 60;
+    var _day = _hour * 24;
+    var timer;
+
+    function showRemaining() {
+        var now = new Date();
+        var distance = end - now;
+        if (distance < 0) {
+
+            clearInterval(timer);
+            $(".count_down").text('Grace Period');
+
+            return;
+        }
+        //var days = Math.floor(distance / _day);
+        var hours = Math.floor((distance % _day) / _hour);
+        var minutes = Math.floor((distance % _hour) / _minute);
+        //var seconds = Math.floor((distance % _minute) / _second);
+        
+        var remaining_hr = hours + ":"+ minutes + " hr Left";
+       
+        $(".countdown").text(remaining_hr);
+        
+   
+    }
+    
+    if(date.getHours() >=15){ // Check the time
+        console.log(date.getHours());
+        timer = setInterval(showRemaining, 1000);
+    }
+
+    
 
 </script>

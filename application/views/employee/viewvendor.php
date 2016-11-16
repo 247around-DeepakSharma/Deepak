@@ -97,12 +97,12 @@
             <td><?php if($row['is_update']==1)
                 {
                   echo "<a id='edit' class='btn btn-small btn-warning' "
-                                    . "href=" . base_url() . "employee/vendor/control_update_process/$row[id]/0>Disable Update</a>";                
+                                    . "href=" . base_url() . "employee/vendor/control_update_process/$row[id]/0>Disable New CRM</a>";                
                 }
                 else
                 {
                   echo "<a id='edit' class='btn btn-small btn-info' "
-                                    . "href=" . base_url() . "employee/vendor/control_update_process/$row[id]/1>Enable Update</a>";                
+                                    . "href=" . base_url() . "employee/vendor/control_update_process/$row[id]/1>Enable New CRM</a>";                
                 }
               ?>
             </td>

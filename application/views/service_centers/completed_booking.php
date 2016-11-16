@@ -48,21 +48,28 @@
                                             </td>
                                         
                                             <td><?php echo $row['closed_date']; ?></td>
+                                             <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 140px;" data-html=true data-content=" <?php if ($status == "Completed")
+                                                            echo $row['closing_remarks'];
+                                                          else 
+                                                            echo $row['cancellation_reason'];  
+                                                    ?>">
+                                                 <?php if ($status == "Completed")
+                                                            echo $row['closing_remarks'];
+                                                          else 
+                                                            echo $row['cancellation_reason'];  
+                                                    ?>
+                                            </td>
                                         
-                                            <td data-popover="true" style="position: absolute; border:0px; width: 12%" data-html=true       data-content="
+<!--                                            <td data-popover="true" style="position: absolute; border:0px; width: 12%; max-width: 100px; word-wrap:break-word;" data-html=true  data-content="
                                                     <?php if ($status == "Completed")
                                                             echo $row['closing_remarks'];
                                                           else 
                                                             echo $row['cancellation_reason'];  
                                                     ?>">
-                                                <div class="marquee">
-                                                    <div><span><?php if ($status == "Completed")
-                                                            echo $row['closing_remarks'];
-                                                          else 
-                                                            echo $row['cancellation_reason'];  
-                                                    ?></span></div>
-                                                </div>
-                                            </td>
+                                             
+                                                   
+                                                
+                                            </td>-->
                                             
                                             <td><a class='btn btn-sm btn-primary' href="<?php echo base_url();?>service_center/booking_details/<?php echo $row['booking_id']?>" target='_blank' title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>
                 

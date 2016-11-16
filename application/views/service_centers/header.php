@@ -92,7 +92,7 @@
                   <li>
                       <form method="POST" class="navbar-form navbar-left" role="search" action="<?php echo base_url(); ?>service_center/search">
                       <div class="form-group">
-                        <input type="text" class="form-control pull-right" placeholder="Search" name="searched_text">
+                          <input style="width:118%" type="text" class="form-control pull-right" placeholder="Search Booking ID or Mobile" name="searched_text">
                      </div> 
 <!--                      <button type="submit" class="btn btn-default">Submit</button>-->
                         </form>

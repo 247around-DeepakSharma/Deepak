@@ -83,14 +83,23 @@ class Service_centers_model extends CI_Model {
                 . " bd.booking_address, "
                 . " bd.booking_pincode, "
                 . " services," 
-//                . " CASE
-//                    WHEN EXISTS (SELECT *
-//                                 FROM   penalty_on_booking as pb
-//                                 WHERE  pb.booking_id = bd.booking_id AND pb.service_center_id = bd.assigned_vendor_id) 
-//                                 THEN (SELECT SUM(penalty_amount) as penalty_amount FROM penalty_on_booking as pob
-//                                 WHERE pob.booking_id = bd.booking_id AND pob.service_center_id = bd.assigned_vendor_id)
-//                    ELSE '0'
-//                  END AS penalty, "
+                . " CASE
+                    WHEN EXISTS (SELECT pb.booking_id
+                                 FROM   penalty_on_booking as pb
+                                 WHERE  pb.booking_id = bd.booking_id AND pb.service_center_id = bd.assigned_vendor_id) 
+                                 THEN (SELECT SUM(penalty_amount) as penalty_amount FROM penalty_on_booking as pob
+                                 WHERE pob.booking_id = bd.booking_id AND pob.service_center_id = bd.assigned_vendor_id)
+                    ELSE '0'
+                  END AS penalty, "
+                    
+                . " CASE
+                    WHEN EXISTS (SELECT ud.booking_id
+                                 FROM   booking_unit_details as ud
+                                 WHERE  ud.booking_id = bd.booking_id AND ud.product_or_services = 'Service') 
+                                 THEN (SELECT SUM(customer_total)*1.15*0.7 as earn_sc FROM booking_unit_details as u
+                                 WHERE u.booking_id = bd.booking_id AND u.product_or_services = 'Service')
+                    ELSE '0'
+                  END AS earn_sc, "
                 . " DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') ) as age_of_booking "
                 . " FROM service_center_booking_action as sc, booking_details as bd, users, services, engineer_details "
                 . " WHERE sc.service_center_id = $service_center_id "
