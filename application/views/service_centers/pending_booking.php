@@ -24,8 +24,26 @@
                     }
                     ?>
       
-               
-        <h2 style="margin-left:15px;margin-top:15px;">Pending Bookings</h2>
+        <div class="col-md-9"><h2>Pending Bookings</h2></div>
+        
+        <div class="col-md-3" style="width:23%;">
+            <table class="table table-striped table-bordered table-hover">
+                <thead>
+                <tr>
+                    <th class="text-center">Completed this month</th>
+                    <th class="text-center">Earned</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="text-center"><?php echo $eraned_details[0]['total_booking']; ?></td>
+                    <td class="text-center"><?php echo $eraned_details[0]['earned']; ?></td>
+                </tr>
+                </tbody>
+                
+            </table>
+ 
+        </div>
         <div class="col-md-10">
             <ul class="nav nav-tabs" role="tablist" >
                 <li role="presentation" class="active"><a href="#today_booking" aria-controls="today_booking" role="tab" data-toggle="tab"><?php if($booking_id == ''){ ?>Today Bookings<?php } else { echo "Searched Booking";} ?></a></li>
@@ -110,15 +128,15 @@
                                                 <?php echo $row->booking_address.", ".$row->booking_pincode; ?> 
                                             </td>
 
-                                            <td>
-                                                <?= $row->services; ?>
+                                            <td style="max-width: 100px; word-wrap:break-word;">
+                                                <?php if (stristr($row->request_type, "Installation")) { if($row->amount_due > 0){ echo "Paid ";} else { echo "Free "; } } echo $row->request_type." ". $row->services; ?>
                                             </td>
                                             <td>
                                                 <?= $row->booking_date."<br/>"; ?> 
                                                 <?= $row->booking_timeslot; ?>
                                             </td>
                                             <td> <?= $row->age_of_booking." day"; ?></td>
-                                            <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 155px;" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
+                                            <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 125px;" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
                                               
                                                <?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>
                                                
@@ -126,7 +144,7 @@
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
                                             <td><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc); ?>
                                                 <br/>
-                                               <?php if($row->penalty > 0){ ?><p class="incentive" style="color:#F26722;">Incentive Lost</p><?php } else { ?><div class="countdown" style="color:#F26722;"></div><?php } ?>
+                                               <?php if($row->penalty > 0){ ?><p class="incentive" style="color:#F26722;font-size: 14px;">Incentive Lost</p><?php } else { ?><div class="countdown" style="color:#F26722; font-size:13px;"></div><?php } ?>
                                             
                                             </td>
 <!--                                            <td>

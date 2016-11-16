@@ -79,6 +79,8 @@ class Service_centers_model extends CI_Model {
                 . " bd.assigned_engineer_id,"
                 . " bd.booking_timeslot, "
                 . " bd.current_status, "
+                . " bd.amount_due, "
+                . " bd.request_type, "
                 . " bd.count_escalation, "
                 . " bd.booking_address, "
                 . " bd.booking_pincode, "
@@ -306,7 +308,13 @@ class Service_centers_model extends CI_Model {
         return "'Engineer on routes',"
              . "'Customer not reachable'";
     }
-    
+    /**
+     * @desc: This method is used to search booking by phone number or booking id
+     * this is called by SF panel
+     * @param String $searched_text
+     * @param String $service_center_id
+     * @return Array
+     */
     function search_booking_history($searched_text,$service_center_id) {
         $where_phone = "AND `booking_primary_contact_no` = '$searched_text'";
         $where_booking_id = "AND `booking_id` LIKE '%$searched_text%'";
@@ -326,6 +334,42 @@ class Service_centers_model extends CI_Model {
                 . " ";
         $query = $this->db->query($sql);
         //echo $this->db->last_query();
+        return $query->result_array();
+    }
+    /**
+     * 
+     * @param Array $service_center_id
+     * @return Array
+     */
+    function get_sc_earned($service_center_id){
+        $sql = "SELECT COUNT( b.`id` ) as total_booking, 
+                CASE 
+                WHEN EXISTS (
+
+                SELECT u.booking_id
+                FROM booking_unit_details AS u, booking_details AS bk
+                WHERE u.booking_id = bk.booking_id
+                AND bk.assigned_vendor_id =  '$service_center_id'
+                AND bk.`current_status` =  'Completed'
+                AND bk.`closed_date` >=  '".date('Y-m-01')."'
+                )
+                THEN (
+
+                SELECT SUM( around_to_vendor ) 
+                FROM booking_unit_details AS ud, booking_details AS bd
+                WHERE ud.booking_id = bd.booking_id
+                AND bd.assigned_vendor_id =  '$service_center_id'
+                AND bd.`current_status` =  'Completed'
+                AND bd.`closed_date` >=  '".date('Y-m-01')."'
+                )
+                ELSE  '0'
+                END AS earned
+                FROM  `booking_details` AS b
+                WHERE  `current_status` =  'Completed'
+                AND  `assigned_vendor_id` =  '$service_center_id'
+                AND  `closed_date` >=  '".date('Y-m-01')."'";
+        
+        $query = $this->db->query($sql);
         return $query->result_array();
     }
 

@@ -139,14 +139,14 @@ class Booking extends CI_Controller {
 
 	$user['user_id'] = $booking['user_id'] = $user_id;
 	$user_name = $this->input->post('user_name');
-
+        $price_tags = array();
 	if ($booking_id == "") {
 
 	    $booking['booking_id'] = $this->create_booking_id($user_id, $booking['source'], $booking['type'], $booking['booking_date']);
 
 	    log_message('info', "New Booking ID created" . print_r($booking['booking_id'], true));
 	} else {
-	    $price_tags = array();
+	    
             if($booking['type'] == "Booking"){
                 //Query remarks has either query or booking remarks
                 $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id,$this->input->post('query_remarks'));
@@ -213,20 +213,19 @@ class Booking extends CI_Controller {
 	    $booking['current_status'] = 'Pending';
 	    $booking['internal_status'] = SC_NOT_ASSIGN;
 	    $booking['booking_remarks'] = $booking_remarks;
-	    $message .= "Congratulations You have received new booking, details are mentioned below:
-      <br>Customer Name: " . $user_name . "<br>Customer Phone Number: " . $booking['booking_primary_contact_no'] .
-		"<br>Customer email address: " . $user['user_email'] . "<br>Booking Id: " .
-		$booking['booking_id'] . "<br>Service name:" . $service .
-		"<br>Number of appliance: " . count($appliance_brand) . "<br>Booking Date: " .
-		$booking['booking_date'] . "<br>Booking Timeslot: " . $booking['booking_timeslot'] .
-		"<br>Amount Due: " . $booking['amount_due'] . "<br>Your Booking Remark is: " .
-		$booking['booking_remarks'] . "<br> Booking address: " . $booking['booking_address'] .
-		" " . $booking['city'] . ", " . $booking['state'] . ", " .
-		"<br>Booking pincode: " . $booking['booking_pincode'] . "<br><br>
-        Appliance Details:<br>";
+//	    $message .= "Congratulations You have received new booking, details are mentioned below:
+//      <br>Customer Name: " . $user_name . "<br>Customer Phone Number: " . $booking['booking_primary_contact_no'] .
+//		"<br>Customer email address: " . $user['user_email'] . "<br>Booking Id: " .
+//		$booking['booking_id'] . "<br>Service name:" . $service .
+//		"<br>Number of appliance: " . count($appliance_brand) . "<br>Booking Date: " .
+//		$booking['booking_date'] . "<br>Booking Timeslot: " . $booking['booking_timeslot'] .
+//		"<br>Amount Due: " . $booking['amount_due'] . "<br>Your Booking Remark is: " .
+//		$booking['booking_remarks'] . "<br> Booking address: " . $booking['booking_address'] .
+//		" " . $booking['city'] . ", " . $booking['state'] . ", " .
+//		"<br>Booking pincode: " . $booking['booking_pincode'] . "<br><br>
+//        Appliance Details:<br>";
 
-	    //Log this state change as well for this booking
-	    //param:-- booking id, new state, old state, employee id, employee name
+	   
 	} else if ($booking['type'] == 'Query') {
 
 	    $booking['current_status'] = "FollowUp";
@@ -316,14 +315,16 @@ class Booking extends CI_Controller {
 		    log_message('info', __METHOD__ . " Insert Booking Unit Details: " . print_r($services_details, true));
 		    $result = $this->booking_model->insert_data_in_booking_unit_details($services_details, $booking['state']);
 
-		    if ($booking['current_status'] != 'FollowUp') {
-			$message .= "<br>Brand : " . $result['appliance_brand'] . "<br>Category : " .
-			    $result['appliance_category'] . "<br>Capacity : " . $result['appliance_capacity'] .
-			    "<br>Selected service is: " . $result['price_tags'] . "<br>Total price is: " .
-			    $result['customer_net_payable'] . "<br>";
-
-			$message .= "<br/>";
-		    }
+//		    if ($booking['current_status'] != 'FollowUp') {
+//			$message .= "<br>Brand : " . $result['appliance_brand'] . "<br>Category : " .
+//			    $result['appliance_category'] . "<br>Capacity : " . $result['appliance_capacity'] .
+//			    "<br>Selected service is: " . $result['price_tags'] . "<br>Total price is: " .
+//			    $result['customer_net_payable'] . "<br>";
+//
+//			$message .= "<br/>";
+//		    }
+                    
+                   array_push($price_tags, $result['price_tags']);
 		} else {
 		    $services_details['booking_status'] = "";
 		    log_message('info', __METHOD__ . " Update Booking Unit Details: " . print_r($services_details, true). " Previous booking id: ". $booking_id);
@@ -333,10 +334,29 @@ class Booking extends CI_Controller {
 		}
 	    }
 	}
-	if (!empty($price_tags)) {
-	    log_message('info', __METHOD__ . " Price Tags: " . print_r($price_tags, true));
+        
+       // For update booking  
+	if (!empty($price_tags) && !empty($booking_id) ) {
+	    log_message('info', __METHOD__ . " Price Tags for update: " . print_r($price_tags, true));
 	    $this->booking_model->check_price_tags_status($booking['booking_id'], $price_tags);
-	}
+            
+        } else if (!empty($price_tags) && empty($booking_id) ) { // for insert booking
+            log_message('info', __METHOD__ . " Price Tags insert: " . print_r($price_tags, true));
+            $request_type = "";
+            // this is check installation or repair in price tags then insert in request type field 
+            foreach ($price_tags as $value) {
+                
+                if (stristr($value, "Installation")) {
+                    $request_type =  $value;
+                    
+                } else  if (stristr($value, "Repair")) {
+                    
+                    $request_type =  $value;
+                }
+            }
+            $booking['request_type'] =  $request_type;
+            
+        }
 
 	if ($booking['type'] == 'Query') {
 	    $booking['message'] = "";
