@@ -24,10 +24,10 @@
                     }
                     ?>
       
-        <div class="col-md-8"><h2>Pending Bookings</h2></div>
+        <div class="col-md-7"><h2>Pending Bookings</h2></div>
         
-        <div class="col-md-4" >
-            <table class="table table-striped table-bordered table-hover">
+        <div class="col-md-5" >
+            <table class="table table-striped table-bordered table-hover" style="font-size:13px">
                 <thead>
                 <tr>
                     <th class="text-center">Booking Cancelled This Month</th>
