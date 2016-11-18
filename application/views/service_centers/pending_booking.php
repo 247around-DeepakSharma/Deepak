@@ -39,9 +39,9 @@
                 <tbody>
                 <tr>
                     <td class="text-center"><?php echo $cancel_booking[0]['cancel_booking']; ?></td>
-                    <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo ($eraned_details[0]['earned']/$eraned_details[0]['total_booking'])* $cancel_booking[0]['cancel_booking']; ?></td>
+                    <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",($eraned_details[0]['earned']/$eraned_details[0]['total_booking'])* $cancel_booking[0]['cancel_booking']); ?></td>
                     <td class="text-center"><?php echo $eraned_details[0]['total_booking']; ?></td>
-                    <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo $eraned_details[0]['earned']; ?></td>
+                    <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$eraned_details[0]['earned']); ?></td>
                 </tr>
                 </tbody>
                 
