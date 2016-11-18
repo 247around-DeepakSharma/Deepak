@@ -94,7 +94,7 @@ class Service_centers_model extends CI_Model {
                     ELSE '0'
                   END AS penalty, "
                     
-                . " CASE WHEN EXISTS (
+                . " CASE WHEN  (
 
                         SELECT sc1.id
                         FROM service_centres AS sc1
