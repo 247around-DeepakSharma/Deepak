@@ -1,7 +1,7 @@
 <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
 <div class="container-fluid">
-    <div class="row" style="margin-top: 40px;">
+    <div class="row" style="margin-top: 10px;">
         <?php $booking_id = ($this->uri->segment(3) != '' ? $this->uri->segment(3) : ''); ?>
         <?php
     if ($this->session->userdata('success')) {
@@ -24,30 +24,30 @@
                     }
                     ?>
       
-        <div class="col-md-7"><h2>Pending Bookings</h2></div>
         
-        <div class="col-md-5" >
+        
+        <div class="col-md-12" >
             <table class="table table-striped table-bordered table-hover" style="font-size:13px">
                 <thead>
                 <tr>
                     <th class="text-center">Booking Cancelled This Month</th>
+                    <td class="text-center"><?php echo $cancel_booking[0]['cancel_booking']; ?></td>
+               
                     <th class="text-center">Lost This Month</th>
+                    <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",($eraned_details[0]['earned']/$eraned_details[0]['total_booking'])* $cancel_booking[0]['cancel_booking']); ?></td>
+               
                     <th class="text-center">Booking Completed This Month</th>
+                    <td class="text-center"><?php echo $eraned_details[0]['total_booking']; ?></td>
+                
                     <th class="text-center">Service Center Earning</th>
+                      <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$eraned_details[0]['earned']); ?></td>
                 </tr>
                 </thead>
-                <tbody>
-                <tr>
-                    <td class="text-center"><?php echo $cancel_booking[0]['cancel_booking']; ?></td>
-                    <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",($eraned_details[0]['earned']/$eraned_details[0]['total_booking'])* $cancel_booking[0]['cancel_booking']); ?></td>
-                    <td class="text-center"><?php echo $eraned_details[0]['total_booking']; ?></td>
-                    <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$eraned_details[0]['earned']); ?></td>
-                </tr>
-                </tbody>
                 
             </table>
  
         </div>
+        <div class="col-md-12"><h2>Pending Bookings</h2></div>
         <div class="col-md-10">
             <ul class="nav nav-tabs" role="tablist" >
                 <li role="presentation" class="active"><a href="#today_booking" aria-controls="today_booking" role="tab" data-toggle="tab"><?php if($booking_id == ''){ ?>Today Bookings<?php } else { echo "Searched Booking";} ?></a></li>
