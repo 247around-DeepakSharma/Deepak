@@ -74,9 +74,11 @@ class Service_centers extends CI_Controller {
         $service_center_id = $this->session->userdata('service_center_id');
         $data['bookings'] = $this->service_centers_model->pending_booking($service_center_id, $booking_id);
         $data['eraned_details'] =  $this->service_centers_model->get_sc_earned($service_center_id);
+        $data['cancel_booking'] = $this->service_centers_model->count_cancel_booking_sc($service_center_id);
         if($this->session->userdata('is_update') == 1){
         //$data['engineer_details'] = $this->vendor_model->get_engineers($service_center_id);
         $data['spare_parts_data'] = $this->service_centers_model->get_updated_spare_parts_booking($service_center_id);
+        
         }
 
         $this->load->view('service_centers/header');

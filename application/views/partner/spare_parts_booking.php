@@ -30,8 +30,9 @@
                             <th class="text-center">Serial Number</th>
                             <th class="text-center">Description</th>
                             <th class="text-center">Update</th>
+                            <th class="text-center">Address</th>
+                            <th class="text-center">Courier Manifest</th>
                             
-                            <th class="text-center">View</th>
                            </tr>
                        </thead>
                        <tbody>
@@ -42,7 +43,7 @@
                                         <?php echo $sn_no1; ?>
                                     </td>
                                     <td>
-                                        <?php echo $row['booking_id']; ?>
+                                         <a  href="<?php echo base_url();?>partner/booking_details/<?php echo $row['booking_id'];?>"  title='View'><?php echo $row['booking_id'];?></a>
                                     </td>
 <!--                                    <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 206px;" data-html=true data-content="<?php echo $row['address']; ?> ">
                                               
@@ -66,8 +67,12 @@
                                         <a href="<?php echo base_url() ?>partner/update_spare_parts_form/<?php echo $row['booking_id']; ?>" class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-eye' aria-hidden='true'></i></a>
                                     </td>
                                     <td>
-                                        <a class='btn btn-sm btn-primary' href="<?php echo base_url();?>partner/booking_details/<?php echo $row['booking_id'];?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a>
+                                        <a href="<?php echo base_url(); ?>partner/download_sc_address/<?php echo $row['booking_id']; ?>" class='btn btn-md btn-success' ><i class="fa fa-download" aria-hidden="true"></i></a>
                                     </td>
+                                    <td <?php if(empty($row['parts_shipped'])){  ?>data-popover="true" data-html=true data-content="Please Update Shipped Parts" style=" border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;" <?php } ?>>
+                                        <a href="<?php echo base_url(); ?>partner/download_courier_manifest/<?php echo $row['booking_id']; ?>" class='btn btn-md btn-primary <?php if(empty($row['parts_shipped'])){ echo "disabled";} ?>' ><i class="fa fa-download" aria-hidden="true"></i></a>
+                                    </td>
+                                   
                                 </tr>
                                 <?php } ?>
                             </tbody>
@@ -96,6 +101,17 @@
 //           }
 //        });
 //     });
+ $(document).ready(function() {
+$('body').popover({
+           selector: '[data-popover]',
+           trigger: 'click hover',
+           placement: 'auto',
+           delay: {
+               show: 50,
+               hide: 100
+           }
+        });
+         } );
 </script>
 
  <?php $this->session->unset_userdata('success'); ?>

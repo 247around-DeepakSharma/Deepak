@@ -94,14 +94,31 @@ class Service_centers_model extends CI_Model {
                     ELSE '0'
                   END AS penalty, "
                     
-                . " CASE
-                    WHEN EXISTS (SELECT ud.booking_id
-                                 FROM   booking_unit_details as ud
-                                 WHERE  ud.booking_id = bd.booking_id AND ud.product_or_services = 'Service') 
-                                 THEN (SELECT SUM(customer_total)*1.15*0.7 as earn_sc FROM booking_unit_details as u
-                                 WHERE u.booking_id = bd.booking_id AND u.product_or_services = 'Service')
-                    ELSE '0'
-                  END AS earn_sc, "
+                . " CASE WHEN EXISTS (
+
+                        SELECT sc1.id
+                        FROM service_centres AS sc1
+                        WHERE  `sc1`.tin_no IS NOT NULL 
+                        OR sc1.cst_no IS NOT NULL 
+                        AND sc1.id = '$service_center_id'
+                    )
+                        THEN (
+
+                        SELECT SUM( customer_total  * (1 + u.tax_rate/100) * 0.7)
+                        FROM booking_unit_details AS u
+                        WHERE u.booking_id = bd.booking_id
+
+                        )
+                        ELSE  
+
+                        (
+                        SELECT SUM( customer_total * 0.7 )
+                        FROM booking_unit_details AS u1
+                        WHERE u1.booking_id = bd.booking_id
+                            )
+
+                        END AS earn_sc,
+"
                 . " DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') ) as age_of_booking "
                 . " FROM service_center_booking_action as sc, booking_details as bd, users, services, engineer_details "
                 . " WHERE sc.service_center_id = $service_center_id "
@@ -337,7 +354,7 @@ class Service_centers_model extends CI_Model {
         return $query->result_array();
     }
     /**
-     * 
+     * @desc: get count total completed booking and total earned SF
      * @param Array $service_center_id
      * @return Array
      */
@@ -369,6 +386,20 @@ class Service_centers_model extends CI_Model {
                 AND  `assigned_vendor_id` =  '$service_center_id'
                 AND  `closed_date` >=  '".date('Y-m-01')."'";
         
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    /**
+     * @desc:Get total cancel booking by SF
+     * @param String $service_center_id
+     * @return Array
+     */
+    function count_cancel_booking_sc($service_center_id){
+        $sql  = " SELECT COUNT( b.`id` ) as cancel_booking
+            FROM  `booking_details` AS b
+                WHERE  `current_status` =  'Cancelled'
+                AND  `assigned_vendor_id` =  '$service_center_id'
+                AND  `closed_date` >=  '".date('Y-m-01')."'";
         $query = $this->db->query($sql);
         return $query->result_array();
     }

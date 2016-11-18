@@ -24,20 +24,24 @@
                     }
                     ?>
       
-        <div class="col-md-9"><h2>Pending Bookings</h2></div>
+        <div class="col-md-8"><h2>Pending Bookings</h2></div>
         
-        <div class="col-md-3" style="width:23%;">
+        <div class="col-md-4" >
             <table class="table table-striped table-bordered table-hover">
                 <thead>
                 <tr>
-                    <th class="text-center">Completed this month</th>
-                    <th class="text-center">Earned</th>
+                    <th class="text-center">Booking Cancelled This Month</th>
+                    <th class="text-center">Lost This Month</th>
+                    <th class="text-center">Booking Completed This Month</th>
+                    <th class="text-center">Service Center Earning</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr>
+                    <td class="text-center"><?php echo $cancel_booking[0]['cancel_booking']; ?></td>
+                    <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo ($eraned_details[0]['earned']/$eraned_details[0]['total_booking'])* $cancel_booking[0]['cancel_booking']; ?></td>
                     <td class="text-center"><?php echo $eraned_details[0]['total_booking']; ?></td>
-                    <td class="text-center"><?php echo $eraned_details[0]['earned']; ?></td>
+                    <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo $eraned_details[0]['earned']; ?></td>
                 </tr>
                 </tbody>
                 
@@ -71,14 +75,14 @@
                                             <th class="text-center">No</th>
                                             <th class="text-center">Booking Id</th>
                                             <th class="text-center">User</th>
-                                            <th class="text-center">Address</th>
+                                            <th class="text-center" style="min-width:85px;">Address</th>
                                             
-                                            <th class="text-center">Appliance</th>
-                                            <th class="text-center">Booking Date</th>
+                                            <th class="text-center" >Appliance</th>
+                                            <th class="text-center" style="min-width:86px;">Booking Date</th>
                                             <th class="text-center">Age</th>
-                                            <th class="text-center">Call Center Remarks</th>
+                                            <th class="text-center" >Call Center Remarks</th>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
-                                            <th class="text-center">Amount</th>
+                                            <th class="text-center">Service Center Earning</th>
 <!--                                            <th class="text-center">Engineer</th>
                                             <th class="text-center">Re-Assign</th>-->
   
@@ -86,7 +90,7 @@
                                             <th  class="text-center">Escalation</th>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
 
-                                            <th class="text-center">Update</th>
+                                            <th class="text-center" style="content: \f;">Update</th>
                                             <?php } ?>
                                                 
                                             <?php if($this->session->userdata('is_update') == 0){ ?>
@@ -106,12 +110,12 @@
                                     <tbody>
                                         <?php $sn_no = 1; ?>
                                         <?php foreach($bookings[1] as $key =>$row){?>
-                                        <tr  style="text-align: center; <?php if($row->count_escalation > 0){ echo 'background-color:#F73006;color:black; font-weight:800px;';} ?>"  >
-                                            <td>
+                                        <tr <?php if($row->count_escalation > 0){ ?> data-popover="true" data-html=true data-content="This is escalation booking" <?php } ?> style="text-align: center; <?php if($row->count_escalation > 0){ echo 'background-color:#F73006;color:black; font-weight:800px;';} ?>"  >
+                                            <td style="vertical-align: middle;">
                                                 <?php echo $sn_no; ?>
                                             </td>
                                           
-                                                <td>
+                                            <td style="vertical-align: middle;">
                                                     <a  target="_blank" 
                                                         <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  style="pointer-events:none" <?php } } ?> 
                                                         href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
@@ -120,31 +124,31 @@
                                                 </td>
                                               
                                        
-                                                <td style="max-width: 100px; word-wrap:break-word;">
+                                            <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
                                                 <?=$row->customername;?>
                                             </td>
                                             
-                                            <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 85px;" data-html=true data-content="<?= $row->booking_address.", ".$row->booking_pincode; ?> ">
+                                            <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 85px;vertical-align: middle;" data-html=true data-content="<?= $row->booking_address.", ".$row->booking_pincode; ?> ">
                                                 <?php echo $row->booking_address.", ".$row->booking_pincode; ?> 
                                             </td>
 
-                                            <td style="max-width: 100px; word-wrap:break-word;">
-                                                <?php if (stristr($row->request_type, "Installation")) { if($row->amount_due > 0){ echo "Paid ";} else { echo "Free "; } } echo $row->request_type." ". $row->services; ?>
+                                            <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
+                                                <?php if (stristr($row->request_type, "Installation")) { if($row->amount_due > 0){ ?> <span style="font-weight:bold">Paid </span> <?php } else { ?> <span style="font-weight:bold">Free </span><?php  } } echo $row->request_type." ". $row->services; ?>
                                             </td>
-                                            <td>
+                                            <td >
                                                 <?= $row->booking_date."<br/>"; ?> 
-                                                <?= $row->booking_timeslot; ?>
+                                                <span style="color:#F26722; font-size:13px;"><?= $row->booking_timeslot; ?></span>
                                             </td>
-                                            <td> <?= $row->age_of_booking." day"; ?></td>
+                                            <td style="vertical-align: middle;"> <?= $row->age_of_booking." day"; ?></td>
                                             <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 125px;" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
                                               
                                                <?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>
                                                
                                             </td>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
-                                            <td><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc); ?>
+                                            <td style="vertical-align: middle;"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc); ?>
                                                 <br/>
-                                               <?php if($row->penalty > 0){ ?><p class="incentive" style="color:#F26722;font-size: 14px;">Incentive Lost</p><?php } else { ?><div class="countdown" style="color:#F26722; font-size:13px;"></div><?php } ?>
+                                               <?php if($row->penalty > 0){ ?><p class="incentive" style="color:#F26722;font-size: 14px;">Incentive Lost</p><?php } else { ?><div class="countdown blink" data-popover="true" style="white-space:nowrap;color:#F26722; font-size:13px; overflow:hidden;text-overflow:ellipsis;" data-html=true data-content="This is time left to update booking & get incentive" ></div><?php } ?>
                                             
                                             </td>
 <!--                                            <td>
@@ -179,30 +183,30 @@
                         
                         <?php } ?>
                         
-                        <td>
+                        <td style="vertical-align: middle;">
                              <?php  echo $row->count_escalation." times"; ?>
                         </td>
                         
                          <?php if($this->session->userdata('is_update') == 1){ ?>
-                        <td>
+                        <td style="vertical-align: middle;">
                         <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
                         </td>
                         
                          <?php } ?>
                         
                         <?php if($this->session->userdata('is_update') == 0){ ?>
-                            <td>
+                            <td style="vertical-align: middle;">
                               <button type="button"  class="btn btn-sm btn-success" onclick="setbooking_id('<?=$row->booking_id?>')" data-toggle="modal" data-target="#myModal" ><i class='fa fa-calendar' aria-hidden='true'></i></button>
                            </td>
 
                             <?php } ?>
 <!--                        <td><a class='btn btn-sm btn-primary <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>-->
-                        <td><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
+                        <td style="vertical-align: middle;"><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
                         </td>
-                        <td>
+                        <td style="vertical-align: middle;">
                         <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
                         </td>
-                        <td><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm <?php if($this->session->userdata('is_update') == 1){ ?><?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
+                        <td style="vertical-align: middle;"><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm <?php if($this->session->userdata('is_update') == 1){ ?><?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
                        
 <!--                        <td>
                             <a target="_blank" id="edit" class='btn btn-sm btn-success' href="Javascript:void(0)"
@@ -236,18 +240,18 @@
                         <form   id="form2" onsubmit="return submitForm('form2');" name="fileinfo"  method="POST" enctype="multipart/form-data">
                             <table id="tomorrow_datatable" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                                 <thead >
-                                    <tr>
+                                   <tr>
                                             <th class="text-center">No</th>
                                             <th class="text-center">Booking Id</th>
                                             <th class="text-center">User</th>
-                                            <th class="text-center">Address</th>
+                                            <th class="text-center" style="min-width:85px;">Address</th>
                                             
-                                            <th class="text-center">Appliance</th>
-                                            <th class="text-center">Booking Date</th>
+                                            <th class="text-center" >Appliance</th>
+                                            <th class="text-center" style="min-width:86px;">Booking Date</th>
                                             <th class="text-center">Age</th>
-                                            <th class="text-center">Call Center Remarks</th>
+                                            <th class="text-center" >Call Center Remarks</th>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
-                                            <th class="text-center">Amount</th>
+                                            <th class="text-center">Service Center Earning</th>
 <!--                                            <th class="text-center">Engineer</th>
                                             <th class="text-center">Re-Assign</th>-->
   
@@ -255,7 +259,7 @@
                                             <th  class="text-center">Escalation</th>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
 
-                                            <th class="text-center">Update</th>
+                                            <th class="text-center" style="content: \f;">Update</th>
                                             <?php } ?>
                                                 
                                             <?php if($this->session->userdata('is_update') == 0){ ?>
@@ -274,12 +278,12 @@
                                 </thead>
                                 <tbody>
                                     <?php $sn_no1 = 1 ; foreach($bookings[2] as $key =>$row){?>
-                                     <tr  style="text-align: center; <?php if($row->count_escalation > 0){ echo 'background-color:#F73006;color:black; font-weight:800px;';} ?>"  >
-                                            <td>
+                                     <tr <?php if($row->count_escalation > 0){ ?> data-popover="true" data-html=true data-content="This is escalation booking" <?php } ?> style="text-align: center; <?php if($row->count_escalation > 0){ echo 'background-color:#F73006;color:black; font-weight:800px;';} ?>"  >
+                                            <td style="vertical-align: middle;">
                                                 <?php echo $sn_no1; ?>
                                             </td>
                                           
-                                                <td>
+                                            <td style="vertical-align: middle;">
                                                     <a  target="_blank" 
                                                         <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  style="pointer-events:none" <?php } } ?> 
                                                         href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
@@ -288,31 +292,31 @@
                                                 </td>
                                               
                                        
-                                                <td style="max-width: 100px; word-wrap:break-word;">
+                                            <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
                                                 <?=$row->customername;?>
                                             </td>
                                             
-                                            <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 85px;" data-html=true data-content="<?= $row->booking_address.", ".$row->booking_pincode; ?> ">
+                                            <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 85px;vertical-align: middle;" data-html=true data-content="<?= $row->booking_address.", ".$row->booking_pincode; ?> ">
                                                 <?php echo $row->booking_address.", ".$row->booking_pincode; ?> 
                                             </td>
 
-                                            <td style="max-width: 100px; word-wrap:break-word;">
-                                                <?php if (stristr($row->request_type, "Installation")) { if($row->amount_due > 0){ echo "Paid ";} else { echo "Free "; } } echo $row->request_type." ". $row->services; ?>
+                                            <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
+                                                <?php if (stristr($row->request_type, "Installation")) { if($row->amount_due > 0){ ?> <span style="font-weight:bold">Paid </span> <?php } else { ?> <span style="font-weight:bold">Free </span><?php  } } echo $row->request_type." ". $row->services; ?>
                                             </td>
-                                            <td>
+                                            <td >
                                                 <?= $row->booking_date."<br/>"; ?> 
-                                                <?= $row->booking_timeslot; ?>
+                                                <span style="color:#F26722; font-size:13px;"><?= $row->booking_timeslot; ?></span>
                                             </td>
-                                            <td> <?= $row->age_of_booking." day"; ?></td>
+                                            <td style="vertical-align: middle;"> <?= $row->age_of_booking." day"; ?></td>
                                             <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 125px;" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
                                               
                                                <?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>
                                                
                                             </td>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
-                                            <td><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc); ?>
+                                            <td style="vertical-align: middle;"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc); ?>
                                                 <br/>
-                                               <?php if($row->penalty > 0){ ?><p class="incentive" style="color:#F26722;font-size: 14px;">Incentive Lost</p><?php } else { ?><div class="countdown" style="color:#F26722; font-size:13px;"></div><?php } ?>
+                                               <?php if($row->penalty > 0){ ?><p class="incentive" style="color:#F26722;font-size: 14px;">Incentive Lost</p><?php } else { ?><div class="countdown blink" data-popover="true" style="white-space:nowrap;color:#F26722; font-size:13px; overflow:hidden;text-overflow:ellipsis;" data-html=true data-content="This is time left to update booking & get incentive" ></div><?php } ?>
                                             
                                             </td>
 <!--                                            <td>
@@ -347,30 +351,30 @@
                         
                         <?php } ?>
                         
-                        <td>
+                        <td style="vertical-align: middle;">
                              <?php  echo $row->count_escalation." times"; ?>
                         </td>
                         
                          <?php if($this->session->userdata('is_update') == 1){ ?>
-                        <td>
+                        <td style="vertical-align: middle;">
                         <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
                         </td>
                         
                          <?php } ?>
                         
                         <?php if($this->session->userdata('is_update') == 0){ ?>
-                            <td>
+                            <td style="vertical-align: middle;">
                               <button type="button"  class="btn btn-sm btn-success" onclick="setbooking_id('<?=$row->booking_id?>')" data-toggle="modal" data-target="#myModal" ><i class='fa fa-calendar' aria-hidden='true'></i></button>
                            </td>
 
                             <?php } ?>
 <!--                        <td><a class='btn btn-sm btn-primary <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>-->
-                        <td><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
+                        <td style="vertical-align: middle;"><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
                         </td>
-                        <td>
+                        <td style="vertical-align: middle;">
                         <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
                         </td>
-                        <td><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm <?php if($this->session->userdata('is_update') == 1){ ?><?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
+                        <td style="vertical-align: middle;"><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm <?php if($this->session->userdata('is_update') == 1){ ?><?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
                        
 <!--                        <td>
                             <a target="_blank" id="edit" class='btn btn-sm btn-success' href="Javascript:void(0)"
@@ -406,18 +410,18 @@
                              <form   id="form3" onsubmit="return submitForm('form3');" name="fileinfo"  method="POST" enctype="multipart/form-data">
                             <table id="future_datatable" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                                 <thead >
-                                  <tr>
+                                 <tr>
                                             <th class="text-center">No</th>
                                             <th class="text-center">Booking Id</th>
                                             <th class="text-center">User</th>
-                                            <th class="text-center">Address</th>
+                                            <th class="text-center" style="min-width:85px;">Address</th>
                                             
-                                            <th class="text-center">Appliance</th>
-                                            <th class="text-center">Rescheduled Date</th>
+                                            <th class="text-center" >Appliance</th>
+                                            <th class="text-center" style="min-width:86px;">Booking Date</th>
                                             <th class="text-center">Age</th>
-                                            <th class="text-center">Call Center Remarks</th>
+                                            <th class="text-center" >Call Center Remarks</th>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
-                                            <th class="text-center">Amount</th>
+                                            <th class="text-center">Service Center Earning</th>
 <!--                                            <th class="text-center">Engineer</th>
                                             <th class="text-center">Re-Assign</th>-->
   
@@ -425,7 +429,7 @@
                                             <th  class="text-center">Escalation</th>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
 
-                                            <th class="text-center">Update</th>
+                                            <th class="text-center" style="content: \f;">Update</th>
                                             <?php } ?>
                                                 
                                             <?php if($this->session->userdata('is_update') == 0){ ?>
@@ -445,12 +449,12 @@
                                 <tbody>
                                     <?php $sn_no2 = 1 ; foreach($bookings[3] as $key =>$row){ 
                                         if($row->current_status== "Rescheduled"){?>
-                               <tr  style="text-align: center; <?php if($row->count_escalation > 0){ echo 'background-color:#F73006;color:black; font-weight:800px;';} ?>"  >
-                                            <td>
+                               <tr <?php if($row->count_escalation > 0){ ?> data-popover="true" data-html=true data-content="This is escalation booking" <?php } ?> style="text-align: center; <?php if($row->count_escalation > 0){ echo 'background-color:#F73006;color:black; font-weight:800px;';} ?>"  >
+                                            <td style="vertical-align: middle;">
                                                 <?php echo $sn_no2; ?>
                                             </td>
                                           
-                                                <td>
+                                            <td style="vertical-align: middle;">
                                                     <a  target="_blank" 
                                                         <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  style="pointer-events:none" <?php } } ?> 
                                                         href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
@@ -459,31 +463,31 @@
                                                 </td>
                                               
                                        
-                                                <td style="max-width: 100px; word-wrap:break-word;">
+                                            <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
                                                 <?=$row->customername;?>
                                             </td>
                                             
-                                            <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 85px;" data-html=true data-content="<?= $row->booking_address.", ".$row->booking_pincode; ?> ">
+                                            <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 85px;vertical-align: middle;" data-html=true data-content="<?= $row->booking_address.", ".$row->booking_pincode; ?> ">
                                                 <?php echo $row->booking_address.", ".$row->booking_pincode; ?> 
                                             </td>
 
-                                            <td style="max-width: 100px; word-wrap:break-word;">
-                                                <?php if (stristr($row->request_type, "Installation")) { if($row->amount_due > 0){ echo "Paid ";} else { echo "Free "; } } echo $row->request_type." ". $row->services; ?>
+                                            <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
+                                                <?php if (stristr($row->request_type, "Installation")) { if($row->amount_due > 0){ ?> <span style="font-weight:bold">Paid </span> <?php } else { ?> <span style="font-weight:bold">Free </span><?php  } } echo $row->request_type." ". $row->services; ?>
                                             </td>
-                                            <td>
+                                            <td >
                                                 <?= $row->booking_date."<br/>"; ?> 
-                                                <?= $row->booking_timeslot; ?>
+                                                <span style="color:#F26722; font-size:13px;"><?= $row->booking_timeslot; ?></span>
                                             </td>
-                                            <td> <?= $row->age_of_booking." day"; ?></td>
+                                            <td style="vertical-align: middle;"> <?= $row->age_of_booking." day"; ?></td>
                                             <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 125px;" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
                                               
                                                <?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>
                                                
                                             </td>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
-                                            <td><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc); ?>
+                                            <td style="vertical-align: middle;"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc); ?>
                                                 <br/>
-                                               <?php if($row->penalty > 0){ ?><p class="incentive" style="color:#F26722;font-size: 14px;">Incentive Lost</p><?php } else { ?><div class="countdown" style="color:#F26722; font-size:13px;"></div><?php } ?>
+                                               <?php if($row->penalty > 0){ ?><p class="incentive" style="color:#F26722;font-size: 14px;">Incentive Lost</p><?php } else { ?><div class="countdown blink" data-popover="true" style="white-space:nowrap;color:#F26722; font-size:13px; overflow:hidden;text-overflow:ellipsis;" data-html=true data-content="This is time left to update booking & get incentive" ></div><?php } ?>
                                             
                                             </td>
 <!--                                            <td>
@@ -518,30 +522,30 @@
                         
                         <?php } ?>
                         
-                        <td>
+                        <td style="vertical-align: middle;">
                              <?php  echo $row->count_escalation." times"; ?>
                         </td>
                         
                          <?php if($this->session->userdata('is_update') == 1){ ?>
-                        <td>
+                        <td style="vertical-align: middle;">
                         <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
                         </td>
                         
                          <?php } ?>
                         
                         <?php if($this->session->userdata('is_update') == 0){ ?>
-                            <td>
+                            <td style="vertical-align: middle;">
                               <button type="button"  class="btn btn-sm btn-success" onclick="setbooking_id('<?=$row->booking_id?>')" data-toggle="modal" data-target="#myModal" ><i class='fa fa-calendar' aria-hidden='true'></i></button>
                            </td>
 
                             <?php } ?>
 <!--                        <td><a class='btn btn-sm btn-primary <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>-->
-                        <td><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
+                        <td style="vertical-align: middle;"><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
                         </td>
-                        <td>
+                        <td style="vertical-align: middle;">
                         <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
                         </td>
-                        <td><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm <?php if($this->session->userdata('is_update') == 1){ ?><?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
+                        <td style="vertical-align: middle;"><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm <?php if($this->session->userdata('is_update') == 1){ ?><?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
                        
 <!--                        <td>
                             <a target="_blank" id="edit" class='btn btn-sm btn-success' href="Javascript:void(0)"
@@ -777,38 +781,17 @@
     .dataTables_filter, .dataTables_paginate{
     float:right;
     }
-/*    .marquee {
-    height: 100%;
-    width: 100%;
-    color: red;
-    overflow: hidden;
-    position: relative;
+    @keyframes blink {
+      50% { opacity: 0.0; }
     }
-    .marquee div {
-    display: block;
-    width: 100%;
-    height: 22px;
-    position: relative;
-    overflow: hidden;
-    animation: marquee 5s linear infinite;
+    @-webkit-keyframes blink {
+      50% { opacity: 0.0; }
     }
-    .marquee span {
-    width: 50%;
+    .blink {
+      animation: blink 1s step-start 0s infinite;
+      -webkit-animation: blink 1s step-start 0s infinite;
     }
-    @keyframes marquee {
-    0% {
-    left: 0;
-    }
-    100% {
-    left: -100%;
-    }
-    }*/
-    
-/*  .sup {
-  position: relative;
-  bottom: 1ex; 
- font-size: 100%;
-    }*/
+
 
 
 </style>
@@ -884,7 +867,7 @@
    
     }
     
-    if(date.getHours() >=15){ // Check the time
+    if(date.getHours() >=10){ // Check the time
         console.log(date.getHours());
         timer = setInterval(showRemaining, 1000);
     }

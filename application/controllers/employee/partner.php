@@ -1237,9 +1237,127 @@ class Partner extends CI_Controller {
                 header('Pragma: public');
                 header('Content-Length: ' . filesize($output_file_excel));
                 readfile($output_file_excel);
-                exec("rm -rf " . escapeshellarg($file_name));
+                exec("rm -rf " . escapeshellarg($output_file_excel));
                 exit;
          }
+        
+    }
+    /**
+     * @desc: This method is used to download Shippemnt Address as Pdf file
+     * @param type $booking_id
+     */
+    function download_sc_address($booking_id){
+        log_message('info', __FUNCTION__. " Booking_id". $booking_id);
+        $booking_history  = $this->booking_model->getbooking_history($booking_id, "join");
+        $template = 'Address_Printout.xlsx';
+	//set absolute path to directory with template files
+	$templateDir = __DIR__ . "/../excel-templates/";
+        $config = array(
+		'template' => $template,
+		'templateDir' => $templateDir
+            );
+
+        //load template
+        $R = new PHPReport($config);
+        
+        $R->load(array(
+                array(
+                    'id' => 'meta',
+                    'data' => $booking_history[0],
+                ),
+	    )
+	);
+        
+        $output_file_excel  = "/tmp/shippment_address-".$booking_id.".xlsx";
+        $output_file_pdf = "/tmp/shippment_address-".$booking_id.".pdf";
+        $R->render('excel', $output_file_excel);
+        
+        putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+        $tmp_path = libreoffice_pdf;
+        $tmp_output_file = libreoffice_output_file;
+	$cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+	    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+	    $output_file_excel . ' 2> ' . $tmp_output_file;
+         
+	$output = '';
+	$result_var = '';
+	exec($cmd, $output, $result_var);
+        //Download PDF file
+        if (file_exists($output_file_pdf)) {
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header('Content-Disposition: attachment; filename="'.basename($output_file_pdf).'"');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate');
+                header('Pragma: public');
+                header('Content-Length: ' . filesize($output_file_pdf));
+                readfile($output_file_pdf);
+                exec("rm -rf " . escapeshellarg($output_file_pdf));
+                exec("rm -rf " . escapeshellarg($output_file_excel));
+                exit;
+         }
+        
+        log_message('info', __FUNCTION__ . " => Exiting, Booking ID: " . $booking_id);
+        
+    }
+    
+    function download_courier_manifest($booking_id){
+        log_message('info', __FUNCTION__. " Booking_id". $booking_id);
+        $booking_history  = $this->booking_model->getbooking_history($booking_id);
+        $where = array('spare_parts_details.booking_id'=> $booking_id);
+        $spare_parts_details = $this->partner_model->get_spare_parts_booking($where);
+        $template = 'Courier_Manifest.xlsx';
+        
+        $date1=date_create($booking_history[0]['create_date']);
+        $date2=date_create(date('Y-m-d H:i:s'));
+        $diff=date_diff($date1,$date2);
+        $age['booking_age'] = $diff->days;
+	//set absolute path to directory with template files
+	$templateDir = __DIR__ . "/../excel-templates/";
+        $config = array(
+		'template' => $template,
+		'templateDir' => $templateDir
+            );
+
+        //load template
+        $R = new PHPReport($config);
+        
+        $R->load(array(
+                array(
+                    'id' => 'meta',
+                    'data' => $booking_history[0],
+                ),
+                array(
+                    'id' => 'meta2',
+                    'data' => $spare_parts_details[0],
+                ),
+                array(
+                    'id' => 'meta1',
+                    'data' => $age,
+                ),
+	    )
+	);
+        
+        $output_file_excel  = "/tmp/courier_manifest-".$booking_id.".xlsx";
+        $output_file_pdf = "/tmp/courier_manifest-".$booking_id.".pdf";
+        $R->render('excel', $output_file_excel);
+        //Download PDF file
+        if (file_exists($output_file_pdf)) {
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header('Content-Disposition: attachment; filename="'.basename($output_file_pdf).'"');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate');
+                header('Pragma: public');
+                header('Content-Length: ' . filesize($output_file_pdf));
+                readfile($output_file_pdf);
+                exec("rm -rf " . escapeshellarg($output_file_pdf));
+                exec("rm -rf " . escapeshellarg($output_file_excel));
+                exit;
+         }
+        
+        log_message('info', __FUNCTION__ . " => Exiting, Booking ID: " . $booking_id);
+        
         
     }
 
