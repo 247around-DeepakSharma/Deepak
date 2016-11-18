@@ -98,8 +98,8 @@ class Service_centers_model extends CI_Model {
 
                         SELECT sc1.id
                         FROM service_centres AS sc1
-                        WHERE  `sc1`.tin_no IS NOT NULL 
-                        OR sc1.cst_no IS NOT NULL 
+                        WHERE  (`sc1`.tin_no IS NOT NULL 
+                        OR sc1.cst_no IS NOT NULL )
                         AND sc1.id = '$service_center_id'
                     )
                         THEN (
