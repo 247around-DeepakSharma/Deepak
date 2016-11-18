@@ -1,7 +1,7 @@
 <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
 <div class="container-fluid">
-    <div class="row" style="margin-top: 10px;">
+    <div class="row" style="margin-top: 40px;">
         <?php $booking_id = ($this->uri->segment(3) != '' ? $this->uri->segment(3) : ''); ?>
         <?php
     if ($this->session->userdata('success')) {
