@@ -359,6 +359,14 @@ class Service_centers_model extends CI_Model {
      * @return Array
      */
     function get_sc_earned($service_center_id){
+        for($i =0; $i<2; $i++){
+            if($i ==0){
+                $where = " AND `closed_date` >=  '".date('Y-m-01')."'";
+            } else if($i==1) {
+                $where = "  AND  closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
+			    AND closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
+                
+            }
         $sql = "SELECT COUNT( b.`id` ) as total_booking, 
                 CASE 
                 WHEN EXISTS (
@@ -368,7 +376,7 @@ class Service_centers_model extends CI_Model {
                 WHERE u.booking_id = bk.booking_id
                 AND bk.assigned_vendor_id =  '$service_center_id'
                 AND bk.`current_status` =  'Completed'
-                AND bk.`closed_date` >=  '".date('Y-m-01')."'
+               $where
                 )
                 THEN (
 
@@ -377,17 +385,22 @@ class Service_centers_model extends CI_Model {
                 WHERE ud.booking_id = bd.booking_id
                 AND bd.assigned_vendor_id =  '$service_center_id'
                 AND bd.`current_status` =  'Completed'
-                AND bd.`closed_date` >=  '".date('Y-m-01')."'
+                $where
                 )
                 ELSE  '0'
                 END AS earned
                 FROM  `booking_details` AS b
                 WHERE  `current_status` =  'Completed'
                 AND  `assigned_vendor_id` =  '$service_center_id'
-                AND  `closed_date` >=  '".date('Y-m-01')."'";
+               $where";
         
         $query = $this->db->query($sql);
-        return $query->result_array();
+        $result = $query->result_array();;
+        
+        $data[$i] = $result;
+        }
+
+        return $data;
     }
     /**
      * @desc:Get total cancel booking by SF
@@ -395,13 +408,26 @@ class Service_centers_model extends CI_Model {
      * @return Array
      */
     function count_cancel_booking_sc($service_center_id){
+        for($i =0; $i<2; $i++){
+            if($i ==0){
+                $where = " AND `closed_date` >=  '".date('Y-m-01')."'";
+            } else if($i==1) {
+                $where = "  AND  closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
+			    AND closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
+                
+            }
         $sql  = " SELECT COUNT( b.`id` ) as cancel_booking
             FROM  `booking_details` AS b
                 WHERE  `current_status` =  'Cancelled'
                 AND  `assigned_vendor_id` =  '$service_center_id'
-                AND  `closed_date` >=  '".date('Y-m-01')."'";
+                $where";
         $query = $this->db->query($sql);
-        return $query->result_array();
+        $result = $query->result_array();;
+        
+        $data[$i] = $result;
+        }
+
+        return $data;
     }
 
     

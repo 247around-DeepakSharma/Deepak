@@ -1,7 +1,7 @@
 <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
 <div class="container-fluid">
-    <div class="row" style="margin-top: 40px;">
+    <div class="row" style="margin-top: 20px;">
         <?php $booking_id = ($this->uri->segment(3) != '' ? $this->uri->segment(3) : ''); ?>
         <?php
     if ($this->session->userdata('success')) {
@@ -30,23 +30,48 @@
             <table class="table table-striped table-bordered table-hover" style="font-size:13px">
                 <thead>
                 <tr>
-                    <th class="text-center">Booking Cancelled This Month</th>
-                    <td class="text-center"><?php echo $cancel_booking[0]['cancel_booking']; ?></td>
+                    <?php if($eraned_details[0][0]['total_booking'] == 0){ $eraned_details[0][0]['total_booking'] =1;}?>
+                    <th class="text-center">Booking Cancelled In <?php echo date('F'); ?></th>
+                    <td class="text-center"><?php echo $cancel_booking[0][0]['cancel_booking']; ?></td>
                
-                    <th class="text-center">Lost This Month</th>
-                    <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",($eraned_details[0]['earned']/$eraned_details[0]['total_booking'])* $cancel_booking[0]['cancel_booking']); ?></td>
+                    <th class="text-center">Amount Lost in <?php echo date('F');?></th>
+                    <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",($eraned_details[0][0]['earned']/$eraned_details[0][0]['total_booking'])* $cancel_booking[0][0]['cancel_booking']); ?></td>
                
-                    <th class="text-center">Booking Completed This Month</th>
-                    <td class="text-center"><?php echo $eraned_details[0]['total_booking']; ?></td>
+                    <th class="text-center">Booking Completed In <?php echo date('F');?></th>
+                    <td class="text-center"><?php echo $eraned_details[0][0]['total_booking']; ?></td>
                 
-                    <th class="text-center">Service Center Earning</th>
-                      <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$eraned_details[0]['earned']); ?></td>
+                    <th class="text-center">Amount Earned In <?php echo date('F');?></th>
+                      <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$eraned_details[0][0]['earned']); ?></td>
                 </tr>
                 </thead>
                 
             </table>
  
         </div>
+        
+        <div class="col-md-12" style="margin-top:20px;">
+            <table class="table table-striped table-bordered table-hover" style="font-size:13px">
+                <thead>
+                    <?php if($eraned_details[1][0]['total_booking'] == 0){ $eraned_details[1][0]['total_booking'] =1;}?>
+                <tr>
+                    <th class="text-center">Booking Cancelled In <?php echo date("F", strtotime("last month")); ?></th>
+                    <td class="text-center"><?php echo $cancel_booking[1][0]['cancel_booking']; ?></td>
+               
+                    <th class="text-center">Amount Lost in <?php echo date("F", strtotime("last month"));?></th>
+                    <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",($eraned_details[1][0]['earned']/$eraned_details[1][0]['total_booking'])* $cancel_booking[1][0]['cancel_booking']); ?></td>
+               
+                    <th class="text-center">Booking Completed In <?php echo date("F", strtotime("last month"));?></th>
+                    <td class="text-center"><?php echo $eraned_details[1][0]['total_booking']; ?></td>
+                
+                    <th class="text-center">Amount Earned In <?php echo date("F", strtotime("last month"));?></th>
+                      <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$eraned_details[1][0]['earned']); ?></td>
+                </tr>
+                </thead>
+                
+            </table>
+ 
+        </div>
+       
         <div class="col-md-12"><h2>Pending Bookings</h2></div>
         <div class="col-md-10">
             <ul class="nav nav-tabs" role="tablist" >
@@ -102,15 +127,12 @@
                                             <th class="text-center">Cancel</th>
                                             <th class="text-center">Complete</th>
                                             <th class="text-center">JobCard</th>
-                                          
-                                            
-                                            
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php $sn_no = 1; ?>
                                         <?php foreach($bookings[1] as $key =>$row){?>
-                                        <tr <?php if($row->count_escalation > 0){ ?> data-popover="true" data-html=true data-content="This is escalation booking" <?php } ?> style="text-align: center; <?php if($row->count_escalation > 0){ echo 'background-color:#F73006;color:black; font-weight:800px;';} ?>"  >
+                                        <tr  style="text-align: center;"  >
                                             <td style="vertical-align: middle;">
                                                 <?php echo $sn_no; ?>
                                             </td>
@@ -142,13 +164,14 @@
                                             <td style="vertical-align: middle;"> <?= $row->age_of_booking." day"; ?></td>
                                             <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 125px;" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
                                               
+                                            
                                                <?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>
                                                
                                             </td>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
                                             <td style="vertical-align: middle;"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc); ?>
                                                 <br/>
-                                               <?php if($row->penalty > 0){ ?><p class="incentive" style="color:#F26722;font-size: 14px;">Incentive Lost</p><?php } else { ?><div class="countdown blink" data-popover="true" style="white-space:nowrap;color:#F26722; font-size:13px; overflow:hidden;text-overflow:ellipsis;" data-html=true data-content="This is time left to update booking & get incentive" ></div><?php } ?>
+                                               <?php if($row->penalty > 0){ ?><p class="incentive" style="color:#F26722;font-size: 14px;">Incentive Lost</p><?php } else { ?><div class="countdown blink" data-popover="true" style="white-space:nowrap;color:#F26722; font-size:13px; overflow:hidden;text-overflow:ellipsis;" data-html=true data-content="Time Left To Update Booking & Get Incentive" ></div><?php } ?>
                                             
                                             </td>
 <!--                                            <td>
@@ -184,7 +207,10 @@
                         <?php } ?>
                         
                         <td style="vertical-align: middle;">
-                             <?php  echo $row->count_escalation." times"; ?>
+                            <div class="blink">
+                             <?php if($row->count_escalation > 0){ ?> <div class="esclate">Escalated Booking</div> <?php } ?>
+                            </div>
+                                 <?php  echo $row->count_escalation." times"; ?>
                         </td>
                         
                          <?php if($this->session->userdata('is_update') == 1){ ?>
@@ -240,7 +266,7 @@
                         <form   id="form2" onsubmit="return submitForm('form2');" name="fileinfo"  method="POST" enctype="multipart/form-data">
                             <table id="tomorrow_datatable" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                                 <thead >
-                                   <tr>
+                                    <tr>
                                             <th class="text-center">No</th>
                                             <th class="text-center">Booking Id</th>
                                             <th class="text-center">User</th>
@@ -271,14 +297,11 @@
                                             <th class="text-center">Cancel</th>
                                             <th class="text-center">Complete</th>
                                             <th class="text-center">JobCard</th>
-                                          
-                                            
-                                            
                                         </tr>
                                 </thead>
                                 <tbody>
                                     <?php $sn_no1 = 1 ; foreach($bookings[2] as $key =>$row){?>
-                                     <tr <?php if($row->count_escalation > 0){ ?> data-popover="true" data-html=true data-content="This is escalation booking" <?php } ?> style="text-align: center; <?php if($row->count_escalation > 0){ echo 'background-color:#F73006;color:black; font-weight:800px;';} ?>"  >
+                                     <tr  style="text-align: center;"  >
                                             <td style="vertical-align: middle;">
                                                 <?php echo $sn_no1; ?>
                                             </td>
@@ -303,20 +326,21 @@
                                             <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
                                                 <?php if (stristr($row->request_type, "Installation")) { if($row->amount_due > 0){ ?> <span style="font-weight:bold">Paid </span> <?php } else { ?> <span style="font-weight:bold">Free </span><?php  } } echo $row->request_type." ". $row->services; ?>
                                             </td>
-                                            <td >
+                                            <td style="vertical-align: middle;">
                                                 <?= $row->booking_date."<br/>"; ?> 
                                                 <span style="color:#F26722; font-size:13px;"><?= $row->booking_timeslot; ?></span>
                                             </td>
                                             <td style="vertical-align: middle;"> <?= $row->age_of_booking." day"; ?></td>
                                             <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 125px;" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
                                               
+                                            
                                                <?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>
                                                
                                             </td>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
                                             <td style="vertical-align: middle;"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc); ?>
                                                 <br/>
-                                               <?php if($row->penalty > 0){ ?><p class="incentive" style="color:#F26722;font-size: 14px;">Incentive Lost</p><?php } else { ?><div class="countdown blink" data-popover="true" style="white-space:nowrap;color:#F26722; font-size:13px; overflow:hidden;text-overflow:ellipsis;" data-html=true data-content="This is time left to update booking & get incentive" ></div><?php } ?>
+                                               <?php if($row->penalty > 0){ ?><p class="incentive" style="color:#F26722;font-size: 14px;">Incentive Lost</p><?php } else { ?><div class="countdown blink" data-popover="true" style="white-space:nowrap;color:#F26722; font-size:13px; overflow:hidden;text-overflow:ellipsis;" data-html=true data-content="Time Left To Update Booking & Get Incentive" ></div><?php } ?>
                                             
                                             </td>
 <!--                                            <td>
@@ -352,7 +376,10 @@
                         <?php } ?>
                         
                         <td style="vertical-align: middle;">
-                             <?php  echo $row->count_escalation." times"; ?>
+                            <div class="blink">
+                             <?php if($row->count_escalation > 0){ ?> <div class="esclate">Escalated Booking</div> <?php } ?>
+                            </div>
+                                 <?php  echo $row->count_escalation." times"; ?>
                         </td>
                         
                          <?php if($this->session->userdata('is_update') == 1){ ?>
@@ -441,15 +468,12 @@
                                             <th class="text-center">Cancel</th>
                                             <th class="text-center">Complete</th>
                                             <th class="text-center">JobCard</th>
-                                          
-                                            
-                                            
                                         </tr>
                                 </thead>
                                 <tbody>
                                     <?php $sn_no2 = 1 ; foreach($bookings[3] as $key =>$row){ 
                                         if($row->current_status== "Rescheduled"){?>
-                               <tr <?php if($row->count_escalation > 0){ ?> data-popover="true" data-html=true data-content="This is escalation booking" <?php } ?> style="text-align: center; <?php if($row->count_escalation > 0){ echo 'background-color:#F73006;color:black; font-weight:800px;';} ?>"  >
+                                        <tr  style="text-align: center;"  >
                                             <td style="vertical-align: middle;">
                                                 <?php echo $sn_no2; ?>
                                             </td>
@@ -474,20 +498,21 @@
                                             <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
                                                 <?php if (stristr($row->request_type, "Installation")) { if($row->amount_due > 0){ ?> <span style="font-weight:bold">Paid </span> <?php } else { ?> <span style="font-weight:bold">Free </span><?php  } } echo $row->request_type." ". $row->services; ?>
                                             </td>
-                                            <td >
+                                            <td style="vertical-align: middle;">
                                                 <?= $row->booking_date."<br/>"; ?> 
                                                 <span style="color:#F26722; font-size:13px;"><?= $row->booking_timeslot; ?></span>
                                             </td>
                                             <td style="vertical-align: middle;"> <?= $row->age_of_booking." day"; ?></td>
                                             <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 125px;" data-html=true data-content="<?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>">
                                               
+                                            
                                                <?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>
                                                
                                             </td>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
                                             <td style="vertical-align: middle;"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc); ?>
                                                 <br/>
-                                               <?php if($row->penalty > 0){ ?><p class="incentive" style="color:#F26722;font-size: 14px;">Incentive Lost</p><?php } else { ?><div class="countdown blink" data-popover="true" style="white-space:nowrap;color:#F26722; font-size:13px; overflow:hidden;text-overflow:ellipsis;" data-html=true data-content="This is time left to update booking & get incentive" ></div><?php } ?>
+                                               <?php if($row->penalty > 0){ ?><p class="incentive" style="color:#F26722;font-size: 14px;">Incentive Lost</p><?php } else { ?><div class="countdown blink" data-popover="true" style="white-space:nowrap;color:#F26722; font-size:13px; overflow:hidden;text-overflow:ellipsis;" data-html=true data-content="Time Left To Update Booking & Get Incentive" ></div><?php } ?>
                                             
                                             </td>
 <!--                                            <td>
@@ -523,7 +548,10 @@
                         <?php } ?>
                         
                         <td style="vertical-align: middle;">
-                             <?php  echo $row->count_escalation." times"; ?>
+                            <div class="blink">
+                             <?php if($row->count_escalation > 0){ ?> <div class="esclate">Escalated Booking</div> <?php } ?>
+                            </div>
+                                 <?php  echo $row->count_escalation." times"; ?>
                         </td>
                         
                          <?php if($this->session->userdata('is_update') == 1){ ?>
@@ -790,6 +818,20 @@
     .blink {
       animation: blink 1s step-start 0s infinite;
       -webkit-animation: blink 1s step-start 0s infinite;
+    }
+    
+    .esclate{
+              width: 115px;
+            height: 17px;
+            background-color: #F73006;
+            color: #fff;
+            /* transform: rotate(-26deg); */
+            margin-left: -7px;
+            font-weight: bold;
+            margin-right: -16px;
+            /* margin-top: 15px; */
+            font-size: 12px;
+            /* text-align: center; */
     }
 
 
