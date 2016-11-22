@@ -1467,12 +1467,12 @@ class Invoice extends CI_Controller {
                     $vendor = $this->vendor_model->getActiveVendor('',0);
                     foreach ($vendor as $value) {
                         //Generating and sending invoice to vendors
-                        $this->send_brackets_invoice_to_vendors($value['id'],$invoice_month);
+                        $this->send_brackets_invoice_to_vendors($value['id'],$invoice_month,$invoice_type,$vendor_all_flag);
 		}
 
                 }else{
                     //Generating and sending invoice to vendors
-                    $this->send_brackets_invoice_to_vendors($vendor_id,$invoice_month);
+                    $this->send_brackets_invoice_to_vendors($vendor_id,$invoice_month,$invoice_type,$vendor_all_flag);
                     
 		}
 
