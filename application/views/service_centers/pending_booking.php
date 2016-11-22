@@ -95,36 +95,36 @@
                                 <table id="today_datatable" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                                     <thead >
                                         <tr>
-                                            <th class="text-center">No</th>
-                                            <th class="text-center">Booking Id</th>
-                                            <th class="text-center">User</th>
-                                            <th class="text-center" style="min-width:85px;">Address</th>
+                                            <th class="text-center" >No</th>
+                                            <th class="text-center" data-orderable="false">Booking Id</th>
+                                            <th class="text-center" data-orderable="false">User</th>
+                                            <th class="text-center" style="min-width:85px;" data-orderable="false">Address</th>
                                             
-                                            <th class="text-center" >Appliance</th>
+                                            <th class="text-center" data-orderable="false">Appliance</th>
                                             <th class="text-center" style="min-width:86px;">Booking Date</th>
                                             <th class="text-center">Age</th>
-                                            <th class="text-center" >Call Center Remarks</th>
+                                            <th class="text-center" data-orderable="false">Call Center Remarks</th>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
-                                            <th class="text-center">Service Center Earning</th>
+                                            <th class="text-center" data-orderable="false">Service Center Earning</th>
 <!--                                            <th class="text-center">Engineer</th>
                                             <th class="text-center">Re-Assign</th>-->
   
                                             <?php } ?> 
-                                            <th  class="text-center">Escalation</th>
+                                            <th  class="text-center" >Escalation</th>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
 
-                                            <th class="text-center" style="content: \f;">Update</th>
+                                            <th class="text-center" data-orderable="false">Update</th>
                                             <?php } ?>
                                                 
                                             <?php if($this->session->userdata('is_update') == 0){ ?>
                                             
-                                            <th>Reschedule</th>
+                                            <th class="text-center"  data-orderable="false">Reschedule</th>
 
                                             <?php }?>
 <!--                                            <th class="text-center">View</th>-->
-                                            <th class="text-center">Cancel</th>
-                                            <th class="text-center">Complete</th>
-                                            <th class="text-center">JobCard</th>
+                                            <th class="text-center" data-orderable="false">Cancel</th>
+                                            <th class="text-center" data-orderable="false">Complete</th>
+                                            <th class="text-center" data-orderable="false">JobCard</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -266,16 +266,16 @@
                                 <thead >
                                     <tr>
                                             <th class="text-center">No</th>
-                                            <th class="text-center">Booking Id</th>
-                                            <th class="text-center">User</th>
-                                            <th class="text-center" style="min-width:85px;">Address</th>
+                                            <th class="text-center" data-orderable="false">Booking Id</th>
+                                            <th class="text-center" data-orderable="false">User</th>
+                                            <th class="text-center" style="min-width:85px;" data-orderable="false">Address</th>
                                             
-                                            <th class="text-center" >Appliance</th>
+                                            <th class="text-center" data-orderable="false" data-orderable="false">Appliance</th>
                                             <th class="text-center" style="min-width:86px;">Booking Date</th>
                                             <th class="text-center">Age</th>
-                                            <th class="text-center" >Call Center Remarks</th>
+                                            <th class="text-center" data-orderable="false">Call Center Remarks</th>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
-                                            <th class="text-center">Service Center Earning</th>
+                                            <th class="text-center" data-orderable="false">Service Center Earning</th>
 <!--                                            <th class="text-center">Engineer</th>
                                             <th class="text-center">Re-Assign</th>-->
   
@@ -283,18 +283,18 @@
                                             <th  class="text-center">Escalation</th>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
 
-                                            <th class="text-center" style="content: \f;">Update</th>
+                                            <th class="text-center" data-orderable="false">Update</th>
                                             <?php } ?>
                                                 
                                             <?php if($this->session->userdata('is_update') == 0){ ?>
                                             
-                                            <th>Reschedule</th>
+                                            <th class="text-center" data-orderable="false">Reschedule</th>
 
                                             <?php }?>
 <!--                                            <th class="text-center">View</th>-->
-                                            <th class="text-center">Cancel</th>
-                                            <th class="text-center">Complete</th>
-                                            <th class="text-center">JobCard</th>
+                                            <th class="text-center" data-orderable="false">Cancel</th>
+                                            <th class="text-center" data-orderable="false">Complete</th>
+                                            <th class="text-center" data-orderable="false">JobCard</th>
                                         </tr>
                                 </thead>
                                 <tbody>
@@ -435,35 +435,35 @@
                                 <thead >
                                  <tr>
                                             <th class="text-center">No</th>
-                                            <th class="text-center">Booking Id</th>
-                                            <th class="text-center">User</th>
-                                            <th class="text-center" style="min-width:85px;">Address</th>
+                                            <th class="text-center" data-orderable="false">Booking Id</th>
+                                            <th class="text-center" data-orderable="false">User</th>
+                                            <th class="text-center" style="min-width:85px;"data-orderable="false">Address</th>
                                             
-                                            <th class="text-center" >Appliance</th>
-                                            <th class="text-center" style="min-width:86px;">Booking Date</th>
-                                            <th class="text-center">Age</th>
-                                            <th class="text-center" >Call Center Remarks</th>
+                                            <th class="text-center" data-orderable="false">>Appliance</th>
+                                            <th class="text-center" style="min-width:86px;" data-orderable="false">Booking Date</th>
+                                            <th class="text-center" data-orderable="false">Age</th>
+                                            <th class="text-center" data-orderable="false">Call Center Remarks</th>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
-                                            <th class="text-center">Service Center Earning</th>
+                                            <th class="text-center" data-orderable="false">Service Center Earning</th>
 <!--                                            <th class="text-center">Engineer</th>
                                             <th class="text-center">Re-Assign</th>-->
   
                                             <?php } ?> 
-                                            <th  class="text-center">Escalation</th>
+                                            <th  class="text-center" >Escalation</th>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
 
-                                            <th class="text-center" style="content: \f;">Update</th>
+                                            <th class="text-center" data-orderable="false">Update</th>
                                             <?php } ?>
                                                 
                                             <?php if($this->session->userdata('is_update') == 0){ ?>
                                             
-                                            <th>Reschedule</th>
+                                            <th class="text-center" data-orderable="false">Reschedule</th>
 
                                             <?php }?>
 <!--                                            <th class="text-center">View</th>-->
-                                            <th class="text-center">Cancel</th>
-                                            <th class="text-center">Complete</th>
-                                            <th class="text-center">JobCard</th>
+                                            <th class="text-center" data-orderable="false">Cancel</th>
+                                            <th class="text-center" data-orderable="false">Complete</th>
+                                            <th class="text-center" data-orderable="false">JobCard</th>
                                         </tr>
                                 </thead>
                                 <tbody>
@@ -605,15 +605,15 @@
                         <table id="spare_required_datatable" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                             <thead >
                                 <tr >
-                                    <th class="text-center">No</th>
-                                    <th class="text-center">Booking Id</th>
-                                    <th class="text-center">Model Number</th>
-                                    <th class="text-center">Serial Number</th>
-                                    <th class="text-center">Parts</th>
-                                    <th class="text-center">Shipped Date</th>
+                                    <th class="text-center" data-orderable="false">No</th>
+                                    <th class="text-center" data-orderable="false">Booking Id</th>
+                                    <th class="text-center" data-orderable="false">Model Number</th>
+                                    <th class="text-center" data-orderable="false">Serial Number</th>
+                                    <th class="text-center" data-orderable="false">Parts</th>
+                                    <th class="text-center" data-orderable="false">Shipped Date</th>
                                     
-                                    <th class="text-center">View</th>
-                                    <th class="text-center">Received</th>
+                                    <th class="text-center" data-orderable="false">View</th>
+                                    <th class="text-center" data-orderable="false">Received</th>
                                 </tr>
                             </thead>
                             <tbody>
