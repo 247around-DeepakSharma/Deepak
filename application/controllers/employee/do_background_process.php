@@ -27,6 +27,7 @@ class Do_background_process extends CI_Controller {
         $this->load->model('partner_model');
         $this->load->library('booking_utilities');
         $this->load->library('partner_sd_cb');
+	$this->load->library('partner_cb');
         $this->load->library('asynchronous_lib');
         $this->load->library('notify');
         $this->load->library('s3');
@@ -189,13 +190,14 @@ class Do_background_process extends CI_Controller {
             $unit_details['customer_paid_basic_charges'] = $value['service_charge'];
             $unit_details['customer_paid_extra_charges'] = $value['additional_service_charge'];
             $unit_details['customer_paid_parts'] = $value['parts_cost'];
+            $unit_details['ud_closed_date'] = $value['closed_date'];
 
             log_message('info', ": " . " update booking unit details data " . print_r($unit_details, TRUE));
              // update price in the booking unit details page
             $this->booking_model->update_unit_details($unit_details);
         }
 
-        $booking['closed_date'] = date('Y-m-d H:i:s');
+        $booking['closed_date'] = $value['closed_date'];
         $booking['current_status'] = $current_status;
         $booking['internal_status'] = $current_status;
         $booking['amount_paid'] = $data[0]['amount_paid'];

@@ -1359,10 +1359,11 @@ class Booking_model extends CI_Model {
 	}
 
 	//Status should NOT be Completed or Cancelled
-    if($status !="")
+    if($status !=""){
 	$this->db->where_not_in('current_status', $status);
+    }
 
-    $this->db->where_not_in('internal_status', "Reschedule");
+        $this->db->where_not_in('internal_status', "Reschedule");
 	$query = $this->db->get('service_center_booking_action');
 
 	log_message('info', __METHOD__ . "=> " . $this->db->last_query());

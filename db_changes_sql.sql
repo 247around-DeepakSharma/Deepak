@@ -1286,5 +1286,6 @@ ALTER TABLE `service_centres` ADD `company_name` VARCHAR(512) NOT NULL AFTER `na
 
 
 --Abhay 20 NOV
-ALTER TABLE `booking_unit_details` ADD `closed_date` DATETIME NULL DEFAULT NULL AFTER `update_date`;
+
 ALTER TABLE `booking_unit_details` ADD `update_date` DATETIME on update CURRENT_TIMESTAMP NULL AFTER `create_date`;
+ALTER TABLE `booking_unit_details` ADD `ud_closed_date` DATETIME NULL DEFAULT NULL AFTER `update_date`;

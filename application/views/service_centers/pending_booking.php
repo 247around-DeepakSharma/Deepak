@@ -173,33 +173,33 @@
                                             
                                             </td>
 <!--                                            <td>
-                                                <div  id= "<?php echo 'assign_engineer_div' . $sn_no; ?>" class="form-group " <?php if (!is_null($row->assigned_engineer_id)) { ?> style="display: none;" <?php } ?>>
-                                                    <select name="engineer[<?php echo $row->booking_id; ?>]" id="<?php echo "engineer" . $sn_no ?>" class="form-control engineers_id" <?php if (!is_null($row->assigned_engineer_id)) { ?> disabled <?php } ?> style="width:100px;">
+                                                <div  id= "<?php //echo 'assign_engineer_div' . $sn_no; ?>" class="form-group " <?php //if (!is_null($row->assigned_engineer_id)) { ?> style="display: none;" <?php //} ?>>
+                                                    <select name="engineer[<?php //echo $row->booking_id; ?>]" id="<?php// echo "engineer" . $sn_no ?>" class="form-control engineers_id" <?php // if (!is_null($row->assigned_engineer_id)) { ?> disabled <?php //} ?> style="width:100px;">
                                                         <option value="" >Select Engineer</option>
-                                                        <?php foreach ($engineer_details as $value) { ?>
+                                                        <?php //foreach ($engineer_details as $value) { ?>
                                                         <option <?php
-                                                            if (!is_null($row->assigned_engineer_id)) {
-                                                            if ($row->assigned_engineer_id == $value['id']) {
-                                                              echo "SELECTED";
-                                                            }
-                                                            }
-                                                            ?> value="<?php echo $value['id']; ?>" ><?php echo $value['name']; ?></option>
-                                                        <?php } ?>
+                                                           // if (!is_null($row->assigned_engineer_id)) {
+                                                           // if ($row->assigned_engineer_id == $value['id']) {
+                                                           //   echo "SELECTED";
+                                                           // }
+                                                           // }
+                                                            ?> value="<?php// echo $value['id']; ?>" ><?php// echo $value['name']; ?></option>
+                                                        <?php //} ?>
                                                     </select>
                                                 </div>
-                                                <div id= "<?php echo 'engineer_name_div' . $sn_no; ?>" 
+                                                <div id= "<?php// echo 'engineer_name_div' . $sn_no; ?>" 
                                                 <p style="font-weight: bold; text-align: center; color: #2C9D9C;">
-                                                    <?php foreach ($engineer_details as $value1) {
-                                                        if($value1['id'] == $row->assigned_engineer_id ){
-                                                            echo $value1['name'];
-                                                        }
+                                                    <?php// foreach ($engineer_details as $value1) {
+                                                       // if($value1['id'] == $row->assigned_engineer_id ){
+                                                       //     echo $value1['name'];
+                                                       // }
                                                                 
-                                                            } ?>
+                                                          //  } ?>
                                                 </p>
                         </div>
                         </td>-->
 <!--                        <td>
-                        <?php if (!is_null($row->assigned_engineer_id)) { ?>  <button type="button"  class="btn btn-sm btn-success" onclick="edit_engineer(<?php echo $sn_no; ?>)"><i class="fa fa-user" aria-hidden='true'></i></button> <?php } ?>
+                        <?php// if (!is_null($row->assigned_engineer_id)) { ?>  <button type="button"  class="btn btn-sm btn-success" onclick="edit_engineer(<?php //echo $sn_no; ?>)"><i class="fa fa-user" aria-hidden='true'></i></button> <?php// } ?>
                         </td>-->
                         
                         <?php } ?>
@@ -224,7 +224,7 @@
                            </td>
 
                             <?php } ?>
-<!--                        <td><a class='btn btn-sm btn-primary <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>-->
+
                         <td style="vertical-align: middle;"><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
                         </td>
                         <td style="vertical-align: middle;">
@@ -234,7 +234,7 @@
                        
 <!--                        <td>
                             <a target="_blank" id="edit" class='btn btn-sm btn-success' href="Javascript:void(0)"
-                               title='Reschedule'><i><i class='fa fa-calendar' aria-hidden='true' ></i></i><span class='sup'><?php  echo $row->count_reschedule; ?></span></a>
+                               title='Reschedule'><i><i class='fa fa-calendar' aria-hidden='true' ></i></i><span class='sup'><?php // echo $row->count_reschedule; ?></span></a>
                       
                         </td>-->
                         
@@ -340,33 +340,33 @@
                                                
                                             </td>
 <!--                                            <td>
-                                                <div  id= "<?php echo 'assign_engineer_div' . $sn_no; ?>" class="form-group " <?php if (!is_null($row->assigned_engineer_id)) { ?> style="display: none;" <?php } ?>>
-                                                    <select name="engineer[<?php echo $row->booking_id; ?>]" id="<?php echo "engineer" . $sn_no ?>" class="form-control engineers_id" <?php if (!is_null($row->assigned_engineer_id)) { ?> disabled <?php } ?> style="width:100px;">
+                                                <div  id= "<?php// echo 'assign_engineer_div' . $sn_no; ?>" class="form-group " <?php //if (!is_null($row->assigned_engineer_id)) { ?> style="display: none;" <?php //} ?>>
+                                                    <select name="engineer[<?php //echo $row->booking_id; ?>]" id="<?php //echo "engineer" . $sn_no ?>" class="form-control engineers_id" <?php//if (!is_null($row->assigned_engineer_id)) { ?> disabled <?php// } ?> style="width:100px;">
                                                         <option value="" >Select Engineer</option>
-                                                        <?php foreach ($engineer_details as $value) { ?>
+                                                        <?php //foreach ($engineer_details as $value) { ?>
                                                         <option <?php
-                                                            if (!is_null($row->assigned_engineer_id)) {
-                                                            if ($row->assigned_engineer_id == $value['id']) {
-                                                              echo "SELECTED";
-                                                            }
-                                                            }
-                                                            ?> value="<?php echo $value['id']; ?>" ><?php echo $value['name']; ?></option>
-                                                        <?php } ?>
+                                                            //if (!is_null($row->assigned_engineer_id)) {
+                                                           // if ($row->assigned_engineer_id == $value['id']) {
+                                                            //  echo "SELECTED";
+                                                           // }
+                                                           // }
+                                                            ?> value="<?php //echo $value['id']; ?>" ><?php //echo $value['name']; ?></option>
+                                                        <?php //} ?>
                                                     </select>
                                                 </div>
-                                                <div id= "<?php echo 'engineer_name_div' . $sn_no; ?>" 
+                                                <div id= "<?php// echo 'engineer_name_div' . $sn_no; ?>" 
                                                 <p style="font-weight: bold; text-align: center; color: #2C9D9C;">
-                                                    <?php foreach ($engineer_details as $value1) {
-                                                        if($value1['id'] == $row->assigned_engineer_id ){
-                                                            echo $value1['name'];
-                                                        }
+                                                    <?php //foreach ($engineer_details as $value1) {
+                                                       // if($value1['id'] == $row->assigned_engineer_id ){
+                                                        //    echo $value1['name'];
+                                                        //}
                                                                 
-                                                            } ?>
+                                                           // } ?>
                                                 </p>
                         </div>
                         </td>-->
 <!--                        <td>
-                        <?php if (!is_null($row->assigned_engineer_id)) { ?>  <button type="button"  class="btn btn-sm btn-success" onclick="edit_engineer(<?php echo $sn_no; ?>)"><i class="fa fa-user" aria-hidden='true'></i></button> <?php } ?>
+                        <?php //if (!is_null($row->assigned_engineer_id)) { ?>  <button type="button"  class="btn btn-sm btn-success" onclick="edit_engineer(<?php //echo $sn_no; ?>)"><i class="fa fa-user" aria-hidden='true'></i></button> <?php //} ?>
                         </td>-->
                         
                         <?php } ?>
@@ -391,7 +391,7 @@
                            </td>
 
                             <?php } ?>
-<!--                        <td><a class='btn btn-sm btn-primary <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>-->
+<!--                        <td><a class='btn btn-sm btn-primary <?php //if($this->session->userdata('is_update') == 1){ ?> <?php //if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php //} } ?>' href="<?php//echo base_url();?>service_center/booking_details/<?php //echo urlencode(base64_encode($row->booking_id));?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>-->
                         <td style="vertical-align: middle;"><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
                         </td>
                         <td style="vertical-align: middle;">
@@ -401,7 +401,7 @@
                        
 <!--                        <td>
                             <a target="_blank" id="edit" class='btn btn-sm btn-success' href="Javascript:void(0)"
-                               title='Reschedule'><i><i class='fa fa-calendar' aria-hidden='true' ></i></i><span class='sup'><?php  echo $row->count_reschedule; ?></span></a>
+                               title='Reschedule'><i><i class='fa fa-calendar' aria-hidden='true' ></i></i><span class='sup'><?php  //echo $row->count_reschedule; ?></span></a>
                       
                         </td>-->
                         
@@ -510,33 +510,33 @@
                                                
                                             </td>
 <!--                                            <td>
-                                                <div  id= "<?php echo 'assign_engineer_div' . $sn_no; ?>" class="form-group " <?php if (!is_null($row->assigned_engineer_id)) { ?> style="display: none;" <?php } ?>>
-                                                    <select name="engineer[<?php echo $row->booking_id; ?>]" id="<?php echo "engineer" . $sn_no ?>" class="form-control engineers_id" <?php if (!is_null($row->assigned_engineer_id)) { ?> disabled <?php } ?> style="width:100px;">
+                                                <div  id= "<?php //echo 'assign_engineer_div' . $sn_no; ?>" class="form-group " <?php //if (!is_null($row->assigned_engineer_id)) { ?> style="display: none;" <?php// } ?>>
+                                                    <select name="engineer[<?php //echo $row->booking_id; ?>]" id="<?php //echo "engineer" . $sn_no ?>" class="form-control engineers_id" <?php //if (!is_null($row->assigned_engineer_id)) { ?> disabled <?php// } ?> style="width:100px;">
                                                         <option value="" >Select Engineer</option>
-                                                        <?php foreach ($engineer_details as $value) { ?>
+                                                        <?php// foreach ($engineer_details as $value) { ?>
                                                         <option <?php
-                                                            if (!is_null($row->assigned_engineer_id)) {
-                                                            if ($row->assigned_engineer_id == $value['id']) {
-                                                              echo "SELECTED";
-                                                            }
-                                                            }
-                                                            ?> value="<?php echo $value['id']; ?>" ><?php echo $value['name']; ?></option>
-                                                        <?php } ?>
+                                                          //  if (!is_null($row->assigned_engineer_id)) {
+                                                          //  if ($row->assigned_engineer_id == $value['id']) {
+                                                           //   echo "SELECTED";
+                                                           // }
+                                                           // }
+                                                            ?> value="<?php// echo $value['id']; ?>" ><?php //echo $value['name']; ?></option>
+                                                        <?php //} ?>
                                                     </select>
                                                 </div>
-                                                <div id= "<?php echo 'engineer_name_div' . $sn_no; ?>" 
+                                                <div id= "<?php //echo 'engineer_name_div' . $sn_no; ?>" 
                                                 <p style="font-weight: bold; text-align: center; color: #2C9D9C;">
-                                                    <?php foreach ($engineer_details as $value1) {
-                                                        if($value1['id'] == $row->assigned_engineer_id ){
-                                                            echo $value1['name'];
-                                                        }
+                                                    <?php //foreach ($engineer_details as $value1) {
+                                                        //if($value1['id'] == $row->assigned_engineer_id ){
+                                                       //     echo $value1['name'];
+                                                      //  }
                                                                 
-                                                            } ?>
+                                                           // } ?>
                                                 </p>
                         </div>
                         </td>-->
 <!--                        <td>
-                        <?php if (!is_null($row->assigned_engineer_id)) { ?>  <button type="button"  class="btn btn-sm btn-success" onclick="edit_engineer(<?php echo $sn_no; ?>)"><i class="fa fa-user" aria-hidden='true'></i></button> <?php } ?>
+                        <?php //if (!is_null($row->assigned_engineer_id)) { ?>  <button type="button"  class="btn btn-sm btn-success" onclick="edit_engineer(<?php //echo $sn_no; ?>)"><i class="fa fa-user" aria-hidden='true'></i></button> <?php// } ?>
                         </td>-->
                         
                         <?php } ?>
@@ -561,7 +561,7 @@
                            </td>
 
                             <?php } ?>
-<!--                        <td><a class='btn btn-sm btn-primary <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>-->
+
                         <td style="vertical-align: middle;"><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
                         </td>
                         <td style="vertical-align: middle;">
@@ -571,7 +571,7 @@
                        
 <!--                        <td>
                             <a target="_blank" id="edit" class='btn btn-sm btn-success' href="Javascript:void(0)"
-                               title='Reschedule'><i><i class='fa fa-calendar' aria-hidden='true' ></i></i><span class='sup'><?php  echo $row->count_reschedule; ?></span></a>
+                               title='Reschedule'><i><i class='fa fa-calendar' aria-hidden='true' ></i></i><span class='sup'><?php // echo $row->count_reschedule; ?></span></a>
                       
                         </td>-->
                         
