@@ -1847,10 +1847,10 @@ class Invoice extends CI_Controller {
      * @parmas: Vendor id, bracket_invoice file path
      * @return: boolean
      */
-    function send_brackets_invoice_mail($vendor_id,$output_file_excel,$invoice_month){
+    function send_brackets_invoice_mail($vendor_id,$output_file_excel,$get_invoice_month){
       
-        $invoice_month = date('Y') . "-" . $invoice_month . "-01";
-        $invoice_month = date('M, Y',strtotime($invoice_month));
+        $invoice_month_temp = date('Y') . "-" . $get_invoice_month . "-01";
+        $invoice_month = date('M, Y',strtotime($invoice_month_temp));
         
         $vendor_data = $this->vendor_model->getVendorContact($vendor_id);
 
