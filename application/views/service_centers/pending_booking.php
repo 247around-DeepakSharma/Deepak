@@ -145,7 +145,7 @@
                                               
                                        
                                             <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
-                                                <?=$row->customername;?>
+                                                <?=$row->customername."<br/>".$row->booking_primary_contact_no;?>
                                             </td>
                                             
                                             <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 85px;vertical-align: middle;" data-html=true data-content="<?= $row->booking_address.", ".$row->booking_pincode; ?> ">
@@ -314,7 +314,7 @@
                                               
                                        
                                             <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
-                                                <?=$row->customername;?>
+                                                <?=$row->customername."<br/>".$row->booking_primary_contact_no;?>
                                             </td>
                                             
                                             <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 85px;vertical-align: middle;" data-html=true data-content="<?= $row->booking_address.", ".$row->booking_pincode; ?> ">
@@ -483,8 +483,8 @@
                                                 </td>
                                               
                                        
-                                            <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
-                                                <?=$row->customername;?>
+                                             <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
+                                                <?=$row->customername."<br/>".$row->booking_primary_contact_no;?>
                                             </td>
                                             
                                             <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 85px;vertical-align: middle;" data-html=true data-content="<?= $row->booking_address.", ".$row->booking_pincode; ?> ">
