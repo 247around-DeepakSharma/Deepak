@@ -855,6 +855,19 @@ class bookings_excel extends CI_Controller {
 			$booking['source'] = "SR";
 			break;
 
+                    /*
+                    case 'Nacson':
+                        $booking['partner_id'] = '247013';
+                        $booking['source'] = "SN";
+                        break;
+                    
+                    case 'Bosch & Delon':
+                        $booking['partner_id'] = '247014';
+                        $booking['source'] = "SB";
+                        break;
+                     * 
+                     */
+
 		    default:
 			$booking['partner_id'] = '3';
 			$booking['source'] = "SP";
@@ -886,8 +899,9 @@ class bookings_excel extends CI_Controller {
 		$booking['booking_date'] = '';
 		$booking['booking_timeslot'] = '';
 		$booking['amount_due'] = '';
-		$booking['booking_remarks'] = '';
-		$booking['query_remarks'] = '';
+		$booking['booking_remarks'] = 'Installation and Demo';
+		$booking['query_remarks'] = 'Installation and Demo';
+		$booking['request_type'] = 'Installation and Demo';
 
 		//Insert query
 		//echo print_r($booking, true) . "<br><br>";

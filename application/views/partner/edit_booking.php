@@ -148,13 +148,17 @@
                                             <?php if($this->session->userdata('partner_id') == "247011"){ ?>
                                             <option selected="selected">Ray</option>
                                             <?php } else if($this->session->userdata('partner_id') == "247010"){ ?>
-                                            <option <?php if(set_value('appliance_brand') == "Wybor"){ echo "selected";} 
-                                            else if($unit_details[0]['appliance_brand']== "Wybor"){ echo "selected"; } 
+                                            <option <?php if(set_value('appliance_brand') == "Wybor"){ echo "selected";}
+                                            else if($unit_details[0]['appliance_brand']== "Wybor"){ echo "selected"; }
                                             ?> >Wybor</option>
-                                            <option <?php if(set_value('appliance_brand') == "EgoVision"){ echo "selected";} else  
+                                            <option <?php if(set_value('appliance_brand') == "EgoVision"){ echo "selected";} else
                                                 if($unit_details[0]['appliance_brand']== "EgoVision"){ echo "selected"; }?>>EgoVision</option>
                                             <option <?php if(set_value('appliance_brand') == "Belco"){ echo "selected";} else if($unit_details[0]['appliance_brand']== "Belco"){ echo "selected"; } ?>>Belco</option>
-                                            <?php    } ?>
+                                            <?php } else if($this->session->userdata('partner_id') == "247013"){ ?>
+                                              <option selected="selected">Nacson</option>
+                                              <?php } else if($this->session->userdata('partner_id') == "247014"){ ?>
+                                                <option selected="selected">BoschDelon</option>
+                                                <?php } ?>
                                         </select>
                                     </div>
                                 </div>
@@ -164,9 +168,9 @@
                                     <div class="col-md-6">
                                         <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category"   required>
                                             <option selected disabled>Select Appliance Category</option>
-                                            <option <?php  if(set_value('appliance_category') == "TV-LED"){ echo "selected";} else 
+                                            <option <?php  if(set_value('appliance_category') == "TV-LED"){ echo "selected";} else
                                                  if($unit_details[0]['appliance_category']== "TV-LED"){ echo "selected"; }?>>TV-LED</option>
-                                            <option <?php if(set_value('appliance_category') == "TV-LCD"){ echo "selected";}else 
+                                            <option <?php if(set_value('appliance_category') == "TV-LCD"){ echo "selected";}else
                                                 if($unit_details[0]['appliance_category']== "TV-LCD"){ echo "selected"; }  ?>>TV-LCD</option>
                                         </select>
                                         <?php echo form_error('appliance_category'); ?>
@@ -181,7 +185,7 @@
                                         <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" >
                                             <option selected disabled>Select Appliance Capacity</option>
                                             <?php  for($i=16; $i<61; $i++){ ?>
-                                            <option <?php if(set_value('appliance_capacity') == $i." Inch" ){ echo "selected";} else  
+                                            <option <?php if(set_value('appliance_capacity') == $i." Inch" ){ echo "selected";} else
                                                 if($unit_details[0]['appliance_capacity']==  $i." Inch"){ echo "selected"; }  ?>><?php echo $i." Inch"; ?></option>
                                             <?php } ?>
                                         </select>
@@ -192,7 +196,7 @@
                                                                 <div class="form-group <?php if( form_error('model_number') ) { echo 'has-error';} ?>">
                                     <label for="type" class="col-md-4">Model Number</label>
                                     <div class="col-md-6">
-                                        
+
                                        <?php  if($this->session->userdata('partner_id') == "247010"){ ?>
                                         <select class="form-control"  name="model_number" id="model_number_1" >
                                             <option value="">Select Model</option>
@@ -400,13 +404,13 @@
                                     <div class="col-md-6">
                                         <select type="text" class="form-control price_tags"   id="price_tag" name="price_tag" required>
                                             <option selected disabled>Select Call Type</option>
-                                            <option <?php if(set_value('price_tag') == "Installation & Demo"){ echo "selected";} else  
+                                            <option <?php if(set_value('price_tag') == "Installation & Demo"){ echo "selected";} else
                                                 if($unit_details[0]['price_tags']==  "Installation & Demo"){ echo "selected"; } ?>>Installation & Demo</option>
-                                            
-                                            
-                                            <option <?php if(set_value('price_tag') == "Repair - In Warranty"){ echo "selected";} else  
+
+
+                                            <option <?php if(set_value('price_tag') == "Repair - In Warranty"){ echo "selected";} else
                                                 if($unit_details[0]['price_tags']==  "Repair - In Warranty"){ echo "selected"; }  ?>>Repair - In Warranty</option>
-                                            <option <?php if(set_value('price_tag') == "Repair - Out Of Warranty"){ echo "selected";} else  
+                                            <option <?php if(set_value('price_tag') == "Repair - Out Of Warranty"){ echo "selected";} else
                                                 if($unit_details[0]['price_tags']==  "Repair - Out Of Warranty"){ echo "selected"; } ?>>Repair - Out Of Warranty</option>
                                         </select>
                                         <?php echo form_error('price_tag'); ?>
@@ -420,7 +424,7 @@
                             <div class="form-group <?php if( form_error('query_remarks') ) { echo 'has-error';} ?> ">
                                 <label for="type" class="col-md-2">Problem Description</label>
                                 <div class="col-md-8">
-                                    <textarea class="form-control" rows="5" id="remarks" name="query_remarks"  placeholder="Enter Problem Description" ><?php if(set_value('query_remarks')){ echo set_value('query_remarks'); } else 
+                                    <textarea class="form-control" rows="5" id="remarks" name="query_remarks"  placeholder="Enter Problem Description" ><?php if(set_value('query_remarks')){ echo set_value('query_remarks'); } else
                                         if($booking_history[0]['booking_remarks']){ echo $booking_history[0]['booking_remarks']; } ?></textarea>
                                     <?php echo form_error('query_remarks'); ?>
                                 </div>

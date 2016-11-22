@@ -63,7 +63,7 @@
                                     <label for="service_name" class="col-md-4">Appliance *</label>
                                     <div class="col-md-6">
                                         <input type="hidden" name="service" id="services"/>
-                                        <select type="text" class="form-control"  id="service_id" name="service_id" value = "<?php echo set_value('service_id'); ?>" onChange="getBrandForService(this.value), getCategoryForService();"  required>
+                                        <select type="text" class="form-control"  id="service_id" name="service_id" value = "<?php echo set_value('service_id'); ?>" onChange="getBrandForService(), getCategoryForService();"  required>
                                             <option selected disabled>Select Service</option>
                                             <?php foreach ($services as $key => $values) { ?>
                                             <option  value=<?= $values->id; ?>>
@@ -76,7 +76,7 @@
                                  <div class="form-group ">
                                      <label for="service_name" class="col-md-4">Order ID </label>
                                       <div class="col-md-6">
-                                          <input class="form-control" name= "order_id"></input>
+                                          <input class="form-control" name= "order_id" id="order_id"></input>
                                       </div>
                                  </div>
                                 <!--  end col-md-6  -->
@@ -181,13 +181,13 @@
 
                                             </div>
                                         </div>
-                                          <div class="form-group ">
+<!--                                          <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Serial No </label>
                                             <div class="col-md-6">
                                                 <input  type="text" class="form-control"  name="serial_number[]" id="serial_number_1" value = "<?php if(isset($unit_details[0]['serial_number'])) { echo $unit_details[0]['serial_number']; } ?>" placeholder="Enter Appliance Serial Number"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
 
                                             </div>
-                                        </div>
+                                        </div>-->
                                          <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Description </label>
                                             <div class="col-md-6">
@@ -264,7 +264,7 @@
                                 <label for="booking_date" class="col-md-4">Booking Date *</label>
                                 <div class="col-md-6">
                                 <div class="input-group input-append date">
-                                    <input id="booking_date" class="form-control"  name="booking_date" type="date" value = "<?php echo  date("Y-m-d", strtotime("+1 day")); ?>" required readonly='true'>
+                                    <input id="booking_date" class="form-control"  name="booking_date" type="date" value = "<?php if(date('H') < '14'){echo  date("Y-m-d");}else{ echo date("Y-m-d", strtotime("+1 day"));} ?>" required readonly='true'>
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
@@ -277,7 +277,7 @@
                             </div>
 
                             <div class="form-group ">
-                                <label for="type" class="col-sm-4">Price To be Pay</label>
+                                <label for="type" class="col-sm-4">Price To be Paid</label>
                                 <div class="col-md-6">
                                     <div class="input-group">
                                         <div class="input-group-addon">Rs.</div>
@@ -309,7 +309,7 @@
                                         <option selected disabled>Select time slot</option>
                                         <option>10AM-1PM</option>
                                         <option>1PM-4PM</option>
-                                        <option>4PM-7PM</option>
+                                        <option selected="">4PM-7PM</option>
                                     </select>
                                 </div>
                             </div>

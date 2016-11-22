@@ -1,7 +1,8 @@
 <?php
 
-if (!defined('BASEPATH'))
+if (!defined('BASEPATH')){
     exit('No direct script access allowed');
+}
 
 //error_reporting(E_ERROR);
 //ini_set('display_errors', '1');
@@ -177,6 +178,7 @@ class Partner extends CI_Controller {
                             $user['user_email'] = (isset($requestData['email']) ? $requestData['email'] : "");
                             $user_id = $output[0]['user_id'];
                         }
+                        
 
                         //Add partner code from sources table
 			//All partners should have a valid partner code in the bookings_sources table
@@ -205,18 +207,26 @@ class Partner extends CI_Controller {
 				$booking['source'] = "SR";
 				break;
 
+                            /*
+                            case 'Nacson':
+                                $booking['partner_id'] = '247013';
+                                $booking['source'] = "SN";
+                                break;
+
+                            case 'Bosch & Delon':
+                                $booking['partner_id'] = '247014';
+                                $booking['source'] = "SB";
+                                break;
+                             * 
+                             */
+
 			    default:
 				$booking['partner_id'] = $this->partner['id'];
 				$booking['source'] = $this->partner_model->get_source_code_for_partner($this->partner['id']);
 				break;
 			}
 
-                        $unit_details['partner_id'] = $booking['partner_id'];
-                        $booking['order_id'] = $requestData['orderID'];
-                        $appliance_details['brand'] = $unit_details['appliance_brand'] = $requestData['brand'];
-
-                        $appliance_details['model_number'] = $unit_details['model_number'] = (isset($requestData['model']) ? $requestData['model'] : "");
-
+                        
                         log_message('info', 'Product type: ' . $requestData['product']);
                         $prod = trim($requestData['product']);
 
@@ -241,13 +251,49 @@ class Partner extends CI_Controller {
                         if (stristr($prod, "Chimney")) {
                             $lead_details['Product'] = 'Chimney';
                         }
+                        
+                         if (stristr($prod, "Geyser")) {
+                            $lead_details['Product'] = 'Geyser';
+                        }
+                        
+                        
                         log_message('info', 'Product type matched: ' . $lead_details['Product']);
+                        
+                        $service_id = $this->booking_model->getServiceId($lead_details['Product']);
+                        
+                        if($booking['partner_id'] == "1"){
+                           
+                            $cancelled_follow_up = $this->booking_model->cancel_duplicate_booking_for_sts($requestData, $service_id);
+                            
+                            if($cancelled_follow_up){
+                                $booking['internal_status'] = $cancelled_follow_up;
+                            } else {
+                               $booking['internal_status'] = "FollowUp"; 
+                            }
+                            
+                        } else {
+                            $booking['internal_status'] = "FollowUp"; 
+                        }
+
+                        $unit_details['partner_id'] = $booking['partner_id'];
+                        $booking['order_id'] = $requestData['orderID'];
+                        $appliance_details['brand'] = $unit_details['appliance_brand'] = $requestData['brand'];
+
+                        $appliance_details['model_number'] = $unit_details['model_number'] = (isset($requestData['model']) ? $requestData['model'] : "");
 
                         //Product description
                         $appliance_details['description'] = $unit_details['appliance_description'] = $requestData['productType'];
+                        //Insert cateogry for Geyser
+                        if($service_id == '32'){
+                            //Check for all optional parameters before setting them
+                            $unit_details['appliance_category'] = $appliance_details['category'] =  'Geyser-PAID';
 
-                        //Check for all optional parameters before setting them
-                        $appliance_details['category'] = $unit_details['appliance_category'] = (isset($requestData['category']) ? $requestData['category'] : "");
+                        } else {
+                            //Check for all optional parameters before setting them
+                            $appliance_details['category'] = $unit_details['appliance_category'] = (isset($requestData['category']) ? $requestData['category'] : "");
+                       
+                        }
+                        
                         //$lead_details['SubCategory'] = (isset($requestData['subCategory']) ? $requestData['subCategory'] : "");
 
                         $booking['booking_primary_contact_no'] = $requestData['mobile'];
@@ -256,19 +302,10 @@ class Partner extends CI_Controller {
                         $booking['city'] = $requestData['city'];
 
                         $state = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
-
-                        $booking['state'] = $state['state'];
-                        if (empty($booking['state'])) {
-			    $to = "anuj@247around.com, nits@247around.com";
-			    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
-			    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
-			}
-			$booking['booking_pincode'] = $requestData['pincode'];
-
+                        $booking['booking_pincode'] = $requestData['pincode'];
+			
                         $booking['booking_address'] = $requestData['address'] . ", " . (isset($requestData['landmark']) ? $requestData['landmark'] : "");
-
                         $booking['delivery_date'] = $this->getDateTime($requestData['deliveryDate']);
-
                         $booking['request_type'] = $requestData['requestType'];
                         $booking['query_remarks'] = (isset($requestData['remarks']) ? $requestData['remarks'] : "");
 
@@ -276,7 +313,7 @@ class Partner extends CI_Controller {
                         //Add this as a Query now
                         $booking['booking_id'] = '';
                         $appliance_details['user_id'] = $booking['user_id'] = $user_id;
-                        $appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $this->booking_model->getServiceId($lead_details['Product']);
+                        $appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $service_id;
                         log_message('info', __METHOD__ . ":: Service ID: " . $booking['service_id']);
                         //echo "Service ID: " . $booking['service_id'] . PHP_EOL;
 
@@ -302,21 +339,38 @@ class Partner extends CI_Controller {
                         $this->booking_model->addunitdetails($unit_details);
 
                         $booking['current_status'] = "FollowUp";
-                        $booking['internal_status'] = "FollowUp";
                         $booking['type'] = "Query";
                         $booking['booking_date'] = '';
                         $booking['booking_timeslot'] = '';
                         $booking['partner_source'] = 'STS';
                         $booking['amount_due'] = '';
                         $booking['booking_remarks'] = '';
+                        $booking['state'] = $state['state'];
 
                         //Insert query
                         //echo print_r($booking, true) . "<br><br>";
                         $this->booking_model->addbooking($booking);
                         
                         
-                       $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , $booking['query_remarks'], DEFAULT_PARTNER_AGENT, $requestData['partnerName'], $booking['partner_id']);
+                        $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , $booking['query_remarks'], DEFAULT_PARTNER_AGENT, $requestData['partnerName'], $booking['partner_id']);
+                           
+                        
+                        if (empty($state['state'])) {
+			    $to = "anuj@247around.com, nits@247around.com";
+			    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
+			    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
+			}
+                        //Check vendor Availabilty for pincode and service id
+                        $vendors = $this->vendor_model->check_vendor_availability($booking['booking_pincode'], $booking['service_id']);
+                        $vendors_count = count($vendors);
 
+                        if ($vendors_count > 0) {
+                            $this->send_sms_to_snapdeal_customer($lead_details['Product'],
+                            $booking['booking_primary_contact_no'], $user_id,
+                            $booking['booking_id'], $unit_details['appliance_category']);
+                        } else { //if ($vendors_count > 0) {
+                            log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
+                        }
                         //Send response
                         $this->jsonResponseString['response'] = array(
                             "orderID" => $booking['order_id'],
@@ -352,6 +406,29 @@ class Partner extends CI_Controller {
                 $this->sendJsonResponse(array(ERR_INVALID_AUTH_TOKEN_CODE, ERR_INVALID_AUTH_TOKEN_MSG));
             }
         }
+    }
+    /**
+     * @desc: This method is used to send sms to customer while booking insert from STS
+     * @param String $appliance
+     * @param String $phone_number
+     * @param String $user_id
+     * @param String $booking_id
+     */
+    function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id, $category) {
+
+        $sms['tag'] = "sd_delivered_missed_call_initial";
+
+        //ordering of smsData is important, it should be as per the %s in the SMS
+        $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
+        $sms['smsData']['service'] = $appliance;
+
+
+	$sms['phone_no'] = $phone_number;
+	$sms['booking_id'] = $booking_id;
+	$sms['type'] = "user";
+	$sms['type_id'] = $user_id;
+
+	$this->notify->send_sms_acl($sms);
     }
 
     /**
@@ -1423,12 +1500,14 @@ class Partner extends CI_Controller {
                 $lead_details['Product'] = 'Geyser';
             }
             log_message('info', 'Product type matched: ' . $lead_details['Product']);
+            
+            $booking['service_id'] = $this->booking_model->getServiceId($lead_details['Product']);
 
             //Product description
             $unit_details['appliance_description'] = $appliance_details['description'] = $requestData['productType'];
-
             //Check for all optional parameters before setting them
             $unit_details['appliance_category'] = $appliance_details['category'] =  (isset($requestData['category']) ? $requestData['category'] : "");
+
 
             $unit_details['appliance_capacity'] = $appliance_details['capacity'] =  (isset($requestData['capacity']) ? $requestData['capacity'] : "");
 
@@ -1451,7 +1530,7 @@ class Partner extends CI_Controller {
             $booking['booking_id'] = '';
             $booking['user_id'] = $user_id;
             $appliance_details['user_id'] = $booking['user_id'];
-            $booking['service_id'] = $this->booking_model->getServiceId($lead_details['Product']);
+            
             $unit_details['service_id'] = $appliance_details['service_id'] = $booking['service_id'];
             log_message('info', __METHOD__ . ":: Service ID: " . $booking['service_id']);
             //echo "Service ID: " . $booking['service_id'] . PHP_EOL;
@@ -1507,7 +1586,7 @@ class Partner extends CI_Controller {
             $booking['booking_timeslot'] = "4PM-7PM";
 
 
-	    if (empty($booking['state'])) {
+	    if (empty($state['state'])) {
 			    $to = "anuj@247around.com, nits@247around.com";
 			    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
 			    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
@@ -1554,7 +1633,6 @@ class Partner extends CI_Controller {
          */
         
             //-------Sending SMS on booking--------//
-
             $smsBody = "Got it! Request for " . trim($lead_details['Product']) . " Repair is confirmed for " .
                     $booking['booking_date'] . ", " . $booking['booking_timeslot'] .
                     ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 9555000247";
@@ -1588,7 +1666,7 @@ class Partner extends CI_Controller {
                 $lead_details = $is_valid['lead'];
                 $this->jsonResponseString['response'] = array(
                 "247aroundBookingID" => $booking['booking_id'],
-                "247aroundBookingStatus" => $bookking['current_status'],
+                "247aroundBookingStatus" => $booking['current_status'],
                 "247aroundBookingRemarks" => $booking['booking_remarks']);
 
                 $this->sendJsonResponse(array($is_valid['code'], $is_valid['msg']));

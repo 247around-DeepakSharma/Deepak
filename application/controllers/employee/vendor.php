@@ -55,9 +55,390 @@ class vendor extends CI_Controller {
      * @return : void
      */
     function index() {
+        $vendor = [];
+        $data = $this->input->post();
+        if(!empty($data['id'])){
+            $vendor = $this->vendor_model->getVendorContact($data['id']);
+        }
         $checkValidation = $this->checkValidation();
         if ($checkValidation) {
+            //Adding name as city + company name  
+            $_POST['name'] = $data['district'] . ' ' . $data['company_name'];
 
+            //Start  Processing PAN File Upload
+            if (!empty($_FILES['pan_file']['tmp_name'])) {
+                //Adding file validation
+                $checkfilevalidation = $this->file_input_validation('pan_file');
+                if ($checkfilevalidation) {
+                    //Cross-check if Non Availiable is checked along with file upload
+                    if (isset($data['is_pan_doc'])) {
+                        unset($_POST['is_pan_doc']);
+                    }
+                    //Making process for file upload
+                    $tmpFile = $_FILES['pan_file']['tmp_name'];
+                    $pan_file = implode("", explode(" ", $this->input->post('name'))) . '_panfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['pan_file']['name'])[1];
+                    move_uploaded_file($tmpFile, "/tmp/$pan_file");
+
+                    //Upload files to AWS
+                    $bucket = 'bookings-collateral';
+                    $directory_xls = "vendor-partner-docs/" . $pan_file;
+                    $this->s3->putObjectFile("/tmp/$pan_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $_POST['pan_file'] = $pan_file;
+                } else {
+                    //Redirect back to Form
+
+                    if (!empty($_POST['id'])) {
+                        $this->editvendor($data['id']);
+                    } else {
+                        $this->add_vendor();
+                    }
+                    return FALSE;
+                }
+            }
+            //Getting pan file details 
+            $pan_file = isset($vendor[0]['pan_file']) ? $vendor[0]['pan_file'] : '';
+            //Checking case if file is not selected to upload and its value is also empty in Database
+            if (empty($_FILES['pan_file']['tmp_name']) && empty($pan_file)) {
+                //Sub-check to get if N/A is checked or not
+                if (!isset($data['is_pan_doc'])) {
+                    //Redirect back to Form
+                    $this->session->set_userdata("checkbox", "Please select atleast Not Availiable checkbox for Pan Card (if No Details Present for PAN)");
+                    if (!empty($_POST['id'])) {
+                        $this->editvendor($data['id']);
+                    } else {
+                        $this->add_vendor();
+                    }
+                    return FALSE;
+                    
+                } else {
+                    //Checking case if cst number is entered along with N/A checked but no file is being uploaded nor its value is present in database before
+                    if (!empty($data['name_on_pan']) || !empty($data['pan_no'])) {
+                        //Redirect back to Form
+                        $this->session->set_userdata("checkbox", "Please enter either PAN Details or Not Availiable");
+                        if (!empty($_POST['id'])) {
+                            $this->editvendor($data['id']);
+                        } else {
+                            $this->add_vendor();
+                        }
+
+                        return FALSE;
+                    }
+                }
+            }
+            if (empty($_FILES['pan_file']['tmp_name']) && !empty($pan_file) && isset($data['is_pan_doc'])) {
+                //Redirect back to Form
+                $this->session->set_userdata("checkbox", "You can't enter PAN Details and Not Availiable both at the same time");
+                if (!empty($_POST['id'])) {
+                    $this->editvendor($data['id']);
+                } else {
+                    $this->add_vendor();
+                }
+                return FALSE;
+            }
+
+            //End Processing PAN File uploads
+            //Processing VAT File Upload
+//                if(!empty($_FILES['vat_file']['tmp_name'])){
+//                    $tmpFile = $_FILES['vat_file']['tmp_name'];
+//                    $vat_file = implode("",explode(" ",$this->input->post('name'))).'_vatfile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['vat_file']['name'])[1];
+//                    move_uploaded_file($tmpFile, "/tmp/$vat_file");
+//                    
+//                    //Upload files to AWS
+//                    $bucket = 'bookings-collateral';
+//                    $directory_xls = "vendor-partner-docs/".$vat_file;
+//                    $this->s3->putObjectFile("/tmp/$vat_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+//                    $_POST['vat_file'] = $vat_file;
+//                }
+            
+            //Start Processing CST File Upload
+            if (!empty($_FILES['cst_file']['tmp_name'])) {
+                //Adding file validation
+                $checkfilevalidation = $this->file_input_validation('cst_file');
+                if ($checkfilevalidation) {
+                    //Cross-check if Non Availiable is checked along with file upload
+                    if (isset($data['is_cst_doc'])) {
+                        unset($_POST['is_cst_doc']);
+                    }
+                    //Making process for file upload
+                    $tmpFile = $_FILES['cst_file']['tmp_name'];
+                    $cst_file = implode("", explode(" ", $this->input->post('name'))) . '_cstfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['cst_file']['name'])[1];
+                    move_uploaded_file($tmpFile, "/tmp/$cst_file");
+
+                    //Upload files to AWS
+                    $bucket = 'bookings-collateral';
+                    $directory_xls = "vendor-partner-docs/" . $cst_file;
+                    $this->s3->putObjectFile("/tmp/$cst_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $_POST['cst_file'] = $cst_file;
+                } else {
+                    //Redirect back to Form
+                    $data = $this->input->post();
+                    //Checking if form is for add or edit
+                    if (!empty($_POST['id'])) {
+                        //Redirect to edit form for particular id
+                        $this->editvendor($data['id']);
+                    } else {
+                        //Redirect to add vendor form
+                        $this->add_vendor();
+                    }
+                    return FALSE;
+                }
+            }
+            //Getting cst file details
+            $cst_file = isset($vendor[0]['cst_file']) ? $vendor[0]['cst_file'] : '';
+            //Checking case if file is not selected to upload and its value is also empty in Database
+            if (empty($_FILES['cst_file']['tmp_name']) && empty($cst_file)) {
+                //Sub-check to get if N/A is checked or not
+                if (!isset($data['is_cst_doc'])) {
+                    //Redirect back to Form
+                    $this->session->set_userdata("checkbox", "Please select atleast Not Availiable checkbox for CST File (if No Details Present for CST)");
+                    if (!empty($_POST['id'])) {
+                        //Redirect back to edit form for vendor
+                        $this->editvendor($data['id']);
+                    } else {
+                        //Redirect to add vendor form 
+                        $this->add_vendor();
+                    }
+
+                    return FALSE;
+                } else {
+                    //Checking case if cst number is entered along with N/A checked but no file is being uploaded nor its value is present in database before
+                    if (!empty($data['cst_no'])) {
+                        //Redirect back to Form
+                        $this->session->set_userdata("checkbox", "Please enter either CST Details or Not Availiable");
+                        if (!empty($_POST['id'])) {
+                            $this->editvendor($data['id']);
+                        } else {
+                            $this->add_vendor();
+                        }
+
+                        return FALSE;
+                    }
+                }
+            }
+
+            //Checking case when file is already uploaded and N/A is also checked at the same time
+            if (empty($_FILES['cst_file']['tmp_name']) && !empty($cst_file) && isset($data['is_cst_doc'])) {
+                //Redirect back to Form
+                $this->session->set_userdata("checkbox", "You can't enter CST Details and Not Availiable both at the same time");
+                if (!empty($_POST['id'])) {
+                    $this->editvendor($data['id']);
+                } else {
+                    $this->add_vendor();
+                }
+                return FALSE;
+            }
+            //End Processing CST File Upload
+            
+            //Start Processing TIN File Upload
+            if (!empty($_FILES['tin_file']['tmp_name'])) {
+                //Adding file validation
+                $checkfilevalidation = $this->file_input_validation('tin_file');
+                if ($checkfilevalidation) {
+                    //Cross-check if Non Availiable is checked along with file upload
+                    if (isset($data['is_vat_doc'])) {
+                        unset($_POST['is_vat_doc']);
+                    }
+                    $tmpFile = $_FILES['tin_file']['tmp_name'];
+                    $tin_file = implode("", explode(" ", $this->input->post('name'))) . '_tinfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['tin_file']['name'])[1];
+                    move_uploaded_file($tmpFile, "/tmp/$tin_file");
+
+                    //Upload files to AWS
+                    $bucket = 'bookings-collateral';
+                    $directory_xls = "vendor-partner-docs/" . $tin_file;
+                    $this->s3->putObjectFile("/tmp/$tin_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $_POST['tin_file'] = $tin_file;
+                } else {
+                    //Redirect back to Form
+                    $data = $this->input->post();
+                    if (!empty($_POST['id'])) {
+                        $this->editvendor($data['id']);
+                    } else {
+                        $this->add_vendor();
+                    }
+                    return FALSE;
+                }
+            }
+            $tin_file = isset($vendor[0]['tin_file']) ? $vendor[0]['tin_file'] : '';
+            //Checking case if file is not selected to upload and its value is also empty in Database
+            if (empty($_FILES['tin_file']['tmp_name']) && empty($tin_file)) {
+                //Sub-check to get if N/A is checked or not
+                if (!isset($data['is_vat_doc'])) {
+                    //Redirect back to Form
+                    $this->session->set_userdata("checkbox", "Please select atleast Not Availiable checkbox for TIN/VAT File (if No Details Present for TIN/VAT)");
+                    if (!empty($_POST['id'])) {
+                        $this->editvendor($data['id']);
+                    } else {
+                        $this->add_vendor();
+                    }
+
+                    return FALSE;
+                } else {
+                    //Checking case if cst number is entered along with N/A checked but no file is being uploaded nor its value is present in database before
+                    if (!empty($data['tin_no'])) {
+                        //Redirect back to Form
+                        $this->session->set_userdata("checkbox", "Please enter either TIN/VAT Details or Not Availiable");
+                        if (!empty($_POST['id'])) {
+                            $this->editvendor($data['id']);
+                        } else {
+                            $this->add_vendor();
+                        }
+
+                        return FALSE;
+                    }
+                }
+            }
+            //Checking case when file is already uploaded and N/A is also checked at the same time
+            if (empty($_FILES['tin_file']['tmp_name']) && !empty($tin_file) && isset($data['is_vat_doc'])) {
+                //Redirect back to Form
+                $this->session->set_userdata("checkbox", "You can't enter TIN/VAT Details and Not Availiable both at the same time");
+                if (!empty($_POST['id'])) {
+                    $this->editvendor($data['id']);
+                } else {
+                    $this->add_vendor();
+                }
+                return FALSE;
+            }
+
+            //End Processing VAT/TIN file upload
+            
+            //Start Processing Service Tax File Upload
+            if (!empty($_FILES['service_tax_file']['tmp_name'])) {
+                //Adding file validation
+                $checkfilevalidation = $this->file_input_validation('service_tax_file');
+                if ($checkfilevalidation) {
+                    //Cross-check if Non Availiable is checked along with file upload
+                    if (isset($data['is_st_doc'])) {
+                        unset($_POST['is_st_doc']);
+                    }
+                    $tmpFile = $_FILES['service_tax_file']['tmp_name'];
+                    $service_tax_file = implode("", explode(" ", $this->input->post('name'))) . '_servicetaxfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['service_tax_file']['name'])[1];
+                    move_uploaded_file($tmpFile, "/tmp/$service_tax_file");
+
+                    //Upload files to AWS
+                    $bucket = 'bookings-collateral';
+                    $directory_xls = "vendor-partner-docs/" . $service_tax_file;
+                    $this->s3->putObjectFile("/tmp/$service_tax_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $_POST['service_tax_file'] = $service_tax_file;
+                } else {
+                    //Redirect back to Form
+                    $data = $this->input->post();
+                    if (!empty($_POST['id'])) {
+                        $this->editvendor($data['id']);
+                    } else {
+                        $this->add_vendor();
+                    }
+                    return FALSE;
+                }
+            }
+            $service_tax_file = isset($vendor[0]['service_tax_file']) ? $vendor[0]['service_tax_file'] : '';
+            if (empty($_FILES['service_tax_file']['tmp_name']) && empty($service_tax_file)) {
+
+                if (!isset($data['is_st_doc'])) {
+                    //Redirect back to Form
+                    $this->session->set_userdata("checkbox", "Please select atleast Not Availiable checkbox for Service Tax  File (if No Details Present for Service Tax)");
+                    if (!empty($_POST['id'])) {
+                        $this->editvendor($data['id']);
+                    } else {
+                        $this->add_vendor();
+                    }
+
+                    return FALSE;
+                } else {
+                    //Checking case if cst number is entered along with N/A checked but no file is being uploaded nor its value is present in database before
+                    if (!empty($data['service_tax_no'])) {
+                        //Redirect back to Form
+                        $this->session->set_userdata("checkbox", "Please enter either Service Tax Details or Not Availiable");
+                        if (!empty($_POST['id'])) {
+                            $this->editvendor($data['id']);
+                        } else {
+                            $this->add_vendor();
+                        }
+
+                        return FALSE;
+                    }
+                }
+            }
+            //Checking case when file is already uploaded and N/A is also checked at the same time
+            if (empty($_FILES['service_tax_file']['tmp_name']) && !empty($service_tax_file) && isset($data['is_st_doc'])) {
+                //Redirect back to Form
+                $this->session->set_userdata("checkbox", "You can't enter Service Tax Details and Not Availiable both at the same time");
+                if (!empty($_POST['id'])) {
+                    $this->editvendor($data['id']);
+                } else {
+                    $this->add_vendor();
+                }
+                return FALSE;
+            }
+
+            //End Service Tax File Upload
+            
+            //Processing Address Proof File Upload
+                if(!empty($_FILES['address_proof_file']['tmp_name'])){
+                    $tmpFile = $_FILES['address_proof_file']['tmp_name'];
+                    $address_proof_file = implode("",explode(" ",$this->input->post('name'))).'_addressprooffile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['address_proof_file']['name'])[1];
+                    move_uploaded_file($tmpFile, "/tmp/$address_proof_file");
+                    
+                    //Upload files to AWS
+                    $bucket = 'bookings-collateral';
+                    $directory_xls = "vendor-partner-docs/".$address_proof_file;
+                    $this->s3->putObjectFile("/tmp/$address_proof_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $_POST['address_proof_file'] = $address_proof_file;
+                }
+                
+                //Processing Cancelled Cheque File Upload
+                if(!empty($_FILES['cancelled_cheque_file']['tmp_name'])){
+                    $tmpFile = $_FILES['cancelled_cheque_file']['tmp_name'];
+                    $cancelled_cheque_file = implode("",explode(" ",$this->input->post('name'))).'_cancelledchequefile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['cancelled_cheque_file']['name'])[1];
+                    move_uploaded_file($tmpFile, "/tmp/$cancelled_cheque_file");
+                    
+                    //Upload files to AWS
+                    $bucket = 'bookings-collateral';
+                    $directory_xls = "vendor-partner-docs/".$cancelled_cheque_file;
+                    $this->s3->putObjectFile("/tmp/$cancelled_cheque_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $_POST['cancelled_cheque_file'] = $cancelled_cheque_file;
+                }
+                
+                //Processing ID Proof 1 File Upload
+                if(!empty($_FILES['id_proof_1_file']['tmp_name'])){
+                    $tmpFile = $_FILES['id_proof_1_file']['tmp_name'];
+                    $id_proof_1_file = implode("",explode(" ",$this->input->post('name'))).'_idproof1file_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['id_proof_1_file']['name'])[1];
+                    move_uploaded_file($tmpFile, "/tmp/$id_proof_1_file");
+                    
+                    //Upload files to AWS
+                    $bucket = 'bookings-collateral';
+                    $directory_xls = "vendor-partner-docs/".$id_proof_1_file;
+                    $this->s3->putObjectFile("/tmp/$id_proof_1_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $_POST['id_proof_1_file'] = $id_proof_1_file;
+                }
+                
+                //Processing ID Proof 1 File Upload
+                if(!empty($_FILES['id_proof_2_file']['tmp_name'])){
+                    $tmpFile = $_FILES['id_proof_2_file']['tmp_name'];
+                    $id_proof_2_file = implode("",explode(" ",$this->input->post('name'))).'_idproof2file_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['id_proof_2_file']['name'])[1];
+                    move_uploaded_file($tmpFile, "/tmp/$id_proof_2_file");
+                    
+                    //Upload files to AWS
+                    $bucket = 'bookings-collateral';
+                    $directory_xls = "vendor-partner-docs/".$id_proof_2_file;
+                    $this->s3->putObjectFile("/tmp/$id_proof_2_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $_POST['id_proof_2_file'] = $id_proof_2_file;
+                }
+                
+                //Processing Contract File Upload
+                if(!empty($_FILES['contract_file']['tmp_name'])){
+                    $tmpFile = $_FILES['contract_file']['tmp_name'];
+                    $contract_file = implode("",explode(" ",$this->input->post('name'))).'_contractfile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['contract_file']['name'])[1];
+                    move_uploaded_file($tmpFile, "/tmp/$contract_file");
+                    
+                    //Upload files to AWS
+                    $bucket = 'bookings-collateral';
+                    $directory_xls = "vendor-partner-docs/".$contract_file;
+                    $this->s3->putObjectFile("/tmp/$contract_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $_POST['contract_file'] = $contract_file;
+                }
+                
+       
+            
             $non_working_days = $this->input->post('day');
             $appliances = $this->input->post('appliances');
             $brands = $this->input->post('brands');
@@ -73,10 +454,36 @@ class vendor extends CI_Controller {
             if (!empty($brands)) {
                 $_POST['brands'] = implode(",", $brands);
             }
-            
+            if(!isset($_POST['is_st_doc'])){
+                $_POST['is_st_doc'] = 1;
+            }
+            if(!isset($_POST['is_vat_doc'])){
+                $_POST['is_vat_doc'] = 1;
+            }
+            if(!isset($_POST['is_pan_doc'])){
+                $_POST['is_pan_doc'] = 1;
+            }
+            if(!isset($_POST['is_cst_doc'])){
+                $_POST['is_cst_doc'] = 1;
+            }
 
             unset($_POST['day']);
-
+            
+            //Checking if  pan_no, cst_no,service_tax_no
+            if(empty($this->input->post('pan_no'))){
+                $_POST['pan_no'] = NULL;
+            }
+            if(empty($this->input->post('cst_no'))){
+                $_POST['cst_no'] = NULL;
+            }
+            if(empty($this->input->post('service_tax_no'))){
+                $_POST['service_tax_no'] = NULL;
+            }
+            if(empty($this->input->post('tin_no'))){
+                $_POST['tin_no'] = NULL;
+            }
+            
+           
             if (!empty($_POST['id'])) {
                 //if vendor exists, details are edited
                 $this->vendor_model->edit_vendor($_POST, $_POST['id']);
@@ -88,7 +495,7 @@ class vendor extends CI_Controller {
                 $primary_contact_email = $this->input->post('primary_contact_email');
                 $to = $owner_email.','.$primary_contact_email;
                 
-                $subject = "Welcome to 247around";
+                $subject = "Welcome to 247around ".$this->input->post('owner_name')." from City : ".$this->input->post('district');
                 $message = "Dear Partner,<br><br>"
                         . "247around welcomes you to its Partner Network, we hope to have a long lasting relationship with you.<br><br>"
                         . "As informed earlier, serial number of appliance is mandatory when you close a booking. All bookings without serial numbers will be cancelled.<br><br> "
@@ -193,7 +600,7 @@ class vendor extends CI_Controller {
      * @return : If validation ok returns true else false
      */
     function checkValidation() {
-        $this->form_validation->set_rules('name', 'Vendor Name', 'trim|required|xss_clean');
+        $this->form_validation->set_rules('company_name', 'Vendor Name', 'trim|required|xss_clean');
         $this->form_validation->set_rules('address', 'Vendor Address', 'trim|required');
         $this->form_validation->set_rules('state', 'State', 'trim|required');
         $this->form_validation->set_rules('district', 'District', 'trim|required');
@@ -278,7 +685,8 @@ class vendor extends CI_Controller {
      */
     function activate($id) {
         $this->vendor_model->activate($id);
-
+        //Storing State change values in Booking_State_Change Table
+        $this->notify->insert_state_change('', _247AROUND_VENDOR_ACTIVATED, _247AROUND_VENDOR_DEACTIVATED, 'Vendor ID = '.$id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
         redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
     }
 
@@ -292,7 +700,8 @@ class vendor extends CI_Controller {
      */
     function deactivate($id) {
         $this->vendor_model->deactivate($id);
-
+        //Storing State change values in Booking_State_Change Table
+        $this->notify->insert_state_change('', _247AROUND_VENDOR_DEACTIVATED, _247AROUND_VENDOR_ACTIVATED, 'Vendor ID = '.$id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
         redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
     }
 
@@ -306,7 +715,8 @@ class vendor extends CI_Controller {
      */
     function delete($id) {
         $this->vendor_model->delete($id);
-
+        //Storing State change values in Booking_State_Change Table
+        $this->notify->insert_state_change('', _247AROUND_VENDOR_DELETED, _247AROUND_VENDOR_DELETED, 'Vendor ID = '.$id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
         redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
     }
 
@@ -629,10 +1039,10 @@ class vendor extends CI_Controller {
         $this->vendor_model->execute_query($sql_commands);
         unset($sql_commands);
 
-        $dbHost="localhost";
-        $dbUser="root";
-        $dbPass="root";
-        $dbName="boloaaka";
+        $dbHost=$this->db->hostname;
+        $dbUser=$this->db->username;
+        $dbPass=$this->db->password;
+        $dbName=$this->db->database;
 
         $csv = "/tmp/vendor_pincode_mapping_temp.csv";
         $sql = "LOAD DATA LOCAL INFILE '$csv' INTO TABLE vendor_pincode_mapping_temp "
@@ -1254,7 +1664,7 @@ class vendor extends CI_Controller {
 
        $data['engineers'] =  $this->vendor_model->get_engineers($service_center_id);
        foreach ($data['engineers'] as $key => $value) {
-           $service_center = $this->vendor_model->getActiveVendor($value['service_center_id']);
+           $service_center = $this->vendor_model->getActiveVendor($value['service_center_id'],0);
            $data['engineers'][$key]['service_center_name'] = $service_center[0]['name'];
            $service_id  = json_decode($value['appliance_id'],true);
            $appliances = array();
@@ -1325,12 +1735,12 @@ class vendor extends CI_Controller {
         $this->form_validation->set_rules('alternate_phone', 'Alternate Mobile Number', 'trim|exact_length[10]|numeric|xss_clean');
         $this->form_validation->set_rules('identity_id_number', 'ID Number', 'xss_clean');
         $this->form_validation->set_rules('identity_proof', 'Identity Proof', 'xss_clean');
-        $this->form_validation->set_rules('bank_account_no', 'Bank Account No', 'numeric|required|xss_clean');
+        $this->form_validation->set_rules('bank_account_no', 'Bank Account No', 'numeric|xss_clean');
 //        $this->form_validation->set_rules('address', 'Address', 'xss_clean');
-	    $this->form_validation->set_rules('service_id', 'Appliance ', 'xss_clean');
-        $this->form_validation->set_rules('bank_name', 'Bank Name', 'required|xss_clean');
-        $this->form_validation->set_rules('bank_ifsc_code', 'IFSC Code', 'required|xss_clean');
-        $this->form_validation->set_rules('bank_holder_name', 'Account Holder Name', 'required|xss_clean');
+	$this->form_validation->set_rules('service_id', 'Appliance ', 'xss_clean');
+        $this->form_validation->set_rules('bank_name', 'Bank Name', 'trim|xss_clean');
+        $this->form_validation->set_rules('bank_ifsc_code', 'IFSC Code', 'trim|xss_clean');
+        $this->form_validation->set_rules('bank_holder_name', 'Account Holder Name', 'trim|xss_clean');
         $this->form_validation->set_rules('file', 'Identity Proof Pic ', 'callback_upload_identity_proof_pic');
 	    $this->form_validation->set_rules('bank_proof_pic', 'Bank Proof Pic', 'callback_upload_bank_proof_pic');
 
@@ -2072,7 +2482,18 @@ class vendor extends CI_Controller {
             echo FALSE;
         }
     }
+    
+    /**
+     * @desc: This function is used to show Service Center Report for New Vendors
+     * params: void
+     * return: view
+     */
+    function new_service_center_report(){
+        $data['html'] = $this->booking_utilities->booking_report_for_new_service_center();
 
+        $this->load->view('employee/header');
+        $this->load->view('employee/new_service_center_report',$data);
+    }
     
     /**
      * @desc: This method called by ajax to display available vendor list in dropdown
@@ -2098,5 +2519,123 @@ class vendor extends CI_Controller {
         $this->vendor_model->edit_vendor(array('is_update'=> $flag), $service_center_id);
         redirect(base_url() . 'employee/vendor/viewvendor');
     }
+
+    /**
+     * @desc: This function is used to send Report Mail to logged user and is called using AJAX
+     * params: void
+     * return : Boolean
+     */
+    function new_service_center_report_to_mail(){
+        $user =$this->session->userdata;
+        $employee_details = $this->employee_model->getemployeefromid($user['id']);
+        if(isset($employee_details[0]['official_email']) && $employee_details[0]['official_email']){
+            $html = $this->booking_utilities->booking_report_for_new_service_center();
+            $to = $employee_details[0]['official_email'];
+
+            $this->notify->sendEmail("booking@247around.com", $to, "", "", "New Service Center Report", $html, "");
+            log_message('info', __FUNCTION__ . ' New Service Center Report mail sent to '. $to);
+            echo TRUE;
+        }else{
+            echo FALSE;
+        }
+    }
+
+   /**
+     * @Desc: This function is used to download Active vendors list
+     *      in Excel. It is called using AJAX
+     * params: void
+     * @return: void
+     * 
+     */
+    function download_sf_list_excel(){
+        //Getting only Active Vendors List
+        $vendor  = $this->vendor_model->viewvendor('',1);
+        
+        log_message('info', __FUNCTION__);
+
+        $template = 'SF_List_Template.xlsx';
+        //set absolute path to directory with template files
+        $templateDir = __DIR__ . "/../excel-templates/";
+        //set config for report
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+        //load template
+        $R = new PHPReport($config);
+
+        $R->load(array(
+
+                 'id' => 'vendor',
+                'repeat' => TRUE,
+                'data' => $vendor
+            ));
+
+        $output_file_dir = "/tmp/";
+        $output_file = "SF_List_" . date('y-m-d');
+        $output_file_name = $output_file . ".xls";
+        $output_file_excel = $output_file_dir . $output_file_name;
+        $response = $R->render('excel2003', $output_file_excel);
+        
+        //Downloading File
+        if(file_exists($output_file_excel)){
+
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
+            readfile($output_file_excel);
+            exit;
+        }
+
+    }
+
+    /**
+     * @Desc: This function is used to remove images from vendor add/edit form
+     *          It is being called using AJAX Request
+     * parmas: type(column_name),vendor id
+     * return: Boolean
+     */
+    function remove_image(){
+        $data = $this->input->post();
+        $vendor = [];
+        $vendor[$data['type']] = '';
+        //Making Database Entry as Null
+        $this->vendor_model->edit_vendor($vendor, $data['id']);
+        echo TRUE;
+}
+    
+    /**
+     * @Desc: This function is used to check validation for file inputs through add/edit vendor form
+     * 
+     * @params: file_type
+     * @return: Boolean
+     * 
+     */
+     function file_input_validation($file_type){
+         switch($file_type){
+             case 'pan_file': 
+                    $this->form_validation->set_rules('name_on_pan', 'Name on Pan', 'trim|required|xss_clean');
+                    $this->form_validation->set_rules('pan_no', 'Pan Number', 'trim|required|xss_clean');
+                    return $this->form_validation->run();
+                   
+                    break;
+             case 'cst_file': 
+                    $this->form_validation->set_rules('cst_no', 'CST Number', 'trim|required|xss_clean');
+                    return $this->form_validation->run();
+                   
+                    break;
+             case 'tin_file': 
+                    $this->form_validation->set_rules('tin_no', 'TIN/VAT Number', 'trim|required|xss_clean');
+                    return $this->form_validation->run();
+                   
+                    break;
+             case 'service_tax_file': 
+                    $this->form_validation->set_rules('service_tax_no', 'Service Tax Number', 'trim|required|xss_clean');
+                    return $this->form_validation->run();
+                   
+                    break;
+         }
+     }
+
 
 }   

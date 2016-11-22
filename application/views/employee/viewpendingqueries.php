@@ -135,8 +135,8 @@ function outbound_call(phone_number){
                     <td><?= $row->booking_id; ?></td>
                     <input type="hidden" id="<?php echo "service_id_".($key +1); ?>"  value="<?php echo $row->service_id;?>"/>
                     <input type="hidden" id="<?php echo "pincode_".($key +1); ?>" value="<?php echo $row->booking_pincode; ?>" />
-                    <td><a target='_blank' href="<?php echo base_url(); ?>employee/user/finduser/0/0/<?php echo $row->phone_number; ?>"><?php echo $row->customername; ?></a></td>
-                    <td><a target='_blank' href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $row->phone_number;?>"><?php echo $row->booking_primary_contact_no; ?></a></td>
+                    <td><a href="<?php echo base_url(); ?>employee/user/finduser/0/0/<?php echo $row->phone_number; ?>"><?php echo $row->customername; ?></a></td>
+                    <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $row->phone_number;?>"><?php echo $row->booking_primary_contact_no; ?></a></td>
                     <td><?= $row->services;  ?></td>
                     <td><?= $row->potential_value; ?></td>
                     <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
@@ -178,19 +178,19 @@ function outbound_call(phone_number){
                     </td>
  <?php if($status !="Cancelled"){ ?>
                     <td><?php
-                        echo "<a target='_blank' class='btn btn-small btn-success btn-sm' href=".base_url()."employee/booking/get_edit_booking_form/$row->booking_id title='Update'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
+                        echo "<a class='btn btn-small btn-success btn-sm' href=".base_url()."employee/booking/get_edit_booking_form/$row->booking_id title='Update'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
                         ?>
                     </td>
 
                     <td>
                         <?php
-                        echo "<a target='_blank' class='btn btn-small btn-warning btn-sm' href=".base_url()."employee/booking/get_cancel_form/$row->booking_id/FollowUp title='Cancel'> <i class='fa fa-times' aria-hidden='true'></i></a>";
+                        echo "<a class='btn btn-small btn-warning btn-sm' href=".base_url()."employee/booking/get_cancel_form/$row->booking_id/FollowUp title='Cancel'> <i class='fa fa-times' aria-hidden='true'></i></a>";
                         ?>
                     </td>
                     <?php } if($status == "Cancelled"){  ?>
                      <td>
                         <?php echo "<a class='btn btn-sm btn-warning' "
-                        . "href=" . base_url() . "employee/booking/open_cancelled_query/$row->booking_id target='_blank'  title='open'><i class='fa fa-calendar' aria-hidden='true'></i></a>";
+                        . "href=" . base_url() . "employee/booking/open_cancelled_query/$row->booking_id title='open'><i class='fa fa-calendar' aria-hidden='true'></i></a>";
     ?>
                     </td>
                     <?php } ?>
@@ -264,8 +264,6 @@ function outbound_call(phone_number){
                 }
         });
     }
-    
-    
 </script>
 <style>
     /* generic table styling */

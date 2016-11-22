@@ -68,7 +68,7 @@
         <td><?php echo $value['name']?></td>
         <td><?php echo $value['final_amount']?></td>
         <td><?php if($value['final_amount'] <0){?> 
-        <a href="<?php echo base_url()?>employee/invoice/get_add_new_transaction/<?php echo $value['vendor_partner']?>/<?php echo $value['id'] ?>" target='_blank' class="btn btn-sm btn-success">Pay</a>
+        <a href="<?php echo base_url()?>employee/invoice/invoice_summary/<?php echo $value['vendor_partner']?>/<?php echo $value['id'] ?>" target='_blank' class="btn btn-sm btn-success">Pay</a>
 
         <?php }?></td>
       </tr>

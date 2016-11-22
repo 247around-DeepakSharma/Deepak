@@ -21,14 +21,25 @@ class vendor_model extends CI_Model {
      * @param: $vendor_id
      * @return: array of vendor details
      */
-    function viewvendor($vendor_id = "") {
+    function viewvendor($vendor_id = "",$active = "") {
         $where = "";
+        $where_1 = "";
+        $where_final = "";
 
         if ($vendor_id != "") {
             $where .= "where id= '$vendor_id'";
         }
-
-        $sql = "Select * from service_centres $where";
+        if ($active != "") {
+            $where_1 .= "where active= '$active'";
+        }
+        if($vendor_id != "" && $active != ""){
+            $where_final = $where." AND ".$where_1;
+        }elseif($vendor_id != ''){
+            $where_final = $where;
+        }elseif($active != ""){
+            $where_final = $where_1;
+        }
+        $sql = "Select * from service_centres $where_final";
 
         $query = $this->db->query($sql);
 
@@ -1265,5 +1276,33 @@ class vendor_model extends CI_Model {
             $this->db->query($q);
        }
     }
+
+    /**
+     * @desc:  get all vendor 
+     * @param: void
+     * @return : Array
+     */
+    function getAllVendor() {
+        $this->db->select("service_centres.name, service_centres.id ");
+        $this->db->order_by("name");
+        $sql = $this->db->get('service_centres');
+        return $sql->result_array();
+    }
+    
+    /**
+     * @desc:  get all New vendor 
+     * @param: void
+     * @return : Array
+     */
+    function get_new_vendor() {
+        $new_vendor = "SELECT name, id, district, state ,
+                                            DATEDIFF(CURRENT_TIMESTAMP , create_date) AS age
+                                            FROM  service_centres
+                                            WHERE create_date BETWEEN CURDATE() - INTERVAL 60 DAY AND CURDATE()
+                                            ORDER BY state";
+
+        return $this->db->query($new_vendor)->result_array();
+    }
+
 
 }

@@ -47,7 +47,7 @@
           
           <?php foreach($query as $key =>$row){?>
           <tr>
-            <td><?=$row['id'];?></td>
+            <td><?=($key+1).'.';?></td>
             <td><a href="<?php echo base_url();?>employee/partner/editpartner/<?=$row['id'];?>"><?=$row['company_name'];?></a></td>
             <td><a href="<?php echo base_url();?>employee/partner/editpartner/<?=$row['id'];?>"><?=$row['public_name'];?></a></td>
             
@@ -71,6 +71,7 @@
           	</td>
           	
           	<td><?=$row['owner_email'];?></td>
+                <td><?php echo isset($row['clear_text']) && $row['clear_text']?$row['user_name'].'/'.$row['clear_text']:'';?></td>
           	<td><?php if($row['is_active']==1)
                 {
                   echo "<a id='edit' class='btn btn-small btn-primary' "

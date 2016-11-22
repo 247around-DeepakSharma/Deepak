@@ -138,8 +138,54 @@
               
       }
   </script>
-<?php } 
-    if(isset($bank_statement)) { ?>
+<?php }  ?>
+  
+  <?php if(isset($vendor_details)) { ?>
+      
+      <br>
+     <h2>Document Status</h2>
+      <table class="table table-bordered  table-hover table-striped data"  >
+          <thead>
+          <tr>
+             <th class="text-center">PAN</th>     
+             <th class="text-center">Service Tax </th>
+             <th class="text-center">VAT/TIN</th>
+             <th class="text-center">CST</th>
+             <th class="text-center">Contract</th>
+          </tr>
+       </thead>
+       <tbody>
+           <tr>
+               <td class="text-center">
+                 
+                   <img src="<?php echo  base_url(); ?><?php if(!empty($vendor_details[0]['pan_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
+               </td>
+                <td class="text-center">
+                 
+                   <img src="<?php echo  base_url(); ?><?php if(!empty($vendor_details[0]['service_tax_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
+               </td>
+                <td class="text-center">
+                 
+                   <img src="<?php echo  base_url(); ?><?php if(!empty($vendor_details[0]['vat_no']) || !empty($vendor_details[0]['tin_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
+               </td>
+                <td class="text-center">
+                 
+                   <img src="<?php echo  base_url(); ?><?php if(!empty($vendor_details[0]['cst_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
+               </td>
+                <td class="text-center">
+                 
+                   <img src="<?php echo  base_url(); ?><?php if(!empty($vendor_details[0]['contract_file'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
+               </td>
+               
+               
+               
+           </tr>
+       </tbody>
+      </table>
+      
+ <?php }?>
+  
+    <?php if(isset($bank_statement)) { ?>
     <br>
      <p><h2>Bank Transactions</h2></p>
       <table class="table table-bordered  table-hover table-striped data"  >

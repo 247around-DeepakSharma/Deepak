@@ -362,17 +362,19 @@ class Partner_model extends CI_Model {
     //Return all leads shared by Partner in the last 30 days
     function get_partner_leads_for_summary_email($partner_id) {
 	$query = $this->db->query("SELECT BD.booking_id, order_id, booking_date, booking_timeslot,
-			BD.current_status, BD.internal_status, rating_stars,
+			BD.current_status, BD.cancellation_reason, rating_stars,
 			DATE_FORMAT(BD.create_date, '%d/%M') as create_date,
 			services,
 			UD.appliance_brand as brand, UD.model_number, UD.appliance_description as description,
 			name, phone_number, home_address, pincode, users.city
 			FROM booking_details as BD, users, services, booking_unit_details as UD
-			WHERE BD.booking_id = UD.booking_id AND
+			WHERE BD.booking_id NOT REGEXP '^Q-' AND
+			BD.booking_id = UD.booking_id AND
 			BD.service_id = services.id AND
 			BD.user_id = users.user_id AND
 			BD.partner_id = $partner_id AND
-			BD.create_date > (CURDATE() - INTERVAL 1 MONTH)");
+			BD.create_date > (CURDATE() - INTERVAL 1 MONTH) AND
+			DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= 0");
 
 	return $query->result_array();
     }
@@ -677,6 +679,19 @@ class Partner_model extends CI_Model {
         $this->db->join('users', 'users.user_id = booking_details.user_id');
         $this->db->join('service_centres', 'service_centres.id = spare_parts_details.service_center_id');
         $query = $this->db->get();
+        return $query->result_array();
+    }
+
+    /**
+     * @desc: This function is used to get partner username password of partiular partner
+     * @params: Int 
+     *          ID of partner
+     * @return: Array
+     */
+    function get_partner_login_details($partner_id){
+        $this->db->select('user_name,password,clear_text');
+        $this->db->where('partner_id', $partner_id);
+        $query = $this->db->get('partner_login');
         return $query->result_array();
     }
 

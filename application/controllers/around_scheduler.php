@@ -3,8 +3,8 @@
 if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 
-error_reporting(E_ERROR);
-ini_set('display_errors', '0');
+//error_reporting(E_ERROR);
+//ini_set('display_errors', '-1');
 
 class Around_scheduler extends CI_Controller {
 	 function __Construct() {
@@ -12,6 +12,7 @@ class Around_scheduler extends CI_Controller {
 
         $this->load->model('around_scheduler_model');
         $this->load->model('booking_model');
+        $this->load->model('vendor_model');
 
         $this->load->library('s3');
         $this->load->library('email');
@@ -37,9 +38,17 @@ class Around_scheduler extends CI_Controller {
         
 	foreach ($data2 as $value) {
             $sms['phone_no'] = $value->booking_primary_contact_no;
+            $category = '';
+            if($value->services == 'Geyser'){
+                $where = array('booking_id'=> $value->booking_id);
+                $unit_details = $this->booking_model->get_unit_details($where);
+                if(!empty($unit_details)){
+                    $category = $unit_details[0]['appliance_category'];
+                }
+            }
 
             //Ordering of SMS data is important, check SMS template before changing it
-            $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services);
+            $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services, $category);
             $sms['smsData']['service'] = $value->services;
 
             $sms['booking_id'] = $value->booking_id;
@@ -64,25 +73,33 @@ class Around_scheduler extends CI_Controller {
 	$data1 = $this->around_scheduler_model->get_reminder_installation_sms_data_future();
         
         //Tag queries where Vendor is not available
-        $data2 = $this->booking_model->searchPincodeAvailable($data1);
+        $data2 = $this->booking_model->searchPincodeAvailable($data1, PINCODE_AVAILABLE);
         
         //Send SMS to only customers where Vendor is Available
 	$sms['tag'] = "sd_edd_missed_call_reminder";
         
 	foreach ($data2 as $value) {
-            if ($value->vendor_status !== "Vendor Not Available") {
-                $sms['phone_no'] = $value->booking_primary_contact_no;
-
-                //Ordering of SMS data is important, check SMS template before changing it
-                $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services);
-                $sms['smsData']['service'] = $value->services;
-
-                $sms['booking_id'] = $value->booking_id;
-                $sms['type'] = "user";
-                $sms['type_id'] = $value->user_id;
-
-                $this->notify->send_sms_acl($sms);                
+            $sms['phone_no'] = $value->booking_primary_contact_no;
+            
+            $category = '';
+            if($value->services == 'Geyser'){
+                
+                $where = array('booking_id'=> $value->booking_id);
+                $unit_details = $this->booking_model->get_unit_details($where);
+                if(!empty($unit_details)){
+                    $category = $unit_details[0]['appliance_category'];
+                }
             }
+
+            //Ordering of SMS data is important, check SMS template before changing it
+            $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services, $category);
+            $sms['smsData']['service'] = $value->services;
+
+            $sms['booking_id'] = $value->booking_id;
+            $sms['type'] = "user";
+            $sms['type_id'] = $value->user_id;
+
+            $this->notify->send_sms_acl($sms);                
 	}
         
         log_message ('info', __METHOD__ . '=> Exiting...');
@@ -99,25 +116,32 @@ class Around_scheduler extends CI_Controller {
 	$data1 = $this->around_scheduler_model->get_reminder_installation_sms_data_past();
         
         //Tag queries where Vendor is not available
-        $data2 = $this->booking_model->searchPincodeAvailable($data1);
+        $data2 = $this->booking_model->searchPincodeAvailable($data1, PINCODE_AVAILABLE);
         
         //Send SMS to only customers where Vendor is Available
 	$sms['tag'] = "sd_edd_missed_call_reminder";
         
-	foreach ($data2 as $value) {
-            if ($value->vendor_status !== "Vendor Not Available") {
-                $sms['phone_no'] = $value->booking_primary_contact_no;
-
-                //Ordering of SMS data is important, check SMS template before changing it
-                $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services);
-                $sms['smsData']['service'] = $value->services;
-
-                $sms['booking_id'] = $value->booking_id;
-                $sms['type'] = "user";
-                $sms['type_id'] = $value->user_id;
-
-                $this->notify->send_sms_acl($sms);                
+	foreach ($data2 as $value) {            
+            $sms['phone_no'] = $value->booking_primary_contact_no;
+            
+            $category = '';
+            if($value->services == 'Geyser'){
+                $where = array('booking_id'=> $value->booking_id);
+                $unit_details = $this->booking_model->get_unit_details($where);
+                if(!empty($unit_details)){
+                    $category = $unit_details[0]['appliance_category'];
+                }
             }
+
+            //Ordering of SMS data is important, check SMS template before changing it
+            $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services, $category);
+            $sms['smsData']['service'] = $value->services;
+
+            $sms['booking_id'] = $value->booking_id;
+            $sms['type'] = "user";
+            $sms['type_id'] = $value->user_id;
+
+            $this->notify->send_sms_acl($sms);                
 	}
         
         log_message ('info', __METHOD__ . '=> Exiting...');
@@ -152,23 +176,118 @@ class Around_scheduler extends CI_Controller {
         
         log_message ('info', __METHOD__ . '=> Exiting...');
     }
-
-     /**
-     * @desc: Process to cancel 6 days or greater than 6 days Snapdeal Pending Query.
+    
+    /**
+     * @desc: Cancel bookings, When booking date is empty, then getting those bookings which has 
+     * difference between delivery date and current date are greater than 2.
+     * AND When booking date is not empty, then getting those bookings which has difference between 
+     *  delivery date and current date are greater than 5.
      */
-    function process_to_cancel_old_pending_query(){
+    function cancel_old_pending_query(){
         log_message ('info', __METHOD__ . '=> Entering...');
         $data = $this->around_scheduler_model->get_old_pending_query();
         
         foreach ($data as $value) {
             echo "..".PHP_EOL;
             $this->booking_model->update_booking($value['booking_id'], array('current_status'=> 'Cancelled', 
-                'internal_status' => 'Cancelled'));
+                'internal_status' => 'Cancelled', 'cancellation_reason' => "Customer Not Reachable"));
             $this->booking_model->update_booking_unit_details($value['booking_id'], array('booking_status' => 'Cancelled'));
+            
+            $this->notify->insert_state_change($value['booking_id'], 
+                    "Cancelled" , "FollowUp" , 
+                    "Customer Not Reachable" , 
+                   "1", "247Around",
+                    _247AROUND);
             
         }
         log_message ('info', __METHOD__ . '=> Exit...');
     }
 
+    /**
+     *  @desc : This function is to cancels the booking/Query
+     *
+     * Accepts the cancellation reason provided in cancel booking/Query form and then cancels booking with the reason provided.
+     *
+     *  @param : booking id
+     *  @return : cancels the booking and load view
+     */
+    function cancel_pending_query($booking_id) {
+	log_message('info', __METHOD__ . " => Booking ID: " . $booking_id);
+        
+        $data['cancellation_reason'] = 'Customer Not Reachable';
+	$data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");        
+	$data['current_status'] = $data['internal_status'] = _247AROUND_CANCELLED ;
+	$data_vendor['cancellation_reason'] = $data['cancellation_reason'];
+
+	log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));
+
+	$this->booking_model->update_booking($booking_id, $data);
+
+	//Update this booking in vendor action table
+	$data_vendor['update_date'] = date("Y-m-d H:i:s");
+	$data_vendor['current_status'] = $data_vendor['internal_status'] = _247AROUND_CANCELLED ;
+
+	$data_vendor['booking_id'] = $booking_id;
+	log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($data_vendor, true));
+	$this->vendor_model->update_service_center_action($data_vendor);
+
+	$unit_details['booking_status'] = _247AROUND_CANCELLED;
+	$unit_details['vendor_to_around'] = $unit_details['around_to_vendor'] = 0;
+
+	log_message('info', __FUNCTION__ . " Update unit details  " . print_r($unit_details, true));
+	
+        $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
+
+	//Log this state change as well for this booking
+	$this->notify->insert_state_change($booking_id, $data['current_status'], _247AROUND_FOLLOWUP, 
+                $data['cancellation_reason'] , '1', '247around', _247AROUND);
+        
+        echo 'Cancelled ................' . PHP_EOL;
+    }
+    /**
+     * @desc: This function is used to send SMS for all Snapdeal pending queries 
+     */
+    function send_sms_to_query(){
+        log_message('info', __METHOD__ ."Entering");
+        //Get all queries
+        $data1 = $this->around_scheduler_model->get_all_query();
+         //Tag queries where Vendor is not available
+        $data2 = $this->booking_model->searchPincodeAvailable($data1, PINCODE_AVAILABLE);
+
+        log_message ('info', __METHOD__ . "=> Count  All Pincode AV Query ". count($data2));
+        
+        //Send SMS to only customers where Vendor is Available
+	$sms['tag'] = "sd_edd_missed_call_reminder";
+        
+	foreach ($data2 as $value) {            
+            $sms['phone_no'] = $value->booking_primary_contact_no;
+            
+             $category = '';
+            if($value->services == 'Geyser'){
+                
+                $where = array('booking_id'=> $value->booking_id);
+                $unit_details = $this->booking_model->get_unit_details($where);
+                if(!empty($unit_details)){
+                    $category = $unit_details[0]['appliance_category'];
+                }
+            }
+
+
+            //Ordering of SMS data is important, check SMS template before changing it
+            $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services,$category );
+            $sms['smsData']['service'] = $value->services;
+
+            $sms['booking_id'] = $value->booking_id;
+            $sms['type'] = "user";
+            $sms['type_id'] = $value->user_id;
+
+           // print_r($sms);
+
+            $this->notify->send_sms_acl($sms);  
+            echo "...<br/>";              
+	}
+        
+        log_message ('info', __METHOD__ . '=> Exiting...');
+    }
 
 }

@@ -26,6 +26,7 @@ class Booking extends CI_Controller {
 	$this->load->model('invoices_model');
 	$this->load->model('service_centers_model');
 	$this->load->model('partner_model');
+	$this->load->model('inventory_model');
 	$this->load->library('partner_sd_cb');
 	$this->load->library('partner_cb');
 	$this->load->library('notify');
@@ -73,38 +74,8 @@ class Booking extends CI_Controller {
         if($checkValidation){
         log_message('info', __FUNCTION__);
         log_message('info', " Booking Insert User ID: " . $user_id);
-        $booking = $this->getAllBookingInput($user_id);
+        $this->getAllBookingInput($user_id,INSERT_NEW_BOOKING);
 
-        
-        $message = $booking['message'];
-        unset($booking['message']); // unset message body from booking deatils array
-        unset($booking['services']); // unset service name from booking details array
-
-        log_message('info', " Booking to be insert: " . print_r($booking, true));
-
-        $this->booking_model->addbooking($booking);
-
-        if ($booking['type'] == 'Booking') {
-            $this->notify->insert_state_change($booking['booking_id'], _247AROUND_PENDING, _247AROUND_NEW_BOOKING,$booking['booking_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
-
-            /*
-            $to = "anuj@247around.com";
-            $from = "booking@247around.com";
-            $cc = "";
-            $bcc = "";
-            $subject = 'Booking Confirmation-AROUND';
-            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
-             * 
-             */
-            
-            //-------Sending SMS on booking--------//
-            $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-	    $send['booking_id'] = $booking['booking_id'];
-	    $send['state'] = "Newbooking";
-	    $this->asynchronous_lib->do_background_process($url, $send);
-        }else{
-            $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY ,$booking['internal_status'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
-        }
         //Redirect to Default Search Page
         redirect(base_url() . DEFAULT_SEARCH_PAGE);
         
@@ -132,246 +103,256 @@ class Booking extends CI_Controller {
      *  @param : user id, booking id (optional)
      *  @return : Array(booking details)
      */
-    function getAllBookingInput($user_id, $booking_id = "") {
+    function getAllBookingInput($user_id, $booking_id) {
 	log_message('info', __FUNCTION__);
-	log_message('info', " Booking Insert User ID: " . print_r($user_id, true) . " Booking ID" . print_r($booking_id, true));
-	$booking = $this->get_booking_input();
+        log_message('info', " Booking Insert User ID: " . print_r($user_id, true) . " Booking ID" . print_r($booking_id, true));
 
-	$user['user_id'] = $booking['user_id'] = $user_id;
-	$user_name = $this->input->post('user_name');
+        $user['user_id'] = $booking['user_id'] = $user_id;
         $price_tags = array();
-	if ($booking_id == "") {
 
-	    $booking['booking_id'] = $this->create_booking_id($user_id, $booking['source'], $booking['type'], $booking['booking_date']);
+        // All brand comming in array eg-- array([0]=> LG, [1]=> BPL)
+        $appliance_brand = $this->input->post('appliance_brand');
 
-	    log_message('info', "New Booking ID created" . print_r($booking['booking_id'], true));
-	} else {
-	    
-            if($booking['type'] == "Booking"){
-                //Query remarks has either query or booking remarks
-                $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id,$this->input->post('query_remarks'));
-            }else{
-                //Internal status has query remarks only
-                $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id,$this->input->post('internal_status'));
-            }
-	    $booking['booking_id'] = $booking_id_with_flag['booking_id'];
-	    $booking['query_to_booking'] = $booking_id_with_flag['query_to_booking'];
-	    log_message('info', " Booking Updated: " . print_r($booking['booking_id'], true) . " Query to booking: " . print_r($booking['query_to_booking'], true));
-	}
+        $booking = $this->insert_data_in_booking_details($booking_id, $user_id, count($appliance_brand));
+        if ($booking) {
 
-	if (empty($booking['state']) && $booking['type'] != 'Query') {
-		log_message('info', __FUNCTION__ . " Pincode Not Found Booking Id: ".$booking['booking_pincode']);
-		$this->send_sms_email($booking_id, "Pincode_not_found");
+            // All category comming in array eg-- array([0]=> TV-LCD, [1]=> TV-LED)
+            $appliance_category = $this->input->post('appliance_category');
+            // All capacity comming in array eg-- array([0]=> 19-30, [1]=> 31-42)
+            $appliance_capacity = $this->input->post('appliance_capacity');
+            // All model number comming in array eg-- array([0]=> ABC123, [1]=> CDE1478)
+            $model_number = $this->input->post('model_number');
+            // All price tag comming in array  eg-- array([0]=> Appliance tag1, [1]=> Appliance tag1)
+            //$appliance_tags = $this->input->post('appliance_tags');
+            // All purchase year comming in array eg-- array([0]=> 2016, [1]=> 2002)
+            $purchase_year = $this->input->post('purchase_year');
+            // All purchase month comming in array eg-- array([0]=> Jan, [1]=> Feb)
+            $months = $this->input->post('purchase_month');
 
-	}
-    $service_name  = $this->booking_model->selectservicebyid($booking['service_id']);
-	$service  = $service_name[0]['services'];
-	$booking['services'] = $service;
-	$booking_remarks = $this->input->post('query_remarks');
-	// All brand comming in array eg-- array([0]=> LG, [1]=> BPL)
-	$appliance_brand = $this->input->post('appliance_brand');
-	// All category comming in array eg-- array([0]=> TV-LCD, [1]=> TV-LED)
-	$appliance_category = $this->input->post('appliance_category');
-	// All capacity comming in array eg-- array([0]=> 19-30, [1]=> 31-42)
-	$appliance_capacity = $this->input->post('appliance_capacity');
-	// All model number comming in array eg-- array([0]=> ABC123, [1]=> CDE1478)
-	$model_number = $this->input->post('model_number');
-	// All price tag comming in array  eg-- array([0]=> Appliance tag1, [1]=> Appliance tag1)
-	//$appliance_tags = $this->input->post('appliance_tags');
-	// All purchase year comming in array eg-- array([0]=> 2016, [1]=> 2002)
-	$purchase_year = $this->input->post('purchase_year');
-	// All purchase month comming in array eg-- array([0]=> Jan, [1]=> Feb)
-	$months = $this->input->post('purchase_month');
-	$booking['quantity'] = count($appliance_brand);
-	$appliance_id_array = $this->input->post('appliance_id');
-	$appliance_id =  array();
-	if(isset($appliance_id_array)){
-		if(!empty($appliance_id_array)){
-			$appliance_id = array_unique($appliance_id_array);
-		}
-
-	}
-
-	$serial_number = $this->input->post('serial_number');
-	$partner_id = $this->partner_model->get_all_partner_source("", $booking['source']);
-	$partner_net_payable = $this->input->post('partner_paid_basic_charges');
-	$appliance_description = $this->input->post('appliance_description');
-	// this case for partner
-	if (!empty($partner_id)) {
-	    $booking['partner_id'] = $partner_id[0]['partner_id'];
-	}
-	// All discount comming in array.  Array ( [BPL] => Array ( [100] => Array ( [0] => 200 ) [102] => Array ( [0] => 100 ) [103] => Array ( [0] => 0 ) ) .. Key is Appliance brand, unit id and discount value.
-	$discount = $this->input->post('discount');
-	// All prices comming in array with pricing table id
-	/* Array([BPL] => Array([0] => 100_300 [1] => 102_250) [Micromax] => Array([0] => 100_300)) */
-	//Array ( ['brand'] => Array ( [0] => id_price ) )
-	$pricesWithId = $this->input->post("prices");
-	$user['user_email'] = $this->input->post('user_email');
-	$message = "";
-
-	if ($booking['type'] == 'Booking') {
-	    $booking['current_status'] = 'Pending';
-	    $booking['internal_status'] = SC_NOT_ASSIGN;
-	    $booking['booking_remarks'] = $booking_remarks;
-//	    $message .= "Congratulations You have received new booking, details are mentioned below:
-//      <br>Customer Name: " . $user_name . "<br>Customer Phone Number: " . $booking['booking_primary_contact_no'] .
-//		"<br>Customer email address: " . $user['user_email'] . "<br>Booking Id: " .
-//		$booking['booking_id'] . "<br>Service name:" . $service .
-//		"<br>Number of appliance: " . count($appliance_brand) . "<br>Booking Date: " .
-//		$booking['booking_date'] . "<br>Booking Timeslot: " . $booking['booking_timeslot'] .
-//		"<br>Amount Due: " . $booking['amount_due'] . "<br>Your Booking Remark is: " .
-//		$booking['booking_remarks'] . "<br> Booking address: " . $booking['booking_address'] .
-//		" " . $booking['city'] . ", " . $booking['state'] . ", " .
-//		"<br>Booking pincode: " . $booking['booking_pincode'] . "<br><br>
-//        Appliance Details:<br>";
-
-	   
-	} else if ($booking['type'] == 'Query') {
-
-	    $booking['current_status'] = "FollowUp";
-	    $internal_status = $this->input->post('internal_status');
-	    if (!empty($internal_status)) {
-		$booking['internal_status'] = $internal_status;
-	    } else {
-		$booking['internal_status'] = "FollowUp";
-	    }
-	    if ($booking['internal_status'] == INT_STATUS_CUSTOMER_NOT_REACHABLE) {
-		$this->send_sms_email($booking_id, "Customer not reachable");
-	    }
-	    $booking['query_remarks'] = $booking_remarks;
-
-	    log_message('info', " Booking Remarks" . print_r($booking_remarks, true));
-	}
-
-	foreach ($appliance_brand as $key => $value) {
-
-	    $services_details = "";
-	    $appliances_details = "";
-	    $appliances_details['user_id'] = $user_id;
-
-	    $appliances_details['brand'] = $services_details['appliance_brand'] = $value; // brand
-
-	    // get category from appiance category array for only specific key.
-	    $appliances_details['category'] = $services_details['appliance_category'] = $appliance_category[$key];
-	    // get appliance_capacity from appliance_capacity array for only specific key.
-	    $appliances_details['capacity'] = $services_details['appliance_capacity'] = $appliance_capacity[$key];
-	    // get model_number from appliance_capacity array for only specific key such as $model_number[0].
-	    $appliances_details['model_number'] = $services_details['model_number'] = $model_number[$key];
-	    // get appliance tag from appliance_tag array for only specific key such as $appliance_tag[0].
-	    //$appliances_details['tag'] = $services_details['appliance_tag'] = $appliance_tags[$key];
-	    // get purchase year from purchase year array for only specific key such as $purchase_year[0].
-	    $appliances_details['purchase_year'] = $services_details['purchase_year'] = $purchase_year[$key];
-	    $services_details['booking_id'] = $booking['booking_id'];
-	    $appliances_details['serial_number'] = $services_details['serial_number'] = $serial_number[$key];
-	    $appliances_details['description'] = $services_details['appliance_description'] = $appliance_description[$key];
-	    // get purchase months from months array for only specific key such as $months[0].
-	    $appliances_details['purchase_month'] = $services_details['purchase_month'] = $months[$key];
-	    $appliances_details['service_id'] = $services_details['service_id'] = $booking['service_id'];
-	    $appliances_details['last_service_date'] = date('Y-m-d H:i:s');
-	    if (!empty($partner_id)) {
-		$services_details['partner_id'] = $booking['partner_id'];
-	    }
-	    log_message('info', __METHOD__ . "Appliance ID" . print_r($appliance_id, true));
-	    /* if appliance id exist the initialize appliance id in array and update appliance details other wise it insert appliance details and return appliance id
-	     * */
-
-	    if (isset($appliance_id[$key])) {
-
-		$services_details['appliance_id'] = $appliance_id[$key];
-		$this->booking_model->update_appliances($services_details['appliance_id'], $appliances_details);
-	    } else {
-
-		$services_details['appliance_id'] = $this->booking_model->addappliance($appliances_details);
-		log_message('info', __METHOD__ . " New Appliance ID created: " . print_r($services_details['appliance_id'], true));
-	    }
-	    log_message('info', __METHOD__ . "Appliance details data" . print_r($appliances_details, true));
-	    
-	    $where  = array('service_id' => $booking['service_id'],'brand_name' => trim($value));
-        $brand_id_array  = $this->booking_model->get_brand($where);
-
-        if(!empty($brand_id_array)){
-        	$brand_id =  $brand_id_array[0]['id'];
-
-        } else {
-        	$brand_id =  "";
-
-        }
-
-
-	    //Array ( ['brand'] => Array ( [0] => id_price ) )
-	    foreach ($pricesWithId[$brand_id] as $values) {
-
-		$prices = explode("_", $values);  // split string..
-		$services_details['id'] = $prices[0]; // This is id of service_centre_charges table.
-		// discount for appliances. Array ( [BPL] => Array ( [100] => Array ( [0] => 200 ) [102] => Array ( [0] => 100 ) [103] => Array ( [0] => 0 ) )
-		$services_details['around_paid_basic_charges'] = $discount[$brand_id][$services_details['id']][0];
-		$services_details['partner_paid_basic_charges'] = $partner_net_payable[$brand_id][$services_details['id']][0];
-		$services_details['partner_net_payable'] = $services_details['partner_paid_basic_charges'];
-		$services_details['around_net_payable'] = $services_details['around_paid_basic_charges'];
-        log_message('info', __METHOD__ . " Before booking is insert/update: ". $booking_id );
-
-		if (empty($booking_id)) {
-
-		    log_message('info', __METHOD__ . " Insert Booking Unit Details: " . print_r($services_details, true));
-		    $result = $this->booking_model->insert_data_in_booking_unit_details($services_details, $booking['state']);
-
-//		    if ($booking['current_status'] != 'FollowUp') {
-//			$message .= "<br>Brand : " . $result['appliance_brand'] . "<br>Category : " .
-//			    $result['appliance_category'] . "<br>Capacity : " . $result['appliance_capacity'] .
-//			    "<br>Selected service is: " . $result['price_tags'] . "<br>Total price is: " .
-//			    $result['customer_net_payable'] . "<br>";
-//
-//			$message .= "<br/>";
-//		    }
-                    
-                   array_push($price_tags, $result['price_tags']);
-		} else {
-		    $services_details['booking_status'] = "";
-		    log_message('info', __METHOD__ . " Update Booking Unit Details: " . print_r($services_details, true). " Previous booking id: ". $booking_id);
-		    $result = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state']);
-
-		    array_push($price_tags, $result['price_tags']);
-		}
-	    }
-	}
-        
-       // For update booking  
-	if (!empty($price_tags) && !empty($booking_id) ) {
-	    log_message('info', __METHOD__ . " Price Tags for update: " . print_r($price_tags, true));
-	    $this->booking_model->check_price_tags_status($booking['booking_id'], $price_tags);
-            
-        } else if (!empty($price_tags) && empty($booking_id) ) { // for insert booking
-            log_message('info', __METHOD__ . " Price Tags insert: " . print_r($price_tags, true));
-            $request_type = "";
-            // this is check installation or repair in price tags then insert in request type field 
-            foreach ($price_tags as $value) {
-                
-                if (stristr($value, "Installation")) {
-                    $request_type =  $value;
-                    
-                } else  if (stristr($value, "Repair")) {
-                    
-                    $request_type =  $value;
+            $appliance_id_array = $this->input->post('appliance_id');
+            $appliance_id = array();
+            if (isset($appliance_id_array)) {
+                if (!empty($appliance_id_array)) {
+                    $appliance_id = array_unique($appliance_id_array);
                 }
             }
-            $booking['request_type'] =  $request_type;
+
+            $serial_number = $this->input->post('serial_number');
+
+            $partner_net_payable = $this->input->post('partner_paid_basic_charges');
+            $appliance_description = $this->input->post('appliance_description');
+
+            // All discount comming in array.  Array ( [BPL] => Array ( [100] => Array ( [0] => 200 ) [102] => Array ( [0] => 100 ) [103] => Array ( [0] => 0 ) ) .. Key is Appliance brand, unit id and discount value.
+            $discount = $this->input->post('discount');
+            // All prices comming in array with pricing table id
+            /* Array([BPL] => Array([0] => 100_300 [1] => 102_250) [Micromax] => Array([0] => 100_300)) */
+            //Array ( ['brand'] => Array ( [0] => id_price ) )
+            $pricesWithId = $this->input->post("prices");
+            $user['user_email'] = $this->input->post('user_email');
+
+            foreach ($appliance_brand as $key => $value) {
+
+                $services_details = "";
+                $appliances_details = "";
+                $appliances_details['user_id'] = $user_id;
+
+                $appliances_details['brand'] = $services_details['appliance_brand'] = $value; // brand
+                // get category from appiance category array for only specific key.
+                $appliances_details['category'] = $services_details['appliance_category'] = $appliance_category[$key];
+                // get appliance_capacity from appliance_capacity array for only specific key.
+                $appliances_details['capacity'] = $services_details['appliance_capacity'] = $appliance_capacity[$key];
+                // get model_number from appliance_capacity array for only specific key such as $model_number[0].
+                $appliances_details['model_number'] = $services_details['model_number'] = $model_number[$key];
+                // get appliance tag from appliance_tag array for only specific key such as $appliance_tag[0].
+                //$appliances_details['tag']  = $appliance_tags[$key];
+                // get purchase year from purchase year array for only specific key such as $purchase_year[0].
+                $appliances_details['purchase_year'] = $services_details['purchase_year'] = $purchase_year[$key];
+                $services_details['booking_id'] = $booking['booking_id'];
+                $appliances_details['serial_number'] = $services_details['serial_number'] = $serial_number[$key];
+                $appliances_details['description'] = $services_details['appliance_description'] = $appliance_description[$key];
+                // get purchase months from months array for only specific key such as $months[0].
+                $appliances_details['purchase_month'] = $services_details['purchase_month'] = $months[$key];
+                $appliances_details['service_id'] = $services_details['service_id'] = $booking['service_id'];
+                $appliances_details['last_service_date'] = date('Y-m-d H:i:s');
+
+                $services_details['partner_id'] = $booking['partner_id'];
+
+                log_message('info', __METHOD__ . "Appliance ID" . print_r($appliance_id, true));
+                /* if appliance id exist the initialize appliance id in array and update appliance details other wise it insert appliance details and return appliance id
+                 * */
+
+                if (isset($appliance_id[$key])) {
+
+                    $services_details['appliance_id'] = $appliance_id[$key];
+                    $this->booking_model->update_appliances($services_details['appliance_id'], $appliances_details);
+                } else {
+
+                    $services_details['appliance_id'] = $this->booking_model->addappliance($appliances_details);
+                    log_message('info', __METHOD__ . " New Appliance ID created: " . print_r($services_details['appliance_id'], true));
+                }
+                log_message('info', __METHOD__ . "Appliance details data" . print_r($appliances_details, true));
+
+                $where = array('service_id' => $booking['service_id'], 'brand_name' => trim($value));
+                $brand_id_array = $this->booking_model->get_brand($where);
+
+                if (!empty($brand_id_array)) {
+                    $brand_id = $brand_id_array[0]['id'];
+                } else {
+                    $brand_id = "";
+                }
+
+                //Array ( ['brand'] => Array ( [0] => id_price ) )
+                foreach ($pricesWithId[$brand_id] as $values) {
+
+                    $prices = explode("_", $values);  // split string..
+                    $services_details['id'] = $prices[0]; // This is id of service_centre_charges table.
+                    // discount for appliances. Array ( [BPL] => Array ( [100] => Array ( [0] => 200 ) [102] => Array ( [0] => 100 ) [103] => Array ( [0] => 0 ) )
+                    $services_details['around_paid_basic_charges'] = $discount[$brand_id][$services_details['id']][0];
+                    $services_details['partner_paid_basic_charges'] = $partner_net_payable[$brand_id][$services_details['id']][0];
+                    $services_details['partner_net_payable'] = $services_details['partner_paid_basic_charges'];
+                    $services_details['around_net_payable'] = $services_details['around_paid_basic_charges'];
+                    $services_details['booking_status'] = $booking['current_status'];
+                    log_message('info', __METHOD__ . " Before booking is insert/update: " . $booking_id);
+                    
+                    switch ($booking_id){
+                        case INSERT_NEW_BOOKING:
+                            log_message('info', __METHOD__ . " Insert Booking Unit Details: " . print_r($services_details, true));
+                            $result = $this->booking_model->insert_data_in_booking_unit_details($services_details, $booking['state']);
+                            break;
+                        default:
+                            
+                            log_message('info', __METHOD__ . " Update Booking Unit Details: " . print_r($services_details, true) . " Previous booking id: " . $booking_id);
+                            $result = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state']);
+
+                            array_push($price_tags, $result['price_tags']);
+                            break;
+                    }
+                }
+            }
+            if (!empty($price_tags)) {
+                log_message('info', __METHOD__ . " Price Tags: " . print_r($price_tags, true));
+                $this->booking_model->check_price_tags_status($booking['booking_id'], $price_tags);
+            }
+
+            $this->user_model->edit_user($user);
+
+            if ($booking['type'] == 'Booking') {
+
+                if ($result['DEFAULT_TAX_RATE'] == 1) {
+                    log_message('info', __METHOD__ . " Default_tax_rate: " . $result['DEFAULT_TAX_RATE']);
+                    $this->send_sms_email($booking['booking_id'], "Default_tax_rate");
+                }
+
+                if (empty($booking['state'])) {
+                    log_message('info', __FUNCTION__ . " Pincode Not Found Booking Id: " . $booking['booking_pincode']);
+                    $this->send_sms_email($booking_id, "Pincode_not_found");
+                }
+                
+                if ($booking['is_send_sms'] == 1) {
+                    $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+                    $send['booking_id'] = $booking['booking_id'];
+                    $send['state'] = "Newbooking";
+                    $this->asynchronous_lib->do_background_process($url, $send);
+                }
+            }
+
+            //log_message('info', __METHOD__ . " Return Booking: " . print_r($booking, true));
+
+            return $booking;
             
+        } else {
+            echo "Booking Insert/Update Failed";
+            log_message('info', __FUNCTION__. " Booking Failed!");
+            exit();
+        }
+    }
+    /**
+     * @desc: This method get input file dand insert booking details
+     * @param String $booking_id
+     * @param String $user_id
+     * @param String $quantity
+     * @return boolean
+     */
+    function insert_data_in_booking_details($booking_id, $user_id, $quantity){
+        $booking = $this->get_booking_input();
+       
+        $remarks = $this->input->post('query_remarks');
+        $partner_id = $this->partner_model->get_all_partner_source("", $booking['source']);
+        $booking['partner_id'] = $partner_id[0]['partner_id'];
+        $booking['quantity'] = $quantity;
+        $booking['user_id'] = $user_id;
+
+        switch ($booking_id) {
+            case INSERT_NEW_BOOKING:
+                $booking['booking_id'] = $this->create_booking_id($user_id, $booking['source'], $booking['type'], $booking['booking_date']);
+                $is_send_sms = 1;
+
+                log_message('info', "New Booking ID created" . print_r($booking['booking_id'], true));
+                break;
+            default :
+                if ($booking['type'] == "Booking") {
+                    //Query remarks has either query or booking remarks
+                    $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id, $this->input->post('query_remarks'));
+                } else {
+                    //Internal status has query remarks only
+                    $booking_id_with_flag = $this->change_in_booking_id($booking['type'], $booking_id, $this->input->post('internal_status'));
+                }
+
+                $booking['booking_id'] = $booking_id_with_flag['booking_id'];
+                $is_send_sms = $booking_id_with_flag['query_to_booking'];
+                log_message('info', " Booking Updated: " . print_r($booking['booking_id'], true) . " Query to booking: " . print_r($is_send_sms, true));
+
+                break;
         }
 
-	if ($booking['type'] == 'Query') {
-	    $booking['message'] = "";
-	} else {
-	    $booking['message'] = $message;
-	    
-	    if($result['DEFAULT_TAX_RATE'] == 1 ){
-            log_message('info', __METHOD__ . " Default_tax_rate: " .$result['DEFAULT_TAX_RATE']);
-		    $this->send_sms_email($booking['booking_id'], "Default_tax_rate");
-	    }
-	}
-	$this->user_model->edit_user($user);
-	//log_message('info', __METHOD__ . " Return Booking: " . print_r($booking, true));
+        if ($booking['type'] == 'Booking') {
+            $booking['current_status'] = 'Pending';
+            $booking['internal_status'] = 'Scheduled';
+            $booking['booking_remarks'] = $remarks;
+            $new_state = _247AROUND_PENDING;
+            $old_state = _247AROUND_NEW_BOOKING;
 
-	return $booking;
+        } else if ($booking['type'] == 'Query') {
+
+            $booking['current_status'] = "FollowUp";
+            $internal_status = $this->input->post('internal_status');
+            if (!empty($internal_status)) {
+                $booking['internal_status'] = $internal_status;
+            } else {
+                $booking['internal_status'] = "FollowUp";
+            }
+            if ($booking['internal_status'] == INT_STATUS_CUSTOMER_NOT_REACHABLE) {
+                $this->send_sms_email($booking_id, "Customer not reachable");
+            }
+            $booking['query_remarks'] = $remarks;
+
+            $new_state = $booking_id_with_flag['new_state'];
+            $old_state = $booking_id_with_flag['old_state'];
+        }
+
+        switch ($booking_id) {
+
+            case INSERT_NEW_BOOKING:
+                $status = $this->booking_model->addbooking($booking);
+                if ($status) {
+                    $booking['is_send_sms'] = $is_send_sms;
+                    return $booking;
+                } else {
+                    return false;
+                }
+
+                break;
+                
+            default :
+                $status = $this->booking_model->update_booking($booking_id, $booking);
+                if ($status) {
+                    $booking['is_send_sms'] = $is_send_sms;
+                    return $booking;
+                } else {
+                    return false;
+                }
+                break;
+        }
     }
 
     /**
@@ -429,7 +410,7 @@ class Booking extends CI_Controller {
      *
      * @return booking id
      */
-    function change_in_booking_id($booking_type, $booking_id, $remarks) {
+    function change_in_booking_id($booking_type, $booking_id) {
 	$data['booking_id'] = $booking_id;
 	$data['query_to_booking'] = '0';
         
@@ -442,13 +423,21 @@ class Booking extends CI_Controller {
 		    $booking_id_array = explode("Q-", $booking_id);
 		    $data['booking_id'] = $booking_id_array[1];
 		    $data['query_to_booking'] = '1';
-		    log_message('info', __FUNCTION__ . " Query Converted to Booking Booking ID" . print_r($data['booking_id'], true));
-		    $this->notify->insert_state_change($data['booking_id'], _247AROUND_PENDING , _247AROUND_FOLLOWUP ,$remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+		    
+                    $data['old_state'] = _247AROUND_PENDING;
+                    $data['new_state'] = _247AROUND_FOLLOWUP;
+                    
+                    log_message('info', __FUNCTION__ . " Query Converted to Booking Booking ID" . print_r($data['booking_id'], true));
+		    
 		} else {
 		    //Booking to be updated to booking
 		    $data['booking_id'] = $booking_id;
+                    
+                    $data['old_state'] = _247AROUND_PENDING;
+                    $data['new_state'] = _247AROUND_PENDING;
+                    
 		    log_message('info', __FUNCTION__ . " Booking Updateded to Booking Booking ID" . print_r($data['booking_id'], true));
-		    $this->notify->insert_state_change($data['booking_id'], _247AROUND_PENDING , _247AROUND_PENDING ,$remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+		   
 		}
 
 		break;
@@ -458,9 +447,9 @@ class Booking extends CI_Controller {
 		    //Booking to be converted to query
 		    $data['booking_id'] = "Q-" . $booking_id;
 		    log_message('info', __FUNCTION__ . " Booking to be Converted to Query Booking ID" . print_r($data['booking_id'], true));
-		    //param:-- booking id, new state, old state, employee id, employee name
-
-		    $this->notify->insert_state_change($data['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_PENDING ,$remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+		    
+                    $data['old_state'] = _247AROUND_FOLLOWUP;
+                    $data['new_state'] = _247AROUND_PENDING;
 
                     //Since booking has been converted to query, delete this entry from
                     //service center booking action table as well.
@@ -473,7 +462,10 @@ class Booking extends CI_Controller {
 		    //Query to be updated to query
 		    $data['booking_id'] = $booking_id;
 		    log_message('info', __FUNCTION__ . " Query to be updated to Query Booking ID" . print_r($data['booking_id'], true));
-		    $this->notify->insert_state_change($data['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_FOLLOWUP ,$remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+		    
+                    $data['old_state'] = _247AROUND_FOLLOWUP;
+                    $data['new_state'] = _247AROUND_FOLLOWUP;
+                    
 		}
 
 		break;
@@ -712,7 +704,8 @@ class Booking extends CI_Controller {
      *  @return : cancels the booking and load view
      */
     function process_cancel_form($booking_id, $status) {
-	log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
+	log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id);
+        
 	$data['cancellation_reason'] = $this->input->post('cancellation_reason');
 	$data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
         
@@ -1215,40 +1208,16 @@ class Booking extends CI_Controller {
      * @desc: This function is used to update both Bookings and Queries.
      */
     function update_booking($user_id, $booking_id) {
+        $bookings = $this->booking_model->getbooking_history($booking_id);
+        if(!empty($bookings)){
         if ($this->input->post()) {
             $checkValidation = $this->validate_booking();
 
             if ($checkValidation) {
                 log_message('info', __FUNCTION__ . " Booking ID  " . $booking_id . " User ID: " . $user_id);
 
-                $booking = $this->getAllBookingInput($user_id, $booking_id);
-                $query_to_booking = $booking['query_to_booking'];
-                $message = $booking['message'];
-                log_message('info', __FUNCTION__ . " Update booking befor unset " . print_r($booking, true));
-
-                unset($booking['message']); // unset message body from booking deatils array
-                unset($booking['services']); // unset service name from booking details array
-                unset($booking['query_to_booking']);
-                log_message('info', __FUNCTION__ . " Update booking  " . print_r($booking, true));
-
-                $this->booking_model->update_booking($booking_id, $booking);
-
-                if ($query_to_booking == '1') {
-                    $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-                    $send['booking_id'] = $booking['booking_id'];
-                    $send['state'] = "Newbooking";
-                    $this->asynchronous_lib->do_background_process($url, $send);
-
-                    /*
-                    $to = "anuj@247around.com";
-                    $from = "booking@247around.com";
-                    $cc = "";
-                    $bcc = "";
-                    $subject = 'Booking Confirmation-AROUND';
-                    $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
-                     * 
-                     */
-                }
+                $this->getAllBookingInput($user_id, $booking_id);
+                
                 log_message('info', __FUNCTION__ . " Partner callback  " . $booking_id);
                 $this->partner_cb->partner_callback($booking_id);
 
@@ -1265,6 +1234,9 @@ class Booking extends CI_Controller {
             $message = "Oops... No input provided !";
             $error = & load_class('Exceptions', 'core');
             echo $error->show_error($heading, $message, 'custom_error');
+        }
+        } else {
+            echo "Booking Id Not Exist...\n Already Updated.";
         }
     }
 
@@ -1499,7 +1471,12 @@ class Booking extends CI_Controller {
 	    $data['customer_paid_basic_charges'] = $value;
 	    $data['customer_paid_extra_charges'] = $additional_charge[$unit_id];
 	    $data['customer_paid_parts'] = $parts_cost[$unit_id];
-	    $data['serial_number'] = $serial_number[$unit_id];
+            if(isset($serial_number[$unit_id])){
+                $data['serial_number'] = $serial_number[$unit_id];
+            } else {
+                $data['serial_number'] = "";
+            }
+	    
 	    // it checks string new in unit_id variable
 	    if (strpos($unit_id, 'new') !== false) {
 		if (isset($booking_status[$unit_id])) {
@@ -1512,6 +1489,15 @@ class Booking extends CI_Controller {
 			$data['booking_id'] = $booking_id;
 			$data['booking_status'] = "Completed";
 			$internal_status = "Completed";
+                        if(!empty($service_center_details)){
+                        if($service_center_details[0]['closed_date'] === NULL){
+                            $data_service_center['closed_date'] =  $data['ud_closed_date'] = date('Y-m-d H:i:s');
+                        }else{
+                            $data_service_center['closed_date'] = $data['ud_closed_date']= $service_center_details[0]['closed_date'];
+                        }
+                        } else {
+                             $data_service_center['closed_date'] = $data['ud_closed_date']= date('Y-m-d H:i:s');
+                        }
 			log_message('info', __FUNCTION__ . " New unit selected, previous unit " . print_r($unit_id, true)
 			    . " Service charges id: "
 			    . print_r($service_charges_id, true)
@@ -1521,13 +1507,15 @@ class Booking extends CI_Controller {
 			$data_service_center['booking_id'] = $booking_id;
 			$data_service_center['unit_details_id'] = $new_unit_id;
 			$data_service_center['service_center_id'] = $service_center_details[0]['service_center_id'];
-			$data_service_center['update_date'] = $data_service_center['closed_date'] = date('Y-m-d H:i:s');
+			$data_service_center['update_date']  = date('Y-m-d H:i:s');
 			$data_service_center['service_charge'] = $data['customer_paid_basic_charges'];
 			$data_service_center['additional_service_charge'] = $data['customer_paid_extra_charges'];
 			$data_service_center['parts_cost'] = $data['customer_paid_parts'];
 			$data_service_center['serial_number'] = $data['serial_number'];
 			$data_service_center['current_status'] = $data_service_center['internal_status'] = "Completed";
 			$data_service_center['amount_paid'] = $total_amount_paid;
+                        
+                       
 			log_message('info', __FUNCTION__ . " New unit selected, service center action data " . print_r($data_service_center, true));
 			$this->vendor_model->insert_service_center_action($data_service_center);
 		    }
@@ -1547,21 +1535,37 @@ class Booking extends CI_Controller {
 		$this->booking_model->update_unit_details($data);
 
 		$service_center['booking_id'] = $booking_id;
-		if (!empty($admin_remarks)) {
-		    $service_center['closing_remarks'] = "Service Center Remarks:- " . $service_center_details[0]['service_center_remarks'] .
+                $service_center['closing_remarks'] = "";
+                if(!empty($service_center_details) && !empty($admin_remarks) ){
+                    
+                    $service_center['closing_remarks'] = "Service Center Remarks:- " . $service_center_details[0]['service_center_remarks'] .
 			" <br/> Admin:-  " . $admin_remarks;
-		} else {
-		    $service_center['closing_remarks'] = "Service Center Remarks:- " . $service_center_details[0]['service_center_remarks'];
-		}
+                } else if(!empty($service_center_details) && empty ($admin_remarks)){
+                    
+                     $service_center['closing_remarks'] = "Service Center Remarks:- " . $service_center_details[0]['service_center_remarks'];
+                } else if(empty($service_center_details) && !empty ($admin_remarks)){
+                    
+                    $service_center['closing_remarks'] = "Admin:-  " . $admin_remarks;
+                } 
 
 		$service_center['internal_status'] = $service_center['current_status'] = $data['booking_status'];
 		$service_center['unit_details_id'] = $unit_id;
-		$service_center['update_date'] = $service_center['closed_date'] = date('Y-m-d H:i:s');
+		$service_center['update_date'] =  date('Y-m-d H:i:s');
 		$service_center['service_charge'] = $data['customer_paid_basic_charges'];
 		$service_center['additional_service_charge'] = $data['customer_paid_extra_charges'];
 		$service_center['parts_cost'] = $data['customer_paid_parts'];
 		$service_center['serial_number'] = $data['serial_number'];
 		$service_center['amount_paid'] = $total_amount_paid;
+                if(!empty($service_center_details)){
+                if($service_center_details[0]['closed_date'] === NULL){
+                    $service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
+                }else{
+                    $service_center['closed_date'] = $data['ud_closed_date'] = $service_center_details[0]['closed_date'];
+                }
+                } else {
+                     $service_center['closed_date'] =$data['ud_closed_date'] = date('Y-m-d H:i:s');
+                }
+                
 
 		log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
 		$this->vendor_model->update_service_center_action($service_center);
@@ -1578,10 +1582,14 @@ class Booking extends CI_Controller {
 	}
 
 	$booking['closing_remarks'] = $service_center['closing_remarks'];
+        if(!empty($service_center_details)){
         if($service_center_details[0]['closed_date'] === NULL){
             $booking['closed_date'] = date('Y-m-d H:i:s');
         }else{
             $booking['closed_date'] = $service_center_details[0]['closed_date'];
+        }
+        } else {
+           $booking['closed_date'] = date('Y-m-d H:i:s'); 
         }
 	$booking['amount_paid'] = $total_amount_paid;
 
@@ -1759,12 +1767,10 @@ class Booking extends CI_Controller {
             $this->form_validation->set_rules('grand_total_price', 'Total Price', 'required');
             $this->form_validation->set_rules('city', 'City', 'required|xss_clean');
             $this->form_validation->set_rules('booking_date', 'Date', 'required');
-            $this->form_validation->set_rules('booking_primary_contact_no', 'Mobile', 'required|xss_clean|regex_match[/^[7-9]{1}[0-9]{9}$/]');
+            $this->form_validation->set_rules('booking_primary_contact_no', 'Mobile', 'required|trim|xss_clean|regex_match[/^[7-9]{1}[0-9]{9}$/]');
             $this->form_validation->set_rules('booking_timeslot', 'Time Slot', 'required|xss_clean');
-            
             return $this->form_validation->run();
-    }
-    
+    }  
     /**
      * @desc: This is used to display all spare parts booking
      */
@@ -1788,6 +1794,64 @@ class Booking extends CI_Controller {
 	$data['spare_parts'] = $this->booking_model->get_spare_parts_booking($config['per_page'], $offset);
         $this->load->view('employee/header');
         $this->load->view('employee/get_spare_parts', $data);
+    }
+
+    /**
+     * @desc: This function is used to update inventory of vendor
+     * parmas: Booking ID
+     * @return: void
+     * 
+     */
+    function update_vendor_inventory($booking_id) {
+        //Managing Vendor Inventory
+        $_19_24_current_count = 0;
+        $_26_32_current_count = 0;
+        $_36_42_current_count = 0;
+
+        $booking_details = $this->booking_model->get_unit_details($booking_id);
+        $service_center_details = $this->booking_model->getbooking_charges($booking_id);
+        //Checking if Booking is of Tv and price tags is of Wall Mount Stand
+        foreach ($booking_details as $value) {
+            if ($value['service_id'] == 46 && $value['price_tags'] == 'Wall Mount Stand') {
+                $stand_inch = explode(' ', $value['appliance_capacity'])[0];
+                //Checking Brackets Capacity in inches
+                if ($stand_inch >= 19 && $stand_inch <= 24) {
+                    $_19_24_current_count = 1;
+                } elseif ($stand_inch >= 26 && $stand_inch <= 32) {
+                    $_26_32_current_count = 1;
+                } elseif ($stand_inch >= 36 && $stand_inch <= 42) {
+                    $_36_42_current_count = 1;
+                }
+            }
+        }
+
+        //Checking if Booking ID data already exists in Inventory Database, then add row from last row of data minus current booking of stands inch
+        $check_vendor = $this->inventory_model->check_data($service_center_details[0]['service_center_id']);
+        if (!empty($check_vendor)) {
+
+            //Getting last row of return array from Database    
+            $last_updated_array = end($check_vendor);
+            //Updating data in Inventory Database for particular Order ID and remarks as  _247AROUND_BRACKETS_RECEIVED   
+            $updated_received_data[] = array(
+                'vendor_id' => $service_center_details[0]['service_center_id'],
+                'order_booking_id' => $booking_id,
+                '19_24_current_count' => $last_updated_array['19_24_current_count'] - $_19_24_current_count,
+                '26_32_current_count' => $last_updated_array['26_32_current_count'] - $_26_32_current_count,
+                '36_42_current_count' => $last_updated_array['36_42_current_count'] - $_36_42_current_count,
+                'increment/decrement' => 0,
+                'remarks' => 'Booking ID'
+            );
+
+            $update_shipped_data_flag = $this->inventory_model->insert_inventory($updated_received_data);
+            if ($update_shipped_data_flag) {
+                //Logging Success
+                log_message('info', __FUNCTION__ . '  Data has been Added in Inventory from Complete Booking ' . print_r($updated_received_data, TRUE));
+            } else {
+                //Logging Error
+                log_message('info', __FUNCTION__ . ' Error in Adding data in Inventory from Complete Booking ' . print_r($updated_received_data, TRUE));
+            }
+        }
+        //End inventory
     }
 
 }

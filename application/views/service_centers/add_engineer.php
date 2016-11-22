@@ -278,21 +278,21 @@
                     },
                 
                 bank_ifsc_code: {
-                        required: true,
+                       // required: true,
                         rangelength: [11, 11]
                     },
                 bank_name:{
-                        required: true,
+                       // required: true,
                         minlength: 3
                     },
                 bank_holder_name:{
-                        required: true,
+                       // required: true,
                         minlength: 3
                     },
                 service_id: "required",
                 bank_account_no: {
                     digits: true,
-                    required:true,
+                   // required:true,
                     minlength:5
                         
                     }
@@ -324,17 +324,17 @@
 
     function validate_bank_ac(){
        
-        var bank_account_no = Number($("#bank_account_no").val());
-        if(bank_account_no > 0){
-             document.getElementById('bank_account_no').style.borderColor = "#ccc";
-            document.getElementById("bank_account_no1").innerHTML = "";
-          return true;
-
-        } else {
-            document.getElementById('bank_account_no').style.borderColor = "red";
-            document.getElementById("bank_account_no1").innerHTML = "Please Enter Valid Account Number";
-            return false;
-        }
+//        var bank_account_no = Number($("#bank_account_no").val());
+//        if(bank_account_no > 0){
+//             document.getElementById('bank_account_no').style.borderColor = "#ccc";
+//            document.getElementById("bank_account_no1").innerHTML = "";
+//          return true;
+//
+//        } else {
+//            document.getElementById('bank_account_no').style.borderColor = "red";
+//            document.getElementById("bank_account_no1").innerHTML = "Please Enter Valid Account Number";
+//            return false;
+//        }
 
     }
 

@@ -1072,10 +1072,16 @@ INSERT INTO `query_report` (`id`, `description`, `query`, `active`, `create_date
 (2, 'Count completed booking this month.', 'SELECT COUNT(id) as count from booking_details where current_status=''Completed'' AND MONTH(closed_date) = MONTH(CURDATE())', 1, '2016-10-10 05:41:56'),
 (3, 'Count completed booking this month.', 'SELECT COUNT(id) as count from booking_details where current_status=''Completed'' AND MONTH(closed_date) = MONTH(CURDATE())', 1, '2016-10-10 05:41:56');
 
+-- Abhay 15OCT
+ALTER TABLE `sms_sent_details` ADD `sms_tag` VARCHAR(50) NULL AFTER `booking_id`;
+-- Belal 14 Oct
 
+-- ALTER TABLE `employee` ADD `official_mail` VARCHAR(128) NOT NULL AFTER `phone`, ADD `personal_mail` VARCHAR(128) NOT NULL AFTER `official_mail`;
+
+ALTER TABLE `employee` CHANGE `email` `official_email` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+ALTER TABLE `employee` CHANGE `email_personal` `personal_email` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
 
 --Abhay 21 OCT
-
 CREATE TABLE `assigned_engineer` (
   `id` int(11) NOT NULL,
   `booking_id` varchar(250) NOT NULL,
@@ -1195,3 +1201,90 @@ ALTER TABLE `sc_crimes`
 
 ALTER TABLE `employee` CHANGE `email` `official_email` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
 ALTER TABLE `employee` CHANGE `email_personal` `personal_email` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+ALTER TABLE `booking_unit_details` ADD `update_date` DATETIME on update CURRENT_TIMESTAMP NULL AFTER `create_date`;
+-- Belal 12 November
+
+ALTER TABLE `service_centres` ADD `name_on_pan` VARCHAR(512) NOT NULL AFTER `service_tax_no`, ADD `pan_no` VARCHAR(256) NOT NULL AFTER `name_on_pan`, ADD `vat_cst_no` VARCHAR(256) NOT NULL AFTER `pan_no`, ADD `pan_file` VARCHAR(512) NOT NULL AFTER `vat_cst_no`, ADD `vat_cst_file` VARCHAR(512) NOT NULL AFTER `pan_file`, ADD `service_tax_file` VARCHAR(512) NOT NULL AFTER `vat_cst_file`, ADD `account_type` VARCHAR(256) NOT NULL AFTER `service_tax_file`;
+
+ALTER TABLE `service_centres` CHANGE `vat_cst_no` `vat_no` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
+ALTER TABLE `service_centres` CHANGE `vat_cst_file` `vat_file` VARCHAR(512) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
+ALTER TABLE `service_centres` ADD `cst_no` VARCHAR(256) NOT NULL AFTER `vat_file`, ADD `cst_file` VARCHAR(512) NOT NULL AFTER `cst_no`, ADD `tin_no` VARCHAR(256) NOT NULL AFTER `cst_file`, ADD `tin_file` VARCHAR(512) NOT NULL AFTER `tin_no`;
+
+ALTER TABLE `service_centres` ADD `address_proof_file` VARCHAR(512) NOT NULL AFTER `service_tax_file`;
+
+ALTER TABLE `service_centres` ADD `company_type` VARCHAR(512) NOT NULL AFTER `account_type`, ADD `id_proof_1_file` VARCHAR(512) NOT NULL AFTER `company_type`, ADD `id_proof_2_file` VARCHAR(512) NOT NULL AFTER `id_proof_1_file`, ADD `contract_file` VARCHAR(512) NOT NULL AFTER `id_proof_2_file`, ADD `cancelled_cheque_file` VARCHAR(512) NOT NULL AFTER `contract_file`;
+
+
+
+<!-- Abhay 14 NOV -->
+ALTER TABLE `service_centres` ADD `is_vat_doc` INT(2) NOT NULL DEFAULT '1' AFTER `penalty_activation_date`, ADD `is_st_doc` INT(2) NOT NULL DEFAULT '1' AFTER `is_vat_doc`;
+ALTER TABLE `service_centres` ADD `is_pan_doc` INT(2) NOT NULL DEFAULT '1' AFTER `is_st_doc`, ADD `is_cst_doc` INT(2) NOT NULL DEFAULT '1' AFTER `is_pan_doc`;
+
+-- Belal 14 November
+
+CREATE TABLE `brackets` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `order_id` varchar(32) NOT NULL,
+ `order_received_from` int(32) NOT NULL,
+ `order_given_to` int(32) NOT NULL,
+ `order_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `shipment_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+ `received_date` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+ `19_24_requested` int(32) NOT NULL,
+ `26_32_requested` int(32) NOT NULL,
+ `36_42_requested` int(32) NOT NULL,
+ `total_requested` int(64) NOT NULL,
+ `19_24_shipped` int(32) NOT NULL,
+ `26_32_shipped` int(32) NOT NULL,
+ `36_42_shipped` int(32) NOT NULL,
+ `total_shipped` int(64) NOT NULL,
+ `19_24_received` int(32) NOT NULL,
+ `26_32_received` int(32) NOT NULL,
+ `36_42_received` int(32) NOT NULL,
+ `total_received` int(64) NOT NULL,
+ `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `brackets` ADD `is_shipped` INT(2) NULL DEFAULT '0' COMMENT '1->Shipped, 0->Unshipped' AFTER `total_received`, ADD `is_received` INT(2) NOT NULL DEFAULT '0' COMMENT '1->received, 0->Not Received' AFTER `is_shipped`;
+ALTER TABLE `brackets` ADD `shipment_receipt` VARCHAR(256) NOT NULL AFTER `36_42_shipped`;
+
+-- Belal 22 Oct --
+CREATE TABLE `inventory` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `vendor_id` varchar(256) NOT NULL,
+ `order_id` varchar(256) NOT NULL,
+ `19_24_current_count` varchar(256) NOT NULL,
+ `26_32_current_count` varchar(256) NOT NULL,
+ `36_42_current_count` varchar(256) NOT NULL,
+ `remarks` varchar(256) NOT NULL COMMENT 'Requested, Shipped, Received',
+ `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `service_centres` ADD `brackets_flag` INT(2) NOT NULL DEFAULT '0' COMMENT '1->Taking Brackets, 0->Not taking Brackets' AFTER `sc_code`;
+
+ALTER TABLE `inventory` CHANGE `order_id` `order_booking_id` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
+ALTER TABLE `inventory` ADD `increment/decrement` INT NOT NULL COMMENT '1->increment,0->Decrement' AFTER `36_42_current_count`;
+
+ALTER TABLE `vendor_partner_invoices` ADD `order_id` VARCHAR(512) NOT NULL AFTER `invoice_id`;
+
+-- Belal 15 Nov
+
+ALTER TABLE `brackets` CHANGE `order_date` `order_date` TIMESTAMP NULL DEFAULT NULL;
+
+--Abhay 17 Nov
+ALTER TABLE  `service_centres` CHANGE  `service_tax_no`  `service_tax_no` VARCHAR( 50 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ,
+CHANGE  `vat_no`  `vat_no` VARCHAR( 256 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
+
+-- Belal 18 Nov
+
+ALTER TABLE `service_centres` ADD `company_name` VARCHAR(512) NOT NULL AFTER `name`;
+
+
+--Abhay 20 NOV
+ALTER TABLE `booking_unit_details` ADD `closed_date` DATETIME NULL DEFAULT NULL AFTER `update_date`;
+ALTER TABLE `booking_unit_details` ADD `update_date` DATETIME on update CURRENT_TIMESTAMP NULL AFTER `create_date`;

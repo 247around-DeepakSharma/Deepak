@@ -494,11 +494,32 @@ class Partner extends CI_Controller {
      * @return : array(of details) to view
      */
     function viewpartner($partner_id = "") {
+        $data = [];
         $query = $this->partner_model->viewpartner($partner_id);
-
+        foreach($query as $value){
+            
+            $login = $this->partner_model->get_partner_login_details($value['id']);
+            if (!empty($login)) {
+                foreach ($login as $val) {
+                    if ($val['clear_text'] != '') {
+                        $value['user_name'] = $val['user_name'];
+                        $value['clear_text'] = $val['clear_text'];
+                        break;
+                    } else {
+                        $value['user_name'] = '';
+                        $value['clear_text'] = '';
+                    }
+                }
+            } else {
+                $value['user_name'] = '';
+                $value['clear_text'] = '';
+            }
+            $data[] = $value;
+        }
+     
         $this->load->view('employee/header');
 
-        $this->load->view('employee/viewpartner', array('query' => $query));
+        $this->load->view('employee/viewpartner', array('query' => $data));
     }
 
     /**
@@ -511,7 +532,8 @@ class Partner extends CI_Controller {
      */
     function activate($id) {
         $this->partner_model->activate($id);
-
+        //Storing State change values in Booking_State_Change Table
+        $this->notify->insert_state_change('', _247AROUND_PARTNER_ACTIVATED, _247AROUND_PARTNER_DEACTIVATED, 'Partner ID = '.$id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
         redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
     }
 
@@ -525,7 +547,8 @@ class Partner extends CI_Controller {
      */
     function deactivate($id) {
         $this->partner_model->deactivate($id);
-
+        //Storing State change values in Booking_State_Change Table
+        $this->notify->insert_state_change('', _247AROUND_PARTNER_DEACTIVATED, _247AROUND_PARTNER_ACTIVATED, 'Partner ID = '.$id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
         redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
     }
 
@@ -612,7 +635,7 @@ class Partner extends CI_Controller {
                     $data['data'] = $output;
                 }
 
-                //$data['appliance_details'] = $this->user_model->appliance_details($phone_number);
+                $data['appliance_details'] = $this->user_model->appliance_details($phone_number);
 
 
                 $this->load->view('partner/header');

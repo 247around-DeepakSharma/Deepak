@@ -1,307 +1,1061 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
-<script src="<?php echo base_url()?>js/custom_js.js"></script>
-
-
+<!--<script src="<?php echo base_url() ?>js/custom_js.js"></script>-->
+<style type="text/css">
+    .btn-group-sm>.btn, .btn-sm {padding:1px 5px !important}
+</style>
 <div id="page-wrapper">
-  <div class="row">
-      <div style="margin:20px;">
-<h1 style="color:red;"><?php if(isset($selected_brands_list)){echo "Edit Vendor";}else{echo "Add Vendor";}?></h1>
-<hr>
-        <form name="myForm" class="form-horizontal" id ="booking_form" novalidate="novalidate" action="<?php echo base_url()?>employee/vendor" method="POST">
-
-          <div>
-              <input style="width:200px;" type="hidden" class="form-control"  name="id" value = "<?php if (isset($query[0]['id'])){echo $query[0]['id'];}?>">
-              <?php echo form_error('id'); ?>
-          </div>
-
-          <div>
-          <p style="color:blue;"><b>Company Information:</b></p>
-      <div  class="form-group <?php if( form_error('name') ) { echo 'has-error';} ?>">
-         <label  for="name" class="col-md-1">Name:</label>
-         <div class="col-md-4">
-            <input  type="text" class="form-control" id="name" name="name" value = "<?php if (isset($query[0]['name'])){echo $query[0]['name'];}?>" >
-              <?php echo form_error('name'); ?>
+    <div class="row">
+        <div  class = "panel panel-info" style="margin:20px;">
+            <div class="panel-heading" style="font-size:130%;">
+                <b>
+                    <center><?php
+                        if (isset($selected_brands_list)) {
+                            echo "Edit Vendor";
+                        } else {
+                            echo "Add Vendor";
+                        }
+                        ?></center>
+                </b>
             </div>
-          </div>
-
-      <div  class="form-group <?php if( form_error('address') ) { echo 'has-error';} ?>">
-         <label  for="address" class="col-md-1">Address:</label>
-         <div class="col-md-4">
-            <input  type="text" class="form-control"  name="address" value = "<?php if (isset($query[0]['address'])){echo $query[0]['address'];}?>" >
-              <?php echo form_error('address'); ?>
+            <div class="panel-body">
+                <?php if($this->session->userdata('checkbox')) {
+                    echo '<div class="alert alert-danger alert-dismissible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <strong>' . $this->session->userdata('checkbox') . '</strong>
+                    </div>';
+                    }
+                ?>
+                <?php if(validation_errors()) {
+                    echo '<div class="alert alert-danger alert-dismissible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <strong>' . validation_errors() . '</strong>
+                    </div>';
+                    }
+                ?>
+                <form name="myForm" class="form-horizontal" id ="booking_form" novalidate="novalidate" action="<?php echo base_url() ?>employee/vendor" method="POST" enctype="multipart/form-data">
+                    <div  class = "panel panel-info">
+                        <div class="panel-heading"><b>Company Information</b></div>
+                        <div class="panel-body">
+                            <div>
+                                <input style="width:200px;" type="hidden" class="form-control"  name="id" value = "<?php
+                                    if (isset($query[0]['id'])) {
+                                        echo $query[0]['id'];
+                                    }
+                                    ?>">
+                                <?php echo form_error('id'); ?>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-6">
+                                    <div  class="form-group <?php
+                                        if (form_error('company_name')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="company_name" class="col-md-3">Name</label>
+                                        <div class="col-md-8">
+                                            <input  type="text" class="form-control" id="name" name="company_name" value = "<?php
+                                                if (isset($query[0]['company_name'])) {
+                                                    echo $query[0]['company_name'];
+                                                }
+                                                ?>" >
+                                            <?php echo form_error('company_name'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div  class="form-group <?php
+                                        if (form_error('address')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="address" class="col-md-3 ">Address</label>
+                                        <div class="col-md-8">
+                                            <input  type="text" class="form-control"  name="address" value = "<?php
+                                                if (isset($query[0]['address'])) {
+                                                    echo $query[0]['address'];
+                                                }
+                                                ?>" >
+                                            <?php echo form_error('address'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-6">
+                                    <div  class="form-group">
+                                        <label  for="address" class="col-md-3">Landmark</label>
+                                        <div class="col-md-8">
+                                            <input  type="text" class="form-control" value = "<?php
+                                                if (isset($query[0]['landmark'])) {
+                                                    echo $query[0]['landmark'];
+                                                }
+                                                ?>" name="landmark" >
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('district')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="state" class="col-md-3">District</label>
+                                        <div class="col-md-8">
+                                            <select class="district form-control" name ="district" onChange="getPincode()">
+                                                <option selected disabled>Select District</option>
+                                                <option <?php
+                                                    if (isset($query[0]['district'])) {
+                                                        echo "selected";
+                                                    }
+                                                    ?>><?php
+                                                    if (isset($query[0]['district'])) {
+                                                        echo $query[0]['district'];
+                                                    }
+                                                    ?></option>
+                                            </select>
+                                            <?php echo form_error('district'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class ="col-md-12">
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('state')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="state" class="col-md-3">State</label>
+                                        <div class="col-md-8">
+                                            <select class=" form-control" name ="state" id="state" onChange="getDistrict()" placeholder="Select State">
+                                                <option disabled="disabled" selected="selected"> Select State</option>
+                                                <?php
+                                                    foreach ($results['select_state'] as $state) {
+                                                    ?>
+                                                <option value = "<?php echo $state['state'] ?>"
+                                                    <?php
+                                                        if (isset($query[0]['state'])) {
+                                                            if (strtolower(trim($query[0]['state'])) == strtolower(trim($state['state']))) {
+                                                        echo "selected";
+                                                        }
+                                                        }
+                                                        ?>
+                                                    >
+                                                    <?php echo $state['state']; ?>
+                                                </option>
+                                                <?php } ?>
+                                            </select>
+                                            <?php echo form_error('state'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group ">
+                                        <label for="state" class="col-md-3">Pincode</label>
+                                        <div class="col-md-8">
+                                            <select class="pincode form-control" name ="pincode"  >
+                                                <option selected disabled>Select Pincode</option>
+                                                <option <?php
+                                                    if (isset($query[0]['pincode'])) {
+                                                        echo "selected";
+                                                    }
+                                                    ?>><?php
+                                                    if (isset($query[0]['pincode'])) {
+                                                        echo $query[0]['pincode'];
+                                                    }
+                                                    ?></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('phone_1')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="phone_1" class="col-md-3">Phone 1</label>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control" id="phone_1" name="phone_1" value = "<?php
+                                                if (isset($query[0]['phone_1'])) {
+                                                    echo $query[0]['phone_1'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('phone_1'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div  class="form-group <?php
+                                        if (form_error('phone_2')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="phone_2" class="col-md-3">Phone 2</label>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control" id="phone_2" name="phone_2" value = "<?php
+                                                if (isset($query[0]['phone_2'])) {
+                                                    echo $query[0]['phone_2'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('phone_2'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('email')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="email" class="col-md-3">Email</label>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control"  name="email" value = "<?php
+                                                if (isset($query[0]['email'])) {
+                                                    echo $query[0]['email'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('email'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('address_proof_file')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="address_proof_file" class="col-md-4">Address Proof File</label>
+                                        <div class="col-md-6">
+                                            <input type="file" class="form-control"  name="address_proof_file" >
+                                            <?php echo form_error('address_proof_file'); ?>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                if (isset($query[0]['address_proof_file']) && !empty($query[0]['address_proof_file'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['address_proof_file'];
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                            <?php if(isset($query[0]['address_proof_file']) && !empty($query[0]['address_proof_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('address_proof_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['address_proof_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php }?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('company_type')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="company_type" class="col-md-3">Company Type</label>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control"  name="company_type" value = "<?php
+                                                if (isset($query[0]['company_type'])) {
+                                                    echo $query[0]['company_type'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('company_type'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('contract_file')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="contract_file" class="col-md-4">Contract File</label>
+                                        <div class="col-md-6">
+                                            <input type="file" class="form-control"  name="contract_file" value = "<?php
+                                                if (isset($query[0]['contract_file'])) {
+                                                    echo $query[0]['contract_file'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('contract_file'); ?>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['contract_file'];
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                            <?php if(isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('contract_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['contract_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php }?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div  class = "panel panel-info">
+                        <div class="panel-heading"><b>POC Details</b></div>
+                        <div class="panel-body">
+                            <div class="col-md-12">
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('primary_contact_name')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="primary_contact_name" class="col-md-3">Name</label>
+                                        <div class="col-md-8">
+                                            <input  type="text" class="form-control"  name="primary_contact_name" value = "<?php
+                                                if (isset($query[0]['primary_contact_name'])) {
+                                                    echo $query[0]['primary_contact_name'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('primary_contact_name'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('primary_contact_email')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="primary_contact_email" class="col-md-2">Email</label>
+                                        <div class="col-md-8">
+                                            <input  type="text" class="form-control"  name="primary_contact_email" value = "<?php
+                                                if (isset($query[0]['primary_contact_email'])) {
+                                                    echo $query[0]['primary_contact_email'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('primary_contact_email'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('primary_contact_phone_1')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="primary_contact_phone_1" class="col-md-3">Phone 1</label>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control" id="primary_contact_phone_1" name="primary_contact_phone_1" value = "<?php
+                                                if (isset($query[0]['primary_contact_phone_1'])) {
+                                                    echo $query[0]['primary_contact_phone_1'];
+                                                }
+                                                ?>" >
+                                            <?php echo form_error('primary_contact_phone_1'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('primary_contact_phone_2')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="primary_contact_phone_2" class="col-md-3">Phone 2</label>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control" id="primary_contact_phone_2" name="primary_contact_phone_2" value = "<?php
+                                                if (isset($query[0]['primary_contact_phone_2'])) {
+                                                    echo $query[0]['primary_contact_phone_2'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('primary_contact_phone_2'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div  class = "panel panel-info">
+                        <div class="panel-heading"><b>Owner Details</b></div>
+                        <div class="panel-body">
+                            <div class="col-md-12">
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('owner_name')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="owner_name" class="col-md-3">Name</label>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control"  name="owner_name" value = "<?php
+                                                if (isset($query[0]['owner_name'])) {
+                                                    echo $query[0]['owner_name'];
+                                                }
+                                                ?>" >
+                                            <?php echo form_error('owner_name'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('owner_email')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="owner_email" class="col-md-3">Email</label>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control"  name="owner_email" value = "<?php
+                                                if (isset($query[0]['owner_email'])) {
+                                                    echo $query[0]['owner_email'];
+                                                }
+                                                ?>" >
+                                            <?php echo form_error('owner_email'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('owner_phone_1')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="owner_phone_1" class="col-md-3">Phone 1</label>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control" id="owner_phone_1" name="owner_phone_1" value = "<?php
+                                                if (isset($query[0]['owner_phone_1'])) {
+                                                    echo $query[0]['owner_phone_1'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('owner_phone_1'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('owner_phone_2')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="owner_phone_2" class="col-md-3">Phone 2</label>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control" id="owner_phone_2" name="owner_phone_2" value = "<?php
+                                                if (isset($query[0]['owner_phone_2'])) {
+                                                    echo $query[0]['owner_phone_2'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('owner_phone_2'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('id_proof_1_file')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="id_proof_1_file" class="col-md-3">ID Proof 1</label>
+                                        <div class="col-md-6">
+                                            <input type="file" class="form-control"  name="id_proof_1_file" value = "<?php
+                                                if (isset($query[0]['id_proof_1_file'])) {
+                                                    echo $query[0]['id_proof_1_file'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('id_proof_1_file'); ?>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                if (isset($query[0]['id_proof_1_file']) && !empty($query[0]['id_proof_1_file'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['id_proof_1_file'];
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                            <?php if(isset($query[0]['id_proof_1_file']) && !empty($query[0]['id_proof_1_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('id_proof_1_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['id_proof_1_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php }?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('id_proof_2_file')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="id_proof_2_file" class="col-md-3">ID Proof 2</label>
+                                        <div class="col-md-6">
+                                            <input type="file" class="form-control"  name="id_proof_2_file" value = "<?php
+                                                if (isset($query[0]['id_proof_2_file'])) {
+                                                    echo $query[0]['id_proof_2_file'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('id_proof_2_file'); ?>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                if (isset($query[0]['id_proof_2_file']) && !empty($query[0]['id_proof_2_file'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['id_proof_2_file'];
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                            <?php if(isset($query[0]['id_proof_2_file']) && !empty($query[0]['id_proof_2_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('id_proof_2_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['id_proof_2_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php }?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div  class = "panel panel-info">
+                        <div class="panel-heading"><b>Registration Details</b></div>
+                        <div class="panel-body">
+                            <div class="col-md-12">
+                                <div class="col-md-4" style="margin-right:21px;">
+                                    <div class="form-group <?php
+                                        if (form_error('name_on_pan')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                       
+                                        <label  for="name_on_pan" class="col-md-4">PAN </label>
+                                        <div class="col-md-7">
+                                            <input placeholder="Name on PAN CARD" type="text" class="form-control"  name="name_on_pan" value = "<?php
+                                                if (isset($query[0]['name_on_pan'])) {
+                                                    echo $query[0]['name_on_pan'];
+                                                }
+                                                ?>">
+                                            <span class="err1"><?php echo form_error('name_on_pan'); ?></span>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                <div class="col-md-3" style="margin-right:14px;">
+                                    <div class="form-group  <?php
+                                        if (form_error('pan_no')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+<!--                                        <label  for="pan_no" class="col-md-4">PAN No.</label>-->
+                                       
+                                                 <input type="text" class="form-control"  name="pan_no" placeholder="PAN Number" value = "<?php
+                                                if (isset($query[0]['pan_no'])) {
+                                                    echo $query[0]['pan_no'];
+                                                }
+                                                ?>" style="width:117%">
+                                                 <span class="err1"><?php echo form_error('pan_no'); ?></span>
+                                       
+                                    </div>
+                                </div>
+                                <div class="col-md-3" style="margin-left:40px;">
+                                    <div class="form-group">
+                                        
+<!--                                        <label  for="pan_file" class="col-md-4">PAN File :</label>-->
+                                        
+                                            <input type="file" class="form-control"  name="pan_file" value = "<?php
+                                                if (isset($query[0]['pan_file'])) {
+                                                    echo $query[0]['pan_file'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('pan_file'); ?>
+                                      
+                                       
+                                         </div>
+                                       
+                                    
+                                       
+                                    </div>
+                                <div class="col-md-1" style="margin-left: 20px;">
+                                            <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                if (isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['pan_file'];
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                            <?php if(isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('pan_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['pan_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php }?>
+                                            
+                                        </div>
+                                <div class="col-md-2">
+                                     <div class="checkbox">
+                                        <label>
+                                           <b style="font-size: 18px;">Not Available</b> 
+                                           
+                                        </label>
+                                            <input type="checkbox"  value="0" name ="is_pan_doc" <?php if(isset($query[0]['is_pan_doc'])){ if($query[0]['is_pan_doc'] == 0){ echo "checked" ;}}?> style="margin-left:16px;"> 
+                                   
+                                    </div>
+                                </div>
+                                
+<!--                                <div class="col-md-2" style="margin-left:6px;">
+                                   
+                                </div>-->
+                            </div>
+                            <!--                            <div class="col-md-12">
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                    if (form_error('vat_no')) {
+                                        echo 'has-error';
+                                    }
+                                    ?>">
+                                        <label  for="vat_no" class="col-md-3">VAT No.:</label>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control"  name="vat_no" value = "<?php
+                                    if (isset($query[0]['vat_no'])) {
+                                        echo $query[0]['vat_no'];
+                                    }
+                                    ?>">
+                                                   <?php echo form_error('vat_no'); ?>
+                                </div>
+                                </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                    if (form_error('vat_file')) {
+                                        echo 'has-error';
+                                    }
+                                    ?>">
+                                        <label  for="vat_file" class="col-md-3">VAT File:</label>
+                                        <div class="col-md-8">
+                                            <input type="file" class="form-control"  name="vat_file" value = "<?php
+                                    if (isset($query[0]['vat_file'])) {
+                                        echo $query[0]['vat_file'];
+                                    }
+                                    ?>">
+                                                   <?php echo form_error('vat_file'); ?>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <?php
+                                    $src = base_url() . 'images/no_image.png';
+                                    if (isset($query[0]['vat_file']) && !empty($query[0]['vat_file'])) {
+                                        //Path to be changed
+                                        $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['vat_file'];
+                                    }
+                                    ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                            <?php if(isset($query[0]['vat_file']) && !empty($query[0]['vat_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('vat_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['vat_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php }?>
+                                        </div>
+                                    </div>
+                                
+                                </div>
+                                
+                                </div>-->
+                            <div class="col-md-12">
+                                <div class="col-md-4">
+                                    <div class="form-group <?php
+                                        if (form_error('cst_no')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="cst_no" class="col-md-4">CST No.</label>
+                                        <div class="col-md-7">
+                                            <input type="text" class="form-control"  name="cst_no" value = "<?php
+                                                if (isset($query[0]['cst_no'])) {
+                                                    echo $query[0]['cst_no'];
+                                                }
+                                                ?>">
+                                            <span class="err1"><?php echo form_error('cst_no'); ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group <?php
+                                        if (form_error('cst_file')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="cst_file" class="col-md-4">CST File</label>
+                                        <div class="col-md-7">
+                                            <input type="file" class="form-control"  name="cst_file" value = "<?php
+                                                if (isset($query[0]['cst_file'])) {
+                                                    echo $query[0]['cst_file'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('cst_file'); ?>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                if (isset($query[0]['cst_file']) && !empty($query[0]['cst_file'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['cst_file'];
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                            <?php if(isset($query[0]['cst_file']) && !empty($query[0]['cst_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('cst_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['cst_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php }?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3" style="margin-left:60px;">
+                                    <div class="checkbox">
+                                        <label>
+                                           <b style="font-size: 18px;">Not Available</b> 
+                                        </label>
+                                        <input type="checkbox"  value="0" name ="is_cst_doc" <?php if(isset($query[0]['is_cst_doc'])){ if($query[0]['is_cst_doc'] == 0){ echo "checked" ;}}?> style="margin-top:5px; margin-left:24px;"> 
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                
+                                <div class="col-md-4">
+                                    <div class="form-group <?php
+                                        if (form_error('tin_no')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        
+                                        <label  for="tin_no" class="col-md-4">TIN/VAT No.</label>
+                                        <div class="col-md-7">
+                                            <input type="text" class="form-control"  name="tin_no" value = "<?php
+                                                if (isset($query[0]['tin_no'])) {
+                                                    echo $query[0]['tin_no'];
+                                                }
+                                                ?>">
+                                            <span class="err1"><?php echo form_error('tin_no'); ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group <?php
+                                        if (form_error('tin_file')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="tin_file" class="col-md-4">TIN/VAT File</label>
+                                        <div class="col-md-7">
+                                            <input type="file" class="form-control"  name="tin_file" value = "<?php
+                                                if (isset($query[0]['tin_file'])) {
+                                                    echo $query[0]['tin_file'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('tin_file'); ?>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                if (isset($query[0]['tin_file']) && !empty($query[0]['tin_file'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['tin_file'];
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                            <?php if(isset($query[0]['tin_file']) && !empty($query[0]['tin_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('tin_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['tin_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php }?>
+                                        </div>
+                                    </div>
+                                </div>
+                                 <div class="col-md-3" style="margin-left:60px;">
+                                    <div class="checkbox">
+                                        <label>
+                                          <b style="font-size: 18px;">Not Available</b>  
+                                        </label>
+                                        <input type="checkbox"  value="0" name ="is_vat_doc" <?php if(isset($query[0]['is_vat_doc'])){ if($query[0]['is_vat_doc'] == 0){ echo "checked" ;}}?> style="margin-top:5px; margin-left:24px;"> 
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-4">
+                                    <div class="form-group <?php
+                                        if (form_error('service_tax_no')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="service_tax_no" class="col-md-4">Service Tax No.</label>
+                                        <div class="col-md-7">
+                                            <input type="text" class="form-control"  name="service_tax_no" value = "<?php
+                                                if (isset($query[0]['service_tax_no'])) {
+                                                    echo $query[0]['service_tax_no'];
+                                                }
+                                                ?>">
+                                            <span class="err1"> <?php echo form_error('service_tax_no'); ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group <?php
+                                        if (form_error('service_tax_file')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="service_tax_no" class="col-md-4">Tax File</label>
+                                        <div class="col-md-7">
+                                            <input type="file" class="form-control"  name="service_tax_file" value = "<?php
+                                                if (isset($query[0]['service_tax_file'])) {
+                                                    echo $query[0]['service_tax_file'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('service_tax_file'); ?>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                if (isset($query[0]['service_tax_file']) && !empty($query[0]['service_tax_file'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['service_tax_file'];
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                            <?php if(isset($query[0]['service_tax_file']) && !empty($query[0]['service_tax_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('service_tax_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['service_tax_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php }?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3" style="margin-left:60px;">
+                                    <div class="checkbox">
+                                        <label>
+                                          <b style="font-size: 18px;">Not Available</b>   
+                                        </label>
+                                        <input type="checkbox"  value="0" name ="is_st_doc" <?php if(isset($query[0]['is_st_doc'])){ if($query[0]['is_st_doc'] == 0){ echo "checked" ;}}?> style="    margin-left: 24px;margin-top: 5px;">
+                                    </div>
+                                </div>
+                            </div>
+                           
+                        </div>
+                    </div>
+                    <div  class = "panel panel-info">
+                        <div class="panel-heading"><b>Bank Details</b></div>
+                        <div class="panel-body">
+                            <div class="col-md-12">
+                                <div class="col-md-4">
+                                    <div  class="form-group <?php
+                                        if (form_error('bank_name')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="bank_name" class="col-md-4">Bank Name</label>
+                                        <div class="col-md-6">
+                                            <input type="text" class="form-control"  name="bank_name" value = "<?php
+                                                if (isset($query[0]['bank_name'])) {
+                                                    echo $query[0]['bank_name'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('bank_name'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group <?php
+                                        if (form_error('account_type')) {
+                                            echo 'account_type';
+                                        }
+                                        ?>">
+                                        <label for="account_type" class="col-md-4">Account Type</label>
+                                        <div class="col-md-6">
+                                            <input type="text" class="form-control"  name="account_type" value = "<?php
+                                                if (isset($query[0]['account_type'])) {
+                                                    echo $query[0]['account_type'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('account_type'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group <?php
+                                        if (form_error('bank_account')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="bank_account" class="col-md-4">Bank Account</label>
+                                        <div class="col-md-6">
+                                            <input type="text" class="form-control"  name="bank_account" value = "<?php
+                                                if (isset($query[0]['bank_account'])) {
+                                                    echo $query[0]['bank_account'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('bank_account'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-4">
+                                    <div class="form-group <?php
+                                        if (form_error('ifsc_code')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="ifsc_code" class="col-md-4">IFSC Code</label>
+                                        <div class="col-md-6">
+                                            <input type="text" class="form-control"  name="ifsc_code" value = "<?php
+                                                if (isset($query[0]['ifsc_code'])) {
+                                                    echo $query[0]['ifsc_code'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('ifsc_code'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group <?php
+                                        if (form_error('beneficiary_name')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="beneficiary_name" class="col-md-4">Beneficiary Name</label>
+                                        <div class="col-md-6">
+                                            <input type="text" class="form-control"  name="beneficiary_name" value = "<?php
+                                                if (isset($query[0]['beneficiary_name'])) {
+                                                    echo $query[0]['beneficiary_name'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('beneficiary_name'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group <?php
+                                        if (form_error('cancelled_cheque_file')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="cancelled_cheque_file" class="col-md-4">Cancelled Cheque File</label>
+                                        <div class="col-md-5">
+                                            <input type="file" class="form-control"  name="cancelled_cheque_file" value = "<?php
+                                                if (isset($query[0]['cancelled_cheque_file'])) {
+                                                    echo $query[0]['cancelled_cheque_file'];
+                                                }
+                                                ?>">
+                                            <?php echo form_error('cancelled_cheque_file'); ?>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                if (isset($query[0]['cancelled_cheque_file']) && !empty($query[0]['cancelled_cheque_file'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['cancelled_cheque_file'];
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                            <?php if(isset($query[0]['cancelled_cheque_file']) && !empty($query[0]['cancelled_cheque_file'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('cancelled_cheque_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['cancelled_cheque_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php }?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div  class = "panel panel-info">
+                        <div class="panel-heading"><b>Appliance</b></div>
+                        <div class="panel-body">
+                            <div class="col-md-12">
+                                <div  class="form-group <?php
+                                    if (form_error('appliance')) {
+                                        echo 'has-error';
+                                    }
+                                    ?>">
+                                    <?php foreach ($results['services'] as $key => $appliance) { ?>
+                                    <label for="Appliance" >
+                                    <input type="checkbox" name="appliances[]" value ="<?php echo $appliance->services; ?>"
+                                        <?php
+                                            if (isset($selected_appliance_list)) {
+                                                if (in_array($appliance->services, $selected_appliance_list))
+                                                    echo "checked";
+                                            }
+                                            ?> >
+                                    <?php echo $appliance->services; ?> &nbsp;&nbsp;&nbsp;
+                                    </label>
+                                    <?php } ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div  class = "panel panel-info">
+                        <div class="panel-heading"><b>Brands</b></div>
+                        <div class="panel-body">
+                            <div class="col-md-12">
+                                <?php foreach ($results['brands'] as $key => $brands) {
+                                    ?>
+                                <label for="Brand" >
+                                <input type="checkbox" name="brands[]" value ="<?php echo $brands->brand_name; ?>"
+                                    <?php
+                                        if (isset($selected_brands_list)) {
+                                            if (in_array($brands->brand_name, $selected_brands_list))
+                                                echo "checked";
+                                        }
+                                        ?>>
+                                <?php echo $brands->brand_name; ?> &nbsp;&nbsp;&nbsp;
+                                </label>
+                                <?php } ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div  class = "panel panel-info">
+                        <div class="panel-heading"><b>Non Working Days</b></div>
+                        <div class="panel-body">
+                            <div class="col-md-12">
+                                <?php foreach ($days as $key => $day) { ?>
+                                <label for="non_working_days" >
+                                <input type="checkbox" name="day[]" value ="<?php echo $day; ?>"
+                                    <?php
+                                        if (isset($selected_non_working_days)) {
+                                            if (in_array($day, $selected_non_working_days))
+                                                echo "checked";
+                                        }
+                                        ?> >
+                                <?php echo $day; ?> &nbsp;&nbsp;&nbsp;
+                                </label>
+                                <?php } ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="float:left;width:90%;" class="form-group <?php
+                        if (form_error('non_working_days')) {
+                            echo 'has-error';
+                        }
+                        ?>">
+                    </div>
+                    <div class="col-md-12">
+                        <div class="col-md-6">
+                            <div class="col-md-9"></div>
+                            <div class="col-md-2">
+                                <input type="Submit" value="<?php
+                                    if (isset($query[0]['id'])) {
+                                        echo "Update Vendor";
+                                    } else {
+                                        echo "Save Vendor";
+                                    }
+                                    ?>" class="btn btn-primary" >
+                            </div>
+                        </div>
+                        <div class="col-md-6"><?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?></div>
+                    </div>
+                </form>
             </div>
-          </div>
-          </div>
-   <div class="form-group <?php if( form_error('state') ) { echo 'has-error';} ?>">
-      <label for="state" class="col-md-1">State:</label>
-      <div class="col-md-4">
-         <select class=" form-control" name ="state" id="state" onChange="getDistrict()" placeholder="Select State">
-            <option disabled="disabled" selected="selected"> Select State</option>
-            <?php
-               foreach ($results['select_state'] as $state) {
-               ?>
-            <option value = "<?php echo $state['state']?>"
-            <?php if (isset($query[0]['state'])){
-                if(strtolower(trim($query[0]['state']))  == strtolower(trim($state['state']))){
-                  echo "selected";
-                }
-             } ?>
-             >
-               <?php echo $state['state'];?>
-            </option>
-            <?php } ?>
-         </select>
-         <?php echo form_error('state'); ?>
-      </div>
-   </div>
-   <div class="form-group <?php if( form_error('district') ) { echo 'has-error';} ?>">
-      <label for="state" class="col-md-1">District:</label>
-      <div class="col-md-4">
-         <select class="district form-control" name ="district" onChange="getPincode()">
-            <option selected disabled>Select District</option>
-
-            <option <?php if (isset($query[0]['district'])){ echo "selected";}?>><?php if (isset($query[0]['district'])){echo $query[0]['district'];}?></option>
-         </select>
-          <?php echo form_error('district'); ?>
-      </div>
-   </div>
-      <div class="form-group ">
-      <label for="state" class="col-md-1">Pincode:</label>
-      <div class="col-md-4">
-          <select class="pincode form-control" name ="pincode"  >
-            <option selected disabled>Select Pincode</option>
-            <option <?php if (isset($query[0]['pincode'])){ echo "selected";}?>><?php if (isset($query[0]['pincode'])){echo $query[0]['pincode'];}?></option>
-         </select>
-      </div>
-   </div>
-   <div  class="form-group">
-         <label  for="address" class="col-md-1">Landmark:</label>
-         <div class="col-md-4">
-            <input  type="text" class="form-control" value = "<?php if (isset($query[0]['landmark'])){echo $query[0]['landmark'];}?>" name="landmark" >
-         </div>
-      </div>
-          <div>
-   <div class="form-group <?php if( form_error('registration_number') ) { echo 'has-error';} ?>">
-      <label  for="registration_number" class="col-md-1">Registration No.:</label>
-      <div class="col-md-4">
-         <input type="text" class="form-control"  name="registration_number" value = "<?php if (isset($query[0]['registration_number'])){echo $query[0]['registration_number'];}?>">
-              <?php echo form_error('registration_number'); ?>
-            </div>
-          </div>
-              <div style="float:left;width:90%;" class="form-group <?php if( form_error('non_working_days') ) { echo 'has-error';} ?>">
-            <label for="non_working_days" class="col-md-2">Non Working Days:</label>
-            <div class="col-md-12">
-              <?php foreach($days as $key => $day){?>
-          <label for="non_working_days" >
-          <input type="checkbox" name="day[]" value ="<?php echo $day;?>"
-          <?php if(isset($selected_non_working_days)){if(in_array($day, $selected_non_working_days))echo "checked";}
-            ?> >
-          <?php echo $day;?> &nbsp;&nbsp;&nbsp;
-          </label>
-          <?php } ?>
-            </div>
-          </div>
-            <div>
-
-          <div style="float:left;width:33%;" class="form-group <?php if( form_error('phone_1') ) { echo 'has-error';} ?>">
-            <label style="width:150px;" for="phone_1" class="col-md-2">Phone No. 1:</label>
-            <div class="col-md-2">
-              <input style="width:200px;" type="text" class="form-control" id="phone_1" name="phone_1" value = "<?php if (isset($query[0]['phone_1'])){echo $query[0]['phone_1'];}?>">
-              <?php echo form_error('phone_1'); ?>
-            </div>
-          </div>
-
-          <div style="float:left;width:33%;" class="form-group <?php if( form_error('phone_2') ) { echo 'has-error';} ?>">
-            <label style="width:150px;" for="phone_2" class="col-md-2">Phone No. 2:</label>
-            <div class="col-md-2">
-              <input style="width:200px;" type="text" class="form-control" id="phone_2" name="phone_2" value = "<?php if (isset($query[0]['phone_2'])){echo $query[0]['phone_2'];}?>">
-              <?php echo form_error('phone_2'); ?>
-            </div>
-          </div>
-          </div>
-
-
-          <div>
-          <div style="float:left;width:33%;" class="form-group <?php if( form_error('email') ) { echo 'has-error';} ?>">
-            <label style="width:150px;" for="email" class="col-md-2">Email:</label>
-            <div class="col-md-2">
-              <input style="width:200px;" type="text" class="form-control"  name="email" value = "<?php if (isset($query[0]['email'])){echo $query[0]['email'];}?>">
-              <?php echo form_error('email'); ?>
-            </div>
-          </div>
-
-          <div style="float:left;width:33%;" class="form-group <?php if( form_error('service_tax_no') ) { echo 'has-error';} ?>">
-            <label style="width:150px;" for="service_tax_no" class="col-md-2">Service Tax No.</label>
-            <div class="col-md-2">
-              <input style="width:200px;" type="text" class="form-control"  name="service_tax_no" value = "<?php if (isset($query[0]['service_tax_no'])){echo $query[0]['service_tax_no'];}?>">
-              <?php echo form_error('service_tax_no'); ?>
-            </div>
-          </div>
-
-          <div style="float:left;width:33%;" class="form-group <?php if( form_error('remarks') ) { echo 'has-error';} ?>">
-            <label style="width:150px;" for="remarks" class="col-md-2">Remarks:</label>
-            <div class="col-md-2">
-              <input style="width:200px;" type="text" class="form-control"  name="remarks" value = "<?php if (isset($query[0]['remarks'])){echo $query[0]['remarks'];}?>">
-              <?php echo form_error('remarks'); ?>
-            </div>
-          </div>
-          </div>
-
-          <div style="float:left;">
-          <p style="color:blue;"><b>POC Details:</b></p>
-          <div style="width:33%;" class="form-group <?php if( form_error('primary_contact_name') ) { echo 'has-error';} ?>">
-            <label style="width:150px;" for="primary_contact_name" class="col-md-2">Primary Contact Name:</label>
-            <div class="col-md-2">
-              <input style="width:200px;" type="text" class="form-control"  name="primary_contact_name" value = "<?php if (isset($query[0]['primary_contact_name'])){echo $query[0]['primary_contact_name'];}?>">
-              <?php echo form_error('primary_contact_name'); ?>
-            </div>
-          </div>
-
-          <div>
-          <div style="float:left;width:33%;" class="form-group <?php if( form_error('primary_contact_email') ) { echo 'has-error';} ?>">
-            <label style="width:150px;" for="primary_contact_email" class="col-md-2">Primary Contact Email:</label>
-            <div class="col-md-2">
-              <input style="width:200px;" type="text" class="form-control"  name="primary_contact_email" value = "<?php if (isset($query[0]['primary_contact_email'])){echo $query[0]['primary_contact_email'];}?>">
-              <?php echo form_error('primary_contact_email'); ?>
-            </div>
-          </div>
-
-          <div style="float:left;width:33%;" class="form-group <?php if( form_error('primary_contact_phone_1') ) { echo 'has-error';} ?>">
-            <label style="width:150px;" for="primary_contact_phone_1" class="col-md-2">Primary Contact Ph.No. 1:</label>
-            <div class="col-md-2">
-              <input style="width:200px;" type="text" class="form-control" id="primary_contact_phone_1" name="primary_contact_phone_1" value = "<?php if (isset($query[0]['primary_contact_phone_1'])){echo $query[0]['primary_contact_phone_1'];}?>" >
-              <?php echo form_error('primary_contact_phone_1'); ?>
-            </div>
-          </div>
-
-
-          <div style="float:left;width:33%;" class="form-group <?php if( form_error('primary_contact_phone_2') ) { echo 'has-error';} ?>">
-            <label style="width:150px;" for="primary_contact_phone_2" class="col-md-2">Primary Contact Ph.No. 2:</label>
-            <div class="col-md-2">
-              <input style="width:200px;" type="text" class="form-control" id="primary_contact_phone_2" name="primary_contact_phone_2" value = "<?php if (isset($query[0]['primary_contact_phone_2'])){echo $query[0]['primary_contact_phone_2'];}?>">
-              <?php echo form_error('primary_contact_phone_2'); ?>
-            </div>
-          </div>
-          </div>
-
-          <div style="float:left;">
-          <p style="color:blue;"><b>Owner Details:</b></p>
-          <div style="width:33%;" class="form-group <?php if( form_error('owner_name') ) { echo 'has-error';} ?>">
-            <label style="width:150px;" for="owner_name" class="col-md-2">Owner Name:</label>
-            <div class="col-md-2">
-              <input style="width:200px;" type="text" class="form-control"  name="owner_name" value = "<?php if (isset($query[0]['owner_name'])){echo $query[0]['owner_name'];}?>" >
-              <?php echo form_error('owner_name'); ?>
-            </div>
-          </div>
-
-
-
-          <div style="float:left;width:33%;" class="form-group <?php if( form_error('owner_email') ) { echo 'has-error';} ?>">
-            <label style="width:150px;" for="owner_email" class="col-md-2">Owner Email:</label>
-            <div class="col-md-2">
-              <input style="width:200px;" type="text" class="form-control"  name="owner_email" value = "<?php if (isset($query[0]['owner_email'])){echo $query[0]['owner_email'];}?>" >
-              <?php echo form_error('owner_email'); ?>
-            </div>
-          </div>
-
-
-          <div style="float:left;width:33%;" class="form-group <?php if( form_error('owner_phone_1') ) { echo 'has-error';} ?>">
-            <label style="width:150px;" for="owner_phone_1" class="col-md-2">Owner Ph. No. 1:</label>
-            <div class="col-md-2">
-              <input style="width:200px;" type="text" class="form-control" id="owner_phone_1" name="owner_phone_1" value = "<?php if (isset($query[0]['owner_phone_1'])){echo $query[0]['owner_phone_1'];}?>">
-              <?php echo form_error('owner_phone_1'); ?>
-            </div>
-          </div>
-
-          <div style="float:left;width:33%;" class="form-group <?php if( form_error('owner_phone_2') ) { echo 'has-error';} ?>">
-            <label style="width:150px;" for="owner_phone_2" class="col-md-2">Owner Ph. No. 2:</label>
-            <div class="col-md-2">
-              <input style="width:200px;" type="text" class="form-control" id="owner_phone_2" name="owner_phone_2" value = "<?php if (isset($query[0]['owner_phone_2'])){echo $query[0]['owner_phone_2'];}?>">
-              <?php echo form_error('owner_phone_2'); ?>
-            </div>
-          </div>
-
-          <div style="float:left;">
-          <p style="color:blue;"><b>Bank Details:</b></p>
-          <div style="width:33%;" class="form-group <?php if( form_error('bank_name') ) { echo 'has-error';} ?>">
-            <label style="width:150px;" for="bank_name" class="col-md-2">Bank Name:</label>
-            <div class="col-md-2">
-              <input style="width:200px;" type="text" class="form-control"  name="bank_name" value = "<?php if (isset($query[0]['bank_name'])){echo $query[0]['bank_name'];}?>">
-              <?php echo form_error('bank_name'); ?>
-            </div>
-          </div>
-
-          <div>
-          <div style="float:left;width:33%;" class="form-group <?php if( form_error('bank_account') ) { echo 'has-error';} ?>">
-            <label style="width:150px;" for="bank_account" class="col-md-2">Bank Account:</label>
-            <div class="col-md-2">
-              <input style="width:200px;" type="text" class="form-control"  name="bank_account" value = "<?php if (isset($query[0]['bank_account'])){echo $query[0]['bank_account'];}?>">
-              <?php echo form_error('bank_account'); ?>
-            </div>
-          </div>
-
-          <div style="float:left;width:33%;" class="form-group <?php if( form_error('ifsc_code') ) { echo 'has-error';} ?>">
-            <label style="width:150px;" for="ifsc_code" class="col-md-2">IFSC Code:</label>
-            <div class="col-md-2">
-              <input style="width:200px;" type="text" class="form-control"  name="ifsc_code" value = "<?php if (isset($query[0]['ifsc_code'])){echo $query[0]['ifsc_code'];}?>">
-              <?php echo form_error('ifsc_code'); ?>
-            </div>
-          </div>
-
-          <div style="float:left;width:33%;" class="form-group <?php if( form_error('beneficiary_name') ) { echo 'has-error';} ?>">
-            <label style="width:150px;" for="beneficiary_name" class="col-md-2">Beneficiary Name:</label>
-            <div class="col-md-2">
-              <input style="width:200px;" type="text" class="form-control"  name="beneficiary_name" value = "<?php if (isset($query[0]['beneficiary_name'])){echo $query[0]['beneficiary_name'];}?>">
-              <?php echo form_error('beneficiary_name'); ?>
-            </div>
-          </div>
-          </div>
-
-          <div style="float:left;width:90%;" class="form-group <?php if( form_error('appliance') ) { echo 'has-error';} ?>">
-            <label for="appliance" class="col-md-2" style="color:blue;">Appliance:</label>
-            <div class="col-md-12">
-
-              <?php foreach($results['services'] as $key => $appliance){?>
-          <label for="Appliance" >
-          <input type="checkbox" name="appliances[]" value ="<?php echo $appliance->services;?>"
-          <?php if(isset($selected_appliance_list)){if(in_array($appliance->services, $selected_appliance_list))echo "checked";}
-            ?> >
-          <?php echo $appliance->services;?> &nbsp;&nbsp;&nbsp;
-          </label>
-          <?php } ?>
-            </div>
-          </div>
-
-          <div style="float:left;width:90%;" class="form-group <?php if( form_error('brand') ) { echo 'has-error';} ?>">
-            <label for="brand" class="col-md-2" style="color:blue;">Brands:</label>
-            <div class="col-md-12">
-            <?php foreach($results['brands'] as $key => $brands){
-               ?>
-            <label for="Brand" >
-            <input type="checkbox" name="brands[]" value ="<?php
-           echo $brands->brand_name;?>"
-           <?php if(isset($selected_brands_list)){if(in_array($brands->brand_name, $selected_brands_list))echo "checked";}
-            ?>>
-          <?php echo $brands->brand_name;?> &nbsp;&nbsp;&nbsp;
-          </label>
-          <?php } ?>
-          </div>
-          </div>
-            <center>
-
-               <div class="col-md-2"><input type="Submit" value="<?php if (isset($query[0]['id'])){echo "Update Vendor";}else{echo "Save Vendor";}?>" class="btn btn-primary" ></div>
-            </center>
-           <div style="float:left;"><?php echo "<a class='btn btn-small btn-primary' href=".base_url()."employee/vendor/viewvendor>Cancel</a>";?></div>
-        </form>
-      </div>
-  </div>
+        </div>
+    </div>
 </div>
+<?php $this->session->unset_userdata('checkbox')?>
 <script type="text/javascript">
     /*$(".js-example-placeholder-single").select2({
       placeholder: "Select a state",
       allowClear: true
-}); */
-  function getDistrict(){
+    }); */
+                function getDistrict() {
      var state = $("#state").val();
      var district = $(".district").val();
     // alert(district);
@@ -312,13 +1066,13 @@
        success: function (data) {
         // console.log(data);
          $(".district").html(data);
-         if(district !=""){
+                            if (district != "") {
            getPincode();
          }
        }
      });
-   }
-   function getPincode(){
+    }
+                function getPincode() {
       var district = $(".district").val();
       var pincode = $(".pincode").val();
       $.ajax({
@@ -330,116 +1084,133 @@
           $(".pincode").html(data);
        }
      });
-   }
-
-  // $("#district_option").select2();
-  $(function() {
+    }
+    
+    // $("#district_option").select2();
+                $(function () {
     var state = $("#state").val();
-    if(state  !=""){
+                    if (state != "") {
         getDistrict();
     }
-  });
+    });
+                
+        function remove_image(type,vendor_id,file_name){
+            var c  = confirm('Do you want to permanently remove photo?');
+            if(c){
+             $.ajax({
+                        type: 'POST',
+                        url: '<?php echo base_url(); ?>employee/vendor/remove_image',
+                        data: {type: type, id: vendor_id,file_name:file_name},
+                        success: function (data) {
+                             location.reload();
+    //                             console.log(data);
+                            }
+                    });
+                 }else{
+                    return false;
+                 }
+        }
+        
 </script>
 <style type="text/css">
-  /* example styles for validation form demo */
-
-
-
-
-#booking_form .form-group label.error {
+    /* example styles for validation form demo */
+    #booking_form .form-group label.error {
     color: #FB3A3A;
-    display: inline-block;
-    margin: 4px 0 5px 125px;
+    display: inline-block;;
     padding: 0;
     text-align: left;
-    width: 220px;
-}
+    width: 250px;
+    margin: 0px;
+    }
+    .err1{
+        color: #FB3A3A;
+    display: inline-block;;
+    padding: 0;
+    text-align: left;
+    width: 250px;
+    margin: 0px;
+    }
 </style>
-
 <script type="text/javascript">
-
-   (function($,W,D)
-{
+    (function ($, W, D)
+    {
     var JQUERY4U = {};
-
+    
     JQUERY4U.UTIL =
     {
-        setupFormValidation: function()
-        {
-            //form validation rules
-            $("#booking_form").validate({
-                rules: {
-                    name: "required",
-                    address: "required",
-                    district: "required",
-                    phone_1: {
-                        required: true,
-                        minlength: 10
-                    },
-                    phone_2: {
-                        minlength: 10
-                    },
-                    primary_contact_phone_1: {
-                        required: true,
-                        minlength: 10
-                    },
-                    primary_contact_phone_2: {
-                        minlength: 10
-                    },
-                    owner_phone_1: {
-                        required: true,
-                        minlength: 10
-                    },
-                    owner_phone_2: {
-                        minlength: 10
-                    },
-                    state: "required",
-                    primary_contact_name: "required",
-                    owner_name: "required",
-                    email: {
-
-                        email: true
-                    },
-                    primary_contact_email: {
-
-                        email: true
-                    },
-                    owner_email: {
-
-                        email: true
-                    }
-                },
-                messages: {
-                    name: "Please enter your Vendor Name",
-                    address: "Please enter Address",
-                    district: "Please Select District",
-                    state: "Please Select State",
-                    phone_1: "Please enter Phone Number",
-                    phone_2: "Please fill correct phone number",
-                    primary_contact_phone_1: "Please fill correct phone number",
-                    primary_contact_phone_2: "Please fill correct phone number",
-                    owner_phone_1: "Please fill correct phone number",
-                    owner_phone_2: "Please fill correct phone number",
-                    primary_contact_name: "Please fill Name",
-                    owner_name: "Please fill Name",
-                    email: "Please fill correct email",
-                    primary_contact_email: "Please fill correct email",
-                    owner_email: "Please fill correct email"
-                },
-                submitHandler: function(form) {
-                    form.submit();
-                }
-            });
+                    setupFormValidation: function ()
+    {
+    //form validation rules
+    $("#booking_form").validate({
+    rules: {
+        company_name: "required",
+        address: "required",
+        district: "required",
+        phone_1: {
+            required: true,
+            minlength: 10
+        },
+        phone_2: {
+            minlength: 10
+        },
+        primary_contact_phone_1: {
+            required: true,
+            minlength: 10
+        },
+        primary_contact_phone_2: {
+            minlength: 10
+        },
+        owner_phone_1: {
+            required: true,
+            minlength: 10
+        },
+        owner_phone_2: {
+            minlength: 10
+        },
+        state: "required",
+        primary_contact_name: "required",
+        owner_name: "required",
+        email: {
+            email: true
+        },
+        primary_contact_email: {
+            email: true
+        },
+        owner_email: {
+            email: true
         }
+    },
+    messages: {
+        company_name: "Please enter your Company Name",
+        address: "Please enter Address",
+        district: "Please Select District",
+        state: "Please Select State",
+        phone_1: "Please enter Phone Number",
+        phone_2: "Please fill correct phone number",
+        primary_contact_phone_1: "Please fill correct phone number",
+        primary_contact_phone_2: "Please fill correct phone number",
+        owner_phone_1: "Please fill correct phone number",
+        owner_phone_2: "Please fill correct phone number",
+        primary_contact_name: "Please fill Name",
+        owner_name: "Please fill Name",
+        email: "Please fill correct email",
+        primary_contact_email: "Please fill correct email",
+        owner_email: "Please fill correct email"
+    },
+                            submitHandler: function (form) {
+        form.submit();
     }
-
-    //when the dom has loaded setup form validation rules
-    $(D).ready(function($) {
-        JQUERY4U.UTIL.setupFormValidation();
     });
-
-})(jQuery, window, document);
-
-
-
+    }
+    }
+    
+    //when the dom has loaded setup form validation rules
+        $(D).ready(function ($) {
+    JQUERY4U.UTIL.setupFormValidation();
+    });
+    
+    })(jQuery, window, document);
+    
+    
+    
 </script>

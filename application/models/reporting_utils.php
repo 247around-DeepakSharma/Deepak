@@ -856,7 +856,7 @@ class Reporting_utils extends CI_Model {
 
     function get_booking_by_service_center() {
 
-        $sql_yesterday_booked = "SELECT count(distinct(`booking_state_change`.booking_id)) as booked, service_centres.name as service_center_name, booking_details.state, booking_details.city ,service_centres.id as service_center_id 
+        $sql_yesterday_booked = "SELECT count(distinct(`booking_state_change`.booking_id)) as booked, service_centres.name as service_center_name, service_centres.state, service_centres.district as city ,service_centres.id as service_center_id , service_centres.active as active 
                                 FROM  `booking_state_change`, `booking_details` , service_centres
                                 WHERE  `new_state`
                                 IN (
@@ -867,93 +867,107 @@ class Reporting_utils extends CI_Model {
                                 AND booking_state_change.create_date < CURDATE()
                                 AND `booking_details`.booking_id = `booking_state_change`.booking_id
                                 AND `service_centres`.id = `booking_details`.assigned_vendor_id
-                                GROUP BY booking_details.state, service_centres.name";
+                                GROUP BY service_centres.state, service_centres.name";
         
         $sql_yesterday_completed = "SELECT COUNT( DISTINCT (
                                     `booking_details`.booking_id
-                                    ) ) AS completed, service_centres.name AS service_center_name, booking_details.state, booking_details.city ,service_centres.id as service_center_id 
+                                    ) ) AS completed, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city ,service_centres.id as service_center_id , service_centres.active as active
                                     FROM `booking_details` , service_centres
                                     WHERE `current_status` = 'Completed'
                                     AND booking_details.closed_date >= DATE_SUB( CURDATE() , INTERVAL 1 
                                     DAY ) 
                                     AND booking_details.closed_date < CURDATE() 
                                     AND `service_centres`.id = `booking_details`.assigned_vendor_id
-                                    GROUP BY booking_details.state, service_centres.name";
+                                    GROUP BY service_centres.state, service_centres.name";
         
         $sql_yesterday_cancelled = "SELECT COUNT( DISTINCT (
                                     `booking_details`.booking_id
-                                    ) ) AS cancelled, service_centres.name AS service_center_name, booking_details.state, booking_details.city, service_centres.id as service_center_id 
+                                    ) ) AS cancelled, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city, service_centres.id as service_center_id , service_centres.active as active
                                     FROM `booking_details` , service_centres
                                     WHERE `current_status` = 'Cancelled'
                                     AND booking_details.closed_date >= DATE_SUB( CURDATE() , INTERVAL 1 
                                     DAY ) 
                                     AND booking_details.closed_date < CURDATE() 
                                     AND `service_centres`.id = `booking_details`.assigned_vendor_id
-                                    GROUP BY booking_details.state, service_centres.name";
+                                    GROUP BY service_centres.state, service_centres.name";
         
         $sql_month_completed = "SELECT COUNT( DISTINCT (
                                             `booking_details`.booking_id
-                                            ) ) AS completed, service_centres.name AS service_center_name, booking_details.state, booking_details.city , service_centres.id as service_center_id 
+                                            ) ) AS completed, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city , service_centres.id as service_center_id , service_centres.active as active
                                             FROM `booking_details` , service_centres
                                             WHERE `current_status` = 'Completed'
                                             AND DATE_FORMAT( booking_details.closed_date, '%m' ) = MONTH( CURDATE() ) 
+                                            AND DATE_FORMAT( booking_details.closed_date, '%Y' ) = YEAR( CURDATE() )
                                             AND `service_centres`.id = `booking_details`.assigned_vendor_id
-                                            GROUP BY booking_details.state, service_centres.name";
+                                            GROUP BY service_centres.state, service_centres.name";
         $sql_month_cancelled = "SELECT COUNT( DISTINCT (
                                             `booking_details`.booking_id
-                                            ) ) AS cancelled, service_centres.name AS service_center_name, booking_details.state, booking_details.city , service_centres.id as service_center_id 
+                                            ) ) AS cancelled, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city , service_centres.id as service_center_id , service_centres.active as active
                                             FROM `booking_details` , service_centres
                                             WHERE `current_status` = 'Cancelled'
                                             AND DATE_FORMAT( booking_details.closed_date, '%m' ) = MONTH( CURDATE() ) 
+                                            AND DATE_FORMAT( booking_details.closed_date, '%Y' ) = YEAR( CURDATE() )
                                             AND `service_centres`.id = `booking_details`.assigned_vendor_id
-                                            GROUP BY booking_details.state, service_centres.name";
+                                            GROUP BY service_centres.state, service_centres.name";
         
-        $sql_last_3_day = "SELECT booking_details.state, booking_details.city, service_centres.id AS service_center_id, service_centres.name AS service_center_name, COUNT(booking_id ) AS booked
+        $sql_last_2_day = "SELECT service_centres.state, service_centres.district as city, service_centres.id AS service_center_id, service_centres.name AS service_center_name, COUNT(booking_id ) AS booked , service_centres.active as active
                             FROM booking_details
                             JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id
-                            WHERE booking_details.booking_date >= DATE_FORMAT( (
-                            CURDATE( ) - INTERVAL 5 
-                            DAY ) , '%d/%m/%Y'
-                            )
-                            AND booking_details.booking_date <= DATE_FORMAT( (
-                            CURDATE() - INTERVAL 3 
-                            DAY ) , '%d/%m/%Y'
-                            )
+                            WHERE 
+                            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0
+                            AND 
+                            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) <= 2
                             AND current_status
                             IN (
                             'Pending', 'Rescheduled'
                             )
-                            GROUP BY booking_details.state, service_centres.name";
+                            GROUP BY service_centres.state, service_centres.name";
         
-        $sql_greater_than_5_days = "SELECT booking_details.state, booking_details.city, service_centres.id AS service_center_id, service_centres.name AS service_center_name, COUNT(booking_id ) AS booked
+        $sql_last_3_day = "SELECT service_centres.state, service_centres.district as city, service_centres.id AS service_center_id, service_centres.name AS service_center_name, COUNT(booking_id ) AS booked , service_centres.active as active
                             FROM booking_details
                             JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id
-                            WHERE booking_details.booking_date < DATE_FORMAT( (
-                            CURDATE( ) - INTERVAL 5 
-                            DAY ) , '%d/%m/%Y')
+                            WHERE 
+                            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 3
+                            AND 
+                            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) <= 5
                             AND current_status
                             IN (
                             'Pending', 'Rescheduled'
                             )
-                            GROUP BY booking_details.state, service_centres.name";
+                            GROUP BY service_centres.state, service_centres.name";
+        
+        $sql_greater_than_5_days = "SELECT service_centres.state, service_centres.district as city, service_centres.id AS service_center_id, service_centres.name AS service_center_name, COUNT(booking_id ) AS booked , service_centres.active as active
+                            FROM booking_details
+                            JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id
+                            WHERE 
+				DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 5
+                            AND current_status
+                            IN (
+                            'Pending', 'Rescheduled'
+                            )
+                            GROUP BY service_centres.state, service_centres.name";
 
         $data_yesterday['booked'] = $this->db->query($sql_yesterday_booked)->result_array();
         $data_yesterday['completed'] = $this->db->query($sql_yesterday_completed)->result_array();
         $data_yesterday['cancelled'] = $this->db->query($sql_yesterday_cancelled)->result_array();
         $data_month['completed'] = $this->db->query($sql_month_completed)->result_array();
         $data_month['cancelled'] = $this->db->query($sql_month_cancelled)->result_array();
+        $data_last_2_day = $this->db->query($sql_last_2_day)->result_array();
         $data_last_3_day = $this->db->query($sql_last_3_day)->result_array();
         $data_greater_than_5_days = $this->db->query($sql_greater_than_5_days)->result_array();
-
+        
+        
+        
         //Setting $result array with all values
         $result['yesterday_booked'] = $this->remove_no_state_error($data_yesterday['booked'],'booked');
         $result['yesterday_completed'] = $this->remove_no_state_error($data_yesterday['completed'],'completed');
         $result['yesterday_cancelled'] = $this->remove_no_state_error($data_yesterday['cancelled'],'cancelled');
         $result['month_completed'] = $this->remove_no_state_error($data_month['completed'],'completed');
         $result['month_cancelled'] = $this->remove_no_state_error($data_month['cancelled'],'cancelled');
+        $result['last_2_day'] = $this->remove_no_state_error($data_last_2_day,'booked');
         $result['last_3_day'] = $this->remove_no_state_error($data_last_3_day,'booked');
         $result['greater_than_5_days'] = $this->remove_no_state_error($data_greater_than_5_days,'booked');
-        
+
         //Genearting Final Array 
         return $this->make_final_array($result);
     }
@@ -987,6 +1001,9 @@ class Reporting_utils extends CI_Model {
             if (!empty($result['month_cancelled'][$i])) {
                 $data['month_cancelled'] = $this->search_service_center_id($service_center_id, $result['month_cancelled'][$i]);
             }
+            if (!empty($result['last_2_day'][$i])) {
+                $data['last_2_day'] = $this->search_service_center_id($service_center_id, $result['last_2_day'][$i]);
+            }
             if (!empty($result['last_3_day'][$i])) {
                 $data['last_3_day'] = $this->search_service_center_id($service_center_id, $result['last_3_day'][$i]);
             }
@@ -999,7 +1016,7 @@ class Reporting_utils extends CI_Model {
         }
         $return_array['data'] = $this->get_final_array($service_center_id, $data_final);
         $return_array['service_center_id'] = $service_center_id;
-        
+
         return $return_array;
     }
 
@@ -1036,6 +1053,9 @@ class Reporting_utils extends CI_Model {
             }
             if (isset($result['last_3_day'][$i]['service_center_id'])) {
                 $service_center_id[] = $result['last_3_day'][$i]['service_center_id'];
+            }
+            if (isset($result['last_2_day'][$i]['service_center_id'])) {
+                $service_center_id[] = $result['last_2_day'][$i]['service_center_id'];
             }
             if (isset($result['yesterday_booked'][$i]['service_center_id'])) {
                 $service_center_id[] = $result['yesterday_booked'][$i]['service_center_id'];
@@ -1081,41 +1101,52 @@ class Reporting_utils extends CI_Model {
     private function remove_no_state_error($data, $status) {
         //For removing No State present err
         $array_final = [];
-        $delete_key = [];
-        foreach ($data as $key => $value) {
-            if ($value['state'] == '') {
-                foreach ($data as $k => $v) {
-                    if ($k != $key) {
-                        if ($value['service_center_id'] == $v['service_center_id']) {
-                            $array_final_intermediate = [];
-                            $array_final_intermediate[$status] = $v[$status] + $value[$status];
-                            $array_final_intermediate['service_center_name'] = $v['service_center_name'];
-                            $array_final_intermediate['state'] = $v['state'];
-                            $array_final_intermediate['city'] = $v['city'];
-                            $array_final_intermediate['service_center_id'] = $v['service_center_id'];
-                            $array_final[] = $array_final_intermediate;
-                            
-                            //Making delete array key for dublicate values
-                            $delete_key[] = $k;
-                        }
-                    }
+        $return_array = [];
+        //Getting all Vendors enabled and disabled both
+        $vendor = $this->vendor_model->getAllVendor();
+
+        foreach ($vendor as $value) {
+            $sum = 0;
+            $flag = 0;
+            foreach ($data as $v) {
+                if ($v['service_center_id'] == $value['id']) {
+                    $flag = 1;
+                    $sum += $v[$status];
+                    $array_final[$status] = $sum;
+                    $array_final['service_center_name'] = $v['service_center_name'];
+                    $array_final['state'] = $v['state'];
+                    $array_final['city'] = $v['city'];
+                    $array_final['service_center_id'] = $v['service_center_id'];
+                    $array_final['active'] = $v['active'];
                 }
-            } else {
-                $array_final[] = $value;
             }
+            if ($flag == 1)
+                $return_array[] = $array_final;
         }
 
-        //Deleting Dublicate Values of Common state
-        foreach ($delete_key as $values) {
-            if ($array_final[$values]) {
-                unset($array_final[$values]);
-            }
-        }
+        return $return_array;
+    }
 
-        //Rebasing of array keys
-        $array_final = array_values($array_final);
-        
-        return $array_final;
+    /**
+     * @Desc: This function is used to get completed bookings of current month
+     * @params: void
+     * @return: Array
+     * 
+     */
+    function get_completed_month_bookings() {
+        $sql = "SELECT `booking_details`.booking_id, booking_details.booking_pincode AS booking_details_pincode
+                ,service_centres.name AS service_center_name, booking_details.state AS booking_details_state, booking_details.city AS booking_details_city
+                ,service_centres.id as service_center_id , service_centres.district as service_center_district
+                ,service_centres.state as service_center_state, service_centres.pincode as service_center_pincode
+                FROM `booking_details` , service_centres
+                WHERE `partner_id` = '247010'
+                AND  `current_status` LIKE  'Completed'
+                AND  `closed_date` >=  '2016-09-01 00:00:00'
+                AND  `closed_date` <  '2016-11-01 00:00:00'
+                AND `service_centres`.id = `booking_details`.assigned_vendor_id;";
+
+        $data_month = $this->db->query($sql)->result_array();
+        return $data_month;
     }
     
     /**
@@ -1269,5 +1300,125 @@ class Reporting_utils extends CI_Model {
         return $data;
         
     }
+
+    /**
+     * @Desc: This function is used to get New Vendors Data
+     * @params: void
+     * @return : void
+     */
+    function get_booking_for_new_service_center(){
+        
+        $data = [];
+        $yesterday_bookings_gone = "SELECT count(distinct(`booking_state_change`.booking_id)) as booked, service_centres.id as service_center_id 
+                                FROM  `booking_state_change`, `booking_details` , service_centres
+                                WHERE  `new_state`
+                                IN (
+                                'Pending',  'Rescheduled'
+                                )
+                                AND booking_state_change.create_date >= DATE_SUB( CURDATE( ) , INTERVAL 1
+                                DAY )
+                                AND booking_state_change.create_date < CURDATE()
+                                AND service_centres.create_date BETWEEN CURDATE() - INTERVAL 60 DAY AND CURDATE()
+                                AND `booking_details`.booking_id = `booking_state_change`.booking_id
+                                AND `service_centres`.id = `booking_details`.assigned_vendor_id
+                                GROUP BY service_centres.state, service_centres.name";
+        
+        $booking_gone_mtd = "SELECT COUNT( DISTINCT (
+                                            `booking_details`.booking_id
+                                            ) ) AS completed, service_centres.id as service_center_id 
+                                            FROM `booking_details` , service_centres
+                                            WHERE 
+                                                DATE_FORMAT( booking_details.create_date, '%m' ) = MONTH( CURDATE() ) 
+                                                AND DATE_FORMAT( booking_details.create_date, '%Y' ) = YEAR( CURDATE() )
+                                            AND service_centres.create_date BETWEEN CURDATE() - INTERVAL 60 DAY AND CURDATE()
+                                            AND `service_centres`.id = `booking_details`.assigned_vendor_id
+                                            GROUP BY service_centres.state, service_centres.name";
+        
+        $bookings_cancelled = "SELECT COUNT( DISTINCT (
+                                            `booking_details`.booking_id
+                                            ) ) AS cancelled, service_centres.id as service_center_id 
+                                            FROM `booking_details` , service_centres
+                                            WHERE `current_status` = 'Cancelled'
+                                            AND DATE_FORMAT( booking_details.create_date, '%m' ) = MONTH( CURDATE() ) 
+                                            AND DATE_FORMAT( booking_details.create_date, '%Y' ) = YEAR( CURDATE() )
+                                            AND service_centres.create_date BETWEEN CURDATE() - INTERVAL 60 DAY AND CURDATE()
+                                            AND `service_centres`.id = `booking_details`.assigned_vendor_id
+                                            GROUP BY service_centres.state, service_centres.name";
+        $bookings_completed = "SELECT COUNT( DISTINCT (
+                                            `booking_details`.booking_id
+                                            ) ) AS completed, service_centres.id as service_center_id 
+                                            FROM `booking_details` , service_centres
+                                            WHERE `current_status` = 'Completed'
+                                            AND DATE_FORMAT( booking_details.create_date, '%m' ) = MONTH( CURDATE() ) 
+                                            AND DATE_FORMAT( booking_details.create_date, '%Y' ) = YEAR( CURDATE() )
+                                             AND service_centres.create_date BETWEEN CURDATE() - INTERVAL 60 DAY AND CURDATE()
+                                            AND `service_centres`.id = `booking_details`.assigned_vendor_id
+                                            GROUP BY service_centres.state, service_centres.name";
+        
+        $pending_bookings_last_2_days = "SELECT service_centres.id AS service_center_id, COUNT(booking_id ) AS pending 
+                                            FROM booking_details
+                                            JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id
+                                            WHERE 
+                                            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0
+                                            AND 
+                                            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) <= 2
+                                            AND current_status
+                                            IN (
+                                            'Pending', 'Rescheduled'
+                                            )
+                                            AND service_centres.create_date BETWEEN CURDATE() - INTERVAL 60 DAY AND CURDATE()
+                                            GROUP BY service_centres.state, service_centres.name";
+        
+        $pending_bookings_last_3_5_days = "SELECT service_centres.id AS service_center_id, COUNT(booking_id ) AS pending 
+                                            FROM booking_details
+                                            JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id
+                                            WHERE 
+                                            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 3
+                                            AND 
+                                            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) <= 5
+                                            AND current_status
+                                            IN (
+                                            'Pending', 'Rescheduled'
+                                            )
+                                                                        AND service_centres.create_date BETWEEN CURDATE() - INTERVAL 60 DAY AND CURDATE()
+                                            GROUP BY service_centres.state, service_centres.name";
+        
+        $pending_bookings_greater_than_5_days = "SELECT service_centres.id AS service_center_id, COUNT(booking_id ) AS pending 
+                                                    FROM booking_details
+                                                    JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id
+                                                    WHERE 
+                                                                DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 5
+                                                    AND current_status
+                                                    IN (
+                                                    'Pending', 'Rescheduled'
+                                                    )
+                                                    AND service_centres.create_date BETWEEN CURDATE() - INTERVAL 60 DAY AND CURDATE()
+                                                    GROUP BY service_centres.state, service_centres.name";
+        
+        $data['yesterday_bookings_gone'] = $this->make_sc_array($this->db->query($yesterday_bookings_gone)->result_array());
+        $data['booking_gone_mtd'] = $this->make_sc_array($this->db->query($booking_gone_mtd)->result_array());
+        $data['bookings_cancelled'] = $this->make_sc_array($this->db->query($bookings_cancelled)->result_array());
+        $data['bookings_completed'] = $this->make_sc_array($this->db->query($bookings_completed)->result_array());
+        $data['pending_bookings_last_2_days'] = $this->make_sc_array($this->db->query($pending_bookings_last_2_days)->result_array());
+        $data['pending_bookings_last_3_5_days'] = $this->make_sc_array($this->db->query($pending_bookings_last_3_5_days)->result_array());
+        $data['pending_bookings_greater_than_5_days'] = $this->make_sc_array($this->db->query($pending_bookings_greater_than_5_days)->result_array());
+        
+        return $data;
+    }
+    
+    /**
+     * @Desc: This is used to make array acc to vendor id
+     * @params: Array
+     * 
+     * @return: Array
+     */
+    private function make_sc_array($data){
+        $sc_array = [];
+        foreach($data as $key=>$value){
+            $sc_array[$value['service_center_id']] = $value;
+        }
+        return $sc_array;
+    }
+
 
 }

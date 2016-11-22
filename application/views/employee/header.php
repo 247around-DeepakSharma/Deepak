@@ -274,6 +274,10 @@
                           <a href="<?php echo base_url()?>employee/vendor/show_service_center_report"><i class="fa fa-fw fa-desktop "></i> <strong>SF Bookings Snapshot</strong></a>
                       </li>
                       <li class="divider"></li>
+                      <li>
+                          <a href="<?php echo base_url()?>employee/vendor/new_service_center_report"><i class="fa fa-fw fa-desktop "></i> <strong>Newly Added SF (2 Months) </strong></a>
+                      </li>
+                      <li class="divider"></li>
                        <li>
                           <a href="<?php echo base_url()?>BookingSummary/get_pending_bookings/0"><i class="fa fa-fw fa-desktop "></i> <strong>Download SF Pending Summary</strong></a>
                       </li>
@@ -303,6 +307,28 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/user/user_count" ><i class="fa fa-fw fa-desktop"></i> <strong> Users</strong></a>
                         </li>
+                    </ul>
+                    <!-- /.dropdown-user -->
+                </li>
+                
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-fw fa-arrows-v"></i> Inventory <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="<?php echo base_url()?>employee/inventory/get_bracket_add_form"><i class="fa fa-fw fa-desktop "></i> <strong>Add Brackets</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/inventory/show_brackets_list"><i class="fa fa-fw fa-desktop "></i> <strong>Show Brackets List</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/inventory/get_vendor_inventory_list_form"><i class="fa fa-fw fa-desktop "></i> <strong>Vendor Inventory Details</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>

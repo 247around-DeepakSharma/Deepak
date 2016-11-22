@@ -2,10 +2,10 @@
 <p>Total Booking came today: <?php echo $total_booking_came_today; ?></p>
 <p>Total Booking inserted today: <?php echo $total_booking_inserted; ?> </p>
 
-<?php if (isset($count_past_delivery_date)) { ?>
-<p>Total past delivery date: <?php echo $total_booking_inserted; ?>
-    <?php } if (isset($count_future_delivery_date)) { ?>
-<p> Total Future delivery date: <?php echo $count_future_delivery_date; ?></p>
+<?php if (isset($count_booking_updated)) { ?>
+<p>Total Booking Updated: <?php echo $count_booking_updated; ?>
+    <?php } if (isset($count_booking_not_updated)) { ?>
+<p> Booking Not Updated: <?php echo $count_booking_not_updated; ?></p>
 <?php } ?>
 <br/>
 <div style="margin-top: 30px;">

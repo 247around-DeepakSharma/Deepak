@@ -158,7 +158,7 @@ class Do_background_process extends CI_Controller {
         $booking_id = $this->input->post('booking_id');
         $agent_id = $this->input->post('agent_id');
         $agent_name = $this->input->post('agent_name');
-        $remarks = $this->input->post('admin_remarks');
+        //$remarks = $this->input->post('admin_remarks');
 
         log_message('info', "Booking Id " . print_r($booking_id, TRUE));
 

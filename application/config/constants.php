@@ -99,6 +99,40 @@ define('SPARE_PARTS_SHIPPED', 'Spare Parts Shipped by Partner');
 // Spare Reschedule 
 define('SPARE_RESCHEDULED', 'Spare_Rescheduled');
 
+//constant to define Login 
+define('_247AROUND_LOGIN',1);
+//constant to define Completed state
+define('_247AROUND_LOGOUT',0);
+//constant to define 247around access for login panel
+define('_247AROUND_ACCESS','247Access');
+//constant to define 247around state for brackets requested 
+define('_247AROUND_BRACKETS_REQUESTED','Brackets_Requested');
+//constant to define 247around state for brackets shipped 
+define('_247AROUND_BRACKETS_SHIPPED','Brackets_Shipped');
+//constant to define 247around state for brackets requested 
+define('_247AROUND_BRACKETS_RECEIVED','Brackets_Received');
+//constant to define 247around state for brackets pending 
+define('_247AROUND_BRACKETS_PENDING','Brackets_Pending');
+//constant to define 247around brackets charge for 19-24 inch
+define('_247AROUND_BRACKETS_19_24_UNIT_PRICE',240);
+//constant to define 247around brackets charge for 26-32 inch
+define('_247AROUND_BRACKETS_26_32_UNIT_PRICE',350);
+//constant to define 247around brackets charge for 36-42 inch
+define('_247AROUND_BRACKETS_36_42_UNIT_PRICE',485);
+//constant to define State for making Vendor Activate
+define('_247AROUND_VENDOR_ACTIVATED','Vendor_Activated');
+//constant to define State for making Vendor De-activate
+define('_247AROUND_VENDOR_DEACTIVATED','Vendor_Deactivated');
+//constant to define State for making Vendor DELETED
+define('_247AROUND_VENDOR_DELETED','Vendor_Deleted');
+//constant to define State for making Partner Activate
+define('_247AROUND_PARTNER_ACTIVATED','Partner_Activated');
+//constant to define State for making Partner De-activate
+define('_247AROUND_PARTNER_DEACTIVATED','Partner_Deactivated');
+
+define("INSERT_NEW_BOOKING", "INSERT_NEW_BOOKING");
+
+
 define('SPARE_PARTS_REQUIRED', 'Spare Parts Required');
 
 define('SPARE_PARTS_REQUESTED', 'Spare Parts Requested');

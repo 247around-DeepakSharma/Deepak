@@ -489,7 +489,7 @@ class Notify {
 		    break;
 
 		case 'Pincode_not_found':
-		   // log_message('info', __METHOD__ . "Applianc" . print_r($appliance_id, true));
+		    log_message('info', __METHOD__." Pincode Not Found ". $query1[0]['booking_pincode'] );
 		    sleep(180);
 		    $to = "anuj@247around.com, nits@247around.com";
 		    //$to = "abhaya@247around.com";
@@ -504,16 +504,15 @@ class Notify {
     }
 
     /**
-     *  @desc: This is used to return free or empty according to given appliance
+     * @desc: This is used to return free or empty according to given appliance
      * @param string $appliance
      * @return string free or ''
      */
-    function get_product_free_not($appliance) {
+    function get_product_free_not($appliance, $category) {
 	$status = '';
         
-	switch ($appliance) {
-            
-            case 'Geyser':
+	switch ($appliance) {            
+
             case 'Television':
             case 'Microwave':
             case 'Refrigerator':
@@ -522,17 +521,33 @@ class Notify {
 		$status = 'FREE';
 		break;
 
-            //Leave blank
 	    case 'Air Conditioner':
+                $status = 'PAID';
+                break;
+            
 	    case 'Chimney':
                 $status = 'PAID';
 		break;
+            case 'Geyser':
+                switch ($category){
+                
+                case 'Geyser-PAID':
+                    $status = 'PAID (Rs 350)';
+                    break;
+                default :
+                    
+                    $status = 'FREE';
+                    break;
+                }
+                
+                break;
 	}
         
 	return $status;
     }
     
     function sendTransactionalSmsAcl($phone_number, $body) {
+      
         switch (ENVIRONMENT) {
 	    case 'production':
                 $message = urlencode($body);        

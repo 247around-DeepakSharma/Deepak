@@ -100,7 +100,7 @@ class BookingSummary extends CI_Controller {
             //log_message('info', "Report generated with $count records");
             //Send report via email
             $this->email->from('booking@247around.com', '247around Team');
-            $this->email->to("nits@247around.com, anuj@247around.com, booking@247around.com, sales@247around.com, suresh@247around.com");
+            $this->email->to("nits@247around.com, anuj@247around.com, booking@247around.com, sales@247around.com, suresh@247around.com, nilanjan@247around.com, oza@247around.com");
             //$this->email->to("anuj.aggarwal@gmail.com");
 
             $this->email->subject("Booking Summary: " . date('Y-m-d H:i:s'));
@@ -362,6 +362,15 @@ EOD;
 	    //Fetch partners' bookings
 	    $leads = $this->partner_model->get_partner_leads_for_summary_email($p['id']);
             log_message('info', __FUNCTION__ . ' => Fetched partner bookings');
+            // Check Other string exist in the Cancellation reason. 
+            // If exist then replace cancellation_reason with other
+            foreach ($leads as $key => $value) {
+                if (stristr($value['cancellation_reason'], "Other :")){
+                  
+                    $leads[$key]['cancellation_reason'] = "Other";
+                    
+                }
+            }
 
 	    $R->load(array(
 		array(
@@ -375,7 +384,7 @@ EOD;
 	    $output_file = "/tmp/247around-Services-Consolidated-Data - " . date('d-M-Y') . ".xlsx";
 	    //for xlsx: excel, for xls: excel2003
 	    $R->render('excel', $output_file);
-	    log_message('info' . __FUNCTION__ . ' => Rendered excel');
+	    log_message('info', __FUNCTION__ . ' => Rendered excel');
             
 	    $this->email->clear(TRUE);
 	    $this->email->from('booking@247around.com', '247around Team');
@@ -651,24 +660,96 @@ EOD;
     }
     
     /**
-     * @desc: This function is used to send service center daily report on mail (CRON)
+     * @desc: This function is used to send new service center report mail(CRON)
      * params: void
      * retunr :void
-     * 
+     *
      */
+    function new_send_service_center_report_mail(){
+        $html = $this->booking_utilities->booking_report_for_new_service_center();
+        $to = 'anuj@247around.com, nits@247around.com, suresh@247around.com, nilanjan@247around.com, oza@247around.com';
+
+        $this->notify->sendEmail("booking@247around.com", $to, "", "", "New Service Center Report - ".date("d-M-Y"), $html, "");
+        log_message('info', __FUNCTION__ . ' Service Center Report mail sent to '. $to);
+    }
+    
+    /**
+     * @desc: This function is used to send service center report mail(CRON)
+     * params: void
+     * retunr :void
+     *
+     */
+    
     function send_service_center_report_mail() {
         //Get summary table
         $html = $this->booking_utilities->booking_report_by_service_center();
         
         //Send it to the team
-        $to = 'anuj@247around.com, nits@247around.com, suresh@247around.com';
+        $to = "nits@247around.com, anuj@247around.com, suresh@247around.com, nilanjan@247around.com, oza@247around.com";
+
         $subject = "Service Center Report - " . date("d-M-Y");
             
         $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $html, "");
         
         log_message('info', __FUNCTION__ . ' Service Center Report mail sent to ' . $to);
     }
-    
+
+    /**
+     * @Desc: This function is used to get distance between vednor and customer for completed bookings
+     *        based on their Pincodes
+     * @param void
+     * @return: int(No. of vendors whose pincode is not present)
+     * 
+     */
+    function get_vendor_customer_distance_by_pincode(){
+        //Getting booking details
+        //$completed_bookings = [];
+        $no_pincode = 0;
+        $done=0;
+        
+        $bookings = $this->reporting_utils->get_completed_month_bookings();
+        echo 'Bookings found: ' . count($bookings) . '\n';
+        
+        foreach ($bookings as $key=>$value){
+           if($value['service_center_pincode'] == ''){
+               echo 'Pincode not found' . PHP_EOL;
+               $no_pincode++;
+           }else{
+               //Process to get distance between vendor and customer pincode
+               $csv_array  = $value;
+               //Using file_get_content to get json response for GET Request
+               $du = file_get_contents("https://maps.googleapis.com/maps/api/distancematrix/json?origins=" . 
+                       $value['service_center_pincode'] . ",India" .  
+                       "&destinations=" . 
+                       $value['booking_details_pincode'] . ",India" .  
+                       "&key=AIzaSyDYYGttub8nTWcXVZBG9iMuQwZfFaBNcbQ");
+               $djd = json_decode(utf8_encode($du),true);
+               $csv_array['distance'] = $djd['rows'][0]['elements'][0]['distance']['text'];
+               
+               //Creating csv file and appending data
+               $file_name = '/tmp/Vendor-Cutomer-Distance-Wybor.csv';
+               
+               if (file_exists($file_name)) {
+                    $file = fopen($file_name, 'a');
+                    fputcsv($file,$csv_array);
+                } else {
+                    $file = fopen($file_name, 'w');
+                    fputcsv($file,$csv_array);
+                }
+              
+              echo $done++ . '.....' . PHP_EOL;
+           }
+        }
+        
+        //Closing csv file 
+        fclose($file);
+        
+        echo "No pincodes: " . $no_pincode;
+        
+        exit(0);
+        //return $no_pincode;
+    }
+
     /**
      * @desc: 
      * @param integer $is_mail

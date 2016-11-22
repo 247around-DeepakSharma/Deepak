@@ -17,14 +17,14 @@ class Service_centers_model extends CI_Model {
      * @return : Array(Pending booking)  
      */
     function service_center_login($data) {
-        $this->db->select('service_center_id');
+        $this->db->select('*');
         $this->db->where('user_name', $data['user_name']);
         $this->db->where('password', $data['password']);
         $this->db->where('active', 1);
         $query = $this->db->get('service_centers_login');
         if ($query->num_rows() > 0) {
             $result = $query->result_array();
-            return $result[0]['service_center_id'];
+            return $result[0];
         } else {
 
             return false;

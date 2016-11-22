@@ -8,6 +8,14 @@
    });
 
 </script>
+<style type="text/css">
+    .btn-group-sm>.btn, .btn-sm {
+    padding: 1px 5px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+}
+    </style>
 <div id="page-wrapper">
    <div class="row">
       <div style="width:100%;margin-left:10px;margin-right:5px;">
@@ -69,86 +77,90 @@
             <div class="col-md-3 pull-right" style="margin-top:20px;">
                <input type="search" class="form-control pull-right"  id="search" placeholder="search">
             </div>
-            <div style="width:100%;margin-left:10px;margin-right:5px;">
                <h2 >
                   <b>Review Bookings - Complete / Cancel</b>
                </h2>
                <form action="<?php echo base_url();?>employee/booking/checked_complete_review_booking" method="post">
-                  <div class="col-md-12">
-                     <table class="table table-bordered table-hover table-striped">
+                  <div class="col-md-12" style="font-size:82%;margin-left:-23px;">
+                      <table class="table table-bordered table-hover table-striped">
                         <thead>
                            <tr>
-                              <th>S No.</th>
-                              <th>Booking Id</th>
-                              <th>Service Center </th>
-                              <th>User Name</th>
-                              <th>Amount Due</th>
-                              <th style="text-align: center;">Price Details</th>
-                              <th>Total Charge</th>
-                              <th>Admin Remarks</th>
-                              <th>Vendor Remarks</th>
-                              <th>Vendor Cancellation Reason</th>
-                              <th><input type="checkbox" id="selecctall" />  Approve</th>
-                              <th>View</th>
-                              <th>Edit</th>
-                              <th>Reject</th>
+                              <th class="jumbotron" >S.N.</th>
+                              <th class="jumbotron" >Booking Id</th>
+                              <th class="jumbotron" >Service Center </th>
+                              <th class="jumbotron" style="text-align: center;">Price Details</th>
+                              <th class="jumbotron" >Amount Due</th>
+                              <th class="jumbotron" >Amount Paid</th>
+                              <th class="jumbotron" >Admin Remarks</th>
+                              <th class="jumbotron" >Vendor Remarks</th>
+                              <th class="jumbotron" >Vendor Cancellation Reason</th>
+                              <th class="jumbotron" ><input type="checkbox" id="selecctall" /></th>
+                              <th class="jumbotron" >Action</th>
                            </tr>
                         </thead>
                         <tbody>
                            <?php $count =1; foreach ($charges as $key => $value) { ?>
                            <tr>
-                              <td><?php echo $count; ?></td>
-                              <td><?php echo $value['booking_id']; ?><input type="hidden" name="booking_id[]" value="<?php echo $value['booking_id']; ?>" id="<?php echo "booking_id".$count; ?>">
+                              <td style="text-align: left;white-space: inherit;font-size:80%"><?php echo $count; ?></td>
+                              <td  style="text-align: left;white-space: inherit;"><?php echo $value['booking_id']; ?><input type="hidden" name="booking_id[]" value="<?php echo $value['booking_id']; ?>" id="<?php echo "booking_id".$count; ?>">
                               </td>
-                              <td><?php echo $value['service_centres'][0]['name']; ?></td>
-                              <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $value['booking'][0]['phone_number'];?>"><?php echo $value['booking'][0]['name'];?></a>
+                              <td style="text-align: left;white-space: inherit;"> <?php echo $value['service_centres'][0]['name']; ?></td>
                               </td>
-                              <td><?php echo $value['booking'][0]['amount_due']; ?></td>
-                              <td>
-                                 <table  class="table table-bordered table-hover table-striped">
+                              <td style="text-align: left;white-space: inherit;">
+                                 <table  class="table table-condensed">
                                     <thead>
-                                       <th>Category/Capacity</th>
-                                       <th>Serial Number</th>
-                                       <th>Tags</th>
-                                       <th>Service Charge</th>
-                                       <th>Additional Service Charge</th>
-                                       <th>Parts Cost</th>
-                                       <th>Vendor Status</th>
+                                       <th class="jumbotron" >Category/Capacity</th>
+                                       <th class="jumbotron" >Serial Number</th>
+                                       <th class="jumbotron" >Tags</th>
+                                       <th class="jumbotron" >Service Charge</th>
+                                       <th class="jumbotron" >Additional Service Charge</th>
+                                       <th class="jumbotron" >Parts Cost</th>
+                                       <th class="jumbotron" >Vendor Status</th>
                                     </thead>
                                     <tbody>
-                                       <?php foreach ($value['unit_details'] as $key1 => $value1) { ?>
-                                       <tr>
-                                          <td><p class="<?php echo "category".$count; ?>"><?php echo $value1['appliance_category']."/". $value1['appliance_capacity']; ?></p></td>
+                                       <?php foreach ($value['unit_details'] as $key1 => $value1) {
+                                           
+                                           $style = "";
+                                               if ($value1['amount_paid'] == 0 && $value1['internal_status'] == "Completed" && $value['booking'][0]['amount_due'] > 0) {
+                                                   $style = "background-color:#FF8080";
+                                               }
+                                               if ($value1['amount_paid'] > 0 && $value1['internal_status'] == "Completed" && $value['booking'][0]['amount_due'] == 0) {
+                                                   $style = "background-color:#4CBA90";
+                                               }
+                                               ?>
+                                       <tr style="<?php echo $style?>">
+                                           <td><span class="<?php echo "category".$count; ?>"><?php echo $value1['appliance_category']."/". $value1['appliance_capacity']; ?></span></td>
                                           <td>
-                                             <p class="<?php echo "serial_number".$count; ?>"><?php echo $value1['serial_number']; ?></p>
+                                             <span class="<?php echo "serial_number".$count; ?>"><?php echo $value1['serial_number']; ?></span>
                                           </td>
-                                          <td><p class="<?php echo "price_tags".$count; ?>"><?php echo $value1['price_tags']; ?></p></td>
+                                          <td><span class="<?php echo "price_tags".$count; ?>"><?php echo $value1['price_tags']; ?></span></td>
                                           <td>
-                                             <p id="<?php echo "service_charge".$count; ?>"><?php echo $value1['service_charge']; ?></p>
+                                             <span id="<?php echo "service_charge".$count; ?>"><?php echo $value1['service_charge']; ?></span>
                                           </td>
                                           <td>
-                                             <p id="<?php echo "additional_charge".$count; ?>"><?php echo $value1['additional_service_charge']; ?></p>
+                                             <span id="<?php echo "additional_charge".$count; ?>"><?php echo $value1['additional_service_charge']; ?></span>
                                           </td>
                                           <td>
-                                             <p id="<?php echo "parts_cost".$count;?>"><?php echo $value1['parts_cost']; ?></p>
+                                             <span id="<?php echo "parts_cost".$count;?>"><?php echo $value1['parts_cost']; ?></span>
                                           </td>
                                           <td>
-                                             <p id="<?php echo "internal_status".$count; ?>"><?php echo $value1['internal_status']; ?></p>
+                                             <span id="<?php echo "internal_status".$count; ?>"><?php echo $value1['internal_status']; ?></span>
                                           </td>
                                        </tr>
                                        <?php } ?>
                                     </tbody>
                                  </table>
                               </td>
-                              <td><?php echo $value1['amount_paid']; ?></td>
-                              <td>
+                              <td style="text-align: center;white-space: inherit;"><strong><?php echo $value['booking'][0]['amount_due']; ?></strong></td>
+                              <td style="text-align: center;white-space: inherit;"><strong><?php echo $value1['amount_paid']; ?></strong></td>
+                              <td style="text-align: left;white-space: inherit;">
                                  <p id="<?php echo "admin_remarks_".$count; ?>"><?php echo $value['admin_remarks']; ?></p>
                               </td>
                               <input type="hidden" id="<?php echo "admin_remarks".$count;?>" value="<?php echo $value['admin_remarks'];?>"></input>
-                              <td>
+                              <td style="text-align: left;white-space: inherit;font-size:90%">
                                  <p id="<?php echo "service_center_remarks".$count; ?>"><?php echo $value['service_center_remarks']; ?></p>
                               </td>
-                              <td>
+                              <td style="text-align: left;white-space: inherit;font-size:90%">
                                  <p id="<?php echo "cancellation_reason".$count; ?>"><?php echo $value['cancellation_reason']; ?></p>
                               </td>
                               <td><input id="approved_close" type="checkbox"  class="checkbox1" name="approved_booking[]" value="<?php echo $value['booking_id']; ?>"></input></td>
@@ -156,15 +168,14 @@
                                  <?php echo "<a class='btn btn-sm btn-primary' "
                                     . "href=" . base_url() . "employee/booking/viewdetails/$value[booking_id] target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
                                     ?>
-                              </td>
-                              <td><a target='_blank'  href="<?php echo base_url(); ?>employee/booking/get_complete_booking_form/<?php echo $value['booking_id']; ?>" class="btn btn-info btn-sm">Edit</a></td>
-                              <td><button type="button" id="<?php echo "remarks_".$count;?>" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2">Reject</button></td>
+                              <a style="margin-top:5px;" target='_blank'  href="<?php echo base_url(); ?>employee/booking/get_complete_booking_form/<?php echo $value['booking_id']; ?>" class="btn btn-info btn-sm"><i class="fa fa-pencil" aria-hidden="true" title="Edit"></i></a>
+                              <button style="margin-top:5px;" type="button" id="<?php echo "remarks_".$count;?>" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2"><i class="fa fa-times" aria-hidden="true" title="Reject"></i></button></td>
                            </tr>
                            <?php $count++; } ?>
                         </tbody>
                      </table>
                      <?php if(!empty($charges)){?>
-                     <div class"col-md-12">
+                     <div class="col-md-12">
                         <center><input type="submit" value="Approve Bookings"  style=" background-color: #2C9D9C;
                            border-color: #2C9D9C;"  class="btn btn-md btn-success" onclick="check_limit_booking()"/></center>
                      </div>
@@ -172,7 +183,6 @@
                </form>
                
                </div>
-            </div>
          </div>
       </div>
    </div>

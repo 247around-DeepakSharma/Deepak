@@ -134,11 +134,15 @@
                                             <option selected disabled>Select Brand</option>
                                             <?php if($this->session->userdata('partner_id') == "247011"){ ?>
                                             <option selected="selected">Ray</option>
-                                            <?php } else if($this->session->userdata('partner_id') == "247010"){ ?>
-                                             <option selected="selected">Wybor</option>
-                                            <option>EgoVision</option>
-                                            <option>Belco</option>
-                                            <?php    } ?>
+                                            <?php } else if($this->session->userdata('partner_id') == "247010") { ?>
+                                              <option selected="selected">Wybor</option>
+                                             <option>EgoVision</option>
+                                             <option>Belco</option>
+                                             <?php  } else if($this->session->userdata('partner_id') == "247013") {?>
+                                             <option selected="selected">Nacson</option>
+                                             <?php } else if($this->session->userdata('partner_id') == "247014") { ?>
+                                              <option selected="selected">BoschDelon</option>
+                                              <?php } ?>
                                         </select>
                                     </div>
                                 </div>

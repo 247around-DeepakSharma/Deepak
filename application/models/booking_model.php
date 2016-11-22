@@ -456,7 +456,7 @@ class Booking_model extends CI_Model {
         $this->db->where('assigned_vendor_id is NOT NULL', NULL, true);
         $this->db->where('booking_id', $booking_id);
         $query = $this->db->get('booking_details');
-        
+
         if($query->num_rows > 0){
             // NOT NUll
             $data = $this->getbooking_history($booking_id, "Join");
@@ -467,7 +467,7 @@ class Booking_model extends CI_Model {
         } else {
             //NUll
             $sql = " SELECT `services`.`services`, users.*, booking_details.* "
-               . "from booking_details, users, services " 
+               . "from booking_details, users, services "
                . "where booking_details.booking_id='$booking_id' and "
                . "booking_details.user_id = users.user_id and "
                . "services.id = booking_details.service_id  ";
@@ -1300,11 +1300,11 @@ class Booking_model extends CI_Model {
 
         $this->db->where("booking_id", $booking_id);
         $this->db->update("booking_details", $status);
-        
+
         $booking_status = array('booking_status' => '');
 	$this->db->where("booking_id", $booking_id);
 	$this->db->update("booking_unit_details", $booking_status);
-        
+
 	return true;
     }
 
@@ -1537,11 +1537,18 @@ class Booking_model extends CI_Model {
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
         log_message('info', __METHOD__ . " update booking_unit_details data " . print_r($result, true) . " Price data with tax: " . print_r($data, true));
-
+        // Update request type If price tags is installation OR repair
+        if (stristr($result['price_tags'], "Installation")) {
+            $this->update_booking($result['booking_id'], array('request_type'=>$result['price_tags']));
+             
+        } else if (stristr($result['price_tags'], "Repair")) {
+            $this->update_booking($result['booking_id'], array('request_type'=>$result['price_tags']));
+        }
+        
         $this->db->select('id');
         $this->db->where('appliance_id', $services_details['appliance_id']);
         $this->db->where('price_tags', $data[0]['price_tags']);
-        $this->db->where('booking_id', $booking_id);
+        $this->db->like('booking_id', preg_replace("/[^0-9]/","",$booking_id));
         $query = $this->db->get('booking_unit_details');
         log_message('info', __METHOD__ . " Get Unit Details SQl" . $this->db->last_query());
 
@@ -1633,8 +1640,9 @@ class Booking_model extends CI_Model {
             $data['vendor_to_around'] = 0;
             $data['around_to_vendor'] = abs($vendor_around_charge);
         }
-
-        unset($data['internal_status']);
+        if(isset($data['internal_status'])){
+            unset($data['internal_status']);
+        }
         $this->db->where('id', $data['id']);
         $this->db->update('booking_unit_details',$data);
     }
@@ -1697,10 +1705,15 @@ class Booking_model extends CI_Model {
 
         if($data['booking_status'] == "Completed"){
             // get booking unit data on the basis of id
-            $this->db->select('around_net_payable, partner_net_payable, tax_rate, price_tags, partner_paid_basic_charges, around_paid_basic_charges');
+            $this->db->select('around_net_payable,booking_status, partner_net_payable, tax_rate, price_tags, partner_paid_basic_charges, around_paid_basic_charges');
             $this->db->where('id', $data['id']);
             $query = $this->db->get('booking_unit_details');
             $unit_details = $query->result_array();
+            
+            if($unit_details[0]['booking_status'] == "Completed"){
+                
+                $unit_details[0]['partner_paid_basic_charges'] = $unit_details[0]['partner_net_payable'];  
+            } 
 
             $this->update_price_in_unit_details($data, $unit_details);
 
@@ -1737,17 +1750,25 @@ class Booking_model extends CI_Model {
 	log_message('info', __FUNCTION__);
 	$data = $this->getpricesdetails_with_tax($services_details['id'], $state);
 
-    log_message('info', __METHOD__ . " Get Price with Taxes" . print_r($data, true));
+        log_message('info', __METHOD__ . " Get Price with Taxes" . print_r($data, true));
 
-    $result = array_merge($data[0], $services_details);
+        $result = array_merge($data[0], $services_details);
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
 
-    log_message('info', __METHOD__ . " Insert booking_unit_details data" . print_r($result, true));
+        log_message('info', __METHOD__ . " Insert booking_unit_details data" . print_r($result, true));
 	$this->db->insert('booking_unit_details', $result);
-    $result['DEFAULT_TAX_RATE'] = $data['DEFAULT_TAX_RATE'];
-    return $result;
-    }
+        //Update request type If price tags is installation OR repair
+        if (stristr($result['price_tags'], "Installation")) {
+            $this->update_booking($result['booking_id'], array('request_type'=>$result['price_tags']));
+             
+        } else if (stristr($result['price_tags'], "Repair")) {
+            $this->update_booking($result['booking_id'], array('request_type'=>$result['price_tags']));
+        }
+        
+        $result['DEFAULT_TAX_RATE'] = $data['DEFAULT_TAX_RATE'];
+        return $result;
+        }
 
     /**
      *  @desc : This function is to insert booking state changes.
@@ -2064,6 +2085,57 @@ class Booking_model extends CI_Model {
         }
         echo "Completed";
 
+    }
+
+    /**
+     * @desc: This method  is used to find duplicate booking. If found then cancel booking and return internal status
+     * @param Array $requestData
+     * @param String $service_id
+     */
+    function cancel_duplicate_booking_for_sts($requestData, $service_id){
+        /*
+        log_message('info', __METHOD__);
+        $this->db->select('*');
+        $this->db->from("booking_details");
+        $this->db->join("booking_unit_details","booking_unit_details.booking_id = booking_details.booking_id");
+        $this->db->where('booking_primary_contact_no',$requestData['mobile']);
+        $this->db->where('booking_pincode',$requestData['pincode']);
+        $this->db->where('booking_details.service_id',$service_id);
+        $this->db->where('booking_details.partner_id', 1);
+        $this->db->where('current_status', "FollowUp");
+        $this->db->where('partner_source !=', "STS");
+        $this->db->where('booking_unit_details.appliance_description', $requestData['productType']);
+        $this->db->order_by("booking_details.id","desc");
+        $query = $this->db->get();
+        log_message('info', __METHOD__ . $this->db->last_query());
+        if($query->num_rows > 0){
+            $result = $query->result_array();
+            log_message('info', __METHOD__ . " Booking Id found: for cancel: ".$result[0]['booking_id']);
+            $data['internal_status'] = "Cancelled";
+            $data['cancellation_reason'] = "Duplicate Booking (STS)";
+            // Update booking details table
+            $this->update_booking($result[0]['booking_id'], $data);
+            // Update booking unit details
+            $this->update_booking_unit_details($result[0]['booking_id'], array('booking_status'=> 'Cancelled'));
+            
+            $data1['booking_id'] = $result[0]['booking_id'];
+            $data1['new_state'] = "Cancelled";
+            $data1['old_state'] = "FollowUp";
+            $data1['remarks'] = "Duplicate Booking (STS)";
+            $data1['agent_id'] = 1;
+            $data1['partner_id'] = _247AROUND;
+            // Insert data into booking state change table
+            $this->insert_booking_state_change($data1);
+            
+            return $result[0]['internal_state_change'];
+            
+        } else {
+            return FALSE;
+        }
+         * 
+         */
+        
+        return FALSE;
     }
 
 

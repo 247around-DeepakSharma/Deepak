@@ -26,6 +26,8 @@ class Service_centers extends CI_Controller {
         $this->load->library('s3');
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
+        $this->load->library('PHPReport');
+        $this->load->helper('download');
     }
 
     /**
@@ -49,12 +51,12 @@ class Service_centers extends CI_Controller {
     function service_center_login() {
         $data['user_name'] = $this->input->post('user_name');
         $data['password'] = md5($this->input->post('password'));
-        $service_center_id = $this->service_centers_model->service_center_login($data);
+        $service_center = $this->service_centers_model->service_center_login($data);
 
-        if ($service_center_id) {
+        if ($service_center) {
 	    //get sc details now
-	    $sc_details = $this->vendor_model->getVendorContact($service_center_id);
-            $this->setSession($service_center_id, $sc_details[0]['name'], $sc_details[0]['id'], $sc_details[0]['is_update']);
+	    $sc_details = $this->vendor_model->getVendorContact($service_center['service_center_id']);
+            $this->setSession($sc_details[0]['id'], $sc_details[0]['name'], $service_center[0]['id'], $sc_details[0]['is_update']);
 
 	    redirect(base_url() . "service_center/pending_booking");
         } else {
@@ -906,6 +908,71 @@ class Service_centers extends CI_Controller {
             redirect(base_url() . 'service_center/pending_booking');
         }
     }
+
+    /**
+     * @Desc: This function is used to download Pending Bookings Excel list
+     * params: void
+     * @return: void
+     * 
+     */
+    function download_sf_pending_bookings_list_excel(){
+        log_message('info', __FUNCTION__);
+        //Getting Logged SF details
+        $service_center_id = $this->session->userdata('service_center_id');
+        //Getting Pending bookings for service center id
+        $bookings = $this->service_centers_model->getPending_booking("All","",$service_center_id);
+        
+        $final_array = [];
+        foreach ($bookings as $value) {
+            $array_final['services'] = $value->services;
+            $array_final['customername'] = $value->customername;
+            $array_final['phone_number'] = $value->phone_number;
+            $array_final['booking_id'] = $value->booking_id;
+            $array_final['booking_date'] = $value->booking_date;
+            $array_final['booking_primary_contact_no'] = $value->booking_primary_contact_no;
+            $array_final['booking_jobcard_filename'] = $value->booking_jobcard_filename;
+            $array_final['age_of_booking'] = $value->age_of_booking;
+            $array_final['booking_timeslot'] = $value->booking_timeslot;
+            $array_final['admin_remarks'] = $value->admin_remarks;
+            $final_array[] = $array_final;
+        }
+        
+        $template = 'SF-Pending-Bookings-List-Template.xlsx';
+        //set absolute path to directory with template files
+        $templateDir = __DIR__ . "/../excel-templates/";
+        //set config for report
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+        //load template
+        $R = new PHPReport($config);
+        
+        $R->load(array(
+
+                 'id' => 'bookings',
+                'repeat' => TRUE,
+                'data' => $final_array
+            ));
+        
+        $output_file_dir = "/tmp/";
+        $output_file = "SF-".$service_center_id."-Pending-Bookings-List-" . date('y-m-d');
+        $output_file_name = $output_file . ".xls";
+        $output_file_excel = $output_file_dir . $output_file_name;
+        $response = $R->render('excel2003', $output_file_excel);
+        
+        //Downloading File
+        if(file_exists($output_file_excel)){
+
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
+            readfile($output_file_excel);
+            exit;
+        }
+
+    }
+
 
 
 

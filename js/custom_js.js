@@ -6,7 +6,7 @@
  var pricesForCategoryCapacityUrl = baseUrl + '/employee/booking/getPricesForCategoryCapacity/';
  var count_number = 0;
 
-  function getBrandForService(service_id) {
+  function getBrandForService() {
 
     var postData = {};
     postData['service_id'] = $("#service_id").val();
@@ -23,7 +23,7 @@
     });
   }
     
-  function getCategoryForService(div_id = "") {
+  function getCategoryForService(div_id) {
     var postData = {};
     
     postData['service_id'] = $("#service_id").val();
@@ -31,8 +31,8 @@
     postData['partner_code'] = $("#source_code option:selected").val();
     
     sendAjaxRequest(postData, categoryForServiceUrl).done(function(data) {
-       
-        if(div_id ==""){
+
+        if(div_id === undefined){
           $(".appliance_category").html(data);   
 
         } else {
@@ -61,14 +61,14 @@
 
         $("#appliance_capacity_"+div_no[2]).html(data);
     
-        if (data != "<option></option>") {
+        if (data !== "<option></option>") {
             var capacity= $("#appliance_capacity_"+div_no[2]).val();
     
             getPricesForCategoryCapacity(div_id);
         } else {
     
             $("#appliance_capacity_"+div_no[2]).html(data);
-            var capacity="NULL";
+           
             getPricesForCategoryCapacity(div_id);
         }
 
@@ -170,71 +170,81 @@
       
       }
 
-     if(p_contact_no ==""){
+     if(p_contact_no ===""){
         $('#myModal').modal('toggle');
         alert("Please fill Phone Number "); 
         return false;
      }
 
-     if(city == "" || city =="Select City"){
+     if(city === "" || city ==="Select City"){
         $('#myModal').modal('toggle');
         alert("Please fill city "); 
         return false;
      }
-
-      if(source == "Select Booking Source"){
+      if(source_code === "Select Booking Source"){
         
          alert("Please Select Booking Source");
          $('#myModal').modal('toggle');
          return false;
       }
       
-      if(service == null || service == "" || service == "Select Service"){
+      if(service === null || service === "" || service === "Select Service"){
          $('#myModal').modal('toggle');
          alert('Please Select Booking Service');
          return false;
 
       }
+      
+    var source_code = $("#source_code option:selected").val();
+    if(source_code === "SS" || source_code  === 'SP' || source_code === "SZ"){
 
-  
-     if(booking_date == ""){
+        var order_id = $('#order_id').val();
+        
+        if(order_id === ""){
+              $('#myModal').modal('toggle');
+              alert('Please Fill Order Id');
+              return false;
+        }
+    }
+ 
+    if(booking_date === ""){
         $('#myModal').modal('toggle');
         alert("Please fill Booking date "); 
         return false;
      }else{
          //Adding Previous date validation on Booking Edit
-        var selectedDate = booking_date;
-        var d = new Date();
-        var today = formatDate(d);
-        selectedDate = new Date(selectedDate);
-        today = new Date(today);
-        if (selectedDate < today) {
-            $('#myModal').modal('toggle');
-            alert("Please select Today or Future date ");
-            return false;
-        }
+//        var selectedDate = booking_date;
+//        var d = new Date();
+//        var today = formatDate(d);
+//        selectedDate = new Date(selectedDate);
+//        today = new Date(today);
+//        if (selectedDate < today) {
+//            $('#myModal').modal('toggle');
+//            alert("Please select Today or Future date ");
+//            return false;
+//        }
      }
 
-      if(timeslot == null){
+      if(timeslot === null){
          $('#myModal').modal('toggle');
          alert('Please Select Booking Time Slot');
         return false; 
       }
 
-    if(type == null){
+    if(type === null){
         $('#myModal').modal('toggle');
         alert("Please Select Booking Type ");
         return false;
 
     }  else {
-          if(type == "Booking"){
-            if(address == ""){
+          if(type === "Booking"){
+            if(address === ""){
               $('#myModal').modal('toggle');
               alert("Please fill Address "); 
               return false;
             } else {
 
-              if(pincode == ""){
+              if(pincode === ""){
                 $('#myModal').modal('toggle');
                 alert("Please fill pincode "); 
                 return false;
@@ -282,7 +292,7 @@
     for(var i = 1; i<= numItems; i++){
       var indexClone = $(".preview_booking").length +1;
 
-      if(i !=1)
+      if(i !== 1)
         cloned_model(regex1, indexClone);
       
       setAppliances(i);   
@@ -304,7 +314,7 @@ function setAppliances(i){
   
   var brand = $("#appliance_brand_"+i).val();
   
-  if(brand == null){
+  if(brand === null){
     
     alert("Please select Brand " +i);
     $('#myModal').modal('toggle');
@@ -312,7 +322,7 @@ function setAppliances(i){
   }
 
   var appliance_category = $("#appliance_category_"+i).val();
-  if(appliance_category == null){
+  if(appliance_category === null){
     $('#myModal').modal('toggle');
     alert("Please select Category " +i);
     return false;
@@ -321,7 +331,7 @@ function setAppliances(i){
   var appliance_capacity =$("#appliance_capacity_"+i).val();
 
   var model_number =$("#model_number_"+i).val();
-  if(model_number == null){
+  if(model_number === null){
     $('#myModal').modal('toggle');
     alert("Please fill Model Number " +i);
     return false;
@@ -353,10 +363,10 @@ function setAppliances(i){
             var id = this.id || "";
             var match = id.match(regex1) || [];
             //console.log(match[1]);
-            if (match.length == 3) {
+            if (match.length === 3) {
                 this.id = match[1] + (indexClone);
             }
-      })
+      });
 
       indexClone++;
     
@@ -379,10 +389,10 @@ function setAppliances(i){
             var id = this.id || "";
             var match = id.match(regex1) || [];
             //console.log(match[1]);
-            if (match.length == 3) {
+            if (match.length === 3) {
                 this.id = match[1] + (indexClone);
             }
-      })
+      });
       indexClone++; 
     }
   }
@@ -421,7 +431,7 @@ function enable_discount(div_id){
   //called when key is pressed in textbox
   $("#grand_total_price").keypress(function (e) {
      //if the letter is not digit then display error and don't type anything
-     if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+     if (e.which !== 8 && e.which !== 0 && (e.which < 48 || e.which > 57)) {
         //display error message
         $("#errmsg1").html("Digits Only").show().fadeOut("slow");
                return false;
@@ -432,7 +442,7 @@ function enable_discount(div_id){
 function outbound_call(phone_number){
         var confirm_call = confirm("Call Customer ?");
        
-        if (confirm_call == true) {
+        if (confirm_call === true) {
             
              $.ajax({
                 type: 'POST',

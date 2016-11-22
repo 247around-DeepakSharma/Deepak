@@ -1,0 +1,419 @@
+<?php
+
+if (!defined('BASEPATH')) {
+    exit('No direct script access allowed');
+}
+
+class Inventory extends CI_Controller {
+
+    /**
+     * load list modal and helpers
+     */
+    function __Construct() {
+        parent::__Construct();
+        $this->load->model('service_centers_model');
+        $this->load->model('vendor_model');
+        $this->load->model('inventory_model');
+        $this->load->library('form_validation');
+        $this->load->library('session');
+        $this->load->library('notify');
+    }
+
+    public function index() {
+        
+    }
+
+    /**
+     * @desc: This function is used to get bracket add form
+     * @params: void
+     * @return: view
+     * 
+     */
+    public function get_bracket_add_form() {
+        $data['vendor'] = $this->vendor_model->getActiveVendor();
+        $this->load->view('employee/header');
+        $this->load->view("employee/add_brackets", $data);
+    }
+
+    /**
+     * @desc: This function is used to process add brackets form
+     * @params: Array
+     * @return: void
+     */
+    public function process_add_brackets_form() {
+        //Form Validation
+        $this->form_validation->set_rules('order_received_from', 'Order Received From', 'required');
+        $this->form_validation->set_rules('order_given_to', 'Order Given To', 'required');
+        $this->form_validation->set_rules('choice', 'Choice', 'required');
+        if ($this->form_validation->run()) {
+
+            $data = $this->input->post();
+            foreach ($data['choice'] as $key => $value) {
+               
+                $order_id = date('YmdHis') . '-' . $data['order_received_from'][$value];
+                //Making array for Brackets Database
+                $data_post[] = array(
+                    'order_id' => $order_id,
+                    'order_received_from' => $data['order_received_from'][$value],
+                    'order_given_to' => $data['order_given_to'][$value],
+                    '19_24_requested' => $data['_19_24'][$value],
+                    '26_32_requested' => $data['_26_32'][$value],
+                    '36_42_requested' => $data['_36_42'][$value],
+                    'order_date' => date('Y-m-d h:i:s'),
+                    'total_requested' => ($data['_19_24'][$value] + $data['_26_32'][$value] + $data['_36_42'][$value]),
+                );
+            }
+
+            //Inserting data in Brackets Database
+            $check_flag = $this->inventory_model->insert_brackets($data_post);
+            if ($check_flag) {
+                //Logging Success
+                log_message('info', __FUNCTION__ . ' Brackets have been added successfully ' . print_r($data_post, TRUE));
+
+                //Logging Success
+                log_message('info', __FUNCTION__ . ' Brackets Requested- Pending state have been added in Booking State Change ');
+
+                // Sending Mail to order received from vendors
+                foreach ($data_post as $val) {
+                    //Adding value in Booking State Change
+                    $this->notify->insert_state_change($val['order_id'], _247AROUND_BRACKETS_PENDING, _247AROUND_BRACKETS_REQUESTED, "Brackets Requested", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                    
+                    $vendor_requested = $this->vendor_model->getVendorContact($val['order_received_from']);
+                    
+                    $vendor_poc_mail = $vendor_requested[0]['primary_contact_email'];
+                    $vendor_owner_mail = $vendor_requested[0]['owner_email'];
+                    $to = $vendor_poc_mail.','.$vendor_owner_mail;
+                    
+                    $html = $vendor_requested[0]['company_name']." order has been placed sucessfully.<br><br>"
+                            . "<strong>Order Details are:</strong><br>"
+                            . "19 to 24 Inch Brackets : " . $val['19_24_requested'] . '<br>'
+                            . "26 to 32 Inch Brackets : " . $val['26_32_requested'] . '<br>'
+                            . "36 to 42 Inch Brackets : " . $val['36_42_requested'] . '<br>'
+                            . 'Total Requested :' . $val['total_requested'] . '<br><br>'
+                            . 'We will update you as soon as order is shipped.';
+                    $this->notify->sendEmail("booking@247around.com", $to, "anuj@247around.com, nits@247around.com,vijaya@247around.com", "", "Brackets Requested", $html, "");
+                    
+                    
+                    //Logging Email Send to order received from vendor
+                    log_message('info', __FUNCTION__ . ' Email has been sent to order_received_from vendors '.print_r($vendor_requested[0]['name']));
+                
+                    //Sending Mail to order given to
+                    $vendor_requested_to = $this->vendor_model->getVendorContact($val['order_given_to'])[0];
+                    
+                    $vendor_poc_mail = $vendor_requested_to['primary_contact_email'];
+                    $vendor_owner_mail = $vendor_requested_to['owner_email'];
+                    $to = $vendor_poc_mail.','.$vendor_owner_mail;
+
+                    $html = "An order has been placed for Brackets from " . $vendor_requested[0]['company_name'] . " <br><br>"
+                            . "<strong>Order Details are:</strong><br><br>"
+                            . "19 to 24 Inch Brackets : " . $val['19_24_requested'] . '<br>'
+                            . "26 to 32 Inch Brackets : " . $val['26_32_requested'] . '<br>'
+                            . "36 to 42 Inch Brackets : " . $val['36_42_requested'] . '<br>'
+                            . 'Total Requested :' . $val['total_requested'] . '<br><br>'
+                            . '<strong>Details are: </strong><br><br>'
+                            . 'Phone Number: '.$vendor_requested[0]['primary_contact_phone_1'].", ".$vendor_requested[0]['owner_phone_1'].'<br>'
+                            . 'Address: '.$vendor_requested[0]['address'].'<br>'
+                            . 'City: '.$vendor_requested[0]['district'].'<br>'
+                            . 'State: '.$vendor_requested[0]['state'].'<br>'
+                            . 'Pincode: '.$vendor_requested[0]['pincode'].' <br><br>'
+                            . 'Please notify when you have shipped the following orders.';
+                    
+                    $cc = 'anuj@247around.com, nits@247around.com,vijaya@247around.com';
+                    $this->notify->sendEmail("booking@247around.com", $to, $cc, "", "Brackets Requested", $html, "");
+                    
+                          //Logging Email Send to order sent to vendor
+                    log_message('info', __FUNCTION__ . ' Email has been sent to order_sent_to vendor '.print_r($vendor_requested_to['name']));
+                }
+
+                //Setting success session data 
+                $this->session->set_userdata('brackets_success', 'Brackets Added Successfully');
+                
+                redirect(base_url() . 'employee/inventory/get_bracket_add_form');
+            } else {
+                //Logging Error
+                log_message('info', __FUNCTION__ . ' Err in adding Brackets ' . print_r($data_post, TRUE));
+                $this->session->set_userdata('brackets_error', 'Error in addding Brackets');
+                $this->get_bracket_add_form();
+            }
+            
+        } else {
+            //Return if validation error occurs
+            $this->get_bracket_add_form();
+        }
+    }
+    
+    /**
+     * @Desc: This function is used to show brackets details list
+     * @params: void
+     * @return: void
+     * 
+     */
+    function show_brackets_list(){
+        $data['brackets'] = $this->inventory_model->get_brackets();
+        //Getting name for order received from  to vendor
+        foreach($data['brackets'] as $key=>$value){
+            $data['order_received_from'][$key] = $this->vendor_model->getVendorContact($value['order_received_from'])[0]['name'];
+        
+            // Getting name for order given to vendor
+            
+            $data['order_given_to'][$key] = $this->vendor_model->getVendorContact($value['order_given_to'])[0]['name'];
+        }
+        $this->load->view('employee/header');
+        $this->load->view("employee/show_brackets_list", $data);
+    }
+    
+    /**
+     * @Desc: This function is used to update shipment
+     * @params: Int order id
+     * @return : view
+     */
+    function get_update_shipment_form($order_id){
+        $data['brackets'] = $this->inventory_model->get_brackets_by_id($order_id);
+        $data['shipped_flag'] = TRUE;
+        $data['order_id'] = $order_id;
+        $this->load->view('employee/header');
+        $this->load->view("employee/update_brackets", $data);
+    }
+    
+    /**
+     * @Desc: This function is used to process update shipment form
+     * @params: Array
+     * @return: void
+     */
+    function process_update_shipment_form(){
+        //Saving Uploading file.
+        if(!empty($_FILES)){
+            $tmpFile = $_FILES['shipment_receipt']['tmp_name'];
+            $fileName = $_FILES['shipment_receipt']['name'];
+            move_uploaded_file($tmpFile, "/tmp/$fileName");
+            $data['shipment_receipt'] = $fileName;
+        }
+        $order_id = $this->input->post('order_id');
+        $order_received_from = $this->input->post('order_received_from');
+        $data['19_24_shipped'] = $this->input->post('19_24_shipped');
+        $data['26_32_shipped'] = $this->input->post('26_32_shipped');
+        $data['36_42_shipped'] = $this->input->post('36_42_shipped');
+        $data['total_shipped'] = $this->input->post('total_shipped');
+        $data['shipment_date'] = date('Y-m-d H:i:s');
+        $data['is_shipped'] = 1;
+        
+        
+        $attachment = "";
+        if(!empty($fileName)){
+            $data['shipment_receipt'] = $fileName;
+             $attachment = "/tmp/$fileName";
+        }
+
+        //Updating value in Brackets
+        $update_brackets = $this->inventory_model->update_brackets($data, array('order_id' => $order_id));
+        if($update_brackets){
+            //Loggin success
+            log_message('info',__FUNCTION__.' Brackets Shipped has been updated '. print_r($data, TRUE));
+            
+            //Adding value in Booking State Change
+                $this->notify->insert_state_change($order_id, _247AROUND_BRACKETS_SHIPPED, _247AROUND_BRACKETS_PENDING, "Brackets Shipped", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            //Logging Success
+            log_message('info', __FUNCTION__ . ' Brackets Pending - Shipped state have been added in Booking State Change ');
+                
+            // Sending mail to order_received_from vendor
+            $order_received_from_email = $this->vendor_model->getVendorContact($order_received_from);
+            $vendor_poc_mail = $order_received_from_email[0]['primary_contact_email'];
+            $vendor_owner_mail = $order_received_from_email[0]['owner_email'];
+            $to = $vendor_poc_mail.','.$vendor_owner_mail;
+            $body = $order_received_from_email[0]['company_name']." shipmet is sent to you.<br><br>"
+                    . "Please confirm when you receive the stands, if you find any mismatch in Total number of Brackets, <br>"
+                    . "please inform us immediately along with the <b>Delivery Box Picture</b>.";
+            $this->notify->sendEmail("booking@247around.com", $to , "anuj@247around.com,vijaya@247around.com" , "", "Brackets Shipped", $body, $attachment);
+            
+            //Loggin send mail success
+            log_message('info',__FUNCTION__.' Shipped mail has been sent to order_received_from vendor '. $body);
+            
+            //Setting success session data 
+            $this->session->set_userdata('brackets_update_success', 'Brackets Shipped updated Successfully');
+            
+            redirect(base_url() . 'employee/inventory/get_update_receiving_form/'.$order_id);
+        }else{
+            //Loggin error
+            log_message('info',__FUNCTION__.' Brackets Shipped updated Error '. print_r($data, TRUE));
+            
+            //Setting error session data 
+            $this->session->set_userdata('brackets_update_error', 'Error in updating shipped Brackets');
+            $this->get_update_shipment_form($order_id);
+        }
+    }
+    
+    /**
+     * @Desc: This function is used to show update receiving form 
+     * @parmas: Int order id
+     * @return: Array 
+     */
+    function get_update_receiving_form($order_id){
+        $data['brackets'] = $this->inventory_model->get_brackets_by_id($order_id);
+        $data['receiving_flag'] = TRUE;
+        $data['order_id'] = $order_id;
+        $this->load->view('employee/header');
+        $this->load->view("employee/update_brackets", $data);
+    }
+    
+    /**
+     * @Desc: This function is used to update receiving of brackets
+     * @params: Array, Int
+     * @return : view
+     */
+    function process_update_receiving_form(){
+        $order_id = $this->input->post('order_id');
+        $order_received_from = $this->input->post('order_received_from');
+        $order_given_to = $this->input->post('order_given_to');
+        $data['19_24_received'] = $this->input->post('19_24_received');
+        $data['26_32_received'] = $this->input->post('26_32_received');
+        $data['36_42_received'] = $this->input->post('36_42_received');
+        $data['total_received'] = $this->input->post('total_received');
+        $data['received_date'] = date('Y-m-d H:i:s');
+        $data['is_received'] = 1;
+        
+        //Updating value in Brackets
+        $update_brackets = $this->inventory_model->update_brackets($data, array('order_id' => $order_id));
+        if(!empty($update_brackets)){
+            //Loggin success
+            log_message('info',__FUNCTION__.' Brackets Received has been updated '. print_r($data, TRUE));
+            
+            //Adding value in Booking State Change
+                $this->notify->insert_state_change($order_id, _247AROUND_BRACKETS_RECEIVED, _247AROUND_BRACKETS_SHIPPED, "", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            //Logging Success
+            log_message('info', __FUNCTION__ . ' Brackets Shipped - Received state have been added in Booking State Change ');
+            
+            //Sending mail to both vendor
+            
+            //1. Sending to Order received from vendor
+            $order_received_from_email = $this->vendor_model->getVendorContact($order_received_from);
+            $order_given_to_email = $this->vendor_model->getVendorContact($order_given_to);
+            
+            $vendor_poc_mail = $order_received_from_email[0]['primary_contact_email'];
+            $vendor_owner_mail = $order_received_from_email[0]['owner_email'];
+            $order_received_from_email_to = $vendor_poc_mail.','.$vendor_owner_mail;
+            
+            $vendor_poc_mail = $order_given_to_email[0]['primary_contact_email'];
+            $vendor_owner_mail = $order_given_to_email[0]['owner_email'];
+            $order_given_to_email_to = $vendor_poc_mail.','.$vendor_owner_mail;
+            
+            $body_received_from = $order_received_from_email[0]['company_name']." brackets has been delivered to you successfully.<br><br>"
+                    . "247Around Team";
+            $this->notify->sendEmail("booking@247around.com", $order_received_from_email_to , "anuj@247around.com,vijaya@247around.com" , "", "Brackets Received", $body_received_from, "");
+            
+            //Loggin send mail success
+            log_message('info',__FUNCTION__.' Received mail has been sent to order_received_from vendor '. $body_received_from);
+            
+            //2. Sending mail to order_given_to vendor
+            $body_order_given_to = $order_given_to_email[0]['company_name']." brackets has been delivered successfully to the following vendor ".$order_received_from_email[0]['company_name']."<br><br>"
+                    . "Please contact us in case of any query.<br><br> "
+                    . "247Around Team";
+            $this->notify->sendEmail("booking@247around.com", $order_given_to_email_to , "anuj@247around.com,vijaya@247around.com" , "", "Brackets Received", $body_order_given_to, "");
+            
+            //Loggin send mail success
+            log_message('info',__FUNCTION__.' Received mail has been sent to order_given_to vendor '. $body_order_given_to);
+            
+            //Setting success session data 
+            $this->session->set_userdata('brackets_update_success', 'Brackets Received updated Successfully');
+            
+        }else{
+            //Loggin error
+            log_message('info',__FUNCTION__.' Brackets Received updated Error '. print_r($data, TRUE));
+            
+            //Setting error session data 
+            $this->session->set_userdata('brackets_update_error', 'Error in updating receiving Brackets');
+        }
+        
+        //Creating Received Data Array for Inventory Database
+        $received_inventory_data[] = array(
+            'vendor_id'  => $this->input->post('order_given_to'),
+            'order_booking_id' => $order_id,
+            '19_24_current_count' => $this->input->post('19_24_received'),
+            '26_32_current_count' => $this->input->post('26_32_received'),
+            '36_42_current_count' => $this->input->post('36_42_received'),
+            'increment/decrement' => 1,
+            'remarks' => 'Order ID'
+        );
+        
+        //Checking if OrderID data already exists in Inventory Database, then update the same else add a new row
+        
+        $received_check_order = $this->inventory_model->check_data($this->input->post('order_given_to'));
+        if($received_check_order){
+        
+        //Getting last row of return array from Database    
+            $last_updated_array = end($received_check_order);    
+        //Updating data in Inventory Database for particular Order ID and remarks as  _247AROUND_BRACKETS_RECEIVED   
+            $updated_received_data[] = array(
+            'vendor_id'  => $this->input->post('order_given_to'),
+            'order_booking_id' => $order_id,
+            '19_24_current_count' => $this->input->post('19_24_received') + $last_updated_array['19_24_current_count'],
+            '26_32_current_count' => $this->input->post('26_32_received') + $last_updated_array['26_32_current_count'],
+            '36_42_current_count' => $this->input->post('36_42_received') + $last_updated_array['36_42_current_count'],
+            'increment/decrement' => 1,
+            'remarks' => 'Order ID'
+            );
+            
+            $update_shipped_data_flag = $this->inventory_model->insert_inventory($updated_received_data);
+            if($update_shipped_data_flag){
+                //Logging Success
+                log_message('info',__FUNCTION__.' Received Data has been Added in Inventory '.print_r($updated_received_data,TRUE));
+            }else{
+                //Logging Error
+                log_message('info',__FUNCTION__.' Error in Updating Received data in Inventory '.print_r($updated_received_data,TRUE));
+            }
+            
+        }else{
+        
+        //Inserting Data in Inventory Database
+        $received_inventory_flag = $this->inventory_model->insert_inventory($received_inventory_data);
+            if($received_inventory_flag){
+                //Logging Success
+                log_message('info',__FUNCTION__.' Received Data has been entered in Inventory '.print_r($received_inventory_data,TRUE));
+            }else{
+                //Logging Error
+                log_message('info',__FUNCTION__.' Error in addding Received data in Inventory '.print_r($received_inventory_data,TRUE));
+            }
+        }
+        
+        $this->get_update_receiving_form($order_id);
+    }
+    
+    /**
+     * @desc: This is used to show vendor inventory
+     * @parmas: void
+     * @return: void
+     * 
+     */
+    function get_vendor_inventory_list_form(){
+        $data['distinct_vendor'] = $this->inventory_model->get_distict_vendor_from_inventory();
+        foreach($data['distinct_vendor'] as $value){
+            $data['vendor_inventory'][] = $this->inventory_model->get_vendor_inventory_details($value['vendor_id']);
+        }
+        //Getting latest updated values of vendor
+        foreach($data['vendor_inventory'] as $key=>$value){
+            $data['final_array'][] = end($value);
+        }
+        
+        $this->load->view('employee/header');
+        $this->load->view("employee/show_vendor_inventory_list", $data);
+    }
+    /**
+     * @Desc: This function is used to show brackets order history for order_id
+     * @params: Int order_id
+     * @return :View
+     * 
+     */
+    function show_brackets_order_history($order_id){
+        $data['data'] = $this->inventory_model->get_brackets_by_order_id($order_id);
+        //Getting name for order received from  to vendor
+        foreach($data['data'] as $key=>$value){
+            $data['order_received_from'][$key] = $this->vendor_model->getVendorContact($value['order_received_from'])[0]['name'];
+        }
+        // Getting name for order given to vendor
+        foreach($data['data'] as $key=>$value){
+            $data['order_given_to'][$key] = $this->vendor_model->getVendorContact($value['order_given_to'])[0]['name'];
+        }
+        $this->load->view('employee/header');
+        $this->load->view("employee/show_brackets_order_history", $data);
+    }
+
+}

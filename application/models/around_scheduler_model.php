@@ -88,7 +88,14 @@ class Around_scheduler_model extends CI_Model {
 	      AND booking_date IN (
               DATE_FORMAT( CURDATE() - INTERVAL 1 DAY ,  '%d-%m-%Y' ),
               DATE_FORMAT( CURDATE() - INTERVAL 2 DAY ,  '%d-%m-%Y' ),
-              DATE_FORMAT( CURDATE() - INTERVAL 3 DAY ,  '%d-%m-%Y' )
+              DATE_FORMAT( CURDATE() - INTERVAL 3 DAY ,  '%d-%m-%Y' ),
+              DATE_FORMAT( CURDATE() - INTERVAL 4 DAY ,  '%d-%m-%Y' ),
+              DATE_FORMAT( CURDATE() - INTERVAL 5 DAY ,  '%d-%m-%Y' ),
+              DATE_FORMAT( CURDATE() - INTERVAL 6 DAY ,  '%d-%m-%Y' ),
+              DATE_FORMAT( CURDATE() - INTERVAL 7 DAY ,  '%d-%m-%Y' ),
+              DATE_FORMAT( CURDATE() - INTERVAL 8 DAY ,  '%d-%m-%Y' ),
+              DATE_FORMAT( CURDATE() - INTERVAL 9 DAY ,  '%d-%m-%Y' ),
+              DATE_FORMAT( CURDATE() - INTERVAL 10 DAY ,  '%d-%m-%Y' )
               )
 	      AND current_status= 'FollowUp' AND internal_status != 'Missed_call_confirmed'
               AND `booking_details`.service_id = `services`.id;";
@@ -119,17 +126,19 @@ class Around_scheduler_model extends CI_Model {
         
     	return  $query->result();
     }
-
-   /**
-    * @desc: This method returns only 6 days old pending query
-    * @return Array
-    */
+    /**
+     * @desc: Get bookings, When booking date is empty, then getting those bookings which has 
+     * difference between delivery date and current date are greater than 2.
+     * AND When booking date is not empty, then getting those bookings which has difference between 
+     *  delivery date and current date are greater than 5
+     * @return Array
+     */
     function get_old_pending_query(){
         $sql = " SELECT booking_id FROM booking_details WHERE booking_id LIKE '%Q-%' "
                 . " AND partner_id = '1' "
                 . " AND current_status = 'FollowUp' "
-                . " AND CASE WHEN booking_date='' THEN DATEDIFF(CURRENT_TIMESTAMP , create_date) > 5 "
-                . " WHEN booking_date !='' THEN DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) > 5 "
+                . " AND CASE WHEN booking_date='' THEN DATEDIFF(CURRENT_TIMESTAMP , delivery_date) > 4 "
+                . " WHEN booking_date !='' THEN DATEDIFF(CURRENT_TIMESTAMP , delivery_date) > 4 "
                 . " END ";
         $query  = $this->db->query($sql);
         $result = $query->result_array();
@@ -137,5 +146,21 @@ class Around_scheduler_model extends CI_Model {
         log_message ('info', __METHOD__ . "=> Count  Query to be Cancelled ". count($result));
         return $result;
     }
-    
+    /**
+     * @desc: Get All bookings, who has not given Missed Call
+     */
+    function get_all_query(){
+        $sql = "SELECT booking_details.* ,`services`.services from booking_details, services 
+                    WHERE  `booking_id` LIKE  '%Q-%'
+                    AND  `partner_id` =1
+                    AND  `current_status` LIKE  'FollowUp'
+                    AND `services`.id = `booking_details`.service_id ";
+        
+        $query  = $this->db->query($sql);
+        $result = $query->result();
+        
+        log_message ('info', __METHOD__ . "=> Count  All Query ". count($result));
+        return $result;
+    }
+        
 }

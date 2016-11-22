@@ -99,7 +99,7 @@
             
              <div class="clone_m"></div>
 
-             <div class="col-md-6">Price To be Pay: <span id="bgrand_total_charge"></span> Rs</div>
+             <div class="col-md-6">Price To be Paid: <span id="bgrand_total_charge"></span> Rs</div>
          </div>
 
          <div class="modal-footer">

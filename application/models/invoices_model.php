@@ -48,8 +48,35 @@ class invoices_model extends CI_Model {
      * various amounts, 247around royalty etc.
      */
 
-    function insert_new_invoice($details) {
+    function insert_new_invoice($details,$order_id = "") {
+        //Check if invoice_id present then update row, else add new 
+        $this->db->where('order_id', $order_id);
+	$query = $this->db->get('vendor_partner_invoices');
+	if (count($query->result_array()) == 0) {
+            //Insert
 	$this->db->insert('vendor_partner_invoices', $details);
+	}else{
+            //Update
+            $this->db->where(array('order_id' => $order_id));
+            $this->db->update('vendor_partner_invoices', $details);
+    }
+
+    }
+    /**
+     * @desc: If invoice id already exist then update this row otherwise insert invoice details
+     * @param Array $details
+     */
+    function action_partner_invoice_for_foc($details){
+        $this->db->where('invoice_id', $details['invoice_id']);
+        $query = $this->db->get('vendor_partner_invoices');
+        if($query->num_rows > 0){
+            $this->db->where('invoice_id', $details['invoice_id']);
+            $this->db->update('vendor_partner_invoices', $details);
+            
+        } else {
+            
+            $this->db->insert('vendor_partner_invoices', $details);
+        }
     }
 
     //TODO: This should be moved to Partner model
@@ -247,10 +274,10 @@ class invoices_model extends CI_Model {
 	for ($i = 1; $i < 3; $i++) {
 
 	    if ($i == 1) {
-		//for cash invoice, we get around_to_vendor > 0 and vendor to around =0 and also get around to vendor is zero and vendor to around =0
+		//for Cash invoice, vendor_to_around > 0 AND around_to_vendor = 0
 		$where = " AND ( ( `booking_unit_details`.vendor_to_around > 0 AND `booking_unit_details`.around_to_vendor =0 ) OR ( `booking_unit_details`.vendor_to_around = 0 AND `booking_unit_details`.around_to_vendor =0 ) )  ";
 	    } else {
-		//for cash invoices, we get around to vendor >0 and vendor to around =0
+		//for FOC invoice, around_to_vendor > 0 AND vendor_to_around = 0
 		$where = " AND `booking_unit_details`.around_to_vendor > 0  AND `booking_unit_details`.vendor_to_around = 0 ";
 	    }
 
@@ -269,7 +296,7 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 		$condition = "  From booking_details, booking_unit_details, services, service_centres
                           WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id AND `services`.id = `booking_details`.service_id  AND `booking_details`.assigned_vendor_id = `service_centres`.id AND current_status = 'Completed' AND assigned_vendor_id = '" . $value['vendor_id'] . "' AND `booking_unit_details`.booking_status = 'Completed' $where ";
 
-		$sql1 = "SELECT  `booking_details`.booking_id, `booking_details`.city, `booking_details`.internal_status,
+		$sql1 = "SELECT  service_centres.state, `booking_details`.booking_id, `booking_details`.city, `booking_details`.internal_status,
 		     date_format(`booking_details`.`closed_date`,'%d/%m/%Y') as closed_date, `booking_details`.closed_date as closed_booking_date, rating_stars, `booking_unit_details`.price_tags,
 		     `booking_unit_details`.appliance_category, `booking_unit_details`.appliance_capacity,
 		     `booking_unit_details`.vendor_extra_charges, `booking_unit_details`.vendor_st_extra_charges, customer_paid_extra_charges as additional_charges,
@@ -280,27 +307,30 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 		     `service_centres`.beneficiary_name, `service_centres`.bank_account, `service_centres`.bank_name,
 		     `service_centres`.ifsc_code,  `service_centres`.owner_email,  `service_centres`.primary_contact_email, `service_centres`.owner_phone_1,
 		     `service_centres`.primary_contact_phone_1, `booking_unit_details`.  product_or_services, `booking_unit_details`.around_paid_basic_charges as around_net_payable,
-		     (customer_net_payable + partner_net_payable + around_net_payable) as total_booking_charge, $date
+		     (customer_net_payable + partner_net_payable + around_net_payable) as total_booking_charge, service_tax_no,
+                     (case when (service_centres.tin_no IS NOT NULL )  THEN tin_no ELSE cst_no END) as tin
+
+                     ,$date
 
                      /* get sum of vat charges if product_or_services is product else sum of vat is zero  */
-                     (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (around_st_or_vat_basic_charges + vendor_st_or_vat_basic_charges) ELSE 0 END) as vat,
+                     /*(case when (`booking_unit_details`.product_or_services = 'Product' AND (service_centres.tin_no IS NOT NULL OR service_centres.cst_no IS NOT NULL ) )  THEN (around_st_or_vat_basic_charges + vendor_st_or_vat_basic_charges) ELSE 0 END) as vat,*/
 
-                     (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN ( vendor_st_or_vat_basic_charges) ELSE 0 END) as vendor_vat,
+                     (case when (`booking_unit_details`.product_or_services = 'Product' AND (service_centres.tin_no IS NOT NULL OR service_centres.cst_no IS NOT NULL )  )  THEN ( vendor_st_or_vat_basic_charges) ELSE 0 END) as vendor_vat,
                     /* get sum of st charges if product_or_services is Service else sum of vat is zero  */
-                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (around_st_or_vat_basic_charges + vendor_st_or_vat_basic_charges) ELSE 0 END) as st,
+                     /*(case when (`booking_unit_details`.product_or_services = 'Service'  AND `service_tax_no` IS NOT NULL )  THEN (around_st_or_vat_basic_charges + vendor_st_or_vat_basic_charges) ELSE 0 END) as st,*/
 
-                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (vendor_st_or_vat_basic_charges) ELSE 0 END) as vendor_st,
+                     (case when (`booking_unit_details`.product_or_services = 'Service'  AND `service_tax_no` IS NOT NULL )  THEN (vendor_st_or_vat_basic_charges) ELSE 0 END) as vendor_st,
                      /* get installation charge if product_or_services is Service else installation_charge is zero
                       * installation charge is the sum of around_comm_basic_charge and vendor_basic_charge
                       */
-                     (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (around_comm_basic_charges +vendor_basic_charges) ELSE 0 END) as installation_charge,
+                     /*(case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (around_comm_basic_charges +vendor_basic_charges) ELSE 0 END) as installation_charge,*/
 
                      (case when (`booking_unit_details`.product_or_services = 'Service' )  THEN (vendor_basic_charges) ELSE 0 END) as vendor_installation_charge,
                       /* get stand charge if product_or_services is Product else stand charge is zero
                       * Stand charge is the sum of around_comm_basic_charge and vendor_basic_charge
                       */
 
-                     (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (around_comm_basic_charges +vendor_basic_charges) ELSE 0 END) as stand,
+                     /*(case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (around_comm_basic_charges +vendor_basic_charges) ELSE 0 END) as stand,*/
 
                      (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (vendor_basic_charges) ELSE 0 END) as vendor_stand,
                      /* get sum of service charge, sum of service charge is the sum of customer paid basic charge and around net payable*/
@@ -604,4 +634,28 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 	$this->db->update('vendor_partner_invoices', $details);
     }
 
+    function get_unsettle_amount($vendor_partner_id, $vendor_partner){
+    	$data['vendor_partner'] = $vendor_partner_id;
+	    $data['vendor_partner_id'] = $vendor_partner;
+ 	    $invoice_array = $this->invoices_model->getInvoicingData($data);
+
+	
+	    $data2['partner_vendor'] = $vendor_partner_id;
+	    $data2['partner_vendor_id'] = $vendor_partner;
+	    $bank_statement = $this->invoices_model->get_bank_transactions_details($data2);
+
+        $amount_collected_paid = 0;$debit_amount = 0; $credit_amount =0;
+	    foreach ($invoice_array as $key => $invoice) {
+	    	$amount_collected_paid = ($invoice['amount_collected_paid'] + $amount_collected_paid );
+}
+
+	    foreach ($bank_statement as $key => $bs) {
+	    	$debit_amount += intval($bs['debit_amount']);
+	    	$credit_amount += intval($bs['credit_amount']);
+	    }
+
+	    return $amount_collected_paid + $debit_amount - $credit_amount;
+
+    }
+   
 }
