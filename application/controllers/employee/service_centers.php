@@ -56,7 +56,7 @@ class Service_centers extends CI_Controller {
         if ($agent) {
 	    //get sc details now
 	    $sc_details = $this->vendor_model->getVendorContact($agent['service_center_id']);
-            $this->setSession($sc_details[0]['id'], $sc_details[0]['name'], $agent[0]['id'], $sc_details[0]['is_update']);
+            $this->setSession($sc_details[0]['id'], $sc_details[0]['name'], $agent['id'], $sc_details[0]['is_update']);
 
 	    redirect(base_url() . "service_center/pending_booking");
         } else {
