@@ -1439,7 +1439,7 @@ class Invoice extends CI_Controller {
                 $vendor_all_flag = 0;
                 if($vendor_id === 'All'){
                     $vendor_all_flag = 1;
-                    $vendor = $this->vendor_model->getActiveVendor();
+                    $vendor = $this->vendor_model->getActiveVendor('',0);
                     foreach ($vendor as $value) {
                         //Generating and sending invoice to vendors
                         $this->send_brackets_invoice_to_vendors($value['id'],$invoice_month,$invoice_type,$vendor_all_flag);
@@ -1464,7 +1464,7 @@ class Invoice extends CI_Controller {
 
                 //Managing brackets invoice for vendors
                 if($vendor_id === 'All'){
-                    $vendor = $this->vendor_model->getActiveVendor();
+                    $vendor = $this->vendor_model->getActiveVendor('',0);
                     foreach ($vendor as $value) {
                         //Generating and sending invoice to vendors
                         $this->send_brackets_invoice_to_vendors($value['id'],$invoice_month);
