@@ -418,5 +418,22 @@ class DatabaseTesting extends CI_Controller {
         exec("rm -rf " . escapeshellarg("/tmp/" . date('Y-m-d') . ".txt"));
     }
     
+    /**
+     * @desc: This is method is used to send Error file 
+     */
+    function send_error_file(){
+        $attachment = FCPATH."/application/logs/error_" . date('Y-m-d') . ".txt";
+        if(file_exists($attachment)){
+            $from = "booking@247around.com";
+            $to= "abhaya@247around.com";
+            $bcc= "";
+            $cc = "anuj@247around.com,belal@247around.com";
+            $subject = "Error File";
+            $message = "Find Attachment";
+        
+            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
+        }
+    }
+    
 
 }
