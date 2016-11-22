@@ -51,12 +51,12 @@ class Service_centers extends CI_Controller {
     function service_center_login() {
         $data['user_name'] = $this->input->post('user_name');
         $data['password'] = md5($this->input->post('password'));
-        $service_center = $this->service_centers_model->service_center_login($data);
+        $agent = $this->service_centers_model->service_center_login($data);
 
-        if ($service_center) {
+        if ($agent) {
 	    //get sc details now
-	    $sc_details = $this->vendor_model->getVendorContact($service_center['service_center_id']);
-            $this->setSession($sc_details[0]['id'], $sc_details[0]['name'], $service_center[0]['id'], $sc_details[0]['is_update']);
+	    $sc_details = $this->vendor_model->getVendorContact($agent['service_center_id']);
+            $this->setSession($sc_details[0]['id'], $sc_details[0]['name'], $agent[0]['id'], $sc_details[0]['is_update']);
 
 	    redirect(base_url() . "service_center/pending_booking");
         } else {
