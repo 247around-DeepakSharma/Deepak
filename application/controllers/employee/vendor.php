@@ -2457,7 +2457,7 @@ class vendor extends CI_Controller {
     function send_report_to_mail(){
         $user =$this->session->userdata;
         $employee_details = $this->employee_model->getemployeefromid($user['id']);
-        if(isset($employee_details[0]['official_mail']) && $employee_details[0]['official_email']){
+        if(isset($employee_details[0]['official_email']) && $employee_details[0]['official_email']){
             $html = $this->booking_utilities->booking_report_by_service_center();
             $to = $employee_details[0]['official_email'];
             
