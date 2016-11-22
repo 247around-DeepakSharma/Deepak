@@ -959,7 +959,7 @@ class Service_centers extends CI_Controller {
         $output_file = "SF-".$service_center_id."-Pending-Bookings-List-" . date('y-m-d');
         $output_file_name = $output_file . ".xls";
         $output_file_excel = $output_file_dir . $output_file_name;
-        $response = $R->render('excel2003', $output_file_excel);
+        $R->render('excel2003', $output_file_excel);
         
         //Downloading File
         if(file_exists($output_file_excel)){
