@@ -209,14 +209,14 @@ class DatabaseTesting extends CI_Controller {
         $pending_booking_job_card = $this->database_testing_model->count_pending_bookings_without_job_card();
 	 if (!empty($pending_booking_job_card)) {
             echo "..19".PHP_EOL;
-            //Creating Job cards for Bookings and sending mail to vendors 
-            foreach($pending_booking_job_card as $value){
-                //Prepare job card
-                $this->booking_utilities->lib_prepare_job_card_using_booking_id($value['booking_id']);
-
-                //Send mail to vendor, no Note to vendor as of now
-               $this->booking_utilities->lib_send_mail_to_vendor($value['booking_id'], "");
-            }
+//            //Creating Job cards for Bookings and sending mail to vendors 
+//            foreach($pending_booking_job_card as $value){
+//                //Prepare job card
+//                $this->booking_utilities->lib_prepare_job_card_using_booking_id($value['booking_id']);
+//
+//                //Send mail to vendor, no Note to vendor as of now
+//               $this->booking_utilities->lib_send_mail_to_vendor($value['booking_id'], "");
+//            }
              
             $contents = "Pending Bookings without Job cards:\n";
             fwrite($file, $contents);
