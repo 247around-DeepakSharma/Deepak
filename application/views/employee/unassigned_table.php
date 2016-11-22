@@ -21,7 +21,7 @@
                   line-height: 1.42857143;     text-align: center;">No</th>
                <th  style="border-bottom-width: 2px;border: 1px solid #ddd;
                   vertical-align: bottom;padding: 8px;
-                  line-height: 1.42857143;     text-align: center;">SC Name</th>
+                  line-height: 1.42857143;     text-align: center;">SF Name</th>
                <th  style="border-bottom-width: 2px;border: 1px solid #ddd;
                   vertical-align: bottom;padding: 8px;
                   line-height: 1.42857143;     text-align: center;">Today Engineer Not Assigned </th>

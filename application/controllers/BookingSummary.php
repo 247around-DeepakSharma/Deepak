@@ -788,7 +788,7 @@ EOD;
             
             $view =  $this->load->view('employee/unassigned_table', $data, TRUE); 
             $to = "anuj@247around.com, nits@247around.com";
-            $subject = "SF Engineer Assigned Crimes Report " . date("d-M-Y");
+            $subject = "SF Engineer Assigned Report " . date("d-M-Y");
             $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $view, "");
         }
     }
@@ -803,7 +803,7 @@ EOD;
             $view = $this->load->view('employee/unassigned_table', $value, TRUE);
             $to = $value['primary_contact_email'].",". $value['owner_email'];
             //$to = "abhaya@247around.com";
-            $subject = $value['service_center_name']." Assigned Crimes Report " . date("d-M-Y");
+            $subject = $value['service_center_name']." Assigned Report " . date("d-M-Y");
             $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $view, "");
         }
     }

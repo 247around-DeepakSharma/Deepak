@@ -87,9 +87,9 @@ define('ENGG_ASSIGNED', "Engg_Assigned");
 define('RE_ASSIGNED_ENGINEER', "Re-Assigned_Engineer");
 define('UPDATED_SC', "upadted_sc");
 //Engineer Not Assign
-define('ENGG_NOT_ASSIGN', 'Engineer_Not_Assign');
+define('ENGG_NOT_ASSIGN', 'Engineer not assigned');
 //Engineer Not Assign on Time
-define('ENGG_LATE_ASSIGN', 'Engineer_Not_Assign_With_In_Time');
+define('ENGG_LATE_ASSIGN', 'Engineer Late assigned');
 // Booking not updated by SF
 define('BOOKING_NOT_UPDATED_BY_SERVICE_CENTER', 'Booking is not updated by service center');
 //Spare Parts Received By SF
@@ -143,7 +143,7 @@ define('Max_TIME_WITH_IN_ASSIGNED_ENGINEER', 3);
 
 define('PRODUCT_NOT_DELIVERED_TO_CUSTOMER','Product not delivered to customer');
 
-define('CUSTOMER_ASK_TO_RESCHEDULE','Customer ask to reschedule');
+define('CUSTOMER_ASK_TO_RESCHEDULE','Customer asked to reschedule');
 
 define('CUSTOMER_NOT_REACHABLE','Customer not reachable');
 
