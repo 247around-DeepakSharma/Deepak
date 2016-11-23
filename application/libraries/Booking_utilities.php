@@ -85,6 +85,8 @@ class Booking_utilities {
 
 	$output_file_excel = $output_file_dir . $output_file . ".xlsx";
 	$R->render('excel', $output_file_excel);
+        $res1 = 0;
+        system(" chmod 777 ".$output_file_excel, $res1);
 	$output_file_pdf = $output_file_dir . $output_file . ".pdf";
 
 	//Update output file name in DB
@@ -100,7 +102,10 @@ class Booking_utilities {
 
 	$output = '';
 	$result_var = '';
+        
 	exec($cmd, $output, $result_var);
+        $res2 = 0;
+        system(" chmod 777 ".$output_file_pdf, $res2);
         
         log_message('info', __FUNCTION__. " Result Var Job card creation ". print_r($result_var, true));
 
@@ -111,6 +116,8 @@ class Booking_utilities {
 
 	$directory_pdf = "jobcards-pdf/" . $output_file . ".pdf";
 	$this->My_CI->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+        exec("rm -rf " . escapeshellarg($output_file_pdf));
+        exec("rm -rf " . escapeshellarg($output_file_excel));
 
         log_message('info', __FUNCTION__ . " => Exiting, Booking ID: " . $booking_id);
     }
