@@ -365,13 +365,17 @@ EOD;
             // Check Other string exist in the Cancellation reason. 
             // If exist then replace cancellation_reason with other
             foreach ($leads as $key => $value) {
-                if (stristr($value['cancellation_reason'], "Other :")){
+                if($value['current_status'] != "Cancelled"){
+                    
+                    $leads[$key]['cancellation_reason'] = $value['current_status'];
+                             
+                } else if (stristr($value['cancellation_reason'], "Other :")){
                   
                     $leads[$key]['cancellation_reason'] = "Other";
                     
                 }
             }
-
+            
 	    $R->load(array(
 		array(
 		    'id' => 'bd',
