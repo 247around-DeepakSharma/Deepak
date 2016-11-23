@@ -438,7 +438,7 @@ class Service_centers extends CI_Controller {
             $data['current_status'] = "InProcess";
             $data['internal_status'] = 'Reschedule';
             $reason = $this->input->post('reason');
-            if(isset($reason)){
+            if(!empty($reason)){
                 
                 $data['reschedule_reason'] = $this->input->post('reason');
             } else {

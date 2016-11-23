@@ -693,7 +693,7 @@
              <div class="form-group">
                <label for="name" class="col-sm-3">Reschedule Reason</label>
                 <div class="col-md-6">
-                   <textarea name="remarks" rows="5" class="form-control" id="remarks" placeholer="Plese Enter Reschedule Reason" ></textarea>
+                   <textarea name="reason_text" rows="5" class="form-control" id="remarks" placeholer="Plese Enter Reschedule Reason" ></textarea>
                 </div>
                 </div>
          </form>
