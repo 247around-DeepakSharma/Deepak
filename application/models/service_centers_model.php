@@ -359,13 +359,15 @@ class Service_centers_model extends CI_Model {
      * @return Array
      */
     function get_sc_earned($service_center_id){
-        for($i =0; $i<2; $i++){
+        for($i =0; $i<3; $i++){
             if($i ==0){
                 $where = " AND `closed_date` >=  '".date('Y-m-01')."'";
             } else if($i==1) {
                 $where = "  AND  closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
-			    AND closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
-                
+			    AND closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";         
+            } else if($i ==2){
+                $where = "  AND  closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
+			    AND closed_date < DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')";
             }
         $sql = "SELECT COUNT( b.`id` ) as total_booking, 
                 CASE 
@@ -408,12 +410,16 @@ class Service_centers_model extends CI_Model {
      * @return Array
      */
     function count_cancel_booking_sc($service_center_id){
-        for($i =0; $i<2; $i++){
+        for($i =0; $i<3; $i++){
             if($i ==0){
                 $where = " AND `closed_date` >=  '".date('Y-m-01')."'";
             } else if($i==1) {
                 $where = "  AND  closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
 			    AND closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
+                
+            } else if($i==2){
+                 $where = "  AND  closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
+			    AND closed_date < DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')";
                 
             }
         $sql  = " SELECT COUNT( b.`id` ) as cancel_booking

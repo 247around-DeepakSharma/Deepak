@@ -574,9 +574,16 @@ class Service_centers extends CI_Controller {
         // We will not display internal status after 1st day.
         if($date_diff->days <1){
             $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
+            $data['days'] = 0;
             
+        } else if($date_diff->days ===1){
+            $data['days'] = $date_diff->days;
+            $arr = array('status'=> CUSTOMER_NOT_REACHABLE);
+            $data['internal_status']= Array((object) $arr);
+           
         } else{
             $data['internal_status'] = array();
+            $data['days'] = 0;
         }
 
         //IF spare parts is zero then we will not display spare parts checkbox.
@@ -657,7 +664,24 @@ class Service_centers extends CI_Controller {
 //                   
 //                    $this->default_update(true, true);
 //                }
-                $this->default_update(true, true);
+                switch ($reason){
+                    case CUSTOMER_NOT_REACHABLE:
+                        $day = $this->input->post('days');
+                        if($day ==1){
+                            $booking_id = $this->input->post('booking_id');
+                            $_POST['cancellation_reason'] = CUSTOMER_NOT_REACHABLE;
+                            $_POST['cancellation_reason_text'] = CUSTOMER_NOT_REACHABLE;
+                            $this->process_cancel_booking($booking_id);
+                            
+                        } else {
+                            $this->default_update(true, true);
+                        }
+                        break;
+                    default :
+                        $this->default_update(true, true);
+                        break;
+                }
+                
                 break;
         }
         

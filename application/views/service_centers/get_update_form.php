@@ -62,7 +62,8 @@
                             <?php } ?>
                         </div>
                     </div>
-                    
+                   
+                    <input type="hidden" name="days" value="<?php echo $days; ?>" /> 
                     <div class="panel panel-default col-md-offset-2" id="hide_spare" >
                         <div class="panel-body" >
                             <div class="row">
@@ -100,7 +101,7 @@
                                             <div class="col-md-6">
                                                 <div class="input-group input-append date">
                                                     <input id="dop" class="form-control" placeholder="Select Date" name="dop" type="text" required readonly='true' style="background-color:#fff;">
-                                                    <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                                                    <span class="input-group-addon add-on" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                                 </div>
                                             </div>
                                         </div>
@@ -141,7 +142,7 @@
                                             <div class="col-md-6">
                                                 <div class="input-group input-append date">
                                                     <input id="reschduled_booking_date" class="form-control" placeholder="Select Date" name="booking_date" type="text" required readonly='true' style="background-color:#fff;">
-                                                    <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                                                    <span class="input-group-addon add-on" onclick="reschduled_booking_date_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                                 </div>
                                                 <span style="color:red; font-size: 12px;">Date By which SF will receive the part</span>
                                             </div>
@@ -152,9 +153,6 @@
                                                 <input type="text" class="form-control spare_parts" id="247serial_number" name="serial_number" value = "" placeholder="Serial Number">
                                             </div>
                                         </div>
-                                       
-                                         
-                                         
                                          
                                      </div>
                                       <div class="form-group col-md-12 ">
@@ -174,7 +172,7 @@
                         <div class="col-md-4" style="width:24%">
                             <div class="input-group input-append date">
                                 <input id="booking_date" class="form-control rescheduled_form" placeholder="Select Date" name="booking_date" type="text" required readonly='true' style="background-color:#fff;">
-                                <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                                <span class="input-group-addon add-on" onclick="booking_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                             </div>
                         </div>
                         
@@ -315,6 +313,23 @@
                 minDate: 0, 
                 maxDate:+7
     });
+    
+    function booking_calendar(){
+      
+        $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0, changeMonth: true,changeYear: true}).datepicker('show');
+    }
+    
+    function dop_calendar(){
+         $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true}).datepicker('show');
+    }
+    
+    function reschduled_booking_date_calendar(){
+        $("#reschduled_booking_date").datepicker({
+                dateFormat: 'yy-mm-dd', 
+                minDate: 0, 
+                maxDate:+7
+    }).datepicker('show');
+    }
     
     
      

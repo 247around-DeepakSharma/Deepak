@@ -305,7 +305,7 @@
                                     <label for="type" class="col-md-4">Serial Number </label>
                                     <div class="col-md-6">
                                         <input  type="text" class="form-control"  name="serial_number" id="serial_number" value = "<?php if(set_value('serial_number')) { echo set_value('serial_number');} else 
-                                            if($unit_details[0]['serial_number']){ echo $unit_details[0]['serial_number'];  }  ?>" placeholder="Enter Serial Number" >
+                                            if($unit_details[0]['partner_serial_number']){ echo $unit_details[0]['partner_serial_number'];  }  ?>" placeholder="Enter Serial Number" >
                                         <?php echo form_error('serial_number'); ?>
                                     </div>
                                     <span id="error_serial_number"></span>

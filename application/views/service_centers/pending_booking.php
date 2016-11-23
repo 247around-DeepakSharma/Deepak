@@ -1,7 +1,7 @@
 <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
 <div class="container-fluid">
-    <div class="row" style="margin-top: 20px;">
+    <div class="row" >
         <?php $booking_id = ($this->uri->segment(3) != '' ? $this->uri->segment(3) : ''); ?>
         <?php
     if ($this->session->userdata('success')) {
@@ -23,8 +23,33 @@
                     </div>';
                     }
                     ?>
+        
+         <?php if($this->session->userdata('is_update') == 1){ ?>
+        
+         <div class="col-md-12" style="margin-top:5px;">
+            <table class="table table-striped table-bordered table-hover" style="font-size:13px">
+                <thead>
+                    <?php if($eraned_details[2][0]['total_booking'] == 0){ $eraned_details[2][0]['total_booking'] =1;}?>
+                <tr>
+                    <th class="text-center">Booking Cancelled In <?php echo date("F", strtotime("-2 Months")); ?></th>
+                    <td class="text-center"><?php echo $cancel_booking[2][0]['cancel_booking']; ?></td>
+               
+                    <th class="text-center">Amount Lost in <?php echo date("F", strtotime("-2 Months"));?></th>
+                    <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",($eraned_details[2][0]['earned']/$eraned_details[2][0]['total_booking'])* $cancel_booking[2][0]['cancel_booking']); ?></td>
+               
+                    <th class="text-center">Booking Completed In <?php echo date("F", strtotime("-2 Months"));?></th>
+                    <td class="text-center"><?php echo $eraned_details[2][0]['total_booking']; ?></td>
+                
+                    <th class="text-center">Amount Earned In <?php echo date("F",strtotime("-2 Months"));?></th>
+                      <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$eraned_details[2][0]['earned']); ?></td>
+                </tr>
+                </thead>
+                
+            </table>
+ 
+        </div>
       
-         <div class="col-md-12" style="margin-top:20px;">
+         <div class="col-md-12" >
             <table class="table table-striped table-bordered table-hover" style="font-size:13px">
                 <thead>
                     <?php if($eraned_details[1][0]['total_booking'] == 0){ $eraned_details[1][0]['total_booking'] =1;}?>
@@ -46,7 +71,7 @@
             </table>
  
         </div>
-        
+         
         <div class="col-md-12" >
             <table class="table table-striped table-bordered table-hover" style="font-size:13px">
                 <thead>
@@ -69,6 +94,8 @@
             </table>
  
         </div>
+        <?php } ?>
+        
        
         <div class="col-md-12"><h2>Pending Bookings</h2></div>
         <div class="col-md-10">
@@ -97,7 +124,7 @@
                                         <tr>
                                             <th class="text-center" >No</th>
                                             <th class="text-center" data-orderable="false">Booking Id</th>
-                                            <th class="text-center" data-orderable="false">User</th>
+                                            <th class="text-center" data-orderable="false">User/Phone</th>
                                             <th class="text-center" style="min-width:85px;" data-orderable="false">Address</th>
                                             
                                             <th class="text-center" data-orderable="false">Appliance</th>
@@ -267,7 +294,7 @@
                                     <tr>
                                             <th class="text-center">No</th>
                                             <th class="text-center" data-orderable="false">Booking Id</th>
-                                            <th class="text-center" data-orderable="false">User</th>
+                                            <th class="text-center" data-orderable="false">User/Phone</th>
                                             <th class="text-center" style="min-width:85px;" data-orderable="false">Address</th>
                                             
                                             <th class="text-center" data-orderable="false" data-orderable="false">Appliance</th>
@@ -436,7 +463,7 @@
                                  <tr>
                                             <th class="text-center">No</th>
                                             <th class="text-center" data-orderable="false">Booking Id</th>
-                                            <th class="text-center" data-orderable="false">User</th>
+                                            <th class="text-center" data-orderable="false">User/Phone</th>
                                             <th class="text-center" style="min-width:85px;"data-orderable="false">Address</th>
                                             
                                             <th class="text-center" data-orderable="false">>Appliance</th>
@@ -716,7 +743,7 @@
             "pageLength": 50
            
         } );
-       var html = '<div><p>Red Bookings are Escalations, Call Customer Immediately !!!</p><p class="blink" style="color:red;">Bookings have to be updated daily else you lose Incentive amount</p></div>';
+       var html = '<div><p style="color:red;">Bookings have to be updated daily else you lose Incentive amount</p></div>';
         
         
         $("#today_datatable_filter").html(html);
@@ -905,7 +932,7 @@
    
     }
     
-    if(date.getHours() >=15){ // Check the time
+    if(date.getHours() >=9){ // Check the time
         console.log(date.getHours());
         timer = setInterval(showRemaining, 1000);
     }
