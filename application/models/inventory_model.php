@@ -35,7 +35,7 @@ class Inventory_model extends CI_Model {
      */
     function get_brackets(){
         $this->db->select('*');
-        $this->db->order_by('create_date','desc');
+        $this->db->order_by('order_id','desc');
         $query = $this->db->get('brackets');
         return $query->result_array();
     }
@@ -158,7 +158,7 @@ class Inventory_model extends CI_Model {
      * 
      */
     function get_brackets_by_order_id($order_id){
-        $this->db->select('brackets.id,brackets.order_id,brackets.order_received_from,brackets.order_given_to,brackets.order_date,brackets.shipment_date,'
+        $this->db->select('brackets.id,brackets.order_id,brackets.invoice_id,brackets.order_received_from,brackets.order_given_to,brackets.order_date,brackets.shipment_date,'
                 . 'brackets.received_date,brackets.19_24_requested,brackets.26_32_requested,brackets.36_42_requested,'
                 . 'brackets.total_requested,brackets.19_24_shipped,brackets.26_32_shipped,brackets.36_42_shipped,brackets.total_shipped,'
                 . 'brackets.19_24_received,brackets.26_32_received,brackets.36_42_received,brackets.total_received,brackets.is_shipped,brackets.is_received,'
@@ -198,6 +198,19 @@ class Inventory_model extends CI_Model {
         $this->db->join('service_centres as sc','sc.id = brackets.order_received_from');
         $this->db->join('tax_rates','sc.state = tax_rates.state');
         $this->db->group_by('brackets.order_received_from');
+        $query = $this->db->get('brackets');
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to get order id from previously entered order values
+     * @params: void
+     * @return: void
+     * 
+     */
+    function get_latest_order_id(){
+        $this->db->select('order_id');
+        $this->db->order_by('id','desc');
         $query = $this->db->get('brackets');
         return $query->result_array();
     }
