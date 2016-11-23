@@ -534,7 +534,7 @@
                                        
                                         <label  for="name_on_pan" class="col-md-4">PAN </label>
                                         <div class="col-md-7">
-                                            <input placeholder="Name on PAN CARD" type="text" class="form-control"  name="name_on_pan" value = "<?php
+                                            <input placeholder="Name on PAN CARD" type="text" class="form-control"  id="name_on_pan" name="name_on_pan" value = "<?php
                                                 if (isset($query[0]['name_on_pan'])) {
                                                     echo $query[0]['name_on_pan'];
                                                 }
@@ -552,7 +552,7 @@
                                         ?>">
 <!--                                        <label  for="pan_no" class="col-md-4">PAN No.</label>-->
                                        
-                                                 <input type="text" class="form-control"  name="pan_no" placeholder="PAN Number" value = "<?php
+                                                 <input type="text" class="form-control"  id="pan_no" name="pan_no" placeholder="PAN Number" value = "<?php
                                                 if (isset($query[0]['pan_no'])) {
                                                     echo $query[0]['pan_no'];
                                                 }
@@ -599,7 +599,7 @@
                                            <b style="font-size: 18px;">Not Available</b> 
                                            
                                         </label>
-                                            <input type="checkbox"  value="0" name ="is_pan_doc" <?php if(isset($query[0]['is_pan_doc'])){ if($query[0]['is_pan_doc'] == 0){ echo "checked" ;}}?> style="margin-left:16px;"> 
+                                            <input type="checkbox"  value="0" id="is_pan_doc" name ="is_pan_doc" <?php if(isset($query[0]['is_pan_doc'])){ if($query[0]['is_pan_doc'] == 0){ echo "checked" ;}}?> style="margin-left:16px;"> 
                                    
                                     </div>
                                 </div>
@@ -668,7 +668,7 @@
                                         ?>">
                                         <label  for="cst_no" class="col-md-4">CST No.</label>
                                         <div class="col-md-7">
-                                            <input type="text" class="form-control"  name="cst_no" value = "<?php
+                                            <input type="text" class="form-control"  name="cst_no" id="cst_no" value = "<?php
                                                 if (isset($query[0]['cst_no'])) {
                                                     echo $query[0]['cst_no'];
                                                 }
@@ -712,7 +712,7 @@
                                         <label>
                                            <b style="font-size: 18px;">Not Available</b> 
                                         </label>
-                                        <input type="checkbox"  value="0" name ="is_cst_doc" <?php if(isset($query[0]['is_cst_doc'])){ if($query[0]['is_cst_doc'] == 0){ echo "checked" ;}}?> style="margin-top:5px; margin-left:24px;"> 
+                                        <input type="checkbox"  value="0" id="is_cst_doc" name ="is_cst_doc" <?php if(isset($query[0]['is_cst_doc'])){ if($query[0]['is_cst_doc'] == 0){ echo "checked" ;}}?> style="margin-top:5px; margin-left:24px;"> 
                                     </div>
                                 </div>
                             </div>
@@ -727,7 +727,7 @@
                                         
                                         <label  for="tin_no" class="col-md-4">TIN/VAT No.</label>
                                         <div class="col-md-7">
-                                            <input type="text" class="form-control"  name="tin_no" value = "<?php
+                                            <input type="text" class="form-control"  id="tin_no" name="tin_no" value = "<?php
                                                 if (isset($query[0]['tin_no'])) {
                                                     echo $query[0]['tin_no'];
                                                 }
@@ -771,7 +771,7 @@
                                         <label>
                                           <b style="font-size: 18px;">Not Available</b>  
                                         </label>
-                                        <input type="checkbox"  value="0" name ="is_vat_doc" <?php if(isset($query[0]['is_vat_doc'])){ if($query[0]['is_vat_doc'] == 0){ echo "checked" ;}}?> style="margin-top:5px; margin-left:24px;"> 
+                                        <input type="checkbox"  value="0" id ="is_tin_doc" name ="is_tin_doc" <?php if(isset($query[0]['is_tin_doc'])){ if($query[0]['is_tin_doc'] == 0){ echo "checked" ;}}?> style="margin-top:5px; margin-left:24px;"> 
                                     </div>
                                 </div>
                             </div>
@@ -784,7 +784,7 @@
                                         ?>">
                                         <label  for="service_tax_no" class="col-md-4">Service Tax No.</label>
                                         <div class="col-md-7">
-                                            <input type="text" class="form-control"  name="service_tax_no" value = "<?php
+                                            <input type="text" class="form-control"  id ="service_tax_no" name="service_tax_no" value = "<?php
                                                 if (isset($query[0]['service_tax_no'])) {
                                                     echo $query[0]['service_tax_no'];
                                                 }
@@ -828,7 +828,7 @@
                                         <label>
                                           <b style="font-size: 18px;">Not Available</b>   
                                         </label>
-                                        <input type="checkbox"  value="0" name ="is_st_doc" <?php if(isset($query[0]['is_st_doc'])){ if($query[0]['is_st_doc'] == 0){ echo "checked" ;}}?> style="    margin-left: 24px;margin-top: 5px;">
+                                        <input type="checkbox"  value="0" id="is_st_doc" name ="is_st_doc" <?php if(isset($query[0]['is_st_doc'])){ if($query[0]['is_st_doc'] == 0){ echo "checked" ;}}?> style="    margin-left: 24px;margin-top: 5px;">
                                     </div>
                                 </div>
                             </div>
@@ -1033,7 +1033,7 @@
                         <div class="col-md-6">
                             <div class="col-md-9"></div>
                             <div class="col-md-2">
-                                <input type="Submit" value="<?php
+                                <input onclick="return validate_registration_no()" type="Submit" value="<?php
                                     if (isset($query[0]['id'])) {
                                         echo "Update Vendor";
                                     } else {
@@ -1109,6 +1109,61 @@
                  }else{
                     return false;
                  }
+        }
+        
+        //Function to vlaidate registration numbers entered
+        function validate_registration_no(){
+            //Check for CST
+            if($('#is_cst_doc').is(":checked")){
+               if($('#cst_no').val() != ''){
+                   alert('Please enter either N/A or CST Number');
+                   return false;
+               }
+            }else{
+                if($('#cst_no').val() == ''){
+                   alert('Please enter either N/A or CST Number');
+                   return false;
+               }
+            }
+            //Check for PAN
+            if($('#is_pan_doc').is(":checked")){
+               if($('#pan_no').val() != '' || $('#name_on_pan').val() != ''){
+                   alert('Please enter either N/A or PAN Details');
+                   return false;
+               }
+            }else{
+                if($('#pan_no').val() == '' && $('#name_on_pan').val() == ''){
+                   alert('Please enter either N/A or PAN Details');
+                   return false;
+               }
+            }
+            
+            //Check for TIN
+            if($('#is_tin_doc').is(":checked")){
+               if($('#tin_no').val() != ''){
+                   alert('Please enter either N/A or TIN Number');
+                   return false;
+               }
+            }else{
+                if($('#tin_no').val() == ''){
+                   alert('Please enter either N/A or TIN Number');
+                   return false;
+               }
+            }
+            
+            //Check for Service Tax no.
+            if($('#is_st_doc').is(":checked")){
+               if($('#service_tax_no').val() != ''){
+                   alert('Please enter either N/A or Service Tax Number');
+                   return false;
+               }
+            }else{
+                if($('#service_tax_no').val() == ''){
+                   alert('Please enter either N/A or Service Tax Number');
+                   return false;
+               }
+            }
+            
         }
         
 </script>

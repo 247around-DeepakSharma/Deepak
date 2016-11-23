@@ -1301,3 +1301,5 @@ INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`
 
 INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'brackets_order_received_from_vendor', '%s order has been placed sucessfully.<br><br> <strong>Order Details are:</strong><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Total Requested : %s<br><br> We will update you as soon as order is shipped.', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com,vijaya@247around.com', '', '1', '2016-09-26 18:30:00');
 
+
+ALTER TABLE `service_centres` CHANGE `is_vat_doc` `is_tin_doc` INT(2) NOT NULL DEFAULT '1';
