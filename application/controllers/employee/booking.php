@@ -806,12 +806,13 @@ class Booking extends CI_Controller {
 
             //Log this state change as well for this booking
 	    //param:-- booking id, new state, old state, employee id, employee name
-	    $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED , _247AROUND_PENDING , "", $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+	    $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED , _247AROUND_PENDING , _247AROUND_RESCHEDULED, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
 
 	    $service_center_data['booking_id'] = $booking_id;
 	    $service_center_data['internal_status'] = "Pending";
 	    $service_center_data['current_status'] = "Pending";
 	    $service_center_data['update_date'] = date("Y-m-d H:i:s");
+            
 	    
             log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($service_center_data, true));
 	    
