@@ -1,8 +1,45 @@
 <div id="page-wrapper" >
     <div class="panel panel-info" style="margin-top:20px;">
         <div class="panel-heading"><center style="font-size:130%;">Brackets List</center></div>
+        <div class="col-md-12">
+            <div class="col-md-4">
+                <div class="col-md-6">
+                    <div style="background-color: #FF8080;margin-top:10px;margin-bottom: 10px;">&nbsp;&nbsp;</div>
+                </div>
+                <div class="col-md-6" style="margin-top:10px;margin-bottom: 10px;"> 
+                    <span>Requested Brackets List</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="col-md-6">
+                    <div style="background-color: #FFEC8B;margin-top:10px;margin-bottom: 10px;">&nbsp;&nbsp;</div>
+                </div>
+                <div class="col-md-6" style="margin-top:10px;margin-bottom: 10px;">
+                    <span >Shipped Brackets List</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="col-md-6">
+                    <div style="background-color: #4CBA90;margin-top:10px;margin-bottom: 10px;">&nbsp;&nbsp;</div>
+                </div>
+                <div class="col-md-6" style="margin-top:10px;margin-bottom: 10px;">
+                    <span >Received Brackets List</span>
+                </div>
+            </div>
+            <br><hr>
+        </div>
+        
         <div class="panel-body">
-
+             <?php
+                    if ($this->session->userdata('brackets_update_success')) {
+                        echo '<div class="alert alert-success alert-dismissible" role="alert" style="margin-top:30px;">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <strong>'.$this->session->userdata('brackets_update_success').'</strong>
+                    </div>';
+                    }
+                    ?>
             <table class="table table-condensed table-bordered">
                 <thead>
                     <tr>
@@ -16,6 +53,7 @@
                     </tr>
                     <tr>
                         <th class="jumbotron">S.N.</th>
+                        <th class="jumbotron" >Order ID</th>
                         <th class="jumbotron" style="width:20%">Received From</th>
                         <th class="jumbotron" style="padding:1px;width:4%">19-24"</th>
                         <th class="jumbotron" style="padding:1px;width:4%">26-32"</th>
@@ -29,7 +67,7 @@
                         <th class="jumbotron" style="padding:1px;width:4%">26-32"</th>
                         <th class="jumbotron" style="padding:1px;width:4%">36-42"</th>
                         <th class="jumbotron" style="padding:1px;">Total</th>
-                        <th class="jumbotron" style="width:20%">Given To</th>
+                        <!--<th class="jumbotron" style="width:20%">Given To</th>-->
                         <th colspan="2" style="text-align: center;" class="jumbotron">Action</th>
                     </tr>
                 </thead>
@@ -49,7 +87,11 @@
                         ?>		
                     <tr <?php echo $style?>>
                             <td ><?php echo ($key+1).'.'?></td>
-                            <td ><a href="<?php echo base_url()?>employee/inventory/show_brackets_order_history/<?php echo $value['order_id']?>" target="_blank"><?php echo $order_received_from[$key]?></a></td>
+                            <td ><a href="<?php echo base_url()?>employee/inventory/show_brackets_order_history/<?php echo $value['order_id']?>" target="_blank"><?php echo $value['order_id']?></a></td>
+                            <td style="text-align: center;">
+                                <?php echo $order_received_from[$key]['owner_name'].'<br>'?>
+                                <?php echo $order_received_from[$key]['name']?>
+                            </td>
                             <td style="text-align: center;"><?php echo $value['19_24_requested']?></td>
                             <td style="text-align: center;"><?php echo $value['26_32_requested']?></td>
                             <td style="text-align: center;"><?php echo $value['36_42_requested']?></td>
@@ -62,7 +104,7 @@
                             <td style="text-align: center;"><?php echo $value['26_32_received']?></td>
                             <td style="text-align: center;"><?php echo $value['36_42_received']?></td>
                             <td style="text-align: center;"><strong style="font-weight: 900;"><?php echo $value['total_received']?></strong></td>
-                            <td><?php echo $order_given_to[$key]?></td>
+                            <!--<td><?php echo $order_given_to[$key]?></td>-->
                             <td><a href="<?php base_url()?>get_update_shipment_form/<?php echo $value['order_id']?>" class="btn btn-sm btn-primary" title="Update Shipment">  <i class="fa fa-truck" aria-hidden="true"></i></a></td>
                             <td> <a href="<?php base_url()?>get_update_receiving_form/<?php echo $value['order_id']?>" class="btn btn-sm btn-primary" title="Update Receiving" <?php if($value['is_shipped'] != 1){echo 'disabled=TRUE';}?> > <i class="fa fa-shopping-cart" aria-hidden="true"></i></a></td>
                                 
@@ -76,3 +118,4 @@
         </div>
     </div>
 </div>
+<?php $this->session->unset_userdata('brackets_update_success');?>
