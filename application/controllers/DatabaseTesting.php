@@ -432,6 +432,7 @@ class DatabaseTesting extends CI_Controller {
             $message = "Find Attachment";
         
             $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
+             exec("rm -rf " . escapeshellarg($attachment));
         }
     }
     

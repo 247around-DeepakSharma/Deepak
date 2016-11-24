@@ -1289,3 +1289,7 @@ ALTER TABLE `service_centres` ADD `company_name` VARCHAR(512) NOT NULL AFTER `na
 
 ALTER TABLE `booking_unit_details` ADD `update_date` DATETIME on update CURRENT_TIMESTAMP NULL AFTER `create_date`;
 ALTER TABLE `booking_unit_details` ADD `ud_closed_date` DATETIME NULL DEFAULT NULL AFTER `update_date`;
+
+--Abhay 23 NOv
+ALTER TABLE `service_centre_charges` ADD `vendor_basic_percentage` DECIMAL(10,3) NULL DEFAULT NULL AFTER `vendor_total`;
+ALTER TABLE `booking_unit_details` ADD `vendor_basic_percentage` DECIMAL(10,3) NULL DEFAULT NULL AFTER `customer_total`;

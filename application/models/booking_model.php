@@ -1197,6 +1197,9 @@ class Booking_model extends CI_Model {
     $this->db->from('booking_details');
     $this->db->join('users',' users.user_id = booking_details.user_id');
     $this->db->join('services', 'services.id = booking_details.service_id');
+    if($partner_id !=""){
+        $this->db->join('booking_unit_details', 'booking_unit_details.booking_id = booking_details.booking_id');
+    }
 
     $this->db->like($where);
     $query =  $this->db->get();
@@ -1493,7 +1496,7 @@ class Booking_model extends CI_Model {
 
     function getpricesdetails_with_tax($service_centre_charges_id, $state){
 
-        $sql =" SELECT service_category as price_tags,tax_code, product_type, customer_total, partner_net_payable, product_or_services  from service_centre_charges where `service_centre_charges`.id = '$service_centre_charges_id' ";
+        $sql =" SELECT service_category as price_tags,tax_code, product_type,vendor_basic_percentage, customer_total, partner_net_payable, product_or_services  from service_centre_charges where `service_centre_charges`.id = '$service_centre_charges_id' ";
 
         $query = $this->db->query($sql);
         $result =  $query->result_array();
@@ -1536,7 +1539,18 @@ class Booking_model extends CI_Model {
 
         $result = array_merge($data[0], $services_details);
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
+        unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
+        $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate'])/ 100;
+        
+        $vendor_total_basic_charges =  ($result['customer_net_payable'] + $result['partner_net_payable'] + $result['around_net_payable'] + $result['partner_paid_tax']) * ($result['vendor_basic_percentage']/100);
+        $around_total_basic_charges = ($result['customer_net_payable'] + $result['partner_net_payable'] + $result['around_net_payable'] + $result['partner_paid_tax'] - $vendor_total_basic_charges);
+         
+        $result['around_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($around_total_basic_charges, $result['tax_rate'] );
+        $result['vendor_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($vendor_total_basic_charges, $result['tax_rate'] );
+        
+        $result['around_comm_basic_charges'] = $around_total_basic_charges - $result['around_st_or_vat_basic_charges'];
+        $result['vendor_basic_charges'] = $vendor_total_basic_charges - $result['vendor_st_or_vat_basic_charges'];
         log_message('info', __METHOD__ . " update booking_unit_details data " . print_r($result, true) . " Price data with tax: " . print_r($data, true));
         // Update request type If price tags is installation OR repair
         if (stristr($result['price_tags'], "Installation")) {
@@ -1601,11 +1615,11 @@ class Booking_model extends CI_Model {
         $data['tax_rate'] = $unit_details[0]['tax_rate'];
         $data['around_paid_basic_charges'] = $unit_details[0]['around_paid_basic_charges'];
         // calculate partner paid tax amount
-        $partner_paid_tax =  ($unit_details[0]['partner_paid_basic_charges'] * $data['tax_rate'])/ 100;
+        $data['partner_paid_tax'] =  ($unit_details[0]['partner_paid_basic_charges'] * $data['tax_rate'])/ 100;
         // Calculate  total partner paid charges with tax
-        $data['partner_paid_basic_charges'] = $unit_details[0]['partner_paid_basic_charges'] + $partner_paid_tax;
+        $data['partner_paid_basic_charges'] = $unit_details[0]['partner_paid_basic_charges'] + $data['partner_paid_tax'];
 
-        $vendor_total_basic_charges =  ($data['customer_paid_basic_charges'] + $data['partner_paid_basic_charges'] + $data['around_paid_basic_charges']) * basic_percentage;
+        $vendor_total_basic_charges =  ($data['customer_paid_basic_charges'] + $data['partner_paid_basic_charges'] + $data['around_paid_basic_charges']) * ($unit_details[0]['vendor_basic_percentage']/100 );
         $around_total_basic_charges = ($data['customer_paid_basic_charges'] + $data['partner_paid_basic_charges'] + $data['around_paid_basic_charges'] - $vendor_total_basic_charges);
 
         $data['around_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($around_total_basic_charges, $data['tax_rate'] );
@@ -1629,6 +1643,24 @@ class Booking_model extends CI_Model {
         $data['vendor_st_parts'] =  $this->get_calculated_tax_charge($total_vendor_parts_charge,  $data['tax_rate']);
         $data['around_comm_parts'] =  $total_around_parts_charge - $data['around_st_parts'];
         $data['vendor_parts'] = $total_vendor_parts_charge - $data['vendor_st_parts'] ;
+        // Check vendor has service tax for the service
+        if($unit_details[0]['product_or_services'] == 'Service' && $data['customer_paid_basic_charges'] == 0){
+            $st_where = 'service_centres.service_tax_no IS NOT NULL '; 
+            $is_service_tax = $this->vendor_model->is_tax_for_booking($unit_details[0]['booking_id'], $st_where);
+            if(!$is_service_tax ){
+                $vendor_total_basic_charges =  $vendor_total_basic_charges - $data['vendor_st_or_vat_basic_charges'];
+                $data['vendor_st_or_vat_basic_charges'] = 0;
+            } 
+            // Check vendor has tin OR cst for the product
+        } else if($unit_details[0]['product_or_services'] == 'Product' && $data['customer_paid_basic_charges'] == 0){
+            $vat_where = ' (service_centres.tin_no IS NOT NULL OR service_centres.cst_no IS NOT NULL ) '; 
+            $is_vat_tax = $this->vendor_model->is_tax_for_booking($unit_details[0]['booking_id'], $vat_where);
+            
+            if(!$is_vat_tax ){
+                $vendor_total_basic_charges =  $vendor_total_basic_charges - $data['vendor_st_or_vat_basic_charges'];
+                $data['vendor_st_or_vat_basic_charges'] = 0;
+            } 
+        }
 
         $vendor_around_charge = ($data['customer_paid_basic_charges'] + $data['customer_paid_parts'] + $data['customer_paid_extra_charges']) - ($vendor_total_basic_charges + $total_vendor_addition_charge + $total_vendor_parts_charge );
 
@@ -1706,7 +1738,8 @@ class Booking_model extends CI_Model {
 
         if($data['booking_status'] == "Completed"){
             // get booking unit data on the basis of id
-            $this->db->select('around_net_payable,booking_status, partner_net_payable, tax_rate, price_tags, partner_paid_basic_charges, around_paid_basic_charges');
+            $this->db->select('booking_id, around_net_payable,booking_status, partner_net_payable, '
+                    . 'tax_rate, price_tags, partner_paid_basic_charges, around_paid_basic_charges, product_or_services, vendor_basic_percentage');
             $this->db->where('id', $data['id']);
             $query = $this->db->get('booking_unit_details');
             $unit_details = $query->result_array();
@@ -1756,9 +1789,21 @@ class Booking_model extends CI_Model {
         $result = array_merge($data[0], $services_details);
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
-
+        $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate'])/ 100;
+        
+        $vendor_total_basic_charges =  ($result['customer_net_payable'] + $result['partner_net_payable'] + $result['around_net_payable'] + $result['partner_paid_tax']) * ($result['vendor_basic_percentage']/100);
+        $around_total_basic_charges = ($result['customer_net_payable'] + $result['partner_net_payable'] + $result['around_net_payable'] + $result['partner_paid_tax'] - $vendor_total_basic_charges);
+         
+        $result['around_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($around_total_basic_charges, $result['tax_rate'] );
+        $result['vendor_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($vendor_total_basic_charges, $result['tax_rate'] );
+        
+        $result['around_comm_basic_charges'] = $around_total_basic_charges - $result['around_st_or_vat_basic_charges'];
+        $result['vendor_basic_charges'] = $vendor_total_basic_charges - $result['vendor_st_or_vat_basic_charges'];
+          
+     
         log_message('info', __METHOD__ . " Insert booking_unit_details data" . print_r($result, true));
 	$this->db->insert('booking_unit_details', $result);
+       // $result['id'] = $this->db->insert_id();
         //Update request type If price tags is installation OR repair
         if (stristr($result['price_tags'], "Installation")) {
             $this->update_booking($result['booking_id'], array('request_type'=>$result['price_tags']));
