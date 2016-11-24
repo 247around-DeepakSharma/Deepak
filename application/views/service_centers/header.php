@@ -27,6 +27,62 @@
    </head>
    <body>
       <nav class="navbar navbar-custom">
+
+            <!-- Modal -->
+            <div id="contactusmodal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">247around Call Completion Contacts:</h4>
+                        </div>
+                        <div class="modal-body">
+                            <ul>
+                                <li>Mr. Devendra – Back Office Closure Champion – Delhi Office – 8130572244 (English and Hindi) - booking@247around.com</li>
+                                <li>Mrs. Ranju - Back Office Closure – Delhi Office – 8130572244 (Bengali and Hindi) - booking@247around.com</li>
+                            </ul>
+                        </div>
+
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">247around Regional Contacts:</h4>
+                        </div>
+                        <div class="modal-body">
+                            <ul>
+                                <li>Escalation South India – Mr. K Suresh – Regional Service Head South India – Based in Chennai Office – 9840492171 (English, Tamil, Malayalam, Telugu and Kannada) - suresh@247around.com</li>
+                                <li>Escalation West India – Mr. Rajendra Oza – Regional Service Head West India – Based in Mumbai Office – 9223274602 (English, Hindi and Marathi) – oza@247around.com</li>
+                                <li>Escalation East India – Mr. Nilanjan Das – Regional Service Head East India – Based in Kolkata Office – 9051159966 (English, Hindi and Bengali) – nilanjan@247around.com</li>
+                                <li>Escalation North India – Mr. Nitin Malhotra – Director & CEO – Based in Delhi Office – 9810872244 (English, Hindi and Punjabi) – nits@247around.com</li>
+                            </ul>
+                        </div>
+
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">247around TV Bracket Ordering:</h4>
+                        </div>
+                        <div class="modal-body">
+                            <ul>
+                                <li>Ms. Vijaya – Delhi Office – 0120-4540185 (English and Hindi) – vijaya@247around.com, booking@247around.com</li>
+                            </ul>
+                        </div>
+
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">247around Call Center - 9555000247</h4>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <!-- Modal End -->
+
          <div class="container-fluid">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
@@ -86,9 +142,13 @@
  
                     </ul>
                 </li>
+                  <li>
+                       <a href="#" class="dropdown-toggle" data-toggle="modal" data-target="#contactusmodal"><i class="fa fa-phone"></i>&nbsp;Contact Us&nbsp;</a>
+                  </li>
                </ul>
                
                <ul class="nav navbar-nav navbar-right">
+                  
                   <li>
                       <form method="POST" class="navbar-form navbar-left" role="search" action="<?php echo base_url(); ?>service_center/search">
                       <div class="form-group">
