@@ -4,7 +4,7 @@
         <div class="col-md-12">
             <div class="col-md-4">
                 <div class="col-md-6">
-                    <div style="background-color: #FF8080;margin-top:10px;margin-bottom: 10px;">&nbsp;&nbsp;</div>
+                    <div style="background-color: #FF8080;margin-top:10px;margin-bottom: 10px;border-radius: 10px;">&nbsp;&nbsp;</div>
                 </div>
                 <div class="col-md-6" style="margin-top:10px;margin-bottom: 10px;"> 
                     <span>Requested Brackets List</span>
@@ -12,7 +12,7 @@
             </div>
             <div class="col-md-4">
                 <div class="col-md-6">
-                    <div style="background-color: #FFEC8B;margin-top:10px;margin-bottom: 10px;">&nbsp;&nbsp;</div>
+                    <div style="background-color: #FFEC8B;margin-top:10px;margin-bottom: 10px;border-radius: 10px;">&nbsp;&nbsp;</div>
                 </div>
                 <div class="col-md-6" style="margin-top:10px;margin-bottom: 10px;">
                     <span >Shipped Brackets List</span>
@@ -20,7 +20,7 @@
             </div>
             <div class="col-md-4">
                 <div class="col-md-6">
-                    <div style="background-color: #4CBA90;margin-top:10px;margin-bottom: 10px;">&nbsp;&nbsp;</div>
+                    <div style="background-color: #4CBA90;margin-top:10px;margin-bottom: 10px;border-radius: 10px;">&nbsp;&nbsp;</div>
                 </div>
                 <div class="col-md-6" style="margin-top:10px;margin-bottom: 10px;">
                     <span >Received Brackets List</span>
@@ -37,6 +37,16 @@
                             <span aria-hidden="true">&times;</span>
                         </button>
                         <strong>'.$this->session->userdata('brackets_update_success').'</strong>
+                    </div>';
+                    }
+                    ?>
+             <?php
+                    if ($this->session->userdata('brackets_cancelled_error')) {
+                        echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:30px;">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <strong>'.$this->session->userdata('brackets_cancelled_error').'</strong>
                     </div>';
                     }
                     ?>
@@ -68,7 +78,7 @@
                         <th class="jumbotron" style="padding:1px;width:4%">36-42"</th>
                         <th class="jumbotron" style="padding:1px;">Total</th>
                         <!--<th class="jumbotron" style="width:20%">Given To</th>-->
-                        <th colspan="2" style="text-align: center;" class="jumbotron">Action</th>
+                        <th style="text-align: center" colspan="2" class="jumbotron">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -105,8 +115,11 @@
                             <td style="text-align: center;"><?php echo $value['36_42_received']?></td>
                             <td style="text-align: center;"><strong style="font-weight: 900;"><?php echo $value['total_received']?></strong></td>
                             <!--<td><?php echo $order_given_to[$key]?></td>-->
-                            <td><a href="<?php base_url()?>get_update_shipment_form/<?php echo $value['order_id']?>" class="btn btn-sm btn-primary" title="Update Shipment">  <i class="fa fa-truck" aria-hidden="true"></i></a></td>
-                            <td> <a href="<?php base_url()?>get_update_receiving_form/<?php echo $value['order_id']?>" class="btn btn-sm btn-primary" title="Update Receiving" <?php if($value['is_shipped'] != 1){echo 'disabled=TRUE';}?> > <i class="fa fa-shopping-cart" aria-hidden="true"></i></a></td>
+                            <td>
+                                <a href="<?php base_url()?>get_update_requested_form/<?php echo $value['order_id']?>" class="btn btn-sm btn-primary" title="Update Requested" <?php if($value['is_shipped'] == 1 || $value['active'] == 0){echo 'disabled=TRUE';}?> > <i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                                <a href="<?php base_url()?>get_update_shipment_form/<?php echo $value['order_id']?>" class="btn btn-sm btn-primary" title="Update Shipment" style="margin-bottom: 3px;" <?php if($value['active'] == 0){echo 'disabled=TRUE';}?>>  <i class="fa fa-truck" aria-hidden="true"></i></a>&nbsp;
+                                <a href="<?php base_url()?>get_update_receiving_form/<?php echo $value['order_id']?>" class="btn btn-sm btn-primary" style="margin-bottom: 3px;" title="Update Receiving" <?php if($value['is_shipped'] != 1 || $value['active'] == 0){echo 'disabled=TRUE';}?> > <i class="fa fa-shopping-cart" aria-hidden="true"></i></a>&nbsp;
+                            </td>
                                 
 
 
@@ -119,3 +132,4 @@
     </div>
 </div>
 <?php $this->session->unset_userdata('brackets_update_success');?>
+<?php $this->session->unset_userdata('brackets_cancelled_error');?>
