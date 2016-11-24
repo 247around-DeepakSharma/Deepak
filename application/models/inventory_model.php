@@ -184,21 +184,20 @@ class Inventory_model extends CI_Model {
     function get_vendor_bracket_invoices($vendor_id,$date_range){
         //Getting date range
         $custom_date = explode("-", $date_range);
-        $from_date = $custom_date[0];
-        $to_date = $custom_date[1];
-        
+        $from_date = str_replace("/", "-", $custom_date[0]);
+        $to_date = str_replace("/","-",$custom_date[1]);
         $this->db->select('SUM(brackets.19_24_received) as 19_24_total, SUM(brackets.26_32_received) as 26_32_total,'
                 . 'SUM(brackets.36_42_received) as 36_42_total,SUM(brackets.total_received) as total_received,'
-                . 'sc.name as vendor_name,tax_rates.rate as tax_rate,brackets.order_id,brackets.order_given_to as vendor_id,'
+                . 'sc.name as vendor_name,tax_rates.rate as tax_rate,brackets.order_id,brackets.order_received_from as vendor_id,'
                 . 'sc.address as vendor_address, sc.owner_phone_1 as owner_phone_1');
         $this->db->where('brackets.received_date >=', $from_date);
         $this->db->where('brackets.received_date <=', $to_date);
         $this->db->where('brackets.is_received', 1);
-        $this->db->where('brackets.order_given_to', $vendor_id);
+        $this->db->where('brackets.order_received_from', $vendor_id);
         $this->db->where('tax_rates.product_type', 'wall_bracket');
-        $this->db->join('service_centres as sc','sc.id = brackets.order_given_to');
+        $this->db->join('service_centres as sc','sc.id = brackets.order_received_from');
         $this->db->join('tax_rates','sc.state = tax_rates.state');
-        $this->db->group_by('brackets.order_given_to');
+        $this->db->group_by('brackets.order_received_from');
         $query = $this->db->get('brackets');
         return $query->result_array();
     }
