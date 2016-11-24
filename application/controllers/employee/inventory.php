@@ -14,6 +14,7 @@ class Inventory extends CI_Controller {
         $this->load->model('service_centers_model');
         $this->load->model('vendor_model');
         $this->load->model('inventory_model');
+        $this->load->model('booking_model');
         $this->load->library('form_validation');
         $this->load->library('session');
         $this->load->library('notify');
@@ -91,7 +92,7 @@ class Inventory extends CI_Controller {
                     $vendor_owner_mail = $vendor_requested[0]['owner_email'];
                     $to = $vendor_poc_mail.','.$vendor_owner_mail;
                     
-                    // Sending Login details mail to Vendor using Template
+                    // Sending brackets confirmation details mail to Vendor using Template
                    $email = array();
                    //Getting template from Database
                    $template = $this->booking_model->get_booking_email_template("brackets_order_received_from_vendor");
@@ -103,7 +104,6 @@ class Inventory extends CI_Controller {
                         $email['36_42_requested'] = $val['36_42_requested'];
                         $email['total_requested'] = $val['total_requested'];
                         $subject = "Brackets Requested";
-
                         $emailBody = vsprintf($template[0], $email);
                         $this->notify->sendEmail("booking@247around.com", $to , 'anuj@247around.com, nits@247around.com,vijaya@247around.com', '', $subject , $emailBody, "");
                    }
@@ -261,7 +261,7 @@ class Inventory extends CI_Controller {
             log_message('info',__FUNCTION__.' Brackets Shipped updated Error '. print_r($data, TRUE));
             
             //Setting error session data 
-            $this->session->set_userdata('brackets_update_error', 'Error in updating shipped Brackets');
+            $this->session->set_userdata('brackets_update_error', 'No changes made to be updated.');
             $this->get_update_shipment_form($order_id);
         }
     }
@@ -346,7 +346,7 @@ class Inventory extends CI_Controller {
             log_message('info',__FUNCTION__.' Brackets Received updated Error '. print_r($data, TRUE));
             
             //Setting error session data 
-            $this->session->set_userdata('brackets_update_error', 'Error in updating receiving Brackets');
+            $this->session->set_userdata('brackets_update_error', 'No changes made to be updated.');
         }
         
         //Creating Received Data Array for Inventory Database
@@ -437,6 +437,200 @@ class Inventory extends CI_Controller {
         
         $this->load->view('employee/header');
         $this->load->view("employee/show_brackets_order_history", $data);
+    }
+    
+    /**
+     * @Desc:This function is used to update Brackets Requested
+     * @params: INT order id
+     * @return: view
+     */
+    function get_update_requested_form($order_id){
+        $data['brackets'] = $this->inventory_model->get_brackets_by_id($order_id);
+        $data['requested_flag'] = TRUE;
+        $data['order_id'] = $order_id;
+        $data['order_given_to'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_given_to'])[0]['name'];
+        $data['order_received_from'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_received_from'])[0]['name'];
+        $this->load->view('employee/header');
+        $this->load->view("employee/update_brackets", $data);
+    }
+    
+    /**
+     * @Desc: This function is used to process update requested form
+     * @params: Array , int
+     * @return : view
+     * 
+     */
+    function process_update_requested_form(){
+       
+        $order_id = $this->input->post('order_id');
+        $order_received_from = $this->input->post('order_received_from');
+        $order_given_to = $this->input->post('order_given_to');
+        $data['19_24_requested'] = $this->input->post('19_24_requested');
+        $data['26_32_requested'] = $this->input->post('26_32_requested');
+        $data['36_42_requested'] = $this->input->post('36_42_requested');
+        $data['total_requested'] = $this->input->post('total_requested');
+        
+        //Updating value in Brackets
+        $update_brackets = $this->inventory_model->update_brackets($data, array('order_id' => $order_id));
+        if($update_brackets){
+            //Loggin success
+            log_message('info',__FUNCTION__.' Brackets Requested has been updated '. print_r($data, TRUE));
+            
+            //Adding value in Booking State Change
+                $this->notify->insert_state_change($order_id, _247AROUND_BRACKETS_PENDING, _247AROUND_BRACKETS_PENDING, "Brackets Shipped", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            //Logging Success
+            log_message('info', __FUNCTION__ . ' Brackets Pending - Pending state have been added in Booking State Change ');
+                
+            // Sending mail to order_received_from vendor
+            $order_received_from_email = $this->vendor_model->getVendorContact($order_received_from);
+            $vendor_poc_mail = $order_received_from_email[0]['primary_contact_email'];
+            $vendor_owner_mail = $order_received_from_email[0]['owner_email'];
+            $to = $vendor_poc_mail.','.$vendor_owner_mail;
+            
+            // Sending updated brackets confirmation details mail to Vendor using Template
+                   $email = array();
+                   //Getting template from Database
+                   $template = $this->booking_model->get_booking_email_template("brackets_order_received_from_vendor");
+                   if(!empty($template)){
+                        $email['company_name'] = $order_received_from_email[0]['company_name'];
+                        $email['19_24_requested'] = $data['19_24_requested'];
+                        $email['26_32_requested'] = $data['26_32_requested'];
+                        $email['36_42_requested'] = $data['36_42_requested'];
+                        $email['total_requested'] = $data['total_requested'];
+                        $subject = "Updated Brackets Requested";
+                        $emailBody = vsprintf($template[0], $email);
+                        $this->notify->sendEmail("booking@247around.com", $to , 'anuj@247around.com, nits@247around.com,vijaya@247around.com', '', $subject , $emailBody, "");
+                   }
+            
+            //Loggin send mail success
+            log_message('info',__FUNCTION__.' Changed Requested mail has been sent to order_received_from vendor '. $to);
+            //Sending Mail to order given to
+                    $vendor_requested_to = $this->vendor_model->getVendorContact($order_given_to)[0];
+                    $vendor_poc_mail = $vendor_requested_to['primary_contact_email'];
+                    $vendor_owner_mail = $vendor_requested_to['owner_email'];
+                    $to = $vendor_poc_mail.','.$vendor_owner_mail;
+
+                    // Sending Login details mail to Vendor using Template
+                   $email = array();
+                   //Getting template from Database
+                   $template = $this->booking_model->get_booking_email_template("brackets_requested_from_vendor");
+                   
+                   if(!empty($template)){
+                        $email['19_24_requested'] = $data['19_24_requested'];
+                        $email['26_32_requested'] = $data['26_32_requested'];
+                        $email['36_42_requested'] = $data['36_42_requested'];
+                        $email['total_requested'] = $data['total_requested'];
+                        $email['owner_name'] = $order_received_from_email[0]['owner_name'];
+                        $email['company_name'] = $order_received_from_email[0]['company_name'];
+                        $email['address'] = $order_received_from_email[0]['address'];
+                        $email['district'] = $order_received_from_email[0]['district'];
+                        $email['state'] = $order_received_from_email[0]['state'];
+                        $email['pincode'] = $order_received_from_email[0]['pincode'];
+                        $email['primary_contact_phone_1'] = $order_received_from_email[0]['primary_contact_phone_1'];
+                        $email['owner_phone_1'] = $order_received_from_email[0]['owner_phone_1'];
+                        $subject = "Updated Brackets Requested";
+
+                        $emailBody = vsprintf($template[0], $email);
+                        $this->notify->sendEmail("booking@247around.com", $to , 'anuj@247around.com, nits@247around.com,vijaya@247around.com', '', $subject , $emailBody, "");
+                        //Loggin send mail success
+                        log_message('info',__FUNCTION__.' Changed Requested mail has been sent to order_given_to vendor '. $to);
+                   }
+            
+            //Setting success session data 
+            $this->session->set_userdata('brackets_update_success', 'Brackets Requested updated Successfully');
+            
+            redirect(base_url() . 'employee/inventory/show_brackets_list');
+        }else{
+            //Loggin error
+            log_message('info',__FUNCTION__.' Brackets Shipped updated Error '. print_r($data, TRUE));
+            
+            //Setting error session data 
+            $this->session->set_userdata('brackets_update_error', 'No changes made to be updated.');
+            $this->get_update_requested_form($order_id);
+        }
+    }
+    
+    /**
+     * 
+     * @Desc: This function is used to cancel brackets order
+     * @parmas: order id
+     * @return: view
+     */
+    function cancel_brackets_requested($order_id){
+        $data['active'] = 0;
+        $cancel = $this->inventory_model->update_brackets($data, array('order_id' => $order_id));
+        if($cancel){
+            //Loggging
+            log_message('info',__FUNCTION__.' Brackets Requested has been cancelled '. print_r($cancel));
+            //Getiting brackets details
+            $brackets_details = $this->inventory_model->get_brackets_by_id($order_id);
+            
+            // Sending mail to order_received_from vendor
+            $order_received_from_email = $this->vendor_model->getVendorContact($brackets_details[0]['order_received_from']);
+          
+            $vendor_poc_mail = $order_received_from_email[0]['primary_contact_email'];
+            $vendor_owner_mail = $order_received_from_email[0]['owner_email'];
+            $to = $vendor_poc_mail.','.$vendor_owner_mail;
+            
+            // Sending updated brackets confirmation details mail to Vendor using Template
+                   $email = array();
+                   //Getting template from Database
+                   $template = $this->booking_model->get_booking_email_template("cancel_brackets_order_received_from_vendor");
+                   if(!empty($template)){
+                        $email['company_name'] = $order_received_from_email[0]['company_name'];
+                        $email['19_24_requested'] = $brackets_details[0]['19_24_requested'];
+                        $email['26_32_requested'] = $brackets_details[0]['26_32_requested'];
+                        $email['36_42_requested'] = $brackets_details[0]['36_42_requested'];
+                        $email['total_requested'] = $brackets_details[0]['total_requested'];
+                        $subject = "Brackets Request Cancelled";
+                        $emailBody = vsprintf($template[0], $email);
+                        $this->notify->sendEmail("booking@247around.com", $to , 'anuj@247around.com, nits@247around.com,vijaya@247around.com', '', $subject , $emailBody, "");
+                        //Loggin send mail success
+                        log_message('info',__FUNCTION__.' Cancelled Brackets mail has been sent to order_received_from vendor '. $to);
+                   }
+                   
+                   //Sending Mail to order given to
+                    $vendor_requested_to = $this->vendor_model->getVendorContact($brackets_details[0]['order_given_to']);
+                    $vendor_poc_mail = $vendor_requested_to[0]['primary_contact_email'];
+                    $vendor_owner_mail = $vendor_requested_to[0]['owner_email'];
+                    $to = $vendor_poc_mail.','.$vendor_owner_mail;
+
+                    // Sending Login details mail to Vendor using Template
+                   $email = array();
+                   //Getting template from Database
+                   $template = $this->booking_model->get_booking_email_template("cancel_brackets_requested_from_vendor");
+                   
+                   if(!empty($template)){
+                        $email['19_24_requested'] = $brackets_details[0]['19_24_requested'];
+                        $email['26_32_requested'] = $brackets_details[0]['26_32_requested'];
+                        $email['36_42_requested'] = $brackets_details[0]['36_42_requested'];
+                        $email['total_requested'] = $brackets_details[0]['total_requested'];
+                        $email['owner_name'] = $order_received_from_email[0]['owner_name'];
+                        $email['company_name'] = $order_received_from_email[0]['company_name'];
+                        $email['address'] = $order_received_from_email[0]['address'];
+                        $email['district'] = $order_received_from_email[0]['district'];
+                        $email['state'] = $order_received_from_email[0]['state'];
+                        $email['pincode'] = $order_received_from_email[0]['pincode'];
+                        $email['primary_contact_phone_1'] = $order_received_from_email[0]['primary_contact_phone_1'];
+                        $email['owner_phone_1'] = $order_received_from_email[0]['owner_phone_1'];
+                        $subject = "Brackets Request Cancelled";
+
+                        $emailBody = vsprintf($template[0], $email);
+                        $this->notify->sendEmail("booking@247around.com", $to , 'anuj@247around.com, nits@247around.com,vijaya@247around.com', '', $subject , $emailBody, "");
+                        //Loggin send mail success
+                        log_message('info',__FUNCTION__.'  Cancelled Brackets mail has been sent to order_given_to vendor '. $to);
+                   }
+                   
+            //Setting success session data 
+            $this->session->set_userdata('brackets_update_success', 'Brackets Requested has been Cancelled.');
+        }else{
+            //Setting success session data 
+            $this->session->set_userdata('brackets_cancelled_error', 'Error in cancellation of Brackets Requested.');
+        }
+        
+        
+        redirect(base_url() . 'employee/inventory/show_brackets_list');
+        
     }
 
 }
