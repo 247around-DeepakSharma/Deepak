@@ -1791,8 +1791,8 @@ class Booking_model extends CI_Model {
         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
         $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate'])/ 100;
         
-        $vendor_total_basic_charges =  ($result['customer_net_payable'] + $result['partner_net_payable'] + $result['around_net_payable'] + $result['partner_paid_tax']) * ($result['vendor_basic_percentage']/100);
-        $around_total_basic_charges = ($result['customer_net_payable'] + $result['partner_net_payable'] + $result['around_net_payable'] + $result['partner_paid_tax'] - $vendor_total_basic_charges);
+        $vendor_total_basic_charges =  ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] + $result['partner_paid_tax']) * ($result['vendor_basic_percentage']/100);
+        $around_total_basic_charges = ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] + $result['partner_paid_tax'] - $vendor_total_basic_charges);
          
         $result['around_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($around_total_basic_charges, $result['tax_rate'] );
         $result['vendor_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($vendor_total_basic_charges, $result['tax_rate'] );

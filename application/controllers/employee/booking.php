@@ -1406,7 +1406,7 @@ class Booking extends CI_Controller {
 
 	foreach ($reschedule_booking_id as $booking_id) {
 	    $booking['booking_date'] = date('d-m-Y', strtotime($reschedule_booking_date[$booking_id]));
-	    $booking['booking_timeslot'] = $reschedule_booking_timeslot[$booking_id];
+	    //$booking['booking_timeslot'] = $reschedule_booking_timeslot[$booking_id];
 	    $send['state'] = $booking['current_status'] = 'Rescheduled';
 	    $booking['internal_status'] = 'Rescheduled';
 	    $booking['update_date'] = date("Y-m-d H:i:s");

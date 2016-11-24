@@ -284,7 +284,7 @@ class Partner extends CI_Controller {
                 log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted error mgs" . print_r($response, true));
                 // Decode the response
                 $responseData = json_decode($response, TRUE);
-
+                
                 if (isset($responseData['data']['result'])) {
 
                     if ($responseData['data']['result'] != "Success") {
@@ -1084,8 +1084,9 @@ class Partner extends CI_Controller {
                     $prices = $this->partner_model->getPrices($booking_details['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id, $unit_details['price_tags']);
 
                     $unit_details['id'] =  $prices[0]['id'];
-                    $unit_details['around_paid_basic_charges'] = "0.00";
+                    $unit_details['around_paid_basic_charges'] =  $unit_details['around_net_payable'] = "0.00";
                     $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
+                    $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
                     //Update price in unit details table
                     $unit_status = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state']);
                     if($unit_status) {} else {
