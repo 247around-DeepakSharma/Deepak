@@ -947,23 +947,8 @@ class Service_centers extends CI_Controller {
         //Getting Logged SF details
         $service_center_id = $this->session->userdata('service_center_id');
         //Getting Pending bookings for service center id
-        $bookings = $this->service_centers_model->getPending_booking("All","",$service_center_id);
-        
-        $final_array = [];
-        foreach ($bookings as $value) {
-            $array_final['services'] = $value->services;
-            $array_final['customername'] = $value->customername;
-            $array_final['phone_number'] = $value->phone_number;
-            $array_final['booking_id'] = $value->booking_id;
-            $array_final['booking_date'] = $value->booking_date;
-            $array_final['booking_primary_contact_no'] = $value->booking_primary_contact_no;
-            $array_final['booking_jobcard_filename'] = $value->booking_jobcard_filename;
-            $array_final['age_of_booking'] = $value->age_of_booking;
-            $array_final['booking_timeslot'] = $value->booking_timeslot;
-            $array_final['admin_remarks'] = $value->admin_remarks;
-            $final_array[] = $array_final;
-        }
-        
+        $bookings = $this->service_centers_model->pending_booking($service_center_id, "");
+        $booking_details = json_decode(json_encode($bookings[1]),true);
         $template = 'SF-Pending-Bookings-List-Template.xlsx';
         //set absolute path to directory with template files
         $templateDir = __DIR__ . "/../excel-templates/";
@@ -979,7 +964,7 @@ class Service_centers extends CI_Controller {
 
                  'id' => 'bookings',
                 'repeat' => TRUE,
-                'data' => $final_array
+                'data' => $booking_details
             ));
         
         $output_file_dir = "/tmp/";

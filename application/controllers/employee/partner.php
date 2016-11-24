@@ -346,7 +346,7 @@ class Partner extends CI_Controller {
         $post['landmark'] = $this->input->post('landmark');
         $post['product'] = $this->input->post('service_name');
         $post['brand'] = $this->input->post('appliance_brand');
-        $post['productType'] = $this->input->post('description');
+        $post['productType'] = '';
         $post['category'] = $this->input->post('appliance_category');
         $post['capacity'] = $this->input->post('appliance_capacity');
         $post['model'] = $this->input->post('model_number');
@@ -355,7 +355,7 @@ class Partner extends CI_Controller {
         $post['purchase_year'] = $this->input->post('purchase_year');
         $post['partner_source'] = $this->input->post('partner_source');
         $post['remarks'] = $this->input->post('query_remarks');
-        $post['orderID'] = $this->input->post('order_id');;
+        $post['orderID'] = $this->input->post('order_id');
         $post['alternate_phone_number'] = $this->input->post('alternate_phone_number');
         $post['booking_date'] = $booking_date;
         
@@ -677,7 +677,7 @@ class Partner extends CI_Controller {
             }
         } else if (!empty($serial_no)) {
 
-            $where = array('serial_number' => $serial_no);
+            $where = array('partner_serial_number' => $serial_no);
             $data['Bookings'] = $this->booking_model->search_bookings($where, $partner_id);
             $data['search'] = "Search";
 
@@ -1055,7 +1055,7 @@ class Partner extends CI_Controller {
             $unit_details['appliance_category'] =  $appliance_details['category'] = $post['category'];
             $unit_details['appliance_capacity'] = $appliance_details['capacity'] = $post['capacity'];
             $unit_details['model_number'] = $appliance_details['model_number'] =  $post['model'];
-            $unit_details['serial_number'] = $appliance_details['serial_number'] =  $post['serial_number'];
+            $unit_details['partner_serial_number'] = $appliance_details['serial_number'] =  $post['serial_number'];
             $unit_details['purchase_month'] = $appliance_details['purchase_month'] = $post['purchase_month'];
             $unit_details['purchase_year'] = $appliance_details['purchase_year'] = $post['purchase_year'];
             // Update booking details table

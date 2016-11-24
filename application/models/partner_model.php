@@ -152,6 +152,7 @@ class Partner_model extends CI_Model {
     }
 
     function insert_data_in_batch($table_name, $rows){
+        $this->db->truncate($table_name);
         return $this->db->insert_batch($table_name, $rows);
     }
 

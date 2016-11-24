@@ -119,7 +119,7 @@ class Service_centers_model extends CI_Model {
 
                         END AS earn_sc,
 "
-                . " DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') ) as age_of_booking "
+                . " DATEDIFF(CURRENT_TIMESTAMP, sc.create_date) as age_of_booking "
                 . " FROM service_center_booking_action as sc, booking_details as bd, users, services, engineer_details "
                 . " WHERE sc.service_center_id = $service_center_id "
                 . " AND sc.current_status = 'Pending' "
@@ -367,7 +367,7 @@ class Service_centers_model extends CI_Model {
 			    AND closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";         
             } else if($i ==2){
                 $where = "  AND  closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
-			    AND closed_date < DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')";
+			    AND closed_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')";
             }
         $sql = "SELECT COUNT( b.`id` ) as total_booking, 
                 CASE 
@@ -397,7 +397,7 @@ class Service_centers_model extends CI_Model {
                $where";
         
         $query = $this->db->query($sql);
-        $result = $query->result_array();;
+        $result = $query->result_array();
         
         $data[$i] = $result;
         }
@@ -419,7 +419,7 @@ class Service_centers_model extends CI_Model {
                 
             } else if($i==2){
                  $where = "  AND  closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
-			    AND closed_date < DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')";
+			    AND closed_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')";
                 
             }
         $sql  = " SELECT COUNT( b.`id` ) as cancel_booking

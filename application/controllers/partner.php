@@ -1549,7 +1549,7 @@ class Partner extends CI_Controller {
 
             $booking['quantity'] = '1';
 
-            $appliance_details['serial_number'] = $unit_details['serial_number'] =(isset($requestData['serial_number']) ? $requestData['serial_number'] : "");
+            $appliance_details['serial_number'] = $unit_details['partner_serial_number'] =(isset($requestData['serial_number']) ? $requestData['serial_number'] : "");
 
             $booking['potential_value'] = '';
             $appliance_details['last_service_date'] = date('d-m-Y');

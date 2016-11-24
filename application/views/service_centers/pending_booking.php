@@ -31,73 +31,62 @@
                 <thead>
                     <?php if($eraned_details[2][0]['total_booking'] == 0){ $eraned_details[2][0]['total_booking'] =1;}?>
                 <tr>
-                    <th class="text-center">Booking Cancelled In <?php echo date("F", strtotime("-2 Months")); ?></th>
+                    <th >Booking Cancelled In <?php echo date("F", strtotime("-2 Months")); ?></th>
                     <td class="text-center"><?php echo $cancel_booking[2][0]['cancel_booking']; ?></td>
                
-                    <th class="text-center">Amount Lost in <?php echo date("F", strtotime("-2 Months"));?></th>
+                    <th >Amount Lost in <?php echo date("F", strtotime("-2 Months"));?></th>
                     <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",($eraned_details[2][0]['earned']/$eraned_details[2][0]['total_booking'])* $cancel_booking[2][0]['cancel_booking']); ?></td>
                
-                    <th class="text-center">Booking Completed In <?php echo date("F", strtotime("-2 Months"));?></th>
+                    <th >Booking Completed In <?php echo date("F", strtotime("-2 Months"));?></th>
                     <td class="text-center"><?php echo $eraned_details[2][0]['total_booking']; ?></td>
                 
-                    <th class="text-center">Amount Earned In <?php echo date("F",strtotime("-2 Months"));?></th>
+                    <th >Amount Earned In <?php echo date("F",strtotime("-2 Months"));?></th>
                       <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$eraned_details[2][0]['earned']); ?></td>
-                </tr>
-                </thead>
-                
-            </table>
- 
-        </div>
-      
-         <div class="col-md-12" >
-            <table class="table table-striped table-bordered table-hover" style="font-size:13px">
-                <thead>
-                    <?php if($eraned_details[1][0]['total_booking'] == 0){ $eraned_details[1][0]['total_booking'] =1;}?>
-                <tr>
-                    <th class="text-center">Booking Cancelled In <?php echo date("F", strtotime("last month")); ?></th>
+                        </tr>
+                        <tr>
+                <?php if($eraned_details[1][0]['total_booking'] == 0){ $eraned_details[1][0]['total_booking'] =1;}?>
+                      <th >Booking Cancelled In <?php echo date("F", strtotime("last month")); ?></th>
                     <td class="text-center"><?php echo $cancel_booking[1][0]['cancel_booking']; ?></td>
                
-                    <th class="text-center">Amount Lost in <?php echo date("F", strtotime("last month"));?></th>
+                    <th >Amount Lost in <?php echo date("F", strtotime("last month"));?></th>
                     <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",($eraned_details[1][0]['earned']/$eraned_details[1][0]['total_booking'])* $cancel_booking[1][0]['cancel_booking']); ?></td>
                
-                    <th class="text-center">Booking Completed In <?php echo date("F", strtotime("last month"));?></th>
+                    <th >Booking Completed In <?php echo date("F", strtotime("last month"));?></th>
                     <td class="text-center"><?php echo $eraned_details[1][0]['total_booking']; ?></td>
                 
-                    <th class="text-center">Amount Earned In <?php echo date("F", strtotime("last month"));?></th>
+                    <th >Amount Earned In <?php echo date("F", strtotime("last month"));?></th>
                       <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$eraned_details[1][0]['earned']); ?></td>
-                </tr>
-                </thead>
-                
-            </table>
- 
-        </div>
-         
-        <div class="col-md-12" >
-            <table class="table table-striped table-bordered table-hover" style="font-size:13px">
-                <thead>
-                <tr>
-                    <?php if($eraned_details[0][0]['total_booking'] == 0){ $eraned_details[0][0]['total_booking'] =1;}?>
-                    <th class="text-center">Booking Cancelled In <?php echo date('F'); ?></th>
+                        </tr>
+                        <tr>
+                       <?php if($eraned_details[0][0]['total_booking'] == 0){ $eraned_details[0][0]['total_booking'] =1;}?>
+                    <th >Booking Cancelled In <?php echo date('F'); ?></th>
                     <td class="text-center"><?php echo $cancel_booking[0][0]['cancel_booking']; ?></td>
                
-                    <th class="text-center">Amount Lost in <?php echo date('F');?></th>
+                    <th >Amount Lost in <?php echo date('F');?></th>
                     <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",($eraned_details[0][0]['earned']/$eraned_details[0][0]['total_booking'])* $cancel_booking[0][0]['cancel_booking']); ?></td>
                
-                    <th class="text-center">Booking Completed In <?php echo date('F');?></th>
+                    <th >Booking Completed In <?php echo date('F');?></th>
                     <td class="text-center"><?php echo $eraned_details[0][0]['total_booking']; ?></td>
                 
-                    <th class="text-center">Amount Earned In <?php echo date('F');?></th>
+                    <th>Amount Earned In <?php echo date('F');?></th>
                       <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$eraned_details[0][0]['earned']); ?></td>
+           
+             
                 </tr>
                 </thead>
                 
             </table>
  
         </div>
+     
         <?php } ?>
         
        
-        <div class="col-md-12"><h2>Pending Bookings</h2></div>
+        <div class="col-md-12"><h2>Pending Bookings</h2>
+            <div class="pull-right" style=' margin-top: -20px;margin-bottom: 10px;margin-right: 15px;'>
+                <a href="<?php echo base_url(); ?>employee/service_centers/download_sf_pending_bookings_list_excel"class="btn btn-primary" style="background-color: #2C9D9C;border-color: #2C9D9C;">Download Pending Bookings List</a>
+        </div>
+        </div>
         <div class="col-md-10">
             <ul class="nav nav-tabs" role="tablist" >
                 <li role="presentation" class="active"><a href="#today_booking" aria-controls="today_booking" role="tab" data-toggle="tab"><?php if($booking_id == ''){ ?>Today Bookings<?php } else { echo "Searched Booking";} ?></a></li>
@@ -196,7 +185,7 @@
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
                                             <td style="vertical-align: middle;"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc); ?>
                                                 <br/>
-                                               <?php if($row->penalty > 0){ ?><p class="incentive" style="color:#F26722;font-size: 14px;">Incentive Lost</p><?php } else { ?><div class="countdown blink" data-popover="true" style="white-space:nowrap;color:#F26722; font-size:13px; overflow:hidden;text-overflow:ellipsis;" data-html=true data-content="Time Left To Update Booking & Get Incentive" ></div><?php } ?>
+                                               <?php if($row->penalty > 0){ ?><?php } else { ?><div class="countdown blink" data-popover="true" style="white-space:nowrap;color:#F26722; font-size:13px; overflow:hidden;text-overflow:ellipsis;" data-html=true data-content="Time Left To Update Booking & Get Incentive" ></div><?php } ?>
                                             
                                             </td>
 <!--                                            <td>
