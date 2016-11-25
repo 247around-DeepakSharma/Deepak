@@ -1721,17 +1721,18 @@ class Invoice extends CI_Controller {
             $invoice[0]['today'] = date('d-M-Y');
             $vendor_details = $this->vendor_model->getVendorContact($invoice[0]['vendor_id']);
             $invoice[0]['invoice_number'] = $vendor_details[0]['sc_code'] . '-' . date('dMY') . '-D-' . mt_rand(100, 999);
-            $invoice[0]['19_24_unit_price'] = _247AROUND_BRACKETS_19_24_UNIT_PRICE;
-            $invoice[0]['26_32_unit_price'] = _247AROUND_BRACKETS_26_32_UNIT_PRICE;
-            $invoice[0]['36_42_unit_price'] = _247AROUND_BRACKETS_36_42_UNIT_PRICE;
+           
             $invoice[0]['19_24_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_19_24_UNIT_PRICE, $invoice[0]['tax_rate']);
             $invoice[0]['26_32_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_26_32_UNIT_PRICE, $invoice[0]['tax_rate']);
             $invoice[0]['36_42_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_36_42_UNIT_PRICE, $invoice[0]['tax_rate']);
-            $invoice[0]['19_24_sub_total'] = $invoice[0]['19_24_total'] * ($invoice[0]['19_24_unit_price'] + $invoice[0]['19_24_tax_total']);
-            $invoice[0]['26_32_sub_total'] = $invoice[0]['26_32_total'] * ($invoice[0]['26_32_unit_price'] + $invoice[0]['26_32_tax_total']);
-            $invoice[0]['36_42_sub_total'] = $invoice[0]['36_42_total'] * ($invoice[0]['36_42_unit_price'] + $invoice[0]['36_42_tax_total']);
+            $invoice[0]['19_24_unit_price'] = _247AROUND_BRACKETS_19_24_UNIT_PRICE - $invoice[0]['19_24_tax_total'];
+            $invoice[0]['26_32_unit_price'] = _247AROUND_BRACKETS_26_32_UNIT_PRICE - $invoice[0]['26_32_tax_total'];
+            $invoice[0]['36_42_unit_price'] = _247AROUND_BRACKETS_36_42_UNIT_PRICE - $invoice[0]['36_42_tax_total'];
+            $invoice[0]['19_24_sub_total'] = $invoice[0]['_19_24_total'] * ($invoice[0]['19_24_unit_price'] + $invoice[0]['19_24_tax_total']);
+            $invoice[0]['26_32_sub_total'] = $invoice[0]['_26_32_total'] * ($invoice[0]['26_32_unit_price'] + $invoice[0]['26_32_tax_total']);
+            $invoice[0]['36_42_sub_total'] = $invoice[0]['_36_42_total'] * ($invoice[0]['36_42_unit_price'] + $invoice[0]['36_42_tax_total']);
             $invoice[0]['total'] = round($invoice[0]['19_24_sub_total'] + $invoice[0]['26_32_sub_total'] + $invoice[0]['36_42_sub_total']);
-            $invoice[0]['total_brackets'] = $invoice[0]['19_24_total'] + $invoice[0]['26_32_total'] + $invoice[0]['36_42_total'];
+            $invoice[0]['total_brackets'] = $invoice[0]['_19_24_total'] + $invoice[0]['_26_32_total'] + $invoice[0]['_36_42_total'];
             //Creating excel report
             $output_file_excel = $this->create_vendor_brackets_invoice($invoice[0]);
         }
