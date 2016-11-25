@@ -1719,8 +1719,29 @@ class Invoice extends CI_Controller {
         if (!empty($invoice)) {
             $invoice[0]['period'] = $period;
             $invoice[0]['today'] = date('d-M-Y');
-            $vendor_details = $this->vendor_model->getVendorContact($invoice[0]['vendor_id']);
-            $invoice[0]['invoice_number'] = $vendor_details[0]['sc_code'] . '-' . date('dMY') . '-D-' . mt_rand(100, 999);
+           
+            if($invoice[0]['state'] == "DELHI"){
+                    
+                $type = "T";
+                    
+            } else {
+                    $type = "R";
+            }
+                
+            $current_month = date('m');
+            // 3 means March Month
+            if($current_month >3){
+                $financial =  date('Y')."-".(date('Y') +1);
+            } else {
+                $financial =  (date('Y') -1)."-".date('Y') ;
+            }
+                
+		
+           //Make sure it is unique
+            $invoice_id_tmp = $invoice[0]['sc_code'] . "-" .$type . "-" . $financial."-".date("M", strtotime(date('Y') . "/" . $invoice_month . "/01"));
+            $invoice_no = $this->invoices_model->get_count_invoices($invoice_id_tmp);
+            
+            $invoice[0]['invoice_number'] = $invoice_id_tmp."-".($invoice_no[0]['count'] + 1);
            
             $invoice[0]['19_24_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_19_24_UNIT_PRICE, $invoice[0]['tax_rate']);
             $invoice[0]['26_32_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_26_32_UNIT_PRICE, $invoice[0]['tax_rate']);

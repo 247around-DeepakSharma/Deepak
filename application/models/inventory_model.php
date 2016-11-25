@@ -189,7 +189,7 @@ class Inventory_model extends CI_Model {
         $sql = 'SELECT SUM(brackets.19_24_received) as _19_24_total, SUM(brackets.26_32_received) as _26_32_total,
                     SUM(brackets.36_42_received) as _36_42_total,
                     SUM(brackets.total_received) as total_received,
-                    sc.name as vendor_name,
+                    sc.name as vendor_name,sc.state,sc.sc_code,
                     brackets.order_id,
                     brackets.order_received_from as vendor_id,
                     sc.address as vendor_address, sc.owner_phone_1 as owner_phone_1, 

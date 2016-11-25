@@ -657,5 +657,16 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
 	    return $amount_collected_paid + $debit_amount - $credit_amount;
 
     }
+    /**
+     * @desc: This method returns count of invoice id
+     * @param String $temp_invoice_id
+     * @return Array
+     */
+    function get_count_invoices($temp_invoice_id){
+        
+        $sql = "SELECT count(id) as count FROM `vendor_partner_invoices` WHERE `invoice_id` LIKE '%$temp_invoice_id%' ORDER BY `id` DESC";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
    
 }
