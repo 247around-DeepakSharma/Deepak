@@ -114,11 +114,11 @@ define('_247AROUND_BRACKETS_RECEIVED','Brackets_Received');
 //constant to define 247around state for brackets pending 
 define('_247AROUND_BRACKETS_PENDING','Brackets_Pending');
 //constant to define 247around brackets charge for 19-24 inch
-define('_247AROUND_BRACKETS_19_24_UNIT_PRICE',240);
+define('_247AROUND_BRACKETS_19_24_UNIT_PRICE',120);
 //constant to define 247around brackets charge for 26-32 inch
-define('_247AROUND_BRACKETS_26_32_UNIT_PRICE',350);
+define('_247AROUND_BRACKETS_26_32_UNIT_PRICE',170);
 //constant to define 247around brackets charge for 36-42 inch
-define('_247AROUND_BRACKETS_36_42_UNIT_PRICE',485);
+define('_247AROUND_BRACKETS_36_42_UNIT_PRICE',280);
 //constant to define State for making Vendor Activate
 define('_247AROUND_VENDOR_ACTIVATED','Vendor_Activated');
 //constant to define State for making Vendor De-activate
