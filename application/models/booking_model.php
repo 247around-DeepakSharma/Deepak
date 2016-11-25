@@ -1416,13 +1416,13 @@ class Booking_model extends CI_Model {
      * @return: Array of email template
      */
     function get_booking_email_template($email_tag) {
-        $this->db->select("template, to, from");
+        $this->db->select("template, to, from,cc");
         $this->db->where('tag', $email_tag);
         $this->db->where('active', 1);
         $query = $this->db->get('email_template');
         if ($query->num_rows > 0) {
             $template = $query->result_array();
-            return array($template[0]['template'], $template[0]['to'], $template[0]['from']);
+            return array($template[0]['template'], $template[0]['to'], $template[0]['from'],$template[0]['cc']);
         } else {
             return "";
         }

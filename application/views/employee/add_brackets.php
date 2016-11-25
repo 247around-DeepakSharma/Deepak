@@ -54,7 +54,7 @@
                                 <input type="checkbox" name='choice[]' value='<?php echo ($i) ?>' id="check_<?php echo $i ?>" onchange="return validate(this.id)"/>
                             </td>
                             <td style="width:30%;">
-                                <select name="order_received_from[]" id="order_received_from_<?php echo $i ?>" class = "form-control">
+                                <select name="order_received_from[]" class="order_received_from" id="order_received_from_<?php echo $i ?>" class = "form-control">
                                     <option selected disabled hidden>Select Vendor</option>
                                     <?php foreach ($vendor as $value) { ?>
                                         <option value="<?php echo $value['id'] ?>"><?php echo $value['name'] ?> </option>
@@ -74,7 +74,7 @@
                                 <input type='text' id = 'total_<?php echo $i ?>' name='total' value='0' disabled="" class = "form-control"/>
                             </td>
                             <td style="width:30%;">
-                                <select name="order_given_to[]" id="order_given_to_<?php echo $i ?>" class = "form-control">
+                                <select style="width: 100%" name="order_given_to[]" class="order_given_to"  id="order_given_to_<?php echo $i ?>" class = "form-control">
                                     <option  disabled hidden>Select Vendor</option>
                                     <option value="10" selected>Manish Kapoor</option>
                                 </select>
@@ -98,6 +98,12 @@ $this->session->unset_userdata('brackets_success');
 $this->session->unset_userdata('brackets_error');
 ?>
 <script type="text/javascript">
+    
+    $(document).ready(function(){
+       $(".order_received_from").select2(); 
+       $(".order_given_to").select2(); 
+    });
+
 
     function add_value(id) {
         var id = id.split("_");

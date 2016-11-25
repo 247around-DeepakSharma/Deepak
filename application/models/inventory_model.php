@@ -35,7 +35,7 @@ class Inventory_model extends CI_Model {
      */
     function get_brackets(){
         $this->db->select('*');
-        $this->db->order_by('create_date','desc');
+        $this->db->order_by('order_id','desc');
         $query = $this->db->get('brackets');
         return $query->result_array();
     }
@@ -182,7 +182,7 @@ class Inventory_model extends CI_Model {
      * 
      */
     function get_vendor_bracket_invoices($vendor_id,$date_range){
-        //Getting date range
+       //Getting date range
         $custom_date = explode("-", $date_range);
         $from_date = str_replace("/", "-", $custom_date[0]);
         $to_date = str_replace("/","-",$custom_date[1]);
@@ -199,6 +199,32 @@ class Inventory_model extends CI_Model {
         $this->db->join('tax_rates','sc.state = tax_rates.state');
         $this->db->group_by('brackets.order_received_from');
         $query = $this->db->get('brackets');
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to get order id from previously entered order values
+     * @params: void
+     * @return: void
+     * 
+     */
+    function get_latest_order_id(){
+        $this->db->select('order_id');
+        $this->db->order_by('id','desc');
+        $query = $this->db->get('brackets');
+        return $query->result_array();
+    }
+    
+    /**
+     * 
+     * @Desc: This function is used to get invoice id from vendor partner invoices table
+     * @parmas: order_id
+     * @return: Array
+     */
+    function get_brackets_invoice_by_order_id($order_id){
+        $this->db->select('invoice_id');
+        $this->db->where('order_id',$order_id);
+        $query = $this->db->get('vendor_partner_invoices');
         return $query->result_array();
     }
     

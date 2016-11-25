@@ -1743,9 +1743,9 @@ class Invoice extends CI_Controller {
             // Sending SMS  to Vendor , adding value in vednor_partner_invoice table when invoice type is FINAL
             if ($invoice_type == 'final') {
                 
-                //Inserting invoice id in Brackets Table against order id
-                $update_brackets_array['invoice_id'] = $invoice[0]['invoice_number'];
-                $update_brackets = $this->inventory_model->update_brackets($update_brackets_array, array('order_id' => $order_id));
+//                //Inserting invoice id in Brackets Table against order id
+//                $update_brackets_array['invoice_id'] = $invoice[0]['invoice_number'];
+//                $update_brackets = $this->inventory_model->update_brackets($update_brackets_array, array('order_id' => $order_id));
                 
                 //Send SMS to PoC/Owner
                 $sms['tag'] = "vendor_invoice_mailed";

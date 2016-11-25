@@ -146,6 +146,8 @@ define('PRODUCT_NOT_DELIVERED_TO_CUSTOMER','Product not delivered to customer');
 define('CUSTOMER_ASK_TO_RESCHEDULE','Customer asked to reschedule');
 
 define('CUSTOMER_NOT_REACHABLE','Customer not reachable');
+//constant to define default brackets order id
+define('_247_AROUND_DEFAULT_BRACKETS_ORDER_ID',201611000001);
 
 
 

@@ -235,8 +235,8 @@ class vendor extends CI_Controller {
                 $checkfilevalidation = $this->file_input_validation('tin_file');
                 if ($checkfilevalidation) {
                     //Cross-check if Non Availiable is checked along with file upload
-                    if (isset($data['is_vat_doc'])) {
-                        unset($_POST['is_vat_doc']);
+                    if (isset($data['is_tin_doc'])) {
+                        unset($_POST['is_tin_doc']);
                     }
                     $tmpFile = $_FILES['tin_file']['tmp_name'];
                     $tin_file = implode("", explode(" ", $this->input->post('name'))) . '_tinfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['tin_file']['name'])[1];
@@ -457,8 +457,8 @@ class vendor extends CI_Controller {
             if(!isset($_POST['is_st_doc'])){
                 $_POST['is_st_doc'] = 1;
             }
-            if(!isset($_POST['is_vat_doc'])){
-                $_POST['is_vat_doc'] = 1;
+            if(!isset($_POST['is_tin_doc'])){
+                $_POST['is_tin_doc'] = 1;
             }
             if(!isset($_POST['is_pan_doc'])){
                 $_POST['is_pan_doc'] = 1;
