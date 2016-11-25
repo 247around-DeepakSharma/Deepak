@@ -185,7 +185,7 @@
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
                                             <td style="vertical-align: middle;"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc); ?>
                                                 <br/>
-                                               <?php if($row->penalty > 0){ ?><p class="incentive" style="color:#F26722;font-size: 14px;">Incentive Lost</p><?php } else { ?><div class="countdown blink" data-popover="true" style="white-space:nowrap;color:#F26722; font-size:13px; overflow:hidden;text-overflow:ellipsis;" data-html=true data-content="Time Left To Update Booking & Get Incentive" ></div><?php } ?>
+                                               <?php if($row->penalty > 0){ ?><p class="incentive" style="color:#F26722;font-size: 14px;">Incentive Lost</p><?php } else { ?><div class="countdown blink" data-popover="true" style="white-space:nowrap;color:#F26722; font-size:13px; overflow:hidden;text-overflow:ellipsis;white-space: initial;" data-html=true data-content="Time Left To Update Booking & Get Incentive" ></div><?php } ?>
                                             
                                             </td>
 <!--                                            <td>
@@ -914,7 +914,7 @@
         var minutes = Math.floor((distance % _hour) / _minute);
         //var seconds = Math.floor((distance % _minute) / _second);
         
-        var remaining_hr = hours + ":"+ minutes + " hr Left";
+        var remaining_hr = hours + ":"+ minutes + " hr Left to get incentive";
        
         $(".countdown").text(remaining_hr);
         
