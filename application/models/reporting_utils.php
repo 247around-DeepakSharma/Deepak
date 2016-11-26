@@ -1155,12 +1155,12 @@ class Reporting_utils extends CI_Model {
      * Count thpose bookings who have not any entry in booking state change, means not updated( except Assigned Engineer)
      * It stores crime when this script excute after 8 PM
      */
-    function get_sc_crimes(){
+    function get_sc_crimes($where){
         log_message('info', __FUNCTION__);
         
         // Get All Service center who has is_update filed is 1.
         $sql = "SELECT id, name FROM service_centres WHERE "
-                . " active = '1' AND is_update = '1' ORDER BY name ";
+                . " active = '1' AND is_update = '1' $where ORDER BY name ";
         $query = $this->db->query($sql);
         $sc = $query->result_array();
         
@@ -1176,14 +1176,17 @@ class Reporting_utils extends CI_Model {
             $query1 = $this->db->query($sql1);
             $result1 = $query1->result_array();
             // Count, Booking is not updated
-             $sql2 = "SELECT count(distinct(BS.booking_id)) as not_update FROM booking_details as BD, "
-                     . " booking_state_change AS BS "
-                     . " WHERE BD.Current_status = 'Pending' "
-                     . " AND assigned_vendor_id = '$value[id]' "
-                     . " AND BD.booking_id = BS.booking_id "
-                     . " AND BS.service_center_id = '$value[id]' "
-                     . " AND new_state != '".ENGG_ASSIGNED."'"
-                     . " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= -1 ";
+             $sql2 = "SELECT count(distinct(BD.booking_id)) as not_update FROM booking_details as BD, 
+                      service_center_booking_action as sc 
+                      WHERE BD.Current_status IN ('Pending', 'Rescheduled') 
+                      AND assigned_vendor_id = '".$value['id']."' 
+                      
+                      AND sc.current_status = 'Pending' 
+                      AND sc.booking_id = BD.booking_id 
+                      AND NOT EXISTS (SELECT booking_id FROM booking_state_change WHERE booking_id =BD.booking_id 
+                      AND service_center_id = '".$value['id']."' 
+                      AND DATEDIFF(CURRENT_TIMESTAMP , create_date) = 0) 
+                      AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= 0";
             $query2 = $this->db->query($sql2);
             $result2 = $query2->result_array();
             
