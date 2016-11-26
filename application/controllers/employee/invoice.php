@@ -1719,19 +1719,41 @@ class Invoice extends CI_Controller {
         if (!empty($invoice)) {
             $invoice[0]['period'] = $period;
             $invoice[0]['today'] = date('d-M-Y');
-            $vendor_details = $this->vendor_model->getVendorContact($invoice[0]['vendor_id']);
-            $invoice[0]['invoice_number'] = $vendor_details[0]['sc_code'] . '-' . date('dMY') . '-D-' . mt_rand(100, 999);
-            $invoice[0]['19_24_unit_price'] = _247AROUND_BRACKETS_19_24_UNIT_PRICE;
-            $invoice[0]['26_32_unit_price'] = _247AROUND_BRACKETS_26_32_UNIT_PRICE;
-            $invoice[0]['36_42_unit_price'] = _247AROUND_BRACKETS_36_42_UNIT_PRICE;
+           
+            if($invoice[0]['state'] == "DELHI"){
+                    
+                $type = "T";
+                    
+            } else {
+                    $type = "R";
+            }
+                
+            $current_month = date('m');
+            // 3 means March Month
+            if($current_month >3){
+                $financial =  date('Y')."-".(date('Y') +1);
+            } else {
+                $financial =  (date('Y') -1)."-".date('Y') ;
+            }
+                
+		
+           //Make sure it is unique
+            $invoice_id_tmp = $invoice[0]['sc_code'] . "-" .$type . "-" . $financial."-".date("M", strtotime(date('Y') . "/" . $invoice_month . "/01"));
+            $invoice_no = $this->invoices_model->get_count_invoices($invoice_id_tmp);
+            
+            $invoice[0]['invoice_number'] = $invoice_id_tmp."-".($invoice_no[0]['count'] + 1);
+           
             $invoice[0]['19_24_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_19_24_UNIT_PRICE, $invoice[0]['tax_rate']);
             $invoice[0]['26_32_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_26_32_UNIT_PRICE, $invoice[0]['tax_rate']);
             $invoice[0]['36_42_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_36_42_UNIT_PRICE, $invoice[0]['tax_rate']);
-            $invoice[0]['19_24_sub_total'] = $invoice[0]['19_24_total'] * ($invoice[0]['19_24_unit_price'] + $invoice[0]['19_24_tax_total']);
-            $invoice[0]['26_32_sub_total'] = $invoice[0]['26_32_total'] * ($invoice[0]['26_32_unit_price'] + $invoice[0]['26_32_tax_total']);
-            $invoice[0]['36_42_sub_total'] = $invoice[0]['36_42_total'] * ($invoice[0]['36_42_unit_price'] + $invoice[0]['36_42_tax_total']);
+            $invoice[0]['19_24_unit_price'] = _247AROUND_BRACKETS_19_24_UNIT_PRICE - $invoice[0]['19_24_tax_total'];
+            $invoice[0]['26_32_unit_price'] = _247AROUND_BRACKETS_26_32_UNIT_PRICE - $invoice[0]['26_32_tax_total'];
+            $invoice[0]['36_42_unit_price'] = _247AROUND_BRACKETS_36_42_UNIT_PRICE - $invoice[0]['36_42_tax_total'];
+            $invoice[0]['19_24_sub_total'] = $invoice[0]['_19_24_total'] * ($invoice[0]['19_24_unit_price'] + $invoice[0]['19_24_tax_total']);
+            $invoice[0]['26_32_sub_total'] = $invoice[0]['_26_32_total'] * ($invoice[0]['26_32_unit_price'] + $invoice[0]['26_32_tax_total']);
+            $invoice[0]['36_42_sub_total'] = $invoice[0]['_36_42_total'] * ($invoice[0]['36_42_unit_price'] + $invoice[0]['36_42_tax_total']);
             $invoice[0]['total'] = round($invoice[0]['19_24_sub_total'] + $invoice[0]['26_32_sub_total'] + $invoice[0]['36_42_sub_total']);
-            $invoice[0]['total_brackets'] = $invoice[0]['19_24_total'] + $invoice[0]['26_32_total'] + $invoice[0]['36_42_total'];
+            $invoice[0]['total_brackets'] = $invoice[0]['_19_24_total'] + $invoice[0]['_26_32_total'] + $invoice[0]['_36_42_total'];
             //Creating excel report
             $output_file_excel = $this->create_vendor_brackets_invoice($invoice[0]);
         }
@@ -1743,9 +1765,9 @@ class Invoice extends CI_Controller {
             // Sending SMS  to Vendor , adding value in vednor_partner_invoice table when invoice type is FINAL
             if ($invoice_type == 'final') {
                 
-                //Inserting invoice id in Brackets Table against order id
-                $update_brackets_array['invoice_id'] = $invoice[0]['invoice_number'];
-                $update_brackets = $this->inventory_model->update_brackets($update_brackets_array, array('order_id' => $order_id));
+//                //Inserting invoice id in Brackets Table against order id
+//                $update_brackets_array['invoice_id'] = $invoice[0]['invoice_number'];
+//                $update_brackets = $this->inventory_model->update_brackets($update_brackets_array, array('order_id' => $order_id));
                 
                 //Send SMS to PoC/Owner
                 $sms['tag'] = "vendor_invoice_mailed";

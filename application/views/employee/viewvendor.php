@@ -31,22 +31,23 @@
             <a href="<?php echo base_url();?>employee/vendor/add_vendor"><input class="btn btn-primary" type="Button" value="Add Service Centre"></a>
         </div>
         
-        <table style="width:98%;" class="table table-striped table-bordered">
+        <table class="table table-bordered table-condensed">
           
           <tr>
-          	<th>ID</th>
-          	<th width="200px;">Name</th>
-          	<th>Phone No.</th>
-          	<th>Email</th>
-          	<th width="250px;">Address</th>
-          	<th>PoC Name</th>
-          	<th>PoC Number</th>
-          	<th>PoC Email</th>
-          	<th>Owner Name</th>
-          	<th>Owner Phone No.</th>
-          	<th>Owner Email</th>
-          	<th>CRM Login / Password</th>
-                <th colspan="2" style="text-align: center;">Action</th>
+          	<th class="jumbotron">ID</th>
+          	<th class="jumbotron">Name</th>
+          	<th class="jumbotron">Phone No.</th>
+          	<th class="jumbotron">Email</th>
+          	<th width="250px;" class="jumbotron">Address</th>
+          	<th class="jumbotron">PoC Name</th>
+          	<th class="jumbotron">PoC Number</th>
+          	<th class="jumbotron">PoC Email</th>
+          	<th class="jumbotron">Owner Name</th>
+          	<th class="jumbotron">Owner Phone No.</th>
+          	<th class="jumbotron">Owner Email</th>
+          	<th class="jumbotron">CRM Login / Password</th>
+          	<th class="jumbotron">Temporary</th>
+          	<th colspan="2" class="jumbotron">Permanent</th>
           </tr>
 
           
@@ -83,6 +84,17 @@
           	
           	<td><?=$row['owner_email'];?></td>
           	<td><?php echo strtolower($row['sc_code']) . " / " . strtolower($row['sc_code']);  ?></td>
+                <td>
+                        <?php
+                        if ($row['on_off'] == 1) {
+                            echo "<a id='edit' class='btn btn-small btn-primary' "
+                            . "href=" . base_url() . "employee/vendor/temporary_on_off_vendor/$row[id]/0>Off</a>";
+                        } else {
+                            echo "<a id='edit' class='btn btn-small btn-success' "
+                            . "href=" . base_url() . "employee/vendor/temporary_on_off_vendor/$row[id]/1>On</a>";
+                        }
+                        ?>
+                    </td>
           	<td><?php if($row['active']==1)
                 {
                   echo "<a id='edit' class='btn btn-small btn-primary' "

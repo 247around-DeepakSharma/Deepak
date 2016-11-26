@@ -235,8 +235,8 @@ class vendor extends CI_Controller {
                 $checkfilevalidation = $this->file_input_validation('tin_file');
                 if ($checkfilevalidation) {
                     //Cross-check if Non Availiable is checked along with file upload
-                    if (isset($data['is_vat_doc'])) {
-                        unset($_POST['is_vat_doc']);
+                    if (isset($data['is_tin_doc'])) {
+                        unset($_POST['is_tin_doc']);
                     }
                     $tmpFile = $_FILES['tin_file']['tmp_name'];
                     $tin_file = implode("", explode(" ", $this->input->post('name'))) . '_tinfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['tin_file']['name'])[1];
@@ -457,8 +457,8 @@ class vendor extends CI_Controller {
             if(!isset($_POST['is_st_doc'])){
                 $_POST['is_st_doc'] = 1;
             }
-            if(!isset($_POST['is_vat_doc'])){
-                $_POST['is_vat_doc'] = 1;
+            if(!isset($_POST['is_tin_doc'])){
+                $_POST['is_tin_doc'] = 1;
             }
             if(!isset($_POST['is_pan_doc'])){
                 $_POST['is_pan_doc'] = 1;
@@ -2636,6 +2636,21 @@ class vendor extends CI_Controller {
                     break;
          }
      }
+     
+     /**
+     * @desc: This function is to temporarily activate deactivate a particular vendor
+     *
+     * For this the vendor must be already registered with us and we change on_off flag of vendor in service_centres table
+     *
+     * @param: vendor id, on_off value
+     * @return : void
+     */
+    function temporary_on_off_vendor($id, $on_off) {
+        $this->vendor_model->temporary_on_off_vendor($id,$on_off);
+        //Storing State change values in Booking_State_Change Table
+        $this->notify->insert_state_change('', _247AROUND_VENDOR_SUSPENDED, _247AROUND_VENDOR_NON_SUSPENDED, 'Vendor ID = '.$id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+        redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
+    }
 
 
 }   

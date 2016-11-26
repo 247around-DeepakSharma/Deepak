@@ -2,16 +2,25 @@
     <div class="panel panel-info" style="margin-top:20px;">
         <div class="panel-heading"><center style="font-size: 130%;">Brackets History</center></div>
         <div class="panel-body">
+            <div class="span6 pull-right">
+                <a href="<?php echo !empty($invoice_id[0]['invoice_id'])?'https://s3.amazonaws.com/bookings-collateral/invoices-excel/'.$invoice_id[0]['invoice_id']:''?>" class="btn btn-primary" <?php echo !empty($invoice_id[0]['invoice_id'])?'':'disabled'?>>Download Invoice</a>
+            </div>
+           
             <div class="clear"></div>
-            <div class="col-md-6 form-group" >
+            <div class="col-md-4 form-group" >
+                <label class="label label-default" style="font-size:100%;">Order ID</label>
+                <div class="clear"></div>
+                <input type="text" disabled="" class="form-control" value="<?php echo $order_id ?>"/>
+            </div>
+            <div class="col-md-4 form-group" >
                 <label class="label label-default" style="font-size:100%;">Received From</label>
                 <div class="clear"></div>
-                <input type="text" disabled="" class="form-control" value="<?php echo isset($order_received_from[0])?$order_received_from[0]:'' ?>"/>
+                <input type="text" disabled="" class="form-control" value="<?php echo isset($order_received_from)?$order_received_from:'' ?>"/>
             </div>
-            <div class="col-md-6 form-group">
+            <div class="col-md-4 form-group">
                 <label class="label label-default" style="font-size:100%;">Given To</label>
                 <div class="clear"></div>
-                <input type="text" disabled="" class="form-control" value="<?php echo isset($order_given_to[0])?$order_given_to[0]:'' ?>"/>
+                <input type="text" disabled="" class="form-control" value="<?php echo isset($order_given_to)?$order_given_to:'' ?>"/>
             </div>
             <div class="clear"></div>
             <table class="table table-condensed table-bordered">

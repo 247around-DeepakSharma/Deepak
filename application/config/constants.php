@@ -114,11 +114,11 @@ define('_247AROUND_BRACKETS_RECEIVED','Brackets_Received');
 //constant to define 247around state for brackets pending 
 define('_247AROUND_BRACKETS_PENDING','Brackets_Pending');
 //constant to define 247around brackets charge for 19-24 inch
-define('_247AROUND_BRACKETS_19_24_UNIT_PRICE',240);
+define('_247AROUND_BRACKETS_19_24_UNIT_PRICE',120);
 //constant to define 247around brackets charge for 26-32 inch
-define('_247AROUND_BRACKETS_26_32_UNIT_PRICE',350);
+define('_247AROUND_BRACKETS_26_32_UNIT_PRICE',170);
 //constant to define 247around brackets charge for 36-42 inch
-define('_247AROUND_BRACKETS_36_42_UNIT_PRICE',485);
+define('_247AROUND_BRACKETS_36_42_UNIT_PRICE',280);
 //constant to define State for making Vendor Activate
 define('_247AROUND_VENDOR_ACTIVATED','Vendor_Activated');
 //constant to define State for making Vendor De-activate
@@ -129,6 +129,10 @@ define('_247AROUND_VENDOR_DELETED','Vendor_Deleted');
 define('_247AROUND_PARTNER_ACTIVATED','Partner_Activated');
 //constant to define State for making Partner De-activate
 define('_247AROUND_PARTNER_DEACTIVATED','Partner_Deactivated');
+//constant to define State for making Partner Suspended
+define('_247AROUND_VENDOR_SUSPENDED','Vendor Suspended');
+//constant to define State for making Partner Non Suspended
+define('_247AROUND_VENDOR_NON_SUSPENDED','Vendor Non_Suspended');
 
 define("INSERT_NEW_BOOKING", "INSERT_NEW_BOOKING");
 
@@ -146,6 +150,8 @@ define('PRODUCT_NOT_DELIVERED_TO_CUSTOMER','Product not delivered to customer');
 define('CUSTOMER_ASK_TO_RESCHEDULE','Customer asked to reschedule');
 
 define('CUSTOMER_NOT_REACHABLE','Customer not reachable');
+//constant to define default brackets order id
+define('_247_AROUND_DEFAULT_BRACKETS_ORDER_ID',201611000001);
 
 
 

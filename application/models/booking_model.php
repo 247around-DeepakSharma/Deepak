@@ -1260,7 +1260,8 @@ class Booking_model extends CI_Model {
 	    JOIN `service_centres` ON `service_centres`.`id` = `vendor_pincode_mapping`.`Vendor_ID`
     		WHERE `Appliance_ID` = '$appliance' AND `vendor_pincode_mapping`.`Pincode` = '$pincode'
 	    AND `vendor_pincode_mapping`.`active` = 1
-	    AND `service_centres`.`active` = '1'");
+	    AND `service_centres`.`active` = '1'
+            AND `service_centres`.`on_off` = '1'");
 
         $service_centre_ids = $query->result_array();
 
@@ -1416,13 +1417,13 @@ class Booking_model extends CI_Model {
      * @return: Array of email template
      */
     function get_booking_email_template($email_tag) {
-        $this->db->select("template, to, from");
+        $this->db->select("template, to, from,cc");
         $this->db->where('tag', $email_tag);
         $this->db->where('active', 1);
         $query = $this->db->get('email_template');
         if ($query->num_rows > 0) {
             $template = $query->result_array();
-            return array($template[0]['template'], $template[0]['to'], $template[0]['from']);
+            return array($template[0]['template'], $template[0]['to'], $template[0]['from'],$template[0]['cc']);
         } else {
             return "";
         }
