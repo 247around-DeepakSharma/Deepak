@@ -105,7 +105,7 @@
                                         ?>">
                                         <label for="state" class="col-md-3">District</label>
                                         <div class="col-md-8">
-                                            <select class="district form-control" name ="district" onChange="getPincode()">
+                                            <select id="district_option" class="district form-control" name ="district" onChange="getPincode()">
                                                 <option selected disabled>Select District</option>
                                                 <option <?php
                                                     if (isset($query[0]['district'])) {
@@ -157,7 +157,7 @@
                                     <div class="form-group ">
                                         <label for="state" class="col-md-3">Pincode</label>
                                         <div class="col-md-8">
-                                            <select class="pincode form-control" name ="pincode"  >
+                                            <select class="pincode form-control" id="pincode" name ="pincode"  >
                                                 <option selected disabled>Select Pincode</option>
                                                 <option <?php
                                                     if (isset($query[0]['pincode'])) {
@@ -1033,7 +1033,7 @@
                         <div class="col-md-6">
                             <div class="col-md-9"></div>
                             <div class="col-md-2">
-                                <input onclick="return validate_registration_no()" type="Submit" value="<?php
+                                <input type="Submit" value="<?php
                                     if (isset($query[0]['id'])) {
                                         echo "Update Vendor";
                                     } else {
@@ -1055,7 +1055,14 @@
       placeholder: "Select a state",
       allowClear: true
     }); */
-                function getDistrict() {
+    
+    //Adding select 2 in Dropdowns
+    $("#district_option").select2();
+    $("#state").select2();
+    $("#pincode").select2();
+    
+    
+    function getDistrict() {
      var state = $("#state").val();
      var district = $(".district").val();
     // alert(district);
@@ -1086,7 +1093,6 @@
      });
     }
     
-    // $("#district_option").select2();
                 $(function () {
     var state = $("#state").val();
                     if (state != "") {
@@ -1113,6 +1119,23 @@
         
         //Function to vlaidate registration numbers entered
         function validate_registration_no(){
+            //Check for PAN
+            if($('#is_pan_doc').is(":checked")){
+               if($('#pan_no').val() != '' && $('#name_on_pan').val() != ''){
+                   alert('Please enter either N/A or PAN Details');
+                   return false;
+               }
+            }else{
+                if($('#pan_no').val() == '' && $('#name_on_pan').val() == ''){
+                   alert('Please enter either N/A or PAN Details');
+                   return false;
+               }
+                //checking case when pan number is empty and pan name is enterd
+                else if($('#pan_no').val() == '' && $('#name_on_pan').val() != ''){
+                   alert('Please add Pan No along with Pan Name');
+                   return false;
+               }
+            }
             //Check for CST
             if($('#is_cst_doc').is(":checked")){
                if($('#cst_no').val() != ''){
@@ -1122,18 +1145,6 @@
             }else{
                 if($('#cst_no').val() == ''){
                    alert('Please enter either N/A or CST Number');
-                   return false;
-               }
-            }
-            //Check for PAN
-            if($('#is_pan_doc').is(":checked")){
-               if($('#pan_no').val() != '' || $('#name_on_pan').val() != ''){
-                   alert('Please enter either N/A or PAN Details');
-                   return false;
-               }
-            }else{
-                if($('#pan_no').val() == '' && $('#name_on_pan').val() == ''){
-                   alert('Please enter either N/A or PAN Details');
                    return false;
                }
             }
@@ -1252,12 +1263,17 @@
         primary_contact_email: "Please fill correct email",
         owner_email: "Please fill correct email"
     },
-                            submitHandler: function (form) {
+        submitHandler: function (form) {
+            //Checking registration number validation
+        var check = validate_registration_no();
+        if(check === false){
+            return false;
+        }
         form.submit();
-    }
+        }
     });
     }
-    }
+    };
     
     //when the dom has loaded setup form validation rules
         $(D).ready(function ($) {
