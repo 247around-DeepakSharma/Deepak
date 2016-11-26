@@ -49,7 +49,7 @@
                                 <?php echo form_error('id'); ?>
                             </div>
                             <div class="col-md-12">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div  class="form-group <?php
                                         if (form_error('company_name')) {
                                             echo 'has-error';
@@ -57,16 +57,33 @@
                                         ?>">
                                         <label  for="company_name" class="col-md-3">Name</label>
                                         <div class="col-md-8">
-                                            <input  type="text" class="form-control" id="name" name="company_name" value = "<?php
+                                            <input  type="text" class="form-control" id="company_name" name="company_name" value = "<?php
                                                 if (isset($query[0]['company_name'])) {
                                                     echo $query[0]['company_name'];
                                                 }
-                                                ?>" >
+                                                ?>" placeholder="Company Name">
                                             <?php echo form_error('company_name'); ?>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
+                                    <div  class="form-group <?php
+                                        if (form_error('name')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="name" class="col-md-4">Public Name</label>
+                                        <div class="col-md-8">
+                                            <input  type="text" class="form-control" id="name" name="name" value = "<?php
+                                                if (isset($query[0]['name'])) {
+                                                    echo $query[0]['name'];
+                                                }
+                                                ?>" placeholder="Public Name">
+                                            <?php echo form_error('name'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
                                     <div  class="form-group <?php
                                         if (form_error('address')) {
                                             echo 'has-error';
@@ -105,7 +122,7 @@
                                         ?>">
                                         <label for="state" class="col-md-3">District</label>
                                         <div class="col-md-8">
-                                            <select class="district form-control" name ="district" onChange="getPincode()">
+                                            <select id="district_option" class="district form-control" name ="district" onChange="getPincode()">
                                                 <option selected disabled>Select District</option>
                                                 <option <?php
                                                     if (isset($query[0]['district'])) {
@@ -157,7 +174,7 @@
                                     <div class="form-group ">
                                         <label for="state" class="col-md-3">Pincode</label>
                                         <div class="col-md-8">
-                                            <select class="pincode form-control" name ="pincode"  >
+                                            <select class="pincode form-control" id="pincode" name ="pincode"  >
                                                 <option selected disabled>Select Pincode</option>
                                                 <option <?php
                                                     if (isset($query[0]['pincode'])) {
@@ -1033,7 +1050,7 @@
                         <div class="col-md-6">
                             <div class="col-md-9"></div>
                             <div class="col-md-2">
-                                <input onclick="return validate_registration_no()" type="Submit" value="<?php
+                                <input type="Submit" value="<?php
                                     if (isset($query[0]['id'])) {
                                         echo "Update Vendor";
                                     } else {
@@ -1055,7 +1072,14 @@
       placeholder: "Select a state",
       allowClear: true
     }); */
-                function getDistrict() {
+    
+    //Adding select 2 in Dropdowns
+    $("#district_option").select2();
+    $("#state").select2();
+    $("#pincode").select2();
+    
+    
+    function getDistrict() {
      var state = $("#state").val();
      var district = $(".district").val();
     // alert(district);
@@ -1086,7 +1110,6 @@
      });
     }
     
-    // $("#district_option").select2();
                 $(function () {
     var state = $("#state").val();
                     if (state != "") {
@@ -1113,6 +1136,23 @@
         
         //Function to vlaidate registration numbers entered
         function validate_registration_no(){
+            //Check for PAN
+            if($('#is_pan_doc').is(":checked")){
+               if($('#pan_no').val() != '' && $('#name_on_pan').val() != ''){
+                   alert('Please enter either N/A or PAN Details');
+                   return false;
+               }
+            }else{
+                if($('#pan_no').val() == '' && $('#name_on_pan').val() == ''){
+                   alert('Please enter either N/A or PAN Details');
+                   return false;
+               }
+                //checking case when pan number is empty and pan name is enterd
+                else if($('#pan_no').val() == '' && $('#name_on_pan').val() != ''){
+                   alert('Please add Pan No along with Pan Name');
+                   return false;
+               }
+            }
             //Check for CST
             if($('#is_cst_doc').is(":checked")){
                if($('#cst_no').val() != ''){
@@ -1122,18 +1162,6 @@
             }else{
                 if($('#cst_no').val() == ''){
                    alert('Please enter either N/A or CST Number');
-                   return false;
-               }
-            }
-            //Check for PAN
-            if($('#is_pan_doc').is(":checked")){
-               if($('#pan_no').val() != '' || $('#name_on_pan').val() != ''){
-                   alert('Please enter either N/A or PAN Details');
-                   return false;
-               }
-            }else{
-                if($('#pan_no').val() == '' && $('#name_on_pan').val() == ''){
-                   alert('Please enter either N/A or PAN Details');
                    return false;
                }
             }
@@ -1199,6 +1227,7 @@
     $("#booking_form").validate({
     rules: {
         company_name: "required",
+        name: "required",
         address: "required",
         district: "required",
         phone_1: {
@@ -1236,7 +1265,8 @@
         }
     },
     messages: {
-        company_name: "Please enter your Company Name",
+        company_name: "Please enter Company Name",
+        name: "Please enter Public Name",
         address: "Please enter Address",
         district: "Please Select District",
         state: "Please Select State",
@@ -1252,12 +1282,17 @@
         primary_contact_email: "Please fill correct email",
         owner_email: "Please fill correct email"
     },
-                            submitHandler: function (form) {
+        submitHandler: function (form) {
+            //Checking registration number validation
+        var check = validate_registration_no();
+        if(check === false){
+            return false;
+        }
         form.submit();
-    }
+        }
     });
     }
-    }
+    };
     
     //when the dom has loaded setup form validation rules
         $(D).ready(function ($) {

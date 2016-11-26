@@ -86,13 +86,11 @@
           	<td><?php echo strtolower($row['sc_code']) . " / " . strtolower($row['sc_code']);  ?></td>
                 <td>
                         <?php
-                        if ($row['on_off'] == 1) {
-                            echo "<a id='edit' class='btn btn-small btn-primary' "
-                            . "href=" . base_url() . "employee/vendor/temporary_on_off_vendor/$row[id]/0>Off</a>";
-                        } else {
-                            echo "<a id='edit' class='btn btn-small btn-success' "
-                            . "href=" . base_url() . "employee/vendor/temporary_on_off_vendor/$row[id]/1>On</a>";
-                        }
+                        if ($row['on_off'] == 1) { ?>
+                            <a id='edit' class='btn btn-small btn-primary' href="<?php base_url() ?>temporary_on_off_vendor/<?php echo $row['id']?>/0" <?php if($row['active'] == 0){echo 'disabled';}?>>Off</a>
+                        <?php } else { ?>
+                            <a id='edit' class='btn btn-small btn-success' href="<?php base_url() ?>temporary_on_off_vendor/<?php echo $row['id']?>/1" <?php if($row['active'] == 0){echo 'disabled';}?>>On</a>
+                        <?php }
                         ?>
                     </td>
           	<td><?php if($row['active']==1)
