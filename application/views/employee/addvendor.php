@@ -49,7 +49,7 @@
                                 <?php echo form_error('id'); ?>
                             </div>
                             <div class="col-md-12">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div  class="form-group <?php
                                         if (form_error('company_name')) {
                                             echo 'has-error';
@@ -57,16 +57,33 @@
                                         ?>">
                                         <label  for="company_name" class="col-md-3">Name</label>
                                         <div class="col-md-8">
-                                            <input  type="text" class="form-control" id="name" name="company_name" value = "<?php
+                                            <input  type="text" class="form-control" id="company_name" name="company_name" value = "<?php
                                                 if (isset($query[0]['company_name'])) {
                                                     echo $query[0]['company_name'];
                                                 }
-                                                ?>" >
+                                                ?>" placeholder="Company Name">
                                             <?php echo form_error('company_name'); ?>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
+                                    <div  class="form-group <?php
+                                        if (form_error('name')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label  for="name" class="col-md-4">Public Name</label>
+                                        <div class="col-md-8">
+                                            <input  type="text" class="form-control" id="name" name="name" value = "<?php
+                                                if (isset($query[0]['name'])) {
+                                                    echo $query[0]['name'];
+                                                }
+                                                ?>" placeholder="Public Name">
+                                            <?php echo form_error('name'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
                                     <div  class="form-group <?php
                                         if (form_error('address')) {
                                             echo 'has-error';
@@ -1210,6 +1227,7 @@
     $("#booking_form").validate({
     rules: {
         company_name: "required",
+        name: "required",
         address: "required",
         district: "required",
         phone_1: {
@@ -1247,7 +1265,8 @@
         }
     },
     messages: {
-        company_name: "Please enter your Company Name",
+        company_name: "Please enter Company Name",
+        name: "Please enter Public Name",
         address: "Please enter Address",
         district: "Please Select District",
         state: "Please Select State",

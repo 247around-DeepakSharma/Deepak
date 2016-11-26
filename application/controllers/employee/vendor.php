@@ -62,9 +62,6 @@ class vendor extends CI_Controller {
         }
         $checkValidation = $this->checkValidation();
         if ($checkValidation) {
-            //Adding name as city + company name  
-            $_POST['name'] = $data['district'] . ' ' . $data['company_name'];
-
             //Start  Processing PAN File Upload
             if (!empty($_FILES['pan_file']['tmp_name'])) {
                 //Adding file validation
