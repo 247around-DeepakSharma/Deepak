@@ -145,6 +145,9 @@ class vendor_model extends CI_Model {
     function activate($id) {
         $sql = "Update service_centres set active= 1 where id='$id'";
         $this->db->query($sql);
+        //Changing Flag Active to 1 in service centres login table
+        $sql = "Update service_centers_login set active= 1 where service_center_id='$id'";
+        $this->db->query($sql);
     }
 
     /**
@@ -156,6 +159,9 @@ class vendor_model extends CI_Model {
      */
     function deactivate($id) {
         $sql = "Update service_centres set active= 0 where id='$id'";
+        $this->db->query($sql);
+        //Changing Flag Active to 0 in service centres login table
+        $sql = "Update service_centers_login set active= 0 where service_center_id='$id'";
         $this->db->query($sql);
     }
 
@@ -628,6 +634,8 @@ class vendor_model extends CI_Model {
 
         $this->db->where('vendor_pincode_mapping.active', 1);
         $this->db->where('service_centres.active', 1);
+        //Checking Temporary On/Off values
+        $this->db->where('service_centres.on_off', 1);
 
         $query = $this->db->get();
         return $query->result_array();
@@ -1110,6 +1118,7 @@ class vendor_model extends CI_Model {
         $this->db->from('vendor_pincode_mapping');
         $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
         $this->db->where('service_centres.active', "1");
+        $this->db->where('service_centres.on_off', "1");
         
         $data = $this->db->get();
         
@@ -1318,6 +1327,17 @@ class vendor_model extends CI_Model {
             return FALSE;
         }
     }
-
+    
+     /**
+     * @desc: This function is to suspend vendor who is already registered with us 
+     *
+     * @param: $id,$on_off
+     *         
+     * @return: void
+     */
+    function temporary_on_off_vendor($id,$on_off) {
+        $sql = "Update service_centres set on_off = '$on_off' where id='$id'";
+        $this->db->query($sql);
+    }
 
 }

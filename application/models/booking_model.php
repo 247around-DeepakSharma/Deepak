@@ -1260,7 +1260,8 @@ class Booking_model extends CI_Model {
 	    JOIN `service_centres` ON `service_centres`.`id` = `vendor_pincode_mapping`.`Vendor_ID`
     		WHERE `Appliance_ID` = '$appliance' AND `vendor_pincode_mapping`.`Pincode` = '$pincode'
 	    AND `vendor_pincode_mapping`.`active` = 1
-	    AND `service_centres`.`active` = '1'");
+	    AND `service_centres`.`active` = '1'
+            AND `service_centres`.`on_off` = '1'");
 
         $service_centre_ids = $query->result_array();
 
