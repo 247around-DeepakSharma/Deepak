@@ -1122,7 +1122,8 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         $where = array('spare_parts_details.partner_id'=> $partner_id, 'status'=> SPARE_PARTS_REQUESTED);
-        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
+        $where_in = array('Pending','Rescheduled');
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where, $where_in);
         $this->load->view('partner/header');
         $this->load->view('partner/spare_parts_booking', $data);
     }
@@ -1165,8 +1166,9 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'). " Booking ID: ". $booking_id);
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
+        $where_in = array('Pending','Rescheduled');
         $where = array('spare_parts_details.partner_id'=> $partner_id, 'status'=> SPARE_PARTS_REQUESTED, 'spare_parts_details.booking_id'=> $booking_id);
-        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where, $where_in);
         
         $this->load->view('partner/header');
         $this->load->view('partner/update_spare_parts_form', $data);
@@ -1228,8 +1230,9 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
+        $where_in = array('Pending','Rescheduled');
         $where = array('spare_parts_details.partner_id'=> $partner_id, 'status'=> SPARE_PARTS_REQUESTED);
-        $data = $this->partner_model->get_spare_parts_booking($where);
+        $data = $this->partner_model->get_spare_parts_booking($where, $where_in);
         $template = 'download_spare_parts.xlsx';
 	//set absolute path to directory with template files
 	$templateDir = __DIR__ . "/../excel-templates/";
@@ -1329,7 +1332,8 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__. " Booking_id". $booking_id);
         $booking_history  = $this->booking_model->getbooking_history($booking_id);
         $where = array('spare_parts_details.booking_id'=> $booking_id);
-        $spare_parts_details = $this->partner_model->get_spare_parts_booking($where);
+        $where_in = array('Pending','Rescheduled');
+        $spare_parts_details = $this->partner_model->get_spare_parts_booking($where, $where_in);
         $template = 'Courier_Manifest.xlsx';
         
         $date1=date_create($booking_history[0]['create_date']);

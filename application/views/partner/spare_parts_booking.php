@@ -74,7 +74,7 @@
                                     </td>
                                    
                                 </tr>
-                                <?php } ?>
+                                <?php $sn_no1++; } ?>
                             </tbody>
                         </table>
 <!--                        <div id="loading1" style="text-align: center;">
