@@ -754,17 +754,25 @@ class Service_centers extends CI_Controller {
         $reason = $this->input->post('reason');
 
         if(isset($_FILES["invoice_image"])){
-            $invoice_name = $this->upload_spare_pic($_FILES["invoice_image"]);
+            $invoice_name = $this->upload_spare_pic($_FILES["invoice_image"], "Invoice");
             if (isset($invoice_name)) {
                 $data['invoice_pic'] = $invoice_name;
             }
         }
         
-        if(isset($_FILES["panel_pic"])){
+        if(isset($_FILES["serial_number_pic"])){
 
-            $panel_pic = $this->upload_spare_pic($_FILES["panel_pic"]);
-            if (isset($panel_pic)) {
-                $data['panel_pic'] = $panel_pic;
+            $serial_number_pic = $this->upload_spare_pic($_FILES["serial_number_pic"],"Serial_NO");
+            if (isset($serial_number_pic)) {
+                $data['serial_number_pic'] = $serial_number_pic;
+            }
+        }
+        
+         if(isset($_FILES["defective_parts_pic"])){
+
+            $defective_parts_pic = $this->upload_spare_pic($_FILES["defective_parts_pic"],"Defective_Parts");
+            if (isset($defective_parts_pic)) {
+                $data['defective_parts_pic'] = $defective_parts_pic;
             }
         }
         
@@ -817,7 +825,7 @@ class Service_centers extends CI_Controller {
      * @param _FILE $file
      * @return boolean|string
      */
-     public function upload_spare_pic($file) {
+     public function upload_spare_pic($file, $type) {
          log_message('info', __FUNCTION__. " Enterring Service_center ID: ". $this->session->userdata('service_center_id'));
         $this->checkUserSession();
 	$allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");

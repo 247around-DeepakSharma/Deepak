@@ -61,7 +61,7 @@ class Partner extends CI_Controller {
         log_message('info', 'Partner loggedIn  partner id' .
                 $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
 
-        redirect(base_url() . "partner/pending_booking");
+        redirect(base_url() . "partner/get_spare_parts_booking");
         } else {
 
             $userSession = array('error' => 'Please enter correct user name and password' );

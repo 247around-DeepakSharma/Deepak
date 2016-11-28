@@ -71,7 +71,7 @@
                                <label for="Invoice pic" class="col-md-4">Invoice Image</label>
                                 <div class="col-md-6">
                                     <?php if(!is_null($spare_parts[0]['invoice_pic'])){ ?>
-                                    <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $spare_parts[0]['invoice_pic'];?>" target="_blank">Click Here</a>
+                                    <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $spare_parts[0]['invoice_pic'];?>" target="_blank">View Image</a>
                                 <?php } ?>
                                 </div>
                                     
@@ -79,10 +79,19 @@
                             
                             
                            <div class="form-group ">
-                               <label for="Invoice pic" class="col-md-4">Panel Image</label>
+                               <label for="Invoice pic" class="col-md-4">Serial Number Image</label>
                                 <div class="col-md-6">
-                                    <?php if(!is_null($spare_parts[0]['panel_pic'])){ ?>
-                                    <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $spare_parts[0]['panel_image'];?>" target="_blank">Click Here</a>
+                                    <?php if(!is_null($spare_parts[0]['serial_number_pic'])){ ?>
+                                    <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $spare_parts[0]['serial_number_pic'];?>" target="_blank">View Image</a>
+                                 <?php } ?>
+                                </div>
+                                    
+                            </div>
+                             <div class="form-group ">
+                               <label for="Invoice pic" class="col-md-4">Defective Part Image</label>
+                                <div class="col-md-6">
+                                    <?php if(!is_null($spare_parts[0]['defective_parts_pic'])){ ?>
+                                    <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $spare_parts[0]['defective_parts_pic'];?>" target="_blank">View Image</a>
                                  <?php } ?>
                                 </div>
                                     

@@ -83,9 +83,15 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label for="Invoice picture" class="col-md-4">Invoice Image</label>
+                                            <label for="Invoice picture" class="col-md-4">Invoice Picture</label>
                                             <div class="col-md-6">
                                                 <input type="file" class="form-control spare_parts" id="invoice_pic" name="invoice_image">
+                                            </div>
+                                        </div>
+                                         <div class="form-group">
+                                            <label for="Invoice picture" class="col-md-4">Defective Part Picture</label>
+                                            <div class="col-md-6">
+                                                <input type="file" class="form-control spare_parts" id="defective_parts_pic" name="defective_parts_pic">
                                             </div>
                                         </div>
                                     </div>
@@ -106,18 +112,19 @@
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label for="Invoice picture" class="col-md-4">Panel Picture</label>
+                                            <label for="Invoice picture" class="col-md-4">Serial Number Picture</label>
                                             <div class="col-md-6">
-                                                <input type="file" class="form-control spare_parts" id="panel_pic" name="panel_pic" >
+                                                <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic" >
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="form-group col-md-12">
-                                                <label for="reason" class="col-md-2">Problem Description* </label>
-                                               <div class="col-md-9" style="width:78%; ">
-                                                    <textarea class="form-control spare_parts"  id="prob_desc" name="reason_text" value = "" rows="3" placeholder="Problem Description" ></textarea>
+                                         <div class="form-group">
+                                                <label for="reason" class="col-md-4">Problem Description* </label>
+                                               <div class="col-md-6">
+                                                    <textarea class="form-control spare_parts"  id="prob_desc" name="reason_text" value = "" rows="5" placeholder="Problem Description" ></textarea>
                                                 </div>
                                            </div>
+                                    </div>
+                                   
                                 </div>
                                 <?php } else if($around_flag == 1){ ?>
                                  <div class="col-md-12">
