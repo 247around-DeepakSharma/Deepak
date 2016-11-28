@@ -120,7 +120,7 @@ class Service_centers_model extends CI_Model {
 
                         END AS earn_sc,
 "
-                . " DATEDIFF(CURRENT_TIMESTAMP, initial_booking_date) as age_of_booking "
+                . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(bd.initial_booking_date, '%d-%m-%Y')) as age_of_booking "
                 . " FROM service_center_booking_action as sc, booking_details as bd, users, services, engineer_details "
                 . " WHERE sc.service_center_id = '$service_center_id' "
                 . " AND sc.current_status = 'Pending' "

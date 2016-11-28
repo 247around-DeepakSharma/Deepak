@@ -333,7 +333,7 @@ class Booking extends CI_Controller {
         switch ($booking_id) {
 
             case INSERT_NEW_BOOKING:
-                $booking['initial_booking_date'] = date('Y-m-d', strtotime($booking['booking_date']));
+                $booking['initial_booking_date'] = $booking['booking_date'];
                 $status = $this->booking_model->addbooking($booking);
                 if ($status) {
                     $booking['is_send_sms'] = $is_send_sms;
