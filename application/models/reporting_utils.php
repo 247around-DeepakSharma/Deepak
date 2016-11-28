@@ -1207,9 +1207,9 @@ class Reporting_utils extends CI_Model {
                  $data1['old_crimes'] = 0;
             }
             
-            // insert or update crimes after 11:59 PM
+            // insert or update crimes after 10:15 PM
            
-            if(date('H:i') > '23:59'){
+            if(date('H:i') > '22:15'){
                
                 $sc_crimes['service_center_id'] = $value['id'];
                 if(!empty($result1)){

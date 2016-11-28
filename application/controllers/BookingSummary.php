@@ -790,7 +790,7 @@ EOD;
                 $to  = $value['primary_contact_email'].",".$value['owner_email'];
                 //$cc = "anuj@247around.com, nits@247around.com";
                 $cc = "";
-                $subject = $value['name']." Report " . date("d-M-Y");
+                $subject = $value['name']." - Bookings Not Updated Report - " . date("d-M-Y");
                 $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $view, "");
                 
             }

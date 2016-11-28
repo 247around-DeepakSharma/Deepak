@@ -49,13 +49,13 @@
                                 <?php echo form_error('id'); ?>
                             </div>
                             <div class="col-md-12">
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div  class="form-group <?php
                                         if (form_error('company_name')) {
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="company_name" class="col-md-3">Name</label>
+                                        <label  for="company_name" class="col-md-3">Company Name</label>
                                         <div class="col-md-8">
                                             <input  type="text" class="form-control" id="company_name" name="company_name" value = "<?php
                                                 if (isset($query[0]['company_name'])) {
@@ -66,13 +66,13 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <div  class="form-group <?php
                                         if (form_error('name')) {
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="name" class="col-md-4">Public Name</label>
+                                        <label  for="name" class="col-md-3">Display Name</label>
                                         <div class="col-md-8">
                                             <input  type="text" class="form-control" id="name" name="name" value = "<?php
                                                 if (isset($query[0]['name'])) {
@@ -83,7 +83,10 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4">
+                               
+                            </div>
+                            <div class="col-md-12">
+                                 <div class="col-md-6">
                                     <div  class="form-group <?php
                                         if (form_error('address')) {
                                             echo 'has-error';
@@ -289,6 +292,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                
                                 <div class="col-md-6">
                                     <div class="form-group <?php
                                         if (form_error('contract_file')) {
@@ -319,7 +323,10 @@
                                         </div>
                                     </div>
                                 </div>
+                                
+                                
                             </div>
+                            
                         </div>
                     </div>
                     <div  class = "panel panel-info">
@@ -536,7 +543,9 @@
                                     </div>
                                 </div>
                             </div>
+                            
                         </div>
+                        
                     </div>
                     <div  class = "panel panel-info">
                         <div class="panel-heading"><b>Registration Details</b></div>

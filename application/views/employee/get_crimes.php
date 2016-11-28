@@ -22,9 +22,9 @@
                <th  style="border-bottom-width: 2px;border: 1px solid #ddd;
                   vertical-align: bottom;padding: 8px;
                   line-height: 1.42857143;     text-align: center;">SF Name</th>
-               <th  style="border-bottom-width: 2px;border: 1px solid #ddd;
+<!--               <th  style="border-bottom-width: 2px;border: 1px solid #ddd;
                   vertical-align: bottom;padding: 8px;
-                  line-height: 1.42857143;     text-align: center;">Engineer Not Assigned </th>
+                  line-height: 1.42857143;     text-align: center;">Engineer Not Assigned </th>-->
                <th  style="border-bottom-width: 2px;border: 1px solid #ddd;
                   vertical-align: bottom;padding: 8px;
                   line-height: 1.42857143;     text-align: center;">Booking Not Updated </th>
@@ -45,9 +45,9 @@
                <td style="    border: 1px solid #ddd;    padding: 8px;
                   line-height: 1.42857143;
                   vertical-align: top;    text-align: center;"><?php echo $value['service_center_name']; ?></td>
-               <td style="    border: 1px solid #ddd;    padding: 8px;
+<!--               <td style="    border: 1px solid #ddd;    padding: 8px;
                   line-height: 1.42857143;
-                  vertical-align: top;    text-align: center;"><?php echo $value['un_assigned']; ?></td>
+                  vertical-align: top;    text-align: center;"><?php// echo $value['un_assigned']; ?></td>-->
                <td style="    border: 1px solid #ddd;    padding: 8px;
                   line-height: 1.42857143;
                   vertical-align: top;    text-align: center;"><?php echo $value['not_update']; ?></td>
