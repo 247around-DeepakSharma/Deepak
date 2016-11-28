@@ -25,6 +25,7 @@
          <th>Rating</th>
          <th>Sent Date</th>
          <th>Checkbox</th>
+         <th>Update</th>
          <th>Send Email</th>
       </tr>
    </thead>
@@ -67,6 +68,17 @@
          <?php } ?>
         
 
+         </td>
+         <td>
+             <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Update
+                <span class="caret"></span></button>
+                <ul class="dropdown-menu">
+                    <li><a href="<?php echo base_url();?>employee/invoice/update_invoice/<?php echo $invoice['invoice_id'];?>/final">Final</a></li>
+                  <li class="divider"></li>
+                  <li><a href="<?php echo base_url();?>employee/invoice/update_invoice/<?php echo $invoice['invoice_id'];?>/draft">Draft</a></li>
+                </ul>
+              </div>
          </td>
 
           <?php  $count = $count+1;  ?>

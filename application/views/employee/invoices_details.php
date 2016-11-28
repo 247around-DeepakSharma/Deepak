@@ -2,7 +2,7 @@
    <div class="container-fluid">
       <div class="row">
          <div class="col-md-6 ">
-             <h1 class="page-header"><b><?php if(isset($service_center)){ ?>Service Centre Invoices<?php } else {?>
+             <h1 class="page-header"><b><?php if(isset($service_center)){ ?>Service Center Invoices<?php } else {?>
                Partner Invoices
             <?php } ?></b></h1>
          </div>

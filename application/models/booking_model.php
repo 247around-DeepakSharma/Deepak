@@ -1384,8 +1384,8 @@ class Booking_model extends CI_Model {
      * @return: Array of charges
      */
     function get_booking_for_review($booking_id) {
-        $status = array('Completed', 'Cancelled', 'Pending');
-        $charges = $this->service_centers_model->getcharges_filled_by_service_center($booking_id, $status);
+       
+        $charges = $this->service_centers_model->getcharges_filled_by_service_center($booking_id);
         foreach ($charges as $key => $value) {
             $charges[$key]['service_centres'] = $this->vendor_model->getVendor($value['booking_id']);
             $charges[$key]['booking'] = $this->getbooking_history($value['booking_id']);
@@ -2082,7 +2082,7 @@ class Booking_model extends CI_Model {
         if($limit == "All"){
             $select = "count(spare_parts_details.booking_id) as count";
         } else {
-            $select = "spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, service_centres.name as sc_name, bookings_sources.source";
+            $select = "spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, service_centres.name as sc_name, bookings_sources.source, booking_details.current_status";
             $this->db->limit($limit, $start);
         }
         $this->db->select($select);
