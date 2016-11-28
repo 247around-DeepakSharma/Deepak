@@ -1369,6 +1369,18 @@ class Partner extends CI_Controller {
         $output_file_excel  = "/tmp/courier_manifest-".$booking_id.".xlsx";
         $output_file_pdf = "/tmp/courier_manifest-".$booking_id.".pdf";
         $R->render('excel', $output_file_excel);
+        
+        putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+        $tmp_path = libreoffice_pdf;
+        $tmp_output_file = libreoffice_output_file;
+	$cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+	    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+	    $output_file_excel . ' 2> ' . $tmp_output_file;
+         
+	$output = '';
+	$result_var = '';
+	exec($cmd, $output, $result_var);
+       
         //Download PDF file
         if (file_exists($output_file_pdf)) {
                 header('Content-Description: File Transfer');
@@ -1381,8 +1393,10 @@ class Partner extends CI_Controller {
                 readfile($output_file_pdf);
                 exec("rm -rf " . escapeshellarg($output_file_pdf));
                 exec("rm -rf " . escapeshellarg($output_file_excel));
+                
                 exit;
          }
+         
         
         log_message('info', __FUNCTION__ . " => Exiting, Booking ID: " . $booking_id);
         
