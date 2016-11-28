@@ -615,7 +615,7 @@ class vendor extends CI_Controller {
                     
                     // Insert log into booking state change
                     $this->notify->insert_state_change($booking_id, 
-                            ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Ceneter Id: " . $service_center_id, 
+                            ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, 
                             $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
 
                     $count++;
