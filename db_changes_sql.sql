@@ -1326,3 +1326,4 @@ ALTER TABLE `service_centres` ADD `on_off` VARCHAR(2) NOT NULL DEFAULT '1' COMME
 --Abhay 28 NOV
 ALTER TABLE `spare_parts_details` CHANGE `panel_pic` `serial_number_pic` VARCHAR(200) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL COMMENT 'store serial number picture';
 ALTER TABLE `spare_parts_details` ADD `defective_parts_pic` VARCHAR(200) NULL DEFAULT NULL AFTER `invoice_pic`;
+ALTER TABLE `booking_details` ADD `initial_booking_date` DATE NULL DEFAULT NULL AFTER `booking_date`;
