@@ -2184,6 +2184,20 @@ class Booking_model extends CI_Model {
         
         return FALSE;
     }
+    
+    /**
+     * @Desc: This function is used to get SMS sent for particular booking id
+     * @params: booking_id
+     * @return: array
+     * 
+     */
+    function get_sms_sent_details($booking_id){
+        $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
+        $this->db->select('*');
+        $this->db->like('booking_id',$trimed_booking_id);
+        $query = $this->db->get('sms_sent_details');
+        return $query->result_array();
+    }
 
 
 }

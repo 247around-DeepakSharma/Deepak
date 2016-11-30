@@ -17,7 +17,7 @@
 	    <div class="content">
 		<img src="<?php echo base_url(); ?>images/error-img.png" title="error" />
 		<p><span><label>O</label>hh.....</span>You Requested the page that is no longer there.</p>
-		<a href="<?php echo base_url(); ?>employee/user">Back To Home</a>
+                <p>Contact Us</p>
 		<div class="copy-right">
 
 		</div>
