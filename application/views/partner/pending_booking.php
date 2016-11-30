@@ -27,7 +27,7 @@
                            <th>Mobile</th>
                            <th>City</th>
                            <th>Booking Date</th>
-                           <th>View</th>
+                           
                            <th>Edit Booking</th>
                            <th>Reschedule</th>
                            <th>Cancel</th>
@@ -47,11 +47,11 @@
 
 
                            <td >
-                              <?php
+                             <a href="<?php echo base_url();?>partner/booking_details/<?=$row->booking_id?>" target='_blank' title='View'> <?php
 
                               echo  $row->booking_id;
 
-                            ?>
+                              ?></a>
                            </td>
                            <td>
                               <?php switch ($row->request_type){
@@ -83,7 +83,6 @@
                               <?= $row->booking_date; ?>
                            </td>
 
-                           <td><a class='btn btn-sm btn-primary' href="<?php echo base_url();?>partner/booking_details/<?=$row->booking_id?>" target='_blank' title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>
                            <td><a class='btn btn-sm btn-primary' href="<?php echo base_url();?>partner/update_booking/<?=$row->booking_id?>"  title='View' style="background-color:#2C9D9C; border-color: #2C9D9C;"><i class='fa fa-pencil-square-o' aria-hidden='true' ></i></a></td>
 
                            <td>

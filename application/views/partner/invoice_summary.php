@@ -14,8 +14,8 @@
          <th>Additional Service Charges</th>
          <th>Parts / Stands</th>
          <th>Total</th>
-         <th>Around Royalty</th>
-         <th>Amt Paid by Partner / Paid by 247around</th>
+<!--         <th>Around Royalty</th>
+         <th>Amt Paid by Partner / Paid by 247around</th>-->
          <th>Sent Date</th>
          
       </tr>
@@ -44,15 +44,15 @@
          <td><?php echo $invoice['total_additional_service_charge']; $sum_total_additional_service_charge += $invoice['total_additional_service_charge'];?></td>
          <td><?php echo $invoice['parts_cost']; $sum_total_parts_cost += $invoice['parts_cost']; ?></td>
          <td><?php echo $invoice['total_amount_collected']; $total_amount_collected += $invoice['total_amount_collected'];?></td>
-         <td><?php echo $invoice['around_royalty']; $around_royalty += $invoice['around_royalty']; ?></td>
-         <td><?php echo $invoice['amount_collected_paid']; $amount_collected_paid += $invoice['amount_collected_paid']; ?></td>
+<!--         <td><?php echo $invoice['around_royalty']; $around_royalty += $invoice['around_royalty']; ?></td>
+         <td><?php echo $invoice['amount_collected_paid']; $amount_collected_paid += $invoice['amount_collected_paid']; ?></td>-->
          <td><?php echo date("jS F, Y", strtotime($invoice['create_date'])); ?></td>
          <?php  $count = $count+1;  ?>
 
       </tr>
       <?php }} ?>
 
-      <tr>
+<!--      <tr>
          <td><b>Total</b></td>
          <td></td>
          <td></td>
@@ -67,7 +67,7 @@
          <td></td>
          <td></td>
         
-      </tr>
+      </tr>-->
    </tbody>
    </tbody>
 </table>
@@ -81,8 +81,8 @@
              <th>No #</th>
              <th>Transaction Date</th>
              <th>Description</th>
-             <th>Amt Received from Vendor</th>         
-             <th>Amt Paid to Vendor</th>
+             <th>Amt Received from <?php echo $this->session->userdata('partner_name');?></th>         
+             <th>Amt Paid To <?php echo $this->session->userdata('partner_name');?></th>
              <th>Invoices</th>
              <th>Bank Name / Mode</th>
           </tr>

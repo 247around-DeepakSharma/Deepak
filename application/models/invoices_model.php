@@ -66,7 +66,7 @@ class invoices_model extends CI_Model {
      * @desc: If invoice id already exist then update this row otherwise insert invoice details
      * @param Array $details
      */
-    function action_partner_invoice_for_foc($details){
+    function action_partner_invoice($details){
         $this->db->where('invoice_id', $details['invoice_id']);
         $query = $this->db->get('vendor_partner_invoices');
         if($query->num_rows > 0){
@@ -662,11 +662,16 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
      * @param String $temp_invoice_id
      * @return Array
      */
-    function get_count_invoices($temp_invoice_id){
+    function get_invoices_details($where){
         
-        $sql = "SELECT count(id) as count FROM `vendor_partner_invoices` WHERE `invoice_id` LIKE '%$temp_invoice_id%' ORDER BY `id` DESC";
+        $sql = "SELECT *  FROM `vendor_partner_invoices` WHERE $where ORDER BY `id` DESC";
         $query = $this->db->query($sql);
-        return $query->result_array();
+        if($query->num_rows > 0){
+            return $query->result_array();
+        } else {
+            return array();
+        }
+        
     }
    
 }

@@ -14,7 +14,7 @@
                     ?>
          <div class="panel panel-default">
             <div class="panel-heading">
-               <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Pending Bookings </h2>
+               <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Pending Spare Parts </h2>
             </div>
             <div class="panel-body">
                <div class="table-responsive">
@@ -24,11 +24,10 @@
                            <tr>
                             <th class="text-center">No</th>
                             <th class="text-center">Booking Id</th>
-<!--                            <th class="text-center">Shipment Address</th>-->
-                            <th class="text-center">Parts</th>
+                            <th class="text-center">Parts Required</th>
                             <th class="text-center">Model Number</th>
                             <th class="text-center">Serial Number</th>
-                            <th class="text-center">Description</th>
+                            <th class="text-center">Problem Description</th>
                             <th class="text-center">Update</th>
                             <th class="text-center">Address</th>
                             <th class="text-center">Courier Manifest</th>
@@ -64,17 +63,17 @@
                                     </td>
                                     
                                     <td>
-                                        <a href="<?php echo base_url() ?>partner/update_spare_parts_form/<?php echo $row['booking_id']; ?>" class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-eye' aria-hidden='true'></i></a>
+                                        <a href="<?php echo base_url() ?>partner/update_spare_parts_form/<?php echo $row['booking_id']; ?>" class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
                                     </td>
                                     <td>
                                         <a href="<?php echo base_url(); ?>partner/download_sc_address/<?php echo $row['booking_id']; ?>" class='btn btn-md btn-success' ><i class="fa fa-download" aria-hidden="true"></i></a>
                                     </td>
-                                    <td <?php if(empty($row['parts_shipped'])){  ?>data-popover="true" data-html=true data-content="Please Update Shipped Parts" style=" border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;" <?php } ?>>
-                                        <a href="<?php echo base_url(); ?>partner/download_courier_manifest/<?php echo $row['booking_id']; ?>" class='btn btn-md btn-primary <?php if(empty($row['parts_shipped'])){ echo "disabled";} ?>' ><i class="fa fa-download" aria-hidden="true"></i></a>
+                                    <td data-popover="true" data-html=true data-content="Please Update Shipped Parts" style=" border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;" >
+                                        <a href="<?php echo base_url(); ?>partner/download_courier_manifest/<?php echo $row['booking_id']; ?>" class='btn btn-md btn-primary <?php if(empty($row['parts_shipped'])){ echo "";} ?>' ><i class="fa fa-download" aria-hidden="true"></i></a>
                                     </td>
                                    
                                 </tr>
-                                <?php } ?>
+                                <?php $sn_no1++; } ?>
                             </tbody>
                         </table>
 <!--                        <div id="loading1" style="text-align: center;">

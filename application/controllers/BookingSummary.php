@@ -760,7 +760,8 @@ EOD;
      */
     function get_sc_crimes($is_mail = 0){
         log_message('info', __FUNCTION__ );
-        $data['data']= $this->reporting_utils->get_sc_crimes();
+        $where = "";
+        $data['data']= $this->reporting_utils->get_sc_crimes($where);
         if($is_mail ==0){
             $this->load->view('employee/header');
             $this->load->view('employee/get_crimes', $data);
@@ -773,6 +774,30 @@ EOD;
         
          log_message('info', __FUNCTION__ ." Exit");
 
+    }
+    /**
+     * @desc: This method is used send a report to SF. In this report, SF will see count those booking which is not updated
+     */
+    function get_sc_crimes_for_sf(){
+        log_message('info', __FUNCTION__ );
+        $vendor_details = $this->vendor_model->getactive_vendor();
+        foreach ($vendor_details as $value) {
+            if($value['is_update'] == '1'){
+                $where = " AND id = '".$value['id']."'";
+                $data['data']= $this->reporting_utils->get_sc_crimes($where);
+                $view =  $this->load->view('employee/get_crimes', $data, TRUE); 
+                
+                $to  = $value['primary_contact_email'].",".$value['owner_email'];
+                //$cc = "anuj@247around.com, nits@247around.com";
+                $cc = "";
+                $subject = $value['name']." - Bookings Not Updated Report - " . date("d-M-Y");
+                $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $view, "");
+                
+            }
+        }
+        
+        log_message('info', __FUNCTION__ ." Exit");
+        
     }
     
     /**

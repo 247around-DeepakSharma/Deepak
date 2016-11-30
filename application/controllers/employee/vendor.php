@@ -62,9 +62,6 @@ class vendor extends CI_Controller {
         }
         $checkValidation = $this->checkValidation();
         if ($checkValidation) {
-            //Adding name as city + company name  
-            $_POST['name'] = $data['district'] . ' ' . $data['company_name'];
-
             //Start  Processing PAN File Upload
             if (!empty($_FILES['pan_file']['tmp_name'])) {
                 //Adding file validation
@@ -95,60 +92,6 @@ class vendor extends CI_Controller {
                     return FALSE;
                 }
             }
-            //Getting pan file details 
-//            $pan_file = isset($vendor[0]['pan_file']) ? $vendor[0]['pan_file'] : '';
-//            //Checking case if file is not selected to upload and its value is also empty in Database
-//            if (empty($_FILES['pan_file']['tmp_name']) && empty($pan_file)) {
-//                //Sub-check to get if N/A is checked or not
-//                if (!isset($data['is_pan_doc'])) {
-//                    //Redirect back to Form
-//                    $this->session->set_userdata("checkbox", "Please select atleast Not Availiable checkbox for Pan Card (if No Details Present for PAN)");
-//                    if (!empty($_POST['id'])) {
-//                        $this->editvendor($data['id']);
-//                    } else {
-//                        $this->add_vendor();
-//                    }
-//                    return FALSE;
-//                    
-//                } else {
-//                    //Checking case if cst number is entered along with N/A checked but no file is being uploaded nor its value is present in database before
-//                    if (!empty($data['name_on_pan']) || !empty($data['pan_no'])) {
-//                        //Redirect back to Form
-//                        $this->session->set_userdata("checkbox", "Please enter either PAN Details or Not Availiable");
-//                        if (!empty($_POST['id'])) {
-//                            $this->editvendor($data['id']);
-//                        } else {
-//                            $this->add_vendor();
-//                        }
-//
-//                        return FALSE;
-//                    }
-//                }
-//            }
-//            if (empty($_FILES['pan_file']['tmp_name']) && !empty($pan_file) && isset($data['is_pan_doc'])) {
-//                //Redirect back to Form
-//                $this->session->set_userdata("checkbox", "You can't enter PAN Details and Not Availiable both at the same time");
-//                if (!empty($_POST['id'])) {
-//                    $this->editvendor($data['id']);
-//                } else {
-//                    $this->add_vendor();
-//                }
-//                return FALSE;
-//            }
-
-            //End Processing PAN File uploads
-            //Processing VAT File Upload
-//                if(!empty($_FILES['vat_file']['tmp_name'])){
-//                    $tmpFile = $_FILES['vat_file']['tmp_name'];
-//                    $vat_file = implode("",explode(" ",$this->input->post('name'))).'_vatfile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['vat_file']['name'])[1];
-//                    move_uploaded_file($tmpFile, "/tmp/$vat_file");
-//                    
-//                    //Upload files to AWS
-//                    $bucket = 'bookings-collateral';
-//                    $directory_xls = "vendor-partner-docs/".$vat_file;
-//                    $this->s3->putObjectFile("/tmp/$vat_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-//                    $_POST['vat_file'] = $vat_file;
-//                }
             
             //Start Processing CST File Upload
             if (!empty($_FILES['cst_file']['tmp_name'])) {
@@ -183,51 +126,6 @@ class vendor extends CI_Controller {
                     return FALSE;
                 }
             }
-            //Getting cst file details
-//            $cst_file = isset($vendor[0]['cst_file']) ? $vendor[0]['cst_file'] : '';
-//            //Checking case if file is not selected to upload and its value is also empty in Database
-//            if (empty($_FILES['cst_file']['tmp_name']) && empty($cst_file)) {
-//                //Sub-check to get if N/A is checked or not
-//                if (!isset($data['is_cst_doc'])) {
-//                    //Redirect back to Form
-//                    $this->session->set_userdata("checkbox", "Please select atleast Not Availiable checkbox for CST File (if No Details Present for CST)");
-//                    if (!empty($_POST['id'])) {
-//                        //Redirect back to edit form for vendor
-//                        $this->editvendor($data['id']);
-//                    } else {
-//                        //Redirect to add vendor form 
-//                        $this->add_vendor();
-//                    }
-//
-//                    return FALSE;
-//                } else {
-//                    //Checking case if cst number is entered along with N/A checked but no file is being uploaded nor its value is present in database before
-//                    if (!empty($data['cst_no'])) {
-//                        //Redirect back to Form
-//                        $this->session->set_userdata("checkbox", "Please enter either CST Details or Not Availiable");
-//                        if (!empty($_POST['id'])) {
-//                            $this->editvendor($data['id']);
-//                        } else {
-//                            $this->add_vendor();
-//                        }
-//
-//                        return FALSE;
-//                    }
-//                }
-//            }
-//
-//            //Checking case when file is already uploaded and N/A is also checked at the same time
-//            if (empty($_FILES['cst_file']['tmp_name']) && !empty($cst_file) && isset($data['is_cst_doc'])) {
-//                //Redirect back to Form
-//                $this->session->set_userdata("checkbox", "You can't enter CST Details and Not Availiable both at the same time");
-//                if (!empty($_POST['id'])) {
-//                    $this->editvendor($data['id']);
-//                } else {
-//                    $this->add_vendor();
-//                }
-//                return FALSE;
-//            }
-            //End Processing CST File Upload
             
             //Start Processing TIN File Upload
             if (!empty($_FILES['tin_file']['tmp_name'])) {
@@ -258,48 +156,6 @@ class vendor extends CI_Controller {
                     return FALSE;
                 }
             }
-//            $tin_file = isset($vendor[0]['tin_file']) ? $vendor[0]['tin_file'] : '';
-//            //Checking case if file is not selected to upload and its value is also empty in Database
-//            if (empty($_FILES['tin_file']['tmp_name']) && empty($tin_file)) {
-//                //Sub-check to get if N/A is checked or not
-//                if (!isset($data['is_vat_doc'])) {
-//                    //Redirect back to Form
-//                    $this->session->set_userdata("checkbox", "Please select atleast Not Availiable checkbox for TIN/VAT File (if No Details Present for TIN/VAT)");
-//                    if (!empty($_POST['id'])) {
-//                        $this->editvendor($data['id']);
-//                    } else {
-//                        $this->add_vendor();
-//                    }
-//
-//                    return FALSE;
-//                } else {
-//                    //Checking case if cst number is entered along with N/A checked but no file is being uploaded nor its value is present in database before
-//                    if (!empty($data['tin_no'])) {
-//                        //Redirect back to Form
-//                        $this->session->set_userdata("checkbox", "Please enter either TIN/VAT Details or Not Availiable");
-//                        if (!empty($_POST['id'])) {
-//                            $this->editvendor($data['id']);
-//                        } else {
-//                            $this->add_vendor();
-//                        }
-//
-//                        return FALSE;
-//                    }
-//                }
-//            }
-//            //Checking case when file is already uploaded and N/A is also checked at the same time
-//            if (empty($_FILES['tin_file']['tmp_name']) && !empty($tin_file) && isset($data['is_vat_doc'])) {
-//                //Redirect back to Form
-//                $this->session->set_userdata("checkbox", "You can't enter TIN/VAT Details and Not Availiable both at the same time");
-//                if (!empty($_POST['id'])) {
-//                    $this->editvendor($data['id']);
-//                } else {
-//                    $this->add_vendor();
-//                }
-//                return FALSE;
-//            }
-
-            //End Processing VAT/TIN file upload
             
             //Start Processing Service Tax File Upload
             if (!empty($_FILES['service_tax_file']['tmp_name'])) {
@@ -330,47 +186,6 @@ class vendor extends CI_Controller {
                     return FALSE;
                 }
             }
-//            $service_tax_file = isset($vendor[0]['service_tax_file']) ? $vendor[0]['service_tax_file'] : '';
-//            if (empty($_FILES['service_tax_file']['tmp_name']) && empty($service_tax_file)) {
-//
-//                if (!isset($data['is_st_doc'])) {
-//                    //Redirect back to Form
-//                    $this->session->set_userdata("checkbox", "Please select atleast Not Availiable checkbox for Service Tax  File (if No Details Present for Service Tax)");
-//                    if (!empty($_POST['id'])) {
-//                        $this->editvendor($data['id']);
-//                    } else {
-//                        $this->add_vendor();
-//                    }
-//
-//                    return FALSE;
-//                } else {
-//                    //Checking case if cst number is entered along with N/A checked but no file is being uploaded nor its value is present in database before
-//                    if (!empty($data['service_tax_no'])) {
-//                        //Redirect back to Form
-//                        $this->session->set_userdata("checkbox", "Please enter either Service Tax Details or Not Availiable");
-//                        if (!empty($_POST['id'])) {
-//                            $this->editvendor($data['id']);
-//                        } else {
-//                            $this->add_vendor();
-//                        }
-//
-//                        return FALSE;
-//                    }
-//                }
-//            }
-//            //Checking case when file is already uploaded and N/A is also checked at the same time
-//            if (empty($_FILES['service_tax_file']['tmp_name']) && !empty($service_tax_file) && isset($data['is_st_doc'])) {
-//                //Redirect back to Form
-//                $this->session->set_userdata("checkbox", "You can't enter Service Tax Details and Not Availiable both at the same time");
-//                if (!empty($_POST['id'])) {
-//                    $this->editvendor($data['id']);
-//                } else {
-//                    $this->add_vendor();
-//                }
-//                return FALSE;
-//            }
-
-            //End Service Tax File Upload
             
             //Processing Address Proof File Upload
                 if(!empty($_FILES['address_proof_file']['tmp_name'])){
@@ -800,7 +615,7 @@ class vendor extends CI_Controller {
                     
                     // Insert log into booking state change
                     $this->notify->insert_state_change($booking_id, 
-                            ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Ceneter Id: " . $service_center_id, 
+                            ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, 
                             $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
 
                     $count++;
