@@ -425,12 +425,27 @@ class Service_centers_model extends CI_Model {
                 AND  `assigned_vendor_id` =  '$service_center_id'
                 $where";
         $query = $this->db->query($sql);
-        $result = $query->result_array();;
+        $result = $query->result_array();
         
         $data[$i] = $result;
         }
 
         return $data;
+    }
+    /**
+     * @desc: This method returns Shipped spare part booking whose shipped date >=2 days  and 
+     *  InProcess(Current Status) and Spare Parts Shipped by Partner(Internal Status) in Sc Action table
+     * @return Array
+     */
+    function get_booking_id_to_convert_pending_for_spare_parts(){
+        $sql = "SELECT sp.booking_id, scb.service_center_id FROM `spare_parts_details` as sp, service_center_booking_action as scb "
+                . " WHERE (DATEDIFF(CURRENT_TIMESTAMP , sp.`shipped_date`) >= 2) "
+                . " AND sp.status = 'Shipped' "
+                . " AND scb.current_status = 'InProcess' "
+                . " AND scb.booking_id = sp.booking_id "
+                . " AND scb.internal_status = 'Spare Parts Shipped by Partner' ";
+        $query =  $this->db->query($sql);
+        return $query->result_array();
     }
 
     

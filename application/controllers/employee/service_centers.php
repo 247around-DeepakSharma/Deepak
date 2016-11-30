@@ -860,11 +860,11 @@ class Service_centers extends CI_Controller {
      * @desc: This is used to update acknowledge date by SF
      * @param String $booking_id
      */
-    function acknowledge_delivered_spare_parts($booking_id){
-        log_message('info', __FUNCTION__. "  Service_center ID: ". $this->session->userdata('service_center_id'). " Booking ID: ". $booking_id);
-        $this->checkUserSession();
+    function acknowledge_delivered_spare_parts($booking_id, $service_center_id){
+        log_message('info', __FUNCTION__. " Booking ID: ". $booking_id);
+      //  $this->checkUserSession();
         if (!empty($booking_id)) {
-            $service_center_id = $this->session->userdata('service_center_id');
+           
             $where = array('booking_id' => $booking_id, 'service_center_id' => $service_center_id);
             $sp_data['service_center_id'] = $service_center_id;
             $sp_data['acknowledge_date'] = date('Y-m-d');
@@ -875,34 +875,45 @@ class Service_centers extends CI_Controller {
                 $booking['booking_date'] = date('d-m-Y', strtotime('+1 days'));
                 $b_status = $this->booking_model->update_booking($booking_id, $booking);
                 if ($b_status) {
-                    $this->insert_details_in_state_change($booking_id, SPARE_PARTS_DELIVERED, "SF acknowledged to receive spare parts");
+                   // $this->insert_details_in_state_change($booking_id, SPARE_PARTS_DELIVERED, "SF acknowledged to receive spare parts");
                     $sc_data['booking_id'] = $booking_id;
                     $sc_data['current_status'] = "Pending";
                     $sc_data['internal_status'] = SPARE_PARTS_DELIVERED;
                     $this->vendor_model->update_service_center_action($sc_data);
 
-                    $userSession = array('success' => 'Booking Updated');
-                    $this->session->set_userdata($userSession);
+                  //  $userSession = array('success' => 'Booking Updated');
+                  //  $this->session->set_userdata($userSession);
                 } else {//if ($b_status) {
                     
                         log_message('info', __FUNCTION__ . " Booking is not updated. Service_center ID: " 
                                 . $this->session->userdata('service_center_id') .
                                 "Booking ID: " . $booking_id);
-                        $userSession = array('success' => 'Please Booking is not updated');
-                        $this->session->set_userdata($userSession);
+//                        $userSession = array('success' => 'Please Booking is not updated');
+//                        $this->session->set_userdata($userSession);
                     }
                 } else {
                     log_message('info', __FUNCTION__ . " Spare parts ack date is not updated Service_center ID: "
                             . $this->session->userdata('service_center_id') .
                             "Booking ID: " . $booking_id);
-                    $userSession = array('success' => 'Please Booking is not updated');
-                    $this->session->set_userdata($userSession);
+//                    $userSession = array('success' => 'Please Booking is not updated');
+//                    $this->session->set_userdata($userSession);
                 }
             }
             log_message('info', __FUNCTION__. " Exit Service_center ID: ". $this->session->userdata('service_center_id'));
-            redirect(base_url() . "service_center/pending_booking");
+           // redirect(base_url() . "service_center/pending_booking");
 
     }
+    /**
+     * @desc: This method called by Cron.
+     * This method is used to convert Shipped spare part booking into Pending
+     */
+    function get_booking_id_to_convert_pending_for_spare_parts(){
+        $data = $this->service_centers_model->get_booking_id_to_convert_pending_for_spare_parts();
+        foreach($data as $value){
+            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id']);
+        }
+    }
+    
     /**
      * @desc: This method is used to display whose booking updated by SC.
      */

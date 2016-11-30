@@ -1198,7 +1198,7 @@ class Partner extends CI_Controller {
             $data['awb_by_partner'] = $this->input->post('awb');
             $data['remarks_by_partner'] = $this->input->post('remarks_by_partner');
             $data['shipped_date'] = $this->input->post('shipment_date');
-            $data['edd'] = $this->input->post('edd');
+            //$data['edd'] = $this->input->post('edd');
            
             $data['status'] = "Shipped";
             $where  = array('booking_id'=> $booking_id, 'partner_id'=> $partner_id);

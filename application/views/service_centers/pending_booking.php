@@ -629,7 +629,7 @@
                                     <th class="text-center" data-orderable="false">Shipped Date</th>
                                     
                                     <th class="text-center" data-orderable="false">View</th>
-                                    <th class="text-center" data-orderable="false">Received</th>
+<!--                                    <th class="text-center" data-orderable="false">Received</th>-->
                                 </tr>
                             </thead>
                             <tbody>
@@ -659,9 +659,9 @@
                                     <td>
                                         <a class='btn btn-sm btn-primary' href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a>
                                     </td>
-                                    <td>
-                                        <a href="<?php echo base_url(); ?>service_center/acknowledge_delivered_spare_parts/<?php echo $row['booking_id']; ?>" style="width:23px; <?php if(is_null($row['parts_shipped'])){ echo 'pointer-events:none';}?>"><img src="<?php echo base_url(); ?>images/icon_receiving.png" style="width:23px;" /></a>
-                                    </td>
+<!--                                    <td>
+                                        <a href="<?php //echo base_url(); ?>service_center/acknowledge_delivered_spare_parts/<?php //echo $row['booking_id']; ?>/<?php //echo $this->session->userdata('service_center_id') ?>" style="width:23px; <?php //if(is_null($row['parts_shipped'])){ echo 'pointer-events:none';}?>"><img src="<?php// echo base_url(); ?>images/icon_receiving.png" style="width:23px;" /></a>
+                                    </td>-->
                                 </tr>
                                 <?php $sn_no1++; } ?>
                             </tbody>
