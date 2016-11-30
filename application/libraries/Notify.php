@@ -522,17 +522,17 @@ class Notify {
 		break;
 
 	    case 'Air Conditioner':
-                $status = 'PAID';
+                $status = 'To be Paid';
                 break;
             
 	    case 'Chimney':
-                $status = 'PAID';
+                $status = 'To be Paid';
 		break;
             case 'Geyser':
                 switch ($category){
                 
                 case 'Geyser-PAID':
-                    $status = 'PAID (Rs 350)';
+                    $status = 'Rs350, Pipes Rs275 Extra';
                     break;
                 default :
                     

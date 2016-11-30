@@ -286,7 +286,9 @@ class Booking extends CI_Controller {
             case INSERT_NEW_BOOKING:
                 $booking['booking_id'] = $this->create_booking_id($user_id, $booking['source'], $booking['type'], $booking['booking_date']);
                 $is_send_sms = 1;
-
+                $booking_id_with_flag['new_state'] = _247AROUND_PENDING;
+                $booking_id_with_flag['old_state'] = _247AROUND_NEW_BOOKING;
+            
                 log_message('info', "New Booking ID created" . print_r($booking['booking_id'], true));
                 break;
             default :
@@ -309,8 +311,8 @@ class Booking extends CI_Controller {
             $booking['current_status'] = 'Pending';
             $booking['internal_status'] = 'Scheduled';
             $booking['booking_remarks'] = $remarks;
-            $new_state = _247AROUND_PENDING;
-            $old_state = _247AROUND_NEW_BOOKING;
+            $new_state = $booking_id_with_flag['new_state'];
+            $old_state = $booking_id_with_flag['old_state'];
 
         } else if ($booking['type'] == 'Query') {
 
@@ -337,7 +339,7 @@ class Booking extends CI_Controller {
                 $status = $this->booking_model->addbooking($booking);
                 if ($status) {
                     $booking['is_send_sms'] = $is_send_sms;
-                    return $booking;
+                    
                 } else {
                     return false;
                 }
@@ -348,12 +350,20 @@ class Booking extends CI_Controller {
                 $status = $this->booking_model->update_booking($booking_id, $booking);
                 if ($status) {
                     $booking['is_send_sms'] = $is_send_sms;
-                    return $booking;
+                    
                 } else {
                     return false;
                 }
                 break;
         }
+        
+        $this->notify->insert_state_change($booking['booking_id'], $new_state,
+                $old_state , $remarks , 
+                $this->session->userdata('id'), 
+                $this->session->userdata('employee_id'),
+                _247AROUND);
+        
+        return $booking;
     }
 
     /**
@@ -1750,7 +1760,8 @@ class Booking extends CI_Controller {
     function get_booking_life_cycle($booking_id){
         $data['data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
         $data['booking_details'] = $this->booking_model->getbooking_history($booking_id);
-
+        $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
+       
         $this->load->view('employee/header');
         $this->load->view('employee/show_booking_life_cycle', $data);
 

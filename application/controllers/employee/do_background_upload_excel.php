@@ -136,20 +136,34 @@ class Do_background_upload_excel extends CI_Controller {
                 if(isset($rowData['Type_Of_Data'])){
                     
                     if($rowData['Type_Of_Data'] == 'Shipped'){
-                       
-                        //pushed Shipped data into varible $shipped_data
-                        array_push($shipped_data, $rowData);
+                       if(isset($rowData['Delivery_End_Date'])){
+                            //pushed Shipped data into varible $shipped_data
+                            array_push($shipped_data, $rowData);
+                       } else{
+                           $subject = "Delivery END Date Column is not exist. SD Uploading Failed.";
+                           $message  = $file_name. " is not uploaded";
+                           $this->send_mail_column($subject, $message, false);
+                       }
                         
                     } else if($rowData['Type_Of_Data'] == 'Delivered'){
-                       
-                        //pushed Shipped data into varible $delivery_data
-                        array_push($delivered_data, $rowData);
-                        
+                        if(isset($rowData['fso_delivery_date'])){
+                            //pushed Shipped data into varible $delivery_data
+                            array_push($delivered_data, $rowData);
+                            
+                        } else {
+                             $subject = "FSO Delivery End Date Column is not exist. SD Uploading Failed.";
+                             $message  = $file_name. " is not uploaded";
+                             $this->send_mail_column($subject, $message, false);
+                        }
                     }
 
-                } else {
+                } else if(isset($rowData['Delivery_Date'])){
                     array_push($data, $rowData);
-                   
+                    
+                } else {
+                    $subject = "Delivery Date Column is not exist. SD Uploading Failed.";
+                    $message  = $file_name. " is not uploaded";
+                    $this->send_mail_column($subject, $message, false);
                 }
             } 
 	}
@@ -169,6 +183,23 @@ class Do_background_upload_excel extends CI_Controller {
         }
         
     }
+    /**
+     * @desc: this is used to send mail while validation pass and column is not exist
+     * @param String $subject
+     * @param String $message
+     * @param boolean $validation
+     */
+    function send_mail_column($subject, $message, $validation){
+        $to = "anuj@247around.com, nits@247around.com, sales@247around.com";
+        $from = "booking@247around.com";
+        $cc = "abhaya@247around.com";
+        $bcc = "";
+        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
+        log_message('info', __FUNCTION__ . "=> Validation ". $validation."  ".$message);
+        if($validation == false){
+             exit();
+        }
+    }
     
     function process_upload_sd_file($data,$file_type, $file_name){
        
@@ -180,6 +211,10 @@ class Do_background_upload_excel extends CI_Controller {
 	$row_data4 = $this->validate_order_id($row_data3);
 	$row_data5 = $this->validate_product_type($row_data4);
 	$row_data = $this->validate_order_id_same_as_phone($row_data5, $file_type,$file_name);
+        
+        $subject = $file_type ." data validated. File is under process";
+        $message  = $file_name. " validation Pass. File is under process";
+        $this->send_mail_column($subject, $message, TRUE);
 
 	$count_total_leads_came_today = count($data);
 	log_message('info', __FUNCTION__ . "=> File type: " . $file_type . 
@@ -292,21 +327,15 @@ class Do_background_upload_excel extends CI_Controller {
                 }
 		$appliance_details['brand'] = $unit_details['appliance_brand'] = $value['Brand'];
 
-		if(isset($value['Delivery_End_Date'])){
-                    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_End_Date']);
-                
-                } else if (isset($value['Expected_Delivery_Date'])) {
-		    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Expected_Delivery_Date']);
-
-		} else if(isset($value['Delivery_Start_Date'])){
-
-                    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Start_Date']);
-                } else {
-                    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
-                }
-
 		switch ($file_type) {
 		    case 'shipped':
+                        if(isset($value['Delivery_End_Date'])){
+                            $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_End_Date']);
+                
+                        } else {
+                            $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
+                        }
+                        
 			if ($dateObj2->format('d') == date('d')) {
 			    //If date is NULL, add 3 days from today in EDD.
 			    $dateObj2 = date_create('+3days');
@@ -328,6 +357,12 @@ class Do_background_upload_excel extends CI_Controller {
 			break;
 
 		    case 'delivered':
+                        if(isset($value['fso_delivery_date'])){
+                            $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['fso_delivery_date']);
+                
+                        } else {
+                            $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
+                        }
 			//For delivered file, set booking date empty so that the queries come on top of the page
 			$yy = date("y");
 			$mm = date("m");
@@ -461,17 +496,11 @@ class Do_background_upload_excel extends CI_Controller {
               
                 switch ($file_type){
                     case 'delivered':
-                        //If state is followup and booking date not empty, reset the date
-                        if ($status == "FollowUp" && $partner_booking['booking_date'] != '') {
-                            if(isset($value['Delivery_End_Date'])){
-                            $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_End_Date']);
-                
-                            } else if (isset($value['Expected_Delivery_Date'])) {
-                                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Expected_Delivery_Date']);
+                            //If state is followup and booking date not empty, reset the date
+                            if ($status == "FollowUp" && $partner_booking['booking_date'] != '') {
+                                if(isset($value['fso_delivery_date'])){
+                                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['fso_delivery_date']);
 
-                            } else if(isset($value['Delivery_Start_Date'])){
-
-                                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Start_Date']);
                             } else {
                                 $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
                             }
@@ -500,15 +529,10 @@ class Do_background_upload_excel extends CI_Controller {
                         if(isset($value['Delivery_End_Date'])){
                             $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_End_Date']);
                 
-                        } else if (isset($value['Expected_Delivery_Date'])) {
-                            $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Expected_Delivery_Date']);
-
-                        } else if(isset($value['Delivery_Start_Date'])){
-
-                            $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Start_Date']);
                         } else {
                             $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
                         }
+                        
                         //$dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Expected_Delivery_Date']);
                         $new_estimated_delivery_date = $dateObj2->format('Y-m-d H:i:s');
                         
@@ -796,14 +820,10 @@ class Do_background_upload_excel extends CI_Controller {
         log_message('info', __FUNCTION__ . "=> Entering validation routine...");
         $status = array();
 	$invalid_data = array();
-	$future_date = 0;
-	$past_date = 0;
 	foreach ($data['valid_data'] as $key => $value) {
-            if(isset($value['Delivery_End_Date'])){
-                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_End_Date']);
+            if(isset($value['fso_delivery_date'])){
+                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['fso_delivery_date']);
                 
-            } else if(isset($value['Delivery_Start_Date'])){
-                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Start_Date']);
             } else {
                 $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
             }
@@ -824,14 +844,7 @@ class Do_background_upload_excel extends CI_Controller {
 		    //unset($data['valid_data'][$key]);
 		    //array_push($invalid_data, $value);
 		}
-	    } else if ($file_type == "shipped") {
-		if (date('Y-m-d') < $dateObj2->format('Y-m-d')) {
-		    //Future Date
-		    $future_date++;
-		} else {
-		    $past_date++;
-		}
-	    }
+	    } 
 	}
 
 	if (!empty($invalid_data)) {
@@ -963,17 +976,17 @@ class Do_background_upload_excel extends CI_Controller {
                 $sms['tag'] = "sd_shipped_missed_call_initial";
 
                 //ordering of smsData is important, it should be as per the %s in the SMS
-                $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
                 $sms['smsData']['service'] = $appliance;
-
+                $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
+                
                 break;
 
             case "delivered":
                 $sms['tag'] = "sd_delivered_missed_call_initial";
 
                 //ordering of smsData is important, it should be as per the %s in the SMS
-                $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
                 $sms['smsData']['service'] = $appliance;
+                $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
 
                 break;
 

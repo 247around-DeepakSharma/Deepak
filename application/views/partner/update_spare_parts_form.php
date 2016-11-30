@@ -212,10 +212,7 @@
                 shipped_parts_name: "required",
                 remarks_by_partner: "required",
                 courier_name:"required",
-                awb: {
-                    digits: true,
-                    required:true
-                    }
+                awb: "required"
                 },
                 messages: {
                 shipped_parts_name: "Please Enter Shipped Parts",

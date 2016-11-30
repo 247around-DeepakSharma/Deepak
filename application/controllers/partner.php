@@ -419,10 +419,9 @@ class Partner extends CI_Controller {
         $sms['tag'] = "sd_delivered_missed_call_initial";
 
         //ordering of smsData is important, it should be as per the %s in the SMS
-        $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
         $sms['smsData']['service'] = $appliance;
-
-
+        $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
+       
 	$sms['phone_no'] = $phone_number;
 	$sms['booking_id'] = $booking_id;
 	$sms['type'] = "user";
