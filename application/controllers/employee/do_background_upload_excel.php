@@ -136,22 +136,22 @@ class Do_background_upload_excel extends CI_Controller {
                 if(isset($rowData['Type_Of_Data'])){
                     
                     if($rowData['Type_Of_Data'] == 'Shipped'){
-                       if(isset($rowData['fso_delivery_date'])){
+                       if(isset($rowData['Delivery_End_Date'])){
                             //pushed Shipped data into varible $shipped_data
                             array_push($shipped_data, $rowData);
                        } else{
-                           $subject = "FSO Delivery Date Column is not exist. SD Uploading Failed.";
+                           $subject = "Delivery END Date Column is not exist. SD Uploading Failed.";
                            $message  = $file_name. " is not uploaded";
                            $this->send_mail_column($subject, $message, false);
                        }
                         
                     } else if($rowData['Type_Of_Data'] == 'Delivered'){
-                        if(isset($rowData['Delivery_End_Date'])){
+                        if(isset($rowData['fso_delivery_date'])){
                             //pushed Shipped data into varible $delivery_data
                             array_push($delivered_data, $rowData);
                             
                         } else {
-                             $subject = "Delivery End Date Column is not exist. SD Uploading Failed.";
+                             $subject = "FSO Delivery End Date Column is not exist. SD Uploading Failed.";
                              $message  = $file_name. " is not uploaded";
                              $this->send_mail_column($subject, $message, false);
                         }
@@ -195,7 +195,7 @@ class Do_background_upload_excel extends CI_Controller {
         $cc = "abhaya@247around.com";
         $bcc = "";
         $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
-        log_message('info', __FUNCTION__ . "=> Exiting validation routine: Limit Crossed");
+        log_message('info', __FUNCTION__ . "=> Validation ". $validation."  ".$message);
         if($validation == false){
              exit();
         }
@@ -329,8 +329,8 @@ class Do_background_upload_excel extends CI_Controller {
 
 		switch ($file_type) {
 		    case 'shipped':
-                        if(isset($value['fso_delivery_date'])){
-                            $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['fso_delivery_date']);
+                        if(isset($value['Delivery_End_Date'])){
+                            $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_End_Date']);
                 
                         } else {
                             $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
@@ -357,8 +357,8 @@ class Do_background_upload_excel extends CI_Controller {
 			break;
 
 		    case 'delivered':
-                        if(isset($value['Delivery_End_Date'])){
-                            $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_End_Date']);
+                        if(isset($value['fso_delivery_date'])){
+                            $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['fso_delivery_date']);
                 
                         } else {
                             $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
@@ -498,8 +498,8 @@ class Do_background_upload_excel extends CI_Controller {
                     case 'delivered':
                             //If state is followup and booking date not empty, reset the date
                             if ($status == "FollowUp" && $partner_booking['booking_date'] != '') {
-                                if(isset($value['Delivery_End_Date'])){
-                                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_End_Date']);
+                                if(isset($value['fso_delivery_date'])){
+                                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['fso_delivery_date']);
 
                             } else {
                                 $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
@@ -526,8 +526,8 @@ class Do_background_upload_excel extends CI_Controller {
                         break;
                         
                     case 'shipped':
-                        if(isset($value['fso_delivery_date'])){
-                            $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['fso_delivery_date']);
+                        if(isset($value['Delivery_End_Date'])){
+                            $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_End_Date']);
                 
                         } else {
                             $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
@@ -820,11 +820,9 @@ class Do_background_upload_excel extends CI_Controller {
         log_message('info', __FUNCTION__ . "=> Entering validation routine...");
         $status = array();
 	$invalid_data = array();
-	$future_date = 0;
-	$past_date = 0;
 	foreach ($data['valid_data'] as $key => $value) {
-            if(isset($value['Delivery_End_Date'])){
-                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_End_Date']);
+            if(isset($value['fso_delivery_date'])){
+                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['fso_delivery_date']);
                 
             } else {
                 $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
@@ -846,14 +844,7 @@ class Do_background_upload_excel extends CI_Controller {
 		    //unset($data['valid_data'][$key]);
 		    //array_push($invalid_data, $value);
 		}
-	    } else if ($file_type == "shipped") {
-		if (date('Y-m-d') < $dateObj2->format('Y-m-d')) {
-		    //Future Date
-		    $future_date++;
-		} else {
-		    $past_date++;
-		}
-	    }
+	    } 
 	}
 
 	if (!empty($invalid_data)) {
