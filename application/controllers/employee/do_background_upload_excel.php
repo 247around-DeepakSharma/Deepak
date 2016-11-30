@@ -976,17 +976,17 @@ class Do_background_upload_excel extends CI_Controller {
                 $sms['tag'] = "sd_shipped_missed_call_initial";
 
                 //ordering of smsData is important, it should be as per the %s in the SMS
-                $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
                 $sms['smsData']['service'] = $appliance;
-
+                $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
+                
                 break;
 
             case "delivered":
                 $sms['tag'] = "sd_delivered_missed_call_initial";
 
                 //ordering of smsData is important, it should be as per the %s in the SMS
-                $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
                 $sms['smsData']['service'] = $appliance;
+                $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
 
                 break;
 

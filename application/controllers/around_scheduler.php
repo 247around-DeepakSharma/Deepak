@@ -48,8 +48,9 @@ class Around_scheduler extends CI_Controller {
             }
 
             //Ordering of SMS data is important, check SMS template before changing it
-            $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services, $category);
             $sms['smsData']['service'] = $value->services;
+            $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services, $category);
+            
 
             $sms['booking_id'] = $value->booking_id;
             $sms['type'] = "user";
@@ -92,8 +93,9 @@ class Around_scheduler extends CI_Controller {
             }
 
             //Ordering of SMS data is important, check SMS template before changing it
-            $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services, $category);
             $sms['smsData']['service'] = $value->services;
+            $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services, $category);
+            
 
             $sms['booking_id'] = $value->booking_id;
             $sms['type'] = "user";
@@ -134,9 +136,9 @@ class Around_scheduler extends CI_Controller {
             }
 
             //Ordering of SMS data is important, check SMS template before changing it
-            $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services, $category);
             $sms['smsData']['service'] = $value->services;
-
+            $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services, $category);
+            
             $sms['booking_id'] = $value->booking_id;
             $sms['type'] = "user";
             $sms['type_id'] = $value->user_id;
@@ -274,9 +276,9 @@ class Around_scheduler extends CI_Controller {
 
 
             //Ordering of SMS data is important, check SMS template before changing it
-            $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services,$category );
             $sms['smsData']['service'] = $value->services;
-
+            $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services,$category );
+            
             $sms['booking_id'] = $value->booking_id;
             $sms['type'] = "user";
             $sms['type_id'] = $value->user_id;
