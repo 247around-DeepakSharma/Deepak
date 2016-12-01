@@ -319,7 +319,7 @@ class Service_centers_model extends CI_Model {
      * @return String
      */
     function stored_internal_status(){
-        return "'Engineer on routes',"
+        return "'Engineer on route',"
              . "'Customer not reachable'";
     }
     /**
