@@ -532,7 +532,7 @@ class Notify {
                 switch ($category){
                 
                 case 'Geyser-PAID':
-                    $status = 'Rs350, Pipes Rs275 Extra';
+                    $status = 'Rs 250';
                     break;
                 default :
                     
