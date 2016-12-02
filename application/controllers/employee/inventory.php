@@ -31,7 +31,24 @@ class Inventory extends CI_Controller {
      * 
      */
     public function get_bracket_add_form() {
-        $data['vendor'] = $this->vendor_model->getActiveVendor();
+        //Getting ID from Session
+        $id = $this->session->userdata('id');
+        //Getting Employee Relation if present
+        $sf_list = $this->vendor_model->get_employee_relation($id);
+            if (!empty($sf_list)) {
+                // Listing details acc to SF mapped
+                $sf_list = $sf_list[0]['service_centres_id'];
+                $service_center = $this->vendor_model->getActiveVendor("", 0);
+                $sf_array = explode(',',$sf_list);
+                foreach($service_center as $key=>$value){
+                    if(array_search($value['id'],$sf_array)){
+                        $data['vendor'][] = $value;
+                    }
+                }
+            }else{
+                //Getting all values
+                $data['vendor'] = $this->vendor_model->getActiveVendor();
+            }
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view("employee/add_brackets", $data);
     }
@@ -171,7 +188,15 @@ class Inventory extends CI_Controller {
      * 
      */
     function show_brackets_list(){
-        $data['brackets'] = $this->inventory_model->get_brackets();
+        $sf_list = "";
+        //Getting ID of logged in user
+        $id = $this->session->userdata('id');
+            //Getting employee relation if present
+            $sf_list = $this->vendor_model->get_employee_relation($id);
+            if (!empty($sf_list)) {
+                $sf_list = $sf_list[0]['service_centres_id'];
+            }
+        $data['brackets'] = $this->inventory_model->get_brackets($sf_list);
         //Getting name for order received from  to vendor
         foreach($data['brackets'] as $key=>$value){
             $data['order_received_from'][$key] = $this->vendor_model->getVendorContact($value['order_received_from'])[0];
@@ -439,7 +464,15 @@ class Inventory extends CI_Controller {
      * 
      */
     function get_vendor_inventory_list_form(){
-        $data['distinct_vendor'] = $this->inventory_model->get_distict_vendor_from_inventory();
+        $sf_list = "";
+        //Getting ID of logged in user
+        $id = $this->session->userdata('id');
+            //Getting employee relation if present
+            $sf_list = $this->vendor_model->get_employee_relation($id);
+            if (!empty($sf_list)) {
+                $sf_list = $sf_list[0]['service_centres_id'];
+            }
+        $data['distinct_vendor'] = $this->inventory_model->get_distict_vendor_from_inventory($sf_list);
         foreach($data['distinct_vendor'] as $value){
             $data['vendor_inventory'][] = $this->inventory_model->get_vendor_inventory_details($value['vendor_id']);
         }

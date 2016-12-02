@@ -33,10 +33,16 @@ class Inventory_model extends CI_Model {
      * @params:void
      * @return:Array
      */
-    function get_brackets(){
-        $this->db->select('*');
-        $this->db->order_by('order_id','desc');
-        $query = $this->db->get('brackets');
+    function get_brackets($sf_list = ""){
+        if($sf_list != ""){
+            $where = "WHERE order_received_from  IN (".$sf_list.")";
+        }else{
+            $where = "";
+        }
+        $sql = "SELECT * FROM brackets "
+                . $where.""
+                . " ORDER BY order_id Desc";
+        $query = $this->db->query($sql);
         return $query->result_array();
     }
     
@@ -144,9 +150,15 @@ class Inventory_model extends CI_Model {
      * @parmas:void
      * @return:void
      */
-    function get_distict_vendor_from_inventory(){
+    function get_distict_vendor_from_inventory($sf_list = ""){
+        if($sf_list != ""){
+            $where = "JOIN brackets ON brackets.order_id = inventory.order_booking_id WHERE brackets.order_given_to IN (".$sf_list.")";
+        }else{
+            $where = "";
+        }
         $sql = "SELECT DISTINCT `vendor_id` FROM (`inventory`) "
-                . "Order By `vendor_id`";
+                . $where.''
+                . " Order By `vendor_id`";
         $data = $this->db->query($sql);
         return $data->result_array();
     }
