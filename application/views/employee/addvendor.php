@@ -103,7 +103,7 @@
                                                         if (isset($rm[0]['agent_id']) && $rm[0]['agent_id'] == $value['id']) { echo "selected";}
                                                         ?>
                                                         >
-                                                    <?php echo $value['employee_id']; ?>
+                                                    <?php echo $value['full_name']; ?>
                                                 </option>
                                                 <?php } ?>
                                             </select>
