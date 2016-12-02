@@ -229,9 +229,8 @@ class Around_scheduler extends CI_Controller {
 	$data_vendor['update_date'] = date("Y-m-d H:i:s");
 	$data_vendor['current_status'] = $data_vendor['internal_status'] = _247AROUND_CANCELLED ;
 
-	$data_vendor['booking_id'] = $booking_id;
 	log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($data_vendor, true));
-	$this->vendor_model->update_service_center_action($data_vendor);
+	$this->vendor_model->update_service_center_action($booking_id, $data_vendor);
 
 	$unit_details['booking_status'] = _247AROUND_CANCELLED;
 	$unit_details['vendor_to_around'] = $unit_details['around_to_vendor'] = 0;

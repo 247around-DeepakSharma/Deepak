@@ -56,7 +56,7 @@
                             <div class="radio ">
                                 <label>
                                 <input type="radio" id="spare_parts" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="Spare Parts Required" >
-                                Spare Parts required
+                                Spare Parts Required
                                 </label>
                             </div>
                             <?php } ?>
@@ -79,7 +79,7 @@
                                         <div class="form-group">
                                             <label for="Model Number" class="col-md-4">Parts Name *</label>
                                             <div class="col-md-6">
-                                                <input type="text" class="form-control spare_parts" id="parts_name" name="parts_name" value = "" placeholder="Parts Name">
+                                                <input type="text" class="form-control spare_parts" id="parts_name" name="parts_name" value = "" placeholder="Parts Name" >
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -201,6 +201,7 @@
     });
     
     function submitForm(){
+       
      var checkbox_value = 0;
      $("input[type=radio]:checked").each(function(i) {
          checkbox_value = 1;
@@ -221,9 +222,9 @@
               checkbox_value = 0;
           }
          
-      } else if(reason === "Spare Parts required"){
+      } else if(reason === "Spare Parts Required"){
           var around_flag = $('#partner_flag').val();
-         
+          
           if(around_flag === '0'){
               var model_number = $('#model_number').val();
               var serial_number = $("#serial_number").val();
@@ -280,6 +281,8 @@
               
           }
       }
+      
+      return false;
            
       if(checkbox_value === 0){
           return false;

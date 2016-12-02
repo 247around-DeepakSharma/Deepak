@@ -654,7 +654,7 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
     /**
      * @desc: This is used to generate Partner Main invoice. 
      * @param String $partner_id
-     * @param String $from_date
+     * @param String $from_date_tmp
      * @param String $to_date
      * @return Array
      */

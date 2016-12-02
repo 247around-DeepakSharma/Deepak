@@ -221,11 +221,13 @@ class Service_centers_model extends CI_Model {
     function update_service_centers_action_table($booking_id, $data) {
         $this->db->where('booking_id', $booking_id);
         $this->db->update('service_center_booking_action', $data);
+        log_message('info', __FUNCTION__ . '=> Update Spare Parts: ' .$this->db->last_query());
     }
 
     function delete_booking_id($booking_id) {
         $this->db->where('booking_id', $booking_id);
         $this->db->delete('service_center_booking_action');
+        log_message('info', __FUNCTION__ . '=> Update Spare Parts: ' .$this->db->last_query());
         return TRUE;
     }
 
@@ -347,7 +349,7 @@ class Service_centers_model extends CI_Model {
                 . " AND `assigned_vendor_id` = '$service_center_id' ". $where_booking_id
                 . " ";
         $query = $this->db->query($sql);
-        //echo $this->db->last_query();
+        log_message('info', __FUNCTION__ . '=> Update Spare Parts: ' .$this->db->last_query());
         return $query->result_array();
     }
     /**
@@ -445,6 +447,7 @@ class Service_centers_model extends CI_Model {
                 . " AND scb.booking_id = sp.booking_id "
                 . " AND scb.internal_status = 'Spare Parts Shipped by Partner' ";
         $query =  $this->db->query($sql);
+        log_message('info', __FUNCTION__ . '=> Update Spare Parts: ' .$this->db->last_query());
         return $query->result_array();
     }
 

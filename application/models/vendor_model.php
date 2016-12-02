@@ -912,7 +912,7 @@ class vendor_model extends CI_Model {
      *          - Contains closing remarks to be updated,  charges collected by vendor, etc.
      *  @return : void
      */
-    function update_service_center_action($data) {
+    function update_service_center_action($booking_id,$data) {
 	//TODO: Why we are unsetting here?
 	if (isset($data['closing_remarks'])) {
             unset($data['closing_remarks']);
@@ -920,8 +920,9 @@ class vendor_model extends CI_Model {
         if(isset($data['unit_details_id'])){
            $this->db->where('unit_details_id', $data['unit_details_id']);
         }
-        $this->db->where('booking_id', $data['booking_id']);
+        $this->db->where('booking_id', $booking_id);
         $this->db->update('service_center_booking_action', $data);
+        log_message('info', __METHOD__ . "=> Update SQL: " . $this->db->last_query() );
     }
 
     /**
@@ -941,6 +942,7 @@ class vendor_model extends CI_Model {
 
 	    $this->db->where('booking_id', $booking_id);
         $this->db->delete("service_center_booking_action");
+        log_message('info', __METHOD__ . "=> Delete SQL: " . $this->db->last_query() );
 
        }
     }
@@ -957,6 +959,7 @@ class vendor_model extends CI_Model {
         $sql = "SELECT cancellation_reason, count('Distinct cancellation_reason') AS count FROM booking_details where assigned_vendor_id = '$service_center_id' AND  current_status = 'Cancelled' GROUP BY cancellation_reason";
 
         $data = $this->db->query($sql);
+        log_message('info', __METHOD__ . "=> Cancellation Reaon: " . $this->db->last_query() );
         return $data->result_array();
     }
     
@@ -1005,6 +1008,7 @@ class vendor_model extends CI_Model {
     function update_engineer($where, $data){
         $this->db->where($where);
         $this->db->update('engineer_details', $data);
+        log_message('info', __METHOD__ . "=> Update Engineer " . $this->db->last_query() );
 
     }
 
@@ -1244,6 +1248,7 @@ class vendor_model extends CI_Model {
     function update_sms_template($data,$id){
         $this->db->where('id', $id);
         $this->db->update('sms_template', $data);
+        log_message('info', __METHOD__ . "=> Update SMS Template " . $this->db->last_query() );
         if($this->db->affected_rows() > 0){
             return true;
         }else{
