@@ -174,7 +174,6 @@ class Do_background_process extends CI_Controller {
                 $current_status = _247AROUND_COMPLETED;
             }
 
-            $service_center['booking_id'] = $booking_id;
             $service_center['closing_remarks'] = "Service Center Remarks:- " . $value['service_center_remarks'] .
                     " <br/> Admin:-  " . $value['admin_remarks'];
             $service_center['current_status'] = $current_status1;
@@ -185,7 +184,7 @@ class Do_background_process extends CI_Controller {
 
             log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
 
-            $this->vendor_model->update_service_center_action($service_center);
+            $this->vendor_model->update_service_center_action($booking_id, $service_center);
             $unit_details['serial_number'] = $value['serial_number'];
             $unit_details['customer_paid_basic_charges'] = $value['service_charge'];
             $unit_details['customer_paid_extra_charges'] = $value['additional_service_charge'];

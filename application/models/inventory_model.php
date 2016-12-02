@@ -181,18 +181,17 @@ class Inventory_model extends CI_Model {
      * @return: Array
      * 
      */
-    function get_vendor_bracket_invoices($vendor_id,$date_range){
+    function get_vendor_bracket_invoices($vendor_id,$from_date,$to_date){
        //Getting date range
-        $custom_date = explode("-", $date_range);
-        $from_date = str_replace("/", "-", $custom_date[0]);
-        $to_date = str_replace("/","-",$custom_date[1]);
+     
         $sql = 'SELECT SUM(brackets.19_24_received) as _19_24_total, SUM(brackets.26_32_received) as _26_32_total,
                     SUM(brackets.36_42_received) as _36_42_total,
                     SUM(brackets.total_received) as total_received,
                     sc.name as vendor_name,sc.state,sc.sc_code,
                     brackets.order_id,
                     brackets.order_received_from as vendor_id,
-                    sc.address as vendor_address, sc.owner_phone_1 as owner_phone_1, 
+                    sc.address as vendor_address, sc.owner_phone_1 as owner_phone_1,
+                    sc.state,
                     CASE WHEN order_given_to > 0 THEN (SELECT rate FROM service_centres, tax_rates WHERE service_centres.id = order_given_to AND service_centres.state = tax_rates.state AND tax_rates.product_type = "wall_bracket")
                                             ELSE 0 END as tax_rate
 

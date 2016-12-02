@@ -574,7 +574,7 @@ class Partner extends CI_Controller {
      * return: View form to find user
      */
     function get_user_form() {
-
+        $this->checkUserSession();
         $this->load->view('partner/header');
         $this->load->view('partner/finduser');
     }
@@ -591,6 +591,7 @@ class Partner extends CI_Controller {
      * @return : print Booking on Booking Page
      */
     function finduser($offset = 0, $page = 0, $phone_number = '') {
+        $this->checkUserSession();
         $booking_id = $this->input->post('booking_id');
         $order_id = $this->input->post('order_id');
         $serial_no = $this->input->post('serial_number');
@@ -704,6 +705,7 @@ class Partner extends CI_Controller {
      *  @return : booking details and load view
      */
     function viewdetails($booking_id, $partner_id) {
+         $this->checkUserSession();
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
         $unit_where = array('booking_id'=>$booking_id, 'partner_id' => $partner_id);
         $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
@@ -787,8 +789,8 @@ class Partner extends CI_Controller {
                 //Update this booking in vendor action table
                 $data_vendor['update_date'] = date("Y-m-d H:i:s");
                 $data_vendor['current_status'] = $data_vendor['internal_status'] = _247AROUND_CANCELLED;
-                $data_vendor['booking_id'] = $booking_id;
-                $this->vendor_model->update_service_center_action($data_vendor);
+               
+                $this->vendor_model->update_service_center_action($booking_id, $data_vendor);
             }
 
             //Log this state change as well for this booking
@@ -874,14 +876,14 @@ class Partner extends CI_Controller {
                         $this->session->userdata('partner_name'), 
                         $this->session->userdata('partner_id'));
 
-                $service_center_data['booking_id'] = $booking_id;
+               
                 $service_center_data['internal_status'] = "Pending";
                 $service_center_data['current_status'] = "Pending";
                 $service_center_data['update_date'] = date("Y-m-d H:i:s");
 
                 log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($service_center_data, true));
 
-                $this->vendor_model->update_service_center_action($service_center_data);
+                $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
                
                 $send_data['booking_id'] = $booking_id;
                 $send_data['current_status'] = "Rescheduled";
@@ -1206,10 +1208,10 @@ class Partner extends CI_Controller {
             if($response){
                 
                 $this->insert_details_in_state_change($booking_id, SPARE_PARTS_SHIPPED, "Partner acknowledged to shipped spare parts");
-                $sc_data['booking_id'] = $booking_id;
+               
                 $sc_data['current_status'] = "InProcess";
                 $sc_data['internal_status'] = SPARE_PARTS_SHIPPED;
-                $this->vendor_model->update_service_center_action($sc_data);
+                $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                 
                 $userSession = array('success' => 'Parts Updated');
                 $this->session->set_userdata($userSession);
@@ -1274,6 +1276,7 @@ class Partner extends CI_Controller {
      * @param type $booking_id
      */
     function download_sc_address($booking_id){
+         $this->checkUserSession();
         log_message('info', __FUNCTION__. " Booking_id". $booking_id);
         $booking_history  = $this->booking_model->getbooking_history($booking_id, "join");
         $template = 'Address_Printout.xlsx';
@@ -1329,6 +1332,7 @@ class Partner extends CI_Controller {
     }
     
     function download_courier_manifest($booking_id){
+         $this->checkUserSession();
         log_message('info', __FUNCTION__. " Booking_id". $booking_id);
         $booking_history  = $this->booking_model->getbooking_history($booking_id);
         $where = array('spare_parts_details.booking_id'=> $booking_id);
