@@ -65,6 +65,10 @@
                             <a  href="<?php echo base_url() ?>employee/booking/view_queries/FollowUp"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Queries</a></strong>
                         </li>
                         <li class="divider"></li>
+                        <li>
+                            <a  href="<?php echo base_url() ?>employee/booking/view_queries/FollowUp/p_nav"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Queries Pincode Not Available</a></strong>
+                        </li>
+                        <li class="divider"></li>
                         <li >
                             <a href="<?php echo base_url() ?>employee/booking/view_queries/Cancelled"><i class="fa fa-fw fa-desktop"></i> <strong> Cancelled Queries</strong></a>
                         </li>
@@ -82,6 +86,10 @@
                         </li>
                         <li class="divider"></li>
                         <li>
+                            <a href="<?php echo base_url() ?>employee/booking/get_spare_parts"><i class="fa fa-fw fa-desktop"></i> <strong> View Spare Parts Booking</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
                             <a href="<?php echo base_url() ?>employee/booking/viewclosedbooking/Completed"><i class="fa fa-fw fa-desktop"></i> <strong>View Completed Booking</strong></a>
                         </li>
                         <li class="divider"></li>
@@ -93,22 +101,46 @@
                     </ul>
                     <!-- /.dropdown-tasks -->
                 </li>
-                <!-- /.dropdown -->
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i class="fa fa-fw fa-arrows-v"></i> Partners <i class="fa fa-caret-down"></i>
+                    <i class="fa fa-fw fa-arrows-v"></i> Service Centres <i class="fa fa-caret-down"></i>
                     </a>
-                    <ul class="dropdown-menu ">
-                        <li >
-                            <a href="<?php echo base_url() ?>employee/partner/viewpartner"><i class="fa fa-fw fa-desktop"></i> <strong> View Partners List</strong></a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/vendor/viewvendor" ><i class="fa fa-fw fa-desktop"></i> <strong> View Service Centres</strong></a>
                         </li>
-                        
-
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/vendor/vendor_availability_form"><i class="fa fa-fw fa-desktop "></i> <strong> Search Service Centre</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li class="dropdown dropdown-submenu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-fw fa-desktop "></i> <strong>Engineers</strong></a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="<?php echo base_url() ?>employee/vendor/add_engineer" ><i class="fa fa-fw fa-desktop"></i> <strong> Add Engineer</strong></a>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="<?php echo base_url() ?>employee/vendor/get_engineers" ><i class="fa fa-fw fa-desktop"></i> <strong> View Engineers</strong></a>
+                                </li>
+                            </ul>
+                        </li>
                     </ul>
-                    <!-- /.dropdown-alerts -->
+                    <!-- /.dropdown-user -->
                 </li>
-                                
-                
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-fw fa-arrows-v"></i> Appliances <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/booking/get_add_new_brand_form"><i class="fa fa-fw fa-desktop"></i> <strong> Add New Brand</strong></a>
+                        </li>
+                    </ul>
+                    <!-- /.dropdown-user -->
+                </li>
             </ul>
             <ul class="nav navbar-top-links navbar-right">
                 <li>

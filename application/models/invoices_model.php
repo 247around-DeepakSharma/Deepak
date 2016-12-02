@@ -197,8 +197,25 @@ class invoices_model extends CI_Model {
 	$array = array();
 
 	if ($vendor_partner == "vendor") {
+        //Getting ID from Session
+        $id = $this->session->userdata('id');
+        //Getting Employee Relation if present
+        $sf_list = $this->vendor_model->get_employee_relation($id);
+            if (!empty($sf_list)) {
+                // Listing details acc to SF mapped
+                $sf_list = $sf_list[0]['service_centres_id'];
+                $service_center = $this->vendor_model->getActiveVendor("", 0);
+                $sf_array = explode(',',$sf_list);
+                foreach($service_center as $key=>$value){
+                    if(array_search($value['id'],$sf_array)){
+                        $data[] = $value;
+                    }
+                }
+            }else{
+                //Getting all values
+                $data = $this->vendor_model->getActiveVendor("", 0);
+            }
 
-	    $data = $this->vendor_model->getActiveVendor("", 0);
 	} else if ($vendor_partner == "partner") {
 
 	    $data = $this->partner_model->getpartner();

@@ -43,7 +43,24 @@ class Invoice extends CI_Controller {
      * Load invoicing form
      */
     public function index() {
-	$data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
+        //Getting ID from Session
+        $id = $this->session->userdata('id');
+        //Getting Employee Relation if present
+        $sf_list = $this->vendor_model->get_employee_relation($id);
+            if (!empty($sf_list)) {
+                // Listing details acc to SF mapped
+                $sf_list = $sf_list[0]['service_centres_id'];
+                $service_center = $this->vendor_model->getActiveVendor("", 0);
+                $sf_array = explode(',',$sf_list);
+                foreach($service_center as $key=>$value){
+                    if(array_search($value['id'],$sf_array)){
+                        $data['service_center'][] = $value;
+                    }
+                }
+            }else{
+                //Getting all values
+                $data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
+            }
 	$data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor");
 
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
