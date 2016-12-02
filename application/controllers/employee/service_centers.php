@@ -423,6 +423,7 @@ class Service_centers extends CI_Controller {
      * @return : void
      */
     function save_reschedule_request(){
+        $this->checkUserSession();
         log_message('info', __FUNCTION__ . '=> Booking Id: '. $this->input->post('booking_id'));
         $this->form_validation->set_rules('booking_id', 'Booking ID', 'trim|required');
         $this->form_validation->set_rules('booking_date', 'Booking Date', 'required');

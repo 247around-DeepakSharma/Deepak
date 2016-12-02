@@ -1176,7 +1176,7 @@ class Booking extends CI_Controller {
 	} else {
 	    $booking_history = $this->booking_model->getbooking_history_by_appliance_id($appliance_id);
 	}
-
+        if(!empty($booking_history)){
 	$booking = $this->booking_model->get_city_booking_source_services($booking_history[0]['phone_number']);
 	$booking['booking_history'] = $booking_history;
 	$booking['unit_details'] = $this->booking_model->getunit_details($booking_id, $appliance_id);
@@ -1214,6 +1214,9 @@ class Booking extends CI_Controller {
 	$this->load->view('employee/header');
 	$this->load->view('employee/addbookingmodel');
 	$this->load->view('employee/update_booking', $booking);
+        } else {
+            "Booking Id Not Exist";
+        }
     }
 
     /**
