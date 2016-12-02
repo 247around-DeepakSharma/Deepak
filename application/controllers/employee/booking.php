@@ -510,7 +510,7 @@ class Booking extends CI_Controller {
 	$data = $this->booking_model->get_city_booking_source_services($phone_number);
         $where_internal_status = array("page" => "FollowUp", "active" => '1');
 	$data['follow_up_internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
-	$this->load->view('employee/header');
+	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/addbookingmodel');
 	$this->load->view('employee/addbooking', $data);
     }
@@ -550,8 +550,7 @@ class Booking extends CI_Controller {
 	    $data['success'] = $this->session->flashdata('result');
         }
 
-
-	$this->load->view('employee/header');
+	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/booking', $data);
     }
 
@@ -579,7 +578,7 @@ class Booking extends CI_Controller {
 	$this->pagination->initialize($config);
 	$data['links'] = $this->pagination->create_links();
 	$data['Bookings'] = $this->booking_model->view_completed_or_cancelled_booking($config['per_page'], $offset, $status, $booking_id);
-	$this->load->view('employee/header');
+	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 
 	$this->load->view('employee/viewcompletedbooking', $data);
     }
@@ -648,7 +647,7 @@ class Booking extends CI_Controller {
 
 	    array_push($data['prices'], $prices);
 	}
-	$this->load->view('employee/header');
+	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/completebooking', $data);
     }
 
@@ -691,7 +690,7 @@ class Booking extends CI_Controller {
 	    $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
 	}
 
-	$this->load->view('employee/header');
+	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/cancelbooking', $data);
     }
 
@@ -771,7 +770,7 @@ class Booking extends CI_Controller {
         
 	if ($getbooking) {
 
-	    $this->load->view('employee/header');
+	    $this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	    $this->load->view('employee/reschedulebooking', array('data' => $getbooking));
 	} else {
 	    echo "This Id doesn't Exists";
@@ -990,7 +989,7 @@ class Booking extends CI_Controller {
 
 	    $this->session->userdata('employee_id');
 	    $data = $getbooking;
-	    $this->load->view('employee/header');
+	    $this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	    $this->load->view('employee/rating', array('data' => $data, 'status' => $status));
 	} else {
 	    echo "Id doesn't exist";
@@ -1038,7 +1037,7 @@ class Booking extends CI_Controller {
 	if ($query) {
 	    $data['Bookings'] = $query;
 	}
-	$this->load->view('employee/header');
+	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/booking', $data);
     }
 
@@ -1057,7 +1056,7 @@ class Booking extends CI_Controller {
 
 	$data['service_center'] = $this->booking_model->selectservicecentre($booking_id);
 
-	$this->load->view('employee/header');
+	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/viewdetails', $data);
     }
 
@@ -1083,7 +1082,7 @@ class Booking extends CI_Controller {
     function get_add_new_brand_form() {
 	$services = $this->booking_model->selectservice();
 
-	$this->load->view('employee/header');
+	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/addnewbrand', array('services' => $services));
     }
 
@@ -1147,7 +1146,7 @@ class Booking extends CI_Controller {
 
         $data['p_av'] = $p_av;
 
-	$this->load->view('employee/header');
+	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/viewpendingqueries', $data);
     }
 
@@ -1199,7 +1198,7 @@ class Booking extends CI_Controller {
 	    array_push($booking['prices'], $prices);
 	}
 
-	$this->load->view('employee/header');
+	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/addbookingmodel');
 	$this->load->view('employee/update_booking', $booking);
     }
@@ -1386,7 +1385,7 @@ class Booking extends CI_Controller {
 	log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
 	$data['charges'] = $this->booking_model->get_booking_for_review($booking_id);
 	$data['data'] = $this->booking_model->review_reschedule_bookings_request();
-	$this->load->view('employee/header');
+	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/review_booking', $data);
     }
 
@@ -1630,7 +1629,7 @@ class Booking extends CI_Controller {
 	$bookings = $this->booking_model->getbooking_history($booking_id);
 	$bookings[0]['status'] = $status;
      
-	$this->load->view('employee/header');
+	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/complete_to_pending', $bookings[0]);
     }
 
@@ -1722,7 +1721,7 @@ class Booking extends CI_Controller {
         $this->notify->insert_state_change($booking_id, _247AROUND_PENDING , _247AROUND_CANCELLED,
                     "", $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
 
-	$this->load->view('employee/header');
+	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/cancelled_to_pending', $bookings[0]);
     }
 
@@ -1749,7 +1748,7 @@ class Booking extends CI_Controller {
         $data['data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
         $data['booking_details'] = $this->booking_model->getbooking_history($booking_id);
 
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/show_booking_life_cycle', $data);
 
     }
@@ -1792,7 +1791,7 @@ class Booking extends CI_Controller {
 	$this->pagination->initialize($config);
 	$data['links'] = $this->pagination->create_links();
 	$data['spare_parts'] = $this->booking_model->get_spare_parts_booking($config['per_page'], $offset);
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/get_spare_parts', $data);
     }
 

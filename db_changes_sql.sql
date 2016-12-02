@@ -1313,3 +1313,25 @@ INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`
 INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'brackets_received_mail_vendor_order_requested_from', '<b>%s</b> brackets has been delivered to you successfully.<br><br> Thanks<br> 247Around Team', 'booking@247around.com', '', 'anuj@247around.com, vijaya@247around.com', '', '1', '2016-09-26 18:30:00');
 
 INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'brackets_received_mail_vendor_order_given_to', '<b>%s </b> brackets has been delivered successfully to <b> %s </b> <br><br> Please contact us in case of any query.<br><br> Thanks<br> 247Around Team', 'booking@247around.com', '', 'anuj@247around.com, vijaya@247around.com', '', '1', '2016-09-26 18:30:00');
+
+-- Belal 21 Nov
+
+ALTER TABLE `employee` ADD `groups` VARCHAR(256) NOT NULL AFTER `personal_email`;
+
+-- Belal 24 Nov
+
+CREATE TABLE `employee_relation` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `agent_id` int(128) NOT NULL,
+ `service_centres_id` varchar(256) NOT NULL,
+ `appliance_id` varchar(256) NOT NULL,
+ `partner_id` varchar(256) NOT NULL,
+ `active` int(2) NOT NULL DEFAULT '1' COMMENT '1->Active,0->Not Active',
+ `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1
+
+ALTER TABLE `employee_relation` CHANGE `service_centres_id` `service_centres_id` VARCHAR(1064) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
+-- Belal 1 Dec
+ALTER TABLE `employee` ADD `full_name` VARCHAR(512) NOT NULL AFTER `employee_id`;

@@ -32,7 +32,7 @@ class Inventory extends CI_Controller {
      */
     public function get_bracket_add_form() {
         $data['vendor'] = $this->vendor_model->getActiveVendor();
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view("employee/add_brackets", $data);
     }
 
@@ -180,7 +180,7 @@ class Inventory extends CI_Controller {
             
             $data['order_given_to'][$key] = $this->vendor_model->getVendorContact($value['order_given_to'])[0]['name'];
         }
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view("employee/show_brackets_list", $data);
     }
     
@@ -195,7 +195,7 @@ class Inventory extends CI_Controller {
         $data['order_id'] = $order_id;
         $data['order_given_to'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_given_to'])[0]['name'];
         $data['order_received_from'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_received_from'])[0]['name'];
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view("employee/update_brackets", $data);
     }
     
@@ -286,7 +286,7 @@ class Inventory extends CI_Controller {
         $data['order_id'] = $order_id;
         $data['order_given_to'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_given_to'])[0]['name'];
         $data['order_received_from'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_received_from'])[0]['name'];
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view("employee/update_brackets", $data);
     }
     
@@ -448,7 +448,7 @@ class Inventory extends CI_Controller {
             $data['final_array'][] = end($value);
         }
         
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view("employee/show_vendor_inventory_list", $data);
     }
     /**
@@ -465,7 +465,7 @@ class Inventory extends CI_Controller {
         $data['order_received_from'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_received_from'])[0]['name'];
         $data['order_given_to'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_given_to'])[0]['name'];
         
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view("employee/show_brackets_order_history", $data);
     }
     
@@ -480,7 +480,7 @@ class Inventory extends CI_Controller {
         $data['order_id'] = $order_id;
         $data['order_given_to'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_given_to'])[0]['name'];
         $data['order_received_from'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_received_from'])[0]['name'];
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view("employee/update_brackets", $data);
     }
     

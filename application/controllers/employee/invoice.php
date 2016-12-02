@@ -46,7 +46,7 @@ class Invoice extends CI_Controller {
 	$data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
 	$data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor");
 
-	$this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/invoice_list', $data);
     }
 
@@ -134,7 +134,7 @@ class Invoice extends CI_Controller {
 	$data['partner'] = $this->partner_model->getpartner();
 	$data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner");
 
-	$this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/invoice_list', $data);
     }
 
@@ -185,7 +185,7 @@ class Invoice extends CI_Controller {
 	$data['invoice_id'] = $this->input->post('invoice_id');
 	$data['selected_amount_collected'] = $this->input->post('selected_amount_collected');
 	$data['selected_tds'] = $this->input->post('selected_tds');
-	$this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/addnewtransaction', $data);
     }
 
@@ -321,7 +321,7 @@ class Invoice extends CI_Controller {
 
 	$invoice['bank_statement'] = $this->invoices_model->get_all_bank_transactions($type);
 
-	$this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/view_transactions', $invoice);
     }
 
@@ -1341,7 +1341,7 @@ class Invoice extends CI_Controller {
     function get_invoices_form() {
 	$data['vendor_partner'] = "vendor";
 	$data['id'] = "";
-	$this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/get_invoices_form', $data);
     }
 
@@ -1493,7 +1493,7 @@ class Invoice extends CI_Controller {
 	$data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
 	$data['vendor_partner_id'] = $vendor_partner_id;
 	$data['vendor_partner'] = $vendor_partner;
-	$this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/invoices_details', $data);
     }
 

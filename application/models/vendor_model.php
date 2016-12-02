@@ -21,24 +21,31 @@ class vendor_model extends CI_Model {
      * @param: $vendor_id
      * @return: array of vendor details
      */
-    function viewvendor($vendor_id = "",$active = "") {
-        $where = "";
-        $where_1 = "";
+    function viewvendor($vendor_id = "",$active = "",$sf_list = "") {
+        $where_id = "";
+        $where_active = "";
+        $where_sf = "";
         $where_final = "";
 
         if ($vendor_id != "") {
-            $where .= "where id= '$vendor_id'";
+            $where_id .= "where id= '$vendor_id'";
         }
         if ($active != "") {
-            $where_1 .= "where active= '$active'";
+            $where_active .= "where active= '$active'";
         }
-        if($vendor_id != "" && $active != ""){
-            $where_final = $where." AND ".$where_1;
+        if($sf_list != ""){
+            $where_sf .= "where service_centres.id  IN (" .$sf_list.")";
+        }
+        if($vendor_id != "" && $active != "" ){
+            $where_final = $where_id." AND ".$where_active;
         }elseif($vendor_id != ''){
-            $where_final = $where;
+            $where_final = $where_id;
         }elseif($active != ""){
-            $where_final = $where_1;
+            $where_final = $where_active;
+        }elseif($sf_list != "" ){
+            $where_final = $where_sf;
         }
+        
         $sql = "Select * from service_centres $where_final";
 
         $query = $this->db->query($sql);
@@ -145,6 +152,9 @@ class vendor_model extends CI_Model {
     function activate($id) {
         $sql = "Update service_centres set active= 1 where id='$id'";
         $this->db->query($sql);
+        //Changing Flag Active to 1 in service centres login table
+        $sql = "Update service_centers_login set active= 1 where service_center_id='$id'";
+        $this->db->query($sql);
     }
 
     /**
@@ -156,6 +166,9 @@ class vendor_model extends CI_Model {
      */
     function deactivate($id) {
         $sql = "Update service_centres set active= 0 where id='$id'";
+        $this->db->query($sql);
+        //Changing Flag Active to 0 in service centres login table
+        $sql = "Update service_centers_login set active= 0 where service_center_id='$id'";
         $this->db->query($sql);
     }
 
@@ -628,6 +641,8 @@ class vendor_model extends CI_Model {
 
         $this->db->where('vendor_pincode_mapping.active', 1);
         $this->db->where('service_centres.active', 1);
+        //Checking Temporary On/Off values
+        $this->db->where('service_centres.on_off', 1);
 
         $query = $this->db->get();
         return $query->result_array();
@@ -1110,6 +1125,7 @@ class vendor_model extends CI_Model {
         $this->db->from('vendor_pincode_mapping');
         $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
         $this->db->where('service_centres.active', "1");
+        $this->db->where('service_centres.on_off', "1");
         
         $data = $this->db->get();
         
@@ -1156,10 +1172,16 @@ class vendor_model extends CI_Model {
      * 
      * return: Array of Active queries
      */
-    function get_around_dashboard_queries(){
-        $this->db->where('active',1);        
+    function get_around_dashboard_queries($data){
+        if(!isset($data['select'])){
+            $data['select'] = '*';
+        }
+        $this->db->select($data['select']);
+        if(isset($data['where'])){
+            $this->db->where($data['where']);
+        }
+        $this->db->where('active',1);
         $query = $this->db->get('query_report');
-        
         return $query->result_array();
     }
     
@@ -1173,7 +1195,6 @@ class vendor_model extends CI_Model {
             $query = $this->db->query($value['query']);
             $count[$key] = $query->result_array();
         }
-        
         return $count;
     }
     
@@ -1290,19 +1311,136 @@ class vendor_model extends CI_Model {
     }
     
     /**
-     * @desc:  get all New vendor 
-     * @param: void
+     * @desc:  get all New vendor acc to agent sf listing
+     * @param: String sf_list
      * @return : Array
      */
-    function get_new_vendor() {
-        $new_vendor = "SELECT name, id, district, state ,
+    function get_new_vendor($sf_list = "") {
+        if($sf_list != ""){
+            $where = " AND service_centres.id  IN (".$sf_list.") ";
+        }else{
+            $where = "";
+        }
+        $new_vendor = "SELECT id,name, district, state ,
                                             DATEDIFF(CURRENT_TIMESTAMP , create_date) AS age
                                             FROM  service_centres
-                                            WHERE create_date BETWEEN CURDATE() - INTERVAL 60 DAY AND CURDATE()
+                                            WHERE 
+                                            create_date BETWEEN CURDATE() - INTERVAL 60 DAY AND CURDATE()
+                                            ".$where."
                                             ORDER BY state";
 
         return $this->db->query($new_vendor)->result_array();
     }
 
+    /**
+     * @desc: This function is to suspend vendor who is already registered with us 
+     *
+     * @param: $id,$on_off
+     *         
+     * @return: void
+     */
+    function temporary_on_off_vendor($id,$on_off) {
+        $sql = "Update service_centres set on_off = '$on_off' where id='$id'";
+        $this->db->query($sql);
+    }
 
+    /**
+     * 
+     * @Desc: This function is used to get employee_relation if present in employee_relation
+     * @params: agent_id
+     * @return: Array or Empty
+     */
+    function get_employee_relation($agent_id){
+        $this->db->select('*');
+        $this->db->where('agent_id',$agent_id);
+        $query = $this->db->get('employee_relation');
+        $result = $query->result_array();
+        if(!empty($result)){
+            return $result;
+        }else{
+            return '';
+}
+    }
+    
+    /**
+     * @DESC: This function is used to add employee_sf_realtion table
+     *          update SF list for particular RM
+     * @parmas: agent_id, sf_id
+     * @return: boolean
+     */
+    function add_rm_to_sf_relation($agent_id, $sf_id){
+        $this->db->where('agent_id', $agent_id);
+        $this->db->set('service_centres_id', "CONCAT( service_centres_id, ',".$sf_id."' )", FALSE);
+        $this->db->update('employee_relation');
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    /**
+     * @Desc: This function is used to get relation of RM SF is present by using SF ID
+     *          We are not getting Row for Admin group present for relation
+     * @params: sf_id
+     * @return: Array
+     * 
+     */
+    function get_rm_sf_relation_by_sf_id($sf_id){
+        $sql = "Select employee_relation.* from employee_relation,employee "
+                . "where FIND_IN_SET($sf_id,employee_relation.service_centres_id) "
+                . "AND employee.groups != '"._247AROUND_ADMIN."' "
+                . "AND employee_relation.agent_id = employee.id";
+        return $this->db->query($sql)->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to update employee_relation table
+     * @parmas: $agent_id, $sf_id
+     * @return: boolean
+     * 
+     */
+    function update_rm_to_sf_relation($agent_id,$sf_id){
+        //Getting values of SF RM relation if present
+        $query_result = $this->get_rm_sf_relation_by_sf_id($sf_id);
+        if(!empty($query_result)){
+            //Delete values from this currently assigned RM String
+            $arr = explode(",",$query_result[0]['service_centres_id']);
+            unset($arr[array_search($sf_id, $arr)]);
+            $sf_details_list = implode(",",$arr);
+            
+            $this->db->where('agent_id',$query_result[0]['agent_id']);
+            $this->db->set('service_centres_id',$sf_details_list);
+            $this->db->update('employee_relation');
+            //Now adding SF to New RM
+             $this->add_rm_to_sf_relation($agent_id, $sf_id);
+            
+        }else{
+            //No assignment has been done earlier ADD NEW
+            $this->add_rm_to_sf_relation($agent_id, $sf_id);
+        }
+        
+    }
+    
+    /**
+     * @Desc: This function is used to add newly added sf to admin present in Employee_SF_relation
+     * @params: sf_id
+     * @return: boolean
+     * 
+     */
+    function add_sf_to_admin_relation($sf_id){
+        $sql = "Select employee_relation.* from employee_relation,employee "
+                . "WHERE employee.groups = '"._247AROUND_ADMIN."' "
+                . "AND employee_relation.agent_id = employee.id";
+        $query_array = $this->db->query($sql)->result_array();
+        if(!empty($query_array)){
+            foreach($query_array as $value){
+                //Now adding SF to Admin
+                 $this->add_rm_to_sf_relation($value['agent_id'], $sf_id);
+            }   
+        }else{
+            return FALSE;
+        }
+    }
+    
 }

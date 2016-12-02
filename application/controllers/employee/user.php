@@ -31,7 +31,7 @@ class User extends CI_Controller {
 
     public function index() {
         $data['partner'] = $this->partner_model->get_all_partner_source();
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/finduser', $data);
     }
 
@@ -103,7 +103,7 @@ class User extends CI_Controller {
                 $data['appliance_details'] = $this->user_model->appliance_details($phone_number);
 
 
-                $this->load->view('employee/header');
+                $this->load->view('employee/header/'.$this->session->userdata('user_group'));
                 $this->load->view('employee/bookinghistory', $data);
             }
         } elseif ($booking_id != "") {  //if booking id given and matched, will be displayed
@@ -129,7 +129,7 @@ class User extends CI_Controller {
      */
     function load_search_view($data){
         $view = 'employee/search_result';
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view($view, $data);
     }
 
@@ -145,7 +145,7 @@ class User extends CI_Controller {
     function search_user_by_name() {
         $userName = $this->input->post('userName');
         $this->data['result'] = $this->user_model->get_searched_user(trim($userName));
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/search_user_list', $this->data);
     }
 
@@ -179,7 +179,7 @@ class User extends CI_Controller {
         $results['user'] = $output;
         //gets all states while adding user as users can be of any state
         $results['state'] = $this->vendor_model->getall_state();
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/adduser', $results);
     }
 
@@ -247,8 +247,8 @@ class User extends CI_Controller {
 
         $data['user'] = $this->user_model->search_user($phone_number);
         $data['state'] = $this->vendor_model->getall_state();
-        $this->load->view('employee/header');
-        //$this->load->view('employee/addbooking');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        
         $this->load->view('employee/edituser', $data);
     }
 
@@ -308,7 +308,7 @@ class User extends CI_Controller {
 
             $appliance_details = $this->user_model->appliance_details($phone_number);
 
-            $this->load->view('employee/header');
+            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
             $this->load->view('employee/bookinghistory', array('data1' => $data1, 'data' => $data, 'links' =>
                 $links, 'appliance_details' => $appliance_details));
         }
@@ -322,7 +322,7 @@ class User extends CI_Controller {
     function get_user_count_view() {
         $data = $this->user_model->get_city_source();
 
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/getusers', $data);
     }
 
@@ -347,7 +347,7 @@ class User extends CI_Controller {
      */
     function user_count() {
         $data = $this->user_model->get_city_source();
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/transactionalusers', $data);
     }
 
@@ -362,4 +362,72 @@ class User extends CI_Controller {
         $user['user'] = $this->user_model->get_count_transactional_user($data);
         $this->load->view('employee/transactionalusers', $user);
     }
+    
+    /**
+     * @Desc: This function is used for new employee registration
+     * @params: void
+     * @return: view
+     * 
+     */
+    function add_employee(){
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/employee_add_edit');
+}
+    
+    /**
+     * @Desc: This function is used to process employee add form
+     * @parmas: POST Array
+     * @return: void
+     * 
+     */
+    function process_add_employee(){
+        $data = $this->input->post();
+        $data['employee_password'] = md5($this->input->post('employee_password'));
+        $data['create_date'] = date('Y-m-d H:i:s');
+        $id = $this->employee_model->insertData($data);
+        $this->session->set_userdata('success','Employee Added Sucessfully.');
+        
+        redirect(base_url() . "employee/user/show_employee_list");
+    }
+    
+    /**
+     * @Desc: This function is used to show employee list
+     * @params: void
+     * @return: view
+     * 
+     */
+    function show_employee_list(){
+        $data['data'] = $this->employee_model->get_employee();
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/employee_list',$data);
+    }
+    
+    /**
+     * @Desc: This function is used to edit an employee
+     * @parmas: id of employee
+     * @return: view
+     * 
+     */
+    function update_employee($id){
+        $data['id'] = $id;
+        $data['query'] = $this->employee_model->getemployeefromid($id);
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/employee_add_edit',$data);
+    }
+    
+    /**
+     * 
+     * @Desc: This function is used to prcess update employee form
+     * @params: POST array
+     * @return: view
+     */
+    function process_edit_employee(){
+        $data = $this->input->post();
+        $this->employee_model->update($data['id'],$data);
+        
+        $this->session->set_userdata('success','Employee Updated Sucessfully.');
+        
+        redirect(base_url() . "employee/user/show_employee_list");
+    }
+     
 }
