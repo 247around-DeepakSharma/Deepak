@@ -1356,7 +1356,7 @@ class Booking extends CI_Controller {
 	log_message('info', __FUNCTION__ ." Booking_id ".$booking_id. " Update service center action table: " . print_r($data, true));
 	$this->vendor_model->update_service_center_action($booking_id, $data);
         
-         $this->notify->insert_state_change($data['booking_id'], 
+         $this->notify->insert_state_change($booking_id, 
                     "Rejected" , "InProcess_Completed" , 
                     $admin_remarks , 
                     $this->session->userdata('id'), $this->session->userdata('employee_id'),

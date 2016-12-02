@@ -450,7 +450,7 @@ class Service_centers extends CI_Controller {
             $data['update_date'] = date("Y-m-d H:i:s");
             $this->vendor_model->update_service_center_action($booking_id, $data);
 
-            $this->insert_details_in_state_change($data['booking_id'], "InProcess_Rescheduled", $data['reschedule_reason']);
+            $this->insert_details_in_state_change($booking_id, "InProcess_Rescheduled", $data['reschedule_reason']);
            
             $userSession = array('success' => 'Booking Updated');
             $this->session->set_userdata($userSession);
