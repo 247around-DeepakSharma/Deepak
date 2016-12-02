@@ -24,9 +24,6 @@
       <div >
        
         <h1>Service Centres</h1>
-        <div class="col-md-6">
-            <a href="<?php echo base_url(); ?>employee/vendor/download_sf_list_excel"><input class="btn btn-primary" type="Button" value="Download SF List"></a>
-        </div>
         <div class="pull-right" style="margin-bottom: 20px;">
             <a href="<?php echo base_url();?>employee/vendor/add_vendor"><input class="btn btn-primary" type="Button" value="Add Service Centre"></a>
         </div>
@@ -52,7 +49,7 @@
           
           <?php foreach($query as $key =>$row){?>
           <tr>
-            <td><?=$row['id'];?></td>
+            <td><?php echo ($key+1).'.';?></td>
             <td><a href="<?php echo base_url();?>employee/vendor/editvendor/<?=$row['id'];?>"><?=$row['name'];?></a></td>
             <td>
                 <?=$row['phone_1'];?>

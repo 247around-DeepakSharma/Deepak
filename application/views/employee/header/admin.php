@@ -178,6 +178,10 @@
                             <a href="<?php echo base_url() ?>employee/vendor/get_mail_to_vendors_form"><i class="fa fa-fw fa-desktop"></i> <strong> Send Mail from Template</strong></a>
                         </li>
                         <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/vendor/download_sf_list_excel"><i class="fa fa-fw fa-desktop "></i> <strong>Download SF List</strong></a>
+                        </li>
+                        <li class="divider"></li>
                         <li class="dropdown dropdown-submenu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-fw fa-desktop "></i> <strong>Engineers</strong></a>
                             <ul class="dropdown-menu">

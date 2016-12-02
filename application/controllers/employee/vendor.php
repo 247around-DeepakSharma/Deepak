@@ -956,6 +956,12 @@ class vendor extends CI_Controller {
     function process_vendor_escalation_form() {
         $escalation['booking_id'] = $this->input->post('booking_id');
         $escalation['vendor_id'] = $this->input->post('vendor_id');
+        //Get SF to RM relation if present
+        $cc = "";
+        $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($escalation['vendor_id']);
+        if(!empty($rm)){
+            $cc = $this->employee_model->getemployeefromid($rm[0]['agent_id'])[0]['official_email'];
+        }
         $checkValidation = $this->checkValidationOnReason();
         if ($checkValidation) {
             $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
@@ -984,7 +990,7 @@ class vendor extends CI_Controller {
 
                 if ($return_mail_to != "") {
 
-                    $this->notify->sendEmail('booking@247around.com', $return_mail_to, '', '', $escalation_policy_details[0]['mail_subject'], $escalation_policy_details[0]['mail_body'], '');
+                    $this->notify->sendEmail('booking@247around.com', $return_mail_to, $cc, '', $escalation_policy_details[0]['mail_subject'], $escalation_policy_details[0]['mail_body'], '');
                 }
 
                 $this->sendSmsToVendor($escalation,$escalation_policy_details, $vendorContact, $escalation['booking_id'], $userDetails);
