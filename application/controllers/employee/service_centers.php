@@ -568,6 +568,8 @@ class Service_centers extends CI_Controller {
         $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
         $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);
         
+        if(!empty($data['bookinghistory'][0])){
+        
         $current_date = date_create(date('Y-m-d'));
         $current_booking_date = date_create(date('Y-m-d', strtotime($data['bookinghistory'][0]['booking_date'])));
        
@@ -610,6 +612,9 @@ class Service_centers extends CI_Controller {
 
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/get_update_form', $data);
+        } else{
+            echo "Booking Not Found. Please Retry Again";
+        }
     }
     
     /**
@@ -623,44 +628,48 @@ class Service_centers extends CI_Controller {
         // Check User Session
         $this->checkUserSession();
         // Check form validation
-        $this->checkvalidation_for_update_by_service_center();
-        $reason = $this->input->post('reason');
-       
-        switch ($reason) {
-            case CUSTOMER_ASK_TO_RESCHEDULE:
-                log_message('info', __FUNCTION__. CUSTOMER_ASK_TO_RESCHEDULE." Request: ". $this->session->userdata('service_center_id'));
-                $this->save_reschedule_request();
-                break;
-            
-             case PRODUCT_NOT_DELIVERED_TO_CUSTOMER:
-                log_message('info', __FUNCTION__.PRODUCT_NOT_DELIVERED_TO_CUSTOMER. " Request: ". $this->session->userdata('service_center_id'));
-                $this->save_reschedule_request();
-                break;
-                
-            case SPARE_PARTS_REQUIRED:
-                log_message('info', __FUNCTION__. " Spare Parts Required Request: ". $this->session->userdata('service_center_id'));
-                $this->update_spare_parts();
-                break;
-            
-             case CUSTOMER_NOT_REACHABLE:
-                 log_message('info', __FUNCTION__. CUSTOMER_NOT_REACHABLE. $this->session->userdata('service_center_id'));
-                    $day = $this->input->post('days');
-                    if($day ==1){
-                        $booking_id = $this->input->post('booking_id');
-                        $_POST['cancellation_reason'] = CUSTOMER_NOT_REACHABLE;
-                        $_POST['cancellation_reason_text'] = CUSTOMER_NOT_REACHABLE;
-                        $this->process_cancel_booking($booking_id);
+        $f_status = $this->checkvalidation_for_update_by_service_center();
+        if($f_status){
+            $reason = $this->input->post('reason');
 
-                    } else {
-                        $this->default_update(true, true);
-                    }
+            switch ($reason) {
+                case CUSTOMER_ASK_TO_RESCHEDULE:
+                    log_message('info', __FUNCTION__. CUSTOMER_ASK_TO_RESCHEDULE." Request: ". $this->session->userdata('service_center_id'));
+                    $this->save_reschedule_request();
                     break;
-                    
-              case "Engineer on route":    
-                  log_message('info', __FUNCTION__. "Engineer on route". $this->session->userdata('service_center_id'));
-                  $this->default_update(true, true);
-                  break;
-                
+
+                 case PRODUCT_NOT_DELIVERED_TO_CUSTOMER:
+                    log_message('info', __FUNCTION__.PRODUCT_NOT_DELIVERED_TO_CUSTOMER. " Request: ". $this->session->userdata('service_center_id'));
+                    $this->save_reschedule_request();
+                    break;
+
+                case SPARE_PARTS_REQUIRED:
+                    log_message('info', __FUNCTION__. " Spare Parts Required Request: ". $this->session->userdata('service_center_id'));
+                    $this->update_spare_parts();
+                    break;
+
+                 case CUSTOMER_NOT_REACHABLE:
+                     log_message('info', __FUNCTION__. CUSTOMER_NOT_REACHABLE. $this->session->userdata('service_center_id'));
+                        $day = $this->input->post('days');
+                        if($day ==1){
+                            $booking_id = $this->input->post('booking_id');
+                            $_POST['cancellation_reason'] = CUSTOMER_NOT_REACHABLE;
+                            $_POST['cancellation_reason_text'] = CUSTOMER_NOT_REACHABLE;
+                            $this->process_cancel_booking($booking_id);
+
+                        } else {
+                            $this->default_update(true, true);
+                        }
+                        break;
+
+                  case "Engineer on route":    
+                      log_message('info', __FUNCTION__. "Engineer on route". $this->session->userdata('service_center_id'));
+                      $this->default_update(true, true);
+                      break;
+
+            }
+        } else {
+            echo "Update Failed Please Retry Again";
         }
         
         log_message('info', __FUNCTION__. " Exit Service_center ID: ". $this->session->userdata('service_center_id'));
