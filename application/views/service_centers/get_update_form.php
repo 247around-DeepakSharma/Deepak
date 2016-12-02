@@ -281,8 +281,7 @@
               
           }
       }
-      
-      return false;
+     
            
       if(checkbox_value === 0){
           return false;

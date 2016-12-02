@@ -641,49 +641,26 @@ class Service_centers extends CI_Controller {
                 log_message('info', __FUNCTION__. " Spare Parts Required Request: ". $this->session->userdata('service_center_id'));
                 $this->update_spare_parts();
                 break;
-            default :
-                // this get method name and redirect url from database and call it other wise call default method
-            log_message('info', __FUNCTION__. " Default ". $this->session->userdata('service_center_id'));
-//                $where_updation = array('status' => $reason, 'active' => 1, 'sf_update_active' => 1);
-//                $get_status_details = $this->booking_model->get_internal_status($where_updation);
-//
-//                if ($get_status_details[0]->method_name) {
-//                    $method_name = explode(",", $get_status_details[0]->method_name);
-//                    $redirect_url = explode(",", $get_status_details[0]->redirect_url);
-//                    foreach ($method_name as $value) {
-//
-//                        if ($get_status_details[0]->redirect_url == 0) {
-//                            $redirect_url = FALSE;
-//                            
-//                        } else if ($get_status_details[0]->redirect_url) {
-//                            $redirect_url = TRUE;
-//                        }
-//                      
-//                        $this->$value($redirect_url);
-//                    }
-//                } else { //$get_status_details
-//                   
-//                    $this->default_update(true, true);
-//                }
-                switch ($reason){
-                    case CUSTOMER_NOT_REACHABLE:
-                        $day = $this->input->post('days');
-                        if($day ==1){
-                            $booking_id = $this->input->post('booking_id');
-                            $_POST['cancellation_reason'] = CUSTOMER_NOT_REACHABLE;
-                            $_POST['cancellation_reason_text'] = CUSTOMER_NOT_REACHABLE;
-                            $this->process_cancel_booking($booking_id);
-                            
-                        } else {
-                            $this->default_update(true, true);
-                        }
-                        break;
-                    default :
+            
+             case CUSTOMER_NOT_REACHABLE:
+                 log_message('info', __FUNCTION__. CUSTOMER_NOT_REACHABLE. $this->session->userdata('service_center_id'));
+                    $day = $this->input->post('days');
+                    if($day ==1){
+                        $booking_id = $this->input->post('booking_id');
+                        $_POST['cancellation_reason'] = CUSTOMER_NOT_REACHABLE;
+                        $_POST['cancellation_reason_text'] = CUSTOMER_NOT_REACHABLE;
+                        $this->process_cancel_booking($booking_id);
+
+                    } else {
                         $this->default_update(true, true);
-                        break;
-                }
+                    }
+                    break;
+                    
+              case "Engineer on route":    
+                  log_message('info', __FUNCTION__. "Engineer on route". $this->session->userdata('service_center_id'));
+                  $this->default_update(true, true);
+                  break;
                 
-                break;
         }
         
         log_message('info', __FUNCTION__. " Exit Service_center ID: ". $this->session->userdata('service_center_id'));
@@ -709,18 +686,18 @@ class Service_centers extends CI_Controller {
             if($sc_data['internal_status'] == CUSTOMER_NOT_REACHABLE){
                 log_message('info', __FUNCTION__." Send Sms to customer => Customer not reachable");
                 $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-                $send['booking_id'] = $sc_data['booking_id'];
+                $send['booking_id'] = $booking_id;
                 $send['state'] = CUSTOMER_NOT_REACHABLE;
                 $this->asynchronous_lib->do_background_process($url, $send);
             }
         }
-        
+        log_message('info', __FUNCTION__. " Exit Service_center ID: ". $this->session->userdata('service_center_id'));
         if ($redirect) {
             $userSession = array('success' => 'Booking Updated');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "service_center/pending_booking");
         }
-        log_message('info', __FUNCTION__. " Exit Service_center ID: ". $this->session->userdata('service_center_id'));
+        
     }
     /**
      * 
