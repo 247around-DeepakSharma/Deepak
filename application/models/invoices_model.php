@@ -789,12 +789,12 @@ class invoices_model extends CI_Model {
 
             }
             $meta['sc_code'] = $service[0]['sc_code'];
-            $meta['service_tax'] = $service[0]['service_tax_no'];
+            $meta['service_tax_no'] = $service[0]['service_tax_no'];
             $meta['sub_service_cost'] = $meta['total_service_cost']  + $meta['total_service_cost_14'] + $meta['total_service_cost_5'] *2;
-            $meta['company_name'] = $service[0]['company_name'];
+            $meta['vendor_name'] = $service[0]['company_name'];
             $meta['owner_email'] = $service[0]['owner_email'];
             $meta['poc_email'] = $service[0]['primary_contact_email'];
-            $meta['company_address'] = $service[0]['vendor_address'];
+            $meta['vendor_address'] = $service[0]['vendor_address'];
             
             } else {
             $meta['sub_service_cost'] = 0;
@@ -858,9 +858,9 @@ class invoices_model extends CI_Model {
             $meta['sub_part'] = $meta['total_part_cost']  + $meta['part_cost_vat'];
             $meta['owner_email'] = $product[0]['owner_email'];
             $meta['poc_email'] = $product[0]['primary_contact_email'];
-            $meta['company_name'] = $product[0]['company_name'];
+            $meta['vendor_name'] = $product[0]['company_name'];
             $meta['sc_code'] = $product[0]['sc_code'];
-            $meta['company_address'] = $product[0]['vendor_address'];
+            $meta['vendor_address'] = $product[0]['vendor_address'];
             
         } else {
             $meta['sub_part'] = 0.00;

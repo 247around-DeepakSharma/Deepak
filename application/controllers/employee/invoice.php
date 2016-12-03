@@ -364,8 +364,8 @@ class Invoice extends CI_Controller {
 
             log_message('info', __FUNCTION__ . '=> Start Date: ' . $data[0]['start_date'] . ', End Date: ' . $data[0]['end_date']);
 
-            $start_date = date("jS F, Y", strtotime($data[0]['start_date']));
-            $end_date = date("jS F, Y", strtotime($data[0]['end_date']));
+            $start_date = date("jS M, Y", strtotime($data[0]['start_date']));
+            $end_date = date("jS M, Y", strtotime($data[0]['end_date']));
           
             foreach ($data as $key => $value) {
                 switch ($value['price_tags']) {
@@ -390,14 +390,14 @@ class Invoice extends CI_Controller {
                         break;
                 }
 
-                $data[$key]['closed_date'] = date("jS F, Y", strtotime($value['closed_date']));
-                $data[$key]['reference_date'] = date("jS F, Y", strtotime($value['reference_date']));
+                $data[$key]['closed_date'] = date("jS M, Y", strtotime($value['closed_date']));
+                $data[$key]['reference_date'] = date("jS M, Y", strtotime($value['reference_date']));
 
                 $total_installation_charge += round($value['installation_charge'], 2);
                 $total_service_tax += round($value['st'], 2);
                 $total_stand_charge += round($value['stand'], 2);
                 $total_vat_charge += round($value['vat'], 2);
-                $total_charges = round(($total_installation_charge + $total_service_tax + $total_stand_charge + $total_vat_charge), 2);
+                $total_charges = round(($total_installation_charge + $total_service_tax + $total_stand_charge + $total_vat_charge), 0);
                 if ($invoice_type === "final") {
                     $this->booking_model->update_booking_unit_details($value['booking_id'], array('partner_invoice_id'=> $invoice_id));   
                 }
@@ -696,8 +696,8 @@ class Invoice extends CI_Controller {
 		    $invoices[0]['start_date'] . ', End Date: ' . $invoices[0]['end_date']);
 
 		// set date format like 1st July 2016
-		$start_date = date("jS F, Y", strtotime($invoices[0]['start_date']));
-		$end_date = date("jS F, Y", strtotime($invoices[0]['end_date']));
+		$start_date = date("jS M, Y", strtotime($invoices[0]['start_date']));
+		$end_date = date("jS M, Y", strtotime($invoices[0]['end_date']));
 
 		log_message('info', 'Service Centre: ' . $invoices[0]['id'] . ', Count: ' . $count);
 
@@ -1023,7 +1023,7 @@ class Invoice extends CI_Controller {
                 $total_st_charge += $invoices[$j]['vendor_st'];
                 $total_stand_charge += $invoices[$j]['vendor_stand'];
                 $total_vat_charge += $invoices[$j]['vendor_vat'];
-                $invoices[$j]['amount_paid'] = $invoices[$j]['vendor_installation_charge'] + $invoices[$j]['vendor_st'] + $invoices[$j]['vendor_stand'] + $invoices[$j]['vendor_vat'];
+                $invoices[$j]['amount_paid'] = round(($invoices[$j]['vendor_installation_charge'] + $invoices[$j]['vendor_st'] + $invoices[$j]['vendor_stand'] + $invoices[$j]['vendor_vat']),0);
             
                 if ($details['invoice_type'] === "final") {
                     $this->booking_model->update_booking_unit_details($invoices[$j]['booking_id'], array('partner_invoice_id'=> $invoice_id));   
@@ -1046,8 +1046,8 @@ class Invoice extends CI_Controller {
             log_message('info', __FUNCTION__ . '=> Start Date: ' . $invoices[0]['start_date'] . ', End Date: ' . $invoices[0]['end_date']);
 
             //set date format like 1st june 2016
-            $start_date = date("jS F, Y", strtotime($invoices[0]['start_date']));
-            $end_date = date("jS F, Y", strtotime($invoices[0]['end_date']));
+            $start_date = date("jS M, Y", strtotime($invoices[0]['start_date']));
+            $end_date = date("jS M, Y", strtotime($invoices[0]['end_date']));
 
             log_message('info', 'Service Centre: ' . $invoices[0]['id'] . ', Count: ' . $count);
 
@@ -1145,7 +1145,7 @@ class Invoice extends CI_Controller {
             $this->email->clear(TRUE);
             $this->email->from('billing@247around.com', '247around Team');
             $to = "anuj@247around.com";
-            $subject = "DRAFT INVOICE (SUMMARY) - 247around - " . $invoices[0]['company_name'];
+            $subject = "DRAFT INVOICE (Detailed) - 247around - " . $invoices[0]['company_name'];
             //		    . " Invoice for period: " . $start_date . " to " . $end_date;
 
             $this->email->to($to);
@@ -1703,8 +1703,8 @@ class Invoice extends CI_Controller {
         $order_id = isset($invoice[0]['order_id'])?$invoice[0]['order_id']:'';
         
         if (!empty($invoice)) {
-            $invoice[0]['period'] = date("jS F, Y", strtotime($from_date))." To ".date('jS F, Y', strtotime('-1 day', strtotime($to_date)));
-            $invoice[0]['today'] = date("jS F, Y", strtotime($to_date));
+            $invoice[0]['period'] = date("jS M, Y", strtotime($from_date))." To ".date('jS M, Y', strtotime('-1 day', strtotime($to_date)));
+            $invoice[0]['today'] = date("jS M, Y", strtotime($to_date));
            
             if($invoice[0]['state'] == "DELHI"){
                     
@@ -1726,12 +1726,12 @@ class Invoice extends CI_Controller {
                 
 		
            //Make sure it is unique
-            $invoice_id_tmp = $invoice[0]['sc_code'] . "-" .$type . "-" . $financial."-".date("M", strtotime(date($from_date)));
+            $invoice_id_tmp =  "Around-" .$type . "-" . $financial."-".date("M", strtotime(date($from_date)));
             $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
             $invoice_no = $this->invoices_model->get_invoices_details($where);
             
             $invoice[0]['invoice_number'] = $invoice_id_tmp."-".(count($invoice_no) + 1);
-            $invoice['0']['invoice_date']  = date("jS F, Y", strtotime($to_date));
+            $invoice['0']['invoice_date']  = date("jS M, Y", strtotime($to_date));
            
             $invoice[0]['19_24_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_19_24_UNIT_PRICE, $invoice[0]['tax_rate']);
             $invoice[0]['26_32_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_26_32_UNIT_PRICE, $invoice[0]['tax_rate']);
@@ -1746,7 +1746,7 @@ class Invoice extends CI_Controller {
             $invoice[0]['t_36_42_unit_price'] = $invoice[0]['_36_42_total'] * $invoice[0]['36_42_unit_price'];
             $invoice[0]['total_part_cost'] = ($invoice[0]['t19_24_unit_price'] + $invoice[0]['t_26_32_unit_price'] + $invoice[0]['t_36_42_unit_price']);
             $invoice[0]['part_cost_vat'] = $invoice[0]['total_part_cost'] * $invoice[0]['tax_rate']/100;
-            $invoice[0]['total'] = ($invoice[0]['part_cost_vat'] + $invoice[0]['total_part_cost'] );
+            $invoice[0]['total'] = round(($invoice[0]['part_cost_vat'] + $invoice[0]['total_part_cost'] ),2);
             $invoice[0]['price_inword']  = convert_number_to_words($invoice[0]['total']);
             
             //Creating excel report
@@ -1790,7 +1790,7 @@ class Invoice extends CI_Controller {
                     'invoice_file_excel' => $invoice[0]['invoice_number'].'xlsx' ,
                     'invoice_file_pdf' => '',
                     'from_date' => date("Y-m-d", strtotime($from_date)),
-                    'to_date' => date('jS F, Y', strtotime('-1 day', strtotime($to_date))),
+                    'to_date' => date('jS M, Y', strtotime('-1 day', strtotime($to_date))),
                     'num_bookings' => $invoice[0]['total_brackets'],
                     'total_service_charge' => 0,
                     'total_additional_service_charge' => 0,
@@ -1808,7 +1808,7 @@ class Invoice extends CI_Controller {
                     'mail_sent' => 1,
                     'sms_sent' => 1,
                     //Add 1 month to end date to calculate due date
-                    'due_date' => date('jS F, Y',  strtotime($to_date))
+                    'due_date' => date('jS M, Y',  strtotime($to_date))
                 );
                 $this->invoices_model->insert_new_invoice($invoice_details,$order_id);
             }
@@ -1992,9 +1992,9 @@ class Invoice extends CI_Controller {
             'template' => $template,
             'templateDir' => $templateDir
         );
-        $invoices['meta']['sd'] = date("jS F, Y", strtotime($from_date));
-        $invoices['meta']['ed']  = date('jS F, Y', strtotime('-1 day', strtotime($to_date)));
-        $invoices['meta']['invoice_date'] = date("jS F, Y", strtotime($to_date));
+        $invoices['meta']['sd'] = date("jS M, Y", strtotime($from_date));
+        $invoices['meta']['ed']  = date('jS M, Y', strtotime('-1 day', strtotime($to_date)));
+        $invoices['meta']['invoice_date'] = date("jS M, Y", strtotime($to_date));
 
         if ($invoices['product'][0]['state'] == "DELHI") {
 
@@ -2148,9 +2148,9 @@ class Invoice extends CI_Controller {
             'templateDir' => $templateDir
         );
         
-        $invoices['meta']['sd'] = date("jS F, Y", strtotime($from_date));
-        $invoices['meta']['ed']  = date('jS F, Y', strtotime('-1 day', strtotime($to_date)));
-        $invoices['meta']['invoice_date'] = date("jS F, Y", strtotime($to_date));
+        $invoices['meta']['sd'] = date("jS M, Y", strtotime($from_date));
+        $invoices['meta']['ed']  = date('jS M, Y', strtotime('-1 day', strtotime($to_date)));
+        $invoices['meta']['invoice_date'] = date("jS M, Y", strtotime($to_date));
         if (isset($details['invoice_id'])) {
             $invoices['meta']['invoice_id'] = $details['invoice_id'];
             if ($invoices['product'][0]['state'] == "DELHI") {
