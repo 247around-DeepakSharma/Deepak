@@ -115,12 +115,12 @@ class Inventory extends CI_Controller {
                    $template = $this->booking_model->get_booking_email_template("brackets_order_received_from_vendor");
                    
                    if(!empty($template)){
-                        $email['company_name'] = $vendor_requested[0]['company_name'];
+                        $emial['order_id'] = $order_id;
                         $email['19_24_requested'] = $val['19_24_requested'];
                         $email['26_32_requested'] = $val['26_32_requested'];
                         $email['36_42_requested'] = $val['36_42_requested'];
                         $email['total_requested'] = $val['total_requested'];
-                        $subject = "Brackets Requested";
+                        $subject = "Brackets Requested by ".$vendor_requested[0]['company_name'];
                         $emailBody = vsprintf($template[0], $email);
                         $this->notify->sendEmail($template[2], $to , $template[3], '', $subject , $emailBody, "");
                    }
@@ -141,6 +141,7 @@ class Inventory extends CI_Controller {
                    $template = $this->booking_model->get_booking_email_template("brackets_requested_from_vendor");
                    
                    if(!empty($template)){
+                        $email['order_id'] = $order_id;
                         $email['19_24_requested'] = $val['19_24_requested'];
                         $email['26_32_requested'] = $val['26_32_requested'];
                         $email['36_42_requested'] = $val['36_42_requested'];
@@ -153,7 +154,7 @@ class Inventory extends CI_Controller {
                         $email['pincode'] = $vendor_requested[0]['pincode'];
                         $email['primary_contact_phone_1'] = $vendor_requested[0]['primary_contact_phone_1'];
                         $email['owner_phone_1'] = $vendor_requested[0]['owner_phone_1'];
-                        $subject = "Brackets Requested";
+                        $subject = "Brackets Requested by ".$vendor_requested[0]['company_name'];
 
                         $emailBody = vsprintf($template[0], $email);
 
@@ -276,8 +277,8 @@ class Inventory extends CI_Controller {
                    $template = $this->booking_model->get_booking_email_template("brackets_shipment_mail");
                    
                    if(!empty($template)){
-                        $email['company_name'] = $order_received_from_email[0]['company_name'];
-                        $subject = "Brackets Shipped";
+                        $email['order_id'] = $order_id;
+                        $subject = "Brackets Shipped by ".$order_received_from_email[0]['company_name'];
                         $emailBody = vsprintf($template[0], $email);
                         
                         $this->notify->sendEmail($template[2], $to , $template[3], '', $subject , $emailBody, $attachment);
@@ -362,8 +363,8 @@ class Inventory extends CI_Controller {
                    $template = $this->booking_model->get_booking_email_template("brackets_received_mail_vendor_order_requested_from");
                    
                    if(!empty($template)){
-                        $email['company_name'] = $order_received_from_email[0]['company_name'];
-                        $subject = "Brackets Received";
+                        $email['order_id'] = $order_id;
+                        $subject = "Brackets Received by ".$order_received_from_email[0]['company_name'];
                         $emailBody = vsprintf($template[0], $email);
                         $this->notify->sendEmail($template[2], $order_received_from_email_to , $template[3], '', $subject , $emailBody, '');
                    }
@@ -382,8 +383,9 @@ class Inventory extends CI_Controller {
                    
                    if(!empty($template)){
                         $email['order_given_to'] = $order_given_to_email[0]['company_name'];
+                        $email['order_id'] = $order_id;
                         $email['order_recieved_from'] = $order_received_from_email[0]['company_name'];
-                        $subject = "Brackets Received";
+                        $subject = "Brackets Received by ".$order_given_to_email[0]['company_name'];
                         $emailBody = vsprintf($template[0], $email);
                         
                         $this->notify->sendEmail($template[2], $order_given_to_email_to , $template[3], '', $subject , $emailBody, '');
@@ -555,12 +557,12 @@ class Inventory extends CI_Controller {
                    //Getting template from Database
                    $template = $this->booking_model->get_booking_email_template("brackets_order_received_from_vendor");
                    if(!empty($template)){
-                        $email['company_name'] = $order_received_from_email[0]['company_name'];
+                        $email['order_id'] = $order_id;
                         $email['19_24_requested'] = $data['19_24_requested'];
                         $email['26_32_requested'] = $data['26_32_requested'];
                         $email['36_42_requested'] = $data['36_42_requested'];
                         $email['total_requested'] = $data['total_requested'];
-                        $subject = "Updated Brackets Requested";
+                        $subject = "Updated Brackets Requested by ".$order_received_from_email[0]['company_name'];
                         $emailBody = vsprintf($template[0], $email);
                         $this->notify->sendEmail($template[2], $to , $template[3], '', $subject , $emailBody, "");
                    }
@@ -579,6 +581,7 @@ class Inventory extends CI_Controller {
                    $template = $this->booking_model->get_booking_email_template("brackets_requested_from_vendor");
                    
                    if(!empty($template)){
+                        $email['order_id'] = $order_id;
                         $email['19_24_requested'] = $data['19_24_requested'];
                         $email['26_32_requested'] = $data['26_32_requested'];
                         $email['36_42_requested'] = $data['36_42_requested'];
@@ -591,7 +594,7 @@ class Inventory extends CI_Controller {
                         $email['pincode'] = $order_received_from_email[0]['pincode'];
                         $email['primary_contact_phone_1'] = $order_received_from_email[0]['primary_contact_phone_1'];
                         $email['owner_phone_1'] = $order_received_from_email[0]['owner_phone_1'];
-                        $subject = "Updated Brackets Requested";
+                        $subject = "Updated Brackets Requested by ".$order_received_from_email[0]['company_name'];
 
                         $emailBody = vsprintf($template[0], $email);
                         $this->notify->sendEmail($template[2], $to , $template[3], '', $subject , $emailBody, "");
@@ -616,11 +619,13 @@ class Inventory extends CI_Controller {
     /**
      * 
      * @Desc: This function is used to cancel brackets order
-     * @parmas: order id
+     * @parmas: POST Array
      * @return: view
      */
-    function cancel_brackets_requested($order_id){
+    function cancel_brackets_requested(){
+        $order_id = $this->input->post('order_id');
         $data['active'] = 0;
+        $data['cancellation_reason'] = $this->input->post('cancellation_reason');
         $cancel = $this->inventory_model->update_brackets($data, array('order_id' => $order_id));
         if($cancel){
             //Loggging
