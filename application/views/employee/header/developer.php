@@ -105,10 +105,40 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/booking/review_bookings"><i class="fa fa-fw fa-desktop"></i> <strong> Review Bookings</strong></a>
                         </li>
-                      
+                  
                     </ul>
                     <!-- /.dropdown-tasks -->
                 </li>
+                <!-- /.dropdown -->
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-fw fa-arrows-v"></i> Partners <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu ">
+                        <li >
+                            <a href="<?php echo base_url() ?>employee/partner/viewpartner"><i class="fa fa-fw fa-desktop"></i> <strong> View Partners List</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li >
+                            <a href="<?php echo base_url() ?>employee/vendor/get_mail_to_vendors_form"><i class="fa fa-fw fa-desktop"></i> <strong> Send Mail from Template</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li >
+                            <a href="<?php echo base_url() ?>employee/bookings_excel"><i class="fa fa-fw fa-desktop"></i> <strong> Upload Snapdeal Products - Delivered</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li >
+                            <a href="<?php echo base_url() ?>employee/bookings_excel/upload_shipped_products_excel"><i class="fa fa-fw fa-desktop"></i> <strong> Upload Snapdeal Products - Shipped</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li >
+                            <a href="<?php echo base_url() ?>employee/bookings_excel/upload_delivered_products_for_paytm_excel"><i class="fa fa-fw fa-desktop "></i> <strong> Upload Paytm Booking</strong></a>
+                        </li>
+
+                    </ul>
+                    <!-- /.dropdown-alerts -->
+                </li>
+                <!-- /.dropdown -->
                 <!-- /.dropdown -->
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -124,11 +154,32 @@
                         </li>
                         <li class="divider"></li>
                         <li>
+                            <a href="<?php echo base_url() ?>employee/vendor/get_pincode_excel_upload_form"><i class="fa fa-fw fa-desktop"></i> <strong> Upload Pincode Mapping Excel</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
                             <a href="<?php echo base_url() ?>employee/vendor/get_add_vendor_to_pincode_form"><i class="fa fa-fw fa-desktop "></i> <strong>Add Vendor Pincode Mapping</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url() ?>employee/vendor/process_vendor_pincode_delete_form"><i class="fa fa-fw fa-desktop "></i> <strong>Delete Vendor Pincode Mapping</strong></a>
+                        </li>
+
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/vendor/get_sms_template_editable_grid"><i class="fa fa-fw fa-desktop"></i> <strong> SMS Template Grid</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/vendor/get_broadcast_mail_to_vendors_form"><i class="fa fa-fw fa-desktop"></i> <strong> Send Broadcast Email</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/vendor/get_mail_to_vendors_form"><i class="fa fa-fw fa-desktop"></i> <strong> Send Mail from Template</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/vendor/download_sf_list_excel"><i class="fa fa-fw fa-desktop "></i> <strong>Download SF List</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li class="dropdown dropdown-submenu">
@@ -156,6 +207,14 @@
                         <li>
                             <a href="<?php echo base_url() ?>employee/booking/get_add_new_brand_form"><i class="fa fa-fw fa-desktop"></i> <strong> Add New Brand</strong></a>
                         </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/service_centre_charges/show_pricing_tables" ><i class="fa fa-fw fa-desktop"></i> <strong> Show Prices</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/service_centre_charges/upload_excel_form"><i class="fa fa-fw fa-inr "></i> <strong> Upload Service Charges / Taxes Excel</strong></a>
+                        </li>
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>
@@ -165,12 +224,31 @@
                     <i class="fa fa-fw fa-arrows-v"></i> Invoices <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu">
-
+                        <li>
+                            <a href="<?php echo base_url()?>employee/invoice/get_invoices_form" ><i class="fa fa-fw fa-desktop"></i> <strong> Generate Invoices</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li >
+                            <a href="<?php echo base_url() ?>employee/invoice/invoice_partner_view"><i class="fa fa-fw fa-desktop"></i> <strong> Partner Invoices</strong></a>
+                        </li>
+                        <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url() ?>employee/invoice"><i class="fa fa-fw fa-desktop "></i> <strong> Service Center Invoices</strong></a>
                         </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/invoice/get_add_new_transaction"><i class="fa fa-fw fa-desktop "></i> <strong> Add New Transaction</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/invoice/show_all_transactions/partner"><i class="fa fa-fw fa-desktop "></i> <strong> Partner Transactions</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/invoice/show_all_transactions/vendor"><i class="fa fa-fw fa-desktop "></i> <strong> Service Center Transactions</strong></a>
+                        </li>
                     </ul>
-
+                    <!-- /.dropdown-user -->
                 </li>
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -178,7 +256,7 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li>
-                            <a href="<?php echo base_url()?>employee/vendor/show_service_center_report"><i class="fa fa-fw fa-desktop "></i> <strong>Service Center Report</strong></a>
+                            <a href="<?php echo base_url()?>employee/vendor/show_service_center_report"><i class="fa fa-fw fa-desktop "></i> <strong>SF Booking Snapshot</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>
@@ -238,6 +316,10 @@
                 <li>
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="verifyby"><i class="fa fa-user"></i> <?php echo $this->session->userdata('employee_id'); ?> <b class="caret"></b></a>
                     <ul class="dropdown-menu">
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/user/add_employee"><i class="fa fa-fw fa-desktop "></i> <strong>Add Employee</strong></a>
+                        </li>
+                        <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url() ?>employee/user/show_employee_list"><i class="fa fa-fw fa-desktop "></i> <strong>Show Employee List</strong></a>
                         </li>

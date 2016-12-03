@@ -960,7 +960,14 @@ class vendor extends CI_Controller {
         $cc = "";
         $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($escalation['vendor_id']);
         if(!empty($rm)){
-            $cc = $this->employee_model->getemployeefromid($rm[0]['agent_id'])[0]['official_email'];
+            foreach($rm as $key=>$value){
+                if($key == 0){
+                    $cc .= "";
+                }else{
+                    $cc .= ",";
+                }
+                $cc .= $this->employee_model->getemployeefromid($value['agent_id'])[0]['official_email'];
+            }
         }
         $checkValidation = $this->checkValidationOnReason();
         if ($checkValidation) {

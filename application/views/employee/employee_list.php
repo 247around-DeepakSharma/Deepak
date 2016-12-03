@@ -10,6 +10,8 @@
                     </div>';
                     }
                 ?>
+        
+        <?php if($session_data['user_group'] == _247AROUND_ADMIN ||  $session_data['user_group'] == _247AROUND_DEVELOPER){?>
         <div class="col-md-12" style="font-size: 80%;">
             <div class="col-md-3">
                 <div class="col-md-4">
@@ -44,6 +46,7 @@
                 </div>
             </div>
         </div>
+        <?php }?>
         
         <div class="panel-body">
             
@@ -56,8 +59,10 @@
                         <th class="jumbotron" style="padding:1px;text-align: center">Phone</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">Official Email</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">Personal Email</th>
-                        <th class="jumbotron" style="padding:1px;text-align: center">Group</th>
-                        <th class="jumbotron" style="padding:1px;text-align: center">Action</th>
+                        <?php if($session_data['user_group'] == _247AROUND_ADMIN || $session_data['user_group'] == _247AROUND_DEVELOPER){?>
+                            <th class="jumbotron" style="padding:1px;text-align: center">Group</th>
+                            <th class="jumbotron" style="padding:1px;text-align: center">Action</th>
+                        <?php }?>
                     </tr>
                 </thead>
                 <tbody>
@@ -76,15 +81,24 @@
                         ?>		
                     <tr>
                             <td ><?php echo ($key+1).'.'?></td>
-                            <td style="text-align: center;"><a href="<?php base_url()?>update_employee/<?php echo $value['id']?>"><?php echo $value['employee_id']?></a></td>
+                            <td style="text-align: center;">
+                                <?php if($session_data['user_group'] == _247AROUND_ADMIN || $session_data['user_group'] == _247AROUND_DEVELOPER) {?>
+                                <a href="<?php base_url()?>update_employee/<?php echo $value['id']?>"><?php echo $value['employee_id']?>
+                                </a>
+                                <?php }else{
+                                    echo $value['employee_id'];
+                                } ?>
+                            </td>
                             <td style="text-align: center;"><?php echo $value['full_name']?></td>
                             <td style="text-align: center;"><?php echo $value['phone']?></td>
                             <td style="text-align: center;"><?php echo $value['official_email']?></td>
                             <td style="text-align: center;"><?php echo $value['personal_email']?></td>
+                            <?php if($session_data['user_group'] == _247AROUND_ADMIN || $session_data['user_group'] == _247AROUND_DEVELOPER) {?>
                             <td  <?php echo $style?>><b><?php echo $value['groups']?></b></td>
                             <td style="text-align: center">
                                 <a href="<?php base_url()?>update_employee/<?php echo $value['id']?>" class="btn btn-sm btn-primary" title="Update Employee" > <i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
                             </td>
+                            <?php }?>
                                 
 
 

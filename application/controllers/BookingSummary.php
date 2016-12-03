@@ -750,9 +750,8 @@ EOD;
             if(!empty($sf_list)){
                 $html = $this->booking_utilities->booking_report_for_new_service_center($sf_list[0]['service_centres_id']);
                 $to = $sf[0]['official_email'];
-                $cc = 'anuj@247around.com';
 
-                $this->notify->sendEmail("booking@247around.com", $to, $cc, "", "New Service Center Report ".date('d-M,Y'), $html, "");
+                $this->notify->sendEmail("booking@247around.com", $to, "", "", "New Service Center Report ".date('d-M,Y'), $html, "");
                 log_message('info', __FUNCTION__ . ' New Service Center Report mail sent to '. $to);
             }else{
                 //Logging error details
@@ -779,9 +778,8 @@ EOD;
             if(!empty($sf_list)){
                 $html = $this->booking_utilities->booking_report_by_service_center($sf_list[0]['service_centres_id']);
                 $to = $sf[0]['official_email'];
-                $cc = 'anuj@247around.com';
         
-                $this->notify->sendEmail("booking@247around.com", $to, $cc, "", "Service Center Report ".date('d-M,Y'), $html, "");
+                $this->notify->sendEmail("booking@247around.com", $to, "", "", "Service Center Report ".date('d-M,Y'), $html, "");
                 log_message('info', __FUNCTION__ . ' Service Center Report mail sent to '. $to);
             }else{
                 //Logging error message

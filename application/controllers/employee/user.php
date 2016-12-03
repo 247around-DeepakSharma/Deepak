@@ -398,6 +398,7 @@ class User extends CI_Controller {
      */
     function show_employee_list(){
         $data['data'] = $this->employee_model->get_employee();
+        $data['session_data'] = $this->session->all_userdata();
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/employee_list',$data);
     }

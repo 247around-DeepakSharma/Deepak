@@ -23,6 +23,7 @@ class bookingjobcard extends CI_Controller {
         $this->load->library('s3');
         $this->load->helper('download');
         $this->load->model('employee_model');
+        $this->load->model('vendor_model');
         $this->load->model('booking_model');
         $this->load->model('filter_model');
         $this->load->helper(array('form', 'url'));
@@ -366,7 +367,19 @@ class bookingjobcard extends CI_Controller {
 
         if ($getbooking) {
             $servicecentredetails = $this->booking_model->selectservicecentre($booking_id);
-
+            //Get SF to RM relation if present
+            $cc = "";
+            $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($servicecentredetails[0]['assigned_vendor_id']);
+            if(!empty($rm)){
+                foreach($rm as $key=>$value){
+                        if($key == 0){
+                            $cc .= "";
+                        }else{
+                            $cc .= ",";
+                        }
+                    $cc .= $this->employee_model->getemployeefromid($value['agent_id'])[0]['official_email'];
+                }
+            }
             //Find last mail sent for this booking id and append it in the bottom
             $last_mail = $this->booking_model->get_last_vendor_mail($booking_id);
             if ($last_mail[0]['type'] == 'Booking') {
@@ -399,8 +412,6 @@ class bookingjobcard extends CI_Controller {
                     $last_mail[0]['body'];
 
             $to = $servicecentredetails[0]['primary_contact_email'];
-            $owner = $servicecentredetails[0]['owner_email'];
-            $cc = ($owner . ', anuj@247around.com, nits@247around.com');
             $from = "booking@247around.com";
             $bcc = "";
             $attachment = "";
