@@ -1088,7 +1088,7 @@ class Booking_model extends CI_Model {
                 WHERE `vendor_pincode_mapping`.`Appliance_ID` = bd.service_id
                 AND `vendor_pincode_mapping`.`Pincode` = bd.booking_pincode
                 AND `vendor_pincode_mapping`.`active` = '1'
-                AND `service_centres`.`active` = '1')  ";
+                AND `service_centres`.`active` = '1' AND `service_centres`.on_off = '1')  ";
             }
         }
 

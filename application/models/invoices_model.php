@@ -686,12 +686,11 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
                 `partners`.company_name,
                 `partners`.company_address,
                 `partners`.state
-                FROM  `booking_unit_details` AS ud, booking_details, services, partners
+                FROM  `booking_unit_details` AS ud, services, partners
                 WHERE  `product_or_services` =  'Product'
                 AND  `partner_net_payable` >0
                 AND ud.partner_id =  '$partner_id'
-                AND booking_details.booking_id = ud.booking_id
-                AND booking_details.current_status =  'Completed'
+                AND ud.booking_status =  'Completed'
                 AND ud.ud_closed_date >=  '$from_date'
                 AND ud.ud_closed_date <  '$to_date'
                 AND ud.service_id = services.id
@@ -734,12 +733,11 @@ AND booking_details.closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ";
                 END AS s_description, 
                 COUNT( ud.`appliance_capacity` ) AS s_qty, 
                 (partner_net_payable * COUNT( ud.`appliance_capacity` )) AS  s_total_service_charge
-                FROM  `booking_unit_details` AS ud, booking_details, services
+                FROM  `booking_unit_details` AS ud, services
                 WHERE  `product_or_services` =  'Service'
                 AND  `partner_net_payable` >0
                 AND ud.partner_id =  '$partner_id'
-                AND booking_details.booking_id = ud.booking_id
-                AND booking_details.current_status =  'Completed'
+                AND ud.booking_status =  'Completed'
                 AND ud.ud_closed_date >=  '$from_date'
                 AND ud.ud_closed_date <  '$to_date'
                 AND ud.service_id = services.id
