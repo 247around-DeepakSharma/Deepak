@@ -1331,3 +1331,6 @@ ALTER TABLE `booking_details` ADD `initial_booking_date` VARCHAR(100) NULL DEFAU
 
 --Abhay 30 NOV
 ALTER TABLE `booking_unit_details` ADD `vendor_invoice_id` VARCHAR(100) NULL DEFAULT NULL AFTER `ud_closed_date`, ADD `partner_invoice_id` VARCHAR(100) NULL DEFAULT NULL AFTER `vendor_invoice_id`;
+
+--Abhay 3 DEC
+ALTER TABLE `booking_unit_details` ADD `pay_to_sf` INT(2) NULL DEFAULT '0' AFTER `vendor_invoice_id`;
