@@ -956,7 +956,7 @@ class Invoice extends CI_Controller {
         
 	foreach ($invoices_data['booking'] as $value) {
             if ($invoice_type === "final") {
-                        $this->booking_model->update_booking_unit_details($value['booking_id'], array('partner_invoice_id'=> $invoice_id));   
+                    $this->booking_model->update_booking_unit_details($value['unit_id'], array('vendor_foc_invoice_id'=> $invoice_id));     
             }
 	    $data['booking_id'] = $value['booking_id'];
 	    $data['invoice_id'] = $invoice_id;
@@ -1038,7 +1038,7 @@ class Invoice extends CI_Controller {
                 $invoices[$j]['amount_paid'] = round(($invoices[$j]['vendor_installation_charge'] + $invoices[$j]['vendor_st'] + $invoices[$j]['vendor_stand'] + $invoices[$j]['vendor_vat']),0);
             
                 if ($details['invoice_type'] === "final") {
-                    $this->booking_model->update_booking_unit_details($invoices[$j]['booking_id'], array('partner_invoice_id'=> $invoice_id));   
+                    $this->booking_model->update_booking_unit_details($invoices[$j]['unit_id'], array('vendor_foc_invoice_id'=> $invoice_id));   
                 }
             }
 
