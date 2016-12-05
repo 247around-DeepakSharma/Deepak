@@ -408,12 +408,11 @@ class invoices_model extends CI_Model {
                     . " '$to_date'  as end_date,
 
              (case when (`booking_unit_details`.product_or_services = 'Service' ) 
-                 THEN (ROUND( (partner_paid_basic_charges - 
-                 (partner_paid_basic_charges / ((100 + tax_rate) / 100)) * ((tax_rate) / 100)),2) ) 
+                 THEN (ROUND(partner_net_payable,2) ) 
                  ELSE 0 END) as installation_charge,
 
              (case when (`booking_unit_details`.product_or_services = 'Service' ) 
-             THEN (ROUND( (partner_paid_basic_charges / ((100 + tax_rate) / 100)) * ((tax_rate) / 100),2) ) 
+             THEN (ROUND(partner_net_payable * 0.15,2) ) 
              ELSE 0 END) as st,
 
              (case when (`booking_unit_details`.product_or_services = 'Product' )  
@@ -430,7 +429,7 @@ class invoices_model extends CI_Model {
                   AND current_status = 'Completed' 
                   AND booking_details.partner_id = '".$partner_id
                     ."' AND booking_unit_details.booking_status = 'Completed' "
-                    . " AND booking_unit_details.partner_paid_basic_charges > 0 "
+                    . " AND booking_unit_details.partner_net_payable > 0 "
                     . " AND booking_unit_details.partner_id = partners.id "
                     . " AND partner_invoice_id IS NULL "
                     . " AND booking_unit_details.ud_closed_date >= '$from_date'"
