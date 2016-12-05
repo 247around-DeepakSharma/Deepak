@@ -482,7 +482,7 @@ class Invoice extends CI_Controller {
 
 	//Delete XLS files now
 	foreach ($file_names as $file_name) {
-	  //  exec("rm -rf " . escapeshellarg($file_name));
+	    exec("rm -rf " . escapeshellarg($file_name));
 	}
     }
 
@@ -2419,7 +2419,7 @@ class Invoice extends CI_Controller {
         $this->email->clear(TRUE);
         $this->email->from('billing@247around.com', '247around Team');
         $to = "anuj@247around.com";
-        $subject = "DRAFT INVOICE (SUMMARY) - 247around - " .$invoices['meta']['company_name'];
+        $subject = "DRAFT INVOICE (SUMMARY) - 247around - " .$invoices['product'][0]['company_name'];
 //		    . " Invoice for period: " . $start_date . " to " . $end_date;
             
         $this->email->to($to);
@@ -2469,7 +2469,7 @@ class Invoice extends CI_Controller {
         }
         
         exec("rm -rf " . escapeshellarg($output_file_excel));
-        exec("rm -rf " . escapeshellarg($output_file_pdf));
+       // exec("rm -rf " . escapeshellarg($output_file_pdf));
         log_message('info',__FUNCTION__. " Exit Invoice Id: ". $invoices['meta']['invoice_id']);
         return $invoices['meta']['invoice_id'];
         

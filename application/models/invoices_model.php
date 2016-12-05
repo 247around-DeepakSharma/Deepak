@@ -355,10 +355,13 @@ class invoices_model extends CI_Model {
                     AND assigned_vendor_id = '" . $vendor_id . "' "
                 . " AND `booking_unit_details`.booking_status = 'Completed' $where";
         
-        $query = $this->db->query($sql);
         
+        $query = $this->db->query($sql);
+       
         if($query->num_rows > 0){
             $result = $query->result_array();
+           
+            
             $meta['r_sc'] = $meta['r_asc'] =  $meta['r_pc'] = $meta['total_amount_paid'] = $rating = 0;
             $i = 0;
             foreach ($result as $value) {
@@ -440,7 +443,8 @@ class invoices_model extends CI_Model {
                     . " AND booking_unit_details.partner_id = partners.id "
                     . " AND partner_invoice_id IS NULL "
                     . " AND booking_unit_details.ud_closed_date >= '$from_date'"
-                    . " AND booking_unit_details.ud_closed_date < '$to_date' ";
+                    . " AND booking_unit_details.ud_closed_date < '$to_date'"
+                    . " AND pay_to_sf = '1' ";
 
 
         $query1 = $this->db->query($sql1);
@@ -803,7 +807,8 @@ class invoices_model extends CI_Model {
                 AND ud.ud_closed_date <  '$to_date'
                 AND ud.service_id = services.id
                 AND sc.id = bd.assigned_vendor_id
-                AND  ud.around_to_vendor > 0  AND ud.vendor_to_around = 0 
+                AND  ud.around_to_vendor > 0  AND ud.vendor_to_around = 0
+                AND pay_to_sf = '1'
                 GROUP BY  `vendor_basic_charges`,ud.service_id";
         
         $query = $this->db->query($sql);
@@ -873,6 +878,7 @@ class invoices_model extends CI_Model {
                 AND ud.service_id = services.id
                 AND sc.id = bd.assigned_vendor_id
                 AND  ud.around_to_vendor > 0  AND ud.vendor_to_around = 0 
+                AND pay_to_sf = '1'
                 GROUP BY  `vendor_basic_charges`,ud.service_id";
         
         $query1 = $this->db->query($sql1);
@@ -920,9 +926,9 @@ class invoices_model extends CI_Model {
     function get_vendor_cash_invoice($vendor_id,$from_date,$to_date){
         
         $sql = "SELECT  
-                (SUM(`around_comm_basic_charges` + `around_st_or_vat_basic_charges`) *COUNT( ud.`appliance_capacity` ) ) AS installation_charge, 
-                (SUM(`around_comm_extra_charges` + `around_st_extra_charges`) *COUNT( ud.`appliance_capacity` ) ) AS additional_charge, 
-                (SUM(`around_comm_parts`  + `around_st_parts`) *COUNT( ud.`appliance_capacity` )) AS misc_charge,
+                (`around_comm_basic_charges` + `around_st_or_vat_basic_charges`) *COUNT( ud.`appliance_capacity` )  AS installation_charge, 
+                SUM(`around_comm_extra_charges` + `around_st_extra_charges`)   AS additional_charge, 
+                SUM(`around_comm_parts`  + `around_st_parts`) AS misc_charge,
                 CASE 
                
                     WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
@@ -956,6 +962,7 @@ class invoices_model extends CI_Model {
                 FROM  `booking_unit_details` AS ud, services, booking_details AS bd, service_centres as sc
                  
                 WHERE ud.booking_status =  'Completed'
+                
                 AND ud.booking_id = bd.booking_id
                 AND bd.assigned_vendor_id = '$vendor_id'
                 AND ud.ud_closed_date >=  '$from_date'
@@ -964,7 +971,7 @@ class invoices_model extends CI_Model {
                 AND sc.id = bd.assigned_vendor_id
                 AND ( ( ud.vendor_to_around > 0 AND ud.around_to_vendor =0 ) 
                      OR ( ud.vendor_to_around = 0 AND ud.around_to_vendor =0 ) )
-                GROUP BY  (`around_comm_basic_charges` + `around_st_or_vat_basic_charges`),ud.service_id";
+                GROUP BY  (`around_comm_basic_charges` + `around_st_or_vat_basic_charges`),ud.service_id ";
         
         $query = $this->db->query($sql);
         
