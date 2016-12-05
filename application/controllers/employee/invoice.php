@@ -1759,11 +1759,12 @@ class Invoice extends CI_Controller {
             $invoice[0]['36_42_unit_price'] = _247AROUND_BRACKETS_36_42_UNIT_PRICE - $invoice[0]['36_42_tax_total'];
             
             $invoice[0]['total_brackets'] = $invoice[0]['_19_24_total'] + $invoice[0]['_26_32_total'] + $invoice[0]['_36_42_total'];
-            $invoice[0]['t19_24_unit_price'] = $invoice[0]['_19_24_total'] * $invoice[0]['19_24_unit_price'];
+            $invoice[0]['t_19_24_unit_price'] = $invoice[0]['_19_24_total'] * $invoice[0]['19_24_unit_price'];
             $invoice[0]['t_26_32_unit_price'] = $invoice[0]['_26_32_total'] * $invoice[0]['26_32_unit_price'];
             $invoice[0]['t_36_42_unit_price'] = $invoice[0]['_36_42_total'] * $invoice[0]['36_42_unit_price'];
-            $invoice[0]['total_part_cost'] = ($invoice[0]['t19_24_unit_price'] + $invoice[0]['t_26_32_unit_price'] + $invoice[0]['t_36_42_unit_price']);
-            $invoice[0]['part_cost_vat'] = $invoice[0]['total_part_cost'] * $invoice[0]['tax_rate']/100;
+            $invoice[0]['total_part_cost'] = ($invoice[0]['t_19_24_unit_price'] + $invoice[0]['t_26_32_unit_price'] + $invoice[0]['t_36_42_unit_price']);
+            $invoice[0]['part_cost_vat'] = round($invoice[0]['total_part_cost'] * $invoice[0]['tax_rate']/100,2);
+            $invoice[0]['sub_total'] = round(($invoice[0]['part_cost_vat'] + $invoice[0]['total_part_cost'] ),2);
             $invoice[0]['total'] = round(($invoice[0]['part_cost_vat'] + $invoice[0]['total_part_cost'] ),0);
             $invoice[0]['price_inword']  = convert_number_to_words($invoice[0]['total']);
             
@@ -1886,18 +1887,16 @@ class Invoice extends CI_Controller {
      * @return: boolean
      */
     function send_brackets_invoice_mail($vendor_id,$output_file_excel,$get_invoice_month){
-      
-        $invoice_month_temp = date('Y') . "-" . $get_invoice_month . "-01";
-        $invoice_month = date('M, Y',strtotime($invoice_month_temp));
+        $invoice_month = date('F',strtotime($get_invoice_month));
         
         $vendor_data = $this->vendor_model->getVendorContact($vendor_id);
 
         $to = $vendor_data[0]['primary_contact_email'].','.$vendor_data[0]['owner_email'];
         $from = 'billing@247around.com';
-        $cc = 'anuj@247around.com,nits@247around.com';
+        $cc = 'anuj@247around.com, nits@247around.com';
 
         $message = "Dear Partner,<br/><br/>";
-        $message .= "Please find attached invoice for installations done for Brackets of the month " . $invoice_month . ". ";
+        $message .= "Please find attached invoice for Brackets shipped in " . $invoice_month . ". ";
         $message .= "Hope to have a long lasting working relationship with you.";
         $message .= "<br><br>With Regards,
                         <br>247around Team<br>
