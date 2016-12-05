@@ -395,7 +395,7 @@ class invoices_model extends CI_Model {
         $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
 
 
-         $sql1 = "SELECT `booking_details`.service_id, `booking_details`.booking_id, "
+         $sql1 = "SELECT booking_unit_details.id AS unit_id,`booking_details`.service_id, `booking_details`.booking_id, "
                     . " `booking_details`.order_id, `booking_details`.reference_date,  "
                     . " `booking_details`.partner_id, `booking_details`.source,"
                     . " `booking_details`.city, `booking_unit_details`.ud_closed_date as closed_date, "
