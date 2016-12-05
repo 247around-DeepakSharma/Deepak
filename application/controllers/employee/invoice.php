@@ -482,7 +482,7 @@ class Invoice extends CI_Controller {
 
 	//Delete XLS files now
 	foreach ($file_names as $file_name) {
-	  //  exec("rm -rf " . escapeshellarg($file_name));
+	    exec("rm -rf " . escapeshellarg($file_name));
 	}
     }
 
@@ -667,7 +667,7 @@ class Invoice extends CI_Controller {
      * @desc: It generates cash invoices for vendor
      * @param: Array()
      */
-    function generate_cash_invoices_for_vendors($data, $details) {
+    function generate_cash_details_invoices_for_vendors($invoices, $details) {
         log_message('info', __FUNCTION__ . '=> Entering...');
         
 	$unique_booking_cash = array();
@@ -677,14 +677,11 @@ class Invoice extends CI_Controller {
 	// xls file directory
 	$templateDir = __DIR__ . "/../excel-templates/";
 
-	for ($i = 0; $i < count($data); $i++) {
-	    $invoices = $data[$i];
-
 	    if (!empty($invoices)) {
 		// it stores all unique booking id which is completed by particular vendor id
 		$unique_booking = array_unique(array_map(function ($k) {
 			return $k['booking_id'];
-		    }, $invoices));
+		    }, $invoices['booking']));
 
 		// Count unique booking id
 		$count = count($unique_booking);
@@ -693,13 +690,13 @@ class Invoice extends CI_Controller {
 		array_push($unique_booking_cash, $unique_booking);
 
 		log_message('info', __FUNCTION__ . '=> Start Date: ' .
-		    $invoices[0]['start_date'] . ', End Date: ' . $invoices[0]['end_date']);
+		    $invoices['booking'][0]['start_date'] . ', End Date: ' . $invoices['booking'][0]['end_date']);
 
 		// set date format like 1st July 2016
-		$start_date = date("jS M, Y", strtotime($invoices[0]['start_date']));
-		$end_date = date("jS M, Y", strtotime($invoices[0]['end_date']));
+		$start_date = date("jS M, Y", strtotime($invoices['booking'][0]['start_date']));
+		$end_date = date("jS M, Y", strtotime($invoices['booking'][0]['end_date']));
 
-		log_message('info', 'Service Centre: ' . $invoices[0]['id'] . ', Count: ' . $count);
+		log_message('info', 'Service Centre: ' . $invoices['booking'][0]['id'] . ', Count: ' . $count);
 
 		//set config for report
 		$config = array(
@@ -715,14 +712,13 @@ class Invoice extends CI_Controller {
 		if (isset($details['invoice_id'])) {
                     $invoice_id = $details['invoice_id'];
                 } else {
-//                    if ($invoices[0]['state'] == "DELHI") {
-//
-//                        $invoice_version = "T";
-//                    } else {
-//                        $invoice_version = "R";
-//                    }
+                    if ($invoices['booking'][0]['state'] == "DELHI") {
+
+                        $invoice_version = "T";
+                    } else {
+                        $invoice_version = "R";
+                    }
                     
-                    $invoice_version = "R";
 
                     $current_month = date('m');
                     // 3 means March Month
@@ -733,49 +729,36 @@ class Invoice extends CI_Controller {
                     }
 
                     //Make sure it is unique
-                    $invoice_id_tmp =  "Around-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($invoices[0]['start_date']));
+                    $invoice_id_tmp =  "Around-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($invoices['booking'][0]['start_date']));
                     $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
                     $invoice_no = $this->invoices_model->get_invoices_details($where);
 
                     $invoice_id = $invoice_id_tmp . "-" . (count($invoice_no) + 1);
                 }
-                        
-                if(is_null($invoices[0]['avg_rating'])){
-                    $invoices[0]['avg_rating'] = 0;
-                }       
-		$service_tax_rate = SERVICE_TAX_RATE;
-		$r_st = round($invoices[0]['amount_to_be_pay'] * $service_tax_rate, 0); //service tax calculated on royalty
-		//Find total charges for these bookings
-		$excel_data = array(
-		    't_ap' => $invoices[0]['total_amount_paid'], 'r_sc' => $invoices[0]['calcutated_service_tax'],
-		    'r_asc' => $invoices[0]['calcutated_additional_tax'], 't_sc' => $invoices[0]['sum_service_charge'],
-		    't_asc' => $invoices[0]['sum_addtional_charge'], 't_pc' => $invoices[0]['sum_parts_charge'],
-		    'r_pc' => $invoices[0]['calcutated_parts_tax'], 'r_total' => $invoices[0]['amount_to_be_pay'],
-		    't_rating' => $invoices[0]['avg_rating'],
-		    'r_st' => $r_st);
-
+          
+                $excel_data  = $invoices['meta'];
 		$excel_data['invoice_id'] = $invoice_id;
-		$excel_data['vendor_name'] = $invoices[0]['name'];
-		$excel_data['vendor_address'] = $invoices[0]['address'];
+		$excel_data['vendor_name'] = $invoices['booking'][0]['company_name'];
+		$excel_data['vendor_address'] = $invoices['booking'][0]['address'];
 		$excel_data['sd'] = $start_date;
 		$excel_data['ed'] = $end_date;
 		$excel_data['today'] = date("d-M-Y");
 		$excel_data['count'] = $count;
-                $excel_data['tin'] = $invoices[0]['tin'];
-                $excel_data['service_tax_no'] = $invoices[0]['service_tax_no'];
+                $excel_data['tin'] = $invoices['booking'][0]['tin'];
+                $excel_data['service_tax_no'] = $invoices['booking'][0]['service_tax_no'];
 		//set message to be displayed in excel sheet
 		$excel_data['msg'] = 'Thanks 247around Partner for your support, we completed ' . $count .
 		    ' bookings with you from ' . $start_date . ' to ' . $end_date .
-		    '. Total transaction value for the bookings was Rs. ' . $invoices[0]['total_amount_paid'] .
+		    '. Total transaction value for the bookings was Rs. ' . $invoices['meta']['total_amount_paid'] .
 		    '. Around royalty for this invoice is Rs. ' . $excel_data['r_total'] .
 		    '. Your rating for completed bookings is ' . $excel_data['t_rating'] .
 		    '. We look forward to your continued support in future. As next step, please deposit ' .
 		    '247around royalty per the below details.';
 
-		$excel_data['beneficiary_name'] = $invoices[0]['beneficiary_name'];
-		$excel_data['bank_account'] = $invoices[0]['bank_account'];
-		$excel_data['bank_name'] = $invoices[0]['bank_name'];
-		$excel_data['ifsc_code'] = $invoices[0]['ifsc_code'];
+		$excel_data['beneficiary_name'] = $invoices['booking'][0]['beneficiary_name'];
+		$excel_data['bank_account'] = $invoices['booking'][0]['bank_account'];
+		$excel_data['bank_name'] = $invoices['booking'][0]['bank_name'];
+		$excel_data['ifsc_code'] = $invoices['booking'][0]['ifsc_code'];
 
 		log_message('info', 'Excel data: ' . print_r($excel_data, true));
 
@@ -790,7 +773,7 @@ class Invoice extends CI_Controller {
 		    array(
 			'id' => 'booking',
 			'repeat' => true,
-			'data' => $invoices,
+			'data' => $invoices['booking'],
 			//'minRows' => 2,
 			'format' => array(
 			    'create_date' => array('datetime' => 'd/M/Y'),
@@ -803,10 +786,11 @@ class Invoice extends CI_Controller {
 		//Get populated XLS with data
 		$output_file_dir = "/tmp/";
 		$output_file = $invoice_id;
-		$output_file_excel = $output_file_dir . $output_file . ".xlsx";
+		$output_file_excel = $output_file_dir . $output_file . "-detailed.xlsx";
 
 		//for xlsx: excel, for xls: excel2003
 		$R->render('excel', $output_file_excel);
+              
 
 //		//convert excel to pdf
 //		$output_file_pdf = $output_file_dir . $output_file . ".pdf";
@@ -821,17 +805,31 @@ class Invoice extends CI_Controller {
 //		$output = '';
 //		$result_var = '';
 //		exec($cmd, $output, $result_var);
+                
+                $this->email->clear(TRUE);
+                $this->email->from('billing@247around.com', '247around Team');
+                $to = "anuj@247around.com";
+                $subject = "DRAFT CASH INVOICE (Detailed) - 247around - " . $invoices['booking'][0]['company_name'];
+                //		    . " Invoice for period: " . $start_date . " to " . $end_date;
+
+                $this->email->to($to);
+                $this->email->subject($subject);
+                $this->email->attach($output_file_excel, 'attachment');
 
 		if ($details['invoice_type'] === "final") {
+                    
+                    $to = $invoices['booking'][0]['owner_email'] . ", " .$invoices['booking'][0]['primary_contact_email'];
+                    $subject = "247around - " . $invoices['booking'][0]['company_name'] . " - Invoice for period: " .  $start_date . " to " .  $end_date;
+                    
 		    //Send SMS to PoC/Owner
 		    $sms['tag'] = "vendor_invoice_mailed";
 		    $sms['smsData']['type'] = 'Cash';
 		    $sms['smsData']['month'] = date('M Y', strtotime($start_date));
-		    $sms['smsData']['amount'] = $invoices[0]['total_amount_paid'];
-		    $sms['phone_no'] = $invoices[0]['owner_phone_1'];
+		    $sms['smsData']['amount'] = $invoices['meta']['total_amount_paid'];
+		    $sms['phone_no'] = $invoices['booking'][0]['owner_phone_1'];
 		    $sms['booking_id'] = "";
 		    $sms['type'] = "vendor";
-		    $sms['type_id'] = $invoices[0]['id'];
+		    $sms['type_id'] = $invoices['booking'][0]['id'];
 
 		    $this->notify->send_sms_acl($sms);
 		    //Upload Excel files to AWS
@@ -850,7 +848,7 @@ class Invoice extends CI_Controller {
 			'type' => 'Cash',
 			'type_code' => 'A',
 			'vendor_partner' => 'vendor',
-			'vendor_partner_id' => $invoices[0]['id'],
+			'vendor_partner_id' => $invoices['booking'][0]['id'],
 			'invoice_file_excel' => $output_file . '.xlsx',
 			//'invoice_file_pdf' => $output_file . '.pdf',
 			'from_date' => date("Y-m-d", strtotime($start_date)),
@@ -860,7 +858,7 @@ class Invoice extends CI_Controller {
 			'total_additional_service_charge' => $excel_data['t_asc'],
 			'parts_cost' => $excel_data['t_pc'],
 			'vat' => 0, //No VAT here in Cash invoice
-			'total_amount_collected' => $excel_data['t_ap'],
+			'total_amount_collected' => $excel_data['r_total'],
 			'rating' => $excel_data['t_rating'],
 			'around_royalty' => $excel_data['r_total'],
 			//Service tax which needs to be paid
@@ -886,22 +884,33 @@ class Invoice extends CI_Controller {
 		    $this->update_booking_invoice_mappings_repairs($invoices, $invoice_id);
 		}
                 
+                $mail_ret = $this->email->send();
+
+                if ($mail_ret) {
+                    log_message('info', __METHOD__ . ": Mail sent successfully");
+                } else {
+                    log_message('info', __METHOD__ . ": Mail could not be sent");
+                }
+
+                
                 // insert data into vendor invoices snapshot or draft table as per the invoice type
                 $this->insert_cash_invoices_snapshot($invoices, $invoice_id, $details['invoice_type']);
                 
+               
+                
                 // Store Cash Invoices details
-                $invoice_sc_details[$invoices[0]['id']]['cash_file_name'] = $output_file_excel;
-                $invoice_sc_details[$invoices[0]['id']]['cash_amount'] = $excel_data['r_total'];
-                $invoice_sc_details[$invoices[0]['id']]['cash_invoice_id'] = $invoice_id;
-                $invoice_sc_details[$invoices[0]['id']]['start_date'] = $start_date;
-                $invoice_sc_details[$invoices[0]['id']]['end_date'] = $end_date;
+                $invoice_sc_details[$invoices['booking'][0]['id']]['cash_file_name'] = $output_file_excel;
+                $invoice_sc_details[$invoices['booking'][0]['id']]['cash_amount'] = $excel_data['r_total'];
+                $invoice_sc_details[$invoices['booking'][0]['id']]['cash_invoice_id'] = $invoice_id;
+                $invoice_sc_details[$invoices['booking'][0]['id']]['start_date'] = $start_date;
+                $invoice_sc_details[$invoices['booking'][0]['id']]['end_date'] = $end_date;
 
-
+               exec("rm -rf " . escapeshellarg($output_file_excel));
                 unset($excel_data);
             } else {
                 //$summary = $invoices[0]['id'] . "," . $invoices[0]['name'] . ",0,0,0,0<br>";
             }
-        }
+        
 
         return $invoice_sc_details;
     }
@@ -945,10 +954,13 @@ class Invoice extends CI_Controller {
     function insert_cash_invoices_snapshot($invoices_data, $invoice_id, $invoice_type) {
 	$data = array();
         
-	foreach ($invoices_data as $value) {
+	foreach ($invoices_data['booking'] as $value) {
+            if ($invoice_type === "final") {
+                        $this->booking_model->update_booking_unit_details($value['booking_id'], array('partner_invoice_id'=> $invoice_id));   
+            }
 	    $data['booking_id'] = $value['booking_id'];
 	    $data['invoice_id'] = $invoice_id;
-	    $data['vendor_id'] = $invoices_data[0]['id'];
+	    $data['vendor_id'] = $value['id'];
 	    $data['type_code'] = "A";
 	    $data['city'] = $value['city'];
 	    $data['appliance'] = $value['services'];
@@ -1400,14 +1412,20 @@ class Invoice extends CI_Controller {
 	
 	switch ($details['vendor_invoice_type']) {
 	    case "cash":
-                $data = $this->invoices_model->generate_vendor_invoices($details['vendor_partner_id'], $details['date_range']);
+                 if($details['vendor_partner_id'] == 'All'){
+                    
+                    $vendor_details = $this->vendor_model->getactive_vendor();
+                    $details['vendor_partner_id'] = $vendor_details[0]['id'];
+                } 
+                $details['invoice_id'] = $this->generate_vendor_cash_invoice($details);
+                $data = $this->invoices_model->get_vendor_cash_detailed($details['vendor_partner_id'], $details['date_range']);
 		// Call generate_cash_invoices_for_vendors method to generates cash invoice
-		$cash_data = $this->generate_cash_invoices_for_vendors($data['invoice1'], $details);
-                $foc_data = array();
+		$cash_data = $this->generate_cash_details_invoices_for_vendors($data, $details);
+              //  $foc_data = array();
                 // Return CASH data
-                $vendor = $this->create_invoices_array_for_vendor($cash_data, $foc_data);
+               // $vendor = $this->create_invoices_array_for_vendor($cash_data, $foc_data);
                 // create incoice summary and send all type of invoice file to vendor
-                $this->create_vendor_invoice_summary($vendor, $details['invoice_type'], $details['vendor_partner_id']);
+               // $this->create_vendor_invoice_summary($vendor, $details['invoice_type'], $details['vendor_partner_id']);
 
 
 		break;
@@ -1419,7 +1437,7 @@ class Invoice extends CI_Controller {
                     $details['vendor_partner_id'] = $vendor_details[0]['id'];
                 } 
                 $details['invoice_id'] = $this->generate_vendor_foc_invoice($details);
-                $data = $this->invoices_model->generate_vendor_invoices($details['vendor_partner_id'], $details['date_range']);
+                $data = $this->invoices_model->generate_vendor_foc_detailed_invoices($details['vendor_partner_id'], $details['date_range']);
 		// Call generate_foc_invoices_for_vendors method to generates FOC invoice
 		$foc_data = $this->generate_foc_details_invoices_for_vendors($data['invoice2'], $details);
                 //$cash_data = array();
@@ -1731,8 +1749,8 @@ class Invoice extends CI_Controller {
             $invoice_no = $this->invoices_model->get_invoices_details($where);
             
             $invoice[0]['invoice_number'] = $invoice_id_tmp."-".(count($invoice_no) + 1);
-            $invoice['0']['invoice_date']  = date("jS M, Y", strtotime($to_date));
-           
+            $invoice[0]['invoice_date']  = date("jS M, Y", strtotime($to_date));
+            $invoice[0]['tax_rate'] = 5.00;
             $invoice[0]['19_24_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_19_24_UNIT_PRICE, $invoice[0]['tax_rate']);
             $invoice[0]['26_32_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_26_32_UNIT_PRICE, $invoice[0]['tax_rate']);
             $invoice[0]['36_42_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_36_42_UNIT_PRICE, $invoice[0]['tax_rate']);
@@ -1746,7 +1764,7 @@ class Invoice extends CI_Controller {
             $invoice[0]['t_36_42_unit_price'] = $invoice[0]['_36_42_total'] * $invoice[0]['36_42_unit_price'];
             $invoice[0]['total_part_cost'] = ($invoice[0]['t19_24_unit_price'] + $invoice[0]['t_26_32_unit_price'] + $invoice[0]['t_36_42_unit_price']);
             $invoice[0]['part_cost_vat'] = $invoice[0]['total_part_cost'] * $invoice[0]['tax_rate']/100;
-            $invoice[0]['total'] = round(($invoice[0]['part_cost_vat'] + $invoice[0]['total_part_cost'] ),2);
+            $invoice[0]['total'] = round(($invoice[0]['part_cost_vat'] + $invoice[0]['total_part_cost'] ),0);
             $invoice[0]['price_inword']  = convert_number_to_words($invoice[0]['total']);
             
             //Creating excel report
@@ -1795,8 +1813,8 @@ class Invoice extends CI_Controller {
                     'total_service_charge' => 0,
                     'total_additional_service_charge' => 0,
                     'service_tax' => 0,
-                    'parts_cost' => ($invoice[0]['19_24_total'] * $invoice[0]['19_24_unit_price'] + $invoice[0]['26_32_total'] * $invoice[0]['26_32_unit_price'] + $invoice[0]['36_42_total'] * $invoice[0]['36_42_unit_price']),
-                    'vat' => ($invoice[0]['19_24_total'] * $invoice[0]['19_24_tax_total'] + $invoice[0]['26_32_total'] * $invoice[0]['26_32_tax_total'] + $invoice[0]['36_42_total'] * $invoice[0]['36_42_tax_total']),
+                    'parts_cost' => ($invoice[0]['total_part_cost'] ),
+                    'vat' => ($invoice[0]['part_cost_vat'] ),
                     'total_amount_collected' => $invoice[0]['total'],
                     'rating' => 0,
                     'around_royalty' => $invoice[0]['total'],
@@ -1810,7 +1828,7 @@ class Invoice extends CI_Controller {
                     //Add 1 month to end date to calculate due date
                     'due_date' => date('jS M, Y',  strtotime($to_date))
                 );
-                $this->invoices_model->insert_new_invoice($invoice_details,$order_id);
+                $this->invoices_model->insert_new_invoice($invoice_details);
             }
 
             //Logging success
@@ -2228,7 +2246,7 @@ class Invoice extends CI_Controller {
         $output_file_pdf = "/tmp/".$invoices['meta']['invoice_id'].".pdf";
         $R->render('excel', $output_file_excel);
         
-         putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+        putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
 	$tmp_path = '/tmp/';
 	$tmp_output_file = '/tmp/output_' . __FUNCTION__ . '.txt';
 	$cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
@@ -2242,7 +2260,7 @@ class Invoice extends CI_Controller {
         $this->email->clear(TRUE);
         $this->email->from('billing@247around.com', '247around Team');
         $to = "anuj@247around.com";
-        $subject = "DRAFT INVOICE (SUMMARY) - 247around - " .$invoices['meta']['company_name'];
+        $subject = "DRAFT INVOICE (SUMMARY) - 247around - " .$invoices['product'][0]['company_name'];
 //		    . " Invoice for period: " . $start_date . " to " . $end_date;
             
         $this->email->to($to);
@@ -2268,7 +2286,7 @@ class Invoice extends CI_Controller {
             system(" chmod 777 /tmp/" . $invoices['meta']['invoice_id'] . ".txt", $res);
             $json_data['invoice_data'] = $invoices;
 
-            $contents = " Patner Invoice Json Data:\n";
+            $contents = " Vendor FOC Invoice Json Data:\n";
             fwrite($file, $contents);
             fwrite($file, print_r(json_encode($json_data), TRUE));
             fclose($file);
@@ -2295,6 +2313,166 @@ class Invoice extends CI_Controller {
         exec("rm -rf " . escapeshellarg($output_file_pdf));
         log_message('info',__FUNCTION__. " Exit Invoice Id: ". $invoices['meta']['invoice_id']);
         return $invoices['meta']['invoice_id'];
+    }
+    
+    /**
+     * @desc: This method is used to generate Main Cash Invoice
+     * @param type $details
+     * @return string
+     */
+    function generate_vendor_cash_invoice($details){
+        $vendor_id = $details['vendor_partner_id'];
+        $custom_date = explode("-", $details['date_range']);
+        $from_date = $custom_date[0];
+        $to_date = $custom_date[1];
+        $invoice_type = $details['invoice_type'];
+        $invoices = $this->invoices_model->get_vendor_cash_invoice($vendor_id, $from_date, $to_date);
+        $template = 'Vendor_Settlement_Template-Cash-v4.xlsx';
+        // directory
+        $templateDir = __DIR__ . "/../excel-templates/";
+        
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+        
+        $invoices['meta']['sd'] = date("jS M, Y", strtotime($from_date));
+        $invoices['meta']['ed']  = date('jS M, Y', strtotime('-1 day', strtotime($to_date)));
+        $invoices['meta']['invoice_date'] = date("jS M, Y", strtotime($to_date));
+        if (isset($details['invoice_id'])) {
+            $invoices['meta']['invoice_id'] = $details['invoice_id'];
+            if ($invoices['product'][0]['state'] == "DELHI") {
+
+            $invoice_version = "T";
+            $invoices['meta']['invoice_type'] = "TAX INVOICE";
+            } else {
+                $invoice_version = "R";
+                $invoices['meta']['invoice_type'] = "RETAIL INVOICE";
+            }
+        
+        } else {
+            if ($invoices['product'][0]['state'] == "DELHI") {
+
+            $invoice_version = "T";
+            $invoices['meta']['invoice_type'] = "TAX INVOICE";
+            } else {
+                $invoice_version = "R";
+                $invoices['meta']['invoice_type'] = "RETAIL INVOICE";
+            }
+
+            $current_month = date('m');
+            // 3 means March Month
+            if ($current_month > 3) {
+                $financial = date('Y') . "-" . (date('y') + 1);
+            } else {
+                $financial = (date('Y') - 1) . "-" . date('y');
+            }
+
+            //Make sure it is unique
+            $invoice_id_tmp =  "Around-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
+            $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
+            $invoice_no = $this->invoices_model->get_invoices_details($where);
+
+            $invoices['meta']['invoice_id'] = $invoice_id_tmp . "-" . (count($invoice_no) + 1);
+        }
+        
+        //load template
+        $R = new PHPReport($config);
+         $R->load(array(
+                    array(
+                        'id' => 'meta',
+                        'repeat' => false,
+                        'data' => $invoices['meta'],
+                        'format' => array(
+                            'date' => array('datetime' => 'd/M/Y')
+                        )
+                    ),
+                    array(
+                        'id' => 'invoice',
+                        'repeat' => true,
+                        'data' => $invoices['product'],
+                        //'minRows' => 2,
+//                        'format' => array(
+//                            'create_date' => array('datetime' => 'd/M/Y'),
+//                            'total_price' => array('number' => array('prefix' => 'Rs. ')),
+//                        )
+                    ),
+                )
+            );
+        
+       
+        $output_file_excel = "/tmp/".$invoices['meta']['invoice_id'].".xlsx";
+        $output_file_pdf = "/tmp/".$invoices['meta']['invoice_id'].".pdf";
+        $R->render('excel', $output_file_excel);
+         
+        putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+	$tmp_path = '/tmp/';
+	$tmp_output_file = '/tmp/output_' . __FUNCTION__ . '.txt';
+	$cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+	    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+	    $output_file_excel . ' 2> ' . $tmp_output_file;
+	$output = '';
+	$result_var = '';
+	exec($cmd, $output, $result_var);
+        
+        
+        $this->email->clear(TRUE);
+        $this->email->from('billing@247around.com', '247around Team');
+        $to = "anuj@247around.com";
+        $subject = "DRAFT INVOICE (SUMMARY) - 247around - " .$invoices['product'][0]['company_name'];
+//		    . " Invoice for period: " . $start_date . " to " . $end_date;
+            
+        $this->email->to($to);
+        $this->email->subject($subject);
+        $this->email->attach($output_file_excel, 'attachment');
+       // $this->email->attach($output_file_pdf, 'attachment');
+        
+        if ($invoice_type === "final") {
+            
+            $to = $invoices['meta']['owner_email'] . ", " . $invoices['meta']['poc_email'];
+            $subject = "247around - " . $invoices['meta']['company_name'] . " - Invoice for period: " .  $invoices['meta']['sd'] . " to " .  $invoices['meta']['ed'];
+            
+            $bucket = 'bookings-collateral';
+            $directory_xls = "invoices-excel/" . $output_file_excel;
+            $directory_pdf = "invoices-pdf/" . $output_file_pdf;
+
+            $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+            
+            // Dump data in a file as a Json
+            $file = fopen("/tmp/".$invoices['meta']['invoice_id'] . ".txt", "w") or die("Unable to open file!");
+            $res = 0;
+            system(" chmod 777 /tmp/" . $invoices['meta']['invoice_id'] . ".txt", $res);
+            $json_data['invoice_data'] = $invoices;
+
+            $contents = " Vendor FOC Invoice Json Data:\n";
+            fwrite($file, $contents);
+            fwrite($file, print_r(json_encode($json_data), TRUE));
+            fclose($file);
+            log_message('info', __METHOD__ . ": Json File Created");
+
+            $directory_xls = "invoices-json/" . $invoices['meta']['invoice_id'] . ".txt";
+            $this->s3->putObjectFile("/tmp/".$invoices['meta']['invoice_id'].".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            log_message('info', __METHOD__ . ": Json File Uploded to S3");
+
+            //Delete JSON files now
+            exec("rm -rf " . escapeshellarg("/tmp/".$invoices['meta']['invoice_id'].".txt"));
+                    
+        }
+        
+        $mail_ret = $this->email->send();
+
+        if ($mail_ret) {
+            log_message('info', __METHOD__ . ": Mail sent successfully");
+        } else {
+            log_message('info', __METHOD__ . ": Mail could not be sent");
+        }
+        
+        exec("rm -rf " . escapeshellarg($output_file_excel));
+       // exec("rm -rf " . escapeshellarg($output_file_pdf));
+        log_message('info',__FUNCTION__. " Exit Invoice Id: ". $invoices['meta']['invoice_id']);
+        return $invoices['meta']['invoice_id'];
+        
     }
 
 }
