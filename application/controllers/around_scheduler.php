@@ -216,7 +216,7 @@ class Around_scheduler extends CI_Controller {
     function cancel_pending_query($booking_id) {
 	log_message('info', __METHOD__ . " => Booking ID: " . $booking_id);
         
-        $data['cancellation_reason'] = 'Customer Not Reachable';
+        $data['cancellation_reason'] = 'Customer Not Responded to 247around Communication';
 	$data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");        
 	$data['current_status'] = $data['internal_status'] = _247AROUND_CANCELLED ;
 	$data_vendor['cancellation_reason'] = $data['cancellation_reason'];
