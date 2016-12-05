@@ -1749,8 +1749,8 @@ class Invoice extends CI_Controller {
             $invoice_no = $this->invoices_model->get_invoices_details($where);
             
             $invoice[0]['invoice_number'] = $invoice_id_tmp."-".(count($invoice_no) + 1);
-            $invoice['0']['invoice_date']  = date("jS M, Y", strtotime($to_date));
-           
+            $invoice[0]['invoice_date']  = date("jS M, Y", strtotime($to_date));
+            $invoice[0]['tax_rate'] = 5.00;
             $invoice[0]['19_24_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_19_24_UNIT_PRICE, $invoice[0]['tax_rate']);
             $invoice[0]['26_32_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_26_32_UNIT_PRICE, $invoice[0]['tax_rate']);
             $invoice[0]['36_42_tax_total'] = $this->booking_model->get_calculated_tax_charge(_247AROUND_BRACKETS_36_42_UNIT_PRICE, $invoice[0]['tax_rate']);
@@ -1764,7 +1764,7 @@ class Invoice extends CI_Controller {
             $invoice[0]['t_36_42_unit_price'] = $invoice[0]['_36_42_total'] * $invoice[0]['36_42_unit_price'];
             $invoice[0]['total_part_cost'] = ($invoice[0]['t19_24_unit_price'] + $invoice[0]['t_26_32_unit_price'] + $invoice[0]['t_36_42_unit_price']);
             $invoice[0]['part_cost_vat'] = $invoice[0]['total_part_cost'] * $invoice[0]['tax_rate']/100;
-            $invoice[0]['total'] = round(($invoice[0]['part_cost_vat'] + $invoice[0]['total_part_cost'] ),2);
+            $invoice[0]['total'] = round(($invoice[0]['part_cost_vat'] + $invoice[0]['total_part_cost'] ),0);
             $invoice[0]['price_inword']  = convert_number_to_words($invoice[0]['total']);
             
             //Creating excel report
@@ -1828,7 +1828,7 @@ class Invoice extends CI_Controller {
                     //Add 1 month to end date to calculate due date
                     'due_date' => date('jS M, Y',  strtotime($to_date))
                 );
-                $this->invoices_model->insert_new_invoice($invoice_details,$order_id);
+                $this->invoices_model->insert_new_invoice($invoice_details);
             }
 
             //Logging success

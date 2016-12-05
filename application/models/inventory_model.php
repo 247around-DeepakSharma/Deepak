@@ -191,10 +191,8 @@ class Inventory_model extends CI_Model {
                     brackets.order_id,
                     brackets.order_received_from as vendor_id,
                     sc.address as vendor_address, sc.owner_phone_1 as owner_phone_1,
-                    sc.state,
-                    CASE WHEN order_given_to > 0 THEN (SELECT rate FROM service_centres, tax_rates WHERE service_centres.id = order_given_to AND service_centres.state = tax_rates.state AND tax_rates.product_type = "wall_bracket")
-                                            ELSE 0 END as tax_rate
-
+                    sc.state
+                    
                     FROM brackets,service_centres as sc WHERE brackets.received_date >= "'.$from_date.'" 
                     AND brackets.received_date <= "'.$to_date.'" AND brackets.is_received= "1" 
                     AND brackets.order_received_from = "'.$vendor_id.'" 

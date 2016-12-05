@@ -48,18 +48,9 @@ class invoices_model extends CI_Model {
      * various amounts, 247around royalty etc.
      */
 
-    function insert_new_invoice($details,$order_id = "") {
+    function insert_new_invoice($details) {
         //Check if invoice_id present then update row, else add new 
-        $this->db->where('order_id', $order_id);
-	$query = $this->db->get('vendor_partner_invoices');
-	if (count($query->result_array()) == 0) {
-            //Insert
-	$this->db->insert('vendor_partner_invoices', $details);
-	}else{
-            //Update
-            $this->db->where(array('order_id' => $order_id));
-            $this->db->update('vendor_partner_invoices', $details);
-    }
+        $this->db->insert('vendor_partner_invoices', $details);
 
     }
     /**
