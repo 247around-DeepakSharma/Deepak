@@ -1804,10 +1804,10 @@ class Invoice extends CI_Controller {
                     'type_code' => 'D',
                     'vendor_partner' => 'vendor',
                     'vendor_partner_id' => $invoice[0]['vendor_id'],
-                    'invoice_file_excel' => $invoice[0]['invoice_number'].'xlsx' ,
+                    'invoice_file_excel' => $invoice[0]['invoice_number'].'.xlsx' ,
                     'invoice_file_pdf' => '',
                     'from_date' => date("Y-m-d", strtotime($from_date)),
-                    'to_date' => date('jS M, Y', strtotime('-1 day', strtotime($to_date))),
+                    'to_date' => date('Y-m-d', strtotime('-1 day', strtotime($to_date))),
                     'num_bookings' => $invoice[0]['total_brackets'],
                     'total_service_charge' => 0,
                     'total_additional_service_charge' => 0,
@@ -1817,7 +1817,7 @@ class Invoice extends CI_Controller {
                     'total_amount_collected' => $invoice[0]['total'],
                     'rating' => 0,
                     'around_royalty' => $invoice[0]['total'],
-                    'amount_collected_paid' => 0.0,
+                    'amount_collected_paid' => $invoice[0]['total'],
                     'tds_amount' => 0.0,
                     'amount_paid' => 0.0,
                     'settle_amount' => 0,
@@ -1825,9 +1825,12 @@ class Invoice extends CI_Controller {
                     'mail_sent' => 1,
                     'sms_sent' => 1,
                     //Add 1 month to end date to calculate due date
-                    'due_date' => date('jS M, Y',  strtotime($to_date))
+                    'due_date' => date("Y-m-d", strtotime($to_date . "+1 month"))
                 );
                 $this->invoices_model->insert_new_invoice($invoice_details);
+                if($order_id != ''){
+                    $this->inventory_model->update_brackets(array('invoice_id'=> $invoice[0]['invoice_number']), array('order_id'=>$order_id));
+                }
             }
 
             //Logging success
