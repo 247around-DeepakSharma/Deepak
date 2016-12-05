@@ -1800,7 +1800,6 @@ class Invoice extends CI_Controller {
                 //Save this invoice info in table
                 $invoice_details = array(
                     'invoice_id' => $invoice[0]['invoice_number'],
-                    'order_id' =>$order_id,
                     'type' => 'Stand',
                     'type_code' => 'D',
                     'vendor_partner' => 'vendor',
