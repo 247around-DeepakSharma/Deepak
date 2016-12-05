@@ -252,7 +252,7 @@ class invoices_model extends CI_Model {
 		$condition = "  From booking_details, booking_unit_details, services, service_centres
                           WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id AND `services`.id = `booking_details`.service_id  AND `booking_details`.assigned_vendor_id = `service_centres`.id AND current_status = 'Completed' AND assigned_vendor_id = '" . $vendor_id . "' AND `booking_unit_details`.booking_status = 'Completed' $where ";
 
-		$sql1 = "SELECT  service_centres.state, `booking_details`.booking_id, 
+		$sql1 = "SELECT  booking_unit_details.id AS unit_id,service_centres.state, `booking_details`.booking_id, 
                     `booking_details`.city, `booking_details`.internal_status,
 		     date_format(`booking_unit_details`.`ud_closed_date`,'%d/%m/%Y') as closed_date, 
                      `booking_unit_details`.ud_closed_date as closed_booking_date, 
@@ -311,10 +311,10 @@ class invoices_model extends CI_Model {
         $to_date = $custom_date[1];
         
         $where = " AND ( ( `booking_unit_details`.vendor_to_around > 0 AND `booking_unit_details`.around_to_vendor =0 ) OR ( `booking_unit_details`.vendor_to_around = 0 AND `booking_unit_details`.around_to_vendor =0 ) )  ";
-        $where .= " AND pay_to_sf = '1'  AND booking_unit_details.ud_closed_date >= '$from_date' AND booking_unit_details.ud_closed_date < '$to_date' ";
+        $where .= " AND booking_unit_details.ud_closed_date >= '$from_date' AND booking_unit_details.ud_closed_date < '$to_date' ";
         
 
-        $sql = "SELECT service_centres.state, "
+        $sql = "SELECT booking_unit_details.id AS unit_id, service_centres.state, "
                 . "`booking_details`.booking_id, "
                 . "`booking_details`.city,"
                 . " date_format(`booking_unit_details`.`ud_closed_date`,'%d/%m/%Y') as closed_date,"
@@ -395,7 +395,7 @@ class invoices_model extends CI_Model {
         $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
 
 
-         $sql1 = "SELECT `booking_details`.service_id, `booking_details`.booking_id, "
+         $sql1 = "SELECT booking_unit_details.id AS unit_id,`booking_details`.service_id, `booking_details`.booking_id, "
                     . " `booking_details`.order_id, `booking_details`.reference_date,  "
                     . " `booking_details`.partner_id, `booking_details`.source,"
                     . " `booking_details`.city, `booking_unit_details`.ud_closed_date as closed_date, "
@@ -433,8 +433,8 @@ class invoices_model extends CI_Model {
                     . " AND booking_unit_details.partner_id = partners.id "
                     . " AND partner_invoice_id IS NULL "
                     . " AND booking_unit_details.ud_closed_date >= '$from_date'"
-                    . " AND booking_unit_details.ud_closed_date < '$to_date'"
-                    . " AND pay_to_sf = '1' ";
+                    . " AND booking_unit_details.ud_closed_date < '$to_date'";
+                   
 
 
         $query1 = $this->db->query($sql1);
