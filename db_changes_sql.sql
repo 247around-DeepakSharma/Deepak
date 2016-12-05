@@ -1334,3 +1334,7 @@ ALTER TABLE `booking_unit_details` ADD `vendor_invoice_id` VARCHAR(100) NULL DEF
 
 --Abhay 3 DEC
 ALTER TABLE `booking_unit_details` ADD `pay_to_sf` INT(2) NULL DEFAULT '0' AFTER `vendor_invoice_id`;
+
+--Abhay 5 NOv
+ALTER TABLE `booking_unit_details` CHANGE `vendor_invoice_id` `vendor_cash_invoice_id` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+ALTER TABLE `booking_unit_details` ADD `vendor_foc_invoice_id` VARCHAR(100) NULL DEFAULT NULL AFTER `vendor_cash_invoice_id`;
