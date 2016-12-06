@@ -89,6 +89,13 @@ class Booking_model extends CI_Model {
         log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
         return $result;
     }
+    
+    function update_booking_unit_details_by_any($where, $data){
+        $this->db->where($where);
+        $result = $this->db->update('booking_unit_details', $data);
+        log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
+        return $result;
+    }
 
 
     /** @description:* add booking
