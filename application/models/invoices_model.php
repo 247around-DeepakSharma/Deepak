@@ -998,6 +998,8 @@ class invoices_model extends CI_Model {
             $meta['service_tax_no'] =  $data[0]['service_tax_no'];
             $meta['vendor_name'] = $data[0]['company_name'];
             $meta['vendor_address'] = $data[0]['vendor_address'];
+            $meta['primary_contact_email'] = $data[0]['primary_contact_email'];
+            $meta['owner_email'] = $data[0]['owner_email'];
             
             $data1['product'] = $data;
             $data1['meta'] = $meta;
