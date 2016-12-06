@@ -140,7 +140,8 @@ class User_model extends CI_Model {
     function search_user($phone_number) {
         $this->db->select("*");
         $this->db->where('phone_number', $phone_number);
-
+        $this->db->or_where('alternate_phone_number',$phone_number);
+        
         $query = $this->db->get("users");
         return $query->result_array();
     }
