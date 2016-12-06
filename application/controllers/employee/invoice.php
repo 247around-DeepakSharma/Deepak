@@ -395,7 +395,7 @@ class Invoice extends CI_Controller {
                 $total_stand_charge += round($value['stand'], 2);
                 $total_vat_charge += round($value['vat'], 2);
                 $total_charges = round(($total_installation_charge + $total_service_tax + $total_stand_charge + $total_vat_charge), 0);
-                if ($invoice_type === "final") {
+                if ($invoice_type == "final") {
                     log_message('info', __METHOD__ . "=> Invoice update in booking unit details unit id" . $value['unit_id']. " Invoice Id". $invoice_id);
                     $this->booking_model->update_booking_unit_details($value['unit_id'], array('partner_invoice_id'=> $invoice_id));   
                 }
@@ -440,7 +440,7 @@ class Invoice extends CI_Controller {
             array_push($file_names, $files_name . ".xlsx");
             array_push($file_names, $files_name . ".pdf");
 
-            if ($invoice_type === "final") {
+            if ($invoice_type == "final") {
                 log_message('info', __METHOD__ . "=> Final" );
                 $bucket = 'bookings-collateral';
 
@@ -847,7 +847,7 @@ class Invoice extends CI_Controller {
 	$data = array();
         
 	foreach ($invoices_data['booking'] as $value) {
-            if ($invoice_type === "final") {
+            if ($invoice_type == "final") {
                 log_message('info', __METHOD__ . ': update invoice id in booking unit details '. $value['unit_id']. " invoice id ". $invoice_id);
                     $this->booking_model->update_booking_unit_details($value['unit_id'], array('vendor_cash_invoice_id'=> $invoice_id));     
             }
@@ -1561,7 +1561,7 @@ class Invoice extends CI_Controller {
             array_push($file_names, $value['cash_file_name']);
         }
 
-        if ($invoice_type === "final") {
+        if ($invoice_type == "final") {
 
             $to = $value['owner_email'] . ", " . $value['poc_email'];
 
@@ -1591,12 +1591,12 @@ class Invoice extends CI_Controller {
         $mail_ret = $this->email->send();
         if ($mail_ret) {
 
-            if (isset($value['foc']) && $invoice_type === "final") {
+            if (isset($value['foc']) && $invoice_type == "final") {
                 $where = array('invoice_id' =>$value['foc']['foc_invoice_id']);
                 $this->invoices_model->update_partner_invoices($where, array('mail_sent' => 1));
 
             }
-            if (isset($value['cash_file_name']) && $invoice_type === "final") {
+            if (isset($value['cash_file_name']) && $invoice_type == "final") {
                 $where  = array('invoice_id' => $value['cash_invoice_id'] );
                 $this->invoices_model->update_partner_invoices($where, array('mail_sent' => 1));
 
@@ -2043,7 +2043,7 @@ class Invoice extends CI_Controller {
         }
 
 
-        if ($invoice_type === "final") {
+        if ($invoice_type == "final") {
             log_message('info', __FUNCTION__ . ' Final' );
             $bucket = 'bookings-collateral';
             $directory_xls = "invoices-excel/" . $output_file_excel;
@@ -2204,7 +2204,7 @@ class Invoice extends CI_Controller {
         $cc ='';
            
 
-        if ($invoice_type === "final") {
+        if ($invoice_type == "final") {
             log_message('info', __METHOD__ . ": Invoice type Final");
             $to = $invoices['meta']['owner_email'] . ", " . $invoices['meta']['primary_contact_email'];
             $subject = "247around - " . $invoices['meta']['company_name'] . " - Invoice for period: " .  $invoices['meta']['sd'] . " to " .  $invoices['meta']['ed'];
@@ -2370,7 +2370,7 @@ class Invoice extends CI_Controller {
         $cc = '';
        // $this->email->attach($output_file_pdf, 'attachment');
         
-        if ($invoice_type === "final") {
+        if ($invoice_type == "final") {
             log_message('info', __FUNCTION__. " Final" );
             $to = $invoices['meta']['owner_email'] . ", " . $invoices['meta']['primary_contact_email'];
             $subject = "247around - " . $invoices['meta']['vendor_name'] . " - Invoice for period: " .  $invoices['meta']['sd'] . " to " .  $invoices['meta']['ed'];
