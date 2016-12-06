@@ -1226,7 +1226,7 @@ class Invoice extends CI_Controller {
 	    $this->generate_partner_invoices($details['vendor_partner_id'], $details['date_range'], $details['invoice_type']);
 	}
         log_message('info', __FUNCTION__. " Exit......");           
-	//redirect(base_url() . "employee/invoice/get_invoices_form");
+	redirect(base_url() . "employee/invoice/get_invoices_form");
     }
     
     /**
