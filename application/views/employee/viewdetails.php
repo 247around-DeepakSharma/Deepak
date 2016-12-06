@@ -17,7 +17,9 @@
                             <th >Name: </th>
                             <td><?php echo $booking_history[0]['name']; ?></td>
                             <th>Mobile: </th>
-                            <td><?php echo $booking_history[0]['phone_number']; ?></td>
+                            <td><?php echo $booking_history[0]['phone_number']; ?>
+                                <button type="button" onclick="outbound_call(<?php echo $booking_history[0]['phone_number']; ?>)" class="btn btn-sm btn-info pull-right"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true' class="pull-right"></i></button>
+                            </td>
                             <th>Alternate Number: </th>
                             <td><?php echo $booking_history[0]['alternate_phone_number']; ?></td>
                         </tr>
@@ -335,3 +337,26 @@
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+
+    function outbound_call(phone_number){
+        var confirm_call = confirm("Call Customer ?");
+
+        if (confirm_call == true) {
+
+             $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number,
+                success: function(response) {
+                    //console.log(response);
+
+                }
+            });
+        } else {
+            return false;
+        }
+
+    }
+
+</script>

@@ -45,6 +45,14 @@
                     <span >R M</span>
                 </div>
             </div>
+            <div class="col-md-3">
+                <div class="col-md-4">
+                    <div style="background-color: #286090;margin-top:10px;margin-bottom: 10px;border-radius: 10px;">&nbsp;&nbsp;&nbsp;</div>
+                </div>
+                <div class="col-md-8" style="margin-top:10px;margin-bottom: 10px;">
+                    <span >DEVELOPER</span>
+                </div>
+            </div>
         </div>
         <?php }?>
         
@@ -77,6 +85,8 @@
                             $style='style="background-color:#D9EDF7;text-align:center"';
                         }else if($value['groups'] == _247AROUND_RM){
                             $style='style="background-color:#FF8080;text-align:center"';
+                        }else if($value['groups'] == _247AROUND_DEVELOPER){
+                            $style='style="background-color:#286090;text-align:center"';
                         }
                         ?>		
                     <tr>

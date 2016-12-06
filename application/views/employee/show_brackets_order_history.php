@@ -68,7 +68,7 @@
                                 <td><?php echo $value['agent_name'] ?></td>
                                 <td><?php echo $value['partner_name'] ?></td>
                                 <td><?php 
-                                    $old_date = $value['order_date'];
+                                    $old_date = $value['shipment_date'];
                                     $old_date_timestamp = strtotime($old_date);
                                     $new_date = date('j F, Y g:i A', $old_date_timestamp);  
                                     echo $new_date;?>
@@ -88,7 +88,7 @@
                                 <td><?php echo $value['partner_name'] ?></td>
                                 <td>
                                     <?php 
-                                    $old_date = $value['order_date'];
+                                    $old_date = $value['received_date'];
                                     $old_date_timestamp = strtotime($old_date);
                                     $new_date = date('j F, Y g:i A', $old_date_timestamp);  
                                     echo $new_date;?>

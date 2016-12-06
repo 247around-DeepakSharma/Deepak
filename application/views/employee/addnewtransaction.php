@@ -142,7 +142,7 @@ color: red;
               <div class="form-group">
                 <label for="name" class="col-md-2">Amount <span class="red">*</span></label>
                 <div class="col-md-6">
-                    <input type="text" class="form-control" id="amount" name="amount" value="<?php if(isset($selected_amount_collected)){ echo abs($selected_amount_collected); }?>" required>
+                    <input type="text" class="form-control" id="amount" name="amount" onchange="validateFloatValue(this);" value="<?php if(isset($selected_amount_collected)){ echo abs($selected_amount_collected); }?>" required>
                 </div>
                 <span id="errmsg4"></span>
               </div>
@@ -159,9 +159,9 @@ color: red;
               <div class="form-group">
       <label for="name" class="col-md-2">Transaction Mode<span class="red">*</span></label>
       <div>
-        <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Cash" checked>    Cash &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Transfer" checked>    Transfer &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Cash" >    Cash &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <input type="radio" onclick="cre_deb_validation1()"  name="transaction_mode" value = "Cheque">    Cheque &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Transfer">    Transfer &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Other">    Other
                 </div>
 
@@ -200,18 +200,11 @@ color: red;
 </div>
 
 <script type="text/javascript">
-   $(document).ready(function () {
-  //called when key is pressed in textbox
-  $("#amount").keypress(function (e) {
-     //if the letter is not digit then display error and don't type anything
-     if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
-        //display error message
-        $("#errmsg4").html("Digits Only").show().fadeOut("slow");
-               return false;
-    }
-   });
-});
 
+    function validateFloatValue(el) {
+        var v = parseFloat(el.value);
+        el.value = (isNaN(v)) ? '' : v.toFixed(2);
+    }
 
 </script>
 

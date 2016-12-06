@@ -984,7 +984,7 @@ class Booking extends CI_Controller {
      *  @return : user details to view
      */
     function get_rating_form($booking_id, $status) {
-	$getbooking = $this->booking_model->getbooking($booking_id);
+        $getbooking = $this->booking_model->getbooking_history($booking_id,'join');
 	if ($getbooking) {
 
 	    $this->session->userdata('employee_id');
