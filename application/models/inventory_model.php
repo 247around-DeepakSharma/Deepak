@@ -188,7 +188,7 @@ class Inventory_model extends CI_Model {
                     SUM(brackets.36_42_received) as _36_42_total,
                     SUM(brackets.total_received) as total_received,
                     sc.name as vendor_name,sc.state,sc.sc_code,
-                    brackets.order_id,
+                    CONCAT(  "", GROUP_CONCAT( DISTINCT (brackets.order_id) ) ,  "" ) AS order_id,
                     brackets.order_received_from as vendor_id,
                     sc.address as vendor_address, sc.owner_phone_1 as owner_phone_1,
                     sc.state
