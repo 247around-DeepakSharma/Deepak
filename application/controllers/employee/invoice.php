@@ -1787,13 +1787,13 @@ class Invoice extends CI_Controller {
         $invoice_month = date('F',strtotime($get_invoice_month));
         
         $vendor_data = $this->vendor_model->getVendorContact($vendor_id);
-
+        
         $to = $vendor_data[0]['primary_contact_email'].','.$vendor_data[0]['owner_email'];
         $from = 'billing@247around.com';
         $cc = 'anuj@247around.com, nits@247around.com';
 
         $message = "Dear Partner,<br/><br/>";
-        $message .= "Please find attached invoice for Brackets shipped in " . $invoice_month . ". ";
+        $message .= "Please find attached invoice for Brackets delivered in " . $invoice_month . ". ";
         $message .= "Hope to have a long lasting working relationship with you.";
         $message .= "<br><br>With Regards,
                         <br>247around Team<br>
@@ -1803,7 +1803,8 @@ class Invoice extends CI_Controller {
                         <br>Playstore - 247around -
                         <br>https://play.google.com/store/apps/details?id=com.handymanapp";
 
-        $send_mail = $this->notify->sendEmail($from, $to, $cc, '', 'Brackets Invoice for '.$invoice_month , $message, $output_file_excel);
+        $send_mail = $this->notify->sendEmail($from, $to, $cc, '', 'Brackets Invoice - '.$vendor_data[0]['name'] , $message, $output_file_excel);
+       
         if ($send_mail) {
             return TRUE;
         } else {
@@ -1818,7 +1819,7 @@ class Invoice extends CI_Controller {
      */
     function send_brackets_invoice_draft_mail($vendor_id,$output_file_excel,$from_date){
       
-        $invoice_month = date('M, Y',strtotime($from_date));
+        $invoice_month = date('F',strtotime($from_date));
         
         $vendor_details = $this->vendor_model->getVendorContact($vendor_id);
 
@@ -1826,7 +1827,7 @@ class Invoice extends CI_Controller {
         $from = 'billing@247around.com';
 
         $message = "Dear Partner,<br/><br/>";
-        $message .= "Please find attached invoice for installations done for Brackets of the month " . $invoice_month . ". ";
+        $message .= "Please find attached invoice for Brackets delivered in " . $invoice_month . ". ";
         $message .= "Hope to have a long lasting working relationship with you.";
         $message .= "<br><br>With Regards,
                         <br>247around Team<br>
@@ -1836,7 +1837,7 @@ class Invoice extends CI_Controller {
                         <br>Playstore - 247around -
                         <br>https://play.google.com/store/apps/details?id=com.handymanapp";
 
-        $send_mail = $this->notify->sendEmail($from, $to, '', '', 'DRAFT INVOICE -  Brackets Invoice for vendor '.$vendor_details[0]['name'], $message, $output_file_excel);
+        $send_mail = $this->notify->sendEmail($from, $to, '', '', 'DRAFT - Brackets Invoice - '.$vendor_details[0]['name'], $message, $output_file_excel);
         if ($send_mail) {
             return TRUE;
         } else {
