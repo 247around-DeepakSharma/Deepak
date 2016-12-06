@@ -2207,7 +2207,7 @@ class Invoice extends CI_Controller {
         if ($invoice_type == "final") {
             log_message('info', __METHOD__ . ": Invoice type Final");
             $to = $invoices['meta']['owner_email'] . ", " . $invoices['meta']['primary_contact_email'];
-            $subject = "247around - " . $invoices['meta']['company_name'] . " - Invoice for period: " .  $invoices['meta']['sd'] . " to " .  $invoices['meta']['ed'];
+            $subject = "247around - " . $invoices['meta']['vendor_name'] . " - Invoice for period: " .  $invoices['meta']['sd'] . " to " .  $invoices['meta']['ed'];
             $cc = "anuj@247around.com, nits@247aroud.com";
             $bucket = 'bookings-collateral';
             $directory_xls = "invoices-excel/" . $output_file_excel;
