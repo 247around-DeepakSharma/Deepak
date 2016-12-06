@@ -486,117 +486,6 @@ class Invoice extends CI_Controller {
 	}
     }
 
-//    function create_partner_invoices_summary($data, $invoice_type) {
-//        log_message('info', __FUNCTION__);
-//
-//	$file_names = array();
-//
-//	$template = 'partner_invoice_summary.xlsx';
-//	//set absolute path to directory with template files
-//	$templateDir = __DIR__ . "/../excel-templates/";
-//
-//	for ($i = 0; $i < count($data); $i++) {
-//
-//	    if (!empty($data[$i])) {
-//		//set config for report
-//		$config = array(
-//		    'template' => $template,
-//		    'templateDir' => $templateDir
-//		);
-//
-//		//load template
-//		$R = new PHPReport($config);
-//
-//		$total_installation_charge = 0;
-//		$total_service_tax = 0;
-//		$total_stand_charge = 0;
-//		$total_vat_charge = 0;
-//		//$total_charges = 0;
-//		$total_unit = 0;
-//
-//		$invoice_id = $data[$i][0]['source'] . date('dMY')."-summary";
-//
-//		foreach ($data[$i] as $key => $value) {
-//
-//		    $total_installation_charge += round($value['total_installation_charge'], 2);
-//		    $total_service_tax += round($value['total_st'], 2);
-//		    $total_stand_charge += round($value['total_stand_charge'], 2);
-//		    $total_vat_charge += round($value['total_vat_charge'], 2);
-//		    $total_unit += round($value['count_booking'], 2);
-//
-//		    $data[$i][$key]['partner_paid_basic_charges'] = round(($value['total_installation_charge'] + $value['total_st'] + $value['total_stand_charge'] + $value['total_vat_charge']), 2);
-//
-//		    if ($value['price_tags'] == "Wall Mount Stand") {
-//
-//			$data[$i][$key]['remarks'] = "TV With Stand";
-//		    } else if ($value['services'] == "Television") {
-//
-//			$data[$i][$key]['remarks'] = "TV Installation & Demo";
-//		    } else {
-//
-//			$data[$i][$key]['remarks'] = $value['services'];
-//		    }
-//		}
-//
-//		$excel_data['invoice_id'] = $invoice_id;
-//		$excel_data['today'] = date('d-M-Y');
-//		$excel_data['company_name'] = $data[$i][0]['company_name'];
-//		$excel_data['company_address'] = $data[$i][0]['company_address'];
-//		$excel_data['total_installation_charge'] = $total_installation_charge;
-//		$excel_data['total_service_tax'] = $total_service_tax;
-//		$excel_data['total_stand_charge'] = $total_stand_charge;
-//		$excel_data['total_vat_charge'] = $total_vat_charge;
-//		$excel_data['total_charges'] = $total_installation_charge + $total_service_tax + $total_stand_charge + $total_vat_charge;
-//		$excel_data['total_unit'] = $total_unit;
-//
-//		log_message('info', 'Excel data: ' . print_r($excel_data, true));
-//
-//		$files_name = $this->generate_pdf_with_data($excel_data, $data[$i], $R, $file_names);
-//
-//		//Send report via email
-//		$this->email->clear(TRUE);
-//		$this->email->from('billing@247around.com', '247around Team');
-//		$to = "anuj@247around.com";
-//		$subject = "DRAFT INVOICE (SUMMARY) - 247around - " . $data[$i][0]['company_name'];
-////		    . " Invoice for period: " . $start_date . " to " . $end_date;
-//
-//		$this->email->to($to);
-//		$this->email->subject($subject);
-//		$this->email->attach($files_name . ".xlsx", 'attachment');
-//		$this->email->attach($files_name . ".pdf", 'attachment');
-//
-//		$mail_ret = $this->email->send();
-//
-//		if ($mail_ret) {
-//		    log_message('info', __METHOD__ . ": Mail sent successfully");
-//		} else {
-//		    log_message('info', __METHOD__ . ": Mail could not be sent");
-//		}
-//
-//		array_push($file_names, $files_name . ".xlsx");
-//		array_push($file_names, $files_name . ".pdf");
-//
-//		if ($invoice_type === "final") {
-//		    $bucket = 'bookings-collateral';
-//		    $directory_xls = "invoices-excel/" . $files_name . ".xlsx";
-//		    $directory_pdf = "invoices-pdf/" . $files_name . ".pdf";
-//
-//		    $this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-//		    $this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
-//                    
-//                    foreach ($data[$i] as $key => $value) {
-//                        $this->booking_model->update_booking_unit_details($value['booking_id'], array('partner_invoice_id'=> $invoice_id));
-//                    }
-//		}
-//	    }
-//	}
-//
-//	//Delete XLS files now
-//	foreach ($file_names as $file_name) {
-//	    exec("rm -rf " . escapeshellarg($file_name));
-//	}
-//    }
-
     /**
      * @desc: Generate Excel and Pdf File with invoices data and return file names
      * @param: Array(Excel data), Array(Invoices data), Initiallized PHP report library and files name
@@ -749,8 +638,8 @@ class Invoice extends CI_Controller {
 		//set message to be displayed in excel sheet
 		$excel_data['msg'] = 'Thanks 247around Partner for your support, we completed ' . $count .
 		    ' bookings with you from ' . $start_date . ' to ' . $end_date .
-		    '. Total transaction value for the bookings was Rs. ' . $invoices['meta']['total_amount_paid'] .
-		    '. Around royalty for this invoice is Rs. ' . $excel_data['r_total'] .
+		    '. Total transaction value for the bookings was Rs. ' . round($invoices['meta']['total_amount_paid'],0) .
+		    '. Around royalty for this invoice is Rs. ' . round($excel_data['r_total'], 0) .
 		    '. Your rating for completed bookings is ' . $excel_data['t_rating'] .
 		    '. We look forward to your continued support in future. As next step, please deposit ' .
 		    '247around royalty per the below details.';
@@ -1099,8 +988,8 @@ class Invoice extends CI_Controller {
 
             $excel_data['msg'] = 'Thanks 247around Partner for your support, we completed ' . $count .
                     ' bookings with you from ' . $start_date . ' to ' . $end_date .
-                    '. Total transaction value for the bookings was Rs. ' . $excel_data['t_total'] .
-                    '. Your rating for completed bookings is ' . $excel_data['t_rating'] .
+                    '. Total transaction value for the bookings was Rs. ' . round($excel_data['t_total'],0) .
+                    '. Your rating for completed bookings is ' . round($excel_data['t_rating'],0) .
                     '. We look forward to your continued support in future. As next step, 247around will pay you remaining amount as per our agreement.';
 
             $excel_data['beneficiary_name'] = $invoices[0]['beneficiary_name'];
@@ -2011,7 +1900,7 @@ class Invoice extends CI_Controller {
       
         $invoices = $this->invoices_model->generate_partner_invoice($partner_id, $from_date,$to_date);
         
-        $template = 'partner_invoice_v2.xlsx';
+        $template = 'partner_invoice_Main_v2.xlsx';
         // directory
         $templateDir = __DIR__ . "/../excel-templates/";
         
@@ -2480,7 +2369,7 @@ class Invoice extends CI_Controller {
         }
         
         exec("rm -rf " . escapeshellarg($output_file_excel));
-       // exec("rm -rf " . escapeshellarg($output_file_pdf));
+        exec("rm -rf " . escapeshellarg($output_file_pdf));
         log_message('info',__FUNCTION__. " Exit Invoice Id: ". $invoices['meta']['invoice_id']);
         return $invoices['meta']['invoice_id'];
        } else {

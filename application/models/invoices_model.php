@@ -309,8 +309,15 @@ class invoices_model extends CI_Model {
         $custom_date = explode("-", $date_range);
         $from_date = $custom_date[0];
         $to_date = $custom_date[1];
-        
-        $where = " AND ( ( `booking_unit_details`.vendor_to_around > 0 AND `booking_unit_details`.around_to_vendor =0 ) OR ( `booking_unit_details`.vendor_to_around = 0 AND `booking_unit_details`.around_to_vendor =0 ) )  ";
+        $where = "";
+        for($i = 0; $i <2; $i++){
+        if($i==0){
+            $select = "(around_comm_basic_charges + around_st_or_vat_basic_charges) as service_charges, ";
+            $where = " AND ( ( `booking_unit_details`.vendor_to_around > 0 AND `booking_unit_details`.around_to_vendor =0 ) OR ( `booking_unit_details`.vendor_to_around = 0 AND `booking_unit_details`.around_to_vendor =0 ) )  ";
+        } else {
+            $select = "0.00 As service_charges,";
+            $where = " AND  booking_unit_details.around_to_vendor > 0  AND booking_unit_details.vendor_to_around = 0 AND (booking_unit_details.customer_paid_extra_charges > 0 OR booking_unit_details.customer_paid_parts > 0) ";
+        }
         $where .= " AND booking_unit_details.ud_closed_date >= '$from_date' AND booking_unit_details.ud_closed_date < '$to_date' ";
         
 
@@ -336,8 +343,8 @@ class invoices_model extends CI_Model {
                      `service_centres`.primary_contact_phone_1,
                      service_tax_no,(case when (service_centres.tin_no IS NOT NULL )  THEN tin_no ELSE cst_no END) as tin,
                      `booking_unit_details`.  product_or_services, '$from_date' as start_date,  '" . date('Y-m-d', strtotime($to_date . " - 1 day")) . "'  as end_date,"
-                . " (around_comm_basic_charges + around_st_or_vat_basic_charges) as service_charges, around_net_payable, "
-                . " (around_comm_extra_charges + around_st_extra_charges) as additional_charges,"
+                . " around_net_payable, "
+                . " $select (around_comm_extra_charges + around_st_extra_charges) as additional_charges,"
                 . " (around_comm_parts + around_st_parts) AS parts_cost, "
                 . " (customer_paid_basic_charges + customer_paid_extra_charges + customer_paid_parts) as amount_paid  "
                 . " From booking_details, booking_unit_details, services, service_centres
@@ -348,23 +355,24 @@ class invoices_model extends CI_Model {
         
         
         $query = $this->db->query($sql);
-       
-        if($query->num_rows > 0){
-            $result = $query->result_array();
-           
-            
+        $invoice[$i] =  $query->result_array();
+        }
+        $result = array_merge($invoice[0],$invoice[1]);
+        if(count($result) > 0){
+
             $meta['r_sc'] = $meta['r_asc'] =  $meta['r_pc'] = $meta['total_amount_paid'] = $rating = 0;
             $i = 0;
             foreach ($result as $value) {
                 $meta['r_sc'] += $value['service_charges'];
                 $meta['r_asc'] += $value['additional_charges'];
                 $meta['r_pc'] += $value['parts_cost'];
-                $meta['total_amount_paid'] = $value['amount_paid'];
+                $meta['total_amount_paid'] += $value['amount_paid'];
                 if(!is_null($value['rating_stars']) || $value['rating_stars'] != ''){
                     $rating += $value['rating_stars'];
                     $i++;
                 }
             }
+            $meta['total_amount_paid']  = round($meta['total_amount_paid'], 0);
             $meta['r_total'] = $meta['r_sc'] + $meta['r_asc'] +$meta['r_pc'];
             $meta['r_st'] = $this->booking_model->get_calculated_tax_charge($meta['r_total'], 15);
             if($i == 0){
@@ -379,9 +387,7 @@ class invoices_model extends CI_Model {
         } else {
             return false;
         }
-        
-
-        
+  
     }
 
 
@@ -914,9 +920,16 @@ class invoices_model extends CI_Model {
      * @return boolean
      */
     function get_vendor_cash_invoice($vendor_id,$from_date,$to_date){
-        
+        for($i =0; $i <2; $i++){
+        if($i==0){
+            $select = "(`around_comm_basic_charges` + `around_st_or_vat_basic_charges`) *COUNT( ud.`appliance_capacity` )  AS installation_charge, ";
+            $where = " AND ( ( ud.vendor_to_around > 0 AND ud.around_to_vendor =0 ) OR (ud.vendor_to_around = 0 AND ud.around_to_vendor =0 ) )  ";
+        } else {
+            $select = "0.00 As installation_charge,";
+            $where = " AND  around_to_vendor > 0  AND vendor_to_around = 0 AND (ud.customer_paid_extra_charges > 0 OR ud.customer_paid_parts > 0) ";
+        }
         $sql = "SELECT  
-                (`around_comm_basic_charges` + `around_st_or_vat_basic_charges`) *COUNT( ud.`appliance_capacity` )  AS installation_charge, 
+                $select
                 SUM(`around_comm_extra_charges` + `around_st_extra_charges`)   AS additional_charge, 
                 SUM(`around_comm_parts`  + `around_st_parts`) AS misc_charge,
                 CASE 
@@ -959,15 +972,17 @@ class invoices_model extends CI_Model {
                 AND ud.ud_closed_date <  '$to_date'
                 AND ud.service_id = services.id
                 AND sc.id = bd.assigned_vendor_id
-                AND ( ( ud.vendor_to_around > 0 AND ud.around_to_vendor =0 ) 
-                     OR ( ud.vendor_to_around = 0 AND ud.around_to_vendor =0 ) )
+                $where
                 GROUP BY  (`around_comm_basic_charges` + `around_st_or_vat_basic_charges`),ud.service_id ";
         
         $query = $this->db->query($sql);
+        $result[$i] = $query->result_array();
+        }
+        $data = array_merge($result[0], $result[1]);
         
-        if($query->num_rows > 0){
+        if(count($data) > 0){
             $meta['total_charge'] = 0;
-            $data = $query->result_array();
+            
             foreach ($data as $value) {
                 $meta['total_charge'] += ($value['installation_charge'] + $value['additional_charge'] + $value['misc_charge']);
             }
@@ -986,10 +1001,9 @@ class invoices_model extends CI_Model {
             $data1['product'] = $data;
             $data1['meta'] = $meta;
             return $data1;
-            
         } else {
             return FALSE;
-        }
+        } 
         
     }
    
