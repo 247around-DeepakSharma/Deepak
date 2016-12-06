@@ -433,8 +433,10 @@ class Invoice extends CI_Controller {
 
             if ($mail_ret) {
                 log_message('info', __METHOD__ . ": Mail sent successfully");
+                echo "Mail sent successfully..............." . PHP_EOL;
             } else {
                 log_message('info', __METHOD__ . ": Mail could not be sent");
+                echo "Mail could not be sent..............." . PHP_EOL;
             }
 
             array_push($file_names, $files_name . ".xlsx");
@@ -484,8 +486,6 @@ class Invoice extends CI_Controller {
         } else {
             log_message('info', __METHOD__ . "=> Data Not found" . $invoice_type. " Partner Id ". $partner_id);
         }
-	
-
 	
     }
 
@@ -589,7 +589,7 @@ class Invoice extends CI_Controller {
 
 		// set date format like 1st July 2016
 		 $start_date = date("jS M, Y", strtotime($from_date));
-		 $end_date = date("jS M, Y", strtotime($to_date));
+		 $end_date = date("jS M, Y", strtotime('-1 day', strtotime($to_date)));
 
 		log_message('info', 'Service Centre: ' . $invoices['booking'][0]['id'] . ', Count: ' . $count);
 
@@ -685,35 +685,19 @@ class Invoice extends CI_Controller {
 
 		//for xlsx: excel, for xls: excel2003
 		$R->render('excel', $output_file_excel);
-
-//		//convert excel to pdf
-//		$output_file_pdf = $output_file_dir . $output_file . ".pdf";
-//
-//		putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-//		$tmp_path = '/tmp/';
-//		$tmp_output_file = '/tmp/output_' . __FUNCTION__ . '.txt';
-//		$cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
-//		    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
-//		    $output_file_excel . ' 2> ' . $tmp_output_file;
-//
-//		$output = '';
-//		$result_var = '';
-//		exec($cmd, $output, $result_var);
                 
                 $this->email->clear(TRUE);
                 $this->email->from('billing@247around.com', '247around Team');
                 $to = "anuj@247around.com";
-                $subject = "DRAFT CASH INVOICE (Detailed) - 247around - " . $invoices['booking'][0]['company_name'];
-                //		    . " Invoice for period: " . $start_date . " to " . $end_date;
+                $subject = "Draft - Cash Invoice (Detailed) - 247around - " . $invoices['booking'][0]['company_name'];
 
                 $this->email->to($to);
-                $this->email->subject($subject);
                 $this->email->attach($output_file_excel, 'attachment');
 
 		if ($details['invoice_type'] === "final") {
-                    
                     $to = $invoices['booking'][0]['owner_email'] . ", " .$invoices['booking'][0]['primary_contact_email'];
-                    $subject = "247around - " . $invoices['booking'][0]['company_name'] . " - Cash Invoice(Detailed) for period: " .  $start_date . " to " .  $end_date;
+                    $subject = "247around - " . $invoices['booking'][0]['company_name'] . 
+                            " - Cash Invoice (Detailed) for period: " .  $start_date . " to " .  $end_date;
                     
 		    //Send SMS to PoC/Owner
 		    $sms['tag'] = "vendor_invoice_mailed";
@@ -778,12 +762,15 @@ class Invoice extends CI_Controller {
 		    $this->update_booking_invoice_mappings_repairs($invoices['booking'], $invoice_id);
 		}
                 
+                $this->email->subject($subject);
                 $mail_ret = $this->email->send();
 
                 if ($mail_ret) {
                     log_message('info', __METHOD__ . ": Mail sent successfully");
+                    echo "Mail sent successfully..............." . PHP_EOL;
                 } else {
                     log_message('info', __METHOD__ . ": Mail could not be sent");
+                    echo "Mail could not be sent..............." . PHP_EOL;
                 }
 
                 
@@ -956,7 +943,7 @@ class Invoice extends CI_Controller {
 
             //set date format like 1st june 2016
             $start_date = date("jS M, Y", strtotime($from_date));
-            $end_date = date("jS M, Y", strtotime($to_date));
+            $end_date = date("jS M, Y", strtotime('-1 day', strtotime($to_date)));
 
             log_message('info', 'Service Centre: ' . $invoices[0]['id'] . ', Count: ' . $count);
 
@@ -1037,32 +1024,16 @@ class Invoice extends CI_Controller {
             $R->render('excel', $output_file_excel);
             log_message('info', __FUNCTION__. " Excel File Created ". $output_file_excel);
 
-            //convert excel to pdf
-//		$output_file_pdf = $output_file_dir . $output_file . ".pdf";
-//		putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-//		$tmp_path = '/tmp/';
-//		$tmp_output_file = '/tmp/output_' . __FUNCTION__ . '.txt';
-//		$cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
-//		    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
-//		    $output_file_excel . ' 2> ' . $tmp_output_file;
-//
-//		log_message('info', 'Command: ' . $cmd);
-//
-//		$output = '';
-//		$result_var = '';
-//		exec($cmd, $output, $result_var);
-
             $this->email->clear(TRUE);
             $this->email->from('billing@247around.com', '247around Team');
             $to = "anuj@247around.com";
-            $subject = "DRAFT FOC INVOICE (Detailed) - 247around - " . $invoices[0]['company_name'];
-            //		    . " Invoice for period: " . $start_date . " to " . $end_date;
+            $subject = "Draft - FOC INVOICE (Detailed) - 247around - " . $invoices[0]['company_name'];
             $cc = "";
             
             if ($details['invoice_type'] === "final") {
                 log_message('info', __FUNCTION__. " Final" );
                 $to = $invoices[0]['owner_email'] . ", " .$invoices[0]['primary_contact_email'];
-                $subject = "247around - " . $invoices[0]['company_name'] . " - FOC Invoice(Detailed) for period: " .  $start_date . " to " .  $end_date;
+                $subject = "247around - " . $invoices[0]['company_name'] . " - FOC Invoice (Detailed) for period: " .  $start_date . " to " .  $end_date;
                 $cc = "anuj@247around.com, nits@247around.com";
             
                 //Send SMS to PoC/Owner
@@ -1129,6 +1100,7 @@ class Invoice extends CI_Controller {
                  */
                 $this->update_booking_invoice_mappings_installations($invoices, $invoice_id);
             }
+            
             $this->email->to($to);
             $this->email->cc($cc);
             $this->email->subject($subject);
@@ -1138,8 +1110,10 @@ class Invoice extends CI_Controller {
 
             if ($mail_ret) {
                 log_message('info', __METHOD__ . ": Mail sent successfully");
+                echo "Mail sent successfully..............." . PHP_EOL;
             } else {
                 log_message('info', __METHOD__ . ": Mail could not be sent");
+                echo "Mail could not be sent..............." . PHP_EOL;
             }
 
             // insert data into vendor invoices snapshot or draft table as per the invoice type
@@ -1611,7 +1585,7 @@ class Invoice extends CI_Controller {
         } else {
 
             log_message('error', __METHOD__ . ": Mail could not be sent");
-            echo "Mail could not be sent" . PHP_EOL;
+            echo "Mail could not be sent..............." . PHP_EOL;
         }
         
         //Delete XLS files now
@@ -2042,8 +2016,10 @@ class Invoice extends CI_Controller {
 
         if ($mail_ret) {
             log_message('info', __METHOD__ . ": Mail sent successfully");
+            echo "Mail sent successfully..............." . PHP_EOL;
         } else {
             log_message('info', __METHOD__ . ": Mail could not be sent");
+            echo "Mail could not be sent..............." . PHP_EOL;
         }
 
 
@@ -2202,7 +2178,7 @@ class Invoice extends CI_Controller {
         $this->email->clear(TRUE);
         $this->email->from('billing@247around.com', '247around Team');
         $to = "anuj@247around.com";
-        $subject = "DRAFT INVOICE FOC(MAIN) - 247around - " .$invoices['product'][0]['company_name'];
+        $subject = "DRAFT INVOICE FOC (MAIN) - 247around - " .$invoices['product'][0]['company_name'];
 //		    . " Invoice for period: " . $start_date . " to " . $end_date;
         
         $cc ='';
@@ -2249,8 +2225,10 @@ class Invoice extends CI_Controller {
 
         if ($mail_ret) {
             log_message('info', __METHOD__ . ": Mail sent successfully");
+            echo "Mail sent successfully..............." . PHP_EOL;
         } else {
             log_message('info', __METHOD__ . ": Mail could not be sent");
+            echo "Mail could not be sent..............." . PHP_EOL;
         }
         
         exec("rm -rf " . escapeshellarg($output_file_excel));
@@ -2354,38 +2332,24 @@ class Invoice extends CI_Controller {
         $output_file_pdf = "/tmp/".$invoices['meta']['invoice_id'].".pdf";
         $R->render('excel', $output_file_excel);
         log_message('info', __FUNCTION__. " Excel Created ". $output_file_excel );
-//        putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-//	$tmp_path = '/tmp/';
-//	$tmp_output_file = '/tmp/output_' . __FUNCTION__ . '.txt';
-//	$cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
-//	    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
-//	    $output_file_excel . ' 2> ' . $tmp_output_file;
-//	$output = '';
-//	$result_var = '';
-//	exec($cmd, $output, $result_var);
-        
         
         $this->email->clear(TRUE);
         $this->email->from('billing@247around.com', '247around Team');
         $to = "anuj@247around.com";
         $subject = "DRAFT INVOICE CASH (MAIN) - 247around - " .$invoices['product'][0]['company_name'];
-//		    . " Invoice for period: " . $start_date . " to " . $end_date;
             
         $cc = '';
-       // $this->email->attach($output_file_pdf, 'attachment');
         
         if ($invoice_type == "final") {
             log_message('info', __FUNCTION__. " Final" );
             $to = $invoices['meta']['owner_email'] . ", " . $invoices['meta']['primary_contact_email'];
-            $subject = "247around - " . $invoices['meta']['vendor_name'] . " - FOC Invoice for period: " .  $invoices['meta']['sd'] . " to " .  $invoices['meta']['ed'];
+            $subject = "247around - " . $invoices['meta']['vendor_name'] . " - Cash Invoice for period: " .  $invoices['meta']['sd'] . " to " .  $invoices['meta']['ed'];
             $cc = "anuj@247around.com, nits@247around.com";
             $bucket = 'bookings-collateral';
             $directory_xls = "invoices-excel/" . $output_file_excel;
-           // $directory_pdf = "invoices-pdf/" . $output_file_pdf;
 
             $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-            //$this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
-            log_message('info', __FUNCTION__. " File Upload to S#" );
+            log_message('info', __FUNCTION__. " File Upload to S3" );
             
             // Dump data in a file as a Json
             $file = fopen("/tmp/".$invoices['meta']['invoice_id'] . ".txt", "w") or die("Unable to open file!");
@@ -2415,10 +2379,10 @@ class Invoice extends CI_Controller {
 
             if ($mail_ret) {
                 log_message('info', __METHOD__ . ": Mail sent successfully");
-                echo "Mail sent successfully";
+                echo "Mail sent successfully..............." . PHP_EOL;
             } else {
                 log_message('info', __METHOD__ . ": Mail could not be sent");
-                 echo "Mail could not be sent";
+                 echo "Mail could not be sent..............." . PHP_EOL;
             }
         
         exec("rm -rf " . escapeshellarg($output_file_excel));
