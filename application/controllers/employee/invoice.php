@@ -881,7 +881,9 @@ class Invoice extends CI_Controller {
      */
     function generate_foc_details_invoices_for_vendors($invoices, $details) {
         log_message('info', __FUNCTION__ . '=> Entering...');
-
+        $custom_date = explode("-", $details['date_range']);
+        $from_date = $custom_date[0];
+        $to_date = $custom_date[1];
         $unique_booking_foc = array();
         $invoice_sc_details = array();
 
@@ -915,7 +917,7 @@ class Invoice extends CI_Controller {
                 }
 
                 //Make sure it is unique
-                $invoice_id_tmp = $invoices[0]['sc_code'] . "-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($invoices[0]['start_date']));
+                $invoice_id_tmp = $invoices[0]['sc_code'] . "-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
                 $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
                 $invoice_no = $this->invoices_model->get_invoices_details($where);
 
@@ -950,11 +952,11 @@ class Invoice extends CI_Controller {
             // push unique booking id into another array
             array_push($unique_booking_foc, $unique_booking);
 
-            log_message('info', __FUNCTION__ . '=> Start Date: ' . $invoices[0]['start_date'] . ', End Date: ' . $invoices[0]['end_date']);
+            log_message('info', __FUNCTION__ . '=> Start Date: ' . $from_date . ', End Date: ' . $to_date);
 
             //set date format like 1st june 2016
-            $start_date = date("jS M, Y", strtotime($invoices[0]['start_date']));
-            $end_date = date("jS M, Y", strtotime($invoices[0]['end_date']));
+            $start_date = date("jS M, Y", strtotime($from_date));
+            $end_date = date("jS M, Y", strtotime($to_date));
 
             log_message('info', 'Service Centre: ' . $invoices[0]['id'] . ', Count: ' . $count);
 
