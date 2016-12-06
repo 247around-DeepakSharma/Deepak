@@ -423,7 +423,7 @@ class Invoice extends CI_Controller {
             $this->email->clear(TRUE);
             $this->email->from('billing@247around.com', '247around Team');
             $to = "anuj@247around.com";
-            $subject = "DRAFT INVOICE - 247around - " . $data[0]['company_name'] .
+            $subject = "DRAFT Partner INVOICE Detailed- 247around - " . $data[0]['company_name'] .
                 " Invoice for period: " . $start_date . " to " . $end_date;
 
             $this->email->to($to);
@@ -1046,7 +1046,7 @@ class Invoice extends CI_Controller {
             $this->email->clear(TRUE);
             $this->email->from('billing@247around.com', '247around Team');
             $to = "anuj@247around.com";
-            $subject = "DRAFT INVOICE (Detailed) - 247around - " . $invoices[0]['company_name'];
+            $subject = "DRAFT FOC INVOICE (Detailed) - 247around - " . $invoices[0]['company_name'];
             //		    . " Invoice for period: " . $start_date . " to " . $end_date;
 
             $this->email->to($to);
@@ -2158,7 +2158,7 @@ class Invoice extends CI_Controller {
         $this->email->clear(TRUE);
         $this->email->from('billing@247around.com', '247around Team');
         $to = "anuj@247around.com";
-        $subject = "DRAFT INVOICE FOC(SUMMARY) - 247around - " .$invoices['product'][0]['company_name'];
+        $subject = "DRAFT INVOICE FOC(MAIN) - 247around - " .$invoices['product'][0]['company_name'];
 //		    . " Invoice for period: " . $start_date . " to " . $end_date;
             
         $this->email->to($to);
@@ -2319,7 +2319,7 @@ class Invoice extends CI_Controller {
         $this->email->clear(TRUE);
         $this->email->from('billing@247around.com', '247around Team');
         $to = "anuj@247around.com";
-        $subject = "DRAFT INVOICE CASH (SUMMARY) - 247around - " .$invoices['product'][0]['company_name'];
+        $subject = "DRAFT INVOICE CASH (MAIN) - 247around - " .$invoices['product'][0]['company_name'];
 //		    . " Invoice for period: " . $start_date . " to " . $end_date;
             
         $this->email->to($to);
