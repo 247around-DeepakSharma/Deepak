@@ -849,7 +849,7 @@ class Invoice extends CI_Controller {
 	foreach ($invoices_data['booking'] as $value) {
             if ($invoice_type === "final") {
                 log_message('info', __METHOD__ . ': update invoice id in booking unit details '. $value['unit_id']. " invoice id ". $invoice_id);
-                    $this->booking_model->update_booking_unit_details($value['unit_id'], array('vendor_foc_invoice_id'=> $invoice_id));     
+                    $this->booking_model->update_booking_unit_details($value['unit_id'], array('vendor_cash_invoice_id'=> $invoice_id));     
             }
 	    $data['booking_id'] = $value['booking_id'];
 	    $data['invoice_id'] = $invoice_id;
@@ -1149,7 +1149,7 @@ class Invoice extends CI_Controller {
             $invoice_sc_details[$invoices[0]['id']]['end_date'] = $end_date;
 
             unset($excel_data);
-             exec("rm -rf " . escapeshellarg($output_file_excel));
+           //  exec("rm -rf " . escapeshellarg($output_file_excel));
         } else {
             log_message('info', __FUNCTION__. "Exit data not found ". print_r($details, TRUE));
         }
