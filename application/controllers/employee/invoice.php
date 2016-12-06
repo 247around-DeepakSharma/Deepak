@@ -1718,9 +1718,9 @@ class Invoice extends CI_Controller {
       
         //Making invoice array
         $invoice = $this->inventory_model->get_vendor_bracket_invoices($vendor_id, $from_date,$to_date);
-        $order_id = isset($invoice[0]['order_id'])?$invoice[0]['order_id']:'';
-        
+
         if (!empty($invoice)) {
+           
             $invoice[0]['period'] = date("jS M, Y", strtotime($from_date))." To ".date('jS M, Y', strtotime('-1 day', strtotime($to_date)));
             $invoice[0]['today'] = date("jS M, Y", strtotime($to_date));
            
@@ -1829,8 +1829,16 @@ class Invoice extends CI_Controller {
                     'due_date' => date("Y-m-d", strtotime($to_date . "+1 month"))
                 );
                 $this->invoices_model->insert_new_invoice($invoice_details);
-                if($order_id != ''){
-                    $this->inventory_model->update_brackets(array('invoice_id'=> $invoice[0]['invoice_number']), array('order_id'=>$order_id));
+                
+                if (strpos($invoice[0]['order_id'], ',') !== FALSE){
+                    $var = explode(",", $invoice[0]['order_id']);
+                    foreach ($var as $value) {
+                        $this->inventory_model->update_brackets(array('invoice_id'=> $invoice[0]['invoice_number']), array('order_id'=>$value));
+                    }
+                        
+                } else { 
+                    $this->inventory_model->update_brackets(array('invoice_id'=> $invoice[0]['invoice_number']), array('order_id'=>$invoice[0]['order_id']));
+                    
                 }
             }
 
@@ -2261,7 +2269,7 @@ class Invoice extends CI_Controller {
         $this->email->clear(TRUE);
         $this->email->from('billing@247around.com', '247around Team');
         $to = "anuj@247around.com";
-        $subject = "DRAFT INVOICE (SUMMARY) - 247around - " .$invoices['product'][0]['company_name'];
+        $subject = "DRAFT INVOICE FOC(SUMMARY) - 247around - " .$invoices['product'][0]['company_name'];
 //		    . " Invoice for period: " . $start_date . " to " . $end_date;
             
         $this->email->to($to);
@@ -2328,6 +2336,8 @@ class Invoice extends CI_Controller {
         $to_date = $custom_date[1];
         $invoice_type = $details['invoice_type'];
         $invoices = $this->invoices_model->get_vendor_cash_invoice($vendor_id, $from_date, $to_date);
+        if(!empty($invoices)){
+       
         $template = 'Vendor_Settlement_Template-Cash-v4.xlsx';
         // directory
         $templateDir = __DIR__ . "/../excel-templates/";
@@ -2420,7 +2430,7 @@ class Invoice extends CI_Controller {
         $this->email->clear(TRUE);
         $this->email->from('billing@247around.com', '247around Team');
         $to = "anuj@247around.com";
-        $subject = "DRAFT INVOICE (SUMMARY) - 247around - " .$invoices['product'][0]['company_name'];
+        $subject = "DRAFT INVOICE CASH (SUMMARY) - 247around - " .$invoices['product'][0]['company_name'];
 //		    . " Invoice for period: " . $start_date . " to " . $end_date;
             
         $this->email->to($to);
@@ -2473,6 +2483,9 @@ class Invoice extends CI_Controller {
        // exec("rm -rf " . escapeshellarg($output_file_pdf));
         log_message('info',__FUNCTION__. " Exit Invoice Id: ". $invoices['meta']['invoice_id']);
         return $invoices['meta']['invoice_id'];
+       } else {
+           echo "Data Not Exist";
+       }
         
     }
 
