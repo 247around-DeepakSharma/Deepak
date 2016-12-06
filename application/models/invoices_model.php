@@ -373,7 +373,7 @@ class invoices_model extends CI_Model {
                 }
             }
             $meta['total_amount_paid']  = round($meta['total_amount_paid'], 0);
-            $meta['r_total'] = $meta['r_sc'] + $meta['r_asc'] +$meta['r_pc'];
+            $meta['r_total'] = round($meta['r_sc'] + $meta['r_asc'] +$meta['r_pc'],0);
             $meta['r_st'] = $this->booking_model->get_calculated_tax_charge($meta['r_total'], 15);
             if($i == 0){
                 $i =1;
@@ -986,6 +986,7 @@ class invoices_model extends CI_Model {
             foreach ($data as $value) {
                 $meta['total_charge'] += ($value['installation_charge'] + $value['additional_charge'] + $value['misc_charge']);
             }
+            $meta['total_charge'] =  round( $meta['total_charge']);
             $s_15charge = $this->booking_model->get_calculated_tax_charge($meta['total_charge'], 15);
             $s_basic_charge = $meta['total_charge'] - $s_15charge;
             

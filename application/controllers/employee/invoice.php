@@ -631,7 +631,7 @@ class Invoice extends CI_Controller {
 		$excel_data['vendor_address'] = $invoices['booking'][0]['address'];
 		$excel_data['sd'] = $start_date;
 		$excel_data['ed'] = $end_date;
-		$excel_data['today'] = date("d-M-Y");
+		$excel_data['invoice_date'] = date("jS M, Y", strtotime($end_date));
 		$excel_data['count'] = $count;
                 $excel_data['tin'] = $invoices['booking'][0]['tin'];
                 $excel_data['service_tax_no'] = $invoices['booking'][0]['service_tax_no'];
