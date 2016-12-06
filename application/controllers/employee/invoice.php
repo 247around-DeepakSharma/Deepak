@@ -397,7 +397,7 @@ class Invoice extends CI_Controller {
                 $total_charges = round(($total_installation_charge + $total_service_tax + $total_stand_charge + $total_vat_charge), 0);
                 if ($invoice_type == "final") {
                     log_message('info', __METHOD__ . "=> Invoice update in booking unit details unit id" . $value['unit_id']. " Invoice Id". $invoice_id);
-                    $this->booking_model->update_booking_unit_details($value['unit_id'], array('partner_invoice_id'=> $invoice_id));   
+                    $this->booking_model->update_booking_unit_details_by_any(array('id'=>$value['unit_id']), array('partner_invoice_id'=> $invoice_id));   
                 }
             }
 
@@ -849,7 +849,7 @@ class Invoice extends CI_Controller {
 	foreach ($invoices_data['booking'] as $value) {
             if ($invoice_type == "final") {
                 log_message('info', __METHOD__ . ': update invoice id in booking unit details '. $value['unit_id']. " invoice id ". $invoice_id);
-                    $this->booking_model->update_booking_unit_details($value['unit_id'], array('vendor_cash_invoice_id'=> $invoice_id));     
+                    $this->booking_model->update_booking_unit_details_by_any(array('id'=>$value['unit_id']), array('vendor_cash_invoice_id'=> $invoice_id));     
             }
 	    $data['booking_id'] = $value['booking_id'];
 	    $data['invoice_id'] = $invoice_id;
@@ -929,9 +929,9 @@ class Invoice extends CI_Controller {
                 $total_vat_charge += $invoices[$j]['vendor_vat'];
                 $invoices[$j]['amount_paid'] = round(($invoices[$j]['vendor_installation_charge'] + $invoices[$j]['vendor_st'] + $invoices[$j]['vendor_stand'] + $invoices[$j]['vendor_vat']),0);
             
-                if ($details['invoice_type'] === "final") {
+                if ($details['invoice_type'] == "final") {
                     log_message('info', __METHOD__ . ': update invoice id in booking unit details '. $invoices[$j]['unit_id']. " invoice id ". $invoice_id);
-                    $this->booking_model->update_booking_unit_details($invoices[$j]['unit_id'], array('vendor_foc_invoice_id'=> $invoice_id));   
+                    $this->booking_model->update_booking_unit_details_by_any(array('id' =>$invoices[$j]['unit_id']), array('vendor_foc_invoice_id'=> $invoice_id));   
                 }
             }
 
@@ -1149,7 +1149,7 @@ class Invoice extends CI_Controller {
             $invoice_sc_details[$invoices[0]['id']]['end_date'] = $end_date;
 
             unset($excel_data);
-           //  exec("rm -rf " . escapeshellarg($output_file_excel));
+             exec("rm -rf " . escapeshellarg($output_file_excel));
         } else {
             log_message('info', __FUNCTION__. "Exit data not found ". print_r($details, TRUE));
         }
@@ -1226,7 +1226,7 @@ class Invoice extends CI_Controller {
 	    $this->generate_partner_invoices($details['vendor_partner_id'], $details['date_range'], $details['invoice_type']);
 	}
         log_message('info', __FUNCTION__. " Exit......");           
-	//redirect(base_url() . "employee/invoice/get_invoices_form");
+	redirect(base_url() . "employee/invoice/get_invoices_form");
     }
     
     /**
