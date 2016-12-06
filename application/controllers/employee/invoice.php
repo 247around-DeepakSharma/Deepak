@@ -561,7 +561,10 @@ class Invoice extends CI_Controller {
      */
     function generate_cash_details_invoices_for_vendors($invoices, $details) {
         log_message('info', __FUNCTION__ . '=> Entering...');
-        
+        $custom_date = explode("-", $details['date_range']);
+        $from_date = $custom_date[0];
+        $to_date = $custom_date[1];
+
 	$unique_booking_cash = array();
 	$invoice_sc_details = array();
 
@@ -582,11 +585,11 @@ class Invoice extends CI_Controller {
 		array_push($unique_booking_cash, $unique_booking);
 
 		log_message('info', __FUNCTION__ . '=> Start Date: ' .
-		    $invoices['booking'][0]['start_date'] . ', End Date: ' . $invoices['booking'][0]['end_date']);
+		    $from_date . ', End Date: ' . $to_date);
 
 		// set date format like 1st July 2016
-		$start_date = date("jS M, Y", strtotime($invoices['booking'][0]['start_date']));
-		$end_date = date("jS M, Y", strtotime($invoices['booking'][0]['end_date']));
+		 $start_date = date("jS M, Y", strtotime($from_date));
+		 $end_date = date("jS M, Y", strtotime($to_date));
 
 		log_message('info', 'Service Centre: ' . $invoices['booking'][0]['id'] . ', Count: ' . $count);
 
@@ -621,7 +624,7 @@ class Invoice extends CI_Controller {
                     }
 
                     //Make sure it is unique
-                    $invoice_id_tmp =  "Around-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($invoices['booking'][0]['start_date']));
+                    $invoice_id_tmp =  "Around-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
                     $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
                     $invoice_no = $this->invoices_model->get_invoices_details($where);
 
@@ -682,7 +685,6 @@ class Invoice extends CI_Controller {
 
 		//for xlsx: excel, for xls: excel2003
 		$R->render('excel', $output_file_excel);
-              
 
 //		//convert excel to pdf
 //		$output_file_pdf = $output_file_dir . $output_file . ".pdf";
@@ -711,7 +713,7 @@ class Invoice extends CI_Controller {
 		if ($details['invoice_type'] === "final") {
                     
                     $to = $invoices['booking'][0]['owner_email'] . ", " .$invoices['booking'][0]['primary_contact_email'];
-                    $subject = "247around - " . $invoices['booking'][0]['company_name'] . " - Invoice for period: " .  $start_date . " to " .  $end_date;
+                    $subject = "247around - " . $invoices['booking'][0]['company_name'] . " - Cash Invoice(Detailed) for period: " .  $start_date . " to " .  $end_date;
                     
 		    //Send SMS to PoC/Owner
 		    $sms['tag'] = "vendor_invoice_mailed";
@@ -726,7 +728,7 @@ class Invoice extends CI_Controller {
 		    $this->notify->send_sms_acl($sms);
 		    //Upload Excel files to AWS
 		    $bucket = 'bookings-collateral';
-		    $directory_xls = "invoices-excel/" . $output_file . ".xlsx";
+		    $directory_xls = "invoices-excel/" . $output_file . "-detailed.xlsx";
 		    //$directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
 
 		    $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
@@ -758,7 +760,7 @@ class Invoice extends CI_Controller {
 			//Amount needs to be collected from Vendor
 			'amount_collected_paid' => $excel_data['r_total'],
 			//Mail has not 
-			'mail_sent' => 0,
+			'mail_sent' => 1,
 			//SMS has been sent or not
 			'sms_sent' => 1,
 			//Add 1 month to end date to calculate due date
@@ -1058,7 +1060,7 @@ class Invoice extends CI_Controller {
             if ($details['invoice_type'] === "final") {
                 log_message('info', __FUNCTION__. " Final" );
                 $to = $invoices[0]['owner_email'] . ", " .$invoices[0]['primary_contact_email'];
-                $subject = "247around - " . $invoices[0]['company_name'] . " - Invoice for period: " .  $start_date . " to " .  $end_date;
+                $subject = "247around - " . $invoices[0]['company_name'] . " - FOC Invoice(Detailed) for period: " .  $start_date . " to " .  $end_date;
                 $cc = "anuj@247around.com, nits@247around.com";
             
                 //Send SMS to PoC/Owner
@@ -1075,7 +1077,7 @@ class Invoice extends CI_Controller {
                 log_message('info', __FUNCTION__. " SMS Sent" );
                 //Upload Excel files to AWS
                 $bucket = 'bookings-collateral';
-                $directory_xls = "invoices-excel/" . $output_file . ".xlsx";
+                $directory_xls = "invoices-excel/" . $output_file . "-detailed.xlsx";
                 //$directory_pdf = "invoices-pdf/" . $output_file . ".pdf";
                 $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                 //$this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
@@ -1203,7 +1205,7 @@ class Invoice extends CI_Controller {
 	$next_month = "";
 	$year = "";
 
-	if ($details['invoice_month'] === 12) {
+	if ($details['invoice_month'] == 12) {
 	    $next_month = 01;
 	    $year = date('Y') + 1;
 	} else {
@@ -1308,7 +1310,7 @@ class Invoice extends CI_Controller {
      */
     function generate_vendor_invoices($details) {
          log_message('info', __FUNCTION__. " Entering......". " Details: ". print_r($details, true));
-	
+
 	switch ($details['vendor_invoice_type']) {
 	    case "cash":
                 log_message('info', __FUNCTION__. " CASH");
@@ -2207,7 +2209,7 @@ class Invoice extends CI_Controller {
         if ($invoice_type == "final") {
             log_message('info', __METHOD__ . ": Invoice type Final");
             $to = $invoices['meta']['owner_email'] . ", " . $invoices['meta']['primary_contact_email'];
-            $subject = "247around - " . $invoices['meta']['vendor_name'] . " - Invoice for period: " .  $invoices['meta']['sd'] . " to " .  $invoices['meta']['ed'];
+            $subject = "247around - " . $invoices['meta']['vendor_name'] . " - FOC Invoice for period: " .  $invoices['meta']['sd'] . " to " .  $invoices['meta']['ed'];
             $cc = "anuj@247around.com, nits@247aroud.com";
             $bucket = 'bookings-collateral';
             $directory_xls = "invoices-excel/" . $output_file_excel;
@@ -2373,7 +2375,7 @@ class Invoice extends CI_Controller {
         if ($invoice_type == "final") {
             log_message('info', __FUNCTION__. " Final" );
             $to = $invoices['meta']['owner_email'] . ", " . $invoices['meta']['primary_contact_email'];
-            $subject = "247around - " . $invoices['meta']['vendor_name'] . " - Invoice for period: " .  $invoices['meta']['sd'] . " to " .  $invoices['meta']['ed'];
+            $subject = "247around - " . $invoices['meta']['vendor_name'] . " - FOC Invoice for period: " .  $invoices['meta']['sd'] . " to " .  $invoices['meta']['ed'];
             $cc = "anuj@247around.com, nits@247around.com";
             $bucket = 'bookings-collateral';
             $directory_xls = "invoices-excel/" . $output_file_excel;
