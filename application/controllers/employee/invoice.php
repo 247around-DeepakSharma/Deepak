@@ -673,7 +673,7 @@ class Invoice extends CI_Controller {
 	$unique_booking_cash = array();
 	$invoice_sc_details = array();
 
-	$template = 'Vendor_Settlement_Template-Cash-v3.xlsx';
+	$template = 'Vendor_Settlement_Template-CashDetailed-v3.xlsx';
 	// xls file directory
 	$templateDir = __DIR__ . "/../excel-templates/";
 
@@ -2338,7 +2338,7 @@ class Invoice extends CI_Controller {
         $invoices = $this->invoices_model->get_vendor_cash_invoice($vendor_id, $from_date, $to_date);
         if(!empty($invoices)){
        
-        $template = 'Vendor_Settlement_Template-Cash-v4.xlsx';
+        $template = 'Vendor_Settlement_Template-CashMain-v4.xlsx';
         // directory
         $templateDir = __DIR__ . "/../excel-templates/";
         
