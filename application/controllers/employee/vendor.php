@@ -1567,9 +1567,11 @@ class vendor extends CI_Controller {
            $data['engineers'][$key]['service_center_name'] = $service_center[0]['name'];
            $service_id  = json_decode($value['appliance_id'],true);
            $appliances = array();
-           foreach ($service_id as  $values) {
-                $service_name = $this->booking_model->selectservicebyid($values['service_id']);
-                array_push($appliances, $service_name[0]['services']);
+           if(!empty($service_id)){
+                foreach ($service_id as  $values) {
+                     $service_name = $this->booking_model->selectservicebyid($values['service_id']);
+                     array_push($appliances, $service_name[0]['services']);
+                }
            }
 
            $data['engineers'][$key]['appliance_name'] = implode(",", $appliances);
@@ -1642,13 +1644,9 @@ class vendor extends CI_Controller {
         $this->form_validation->set_rules('bank_holder_name', 'Account Holder Name', 'trim|xss_clean');
         $this->form_validation->set_rules('file', 'Identity Proof Pic ', 'callback_upload_identity_proof_pic');
 	    $this->form_validation->set_rules('bank_proof_pic', 'Bank Proof Pic', 'callback_upload_bank_proof_pic');
-
-	if ($this->form_validation->run() == FALSE) {
-            return FALSE;
-        }
-        else {
-            return true;
-        }
+            
+        return $this->form_validation->run();    
+	
     }
 
     /**
@@ -1668,6 +1666,7 @@ class vendor extends CI_Controller {
 		    $pic = str_replace(' ', '-', $this->input->post('name')) . "_" . str_replace(' ', '', $this->input->post('bank_name')) . "_" . uniqid(rand());
 		    $picName = $pic . "." . $extension;
 		    $_POST['bank_proof_pic'] = $picName;
+                    // Uploading to S3
 		    $bucket = "bookings-collateral";
 		    $directory = "engineer-bank-proofs/" . $picName;
 		    $this->s3->putObjectFile($_FILES["bank_proof_pic"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
@@ -1699,6 +1698,7 @@ class vendor extends CI_Controller {
 		    $pic = str_replace(' ', '-', $this->input->post('name')) . "_" . str_replace(' ', '', $this->input->post('identity_proof')) . "_" . uniqid(rand());
 		    $picName = $pic . "." . $extension;
 		    $_POST['file'] = $picName;
+                    //Uploading to S3
 		    $bucket = "bookings-collateral";
 		    $directory = "engineer-id-proofs/" . $picName;
 		    $this->s3->putObjectFile($_FILES["file"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
@@ -2521,7 +2521,7 @@ class vendor extends CI_Controller {
         $this->vendor_model->edit_vendor($vendor, $data['id']);
         
         //Logging 
-        log_message('info',__FUNCTION__.' Foowing Images has been removed sucessfully: '.print_r($data, TRUE));
+        log_message('info',__FUNCTION__.' Following Images has been removed sucessfully: '.print_r($data, TRUE));
         echo TRUE;
 }
     
@@ -2585,6 +2585,24 @@ class vendor extends CI_Controller {
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/show_vendor_documents_view', array('data' => $query));
     }
+    
+    /**
+     * @Desc: This function is used to remove images from vendor add/edit form
+     *          It is being called using AJAX Request
+     * parmas: type(column_name),vendor id
+     * return: Boolean
+     */
+    function remove_engineer_image(){
+        $data = $this->input->post();
+        
+        $engineer[$data['type']] = "";
+        $where = array('id' => $data['id'] );
+	$engineer_id = $this->vendor_model->update_engineer($where,$engineer);
+        
+        //Logging 
+        log_message('info',__FUNCTION__.' '.$data['type'].' Following Images has been removed sucessfully for engineer ID : '.print_r($engineer_id));
+        echo TRUE;
+}
 
 
 }   
