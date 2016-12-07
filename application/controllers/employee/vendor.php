@@ -86,6 +86,9 @@ class vendor extends CI_Controller {
                     $directory_xls = "vendor-partner-docs/" . $pan_file;
                     $this->s3->putObjectFile("/tmp/$pan_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['pan_file'] = $pan_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' PAN FILE is being uploaded sucessfully.');
                 } else {
                     //Redirect back to Form
 
@@ -117,6 +120,9 @@ class vendor extends CI_Controller {
                     $directory_xls = "vendor-partner-docs/" . $cst_file;
                     $this->s3->putObjectFile("/tmp/$cst_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['cst_file'] = $cst_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' CST FILE is being uploaded sucessfully.');
                 } else {
                     //Redirect back to Form
                     $data = $this->input->post();
@@ -150,6 +156,9 @@ class vendor extends CI_Controller {
                     $directory_xls = "vendor-partner-docs/" . $tin_file;
                     $this->s3->putObjectFile("/tmp/$tin_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['tin_file'] = $tin_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' TIN FILE is being uploaded sucessfully.');
                 } else {
                     //Redirect back to Form
                     $data = $this->input->post();
@@ -180,6 +189,9 @@ class vendor extends CI_Controller {
                     $directory_xls = "vendor-partner-docs/" . $service_tax_file;
                     $this->s3->putObjectFile("/tmp/$service_tax_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['service_tax_file'] = $service_tax_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' Serivce Tax FILE is being uploaded sucessfully.');
                 } else {
                     //Redirect back to Form
                     $data = $this->input->post();
@@ -203,6 +215,9 @@ class vendor extends CI_Controller {
                     $directory_xls = "vendor-partner-docs/".$address_proof_file;
                     $this->s3->putObjectFile("/tmp/$address_proof_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['address_proof_file'] = $address_proof_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' ADDRESS PROOF FILE is being uploaded sucessfully.');
                 }
                 
                 //Processing Cancelled Cheque File Upload
@@ -216,6 +231,9 @@ class vendor extends CI_Controller {
                     $directory_xls = "vendor-partner-docs/".$cancelled_cheque_file;
                     $this->s3->putObjectFile("/tmp/$cancelled_cheque_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['cancelled_cheque_file'] = $cancelled_cheque_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' CANCELLED CHEQUE FILE is being uploaded sucessfully.');
                 }
                 
                 //Processing ID Proof 1 File Upload
@@ -229,6 +247,9 @@ class vendor extends CI_Controller {
                     $directory_xls = "vendor-partner-docs/".$id_proof_1_file;
                     $this->s3->putObjectFile("/tmp/$id_proof_1_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['id_proof_1_file'] = $id_proof_1_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' ID PROOF 1 FILE is being uploaded sucessfully.');
                 }
                 
                 //Processing ID Proof 1 File Upload
@@ -242,6 +263,9 @@ class vendor extends CI_Controller {
                     $directory_xls = "vendor-partner-docs/".$id_proof_2_file;
                     $this->s3->putObjectFile("/tmp/$id_proof_2_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['id_proof_2_file'] = $id_proof_2_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' ID PROOF 2 FILE is being uploaded sucessfully.');
                 }
                 
                 //Processing Contract File Upload
@@ -255,6 +279,9 @@ class vendor extends CI_Controller {
                     $directory_xls = "vendor-partner-docs/".$contract_file;
                     $this->s3->putObjectFile("/tmp/$contract_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['contract_file'] = $contract_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' CONTRACT FILE is being uploaded sucessfully.');
                 }
                 
        
@@ -2492,6 +2519,9 @@ class vendor extends CI_Controller {
         $vendor[$data['type']] = '';
         //Making Database Entry as Null
         $this->vendor_model->edit_vendor($vendor, $data['id']);
+        
+        //Logging 
+        log_message('info',__FUNCTION__.' Foowing Images has been removed sucessfully: '.print_r($data, TRUE));
         echo TRUE;
 }
     
@@ -2541,6 +2571,19 @@ class vendor extends CI_Controller {
         //Storing State change values in Booking_State_Change Table
         $this->notify->insert_state_change('', _247AROUND_VENDOR_SUSPENDED, _247AROUND_VENDOR_NON_SUSPENDED, 'Vendor ID = '.$id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
         redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
+    }
+    
+    /**
+     * @Desc: This function is used to show list of Documents uploaded for Vendors
+     * @params: void
+     * @return: view
+     * 
+     */
+    function show_vendor_documents_view(){
+        $query = $this->vendor_model->viewvendor("", "", "");
+        
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/show_vendor_documents_view', array('data' => $query));
     }
 
 
