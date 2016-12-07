@@ -298,11 +298,8 @@ class invoices_model extends CI_Model {
 
 		$query1 = $this->db->query($sql1);
 		$result1 = $query1->result_array();
-                
-	    $invoice['invoice2'] = $result1;
-	
-
-	return $invoice;
+ 
+	return $result1;
     }
     
     function get_vendor_cash_detailed($vendor_id, $date_range){
@@ -661,27 +658,34 @@ class invoices_model extends CI_Model {
     function generate_partner_invoice($partner_id, $from_date_tmp,$to_date){
         $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
         // For Product
-        $sql = "SELECT DISTINCT (`partner_net_payable`) AS p_rate, 
+        $sql = "SELECT DISTINCT (`partner_net_payable`) AS p_rate, '' AS s_service_charge, '' AS s_total_service_charge,
                 5.00 AS p_tax_rate, 
                 CASE 
                
-                WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) != '' THEN 
-                concat(services,' ', price_tags,' (', 
-                MAX( ud.`appliance_capacity` ),') ' )
+                    WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
+                    concat(services,' ', price_tags )
+
+                    WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) != '' THEN 
+                    concat(services,' ', price_tags,' (', 
+                    MAX( ud.`appliance_capacity` ),') ' )
+
+                    WHEN MIN( ud.`appliance_capacity` ) = MAX( ud.`appliance_capacity` ) THEN 
+                    concat(services,' ', price_tags,' (', 
+                    MAX( ud.`appliance_capacity` ),') ' )
+
+
+                    WHEN MIN( ud.`appliance_capacity` ) != '' AND MAX( ud.`appliance_capacity` ) = '' THEN
+                     concat(services,' ', price_tags,' (', 
+                    MIN( ud.`appliance_capacity` ),') ' )
                 
-                WHEN MIN( ud.`appliance_capacity` ) != '' AND MAX( ud.`appliance_capacity` ) = '' THEN
-                 concat(services,' ', price_tags,' (', 
-                MIN( ud.`appliance_capacity` ),') ' )
-                
-                WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
-                concat(services,' ', price_tags )
                 ELSE 
-                concat(services,' ', price_tags,' (', MIN( ud.`appliance_capacity` ),
+                    concat(services,' ', price_tags,' (', MIN( ud.`appliance_capacity` ),
                 '-',MAX( ud.`appliance_capacity` ),') ' )
                 
-                END AS p_description,
+                
+                END AS description,
                   
-                COUNT( ud.`appliance_capacity` ) AS p_qty, 
+                COUNT( ud.`appliance_capacity` ) AS qty, 
                 (partner_net_payable * COUNT( ud.`appliance_capacity` )) AS p_part_cost,
                 `partners`.company_name,
                 `partners`.company_address,
@@ -700,40 +704,38 @@ class invoices_model extends CI_Model {
         
         $query = $this->db->query($sql);
         $product = $query->result_array();
-        
-        $meta['total_part_cost'] = 0;
-        
-        foreach ($product as $value) {
-            $meta['total_part_cost'] += $value['p_part_cost'];
-        }
-        
-        $meta['part_cost_vat'] = ($meta['total_part_cost'] * 5.00)/100;
-        $meta['sub_part'] = $meta['total_part_cost']  + $meta['part_cost_vat'];
-        $meta['company_name'] = $product[0]['company_name'];
-        $meta['company_address'] = $product[0]['company_address'];
-        
-       $sql1 = "SELECT DISTINCT (`partner_net_payable`) AS s_service_charge, 
+
+       $sql1 = "SELECT DISTINCT (`partner_net_payable`) AS s_service_charge, '' AS p_tax_rate, '' AS p_rate, ''AS p_part_cost,
                CASE 
                
-                WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) != '' THEN 
-                concat(services,' ', price_tags,' (', 
-                MAX( ud.`appliance_capacity` ),') ' )
+                    WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
+                    concat(services,' ', price_tags )
+
+                    WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) != '' THEN 
+                    concat(services,' ', price_tags,' (', 
+                    MAX( ud.`appliance_capacity` ),') ' )
+
+                    WHEN MIN( ud.`appliance_capacity` ) = MAX( ud.`appliance_capacity` ) THEN 
+                    concat(services,' ', price_tags,' (', 
+                    MAX( ud.`appliance_capacity` ),') ' )
+
+
+                    WHEN MIN( ud.`appliance_capacity` ) != '' AND MAX( ud.`appliance_capacity` ) = '' THEN
+                     concat(services,' ', price_tags,' (', 
+                    MIN( ud.`appliance_capacity` ),') ' )
                 
-                WHEN MIN( ud.`appliance_capacity` ) != '' AND MAX( ud.`appliance_capacity` ) = '' THEN
-                 concat(services,' ', price_tags,' (', 
-                MIN( ud.`appliance_capacity` ),') ' )
-                
-                WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
-                concat(services,' ', price_tags )
                 ELSE 
-                concat(services,' ', price_tags,' (', MIN( ud.`appliance_capacity` ),
+                    concat(services,' ', price_tags,' (', MIN( ud.`appliance_capacity` ),
                 '-',MAX( ud.`appliance_capacity` ),') ' )
                 
                 
-                END AS s_description, 
-                COUNT( ud.`appliance_capacity` ) AS s_qty, 
-                (partner_net_payable * COUNT( ud.`appliance_capacity` )) AS  s_total_service_charge
-                FROM  `booking_unit_details` AS ud, services
+                END AS description, 
+                COUNT( ud.`appliance_capacity` ) AS qty, 
+                (partner_net_payable * COUNT( ud.`appliance_capacity` )) AS  s_total_service_charge,
+                `partners`.company_name,
+                `partners`.company_address,
+                `partners`.state
+                FROM  `booking_unit_details` AS ud, services, partners
                 WHERE  `product_or_services` =  'Service'
                 AND  `partner_net_payable` >0
                 AND ud.partner_id =  '$partner_id'
@@ -741,35 +743,52 @@ class invoices_model extends CI_Model {
                 AND ud.ud_closed_date >=  '$from_date'
                 AND ud.ud_closed_date <  '$to_date'
                 AND ud.service_id = services.id
+                AND partners.id = ud.partner_id
                 AND partner_invoice_id IS NULL
                 GROUP BY  `partner_net_payable`,ud.service_id  ";
        
         $query1 = $this->db->query($sql1);
         $service = $query1->result_array();
+        $result = array_merge($service, $product);
         
-        $meta['total_service_cost'] = 0;
+        if(!empty($result)){
+            $meta['total_part_cost'] = 0;
+            $meta['total_service_cost'] = 0;
+            foreach ($result as $value) {
+                $meta['total_part_cost'] += $value['p_part_cost'];
+                $meta['total_service_cost'] += $value['s_total_service_charge'];
+            }
+            $meta['total_service_cost_14'] =  $meta['total_service_cost'] * .14; 
+            $meta['total_service_cost_5'] =   $meta['total_service_cost'] * .005; 
+            $meta['sub_service_cost'] = $meta['total_service_cost']  + $meta['total_service_cost_14'] + $meta['total_service_cost_5'] *2;
+            $meta['part_cost_vat'] = ($meta['total_part_cost'] * 5.00)/100;
+            $meta['sub_part'] = $meta['total_part_cost']  + $meta['part_cost_vat'];
+            $meta['grand_part']=  round($meta['sub_part'] + $meta['sub_service_cost'], 0);
+            $meta['price_inword'] = convert_number_to_words($meta['grand_part']);
+
+           
+            $meta['company_name'] = $result[0]['company_name'];
+            $meta['company_address'] = $result[0]['company_address'];
+            
+            $data['booking'] = $result;
+            $data['meta'] = $meta;
+            return $data;
         
-        foreach ($service as $value1) {
-            $meta['total_service_cost'] += $value1['s_total_service_charge'];
+        } else {
+            return FALSE;
         }
-        
-        $meta['total_service_cost_14'] =  $meta['total_service_cost'] * .14; 
-        $meta['total_service_cost_5'] =   $meta['total_service_cost'] * .005; 
-        $meta['sub_service_cost'] = $meta['total_service_cost']  + $meta['total_service_cost_14'] + $meta['total_service_cost_5'] *2;
-        $meta['grand_part']=  round($meta['sub_part'] + $meta['sub_service_cost'], 0);
-        $meta['price_inword'] = convert_number_to_words($meta['grand_part']);
-        
-        $data['product'] = $product;
-        $data['service'] = $service;
-        $data['meta'] = $meta;
-      
-        return $data;
     }
-    
+    /**
+     * @desc: This is used to get Main Foc invoice data
+     * @param String $vendor_id
+     * @param String $from_date
+     * @param String $to_date
+     * @return boolean
+     */
     function get_vendor_foc_invoice($vendor_id,$from_date,$to_date){
         
       // $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
-        $sql = "SELECT DISTINCT (`vendor_basic_charges`) AS s_service_charge, 
+        $sql = "SELECT DISTINCT (`vendor_basic_charges`) AS s_service_charge, '' AS p_rate,'' AS p_part_cost, '' AS p_tax_rate,
                CASE 
                
                 WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) != '' THEN 
@@ -787,10 +806,11 @@ class invoices_model extends CI_Model {
                 '-',MAX( ud.`appliance_capacity` ),') ' )
                 
                 
-                END AS s_description, 
-                COUNT( ud.`appliance_capacity` ) AS s_qty, 
+                END AS description, 
+                COUNT( ud.`appliance_capacity` ) AS qty, 
                 (vendor_basic_charges * COUNT( ud.`appliance_capacity` )) AS  s_total_service_charge,
                 sc.state, sc.service_tax_no, sc.company_name,sc.address as vendor_address, sc_code,
+                (case when (sc.tin_no IS NOT NULL )  THEN tin_no ELSE cst_no END) as tin, 
                 sc.primary_contact_email, sc.owner_email
 
                 FROM  `booking_unit_details` AS ud, services, booking_details AS bd, service_centres as sc
@@ -809,38 +829,9 @@ class invoices_model extends CI_Model {
         
         $query = $this->db->query($sql);
         $service = $query->result_array();
-        if(!empty($service)){
-            $meta['total_service_cost'] = 0;
 
-            foreach ($service as $value1) {
-                $meta['total_service_cost'] += $value1['s_total_service_charge'];
-            }
-
-            if(is_null($service[0]['service_tax_no'])){
-                $meta['total_service_cost_14'] =  0.00; 
-                $meta['total_service_cost_5'] =   0.00; 
-
-            } else {
-                $meta['total_service_cost_14'] =  $meta['total_service_cost'] * .14; 
-                $meta['total_service_cost_5'] =   $meta['total_service_cost'] * .005; 
-
-
-            }
-            $meta['sc_code'] = $service[0]['sc_code'];
-            $meta['service_tax_no'] = $service[0]['service_tax_no'];
-            $meta['sub_service_cost'] = $meta['total_service_cost']  + $meta['total_service_cost_14'] + $meta['total_service_cost_5'] *2;
-            $meta['vendor_name'] = $service[0]['company_name'];
-            $meta['owner_email'] = $service[0]['owner_email'];
-            $meta['poc_email'] = $service[0]['primary_contact_email'];
-            $meta['vendor_address'] = $service[0]['vendor_address'];
-            $meta['primary_contact_email'] = $service[0]['primary_contact_email'];
-            $meta['owner_email'] = $service[0]['owner_email'];
-            
-            } else {
-            $meta['sub_service_cost'] = 0;
-        }
         //FOR Parts
-        $sql1 = "SELECT DISTINCT (`vendor_basic_charges`) AS p_rate, 
+        $sql1 = "SELECT DISTINCT (`vendor_basic_charges`) AS p_rate, '' AS s_service_charge, '' AS s_total_service_charge,
                CASE 
                
                 WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) != '' THEN 
@@ -858,12 +849,12 @@ class invoices_model extends CI_Model {
                 '-',MAX( ud.`appliance_capacity` ),') ' )
                 
                 
-                END AS p_description, 
-                COUNT( ud.`appliance_capacity` ) AS p_qty, 
+                END AS description, 
+                COUNT( ud.`appliance_capacity` ) AS qty, 
                 (vendor_basic_charges * COUNT( ud.`appliance_capacity` )) AS  p_part_cost,
                 (case when (sc.tin_no IS NOT NULL )  THEN tin_no ELSE cst_no END) as tin, 
                 sc.state, ud.tax_rate as p_tax_rate,sc.company_name,sc.address as vendor_address,sc_code,
-                sc.primary_contact_email, sc.owner_email
+                sc.primary_contact_email, sc.owner_email,service_tax_no
 
                 FROM  `booking_unit_details` AS ud, services, booking_details AS bd, service_centres as sc
                 WHERE  `product_or_services` =  'Product'
@@ -881,41 +872,63 @@ class invoices_model extends CI_Model {
         
         $query1 = $this->db->query($sql1);
         $product = $query1->result_array();
-        if(!empty($product)){
+        
+        $result = array_merge($service, $product);
+       
+        if(!empty($result)){
             $meta['total_part_cost'] = 0;
+            $meta['total_service_cost'] = 0;
 
-            foreach ($product as $value) {
+            foreach ($result as $value) {
                 $meta['total_part_cost'] += $value['p_part_cost'];
+                $meta['total_service_cost'] += $value['s_total_service_charge'];
             }
-            if(is_null($product[0]['tin'])){
+            if(is_null($result[0]['tin'])){
 
                 $meta['part_cost_vat'] = 0.00;
 
             } else {
                 $meta['part_cost_vat'] = ($meta['total_part_cost'] * $product[0]['p_tax_rate'])/100;
             }
-            $meta['vat_tax'] = $product[0]['p_tax_rate'];
-            $meta['tin'] =  $product[0]['tin'];
+
+
+            if(is_null($result[0]['service_tax_no'])){
+                $meta['total_service_cost_14'] =  0.00; 
+                $meta['total_service_cost_5'] =   0.00; 
+
+            } else {
+                $meta['total_service_cost_14'] =  $meta['total_service_cost'] * .14; 
+                $meta['total_service_cost_5'] =   $meta['total_service_cost'] * .005; 
+
+
+            }
+            $meta['sc_code'] = $result[0]['sc_code'];
+            $meta['service_tax_no'] = $result[0]['service_tax_no'];
+            $meta['sub_service_cost'] = $meta['total_service_cost']  + $meta['total_service_cost_14'] + $meta['total_service_cost_5'] *2;
+            $meta['vendor_name'] = $result[0]['company_name'];
+            $meta['owner_email'] = $result[0]['owner_email'];
+            $meta['vendor_address'] = $result[0]['vendor_address'];
+            $meta['primary_contact_email'] = $result[0]['primary_contact_email'];
+            $meta['owner_email'] = $result[0]['owner_email'];
+            $meta['vat_tax'] = $result[0]['p_tax_rate'];
+            $meta['tin'] =  $result[0]['tin'];
             $meta['sub_part'] = $meta['total_part_cost']  + $meta['part_cost_vat'];
-            $meta['vendor_name'] = $product[0]['company_name'];
-            $meta['sc_code'] = $product[0]['sc_code'];
-            $meta['vendor_address'] = $product[0]['vendor_address'];
-            $meta['primary_contact_email'] = $product[0]['primary_contact_email'];
-            $meta['owner_email'] = $product[0]['owner_email'];
+            $meta['grand_total_price']=  round( $meta['sub_part']+ $meta['sub_service_cost'], 0);
+            $meta['price_inword'] = convert_number_to_words($meta['grand_total_price']);
+
+            $data['meta'] = $meta;
+            $data['booking'] = $result;
+           
+            return $data;
             
         } else {
-            $meta['sub_part'] = 0.00;
+            return FALSE;
         }
-        $meta['grand_total_price']=  round( $meta['sub_part']+ $meta['sub_service_cost'], 0);
-        $meta['price_inword'] = convert_number_to_words($meta['grand_total_price']);
 
-        $data['meta'] = $meta;
-        $data['product'] = $product;
-        $data['service'] = $service;
-        return $data;
+        
     }
     /**
-     * 
+     * @desc: This method is used to get Main Cash Invoice Data
      * @param String $vendor_id
      * @param String $from_date
      * @param String $to_date
