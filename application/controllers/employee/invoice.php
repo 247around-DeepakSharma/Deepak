@@ -61,17 +61,17 @@ class Invoice extends CI_Controller {
 	$data['vendor_partner'] = $this->input->post('source');
 	$data['vendor_partner_id'] = $this->input->post('vendor_partner_id');
 	$invoice['invoice_array'] = $this->invoices_model->getInvoicingData($data);
-
+        
 	//TODO: Fix the reversed names here & everywhere else as well
 	$data2['partner_vendor'] = $this->input->post('source');
 	$data2['partner_vendor_id'] = $this->input->post('vendor_partner_id');
 	$invoice['bank_statement'] = $this->invoices_model->get_bank_transactions_details($data2);
-        
+       
         if($data['vendor_partner'] == "vendor"){
             $invoice['vendor_details'] = $this->vendor_model->getVendorContact($data['vendor_partner_id']);
         }
 
-	$this->load->view('employee/invoicing_table', $invoice);
+	echo $this->load->view('employee/invoicing_table', $invoice);
     }
 
     /**
@@ -185,6 +185,7 @@ class Invoice extends CI_Controller {
 	$data['invoice_id'] = $this->input->post('invoice_id');
 	$data['selected_amount_collected'] = $this->input->post('selected_amount_collected');
 	$data['selected_tds'] = $this->input->post('selected_tds');
+        
 	$this->load->view('employee/header');
 	$this->load->view('employee/addnewtransaction', $data);
     }
@@ -556,8 +557,10 @@ class Invoice extends CI_Controller {
     }
 
     /**
-     * @desc: It generates cash invoices for vendor
-     * @param: Array()
+     * It generates cash invoices for vendor
+     * @param Array $invoices
+     * @param Array $details
+     * @return type
      */
     function generate_cash_details_invoices_for_vendors($invoices, $details) {
         log_message('info', __FUNCTION__ . '=> Entering...');
@@ -1381,7 +1384,12 @@ class Invoice extends CI_Controller {
      * @param: Vendor id
      */
     function invoice_summary($vendor_partner, $vendor_partner_id) {
-	$data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
+        if($vendor_partner ==  'vendor'){
+            $data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
+        } else {
+            $data['partner'] =$this->partner_model->getpartner();
+        }
+	
 	$data['vendor_partner_id'] = $vendor_partner_id;
 	$data['vendor_partner'] = $vendor_partner;
 	$this->load->view('employee/header');

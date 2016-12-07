@@ -1,7 +1,7 @@
 <div id="page-wrapper">
    <div class="container-fluid">
       <div class="row">
-         <div class="col-md-6 ">
+         <div class="col-md-6 "> 
              <h1 class="page-header"><b><?php if(isset($service_center)){ ?>Service Center Invoices<?php } else {?>
                Partner Invoices
             <?php } ?></b></h1>
@@ -13,7 +13,7 @@
             <div class="col-md-4">
                 <?php if(isset($service_center)){ ?>
                <select class="form-control" name ="service_center" id="invoice_id" onChange="getInvoicingData('vendor')">
-                  <option disabled selected >Service Centre</option>
+                  <option disabled selected >Service Center</option>
                  
                   <?php 
                      foreach ($service_center as $vendor) {    
@@ -32,8 +32,8 @@
                   <?php 
                      foreach ($partner as $partnerdetails) {    
                      ?>
-                  <option <?php if(isset($vendor_partner_id)){ if($vendor_partner_id == $partnerdetails['id']) { echo "selected"; }} ?> value = "<?php echo $partnerdetails['id']?>">
-                     <?php echo $partnerdetails['name'];?>
+                  <option value = "<?php echo $partnerdetails['id']?>" <?php if($partnerdetails['id'] == $vendor_partner_id){ echo "selected";}?>>
+                     <?php echo $partnerdetails['public_name'];?>
                   </option>
                   <?php } ?>
                </select>
@@ -62,6 +62,7 @@
 
    
    function getInvoicingData(source){
+    
        $('#loader_gif').attr('src', '<?php echo base_url() ?>images/loader.gif');
     var vendor_partner_id = $('#invoice_id').val();
     $('#overall_summary').css('display', 'none');
