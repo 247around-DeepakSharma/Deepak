@@ -28,26 +28,31 @@ class vendor_model extends CI_Model {
         $where_final = "";
 
         if ($vendor_id != "") {
-            $where_id .= "where id= '$vendor_id'";
+            $where_id .= "id= '$vendor_id'";
         }
         if ($active != "") {
-            $where_active .= "where active= '$active'";
+            $where_active .= "active= '$active'";
         }
         if($sf_list != ""){
-            $where_sf .= "where service_centres.id  IN (" .$sf_list.")";
+            $where_sf .= "service_centres.id  IN (" .$sf_list.")";
         }
         if($vendor_id != "" && $active != "" ){
-            $where_final = $where_id." AND ".$where_active;
-        }elseif($vendor_id != ''){
-            $where_final = $where_id;
-        }elseif($active != ""){
-            $where_final = $where_active;
-        }elseif($sf_list != "" ){
-            $where_final = $where_sf;
+            $where_final = 'where '.$where_id." AND ".$where_active;
+        }
+        if($vendor_id != ''){
+            $where_final = 'where '.$where_id;
+        }
+        if($active != ""){
+            $where_final = 'where '.$where_active;
+        }
+        if($sf_list != "" ){
+            $where_final = 'where '.$where_sf;
+        }
+        if($sf_list != "" && $active != ""){
+            $where_final = 'where '.$where_sf." AND ".$where_active;
         }
         
         $sql = "Select * from service_centres $where_final";
-
         $query = $this->db->query($sql);
 
         return $query->result_array();

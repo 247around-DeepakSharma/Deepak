@@ -2574,16 +2574,35 @@ class vendor extends CI_Controller {
     }
     
     /**
-     * @Desc: This function is used to show list of Documents uploaded for Vendors
-     * @params: void
+     * @Desc: This function is used to show list of Documents uploaded for Vendors/ Used to Handle Filter Request
+     * @params: void/ POST Array
      * @return: view
      * 
      */
     function show_vendor_documents_view(){
-        $query = $this->vendor_model->viewvendor("", "", "");
+        if(!empty($this->input->post())){
+            $data = $this->input->post();
+            if($data['all_active'] == 'active'){
+                $active = 1;
+            }else{
+                $active = "";
+            }
+            if($data['rm'] != 'all'){
+                //Getting RM to SF Relation
+                $sf_list = $this->vendor_model->get_employee_relation($data['rm']);
+                $query = $this->vendor_model->viewvendor("", $active, $sf_list[0]['service_centres_id']);
+            }else{
+                $query = $this->vendor_model->viewvendor("", $active, '');
+            }
+            
+        }else{
+            $query = $this->vendor_model->viewvendor("", "", "");
+        }
+        //Getting RM Lists
+        $rm = $this->employee_model->get_rm_details();
         
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/show_vendor_documents_view', array('data' => $query));
+        $this->load->view('employee/show_vendor_documents_view', array('data' => $query, 'rm' =>$rm));
     }
     
     /**
