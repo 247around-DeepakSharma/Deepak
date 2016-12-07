@@ -1483,9 +1483,11 @@ class vendor extends CI_Controller {
            $data['engineers'][$key]['service_center_name'] = $service_center[0]['name'];
            $service_id  = json_decode($value['appliance_id'],true);
            $appliances = array();
-           foreach ($service_id as  $values) {
-                $service_name = $this->booking_model->selectservicebyid($values['service_id']);
-                array_push($appliances, $service_name[0]['services']);
+           if(!empty($service_id)){
+                foreach ($service_id as  $values) {
+                     $service_name = $this->booking_model->selectservicebyid($values['service_id']);
+                     array_push($appliances, $service_name[0]['services']);
+                }
            }
 
            $data['engineers'][$key]['appliance_name'] = implode(",", $appliances);
