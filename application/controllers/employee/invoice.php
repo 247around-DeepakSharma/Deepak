@@ -1974,7 +1974,7 @@ class Invoice extends CI_Controller {
         $this->email->cc($cc);
         $this->email->subject($subject);
         $this->email->attach($output_file_excel, 'attachment');
-       // $this->email->attach($output_file_pdf, 'attachment');
+       
         $mail_ret = $this->email->send();
 
         if ($mail_ret) {
@@ -1986,7 +1986,7 @@ class Invoice extends CI_Controller {
         }
         
         exec("rm -rf " . escapeshellarg($output_file_excel));
-        exec("rm -rf " . escapeshellarg($output_file_pdf));
+       
         log_message('info',__FUNCTION__. " Exit Invoice Id: ". $invoices['meta']['invoice_id']);
         return $invoices['meta']['invoice_id'];
         
