@@ -202,14 +202,12 @@ class User extends CI_Controller {
 
         //Add the user
         $user_id = $this->user_model->add_user($user);
-
-        //Add sample appliances for this user
-//        $output = $this->booking_model->addSampleAppliances($user_id, 5);
+        
         $this->booking_model->addSampleAppliances($user_id, 5);
-
-        //Below two queries are running for no use, remove after confermation
-//        $data1 = $this->user_model->search_user($user['phone_number']);
-//        $appliance_details = $this->user_model->appliance_details($user['phone_number']);
+        
+        //Loggin Details
+        log_message('info',__FUNCTION__.' New User has been created. '.print_r($user, TRUE));
+        
         redirect(base_url() . 'employee/user/finduser/0/0/' . $user['phone_number']);
     }
 
@@ -269,7 +267,10 @@ class User extends CI_Controller {
         $edit['pincode'] = $this->input->post('pincode');
         //Edits user details
         $this->user_model->edit_user($edit);
-//      $output = $this->user_model->edit_user($edit);
+        
+        //Logging Details
+        log_message('info',__FUNCTION__.' User Details has been updated '.print_r($edit, TRUE));
+        
         redirect(base_url() . 'employee/user/finduser/0/0/' . $edit['phone_number']);
     }
 

@@ -90,7 +90,7 @@ class Booking extends CI_Controller {
         }
         }else{
                 //Logging error message if No input is provided
-                log_message('info', __FUNCTION__." Error in Booking Insert User ID: " . print_r($user_id, true));
+                log_message('info', __FUNCTION__." Error in Booking Insert User ID: " . $user_id);
                 $heading = "247Around Booking Error";
                 $message = "Oops... No input provided !";
                 $error =& load_class('Exceptions', 'core');
@@ -105,7 +105,7 @@ class Booking extends CI_Controller {
      */
     function getAllBookingInput($user_id, $booking_id) {
 	log_message('info', __FUNCTION__);
-        log_message('info', " Booking Insert User ID: " . print_r($user_id, true) . " Booking ID" . print_r($booking_id, true));
+        log_message('info', " Booking Insert User ID: " . $user_id . " Booking ID" . $booking_id." Done By " . $this->session->userdata('employee_id'));
 
         $user['user_id'] = $booking['user_id'] = $user_id;
         $price_tags = array();
@@ -609,7 +609,7 @@ class Booking extends CI_Controller {
      *  @return : user details and booking history to view
      */
     function get_complete_booking_form($booking_id) {
-	log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
+	log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id);
 	$data['booking_id'] = $booking_id;
 	$data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
 	$data['booking_unit_details'] = $this->booking_model->getunit_details($booking_id);
@@ -703,7 +703,7 @@ class Booking extends CI_Controller {
      *  @return : cancels the booking and load view
      */
     function process_cancel_form($booking_id, $status) {
-	log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id);
+	log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id." Done By " . $this->session->userdata('employee_id'));
         
 	$data['cancellation_reason'] = $this->input->post('cancellation_reason');
 	$data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
@@ -765,7 +765,7 @@ class Booking extends CI_Controller {
      *  @return : user details and booking history to view
      */
     function get_reschedule_booking_form($booking_id) {
-	log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
+	log_message('info', __FUNCTION__ . " Booking Id  " . $booking_id);
 	$getbooking = $this->booking_model->getbooking_history($booking_id);
         
 	if ($getbooking) {
@@ -787,7 +787,7 @@ class Booking extends CI_Controller {
      *  @return : reschedules the booking and load view
      */
     function process_reschedule_booking_form($booking_id) {
-	log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
+	log_message('info', __FUNCTION__ . " Booking Id  " . $booking_id." Done By " . $this->session->userdata('employee_id'));
         
 	$data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
 	$data['booking_timeslot'] = $this->input->post('booking_timeslot');
@@ -1005,7 +1005,7 @@ class Booking extends CI_Controller {
      *  @return : rate for booking and load view
      */
     function process_rating_form($booking_id, $status) {
-
+        log_message('info', __FUNCTION__.' Booking ID : '.$booking_id.' Status'. $status." Done By " . $this->session->userdata('employee_id'));
 	if ($this->input->post('rating_star') != "Select") {
 	    $data['rating_stars'] = $this->input->post('rating_star');
 	    $data['rating_comments'] = $this->input->post('rating_comments');
@@ -1448,7 +1448,7 @@ class Booking extends CI_Controller {
      * @return :void
      */
     function process_complete_booking($booking_id, $status = "") {
-	log_message('info', __FUNCTION__ . " Booking id: " . print_r($booking_id, true) . " Status: " . print_r($status, true));
+	log_message('info', __FUNCTION__ . " Booking id: " . $booking_id . " Status: " . $status." Done By " . $this->session->userdata('employee_id'));
 	// customer paid basic charge is comming in array
 	// Array ( [100] =>  500 , [102] =>  300 )
 	$customer_basic_charge = $this->input->post('customer_basic_charge');
@@ -1643,7 +1643,7 @@ class Booking extends CI_Controller {
      *  @return : Converts the Completed/Cancelled booking to Pending stage and load view
      */
     function process_convert_booking_to_pending_form($booking_id, $status) {
-	log_message('info', __FUNCTION__ . " Booking id: " . $booking_id . " status: " . $status);
+	log_message('info', __FUNCTION__ . " Booking id: " . $booking_id . " status: " . $status." Done By " . $this->session->userdata('employee_id'));
         
 	$data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
 	$data['booking_timeslot'] = $this->input->post('booking_timeslot');

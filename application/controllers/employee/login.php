@@ -64,9 +64,9 @@ class Login extends CI_Controller {
                 $login_id = $this->employee_model->add_login_logout_details($data);
                 //Adding Log Details
                 if($login_id){
-                    log_message('info',__FUNCTION__.' Logging details have been captured for employee '.$login[0]['employee_id']);
+                    log_message('info',__FUNCTION__.' Logging details have been captured for employee. Details are : '.print_r($data, TRUE));
                 }else{
-                    log_message('info',__FUNCTION__.' Err in capturing logging details for employee '. $login[0]['id']);
+                    log_message('info',__FUNCTION__.' Err in capturing logging details for employee. Details are :  '. print_r($data, TRUE));
                 }
                
                 $this->dashboard();
@@ -124,6 +124,8 @@ class Login extends CI_Controller {
         );
         }
         else{
+            //Logging Message 
+            log_message('info',__FUNCTION__.' No group has been assigned to employee with ID : '.$employee_id);
             echo 'Sorry, this User is Not assigned in any groups.';
             exit;
         }
@@ -168,9 +170,9 @@ class Login extends CI_Controller {
         $logout_id = $this->employee_model->add_login_logout_details($data);
         //Adding Log Details
         if ($logout_id) {
-            log_message('info', __FUNCTION__ . ' Logging details have been captured for employee ' . $data['employee_name']);
+            log_message('info', __FUNCTION__ . ' LOG OUT  details have been captured for employee ' . print_r($data,TRUE));
         } else {
-            log_message('info', __FUNCTION__ . ' Err in capturing logging details for employee ' . $data['employee_name']);
+            log_message('info', __FUNCTION__ . ' Err in capturing LOG OUT details for employee ' . print_r($data, TRUE));
         }
 
         $this->session->sess_destroy();

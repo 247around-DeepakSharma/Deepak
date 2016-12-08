@@ -471,7 +471,7 @@ class Partner extends CI_Controller {
                     $this->session->set_flashdata('success','Partner added successfully.');
 
                     //Echoing inserted ID in Log file
-                    log_message('info',__FUNCTION__.' New Partner has been added with ID '.  $partner_id);
+                    log_message('info',__FUNCTION__.' New Partner has been added with ID '.  $partner_id." Done By " . $this->session->userdata('employee_id'));
                 }else{
                     $this->session->set_flashdata('error','Error in adding Partner.');
 
