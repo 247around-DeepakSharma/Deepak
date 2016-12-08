@@ -62,7 +62,7 @@ p {
 
     $file = fopen(FCPATH."/application/logs/error_" . date('Y-m-d') . ".txt", "a+") or die("Unable to open file!");
     $res = 0;
-    system(" chmod 777 ".FCPATH."/application/logs/error_" . date('Y-m-d') . ".txt", $res);
+    system(" chmod 777 ".FCPATH."application/logs/error_" . date('Y-m-d') . ".txt", $res);
     fwrite($file, "\n A PHP Error was encountered: ".date('Y-m-d H:i:s')."\n");
     fwrite($file, "Heading: " . print_r($heading, TRUE)."\n");
     fwrite($file, "Message: " . print_r($message, TRUE)."\n");
