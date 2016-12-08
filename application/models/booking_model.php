@@ -719,9 +719,9 @@ class Booking_model extends CI_Model {
      *  @param : booking id
      *  @return : all the unit booking detais
      */
-     function get_unit_details($where, $like= true) {
+     function get_unit_details($where, $like= FALSE) {
         $this->db->select('*');
-        if($like == false){
+        if($like == TRUE){
             $this->db->like($where);
         } else {
             $this->db->where($where);
@@ -1585,7 +1585,7 @@ class Booking_model extends CI_Model {
             //trim booking only digit
             $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
             $unit_where = array('booking_id' => $trimed_booking_id);
-            $unit_num = $this->get_unit_details($unit_where, false);
+            $unit_num = $this->get_unit_details($unit_where, TRUE);
    
             log_message('info', __METHOD__ . " count previous unit: " . count($unit_num));
             log_message('info', __METHOD__ . " Price tags not found " . print_r($unit_num, true));
