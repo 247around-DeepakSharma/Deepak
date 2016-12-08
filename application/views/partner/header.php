@@ -27,6 +27,53 @@
         </style>
     </head>
     <body>
+        <div id="contactussfmodal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">247around Point of Contacts:</h4>
+                        </div>
+
+                        <div class="modal-header">
+                            <h4 class="modal-title"> First Escalation Point</h4>
+                        </div>
+                        <div class="modal-body">
+                            <ul>
+                                <li>Vikas Singh - escalations@247around.com – 9910043586</li>
+                               
+                            </ul>
+                        </div>
+                        <div class="modal-header">
+                            <h4 class="modal-title"> Second Escalation Point</h4>
+                        </div>
+                        <div class="modal-body">
+                            <ul>
+                                <li>South India – Mr. K Suresh – Regional Service Head South India – Based in Chennai Office – 9840492171 (English, Tamil, Malayalam, Telugu and Kannada) - suresh@247around.com</li>
+                                <li>West India – Mr. Rajendra Oza – Regional Service Head West India – Based in Mumbai Office – 9223274602 (English, Hindi and Marathi) – oza@247around.com</li>
+                                <li>East India – Mr. Nilanjan Das – Regional Service Head East India – Based in Kolkata Office – 9051159966 (English, Hindi and Bengali) – nilanjan@247around.com</li>
+                                <li>North India – Mr. Nitin Malhotra – Director & CEO – Based in Delhi Office – 9810872244 (English, Hindi and Punjabi) – nits@247around.com</li>
+                            </ul>
+                        </div>
+                        <div class="modal-header">
+                            <h4 class="modal-title">Technical – CRM Related</h4>
+                        </div>
+                        <div class="modal-body">
+                            <ul>
+                                <li>Anuj Aggarwal – Director & CTO -  anuj@247around.com - 8826423424</li>
+                            </ul>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        
         <nav class="navbar navbar-custom">
             <div class="container-fluid">
                 <!-- Brand and toggle get grouped for better mobile display -->
@@ -79,6 +126,10 @@
                       	</li>
 					</ul>
 				</li>
+                                
+                                <li>
+                                    <a href="#" class="dropdown-toggle" data-toggle="modal" data-target="#contactussfmodal"><i class="fa fa-phone"></i>&nbsp;Contact Us&nbsp;</a>
+                                </li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
 
