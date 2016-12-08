@@ -682,7 +682,7 @@ class Invoice extends CI_Controller {
 		);
 
 		//Get populated XLS with data
-		$output_file_dir = "/tmp/";
+		$output_file_dir = "/247around_tmp/";
 		$output_file = $invoice_id;
 		$output_file_excel = $output_file_dir . $output_file . "-detailed.xlsx";
 
@@ -2140,7 +2140,7 @@ class Invoice extends CI_Controller {
             );
         
        
-        $output_file_excel = "/tmp/".$invoices['meta']['invoice_id'].".xlsx";
+        $output_file_excel = "/247around_tmp/".$invoices['meta']['invoice_id'].".xlsx";
         
         $R->render('excel', $output_file_excel);
         log_message('info', __FUNCTION__. " Excel Created ". $output_file_excel );
@@ -2164,9 +2164,9 @@ class Invoice extends CI_Controller {
             log_message('info', __FUNCTION__. " File Upload to S3" );
             
             // Dump data in a file as a Json
-            $file = fopen("/tmp/".$invoices['meta']['invoice_id'] . ".txt", "w") or die("Unable to open file!");
+            $file = fopen("/247around_tmp/".$invoices['meta']['invoice_id'] . ".txt", "w") or die("Unable to open file!");
             $res = 0;
-            system(" chmod 777 /tmp/" . $invoices['meta']['invoice_id'] . ".txt", $res);
+            system(" chmod 777 /247around_tmp/" . $invoices['meta']['invoice_id'] . ".txt", $res);
            
             $json_data['invoice_data'] = $invoices;
 
@@ -2177,11 +2177,11 @@ class Invoice extends CI_Controller {
             log_message('info', __METHOD__ . ": Json File Created");
 
             $directory_xls = "invoices-json/" . $invoices['meta']['invoice_id'] . ".txt";
-            $this->s3->putObjectFile("/tmp/".$invoices['meta']['invoice_id'].".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            $this->s3->putObjectFile("/247around_tmp/".$invoices['meta']['invoice_id'].".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             log_message('info', __METHOD__ . ": Json File Uploded to S3");
 
             //Delete JSON files now
-           exec("rm -rf " . escapeshellarg("/tmp/".$invoices['meta']['invoice_id'].".txt"));
+           exec("rm -rf " . escapeshellarg("/247around_tmp/".$invoices['meta']['invoice_id'].".txt"));
                     
         }
             $this->email->to($to);
@@ -2198,8 +2198,7 @@ class Invoice extends CI_Controller {
                  echo "Mail could not be sent..............." . PHP_EOL;
             }
          exec("rm -rf " . escapeshellarg($output_file_excel));
-        
-        
+  
         log_message('info',__FUNCTION__. " Exit Invoice Id: ". $invoices['meta']['invoice_id']);
         return $invoices['meta']['invoice_id'];
        } else {
