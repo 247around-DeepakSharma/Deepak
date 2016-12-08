@@ -115,7 +115,7 @@ class Booking extends CI_Controller {
 
         $booking = $this->insert_data_in_booking_details($booking_id, $user_id, count($appliance_brand));
         if ($booking) {
-
+            
             // All category comming in array eg-- array([0]=> TV-LCD, [1]=> TV-LED)
             $appliance_category = $this->input->post('appliance_category');
             // All capacity comming in array eg-- array([0]=> 19-30, [1]=> 31-42)
@@ -255,8 +255,7 @@ class Booking extends CI_Controller {
                     $this->asynchronous_lib->do_background_process($url, $send);
                 }
             }
-
-            //log_message('info', __METHOD__ . " Return Booking: " . print_r($booking, true));
+            
 
             return $booking;
             
@@ -1709,6 +1708,9 @@ class Booking extends CI_Controller {
 	    //Log this state change as well for this booking          
             $this->notify->insert_state_change($booking_id, _247AROUND_PENDING , $status,
                     "", $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+            
+            //Creating Job Card to Booking ID
+            $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
 
 	    $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
 	    $send['booking_id'] = $booking_id;

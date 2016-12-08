@@ -617,12 +617,15 @@ class vendor extends CI_Controller {
                     $this->notify->insert_state_change($booking_id, 
                             ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, 
                             $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-
+                    
+                    //Prepare job card (Again)
+                    $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+                    
                     $count++;
                 }
             }
         }
-
+        
         //Send mail and SMS to SF in background
         $async_data['booking_id'] = $service_center;
         $this->asynchronous_lib->do_background_process($url, $async_data);
@@ -692,6 +695,9 @@ class vendor extends CI_Controller {
             $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, 
                     "Re-Assigned SF ID: " . $service_center_id, $this->session->userdata('id'), 
                     $this->session->userdata('employee_id'), _247AROUND);
+            
+            //Prepare job card (For Reassigned Vendor)
+            $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
 
             //Setting mail to vendor flag to 0, once booking is re-assigned
             $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
