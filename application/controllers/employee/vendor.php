@@ -2580,6 +2580,9 @@ class vendor extends CI_Controller {
      * 
      */
     function show_vendor_documents_view(){
+        //Getting RM Lists
+        $rm = $this->employee_model->get_rm_details();
+
         if(!empty($this->input->post())){
             $data = $this->input->post();
             if($data['all_active'] == 'active'){
@@ -2595,14 +2598,15 @@ class vendor extends CI_Controller {
                 $query = $this->vendor_model->viewvendor("", $active, '');
             }
             
+            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+            $this->load->view('employee/show_vendor_documents_view', array('data' => $query, 'rm' =>$rm,'selected'=>$data));
+            
         }else{
             $query = $this->vendor_model->viewvendor("", "", "");
+            
+            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+            $this->load->view('employee/show_vendor_documents_view', array('data' => $query, 'rm' =>$rm));
         }
-        //Getting RM Lists
-        $rm = $this->employee_model->get_rm_details();
-        
-        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/show_vendor_documents_view', array('data' => $query, 'rm' =>$rm));
     }
     
     /**

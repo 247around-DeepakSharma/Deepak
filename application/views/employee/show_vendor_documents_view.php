@@ -1,3 +1,6 @@
+<style>
+select { width: 8.5em;height:2em; }
+</style>
 <div id="page-wrapper" >
     <div class="panel panel-info" style="margin-top:20px;">
         <div class="panel-heading"><center style="font-size:130%;"><b>SF Documents List</b></center></div>
@@ -6,17 +9,17 @@
         <div class='col-md-6' style='margin-top:10px;margin-left:250px;'>
         <form name="myForm" class="form-horizontal" id ="documents_form" action="<?php echo base_url();?>employee/vendor/show_vendor_documents_view"  method="POST">
             
-            <div class='col-md-2 form-group'>
+            <div class='col-md-4 form-group'>
             <select name='all_active' id='all_vendor'>
-                <option value='all'>ALL</option>
-                <option value='active'>ACTIVE</option>
+                <option value='all' <?php echo isset($selected) && $selected['all_active'] == 'all'? 'selected="selected"':''?>>ALL</option>
+                <option value='active' <?php echo isset($selected) && $selected['all_active'] == 'active'? 'selected="selected"':''?>>ACTIVE</option>
             </select>
             </div>
             <div class='col-md-4 form-group'>
             <select name='rm' id='rm'>
-                <option value='all'>ALL</option>
+                <option value='all' <?php echo isset($selected) && $selected['rm'] == 'all'? 'selected="selected"':''?>>ALL</option>
                 <?php foreach($rm as $value){?>
-                    <option value='<?php echo $value['id']?>'><?php echo $value['full_name']?></option>
+                    <option value='<?php echo $value['id']?>' <?php echo isset($selected) && $selected['rm'] == $value['id']? 'selected="selected"':''?>><?php echo $value['full_name']?></option>
                 <?php }?>
             </select>
             </div>
@@ -141,6 +144,6 @@
     </div>
 </div>
 <script type='text/javascript'>
-    $('#all_vendor').select2();
-    $('#rm').select2();
+//    $('#all_vendor').select2();
+//    $('#rm').select2();
     </script>
