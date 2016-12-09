@@ -766,10 +766,14 @@ EOD;
             $this->load->view('employee/header');
             $this->load->view('employee/get_crimes', $data);
         } else {
-            $view =  $this->load->view('employee/get_crimes', $data, TRUE); 
-            $to = "anuj@247around.com, nits@247around.com";
-            $subject = "SF Crimes Report " . date("d-M-Y");
-            $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $view, "");
+            if( date('l') != "Sunday"){
+                $view =  $this->load->view('employee/get_crimes', $data, TRUE); 
+                $to = "anuj@247around.com, nits@247around.com";
+                $subject = "SF Crimes Report " . date("d-M-Y");
+                $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $view, "");
+            } else {
+                log_message('info', __FUNCTION__ ." Today is Sunday, Hence report would not generate");
+            }
         }
         
          log_message('info', __FUNCTION__ ." Exit");
@@ -780,20 +784,24 @@ EOD;
      */
     function get_sc_crimes_for_sf(){
         log_message('info', __FUNCTION__ );
-        $vendor_details = $this->vendor_model->getactive_vendor();
-        foreach ($vendor_details as $value) {
-            if($value['is_update'] == '1'){
-                $where = " AND id = '".$value['id']."'";
-                $data['data']= $this->reporting_utils->get_sc_crimes($where);
-                $view =  $this->load->view('employee/get_crimes', $data, TRUE); 
-                
-                $to  = $value['primary_contact_email'].",".$value['owner_email'];
-                //$cc = "anuj@247around.com, nits@247around.com";
-                $cc = "";
-                $subject = $value['name']." - Bookings Not Updated Report - " . date("d-M-Y");
-                $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $view, "");
-                
+        if( date('l') != "Sunday"){
+            $vendor_details = $this->vendor_model->getactive_vendor();
+            foreach ($vendor_details as $value) {
+                if($value['is_update'] == '1'){
+                    $where = " AND id = '".$value['id']."'";
+                    $data['data']= $this->reporting_utils->get_sc_crimes($where);
+                    $view =  $this->load->view('employee/get_crimes', $data, TRUE); 
+
+                    $to  = $value['primary_contact_email'].",".$value['owner_email'];
+                    //$cc = "anuj@247around.com, nits@247around.com";
+                    $cc = "";
+                    $subject = $value['name']." - Bookings Not Updated Report - " . date("d-M-Y");
+                    $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $view, "");
+
+                }
             }
+        } else {
+             log_message('info', __FUNCTION__ ." Today is Sunday, Hence report would not generate");
         }
         
         log_message('info', __FUNCTION__ ." Exit");
