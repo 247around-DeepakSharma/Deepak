@@ -6,6 +6,7 @@ if (!defined('BASEPATH')){
 
 error_reporting(E_ALL);
             ini_set('display_errors', 1);
+            ini_set('memory_limit', -1);
 
 class Service_centers extends CI_Controller {
 
@@ -15,6 +16,7 @@ class Service_centers extends CI_Controller {
     function __Construct() {
         parent::__Construct();
         $this->load->model('service_centers_model');
+        $this->load->model('service_centre_charges_model');
         $this->load->model('booking_model');
         $this->load->model('reporting_utils');
         $this->load->model('partner_model');
@@ -977,6 +979,87 @@ class Service_centers extends CI_Controller {
             exit;
         }
 
+    }
+    
+    /**
+     * @Desc: This function is used to download the SC charges excel
+     * @params: void
+     * @return: void
+     * 
+     */
+    function download_sf_charges_excel(){
+        log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
+        //Getting SC ID from session
+        $service_center_id  =  $this->session->userdata('service_center_id');
+        if(!empty($service_center_id)){
+            //Getting SF Details
+            $sc_details = $this->vendor_model->getVendorContact($service_center_id);
+            //Getting Charges Data
+            $sc_charges_data = $this->service_centre_charges_model->get_service_centre_charges($sc_details[0]['state']);
+            //Looping through all the values 
+            foreach ($sc_charges_data as $value) {
+                //Getting Details from Booking Sources
+                $booking_sources = $this->partner_model->get_booking_sources_by_price_mapping_id($value['partner_id']);
+                $code_source = $booking_sources[0]['code'];
+                
+                //Calculating vendor base charge 
+                $vendor_base_charge = $value['vendor_total']/(1+($value['rate']/100));
+                //Calculating vendor tax - [Vendor Total - Vendor Base Charge]
+                $vendor_tax = $value['vendor_total'] - $vendor_base_charge;
+                
+                $array_final['sc_code'] = $code_source;
+                $array_final['state'] = $sc_details[0]['state'];
+                $array_final['product'] = $value['product'];
+                $array_final['category'] = $value['category'];
+                $array_final['capacity'] = $value['capacity'];
+                $array_final['service_category'] = $value['service_category'];
+                $array_final['vendor_basic_charges'] = round($vendor_base_charge,2);
+                $array_final['vendor_tax_basic_charges'] = round($vendor_tax,2);
+                $array_final['vendor_total'] = $value['vendor_total'];
+                $array_final['customer_net_payable'] = $value['customer_net_payable'];
+                $array_final['pod'] = $value['pod'];
+                
+                $final_array[] = $array_final;
+            }
+
+            $template = 'SC-Charges-List-Template.xlsx';
+            //set absolute path to directory with template files
+            $templateDir = __DIR__ . "/../excel-templates/";
+            //set config for report
+            $config = array(
+                'template' => $template,
+                'templateDir' => $templateDir
+            );
+            //load template
+            $R = new PHPReport($config);
+
+            $R->load(array(
+
+                     'id' => 'sc',
+                    'repeat' => TRUE,
+                    'data' => $final_array
+                ));
+
+            $output_file_dir = "/tmp/";
+            $output_file = $sc_details[0]['sc_code']."-Charges-List-" . date('y-m-d');
+            $output_file_name = $output_file . ".xls";
+            $output_file_excel = $output_file_dir . $output_file_name;
+            $R->render('excel2003', $output_file_excel);
+
+            //Downloading File
+            if(file_exists($output_file_excel)){
+
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
+                readfile($output_file_excel);
+                exit;
+            }
+
+            
+        }else{
+            echo 'Sorry, Session has expired, please log in again!';
+        }
     }
 
 

@@ -82,6 +82,10 @@
                         <li>
                             <a href="<?php echo base_url() ?>service_center/invoices_details" ><i class="fa fa-fw fa-desktop"></i> <strong> Invoice Summary</strong></a>
                         </li>
+                        <li role="separator" class="divider" style="height: 2px;"></li>
+                         <li>
+                            <a href="<?php echo base_url() ?>employee/service_centers/download_sf_charges_excel" ><i class="fa fa-fw fa-desktop"></i> <strong> Download Charges List</strong></a>
+                        </li>
                          
  
                     </ul>
