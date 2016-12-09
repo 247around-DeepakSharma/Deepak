@@ -518,9 +518,15 @@ class Invoice extends CI_Controller {
 	$output_file_dir = "/tmp/";
 	$output_file = $excel_data['invoice_id']."-detailed";
 	$output_file_excel = $output_file_dir . $output_file . ".xlsx";
+        $res1 = 0;
+        if(file_exists($output_file_excel)){
+
+            system(" chmod 777 ".$output_file_excel, $res1);
+            unlink($output_file_excel);
+        }
 	//for xlsx: excel, for xls: excel2003
 	$R->render('excel', $output_file_excel);
-
+        system(" chmod 777 ".$output_file_excel, $res1);
 	//convert excel to pdf
 	$output_file_pdf = $output_file_dir . $output_file . ".pdf";
 	//$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=" . CONVERTAPI_KEY . " -o " . $output_file_pdf;
@@ -685,10 +691,16 @@ class Invoice extends CI_Controller {
 		$output_file_dir = "/247around_tmp/";
 		$output_file = $invoice_id;
 		$output_file_excel = $output_file_dir . $output_file . "-detailed.xlsx";
+                $res1 = 0;
+                if(file_exists($output_file_excel)){
+
+                    system(" chmod 777 ".$output_file_excel, $res1);
+                    unlink($output_file_excel);
+                }
 
 		//for xlsx: excel, for xls: excel2003
 		$R->render('excel', $output_file_excel);
-                
+                system(" chmod 777 ".$output_file_excel, $res1);
                 $this->email->clear(TRUE);
                 $this->email->from('billing@247around.com', '247around Team');
                 $to = "anuj@247around.com";
@@ -1027,9 +1039,16 @@ class Invoice extends CI_Controller {
             $output_file_dir = "/tmp/";
             $output_file = $invoice_id;
             $output_file_excel = $output_file_dir . $output_file . "-detailed.xlsx";
+            $res1 = 0;
+            if(file_exists($output_file_excel)){
+
+                system(" chmod 777 ".$output_file_excel, $res1);
+                unlink($output_file_excel);
+            }
 
             //for xlsx: excel, for xls: excel2003
             $R->render('excel', $output_file_excel);
+            system(" chmod 777 ".$output_file_excel, $res1);
             log_message('info', __FUNCTION__. " Excel File Created ". $output_file_excel);
 
             $this->email->clear(TRUE);
@@ -1618,7 +1637,11 @@ class Invoice extends CI_Controller {
         );
         //load template
         $R = new PHPReport($config);
-        
+        if(file_exists($output_file_excel)){
+           
+            system(" chmod 777 ".$output_file_excel, $res1);
+            unlink($output_file_excel);
+        }
         $R->load(array(
                  'id' => 'invoice',
                 'data' => $data
@@ -1628,7 +1651,14 @@ class Invoice extends CI_Controller {
         $output_file = $data['invoice_number'];
         $output_file_name = $output_file . ".xlsx";
         $output_file_excel = $output_file_dir . $output_file_name;
+        $res1 = 0;
+        if(file_exists($output_file_excel)){
+           
+            system(" chmod 777 ".$output_file_excel, $res1);
+            unlink($output_file_excel);
+        }
         $response = $R->render('excel', $output_file_excel);
+        system(" chmod 777 ".$output_file_excel, $res1);
         if($response == NULL){
             log_message('info', __FUNCTION__. " Excel file created ". $output_file_excel);
             return $output_file_excel;
@@ -1835,10 +1865,15 @@ class Invoice extends CI_Controller {
                 );
         
         $output_file_excel = "/tmp/".$invoices['meta']['invoice_id'].".xlsx";
-       
+        $res1 = 0;
+         if(file_exists($output_file_excel)){
+            
+            system(" chmod 777 ".$output_file_excel, $res1);
+            unlink($output_file_excel);
+        }
         $R->render('excel', $output_file_excel);
         log_message('info', __FUNCTION__ . ' File created '.$output_file_excel );
-
+        system(" chmod 777 ".$output_file_excel, $res1);
         $this->email->clear(TRUE);
         $this->email->from('billing@247around.com', '247around Team');
         $to = "anuj@247around.com";
@@ -1987,10 +2022,15 @@ class Invoice extends CI_Controller {
         
        
         $output_file_excel = "/tmp/".$invoices['meta']['invoice_id'].".xlsx";
-        
+         $res1 = 0;
+        if(file_exists($output_file_excel)){
+           
+            system(" chmod 777 ".$output_file_excel, $res1);
+            unlink($output_file_excel);
+        }
         $R->render('excel', $output_file_excel);
         log_message('info', __METHOD__ . ": Excel FIle generated ".$output_file_excel );
-        
+        system(" chmod 777 ".$output_file_excel, $res1);
         $this->email->clear(TRUE);
         $this->email->from('billing@247around.com', '247around Team');
         $to = "anuj@247around.com";
@@ -2141,10 +2181,15 @@ class Invoice extends CI_Controller {
         
        
         $output_file_excel = "/247around_tmp/".$invoices['meta']['invoice_id'].".xlsx";
-        
+         $res1 = 0;
+        if(file_exists($output_file_excel)){
+           
+            system(" chmod 777 ".$output_file_excel, $res1);
+            unlink($output_file_excel);
+        }
         $R->render('excel', $output_file_excel);
         log_message('info', __FUNCTION__. " Excel Created ". $output_file_excel );
-        
+        system(" chmod 777 ".$output_file_excel, $res1);
         $this->email->clear(TRUE);
         $this->email->from('billing@247around.com', '247around Team');
         $to = "anuj@247around.com";

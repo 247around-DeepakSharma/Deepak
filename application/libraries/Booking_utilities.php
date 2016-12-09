@@ -84,6 +84,11 @@ class Booking_utilities {
 	$output_file = "BookingJobCard-" . $booking_id . $output_file_suffix;
 
 	$output_file_excel = $output_file_dir . $output_file . ".xlsx";
+        if(file_exists($output_file_excel)){
+            $res1 = 0;
+            system(" chmod 777 ".$output_file_excel, $res1);
+            unlink($output_file_excel);
+        }
 	$R->render('excel', $output_file_excel);
         $res1 = 0;
         system(" chmod 777 ".$output_file_excel, $res1);
