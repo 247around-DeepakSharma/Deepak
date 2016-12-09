@@ -766,6 +766,7 @@ EOD;
             $this->load->view('employee/header');
             $this->load->view('employee/get_crimes', $data);
         } else {
+
             if( date('l') != "Sunday"){
                 $view =  $this->load->view('employee/get_crimes', $data, TRUE); 
                 $to = "anuj@247around.com, nits@247around.com";
@@ -784,7 +785,9 @@ EOD;
      */
     function get_sc_crimes_for_sf(){
         log_message('info', __FUNCTION__ );
+
         if( date('l') != "Sunday"){
+
             $vendor_details = $this->vendor_model->getactive_vendor();
             foreach ($vendor_details as $value) {
                 if($value['is_update'] == '1'){

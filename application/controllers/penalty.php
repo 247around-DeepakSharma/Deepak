@@ -24,7 +24,9 @@ class Penalty extends CI_Controller {
 
     function penalty_on_service_center() {
 	//$this->penalty_model->penalty_on_service_center_for_assigned_engineer();
+
         if( date('l') != "Sunday"){
+            
 	    $this->penalty_model->penalty_on_service_center_for_update_booking();
         } else {
             log_message('info', __FUNCTION__ ." Today is Sunday");
