@@ -16,6 +16,7 @@ class Service_centers extends CI_Controller {
         parent::__Construct();
         $this->load->model('service_centers_model');
         $this->load->model('booking_model');
+        $this->load->model('reporting_utils');
         $this->load->model('partner_model');
         $this->load->model('vendor_model');
         $this->load->model('user_model');
@@ -876,6 +877,8 @@ class Service_centers extends CI_Controller {
      */
     function convert_updated_booking_to_pending(){
         $this->service_centers_model->get_updated_booking_to_convert_pending();
+        // Inserting values in scheduler tasks log
+        $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 1);
         
     }
     

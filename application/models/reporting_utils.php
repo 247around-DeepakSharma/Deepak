@@ -1473,5 +1473,18 @@ class Reporting_utils extends CI_Model {
         }
         return $sc_array;
     }
+    
+    /**
+     * @Desc : This function is used to insert values in scheduler_tasks_log table for each execution of 
+     *          Scheduler Tasks that has been executed.
+     * @params: Array of Data
+     * @return : void
+     * 
+     */
+    function insert_scheduler_tasks_log($tasks, $flag){
+        $data['task_name'] = $tasks;
+        $data['flag'] = $flag;
+        $this->db->insert('scheduler_tasks_log',$data);
+    }
 
 }

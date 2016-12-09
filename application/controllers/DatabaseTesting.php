@@ -28,6 +28,7 @@ class DatabaseTesting extends CI_Controller {
 	parent::__Construct();
 
 	$this->load->model('database_testing_model');
+	$this->load->model('reporting_utils');
 
 	$this->load->library('notify');
 	$this->load->library('email');
@@ -415,7 +416,22 @@ class DatabaseTesting extends CI_Controller {
         $attachment = "/tmp/" . date('Y-m-d') . ".txt";
         $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
         
-        exec("rm -rf " . escapeshellarg("/tmp/" . date('Y-m-d') . ".txt"));
+        exec("rm -rf " . escapeshellarg("/tmp/" . date('Y-m-d') . ".txt", $out, $return));
+        // Return will return non-zero upon an error
+
+        if (!$return) {
+            // exec() has been executed sucessfully
+            // Inserting values in scheduler tasks log
+            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 1);
+            //Logging
+            log_message('info', __FUNCTION__ . ' Executed Sucessfully ' . $output_file);
+        } else {
+            // Error in execution of exec()
+            // Inserting values in scheduler tasks log
+            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 0);
+            //Logging
+            log_message('info', __FUNCTION__ . ' Error in Deleting Excel File Created ' . $output_file . 'Error Details :' . print_r($out, TRUE));
+        }
     }
     
     /**
@@ -432,6 +448,12 @@ class DatabaseTesting extends CI_Controller {
             $message = "Find Attachment";
         
             $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
+            
+            // Inserting values in scheduler tasks log
+            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 1); 
+        }else{
+            // Inserting values in scheduler tasks log
+            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 0); 
         }
     }
     

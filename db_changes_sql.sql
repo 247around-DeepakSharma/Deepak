@@ -1348,3 +1348,12 @@ UPDATE `email_template` SET `template` = 'Dear Partner brackets for your Order I
 UPDATE `email_template` SET `template` = 'Dear Partner brackets for your Order ID <b> %s </b> has been shipped to you.<br><br> Please confirm when you receive the brackets.<br> If you find any mismatch in Total number of Brackets, please inform us immediately along with the <b>Delivery Box Picture</b>.<br><br> Regards,<br> 247Around Team' WHERE `email_template`.`id` = 19;
 
 UPDATE `email_template` SET `template` = 'Dear Partner you have received a new order for brackets.<br><br> Your Order ID is : <b>%s</b> <br> <strong>Order Details:</strong><br><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Total Requested : %s<br><br> <strong>Requested From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br> City: %s <br> State: %s <br> Pincode: %s <br> Phone Number: %s, %s<br><br> Please notify when you ship the above order.<br><br> Regards,<br> 247Around Team' WHERE `email_template`.`id` = 10;
+
+-- Belal 8 Dec
+CREATE TABLE `scheduler_tasks_log` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `task_name` varchar(256) NOT NULL,
+ `flag` int(2) NOT NULL COMMENT '1-> Executed, 0->Err in execution',
+ `executed_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1

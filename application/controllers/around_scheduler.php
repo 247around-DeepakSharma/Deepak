@@ -13,7 +13,7 @@ class Around_scheduler extends CI_Controller {
         $this->load->model('around_scheduler_model');
         $this->load->model('booking_model');
         $this->load->model('vendor_model');
-
+        $this->load->model('reporting_utils');
         $this->load->library('s3');
         $this->load->library('email');
         $this->load->library('notify');
@@ -58,6 +58,8 @@ class Around_scheduler extends CI_Controller {
             $this->notify->send_sms_acl($sms);                
             
 	}
+        // Inserting values in scheduler tasks log
+        $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 1); 
         
         log_message ('info', __METHOD__ . '=> Exiting...');
     }

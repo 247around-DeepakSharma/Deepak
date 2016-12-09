@@ -59,7 +59,7 @@ class BookingSummary extends CI_Controller {
         $user_group = $this->session->userdata('user_group');
         
         //Checking function is called from CRON or from System Manually
-        if (isset($user_group)) {
+        if (!empty($user_group)) {
             //Function is being called manually
 
             $id = $this->session->userdata('id');
@@ -71,7 +71,7 @@ class BookingSummary extends CI_Controller {
             //Fetching pending bookings
             $pending_bookings = $this->reporting_utils->get_pending_bookings($sf_list);
             $count = count($pending_bookings);
-
+            
             if ($count > 0) {
                 //Get num of pending bookings for each vendor
                 $sc_pending_bookings = $this->reporting_utils->get_num_pending_bookings_for_all_sc($sf_list);
@@ -188,9 +188,26 @@ class BookingSummary extends CI_Controller {
             $bucket = 'bookings-collateral';
             $directory_xls = "summary-excels/" . $output_file;
             $this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
-
+            
             //Delete this file
-            exec("rm -rf " . $output_file);
+            exec("rm -rf " . $output_file, $out, $return);
+            // Return will return non-zero upon an error
+            
+            if(!$return){
+                // exec() has been executed sucessfully
+                // Inserting values in scheduler tasks log
+                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 1);
+                //Logging
+                log_message('info',__FUNCTION__.' Executed Sucessfully '.$output_file);
+                
+            }else{
+                // Error in execution of exec()
+                // Inserting values in scheduler tasks log
+                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__,0);
+                //Logging
+                log_message('info',__FUNCTION__.' Error in Deleting Excel File Created '.$output_file. 'Error Details :'.print_r($out, TRUE));
+            }
+            
             } else {
                 if (file_exists($output_file)) {
                     header('Content-Description: File Transfer');
@@ -495,7 +512,23 @@ EOD;
 	    $this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
             
 	    //Delete this file
-	    exec("rm -rf " . escapeshellarg($output_file));
+	    exec("rm -rf " . escapeshellarg($output_file), $out, $return);
+            // Return will return non-zero upon an error
+            
+            if(!$return){
+                // exec() has been executed sucessfully
+                // Inserting values in scheduler tasks log
+                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 1);
+                //Logging
+                log_message('info',__FUNCTION__.' Executed Sucessfully '.$output_file);
+                
+            }else{
+                // Error in execution of exec()
+                // Inserting values in scheduler tasks log
+                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__,0);
+                //Logging
+                log_message('info',__FUNCTION__.' Error in Deleting Excel File Created '.$output_file. 'Error Details :'.print_r($out, TRUE));
+            }
 	}
 
 	exit(0);
@@ -753,9 +786,15 @@ EOD;
 
                 $this->notify->sendEmail("booking@247around.com", $to, "", "", "New Service Center Report ".date('d-M,Y'), $html, "");
                 log_message('info', __FUNCTION__ . ' New Service Center Report mail sent to '. $to);
+                
+                // Inserting values in scheduler tasks log
+                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 1);
             }else{
                 //Logging error details
                 log_message('info', __FUNCTION__ . ' Error in sending New Service Center Report mail sent to '. $to);
+                
+                // Inserting values in scheduler tasks log
+                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 0);
     }
         }
     }
@@ -781,9 +820,15 @@ EOD;
         
                 $this->notify->sendEmail("booking@247around.com", $to, "", "", "Service Center Report ".date('d-M,Y'), $html, "");
                 log_message('info', __FUNCTION__ . ' Service Center Report mail sent to '. $to);
+                
+                // Inserting values in scheduler tasks log
+                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 1);
             }else{
                 //Logging error message
                 log_message('info', __FUNCTION__ . ' Error in sending Service Center Report mail sent to '. $to);
+                
+                // Inserting values in scheduler tasks log
+                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 0);
     }
         }
     }
@@ -874,6 +919,9 @@ EOD;
             $subject = "SF Crimes Report " . date("d-M-Y");
             $to = 'anuj@247around.com, nits@247around.com';
             $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $view, "");
+            
+            // Inserting values in scheduler tasks log
+            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 1); 
         }
         
          log_message('info', __FUNCTION__ ." Exit");
@@ -899,6 +947,8 @@ EOD;
                 
             }
         }
+        // Inserting values in scheduler tasks log
+        $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 1);
         
         log_message('info', __FUNCTION__ ." Exit");
         
