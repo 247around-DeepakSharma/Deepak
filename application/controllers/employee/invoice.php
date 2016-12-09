@@ -446,7 +446,7 @@ class Invoice extends CI_Controller {
 
             if ($invoice_type == "final") {
                 log_message('info', __METHOD__ . "=> Final" );
-                $bucket = 'bookings-collateral';
+                $bucket = BITBUCKET_DIRECTORY;
 
                 $directory_xls = "invoices-excel/" . $files_name . ".xlsx";
                 $directory_pdf = "invoices-pdf/" . $files_name . ".pdf";
@@ -552,7 +552,7 @@ class Invoice extends CI_Controller {
         fclose($file);
         log_message('info', __METHOD__ . ": Json File Created");
    
-        $bucket = 'bookings-collateral';
+        $bucket = BITBUCKET_DIRECTORY;
         $directory_xls = "invoices-json/" . $output_file . ".txt";
         $this->s3->putObjectFile("/tmp/".$output_file.".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
         log_message('info', __METHOD__ . ": Json File Uploded to S3");
@@ -602,7 +602,7 @@ class Invoice extends CI_Controller {
             $start_date = date("jS M, Y", strtotime($from_date));
             $end_date = date("jS M, Y", strtotime('-1 day', strtotime($to_date)));
 
-            log_message('info', 'Service Centre: ' . $invoices['booking'][0]['id'] . ', Count: ' . $count);
+            log_message('info', 'Service Centre: ' . $details['vendor_partner_id'] . ', Count: ' . $count);
 
             //set config for report
             $config = array(
@@ -705,14 +705,35 @@ class Invoice extends CI_Controller {
             system(" chmod 777 " . $output_file_excel, $res1);
             $this->email->clear(TRUE);
             $this->email->from('billing@247around.com', '247around Team');
-            $to = "anuj@247around.com";
-            $subject = "Draft - Cash Invoice (Detailed) - 247around - " . $invoices['booking'][0]['company_name'];
-
             if ($details['invoice_type'] === "final") {
                 $to = $invoices['booking'][0]['owner_email'] . ", " . $invoices['booking'][0]['primary_contact_email'];
                 $subject = "247around - " . $invoices['booking'][0]['company_name'] .
-                        " - Cash Invoice (Detailed) for period: " . $start_date . " to " . $end_date;
+                        " - Cash Invoice for period: " . $start_date . " to " . $end_date;
+                $cc = "anuj@247around.com, nits@247around.com";
+                 
+             } else {
+                $to = "anuj@247around.com";
+                $cc = "";
+                $subject = "Draft - Cash Invoices - 247around - " . $invoices['booking'][0]['company_name'];
+             }
+             
+            $this->email->to($to);
+            $this->email->attach($output_file_excel, 'attachment');
+            $this->email->attach($output_file_dir.$invoice_id.".xlsx", 'attachment');
 
+            $this->email->subject($subject);
+            $mail_ret = $this->email->send();
+
+            if ($mail_ret) {
+                log_message('info', __METHOD__ . ": Mail sent successfully");
+                echo "Mail sent successfully..............." . PHP_EOL;
+            } else {
+                log_message('info', __METHOD__ . ": Mail could not be sent");
+                echo "Mail could not be sent..............." . PHP_EOL;
+            }
+
+            if ($details['invoice_type'] === "final") {
+                
                 //Send SMS to PoC/Owner
                 $sms['tag'] = "vendor_invoice_mailed";
                 $sms['smsData']['type'] = 'Cash';
@@ -725,11 +746,17 @@ class Invoice extends CI_Controller {
 
                 $this->notify->send_sms_acl($sms);
                 //Upload Excel files to AWS
-                $bucket = 'bookings-collateral';
+                $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "invoices-excel/" . $invoice_id . "-detailed.xlsx";
-                $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $invoice_upload = $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                if($invoice_upload){
+                    log_message('info', __METHOD__ . ": Cash Detailed Invoices uploaded to S3");
+                    echo " Cash Detailed Invoices uploaded to S3";
 
-                log_message('info', __METHOD__ . ": Invoices uploaded to S3");
+                } else {
+                    log_message('info', __METHOD__ . ": Cash Detailed Invoices is not uploaded to S3");
+                    echo " Cash Detailed Invoices is not uploaded to S3";
+                }
 
                 //Save this invoice info in table
                 $invoice_details = array(
@@ -755,7 +782,7 @@ class Invoice extends CI_Controller {
                     //Amount needs to be collected from Vendor
                     'amount_collected_paid' => $excel_data['r_total'],
                     //Mail has not 
-                    'mail_sent' => 1,
+                    'mail_sent' => $mail_ret,
                     //SMS has been sent or not
                     'sms_sent' => 1,
                     //Add 1 month to end date to calculate due date
@@ -773,20 +800,6 @@ class Invoice extends CI_Controller {
                 $this->update_booking_invoice_mappings_repairs($invoices['booking'], $invoice_id);
             }
 
-            $this->email->to($to);
-            $this->email->attach($output_file_excel, 'attachment');
-
-            $this->email->subject($subject);
-            $mail_ret = $this->email->send();
-
-            if ($mail_ret) {
-                log_message('info', __METHOD__ . ": Mail sent successfully");
-                echo "Mail sent successfully..............." . PHP_EOL;
-            } else {
-                log_message('info', __METHOD__ . ": Mail could not be sent");
-                echo "Mail could not be sent..............." . PHP_EOL;
-            }
-
 
             // insert data into vendor invoices snapshot or draft table as per the invoice type
             $this->insert_cash_invoices_snapshot($invoices, $invoice_id, $details['invoice_type']);
@@ -799,6 +812,7 @@ class Invoice extends CI_Controller {
             $invoice_sc_details[$invoices['booking'][0]['id']]['end_date'] = $end_date;
 
             exec("rm -rf " . escapeshellarg($output_file_excel));
+            exec("rm -rf " . escapeshellarg($output_file_dir.$invoice_id.".xlsx"));
             log_message('info', __METHOD__ . ' Exit ');
             unset($excel_data);
         } else {
@@ -1048,21 +1062,43 @@ class Invoice extends CI_Controller {
 
             //for xlsx: excel, for xls: excel2003
             $R->render('excel', $output_file_excel);
-            system(" chmod 777 ".$output_file_excel, $res1);
+            $res2 = 0;
+            system(" chmod 777 ".$output_file_excel, $res2);
             log_message('info', __FUNCTION__. " Excel File Created ". $output_file_excel);
-
-            $this->email->clear(TRUE);
-            $this->email->from('billing@247around.com', '247around Team');
-            $to = "anuj@247around.com";
-            $subject = "Draft - FOC INVOICE (Detailed) - 247around - " . $invoices[0]['company_name'];
-            $cc = "";
             
+             if ($details['invoice_type'] === "final") {
+                $to = $invoices[0]['owner_email'] . ", " .$invoices[0]['primary_contact_email'];
+                $subject = "247around - " . $invoices[0]['company_name'] . " - FOC Invoice for period: " .  $start_date . " to " .  $end_date;
+                $cc = "anuj@247around.com, nits@247around.com";
+                 
+             } else {
+                $this->email->clear(TRUE);
+                $this->email->from('billing@247around.com', '247around Team');
+                $to = "anuj@247around.com";
+                $subject = "Draft - FOC INVOICE (Detailed) - 247around - " . $invoices[0]['company_name'];
+                $cc = "";
+                 
+             }
+             
+            $this->email->to($to);
+            $this->email->cc($cc);
+            $this->email->subject($subject);
+            $this->email->attach($output_file_excel, 'attachment');
+            $this->email->attach($output_file_dir . $output_file.".xlsx", 'attachment');
+            $mail_ret = $this->email->send();
+
+            if ($mail_ret) {
+                log_message('info', __METHOD__ . ": Mail sent successfully");
+                echo "Mail sent successfully..............." . PHP_EOL;
+            } else {
+                log_message('info', __METHOD__ . ": Mail could not be sent");
+                echo "Mail could not be sent..............." . PHP_EOL;
+            }
+
+
             if ($details['invoice_type'] === "final") {
                 log_message('info', __FUNCTION__. " Final" );
-                $to = $invoices[0]['owner_email'] . ", " .$invoices[0]['primary_contact_email'];
-                $subject = "247around - " . $invoices[0]['company_name'] . " - FOC Invoice (Detailed) for period: " .  $start_date . " to " .  $end_date;
-                $cc = "anuj@247around.com, nits@247around.com";
-            
+               
                 //Send SMS to PoC/Owner
                 $sms['tag'] = "vendor_invoice_mailed";
                 $sms['smsData']['type'] = 'FOC';
@@ -1076,15 +1112,20 @@ class Invoice extends CI_Controller {
                 $this->notify->send_sms_acl($sms);
                 log_message('info', __FUNCTION__. " SMS Sent" );
                 //Upload Excel files to AWS
-                $bucket = 'bookings-collateral';
+                $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "invoices-excel/" . $invoice_id . "-detailed.xlsx";
                 
-                $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-               
-
-                log_message('info', __METHOD__ . ": Invoices uploaded to S3");
-
-
+                $foc_detailed = $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                if($foc_detailed){
+                    
+                    log_message('info', __METHOD__ . ": Invoices uploaded to S3 ".$invoice_id . "-detailed.xlsx");
+                    echo ": Invoices uploaded to S3 ".$invoice_id . "-detailed.xlsx";
+                
+                } else {
+                    
+                    log_message('info', __METHOD__ . ": Invoices Not uploaded to S3 ".$invoice_id . "-detailed.xlsx");
+                    echo ": Invoices not uploaded to S3 ".$invoice_id . "-detailed.xlsx";
+                }
                 //Save this invoice info in table
                 $invoice_details = array(
                     'invoice_id' => $invoice_id,
@@ -1109,7 +1150,7 @@ class Invoice extends CI_Controller {
                     //Amount needs to be Paid to Vendor
                     'amount_collected_paid' => (0 - $excel_data['t_vp_w_tds']),
                     //Mail has not sent
-                    'mail_sent' => 1,
+                    'mail_sent' => $mail_ret,
                     //SMS has been sent or not
                     'sms_sent' => 1,
                     //Add 1 month to end date to calculate due date
@@ -1127,21 +1168,6 @@ class Invoice extends CI_Controller {
                  */
                 $this->update_booking_invoice_mappings_installations($invoices, $invoice_id);
             }
-            
-            $this->email->to($to);
-            $this->email->cc($cc);
-            $this->email->subject($subject);
-            $this->email->attach($output_file_excel, 'attachment');
-            // $this->email->attach($output_file_pdf, 'attachment');
-            $mail_ret = $this->email->send();
-
-            if ($mail_ret) {
-                log_message('info', __METHOD__ . ": Mail sent successfully");
-                echo "Mail sent successfully..............." . PHP_EOL;
-            } else {
-                log_message('info', __METHOD__ . ": Mail could not be sent");
-                echo "Mail could not be sent..............." . PHP_EOL;
-            }
 
             // insert data into vendor invoices snapshot or draft table as per the invoice type
             $this->insert_foc_invoices_snapshot($invoices, $invoice_id, $details['invoice_type']);
@@ -1155,6 +1181,7 @@ class Invoice extends CI_Controller {
 
             unset($excel_data);
               exec("rm -rf " . escapeshellarg($output_file_excel));
+              exec("rm -rf " . escapeshellarg($output_file_dir . $output_file.".xlsx"));
 
         } else {
             log_message('info', __FUNCTION__. "Exit data not found ". print_r($details, TRUE));
@@ -1241,7 +1268,7 @@ class Invoice extends CI_Controller {
         log_message('info', __FUNCTION__. " Entering......");
         $next_month = "";
 	$year = "";
-
+           
 	if ($details['invoice_month'] == 12) {
 	    $next_month = 01;
 	    $year = date('Y') + 1;
@@ -1251,8 +1278,10 @@ class Invoice extends CI_Controller {
 	}
 
 	$details['date_range'] = date('Y') . "/" . $details['invoice_month'] . "/01-" . $year . "/" . $next_month . "/01";
+        print_r($details);
         
         if ($details['vendor_partner'] === "vendor") {
+            echo "Invoice Generating..";
 	    log_message('info', "Invoice generate - vendor id: " . print_r($details['vendor_partner_id'], true) . ", Date Range" .
 		print_r($details['date_range'], true) . ", Invoice version" . print_r($details['invoice_type'], true) . ", Invoice type" .
 		print_r($details['vendor_invoice_type'], true));
@@ -1367,37 +1396,54 @@ class Invoice extends CI_Controller {
     }
 
     /**
-     * This method used to generates previous month invoice for vendor
-     * If date range empty then it generates previous month invoice otherwise generates between date range
-     * If vendor id is empty then its generates all vendor invoice
-     * @param type $vendor_id
-     * @param type $date_range
-     * @param type $invoice_type
-     * @param type $vendor_invoice_type
+     * This method used to generates previous invoice for vendor
+     * @param Array $details
      */
     function generate_vendor_invoices($details) {
          log_message('info', __FUNCTION__. " Entering......". " Details: ". print_r($details, true));
 
 	switch ($details['vendor_invoice_type']) {
 	    case "cash":
-                log_message('info', __FUNCTION__. ": Preparing CASH Invoice");
-                
+
                  if($details['vendor_partner_id'] == 'All'){
                     
-                    $vendor_details = $this->vendor_model->getactive_vendor();
-                    $details['vendor_partner_id'] = $vendor_details[0]['id'];
-                }
-                
-                log_message('info', __FUNCTION__. " Vendor Id: ". $details['vendor_partner_id'] );
-                
-                //Prepare main invoice first
-                $details['invoice_id'] = $this->generate_vendor_cash_invoice($details);                
-                
-                //Generate detailed annexure now
-                $data = $this->invoices_model->get_vendor_cash_detailed($details['vendor_partner_id'], 
-                        $details['date_range']);
-		$this->generate_cash_details_invoices_for_vendors($data, $details);
+                    $vendor_details = $this->vendor_model->getActiveVendor('',0);
+                    foreach ($vendor_details as $value) {
+                        $details['vendor_partner_id'] = $value['id'];
+                         log_message('info', __FUNCTION__. " Preparing CASH Invoice  Vendor: ". $details['vendor_partner_id'] );
+                         echo " Preparing CASH Invoice  Vendor: ". $details['vendor_partner_id'] ;
+                        //Prepare main invoice first
+                        $details['invoice_id'] = $this->generate_vendor_cash_invoice($details);
+                        if($details['invoice_id']){
+                            //Generate detailed annexure now
+                            $data = $this->invoices_model->get_vendor_cash_detailed($details['vendor_partner_id'], 
+                                    $details['date_range']);
+                            $this->generate_cash_details_invoices_for_vendors($data, $details);
 
+                        } else {
+                            echo  " Data Not found for vendor: ". $details['vendor_partner_id'] ;
+                            log_message('info', __FUNCTION__. " Data Not found for vendor: ". $details['vendor_partner_id'] );
+                        }
+                    }
+                    
+                } else {
+                    echo  " Preparing CASH Invoice  Vendor: ". $details['vendor_partner_id'];
+                   
+                    log_message('info', __FUNCTION__. ": Preparing CASH Invoice Vendor Id: ".$details['vendor_partner_id']);
+                     
+                    //Prepare main invoice first
+                    $details['invoice_id'] = $this->generate_vendor_cash_invoice($details);
+                    if($details['invoice_id']){
+                        //Generate detailed annexure now
+                        $data = $this->invoices_model->get_vendor_cash_detailed($details['vendor_partner_id'], 
+                                $details['date_range']);
+                        $this->generate_cash_details_invoices_for_vendors($data, $details);
+                        
+                    } else {
+                        echo  " Data Not found for vendor: ". $details['vendor_partner_id'] ;
+                        log_message('info', __FUNCTION__. " Data Not found for vendor: ". $details['vendor_partner_id'] );
+                    }
+                }
 		break;
 
 	    case "foc":
@@ -1405,18 +1451,42 @@ class Invoice extends CI_Controller {
                 
                 if($details['vendor_partner_id'] == 'All'){
                     
-                    $vendor_details = $this->vendor_model->getactive_vendor();
-                    $details['vendor_partner_id'] = $vendor_details[0]['id'];
-                } 
-                
-                //Prepare main invoice first
-                $details['invoice_id'] = $this->generate_vendor_foc_invoice($details);
-                
-                //Generate detailed annexure now                
-                $data = $this->invoices_model->generate_vendor_foc_detailed_invoices($details['vendor_partner_id'], 
-                        $details['date_range']);
-		$this->generate_foc_details_invoices_for_vendors($data, $details);
-
+                    $vendor_details = $this->vendor_model->getActiveVendor('',0);
+                    echo " Preparing CASH Invoice  Vendor: ". $details['vendor_partner_id'] ;
+                    foreach ($vendor_details as $value) {
+                        $details['vendor_partner_id'] = $value['id'];
+                        log_message('info', __FUNCTION__. ": Preparing FOC Invoice Vendor Id: ".$details['vendor_partner_id']);
+                        //Prepare main invoice first
+                        $details['invoice_id'] = $this->generate_vendor_foc_invoice($details);
+                        
+                        if( $details['invoice_id']){
+                            //Generate detailed annexure now                
+                            $data = $this->invoices_model->generate_vendor_foc_detailed_invoices($details['vendor_partner_id'], 
+                                    $details['date_range']);
+                            $this->generate_foc_details_invoices_for_vendors($data, $details);
+                             
+                         } else {
+                            echo  " Data Not found for vendor: ". $details['vendor_partner_id'] ;
+                            log_message('info', __FUNCTION__. " Data Not found for vendor: ". $details['vendor_partner_id'] );
+                        }
+                    }
+                   
+                } else {
+                        //Prepare main invoice first
+                        $details['invoice_id'] = $this->generate_vendor_foc_invoice($details);
+                        log_message('info', __FUNCTION__. ": Preparing FOC Invoice Vendor Id: ".$details['vendor_partner_id']);
+                        echo " Preparing CASH Invoice  Vendor: ". $details['vendor_partner_id'] ;
+                        if( $details['invoice_id']){
+                            //Generate detailed annexure now                
+                            $data = $this->invoices_model->generate_vendor_foc_detailed_invoices($details['vendor_partner_id'], 
+                                    $details['date_range']);
+                            $this->generate_foc_details_invoices_for_vendors($data, $details);
+                            
+                        } else {
+                            echo  " Data Not found for vendor: ". $details['vendor_partner_id'] ;
+                            log_message('info', __FUNCTION__. " Data Not found for vendor: ". $details['vendor_partner_id'] );
+                        }
+                }
                 break;
             
             case "brackets":
@@ -1564,7 +1634,7 @@ class Invoice extends CI_Controller {
                 $this->notify->send_sms($sms);
                 log_message('info', __FUNCTION__. " SMS Sent.....");
                 //Upload Excel files to AWS
-                $bucket = 'bookings-collateral';
+                $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "invoices-excel/" . $invoice[0]['invoice_number'].'.xlsx';
 
                 $this->s3->putObjectFile("/tmp/".$invoice[0]['invoice_number'].'.xlsx', $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
@@ -1907,7 +1977,7 @@ class Invoice extends CI_Controller {
 
         if ($invoice_type == "final") {
             log_message('info', __FUNCTION__ . ' Final' );
-            $bucket = 'bookings-collateral';
+            $bucket = BITBUCKET_DIRECTORY;
             $directory_xls = "invoices-excel/" . $output_file_excel;
             
             $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
@@ -1947,7 +2017,6 @@ class Invoice extends CI_Controller {
     /**
      * @desc: This method is used to generate vendor Foc invoice and return invoice id
      * @param Array $details
-     * @return string Invoice Id
      */
     function generate_vendor_foc_invoice($details){
         log_message('info',__FUNCTION__. "Entering...");
@@ -2002,12 +2071,14 @@ class Invoice extends CI_Controller {
             }
 
             //Make sure it is unique
-            $invoice_id_tmp = $invoices['meta']['sc_code'] . "-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
+            $invoice_id_tmp = $invoices['meta']['sc_code'] . "-" . $invoice_version 
+                    . "-" . $financial . "-" . date("M", strtotime($from_date));
             $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
             $invoice_no = $this->invoices_model->get_invoices_details($where);
 
             $invoices['meta']['invoice_id'] = $invoice_id_tmp . "-" . (count($invoice_no) + 1);
-            log_message('info', __METHOD__ . ": Invoice Id geneterated ".  $invoices['meta']['invoice_id'] );
+            log_message('info', __METHOD__ . ": Invoice Id geneterated "
+                    .  $invoices['meta']['invoice_id'] );
         }
         
         //load template
@@ -2030,9 +2101,8 @@ class Invoice extends CI_Controller {
                         )
                 );
         
-       
         $output_file_excel = "/tmp/".$invoices['meta']['invoice_id'].".xlsx";
-         $res1 = 0;
+        $res1 = 0;
         if(file_exists($output_file_excel)){
            
             system(" chmod 777 ".$output_file_excel, $res1);
@@ -2040,24 +2110,26 @@ class Invoice extends CI_Controller {
         }
         $R->render('excel', $output_file_excel);
         log_message('info', __METHOD__ . ": Excel FIle generated ".$output_file_excel );
-        system(" chmod 777 ".$output_file_excel, $res1);
-        $this->email->clear(TRUE);
-        $this->email->from('billing@247around.com', '247around Team');
-        $to = "anuj@247around.com";
-        $subject = "DRAFT INVOICE FOC (MAIN) - 247around - " .$invoices['booking'][0]['company_name'];
-        $cc ='';
+        $res2 = 0;
+        system(" chmod 777 ".$output_file_excel, $res2);
+       
            
         if ($invoice_type == "final") {
             log_message('info', __METHOD__ . ": Invoice type Final");
-            $to = $invoices['meta']['owner_email'] . ", " . $invoices['meta']['primary_contact_email'];
-            $subject = "247around - " . $invoices['meta']['vendor_name'] . " - FOC Invoice for period: " .  $invoices['meta']['sd'] . " to " .  $invoices['meta']['ed'];
-            $cc = "anuj@247around.com, nits@247aroud.com";
-            $bucket = 'bookings-collateral';
+           
+            $bucket = BITBUCKET_DIRECTORY;
             $directory_xls = "invoices-excel/" . $invoices['meta']['invoice_id'].".xlsx";
           
-            $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-           
-            log_message('info', __METHOD__ . ": File uploaded tgo s3");
+            $foc_upload = $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            if($foc_upload){
+                log_message('info', __METHOD__ . ": Main FOC Invoice File uploaded to s3");
+                echo "Main FOC Invoice File uploaded to s3";
+                
+            } else{
+                log_message('info', __METHOD__ . ": Main FOC Invoice File uploaded to s3 ".$invoices['meta']['invoice_id'].".xlsx");
+                echo "Main FOC Invoice File uploaded to s3 ".$invoices['meta']['invoice_id'].".xlsx";
+            }
+          
             // Dump data in a file as a Json
             $file = fopen("/tmp/".$invoices['meta']['invoice_id'] . ".txt", "w") or die("Unable to open file!");
             $res = 0;
@@ -2071,29 +2143,23 @@ class Invoice extends CI_Controller {
             log_message('info', __METHOD__ . ": Json File Created");
 
             $directory_xls = "invoices-json/" . $invoices['meta']['invoice_id'] . ".txt";
-            $this->s3->putObjectFile("/tmp/".$invoices['meta']['invoice_id'].".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            $json = $this->s3->putObjectFile("/tmp/".$invoices['meta']['invoice_id'].".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            if($json){
+                
+                 log_message('info', __METHOD__ . ": Main FOC Invoice File uploaded to s3");
+                echo "Main FOC Invoice File uploaded to s3";
+                
+            } else {
+                
+                log_message('info', __METHOD__ . ": Main FOC Invoice File uploaded to s3 ".$invoices['meta']['invoice_id'].".txt");
+                echo "Main FOC Invoice File uploaded to s3 ".$invoices['meta']['invoice_id'].".txt";
+            }
             log_message('info', __METHOD__ . ": Json File Uploded to S3");
 
             //Delete JSON files now
           exec("rm -rf " . escapeshellarg("/tmp/".$invoices['meta']['invoice_id'].".txt"));
                     
         }
-        $this->email->to($to);
-        $this->email->cc($cc);
-        $this->email->subject($subject);
-        $this->email->attach($output_file_excel, 'attachment');
-       
-        $mail_ret = $this->email->send();
-
-        if ($mail_ret) {
-            log_message('info', __METHOD__ . ": Mail sent successfully");
-            echo "Mail sent successfully..............." . PHP_EOL;
-        } else {
-            log_message('info', __METHOD__ . ": Mail could not be sent");
-            echo "Mail could not be sent..............." . PHP_EOL;
-        }
-        
-         exec("rm -rf " . escapeshellarg($output_file_excel));
        
         log_message('info',__FUNCTION__. " Exit Invoice Id: ". $invoices['meta']['invoice_id']);
         return $invoices['meta']['invoice_id'];
@@ -2101,6 +2167,7 @@ class Invoice extends CI_Controller {
         } else {
             echo "Data Not Found";
             log_message('info',__FUNCTION__. " Data Not Found.");
+            return false;
         }
     }
     
@@ -2119,7 +2186,7 @@ class Invoice extends CI_Controller {
         $invoice_type = $details['invoice_type'];
 
         $invoices = $this->invoices_model->get_vendor_cash_invoice($vendor_id, $from_date, $to_date);
-
+        
         if (!empty($invoices)) {
             log_message('info', __FUNCTION__ . "=> Data Found");
 
@@ -2199,36 +2266,32 @@ class Invoice extends CI_Controller {
             if (file_exists($output_file_excel)) {
 
                 system(" chmod 777 " . $output_file_excel, $res1);
+               
                 unlink($output_file_excel);
             }
 
             $R->render('excel', $output_file_excel);
             log_message('info', __FUNCTION__ . " Excel Created " . $output_file_excel);
+            $res2 = 0;
+            system(" chmod 777 " . $output_file_excel, $res2);
 
-            system(" chmod 777 " . $output_file_excel, $res1);
-
-            $this->email->clear(TRUE);
-            $this->email->from('billing@247around.com', '247around Team');
-
-            $to = "anuj@247around.com";
-            $cc = '';
-
-            $subject = "Draft Invoice Cash (Main) - 247around - " . $invoices['product'][0]['company_name'];
-
+           
             if ($invoice_type == "final") {
                 log_message('info', __FUNCTION__ . " Generate Final Invoice ");
 
-                $subject = "247around - " . $invoices['meta']['vendor_name'] . " - Cash Invoice for period: " .
-                        $invoices['meta']['sd'] . " to " . $invoices['meta']['ed'];
-                $to = $invoices['meta']['owner_email'] . ", " . $invoices['meta']['primary_contact_email'];
-                $cc = "anuj@247around.com, nits@247around.com";
-
-                $bucket = 'bookings-collateral';
+                $bucket = 'bookings-collateral-test';
                 $directory_xls = "invoices-excel/" . $invoices['meta']['invoice_id'] . ".xlsx";
 
-                $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                log_message('info', __FUNCTION__ . " File Upload to S3");
-
+                $invoice_uploaded = $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                if($invoice_uploaded){
+                    echo 'Main Invoice Uploaded'.PHP_EOL;
+                    log_message('info', __FUNCTION__ . " Main Invoice is uploaded to S3".$invoices['meta']['invoice_id'] . ".xlsx");
+                    
+                } else {
+                     echo 'Main Invoice not Uploaded'.PHP_EOL;
+                    log_message('info', __FUNCTION__ . " Main Invoice is not uploaded to S3".$invoices['meta']['invoice_id'] . ".xlsx"); 
+                }
+ 
                 // Dump data in a file as a Json
                 $file = fopen("/247around_tmp/" . $invoices['meta']['invoice_id'] . ".txt", "w") or die("Unable to open file!");
                 $res = 0;
@@ -2245,30 +2308,21 @@ class Invoice extends CI_Controller {
                 log_message('info', __METHOD__ . ": Json File Created");
 
                 $directory_xls = "invoices-json/" . $invoices['meta']['invoice_id'] . ".txt";
-                $this->s3->putObjectFile("/247around_tmp/" . $invoices['meta']['invoice_id'] . ".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                
+                $json_upload = $this->s3->putObjectFile("/247around_tmp/" . $invoices['meta']['invoice_id'] . ".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                if($json_upload){
+                    echo 'Main Invoice JOSN File Uploaded'.PHP_EOL;; 
+                    log_message('info', __FUNCTION__ . " Main Invoice JOSN FIle Uploaded to S3".$invoices['meta']['invoice_id'] . ".txt");
+                    
+                } else {
+                     echo 'Main Invoice JOSN File not Uploaded'.PHP_EOL;
+                    log_message('info', __FUNCTION__ . " Main Invoice is not uploaded to S3".$invoices['meta']['invoice_id'] . ".txt"); 
+                }
                 log_message('info', __METHOD__ . ": Json File Uploded to S3");
 
                 //Delete JSON files now
                 //Do not delete XLSX now, it is being used later for email
                 exec("rm -rf " . escapeshellarg("/247around_tmp/" . $invoices['meta']['invoice_id'] . ".txt"));
             }
-            
-            $this->email->to($to);
-            $this->email->cc($cc);
-            $this->email->subject($subject);
-            $this->email->attach($output_file_excel, 'attachment');
-            $mail_ret = $this->email->send();
-
-            if ($mail_ret) {
-                log_message('info', __METHOD__ . ": Mail sent successfully");
-                echo "Mail sent successfully..............." . PHP_EOL;
-            } else {
-                log_message('info', __METHOD__ . ": Mail could not be sent");
-                echo "Mail could not be sent..............." . PHP_EOL;
-            }
-            
-            exec("rm -rf " . escapeshellarg($output_file_excel));
 
             log_message('info', __FUNCTION__ . " Exit Invoice Id: " . $invoices['meta']['invoice_id']);
             
