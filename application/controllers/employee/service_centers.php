@@ -22,6 +22,7 @@ class Service_centers extends CI_Controller {
         $this->load->model('partner_model');
         $this->load->model('vendor_model');
         $this->load->model('user_model');
+        $this->load->model('employee_model');
         $this->load->model('invoices_model');
         $this->load->library("pagination");
         $this->load->library('asynchronous_lib');
@@ -1061,7 +1062,44 @@ class Service_centers extends CI_Controller {
             echo 'Sorry, Session has expired, please log in again!';
         }
     }
+    
+    /**
+     * @Desc: This function is used to show vendor details
+     * @params: void
+     * @return: void
+     * 
+     */
+    function show_vendor_details(){
+        $id = $this->session->userdata('service_center_id');
+        if(!empty($id)){
+            
+            $query = $this->vendor_model->editvendor($id);
 
+            $results['services'] = $this->vendor_model->selectservice();
+            $results['brands'] = $this->vendor_model->selectbrand();
+            $results['select_state'] = $this->vendor_model->getall_state();
+            $results['employee_rm'] = $this->employee_model->get_rm_details();
+
+            $appliances = $query[0]['appliances'];
+            $selected_appliance_list = explode(",", $appliances);
+            $brands = $query[0]['brands'];
+            $selected_brands_list = explode(",", $brands);
+
+            $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
+
+            $days = ['Sunday', 'Monday', 'Tuseday', 'Wednesday', 'Thursday', 'Friday', 'Satarday'];
+            $non_working_days = $query[0]['non_working_days'];
+            $selected_non_working_days = explode(",", $non_working_days);
+            $this->load->view('service_centers/header');
+
+            $this->load->view('service_centers/show_vendor_details', array('query' => $query, 'results' => $results, 'selected_brands_list'
+                => $selected_brands_list, 'selected_appliance_list' => $selected_appliance_list,
+                'days' => $days, 'selected_non_working_days' => $selected_non_working_days,'rm'=>$rm));
+            
+        }else{
+            echo 'Sorry, Session has Expired, Please Log In Again!';
+        }
+    }
 
 
 

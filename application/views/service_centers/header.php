@@ -98,11 +98,10 @@
                       <div class="form-group">
                           <input style="width:118%" type="text" class="form-control pull-right" placeholder="Search Booking ID or Mobile" name="searched_text">
                      </div> 
-<!--                      <button type="submit" class="btn btn-default">Submit</button>-->
                         </form>
                   </li>
                   <li>
-                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="verifyby"><i class="fa fa-user"></i> <?php echo $this->session->userdata('service_center_name'); ?> <b class="caret"></b></a>
+                     <a href="<?php echo base_url()?>employee/service_centers/show_vendor_details" class="dropdown-toggle" id="verifyby"><i class="fa fa-user"></i> <?php echo $this->session->userdata('service_center_name'); ?> <b class="caret"></b></a>
                   </li>
                   <li><a href="<?php echo base_url()?>employee/service_centers/logout"><i class="fa fa-fw fa-power-off"></i></a></li>
                </ul>
