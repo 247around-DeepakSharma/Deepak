@@ -27,7 +27,7 @@ class vendor extends CI_Controller {
         $this->load->model('filter_model');
         $this->load->model('service_centers_model');
         $this->load->helper(array('form', 'url'));
-        //$this->load->library('../controllers/api');
+        
         $this->load->library('form_validation');
         $this->load->model('vendor_model');
         $this->load->model('partner_model');
@@ -617,19 +617,17 @@ class vendor extends CI_Controller {
                     $this->notify->insert_state_change($booking_id, 
                             ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, 
                             $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-
+                    
                     $count++;
                 }
             }
         }
-
+        
         //Send mail and SMS to SF in background
         $async_data['booking_id'] = $service_center;
         $this->asynchronous_lib->do_background_process($url, $async_data);
 
         echo " Request to Assign Bookings: " . count($service_center) . ", Actual Assigned Bookings: " . $count;
-
-        //redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
 
@@ -692,6 +690,9 @@ class vendor extends CI_Controller {
             $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, 
                     "Re-Assigned SF ID: " . $service_center_id, $this->session->userdata('id'), 
                     $this->session->userdata('employee_id'), _247AROUND);
+            
+            //Prepare job card (For Reassigned Vendor)
+            $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
 
             //Setting mail to vendor flag to 0, once booking is re-assigned
             $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
@@ -1483,9 +1484,11 @@ class vendor extends CI_Controller {
            $data['engineers'][$key]['service_center_name'] = $service_center[0]['name'];
            $service_id  = json_decode($value['appliance_id'],true);
            $appliances = array();
-           foreach ($service_id as  $values) {
-                $service_name = $this->booking_model->selectservicebyid($values['service_id']);
-                array_push($appliances, $service_name[0]['services']);
+           if(!empty($service_id)){
+                foreach ($service_id as  $values) {
+                     $service_name = $this->booking_model->selectservicebyid($values['service_id']);
+                     array_push($appliances, $service_name[0]['services']);
+                }
            }
 
            $data['engineers'][$key]['appliance_name'] = implode(",", $appliances);

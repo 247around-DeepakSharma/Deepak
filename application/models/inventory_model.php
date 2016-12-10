@@ -63,6 +63,7 @@ class Inventory_model extends CI_Model {
         $this->db->where($where);
 	$this->db->update('brackets', $data);
         if($this->db->affected_rows() > 0){
+             log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
             return true;
         }else{
             return false;

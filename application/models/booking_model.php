@@ -93,7 +93,7 @@ class Booking_model extends CI_Model {
     function update_booking_unit_details_by_any($where, $data){
         $this->db->where($where);
         $result = $this->db->update('booking_unit_details', $data);
-        log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
+        //log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
         return $result;
     }
 
@@ -719,9 +719,9 @@ class Booking_model extends CI_Model {
      *  @param : booking id
      *  @return : all the unit booking detais
      */
-     function get_unit_details($where, $like= true) {
+     function get_unit_details($where, $like= FALSE) {
         $this->db->select('*');
-        if($like == false){
+        if($like == TRUE){
             $this->db->like($where);
         } else {
             $this->db->where($where);
@@ -1585,7 +1585,7 @@ class Booking_model extends CI_Model {
             //trim booking only digit
             $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
             $unit_where = array('booking_id' => $trimed_booking_id);
-            $unit_num = $this->get_unit_details($unit_where, false);
+            $unit_num = $this->get_unit_details($unit_where, TRUE);
    
             log_message('info', __METHOD__ . " count previous unit: " . count($unit_num));
             log_message('info', __METHOD__ . " Price tags not found " . print_r($unit_num, true));
@@ -1952,43 +1952,55 @@ class Booking_model extends CI_Model {
      */
     function get_booking_state_change_by_id($booking_id){
         $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
-        $this->db->select('booking_state_change.agent_id,booking_state_change.partner_id,booking_state_change.service_center_id, bookings_sources.source,booking_state_change.old_state,'
+        $this->db->select('booking_state_change.agent_id,booking_state_change.partner_id,'
+                . ' booking_state_change.service_center_id,booking_state_change.old_state,'
                 . ' booking_state_change.new_state,booking_state_change.remarks,booking_state_change.create_date');
         $this->db->like('booking_state_change.booking_id',$trimed_booking_id);
         $this->db->from('booking_state_change');
-        $this->db->join('bookings_sources', 'bookings_sources.partner_id = booking_state_change.partner_id');
+       
         $this->db->order_by('booking_state_change.id');
         $query = $this->db->get();
         $data =  $query->result_array();
+        
         foreach ($data as $key => $value){
             if(!is_null($value['partner_id'])){
                 // If Partner Id is 247001
                 if($value['partner_id'] == _247AROUND){
-                    $this->db->select('employee_id');
-                    $this->db->where('id', $value['agent_id']);
-                    $query1 = $this->db->get('employee');
+                    $sql = "SELECT employee_id, bookings_sources.source FROM employee, bookings_sources WHERE "
+                            . " bookings_sources.partner_id = '"._247AROUND."' AND employee.id = '".$value['agent_id']."'";
+                   
+                    $query1 = $this->db->query($sql);
                     $data1 = $query1->result_array();
+                   
                     $data[$key]['employee_id'] = $data1[0]['employee_id'];
+                    $data[$key]['source'] = $data1[0]['source'];
+                   
                     
                 } else {
                     // For Partner
-                    $this->db->select('user_name as employee_id');
-                    $this->db->where('id', $value['agent_id']);
-                    $query1 = $this->db->get('partner_login');
+                    $this->db->select('user_name as employee_id, bookings_sources.source');
+                    $this->db->from('partner_login');
+                    $this->db->join('bookings_sources','bookings_sources.partner_id = partners_login.partner_id');
+                    $this->db->where('partner_login.id', $value['agent_id']);
+                    $query1 = $this->db->get();
                     $data1 = $query1->result_array();
                     $data[$key]['employee_id'] = $data1[0]['employee_id'];
+                    $data[$key]['source'] = $data1[0]['source'];
                 }
             } else if(!is_null($value['service_center_id'])){
                 // For Service center
-                $this->db->select('user_name as employee_id');
-                $this->db->where('id', $value['agent_id']);
-                $query1 = $this->db->get('service_centers_login');
+                $this->db->select('user_name as employee_id, company_name as source');
+                $this->db->from('service_centers_login');
+                $this->db->where('service_centers_login.id', $value['agent_id']);
+                $this->db->join('service_centres', 'service_centres.id = service_centers_login.service_center_id');
+                $query1 = $this->db->get();
                 $data1 = $query1->result_array();
                 $data[$key]['employee_id'] = $data1[0]['employee_id'];
+                $data[$key]['source'] = $data1[0]['source'];
             }
             
         }
-  
+       
         return $data;
 
     }

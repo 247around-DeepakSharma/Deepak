@@ -1338,3 +1338,21 @@ ALTER TABLE `booking_unit_details` ADD `pay_to_sf` INT(2) NULL DEFAULT '0' AFTER
 --Abhay 5 NOv
 ALTER TABLE `booking_unit_details` CHANGE `vendor_invoice_id` `vendor_cash_invoice_id` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
 ALTER TABLE `booking_unit_details` ADD `vendor_foc_invoice_id` VARCHAR(100) NULL DEFAULT NULL AFTER `vendor_cash_invoice_id`;
+
+--Belal 8 Dec
+
+CREATE TABLE `login_logout_details` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `action` int(1) NOT NULL COMMENT '1->Login, 0->Logout',
+ `ip` varchar(32) NOT NULL,
+ `browser` varchar(128) NOT NULL,
+ `employee_name` varchar(256) NOT NULL,
+ `employee_id` varchar(128) NOT NULL,
+ `employee_type` varchar(128) NOT NULL,
+ `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+---Abhay 09-12-2016
+ALTER TABLE `service_centres` CHANGE `company_type` `company_type` VARCHAR(512) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+ALTER TABLE `service_centres` CHANGE `pan_no` `pan_no` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
