@@ -23,7 +23,9 @@
                        <thead>
                            <tr>
                             <th class="text-center">No</th>
+                            <th class="text-center">Customer Name</th>
                             <th class="text-center">Booking Id</th>
+                            <th class="text-center">Age</th>
                             <th class="text-center">Parts Required</th>
                             <th class="text-center">Model Number</th>
                             <th class="text-center">Serial Number</th>
@@ -41,13 +43,15 @@
                                     <td>
                                         <?php echo $sn_no1; ?>
                                     </td>
+                                     <td>
+                                        <?php echo $row['name']; ?>
+                                    </td>
                                     <td>
                                          <a  href="<?php echo base_url();?>partner/booking_details/<?php echo $row['booking_id'];?>"  title='View'><?php echo $row['booking_id'];?></a>
                                     </td>
-<!--                                    <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 206px;" data-html=true data-content="<?php echo $row['address']; ?> ">
-                                              
-                                        <?php echo $row['address']; ?>
-                                    </td>-->
+                                    <td>
+                                        <?php echo $row['age_of_booking']; ?>
+                                    </td>
                                     <td>
                                         <?php echo $row['parts_requested']; ?>
                                     </td>

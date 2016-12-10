@@ -309,6 +309,7 @@ class Booking extends CI_Controller {
         if ($booking['type'] == 'Booking') {
             $booking['current_status'] = 'Pending';
             $booking['internal_status'] = 'Scheduled';
+            $booking['initial_booking_date'] = $booking['booking_date'];
             $booking['booking_remarks'] = $remarks;
             $new_state = $booking_id_with_flag['new_state'];
             $old_state = $booking_id_with_flag['old_state'];
@@ -334,7 +335,7 @@ class Booking extends CI_Controller {
         switch ($booking_id) {
 
             case INSERT_NEW_BOOKING:
-                $booking['initial_booking_date'] = $booking['booking_date'];
+                
                 $status = $this->booking_model->addbooking($booking);
                 if ($status) {
                     $booking['is_send_sms'] = $is_send_sms;

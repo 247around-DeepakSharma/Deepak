@@ -1207,13 +1207,13 @@ class CI_DB_driver {
         }
 
         $CI->email->from('booking@247around.com', '247Around Team');
-        $CI->email->to('abhaya@247around.com, anuj@247around.com');
+        $CI->email->to('abhaya@247around.com, anuj@247around.com, belal@247around.com');
         $CI->email->subject('Database Error');
         $CI->email->message($load_view);
 
        	$CI->email->send();
         //echo $CI->email->print_debugger();
-        echo $error->show_error($heading, $message, 'opps');
+        echo $error->show_error($heading, $message, 'custom_error');
 		
 		exit;
 	}

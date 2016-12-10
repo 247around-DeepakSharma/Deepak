@@ -103,6 +103,7 @@
                                         </div>
                                     </div>
                                 </div>
+                               
                             </div>
                             <div class="col-md-12">
                                 <div class="col-md-6">
@@ -283,11 +284,31 @@
                                         ?>">
                                         <label for="company_type" class="col-md-3">Company Type</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control"  name="company_type" value = "<?php
-                                                if (isset($query[0]['company_type'])) {
-                                                    echo $query[0]['company_type'];
-                                                }
-                                                ?>">
+                                             <select name="company_type" class="form-control">
+                                                 <option disabled selected >Select Company Type</option>
+<!--                                                 <option value="HUF" <?php //if(isset($query[0]['company_type'])){
+                                               // if ($query[0]['company_type'] == "HUF") {
+                                                  //  echo "Selected";
+                                                // } }
+                                                ?> >HUF</option>-->
+                                             <option value="Individual" <?php if(isset($query[0]['company_type'])){
+                                                if ($query[0]['company_type'] == "Individual") {
+                                                     echo "Selected";
+                                             } }
+                                                ?>>Individual</option>
+                                             <option value="Partnership Firm" <?php if(isset($query[0]['company_type'])){
+                                                if ($query[0]['company_type'] == "Partnership Firm") {
+                                                     echo "Selected";
+                                             } }
+                                                ?>>Partnership Firm</option>
+                                             <option value="Company (Pvt Ltd)" <?php if(isset($query[0]['company_type'])){
+                                                if ($query[0]['company_type'] == "Company (Pvt Ltd)") {
+                                                     echo "Selected";
+                                             } }
+                                                ?>>Company (Pvt Ltd)</option>
+
+                                         </select>
+                                          
                                             <?php echo form_error('company_type'); ?>
                                         </div>
                                     </div>
