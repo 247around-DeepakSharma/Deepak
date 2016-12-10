@@ -25,6 +25,7 @@ class Do_background_process extends CI_Controller {
         $this->load->model('vendor_model');
         $this->load->model('invoices_model');
         $this->load->model('partner_model');
+        $this->load->model('database_testing_model');
         $this->load->library('booking_utilities');
         $this->load->library('partner_sd_cb');
 	$this->load->library('partner_cb');
@@ -72,6 +73,17 @@ class Do_background_process extends CI_Controller {
 
                 log_message('info', "Async Process Exiting for Booking ID: " . $booking_id);
             }
+        }
+        
+        //Checking again for Pending Job cards
+        $pending_booking_job_card = $this->database_testing_model->count_pending_bookings_without_job_card();
+	 if (!empty($pending_booking_job_card)) {
+            //Creating Job cards for Bookings 
+            foreach($pending_booking_job_card as $value){
+                //Prepare job card
+                $this->booking_utilities->lib_prepare_job_card_using_booking_id($value['booking_id']);
+            }
+             
         }
         
         log_message('info', __METHOD__ . " => Exiting");
