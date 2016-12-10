@@ -1980,7 +1980,7 @@ class Booking_model extends CI_Model {
                     // For Partner
                     $this->db->select('user_name as employee_id, bookings_sources.source');
                     $this->db->from('partner_login');
-                    $this->db->join('bookings_sources','bookings_sources.partner_id = partners_login.partner_id');
+                    $this->db->join('bookings_sources','bookings_sources.partner_id = partner_login.partner_id');
                     $this->db->where('partner_login.id', $value['agent_id']);
                     $query1 = $this->db->get();
                     $data1 = $query1->result_array();
