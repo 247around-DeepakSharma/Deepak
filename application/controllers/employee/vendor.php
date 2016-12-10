@@ -27,7 +27,7 @@ class vendor extends CI_Controller {
         $this->load->model('filter_model');
         $this->load->model('service_centers_model');
         $this->load->helper(array('form', 'url'));
-        //$this->load->library('../controllers/api');
+        
         $this->load->library('form_validation');
         $this->load->model('vendor_model');
         $this->load->model('partner_model');
@@ -618,9 +618,6 @@ class vendor extends CI_Controller {
                             ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, 
                             $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
                     
-                    //Prepare job card (Again)
-                    $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
-                    
                     $count++;
                 }
             }
@@ -631,8 +628,6 @@ class vendor extends CI_Controller {
         $this->asynchronous_lib->do_background_process($url, $async_data);
 
         echo " Request to Assign Bookings: " . count($service_center) . ", Actual Assigned Bookings: " . $count;
-
-        //redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
 
