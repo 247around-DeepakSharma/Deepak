@@ -23,7 +23,6 @@ class vendor extends CI_Controller {
         parent::__Construct();
         $this->load->model('employee_model');
         $this->load->model('booking_model');
-        $this->load->model('database_testing_model');
         $this->load->library('PHPReport');
         $this->load->model('filter_model');
         $this->load->model('service_centers_model');
@@ -619,20 +618,12 @@ class vendor extends CI_Controller {
                             ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, 
                             $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
                     
+                    //Prepare job card (Again)
+                    $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+                    
                     $count++;
                 }
             }
-        }
-        
-        //Checking again for Pending Job cards
-        $pending_booking_job_card = $this->database_testing_model->count_pending_bookings_without_job_card();
-	 if (!empty($pending_booking_job_card)) {
-            //Creating Job cards for Bookings 
-            foreach($pending_booking_job_card as $value){
-                //Prepare job card
-                $this->booking_utilities->lib_prepare_job_card_using_booking_id($value['booking_id']);
-            }
-             
         }
         
         //Send mail and SMS to SF in background
