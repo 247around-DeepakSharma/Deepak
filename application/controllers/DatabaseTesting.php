@@ -422,15 +422,9 @@ class DatabaseTesting extends CI_Controller {
         if (!$return) {
             // exec() has been executed sucessfully
             // Inserting values in scheduler tasks log
-            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 1);
+            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
             //Logging
             log_message('info', __FUNCTION__ . ' Executed Sucessfully ' . $output_file);
-        } else {
-            // Error in execution of exec()
-            // Inserting values in scheduler tasks log
-            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 0);
-            //Logging
-            log_message('info', __FUNCTION__ . ' Error in Deleting Excel File Created ' . $output_file . 'Error Details :' . print_r($out, TRUE));
         }
     }
     
@@ -450,10 +444,7 @@ class DatabaseTesting extends CI_Controller {
             $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
             
             // Inserting values in scheduler tasks log
-            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 1); 
-        }else{
-            // Inserting values in scheduler tasks log
-            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 0); 
+            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__); 
         }
     }
     

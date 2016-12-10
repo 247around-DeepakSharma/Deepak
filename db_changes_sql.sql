@@ -1353,7 +1353,6 @@ UPDATE `email_template` SET `template` = 'Dear Partner you have received a new o
 CREATE TABLE `scheduler_tasks_log` (
  `id` int(11) NOT NULL AUTO_INCREMENT,
  `task_name` varchar(256) NOT NULL,
- `flag` int(2) NOT NULL COMMENT '1-> Executed, 0->Err in execution',
  `executed_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1

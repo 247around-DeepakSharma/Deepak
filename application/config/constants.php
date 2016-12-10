@@ -159,7 +159,14 @@ define('CUSTOMER_NOT_REACHABLE','Customer not reachable');
 //constant to define default brackets order id
 define('_247_AROUND_DEFAULT_BRACKETS_ORDER_ID',201611000001);
 
-
+//Constant Array for the CRON JOBS
+const CRON_JOBS = array(
+            'get_pending_bookings','send_service_center_report_mail',
+            'new_send_service_center_report_mail','send_summary_mail_to_partners',
+            'send_reminder_installation_sms_today','send_reminder_installation_sms_today',
+            'DatabaseTesting','send_error_file',
+            'convert_updated_booking_to_pending','penalty_on_service_center',
+            'get_sc_crimes','get_sc_crimes_for_sf');
 
 
 

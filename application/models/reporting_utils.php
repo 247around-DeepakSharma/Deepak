@@ -1481,10 +1481,22 @@ class Reporting_utils extends CI_Model {
      * @return : void
      * 
      */
-    function insert_scheduler_tasks_log($tasks, $flag){
+    function insert_scheduler_tasks_log($tasks){
         $data['task_name'] = $tasks;
-        $data['flag'] = $flag;
         $this->db->insert('scheduler_tasks_log',$data);
+    }
+    
+    /**
+     * @Desc: This function is used to get values from scheduler tasks log table by Date
+     * @params: date
+     * @return: Array
+     * 
+     */
+    function  get_scheduler_tasks_log($date){
+        $this->db->select('*');
+        $this->db->like('executed_on',$date);
+        $query = $this->db->get('scheduler_tasks_log');
+        return $query->result_array();
     }
 
 }

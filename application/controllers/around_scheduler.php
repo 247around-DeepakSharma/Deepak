@@ -59,7 +59,7 @@ class Around_scheduler extends CI_Controller {
             
 	}
         // Inserting values in scheduler tasks log
-        $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 1); 
+        $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__); 
         
         log_message ('info', __METHOD__ . '=> Exiting...');
     }
@@ -290,6 +290,45 @@ class Around_scheduler extends CI_Controller {
 	}
         
         log_message ('info', __METHOD__ . '=> Exiting...');
+    }
+    
+    /**
+     * @Desc: This function is used to check all the Tasks that has been executed in CRON
+     * @params: void
+     * @return: void
+     * 
+     */
+    function check_cron_tasks(){
+        $previous_date = date('Y-m-d', strtotime('-1 day', strtotime(date('Y-m-d'))));
+        $tasks_log = $this->reporting_utils->get_scheduler_tasks_log($previous_date);
+        $tasks_array = [];
+        if(!empty($tasks_log)){
+            foreach($tasks_log as $value){
+                $tasks_array[] = $value['task_name'];
+            }
+        }
+            
+            //Finding Diff in Task Array and CRON ARRAY
+            $diff = array_diff(CRON_JOBS, $tasks_array);
+            if(!empty($diff)){
+                //Some cron jobs has not been executed
+                $html = "<html xmlns='http://www.w3.org/1999/xhtml'>
+                      <head>
+                        <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+                      </head>
+                      <body>
+                      <p>Following list contains CRON tasks that has <b>NOT</b> Executed on : <b>".$previous_date."
+                        </b></p><ol>";
+                foreach ($diff as $value){
+                    $html .= "<li>".$value."</li>";
+                }
+                $html .= "</ol></body></html>";
+                
+                //Sending Details in Mail
+                $to = "belal@247around.com";
+                $subject = " ERROR IN CRON TASK EXECUTION " . date("d-M-Y");
+                $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $html, "");
+        }
     }
 
 }

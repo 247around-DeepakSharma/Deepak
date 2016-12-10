@@ -196,16 +196,10 @@ class BookingSummary extends CI_Controller {
             if(!$return){
                 // exec() has been executed sucessfully
                 // Inserting values in scheduler tasks log
-                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 1);
+                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
                 //Logging
                 log_message('info',__FUNCTION__.' Executed Sucessfully '.$output_file);
                 
-            }else{
-                // Error in execution of exec()
-                // Inserting values in scheduler tasks log
-                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__,0);
-                //Logging
-                log_message('info',__FUNCTION__.' Error in Deleting Excel File Created '.$output_file. 'Error Details :'.print_r($out, TRUE));
             }
             
             } else {
@@ -518,16 +512,10 @@ EOD;
             if(!$return){
                 // exec() has been executed sucessfully
                 // Inserting values in scheduler tasks log
-                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 1);
+                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
                 //Logging
                 log_message('info',__FUNCTION__.' Executed Sucessfully '.$output_file);
                 
-            }else{
-                // Error in execution of exec()
-                // Inserting values in scheduler tasks log
-                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__,0);
-                //Logging
-                log_message('info',__FUNCTION__.' Error in Deleting Excel File Created '.$output_file. 'Error Details :'.print_r($out, TRUE));
             }
 	}
 
@@ -788,14 +776,8 @@ EOD;
                 log_message('info', __FUNCTION__ . ' New Service Center Report mail sent to '. $to);
                 
                 // Inserting values in scheduler tasks log
-                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 1);
-            }else{
-                //Logging error details
-                log_message('info', __FUNCTION__ . ' Error in sending New Service Center Report mail sent to '. $to);
-                
-                // Inserting values in scheduler tasks log
-                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 0);
-    }
+                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
+            }
         }
     }
     
@@ -822,14 +804,8 @@ EOD;
                 log_message('info', __FUNCTION__ . ' Service Center Report mail sent to '. $to);
                 
                 // Inserting values in scheduler tasks log
-                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 1);
-            }else{
-                //Logging error message
-                log_message('info', __FUNCTION__ . ' Error in sending Service Center Report mail sent to '. $to);
-                
-                // Inserting values in scheduler tasks log
-                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 0);
-    }
+                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
+            }
         }
     }
 
@@ -921,7 +897,7 @@ EOD;
             $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $view, "");
             
             // Inserting values in scheduler tasks log
-            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 1); 
+            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__); 
         }
         
          log_message('info', __FUNCTION__ ." Exit");
@@ -948,7 +924,7 @@ EOD;
             }
         }
         // Inserting values in scheduler tasks log
-        $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__, 1);
+        $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
         
         log_message('info', __FUNCTION__ ." Exit");
         
