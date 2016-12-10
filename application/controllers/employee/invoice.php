@@ -582,6 +582,9 @@ class Invoice extends CI_Controller {
         $templateDir = __DIR__ . "/../excel-templates/";
 
         if (!empty($invoices)) {
+            log_message('info', __FUNCTION__ . "=> Data Found for Cash Detailed Invoice");
+            echo "Data Found for Cash Detailed Invoice" . PHP_EOL;
+
             // it stores all unique booking id which is completed by particular vendor id
             $unique_booking = array_unique(array_map(function ($k) {
                         return $k['booking_id'];
@@ -594,13 +597,11 @@ class Invoice extends CI_Controller {
             array_push($unique_booking_cash, $unique_booking);
 
             log_message('info', __FUNCTION__ . '=> Start Date: ' .
-                    $from_date . ', End Date: ' . $to_date);
+                    $from_date . ', End Date: ' . $to_date . ', Service Centre: ' . $details['vendor_partner_id'] . ', Count: ' . $count);
 
             // set date format like 1st July 2016
             $start_date = date("jS M, Y", strtotime($from_date));
             $end_date = date("jS M, Y", strtotime('-1 day', strtotime($to_date)));
-
-            log_message('info', 'Service Centre: ' . $details['vendor_partner_id'] . ', Count: ' . $count);
 
             //set config for report
             $config = array(
@@ -622,7 +623,6 @@ class Invoice extends CI_Controller {
                 } else {
                     $invoice_version = "R";
                 }
-
 
                 $current_month = date('m');
                 // 3 means March Month
@@ -691,31 +691,41 @@ class Invoice extends CI_Controller {
             $output_file_dir = "/247around_tmp/";
             $output_file = $invoice_id;
             $output_file_excel = $output_file_dir . $output_file . "-detailed.xlsx";
-            $res1 = 0;
             if (file_exists($output_file_excel)) {
+                $res1 = 0;
+
+                log_message('info', __FUNCTION__ . " File exists, deleting it now: " . $output_file_excel);
+                echo " File exists, deleting it now: " . $output_file_excel . PHP_EOL;
 
                 system(" chmod 777 " . $output_file_excel, $res1);
-                unlink($output_file_excel);
+                
+                $f_del = unlink($output_file_excel);
+                log_message('info', __FUNCTION__ . " File deleted: " . $f_del);
+                echo " File deleted: " . $f_del . PHP_EOL;                
             }
 
             //for xlsx: excel, for xls: excel2003
             $R->render('excel', $output_file_excel);
             system(" chmod 777 " . $output_file_excel, $res1);
-            $this->email->clear(TRUE);
-            $this->email->from('billing@247around.com', '247around Team');
+            
             if ($details['invoice_type'] === "final") {
                 $to = $invoices['booking'][0]['owner_email'] . ", " . $invoices['booking'][0]['primary_contact_email'];
                 $subject = "247around - " . $invoices['booking'][0]['company_name'] .
                         " - Cash Invoice for period: " . $start_date . " to " . $end_date;
                 $cc = "anuj@247around.com, nits@247around.com";
+                //Add RM email id in CC as well
             } else {
                 $to = "anuj@247around.com";
                 $cc = "";
-                $subject = "Draft - Cash Invoices - 247around - " . $invoices['booking'][0]['company_name'];
+                $subject = "Draft - Cash Invoice - " . $invoices['booking'][0]['company_name'];
             }
 
+            $this->email->clear(TRUE);
+            $this->email->from('billing@247around.com', '247around Team');            
             $this->email->to($to);
+            //attach detailed invoice
             $this->email->attach($output_file_excel, 'attachment');
+            //attach mail invoice
             $this->email->attach($output_file_dir . $invoice_id . ".xlsx", 'attachment');
 
             $this->email->subject($subject);
@@ -730,7 +740,6 @@ class Invoice extends CI_Controller {
             }
 
             if ($details['invoice_type'] === "final") {
-
                 //Send SMS to PoC/Owner
                 $sms['tag'] = "vendor_invoice_mailed";
                 $sms['smsData']['type'] = 'Cash';
@@ -742,10 +751,12 @@ class Invoice extends CI_Controller {
                 $sms['type_id'] = $invoices['booking'][0]['id'];
 
                 $this->notify->send_sms_acl($sms);
+                
                 //Upload Excel files to AWS
                 $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "invoices-excel/" . $invoice_id . "-detailed.xlsx";
                 $invoice_upload = $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                
                 if ($invoice_upload) {
                     log_message('info', __METHOD__ . ": Cash Detailed Invoices uploaded to S3");
                     echo " Cash Detailed Invoices uploaded to S3";
@@ -762,7 +773,6 @@ class Invoice extends CI_Controller {
                     'vendor_partner' => 'vendor',
                     'vendor_partner_id' => $invoices['booking'][0]['id'],
                     'invoice_file_excel' => $invoice_id . '.xlsx',
-                    //'invoice_file_pdf' => $output_file . '.pdf',
                     'from_date' => date("Y-m-d", strtotime($start_date)),
                     'to_date' => date("Y-m-d", strtotime($end_date)),
                     'num_bookings' => $count,
@@ -796,7 +806,6 @@ class Invoice extends CI_Controller {
                 $this->update_booking_invoice_mappings_repairs($invoices['booking'], $invoice_id);
             }
 
-
             // insert data into vendor invoices snapshot or draft table as per the invoice type
             $this->insert_cash_invoices_snapshot($invoices, $invoice_id, $details['invoice_type']);
 
@@ -807,14 +816,17 @@ class Invoice extends CI_Controller {
             $invoice_sc_details[$invoices['booking'][0]['id']]['start_date'] = $start_date;
             $invoice_sc_details[$invoices['booking'][0]['id']]['end_date'] = $end_date;
 
-            exec("rm -rf " . escapeshellarg($output_file_excel));
-            exec("rm -rf " . escapeshellarg($output_file_dir . $invoice_id . ".xlsx"));
+            //Dont delete them for some time
+            //exec("rm -rf " . escapeshellarg($output_file_excel));
+            //exec("rm -rf " . escapeshellarg($output_file_dir . $invoice_id . ".xlsx"));
             log_message('info', __METHOD__ . ' Exit ');
+            
             unset($excel_data);
         } else {
-            //Enter log and echo here
-        }
+            log_message('info', __FUNCTION__ . "=> Data Not Found for Cash Detailed Invoice" . print_r($details));
 
+            echo "Data Not Found for Cash Detailed Invoice" . PHP_EOL;
+        }
 
         return $invoice_sc_details;
     }
@@ -1242,6 +1254,7 @@ class Invoice extends CI_Controller {
      */
     function process_invoices_from_terminal($vendor_partner, $invoice_type, $vendor_partner_id, $invoice_month, $vendor_invoice_type) {
         log_message('info', __FUNCTION__ . " Entering......");
+        
         $details['vendor_partner'] = $vendor_partner;
         $details['invoice_type'] = $invoice_type;
         $details['vendor_partner_id'] = $vendor_partner_id;
@@ -1257,6 +1270,7 @@ class Invoice extends CI_Controller {
      */
     function generate_vendor_partner_invoices($details) {
         log_message('info', __FUNCTION__ . " Entering......");
+        
         $next_month = "";
         $year = "";
 
@@ -1399,11 +1413,18 @@ class Invoice extends CI_Controller {
                     $vendor_details = $this->vendor_model->getActiveVendor('', 0);
                     foreach ($vendor_details as $value) {
                         $details['vendor_partner_id'] = $value['id'];
-                        log_message('info', __FUNCTION__ . " Preparing CASH Invoice  Vendor: " . $details['vendor_partner_id']);
-                        echo " Preparing CASH Invoice  Vendor: " . $details['vendor_partner_id'];
+                        
+                        log_message('info', __FUNCTION__ . " Preparing CASH Invoice for Vendor: " . $details['vendor_partner_id']);
+                        echo " Preparing CASH Invoice for Vendor: " . $details['vendor_partner_id'] . PHP_EOL;
+                        
                         //Prepare main invoice first
                         $details['invoice_id'] = $this->generate_vendor_cash_invoice($details);
+                        
+                        //Invoice made successfully
                         if ($details['invoice_id']) {
+                            log_message('info', 'Invoice made successfully, generating detailed annexure now');
+                            echo 'Invoice made successfully' . PHP_EOL;
+                            
                             //Generate detailed annexure now
                             $data = $this->invoices_model->get_vendor_cash_detailed($details['vendor_partner_id'], $details['date_range']);
                             $this->generate_cash_details_invoices_for_vendors($data, $details);
@@ -2148,7 +2169,8 @@ class Invoice extends CI_Controller {
         $invoices = $this->invoices_model->get_vendor_cash_invoice($vendor_id, $from_date, $to_date);
 
         if (!empty($invoices)) {
-            log_message('info', __FUNCTION__ . "=> Data Found");
+            log_message('info', __FUNCTION__ . "=> Data Found for Cash Invoice");
+            echo "Data Found for Cash Invoice" . PHP_EOL;
 
             $template = 'Vendor_Settlement_Template-CashMain-v4.xlsx';
             // directory
@@ -2164,8 +2186,11 @@ class Invoice extends CI_Controller {
             $invoices['meta']['invoice_date'] = date("jS M, Y", strtotime($to_date));
 
             if (isset($details['invoice_id'])) {
-                log_message('info', __FUNCTION__ . " Re-Generate Invoice ID: " . $details['invoice_id']);
+                log_message('info', __FUNCTION__ . " Re-Generate Cash Invoice ID: " . $details['invoice_id']);
+                echo "Re-Generate Cash Invoice ID: " . $details['invoice_id'] . PHP_EOL;
+                
                 $invoices['meta']['invoice_id'] = $details['invoice_id'];
+                
                 if ($invoices['product'][0]['state'] == "DELHI") {
 
                     $invoice_version = "T";
@@ -2198,7 +2223,9 @@ class Invoice extends CI_Controller {
                 $invoice_no = $this->invoices_model->get_invoices_details($where);
 
                 $invoices['meta']['invoice_id'] = $invoice_id_tmp . "-" . (count($invoice_no) + 1);
-                log_message('info', __FUNCTION__ . " Generate Invoice ID: " . $invoices['meta']['invoice_id']);
+                
+                log_message('info', __FUNCTION__ . " New Invoice ID Generated: " . $invoices['meta']['invoice_id']);
+                echo " New Invoice ID Generated: " . $invoices['meta']['invoice_id'] . PHP_EOL;
             }
 
             //load template
@@ -2220,14 +2247,18 @@ class Invoice extends CI_Controller {
                     )
             );
 
-
             $output_file_excel = "/247around_tmp/" . $invoices['meta']['invoice_id'] . ".xlsx";
-            $res1 = 0;
             if (file_exists($output_file_excel)) {
+                $res1 = 0;
+                
+                log_message('info', __FUNCTION__ . " File exists, deleting it now: " . $output_file_excel);
+                echo " File exists, deleting it now: " . $output_file_excel . PHP_EOL;
 
                 system(" chmod 777 " . $output_file_excel, $res1);
-
-                unlink($output_file_excel);
+                
+                $f_del = unlink($output_file_excel);
+                log_message('info', __FUNCTION__ . " File deleted: " . $f_del);
+                echo " File deleted: " . $f_del . PHP_EOL;                
             }
 
             $R->render('excel', $output_file_excel);
@@ -2235,61 +2266,64 @@ class Invoice extends CI_Controller {
             $res2 = 0;
             system(" chmod 777 " . $output_file_excel, $res2);
 
-
             if ($invoice_type == "final") {
-                log_message('info', __FUNCTION__ . " Generate Final Invoice ");
+                log_message('info', __FUNCTION__ . " Generate Final Cash Invoice ");
 
-                $bucket = 'bookings-collateral-test';
+                $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "invoices-excel/" . $invoices['meta']['invoice_id'] . ".xlsx";
 
                 $invoice_uploaded = $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                 if ($invoice_uploaded) {
-                    echo 'Main Invoice Uploaded' . PHP_EOL;
-                    log_message('info', __FUNCTION__ . " Main Invoice is uploaded to S3" . $invoices['meta']['invoice_id'] . ".xlsx");
+                    echo 'Main Cash Invoice Uploaded' . PHP_EOL;
+                    log_message('info', __FUNCTION__ . " Main Cash Invoice is uploaded to S3: " . $invoices['meta']['invoice_id'] . ".xlsx");
                 } else {
-                    echo 'Main Invoice not Uploaded' . PHP_EOL;
-                    log_message('info', __FUNCTION__ . " Main Invoice is not uploaded to S3" . $invoices['meta']['invoice_id'] . ".xlsx");
+                    echo 'Main Cash Invoice NOT Uploaded' . PHP_EOL;
+                    log_message('info', __FUNCTION__ . " Main Cash Invoice is NOT uploaded to S3: " . $invoices['meta']['invoice_id'] . ".xlsx");
                 }
 
                 // Dump data in a file as a Json
-                $file = fopen("/247around_tmp/" . $invoices['meta']['invoice_id'] . ".txt", "w") or die("Unable to open file!");
-                $res = 0;
-                system(" chmod 777 /247around_tmp/" . $invoices['meta']['invoice_id'] . ".txt", $res);
-                log_message('info', __FUNCTION__ . " Chmod result: " . print_r($res, TRUE));
-
-                $json_data['invoice_data'] = $invoices;
-
-                $contents = " Vendor FOC Invoice Json Data:\n";
-                fwrite($file, $contents);
-                fwrite($file, print_r(json_encode($json_data), TRUE));
-                fclose($file);
-
-                log_message('info', __METHOD__ . ": Json File Created");
-
-                $directory_xls = "invoices-json/" . $invoices['meta']['invoice_id'] . ".txt";
-                $json_upload = $this->s3->putObjectFile("/247around_tmp/" . $invoices['meta']['invoice_id'] . ".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                if ($json_upload) {
-                    echo 'Main Invoice JOSN File Uploaded' . PHP_EOL;
-                    ;
-                    log_message('info', __FUNCTION__ . " Main Invoice JOSN FIle Uploaded to S3" . $invoices['meta']['invoice_id'] . ".txt");
+                $file = fopen("/247around_tmp/" . $invoices['meta']['invoice_id'] . ".txt", "w");
+                if ($file === FALSE) {
+                    echo "Unable to create JSON file......." . PHP_EOL;
+                    log_message('info', __FUNCTION__ . "Unable to create JSON file.......");
                 } else {
-                    echo 'Main Invoice JOSN File not Uploaded' . PHP_EOL;
-                    log_message('info', __FUNCTION__ . " Main Invoice is not uploaded to S3" . $invoices['meta']['invoice_id'] . ".txt");
-                }
-                log_message('info', __METHOD__ . ": Json File Uploded to S3");
+                    $res = 0;
+                    system(" chmod 777 /247around_tmp/" . $invoices['meta']['invoice_id'] . ".txt", $res);
+                    log_message('info', __FUNCTION__ . " Chmod result: " . print_r($res, TRUE));
 
-                //Delete JSON files now
-                //Do not delete XLSX now, it is being used later for email
-                exec("rm -rf " . escapeshellarg("/247around_tmp/" . $invoices['meta']['invoice_id'] . ".txt"));
+                    $json_data['invoice_data'] = $invoices;
+
+                    $contents = " Vendor Cash Invoice Json Data:\n";
+                    fwrite($file, $contents);
+                    fwrite($file, print_r(json_encode($json_data), TRUE));
+                    fclose($file);
+
+                    log_message('info', __METHOD__ . ": Json File Created");
+
+                    $directory_xls = "invoices-json/" . $invoices['meta']['invoice_id'] . ".txt";
+                    $json_upload = $this->s3->putObjectFile("/247around_tmp/" . $invoices['meta']['invoice_id'] . ".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    if ($json_upload) {
+                        echo 'Main Invoice JOSN File Uploaded' . PHP_EOL;
+                        log_message('info', __FUNCTION__ . " Main Invoice JOSN FIle Uploaded to S3" . $invoices['meta']['invoice_id'] . ".txt");
+                    } else {
+                        echo 'Main Invoice JOSN File not Uploaded' . PHP_EOL;
+                        log_message('info', __FUNCTION__ . " Main Invoice is not uploaded to S3" . $invoices['meta']['invoice_id'] . ".txt");
+                    }
+                    
+                    //Delete JSON files now
+                    exec("rm -rf " . escapeshellarg("/247around_tmp/" . $invoices['meta']['invoice_id'] . ".txt"));
+                }
             }
 
-            log_message('info', __FUNCTION__ . " Exit Invoice Id: " . $invoices['meta']['invoice_id']);
+            log_message('info', __FUNCTION__ . " Exiting with Invoice Id: " . $invoices['meta']['invoice_id']);
+            echo " Exiting with Invoice Id: " . $invoices['meta']['invoice_id'] . PHP_EOL;
 
             return $invoices['meta']['invoice_id'];
         } else {
-            log_message('info', __FUNCTION__ . " Exit Dta Not Found " . print_r($details));
+            log_message('info', __FUNCTION__ . "=> Data Not Found for Cash Invoice" . print_r($details));
 
-            echo "Data Does Not Exist" . PHP_EOL;
+            echo "Data Not Found for Cash Invoice" . PHP_EOL;
+            
             return FALSE;
         }
     }
