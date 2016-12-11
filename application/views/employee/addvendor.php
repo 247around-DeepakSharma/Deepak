@@ -286,26 +286,29 @@
                                         <div class="col-md-8">
                                              <select name="company_type" class="form-control">
                                                  <option disabled selected >Select Company Type</option>
-<!--                                                 <option value="HUF" <?php //if(isset($query[0]['company_type'])){
-                                               // if ($query[0]['company_type'] == "HUF") {
-                                                  //  echo "Selected";
-                                                // } }
-                                                ?> >HUF</option>-->
                                              <option value="Individual" <?php if(isset($query[0]['company_type'])){
                                                 if ($query[0]['company_type'] == "Individual") {
                                                      echo "Selected";
                                              } }
                                                 ?>>Individual</option>
+                                             
+                                             <option value="Proprietorship Firm" <?php if(isset($query[0]['company_type'])){
+                                                if ($query[0]['company_type'] == "Proprietorship Firm") {
+                                                     echo "Selected";
+                                             } }
+                                                ?>>Proprietorship Firm</option>
+                                             
                                              <option value="Partnership Firm" <?php if(isset($query[0]['company_type'])){
                                                 if ($query[0]['company_type'] == "Partnership Firm") {
                                                      echo "Selected";
                                              } }
                                                 ?>>Partnership Firm</option>
-                                             <option value="Company (Pvt Ltd)" <?php if(isset($query[0]['company_type'])){
-                                                if ($query[0]['company_type'] == "Company (Pvt Ltd)") {
+                                             
+                                             <option value="Private Ltd Company" <?php if(isset($query[0]['company_type'])){
+                                                if ($query[0]['company_type'] == "Private Ltd Company") {
                                                      echo "Selected";
                                              } }
-                                                ?>>Company (Pvt Ltd)</option>
+                                                ?>>Private Ltd Company</option>
 
                                          </select>
                                           

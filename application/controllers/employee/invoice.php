@@ -723,6 +723,7 @@ class Invoice extends CI_Controller {
             $this->email->clear(TRUE);
             $this->email->from('billing@247around.com', '247around Team');            
             $this->email->to($to);
+            $this->email->cc($cc);
             //attach detailed invoice
             $this->email->attach($output_file_excel, 'attachment');
             //attach mail invoice
