@@ -770,7 +770,7 @@ EOD;
             $sf_list = $this->vendor_model->get_employee_relation($value['id']);
             if(!empty($sf_list)){
                 $html = $this->booking_utilities->booking_report_for_new_service_center($sf_list[0]['service_centres_id']);
-                $to = $sf[0]['official_email'];
+                $to = $sf_list[0]['official_email'];
 
                 $this->notify->sendEmail("booking@247around.com", $to, "", "", "New Service Center Report ".date('d-M,Y'), $html, "");
                 log_message('info', __FUNCTION__ . ' New Service Center Report mail sent to '. $to);
@@ -798,7 +798,7 @@ EOD;
             $sf_list = $this->vendor_model->get_employee_relation($value['id']);
             if(!empty($sf_list)){
                 $html = $this->booking_utilities->booking_report_by_service_center($sf_list[0]['service_centres_id']);
-                $to = $sf[0]['official_email'];
+                $to = $sf_list[0]['official_email'];
         
                 $this->notify->sendEmail("booking@247around.com", $to, "", "", "Service Center Report ".date('d-M,Y'), $html, "");
                 log_message('info', __FUNCTION__ . ' Service Center Report mail sent to '. $to);
