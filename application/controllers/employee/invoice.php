@@ -180,7 +180,7 @@ class Invoice extends CI_Controller {
      *  @param : Type $partnerId
      *  @return : void
      */
-    function get_add_new_transaction($vendor_partner = "", $id = "") {
+    function get_add_new_transaction($vendor_partner, $id) {
         $data['vendor_partner'] = $vendor_partner;
         $data['id'] = $id;
         $data['invoice_id'] = $this->input->post('invoice_id');
@@ -190,9 +190,37 @@ class Invoice extends CI_Controller {
         $this->load->view('employee/header');
         $this->load->view('employee/addnewtransaction', $data);
     }
+    /**
+     * @desc: This is used to load upadate form of bank transaction details
+     * @param String $id (Bank transaction id)
+     */
+    function update_banktransaction($id){
+        
+        $details = $this->invoices_model->get_bank_transactions_details(array('id'=>$id));
+        if(!empty($details)){
+            $data['vendor_partner'] = $details[0]['partner_vendor'];
+            $data['id'] = $details[0]['partner_vendor_id'];
+            $data['bank_txn_details'] = $details;
+            $amount = 0;
+            if($details[0]['credit_amount'] > 0){
+                $amount = $details[0]['credit_amount'];
+                
+            } else if($details[0]['debit_amount'] > 0){
+                $amount = -$details[0]['debit_amount'];
+                
+            }
+            $data['invoice_id'] = explode(",", $details[0]['invoice_id']);
+            $data['selected_amount_collected'] = $amount;
+            $data['selected_tds'] = $details[0]['tds_amount'];
+            
+            $this->load->view('employee/header');
+            $this->load->view('employee/addnewtransaction', $data);
+        }
+        
+    }
 
     /**
-     *  @desc : This function inserts new bank transaction
+     *  @desc : This is used to insert and update bank transaction table. It gets bank transaction id while update other wise empty
      *  @param : void
      *  @return : void
      */
@@ -203,6 +231,9 @@ class Invoice extends CI_Controller {
         $account_statement['bankname'] = $this->input->post('bankname');
         $account_statement['credit_debit'] = $this->input->post('credit_debit');
         $account_statement['transaction_mode'] = $this->input->post('transaction_mode');
+        $account_statement['tds_amount'] = $this->input->post('tds_amount');
+        //Get bank txn id while update other wise empty.
+        $bank_txn_id = $this->input->post("bank_txn_id");
         $amount = $this->input->post('amount');
         $paid_amount = 0;
         if ($account_statement['credit_debit'] == 'Credit') {
@@ -222,12 +253,13 @@ class Invoice extends CI_Controller {
         $invoice_id = explode(',', $account_statement['invoice_id']);
 
         $this->invoices_model->update_settle_invoices($invoice_id, $paid_amount, $account_statement['partner_vendor'], $account_statement['partner_vendor_id']);
-
-        $this->invoices_model->bankAccountTransaction($account_statement);
-
-        // $output = "Transaction added successfully.";
-        // $userSession = array('success' => $output);
-        // $this->session->set_userdata($userSession);
+        if(empty($bank_txn_id)){
+            $this->invoices_model->bankAccountTransaction($account_statement);
+            
+        } else {
+            $this->invoices_model->update_bank_transactions(array('id'=>$bank_txn_id), $account_statement); 
+        }            
+        
         //Send SMS to vendors about payment
         if ($account_statement['partner_vendor'] == 'vendor') {
             $vendor_arr = $this->vendor_model->getVendorContact($account_statement['partner_vendor_id']);
@@ -461,6 +493,7 @@ class Invoice extends CI_Controller {
                     'vendor_partner' => 'partner',
                     'vendor_partner_id' => $data[0]['partner_id'],
                     'invoice_file_excel' => $files_name . '.xlsx',
+                    'invoice_detailed_excel' => $invoice_id . '-detailed.xlsx',
                     'invoice_file_pdf' => $files_name . '.pdf',
                     'from_date' => date("Y-m-d", strtotime($start_date)), //??? Check this next time, format should be YYYY-MM-DD
                     'to_date' => date("Y-m-d", strtotime($end_date)),
@@ -514,7 +547,7 @@ class Invoice extends CI_Controller {
         );
 
         //Get populated XLS with data
-        $output_file_dir = "/tmp/";
+        $output_file_dir = TMP_FOLDER;
         $output_file = $excel_data['invoice_id'] . "-detailed";
         $output_file_excel = $output_file_dir . $output_file . ".xlsx";
         $res1 = 0;
@@ -541,7 +574,7 @@ class Invoice extends CI_Controller {
         // Dump data in a file as a Json
         $file = fopen("/tmp/" . $output_file . ".txt", "w") or die("Unable to open file!");
         $res = 0;
-        system(" chmod 777 /tmp/" . $output_file . ".txt", $res);
+        system(" chmod 777 ".TMP_FOLDER . $output_file . ".txt", $res);
         $json_data['excel_data'] = $excel_data;
         $json_data['invoice_data'] = $data;
         $contents = " Patner Invoice Json Data:\n";
@@ -552,11 +585,16 @@ class Invoice extends CI_Controller {
 
         $bucket = BITBUCKET_DIRECTORY;
         $directory_xls = "invoices-json/" . $output_file . ".txt";
-        $this->s3->putObjectFile("/tmp/" . $output_file . ".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-        log_message('info', __METHOD__ . ": Json File Uploded to S3");
+        $json = $this->s3->putObjectFile(TMP_FOLDER . $output_file . ".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        if($json){
+            log_message('info', __METHOD__ . ": Json File Uploded to S3");
+        } else {
+            log_message('info', __METHOD__ . ": Json File Not Uploded to S3");
+        }
+        
 
         //Delete JSON files now
-        exec("rm -rf " . escapeshellarg("/tmp/" . $output_file . ".txt"));
+        exec("rm -rf " . escapeshellarg(TMP_FOLDER . $output_file . ".txt"));
 
         return $output_file_dir . $output_file;
     }
@@ -688,7 +726,7 @@ class Invoice extends CI_Controller {
             );
 
             //Get populated XLS with data
-            $output_file_dir = "/247around_tmp/";
+            $output_file_dir = TMP_FOLDER;
             $output_file = $invoice_id;
             $output_file_excel = $output_file_dir . $output_file . "-detailed.xlsx";
             if (file_exists($output_file_excel)) {
@@ -757,13 +795,20 @@ class Invoice extends CI_Controller {
                 $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "invoices-excel/" . $invoice_id . "-detailed.xlsx";
                 $invoice_upload = $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                
-                if ($invoice_upload) {
+                if($invoice_upload){
                     log_message('info', __METHOD__ . ": Cash Detailed Invoices uploaded to S3");
                     echo " Cash Detailed Invoices uploaded to S3";
+
                 } else {
-                    log_message('info', __METHOD__ . ": Cash Detailed Invoices is not uploaded to S3");
-                    echo " Cash Detailed Invoices is not uploaded to S3";
+                    $invoice_upload = $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    if($invoice_upload){
+                        log_message('info', __METHOD__ . ": Cash Detailed Invoices uploaded to S3");
+                        echo " Cash Detailed Invoices uploaded to S3";
+
+                    } else {
+                        log_message('info', __METHOD__ . ": Cash Detailed Invoices is not uploaded to S3");
+                        echo " Cash Detailed Invoices is not uploaded to S3";
+                    }
                 }
 
                 //Save this invoice info in table
@@ -774,6 +819,7 @@ class Invoice extends CI_Controller {
                     'vendor_partner' => 'vendor',
                     'vendor_partner_id' => $invoices['booking'][0]['id'],
                     'invoice_file_excel' => $invoice_id . '.xlsx',
+                    'invoice_detailed_excel' => $invoice_id . '-detailed.xlsx',
                     'from_date' => date("Y-m-d", strtotime($start_date)),
                     'to_date' => date("Y-m-d", strtotime($end_date)),
                     'num_bookings' => $count,
@@ -818,8 +864,8 @@ class Invoice extends CI_Controller {
             $invoice_sc_details[$invoices['booking'][0]['id']]['end_date'] = $end_date;
 
             //Dont delete them for some time
-            //exec("rm -rf " . escapeshellarg($output_file_excel));
-            //exec("rm -rf " . escapeshellarg($output_file_dir . $invoice_id . ".xlsx"));
+            exec("rm -rf " . escapeshellarg($output_file_excel));
+            exec("rm -rf " . escapeshellarg($output_file_dir . $invoice_id . ".xlsx"));
             log_message('info', __METHOD__ . ' Exit ');
             
             unset($excel_data);
@@ -968,6 +1014,30 @@ class Invoice extends CI_Controller {
             }
 
             $t_total = $total_inst_charge + $total_stand_charge + $total_st_charge + $total_vat_charge;
+            $tds = 0;
+            if(empty($invoices[0]['pan_no'])){
+               $tds = ($total_inst_charge + $total_st_charge)*.20;
+               $tds_tax_rate = "20%";
+                
+            } else if(empty ($invoices[0]['contract_file'])){
+                
+                 $tds = ($total_inst_charge + $total_st_charge) *.05;
+                 $tds_tax_rate = "5%";
+                 
+            } else {
+                switch($invoices[0]['company_type']){
+                    case "Individual":
+                        $tds = ($total_inst_charge + $total_st_charge) *.01;
+                        $tds_tax_rate = "1%";
+                        break;
+                    
+                    case "Partnership Firm":
+                    case "Company (Pvt Ltd)":
+                        $tds = ($total_inst_charge + $total_st_charge) *.02;
+                        $tds_tax_rate = "2%";
+                        break;
+                }
+            }
 
             //this array stores unique booking id
             $unique_booking = array_unique(array_map(function ($k) {
@@ -997,9 +1067,6 @@ class Invoice extends CI_Controller {
             //load template
             $R = new PHPReport($config);
 
-            $t_w_total = $t_total;
-            $tds = 0;
-
             // stores charges
             $excel_data = array(
                 't_ic' => $total_inst_charge,
@@ -1009,7 +1076,8 @@ class Invoice extends CI_Controller {
                 't_total' => $t_total,
                 't_rating' => $invoices[0]['avg_rating'],
                 'tds' => $tds,
-                't_vp_w_tds' => round($t_w_total, 0) // vendor payment without TDS
+                'tds_tax_rate' => $tds_tax_rate,
+                't_vp_w_tds' => round($t_total - $tds, 0) // vendor payment with TDS
             );
 
             $excel_data['invoice_id'] = $invoice_id;
@@ -1057,7 +1125,7 @@ class Invoice extends CI_Controller {
             );
 
             //Get populated XLS with data
-            $output_file_dir = "/tmp/";
+            $output_file_dir = TMP_FOLDER;
             $output_file = $invoice_id;
             $output_file_excel = $output_file_dir . $output_file . "-detailed.xlsx";
             $res1 = 0;
@@ -1127,8 +1195,16 @@ class Invoice extends CI_Controller {
                     echo ": Invoices uploaded to S3 " . $invoice_id . "-detailed.xlsx";
                 } else {
 
-                    log_message('info', __METHOD__ . ": Invoices Not uploaded to S3 " . $invoice_id . "-detailed.xlsx");
-                    echo ": Invoices not uploaded to S3 " . $invoice_id . "-detailed.xlsx";
+                    $foc_detailed = $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    if ($foc_detailed) {
+
+                        log_message('info', __METHOD__ . ": Invoices uploaded to S3 " . $invoice_id . "-detailed.xlsx");
+                        echo ": Invoices uploaded to S3 " . $invoice_id . "-detailed.xlsx";
+                    } else {
+
+                        log_message('info', __METHOD__ . ": Invoices Not uploaded to S3 " . $invoice_id . "-detailed.xlsx");
+                        echo ": Invoices not uploaded to S3 " . $invoice_id . "-detailed.xlsx";
+                    }
                 }
                 //Save this invoice info in table
                 $invoice_details = array(
@@ -1138,6 +1214,7 @@ class Invoice extends CI_Controller {
                     'vendor_partner' => 'vendor',
                     'vendor_partner_id' => $invoices[0]['id'],
                     'invoice_file_excel' => $invoice_id . '.xlsx',
+                    'invoice_detailed_excel' => $invoice_id . '-detailed.xlsx',
                     //'invoice_file_pdf' => $output_file . '.pdf',
                     'from_date' => date("Y-m-d", strtotime($start_date)),
                     'to_date' => date("Y-m-d", strtotime($end_date)),
@@ -1630,7 +1707,7 @@ class Invoice extends CI_Controller {
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "invoices-excel/" . $invoice[0]['invoice_number'] . '.xlsx';
 
-                    $this->s3->putObjectFile("/tmp/" . $invoice[0]['invoice_number'] . '.xlsx', $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $this->s3->putObjectFile(TMP_FOLDER . $invoice[0]['invoice_number'] . '.xlsx', $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 
                     //Save this invoice info in table
                     $invoice_details = array(
@@ -1698,6 +1775,10 @@ class Invoice extends CI_Controller {
      */
     function create_vendor_brackets_invoice($data) {
         log_message('info', __FUNCTION__ . " Entering......... ");
+        $output_file_dir =TMP_FOLDER;
+        $output_file = $data['invoice_number'];
+        $output_file_name = $output_file . ".xlsx";
+        $output_file_excel = $output_file_dir . $output_file_name;
         $template = 'Bracket_Invoice.xlsx';
         //set absolute path to directory with template files
         $templateDir = __DIR__ . "/../excel-templates/";
@@ -1709,7 +1790,7 @@ class Invoice extends CI_Controller {
         //load template
         $R = new PHPReport($config);
         if (file_exists($output_file_excel)) {
-
+            $res1 = 0;
             system(" chmod 777 " . $output_file_excel, $res1);
             unlink($output_file_excel);
         }
@@ -1718,10 +1799,7 @@ class Invoice extends CI_Controller {
             'data' => $data
         ));
 
-        $output_file_dir = "/tmp/";
-        $output_file = $data['invoice_number'];
-        $output_file_name = $output_file . ".xlsx";
-        $output_file_excel = $output_file_dir . $output_file_name;
+      
         $res1 = 0;
         if (file_exists($output_file_excel)) {
 
@@ -1931,7 +2009,7 @@ class Invoice extends CI_Controller {
                     )
             );
 
-            $output_file_excel = "/tmp/" . $invoices['meta']['invoice_id'] . ".xlsx";
+            $output_file_excel = TMP_FOLDER. $invoices['meta']['invoice_id'] . ".xlsx";
             $res1 = 0;
             if (file_exists($output_file_excel)) {
 
@@ -1967,14 +2045,27 @@ class Invoice extends CI_Controller {
                 $bucket = BITBUCKET_DIRECTORY;
                 $directory_xls = "invoices-excel/" . $output_file_excel;
 
-                $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $invoice_excel = $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                if ($invoice_excel) {
+                    log_message('info', __METHOD__ . ":  Partner Main Invoice File uploaded to s3");
+                    echo "Partner Invoice File uploaded to s3";
+                } else {
+                    $invoice_excel = $this->s3->putObjectFile(TMP_FOLDER . $output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    if ($invoice_excel) {
+                        log_message('info', __METHOD__ . ": Partner Main Invoice File uploaded to s3");
+                        echo "Partner Invoice File uploaded to s3";
+                    } else {
+                        log_message('info', __METHOD__ . ": Partner Main Invoice File uploaded to s3 " . $output_file_excel);
+                        echo "Partner Invoice File uploaded to s3 " . $output_file_excel;
+                    }
+                }
 
                 log_message('info', __FUNCTION__ . ' File Uploaded to S3');
 
                 // Dump data in a file as a Json
-                $file = fopen("/tmp/" . $invoices['meta']['invoice_id'] . ".txt", "w") or die("Unable to open file!");
+                $file = fopen(TMP_FOLDER. $invoices['meta']['invoice_id'] . ".txt", "w") or die("Unable to open file!");
                 $res = 0;
-                system(" chmod 777 /tmp/" . $invoices['meta']['invoice_id'] . ".txt", $res);
+                system(" chmod 777 ".TMP_FOLDER . $invoices['meta']['invoice_id'] . ".txt", $res);
                 $json_data['invoice_data'] = $invoices;
 
                 $contents = " Patner Invoice Json Data:\n";
@@ -1984,11 +2075,25 @@ class Invoice extends CI_Controller {
                 log_message('info', __METHOD__ . ": Json File Created");
 
                 $directory_xls = "invoices-json/" . $invoices['meta']['invoice_id'] . ".txt";
-                $this->s3->putObjectFile("/tmp/" . $invoices['meta']['invoice_id'] . ".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $json_s3 = $this->s3->putObjectFile(TMP_FOLDER . $invoices['meta']['invoice_id'] . ".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+               
+                if ($json_s3) {
+                    log_message('info', __METHOD__ . ":  Partner TXT File uploaded to s3");
+                    echo "Partner Invoice File uploaded to s3";
+                } else {
+                    $json_s3 = $this->s3->putObjectFile(TMP_FOLDER . $invoices['meta']['invoice_id'] . ".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    if ($json_s3) {
+                        log_message('info', __METHOD__ . ": Partner TXT File uploaded to s3");
+                        echo "Partner Invoice File uploaded to s3";
+                    } else {
+                        log_message('info', __METHOD__ . ": Partner TXT File uploaded to s3 " . $invoices['meta']['invoice_id'] . ".txt");
+                        echo "Partner Invoice File uploaded to s3 " . $invoices['meta']['invoice_id'] . ".txt";
+                    }
+                }
                 log_message('info', __METHOD__ . ": Json File Uploded to S3");
 
                 //Delete JSON files now
-                exec("rm -rf " . escapeshellarg("/tmp/" . $invoices['meta']['invoice_id'] . ".txt"));
+                exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoices['meta']['invoice_id'] . ".txt"));
             }
 
             exec("rm -rf " . escapeshellarg($output_file_excel));
@@ -2087,7 +2192,7 @@ class Invoice extends CI_Controller {
                     )
             );
 
-            $output_file_excel = "/tmp/" . $invoices['meta']['invoice_id'] . ".xlsx";
+            $output_file_excel = TMP_FOLDER . $invoices['meta']['invoice_id'] . ".xlsx";
             $res1 = 0;
             if (file_exists($output_file_excel)) {
 
@@ -2111,14 +2216,20 @@ class Invoice extends CI_Controller {
                     log_message('info', __METHOD__ . ": Main FOC Invoice File uploaded to s3");
                     echo "Main FOC Invoice File uploaded to s3";
                 } else {
-                    log_message('info', __METHOD__ . ": Main FOC Invoice File uploaded to s3 " . $invoices['meta']['invoice_id'] . ".xlsx");
-                    echo "Main FOC Invoice File uploaded to s3 " . $invoices['meta']['invoice_id'] . ".xlsx";
+                    $foc_upload = $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    if ($foc_upload) {
+                        log_message('info', __METHOD__ . ": Main FOC Invoice File uploaded to s3");
+                        echo "Main FOC Invoice File uploaded to s3";
+                    } else {
+                        log_message('info', __METHOD__ . ": Main FOC Invoice File uploaded to s3 " . $invoices['meta']['invoice_id'] . ".xlsx");
+                        echo "Main FOC Invoice File uploaded to s3 " . $invoices['meta']['invoice_id'] . ".xlsx";
+                    }
                 }
 
                 // Dump data in a file as a Json
-                $file = fopen("/tmp/" . $invoices['meta']['invoice_id'] . ".txt", "w") or die("Unable to open file!");
+                $file = fopen(TMP_FOLDER. $invoices['meta']['invoice_id'] . ".txt", "w") or die("Unable to open file!");
                 $res = 0;
-                system(" chmod 777 /tmp/" . $invoices['meta']['invoice_id'] . ".txt", $res);
+                system(" chmod 777 ".TMP_FOLDER . $invoices['meta']['invoice_id'] . ".txt", $res);
                 $json_data['invoice_data'] = $invoices;
 
                 $contents = " Vendor FOC Invoice Json Data:\n";
@@ -2128,20 +2239,28 @@ class Invoice extends CI_Controller {
                 log_message('info', __METHOD__ . ": Json File Created");
 
                 $directory_xls = "invoices-json/" . $invoices['meta']['invoice_id'] . ".txt";
-                $json = $this->s3->putObjectFile("/tmp/" . $invoices['meta']['invoice_id'] . ".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $json = $this->s3->putObjectFile(TMP_FOLDER. $invoices['meta']['invoice_id'] . ".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                 if ($json) {
 
-                    log_message('info', __METHOD__ . ": Main FOC Invoice File uploaded to s3");
+                    log_message('info', __METHOD__ . ": Json TXTInvoice File uploaded to s3");
                     echo "Main FOC Invoice File uploaded to s3";
                 } else {
 
-                    log_message('info', __METHOD__ . ": Main FOC Invoice File uploaded to s3 " . $invoices['meta']['invoice_id'] . ".txt");
-                    echo "Main FOC Invoice File uploaded to s3 " . $invoices['meta']['invoice_id'] . ".txt";
+                    $json = $this->s3->putObjectFile(TMP_FOLDER . $invoices['meta']['invoice_id'] . ".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    if ($json) {
+
+                        log_message('info', __METHOD__ . ": Json TXT File uploaded to s3");
+                        echo "Main FOC Invoice File uploaded to s3";
+                    } else {
+
+                        log_message('info', __METHOD__ . ": Json TXT File uploaded to s3 " . $invoices['meta']['invoice_id'] . ".txt");
+                        echo "Main FOC Invoice File uploaded to s3 " . $invoices['meta']['invoice_id'] . ".txt";
+                    }
                 }
-                log_message('info', __METHOD__ . ": Json File Uploded to S3");
+                
 
                 //Delete JSON files now
-                exec("rm -rf " . escapeshellarg("/tmp/" . $invoices['meta']['invoice_id'] . ".txt"));
+                exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoices['meta']['invoice_id'] . ".txt"));
             }
 
             log_message('info', __FUNCTION__ . " Exit Invoice Id: " . $invoices['meta']['invoice_id']);
@@ -2248,7 +2367,7 @@ class Invoice extends CI_Controller {
                     )
             );
 
-            $output_file_excel = "/247around_tmp/" . $invoices['meta']['invoice_id'] . ".xlsx";
+            $output_file_excel = TMP_FOLDER. $invoices['meta']['invoice_id'] . ".xlsx";
             if (file_exists($output_file_excel)) {
                 $res1 = 0;
                 
@@ -2278,18 +2397,24 @@ class Invoice extends CI_Controller {
                     echo 'Main Cash Invoice Uploaded' . PHP_EOL;
                     log_message('info', __FUNCTION__ . " Main Cash Invoice is uploaded to S3: " . $invoices['meta']['invoice_id'] . ".xlsx");
                 } else {
-                    echo 'Main Cash Invoice NOT Uploaded' . PHP_EOL;
-                    log_message('info', __FUNCTION__ . " Main Cash Invoice is NOT uploaded to S3: " . $invoices['meta']['invoice_id'] . ".xlsx");
+                    $invoice_uploaded = $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    if ($invoice_uploaded) {
+                        echo 'Main Cash Invoice Uploaded' . PHP_EOL;
+                        log_message('info', __FUNCTION__ . " Main Cash Invoice is uploaded to S3: " . $invoices['meta']['invoice_id'] . ".xlsx");
+                    } else {
+                        echo 'Main Cash Invoice NOT Uploaded' . PHP_EOL;
+                        log_message('info', __FUNCTION__ . " Main Cash Invoice is NOT uploaded to S3: " . $invoices['meta']['invoice_id'] . ".xlsx");
+                    }
                 }
 
                 // Dump data in a file as a Json
-                $file = fopen("/247around_tmp/" . $invoices['meta']['invoice_id'] . ".txt", "w");
+                $file = fopen(TMP_FOLDER . $invoices['meta']['invoice_id'] . ".txt", "w");
                 if ($file === FALSE) {
                     echo "Unable to create JSON file......." . PHP_EOL;
                     log_message('info', __FUNCTION__ . "Unable to create JSON file.......");
                 } else {
                     $res = 0;
-                    system(" chmod 777 /247around_tmp/" . $invoices['meta']['invoice_id'] . ".txt", $res);
+                    system(" chmod 777 ".TMP_FOLDER . $invoices['meta']['invoice_id'] . ".txt", $res);
                     log_message('info', __FUNCTION__ . " Chmod result: " . print_r($res, TRUE));
 
                     $json_data['invoice_data'] = $invoices;
@@ -2302,17 +2427,23 @@ class Invoice extends CI_Controller {
                     log_message('info', __METHOD__ . ": Json File Created");
 
                     $directory_xls = "invoices-json/" . $invoices['meta']['invoice_id'] . ".txt";
-                    $json_upload = $this->s3->putObjectFile("/247around_tmp/" . $invoices['meta']['invoice_id'] . ".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $json_upload = $this->s3->putObjectFile(TMP_FOLDER . $invoices['meta']['invoice_id'] . ".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     if ($json_upload) {
                         echo 'Main Invoice JOSN File Uploaded' . PHP_EOL;
                         log_message('info', __FUNCTION__ . " Main Invoice JOSN FIle Uploaded to S3" . $invoices['meta']['invoice_id'] . ".txt");
                     } else {
-                        echo 'Main Invoice JOSN File not Uploaded' . PHP_EOL;
-                        log_message('info', __FUNCTION__ . " Main Invoice is not uploaded to S3" . $invoices['meta']['invoice_id'] . ".txt");
+                        $json_upload = $this->s3->putObjectFile(TMP_FOLDER. $invoices['meta']['invoice_id'] . ".txt", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                        if ($json_upload) {
+                            echo 'Main Invoice JOSN File Uploaded' . PHP_EOL;
+                            log_message('info', __FUNCTION__ . " Main Invoice JOSN FIle Uploaded to S3" . $invoices['meta']['invoice_id'] . ".txt");
+                        } else {
+                            echo 'Main Invoice JOSN File not Uploaded' . PHP_EOL;
+                            log_message('info', __FUNCTION__ . " Main Invoice is not uploaded to S3" . $invoices['meta']['invoice_id'] . ".txt");
+                        }
                     }
                     
                     //Delete JSON files now
-                    exec("rm -rf " . escapeshellarg("/247around_tmp/" . $invoices['meta']['invoice_id'] . ".txt"));
+                    exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoices['meta']['invoice_id'] . ".txt"));
                 }
             }
 

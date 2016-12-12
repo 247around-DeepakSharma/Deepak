@@ -103,8 +103,9 @@ color: red;
                     }
                     ?>
           <form name="myForm1" id="myForm1" class="form-horizontal" action="<?php echo base_url()?>employee/invoice/post_add_new_transaction" method="POST">
-              <h1>Add New Transaction</h1>
+              <h1><?php if(isset($bank_txn_details)){ echo "Update Transaction"; } else { echo "Add New Transaction";} ?></h1>
         <br>
+        <input type="hidden" name ="bank_txn_id" value="<?php if(isset($bank_txn_details)){ echo $bank_txn_details[0]['id'];} else { echo "";}?>" />
         <div class="form-group ">
                   <label class="col-md-2">Select Party<span class="red">*</span></label>
       <div class="col-md-6">
@@ -159,10 +160,14 @@ color: red;
               <div class="form-group">
       <label for="name" class="col-md-2">Transaction Mode<span class="red">*</span></label>
       <div>
-        <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Cash" checked>    Cash &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="radio" onclick="cre_deb_validation1()"  name="transaction_mode" value = "Cheque">    Cheque &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Transfer">    Transfer &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Other">    Other
+          <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Cash" 
+              <?php if(isset($bank_txn_details)){ if($bank_txn_details[0]['transaction_mode'] == "Cash"){ echo "checked";}} else { echo "checked";} ?>>    Cash &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" onclick="cre_deb_validation1()"  name="transaction_mode" value = "Cheque"
+               <?php if(isset($bank_txn_details)){ if($bank_txn_details[0]['transaction_mode'] == "Cheque"){ echo "checked";}} else { echo "checked";} ?>>    Cheque &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Transfer"
+               <?php if(isset($bank_txn_details)){ if($bank_txn_details[0]['transaction_mode'] == "Transfer"){ echo "checked";}} else { echo "checked";} ?>>    Transfer &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Other"
+               <?php if(isset($bank_txn_details)){ if($bank_txn_details[0]['transaction_mode'] == "Other"){ echo "checked";}} else { echo "checked";} ?>>    Other
                 </div>
 
               </div>
@@ -170,7 +175,7 @@ color: red;
               <div class="form-group">
       <label for="name" class="col-md-2">Party Bank Name</label>
       <div class="col-md-6">
-                  <input type="text" class="form-control"  name="bankname">
+                  <input type="text" class="form-control"  name="bankname" value="<?php if(isset($bank_txn_details)){ echo $bank_txn_details[0]['bankname'];}?>">
                 </div>
               </div>
 
@@ -178,7 +183,7 @@ color: red;
               <label for="name" class="col-md-2">Transaction Date <span class="red">*</span></label>
                 <div class="col-md-2">
                 <div class="input-group input-append date" >
-                    <input type="text" id="datepicker" class="form-control" name="tdate" readonly='true'>
+                    <input type="text" id="datepicker" class="form-control" name="tdate" readonly='true' value="<?php if(isset($bank_txn_details)){ echo $bank_txn_details[0]['transaction_date'];}?>">
                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                 </div>
                 </div>
@@ -188,7 +193,7 @@ color: red;
             <div class="form-group">
               <label for="name" class="col-md-2">Description</label>
               <div class="col-md-6">
-      <textarea class="form-control"  name="description" cols="5" rows="5" placeholder="Add transaction remarks"></textarea>
+      <textarea class="form-control"  name="description" cols="5" rows="5" placeholder="Add transaction remarks"><?php if(isset($bank_txn_details)){ echo $bank_txn_details[0]['description'];}?></textarea>
               </div>
             </div>
         <div class="col-md-12" style="text-align: center;">
