@@ -253,10 +253,6 @@ class BookingSummary extends CI_Controller {
                 //load template
                 $R = new PHPReport($config);
 
-                //Find unit details first for all bookings
-                $unit_details = $this->reporting_utils->get_all_unit_details();
-                //log_message('info', "Units fetched: " . count($unit_details));
-
                 $R->load(array(
                     array(
                         'id' => 'meta',
