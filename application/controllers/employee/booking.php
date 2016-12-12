@@ -1697,8 +1697,8 @@ class Booking extends CI_Controller {
 	    log_message('info', __FUNCTION__ . " Convert booking, Service center data : " . print_r($service_center_data, true));
 	    $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
 
-	    $unit_details['serial_number'] = "";
-	    $unit_details['booking_status'] = "";
+	   
+	    $unit_details['booking_status'] = "Pending";
 	    $unit_details['vendor_to_around'] = "0.00";
 	    $unit_details['around_to_vendor'] = "0.00";
 
