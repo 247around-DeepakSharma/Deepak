@@ -73,7 +73,7 @@
                         </li>
                     </ul>
                 </li>
-
+                
                  <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     <i ></i> Invoices <i class="fa fa-caret-down"></i>
@@ -90,6 +90,11 @@
  
                     </ul>
                 </li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" href="<?php echo base_url()?>employee/service_centers/show_vendor_details">
+                    <i ></i> Profile <i class="fa fa-caret-down"></i>
+                    </a>
+                </li>
                </ul>
                
                <ul class="nav navbar-nav navbar-right">
@@ -101,7 +106,7 @@
                         </form>
                   </li>
                   <li>
-                     <a href="<?php echo base_url()?>employee/service_centers/show_vendor_details" class="dropdown-toggle" id="verifyby"><i class="fa fa-user"></i> <?php echo $this->session->userdata('service_center_name'); ?> <b class="caret"></b></a>
+                     <a href="#" data-toggle="dropdown" class="dropdown-toggle" id="verifyby"><i class="fa fa-user"></i> <?php echo $this->session->userdata('service_center_name'); ?> <b class="caret"></b></a>
                   </li>
                   <li><a href="<?php echo base_url()?>employee/service_centers/logout"><i class="fa fa-fw fa-power-off"></i></a></li>
                </ul>

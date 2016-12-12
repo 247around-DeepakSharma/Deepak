@@ -23,14 +23,14 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div  class="form-group">
-                                <label  for="name" class="col-md-3">Public Name</label>
+                            <div class="form-group">
+                                <label for="company_type" class="col-md-3">Company Type</label>
                                 <div class="col-md-8">
-                                    <input  type="text" class="form-control" id="name" name="name" value = "<?php
-                                    if (isset($query[0]['name'])) {
-                                        echo $query[0]['name'];
+                                    <input type="text" class="form-control"  name="company_type" value = "<?php
+                                    if (isset($query[0]['company_type'])) {
+                                        echo $query[0]['company_type'];
                                     }
-                                    ?>" placeholder="Public Name" disabled="">
+                                    ?>" disabled="">
                                 </div>
                             </div>
                         </div>
@@ -193,7 +193,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="address_proof_file" class="col-md-4">Address Proof File</label>
+                                <label for="address_proof_file" class="col-md-3">Address Proof File</label>
                                 <div class="col-md-6">
                                     <input type="file" class="form-control"  name="address_proof_file" disabled="">
                                 </div>
@@ -216,19 +216,7 @@
                     <div class="col-md-12">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="company_type" class="col-md-3">Company Type</label>
-                                <div class="col-md-8">
-                                    <input type="text" class="form-control"  name="company_type" value = "<?php
-                                    if (isset($query[0]['company_type'])) {
-                                        echo $query[0]['company_type'];
-                                    }
-                                    ?>" disabled="">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label  for="contract_file" class="col-md-4">Contract File</label>
+                                <label  for="contract_file" class="col-md-3">Contract File</label>
                                 <div class="col-md-6">
                                     <input type="file" class="form-control"  name="contract_file" value = "<?php
                                     if (isset($query[0]['contract_file'])) {

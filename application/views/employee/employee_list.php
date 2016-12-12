@@ -62,7 +62,9 @@
                 <thead>
                     <tr>
                         <th class="jumbotron">S.N.</th>
+                        <?php if($session_data['user_group'] == _247AROUND_ADMIN || $session_data['user_group'] == _247AROUND_DEVELOPER){?>
                         <th class="jumbotron" style="padding:1px;text-align: center">Name</th>
+                        <?php }?>
                         <th class="jumbotron" style="padding:1px;text-align: center">Full Name</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">Phone</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">Official Email</th>
@@ -91,13 +93,11 @@
                         ?>		
                     <tr>
                             <td ><?php echo ($key+1).'.'?></td>
+                            <?php if($session_data['user_group'] == _247AROUND_ADMIN || $session_data['user_group'] == _247AROUND_DEVELOPER) {?>
                             <td style="text-align: center;">
-                                <?php if($session_data['user_group'] == _247AROUND_ADMIN || $session_data['user_group'] == _247AROUND_DEVELOPER) {?>
                                 <a href="<?php base_url()?>update_employee/<?php echo $value['id']?>"><?php echo $value['employee_id']?>
                                 </a>
-                                <?php }else{
-                                    echo $value['employee_id'];
-                                } ?>
+                                <?php }?>
                             </td>
                             <td style="text-align: center;"><?php echo $value['full_name']?></td>
                             <td style="text-align: center;"><?php echo $value['phone']?></td>
