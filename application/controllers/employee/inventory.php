@@ -193,9 +193,9 @@ class Inventory extends CI_Controller {
         //Getting ID of logged in user
         $id = $this->session->userdata('id');
             //Getting employee relation if present
-            $sf_list = $this->vendor_model->get_employee_relation($id);
-            if (!empty($sf_list)) {
-                $sf_list = $sf_list[0]['service_centres_id'];
+            $sf_list_array = $this->vendor_model->get_employee_relation($id);
+            if (!empty($sf_list_array)) {
+                $sf_list = $sf_list_array[0]['service_centres_id'];
             }
         $data['brackets'] = $this->inventory_model->get_brackets($sf_list);
         //Getting name for order received from  to vendor
@@ -470,9 +470,9 @@ class Inventory extends CI_Controller {
         //Getting ID of logged in user
         $id = $this->session->userdata('id');
             //Getting employee relation if present
-            $sf_list = $this->vendor_model->get_employee_relation($id);
-            if (!empty($sf_list)) {
-                $sf_list = $sf_list[0]['service_centres_id'];
+            $sf_list_array = $this->vendor_model->get_employee_relation($id);
+            if (!empty($sf_list_array)) {
+                $sf_list = $sf_list_array[0]['service_centres_id'];
             }
         $data['distinct_vendor'] = $this->inventory_model->get_distict_vendor_from_inventory($sf_list);
         foreach($data['distinct_vendor'] as $value){
