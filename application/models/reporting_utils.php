@@ -24,10 +24,12 @@ class Reporting_utils extends CI_Model {
                                     .$sf_list.
                                    ")
                 AND
-		DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 2";
+		DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 2
+                AND booking_details.assigned_vendor_id IS NOT NULL";
         }else{
             $where = "booking_details.current_status IN ('Pending', 'Rescheduled') AND 
-		DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 2";
+		DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 2
+                AND booking_details.assigned_vendor_id IS NOT NULL";
         }
         $query = $this->db->query("SELECT booking_details.booking_id,
                 booking_details.booking_address,
