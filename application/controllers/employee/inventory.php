@@ -115,7 +115,7 @@ class Inventory extends CI_Controller {
                    $template = $this->booking_model->get_booking_email_template("brackets_order_received_from_vendor");
                    
                    if(!empty($template)){
-                        $emial['order_id'] = $order_id;
+                        $email['order_id'] = $order_id;
                         $email['19_24_requested'] = $val['19_24_requested'];
                         $email['26_32_requested'] = $val['26_32_requested'];
                         $email['36_42_requested'] = $val['36_42_requested'];
