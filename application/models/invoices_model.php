@@ -934,7 +934,7 @@ class invoices_model extends CI_Model {
                         break;
                 }
             }
-            $meta['grand_total_price']=  round( $meta['sub_part']+ $meta['sub_service_cost'] - $meta['tds'], 0);
+            $meta['grand_total_price']=  round( $meta['sub_part']+ $meta['sub_service_cost'], 0);
             $meta['price_inword'] = convert_number_to_words($meta['grand_total_price']);
 
             $data['meta'] = $meta;
