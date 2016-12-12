@@ -1356,3 +1356,5 @@ CREATE TABLE `scheduler_tasks_log` (
  `executed_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1
+
+ALTER TABLE `login_logout_details` ADD `agent_string` VARCHAR(256) NOT NULL AFTER `browser`;

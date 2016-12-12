@@ -16,6 +16,7 @@ class Login extends CI_Controller {
         $this->load->model('filter_model');
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
+        $this->load->library('user_agent');
     }
 
     /**
@@ -53,8 +54,8 @@ class Login extends CI_Controller {
                 
                 //Saving Login Details in Database
                 
-                $this->load->library('user_agent');
                 $data['browser'] = $this->agent->browser();
+                $data['agent_string'] = $this->agent->agent_string();
                 $data['ip'] = $this->session->all_userdata()['ip_address'];
                 $data['action'] = _247AROUND_LOGIN;
                 $data['employee_type'] = $this->session->all_userdata()['userType'];
@@ -159,14 +160,14 @@ class Login extends CI_Controller {
     function logout() {
         //Saving Logout Details in Database
 
-        $this->load->library('user_agent');
         $data['browser'] = $this->agent->browser();
+        $data['agent_string'] = $this->agent->agent_string();
         $data['ip'] = $this->session->all_userdata()['ip_address'];
         $data['action'] = _247AROUND_LOGOUT;
         $data['employee_type'] = $this->session->all_userdata()['userType'];
         $data['employee_id'] = $this->session->all_userdata()['id'];
         $data['employee_name'] = $this->session->all_userdata()['employee_id'];
-
+        
         $logout_id = $this->employee_model->add_login_logout_details($data);
         //Adding Log Details
         if ($logout_id) {
