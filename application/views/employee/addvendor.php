@@ -1260,6 +1260,7 @@
         name: "required",
         address: "required",
         district: "required",
+        company_type:"required",
         phone_1: {
             required: true,
             minlength: 10

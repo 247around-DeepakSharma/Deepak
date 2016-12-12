@@ -114,6 +114,15 @@ class invoices_model extends CI_Model {
         $query = $this->db->get('bank_transactions');
         return $query->result_array();
     }
+    /**
+     * @desc: This is used to update bank transaction table
+     * @param Array $where
+     * @param Array $data
+     */
+    function update_bank_transactions($where, $data){
+        $this->db->where($where);
+        $this->db->update('bank_transactions',$data);
+    }
 
     /*
      * @desc: Show all bank transactions
@@ -260,7 +269,7 @@ class invoices_model extends CI_Model {
 		     `service_centres`.ifsc_code,  `service_centres`.owner_email,  `service_centres`.primary_contact_email, `service_centres`.owner_phone_1,
 		     `service_centres`.primary_contact_phone_1, `booking_unit_details`.  product_or_services, `booking_unit_details`.around_paid_basic_charges as around_net_payable,
 		     (customer_net_payable + partner_net_payable + around_net_payable) as total_booking_charge, service_tax_no,
-                     (case when (service_centres.tin_no IS NOT NULL )  THEN tin_no ELSE cst_no END) as tin
+                     (case when (service_centres.tin_no IS NOT NULL )  THEN tin_no ELSE cst_no END) as tin, pan_no, contract_file, company_type
 
                      ,$date
 
@@ -803,7 +812,7 @@ class invoices_model extends CI_Model {
                 (vendor_basic_charges * COUNT( ud.`appliance_capacity` )) AS  s_total_service_charge,
                 sc.state, sc.service_tax_no, sc.company_name,sc.address as vendor_address, sc_code,
                 (case when (sc.tin_no IS NOT NULL )  THEN tin_no ELSE cst_no END) as tin, 
-                sc.primary_contact_email, sc.owner_email
+                sc.primary_contact_email, sc.owner_email, sc.pan_no, contract_file, company_type
 
                 FROM  `booking_unit_details` AS ud, services, booking_details AS bd, service_centres as sc
                 WHERE  `product_or_services` =  'Service'
@@ -846,7 +855,7 @@ class invoices_model extends CI_Model {
                 (vendor_basic_charges * COUNT( ud.`appliance_capacity` )) AS  p_part_cost,
                 (case when (sc.tin_no IS NOT NULL )  THEN tin_no ELSE cst_no END) as tin, 
                 sc.state, ud.tax_rate as p_tax_rate,sc.company_name,sc.address as vendor_address,sc_code,
-                sc.primary_contact_email, sc.owner_email,service_tax_no
+                sc.primary_contact_email, sc.owner_email,service_tax_no, sc.pan_no, contract_file, company_type
 
                 FROM  `booking_unit_details` AS ud, services, booking_details AS bd, service_centres as sc
                 WHERE  `product_or_services` =  'Product'
@@ -890,18 +899,42 @@ class invoices_model extends CI_Model {
                 $meta['total_service_cost_14'] = $meta['total_service_cost'] * .14;
                 $meta['total_service_cost_5'] = $meta['total_service_cost'] * .005;
             }
+            
             $meta['sc_code'] = $result[0]['sc_code'];
             $meta['service_tax_no'] = $result[0]['service_tax_no'];
-            $meta['sub_service_cost'] = $meta['total_service_cost'] + $meta['total_service_cost_14'] + $meta['total_service_cost_5'] * 2;
+            $meta['sub_service_cost'] = $meta['total_service_cost']  + $meta['total_service_cost_14'] + $meta['total_service_cost_5'] *2;
             $meta['vendor_name'] = $result[0]['company_name'];
             $meta['owner_email'] = $result[0]['owner_email'];
             $meta['vendor_address'] = $result[0]['vendor_address'];
             $meta['primary_contact_email'] = $result[0]['primary_contact_email'];
             $meta['owner_email'] = $result[0]['owner_email'];
             $meta['vat_tax'] = $result[0]['p_tax_rate'];
-            $meta['tin'] = $result[0]['tin'];
-            $meta['sub_part'] = $meta['total_part_cost'] + $meta['part_cost_vat'];
-            $meta['grand_total_price'] = round($meta['sub_part'] + $meta['sub_service_cost'], 0);
+            $meta['tin'] =  $result[0]['tin'];
+            $meta['sub_part'] = $meta['total_part_cost']  + $meta['part_cost_vat'];
+            if(empty($result[0]['pan_no'])){
+                $meta['tds'] =  $meta['sub_service_cost'] *.20;
+                $meta['tds_tax_rate'] = "20%";
+                
+            } else if(empty ($result[0]['contract_file'])){
+                
+                 $meta['tds'] = $meta['sub_service_cost'] *.05;
+                 $meta['tds_tax_rate'] = "5%";
+                 
+            } else {
+                switch($result[0]['company_type']){
+                    case "Individual":
+                        $meta['tds'] = $meta['sub_service_cost'] *.01;
+                        $meta['tds_tax_rate'] = "1%";
+                        break;
+                    
+                    case "Partnership Firm":
+                    case "Company (Pvt Ltd)":
+                        $meta['tds'] = $meta['sub_service_cost'] *.02;
+                        $meta['tds_tax_rate'] = "2%";
+                        break;
+                }
+            }
+            $meta['grand_total_price']=  round( $meta['sub_part']+ $meta['sub_service_cost'] - $meta['tds'], 0);
             $meta['price_inword'] = convert_number_to_words($meta['grand_total_price']);
 
             $data['meta'] = $meta;
