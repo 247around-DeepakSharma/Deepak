@@ -23,7 +23,7 @@ class Booking_utilities {
 	$this->My_CI->load->library('s3');
 	$this->My_CI->load->library('form_validation');
 	$this->My_CI->load->library("session");
-    $this->My_CI->load->library("notify");
+        $this->My_CI->load->library("notify");
 	$this->My_CI->load->helper('download');
 	$this->My_CI->load->helper(array('form', 'url'));
 	$this->My_CI->load->model('employee_model');
@@ -36,7 +36,7 @@ class Booking_utilities {
 
 	$template = 'BookingJobCard_Template-v8.xlsx';
 	//set absolute path to directory with template files
-	$templateDir = __DIR__ . "/../controllers/";
+	$templateDir = __DIR__ . "/../excel-templates/";
 	//set config for report
 	$config = array(
 	    'template' => $template,

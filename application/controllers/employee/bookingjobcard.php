@@ -65,7 +65,7 @@ class bookingjobcard extends CI_Controller {
 
         $template = 'BookingJobCard_Template-v8.xlsx';
 	//set absolute path to directory with template files
-        $templateDir = __DIR__ . "/../";
+       $templateDir = __DIR__ . "/../excel-templates/";
         //set config for report
         $config = array(
             'template' => $template,
@@ -162,7 +162,7 @@ class bookingjobcard extends CI_Controller {
 
         $template = 'BookingJobCard_Template-v8.xlsx';
 	//set absolute path to directory with template files
-        $templateDir = __DIR__ . "/../";
+        $templateDir = __DIR__ . "/../excel-templates/";
         //set config for report
         $config = array(
             'template' => $template,
