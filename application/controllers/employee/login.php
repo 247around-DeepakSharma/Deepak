@@ -13,7 +13,7 @@ class Login extends CI_Controller {
         parent::__Construct();
         $this->load->model('employeelogin');
         $this->load->model('employee_model');
-        $this->load->model('filter_model');
+        
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
         $this->load->library('user_agent');
