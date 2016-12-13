@@ -235,7 +235,7 @@ class Inventory extends CI_Controller {
         if(!empty($_FILES)){
             $tmpFile = $_FILES['shipment_receipt']['tmp_name'];
             $fileName = $_FILES['shipment_receipt']['name'];
-            move_uploaded_file($tmpFile, "/tmp/$fileName");
+            move_uploaded_file($tmpFile, TMP_FOLDER.$fileName);
             $data['shipment_receipt'] = $fileName;
         }
         $order_id = $this->input->post('order_id');
@@ -251,7 +251,7 @@ class Inventory extends CI_Controller {
         $attachment = "";
         if(!empty($fileName)){
             $data['shipment_receipt'] = $fileName;
-             $attachment = "/tmp/$fileName";
+             $attachment = TMP_FOLDER.$fileName;
         }
 
         //Updating value in Brackets

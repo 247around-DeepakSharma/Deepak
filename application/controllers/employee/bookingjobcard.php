@@ -107,7 +107,7 @@ class bookingjobcard extends CI_Controller {
             $output_file_suffix = "";
         }
 
-        $output_file_dir = "/tmp/";
+        $output_file_dir = TMP_FOLDER;
         $output_file = "BookingJobCard-" . $booking_id . $output_file_suffix;
         $output_file_excel = $output_file_dir . $output_file . ".xlsx";
         $R->render('excel', $output_file_excel);
@@ -205,7 +205,7 @@ class bookingjobcard extends CI_Controller {
             $output_file_suffix = "";
         }
 
-        $output_file_dir = "/tmp/";
+        $output_file_dir = TMP_FOLDER;
         $output_file = "BookingJobCard-" . $booking_id . $output_file_suffix;
         $output_file_excel = $output_file_dir . $output_file . ".xlsx";
         $R->render('excel', $output_file_excel);
@@ -302,7 +302,7 @@ class bookingjobcard extends CI_Controller {
                     " / " . $getbooking[0]['booking_timeslot'];
 
             $file_pdf = $getbooking[0]['booking_jobcard_filename'];
-            $output_file_pdf = "/tmp/" . $getbooking[0]['booking_jobcard_filename'];
+            $output_file_pdf = TMP_FOLDER . $getbooking[0]['booking_jobcard_filename'];
 
             $cmd = "curl https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/" . $file_pdf . " -o " . $output_file_pdf;
             exec($cmd);

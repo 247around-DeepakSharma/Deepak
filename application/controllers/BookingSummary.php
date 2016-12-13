@@ -103,7 +103,7 @@ class BookingSummary extends CI_Controller {
                 );
 
                 //Get populated XLS with data
-                $output_file = "/tmp/BookingSummary-" . date('d-M-Y') . ".xls";
+                $output_file = TMP_FOLDER."BookingSummary-" . date('d-M-Y') . ".xls";
                 $R->render('excel2003', $output_file);
                 //Downloading of Excel generated
                 if (file_exists($output_file)) {
@@ -164,7 +164,7 @@ class BookingSummary extends CI_Controller {
             );
 
             //Get populated XLS with data
-            $output_file = "/tmp/BookingSummary-" . date('d-M-Y') . ".xls";
+            $output_file = TMP_FOLDER."BookingSummary-" . date('d-M-Y') . ".xls";
             $R->render('excel2003', $output_file);
             
             if($mail_flag){
@@ -466,7 +466,7 @@ EOD;
 	    ));
 
 	    //Get populated XLS with data
-	    $output_file = "/tmp/247around-Services-Consolidated-Data - " . date('d-M-Y') . ".xlsx";
+	    $output_file = TMP_FOLDER."247around-Services-Consolidated-Data - " . date('d-M-Y') . ".xlsx";
 	    //for xlsx: excel, for xls: excel2003
 	    $R->render('excel', $output_file);
 	    log_message('info', __FUNCTION__ . ' => Rendered excel');
@@ -842,7 +842,7 @@ EOD;
                $csv_array['distance'] = $djd['rows'][0]['elements'][0]['distance']['text'];
                
                //Creating csv file and appending data
-               $file_name = '/tmp/Vendor-Cutomer-Distance-Wybor.csv';
+               $file_name = TMP_FOLDER.'Vendor-Cutomer-Distance-Wybor.csv';
                
                if (file_exists($file_name)) {
                     $file = fopen($file_name, 'a');

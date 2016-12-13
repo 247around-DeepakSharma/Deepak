@@ -563,8 +563,8 @@ class Invoice extends CI_Controller {
         $output_file_pdf = $output_file_dir . $output_file . ".pdf";
         //$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=" . CONVERTAPI_KEY . " -o " . $output_file_pdf;
         putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-        $tmp_path = '/tmp/';
-        $tmp_output_file = '/tmp/output_' . __FUNCTION__ . '.txt';
+        $tmp_path = TMP_FOLDER;
+        $tmp_output_file = TMP_FOLDER.'output_' . __FUNCTION__ . '.txt';
         $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
                 '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
                 $output_file_excel . ' 2> ' . $tmp_output_file;
@@ -572,7 +572,7 @@ class Invoice extends CI_Controller {
         $result_var = '';
         exec($cmd, $output, $result_var);
         // Dump data in a file as a Json
-        $file = fopen("/tmp/" . $output_file . ".txt", "w") or die("Unable to open file!");
+        $file = fopen(TMP_FOLDER . $output_file . ".txt", "w") or die("Unable to open file!");
         $res = 0;
         system(" chmod 777 ".TMP_FOLDER . $output_file . ".txt", $res);
         $json_data['excel_data'] = $excel_data;

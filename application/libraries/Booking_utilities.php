@@ -80,7 +80,7 @@ class Booking_utilities {
 	    $output_file_suffix = "";
         }
 
-	$output_file_dir = "/tmp/";
+	$output_file_dir = TMP_FOLDER;
 	$output_file = "BookingJobCard-" . $booking_id . $output_file_suffix;
 
 	$output_file_excel = $output_file_dir . $output_file . ".xlsx";
@@ -164,17 +164,17 @@ class Booking_utilities {
 
             $message = $salutation . $heading . $note . $fixedPara;
 
-            $to = $getbooking[0]['primary_contact_email'];
-            $owner = $getbooking[0]['owner_email'];
-            $from = "booking@247around.com";
-            $cc = $owner;
-	    $bcc = '';
+//            $to = $getbooking[0]['primary_contact_email'];
+//            $owner = $getbooking[0]['owner_email'];
+//            $from = "booking@247around.com";
+//            $cc = $owner;
+//	    $bcc = '';
 
 	    $subject = "247Around / Job Card " . $getbooking[0]['booking_id'] . " / " . $getbooking[0]['booking_date'] .
                     " / " . $getbooking[0]['booking_timeslot'];
 
             $file_pdf = $getbooking[0]['booking_jobcard_filename'];
-            $output_file_pdf = "/tmp/" . $getbooking[0]['booking_jobcard_filename'];
+            $output_file_pdf = TMP_FOLDER . $getbooking[0]['booking_jobcard_filename'];
 
             $cmd = "curl https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/" . $file_pdf . " -o " . $output_file_pdf;
             exec($cmd);

@@ -79,12 +79,12 @@ class vendor extends CI_Controller {
                     //Making process for file upload
                     $tmpFile = $_FILES['pan_file']['tmp_name'];
                     $pan_file = implode("", explode(" ", $this->input->post('name'))) . '_panfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['pan_file']['name'])[1];
-                    move_uploaded_file($tmpFile, "/tmp/$pan_file");
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$pan_file);
 
                     //Upload files to AWS
                     $bucket = 'bookings-collateral';
                     $directory_xls = "vendor-partner-docs/" . $pan_file;
-                    $this->s3->putObjectFile("/tmp/$pan_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['pan_file'] = $pan_file;
                     
                     //Logging success for file uppload
@@ -113,12 +113,12 @@ class vendor extends CI_Controller {
                     //Making process for file upload
                     $tmpFile = $_FILES['cst_file']['tmp_name'];
                     $cst_file = implode("", explode(" ", $this->input->post('name'))) . '_cstfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['cst_file']['name'])[1];
-                    move_uploaded_file($tmpFile, "/tmp/$cst_file");
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$cst_file);
 
                     //Upload files to AWS
                     $bucket = 'bookings-collateral';
                     $directory_xls = "vendor-partner-docs/" . $cst_file;
-                    $this->s3->putObjectFile("/tmp/$cst_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $this->s3->putObjectFile(TMP_FOLDER.$cst_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['cst_file'] = $cst_file;
                     
                     //Logging success for file uppload
@@ -149,12 +149,12 @@ class vendor extends CI_Controller {
                     }
                     $tmpFile = $_FILES['tin_file']['tmp_name'];
                     $tin_file = implode("", explode(" ", $this->input->post('name'))) . '_tinfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['tin_file']['name'])[1];
-                    move_uploaded_file($tmpFile, "/tmp/$tin_file");
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$tin_file);
 
                     //Upload files to AWS
                     $bucket = 'bookings-collateral';
                     $directory_xls = "vendor-partner-docs/" . $tin_file;
-                    $this->s3->putObjectFile("/tmp/$tin_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $this->s3->putObjectFile(TMP_FOLDER.$tin_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['tin_file'] = $tin_file;
                     
                     //Logging success for file uppload
@@ -182,12 +182,12 @@ class vendor extends CI_Controller {
                     }
                     $tmpFile = $_FILES['service_tax_file']['tmp_name'];
                     $service_tax_file = implode("", explode(" ", $this->input->post('name'))) . '_servicetaxfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['service_tax_file']['name'])[1];
-                    move_uploaded_file($tmpFile, "/tmp/$service_tax_file");
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$service_tax_file);
 
                     //Upload files to AWS
                     $bucket = 'bookings-collateral';
                     $directory_xls = "vendor-partner-docs/" . $service_tax_file;
-                    $this->s3->putObjectFile("/tmp/$service_tax_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $this->s3->putObjectFile(TMP_FOLDER.$service_tax_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['service_tax_file'] = $service_tax_file;
                     
                     //Logging success for file uppload
@@ -208,12 +208,12 @@ class vendor extends CI_Controller {
                 if(!empty($_FILES['address_proof_file']['tmp_name'])){
                     $tmpFile = $_FILES['address_proof_file']['tmp_name'];
                     $address_proof_file = implode("",explode(" ",$this->input->post('name'))).'_addressprooffile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['address_proof_file']['name'])[1];
-                    move_uploaded_file($tmpFile, "/tmp/$address_proof_file");
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$address_proof_file);
                     
                     //Upload files to AWS
                     $bucket = 'bookings-collateral';
                     $directory_xls = "vendor-partner-docs/".$address_proof_file;
-                    $this->s3->putObjectFile("/tmp/$address_proof_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $this->s3->putObjectFile(TMP_FOLDER.$address_proof_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['address_proof_file'] = $address_proof_file;
                     
                     //Logging success for file uppload
@@ -224,12 +224,12 @@ class vendor extends CI_Controller {
                 if(!empty($_FILES['cancelled_cheque_file']['tmp_name'])){
                     $tmpFile = $_FILES['cancelled_cheque_file']['tmp_name'];
                     $cancelled_cheque_file = implode("",explode(" ",$this->input->post('name'))).'_cancelledchequefile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['cancelled_cheque_file']['name'])[1];
-                    move_uploaded_file($tmpFile, "/tmp/$cancelled_cheque_file");
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$cancelled_cheque_file);
                     
                     //Upload files to AWS
                     $bucket = 'bookings-collateral';
                     $directory_xls = "vendor-partner-docs/".$cancelled_cheque_file;
-                    $this->s3->putObjectFile("/tmp/$cancelled_cheque_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $this->s3->putObjectFile(TMP_FOLDER.$cancelled_cheque_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['cancelled_cheque_file'] = $cancelled_cheque_file;
                     
                     //Logging success for file uppload
@@ -240,12 +240,12 @@ class vendor extends CI_Controller {
                 if(!empty($_FILES['id_proof_1_file']['tmp_name'])){
                     $tmpFile = $_FILES['id_proof_1_file']['tmp_name'];
                     $id_proof_1_file = implode("",explode(" ",$this->input->post('name'))).'_idproof1file_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['id_proof_1_file']['name'])[1];
-                    move_uploaded_file($tmpFile, "/tmp/$id_proof_1_file");
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$id_proof_1_file);
                     
                     //Upload files to AWS
                     $bucket = 'bookings-collateral';
                     $directory_xls = "vendor-partner-docs/".$id_proof_1_file;
-                    $this->s3->putObjectFile("/tmp/$id_proof_1_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $this->s3->putObjectFile(TMP_FOLDER.$id_proof_1_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['id_proof_1_file'] = $id_proof_1_file;
                     
                     //Logging success for file uppload
@@ -256,12 +256,12 @@ class vendor extends CI_Controller {
                 if(!empty($_FILES['id_proof_2_file']['tmp_name'])){
                     $tmpFile = $_FILES['id_proof_2_file']['tmp_name'];
                     $id_proof_2_file = implode("",explode(" ",$this->input->post('name'))).'_idproof2file_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['id_proof_2_file']['name'])[1];
-                    move_uploaded_file($tmpFile, "/tmp/$id_proof_2_file");
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$id_proof_2_file);
                     
                     //Upload files to AWS
                     $bucket = 'bookings-collateral';
                     $directory_xls = "vendor-partner-docs/".$id_proof_2_file;
-                    $this->s3->putObjectFile("/tmp/$id_proof_2_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $this->s3->putObjectFile(TMP_FOLDER.$id_proof_2_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['id_proof_2_file'] = $id_proof_2_file;
                     
                     //Logging success for file uppload
@@ -272,12 +272,12 @@ class vendor extends CI_Controller {
                 if(!empty($_FILES['contract_file']['tmp_name'])){
                     $tmpFile = $_FILES['contract_file']['tmp_name'];
                     $contract_file = implode("",explode(" ",$this->input->post('name'))).'_contractfile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['contract_file']['name'])[1];
-                    move_uploaded_file($tmpFile, "/tmp/$contract_file");
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$contract_file);
                     
                     //Upload files to AWS
                     $bucket = 'bookings-collateral';
                     $directory_xls = "vendor-partner-docs/".$contract_file;
-                    $this->s3->putObjectFile("/tmp/$contract_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $this->s3->putObjectFile(TMP_FOLDER.$contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['contract_file'] = $contract_file;
                     
                     //Logging success for file uppload
@@ -815,14 +815,14 @@ class vendor extends CI_Controller {
 
 	$tmpFile = $_FILES['fileToUpload']['tmp_name'];
         $fileName = $_FILES['fileToUpload']['name'];
-        move_uploaded_file($tmpFile, "/tmp/$fileName");
+        move_uploaded_file($tmpFile, TMP_FOLDER.$fileName);
 
         //gets primary contact's email and owner's email
         $service_centers = $this->vendor_model->select_active_service_center_email();
         $bcc = $this->getBccToSendMail($service_centers, $bcc_poc, $bcc_owner);
         $attachment = "";
         if (!empty($fileName)) {
-            $attachment = "/tmp/$fileName";
+            $attachment = TMP_FOLDER.$fileName;
         }
 
         log_message('info', "broadcast mail to: " . $to);
@@ -911,12 +911,12 @@ class vendor extends CI_Controller {
         //echo $inputFileName;
         //log_message('info', __FUNCTION__ . ' => Original CSV file: ' . $_FILES['file']['name']);
         
-        $newZipFileName = "/tmp/vendor_pincode_mapping_temp.zip";
+        $newZipFileName = TMP_FOLDER."vendor_pincode_mapping_temp.zip";
         $newCSVFileName = "vendor_pincode_mapping_temp.csv";
         move_uploaded_file($inputFileName, $newZipFileName);
         
         $res = 0; 
-        system("unzip " . $newZipFileName . " " . $newCSVFileName . " -d /tmp", $res);
+        system("unzip " . $newZipFileName . " " . $newCSVFileName . " -d ".TMP_FOLDER, $res);
         //$out = system("unzip " . $newZipFileName, $res);
        //echo 'result=' . $res . ', output=' . $out;
         
@@ -933,7 +933,7 @@ class vendor extends CI_Controller {
         $dbPass=$this->db->password;
         $dbName=$this->db->database;
 
-        $csv = "/tmp/vendor_pincode_mapping_temp.csv";
+        $csv = TMP_FOLDER."vendor_pincode_mapping_temp.csv";
         $sql = "LOAD DATA LOCAL INFILE '$csv' INTO TABLE vendor_pincode_mapping_temp "
                . "FIELDS TERMINATED BY ',' ENCLOSED BY '' LINES TERMINATED BY '\r\n' "
                 . "(Vendor_Name,Vendor_ID,Appliance,Appliance_ID,Brand,Area,Pincode,Region,City,State);";
@@ -948,7 +948,7 @@ class vendor extends CI_Controller {
         
         $this->vendor_model->execute_query($sql_commands1);
  
-       system ("rm -rf /tmp/vendor_pincode_mapping_temp.*"); 
+       system ("rm -rf ".TMP_FOLDER."vendor_pincode_mapping_temp.*"); 
        log_message('info', __FUNCTION__ . ' => All queries executed: ' . print_r($sql_commands, TRUE));
         //log_message('info', __FUNCTION__ . ' => New pincode count: ' . $count);
         
@@ -2001,10 +2001,10 @@ class vendor extends CI_Controller {
             $tmpFile = $_FILES['attachment_'.$id]['tmp_name'];
             $fileName = $_FILES['attachment_'.$id]['name'];
 
-           move_uploaded_file($tmpFile, "/tmp/$fileName");
+           move_uploaded_file($tmpFile, TMP_FOLDER.$fileName);
             // move_uploaded_file($tmpFile, "c:\users\bredkhan"."\\$fileName");
             if (!empty($fileName)) {
-               $attachment = "/tmp/$fileName";
+               $attachment = TMP_FOLDER.$fileName;
                 // $attachment = "c:\users\bredkhan"."\\$fileName";
 
             }
@@ -2097,9 +2097,9 @@ class vendor extends CI_Controller {
             $tmpFile = $_FILES['attachment_' . $id]['tmp_name'];
             $fileName = $_FILES['attachment_' . $id]['name'];
 
-            move_uploaded_file($tmpFile, "/tmp/$fileName");
+            move_uploaded_file($tmpFile, TMP_FOLDER.$fileName);
             if (!empty($fileName)) {
-                $attachment = "/tmp/$fileName";
+                $attachment = TMP_FOLDER.$fileName;
 }
         }
         if ($this->input->post()) {
@@ -2496,11 +2496,11 @@ class vendor extends CI_Controller {
                 'data' => $vendor
             ));
 
-        $output_file_dir = "/tmp/";
+        $output_file_dir = TMP_FOLDER;
         $output_file = "SF_List_" . date('y-m-d');
         $output_file_name = $output_file . ".xls";
         $output_file_excel = $output_file_dir . $output_file_name;
-        $response = $R->render('excel2003', $output_file_excel);
+        $R->render('excel2003', $output_file_excel);
         
         //Downloading File
         if(file_exists($output_file_excel)){

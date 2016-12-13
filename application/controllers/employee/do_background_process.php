@@ -97,7 +97,7 @@ class Do_background_process extends CI_Controller {
         $mapping_file['pincode_mapping_file'] = $this->vendor_model->getLatestVendorPincodeMappingFile();
 
         $reader = ReaderFactory::create(Type::XLSX);
-        $reader->open("/tmp/" . $mapping_file['pincode_mapping_file'][0]['file_name']);
+        $reader->open(TMP_FOLDER . $mapping_file['pincode_mapping_file'][0]['file_name']);
         $count = 1;
         $pincodes_inserted = 0;
         $err_count = 0;
@@ -288,11 +288,11 @@ class Do_background_process extends CI_Controller {
                 'data' => $vendor
             ));
 
-        $output_file_dir = "/tmp/";
+        $output_file_dir = TMP_FOLDER;
         $output_file = "Vendor_Pincode_Mapping" . date('y-m-d');
         $output_file_name = $output_file . ".xlsx";
         $output_file_excel = $output_file_dir . $output_file_name;
-        $response = $R->render('excel', $output_file_excel);
+        $R->render('excel', $output_file_excel);
         //Attach file with mail
         $cc = $bcc = "";
         $from ="booking@247around.com";
