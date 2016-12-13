@@ -1487,7 +1487,6 @@ class Booking_model extends CI_Model {
 
         $result = array_merge($data[0], $services_details);
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
-        unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
         $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate'])/ 100;
         

@@ -23,6 +23,7 @@ class bookingjobcard extends CI_Controller {
         $this->load->library('s3');
         $this->load->helper('download');
         $this->load->model('employee_model');
+        $this->load->model('vendor_model');
         $this->load->model('booking_model');
         $this->load->model('filter_model');
         $this->load->helper(array('form', 'url'));
@@ -46,7 +47,7 @@ class bookingjobcard extends CI_Controller {
     public function index() {
         //echo "Hello, World" . PHP_EOL;
 
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/jobcard');
     }
 
@@ -64,7 +65,7 @@ class bookingjobcard extends CI_Controller {
 
         $template = 'BookingJobCard_Template-v8.xlsx';
 	//set absolute path to directory with template files
-        $templateDir = __DIR__ . "/../";
+       $templateDir = __DIR__ . "/../excel-templates/";
         //set config for report
         $config = array(
             'template' => $template,
@@ -144,7 +145,7 @@ class bookingjobcard extends CI_Controller {
         exec("rm -rf " . escapeshellarg($output_file_pdf));
         exec("rm -rf " . escapeshellarg($output_file_excel));
 
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/jobcard', $data);
     }
 
@@ -161,7 +162,7 @@ class bookingjobcard extends CI_Controller {
 
         $template = 'BookingJobCard_Template-v8.xlsx';
 	//set absolute path to directory with template files
-        $templateDir = __DIR__ . "/../";
+        $templateDir = __DIR__ . "/../excel-templates/";
         //set config for report
         $config = array(
             'template' => $template,
@@ -379,7 +380,19 @@ class bookingjobcard extends CI_Controller {
 
         if ($getbooking) {
             $servicecentredetails = $this->booking_model->selectservicecentre($booking_id);
-
+            //Get SF to RM relation if present
+            $cc = "";
+            $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($servicecentredetails[0]['assigned_vendor_id']);
+            if(!empty($rm)){
+                foreach($rm as $key=>$value){
+                        if($key == 0){
+                            $cc .= "";
+                        }else{
+                            $cc .= ",";
+                        }
+                    $cc .= $this->employee_model->getemployeefromid($value['agent_id'])[0]['official_email'];
+                }
+            }
             //Find last mail sent for this booking id and append it in the bottom
             $last_mail = $this->booking_model->get_last_vendor_mail($booking_id);
             if ($last_mail[0]['type'] == 'Booking') {

@@ -56,6 +56,11 @@ class vendor extends CI_Controller {
      */
     function index() {
         $vendor = [];
+        //Getting rm id from post data
+        $rm = $this->input->post('rm');
+        //Now unset value of rm from POST data
+        unset($_POST['rm']);
+        
         $data = $this->input->post();
         if(!empty($data['id'])){
             $vendor = $this->vendor_model->getVendorContact($data['id']);
@@ -81,6 +86,9 @@ class vendor extends CI_Controller {
                     $directory_xls = "vendor-partner-docs/" . $pan_file;
                     $this->s3->putObjectFile("/tmp/$pan_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['pan_file'] = $pan_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' PAN FILE is being uploaded sucessfully.');
                 } else {
                     //Redirect back to Form
 
@@ -112,6 +120,9 @@ class vendor extends CI_Controller {
                     $directory_xls = "vendor-partner-docs/" . $cst_file;
                     $this->s3->putObjectFile("/tmp/$cst_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['cst_file'] = $cst_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' CST FILE is being uploaded sucessfully.');
                 } else {
                     //Redirect back to Form
                     $data = $this->input->post();
@@ -145,6 +156,9 @@ class vendor extends CI_Controller {
                     $directory_xls = "vendor-partner-docs/" . $tin_file;
                     $this->s3->putObjectFile("/tmp/$tin_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['tin_file'] = $tin_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' TIN FILE is being uploaded sucessfully.');
                 } else {
                     //Redirect back to Form
                     $data = $this->input->post();
@@ -156,7 +170,7 @@ class vendor extends CI_Controller {
                     return FALSE;
                 }
             }
-            
+
             //Start Processing Service Tax File Upload
             if (!empty($_FILES['service_tax_file']['tmp_name'])) {
                 //Adding file validation
@@ -175,6 +189,9 @@ class vendor extends CI_Controller {
                     $directory_xls = "vendor-partner-docs/" . $service_tax_file;
                     $this->s3->putObjectFile("/tmp/$service_tax_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['service_tax_file'] = $service_tax_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' Serivce Tax FILE is being uploaded sucessfully.');
                 } else {
                     //Redirect back to Form
                     $data = $this->input->post();
@@ -198,6 +215,9 @@ class vendor extends CI_Controller {
                     $directory_xls = "vendor-partner-docs/".$address_proof_file;
                     $this->s3->putObjectFile("/tmp/$address_proof_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['address_proof_file'] = $address_proof_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' ADDRESS PROOF FILE is being uploaded sucessfully.');
                 }
                 
                 //Processing Cancelled Cheque File Upload
@@ -211,6 +231,9 @@ class vendor extends CI_Controller {
                     $directory_xls = "vendor-partner-docs/".$cancelled_cheque_file;
                     $this->s3->putObjectFile("/tmp/$cancelled_cheque_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['cancelled_cheque_file'] = $cancelled_cheque_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' CANCELLED CHEQUE FILE is being uploaded sucessfully.');
                 }
                 
                 //Processing ID Proof 1 File Upload
@@ -224,6 +247,9 @@ class vendor extends CI_Controller {
                     $directory_xls = "vendor-partner-docs/".$id_proof_1_file;
                     $this->s3->putObjectFile("/tmp/$id_proof_1_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['id_proof_1_file'] = $id_proof_1_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' ID PROOF 1 FILE is being uploaded sucessfully.');
                 }
                 
                 //Processing ID Proof 1 File Upload
@@ -237,6 +263,9 @@ class vendor extends CI_Controller {
                     $directory_xls = "vendor-partner-docs/".$id_proof_2_file;
                     $this->s3->putObjectFile("/tmp/$id_proof_2_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['id_proof_2_file'] = $id_proof_2_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' ID PROOF 2 FILE is being uploaded sucessfully.');
                 }
                 
                 //Processing Contract File Upload
@@ -250,6 +279,9 @@ class vendor extends CI_Controller {
                     $directory_xls = "vendor-partner-docs/".$contract_file;
                     $this->s3->putObjectFile("/tmp/$contract_file", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['contract_file'] = $contract_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' CONTRACT FILE is being uploaded sucessfully.');
                 }
                 
        
@@ -303,6 +335,16 @@ class vendor extends CI_Controller {
                 //if vendor exists, details are edited
                 $this->vendor_model->edit_vendor($_POST, $_POST['id']);
 
+                //Updating details of SF in employee_relation table
+                $check_update_sf_rm_relation = $this->vendor_model->update_rm_to_sf_relation($rm, $_POST['id']);
+                if($check_update_sf_rm_relation){
+                    //Loggin Success
+                    log_message('info', __FUNCTION__.' SF to RM relation is updated sucessfully RM = '.print_r($rm,TRUE).' SF = '.print_r($_POST['id'],TRUE));
+                }else{
+                    //Loggin Error 
+                    log_message('info', __FUNCTION__.' Error in mapping SF to RM relation RM = '.print_r($rm,TRUE).' SF = '.print_r($_POST['id'],TRUE));
+                }
+
                 redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
             } else {
                 // get service center code by calling generate_service_center_code() method
@@ -327,6 +369,26 @@ class vendor extends CI_Controller {
                 //if vendor do not exists, vendor is added
                 $sc_id = $this->vendor_model->add_vendor($_POST);
 
+                //Adding values in admin groups present in employee_relation table
+                $check_admin_sf_relation = $this->vendor_model->add_sf_to_admin_relation($sc_id);
+                if($check_admin_sf_relation){
+                    //Logging success 
+                    log_message('info', __FUNCTION__.' New SF and Admin Group has been related sucessfully.');
+                }else{
+                    //Logging Error 
+                    log_message('info', __FUNCTION__.' Error in adding New SF and Admin Group Relation.');
+                }
+                    
+                
+                //Updating details of SF in employee_relation table
+                $check_update_sf_rm_relation = $this->vendor_model->add_rm_to_sf_relation($rm, $sc_id);
+                if($check_update_sf_rm_relation){
+                    //Loggin Success
+                    log_message('info', __FUNCTION__.' SF to RM relation is updated sucessfully RM = '.print_r($rm,TRUE).' SF = '.print_r($sc_id,TRUE));
+                }else{
+                    //Loggin Error 
+                    log_message('info', __FUNCTION__.' Error in mapping SF to RM relation RM = '.print_r($rm,TRUE).' SF = '.print_r($sc_id,TRUE));
+                }
                 $this->sendWelcomeSms($_POST['primary_contact_phone_1'], $_POST['name'],$sc_id);
                 $this->sendWelcomeSms($_POST['owner_phone_1'], $_POST['owner_name'],$sc_id);
 
@@ -438,8 +500,10 @@ class vendor extends CI_Controller {
         $results['services'] = $this->vendor_model->selectservice();
         $results['brands'] = $this->vendor_model->selectbrand();
         $results['select_state'] = $this->vendor_model->getall_state();
+        $results['employee_rm'] = $this->employee_model->get_rm_details();
+   
         $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/addvendor', array('results' => $results, 'days' => $days));
     }
 
@@ -458,20 +522,23 @@ class vendor extends CI_Controller {
         $results['services'] = $this->vendor_model->selectservice();
         $results['brands'] = $this->vendor_model->selectbrand();
         $results['select_state'] = $this->vendor_model->getall_state();
+        $results['employee_rm'] = $this->employee_model->get_rm_details();
 
         $appliances = $query[0]['appliances'];
         $selected_appliance_list = explode(",", $appliances);
         $brands = $query[0]['brands'];
         $selected_brands_list = explode(",", $brands);
 
+        $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
+        
         $days = ['Sunday', 'Monday', 'Tuseday', 'Wednesday', 'Thursday', 'Friday', 'Satarday'];
         $non_working_days = $query[0]['non_working_days'];
         $selected_non_working_days = explode(",", $non_working_days);
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
 
         $this->load->view('employee/addvendor', array('query' => $query, 'results' => $results, 'selected_brands_list'
             => $selected_brands_list, 'selected_appliance_list' => $selected_appliance_list,
-            'days' => $days, 'selected_non_working_days' => $selected_non_working_days));
+            'days' => $days, 'selected_non_working_days' => $selected_non_working_days,'rm'=>$rm));
     }
 
     /**
@@ -483,10 +550,14 @@ class vendor extends CI_Controller {
      * @return : array(of details) to view
      */
     function viewvendor($vendor_id = "") {
-        $query = $this->vendor_model->viewvendor($vendor_id);
-
-        $this->load->view('employee/header');
-
+        $id = $this->session->userdata('id');
+        //Getting employee relation if present for logged in user
+        $sf_list = $this->vendor_model->get_employee_relation($id);
+        if (!empty($sf_list)) {
+            $sf_list = $sf_list[0]['service_centres_id'];
+        }
+        $query = $this->vendor_model->viewvendor($vendor_id, "", $sf_list);
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/viewvendor', array('query' => $query));
     }
 
@@ -554,7 +625,7 @@ class vendor extends CI_Controller {
             array_push($results, $this->booking_model->find_sc_by_pincode_and_appliance($booking['service_id'], $booking['booking_pincode']));
         }
 
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/assignbooking', array('data' => $bookings, 'results' => $results));
     }
 
@@ -617,17 +688,19 @@ class vendor extends CI_Controller {
                     $this->notify->insert_state_change($booking_id, 
                             ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, 
                             $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-                    
+
                     $count++;
                 }
             }
         }
-        
+
         //Send mail and SMS to SF in background
         $async_data['booking_id'] = $service_center;
         $this->asynchronous_lib->do_background_process($url, $async_data);
 
         echo " Request to Assign Bookings: " . count($service_center) . ", Actual Assigned Bookings: " . $count;
+
+        //redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
 
@@ -642,7 +715,7 @@ class vendor extends CI_Controller {
     function get_reassign_vendor_form($booking_id = "") {
         $service_centers = $this->booking_model->select_service_center();
 
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
 
         $this->load->view('employee/reassignvendor', array('booking_id' => $booking_id, 'service_centers' => $service_centers));
     }
@@ -716,7 +789,7 @@ class vendor extends CI_Controller {
      */
     function get_broadcast_mail_to_vendors_form() {
         //$service_centers = $this->booking_model->select_service_center();
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/broadcastemailtovendor');
     }
 
@@ -810,7 +883,7 @@ class vendor extends CI_Controller {
         if ($error != "") {
             $mapping_file['error'] = $error;
         }
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/upload_pincode_excel', $mapping_file);
     }
 
@@ -823,7 +896,7 @@ class vendor extends CI_Controller {
      *  @return : displays the view
      */
     function get_master_pincode_excel_upload_form() {
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/upload_master_pincode_excel');
     }
 
@@ -898,7 +971,7 @@ class vendor extends CI_Controller {
         $data['vendor_details'] = $this->vendor_model->getVendor($booking_id);
         $data['booking_id'] = $booking_id;
 
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/vendor_escalation_form', $data);
     }
 
@@ -913,6 +986,19 @@ class vendor extends CI_Controller {
     function process_vendor_escalation_form() {
         $escalation['booking_id'] = $this->input->post('booking_id');
         $escalation['vendor_id'] = $this->input->post('vendor_id');
+        //Get SF to RM relation if present
+        $cc = "";
+        $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($escalation['vendor_id']);
+        if(!empty($rm)){
+            foreach($rm as $key=>$value){
+                if($key == 0){
+                    $cc .= "";
+                }else{
+                    $cc .= ",";
+                }
+                $cc .= $this->employee_model->getemployeefromid($value['agent_id'])[0]['official_email'];
+            }
+        }
         $checkValidation = $this->checkValidationOnReason();
         if ($checkValidation) {
             $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
@@ -941,7 +1027,7 @@ class vendor extends CI_Controller {
 
                 if ($return_mail_to != "") {
 
-                    $this->notify->sendEmail('booking@247around.com', $return_mail_to, '', '', $escalation_policy_details[0]['mail_subject'], $escalation_policy_details[0]['mail_body'], '');
+                    $this->notify->sendEmail('booking@247around.com', $return_mail_to, $cc, '', $escalation_policy_details[0]['mail_subject'], $escalation_policy_details[0]['mail_body'], '');
                 }
 
                 $this->sendSmsToVendor($escalation,$escalation_policy_details, $vendorContact, $escalation['booking_id'], $userDetails);
@@ -1141,7 +1227,7 @@ class vendor extends CI_Controller {
      */
     function vendor_availability_form() {
         $data = $this->vendor_model->get_services_category_city_pincode();
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/searchvendor', $data);
     }
 
@@ -1190,7 +1276,7 @@ class vendor extends CI_Controller {
      */
     function vendor_performance_view() {
         $data = $this->vendor_model->get_vendor_city_appliance();
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/vendorperformance', $data);
     }
 
@@ -1229,7 +1315,7 @@ class vendor extends CI_Controller {
      */
     function review_bookings() {
         $charges['charges'] = $this->vendor_model->getbooking_charges();
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/review_booking_complete_cancel', $charges);
     }
 
@@ -1240,7 +1326,7 @@ class vendor extends CI_Controller {
      */
     function getcancellation_reason($vendor_id) {
         $reason['reason'] = $this->vendor_model->getcancellation_reason($vendor_id);
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/vendor_cancellation_reason', $reason);
     }
 
@@ -1252,7 +1338,7 @@ class vendor extends CI_Controller {
     function get_mail_vendor($vendor_id = "") {
         $vendor_info = $this->vendor_model->viewvendor($vendor_id);
 
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
 
         $this->load->view('employee/mail_vendor', array('vendor_info' => $vendor_info));
     }
@@ -1281,7 +1367,7 @@ class vendor extends CI_Controller {
 
         $this->notify->sendEmail("sales@247around.com", $to, $cc, $bcc, $subject, $message, $attachment);
 
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/viewvendor', array('query' => $vendor_info));
     }
     /**
@@ -1297,7 +1383,7 @@ class vendor extends CI_Controller {
             $this->load->view('service_centers/add_engineer', $data);
 
         } else {
-            $this->load->view('employee/header');
+            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
             $this->load->view('employee/add_engineer', $data);
         }
 
@@ -1319,7 +1405,7 @@ class vendor extends CI_Controller {
             $this->load->view('service_centers/add_engineer', $data);
 
         } else {
-            $this->load->view('employee/header');
+            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
             $this->load->view('employee/add_engineer', $data);
         }
     }
@@ -1499,7 +1585,7 @@ class vendor extends CI_Controller {
             $this->load->view('service_centers/view_engineers', $data);
 
        } else {
-            $this->load->view('employee/header');
+            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
             $this->load->view('employee/view_engineers', $data);
        }
 
@@ -1587,6 +1673,7 @@ class vendor extends CI_Controller {
 		    $pic = str_replace(' ', '-', $this->input->post('name')) . "_" . str_replace(' ', '', $this->input->post('bank_name')) . "_" . uniqid(rand());
 		    $picName = $pic . "." . $extension;
 		    $_POST['bank_proof_pic'] = $picName;
+                    // Uploading to S3
 		    $bucket = "bookings-collateral";
 		    $directory = "engineer-bank-proofs/" . $picName;
 		    $this->s3->putObjectFile($_FILES["bank_proof_pic"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
@@ -1618,6 +1705,7 @@ class vendor extends CI_Controller {
 		    $pic = str_replace(' ', '-', $this->input->post('name')) . "_" . str_replace(' ', '', $this->input->post('identity_proof')) . "_" . uniqid(rand());
 		    $picName = $pic . "." . $extension;
 		    $_POST['file'] = $picName;
+                    //Uploading to S3
 		    $bucket = "bookings-collateral";
 		    $directory = "engineer-id-proofs/" . $picName;
 		    $this->s3->putObjectFile($_FILES["file"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
@@ -1666,7 +1754,7 @@ class vendor extends CI_Controller {
             $data['vendor_details'] = $this->vendor_model->getActiveVendor();
             $data['state'] = $this->vendor_model->getall_state();
             // Return view for adding of New Vendor to Pincode
-            $this->load->view('employee/header');
+            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
             $this->load->view('employee/add_vendor_to_pincode',$data);
         }
 
@@ -1698,7 +1786,7 @@ class vendor extends CI_Controller {
             $data['vendor_details'] = $this->vendor_model->getActiveVendor();
             $data['state'] = $this->vendor_model->getall_state();    
             
-            $this->load->view('employee/header');
+            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
             $this->load->view('employee/add_vendor_to_pincode', $data);
 
             }else{
@@ -1838,7 +1926,7 @@ class vendor extends CI_Controller {
 		$data['no_input'] = '';
 	    }
 	}
-	$this->load->view('employee/header');
+	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/list_vendor_pincode', $data);
     }
     
@@ -1893,7 +1981,7 @@ class vendor extends CI_Controller {
         $data['partner_email_template'] = $this->vendor_model->get_247around_email_template($partner_email);
         
         
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/sendemailtovendor', $data);
     }
 
@@ -2097,7 +2185,7 @@ class vendor extends CI_Controller {
         $data_report['query'] = $this->vendor_model->get_around_dashboard_queries();
         $data_report['data'] = $this->vendor_model->execute_around_dashboard_query($data_report['query']);
         
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/247around_dashboard', $data_report);
     }
     
@@ -2108,7 +2196,7 @@ class vendor extends CI_Controller {
      * 
      */
     function get_sms_template_editable_grid(){
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/sms_template_editable_grid');
         
     }
@@ -2261,9 +2349,14 @@ class vendor extends CI_Controller {
      * return: view
      */
     function show_service_center_report(){
-        $data['html'] = $this->booking_utilities->booking_report_by_service_center();
+        //Getting employee sf relation
+        $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
+        if(!empty($sf_list)){
+            $sf_list = $sf_list[0]['service_centres_id'];
+        }
+        $data['html'] = $this->booking_utilities->booking_report_by_service_center($sf_list);
         
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/show_service_center_report',$data);
     }
     
@@ -2276,7 +2369,12 @@ class vendor extends CI_Controller {
         $user =$this->session->userdata;
         $employee_details = $this->employee_model->getemployeefromid($user['id']);
         if(isset($employee_details[0]['official_email']) && $employee_details[0]['official_email']){
-            $html = $this->booking_utilities->booking_report_by_service_center();
+            //Getting employee sf relation
+            $sf_list = $this->vendor_model->get_employee_relation($user['id']);
+            if(!empty($sf_list)){
+                $sf_list = $sf_list[0]['service_centres_id'];
+            }
+            $html = $this->booking_utilities->booking_report_by_service_center($sf_list);
             $to = $employee_details[0]['official_email'];
             
             $this->notify->sendEmail("booking@247around.com", $to, "", "", "Service Center Report", $html, "");
@@ -2307,10 +2405,14 @@ class vendor extends CI_Controller {
      * return: view
      */
     function new_service_center_report(){
-        $data['html'] = $this->booking_utilities->booking_report_for_new_service_center();
-
-        $this->load->view('employee/header');
-        $this->load->view('employee/new_service_center_report',$data);
+        //Getting employee sf relation
+        $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
+        if (!empty($sf_list)) {
+            $sf_list = $sf_list[0]['service_centres_id'];
+    }
+        $data['html'] = $this->booking_utilities->booking_report_for_new_service_center($sf_list);
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/new_service_center_report', $data);
     }
     
     /**
@@ -2347,7 +2449,12 @@ class vendor extends CI_Controller {
         $user =$this->session->userdata;
         $employee_details = $this->employee_model->getemployeefromid($user['id']);
         if(isset($employee_details[0]['official_email']) && $employee_details[0]['official_email']){
-            $html = $this->booking_utilities->booking_report_for_new_service_center();
+            //Getting employee sf relation
+            $sf_list = $this->vendor_model->get_employee_relation($user['id']);
+            if(!empty($sf_list)){
+                $sf_list = $sf_list[0]['service_centres_id'];
+            }
+            $html = $this->booking_utilities->booking_report_for_new_service_center($sf_list);
             $to = $employee_details[0]['official_email'];
 
             $this->notify->sendEmail("booking@247around.com", $to, "", "", "New Service Center Report", $html, "");
@@ -2419,6 +2526,9 @@ class vendor extends CI_Controller {
         $vendor[$data['type']] = '';
         //Making Database Entry as Null
         $this->vendor_model->edit_vendor($vendor, $data['id']);
+        
+        //Logging 
+        log_message('info',__FUNCTION__.' Following Images has been removed sucessfully: '.print_r($data, TRUE));
         echo TRUE;
 }
     
@@ -2454,7 +2564,7 @@ class vendor extends CI_Controller {
                     break;
          }
      }
-     
+
      /**
      * @desc: This function is to temporarily activate deactivate a particular vendor
      *
@@ -2469,6 +2579,60 @@ class vendor extends CI_Controller {
         $this->notify->insert_state_change('', _247AROUND_VENDOR_SUSPENDED, _247AROUND_VENDOR_NON_SUSPENDED, 'Vendor ID = '.$id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
         redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
     }
+    
+    /**
+     * @Desc: This function is used to show list of Documents uploaded for Vendors/ Used to Handle Filter Request
+     * @params: void/ POST Array
+     * @return: view
+     * 
+     */
+    function show_vendor_documents_view(){
+        //Getting RM Lists
+        $rm = $this->employee_model->get_rm_details();
+
+        if(!empty($this->input->post())){
+            $data = $this->input->post();
+            if($data['all_active'] == 'active'){
+                $active = 1;
+            }else{
+                $active = "";
+            }
+            if($data['rm'] != 'all'){
+                //Getting RM to SF Relation
+                $sf_list = $this->vendor_model->get_employee_relation($data['rm']);
+                $query = $this->vendor_model->viewvendor("", $active, $sf_list[0]['service_centres_id']);
+            }else{
+                $query = $this->vendor_model->viewvendor("", $active, '');
+            }
+            
+            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+            $this->load->view('employee/show_vendor_documents_view', array('data' => $query, 'rm' =>$rm,'selected'=>$data));
+            
+        }else{
+            $query = $this->vendor_model->viewvendor("", "", "");
+            
+            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+            $this->load->view('employee/show_vendor_documents_view', array('data' => $query, 'rm' =>$rm));
+        }
+    }
+    
+    /**
+     * @Desc: This function is used to remove images from vendor add/edit form
+     *          It is being called using AJAX Request
+     * parmas: type(column_name),vendor id
+     * return: Boolean
+     */
+    function remove_engineer_image(){
+        $data = $this->input->post();
+        
+        $engineer[$data['type']] = "";
+        $where = array('id' => $data['id'] );
+	$engineer_id = $this->vendor_model->update_engineer($where,$engineer);
+        
+        //Logging 
+        log_message('info',__FUNCTION__.' '.$data['type'].' Following Images has been removed sucessfully for engineer ID : '.print_r($engineer_id));
+        echo TRUE;
+}
 
 
 }   

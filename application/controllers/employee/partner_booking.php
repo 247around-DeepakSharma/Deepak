@@ -50,7 +50,7 @@ class Partner_booking extends CI_Controller {
         if (!empty($error)) {
             $source['error'] = $error;
         }
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/partner_upload_booking', $source);
     }
 
@@ -89,7 +89,7 @@ class Partner_booking extends CI_Controller {
 	if (!empty($error)) {
 	    $source['error'] = $error;
 	}
-	$this->load->view('employee/header');
+	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/upload_partners_cancelled_bookings', $source);
     }
 

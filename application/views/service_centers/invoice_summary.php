@@ -8,79 +8,48 @@
          <th>Period</th>
          <th>Type</th>
          <th>Invoice Excel File</th>
-         <th>Invoice PDF File</th>
+         <th>Invoice Detailed File</th>
          <th>Number of Bookings</th>
          <th>Service Charges</th>
          <th>Additional Service Charges</th>
          <th>Parts / Stands</th>
          <th>Total</th>
          <th>TDS</th>
-         <th>Around Royalty</th>
+         <th>Amount to be Pay By 247Around</th>
+         <th>Amount to be Pay By Partner</th>
          <th>Paid Amount</th>
-         <th>Amt Paid by Partner</th>
-         <th>Paid by 247around</th>
-         <th>Sent Date</th>
-         
+  
       </tr>
    </thead>
    <tbody>
       <?php
        $count = 1;
-       $sum_no_of_booking = 0;
-       $sum_of_total_service_charges = 0;
-       $sum_total_additional_service_charge = 0;
-       $sum_total_parts_cost = 0;
+       $sum_no_of_booking =0;
        $total_amount_collected =0;
-       $around_royalty = 0;
-       $amount_collected_paid = 0;
+       $pay_247 = 0;
+       $pay_sf= 0;
+       $tds = 0;
        if(!empty($invoice_array)){
          foreach($invoice_array as $key =>$invoice) {?>
 
       <tr <?php if($invoice['settle_amount'] == 1){ ?> style="background-color: #90EE90; " <?php } ?>>
          <td><?php echo $count;?></td>
          
-         <td><?php echo date("jS F, Y", strtotime($invoice['from_date'])). " to ". date("jS F, Y", strtotime($invoice['to_date'])); ?></td>
+         <td><?php echo date("jS M, Y", strtotime($invoice['from_date'])). " to ". date("jS M, Y", strtotime($invoice['to_date'])); ?></td>
          <td><?php echo $invoice['type']; ?></td>
          <td><a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $invoice['invoice_file_excel']; ?>"><?php echo $invoice['invoice_file_excel']; ?></a></td>
-         <td><a href="https://s3.amazonaws.com/bookings-collateral/invoices-pdf/<?php echo $invoice['invoice_file_pdf']; ?>"><?php echo $invoice['invoice_file_pdf']; ?></a></td>
+         <td><a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $invoice['invoice_detailed_excel']; ?>"><?php echo $invoice['invoice_detailed_excel']; ?></a></td>
          <td><?php echo $invoice['num_bookings'];  $sum_no_of_booking += $invoice['num_bookings']; ?></td>
-         <?php if($invoice['type'] == "Cash"){ ?>
-         <td><?php echo $invoice['total_service_charge']; $sum_of_total_service_charges +=  $invoice['total_service_charge']; ?></td>
-         <td><?php echo $invoice['total_additional_service_charge']; $sum_total_additional_service_charge += $invoice['total_additional_service_charge'];?></td>
-         <td><?php echo $invoice['parts_cost']; $sum_total_parts_cost += $invoice['parts_cost']; ?></td>
-         <td><?php echo $invoice['total_amount_collected']; $total_amount_collected += $invoice['total_amount_collected'];?></td>
-          <td><?php echo $invoice['tds_amount']; ?></td>
-         <td><?php echo $invoice['around_royalty']; $around_royalty += $invoice['around_royalty']; ?></td>
-         <?php $amount_collected_paid += $invoice['amount_collected_paid']; ?>
-
-          <td><?php if(abs($invoice['amount_collected_paid']) == $invoice['amount_paid'] ){ echo abs($invoice['amount_paid']); } else { echo abs($invoice['amount_collected_paid'] + $invoice['amount_paid']);}   ?></td>
-
-         <?php $amount_collected_paid += $invoice['amount_collected_paid']; ?>
-         <td><?php if($invoice['amount_collected_paid'] >0){ echo abs($invoice['amount_collected_paid']) - $invoice['amount_paid'];} else { echo "0.00"; }?></td>
-         <td><?php if($invoice['amount_collected_paid'] <=0){ echo abs($invoice['amount_collected_paid']) + $invoice['amount_paid'] ; } else { echo "0.00"; } ?></td>
-
-         <?php } else if($invoice['type'] == "FOC"){ ?>
-
-         <td><?php echo (($invoice['total_service_charge'] + $invoice['service_tax'] )* basic_percentage); $sum_of_total_service_charges +=  (($invoice['total_service_charge'] + $invoice['service_tax']) * basic_percentage); ?></td>
-
-         <td><?php echo ($invoice['total_additional_service_charge'] * basic_percentage); $sum_total_additional_service_charge += ($invoice['total_additional_service_charge'] *basic_percentage);?></td>
-
-         <td><?php echo (($invoice['parts_cost'] + $invoice['vat'])*basic_percentage); $sum_total_parts_cost += (($invoice['parts_cost'] + $invoice['vat'])*basic_percentage ); ?></td>
-         
-
-         <td><?php echo ((($invoice['total_service_charge'] + $invoice['service_tax'] )* basic_percentage) + ($invoice['total_additional_service_charge'] * basic_percentage) + (($invoice['parts_cost'] + $invoice['vat'])*basic_percentage)); ?></td>
-
-         <td><?php echo $invoice['tds_amount']; ?></td>
-
-         <td>0.00</td>
-         <td><?php if(abs($invoice['amount_collected_paid']) == $invoice['amount_paid'] ){ echo $invoice['amount_paid']; } else { echo abs($invoice['amount_collected_paid'] + $invoice['amount_paid']);}   ?></td>
-         <?php $amount_collected_paid += $invoice['amount_collected_paid']; ?>
-
-         <td><?php if($invoice['amount_collected_paid'] >0){ echo abs($invoice['amount_collected_paid']) - $invoice['amount_paid'];} else { echo "0.00"; }?></td>
-         <td><?php if($invoice['amount_collected_paid'] <=0){ echo abs($invoice['amount_collected_paid'] + $invoice['amount_paid']) ; } else { echo "0.00"; } ?></td>
-
-          <?php } ?>
-           <td><?php echo date("jS F, Y", strtotime($invoice['create_date'])); ?></td>
+         <td><?php echo round($invoice['total_service_charge'] + $invoice['service_tax'], 2);?></td>
+         <td><?php echo round($invoice['total_additional_service_charge'],2); ?></td>
+         <td><?php echo ($invoice['parts_cost'] + $invoice['vat']);  ?></td>
+         <td><?php echo round($invoice['total_amount_collected'],2); $total_amount_collected += round($invoice['total_amount_collected'],2);?></td>
+          <td><?php echo $invoice['tds_amount'];$tds += abs($invoice['tds_amount']); ?></td>
+         <td ><?php  if($invoice['amount_collected_paid'] < 0){ echo abs($invoice['amount_collected_paid']); $pay_247 += abs($invoice['amount_collected_paid']);} else {echo "0.00"; } ?></td>
+         <td ><?php if($invoice['amount_collected_paid'] > 0){ echo $invoice['amount_collected_paid']; $pay_sf += abs($invoice['amount_collected_paid']); } else {echo "0.00";} ?></td>
+        
+         <td><?php echo $invoice['amount_paid'] ?></td>
+ 
          <?php  $count = $count+1;  ?>
 
       </tr>
@@ -92,14 +61,14 @@
          <td></td>
          <td></td>
          <td></td>
-         <td><?php echo $sum_no_of_booking; ?></td>
-         <td><?php echo $sum_of_total_service_charges; ?></td>
-         <td><?php echo $sum_total_additional_service_charge; ?></td>
-         <td><?php echo $sum_total_parts_cost; ?></td>
-         <td><?php echo $total_amount_collected; ?></td>
+         <td><?php echo $sum_no_of_booking;?></td>
          <td></td>
-         <td><?php echo $around_royalty; ?></td>
          <td></td>
+         <td></td>
+         <td><?php echo round($total_amount_collected,1);?></td>
+         <td><?php echo round($tds,2);?></td>
+         <td><?php echo round($pay_247,2);?></td>
+         <td><?php echo round($pay_sf,2);?></td>
          <td></td>
         
       </tr>
@@ -118,7 +87,9 @@
              <th>Description</th>
              <th>Amt Received from Vendor</th>         
              <th>Amt Paid to Vendor</th>
+             <th>TDS Deducted</th>
              <th>Invoices</th>
+             
              <th>Bank Name / Mode</th>
           </tr>
        </thead>
@@ -133,6 +104,7 @@
                <td><?php echo $value['description']; ?></td>
                <td><?php echo $value['credit_amount']; $credit_amount += intval($value['credit_amount']); ?></td>       
                <td><?php echo $value['debit_amount'];  $debit_amount += intval($value['debit_amount']); ?></td>
+               <td><?php echo $value['tds_amount'];?></td>
                <td><?php echo $value['invoice_id']; ?></td>
                <td><?php echo $value['bankname']; ?> / <?php echo $value['transaction_mode']; ?></td>   
            <?php } ?>

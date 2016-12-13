@@ -23,10 +23,8 @@
     <div class="row">
       <div >
        
-        <h1>Service Centres</h1>
-        <div class="col-md-6">
-            <a href="<?php echo base_url(); ?>employee/vendor/download_sf_list_excel"><input class="btn btn-primary" type="Button" value="Download SF List"></a>
-        </div>
+        <h1>Service Center</h1>
+       
         <div class="pull-right" style="margin-bottom: 20px;">
             <a href="<?php echo base_url();?>employee/vendor/add_vendor"><input class="btn btn-primary" type="Button" value="Add Service Centre"></a>
         </div>

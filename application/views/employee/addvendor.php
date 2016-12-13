@@ -86,7 +86,34 @@
                                
                             </div>
                             <div class="col-md-12">
-                                 <div class="col-md-6">
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('rm')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="rm" class="col-md-3">RM</label>
+                                        <div class="col-md-8">
+                                            <select id="rm" class="form-control" name ="rm">
+                                                <option selected disabled>Select Regional Manager</option>
+                                                <?php
+                                                    foreach ($results['employee_rm'] as $value) {
+                                                    ?>
+                                                <option value = "<?php echo $value['id'] ?>"
+                                                    <?php
+                                                        if (isset($rm[0]['agent_id']) && $rm[0]['agent_id'] == $value['id']) { echo "selected";}
+                                                        ?>
+                                                        >
+                                                    <?php echo $value['full_name']; ?>
+                                                </option>
+                                                <?php } ?>
+                                            </select>
+                                            <?php echo form_error('rm'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
                                     <div  class="form-group <?php
                                         if (form_error('address')) {
                                             echo 'has-error';
@@ -1110,6 +1137,7 @@
     $("#district_option").select2();
     $("#state").select2();
     $("#pincode").select2();
+    $("#rm").select2();
     
     
     function getDistrict() {
@@ -1263,6 +1291,8 @@
         name: "required",
         address: "required",
         district: "required",
+        company_type:"required",
+        rm: "required",
         phone_1: {
             required: true,
             minlength: 10
@@ -1302,6 +1332,7 @@
         name: "Please enter Public Name",
         address: "Please enter Address",
         district: "Please Select District",
+        rm: "Please Select RM",
         state: "Please Select State",
         phone_1: "Please enter Phone Number",
         phone_2: "Please fill correct phone number",

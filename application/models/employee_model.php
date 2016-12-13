@@ -31,8 +31,13 @@ class Employee_model extends CI_Model{
    * @param : limit (between 10)
    * @return : if employee exist return employee other wise false
    */
-    public function get_employee($limit, $start) {
+    public function get_employee($limit = '', $start = '') {
+      if($limit != '' && $start != ''){
       $this->db->limit($limit, $start);
+      }else{
+          $this->db->select('*');
+      }
+      
       $query = $this->db->get('employee');
       if ($query->num_rows() > 0) {
         return $query->result_array();
@@ -90,13 +95,27 @@ class Employee_model extends CI_Model{
         $this->db->delete('employee');
     }
 
+    /**
+     * @desc: This function is used to add login details of the logged employee
+     * params: Array
+     * return: Int
+     */
+    function add_login_logout_details($data){
+        $this->db->insert('login_logout_details', $data);
+        return $this->db->insert_id();
+    }
     
-
-
-
-
-
-
-
+      /**
+       * @Desc: This function is used to get RM's from employee table
+       * @params: void
+       * @return: Array
+       * 
+       */
+      function get_rm_details(){
+          $this->db->select('*');
+          $this->db->where('groups','regionalmanager');
+          $query = $this->db->get('employee');
+          return $query->result_array();
+      }
 
 }

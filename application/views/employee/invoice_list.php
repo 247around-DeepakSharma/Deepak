@@ -2,7 +2,7 @@
    <div class="container-fluid">
       <div class="row">
          <div class="col-md-6 ">
-             <h1 class="page-header"><b><?php if(isset($service_center)){ ?>Service Centre Invoices<?php } else {?>
+             <h1 class="page-header"><b><?php if(isset($service_center)){ ?>Service Center Invoices<?php } else {?>
                Partner Invoices
             <?php } ?></b></h1>
          </div>
@@ -13,7 +13,7 @@
             <div class="col-md-4">
                 <?php if(isset($service_center)){ ?>
                <select class="form-control" name ="service_center" id="invoice_id" onChange="getInvoicingData('vendor')">
-                  <option disabled selected >Service Centre</option>
+                  <option disabled selected >Service Center</option>
                  
                   <?php 
                      foreach ($service_center as $vendor) {    
@@ -53,30 +53,41 @@
 <h2>Invoices Overall Summary</h2>
   <table class="table table-bordered  table-hover table-striped data"  >
    <thead>
-      <tr >
+      <tr>
          <th>No #</th>
          <th>Vendor/Partner</th>
-         <th>Amount</th>
+         <th>Amount to be Pay</th>
+         <th>Amount to be Get</th>
          <th>Pay</th>
       
       </tr>
    </thead>
-   <tbody>
+   <tbody><?php $foc= 0; $cash = 0;?>
      <?php $count = 1; foreach ($invoicing_summary as $key => $value) { ?>
       <tr> 
         <td><?php echo $count; ?></td>
         <td><?php echo $value['name']?></td>
-        <td><?php echo $value['final_amount']?></td>
+        <td><?php if($value['final_amount'] <0){echo round($value['final_amount'],0); $foc +=abs(round($value['final_amount'],0));}?></td>
+        <td><?php if($value['final_amount'] >0){echo round($value['final_amount'],0);  $cash +=abs(round($value['final_amount'],0));}?></td>
+       
         <td><?php if($value['final_amount'] <0){?> 
         <a href="<?php echo base_url()?>employee/invoice/invoice_summary/<?php echo $value['vendor_partner']?>/<?php echo $value['id'] ?>" target='_blank' class="btn btn-sm btn-success">Pay</a>
 
         <?php }?></td>
       </tr>
     <?php  $count++ ;} ?>
+      <tr>
+          <td>Total</td>
+          <td></td>
+          <td><?php echo -$foc; ?></td>
+          <td><?php echo $cash; ?></td>
+          <td></td>
+      </tr>
    </tbody>
    </table>
 
 <?php } ?>
+
 </div>
       </div>
    </div>

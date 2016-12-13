@@ -124,17 +124,52 @@
                 </table>
                 <center>
                     <input type="submit" id="submitform" class="btn btn-info " onclick="return confirm_submit('Confirm?')" value="Update"/>
-                    <a href="../cancel_brackets_requested/<?php echo $value['order_id']?>" class="btn btn-danger " <?php echo isset($requested_flag)?'':'style="display:none"'?> onclick="return confirm('Do you want to cancel this Bracket Order?')" >Cancel Order</a>
+                    <span class="btn btn-danger " <?php echo isset($requested_flag)?'':'style="display:none"'?>  data-toggle="modal" data-target="#cancelmodal">Cancel Order</span>
                 </center>
             </form>
         </div>
     </div>
 </div>
+
+<div id="cancelmodal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+      <form name="cancellation_form" id="cancellation_form" class="form-horizontal" action="<?php echo base_url() ?>employee/inventory/cancel_brackets_requested" method="POST">
+          
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" style="text-align: center"><b>Cancel Reason</b></h4>
+          </div>
+          <div class="modal-body">
+              <span id="error_message" style="display:none;color: red"><b>Please enter reason</b></span>
+              <textarea name="cancellation_reason" rows="4" cols="40" id="cancellation_reason" placeholder="Enter reason for Cancel"></textarea>
+              <input type="hidden" name="order_id" value="<?php echo $order_id?>" >
+          </div>
+          <div class="modal-footer">
+             <input type="button" onclick="form_submit()" value="Submit" class="btn btn-info " form="modal-form">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+          
+      </form>
+  </div>
+</div>
+
+
+
 <?php 
 $this->session->unset_userdata('brackets_update_error');
 ?>
 <script type="text/javascript">
-
+    
+    function form_submit() {
+        if($('#cancellation_reason').val() == ""){
+            $('#error_message').css('display','block');
+            return false;
+        }else{
+            $("#cancellation_form").submit();
+        }
+    }    
+    
     $("#shipment_date").datepicker({dateFormat: 'yy-mm-dd'});
     
     function add_value() {

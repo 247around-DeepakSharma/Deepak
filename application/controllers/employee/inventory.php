@@ -31,8 +31,25 @@ class Inventory extends CI_Controller {
      * 
      */
     public function get_bracket_add_form() {
-        $data['vendor'] = $this->vendor_model->getActiveVendor();
-        $this->load->view('employee/header');
+        //Getting ID from Session
+        $id = $this->session->userdata('id');
+        //Getting Employee Relation if present
+        $sf_list = $this->vendor_model->get_employee_relation($id);
+            if (!empty($sf_list)) {
+                // Listing details acc to SF mapped
+                $sf_list = $sf_list[0]['service_centres_id'];
+                $service_center = $this->vendor_model->getActiveVendor("", 0);
+                $sf_array = explode(',',$sf_list);
+                foreach($service_center as $key=>$value){
+                    if(array_search($value['id'],$sf_array)){
+                        $data['vendor'][] = $value;
+                    }
+                }
+            }else{
+                //Getting all values
+                $data['vendor'] = $this->vendor_model->getActiveVendor();
+            }
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view("employee/add_brackets", $data);
     }
 
@@ -98,12 +115,12 @@ class Inventory extends CI_Controller {
                    $template = $this->booking_model->get_booking_email_template("brackets_order_received_from_vendor");
                    
                    if(!empty($template)){
-                        $email['company_name'] = $vendor_requested[0]['company_name'];
+                        $email['order_id'] = $order_id;
                         $email['19_24_requested'] = $val['19_24_requested'];
                         $email['26_32_requested'] = $val['26_32_requested'];
                         $email['36_42_requested'] = $val['36_42_requested'];
                         $email['total_requested'] = $val['total_requested'];
-                        $subject = "Brackets Requested";
+                        $subject = "Brackets Requested by ".$vendor_requested[0]['company_name'];
                         $emailBody = vsprintf($template[0], $email);
                         $this->notify->sendEmail($template[2], $to , $template[3], '', $subject , $emailBody, "");
                    }
@@ -124,6 +141,7 @@ class Inventory extends CI_Controller {
                    $template = $this->booking_model->get_booking_email_template("brackets_requested_from_vendor");
                    
                    if(!empty($template)){
+                        $email['order_id'] = $order_id;
                         $email['19_24_requested'] = $val['19_24_requested'];
                         $email['26_32_requested'] = $val['26_32_requested'];
                         $email['36_42_requested'] = $val['36_42_requested'];
@@ -136,7 +154,7 @@ class Inventory extends CI_Controller {
                         $email['pincode'] = $vendor_requested[0]['pincode'];
                         $email['primary_contact_phone_1'] = $vendor_requested[0]['primary_contact_phone_1'];
                         $email['owner_phone_1'] = $vendor_requested[0]['owner_phone_1'];
-                        $subject = "Brackets Requested";
+                        $subject = "Brackets Requested by ".$vendor_requested[0]['company_name'];
 
                         $emailBody = vsprintf($template[0], $email);
 
@@ -171,7 +189,15 @@ class Inventory extends CI_Controller {
      * 
      */
     function show_brackets_list(){
-        $data['brackets'] = $this->inventory_model->get_brackets();
+        $sf_list = "";
+        //Getting ID of logged in user
+        $id = $this->session->userdata('id');
+            //Getting employee relation if present
+            $sf_list_array = $this->vendor_model->get_employee_relation($id);
+            if (!empty($sf_list_array)) {
+                $sf_list = $sf_list_array[0]['service_centres_id'];
+            }
+        $data['brackets'] = $this->inventory_model->get_brackets($sf_list);
         //Getting name for order received from  to vendor
         foreach($data['brackets'] as $key=>$value){
             $data['order_received_from'][$key] = $this->vendor_model->getVendorContact($value['order_received_from'])[0];
@@ -180,7 +206,7 @@ class Inventory extends CI_Controller {
             
             $data['order_given_to'][$key] = $this->vendor_model->getVendorContact($value['order_given_to'])[0]['name'];
         }
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view("employee/show_brackets_list", $data);
     }
     
@@ -195,7 +221,7 @@ class Inventory extends CI_Controller {
         $data['order_id'] = $order_id;
         $data['order_given_to'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_given_to'])[0]['name'];
         $data['order_received_from'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_received_from'])[0]['name'];
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view("employee/update_brackets", $data);
     }
     
@@ -251,8 +277,8 @@ class Inventory extends CI_Controller {
                    $template = $this->booking_model->get_booking_email_template("brackets_shipment_mail");
                    
                    if(!empty($template)){
-                        $email['company_name'] = $order_received_from_email[0]['company_name'];
-                        $subject = "Brackets Shipped";
+                        $email['order_id'] = $order_id;
+                        $subject = "Brackets Shipped by ".$order_received_from_email[0]['company_name'];
                         $emailBody = vsprintf($template[0], $email);
                         
                         $this->notify->sendEmail($template[2], $to , $template[3], '', $subject , $emailBody, $attachment);
@@ -286,7 +312,7 @@ class Inventory extends CI_Controller {
         $data['order_id'] = $order_id;
         $data['order_given_to'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_given_to'])[0]['name'];
         $data['order_received_from'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_received_from'])[0]['name'];
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view("employee/update_brackets", $data);
     }
     
@@ -337,8 +363,8 @@ class Inventory extends CI_Controller {
                    $template = $this->booking_model->get_booking_email_template("brackets_received_mail_vendor_order_requested_from");
                    
                    if(!empty($template)){
-                        $email['company_name'] = $order_received_from_email[0]['company_name'];
-                        $subject = "Brackets Received";
+                        $email['order_id'] = $order_id;
+                        $subject = "Brackets Received by ".$order_received_from_email[0]['company_name'];
                         $emailBody = vsprintf($template[0], $email);
                         $this->notify->sendEmail($template[2], $order_received_from_email_to , $template[3], '', $subject , $emailBody, '');
                    }
@@ -357,8 +383,9 @@ class Inventory extends CI_Controller {
                    
                    if(!empty($template)){
                         $email['order_given_to'] = $order_given_to_email[0]['company_name'];
+                        $email['order_id'] = $order_id;
                         $email['order_recieved_from'] = $order_received_from_email[0]['company_name'];
-                        $subject = "Brackets Received";
+                        $subject = "Brackets Received by ".$order_given_to_email[0]['company_name'];
                         $emailBody = vsprintf($template[0], $email);
                         
                         $this->notify->sendEmail($template[2], $order_given_to_email_to , $template[3], '', $subject , $emailBody, '');
@@ -439,7 +466,15 @@ class Inventory extends CI_Controller {
      * 
      */
     function get_vendor_inventory_list_form(){
-        $data['distinct_vendor'] = $this->inventory_model->get_distict_vendor_from_inventory();
+        $sf_list = "";
+        //Getting ID of logged in user
+        $id = $this->session->userdata('id');
+            //Getting employee relation if present
+            $sf_list_array = $this->vendor_model->get_employee_relation($id);
+            if (!empty($sf_list_array)) {
+                $sf_list = $sf_list_array[0]['service_centres_id'];
+            }
+        $data['distinct_vendor'] = $this->inventory_model->get_distict_vendor_from_inventory($sf_list);
         foreach($data['distinct_vendor'] as $value){
             $data['vendor_inventory'][] = $this->inventory_model->get_vendor_inventory_details($value['vendor_id']);
         }
@@ -448,7 +483,7 @@ class Inventory extends CI_Controller {
             $data['final_array'][] = end($value);
         }
         
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view("employee/show_vendor_inventory_list", $data);
     }
     /**
@@ -461,11 +496,11 @@ class Inventory extends CI_Controller {
         $data['data'] = $this->inventory_model->get_brackets_by_order_id($order_id);
         $data['order_id'] = $order_id;
         $data['brackets'] = $this->inventory_model->get_brackets_by_id($order_id);
-       
+        $data['invoice_id'] = $this->inventory_model->get_brackets_invoice_by_order_id($order_id);
         $data['order_received_from'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_received_from'])[0]['name'];
         $data['order_given_to'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_given_to'])[0]['name'];
         
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view("employee/show_brackets_order_history", $data);
     }
     
@@ -480,7 +515,7 @@ class Inventory extends CI_Controller {
         $data['order_id'] = $order_id;
         $data['order_given_to'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_given_to'])[0]['name'];
         $data['order_received_from'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_received_from'])[0]['name'];
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view("employee/update_brackets", $data);
     }
     
@@ -522,12 +557,12 @@ class Inventory extends CI_Controller {
                    //Getting template from Database
                    $template = $this->booking_model->get_booking_email_template("brackets_order_received_from_vendor");
                    if(!empty($template)){
-                        $email['company_name'] = $order_received_from_email[0]['company_name'];
+                        $email['order_id'] = $order_id;
                         $email['19_24_requested'] = $data['19_24_requested'];
                         $email['26_32_requested'] = $data['26_32_requested'];
                         $email['36_42_requested'] = $data['36_42_requested'];
                         $email['total_requested'] = $data['total_requested'];
-                        $subject = "Updated Brackets Requested";
+                        $subject = "Updated Brackets Requested by ".$order_received_from_email[0]['company_name'];
                         $emailBody = vsprintf($template[0], $email);
                         $this->notify->sendEmail($template[2], $to , $template[3], '', $subject , $emailBody, "");
                    }
@@ -546,6 +581,7 @@ class Inventory extends CI_Controller {
                    $template = $this->booking_model->get_booking_email_template("brackets_requested_from_vendor");
                    
                    if(!empty($template)){
+                        $email['order_id'] = $order_id;
                         $email['19_24_requested'] = $data['19_24_requested'];
                         $email['26_32_requested'] = $data['26_32_requested'];
                         $email['36_42_requested'] = $data['36_42_requested'];
@@ -558,7 +594,7 @@ class Inventory extends CI_Controller {
                         $email['pincode'] = $order_received_from_email[0]['pincode'];
                         $email['primary_contact_phone_1'] = $order_received_from_email[0]['primary_contact_phone_1'];
                         $email['owner_phone_1'] = $order_received_from_email[0]['owner_phone_1'];
-                        $subject = "Updated Brackets Requested";
+                        $subject = "Updated Brackets Requested by ".$order_received_from_email[0]['company_name'];
 
                         $emailBody = vsprintf($template[0], $email);
                         $this->notify->sendEmail($template[2], $to , $template[3], '', $subject , $emailBody, "");
@@ -583,11 +619,13 @@ class Inventory extends CI_Controller {
     /**
      * 
      * @Desc: This function is used to cancel brackets order
-     * @parmas: order id
+     * @parmas: POST Array
      * @return: view
      */
-    function cancel_brackets_requested($order_id){
+    function cancel_brackets_requested(){
+        $order_id = $this->input->post('order_id');
         $data['active'] = 0;
+        $data['cancellation_reason'] = $this->input->post('cancellation_reason');
         $cancel = $this->inventory_model->update_brackets($data, array('order_id' => $order_id));
         if($cancel){
             //Loggging

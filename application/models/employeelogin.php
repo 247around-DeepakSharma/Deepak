@@ -20,5 +20,42 @@ class Employeelogin extends CI_Model{
         $data = $this->db->query($sql);     
         return $data->result_array();
       }
+      
+      /**
+       * @desc: This function is used to authenticate 247access user
+       * @params: String username, password
+       * @return: Array
+       */
+      function _247access_login($username, $password){
+          $this->db->select('id');
+          $this->db->where('employee_id', $username);
+          $this->db->where('employee_password', md5($password));
+          $query = $this->db->get('employee');
+          if($query->num_rows() > 0){
+              $result = $query->result_array();
+              return $result[0]['id'];
+          }else{
+              return FALSE;
+          }
+          
+      }
+      
+      /**
+       * @Desc: This function is used to get group name of particular employee
+       *@params: employee_id(name)
+       * @return: Mix
+       */
+      function get_employee_group_name($employee_id){
+          $this->db->select('groups');
+          $this->db->where('employee_id', $employee_id);
+          $query = $this->db->get('employee');
+          if($query->num_rows() > 0){
+              $result =  $query->result_array();
+              return $result[0]['groups'];
+          }else{
+              return FALSE;
+          }
+      }
+      
 // end of model
 }

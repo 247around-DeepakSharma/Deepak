@@ -92,6 +92,9 @@
 					       }
 					       ?>" readonly="readonly">
 				    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" onclick="outbound_call(<?php echo $booking_history[0]['booking_primary_contact_no']; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
+                                    </div>
 				</div>
 
 				<div class="form-group ">
@@ -485,7 +488,25 @@
 	    return false;
 	}
     }
+    
+    function outbound_call(phone_number){
+        var confirm_call = confirm("Call Customer ?");
 
+        if (confirm_call == true) {
+
+             $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number,
+                success: function(response) {
+                    //console.log(response);
+
+                }
+            });
+        } else {
+            return false;
+        }
+
+    }
 </script>
 <style type="text/css">
     #booking_form .form-group label.error {
