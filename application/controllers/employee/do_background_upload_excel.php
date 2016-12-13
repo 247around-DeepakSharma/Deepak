@@ -1055,7 +1055,30 @@ class Do_background_upload_excel extends CI_Controller {
 	    'Room Heater',
 	    'Immersion Rod',
             '(PNG /LPG) Geyser',
-            'Gas Geyser'
+            'Gas Geyser',
+            'Set of 2',
+            'Drinking Water Pump',
+            'Set of 24 pcs',
+            'Casseroles',
+            'Spun Filter Cartridge',
+            'Oil Filled Radiator',
+            'Immersion Water Heater Rod',
+            '10" Filter Housing Transparent',
+            'Blow Hot Element Heater',
+            'Bajaj Fan Heater',
+            'Gas Geyser',
+            'Ro Body Cover',
+            'Pack Of 24 Pcs',
+            'Mineral Water Pot Offline Non Electric Water Purifer Filter',
+            'Membrane Ro Water Purifier',
+            '15 Filter',
+            'Hevy Duty 5000 Cartridge',
+            'Cleanwell Filter',
+            'CSM MEMBRANE 80 GPD',
+            'Spun Filter pack of ',
+            'Zero B Filter',
+            'Tower Heater',
+            'Oil Filled Heater'
 	);
 
 	return $unproductive_description;
