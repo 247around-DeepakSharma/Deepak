@@ -36,7 +36,7 @@ class Booking_utilities {
 
 	$template = 'BookingJobCard_Template-v8.xlsx';
 	//set absolute path to directory with template files
-	$templateDir = __DIR__ . "/../excel-templates/";
+	$templateDir = FCPATH."application/controllers/excel-templates/";
 	//set config for report
 	$config = array(
 	    'template' => $template,
