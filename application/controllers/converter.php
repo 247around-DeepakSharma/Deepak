@@ -17,7 +17,7 @@ class converter extends CI_Controller {
 
     function __Construct() {
 	parent::__Construct();
-	$this->load->model('converter_model');
+	$this->load->model('vendor_model');
     }
 
     function test() {
@@ -44,7 +44,7 @@ class converter extends CI_Controller {
 		if ($count > 0) {
 		    if ($count % 1000 == 0) {
 			//call insert_batch function for $rows..
-			$this->converter_model->insert_rows_in_batch($rows);
+			$this->vendor_model->insert_india_pincode_in_batch($rows);
 			echo date("Y-m-d H:i:s") . "=> " . $count . " records added\n";
 			unset($rows);
 			$rows = array();
@@ -54,7 +54,7 @@ class converter extends CI_Controller {
 		    }
 
 		    $data['area'] = $row[0];
-		    $data['pincode'] = $row[1];
+		    $data['  $datpincode'] = $row[1];
 		    $data['division'] = $row[2];
 		    $data['region'] = $row[3];
 		    $data['taluk'] = $row[4];
@@ -66,7 +66,7 @@ class converter extends CI_Controller {
 	    }
 
 	    //insert remaining rows
-	    $this->converter_model->insert_rows_in_batch($rows);
+	    $this->vendor_model->insert_india_pincode_in_batch($rows);
 	    echo date("Y-m-d H:i:s") . "=> " . ($count - 1) . " records added\n";
 	}
 
