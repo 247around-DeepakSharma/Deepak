@@ -3,7 +3,7 @@
         <div class="panel-heading"><center style="font-size: 130%;">Brackets History</center></div>
         <div class="panel-body">
             <div class="span6 pull-right">
-                <a href="<?php echo !empty($brackets[0]['invoice_id'])?'https://s3.amazonaws.com/bookings-collateral/invoices-excel/'.$brackets[0]['invoice_id']:''?>" class="btn btn-primary" <?php echo !empty($invoice_id[0]['invoice_id'])?'':'disabled'?>>Download Invoice</a>
+                <a href="<?php echo !empty($invoice_id[0]['invoice_id'])?'https://s3.amazonaws.com/bookings-collateral/invoices-excel/'.$invoice_id[0]['invoice_id']:''?>" class="btn btn-primary" <?php echo !empty($invoice_id[0]['invoice_id'])?'':'disabled'?>>Download Invoice</a>
             </div>
            
             <div class="clear"></div>
@@ -68,7 +68,7 @@
                                 <td><?php echo $value['agent_name'] ?></td>
                                 <td><?php echo $value['partner_name'] ?></td>
                                 <td><?php 
-                                    $old_date = $value['order_date'];
+                                    $old_date = $value['shipment_date'];
                                     $old_date_timestamp = strtotime($old_date);
                                     $new_date = date('j F, Y g:i A', $old_date_timestamp);  
                                     echo $new_date;?>
@@ -88,7 +88,7 @@
                                 <td><?php echo $value['partner_name'] ?></td>
                                 <td>
                                     <?php 
-                                    $old_date = $value['order_date'];
+                                    $old_date = $value['received_date'];
                                     $old_date_timestamp = strtotime($old_date);
                                     $new_date = date('j F, Y g:i A', $old_date_timestamp);  
                                     echo $new_date;?>

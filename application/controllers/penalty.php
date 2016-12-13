@@ -19,6 +19,7 @@ class Penalty extends CI_Controller {
 	parent::__Construct();
 
 	$this->load->model('penalty_model');
+	$this->load->model('reporting_utils');
 	$this->load->helper(array('form', 'url'));
     }
 
@@ -28,6 +29,8 @@ class Penalty extends CI_Controller {
         if( date('l') != "Sunday"){
             
 	    $this->penalty_model->penalty_on_service_center_for_update_booking();
+            // Inserting values in scheduler tasks log
+            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
         } else {
             log_message('info', __FUNCTION__ ." Today is Sunday");
         }

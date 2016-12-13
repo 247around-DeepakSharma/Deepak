@@ -128,7 +128,8 @@
               div = this.id .split('_');
             
               var tds_amount = $('#tds_'+ div[1]).text();
-              var pay = Number($('#pay_247'+ div[1]).text()) + Number($('#pay_partner'+ div[1]).text());
+              var pay = Number($('#pay_247'+ div[1]).text()) + Number($('#pay_partner'+ div[1]).text()) + Number($('#amount_paid_'+ div[1]).text());
+            
               
               total_amount_collected += Number(pay);
               total_tds += Number(tds_amount);

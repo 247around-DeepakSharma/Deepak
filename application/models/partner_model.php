@@ -695,6 +695,19 @@ class Partner_model extends CI_Model {
         $query = $this->db->get('partner_login');
         return $query->result_array();
     }
+    
+    /**
+     * @Desc: This function is used to get booking sources details from price_mapping_id
+     * @param int price_mapping_id
+     * @return: Array
+     * 
+     */
+    function get_booking_sources_by_price_mapping_id($price_mapping_id){
+        $this->db->select('*');
+        $this->db->where('price_mapping_id', $price_mapping_id);
+        $query =  $this->db->get('bookings_sources');
+        return $query->result_array();
+    }
 
 }
 

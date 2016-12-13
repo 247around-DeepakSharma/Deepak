@@ -1322,6 +1322,7 @@ INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`
 
 ALTER TABLE `service_centres` ADD `on_off` VARCHAR(2) NOT NULL DEFAULT '1' COMMENT '1->On,0->Off' AFTER `beneficiary_name`;
 
+ALTER TABLE `employee` ADD `groups` VARCHAR(256) NOT NULL AFTER `personal_email`;
 
 --Abhay 28 NOV
 ALTER TABLE `spare_parts_details` CHANGE `panel_pic` `serial_number_pic` VARCHAR(200) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL COMMENT 'store serial number picture';
@@ -1359,3 +1360,43 @@ ALTER TABLE `service_centres` CHANGE `pan_no` `pan_no` VARCHAR(256) CHARACTER SE
 
 --Abhay 12-12-2016
 ALTER TABLE  `vendor_partner_invoices` ADD  `invoice_detailed_excel` VARCHAR( 100 ) NULL DEFAULT NULL AFTER  `invoice_file_excel` ;
+-- Belal 24 Nov
+
+CREATE TABLE `employee_relation` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `agent_id` int(128) NOT NULL,
+ `service_centres_id` varchar(256) NOT NULL,
+ `appliance_id` varchar(256) NOT NULL,
+ `partner_id` varchar(256) NOT NULL,
+ `active` int(2) NOT NULL DEFAULT '1' COMMENT '1->Active,0->Not Active',
+ `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1
+
+ALTER TABLE `employee_relation` CHANGE `service_centres_id` `service_centres_id` VARCHAR(1064) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
+-- Belal 1 Dec
+ALTER TABLE `employee` ADD `full_name` VARCHAR(512) NOT NULL AFTER `employee_id`;
+
+-- Belal 3 Dec
+ALTER TABLE `brackets` ADD `cancellation_reason` VARCHAR(512) NOT NULL AFTER `total_received`;
+
+UPDATE `email_template` SET `template` = 'Dear partner your order has been placed sucessfully.<br><br> Your Order ID is : <b>%s</b> <br> <strong>Order Details are:</strong><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Total Requested : %s<br><br> We will update you as soon as order is shipped.<br><br> Regards,<br> 247Around Team' WHERE `email_template`.`id` = 11;
+
+UPDATE `email_template` SET `template` = 'Dear Partner brackets has been delivered successfully to <b> %s </b> for the Order ID<b> %s </b> <br><br> Please contact us in case of any query.<br><br> Regards, <br> 247Around Team' WHERE `email_template`.`id` = 21;
+
+UPDATE `email_template` SET `template` = 'Dear Partner brackets for your Order ID <b> %s </b> have been delivered to you sucessfully.<br><br> Tnakyou for placing an order with us.<br.<br> Regards,<br> 247Around Team' WHERE `email_template`.`id` = 20;
+
+UPDATE `email_template` SET `template` = 'Dear Partner brackets for your Order ID <b> %s </b> has been shipped to you.<br><br> Please confirm when you receive the brackets.<br> If you find any mismatch in Total number of Brackets, please inform us immediately along with the <b>Delivery Box Picture</b>.<br><br> Regards,<br> 247Around Team' WHERE `email_template`.`id` = 19;
+
+UPDATE `email_template` SET `template` = 'Dear Partner you have received a new order for brackets.<br><br> Your Order ID is : <b>%s</b> <br> <strong>Order Details:</strong><br><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Total Requested : %s<br><br> <strong>Requested From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br> City: %s <br> State: %s <br> Pincode: %s <br> Phone Number: %s, %s<br><br> Please notify when you ship the above order.<br><br> Regards,<br> 247Around Team' WHERE `email_template`.`id` = 10;
+
+-- Belal 8 Dec
+CREATE TABLE `scheduler_tasks_log` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `task_name` varchar(256) NOT NULL,
+ `executed_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1
+
+ALTER TABLE `login_logout_details` ADD `agent_string` VARCHAR(256) NOT NULL AFTER `browser`;

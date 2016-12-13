@@ -56,14 +56,86 @@ class BookingSummary extends CI_Controller {
         //load template
         $R = new PHPReport($config);
 
-        //fetch pending bookings
-        $pending_bookings = $this->reporting_utils->get_pending_bookings();
-        $count = count($pending_bookings);
+        $user_group = $this->session->userdata('user_group');
+        
+        //Checking function is called from CRON or from System Manually
+        if (!empty($user_group)) {
+            //Function is being called manually
+
+            $id = $this->session->userdata('id');
+            $sf_list = $this->vendor_model->get_employee_relation($id);
+            if (!empty($sf_list)) {
+                $sf_list = $sf_list[0]['service_centres_id'];
+            }
+
+            //Fetching pending bookings
+            $pending_bookings = $this->reporting_utils->get_pending_bookings($sf_list);
+            $count = count($pending_bookings);
+            
+            if ($count > 0) {
+                //Get num of pending bookings for each vendor
+                $sc_pending_bookings = $this->reporting_utils->get_num_pending_bookings_for_all_sc($sf_list);
+
+                $R->load(array(
+                    array(
+                        'id' => 'meta',
+                        'data' => array('date' => date('Y-m-d'), 'count' => $count),
+                        'format' => array(
+                            'date' => array('datetime' => 'd/M/Y')
+                        )
+                    ),
+                    array(
+                        'id' => 'booking',
+                        'repeat' => true,
+                        'data' => $pending_bookings,
+                        //'minRows' => 2,
+                        'format' => array(
+                            'create_date' => array('datetime' => 'd/M/Y'),
+                            'total_price' => array('number' => array('prefix' => 'Rs. ')),
+                        )
+                    ),
+                    array(
+                        'id' => 'sc',
+                        'repeat' => true,
+                        'data' => $sc_pending_bookings,
+                    ),
+                        )
+                );
+
+                //Get populated XLS with data
+                $output_file = "/tmp/BookingSummary-" . date('d-M-Y') . ".xls";
+                $R->render('excel2003', $output_file);
+                //Downloading of Excel generated
+                if (file_exists($output_file)) {
+                    header('Content-Description: File Transfer');
+                    header('Content-Type: application/octet-stream');
+                    header('Content-Disposition: attachment; filename="' . basename($output_file) . '"');
+                    header('Expires: 0');
+                    header('Cache-Control: must-revalidate');
+                    header('Pragma: public');
+                    header('Content-Length: ' . filesize($output_file));
+                    readfile($output_file);
+                    exit;
+                }
+            }
+        } else {
+            //Function is being called from CRON
+            
+            //Getting list of RM details
+            $rms = $this->employee_model->get_rm_details();
+            foreach($rms as $value){
+                
+                $sf_list = $this->vendor_model->get_employee_relation($value['id'])[0]['service_centres_id'];
+                $to = $value['official_email'];
+                
+                //Fetching pending bookings
+                $pending_bookings = $this->reporting_utils->get_pending_bookings($sf_list);
+                $count = count($pending_bookings);
         //log_message('info', "Count: " . $count);
 
         if ($count > 0) {
             //Get num of pending bookings for each vendor
-            $sc_pending_bookings = $this->reporting_utils->get_num_pending_bookings_for_all_sc();
+                    $sc_pending_bookings = $this->reporting_utils->get_num_pending_bookings_for_all_sc($sf_list);
 
             $R->load(array(
                 array(
@@ -100,8 +172,7 @@ class BookingSummary extends CI_Controller {
             //log_message('info', "Report generated with $count records");
             //Send report via email
             $this->email->from('booking@247around.com', '247around Team');
-            $this->email->to("nits@247around.com, anuj@247around.com, booking@247around.com, sales@247around.com, suresh@247around.com, nilanjan@247around.com, oza@247around.com");
-            //$this->email->to("anuj.aggarwal@gmail.com");
+                        $this->email->to($to);
 
             $this->email->subject("Booking Summary: " . date('Y-m-d H:i:s'));
             $this->email->message("Bookings pending as of today: " . $count . "<br/>");
@@ -117,9 +188,20 @@ class BookingSummary extends CI_Controller {
             $bucket = 'bookings-collateral';
             $directory_xls = "summary-excels/" . $output_file;
             $this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
-
+            
             //Delete this file
-            exec("rm -rf " . $output_file);
+            exec("rm -rf " . $output_file, $out, $return);
+            // Return will return non-zero upon an error
+            
+            if(!$return){
+                // exec() has been executed sucessfully
+                // Inserting values in scheduler tasks log
+                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
+                //Logging
+                log_message('info',__FUNCTION__.' Executed Sucessfully '.$output_file);
+                
+            }
+            
             } else {
                 if (file_exists($output_file)) {
                     header('Content-Description: File Transfer');
@@ -134,6 +216,9 @@ class BookingSummary extends CI_Controller {
                 }
             }
         }
+            }
+        }
+
 
         log_message('info', __FUNCTION__ . ' => Exiting');
         exit(0);
@@ -167,10 +252,6 @@ class BookingSummary extends CI_Controller {
             if ($count > 0) {
                 //load template
                 $R = new PHPReport($config);
-
-                //Find unit details first for all bookings
-                $unit_details = $this->reporting_utils->get_all_unit_details();
-                //log_message('info', "Units fetched: " . count($unit_details));
 
                 $R->load(array(
                     array(
@@ -425,7 +506,17 @@ EOD;
 	    $this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
             
 	    //Delete this file
-	    exec("rm -rf " . escapeshellarg($output_file));
+	    exec("rm -rf " . escapeshellarg($output_file), $out, $return);
+            // Return will return non-zero upon an error
+            
+            if(!$return){
+                // exec() has been executed sucessfully
+                // Inserting values in scheduler tasks log
+                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
+                //Logging
+                log_message('info',__FUNCTION__.' Executed Sucessfully '.$output_file);
+                
+            }
 	}
 
 	exit(0);
@@ -665,37 +756,57 @@ EOD;
     
     /**
      * @desc: This function is used to send new service center report mail(CRON)
+     *          To ALL the RM's for their corresponding vendors
      * params: void
      * retunr :void
      *
      */
     function new_send_service_center_report_mail(){
-        $html = $this->booking_utilities->booking_report_for_new_service_center();
-        $to = 'anuj@247around.com, nits@247around.com, suresh@247around.com, nilanjan@247around.com, oza@247around.com';
+        //Geting Array of RM's
+        $rms = $this->employee_model->get_rm_details();
+        //Looping for each RM to send their corresponding reports of SF
+        foreach($rms as $value){
+            //Getting RM to SF Relation
+            $sf_list = $this->vendor_model->get_employee_relation($value['id']);
+            if(!empty($sf_list)){
+                $html = $this->booking_utilities->booking_report_for_new_service_center($sf_list[0]['service_centres_id']);
+                $to = $sf_list[0]['official_email'];
 
-        $this->notify->sendEmail("booking@247around.com", $to, "", "", "New Service Center Report - ".date("d-M-Y"), $html, "");
-        log_message('info', __FUNCTION__ . ' Service Center Report mail sent to '. $to);
+                $this->notify->sendEmail("booking@247around.com", $to, "", "", "New Service Center Report ".date('d-M,Y'), $html, "");
+                log_message('info', __FUNCTION__ . ' New Service Center Report mail sent to '. $to);
+                
+                // Inserting values in scheduler tasks log
+                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
+            }
+        }
     }
     
     /**
      * @desc: This function is used to send service center report mail(CRON)
+     *          To all the RM for their corresponding  SF
      * params: void
      * retunr :void
      *
      */
     
     function send_service_center_report_mail() {
-        //Get summary table
-        $html = $this->booking_utilities->booking_report_by_service_center();
+        //Geting Array of RM's
+        $rms = $this->employee_model->get_rm_details();
+        //Looping for each RM 
+        foreach($rms as $value){
+            //Getting RM to SF relation
+            $sf_list = $this->vendor_model->get_employee_relation($value['id']);
+            if(!empty($sf_list)){
+                $html = $this->booking_utilities->booking_report_by_service_center($sf_list[0]['service_centres_id']);
+                $to = $sf_list[0]['official_email'];
         
-        //Send it to the team
-        $to = "nits@247around.com, anuj@247around.com, suresh@247around.com, nilanjan@247around.com, oza@247around.com";
-
-        $subject = "Service Center Report - " . date("d-M-Y");
-            
-        $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $html, "");
-        
-        log_message('info', __FUNCTION__ . ' Service Center Report mail sent to ' . $to);
+                $this->notify->sendEmail("booking@247around.com", $to, "", "", "Service Center Report ".date('d-M,Y'), $html, "");
+                log_message('info', __FUNCTION__ . ' Service Center Report mail sent to '. $to);
+                
+                // Inserting values in scheduler tasks log
+                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
+            }
+        }
     }
 
     /**
@@ -760,21 +871,36 @@ EOD;
      */
     function get_sc_crimes($is_mail = 0){
         log_message('info', __FUNCTION__ );
-        $where = "";
-        $data['data']= $this->reporting_utils->get_sc_crimes($where);
+        
         if($is_mail ==0){
-            $this->load->view('employee/header');
+            // The function is being called from system Manually
+            $where = "";
+            $id = $this->session->userdata('id');
+            //Getting Employee Relation if present for Logged in User
+            $sf_list = $this->vendor_model->get_employee_relation($id);
+            if (!empty($sf_list)) {
+                $sf_list = $sf_list[0]['service_centres_id'];
+                $where = "AND service_centres.id IN (" . $sf_list . ")";
+            }
+            $data['data'] = $this->reporting_utils->get_sc_crimes($where);
+
+            $this->load->view('employee/header/' . $this->session->userdata('user_group'));
             $this->load->view('employee/get_crimes', $data);
         } else {
-
+            //The function is being called from CRON
             if( date('l') != "Sunday"){
-                $view =  $this->load->view('employee/get_crimes', $data, TRUE); 
-                $to = "anuj@247around.com, nits@247around.com";
-                $subject = "SF Crimes Report " . date("d-M-Y");
-                $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $view, "");
+            $where = "";
+            $data['data'] = $this->reporting_utils->get_sc_crimes($where);
+            //Loading view
+            $view = $this->load->view('employee/get_crimes', $data, TRUE);
+            $subject = "SF Crimes Report " . date("d-M-Y");
+            $to = 'anuj@247around.com, nits@247around.com';
+            $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $view, "");
             } else {
                 log_message('info', __FUNCTION__ ." Today is Sunday, Hence report would not generate");
             }
+            // Inserting values in scheduler tasks log
+            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__); 
         }
         
          log_message('info', __FUNCTION__ ." Exit");
@@ -785,27 +911,27 @@ EOD;
      */
     function get_sc_crimes_for_sf(){
         log_message('info', __FUNCTION__ );
-
-        if( date('l') != "Sunday"){
-
-            $vendor_details = $this->vendor_model->getactive_vendor();
-            foreach ($vendor_details as $value) {
-                if($value['is_update'] == '1'){
-                    $where = " AND id = '".$value['id']."'";
-                    $data['data']= $this->reporting_utils->get_sc_crimes($where);
-                    $view =  $this->load->view('employee/get_crimes', $data, TRUE); 
-
-                    $to  = $value['primary_contact_email'].",".$value['owner_email'];
-                    //$cc = "anuj@247around.com, nits@247around.com";
-                    $cc = "";
-                    $subject = $value['name']." - Bookings Not Updated Report - " . date("d-M-Y");
-                    $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $view, "");
-
-                }
+       if( date('l') != "Sunday"){
+        $vendor_details = $this->vendor_model->getactive_vendor();
+        foreach ($vendor_details as $value) {
+            if($value['is_update'] == '1'){
+                $where = " AND id = '".$value['id']."'";
+                $data['data']= $this->reporting_utils->get_sc_crimes($where);
+                $view =  $this->load->view('employee/get_crimes', $data, TRUE); 
+    
+                $to  = $value['primary_contact_email'].",".$value['owner_email'];
+                //$cc = "anuj@247around.com, nits@247around.com";
+                $cc = "";
+                $subject = $value['name']." - Bookings Not Updated Report - " . date("d-M-Y");
+                $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $view, "");
+                
             }
+        }
         } else {
              log_message('info', __FUNCTION__ ." Today is Sunday, Hence report would not generate");
         }
+        // Inserting values in scheduler tasks log
+        $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
         
         log_message('info', __FUNCTION__ ." Exit");
         
@@ -822,7 +948,7 @@ EOD;
        
         if($is_mail == 0){
             
-             $this->load->view('employee/header');
+             $this->load->view('employee/header/'.$this->session->userdata('user_group'));
              $this->load->view('employee/unassigned_table', $data);
         } else if($is_mail == 1){
             

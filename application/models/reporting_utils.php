@@ -13,7 +13,24 @@ class Reporting_utils extends CI_Model {
 
     //Get today's pending bookings to generate summary mail for Admin
     //Ignore queries and bookings having age < 3 days
-    function get_pending_bookings() {
+    //@params: id - ID of Employee logged in
+    //@return: user_group - Group of logged in user
+    
+    function get_pending_bookings($sf_list = "") {
+        if($sf_list != ""){
+            $where = "booking_details.current_status IN ('Pending', 'Rescheduled') 
+                AND service_centres.id  
+                                IN ("
+                                    .$sf_list.
+                                   ")
+                AND
+		DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 2
+                AND booking_details.assigned_vendor_id IS NOT NULL";
+        }else{
+            $where = "booking_details.current_status IN ('Pending', 'Rescheduled') AND 
+		DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 2
+                AND booking_details.assigned_vendor_id IS NOT NULL";
+        }
         $query = $this->db->query("SELECT booking_details.booking_id,
                 booking_details.booking_address,
                 booking_details.booking_pincode,
@@ -31,14 +48,14 @@ class Reporting_utils extends CI_Model {
                 users.name AS user_name,
                 users.phone_number AS user_phone,
                 service_centres.name AS sc_name,
+                service_centres.id AS sc_id,
                 service_centres.primary_contact_name AS sc_contact,
                 service_centres.primary_contact_phone_1 AS sc_phone
                 FROM (booking_details)
                 JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
                 JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
                 LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-                WHERE booking_details.current_status IN ('Pending', 'Rescheduled') AND
-		DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 2
+                WHERE ".$where."
 		ORDER BY booking_age DESC"
 	);
 
@@ -81,8 +98,25 @@ class Reporting_utils extends CI_Model {
 
     //Get num of pending bookings for each vendor
     //Ignore queries and bookings having age < 3 days
-    function get_num_pending_bookings_for_all_sc() {
-	$query = $this->db->query("SELECT service_centres.name AS sc_name, COUNT(booking_details.booking_id) AS num_bookings FROM `booking_details` LEFT JOIN service_centres ON booking_details.assigned_vendor_id = service_centres.id WHERE booking_details.current_status IN ('Pending', 'Rescheduled') AND  DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 2 GROUP BY sc_name ORDER BY num_bookings DESC");
+    function get_num_pending_bookings_for_all_sc($sf_list = "") {
+        if($sf_list != ""){
+            $where = "booking_details.current_status IN ('Pending', 'Rescheduled') "
+                    ."AND service_centres.id  
+                                IN ("
+                                    .$sf_list.
+                                   ")
+                AND
+		DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 2 ";
+        }else{
+            $where = "booking_details.current_status IN ('Pending', 'Rescheduled') "
+                   . "AND  DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 2 ";
+        }
+	$query = $this->db->query("SELECT service_centres.name AS sc_name, "
+                . "COUNT(booking_details.booking_id) AS num_bookings "
+                . "FROM `booking_details` LEFT JOIN service_centres "
+                . "ON booking_details.assigned_vendor_id = service_centres.id "
+                . "WHERE ".$where.""
+                . "GROUP BY sc_name ORDER BY num_bookings DESC");
 
 	return $query->result_array();
     }
@@ -850,18 +884,23 @@ class Reporting_utils extends CI_Model {
     
     /*
      * @desc: This function is used to get reporting data acc to service center
-     * params: void
+     * params: String sf_list
      * return: Array
      */
 
-    function get_booking_by_service_center() {
+    function get_booking_by_service_center($sf_list = "") {
+        if($sf_list != ""){
+            $where = " AND service_centres.id  IN (".$sf_list.") ";
+        }else{
+            $where = "";
+        }
 
         $sql_yesterday_booked = "SELECT count(distinct(`booking_state_change`.booking_id)) as booked, service_centres.name as service_center_name, service_centres.state, service_centres.district as city ,service_centres.id as service_center_id , service_centres.active as active 
                                 FROM  `booking_state_change`, `booking_details` , service_centres
                                 WHERE  `new_state`
                                 IN (
                                 'Pending',  'Rescheduled'
-                                )
+                                )".$where."
                                 AND booking_state_change.create_date >= DATE_SUB( CURDATE( ) , INTERVAL 1
                                 DAY )
                                 AND booking_state_change.create_date < CURDATE()
@@ -874,6 +913,7 @@ class Reporting_utils extends CI_Model {
                                     ) ) AS completed, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city ,service_centres.id as service_center_id , service_centres.active as active
                                     FROM `booking_details` , service_centres
                                     WHERE `current_status` = 'Completed'
+                                    ".$where."
                                     AND booking_details.closed_date >= DATE_SUB( CURDATE() , INTERVAL 1 
                                     DAY ) 
                                     AND booking_details.closed_date < CURDATE() 
@@ -885,6 +925,7 @@ class Reporting_utils extends CI_Model {
                                     ) ) AS cancelled, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city, service_centres.id as service_center_id , service_centres.active as active
                                     FROM `booking_details` , service_centres
                                     WHERE `current_status` = 'Cancelled'
+                                    ".$where."
                                     AND booking_details.closed_date >= DATE_SUB( CURDATE() , INTERVAL 1 
                                     DAY ) 
                                     AND booking_details.closed_date < CURDATE() 
@@ -896,6 +937,7 @@ class Reporting_utils extends CI_Model {
                                             ) ) AS completed, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city , service_centres.id as service_center_id , service_centres.active as active
                                             FROM `booking_details` , service_centres
                                             WHERE `current_status` = 'Completed'
+                                            ".$where."
                                             AND DATE_FORMAT( booking_details.closed_date, '%m' ) = MONTH( CURDATE() ) 
                                             AND DATE_FORMAT( booking_details.closed_date, '%Y' ) = YEAR( CURDATE() )
                                             AND `service_centres`.id = `booking_details`.assigned_vendor_id
@@ -905,6 +947,7 @@ class Reporting_utils extends CI_Model {
                                             ) ) AS cancelled, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city , service_centres.id as service_center_id , service_centres.active as active
                                             FROM `booking_details` , service_centres
                                             WHERE `current_status` = 'Cancelled'
+                                            ".$where."
                                             AND DATE_FORMAT( booking_details.closed_date, '%m' ) = MONTH( CURDATE() ) 
                                             AND DATE_FORMAT( booking_details.closed_date, '%Y' ) = YEAR( CURDATE() )
                                             AND `service_centres`.id = `booking_details`.assigned_vendor_id
@@ -917,6 +960,7 @@ class Reporting_utils extends CI_Model {
                             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0
                             AND 
                             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) <= 2
+                            ".$where."
                             AND current_status
                             IN (
                             'Pending', 'Rescheduled'
@@ -930,6 +974,7 @@ class Reporting_utils extends CI_Model {
                             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 3
                             AND 
                             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) <= 5
+                            ".$where."
                             AND current_status
                             IN (
                             'Pending', 'Rescheduled'
@@ -941,6 +986,7 @@ class Reporting_utils extends CI_Model {
                             JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id
                             WHERE 
 				DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 5
+                            ".$where."
                             AND current_status
                             IN (
                             'Pending', 'Rescheduled'
@@ -1306,18 +1352,22 @@ class Reporting_utils extends CI_Model {
 
     /**
      * @Desc: This function is used to get New Vendors Data
-     * @params: void
+     * @params: string sf_list for RM
      * @return : void
      */
-    function get_booking_for_new_service_center(){
-        
-        $data = [];
+    function get_booking_for_new_service_center($sf_list = ""){
+        if($sf_list != ""){
+            $where = " AND service_centres.id  IN (" .$sf_list.") ";
+        }else{
+            $where = "";
+        }
         $yesterday_bookings_gone = "SELECT count(distinct(`booking_state_change`.booking_id)) as booked, service_centres.id as service_center_id 
                                 FROM  `booking_state_change`, `booking_details` , service_centres
                                 WHERE  `new_state`
                                 IN (
                                 'Pending',  'Rescheduled'
                                 )
+                                ".$where."
                                 AND booking_state_change.create_date >= DATE_SUB( CURDATE( ) , INTERVAL 1
                                 DAY )
                                 AND booking_state_change.create_date < CURDATE()
@@ -1333,6 +1383,7 @@ class Reporting_utils extends CI_Model {
                                             WHERE 
                                                 DATE_FORMAT( booking_details.create_date, '%m' ) = MONTH( CURDATE() ) 
                                                 AND DATE_FORMAT( booking_details.create_date, '%Y' ) = YEAR( CURDATE() )
+                                            ".$where."
                                             AND service_centres.create_date BETWEEN CURDATE() - INTERVAL 60 DAY AND CURDATE()
                                             AND `service_centres`.id = `booking_details`.assigned_vendor_id
                                             GROUP BY service_centres.state, service_centres.name";
@@ -1342,6 +1393,7 @@ class Reporting_utils extends CI_Model {
                                             ) ) AS cancelled, service_centres.id as service_center_id 
                                             FROM `booking_details` , service_centres
                                             WHERE `current_status` = 'Cancelled'
+                                            ".$where."
                                             AND DATE_FORMAT( booking_details.create_date, '%m' ) = MONTH( CURDATE() ) 
                                             AND DATE_FORMAT( booking_details.create_date, '%Y' ) = YEAR( CURDATE() )
                                             AND service_centres.create_date BETWEEN CURDATE() - INTERVAL 60 DAY AND CURDATE()
@@ -1352,6 +1404,7 @@ class Reporting_utils extends CI_Model {
                                             ) ) AS completed, service_centres.id as service_center_id 
                                             FROM `booking_details` , service_centres
                                             WHERE `current_status` = 'Completed'
+                                            ".$where."
                                             AND DATE_FORMAT( booking_details.create_date, '%m' ) = MONTH( CURDATE() ) 
                                             AND DATE_FORMAT( booking_details.create_date, '%Y' ) = YEAR( CURDATE() )
                                              AND service_centres.create_date BETWEEN CURDATE() - INTERVAL 60 DAY AND CURDATE()
@@ -1363,6 +1416,7 @@ class Reporting_utils extends CI_Model {
                                             JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id
                                             WHERE 
                                             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0
+                                            ".$where."
                                             AND 
                                             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) <= 2
                                             AND current_status
@@ -1379,6 +1433,7 @@ class Reporting_utils extends CI_Model {
                                             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 3
                                             AND 
                                             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) <= 5
+                                            ".$where."
                                             AND current_status
                                             IN (
                                             'Pending', 'Rescheduled'
@@ -1391,6 +1446,7 @@ class Reporting_utils extends CI_Model {
                                                     JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id
                                                     WHERE 
                                                                 DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 5
+                                                    ".$where."
                                                     AND current_status
                                                     IN (
                                                     'Pending', 'Rescheduled'
@@ -1422,6 +1478,30 @@ class Reporting_utils extends CI_Model {
         }
         return $sc_array;
     }
-
+    
+    /**
+     * @Desc : This function is used to insert values in scheduler_tasks_log table for each execution of 
+     *          Scheduler Tasks that has been executed.
+     * @params: Array of Data
+     * @return : void
+     * 
+     */
+    function insert_scheduler_tasks_log($tasks){
+        $data['task_name'] = $tasks;
+        $this->db->insert('scheduler_tasks_log',$data);
+    }
+    
+    /**
+     * @Desc: This function is used to get values from scheduler tasks log table by Date
+     * @params: date
+     * @return: Array
+     * 
+     */
+    function  get_scheduler_tasks_log($date){
+        $this->db->select('*');
+        $this->db->like('executed_on',$date);
+        $query = $this->db->get('scheduler_tasks_log');
+        return $query->result_array();
+    }
 
 }

@@ -139,9 +139,10 @@ class User_model extends CI_Model {
      */
     function search_user($phone_number) {
         $this->db->select("*");
-        $this->db->where('phone_number', $phone_number);
-
-        $query = $this->db->get("users");
+        $this->db->where('booking_primary_contact_no', $phone_number);
+        $this->db->or_where('booking_alternate_contact_no', $phone_number);
+        $this->db->join('users', 'users.user_id = booking_details.user_id');
+        $query = $this->db->get("booking_details");
         return $query->result_array();
     }
 
@@ -219,7 +220,7 @@ class User_model extends CI_Model {
         $sql = " SELECT services.services, users.user_id, users.city, users.state, users.phone_number, users.user_email, users.home_address, users.name, users.pincode, "
                 . " booking_details.* "
                 . " FROM booking_details, users,services WHERE "
-                . " users.phone_number='$phone_number' AND booking_details.user_id=users.user_id AND "
+                . " users.phone_number='$phone_number' OR booking_details.booking_alternate_contact_no = '$phone_number' AND booking_details.user_id=users.user_id AND "
                 . " services.id=booking_details.service_id LIMIT $start, $limit";
         $query = $this->db->query($sql);
         

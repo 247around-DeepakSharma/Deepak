@@ -229,6 +229,27 @@ class Partner extends CI_Controller {
     function logout() {
         log_message('info', 'Partner logout  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'));
 
+        //Saving Logout Details in Database
+        $this->load->library('user_agent');
+        $login_data['browser'] = $this->agent->browser();
+        $login_data['ip'] = $this->session->all_userdata()['ip_address'];
+        $login_data['action'] = _247AROUND_LOGOUT;
+          if($this->session->userdata('247Access') == 1){
+            $login_data['employee_type'] = $this->session->all_userdata()['userType'].' - '._247AROUND_ACCESS;
+        }else{
+            $login_data['employee_type'] = $this->session->all_userdata()['userType'];
+        }
+        $login_data['employee_id'] = $this->session->all_userdata()['partner_id'];
+        $login_data['employee_name'] = $this->session->all_userdata()['partner_name'];
+
+        $logout_id = $this->employee_model->add_login_logout_details($login_data);
+        //Adding Log Details
+        if ($logout_id) {
+            log_message('info', __FUNCTION__ . ' Logging details have been captured for partner ' . $login_data['employee_name']);
+        } else {
+            log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['employee_name']);
+        }
+
         $this->session->sess_destroy();
         redirect(base_url() . "partner/login");
     }
@@ -413,7 +434,7 @@ class Partner extends CI_Controller {
         $results['services'] = $this->vendor_model->selectservice();
         $results['brands'] = $this->vendor_model->selectbrand();
         $results['select_state'] = $this->vendor_model->getall_state();
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/addpartner', array('results' => $results));
     }
 
@@ -450,7 +471,7 @@ class Partner extends CI_Controller {
                     $this->session->set_flashdata('success','Partner added successfully.');
 
                     //Echoing inserted ID in Log file
-                    log_message('info',__FUNCTION__.' New Partner has been added with ID '.  $partner_id);
+                    log_message('info',__FUNCTION__.' New Partner has been added with ID '.  $partner_id." Done By " . $this->session->userdata('employee_id'));
                 }else{
                     $this->session->set_flashdata('error','Error in adding Partner.');
 
@@ -517,7 +538,7 @@ class Partner extends CI_Controller {
             $data[] = $value;
         }
      
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
 
         $this->load->view('employee/viewpartner', array('query' => $data));
     }
@@ -564,8 +585,8 @@ class Partner extends CI_Controller {
     function editpartner($id) {
         $query = $this->partner_model->viewpartner($id);
         $results['select_state'] = $this->vendor_model->getall_state();
-        $this->load->view('employee/header');
-        $this->load->view('employee/addpartner', array('query' => $query,'results'=>$results));
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results));
     }
 
     /**

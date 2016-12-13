@@ -16,6 +16,25 @@ function check_text(){
       return false;
     }
 }
+
+    function outbound_call(phone_number){
+        var confirm_call = confirm("Call Customer ?");
+
+        if (confirm_call == true) {
+
+             $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number,
+                success: function(response) {
+                    //console.log(response);
+
+                }
+            });
+        } else {
+            return false;
+        }
+
+    }
 </script>
 
 <div id="page-wrapper"> 
@@ -62,6 +81,9 @@ function check_text(){
                            <div class="col-md-6">
                               <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php if (isset($user_and_booking_details[0]['booking_primary_contact_no'])) {echo $user_and_booking_details[0]['booking_primary_contact_no']; } ?>" readonly="readonly">
                            </div>
+                           <div class="col-md-2">
+                                <button type="button" onclick="outbound_call(<?php echo $user_and_booking_details[0]['booking_primary_contact_no']; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
+                            </div>
                         </div>
 
                         <div class="form-group-cancel">
