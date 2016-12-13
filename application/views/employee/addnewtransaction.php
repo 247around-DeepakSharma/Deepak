@@ -103,13 +103,14 @@ color: red;
                     }
                     ?>
           <form name="myForm1" id="myForm1" class="form-horizontal" action="<?php echo base_url()?>employee/invoice/post_add_new_transaction" method="POST">
-              <h1>Add New Transaction</h1>
+              <h1><?php if(isset($bank_txn_details)){ echo "Update Transaction"; } else { echo "Add New Transaction";} ?></h1>
         <br>
+        <input type="hidden" name ="bank_txn_id" value="<?php if(isset($bank_txn_details)){ echo $bank_txn_details[0]['id'];} else { echo "";}?>" />
         <div class="form-group ">
                   <label class="col-md-2">Select Party<span class="red">*</span></label>
       <div class="col-md-6">
-          <input type="radio" onclick="partner_vendor1(<?php echo $id; ?>);"  name="partner_vendor" <?php if($vendor_partner ==""){ echo "checked"; } else if($vendor_partner == "vendor"){ echo "checked"; }?> value = "vendor">    Service Centre &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          <input type="radio" <?php if($vendor_partner == "partner"){ echo "checked"; } ?>onclick="partner_vendor1(<?php echo $id; ?>);" name="partner_vendor" value = "partner" >    Partner &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <input type="radio" onclick="partner_vendor1(<?php echo $id; ?>);"  name="partner_vendor" <?php if($vendor_partner ==""){ echo "checked"; } else if($vendor_partner == "vendor"){ echo "checked"; }?> value = "vendor">    Service Center &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <input type="radio" <?php if($vendor_partner == "partner"){ echo "checked"; } ?> onclick="partner_vendor1(<?php echo $id; ?>);" name="partner_vendor" value = "partner" >    Partner &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 </div>
               </div>
               <center><img id="loader_gif" src=""></center>
@@ -142,7 +143,7 @@ color: red;
               <div class="form-group">
                 <label for="name" class="col-md-2">Amount <span class="red">*</span></label>
                 <div class="col-md-6">
-                    <input type="text" class="form-control" id="amount" name="amount" onchange="validateFloatValue(this);" value="<?php if(isset($selected_amount_collected)){ echo abs($selected_amount_collected); }?>" required>
+                    <input type="text" class="form-control" id="amount" name="amount" value="<?php if(isset($selected_amount_collected)){ echo abs($selected_amount_collected); }?>" required>
                 </div>
                 <span id="errmsg4"></span>
               </div>
@@ -159,10 +160,14 @@ color: red;
               <div class="form-group">
       <label for="name" class="col-md-2">Transaction Mode<span class="red">*</span></label>
       <div>
-        <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Transfer" checked>    Transfer &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Cash" >    Cash &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="radio" onclick="cre_deb_validation1()"  name="transaction_mode" value = "Cheque">    Cheque &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Other">    Other
+          <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Cash" 
+              <?php if(isset($bank_txn_details)){ if($bank_txn_details[0]['transaction_mode'] == "Cash"){ echo "checked";}} else { echo "checked";} ?>>    Cash &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" onclick="cre_deb_validation1()"  name="transaction_mode" value = "Cheque"
+               <?php if(isset($bank_txn_details)){ if($bank_txn_details[0]['transaction_mode'] == "Cheque"){ echo "checked";}} else { echo "checked";} ?>>    Cheque &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Transfer"
+               <?php if(isset($bank_txn_details)){ if($bank_txn_details[0]['transaction_mode'] == "Transfer"){ echo "checked";}} else { echo "checked";} ?>>    Transfer &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Other"
+               <?php if(isset($bank_txn_details)){ if($bank_txn_details[0]['transaction_mode'] == "Other"){ echo "checked";}} else { echo "checked";} ?>>    Other
                 </div>
 
               </div>
@@ -170,7 +175,7 @@ color: red;
               <div class="form-group">
       <label for="name" class="col-md-2">Party Bank Name</label>
       <div class="col-md-6">
-                  <input type="text" class="form-control"  name="bankname">
+                  <input type="text" class="form-control"  name="bankname" value="<?php if(isset($bank_txn_details)){ echo $bank_txn_details[0]['bankname'];}?>">
                 </div>
               </div>
 
@@ -178,7 +183,7 @@ color: red;
               <label for="name" class="col-md-2">Transaction Date <span class="red">*</span></label>
                 <div class="col-md-2">
                 <div class="input-group input-append date" >
-                    <input type="text" id="datepicker" class="form-control" name="tdate" readonly='true'>
+                    <input type="text" id="datepicker" class="form-control" name="tdate" readonly='true' value="<?php if(isset($bank_txn_details)){ echo $bank_txn_details[0]['transaction_date'];}?>">
                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                 </div>
                 </div>
@@ -188,7 +193,7 @@ color: red;
             <div class="form-group">
               <label for="name" class="col-md-2">Description</label>
               <div class="col-md-6">
-      <textarea class="form-control"  name="description" cols="5" rows="5" placeholder="Add transaction remarks"></textarea>
+      <textarea class="form-control"  name="description" cols="5" rows="5" placeholder="Add transaction remarks"><?php if(isset($bank_txn_details)){ echo $bank_txn_details[0]['description'];}?></textarea>
               </div>
             </div>
         <div class="col-md-12" style="text-align: center;">
@@ -200,11 +205,18 @@ color: red;
 </div>
 
 <script type="text/javascript">
-
-    function validateFloatValue(el) {
-        var v = parseFloat(el.value);
-        el.value = (isNaN(v)) ? '' : v.toFixed(2);
+   $(document).ready(function () {
+  //called when key is pressed in textbox
+  $("#amount").keypress(function (e) {
+     //if the letter is not digit then display error and don't type anything
+     if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+        //display error message
+        $("#errmsg4").html("Digits Only").show().fadeOut("slow");
+               return false;
     }
+   });
+});
+
 
 </script>
 

@@ -111,6 +111,8 @@ class bookingjobcard extends CI_Controller {
         $output_file = "BookingJobCard-" . $booking_id . $output_file_suffix;
         $output_file_excel = $output_file_dir . $output_file . ".xlsx";
         $R->render('excel', $output_file_excel);
+        $res1 = 0;
+        system(" chmod 777 ".$output_file_excel, $res1);
         $output_file_pdf = $output_file_dir . $output_file . ".pdf";
         //Update output file name in DB
         $this->reporting_utils->update_booking_jobcard($booking_details[0]['id'], $output_file . ".pdf");
@@ -128,6 +130,8 @@ class bookingjobcard extends CI_Controller {
         $output = '';
         $result_var = '';
         exec($cmd, $output, $result_var);
+        $res2 = 0;
+        system(" chmod 777 ".$output_file_pdf, $res2);
 
         //Upload Excel & PDF files to AWS
         $bucket = 'bookings-collateral';
@@ -138,6 +142,8 @@ class bookingjobcard extends CI_Controller {
         $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
 
         $data['success'] = "Job card generated and mailed Successfully";
+        exec("rm -rf " . escapeshellarg($output_file_pdf));
+        exec("rm -rf " . escapeshellarg($output_file_excel));
 
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/jobcard', $data);
@@ -203,6 +209,8 @@ class bookingjobcard extends CI_Controller {
         $output_file = "BookingJobCard-" . $booking_id . $output_file_suffix;
         $output_file_excel = $output_file_dir . $output_file . ".xlsx";
         $R->render('excel', $output_file_excel);
+        $res1 = 0;
+        system(" chmod 777 ".$output_file_excel, $res1);
         $output_file_pdf = $output_file_dir . $output_file . ".pdf";
         //Update output file name in DB
         $this->reporting_utils->update_booking_jobcard($booking_details[0]['id'], $output_file . ".pdf");
@@ -219,6 +227,9 @@ class bookingjobcard extends CI_Controller {
         $output = '';
         $result_var = '';
         exec($cmd, $output, $result_var);
+        
+        $res2 = 0;
+        system(" chmod 777 ".$output_file_pdf, $res2);
 
         //Upload Excel & PDF files to AWS
         $bucket = 'bookings-collateral';
@@ -229,6 +240,8 @@ class bookingjobcard extends CI_Controller {
         $this->s3->putObjectFile($output_file_pdf, $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
 
         $this->session->set_flashdata('result', 'Job card generated successfully');
+        exec("rm -rf " . escapeshellarg($output_file_pdf));
+        exec("rm -rf " . escapeshellarg($output_file_excel));
         redirect(base_url() . 'employee/booking/view');
     }
 
@@ -412,6 +425,8 @@ class bookingjobcard extends CI_Controller {
                     $last_mail[0]['body'];
 
             $to = $servicecentredetails[0]['primary_contact_email'];
+            $owner = $servicecentredetails[0]['owner_email'];
+            $cc = ($owner . ', anuj@247around.com, nits@247around.com');
             $from = "booking@247around.com";
             $bcc = "";
             $attachment = "";

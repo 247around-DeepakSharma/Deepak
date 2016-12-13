@@ -202,12 +202,14 @@ class User extends CI_Controller {
 
         //Add the user
         $user_id = $this->user_model->add_user($user);
-        
+
+        //Add sample appliances for this user
+//        $output = $this->booking_model->addSampleAppliances($user_id, 5);
         $this->booking_model->addSampleAppliances($user_id, 5);
-        
-        //Loggin Details
-        log_message('info',__FUNCTION__.' New User has been created. '.print_r($user, TRUE));
-        
+
+        //Below two queries are running for no use, remove after confermation
+//        $data1 = $this->user_model->search_user($user['phone_number']);
+//        $appliance_details = $this->user_model->appliance_details($user['phone_number']);
         redirect(base_url() . 'employee/user/finduser/0/0/' . $user['phone_number']);
     }
 

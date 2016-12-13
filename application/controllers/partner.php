@@ -419,10 +419,9 @@ class Partner extends CI_Controller {
         $sms['tag'] = "sd_delivered_missed_call_initial";
 
         //ordering of smsData is important, it should be as per the %s in the SMS
-        $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
         $sms['smsData']['service'] = $appliance;
-
-
+        $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
+       
 	$sms['phone_no'] = $phone_number;
 	$sms['booking_id'] = $booking_id;
 	$sms['type'] = "user";
@@ -1515,7 +1514,7 @@ class Partner extends CI_Controller {
             $lead_details['booking_alternate_contact_no'] = (isset($requestData['alternate_phone_number']) ? $requestData['alternate_phone_number'] : "");
 
            // $booking['booking_address'] = $requestData['address'];
-            $booking['booking_landmark'] = (isset($requestData['landmark']) ? $requestData['landmark'] : "");
+            $booking['booking_landmark'] = $requestData['landmark'];
             $booking['booking_pincode'] = $requestData['pincode'];
             $booking['city'] = $requestData['city'];
 
@@ -1523,7 +1522,6 @@ class Partner extends CI_Controller {
 
             $booking['request_type'] = $requestData['requestType'];
             $unit_details['price_tags'] = $requestData['requestType'];
-            $booking['booking_remarks'] = (isset($requestData['remarks']) ? $requestData['remarks'] : "");
             $agent_id = $requestData['agent_id'];
 
             //Add this as a Booking now
@@ -1549,7 +1547,7 @@ class Partner extends CI_Controller {
 
             $booking['quantity'] = '1';
 
-            $appliance_details['serial_number'] = $unit_details['serial_number'] =(isset($requestData['serial_number']) ? $requestData['serial_number'] : "");
+            $appliance_details['serial_number'] = $unit_details['partner_serial_number'] = $requestData['serial_number'];
 
             $booking['potential_value'] = '';
             $appliance_details['last_service_date'] = date('d-m-Y');
@@ -1566,8 +1564,9 @@ class Partner extends CI_Controller {
             $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_id, $unit_details['price_tags']);
 
             $unit_details['id'] =  $prices[0]['id'];
-            $unit_details['around_paid_basic_charges'] = "0.00";
+            $unit_details['around_paid_basic_charges'] =  $unit_details['around_net_payable'] = "0.00";
             $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
+            $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
             $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state']);
             // if (!$return_unit_id) {
             //     log_message('info', __FUNCTION__ . ' Error Partner booking unit not inserted: ' . print_r($unit_details, true));
@@ -1576,13 +1575,13 @@ class Partner extends CI_Controller {
             $booking['current_status'] = "Pending";
             $booking['internal_status'] = "Scheduled";
             $booking['type'] = "Booking";
-            $booking['booking_date'] = (isset($requestData['booking_date']) ? $requestData['booking_date'] : "");
+            $booking['booking_date'] = $requestData['booking_date'];
             $booking['booking_timeslot'] = '';
             $booking['booking_address'] =$requestData['address'] . ", " . $requestData['landmark'] ;
             $booking['amount_due'] = '';
-            $booking['booking_remarks'] = (isset($requestData['remarks']) ? $requestData['remarks'] : "");
+            $booking['booking_remarks'] = $requestData['remarks'];
             $booking['query_remarks'] = "";
-            $booking['partner_source'] = (isset($requestData['partner_source']) ? $requestData['partner_source'] : "");
+            $booking['partner_source'] = $requestData['partner_source'];
             $booking['booking_timeslot'] = "4PM-7PM";
 
 

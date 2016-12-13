@@ -14,7 +14,6 @@ class Partner_model extends CI_Model {
     function __construct() {
       parent::__Construct();
 
-      $this->db_location = $this->load->database('default1', TRUE, TRUE);
       $this->db = $this->load->database('default', TRUE, TRUE);
     }
 
@@ -152,6 +151,7 @@ class Partner_model extends CI_Model {
     }
 
     function insert_data_in_batch($table_name, $rows){
+        $this->db->truncate($table_name);
         return $this->db->insert_batch($table_name, $rows);
     }
 
@@ -670,14 +670,15 @@ class Partner_model extends CI_Model {
      * @param Array $where
      * @return Array
      */
-    function get_spare_parts_booking($where){
+    function get_spare_parts_booking($where, $where_in){
         $this->db->select('spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, '
                 . ' service_centres.name as vendor_name, service_centres.address, service_centres.state, service_centres.pincode, service_centres.district');
         $this->db->from('spare_parts_details'); 
-        $this->db->where($where);
         $this->db->join('booking_details', 'booking_details.booking_id = spare_parts_details.booking_id');
         $this->db->join('users', 'users.user_id = booking_details.user_id');
         $this->db->join('service_centres', 'service_centres.id = spare_parts_details.service_center_id');
+        $this->db->where($where);
+        $this->db->where_in($where_in);
         $query = $this->db->get();
         return $query->result_array();
     }

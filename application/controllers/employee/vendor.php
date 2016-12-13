@@ -27,7 +27,7 @@ class vendor extends CI_Controller {
         $this->load->model('filter_model');
         $this->load->model('service_centers_model');
         $this->load->helper(array('form', 'url'));
-        //$this->load->library('../controllers/api');
+        
         $this->load->library('form_validation');
         $this->load->model('vendor_model');
         $this->load->model('partner_model');
@@ -100,7 +100,7 @@ class vendor extends CI_Controller {
                     return FALSE;
                 }
             }
-
+            
             //Start Processing CST File Upload
             if (!empty($_FILES['cst_file']['tmp_name'])) {
                 //Adding file validation
@@ -203,7 +203,7 @@ class vendor extends CI_Controller {
                     return FALSE;
                 }
             }
-
+            
             //Processing Address Proof File Upload
                 if(!empty($_FILES['address_proof_file']['tmp_name'])){
                     $tmpFile = $_FILES['address_proof_file']['tmp_name'];
@@ -763,6 +763,9 @@ class vendor extends CI_Controller {
             $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, 
                     "Re-Assigned SF ID: " . $service_center_id, $this->session->userdata('id'), 
                     $this->session->userdata('employee_id'), _247AROUND);
+            
+            //Prepare job card (For Reassigned Vendor)
+            $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
 
             //Setting mail to vendor flag to 0, once booking is re-assigned
             $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
@@ -1644,9 +1647,13 @@ class vendor extends CI_Controller {
         $this->form_validation->set_rules('bank_holder_name', 'Account Holder Name', 'trim|xss_clean');
         $this->form_validation->set_rules('file', 'Identity Proof Pic ', 'callback_upload_identity_proof_pic');
 	    $this->form_validation->set_rules('bank_proof_pic', 'Bank Proof Pic', 'callback_upload_bank_proof_pic');
-            
-        return $this->form_validation->run();    
-	
+
+	if ($this->form_validation->run() == FALSE) {
+            return FALSE;
+        }
+        else {
+            return true;
+        }
     }
 
     /**

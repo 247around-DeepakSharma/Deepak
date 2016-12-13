@@ -1326,7 +1326,7 @@ class Api extends CI_Controller {
         }
 	$sms['tag'] = "missed_call_confirmed";
 	$sms['phone_no'] = $booking['booking_primary_contact_no'];
-	$sms['smsData']['message'] = $this->notify->get_product_free_not($booking['services'], $category);
+	$sms['smsData']['message'] = '';
 	$sms['smsData']['service'] = $booking['services'];
 	// Check time is greater than 2PM. If time is greater than 2 PM,
         // then set installation date Tommorrow otherwise Today.

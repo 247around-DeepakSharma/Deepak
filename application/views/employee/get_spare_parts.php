@@ -20,6 +20,7 @@
                            <th class="text-center">Parts Requested</th>
                            <th class="text-center">Parts Shipped</th>
                            <th class="text-center">Status</th>
+                           <th class="text-center">Booking Status</th>
                              
                          </tr>
                      </thead>
@@ -37,6 +38,7 @@
                               <td class="text-center"><?php echo $value['parts_requested'];?></td>
                               <td class="text-center"><?php echo $value['parts_shipped'];?></td>
                               <td class="text-center"><?php echo $value['status'];?></td> 
+                              <td class="text-center"><?php echo $value['current_status'];?></td> 
                          </tr>
                              
                         <?php $sn_no++; }?>

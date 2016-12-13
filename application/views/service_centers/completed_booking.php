@@ -71,7 +71,7 @@
                                                 
                                             </td>-->
                                             
-                                            <td><a class='btn btn-sm btn-primary' href="<?php echo base_url();?>service_center/booking_details/<?php echo $row['booking_id']?>" target='_blank' title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>
+                                            <td><a class='btn btn-sm btn-primary' href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>" target='_blank' title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>
                 
 
                                         </tr>

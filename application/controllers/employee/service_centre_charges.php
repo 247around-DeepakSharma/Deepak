@@ -12,7 +12,7 @@ define('EOL', (PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
 
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
-ini_set('max_execution_time', 3600); //3600 seconds = 60 minutes
+ini_set('max_execution_time', 36000); //3600 seconds = 60 minutes
 
 use Box\Spout\Reader\ReaderFactory;
 use Box\Spout\Common\Type;
@@ -274,6 +274,7 @@ class service_centre_charges extends CI_Controller {
 	$data['partner_net_payable'] = $row[23];
 	$data['customer_net_payable'] = $row[24];
 	$data['pod'] = $row[25];
+        $data['vendor_basic_percentage'] = $row[26];
 
 	return $data;
     }

@@ -1290,11 +1290,17 @@ ALTER TABLE `service_centres` ADD `company_name` VARCHAR(512) NOT NULL AFTER `na
 ALTER TABLE `booking_unit_details` ADD `update_date` DATETIME on update CURRENT_TIMESTAMP NULL AFTER `create_date`;
 ALTER TABLE `booking_unit_details` ADD `ud_closed_date` DATETIME NULL DEFAULT NULL AFTER `update_date`;
 
+
+--Abhay 23 NOv
+ALTER TABLE `service_centre_charges` ADD `vendor_basic_percentage` DECIMAL(10,3) NULL DEFAULT NULL AFTER `vendor_total`;
+ALTER TABLE `booking_unit_details` ADD `vendor_basic_percentage` DECIMAL(10,3) NULL DEFAULT NULL AFTER `customer_total`;
+
 -- Belal 23 Nov
 
 INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'brackets_requested_from_vendor', 'An order has been placed for Brackets <br><br> <strong>Order Details:</strong><br><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Total Requested : %s<br><br> <strong>Requested From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br> City: %s <br> State: %s <br> Pincode: %s <br> Phone Number: %s, %s<br><br> Please notify when you have shipped the following orders.', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com,vijaya@247around.com', '', '1', '2016-09-26 18:30:00');
 
 INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'brackets_order_received_from_vendor', '%s order has been placed sucessfully.<br><br> <strong>Order Details are:</strong><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Total Requested : %s<br><br> We will update you as soon as order is shipped.', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com,vijaya@247around.com', '', '1', '2016-09-26 18:30:00');
+
 
 ALTER TABLE `service_centres` CHANGE `is_vat_doc` `is_tin_doc` INT(2) NOT NULL DEFAULT '1';
 
@@ -1314,10 +1320,46 @@ INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`
 
 INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'brackets_received_mail_vendor_order_given_to', '<b>%s </b> brackets has been delivered successfully to <b> %s </b> <br><br> Please contact us in case of any query.<br><br> Thanks<br> 247Around Team', 'booking@247around.com', '', 'anuj@247around.com, vijaya@247around.com', '', '1', '2016-09-26 18:30:00');
 
--- Belal 21 Nov
+ALTER TABLE `service_centres` ADD `on_off` VARCHAR(2) NOT NULL DEFAULT '1' COMMENT '1->On,0->Off' AFTER `beneficiary_name`;
 
 ALTER TABLE `employee` ADD `groups` VARCHAR(256) NOT NULL AFTER `personal_email`;
 
+--Abhay 28 NOV
+ALTER TABLE `spare_parts_details` CHANGE `panel_pic` `serial_number_pic` VARCHAR(200) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL COMMENT 'store serial number picture';
+ALTER TABLE `spare_parts_details` ADD `defective_parts_pic` VARCHAR(200) NULL DEFAULT NULL AFTER `invoice_pic`;
+ALTER TABLE `booking_details` ADD `initial_booking_date` VARCHAR(100) NULL DEFAULT NULL AFTER `booking_date`;
+
+
+--Abhay 30 NOV
+ALTER TABLE `booking_unit_details` ADD `vendor_invoice_id` VARCHAR(100) NULL DEFAULT NULL AFTER `ud_closed_date`, ADD `partner_invoice_id` VARCHAR(100) NULL DEFAULT NULL AFTER `vendor_invoice_id`;
+
+--Abhay 3 DEC
+ALTER TABLE `booking_unit_details` ADD `pay_to_sf` INT(2) NULL DEFAULT '0' AFTER `vendor_invoice_id`;
+
+--Abhay 5 NOv
+ALTER TABLE `booking_unit_details` CHANGE `vendor_invoice_id` `vendor_cash_invoice_id` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+ALTER TABLE `booking_unit_details` ADD `vendor_foc_invoice_id` VARCHAR(100) NULL DEFAULT NULL AFTER `vendor_cash_invoice_id`;
+
+--Belal 8 Dec
+
+CREATE TABLE `login_logout_details` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `action` int(1) NOT NULL COMMENT '1->Login, 0->Logout',
+ `ip` varchar(32) NOT NULL,
+ `browser` varchar(128) NOT NULL,
+ `employee_name` varchar(256) NOT NULL,
+ `employee_id` varchar(128) NOT NULL,
+ `employee_type` varchar(128) NOT NULL,
+ `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+---Abhay 09-12-2016
+ALTER TABLE `service_centres` CHANGE `company_type` `company_type` VARCHAR(512) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+ALTER TABLE `service_centres` CHANGE `pan_no` `pan_no` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+
+--Abhay 12-12-2016
+ALTER TABLE  `vendor_partner_invoices` ADD  `invoice_detailed_excel` VARCHAR( 100 ) NULL DEFAULT NULL AFTER  `invoice_file_excel` ;
 -- Belal 24 Nov
 
 CREATE TABLE `employee_relation` (

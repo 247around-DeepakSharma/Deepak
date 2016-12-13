@@ -48,8 +48,9 @@ class Around_scheduler extends CI_Controller {
             }
 
             //Ordering of SMS data is important, check SMS template before changing it
-            $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services, $category);
             $sms['smsData']['service'] = $value->services;
+            $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services, $category);
+            
 
             $sms['booking_id'] = $value->booking_id;
             $sms['type'] = "user";
@@ -94,8 +95,9 @@ class Around_scheduler extends CI_Controller {
             }
 
             //Ordering of SMS data is important, check SMS template before changing it
-            $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services, $category);
             $sms['smsData']['service'] = $value->services;
+            $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services, $category);
+            
 
             $sms['booking_id'] = $value->booking_id;
             $sms['type'] = "user";
@@ -136,9 +138,9 @@ class Around_scheduler extends CI_Controller {
             }
 
             //Ordering of SMS data is important, check SMS template before changing it
-            $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services, $category);
             $sms['smsData']['service'] = $value->services;
-
+            $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services, $category);
+            
             $sms['booking_id'] = $value->booking_id;
             $sms['type'] = "user";
             $sms['type_id'] = $value->user_id;
@@ -216,7 +218,7 @@ class Around_scheduler extends CI_Controller {
     function cancel_pending_query($booking_id) {
 	log_message('info', __METHOD__ . " => Booking ID: " . $booking_id);
         
-        $data['cancellation_reason'] = 'Customer Not Reachable';
+        $data['cancellation_reason'] = 'Customer Not Responded to 247around Communication';
 	$data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");        
 	$data['current_status'] = $data['internal_status'] = _247AROUND_CANCELLED ;
 	$data_vendor['cancellation_reason'] = $data['cancellation_reason'];
@@ -229,9 +231,8 @@ class Around_scheduler extends CI_Controller {
 	$data_vendor['update_date'] = date("Y-m-d H:i:s");
 	$data_vendor['current_status'] = $data_vendor['internal_status'] = _247AROUND_CANCELLED ;
 
-	$data_vendor['booking_id'] = $booking_id;
 	log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($data_vendor, true));
-	$this->vendor_model->update_service_center_action($data_vendor);
+	$this->vendor_model->update_service_center_action($booking_id, $data_vendor);
 
 	$unit_details['booking_status'] = _247AROUND_CANCELLED;
 	$unit_details['vendor_to_around'] = $unit_details['around_to_vendor'] = 0;
@@ -276,9 +277,9 @@ class Around_scheduler extends CI_Controller {
 
 
             //Ordering of SMS data is important, check SMS template before changing it
-            $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services,$category );
             $sms['smsData']['service'] = $value->services;
-
+            $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services,$category );
+            
             $sms['booking_id'] = $value->booking_id;
             $sms['type'] = "user";
             $sms['type_id'] = $value->user_id;

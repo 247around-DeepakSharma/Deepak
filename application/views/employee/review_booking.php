@@ -49,9 +49,9 @@
                         <td><?php echo $value['booking_primary_contact_no'];  ?></td>
                         <td><?php echo $value['quantity'];  ?></td>
                         <td><?php echo $value['booking_date']." / ".$value['booking_timeslot'] ;  ?></td>
-                        <td><?php echo  date('d-m-Y',strtotime($value['reschedule_date_request']))." / ".$value['reschedule_timeslot_request'] ;  ?>
+                        <td><?php echo  date('d-m-Y',strtotime($value['reschedule_date_request'])) ;  ?>
                            <input type="hidden" name="reschedule_booking_date[<?php echo $value['booking_id']; ?>]" value="<?php echo $value['reschedule_date_request'] ?>" ></input>
-                           <input type="hidden" name="reschedule_booking_timeslot[<?php echo $value['booking_id']; ?>]" value="<?php echo $value['reschedule_timeslot_request'] ?>" ></input>
+<!--                           <input type="hidden" name="reschedule_booking_timeslot[<?php //echo $value['booking_id']; ?>]" value="<?php //echo $value['reschedule_timeslot_request'] ?>" ></input>-->
                            <input type="hidden" name="reschedule_reason[<?php echo $value['booking_id']; ?>]" value="<?php echo $value['reschedule_reason'] ?>" ></input>
                         </td>
                         <td><?php echo $value['reschedule_reason'];  ?></td>
@@ -109,6 +109,7 @@
                               <td style="text-align: left;white-space: inherit;">
                                  <table  class="table table-condensed">
                                     <thead>
+                                        <th class="jumbotron" >Brand</th>
                                        <th class="jumbotron" >Category/Capacity</th>
                                        <th class="jumbotron" >Serial Number</th>
                                        <th class="jumbotron" >Tags</th>
@@ -129,6 +130,7 @@
                                                }
                                                ?>
                                        <tr style="<?php echo $style?>">
+                                            <td><span class="<?php echo "brand".$count; ?>"><?php echo $value1['appliance_brand']; ?></span></td>
                                            <td><span class="<?php echo "category".$count; ?>"><?php echo $value1['appliance_category']."/". $value1['appliance_capacity']; ?></span></td>
                                           <td>
                                              <span class="<?php echo "serial_number".$count; ?>"><?php echo $value1['serial_number']; ?></span>

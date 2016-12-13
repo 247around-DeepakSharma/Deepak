@@ -61,7 +61,7 @@ class Partner extends CI_Controller {
         log_message('info', 'Partner loggedIn  partner id' .
                 $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
 
-        redirect(base_url() . "partner/pending_booking");
+        redirect(base_url() . "partner/get_spare_parts_booking");
         } else {
 
             $userSession = array('error' => 'Please enter correct user name and password' );
@@ -305,7 +305,7 @@ class Partner extends CI_Controller {
                 log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted error mgs" . print_r($response, true));
                 // Decode the response
                 $responseData = json_decode($response, TRUE);
-
+                
                 if (isset($responseData['data']['result'])) {
 
                     if ($responseData['data']['result'] != "Success") {
@@ -367,7 +367,7 @@ class Partner extends CI_Controller {
         $post['landmark'] = $this->input->post('landmark');
         $post['product'] = $this->input->post('service_name');
         $post['brand'] = $this->input->post('appliance_brand');
-        $post['productType'] = $this->input->post('description');
+        $post['productType'] = '';
         $post['category'] = $this->input->post('appliance_category');
         $post['capacity'] = $this->input->post('appliance_capacity');
         $post['model'] = $this->input->post('model_number');
@@ -376,7 +376,7 @@ class Partner extends CI_Controller {
         $post['purchase_year'] = $this->input->post('purchase_year');
         $post['partner_source'] = $this->input->post('partner_source');
         $post['remarks'] = $this->input->post('query_remarks');
-        $post['orderID'] = $this->input->post('order_id');;
+        $post['orderID'] = $this->input->post('order_id');
         $post['alternate_phone_number'] = $this->input->post('alternate_phone_number');
         $post['booking_date'] = $booking_date;
         
@@ -595,7 +595,7 @@ class Partner extends CI_Controller {
      * return: View form to find user
      */
     function get_user_form() {
-
+        $this->checkUserSession();
         $this->load->view('partner/header');
         $this->load->view('partner/finduser');
     }
@@ -612,6 +612,7 @@ class Partner extends CI_Controller {
      * @return : print Booking on Booking Page
      */
     function finduser($offset = 0, $page = 0, $phone_number = '') {
+        $this->checkUserSession();
         $booking_id = $this->input->post('booking_id');
         $order_id = $this->input->post('order_id');
         $serial_no = $this->input->post('serial_number');
@@ -698,7 +699,7 @@ class Partner extends CI_Controller {
             }
         } else if (!empty($serial_no)) {
 
-            $where = array('serial_number' => $serial_no);
+            $where = array('partner_serial_number' => $serial_no);
             $data['Bookings'] = $this->booking_model->search_bookings($where, $partner_id);
             $data['search'] = "Search";
 
@@ -725,6 +726,7 @@ class Partner extends CI_Controller {
      *  @return : booking details and load view
      */
     function viewdetails($booking_id, $partner_id) {
+         $this->checkUserSession();
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
         $unit_where = array('booking_id'=>$booking_id, 'partner_id' => $partner_id);
         $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
@@ -808,8 +810,8 @@ class Partner extends CI_Controller {
                 //Update this booking in vendor action table
                 $data_vendor['update_date'] = date("Y-m-d H:i:s");
                 $data_vendor['current_status'] = $data_vendor['internal_status'] = _247AROUND_CANCELLED;
-                $data_vendor['booking_id'] = $booking_id;
-                $this->vendor_model->update_service_center_action($data_vendor);
+               
+                $this->vendor_model->update_service_center_action($booking_id, $data_vendor);
             }
 
             //Log this state change as well for this booking
@@ -895,14 +897,14 @@ class Partner extends CI_Controller {
                         $this->session->userdata('partner_name'), 
                         $this->session->userdata('partner_id'));
 
-                $service_center_data['booking_id'] = $booking_id;
+               
                 $service_center_data['internal_status'] = "Pending";
                 $service_center_data['current_status'] = "Pending";
                 $service_center_data['update_date'] = date("Y-m-d H:i:s");
 
                 log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($service_center_data, true));
 
-                $this->vendor_model->update_service_center_action($service_center_data);
+                $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
                
                 $send_data['booking_id'] = $booking_id;
                 $send_data['current_status'] = "Rescheduled";
@@ -1076,7 +1078,7 @@ class Partner extends CI_Controller {
             $unit_details['appliance_category'] =  $appliance_details['category'] = $post['category'];
             $unit_details['appliance_capacity'] = $appliance_details['capacity'] = $post['capacity'];
             $unit_details['model_number'] = $appliance_details['model_number'] =  $post['model'];
-            $unit_details['serial_number'] = $appliance_details['serial_number'] =  $post['serial_number'];
+            $unit_details['partner_serial_number'] = $appliance_details['serial_number'] =  $post['serial_number'];
             $unit_details['purchase_month'] = $appliance_details['purchase_month'] = $post['purchase_month'];
             $unit_details['purchase_year'] = $appliance_details['purchase_year'] = $post['purchase_year'];
             // Update booking details table
@@ -1105,8 +1107,9 @@ class Partner extends CI_Controller {
                     $prices = $this->partner_model->getPrices($booking_details['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id, $unit_details['price_tags']);
 
                     $unit_details['id'] =  $prices[0]['id'];
-                    $unit_details['around_paid_basic_charges'] = "0.00";
+                    $unit_details['around_paid_basic_charges'] =  $unit_details['around_net_payable'] = "0.00";
                     $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
+                    $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
                     //Update price in unit details table
                     $unit_status = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state']);
                     if($unit_status) {} else {
@@ -1142,7 +1145,8 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         $where = array('spare_parts_details.partner_id'=> $partner_id, 'status'=> SPARE_PARTS_REQUESTED);
-        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
+        $where_in = array('Pending','Rescheduled');
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where, $where_in);
         $this->load->view('partner/header');
         $this->load->view('partner/spare_parts_booking', $data);
     }
@@ -1185,8 +1189,9 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'). " Booking ID: ". $booking_id);
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
+        $where_in = array('Pending','Rescheduled');
         $where = array('spare_parts_details.partner_id'=> $partner_id, 'status'=> SPARE_PARTS_REQUESTED, 'spare_parts_details.booking_id'=> $booking_id);
-        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where, $where_in);
         
         $this->load->view('partner/header');
         $this->load->view('partner/update_spare_parts_form', $data);
@@ -1216,7 +1221,7 @@ class Partner extends CI_Controller {
             $data['awb_by_partner'] = $this->input->post('awb');
             $data['remarks_by_partner'] = $this->input->post('remarks_by_partner');
             $data['shipped_date'] = $this->input->post('shipment_date');
-            $data['edd'] = $this->input->post('edd');
+            //$data['edd'] = $this->input->post('edd');
            
             $data['status'] = "Shipped";
             $where  = array('booking_id'=> $booking_id, 'partner_id'=> $partner_id);
@@ -1224,10 +1229,10 @@ class Partner extends CI_Controller {
             if($response){
                 
                 $this->insert_details_in_state_change($booking_id, SPARE_PARTS_SHIPPED, "Partner acknowledged to shipped spare parts");
-                $sc_data['booking_id'] = $booking_id;
+               
                 $sc_data['current_status'] = "InProcess";
                 $sc_data['internal_status'] = SPARE_PARTS_SHIPPED;
-                $this->vendor_model->update_service_center_action($sc_data);
+                $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                 
                 $userSession = array('success' => 'Parts Updated');
                 $this->session->set_userdata($userSession);
@@ -1248,8 +1253,9 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
+        $where_in = array('Pending','Rescheduled');
         $where = array('spare_parts_details.partner_id'=> $partner_id, 'status'=> SPARE_PARTS_REQUESTED);
-        $data = $this->partner_model->get_spare_parts_booking($where);
+        $data = $this->partner_model->get_spare_parts_booking($where, $where_in);
         $template = 'download_spare_parts.xlsx';
 	//set absolute path to directory with template files
 	$templateDir = __DIR__ . "/../excel-templates/";
@@ -1291,6 +1297,7 @@ class Partner extends CI_Controller {
      * @param type $booking_id
      */
     function download_sc_address($booking_id){
+         $this->checkUserSession();
         log_message('info', __FUNCTION__. " Booking_id". $booking_id);
         $booking_history  = $this->booking_model->getbooking_history($booking_id, "join");
         $template = 'Address_Printout.xlsx';
@@ -1346,10 +1353,12 @@ class Partner extends CI_Controller {
     }
     
     function download_courier_manifest($booking_id){
+         $this->checkUserSession();
         log_message('info', __FUNCTION__. " Booking_id". $booking_id);
         $booking_history  = $this->booking_model->getbooking_history($booking_id);
         $where = array('spare_parts_details.booking_id'=> $booking_id);
-        $spare_parts_details = $this->partner_model->get_spare_parts_booking($where);
+        $where_in = array('Pending','Rescheduled');
+        $spare_parts_details = $this->partner_model->get_spare_parts_booking($where, $where_in);
         $template = 'Courier_Manifest.xlsx';
         
         $date1=date_create($booking_history[0]['create_date']);
@@ -1385,6 +1394,18 @@ class Partner extends CI_Controller {
         $output_file_excel  = "/tmp/courier_manifest-".$booking_id.".xlsx";
         $output_file_pdf = "/tmp/courier_manifest-".$booking_id.".pdf";
         $R->render('excel', $output_file_excel);
+        
+        putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+        $tmp_path = libreoffice_pdf;
+        $tmp_output_file = libreoffice_output_file;
+	$cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+	    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+	    $output_file_excel . ' 2> ' . $tmp_output_file;
+         
+	$output = '';
+	$result_var = '';
+	exec($cmd, $output, $result_var);
+       
         //Download PDF file
         if (file_exists($output_file_pdf)) {
                 header('Content-Description: File Transfer');
@@ -1397,8 +1418,10 @@ class Partner extends CI_Controller {
                 readfile($output_file_pdf);
                 exec("rm -rf " . escapeshellarg($output_file_pdf));
                 exec("rm -rf " . escapeshellarg($output_file_excel));
+                
                 exit;
          }
+         
         
         log_message('info', __FUNCTION__ . " => Exiting, Booking ID: " . $booking_id);
         

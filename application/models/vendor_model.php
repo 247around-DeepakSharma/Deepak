@@ -53,6 +53,7 @@ class vendor_model extends CI_Model {
         }
         
         $sql = "Select * from service_centres $where_final";
+
         $query = $this->db->query($sql);
 
         return $query->result_array();
@@ -924,7 +925,7 @@ class vendor_model extends CI_Model {
      *          - Contains closing remarks to be updated,  charges collected by vendor, etc.
      *  @return : void
      */
-    function update_service_center_action($data) {
+    function update_service_center_action($booking_id,$data) {
 	//TODO: Why we are unsetting here?
 	if (isset($data['closing_remarks'])) {
             unset($data['closing_remarks']);
@@ -932,8 +933,9 @@ class vendor_model extends CI_Model {
         if(isset($data['unit_details_id'])){
            $this->db->where('unit_details_id', $data['unit_details_id']);
         }
-        $this->db->where('booking_id', $data['booking_id']);
+        $this->db->where('booking_id', $booking_id);
         $this->db->update('service_center_booking_action', $data);
+        log_message('info', __METHOD__ . "=> Update SQL: " . $this->db->last_query() );
     }
 
     /**
@@ -953,6 +955,7 @@ class vendor_model extends CI_Model {
 
 	    $this->db->where('booking_id', $booking_id);
         $this->db->delete("service_center_booking_action");
+        log_message('info', __METHOD__ . "=> Delete SQL: " . $this->db->last_query() );
 
        }
     }
@@ -969,6 +972,7 @@ class vendor_model extends CI_Model {
         $sql = "SELECT cancellation_reason, count('Distinct cancellation_reason') AS count FROM booking_details where assigned_vendor_id = '$service_center_id' AND  current_status = 'Cancelled' GROUP BY cancellation_reason";
 
         $data = $this->db->query($sql);
+        log_message('info', __METHOD__ . "=> Cancellation Reaon: " . $this->db->last_query() );
         return $data->result_array();
     }
     
@@ -1017,6 +1021,7 @@ class vendor_model extends CI_Model {
     function update_engineer($where, $data){
         $this->db->where($where);
         $this->db->update('engineer_details', $data);
+        log_message('info', __METHOD__ . "=> Update Engineer " . $this->db->last_query() );
 
     }
 
@@ -1194,6 +1199,7 @@ class vendor_model extends CI_Model {
             $query = $this->db->query($value['query']);
             $count[$key] = $query->result_array();
         }
+        
         return $count;
     }
     
@@ -1255,6 +1261,7 @@ class vendor_model extends CI_Model {
     function update_sms_template($data,$id){
         $this->db->where('id', $id);
         $this->db->update('sms_template', $data);
+        log_message('info', __METHOD__ . "=> Update SMS Template " . $this->db->last_query() );
         if($this->db->affected_rows() > 0){
             return true;
         }else{
@@ -1332,6 +1339,22 @@ class vendor_model extends CI_Model {
     }
 
     /**
+     * @desc : This method checks assigned vendor has service tax for the given booking id
+     * @param type $booking_id
+     * @return Array
+     */
+    function is_tax_for_booking($booking_id, $where){
+        $sql = " SELECT service_centres.id FROM booking_details, service_centres WHERE booking_id = '$booking_id' "
+                . " AND  service_centres.id = booking_details.assigned_vendor_id AND $where";
+        $query = $this->db->query($sql);
+        if($query->num_rows > 0){
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+    
+     /**
      * @desc: This function is to suspend vendor who is already registered with us 
      *
      * @param: $id,$on_off

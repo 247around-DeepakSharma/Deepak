@@ -130,8 +130,12 @@
                             <td><?php if(!is_null($booking_history['spare_parts']['invoice_pic'])) { ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $booking_history['spare_parts']['invoice_pic']; ?> " target="_blank">Click Here to view Invoice Image</a><?php } ?></td>
                         </tr>
                          <tr>
-                            <th >Panel Image: </th>
-                            <td><?php if(!is_null($booking_history['spare_parts']['panel_pic'])) { ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $booking_history['spare_parts']['panel_pic']; ?> " target="_blank">Click Here to view Invoice Image</a><?php } ?></td>
+                            <th >Serial Number Image: </th>
+                            <td><?php if(!is_null($booking_history['spare_parts']['serial_number_pic'])) { ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $booking_history['spare_parts']['serial_number_pic']; ?> " target="_blank">Click Here to view Serial Number Image</a><?php } ?></td>
+                        </tr>
+                         <tr>
+                            <th >Defective Part Image: </th>
+                            <td><?php if(!is_null($booking_history['spare_parts']['defective_parts_pic'])) { ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $booking_history['spare_parts']['defective_parts_pic']; ?> " target="_blank">Click Here to view Defective Part Image</a><?php } ?></td>
                         </tr>
                          <tr>
                             <th >Acknowledge Date BY SF: </th>
@@ -263,8 +267,8 @@
        $(document).ready(function (){
             <?php if(isset($booking_history[0]['invoice_pic'])){ ?>
            $('#invoice_pic').attr('src',"https://s3.amazonaws.com/bookings-collateral/engineer-bank-proofs/<?php echo $booking_history[0]['invoice_pic'];?>");
-            <?php } if(isset($booking_history[0]['panel_pic'])){ ?>
-           $('#panel_pic').attr('src',"https://s3.amazonaws.com/bookings-collateral/engineer-bank-proofs/<?php echo $booking_history[0]['panel_pic'];?>");
+            <?php } if(isset($booking_history[0]['serial_number_pic'])){ ?>
+           $('#panel_pic').attr('src',"https://s3.amazonaws.com/bookings-collateral/engineer-bank-proofs/<?php echo $booking_history[0]['serial_number_pic'];?>");
           <?php  } ?>
           
     });

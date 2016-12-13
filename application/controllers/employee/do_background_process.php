@@ -25,6 +25,7 @@ class Do_background_process extends CI_Controller {
         $this->load->model('vendor_model');
         $this->load->model('invoices_model');
         $this->load->model('partner_model');
+        $this->load->model('database_testing_model');
         $this->load->library('booking_utilities');
         $this->load->library('partner_sd_cb');
 	$this->load->library('partner_cb');
@@ -72,6 +73,17 @@ class Do_background_process extends CI_Controller {
 
                 log_message('info', "Async Process Exiting for Booking ID: " . $booking_id);
             }
+        }
+        
+        //Checking again for Pending Job cards
+        $pending_booking_job_card = $this->database_testing_model->count_pending_bookings_without_job_card();
+	 if (!empty($pending_booking_job_card)) {
+            //Creating Job cards for Bookings 
+            foreach($pending_booking_job_card as $value){
+                //Prepare job card
+                $this->booking_utilities->lib_prepare_job_card_using_booking_id($value['booking_id']);
+            }
+             
         }
         
         log_message('info', __METHOD__ . " => Exiting");
@@ -174,7 +186,6 @@ class Do_background_process extends CI_Controller {
                 $current_status = _247AROUND_COMPLETED;
             }
 
-            $service_center['booking_id'] = $booking_id;
             $service_center['closing_remarks'] = "Service Center Remarks:- " . $value['service_center_remarks'] .
                     " <br/> Admin:-  " . $value['admin_remarks'];
             $service_center['current_status'] = $current_status1;
@@ -185,7 +196,7 @@ class Do_background_process extends CI_Controller {
 
             log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
 
-            $this->vendor_model->update_service_center_action($service_center);
+            $this->vendor_model->update_service_center_action($booking_id, $service_center);
             $unit_details['serial_number'] = $value['serial_number'];
             $unit_details['customer_paid_basic_charges'] = $value['service_charge'];
             $unit_details['customer_paid_extra_charges'] = $value['additional_service_charge'];

@@ -20,7 +20,7 @@ class Around_scheduler_model extends CI_Model {
     function get_reminder_installation_sms_data_today() {
         //Filter using booking_date instead of EDD
         $sql = "SELECT booking_details.*, `services`.services from booking_details, services 
-              WHERE partner_source IN ('Snapdeal-shipped-excel', 'Snapdeal-delivered-excel' )
+              WHERE partner_source IN ('Snapdeal-shipped-excel', 'Snapdeal-delivered-excel', 'STS' )
 	      AND booking_date IN (
               DATE_FORMAT( CURDATE(),  '%d-%m-%Y' ),
               ''

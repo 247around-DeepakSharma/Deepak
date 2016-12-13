@@ -55,7 +55,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="company_name" class="col-md-3">Name</label>
+                                        <label  for="company_name" class="col-md-3">Company Name</label>
                                         <div class="col-md-8">
                                             <input  type="text" class="form-control" id="company_name" name="company_name" value = "<?php
                                                 if (isset($query[0]['company_name'])) {
@@ -72,7 +72,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="name" class="col-md-3">Public Name</label>
+                                        <label  for="name" class="col-md-3">Display Name</label>
                                         <div class="col-md-8">
                                             <input  type="text" class="form-control" id="name" name="name" value = "<?php
                                                 if (isset($query[0]['name'])) {
@@ -83,6 +83,7 @@
                                         </div>
                                     </div>
                                 </div>
+                               
                             </div>
                             <div class="col-md-12">
                                 <div class="col-md-6">
@@ -129,6 +130,7 @@
                                         </div>
                                     </div>
                                 </div>
+                               
                             </div>
                             <div class="col-md-12">
                                 <div class="col-md-6">
@@ -309,15 +311,39 @@
                                         ?>">
                                         <label for="company_type" class="col-md-3">Company Type</label>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control"  name="company_type" value = "<?php
-                                                if (isset($query[0]['company_type'])) {
-                                                    echo $query[0]['company_type'];
-                                                }
-                                                ?>">
+                                             <select name="company_type" class="form-control">
+                                                 <option disabled selected >Select Company Type</option>
+                                             <option value="Individual" <?php if(isset($query[0]['company_type'])){
+                                                if ($query[0]['company_type'] == "Individual") {
+                                                     echo "Selected";
+                                             } }
+                                                ?>>Individual</option>
+                                             
+                                             <option value="Proprietorship Firm" <?php if(isset($query[0]['company_type'])){
+                                                if ($query[0]['company_type'] == "Proprietorship Firm") {
+                                                     echo "Selected";
+                                             } }
+                                                ?>>Proprietorship Firm</option>
+                                             
+                                             <option value="Partnership Firm" <?php if(isset($query[0]['company_type'])){
+                                                if ($query[0]['company_type'] == "Partnership Firm") {
+                                                     echo "Selected";
+                                             } }
+                                                ?>>Partnership Firm</option>
+                                             
+                                             <option value="Private Ltd Company" <?php if(isset($query[0]['company_type'])){
+                                                if ($query[0]['company_type'] == "Private Ltd Company") {
+                                                     echo "Selected";
+                                             } }
+                                                ?>>Private Ltd Company</option>
+
+                                         </select>
+                                          
                                             <?php echo form_error('company_type'); ?>
                                         </div>
                                     </div>
                                 </div>
+                                
                                 <div class="col-md-6">
                                     <div class="form-group <?php
                                         if (form_error('contract_file')) {
@@ -348,7 +374,10 @@
                                         </div>
                                     </div>
                                 </div>
+                                
+                                
                             </div>
+                            
                         </div>
                     </div>
                     <div  class = "panel panel-info">
@@ -565,7 +594,9 @@
                                     </div>
                                 </div>
                             </div>
+                            
                         </div>
+                        
                     </div>
                     <div  class = "panel panel-info">
                         <div class="panel-heading"><b>Registration Details</b></div>
@@ -1097,6 +1128,10 @@
 </div>
 <?php $this->session->unset_userdata('checkbox')?>
 <script type="text/javascript">
+    /*$(".js-example-placeholder-single").select2({
+      placeholder: "Select a state",
+      allowClear: true
+    }); */
     
     //Adding select 2 in Dropdowns
     $("#district_option").select2();
@@ -1105,7 +1140,7 @@
     $("#rm").select2();
     
     
-                function getDistrict() {
+    function getDistrict() {
      var state = $("#state").val();
      var district = $(".district").val();
     // alert(district);
@@ -1152,6 +1187,7 @@
                         data: {type: type, id: vendor_id,file_name:file_name},
                         success: function (data) {
                              location.reload();
+    //                             console.log(data);
                             }
                     });
                  }else{
@@ -1255,6 +1291,7 @@
         name: "required",
         address: "required",
         district: "required",
+        company_type:"required",
         rm: "required",
         phone_1: {
             required: true,
@@ -1309,14 +1346,14 @@
         primary_contact_email: "Please fill correct email",
         owner_email: "Please fill correct email"
     },
-                            submitHandler: function (form) {
+        submitHandler: function (form) {
             //Checking registration number validation
         var check = validate_registration_no();
         if(check === false){
             return false;
         }
         form.submit();
-    }
+        }
     });
     }
     };

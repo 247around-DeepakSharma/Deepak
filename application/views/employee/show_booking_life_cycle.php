@@ -47,13 +47,13 @@
 
         <table  class="table table-striped table-bordered">
           <tr>
-                <th>S.N</th>
-          	<th>Old State</th>
-          	<th>New State</th>
-                <th>Remarks</th>
-          	<th>Agent</th>
-          	<th>Partner</th>
-          	<th>Date</th>
+                <th class="jumbotron" style="text-align: center">S.N</th>
+          	<th class="jumbotron" style="text-align: center">Old State</th>
+          	<th class="jumbotron" style="text-align: center">New State</th>
+                <th class="jumbotron" style="text-align: center">Remarks</th>
+          	<th class="jumbotron" style="text-align: center">Agent</th>
+          	<th class="jumbotron" style="text-align: center">Partner</th>
+          	<th class="jumbotron" style="text-align: center">Date</th>
           </tr>
           <?php foreach($data as $key =>$row){?>
           <tr>
@@ -65,6 +65,30 @@
             <td><?php echo $row['source'];?></td>
             <td><?php
                 $old_date = $row['create_date'];
+                $old_date_timestamp = strtotime($old_date);
+                $new_date = date('j F, Y g:i A', $old_date_timestamp);
+                echo $new_date;?>
+            </td>
+          </tr>
+          <?php } ?>
+          </div>
+        </table><hr>
+        <table  class="table table-striped table-bordered table-hover">
+          <tr>
+                <th class="jumbotron" style="text-align: center;width: 1%">S.N</th>
+          	<th class="jumbotron" style="text-align: center">Phone</th>
+                <th class="jumbotron" style="text-align: center">Sms Tag</th>
+          	<th class="jumbotron" style="text-align: center;width:45%;">Content</th>
+          	<th class="jumbotron" style="text-align: center">Sent on Date</th>
+          </tr>
+          <?php foreach($sms_sent_details as $key =>$row){?>
+          <tr>
+            <td><?php echo ($key+1).'.';?></td>
+            <td><?php echo $row['phone'];?></td>
+            <td><?php echo $row['sms_tag']; ?></td>
+            <td style="font-size: 90%;"><?php echo $row['content'];?></td>
+            <td><?php
+                $old_date = $row['created_on'];
                 $old_date_timestamp = strtotime($old_date);
                 $new_date = date('j F, Y g:i A', $old_date_timestamp);
                 echo $new_date;?>

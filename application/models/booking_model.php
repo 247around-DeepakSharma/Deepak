@@ -89,6 +89,13 @@ class Booking_model extends CI_Model {
         log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
         return $result;
     }
+    
+    function update_booking_unit_details_by_any($where, $data){
+        $this->db->where($where);
+        $result = $this->db->update('booking_unit_details', $data);
+        //log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
+        return $result;
+    }
 
 
     /** @description:* add booking
@@ -712,9 +719,9 @@ class Booking_model extends CI_Model {
      *  @param : booking id
      *  @return : all the unit booking detais
      */
-     function get_unit_details($where, $like= true) {
+     function get_unit_details($where, $like= FALSE) {
         $this->db->select('*');
-        if($like == false){
+        if($like == TRUE){
             $this->db->like($where);
         } else {
             $this->db->where($where);
@@ -1088,7 +1095,7 @@ class Booking_model extends CI_Model {
                 WHERE `vendor_pincode_mapping`.`Appliance_ID` = bd.service_id
                 AND `vendor_pincode_mapping`.`Pincode` = bd.booking_pincode
                 AND `vendor_pincode_mapping`.`active` = '1'
-                AND `service_centres`.`active` = '1')  ";
+                AND `service_centres`.`active` = '1' AND `service_centres`.on_off = '1')  ";
             }
         }
 
@@ -1197,6 +1204,9 @@ class Booking_model extends CI_Model {
     $this->db->from('booking_details');
     $this->db->join('users',' users.user_id = booking_details.user_id');
     $this->db->join('services', 'services.id = booking_details.service_id');
+    if($partner_id !=""){
+        $this->db->join('booking_unit_details', 'booking_unit_details.booking_id = booking_details.booking_id');
+    }
 
     $this->db->like($where);
     $query =  $this->db->get();
@@ -1257,7 +1267,8 @@ class Booking_model extends CI_Model {
 	    JOIN `service_centres` ON `service_centres`.`id` = `vendor_pincode_mapping`.`Vendor_ID`
     		WHERE `Appliance_ID` = '$appliance' AND `vendor_pincode_mapping`.`Pincode` = '$pincode'
 	    AND `vendor_pincode_mapping`.`active` = 1
-	    AND `service_centres`.`active` = '1'");
+	    AND `service_centres`.`active` = '1'
+            AND `service_centres`.`on_off` = '1'");
 
         $service_centre_ids = $query->result_array();
 
@@ -1380,8 +1391,8 @@ class Booking_model extends CI_Model {
      * @return: Array of charges
      */
     function get_booking_for_review($booking_id) {
-        $status = array('Completed', 'Cancelled', 'Pending');
-        $charges = $this->service_centers_model->getcharges_filled_by_service_center($booking_id, $status);
+       
+        $charges = $this->service_centers_model->getcharges_filled_by_service_center($booking_id);
         foreach ($charges as $key => $value) {
             $charges[$key]['service_centres'] = $this->vendor_model->getVendor($value['booking_id']);
             $charges[$key]['booking'] = $this->getbooking_history($value['booking_id']);
@@ -1493,7 +1504,7 @@ class Booking_model extends CI_Model {
 
     function getpricesdetails_with_tax($service_centre_charges_id, $state){
 
-        $sql =" SELECT service_category as price_tags,tax_code, product_type, customer_total, partner_net_payable, product_or_services  from service_centre_charges where `service_centre_charges`.id = '$service_centre_charges_id' ";
+        $sql =" SELECT service_category as price_tags,tax_code, product_type,vendor_basic_percentage, customer_total, partner_net_payable, product_or_services  from service_centre_charges where `service_centre_charges`.id = '$service_centre_charges_id' ";
 
         $query = $this->db->query($sql);
         $result =  $query->result_array();
@@ -1537,6 +1548,16 @@ class Booking_model extends CI_Model {
         $result = array_merge($data[0], $services_details);
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
+        $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate'])/ 100;
+        
+        $vendor_total_basic_charges =  ($result['customer_net_payable'] + $result['partner_net_payable'] + $result['around_paid_basic_charges'] ) * ($result['vendor_basic_percentage']/100);
+        $around_total_basic_charges = ($result['customer_net_payable'] + $result['partner_net_payable'] + $result['around_paid_basic_charges'] - $vendor_total_basic_charges);
+         
+        $result['around_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($around_total_basic_charges, $result['tax_rate'] );
+        $result['vendor_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($vendor_total_basic_charges, $result['tax_rate'] );
+        
+        $result['around_comm_basic_charges'] = $around_total_basic_charges - $result['around_st_or_vat_basic_charges'];
+        $result['vendor_basic_charges'] = $vendor_total_basic_charges - $result['vendor_st_or_vat_basic_charges'];
         log_message('info', __METHOD__ . " update booking_unit_details data " . print_r($result, true) . " Price data with tax: " . print_r($data, true));
         // Update request type If price tags is installation OR repair
         if (stristr($result['price_tags'], "Installation")) {
@@ -1563,7 +1584,7 @@ class Booking_model extends CI_Model {
             //trim booking only digit
             $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
             $unit_where = array('booking_id' => $trimed_booking_id);
-            $unit_num = $this->get_unit_details($unit_where, false);
+            $unit_num = $this->get_unit_details($unit_where, TRUE);
    
             log_message('info', __METHOD__ . " count previous unit: " . count($unit_num));
             log_message('info', __METHOD__ . " Price tags not found " . print_r($unit_num, true));
@@ -1601,12 +1622,12 @@ class Booking_model extends CI_Model {
         $data['tax_rate'] = $unit_details[0]['tax_rate'];
         $data['around_paid_basic_charges'] = $unit_details[0]['around_paid_basic_charges'];
         // calculate partner paid tax amount
-        $partner_paid_tax =  ($unit_details[0]['partner_paid_basic_charges'] * $data['tax_rate'])/ 100;
+        $data['partner_paid_tax'] =  ($unit_details[0]['partner_paid_basic_charges'] * $data['tax_rate'])/ 100;
         // Calculate  total partner paid charges with tax
-        $data['partner_paid_basic_charges'] = $unit_details[0]['partner_paid_basic_charges'] + $partner_paid_tax;
+        $data['partner_paid_basic_charges'] = $unit_details[0]['partner_paid_basic_charges'] + $data['partner_paid_tax'];
 
-        $vendor_total_basic_charges =  ($data['customer_paid_basic_charges'] + $data['partner_paid_basic_charges'] + $data['around_paid_basic_charges']) * basic_percentage;
-        $around_total_basic_charges = ($data['customer_paid_basic_charges'] + $data['partner_paid_basic_charges'] + $data['around_paid_basic_charges'] - $vendor_total_basic_charges);
+        $vendor_total_basic_charges =  ($data['customer_paid_basic_charges'] + $unit_details[0]['partner_paid_basic_charges'] + $data['around_paid_basic_charges']) * ($unit_details[0]['vendor_basic_percentage']/100 );
+        $around_total_basic_charges = ($data['customer_paid_basic_charges'] + $unit_details[0]['partner_paid_basic_charges'] + $data['around_paid_basic_charges'] - $vendor_total_basic_charges);
 
         $data['around_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($around_total_basic_charges, $data['tax_rate'] );
         $data['vendor_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($vendor_total_basic_charges, $data['tax_rate'] );
@@ -1629,6 +1650,24 @@ class Booking_model extends CI_Model {
         $data['vendor_st_parts'] =  $this->get_calculated_tax_charge($total_vendor_parts_charge,  $data['tax_rate']);
         $data['around_comm_parts'] =  $total_around_parts_charge - $data['around_st_parts'];
         $data['vendor_parts'] = $total_vendor_parts_charge - $data['vendor_st_parts'] ;
+        // Check vendor has service tax for the service
+        if($unit_details[0]['product_or_services'] == 'Service' && $data['customer_paid_basic_charges'] == 0){
+            $st_where = 'service_centres.service_tax_no IS NOT NULL '; 
+            $is_service_tax = $this->vendor_model->is_tax_for_booking($unit_details[0]['booking_id'], $st_where);
+            if(!$is_service_tax ){
+                $vendor_total_basic_charges =  $vendor_total_basic_charges - $data['vendor_st_or_vat_basic_charges'];
+                $data['vendor_st_or_vat_basic_charges'] = 0;
+            } 
+            // Check vendor has tin OR cst for the product
+        } else if($unit_details[0]['product_or_services'] == 'Product' && $data['customer_paid_basic_charges'] == 0){
+            $vat_where = ' (service_centres.tin_no IS NOT NULL OR service_centres.cst_no IS NOT NULL ) '; 
+            $is_vat_tax = $this->vendor_model->is_tax_for_booking($unit_details[0]['booking_id'], $vat_where);
+            
+            if(!$is_vat_tax ){
+                $vendor_total_basic_charges =  $vendor_total_basic_charges - $data['vendor_st_or_vat_basic_charges'];
+                $data['vendor_st_or_vat_basic_charges'] = 0;
+            } 
+        }
 
         $vendor_around_charge = ($data['customer_paid_basic_charges'] + $data['customer_paid_parts'] + $data['customer_paid_extra_charges']) - ($vendor_total_basic_charges + $total_vendor_addition_charge + $total_vendor_parts_charge );
 
@@ -1706,7 +1745,8 @@ class Booking_model extends CI_Model {
 
         if($data['booking_status'] == "Completed"){
             // get booking unit data on the basis of id
-            $this->db->select('around_net_payable,booking_status, partner_net_payable, tax_rate, price_tags, partner_paid_basic_charges, around_paid_basic_charges');
+            $this->db->select('booking_id, around_net_payable,booking_status, partner_net_payable, '
+                    . 'tax_rate, price_tags, partner_paid_basic_charges, around_paid_basic_charges, product_or_services, vendor_basic_percentage');
             $this->db->where('id', $data['id']);
             $query = $this->db->get('booking_unit_details');
             $unit_details = $query->result_array();
@@ -1756,9 +1796,21 @@ class Booking_model extends CI_Model {
         $result = array_merge($data[0], $services_details);
         unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
-
+        $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate'])/ 100;
+        
+        $vendor_total_basic_charges =  ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] ) * ($result['vendor_basic_percentage']/100);
+        $around_total_basic_charges = ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] - $vendor_total_basic_charges);
+         
+        $result['around_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($around_total_basic_charges, $result['tax_rate'] );
+        $result['vendor_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($vendor_total_basic_charges, $result['tax_rate'] );
+        
+        $result['around_comm_basic_charges'] = $around_total_basic_charges - $result['around_st_or_vat_basic_charges'];
+        $result['vendor_basic_charges'] = $vendor_total_basic_charges - $result['vendor_st_or_vat_basic_charges'];
+          
+     
         log_message('info', __METHOD__ . " Insert booking_unit_details data" . print_r($result, true));
 	$this->db->insert('booking_unit_details', $result);
+       // $result['id'] = $this->db->insert_id();
         //Update request type If price tags is installation OR repair
         if (stristr($result['price_tags'], "Installation")) {
             $this->update_booking($result['booking_id'], array('request_type'=>$result['price_tags']));
@@ -1899,43 +1951,55 @@ class Booking_model extends CI_Model {
      */
     function get_booking_state_change_by_id($booking_id){
         $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
-        $this->db->select('booking_state_change.agent_id,booking_state_change.partner_id,booking_state_change.service_center_id, bookings_sources.source,booking_state_change.old_state,'
+        $this->db->select('booking_state_change.agent_id,booking_state_change.partner_id,'
+                . ' booking_state_change.service_center_id,booking_state_change.old_state,'
                 . ' booking_state_change.new_state,booking_state_change.remarks,booking_state_change.create_date');
         $this->db->like('booking_state_change.booking_id',$trimed_booking_id);
         $this->db->from('booking_state_change');
-        $this->db->join('bookings_sources', 'bookings_sources.partner_id = booking_state_change.partner_id');
+       
         $this->db->order_by('booking_state_change.id');
         $query = $this->db->get();
         $data =  $query->result_array();
+        
         foreach ($data as $key => $value){
             if(!is_null($value['partner_id'])){
                 // If Partner Id is 247001
                 if($value['partner_id'] == _247AROUND){
-                    $this->db->select('employee_id');
-                    $this->db->where('id', $value['agent_id']);
-                    $query1 = $this->db->get('employee');
+                    $sql = "SELECT employee_id, bookings_sources.source FROM employee, bookings_sources WHERE "
+                            . " bookings_sources.partner_id = '"._247AROUND."' AND employee.id = '".$value['agent_id']."'";
+                   
+                    $query1 = $this->db->query($sql);
                     $data1 = $query1->result_array();
+                   
                     $data[$key]['employee_id'] = $data1[0]['employee_id'];
+                    $data[$key]['source'] = $data1[0]['source'];
+                   
                     
                 } else {
                     // For Partner
-                    $this->db->select('user_name as employee_id');
-                    $this->db->where('id', $value['agent_id']);
-                    $query1 = $this->db->get('partner_login');
+                    $this->db->select('user_name as employee_id, bookings_sources.source');
+                    $this->db->from('partner_login');
+                    $this->db->join('bookings_sources','bookings_sources.partner_id = partner_login.partner_id');
+                    $this->db->where('partner_login.id', $value['agent_id']);
+                    $query1 = $this->db->get();
                     $data1 = $query1->result_array();
                     $data[$key]['employee_id'] = $data1[0]['employee_id'];
+                    $data[$key]['source'] = $data1[0]['source'];
                 }
             } else if(!is_null($value['service_center_id'])){
                 // For Service center
-                $this->db->select('user_name as employee_id');
-                $this->db->where('id', $value['agent_id']);
-                $query1 = $this->db->get('service_centers_login');
+                $this->db->select('user_name as employee_id, company_name as source');
+                $this->db->from('service_centers_login');
+                $this->db->where('service_centers_login.id', $value['agent_id']);
+                $this->db->join('service_centres', 'service_centres.id = service_centers_login.service_center_id');
+                $query1 = $this->db->get();
                 $data1 = $query1->result_array();
                 $data[$key]['employee_id'] = $data1[0]['employee_id'];
+                $data[$key]['source'] = $data1[0]['source'];
             }
             
         }
-  
+       
         return $data;
 
     }
@@ -2036,7 +2100,7 @@ class Booking_model extends CI_Model {
         if($limit == "All"){
             $select = "count(spare_parts_details.booking_id) as count";
         } else {
-            $select = "spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, service_centres.name as sc_name, bookings_sources.source";
+            $select = "spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, service_centres.name as sc_name, bookings_sources.source, booking_details.current_status";
             $this->db->limit($limit, $start);
         }
         $this->db->select($select);
@@ -2137,6 +2201,20 @@ class Booking_model extends CI_Model {
          */
         
         return FALSE;
+    }
+    
+    /**
+     * @Desc: This function is used to get SMS sent for particular booking id
+     * @params: booking_id
+     * @return: array
+     * 
+     */
+    function get_sms_sent_details($booking_id){
+        $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
+        $this->db->select('*');
+        $this->db->like('booking_id',$trimed_booking_id);
+        $query = $this->db->get('sms_sent_details');
+        return $query->result_array();
     }
 
 

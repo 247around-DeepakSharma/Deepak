@@ -446,13 +446,17 @@ EOD;
             // Check Other string exist in the Cancellation reason. 
             // If exist then replace cancellation_reason with other
             foreach ($leads as $key => $value) {
-                if (stristr($value['cancellation_reason'], "Other :")){
+                if($value['current_status'] != "Cancelled"){
+                    
+                    $leads[$key]['cancellation_reason'] = $value['current_status'];
+                             
+                } else if (stristr($value['cancellation_reason'], "Other :")){
                   
                     $leads[$key]['cancellation_reason'] = "Other";
                     
                 }
             }
-
+            
 	    $R->load(array(
 		array(
 		    'id' => 'bd',
@@ -884,6 +888,7 @@ EOD;
             $this->load->view('employee/get_crimes', $data);
         } else {
             //The function is being called from CRON
+            if( date('l') != "Sunday"){
             $where = "";
             $data['data'] = $this->reporting_utils->get_sc_crimes($where);
             //Loading view
@@ -891,7 +896,9 @@ EOD;
             $subject = "SF Crimes Report " . date("d-M-Y");
             $to = 'anuj@247around.com, nits@247around.com';
             $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $view, "");
-            
+            } else {
+                log_message('info', __FUNCTION__ ." Today is Sunday, Hence report would not generate");
+            }
             // Inserting values in scheduler tasks log
             $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__); 
         }
@@ -904,6 +911,7 @@ EOD;
      */
     function get_sc_crimes_for_sf(){
         log_message('info', __FUNCTION__ );
+       if( date('l') != "Sunday"){
         $vendor_details = $this->vendor_model->getactive_vendor();
         foreach ($vendor_details as $value) {
             if($value['is_update'] == '1'){
@@ -918,6 +926,9 @@ EOD;
                 $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $view, "");
                 
             }
+        }
+        } else {
+             log_message('info', __FUNCTION__ ." Today is Sunday, Hence report would not generate");
         }
         // Inserting values in scheduler tasks log
         $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);

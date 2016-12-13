@@ -71,7 +71,7 @@
                                <label for="Invoice pic" class="col-md-4">Invoice Image</label>
                                 <div class="col-md-6">
                                     <?php if(!is_null($spare_parts[0]['invoice_pic'])){ ?>
-                                    <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $spare_parts[0]['invoice_pic'];?>" target="_blank">Click Here</a>
+                                    <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $spare_parts[0]['invoice_pic'];?>" target="_blank">View Image</a>
                                 <?php } ?>
                                 </div>
                                     
@@ -79,10 +79,19 @@
                             
                             
                            <div class="form-group ">
-                               <label for="Invoice pic" class="col-md-4">Panel Image</label>
+                               <label for="Invoice pic" class="col-md-4">Serial Number Image</label>
                                 <div class="col-md-6">
-                                    <?php if(!is_null($spare_parts[0]['panel_pic'])){ ?>
-                                    <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $spare_parts[0]['panel_image'];?>" target="_blank">Click Here</a>
+                                    <?php if(!is_null($spare_parts[0]['serial_number_pic'])){ ?>
+                                    <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $spare_parts[0]['serial_number_pic'];?>" target="_blank">View Image</a>
+                                 <?php } ?>
+                                </div>
+                                    
+                            </div>
+                             <div class="form-group ">
+                               <label for="Invoice pic" class="col-md-4">Defective Part Image</label>
+                                <div class="col-md-6">
+                                    <?php if(!is_null($spare_parts[0]['defective_parts_pic'])){ ?>
+                                    <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $spare_parts[0]['defective_parts_pic'];?>" target="_blank">View Image</a>
                                  <?php } ?>
                                 </div>
                                     
@@ -115,12 +124,7 @@
                                 </div>   
                             </div>
                             
-                             <div class="form-group ">
-                               <label for="awb" class="col-md-4">AWB</label>
-                                <div class="col-md-6">
-                                    <input type="text" class="form-control" id="awb" name="awb" value = "" placeholder="Please Enter AWB"  required>
-                                </div>  
-                            </div>
+                            
                              <div class="form-group ">
                                <label for="remarks_by_partner" class="col-md-4">Remarks</label>
                                 <div class="col-md-6">
@@ -130,6 +134,12 @@
                             
                         </div>
                         <div class="col-md-6">
+                             <div class="form-group ">
+                               <label for="awb" class="col-md-4">AWB</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" id="awb" name="awb" value = "" placeholder="Please Enter AWB"  required>
+                                </div>  
+                            </div>
                              <div class="form-group ">
                                <label for="courier" class="col-md-4">Courier Name</label>
                                 <div class="col-md-6">
@@ -145,15 +155,15 @@
                                 </div>
                                 </div>
                             </div>
-                            <div class="form-group ">
-                                <label for="EDD" class="col-md-4">EDD</label>
+<!--                            <div class="form-group ">
+                                <label for="EDD" class="col-md-4">Estimated Delivery Date</label>
                                 <div class="col-md-6">
                                 <div class="input-group input-append date">
-                                    <input id="edd" class="form-control"  name="edd" type="date" value = "" required readonly='true' style="background-color:#fff;">
+                                    <input id="edd" class="form-control"  name="edd" type="date" value = "<?php// echo  date("Y-m-d", strtotime("+2 day")); ?>" required readonly='true' style="background-color:#fff;">
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
-                            </div>
+                            </div>-->
                         </div>
                         
                         
@@ -203,10 +213,7 @@
                 shipped_parts_name: "required",
                 remarks_by_partner: "required",
                 courier_name:"required",
-                awb: {
-                    digits: true,
-                    required:true
-                    }
+                awb: "required"
                 },
                 messages: {
                 shipped_parts_name: "Please Enter Shipped Parts",

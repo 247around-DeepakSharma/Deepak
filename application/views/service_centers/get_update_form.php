@@ -56,13 +56,14 @@
                             <div class="radio ">
                                 <label>
                                 <input type="radio" id="spare_parts" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="Spare Parts Required" >
-                                Spare Parts required
+                                Spare Parts Required
                                 </label>
                             </div>
                             <?php } ?>
                         </div>
                     </div>
-                    
+                   
+                    <input type="hidden" name="days" value="<?php echo $days; ?>" /> 
                     <div class="panel panel-default col-md-offset-2" id="hide_spare" >
                         <div class="panel-body" >
                             <div class="row">
@@ -78,13 +79,19 @@
                                         <div class="form-group">
                                             <label for="Model Number" class="col-md-4">Parts Name *</label>
                                             <div class="col-md-6">
-                                                <input type="text" class="form-control spare_parts" id="parts_name" name="parts_name" value = "" placeholder="Parts Name">
+                                                <input type="text" class="form-control spare_parts" id="parts_name" name="parts_name" value = "" placeholder="Parts Name" >
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label for="Invoice picture" class="col-md-4">Invoice Image</label>
+                                            <label for="Invoice picture" class="col-md-4">Invoice Picture</label>
                                             <div class="col-md-6">
                                                 <input type="file" class="form-control spare_parts" id="invoice_pic" name="invoice_image">
+                                            </div>
+                                        </div>
+                                         <div class="form-group">
+                                            <label for="Invoice picture" class="col-md-4">Defective Part Picture</label>
+                                            <div class="col-md-6">
+                                                <input type="file" class="form-control spare_parts" id="defective_parts_pic" name="defective_parts_pic">
                                             </div>
                                         </div>
                                     </div>
@@ -100,23 +107,24 @@
                                             <div class="col-md-6">
                                                 <div class="input-group input-append date">
                                                     <input id="dop" class="form-control" placeholder="Select Date" name="dop" type="text" required readonly='true' style="background-color:#fff;">
-                                                    <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                                                    <span class="input-group-addon add-on" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="form-group">
-                                            <label for="Invoice picture" class="col-md-4">Panel Picture</label>
+                                            <label for="Invoice picture" class="col-md-4">Serial Number Picture</label>
                                             <div class="col-md-6">
-                                                <input type="file" class="form-control spare_parts" id="panel_pic" name="panel_pic" >
+                                                <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic" >
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="form-group col-md-12">
-                                                <label for="reason" class="col-md-2">Problem Description* </label>
-                                               <div class="col-md-9" style="width:78%; ">
-                                                    <textarea class="form-control spare_parts"  id="prob_desc" name="reason_text" value = "" rows="3" placeholder="Problem Description" ></textarea>
+                                         <div class="form-group">
+                                                <label for="reason" class="col-md-4">Problem Description* </label>
+                                               <div class="col-md-6">
+                                                    <textarea class="form-control spare_parts"  id="prob_desc" name="reason_text" value = "" rows="5" placeholder="Problem Description" ></textarea>
                                                 </div>
                                            </div>
+                                    </div>
+                                   
                                 </div>
                                 <?php } else if($around_flag == 1){ ?>
                                  <div class="col-md-12">
@@ -141,7 +149,7 @@
                                             <div class="col-md-6">
                                                 <div class="input-group input-append date">
                                                     <input id="reschduled_booking_date" class="form-control" placeholder="Select Date" name="booking_date" type="text" required readonly='true' style="background-color:#fff;">
-                                                    <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                                                    <span class="input-group-addon add-on" onclick="reschduled_booking_date_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                                 </div>
                                                 <span style="color:red; font-size: 12px;">Date By which SF will receive the part</span>
                                             </div>
@@ -152,9 +160,6 @@
                                                 <input type="text" class="form-control spare_parts" id="247serial_number" name="serial_number" value = "" placeholder="Serial Number">
                                             </div>
                                         </div>
-                                       
-                                         
-                                         
                                          
                                      </div>
                                       <div class="form-group col-md-12 ">
@@ -174,7 +179,7 @@
                         <div class="col-md-4" style="width:24%">
                             <div class="input-group input-append date">
                                 <input id="booking_date" class="form-control rescheduled_form" placeholder="Select Date" name="booking_date" type="text" required readonly='true' style="background-color:#fff;">
-                                <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                                <span class="input-group-addon add-on" onclick="booking_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                             </div>
                         </div>
                         
@@ -196,6 +201,7 @@
     });
     
     function submitForm(){
+       
      var checkbox_value = 0;
      $("input[type=radio]:checked").each(function(i) {
          checkbox_value = 1;
@@ -216,9 +222,9 @@
               checkbox_value = 0;
           }
          
-      } else if(reason === "Spare Parts required"){
+      } else if(reason === "Spare Parts Required"){
           var around_flag = $('#partner_flag').val();
-         
+          
           if(around_flag === '0'){
               var model_number = $('#model_number').val();
               var serial_number = $("#serial_number").val();
@@ -275,6 +281,7 @@
               
           }
       }
+     
            
       if(checkbox_value === 0){
           return false;
@@ -315,6 +322,23 @@
                 minDate: 0, 
                 maxDate:+7
     });
+    
+    function booking_calendar(){
+      
+        $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0, changeMonth: true,changeYear: true}).datepicker('show');
+    }
+    
+    function dop_calendar(){
+         $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true}).datepicker('show');
+    }
+    
+    function reschduled_booking_date_calendar(){
+        $("#reschduled_booking_date").datepicker({
+                dateFormat: 'yy-mm-dd', 
+                minDate: 0, 
+                maxDate:+7
+    }).datepicker('show');
+    }
     
     
      

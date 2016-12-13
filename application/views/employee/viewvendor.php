@@ -24,32 +24,36 @@
       <div >
        
         <h1>Service Centres</h1>
+        <div class="col-md-6">
+            <a href="<?php echo base_url(); ?>employee/vendor/download_sf_list_excel"><input class="btn btn-primary" type="Button" value="Download SF List"></a>
+        </div>
         <div class="pull-right" style="margin-bottom: 20px;">
             <a href="<?php echo base_url();?>employee/vendor/add_vendor"><input class="btn btn-primary" type="Button" value="Add Service Centre"></a>
         </div>
         
-        <table style="width:98%;" class="table table-striped table-bordered">
+        <table class="table table-bordered table-condensed">
           
           <tr>
-          	<th>ID</th>
-          	<th width="200px;">Name</th>
-          	<th>Phone No.</th>
-          	<th>Email</th>
-          	<th width="250px;">Address</th>
-          	<th>PoC Name</th>
-          	<th>PoC Number</th>
-          	<th>PoC Email</th>
-          	<th>Owner Name</th>
-          	<th>Owner Phone No.</th>
-          	<th>Owner Email</th>
-          	<th>CRM Login / Password</th>
-                <th colspan="2" style="text-align: center;">Action</th>
+          	<th class="jumbotron">ID</th>
+          	<th class="jumbotron">Name</th>
+          	<th class="jumbotron">Phone No.</th>
+          	<th class="jumbotron">Email</th>
+          	<th width="250px;" class="jumbotron">Address</th>
+          	<th class="jumbotron">PoC Name</th>
+          	<th class="jumbotron">PoC Number</th>
+          	<th class="jumbotron">PoC Email</th>
+          	<th class="jumbotron">Owner Name</th>
+          	<th class="jumbotron">Owner Phone No.</th>
+          	<th class="jumbotron">Owner Email</th>
+          	<th class="jumbotron">CRM Login / Password</th>
+          	<th class="jumbotron">Temporary</th>
+          	<th colspan="2" class="jumbotron">Permanent</th>
           </tr>
 
           
           <?php foreach($query as $key =>$row){?>
           <tr>
-            <td><?php echo ($key+1).'.';?></td>
+            <td><?=$row['id'];?></td>
             <td><a href="<?php echo base_url();?>employee/vendor/editvendor/<?=$row['id'];?>"><?=$row['name'];?></a></td>
             <td>
                 <?=$row['phone_1'];?>
@@ -80,6 +84,15 @@
           	
           	<td><?=$row['owner_email'];?></td>
           	<td><?php echo strtolower($row['sc_code']) . " / " . strtolower($row['sc_code']);  ?></td>
+                <td>
+                        <?php
+                        if ($row['on_off'] == 1) { ?>
+                            <a id='edit' class='btn btn-small btn-primary' href="<?php base_url() ?>temporary_on_off_vendor/<?php echo $row['id']?>/0" <?php if($row['active'] == 0){echo 'disabled';}?>>Off</a>
+                        <?php } else { ?>
+                            <a id='edit' class='btn btn-small btn-success' href="<?php base_url() ?>temporary_on_off_vendor/<?php echo $row['id']?>/1" <?php if($row['active'] == 0){echo 'disabled';}?>>On</a>
+                        <?php }
+                        ?>
+                    </td>
           	<td><?php if($row['active']==1)
                 {
                   echo "<a id='edit' class='btn btn-small btn-primary' "
