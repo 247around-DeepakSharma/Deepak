@@ -5,8 +5,6 @@ class Employee_model extends CI_Model{
   */
   function __construct(){
   parent::__Construct();
-  
-  $this->db = $this->load->database('default', TRUE,TRUE);
   }
 
   /* @desc : this function for create employee
@@ -65,78 +63,6 @@ class Employee_model extends CI_Model{
    	return $query->result_array();
    }
 
-  /**
-   * @desc : This funtion add vrification list
-   * @param :  user id and user 
-   * @return : void
-   */
-
-   function Add_verificationlist($userid,$insert){
-    $this->db->where('user_id',$userid);
-    $this->db->update('users',$insert);
-
-   }
-
-  /**
-   * @desc : This funtion get approve handyman list last14 days
-   * @param : day
-   * @return :array(approve handyman)
-   */
-
-
-   function last14daysapproved($date){
-    $sql ="SELECT * from `handyman` where `approve_date` >= DATE_SUB(CURDATE(), INTERVAL $date DAY) ";
-    $data = $this->db->query($sql);
-    $result = $data->result_array();
-    return  $result;
-   }
-
- /**
-   * @desc : This funtion get verify handyman list last14 days
-   * @param : day
-   * @return :array(verify handyman)
-   */
-
-
-   function last14daysverify($date){
-    $sql ="SELECT * from `handyman` where `verify_date` >= DATE_SUB(CURDATE(), INTERVAL $date DAY) ";
-    $data = $this->db->query($sql);
-    $result = $data->result_array();
-    return  $result;
-
-   }
-
-  /**
-   * @desc : This funtion get approve handyman list of particular id
-   * @param : employee id ,day
-   * @return :array(approvehandyman)
-   */
-
-
-   function approvehandymanlist($employee_id,$date){
-   
-    $sql ="SELECT * from `handyman` where  `approve_by` = '$employee_id' and `approve_date` >= DATE_SUB(CURDATE(), INTERVAL $date DAY)  ";
-    $data = $this->db->query($sql);
-    $result = $data->result_array();
-    return $result;
-   }
-
-
-  /**
-   * @desc : This funtion get verify handyman list of particular id
-   * @param : employee id ,day
-   * @return :array(verifyhandyman)
-   */
-
-  function verifylist($employee_id,$date){
-     $sql ="SELECT * from handyman  JOIN services on services.id = handyman.service_id  where  verify_by = '$employee_id' and verify_date >= DATE_SUB(CURDATE(), INTERVAL $date DAY)";
-     $query = $this->db->query($sql);
-    if ($query->num_rows() > 0) {
-        return   $query->result_array();
-   
-      }
-      return false;
-   }
   /**
    * @desc : This funtion  delete handyman when error occured
    * @param :  handyman id

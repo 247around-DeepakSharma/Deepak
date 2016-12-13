@@ -61,8 +61,14 @@
             <td><?php echo $row['old_state']; ?></td>
             <td><?php echo $row['new_state'];?></td>
             <td><?php echo $row['remarks']; ?></td>
-            <td><?php echo $row['employee_id'];?></td>
-            <td><?php echo $row['source'];?></td>
+            <td><?php echo $row['full_name'];?></td>
+            <td><?php
+            if($row['source'] == "Website"){
+                echo '247 Around';
+            }else{
+                echo $row['source'];
+            }
+            ?></td>
             <td><?php
                 $old_date = $row['create_date'];
                 $old_date_timestamp = strtotime($old_date);

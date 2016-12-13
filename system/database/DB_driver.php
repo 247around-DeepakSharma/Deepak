@@ -1205,7 +1205,7 @@ class CI_DB_driver {
         foreach($userdata as $key=>$value){
             $load_view .= '<br>'.$key .' - '.$value;
         }
-
+        
         $CI->email->from('booking@247around.com', '247Around Team');
         $CI->email->to('abhaya@247around.com, anuj@247around.com, belal@247around.com');
         $CI->email->subject('Database Error');

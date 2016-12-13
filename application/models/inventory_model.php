@@ -101,26 +101,6 @@ class Inventory_model extends CI_Model {
     }
     
     /**
-     * @Desc: This function is used to update inventory
-     * @params: Array, String ,String
-     * @return: Boolean
-     * 
-     */
-    function update_inventory($data,$order_id,$remarks){
-        $this->db->where(array(
-            'order_id' => $order_id,
-            'remarks' => $remarks
-            ));
-	$this->db->update('inventory', $data);
-        if($this->db->affected_rows() > 0){
-            return true;
-        }else{
-            return false;
-        }
-        
-    }
-    
-    /**
      * @Desc: This function is used to get inventory details by vendor id
      * params: vendor_id
      * return: void

@@ -7,8 +7,6 @@ class Reporting_utils extends CI_Model {
      */
     function __construct() {
         parent::__Construct();
-
-        $this->db = $this->load->database('default', TRUE, TRUE);
     }
 
     //Get today's pending bookings to generate summary mail for Admin
@@ -183,31 +181,6 @@ class Reporting_utils extends CI_Model {
         log_message('info', __FUNCTION__. " SQL: ". $this->db->last_query());
 
         //echo $this->db->last_query();
-    }
-
-    function get_pending_bookings2() {
-        //log_message('info', __METHOD__);
-
-        $this->db->select("booking_details.booking_id, booking_details.create_date, "
-            . "booking_details.items_selected, booking_details.total_price,"
-            . "DATEDIFF (CURRENT_TIMESTAMP, booking_details.create_date) as booking_age,"
-            . "services.services as service_name,"
-            . "users.name as user_name, users.phone_number as user_phone,"
-            . "service_centres.name as sc_name, "
-            . "service_centres.primary_contact_name as sc_contact,"
-            . "service_centres.primary_contact_phone_1 as sc_phone");
-        $this->db->from("booking_details");
-        $this->db->join('services', 'services.id = booking_details.service_id');
-        $this->db->join('users', 'users.user_id = booking_details.user_id');
-        $this->db->join('service_centres', 'service_centres.id = booking_details.assigned_vendor_id');
-
-        $query = $this->db->get();
-
-        //$result = (bool) ($this->db->affected_rows() > 0);
-        //log_message('info', __METHOD__ . " => SQL: " . $this->db->last_query() . ", Result: " . $result);
-        //log_message('info', print_r($query->result_array(), TRUE));
-
-        return $query->result_array();
     }
 
     function find_service_centers() {

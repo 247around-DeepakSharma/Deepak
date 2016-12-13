@@ -598,6 +598,12 @@ class CI_DB_mysqli_driver extends CI_DB {
 	 */
 	function _update($table, $values, $where, $orderby = array(), $limit = FALSE)
 	{
+                //Checking condition if where clause is NULL
+                if ($where == NULL)
+		{   
+                    // Throwing Error explicitly
+                    return $this->display_error('db_must_use_where',$table);
+		}
 		foreach ($values as $key => $val)
 		{
 			$valstr[] = $key." = ".$val;
@@ -631,6 +637,12 @@ class CI_DB_mysqli_driver extends CI_DB {
 	 */
 	function _update_batch($table, $values, $index, $where = NULL)
 	{
+                //Checking condition if where clause is NULL
+                if ($where == NULL)
+		{   
+                    // Throwing Error explicitly
+                    return $this->display_error('db_must_use_where',$table);
+		}
 		$ids = array();
 		$where = ($where != '' AND count($where) >=1) ? implode(" ", $where).' AND ' : '';
 
@@ -701,6 +713,12 @@ class CI_DB_mysqli_driver extends CI_DB {
 	 */
 	function _delete($table, $where = array(), $like = array(), $limit = FALSE)
 	{
+                //Checking condition if where clause is NULL
+                if ($where == NULL || !empty($like))
+		{   
+                    // Throwing Error explicitly
+                    return $this->display_error('db_del_must_use_where',$table);
+		}
 		$conditions = '';
 
 		if (count($where) > 0 OR count($like) > 0)

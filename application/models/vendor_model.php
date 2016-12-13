@@ -7,9 +7,6 @@ class vendor_model extends CI_Model {
      */
     function __construct() {
         parent::__Construct();
-
-
-        $this->db = $this->load->database('default', TRUE, TRUE);
     }
 
     /**
