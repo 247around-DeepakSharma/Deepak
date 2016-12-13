@@ -70,7 +70,7 @@
                         </li>
                         <li class="divider"></li>
                         <li >
-                            <a href="<?php echo base_url() ?>employee/booking/view_queries/Cancelled"><i class="fa fa-fw fa-desktop"></i> <strong> Cancelled Queries</strong></a>
+                            <a href="<?php echo base_url() ?>employee/booking/view_queries/Cancelled/p_all"><i class="fa fa-fw fa-desktop"></i> <strong> Cancelled Queries</strong></a>
                         </li>
                     </ul>
                     <!-- /.dropdown-messages -->
