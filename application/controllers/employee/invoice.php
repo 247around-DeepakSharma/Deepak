@@ -180,7 +180,7 @@ class Invoice extends CI_Controller {
      *  @param : Type $partnerId
      *  @return : void
      */
-    function get_add_new_transaction($vendor_partner, $id) {
+    function get_add_new_transaction($vendor_partner="", $id="") {
         $data['vendor_partner'] = $vendor_partner;
         $data['id'] = $id;
         $data['invoice_id'] = $this->input->post('invoice_id');

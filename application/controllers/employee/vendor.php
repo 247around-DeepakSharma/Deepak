@@ -24,7 +24,7 @@ class vendor extends CI_Controller {
         $this->load->model('employee_model');
         $this->load->model('booking_model');
         $this->load->library('PHPReport');
-        $this->load->model('filter_model');
+        
         $this->load->model('service_centers_model');
         $this->load->helper(array('form', 'url'));
         
