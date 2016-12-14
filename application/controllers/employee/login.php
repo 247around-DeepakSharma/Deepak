@@ -53,14 +53,13 @@ class Login extends CI_Controller {
                 $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone']);
                 
                 //Saving Login Details in Database
-                
                 $data['browser'] = $this->agent->browser();
                 $data['agent_string'] = $this->agent->agent_string();
                 $data['ip'] = $this->session->all_userdata()['ip_address'];
                 $data['action'] = _247AROUND_LOGIN;
-                $data['employee_type'] = $this->session->all_userdata()['userType'];
-                $data['employee_id'] = $this->session->all_userdata()['id'];
-                $data['employee_name'] = $this->session->all_userdata()['employee_id'];
+                $data['entity_type'] = $this->session->all_userdata()['userType'];
+                $data['agent_id'] = $this->session->all_userdata()['id'];
+                $data['entity_id'] = _247AROUND;
                 
                 $login_id = $this->employee_model->add_login_logout_details($data);
                 //Adding Log Details
@@ -164,9 +163,9 @@ class Login extends CI_Controller {
         $data['agent_string'] = $this->agent->agent_string();
         $data['ip'] = $this->session->all_userdata()['ip_address'];
         $data['action'] = _247AROUND_LOGOUT;
-        $data['employee_type'] = $this->session->all_userdata()['userType'];
-        $data['employee_id'] = $this->session->all_userdata()['id'];
-        $data['employee_name'] = $this->session->all_userdata()['employee_id'];
+        $data['entity_type'] = $this->session->all_userdata()['userType'];
+        $data['agent_id'] = $this->session->all_userdata()['id'];
+        $data['entity_id'] = _247AROUND;
         
         $logout_id = $this->employee_model->add_login_logout_details($data);
         //Adding Log Details
