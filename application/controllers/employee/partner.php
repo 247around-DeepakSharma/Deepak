@@ -827,7 +827,7 @@ class Partner extends CI_Controller {
             $send['booking_id'] = $booking_id;
             $send['state'] = $data['current_status'];
             $this->asynchronous_lib->do_background_process($url, $send);
-            $this->My_CI->session->set_flashdata('success', $booking_id . ' Booking Cancelled');
+            $this->session->set_flashdata('success', $booking_id . ' Booking Cancelled');
 
             redirect(base_url() . "partner/get_user_form");
         } else {
