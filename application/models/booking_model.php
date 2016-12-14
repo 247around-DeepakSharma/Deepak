@@ -7,7 +7,6 @@ class Booking_model extends CI_Model {
      */
     function __construct() {
         parent::__Construct();
-        $this->db = $this->load->database('default', TRUE, TRUE);
     }
 
     function date_compare_queries($a, $b) {
@@ -637,31 +636,12 @@ class Booking_model extends CI_Model {
     }
 
     /**
-     *  @desc : Function to assign vendor for bookings
-     *
-     *  This function assigns a particular vendor to a particular booking so that
-     *       vendor can complete tasks in the booking.
-     *
-     *  @param : booking id and service center id
-     *  @return : return true is assigned else false
-     */
-    function assign_booking($booking_id, $service_center) {
-        $sql = "Update booking_details set assigned_vendor_id='$service_center' where booking_id='$booking_id'";
-        $query = $this->db->query($sql);
-
-        return $query;
-    }
-
-    /**
      *  @desc : Function to set mail to vendor field as 1(mail sent)
      *
      *  @param : booking id
      *  @return : void
      */
     function set_mail_to_vendor($booking_id) {
-//  unused variable $query, so removed it
-//    	$query = $this->db->query("UPDATE booking_details set mail_to_vendor= 1 where booking_id
-//                ='$booking_id'");
         $this->db->query("UPDATE booking_details set mail_to_vendor= 1 where booking_id ='$booking_id'");
         echo $this->db->last_query();
     }
@@ -673,9 +653,6 @@ class Booking_model extends CI_Model {
      */
     //TODO: can be removed
     function set_mail_to_vendor_flag_to_zero($booking_id) {
-//        unused variable $query, so commented it
-//	$query = $this->db->query("UPDATE booking_details set mail_to_vendor= 0 where booking_id
-//                ='$booking_id'");
         $this->db->query("UPDATE booking_details set mail_to_vendor= 0 where booking_id
                 ='$booking_id'");
     }
@@ -742,35 +719,13 @@ class Booking_model extends CI_Model {
      *  @return : count of active appliances for a particular user
      */
     function getApplianceCountByUser($user_id) {
-        //log_message('info', __METHOD__ . "=> User ID: " . $user_id);
+        log_message('info', __METHOD__ . "=> User ID: " . $user_id);
 
         $this->db->where(array('user_id' => $user_id, 'is_active' => '1'));
         $this->db->from("appliance_details");
 
         $result = $this->db->count_all_results();
-
-        //log_message('info', __METHOD__ . " -> Result: " . $result);
-
         return $result;
-    }
-
-    /**
-     *  @desc : This function is to get appliance details
-     *
-     *  Gives the number of appliances that are active for a particular user.
-     *
-     *  @param : appliance id
-     *  @return : appliance details
-     */
-    function getApplianceById($appliance_id) {
-        //log_message('info', __METHOD__ . "=> User ID: " . $user_id);
-        $this->db->where(array('id' => $appliance_id));
-        $this->db->from("appliance_details");
-        $query = $this->db->get();
-        return $query->result_array();
-        //$result = $this->db->count_all_results();
-        //log_message('info', __METHOD__ . " -> Result: " . $result);
-        //return $result;
     }
 
     /**
@@ -785,7 +740,7 @@ class Booking_model extends CI_Model {
      *  @return : void
      */
     function addSampleAppliances($user_id, $count) {
-        //log_message('info', "Entering: " . __METHOD__);
+        log_message('info', "Entering: " . __METHOD__);
 
         $sql1 = "SELECT * FROM sample_appliances";
         $query = $this->db->query($sql1);
@@ -802,9 +757,6 @@ class Booking_model extends CI_Model {
                     . "VALUES (?,?,?,?,?, ?,?,?,?,?)";
 
             $this->db->query($sql2, $appl[$i]);
-
-//            $result = (bool) ($this->db->affected_rows() > 0);
-            //log_message('info', __METHOD__ . " => SQL: " . $this->db->last_query() . ", Result: " . $result);
         }
     }
 
@@ -820,7 +772,6 @@ class Booking_model extends CI_Model {
     function addNewApplianceBrand($service_id, $newbrand) {
         $sql = "INSERT into appliance_brands(service_id,brand_name) values('$service_id','$newbrand')";
         $this->db->query($sql);
-//	$query = $this->db->query($sql); // as $query was not been used, this linecould be deleted
     }
 
     /**
@@ -904,17 +855,6 @@ class Booking_model extends CI_Model {
     function get_all_sd_bookings() {
         $query = $this->db->query("SELECT * FROM snapdeal_leads ORDER BY create_date DESC");
         return $query->result_array();
-    }
-
-    /**
-     *  @desc : This function is to update snapdael leads
-     *
-     *  @param : array_where(which leads to update) and data to update
-     *  @return : void
-     */
-    function update_sd_lead($array_where, $array_data) {
-        $this->db->where($array_where);
-        $this->db->update("snapdeal_leads", $array_data);
     }
 
     /**
@@ -1965,36 +1905,36 @@ class Booking_model extends CI_Model {
             if(!is_null($value['partner_id'])){
                 // If Partner Id is 247001
                 if($value['partner_id'] == _247AROUND){
-                    $sql = "SELECT employee_id, bookings_sources.source FROM employee, bookings_sources WHERE "
+                    $sql = "SELECT full_name, bookings_sources.source FROM employee, bookings_sources WHERE "
                             . " bookings_sources.partner_id = '"._247AROUND."' AND employee.id = '".$value['agent_id']."'";
                    
                     $query1 = $this->db->query($sql);
                     $data1 = $query1->result_array();
                    
-                    $data[$key]['employee_id'] = $data1[0]['employee_id'];
+                    $data[$key]['full_name'] = $data1[0]['full_name'];
                     $data[$key]['source'] = $data1[0]['source'];
                    
                     
                 } else {
                     // For Partner
-                    $this->db->select('user_name as employee_id, bookings_sources.source');
+                    $this->db->select('full_name, bookings_sources.source');
                     $this->db->from('partner_login');
                     $this->db->join('bookings_sources','bookings_sources.partner_id = partner_login.partner_id');
                     $this->db->where('partner_login.id', $value['agent_id']);
                     $query1 = $this->db->get();
                     $data1 = $query1->result_array();
-                    $data[$key]['employee_id'] = $data1[0]['employee_id'];
+                    $data[$key]['full_name'] = $data1[0]['full_name'];
                     $data[$key]['source'] = $data1[0]['source'];
                 }
             } else if(!is_null($value['service_center_id'])){
                 // For Service center
-                $this->db->select('user_name as employee_id, company_name as source');
+                $this->db->select('full_name, company_name as source');
                 $this->db->from('service_centers_login');
                 $this->db->where('service_centers_login.id', $value['agent_id']);
                 $this->db->join('service_centres', 'service_centres.id = service_centers_login.service_center_id');
                 $query1 = $this->db->get();
                 $data1 = $query1->result_array();
-                $data[$key]['employee_id'] = $data1[0]['employee_id'];
+                $data[$key]['full_name'] = $data1[0]['full_name'];
                 $data[$key]['source'] = $data1[0]['source'];
             }
             

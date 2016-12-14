@@ -57,7 +57,6 @@ p {
 	<div id="container">
 		<h1><?php echo $heading; ?></h1>
 		<?php echo $message; ?>
-                <?php print_r($_SESSION);?>
 	</div>
     
     <?php 

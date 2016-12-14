@@ -13,8 +13,6 @@ class Partner_model extends CI_Model {
      */
     function __construct() {
       parent::__Construct();
-
-      $this->db = $this->load->database('default', TRUE, TRUE);
     }
 
     function log_partner_activity($activity) {
@@ -43,7 +41,6 @@ class Partner_model extends CI_Model {
 
     function get_partner_lead_by_id($id) {
       $this->db->where(array("id" => $id));
-  //$query = $this->db->query("SELECT * FROM partner_leads WHERE id='$id'");
       $query = $this->db->get("partner_leads");
       $results = $query->result_array();
 

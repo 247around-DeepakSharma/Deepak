@@ -1358,6 +1358,10 @@ CREATE TABLE `login_logout_details` (
 ALTER TABLE `service_centres` CHANGE `company_type` `company_type` VARCHAR(512) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
 ALTER TABLE `service_centres` CHANGE `pan_no` `pan_no` VARCHAR(256) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
 
+
+ALTER TABLE `partner_login` ADD `full_name` VARCHAR(256) NOT NULL AFTER `partner_id`;
+ALTER TABLE `service_centers_login` ADD `full_name` VARCHAR(256) NOT NULL AFTER `service_center_id`;
+
 --Abhay 12-12-2016
 ALTER TABLE  `vendor_partner_invoices` ADD  `invoice_detailed_excel` VARCHAR( 100 ) NULL DEFAULT NULL AFTER  `invoice_file_excel` ;
 -- Belal 24 Nov
@@ -1381,6 +1385,7 @@ ALTER TABLE `employee` ADD `full_name` VARCHAR(512) NOT NULL AFTER `employee_id`
 -- Belal 3 Dec
 ALTER TABLE `brackets` ADD `cancellation_reason` VARCHAR(512) NOT NULL AFTER `total_received`;
 
+
 UPDATE `email_template` SET `template` = 'Dear partner your order has been placed sucessfully.<br><br> Your Order ID is : <b>%s</b> <br> <strong>Order Details are:</strong><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Total Requested : %s<br><br> We will update you as soon as order is shipped.<br><br> Regards,<br> 247Around Team' WHERE `email_template`.`id` = 11;
 
 UPDATE `email_template` SET `template` = 'Dear Partner brackets has been delivered successfully to <b> %s </b> for the Order ID<b> %s </b> <br><br> Please contact us in case of any query.<br><br> Regards, <br> 247Around Team' WHERE `email_template`.`id` = 21;
@@ -1400,3 +1405,4 @@ CREATE TABLE `scheduler_tasks_log` (
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1
 
 ALTER TABLE `login_logout_details` ADD `agent_string` VARCHAR(256) NOT NULL AFTER `browser`;
+

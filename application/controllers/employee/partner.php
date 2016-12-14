@@ -827,7 +827,7 @@ class Partner extends CI_Controller {
             $send['booking_id'] = $booking_id;
             $send['state'] = $data['current_status'];
             $this->asynchronous_lib->do_background_process($url, $send);
-            $this->My_CI->session->set_flashdata('success', $booking_id . ' Booking Cancelled');
+            $this->session->set_flashdata('success', $booking_id . ' Booking Cancelled');
 
             redirect(base_url() . "partner/get_user_form");
         } else {
@@ -1276,7 +1276,7 @@ class Partner extends CI_Controller {
 	    )
 	);
         
-        $output_file_excel  = "/tmp/spare_parts-".date('Y-m-d').".xlsx";
+        $output_file_excel  = TMP_FOLDER."spare_parts-".date('Y-m-d').".xlsx";
         $R->render('excel', $output_file_excel);
         if (file_exists($output_file_excel)) {
                 header('Content-Description: File Transfer');
@@ -1319,8 +1319,8 @@ class Partner extends CI_Controller {
 	    )
 	);
         
-        $output_file_excel  = "/tmp/shippment_address-".$booking_id.".xlsx";
-        $output_file_pdf = "/tmp/shippment_address-".$booking_id.".pdf";
+        $output_file_excel  = TMP_FOLDER."shippment_address-".$booking_id.".xlsx";
+        $output_file_pdf = TMP_FOLDER."shippment_address-".$booking_id.".pdf";
         $R->render('excel', $output_file_excel);
         
         putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
@@ -1391,8 +1391,8 @@ class Partner extends CI_Controller {
 	    )
 	);
         
-        $output_file_excel  = "/tmp/courier_manifest-".$booking_id.".xlsx";
-        $output_file_pdf = "/tmp/courier_manifest-".$booking_id.".pdf";
+        $output_file_excel  = TMP_FOLDER."courier_manifest-".$booking_id.".xlsx";
+        $output_file_pdf = TMP_FOLDER."courier_manifest-".$booking_id.".pdf";
         $R->render('excel', $output_file_excel);
         
         putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');

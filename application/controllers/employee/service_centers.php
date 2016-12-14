@@ -979,7 +979,7 @@ class Service_centers extends CI_Controller {
                 'data' => $booking_details
             ));
         
-        $output_file_dir = "/tmp/";
+        $output_file_dir = TMP_FOLDER;
         $output_file = "SF-".$service_center_id."-Pending-Bookings-List-" . date('y-m-d');
         $output_file_name = $output_file . ".xls";
         $output_file_excel = $output_file_dir . $output_file_name;
@@ -1024,7 +1024,6 @@ class Service_centers extends CI_Controller {
                 $vendor_tax = $value['vendor_total'] - $vendor_base_charge;
                 
                 $array_final['sc_code'] = $code_source;
-                $array_final['state'] = $sc_details[0]['state'];
                 $array_final['product'] = $value['product'];
                 $array_final['category'] = $value['category'];
                 $array_final['capacity'] = $value['capacity'];
@@ -1056,8 +1055,8 @@ class Service_centers extends CI_Controller {
                     'data' => $final_array
                 ));
 
-            $output_file_dir = "/tmp/";
-            $output_file = $sc_details[0]['sc_code']."-Charges-List-" . date('y-m-d');
+            $output_file_dir = TMP_FOLDER;
+            $output_file = $sc_details[0]['company_name']."-Charges-List-" . date('j M Y');
             $output_file_name = $output_file . ".xls";
             $output_file_excel = $output_file_dir . $output_file_name;
             $R->render('excel2003', $output_file_excel);

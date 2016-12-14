@@ -273,6 +273,7 @@
                       <li>
                           <a href="<?php echo base_url()?>employee/vendor/show_around_dashboard"><i class="fa fa-fw fa-desktop "></i> <strong>Dashboard</strong></a>
                       </li>
+
                       <li class="divider"></li>
                        <li>
                           <a href="<?php echo base_url()?>BookingSummary/get_sc_crimes/0"><i class="fa fa-fw fa-desktop "></i> <strong>SF Missed Target Report</strong></a>
@@ -281,6 +282,7 @@
 <!--                       <li>
                           <a href="<?php echo base_url()?>BookingSummary/get_un_assigned_crimes_for_247around/0"><i class="fa fa-fw fa-desktop "></i> <strong>SF Engineer Not Assigned Report</strong></a>
                       </li>
+
                       <li class="divider"></li>-->
                         <li>
                             <a href="<?php echo base_url()?>employee/vendor/vendor_performance_view"><i class="fa fa-fw fa-desktop "></i> <strong>Vendor Performance</strong></a>
@@ -296,7 +298,7 @@
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>
-                
+
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     <i class="fa fa-fw fa-arrows-v"></i> Inventory <i class="fa fa-caret-down"></i>
@@ -314,7 +316,7 @@
                             <a href="<?php echo base_url()?>employee/inventory/get_vendor_inventory_list_form"><i class="fa fa-fw fa-desktop "></i> <strong>Vendor Inventory Details</strong></a>
                         </li>
                         <li class="divider"></li>
-                        
+
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>

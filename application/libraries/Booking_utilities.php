@@ -23,7 +23,7 @@ class Booking_utilities {
 	$this->My_CI->load->library('s3');
 	$this->My_CI->load->library('form_validation');
 	$this->My_CI->load->library("session");
-    $this->My_CI->load->library("notify");
+        $this->My_CI->load->library("notify");
 	$this->My_CI->load->helper('download');
 	$this->My_CI->load->helper(array('form', 'url'));
 	$this->My_CI->load->model('employee_model');
@@ -36,7 +36,7 @@ class Booking_utilities {
 
 	$template = 'BookingJobCard_Template-v8.xlsx';
 	//set absolute path to directory with template files
-	$templateDir = __DIR__ . "/../controllers/";
+	$templateDir = FCPATH."application/controllers/excel-templates/";
 	//set config for report
 	$config = array(
 	    'template' => $template,
@@ -80,7 +80,7 @@ class Booking_utilities {
 	    $output_file_suffix = "";
         }
 
-	$output_file_dir = "/tmp/";
+	$output_file_dir = TMP_FOLDER;
 	$output_file = "BookingJobCard-" . $booking_id . $output_file_suffix;
 
 	$output_file_excel = $output_file_dir . $output_file . ".xlsx";
@@ -164,17 +164,17 @@ class Booking_utilities {
 
             $message = $salutation . $heading . $note . $fixedPara;
 
-            $to = $getbooking[0]['primary_contact_email'];
-            $owner = $getbooking[0]['owner_email'];
-            $from = "booking@247around.com";
-            $cc = $owner;
-	    $bcc = '';
+//            $to = $getbooking[0]['primary_contact_email'];
+//            $owner = $getbooking[0]['owner_email'];
+//            $from = "booking@247around.com";
+//            $cc = $owner;
+//	    $bcc = '';
 
 	    $subject = "247Around / Job Card " . $getbooking[0]['booking_id'] . " / " . $getbooking[0]['booking_date'] .
                     " / " . $getbooking[0]['booking_timeslot'];
 
             $file_pdf = $getbooking[0]['booking_jobcard_filename'];
-            $output_file_pdf = "/tmp/" . $getbooking[0]['booking_jobcard_filename'];
+            $output_file_pdf = TMP_FOLDER . $getbooking[0]['booking_jobcard_filename'];
 
             $cmd = "curl https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/" . $file_pdf . " -o " . $output_file_pdf;
             exec($cmd);
