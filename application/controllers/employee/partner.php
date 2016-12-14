@@ -24,6 +24,7 @@ class Partner extends CI_Controller {
         $this->load->library('notify');
         $this->load->library('asynchronous_lib');
         $this->load->library('booking_utilities');
+        $this->load->library('user_agent');
 
         $this->load->helper(array('form', 'url'));
     }
@@ -51,20 +52,35 @@ class Partner extends CI_Controller {
 
         $data['user_name'] = $this->input->post('user_name');
         $data['password'] = md5($this->input->post('password'));
-        $partner = $this->partner_model->partner_login($data);
+        $partner_id = $this->partner_model->partner_login($data);
 
-        if ($partner) {
-        //get partner details now
-        $partner_details = $this->partner_model->getpartner($partner['partner_id']);
+        if ($partner_id) {
+            //get partner details now
+            $partner_details = $this->partner_model->getpartner($partner_id['partner_id']);
 
-        $this->setSession($partner_details[0]['id'], $partner_details[0]['public_name'], $partner['id']);
-        log_message('info', 'Partner loggedIn  partner id' .
-                $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
+            $this->setSession($partner_details[0]['id'], $partner_details[0]['public_name']);
+            log_message('info', 'Partner loggedIn  partner id' . $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
+            
+            //Saving Login Details in Database
+            $login_data['browser'] = $this->agent->browser();
+            $login_data['ip'] = $this->session->all_userdata()['ip_address'];
+            $login_data['action'] = _247AROUND_LOGIN;
+            $login_data['employee_type'] = $this->session->all_userdata()['userType'];
+            $login_data['employee_id'] = $this->session->all_userdata()['partner_id'];
+            $login_data['employee_name'] = $this->session->all_userdata()['partner_name'];
 
-        redirect(base_url() . "partner/get_spare_parts_booking");
+            $login_id = $this->employee_model->add_login_logout_details($login_data);
+            //Adding Log Details
+            if ($login_id) {
+                log_message('info', __FUNCTION__ . ' Logging details have been captured for partner ' . $login_data['employee_name']);
+            } else {
+                log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['employee_name']);
+            }
+
+            redirect(base_url() . "partner/pending_booking");
         } else {
 
-            $userSession = array('error' => 'Please enter correct user name and password' );
+            $userSession = array('error' => 'Please enter correct user name and password');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/login");
         }
@@ -228,9 +244,8 @@ class Partner extends CI_Controller {
      */
     function logout() {
         log_message('info', 'Partner logout  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'));
-
+        
         //Saving Logout Details in Database
-        $this->load->library('user_agent');
         $login_data['browser'] = $this->agent->browser();
         $login_data['ip'] = $this->session->all_userdata()['ip_address'];
         $login_data['action'] = _247AROUND_LOGOUT;
