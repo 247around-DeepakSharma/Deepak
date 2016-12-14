@@ -45,7 +45,7 @@ class BookingSummary extends CI_Controller {
 
         $template = 'BookingSummary_Template-v7.xls';
         //set absolute path to directory with template files
-        $templateDir =  __DIR__ . "/../excel-templates/";
+        $templateDir =  FCPATH."application/controllers/excel-templates/";
 
         //set config for report
         $config = array(

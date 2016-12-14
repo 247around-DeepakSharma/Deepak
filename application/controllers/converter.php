@@ -54,7 +54,7 @@ class converter extends CI_Controller {
 		    }
 
 		    $data['area'] = $row[0];
-		    $data['  $datpincode'] = $row[1];
+		    $data['pincode'] = $row[1];
 		    $data['division'] = $row[2];
 		    $data['region'] = $row[3];
 		    $data['taluk'] = $row[4];
