@@ -32,6 +32,7 @@ class Service_centers extends CI_Controller {
         $this->load->library('form_validation');
         $this->load->library('PHPReport');
         $this->load->helper('download');
+        $this->load->library('user_agent');
     }
 
     /**
@@ -53,15 +54,31 @@ class Service_centers extends CI_Controller {
      * @return: void
      */
     function service_center_login() {
-        $data['user_name'] = $this->input->post('user_name');
+       $data['user_name'] = $this->input->post('user_name');
         $data['password'] = md5($this->input->post('password'));
-        $agent = $this->service_centers_model->service_center_login($data);
-
-        if ($agent) {
+        $service_center_id = $this->service_centers_model->service_center_login($data);
+        
+        if ($service_center_id) {
 	    //get sc details now
-	    $sc_details = $this->vendor_model->getVendorContact($agent['service_center_id']);
-            $this->setSession($sc_details[0]['id'], $sc_details[0]['name'], $agent['id'], $sc_details[0]['is_update']);
+	    $sc_details = $this->vendor_model->getVendorContact($service_center_id['service_center_id']);
+	    $this->setSession($sc_details[0]['id'], $sc_details[0]['name']);
+            
+            //Saving Login Details in Database
+            $login_data['browser'] = $this->agent->browser();
+            $login_data['ip'] = $this->session->all_userdata()['ip_address'];
+            $login_data['action'] = _247AROUND_LOGIN;
+            $login_data['employee_type'] = $this->session->all_userdata()['userType'];
+            $login_data['employee_id'] = $this->session->all_userdata()['service_center_id'];
+            $login_data['employee_name'] = $this->session->all_userdata()['service_center_name'];
 
+            $login_id = $this->employee_model->add_login_logout_details($login_data);
+            //Adding Log Details
+            if ($login_id) {
+                log_message('info', __FUNCTION__ . ' Logging details have been captured for service center ' . $login_data['employee_name']);
+            } else {
+                log_message('info', __FUNCTION__ . ' Err in capturing logging details for service center ' . $login_data['employee_name']);
+            }
+            
 	    redirect(base_url() . "service_center/pending_booking");
         } else {
             $userSession = array('error' => 'Please enter correct user name and password' );
@@ -345,6 +362,26 @@ class Service_centers extends CI_Controller {
      * @return: void
      */
     function logout() {
+       //Saving Login Details in Database
+        $login_data['browser'] = $this->agent->browser();
+        $login_data['ip'] = $this->session->all_userdata()['ip_address'];
+        $login_data['action'] = _247AROUND_LOGOUT;
+        if($this->session->userdata('247Access') == 1){
+            $login_data['employee_type'] = $this->session->all_userdata()['userType'].' - '._247AROUND_ACCESS;
+        }else{
+            $login_data['employee_type'] = $this->session->all_userdata()['userType'];
+        }
+        $login_data['employee_id'] = $this->session->all_userdata()['service_center_id'];
+        $login_data['employee_name'] = $this->session->all_userdata()['service_center_name'];
+
+        $logout_id = $this->employee_model->add_login_logout_details($login_data);
+        //Adding Log Details
+        if ($logout_id) {
+            log_message('info', __FUNCTION__ . ' Logging details have been captured for service center ' . $login_data['employee_name']);
+        } else {
+            log_message('info', __FUNCTION__ . ' Err in capturing logging details for service center ' . $login_data['employee_name']);
+        }
+        
         $this->session->sess_destroy();
         redirect(base_url() . "service_center");
     }
