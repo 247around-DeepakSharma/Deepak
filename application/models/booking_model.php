@@ -430,7 +430,7 @@ class Booking_model extends CI_Model {
         if($join !=""){
             $service_center_name = ",service_centres.name as vendor_name, service_centres.district,service_centres.address, service_centres.state, service_centres.pincode, "
 		. "service_centres.primary_contact_name, service_centres.owner_email,service_centres.owner_name, "
-		. "service_centres.primary_contact_phone_1, service_centres.primary_contact_email ";
+		. "service_centres.primary_contact_phone_1,service_centres.primary_contact_phone_2, service_centres.primary_contact_email ";
 	    $service_centre = ", service_centres ";
             $condition = " and booking_details.assigned_vendor_id =  service_centres.id";
         }

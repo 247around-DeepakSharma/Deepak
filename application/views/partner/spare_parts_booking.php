@@ -1,6 +1,7 @@
 <?php if($this->uri->segment(4)){ $sn_no =  $this->uri->segment(4) +1; } else{ $sn_no = 1;} ?>
 <div class="container-fluid">
-      <a href="<?php echo base_url(); ?>partner/download_spare_parts" class='btn btn-md btn-warning  pull-right' style="margin-right: 40px;margin-top:15px; margin-bottom: 15px;"><i class="fa fa-download" aria-hidden="true"></i></a>
+   
+      <a href="<?php echo base_url(); ?>partner/download_spare_parts" title ="Download All Booking" class='btn btn-md btn-warning  pull-right' style="margin-right: 40px;margin-top:15px; margin-bottom: 15px;"><i class="fa fa-download" aria-hidden="true"></i></a>
    <div class="row" style="margin-top: 40px;">
       <div class="col-md-12">
        <?php if($this->session->userdata('success')) {
@@ -14,25 +15,25 @@
                     ?>
          <div class="panel panel-default">
             <div class="panel-heading">
-               <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Pending Spare Parts </h2>
+                <h1 class="panel-title" style="font-size:24px;"><i class="fa fa-money fa-fw"></i> Pending Spare Parts </h1>
             </div>
             <div class="panel-body">
                <div class="table-responsive">
-<!--                    <form id="spare_form1" action="<?php echo base_url(); ?>partner/shipped_spare_parts" name="fileinfo1"  method="POST" enctype="multipart/form-data">-->
+                    <form target="_blank"  action="<?php echo base_url(); ?>partner/print_all" name="fileinfo1"  method="POST" enctype="multipart/form-data">
                    <table class="table table-bordered table-hover table-striped">
                        <thead>
                            <tr>
                             <th class="text-center">No</th>
                             <th class="text-center">Customer Name</th>
                             <th class="text-center">Booking Id</th>
-                            <th class="text-center">Age</th>
+<!--                            <th class="text-center">Age</th>-->
                             <th class="text-center">Parts Required</th>
                             <th class="text-center">Model Number</th>
                             <th class="text-center">Serial Number</th>
                             <th class="text-center">Problem Description</th>
                             <th class="text-center">Update</th>
-                            <th class="text-center">Address</th>
-                            <th class="text-center">Courier Manifest</th>
+                            <th class="text-center" >Address <input type="checkbox" id="selectall_address" > </th>
+                            <th class="text-center" >Courier Manifest <input type="checkbox" id="selectall_manifest" ></th>
                             
                            </tr>
                        </thead>
@@ -49,9 +50,9 @@
                                     <td>
                                          <a  href="<?php echo base_url();?>partner/booking_details/<?php echo $row['booking_id'];?>"  title='View'><?php echo $row['booking_id'];?></a>
                                     </td>
-                                    <td>
-                                        <?php echo $row['age_of_booking']; ?>
-                                    </td>
+<!--                                    <td>
+                                        <?php //echo $row['age_of_booking']; ?>
+                                    </td>-->
                                     <td>
                                         <?php echo $row['parts_requested']; ?>
                                     </td>
@@ -70,20 +71,21 @@
                                         <a href="<?php echo base_url() ?>partner/update_spare_parts_form/<?php echo $row['booking_id']; ?>" class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
                                     </td>
                                     <td>
-                                        <a href="<?php echo base_url(); ?>partner/download_sc_address/<?php echo $row['booking_id']; ?>" class='btn btn-md btn-success' ><i class="fa fa-download" aria-hidden="true"></i></a>
+                                        <input type="checkbox" class="form-control checkbox_address" name="download_address[]" onclick='check_checkbox(1)' value="<?php echo $row['booking_id'];?>" />
                                     </td>
-                                    <td data-popover="true" data-html=true data-content="Please Update Shipped Parts" style=" border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;" >
-                                        <a href="<?php echo base_url(); ?>partner/download_courier_manifest/<?php echo $row['booking_id']; ?>" class='btn btn-md btn-primary <?php if(empty($row['parts_shipped'])){ echo "";} ?>' ><i class="fa fa-download" aria-hidden="true"></i></a>
+                                    <td>
+                                        <input type="checkbox" class="form-control checkbox_manifest" name="download_courier_manifest[]" onclick='check_checkbox(0)' value="<?php echo $row['booking_id'];?>" />
                                     </td>
                                    
                                 </tr>
                                 <?php $sn_no1++; } ?>
                             </tbody>
                         </table>
-<!--                        <div id="loading1" style="text-align: center;">
-                            <input type= "submit" id="submit_button"  class="btn btn-danger btn-md" style="background-color:#2C9D9C; border-color: #2C9D9C;" value ="Update Booking" >
+                        
+                            <input type= "submit"  class="btn btn-danger btn-md col-md-offset-4" style="background-color:#2C9D9C; border-color: #2C9D9C;" name="download_shippment_address" value ="Print Address/Courier Mainfest" >
+                           
                         </div>
-                    </form>-->
+                    </form>
                </div>
             </div>
          </div>
@@ -115,6 +117,42 @@ $('body').popover({
            }
         });
          } );
+         
+    $("#selectall_address").change(function(){
+        var d_m = $('input[name="download_courier_manifest[]"]:checked');
+        if(d_m.length > 0){
+            $('.checkbox_manifest').prop('checked', false); 
+            $('#selectall_manifest').prop('checked', false); 
+        }
+       $(".checkbox_address").prop('checked', $(this).prop("checked"));
+    });
+   $("#selectall_manifest").change(function(){
+       var d_m = $('input[name="download_address[]"]:checked');
+       if(d_m.length > 0){
+            $('.checkbox_address').prop('checked', false); 
+            $('#selectall_address').prop('checked', false); 
+        }
+     $(".checkbox_manifest").prop('checked', $(this).prop("checked"));
+  });
+  
+  function check_checkbox(number){
+      
+      if(number === 1){
+        var d_m = $('input[name="download_courier_manifest[]"]:checked');
+        if(d_m.length > 0){
+            $('.checkbox_manifest').prop('checked', false); 
+            $('#selectall_manifest').prop('checked', false); 
+        }
+          
+      } else if(number === 0){
+         var d_m = $('input[name="download_address[]"]:checked');
+        if(d_m.length > 0){
+             $('.checkbox_address').prop('checked', false); 
+             $('#selectall_address').prop('checked', false); 
+         }
+      }
+      
+  }
 </script>
 
  <?php $this->session->unset_userdata('success'); ?>
