@@ -300,6 +300,14 @@ class Around_scheduler extends CI_Controller {
      * 
      */
     function check_cron_tasks(){
+        //Defining array for Cron Jobs
+        $CRON_JOBS = ['get_pending_bookings','send_service_center_report_mail',
+            'new_send_service_center_report_mail','send_summary_mail_to_partners',
+            'send_reminder_installation_sms_today','send_reminder_installation_sms_today',
+            'DatabaseTesting','send_error_file',
+            'convert_updated_booking_to_pending','penalty_on_service_center',
+            'get_sc_crimes','get_sc_crimes_for_sf'];
+        
         $previous_date = date('Y-m-d', strtotime('-1 day', strtotime(date('Y-m-d'))));
         $tasks_log = $this->reporting_utils->get_scheduler_tasks_log($previous_date);
         $tasks_array = [];
@@ -310,7 +318,7 @@ class Around_scheduler extends CI_Controller {
         }
             
             //Finding Diff in Task Array and CRON ARRAY
-            $diff = array_diff(CRON_JOBS, $tasks_array);
+            $diff = array_diff($CRON_JOBS, $tasks_array);
             if(!empty($diff)){
                 //Some cron jobs has not been executed
                 $html = "<html xmlns='http://www.w3.org/1999/xhtml'>
@@ -326,7 +334,7 @@ class Around_scheduler extends CI_Controller {
                 $html .= "</ol></body></html>";
                 
                 //Sending Details in Mail
-                $to = "belal@247around.com";
+                $to = "belal@247around.com, anuj@247around.com, abhaya@247around.com";
                 $subject = " ERROR IN CRON TASK EXECUTION " . date("d-M-Y");
                 $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $html, "");
         }

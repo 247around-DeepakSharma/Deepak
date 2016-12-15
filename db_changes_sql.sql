@@ -1406,3 +1406,12 @@ CREATE TABLE `scheduler_tasks_log` (
 
 ALTER TABLE `login_logout_details` ADD `agent_string` VARCHAR(256) NOT NULL AFTER `browser`;
 
+-- Belal 14 Dec
+
+ALTER TABLE `login_logout_details` CHANGE `employee_name` `agent_id` INT NOT NULL;
+
+ALTER TABLE `login_logout_details` CHANGE `employee_id` `entity_id` INT NOT NULL;
+
+ALTER TABLE `login_logout_details` CHANGE `employee_type` `entity_type` VARCHAR(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
+
