@@ -17,6 +17,20 @@
         }
 
     }
+     function login_to_partner(partner_id){
+        var c = confirm('Do you want to login ?');
+        if(c){
+            $.ajax({
+                url:'<?php echo base_url()."employee/partner/allow_log_in_to_partner/" ?>'+partner_id,
+                success: function (data) {
+                    window.location = "<?php echo base_url().'employee/partner/get_spare_parts_booking'?>";
+                }
+            });
+            
+        }else{
+            return false;
+        }
+    }
 </script>
 
 <div  id="page-wrapper">
@@ -71,7 +85,7 @@
           	</td>
           	
           	<td><?=$row['owner_email'];?></td>
-                <td><?php echo isset($row['clear_text']) && $row['clear_text']?$row['user_name'].'/'.$row['clear_text']:'';?></td>
+                <td><a href="javascript:void(0)" onclick='return login_to_partner(<?php echo $row['id']?>)' ><?php echo isset($row['clear_text']) && $row['clear_text']?$row['user_name'].'/'.$row['clear_text']:'';?></a></td>
           	<td><?php if($row['is_active']==1)
                 {
                   echo "<a id='edit' class='btn btn-small btn-primary' "
