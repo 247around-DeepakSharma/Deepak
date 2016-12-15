@@ -883,6 +883,9 @@ class vendor extends CI_Controller {
      */
     function get_pincode_excel_upload_form($error = "") {
         $mapping_file['pincode_mapping_file'] = $this->vendor_model->getLatestVendorPincodeMappingFile();
+        $mapping_file['total_pincode'] = $this->vendor_model->get_total_vendor_pincode_mapping();
+        $mapping_file['latest_vendor_pincode'] = $this->vendor_model->get_latest_vendor_pincode_mapping_details();
+        
         if ($error != "") {
             $mapping_file['error'] = $error;
         }
@@ -911,17 +914,13 @@ class vendor extends CI_Controller {
     function process_pincode_excel_upload_form() {
         $inputFileName = $_FILES['file']['tmp_name'];
         log_message('info', __FUNCTION__ . ' => Input ZIP file: ' . $inputFileName);
-        //echo $inputFileName;
-        //log_message('info', __FUNCTION__ . ' => Original CSV file: ' . $_FILES['file']['name']);
         
         $newZipFileName = TMP_FOLDER."vendor_pincode_mapping_temp.zip";
-        $newCSVFileName = "vendor_pincode_mapping_temp.csv";
+        $newCSVFileName = "vendor_pincode_mapping_temp_".date('j-M-Y').".csv";
         move_uploaded_file($inputFileName, $newZipFileName);
         
         $res = 0; 
-        system("unzip " . $newZipFileName . " " . $newCSVFileName . " -d ".TMP_FOLDER, $res);
-        //$out = system("unzip " . $newZipFileName, $res);
-       //echo 'result=' . $res . ', output=' . $out;
+        system("unzip" . $newZipFileName . " " . $newCSVFileName . " -d ".TMP_FOLDER, $res);
         
         log_message('info', __FUNCTION__ . ' => New CSV file: ' . $newCSVFileName);
         
@@ -936,22 +935,32 @@ class vendor extends CI_Controller {
         $dbPass=$this->db->password;
         $dbName=$this->db->database;
 
-        $csv = TMP_FOLDER."vendor_pincode_mapping_temp.csv";
+        $csv = TMP_FOLDER.$newCSVFileName;
         $sql = "LOAD DATA LOCAL INFILE '$csv' INTO TABLE vendor_pincode_mapping_temp "
                . "FIELDS TERMINATED BY ',' ENCLOSED BY '' LINES TERMINATED BY '\r\n' "
                 . "(Vendor_Name,Vendor_ID,Appliance,Appliance_ID,Brand,Area,Pincode,Region,City,State);";
 
         $res1 = 0;
         system("mysql -u $dbUser -h $dbHost --password=$dbPass --local_infile=1 -e \"$sql\" $dbName", $res1);
-        //echo 'result=' . $res1 . ', output=' . $out1;
        
         $sql_commands1 = array();
         array_push($sql_commands1, "TRUNCATE TABLE vendor_pincode_mapping;");
         array_push($sql_commands1, "INSERT vendor_pincode_mapping SELECT * FROM vendor_pincode_mapping_temp;");
         
         $this->vendor_model->execute_query($sql_commands1);
- 
-       system ("rm -rf ".TMP_FOLDER."vendor_pincode_mapping_temp.*"); 
+        
+        //Uploading csv file to S3
+        $directory_xls = "vendor-pincodes/" . $newCSVFileName;
+        $this->s3->putObjectFile(TMP_FOLDER . $newCSVFileName, BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
+        
+        //Inserting file details in pincode_mapping_s3_upload_details
+        $data['bucket_name'] = 'vendor-pincodes';// We add Directory of Bucket used
+        $data['file_name'] = $newCSVFileName;
+        
+        $this->vendor_model->insertS3FileDetails($data);
+
+
+        system ("rm -rf ".TMP_FOLDER."vendor_pincode_mapping_temp.*"); 
        log_message('info', __FUNCTION__ . ' => All queries executed: ' . print_r($sql_commands, TRUE));
         //log_message('info', __FUNCTION__ . ' => New pincode count: ' . $count);
         
@@ -1939,20 +1948,45 @@ class vendor extends CI_Controller {
      * @param: void
      * @return: print success
      */
-    function download_latest_pincode_excel(){
+    function download_unique_pincode_excel(){
 
         log_message('info', __FUNCTION__);
 
-        $mail['email'] = $this->input->post('email');
-        $mail['notes'] = $this->input->post('notes');
-        $url = base_url() . "employee/do_background_process/download_latest_pincode_excel";
-        $this->asynchronous_lib->do_background_process($url, $mail);
-        echo '<div class="alert alert-success alert-dismissible" role="alert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span ;aria-hidden="true">&times;</span>
-                    </button>
-                    <strong> Excel file will be Send to mail. </strong>
-                </div>';
+        $template = 'Vendor_Pincode_Mapping_Template.xlsx';
+        //set absolute path to directory with template files
+        $templateDir = __DIR__ . "/../excel-templates/";
+        //set config for report
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+        //load template
+        $R = new PHPReport($config);
+        $vendor = $this->vendor_model->get_all_pincode_mapping();
+
+        $R->load(array(
+
+                 'id' => 'vendor',
+                'repeat' => TRUE,
+                'data' => $vendor
+            ));
+
+        $output_file_dir = TMP_FOLDER;
+        $output_file = "Vendor_Pincode_Mapping" . date('y-m-d');
+        $output_file_name = $output_file . ".xlsx";
+        $output_file_excel = $output_file_dir . $output_file_name;
+        $R->render('excel', $output_file_excel);
+        
+        //Downloading File
+        if(file_exists($output_file_excel)){
+
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
+            readfile($output_file_excel);
+            exit;
+        }
+        
 
     }
 
@@ -2637,6 +2671,7 @@ class vendor extends CI_Controller {
         echo TRUE;
 }
 
+
     /**
      * @Desc: This function is used to login to particular vendor
      *          This function is being called using AJAX
@@ -2761,6 +2796,35 @@ class vendor extends CI_Controller {
                 header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
                 readfile($output_file_excel);
                 exit;
-            }           
+            }
+    }
+
+/**
+     * @Desc: This function is used to download latest pincode file uploaded in s3
+     * @params: void
+     * @return:void
+     * 
+     */
+    function download_pincode_latest_file(){
+        //Getting latest entry form pincode_mapping_s3_upload_details table
+        $latest_pincode_file = $this->vendor_model->getLatestVendorPincodeMappingFile();
+        $filename = $latest_pincode_file[0]['file_name'];
+        
+        //s3 file path
+        $file_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-pincodes/".$latest_pincode_file[0]['file_name'];
+        
+        //Downloading File
+        if(!empty($latest_pincode_file[0]['file_name'])){
+
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header("Content-Disposition: attachment; filename=\"$filename\""); 
+            readfile($file_path);
+            exit;
+        }else{
+            //Logging_error
+            log_message('info',__FUNCTION__.' No latest file has been found to be uploaded.');
+        }
+       
     }
 }   
