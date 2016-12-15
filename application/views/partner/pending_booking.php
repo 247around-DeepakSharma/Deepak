@@ -13,7 +13,7 @@
                     ?>
          <div class="panel panel-default">
             <div class="panel-heading">
-               <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Pending Bookings </h2>
+                <h1 class="panel-title" style="font-size: 24px;"><i class="fa fa-money fa-fw"></i> Pending Bookings </h1>
             </div>
             <div class="panel-body">
                <div class="table-responsive">
@@ -66,7 +66,7 @@
                                           echo $row->request_type;
                                           break;
 
-                                  break;
+                                  
                               }  ?>
                            </td>
                            <td>
@@ -91,7 +91,7 @@
 
                             <td><a href="<?php echo base_url(); ?>partner/get_cancel_form/Pending/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a></td>
 
-                            <td><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm' download><i class="fa fa-download" aria-hidden="true"></i></a></td>
+                            <td><a href="javascript: w=window.open('https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?>'); w.print()" class='btn btn-sm btn-warning btn-sm' target="_blank" ><i class="fa fa-download" aria-hidden="true"></i></a></td>
 
                             <!-- <td>
                                 <a href="<?php echo base_url(); ?>partner/escalation_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-danger' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>

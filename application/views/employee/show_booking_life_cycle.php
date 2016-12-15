@@ -79,6 +79,7 @@
           <?php } ?>
           </div>
         </table><hr>
+        <?php if(!empty($sms_sent_details)){ ?>
         <table  class="table table-striped table-bordered table-hover">
           <tr>
                 <th class="jumbotron" style="text-align: center;width: 1%">S.N</th>
@@ -103,5 +104,6 @@
           <?php } ?>
           </div>
         </table>
+        <?php } ?>
 </div>
 </div>
