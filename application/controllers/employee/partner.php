@@ -1292,140 +1292,80 @@ class Partner extends CI_Controller {
          }
         
     }
+    
+    
     /**
-     * @desc: This method is used to download Shippemnt Address as Pdf file
-     * @param type $booking_id
+     * @desc: This is used to show Booking Life Cycle of particular Booking
+     * params: String Booking_ID
+     * return: Array of Data for View
      */
-    function download_sc_address($booking_id){
-         $this->checkUserSession();
+    function get_booking_life_cycle($booking_id){
+        $this->checkUserSession();
         log_message('info', __FUNCTION__. " Booking_id". $booking_id);
-        $booking_history  = $this->booking_model->getbooking_history($booking_id, "join");
-        $template = 'Address_Printout.xlsx';
-	//set absolute path to directory with template files
-	$templateDir = __DIR__ . "/../excel-templates/";
-        $config = array(
-		'template' => $template,
-		'templateDir' => $templateDir
-            );
+        $data['data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
+        $data['booking_details'] = $this->booking_model->getbooking_history($booking_id);
+        // send empty beacuse there is no need to display sms to partner panel
+        $data['sms_sent_details'] = array();
+       
+        $this->load->view('partner/header');
 
-        //load template
-        $R = new PHPReport($config);
-        
-        $R->load(array(
-                array(
-                    'id' => 'meta',
-                    'data' => $booking_history[0],
-                ),
-	    )
-	);
-        
-        $output_file_excel  = TMP_FOLDER."shippment_address-".$booking_id.".xlsx";
-        $output_file_pdf = TMP_FOLDER."shippment_address-".$booking_id.".pdf";
-        $R->render('excel', $output_file_excel);
-        
-        putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-        $tmp_path = libreoffice_pdf;
-        $tmp_output_file = libreoffice_output_file;
-	$cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
-	    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
-	    $output_file_excel . ' 2> ' . $tmp_output_file;
-         
-	$output = '';
-	$result_var = '';
-	exec($cmd, $output, $result_var);
-        //Download PDF file
-        if (file_exists($output_file_pdf)) {
-                header('Content-Description: File Transfer');
-                header('Content-Type: application/octet-stream');
-                header('Content-Disposition: attachment; filename="'.basename($output_file_pdf).'"');
-                header('Expires: 0');
-                header('Cache-Control: must-revalidate');
-                header('Pragma: public');
-                header('Content-Length: ' . filesize($output_file_pdf));
-                readfile($output_file_pdf);
-                exec("rm -rf " . escapeshellarg($output_file_pdf));
-                exec("rm -rf " . escapeshellarg($output_file_excel));
-                exit;
-         }
-        
-        log_message('info', __FUNCTION__ . " => Exiting, Booking ID: " . $booking_id);
+        $this->load->view('employee/show_booking_life_cycle', $data);
+
+    }
+    /**
+     * @desc: This is used to print  address for selected booking
+     * @param Array $booking_address
+     */
+    function download_shippment_address($booking_address){
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
+       
+        $booking_history['details'] = array();
+        foreach ($booking_address as $key=> $value) {
+            $booking_history['details'][$key]  = $this->booking_model->getbooking_history($value, "join")[0];
+        }
+       
+        $this->load->view('partner/print_address',$booking_history);
         
     }
+    /**
+     * @desc: This is used to print courier manifest or address for selected booking
+     */
+    function print_all(){
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
+        $booking_address = $this->input->post('download_address');
+        $booking_manifest = $this->input->post('download_courier_manifest');
     
-    function download_courier_manifest($booking_id){
-         $this->checkUserSession();
-        log_message('info', __FUNCTION__. " Booking_id". $booking_id);
-        $booking_history  = $this->booking_model->getbooking_history($booking_id);
-        $where = array('spare_parts_details.booking_id'=> $booking_id);
-        $where_in = array('Pending','Rescheduled');
-        $spare_parts_details = $this->partner_model->get_spare_parts_booking($where, $where_in);
-        $template = 'Courier_Manifest.xlsx';
-        
-        $date1=date_create($booking_history[0]['create_date']);
-        $date2=date_create(date('Y-m-d H:i:s'));
-        $diff=date_diff($date1,$date2);
-        $age['booking_age'] = $diff->days;
-	//set absolute path to directory with template files
-	$templateDir = __DIR__ . "/../excel-templates/";
-        $config = array(
-		'template' => $template,
-		'templateDir' => $templateDir
-            );
+        if(!empty($booking_address)){
+            
+            $this->download_shippment_address($booking_address);
+            
+        } else if(!empty($booking_manifest)){
+            
+            $this->download_mainfest($booking_manifest);
 
-        //load template
-        $R = new PHPReport($config);
+        } else if(empty($booking_address) && empty($booking_manifest)){
+            echo "Please Select Any Checkbox";
+        }
+ 
+    }
+    /**
+     * @desc: This is used to print courier manifest for selected booking
+     * @param type $booking_manifest
+     */
+    function download_mainfest($booking_manifest){
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
+        $spare_parts_details['courier_manifest'] = array();
+        foreach ($booking_manifest as $key => $value) {
+            $where = array('spare_parts_details.booking_id'=> $value);
+            $where_in = array('Pending','Rescheduled');
+            $spare_parts_details['courier_manifest'][$key] = $this->partner_model->get_spare_parts_booking($where, $where_in)[0];
+            $spare_parts_details['courier_manifest'][$key]['brand'] = $this->booking_model->get_unit_details(array('booking_id'=> $value))[0]['appliance_brand'];
+        }
         
-        $R->load(array(
-                array(
-                    'id' => 'meta',
-                    'data' => $booking_history[0],
-                ),
-                array(
-                    'id' => 'meta2',
-                    'data' => $spare_parts_details[0],
-                ),
-                array(
-                    'id' => 'meta1',
-                    'data' => $age,
-                ),
-	    )
-	);
-        
-        $output_file_excel  = TMP_FOLDER."courier_manifest-".$booking_id.".xlsx";
-        $output_file_pdf = TMP_FOLDER."courier_manifest-".$booking_id.".pdf";
-        $R->render('excel', $output_file_excel);
-        
-        putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-        $tmp_path = libreoffice_pdf;
-        $tmp_output_file = libreoffice_output_file;
-	$cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
-	    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
-	    $output_file_excel . ' 2> ' . $tmp_output_file;
-         
-	$output = '';
-	$result_var = '';
-	exec($cmd, $output, $result_var);
-       
-        //Download PDF file
-        if (file_exists($output_file_pdf)) {
-                header('Content-Description: File Transfer');
-                header('Content-Type: application/octet-stream');
-                header('Content-Disposition: attachment; filename="'.basename($output_file_pdf).'"');
-                header('Expires: 0');
-                header('Cache-Control: must-revalidate');
-                header('Pragma: public');
-                header('Content-Length: ' . filesize($output_file_pdf));
-                readfile($output_file_pdf);
-                exec("rm -rf " . escapeshellarg($output_file_pdf));
-                exec("rm -rf " . escapeshellarg($output_file_excel));
-                
-                exit;
-         }
-         
-        
-        log_message('info', __FUNCTION__ . " => Exiting, Booking ID: " . $booking_id);
-        
-        
+        $this->load->view('partner/courier_manifest', $spare_parts_details);
     }
 
 }

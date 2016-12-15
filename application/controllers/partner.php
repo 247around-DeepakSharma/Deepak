@@ -1544,6 +1544,7 @@ class Partner extends CI_Controller {
             $booking['source'] = $this->partner_model->get_source_code_for_partner($this->partner['id']);
             $booking['booking_id'] = $booking['source'] . "-" . $booking['booking_id'];
             $unit_details['booking_id'] = $booking['booking_id'];
+            $booking['initial_booking_date'] = $booking['booking_id'];
 
             $booking['quantity'] = '1';
 

@@ -4,26 +4,7 @@ $this->db = $this->load->database('default', TRUE, TRUE);
 ?>
 <script type="text/javascript" src="<?php echo base_url(); ?>js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="<?php echo base_url(); ?>js/jquery-ui-1.7.1.custom.min.js"></script>
-<style type="text/css">
-    table{
-        width: 99%;
-    }
-    th,td{
-        border: 1px #f2f2f2 solid;
-        text-align:center;
-        vertical-align: center;    
-        padding: 6px;
-    }
 
-    th{
-        height: 50px;
-        background-color: #4CBA90;
-        color: white;
-    }
-    tr:nth-child(even) {background-color: #f2f2f2}
-
-
-</style>
 <script>
     $(document).ready(function ()
     {
@@ -46,26 +27,26 @@ $this->db = $this->load->database('default', TRUE, TRUE);
     <div class="">
         <div class="row">
             <div id="for_user" style="width:90%;margin:50px;">
-                <div class="panel panel-info" style="width:90%;margin:50px 0px 10px  50px;">
+                <div class="panel" style="width:90%;margin:50px 0px 10px  50px;background-color: #2C9D9C; border-color: #2C9D9C;color:#fff">
                     <div class="panel-heading"><center><span style="font-size: 120%;">Booking History: <b><?php echo ucfirst($data[0]['name']); ?></b></span></center></div>
                 </div>
 
 
-                <table>
+                <table class="table table-striped table-bordered table-hover">
                     <thead>
                         <tr>
-                            <th>No.</th>
+                            <th class="jumbotron">No.</th>
 
-                            <th>Booking ID</th>
+                            <th class="jumbotron">Booking ID</th>
 
-                            <th>Name</th>
+                            <th class="jumbotron">Name</th>
 
-                            <th>Appliance</th>
+                            <th class="jumbotron">Appliance</th>
 
-                            <th>Booking Date</th>
+                            <th class="jumbotron">Booking Date</th>
 
-                            <th>Status</th>
-                            <th>View</th>
+                            <th class="jumbotron">Status</th>
+                            <th class="jumbotron">View</th>
 
                         </tr>
 

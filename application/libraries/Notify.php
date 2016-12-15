@@ -262,7 +262,13 @@ class Notify {
         $state_change['remarks'] = $remarks;
 	$state_change['agent_id'] = $agent_id;
 	$state_change['partner_id'] = $partner_id;
-        
+        $booking_state_change = $this->My_CI->booking_model->get_booking_state_change($state_change['booking_id']);
+            
+        if ($booking_state_change > 0) {
+            $state_change['old_state'] = $booking_state_change[count($booking_state_change) - 1]['new_state'];
+        } else { //count($booking_state_change)
+            $state_change['old_state'] = $old_state;
+        }
 	$insert_id = $this->My_CI->booking_model->insert_booking_state_change($state_change);
         if($insert_id){
             log_message('info', 'Booking Status Change - Booking id: ' . $booking_id . $new_state . "  By " . $agent_name);

@@ -201,16 +201,9 @@ class Service_centers extends CI_Controller {
 
             }
 
-             $state_change['booking_id'] = $booking_id;
-             $state_change['new_state'] = 'InProcess_Completed';
-             $state_change['old_state'] = "Pending";
-             $state_change['agent_id'] = $this->session->userdata('service_center_agent_id');
-             $state_change['service_center_id'] = $this->session->userdata('service_center_id');
-             $state_change['remarks'] = $closing_remarks;
-
-             // Insert data into booking state change
-             $this->booking_model->insert_booking_state_change($state_change);
-
+            // Insert data into booking state change
+            $this->insert_details_in_state_change($booking_id, 'InProcess_Completed', $closing_remarks);
+             
              redirect(base_url() . "service_center/pending_booking");
         }
     }
@@ -292,12 +285,13 @@ class Service_centers extends CI_Controller {
         $this->booking_model->update_booking($booking_id, $booking);
         
         $unit_details['booking_id'] = "Q-".$booking_id;
+        $unit_details['booking_status'] = "FollowUp";
         //update unit details
         $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
         // Delete booking from sc action table
         $this->service_centers_model->delete_booking_id($booking_id);
         //Insert Data into Booking state change
-        $this->insert_details_in_state_change($booking_id, PRODUCT_NOT_DELIVERED_TO_CUSTOMER, PRODUCT_NOT_DELIVERED_TO_CUSTOMER);
+        $this->insert_details_in_state_change($booking_id, PRODUCT_NOT_DELIVERED_TO_CUSTOMER, "Convert Booking to Query");
         redirect(base_url() . "service_center/pending_booking");  
     }
 
@@ -462,7 +456,13 @@ class Service_centers extends CI_Controller {
             
         }
     }
-    
+    /**
+     * @desc: This method is used to insert action log into state change table. 
+     * Just pass booking id, new state and remarks as parameter
+     * @param String $booking_id
+     * @param String $new_state
+     * @param String $remarks
+     */
     function insert_details_in_state_change($booking_id, $new_state, $remarks){
            //Save state change
             $state_change['booking_id'] = $booking_id;
@@ -866,8 +866,24 @@ class Service_centers extends CI_Controller {
                 $booking['booking_date'] = date('d-m-Y', strtotime('+1 days'));
                 $b_status = $this->booking_model->update_booking($booking_id, $booking);
                 if ($b_status) {
-                   // $this->insert_details_in_state_change($booking_id, SPARE_PARTS_DELIVERED, "SF acknowledged to receive spare parts");
-                   
+                    $state_change['booking_id'] = $booking_id;
+                    $state_change['new_state'] =  SPARE_PARTS_DELIVERED;
+           
+                    $booking_state_change = $this->booking_model->get_booking_state_change($state_change['booking_id']);
+            
+                    if ($booking_state_change > 0) {
+                        $state_change['old_state'] = $booking_state_change[count($booking_state_change) - 1]['new_state'];
+                    } else { //count($booking_state_change)
+                        $state_change['old_state'] = "Pending";
+                    }
+          
+                $state_change['agent_id'] = 1;
+                $state_change['partner_id'] = _247AROUND;
+                $state_change['remarks'] = "SF acknowledged to receive spare parts";
+
+                // Insert data into booking state change
+                $this->booking_model->insert_booking_state_change($state_change);
+
                     $sc_data['current_status'] = "Pending";
                     $sc_data['internal_status'] = SPARE_PARTS_DELIVERED;
                     $this->vendor_model->update_service_center_action($booking_id, $sc_data);
