@@ -1,23 +1,7 @@
 <?php $offset = $this->uri->segment(4); ?>
 <script type="text/javascript" src="<?php echo base_url(); ?>js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="<?php echo base_url(); ?>js/jquery-ui-1.7.1.custom.min.js"></script>
-<style type="text/css">
-    table{
-        width: 99%;
-    }
-    th,td{
-        border: 1px #f2f2f2 solid;
-        text-align:center;
-        vertical-align: center;
-        padding: 2px;
-    }
-    th{
-        height: 50px;
-        background-color: #4CBA90;
-        color: white;
-    }
-    tr:nth-child(even) {background-color: #f2f2f2}
-</style>
+
 <div id="page-wrapper">
     <div class="">
         <div class="row">
@@ -29,18 +13,18 @@
                 <div class="panel-heading">
                     <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Pending Queries </h2>
                 </div>
-                <table >
+                <table class="table table-striped table-bordered table-hover">
                     <thead>
                         <tr>
-                            <th>S.No.</th>
-                            <th>Order ID</th>
-                            <th>247around Booking ID</th>
-                            <th>User Name</th>
-                            <th>Mobile</th>
-                            <th>City</th>
-                            <th>Booking Date</th>
-                            <th>Status</th>
-                            <th>View</th>
+                            <th  class="jumbotron">S.No.</th>
+                            <th  class="jumbotron">Order ID</th>
+                            <th  class="jumbotron">247around Booking ID</th>
+                            <th  class="jumbotron">User Name</th>
+                            <th  class="jumbotron">Mobile</th>
+                            <th  class="jumbotron">City</th>
+                            <th  class="jumbotron">Booking Date</th>
+                            <th  class="jumbotron">Status</th>
+                            <th  class="jumbotron">View</th>
                         </tr>
                     </thead>
                     <?php
@@ -82,18 +66,18 @@
                     <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Pending Bookings </h2>
                 </div>
                 <div class="col-md-12">
-                    <table >
+                    <table class="table table-striped table-bordered table-hover">
                         <thead>
                             <tr>
-                                <th>S.No.</th>
-                                <th>Order ID</th>
-                                <th>247around Booking ID</th>
-                                <th>User Name</th>
-                                <th>Mobile</th>
-                                <th>City</th>
-                                <th>Booking Date</th>
-                                <th>Status</th>
-                                <th>View</th>
+                                <th  class="jumbotron">S.No.</th>
+                                <th  class="jumbotron">Order ID</th>
+                                <th  class="jumbotron">247around Booking ID</th>
+                                <th  class="jumbotron">User Name</th>
+                                <th  class="jumbotron">Mobile</th>
+                                <th  class="jumbotron">City</th>
+                                <th  class="jumbotron">Booking Date</th>
+                                <th  class="jumbotron">Status</th>
+                                <th  class="jumbotron">View</th>
                             </tr>
                         </thead>
                         <?php
@@ -135,18 +119,18 @@
                     <br><div class="panel-heading">
                         <h2 class="panel-title"><i class="fa fa-money fa-fw"></i>Completed Bookings </h2>
                     </div>
-                    <table >
+                    <table class="table table-striped table-bordered table-hover">
                         <thead>
                             <tr>
-                                <th>S.No.</th>
-                                <th>Order ID</th>
-                                <th>247around Booking ID</th>
-                                <th>User Name</th>
-                                <th>Mobile</th>
-                                <th>City</th>
-                                <th>Booking Date</th>
-                                <th>Status</th>
-                                <th>View</th>
+                                <th  class="jumbotron">S.No.</th>
+                                <th  class="jumbotron">Order ID</th>
+                                <th  class="jumbotron">247around Booking ID</th>
+                                <th  class="jumbotron">User Name</th>
+                                <th  class="jumbotron">Mobile</th>
+                                <th  class="jumbotron">City</th>
+                                <th  class="jumbotron">Booking Date</th>
+                                <th  class="jumbotron">Status</th>
+                                <th  class="jumbotron">View</th>
                             </tr>
                         </thead>
                         <?php
@@ -178,18 +162,18 @@
                     <br><div class="panel-heading">
                         <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Cancelled Bookings </h2>
                     </div>
-                    <table style="margin-bottom:50px;">
+                    <table class="table table-striped table-bordered table-hover" style="margin-bottom:50px;">
                         <thead>
                             <tr>
-                                <th>S.No.</th>
-                                <th>Order ID</th>
-                                <th>247around Booking ID</th>
-                                <th>User Name</th>
-                                <th>Mobile</th>
-                                <th>City</th>
-                                <th>Booking Date</th>
-                                <th>Status</th>
-                                <th>View</th>
+                                <th  class="jumbotron">S.No.</th>
+                                <th  class="jumbotron">Order ID</th>
+                                <th  class="jumbotron">247around Booking ID</th>
+                                <th  class="jumbotron">User Name</th>
+                                <th  class="jumbotron">Mobile</th>
+                                <th  class="jumbotron">City</th>
+                                <th  class="jumbotron">Booking Date</th>
+                                <th  class="jumbotron">Status</th>
+                                <th  class="jumbotron">View</th>
                             </tr>
                         </thead>
                         <?php

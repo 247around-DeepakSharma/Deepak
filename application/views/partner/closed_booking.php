@@ -4,7 +4,7 @@
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> <?php echo $status." Bookings" ?></h2>
+                    <h1 class="panel-title" style="font-size:24px;"><i class="fa fa-money fa-fw"></i> <?php echo $status." Bookings" ?></h1>
                 </div>
 
                 <div class="panel-body">
@@ -15,6 +15,7 @@
                                    <th>S No.</th>
                                    <th>Order ID</th>
                                    <th>247around Booking ID</th>
+                                   <th>Call Type</th>
                                    <th>User Name</th>
                                    <th>Mobile</th>
                                    <th>City</th>
@@ -39,6 +40,22 @@
                                             <td>
                                                 <?php echo $row['booking_id']; ?>
                                             </td>
+                                             <td>
+                              <?php switch ($row['request_type']){
+                                  case "Installation & Demo":
+                                      echo "Installation";
+                                       break;
+                                  case "Repair - In Warranty":
+                                  case "Repair - Out Of Warranty":
+                                      echo "Repair";
+                                       break;
+                                  default:
+                                          echo $row['request_type'];
+                                          break;
+
+                                  
+                              }  ?>
+                           </td>
                                             <td>
                                                 <?php echo $row['customername'];?>
                                             </td>

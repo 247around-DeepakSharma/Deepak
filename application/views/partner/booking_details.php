@@ -11,7 +11,10 @@
         <div class="row">
             <div>
                
-                <div class="col-md-12"><h2 >Booking Details:-</h2></div>
+                <div class="col-md-12" style=" margin-bottom: -14px;"><h1 style="font-size:24px;" >Booking Details</h1>
+                    <a href="<?php echo base_url()?>partner/get_booking_life_cycle/<?php echo $booking_history[0]['booking_id']?>" class="btn btn-info" style="margin-left:87%;margin-top:-5%;" target="_blank">View Booking History</a>
+               
+                </div>
                 <div class="col-md-6">
                     <table class="table  table-striped table-bordered" >
                          <tr>
@@ -31,14 +34,14 @@
                         </tr>
                         
                         <tr>
-                            <th >Platform / Order ID: </th>
+                            <th>Platform / Order ID: </th>
                             <td><?php  echo $booking_history[0]['partner_source']." / "; if(!empty($booking_history[0]['order_id'])) { echo $booking_history[0]['order_id']; }  ?>
 
                           </td>
                         </tr>
                          <tr>
                             <th>Serial Number: </th>
-                            <td><?php if(isset($unit_details[0]['serial_number'])) { echo $unit_details[0]['serial_number'];} ?></td>
+                            <td><?php if(isset($unit_details[0]['partner_serial_number'])) { echo $unit_details[0]['partner_serial_number'];} ?></td>
                         </tr>
                         <tr>
                             <th>Call Type: </th>
@@ -50,18 +53,16 @@
                             <th>Booking date: </th>
                             <td><?php echo $booking_history[0]['booking_date']; ?></td>
                         </tr>
-                       
                         <tr>
                             <th>Address: </th>
                             <td><?php echo $booking_history[0]['booking_address'];?></td>
                         </tr>
-                        
-                        
-                       
+
                     </table>
                 </div>
                 <div class="col-md-6">
                     <table class="table  table-striped table-bordered">
+                         
                          <tr>
                             <th>City: </th>
                             <td><?php echo $booking_history[0]['city']; ?></td>
@@ -100,8 +101,8 @@
                 </div>
                 <?php if(isset($booking_history['spare_parts'])){ ?>
                 <div class="col-md-12">
-                    <h3 style="margin-left:15px;">Spare Parts Details</h3>
-                    <div class="col-md-6">
+                    <h1 style='font-size:24px;'>Spare Parts Details</h1>
+                    <div class="col-md-6" style="padding-left:1px;">
                        
                     <table class="table  table-striped table-bordered" >
                         <tr>
@@ -191,14 +192,14 @@
                 
                 <?php if(!empty($unit_details)) { ?>
                 <div class="col-md-12" style="margin-top:20px;" >
-                    <b >Appliance Details:-</b><br>
+                    <h1 style='font-size:24px;'>Appliance Details</h1><br>
                     <table class="table  table-striped table-bordered">
                         <tr>
                             <th>Brand</th>
                             <th>Category</th>
                             <th>Capacity</th>
                             <th>Model Number</th>
-                            <th>Serial Number</th>
+                            <th>SF Serial Number</th>
                             <th>Purchase Date</th>
                             <th>Description</th>
                             <th>Call Type</th>
