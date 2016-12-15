@@ -1112,7 +1112,13 @@ class vendor_model extends CI_Model {
      */
 
     function get_all_pincode_mapping(){
-        $query = $this->db->query("SELECT * from vendor_pincode_mapping");
+        $sql = "SELECT vendor_pincode_mapping.Pincode, "
+                . "CONCAT('',GROUP_CONCAT(DISTINCT(vendor_pincode_mapping.Appliance)),'') as Appliance "
+                . "FROM vendor_pincode_mapping, service_centres "
+                . "WHERE Vendor_ID != '0' AND `Vendor_ID` = `service_centres`.`id` "
+                . "AND `service_centres`.`active` = 1 "
+                . "GROUP BY vendor_pincode_mapping.Pincode ";
+        $query = $this->db->query($sql);
         return $query->result_array();
     }
 
@@ -1465,6 +1471,31 @@ class vendor_model extends CI_Model {
     function insert_india_pincode_in_batch($rows) {
 	$query = $this->db->insert_batch('india_pincode', $rows);
     }
+    
+    /**
+     * @Desc: This function is used to count total pincodes present
+     * @params: void
+     * @return: void
+     * 
+     */
+    function get_total_vendor_pincode_mapping(){
+        return $this->db->count_all_results("vendor_pincode_mapping");
+        
+    }
+    
+    /**
+     * @Desc: This function is used to get latest entry details for vendor_pincode_mapping table
+     * @params: void
+     * @return: void
+     * 
+     */
+    function get_latest_vendor_pincode_mapping_details(){
+        $sql = 'SELECT Vendor_Name, Appliance, Brand, Area, Pincode, Region, City, State'
+                . ' FROM vendor_pincode_mapping ORDER BY create_date DESC LIMIT 0 , 1';
+        $query = $this->db->query($sql);
 
+        return $query->result_array();
+        
+    }
     
 }
