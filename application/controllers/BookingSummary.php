@@ -330,118 +330,118 @@ class BookingSummary extends CI_Controller {
     }
 
     public function get_partner_summary_table($partner_id) {
-	$partner_summary_params = $this->partner_model->get_partner_summary_params($partner_id);
+    $partner_summary_params = $this->partner_model->get_partner_summary_params($partner_id);
 
-	$total_install_req = $partner_summary_params['total_install_req'];
-	$today_install_req = $partner_summary_params['today_install_req'];
-	$yday_install_req = $partner_summary_params['yday_install_req'];
-	$month_install_req = $partner_summary_params['month_install_req'];
+    $total_install_req = $partner_summary_params['total_install_req'];
+    $today_install_req = $partner_summary_params['today_install_req'];
+    $yday_install_req = $partner_summary_params['yday_install_req'];
+    $month_install_req = $partner_summary_params['month_install_req'];
 
-	$total_install_sched = $partner_summary_params['total_install_sched'];
-	$today_install_sched = $partner_summary_params['today_install_sched'];
-	$yday_install_sched = $partner_summary_params['yday_install_sched'];
-	$month_install_sched = $partner_summary_params['month_install_sched'];
+    $total_install_sched = $partner_summary_params['total_install_sched'];
+    $today_install_sched = $partner_summary_params['today_install_sched'];
+    $yday_install_sched = $partner_summary_params['yday_install_sched'];
+    $month_install_sched = $partner_summary_params['month_install_sched'];
 
-	$total_install_compl = $partner_summary_params['total_install_compl'];
-	$today_install_compl = $partner_summary_params['today_install_compl'];
-	$yday_install_compl = $partner_summary_params['yday_install_compl'];
-	$month_install_compl = $partner_summary_params['month_install_compl'];
+    $total_install_compl = $partner_summary_params['total_install_compl'];
+    $today_install_compl = $partner_summary_params['today_install_compl'];
+    $yday_install_compl = $partner_summary_params['yday_install_compl'];
+    $month_install_compl = $partner_summary_params['month_install_compl'];
 
-	$total_followup_pend = $partner_summary_params['total_followup_pend'];
-	$today_followup_pend = $partner_summary_params['today_followup_pend'];
-	$yday_followup_pend = $partner_summary_params['yday_followup_pend'];
-	$month_followup_pend = $partner_summary_params['month_followup_pend'];
+    $total_followup_pend = $partner_summary_params['total_followup_pend'];
+    $today_followup_pend = $partner_summary_params['today_followup_pend'];
+    $yday_followup_pend = $partner_summary_params['yday_followup_pend'];
+    $month_followup_pend = $partner_summary_params['month_followup_pend'];
 
-	$total_install_cancl = $partner_summary_params['total_install_cancl'];
-	$today_install_cancl = $partner_summary_params['today_install_cancl'];
-	$yday_install_cancl = $partner_summary_params['yday_install_cancl'];
-	$month_install_cancl = $partner_summary_params['month_install_cancl'];
+    $total_install_cancl = $partner_summary_params['total_install_cancl'];
+    $today_install_cancl = $partner_summary_params['today_install_cancl'];
+    $yday_install_cancl = $partner_summary_params['yday_install_cancl'];
+    $month_install_cancl = $partner_summary_params['month_install_cancl'];
 
-	$tat = $partner_summary_params['tat'];
+    $tat = $partner_summary_params['tat'];
 
-	$message = <<<EOD
-	<table border="1">
-	    <tr>
-		<td>Date</td>
-		<td>Requests Received</td>
-		<td>Requests Completed</td>
-		<td>Requests Scheduled</td>
-		<td>To be Followed Up</td>
-		<td>Requests Cancelled</td>
-		<td>TAT (%)</td>
-	    </tr>
+    $message = <<<EOD
+    <table border="1">
+        <tr>
+        <td>Date</td>
+        <td>Requests Received</td>
+        <td>Requests Completed</td>
+        <td>Requests Scheduled</td>
+        <td>To be Followed Up</td>
+        <td>Requests Cancelled</td>
+        <td>TAT (%)</td>
+        </tr>
 
-	    <tr>
-		<td>Yesterday</td>
-		<td>$yday_install_req</td>
-		<td>$yday_install_compl</td>
-		<td>$yday_install_sched</td>
-		<td>$yday_followup_pend</td>
-		<td>$yday_install_cancl</td>
-		<td>NA</td>
-	    </tr>
+        <tr>
+        <td>Yesterday</td>
+        <td>$yday_install_req</td>
+        <td>$yday_install_compl</td>
+        <td>$yday_install_sched</td>
+        <td>$yday_followup_pend</td>
+        <td>$yday_install_cancl</td>
+        <td>NA</td>
+        </tr>
 
-	    <tr>
-		<td>Today</td>
-		<td>$today_install_req</td>
-		<td>$today_install_compl</td>
-		<td>$today_install_sched</td>
-		<td>$today_followup_pend</td>
-		<td>$today_install_cancl</td>
-		<td>NA</td>
-	    </tr>
+        <tr>
+        <td>Today</td>
+        <td>$today_install_req</td>
+        <td>$today_install_compl</td>
+        <td>$today_install_sched</td>
+        <td>$today_followup_pend</td>
+        <td>$today_install_cancl</td>
+        <td>NA</td>
+        </tr>
 
-	     <tr>
-		<td>Month</td>
-		<td>$month_install_req</td>
-		<td>$month_install_compl</td>
-		<td>$month_install_sched</td>
-		<td>$month_followup_pend</td>
-		<td>$month_install_cancl</td>
-		<td>NA</td>
-	    </tr>
+         <tr>
+        <td>Month</td>
+        <td>$month_install_req</td>
+        <td>$month_install_compl</td>
+        <td>$month_install_sched</td>
+        <td>$month_followup_pend</td>
+        <td>$month_install_cancl</td>
+        <td>NA</td>
+        </tr>
 
 
-	    <tr>
-		<td>Total</td>
-		<td>$total_install_req</td>
-		<td>$total_install_compl</td>
-		<td>$total_install_sched</td>
-		<td>$total_followup_pend</td>
-		<td>$total_install_cancl</td>
-		<td>$tat</td>
-	    </tr>
+        <tr>
+        <td>Total</td>
+        <td>$total_install_req</td>
+        <td>$total_install_compl</td>
+        <td>$total_install_sched</td>
+        <td>$total_followup_pend</td>
+        <td>$total_install_cancl</td>
+        <td>$tat</td>
+        </tr>
 
-	</table>
+    </table>
 EOD;
 
-	return $message;
+    return $message;
     }
 
     public function send_summary_mail_to_partners() {
-	log_message('info', __FUNCTION__);
+    log_message('info', __FUNCTION__);
 
-	$template = 'SD_Summary_Template-v2.xlsx';
-	$templateDir = __DIR__ . "/excel-templates/";
-	//print_r($templateDir);
-	//set config for report
-	$config = array(
-	    'template' => $template,
-	    'templateDir' => $templateDir
-	);
+    $template = 'SD_Summary_Template-v2.xlsx';
+    $templateDir = __DIR__ . "/excel-templates/";
+    //print_r($templateDir);
+    //set config for report
+    $config = array(
+        'template' => $template,
+        'templateDir' => $templateDir
+    );
 
-	$where_get_partner = array('is_active' => '1');
+    $where_get_partner = array('is_active' => '1');
 
-	//Get all Active partners who has "is_reporting_mail" column 1
-	$partners = $this->partner_model->getpartner_details($where_get_partner, '1');
+    //Get all Active partners who has "is_reporting_mail" column 1
+    $partners = $this->partner_model->getpartner_details($where_get_partner, '1');
         log_message('info', __FUNCTION__ . ' => Fetched active partners');
 
-	foreach ($partners as $p) {
-	    //load template
-	    $R = new PHPReport($config);
+    foreach ($partners as $p) {
+        //load template
+        $R = new PHPReport($config);
 
-	    //Fetch partners' bookings
-	    $leads = $this->partner_model->get_partner_leads_for_summary_email($p['id']);
+        //Fetch partners' bookings
+        $leads = $this->partner_model->get_partner_leads_for_summary_email($p['id']);
             log_message('info', __FUNCTION__ . ' => Fetched partner bookings');
             // Check Other string exist in the Cancellation reason. 
             // If exist then replace cancellation_reason with other
@@ -457,56 +457,56 @@ EOD;
                 }
             }
             
-	    $R->load(array(
-		array(
-		    'id' => 'bd',
-		    'repeat' => true,
-		    'data' => $leads,
-		),
-	    ));
+        $R->load(array(
+        array(
+            'id' => 'bd',
+            'repeat' => true,
+            'data' => $leads,
+        ),
+        ));
 
-	    //Get populated XLS with data
-	    $output_file = TMP_FOLDER."247around-Services-Consolidated-Data - " . date('d-M-Y') . ".xlsx";
-	    //for xlsx: excel, for xls: excel2003
-	    $R->render('excel', $output_file);
-	    log_message('info', __FUNCTION__ . ' => Rendered excel');
+        //Get populated XLS with data
+        $output_file = TMP_FOLDER."247around-Services-Consolidated-Data - " . date('d-M-Y') . ".xlsx";
+        //for xlsx: excel, for xls: excel2003
+        $R->render('excel', $output_file);
+        log_message('info', __FUNCTION__ . ' => Rendered excel');
             
-	    $this->email->clear(TRUE);
-	    $this->email->from('booking@247around.com', '247around Team');
-	    $this->email->to($p['summary_email_to']);
-	    $this->email->cc($p['summary_email_cc']);
-	    $this->email->bcc($p['summary_email_bcc']);
+        $this->email->clear(TRUE);
+        $this->email->from('booking@247around.com', '247around Team');
+        $this->email->to($p['summary_email_to']);
+        $this->email->cc($p['summary_email_cc']);
+        $this->email->bcc($p['summary_email_bcc']);
 
-	    $this->email->subject("247around Services Report - " . $p['public_name'] . " - " . date('d-M-Y'));
-	    $summary_table = $this->get_partner_summary_table($p['id']);
+        $this->email->subject("247around Services Report - " . $p['public_name'] . " - " . date('d-M-Y'));
+        $summary_table = $this->get_partner_summary_table($p['id']);
             log_message('info', __FUNCTION__ . ' => Prepared summary report');
 
-	    $message = "Dear Partner,<br/><br/>";
-	    $message .= "Please find updated summary table below.<br/><br/>";
-	    $message .= $summary_table;
-	    $message .= "<br><br>Best Regards,
-				<br>247around Team
-				<br><br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
-				<br>Follow us on Facebook: www.facebook.com/247around | Website: www.247around.com
-				<br>Playstore - 247around -
-				<br>https://play.google.com/store/apps/details?id=com.handymanapp";
+        $message = "Dear Partner,<br/><br/>";
+        $message .= "Please find updated summary table below.<br/><br/>";
+        $message .= $summary_table;
+        $message .= "<br><br>Best Regards,
+                <br>247around Team
+                <br><br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
+                <br>Follow us on Facebook: www.facebook.com/247around | Website: www.247around.com
+                <br>Playstore - 247around -
+                <br>https://play.google.com/store/apps/details?id=com.handymanapp";
 
-	    $this->email->message($message);
-	    $this->email->attach($output_file, 'attachment');
+        $this->email->message($message);
+        $this->email->attach($output_file, 'attachment');
 
-	    if ($this->email->send()) {
-		log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $p['public_name']);
-	    } else {
-		log_message('info', __METHOD__ . ": Mail could not be sent for Partner: " . $p['public_name']);
-	    }
+        if ($this->email->send()) {
+        log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $p['public_name']);
+        } else {
+        log_message('info', __METHOD__ . ": Mail could not be sent for Partner: " . $p['public_name']);
+        }
             
-	    //Upload Excel to AWS/FTP
-	    $bucket = 'bookings-collateral';
-	    $directory_xls = "summary-excels/" . $output_file;
-	    $this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
+        //Upload Excel to AWS/FTP
+        $bucket = 'bookings-collateral';
+        $directory_xls = "summary-excels/" . $output_file;
+        $this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
             
-	    //Delete this file
-	    exec("rm -rf " . escapeshellarg($output_file), $out, $return);
+        //Delete this file
+        exec("rm -rf " . escapeshellarg($output_file), $out, $return);
             // Return will return non-zero upon an error
             
             if(!$return){
@@ -517,9 +517,9 @@ EOD;
                 log_message('info',__FUNCTION__.' Executed Sucessfully '.$output_file);
                 
             }
-	}
+    }
 
-	exit(0);
+    exit(0);
     }
 
     function booking_report() {
@@ -870,9 +870,9 @@ EOD;
      * @param integer $is_mail
      */
     function get_sc_crimes($is_mail = 0){
-        log_message('info', __FUNCTION__ );
-        
-        if($is_mail ==0){
+        log_message('info', __FUNCTION__);
+
+        if ($is_mail == 0) {
             // The function is being called from system Manually
             $where = "";
             $id = $this->session->userdata('id');
@@ -888,53 +888,58 @@ EOD;
             $this->load->view('employee/get_crimes', $data);
         } else {
             //The function is being called from CRON
-            if( date('l') != "Sunday"){
-            $where = "";
-            $data['data'] = $this->reporting_utils->get_sc_crimes($where);
-            //Loading view
-            $view = $this->load->view('employee/get_crimes', $data, TRUE);
-            $subject = "SF Crimes Report " . date("d-M-Y");
-            $to = 'anuj@247around.com, nits@247around.com';
-            $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $view, "");
+            if (date('l') != "Sunday") {
+                $where = "";
+                $data['data'] = $this->reporting_utils->get_sc_crimes($where);
+                if (!empty($data['data'])) {
+                    //Loading view
+                    $view = $this->load->view('employee/get_crimes', $data, TRUE);
+                    $subject = "SF Crimes Report " . date("d-M-Y");
+                    $to = 'anuj@247around.com, nits@247around.com';
+                    $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $view, "");
+                } else {
+                    log_message('info', __FUNCTION__ . " Empty Data get");
+                }
             } else {
-                log_message('info', __FUNCTION__ ." Today is Sunday, Hence report would not generate");
+                log_message('info', __FUNCTION__ . " Today is Sunday, Hence report would not generate");
             }
             // Inserting values in scheduler tasks log
-            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__); 
+            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
         }
-        
-         log_message('info', __FUNCTION__ ." Exit");
 
+        log_message('info', __FUNCTION__ . " Exit");
     }
     /**
      * @desc: This method is used send a report to SF. In this report, SF will see count those booking which is not updated
      */
     function get_sc_crimes_for_sf(){
-        log_message('info', __FUNCTION__ );
-       if( date('l') != "Sunday"){
-        $vendor_details = $this->vendor_model->getactive_vendor();
-        foreach ($vendor_details as $value) {
-            if($value['is_update'] == '1'){
-                $where = " AND id = '".$value['id']."'";
-                $data['data']= $this->reporting_utils->get_sc_crimes($where);
-                $view =  $this->load->view('employee/get_crimes', $data, TRUE); 
-    
-                $to  = $value['primary_contact_email'].",".$value['owner_email'];
-                //$cc = "anuj@247around.com, nits@247around.com";
-                $cc = "";
-                $subject = $value['name']." - Bookings Not Updated Report - " . date("d-M-Y");
-                $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $view, "");
-                
+        log_message('info', __FUNCTION__);
+        if (date('l') != "Sunday") {
+            $vendor_details = $this->vendor_model->getactive_vendor();
+            foreach ($vendor_details as $value) {
+                if ($value['is_update'] == '1') {
+                    $where = " AND id = '" . $value['id'] . "'";
+                    $data['data'] = $this->reporting_utils->get_sc_crimes($where);
+                    if (!empty($data['data'])) {
+                        $view = $this->load->view('employee/get_crimes', $data, TRUE);
+
+                        $to = $value['primary_contact_email'] . "," . $value['owner_email'];
+                        //$cc = "anuj@247around.com, nits@247around.com";
+                        $cc = "";
+                        $subject = $value['name'] . " - Bookings Not Updated Report - " . date("d-M-Y");
+                        $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $view, "");
+                    } else {
+                        log_message('info', __FUNCTION__ . " Empty Data Get");
+                    }
+                }
             }
-        }
         } else {
-             log_message('info', __FUNCTION__ ." Today is Sunday, Hence report would not generate");
+            log_message('info', __FUNCTION__ . " Today is Sunday, Hence report would not generate");
         }
         // Inserting values in scheduler tasks log
         $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
-        
-        log_message('info', __FUNCTION__ ." Exit");
-        
+
+        log_message('info', __FUNCTION__ . " Exit");
     }
     
     /**

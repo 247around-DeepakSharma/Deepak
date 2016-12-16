@@ -84,9 +84,9 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                    <?php foreach($latest_vendor_pincode[0] as $key=>$value){
+                                    <?php if(!empty($latest_vendor_pincode[0])){ foreach($latest_vendor_pincode[0] as $key=>$value){
                                         echo '<td>'.$value.'</td>';
-                                    }?>
+                                    } }?>
                                             </tr>
                                         </tbody>
                                     </table>
