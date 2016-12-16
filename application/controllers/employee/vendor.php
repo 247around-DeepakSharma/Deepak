@@ -25,6 +25,7 @@ class vendor extends CI_Controller {
         $this->load->model('booking_model');
         $this->load->library('PHPReport');
         $this->load->model('service_centers_model');
+        $this->load->model('service_centre_charges_model');
         $this->load->helper(array('form', 'url'));
         
         $this->load->library('form_validation');
@@ -39,6 +40,7 @@ class vendor extends CI_Controller {
         $this->load->library('s3');
         $this->load->library('email');
         $this->load->helper('download');
+        $this->load->library('user_agent');
     }
 
     /**
@@ -555,9 +557,11 @@ class vendor extends CI_Controller {
         if (!empty($sf_list)) {
             $sf_list = $sf_list[0]['service_centres_id'];
         }
+        //Getting State for SC charges
+        $state = $this->service_centre_charges_model->get_unique_states_from_tax_rates();
         $query = $this->vendor_model->viewvendor($vendor_id, "", $sf_list);
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/viewvendor', array('query' => $query));
+        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state));
     }
 
     /**
@@ -2695,5 +2699,132 @@ class vendor extends CI_Controller {
         }
         
         
+    }
+    
+    /**
+     * @Desc: This function is used to login to particular vendor
+     *          This function is being called using AJAX
+     * @params: vendor id
+     * @return: void
+     * 
+     */
+    function allow_log_in_to_vendor($vendor_id){
+        //Getting vendor details
+        $vendor_details = $this->vendor_model->getVendorContact($vendor_id);
+        $data['user_name'] = strtolower($vendor_details[0]['sc_code']);
+        $data['password'] = md5(strtolower($vendor_details[0]['sc_code']));
+        
+         //Loggin to SF Panel with username and password
+         
+        $agent = $this->service_centers_model->service_center_login($data);
+        if (!empty($agent)) {
+        //get sc details now
+        $sc_details = $this->vendor_model->getVendorContact($agent['service_center_id']);
+            
+        //Setting logging vendor session details
+        
+            $userSession = array(
+	    'session_id' => md5(uniqid(mt_rand(), true)),
+	    'service_center_id' => $sc_details[0]['id'],
+	    'service_center_name' => $sc_details[0]['name'],
+            'service_center_agent_id' => $agent['id'],
+            'is_update' => $sc_details[0]['is_update'],
+	    'sess_expiration' => 30000,
+	    'loggedIn' => TRUE,
+	    'userType' => 'service_center'
+	);
+
+        $this->session->set_userdata($userSession);
+
+            //Saving Login Details in Database
+            $login_data['browser'] = $this->agent->browser();
+            $login_data['agent_string'] = $this->agent->agent_string();
+            $login_data['ip'] = $this->input->ip_address();
+            $login_data['action'] = _247AROUND_LOGIN;
+            $login_data['entity_type'] = $this->session->userdata('userType');
+            $login_data['agent_id'] = $this->session->userdata('service_center_agent_id');
+            $login_data['entity_id'] = $this->session->userdata('service_center_id');
+
+            $login_id = $this->employee_model->add_login_logout_details($login_data);
+            //Adding Log Details
+            if ($login_id) {
+                log_message('info', __FUNCTION__ . ' Logging details have been captured for service center ' . $sc_details[0]['name']);
+            } else {
+                log_message('info', __FUNCTION__ . ' Err in capturing logging details for service center ' . $sc_details[0]['name']);
+            }
+        }   
+    }
+  
+    
+    /**
+     * 
+     * @Desc: This function is used to show SC Charges list according to state
+     * @params: state
+     * @return: View
+     * 
+     * 
+     */
+    function get_sc_charges_list(){
+        $state = $this->input->post('state');
+        log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('employee_id'));
+            $sc_charges_data = $this->service_centre_charges_model->get_service_centre_charges($state);
+            //Looping through all the values 
+            foreach ($sc_charges_data as $value) {
+                //Getting Details from Booking Sources
+                $booking_sources = $this->partner_model->get_booking_sources_by_price_mapping_id($value['partner_id']);
+                $code_source = $booking_sources[0]['code'];
+                
+                //Calculating vendor base charge 
+                $vendor_base_charge = $value['vendor_total']/(1+($value['rate']/100));
+                //Calculating vendor tax - [Vendor Total - Vendor Base Charge]
+                $vendor_tax = $value['vendor_total'] - $vendor_base_charge;
+                
+                $array_final['sc_code'] = $code_source;
+                $array_final['product'] = $value['product'];
+                $array_final['category'] = $value['category'];
+                $array_final['capacity'] = $value['capacity'];
+                $array_final['service_category'] = $value['service_category'];
+                $array_final['vendor_basic_charges'] = round($vendor_base_charge,2);
+                $array_final['vendor_tax_basic_charges'] = round($vendor_tax,2);
+                $array_final['vendor_total'] = $value['vendor_total'];
+                $array_final['customer_net_payable'] = $value['customer_net_payable'];
+                $array_final['pod'] = $value['pod'];
+                
+                $final_array[] = $array_final;
+            }
+
+            $template = 'SC-Charges-List-Template.xlsx';
+            //set absolute path to directory with template files
+            $templateDir = __DIR__ . "/../excel-templates/";
+            //set config for report
+            $config = array(
+                'template' => $template,
+                'templateDir' => $templateDir
+            );
+            //load template
+            $R = new PHPReport($config);
+
+            $R->load(array(
+
+                     'id' => 'sc',
+                    'repeat' => TRUE,
+                    'data' => $final_array
+                ));
+
+            $output_file_dir = TMP_FOLDER;
+            $output_file = ucfirst($state)."-Charges-List-" . date('j M Y');
+            $output_file_name = $output_file . ".xls";
+            $output_file_excel = $output_file_dir . $output_file_name;
+            $R->render('excel2003', $output_file_excel);
+
+            //Downloading File
+            if(file_exists($output_file_excel)){
+
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
+                readfile($output_file_excel);
+                exit;
+            }           
     }
 }   

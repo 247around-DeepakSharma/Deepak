@@ -1381,5 +1381,51 @@ class Partner extends CI_Controller {
         
         $this->load->view('partner/courier_manifest', $spare_parts_details);
     }
+    
+    /**
+     * @Desc: This function is used to login to particular Partner
+     *          This function is being called using AJAX
+     * @params: partner id
+     * @return: void
+     * 
+     */
+    function allow_log_in_to_partner($partner_id){
+        //Getting partner details
+        $partner_details = $this->partner_model->get_partner_login_details($partner_id);
+        $data['user_name'] = strtolower($partner_details[0]['user_name']);
+        $data['password'] = $partner_details[0]['password'];
+        
+         //Loggin to SF Panel with username and password
+         
+        $partner = $this->partner_model->partner_login($data);
+
+        if ($partner) {
+            //get partner details now
+            $partner_details = $this->partner_model->getpartner($partner['partner_id']);
+
+            $this->setSession($partner_details[0]['id'], $partner_details[0]['public_name'], $partner['id']);
+            log_message('info', 'Partner loggedIn  partner id' .
+                    $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
+
+            //Saving Login Details in Database
+            $login_data['browser'] = $this->agent->browser();
+            $login_data['agent_string'] = $this->agent->agent_string();
+            $login_data['ip'] = $this->session->all_userdata()['ip_address'];
+            $login_data['action'] = _247AROUND_LOGIN;
+            $login_data['entity_type'] = $this->session->all_userdata()['userType'];
+            $login_data['agent_id'] = $this->session->all_userdata()['agent_id'];
+            $login_data['entity_id'] = $this->session->all_userdata()['partner_id'];
+
+            $login_id = $this->employee_model->add_login_logout_details($login_data);
+            //Adding Log Details
+            if ($login_id) {
+                log_message('info', __FUNCTION__ . ' Logging details have been captured for partner ' . $login_data['employee_name']);
+            } else {
+                log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['employee_name']);
+            }
+
+            redirect(base_url() . "partner/get_spare_parts_booking");   
+        }
+    }
 
 }
