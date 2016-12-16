@@ -25,6 +25,7 @@ class vendor extends CI_Controller {
         $this->load->model('booking_model');
         $this->load->library('PHPReport');
         $this->load->model('service_centers_model');
+        $this->load->model('service_centre_charges_model');
         $this->load->helper(array('form', 'url'));
         
         $this->load->library('form_validation');
@@ -556,9 +557,11 @@ class vendor extends CI_Controller {
         if (!empty($sf_list)) {
             $sf_list = $sf_list[0]['service_centres_id'];
         }
+        //Getting State for SC charges
+        $state = $this->service_centre_charges_model->get_unique_states_from_tax_rates();
         $query = $this->vendor_model->viewvendor($vendor_id, "", $sf_list);
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/viewvendor', array('query' => $query));
+        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state));
     }
 
     /**
@@ -2686,5 +2689,78 @@ class vendor extends CI_Controller {
                 log_message('info', __FUNCTION__ . ' Err in capturing logging details for service center ' . $sc_details[0]['name']);
             }
         }   
+    }
+  
+    
+    /**
+     * 
+     * @Desc: This function is used to show SC Charges list according to state
+     * @params: state
+     * @return: View
+     * 
+     * 
+     */
+    function get_sc_charges_list(){
+        $state = $this->input->post('state');
+        log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('employee_id'));
+            $sc_charges_data = $this->service_centre_charges_model->get_service_centre_charges($state);
+            //Looping through all the values 
+            foreach ($sc_charges_data as $value) {
+                //Getting Details from Booking Sources
+                $booking_sources = $this->partner_model->get_booking_sources_by_price_mapping_id($value['partner_id']);
+                $code_source = $booking_sources[0]['code'];
+                
+                //Calculating vendor base charge 
+                $vendor_base_charge = $value['vendor_total']/(1+($value['rate']/100));
+                //Calculating vendor tax - [Vendor Total - Vendor Base Charge]
+                $vendor_tax = $value['vendor_total'] - $vendor_base_charge;
+                
+                $array_final['sc_code'] = $code_source;
+                $array_final['product'] = $value['product'];
+                $array_final['category'] = $value['category'];
+                $array_final['capacity'] = $value['capacity'];
+                $array_final['service_category'] = $value['service_category'];
+                $array_final['vendor_basic_charges'] = round($vendor_base_charge,2);
+                $array_final['vendor_tax_basic_charges'] = round($vendor_tax,2);
+                $array_final['vendor_total'] = $value['vendor_total'];
+                $array_final['customer_net_payable'] = $value['customer_net_payable'];
+                $array_final['pod'] = $value['pod'];
+                
+                $final_array[] = $array_final;
+            }
+
+            $template = 'SC-Charges-List-Template.xlsx';
+            //set absolute path to directory with template files
+            $templateDir = __DIR__ . "/../excel-templates/";
+            //set config for report
+            $config = array(
+                'template' => $template,
+                'templateDir' => $templateDir
+            );
+            //load template
+            $R = new PHPReport($config);
+
+            $R->load(array(
+
+                     'id' => 'sc',
+                    'repeat' => TRUE,
+                    'data' => $final_array
+                ));
+
+            $output_file_dir = TMP_FOLDER;
+            $output_file = ucfirst($state)."-Charges-List-" . date('j M Y');
+            $output_file_name = $output_file . ".xls";
+            $output_file_excel = $output_file_dir . $output_file_name;
+            $R->render('excel2003', $output_file_excel);
+
+            //Downloading File
+            if(file_exists($output_file_excel)){
+
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
+                readfile($output_file_excel);
+                exit;
+            }           
     }
 }   

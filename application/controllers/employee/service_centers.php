@@ -1087,42 +1087,10 @@ class Service_centers extends CI_Controller {
                 
                 $final_array[] = $array_final;
             }
+            $data['final_array'] = $final_array;
+            $this->load->view('service_centers/header');
+            $this->load->view('service_centers/download_sf_charges_excel', $data);
 
-            $template = 'SC-Charges-List-Template.xlsx';
-            //set absolute path to directory with template files
-            $templateDir = __DIR__ . "/../excel-templates/";
-            //set config for report
-            $config = array(
-                'template' => $template,
-                'templateDir' => $templateDir
-            );
-            //load template
-            $R = new PHPReport($config);
-
-            $R->load(array(
-
-                     'id' => 'sc',
-                    'repeat' => TRUE,
-                    'data' => $final_array
-                ));
-
-            $output_file_dir = TMP_FOLDER;
-            $output_file = $sc_details[0]['company_name']."-Charges-List-" . date('j M Y');
-            $output_file_name = $output_file . ".xls";
-            $output_file_excel = $output_file_dir . $output_file_name;
-            $R->render('excel2003', $output_file_excel);
-
-            //Downloading File
-            if(file_exists($output_file_excel)){
-
-                header('Content-Description: File Transfer');
-                header('Content-Type: application/octet-stream');
-                header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
-                readfile($output_file_excel);
-                exit;
-            }
-
-            
         }else{
             echo 'Sorry, Session has expired, please log in again!';
         }

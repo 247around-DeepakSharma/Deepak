@@ -17,8 +17,21 @@
         }
 
     }
-</script>
 
+    function validate_form(){
+        var state = $('#state_select').val();
+        if(state == ""){
+            $('#state_error').css('display','block');
+            $('#state_form').css('margin-bottom','20px');
+            $('#inner_state_div').css('height','75px');
+            return false;
+        }else{
+            return true;
+        }
+        
+        
+    }
+</script>
 <div  id="page-wrapper">
     <div class="row">
       <div >
@@ -27,6 +40,25 @@
        
         <div class="pull-right" style="margin-bottom: 20px;">
             <a href="<?php echo base_url();?>employee/vendor/add_vendor"><input class="btn btn-primary" type="Button" value="Add Service Centre"></a>
+        </div>
+        
+        <div class="col-md-6" id="state_form">
+            <div style="background-color: #EEEEEE;width:400px;height:50px;padding-bottom:20px;border-radius: 5px;" id="inner_state_div">
+                <form method="POST" action ="<?php echo base_url(); ?>employee/vendor/get_sc_charges_list" style="padding-top:8px;">
+                    <span id="state_error" style="display:none;color:red;margin-left:20px;">Please enter State</span>
+                    <div class="col-md-6">
+                        <select name="state" id="state_select" class="form-control">
+                            <option value="" disabled="" selected>Select State</option>
+                            <?php foreach ($state as $value) { ?>
+                                <option value="<?php echo $value['state'] ?>"><?php echo $value['state'] ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="submit" value="Download Charges List" onclick="return validate_form()" class="btn btn-primary" />
+                    </div>
+                </div>
+            </form>
         </div>
         
         <table class="table table-bordered table-condensed">

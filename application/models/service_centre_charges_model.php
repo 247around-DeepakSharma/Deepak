@@ -173,5 +173,17 @@ class service_centre_charges_model extends CI_Model {
         return  $query->result_array();
     }
     
+    /**
+     * @Desc:This function is used to get unique states from Tax Rates for SC Charges List
+     * @params: void
+     * @return: void
+     * 
+     */
+    function get_unique_states_from_tax_rates(){
+        $sql = 'SELECT DISTINCT state FROM tax_rates';
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
     
 }
