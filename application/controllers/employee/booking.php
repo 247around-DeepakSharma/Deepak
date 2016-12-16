@@ -1786,32 +1786,8 @@ class Booking extends CI_Controller {
             $this->form_validation->set_rules('booking_timeslot', 'Time Slot', 'required|xss_clean');
             return $this->form_validation->run();
     }  
-    /**
-     * @desc: This is used to display all spare parts booking
-     */
-    function get_spare_parts(){
-
-	$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
-       
-	$config['base_url'] = base_url() . 'employee/booking/get_spare_parts/';
-        $total_rows =  $this->booking_model->get_spare_parts_booking(0, "All");
-        
-	$config['total_rows'] = $total_rows[0]['count'];
-
-	$config['per_page'] = 50;
-	
-	$config['uri_segment'] = 4;
-	$config['first_link'] = 'First';
-	$config['last_link'] = 'Last';
-
-	$this->pagination->initialize($config);
-	$data['links'] = $this->pagination->create_links();
-	$data['spare_parts'] = $this->booking_model->get_spare_parts_booking($config['per_page'], $offset);
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-        $this->load->view('employee/get_spare_parts', $data);
-    }
-
-    /**
+   
+   /**
      * @desc: This function is used to update inventory of vendor
      * parmas: Booking ID
      * @return: void

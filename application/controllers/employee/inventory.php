@@ -13,11 +13,15 @@ class Inventory extends CI_Controller {
         parent::__Construct();
         $this->load->model('service_centers_model');
         $this->load->model('vendor_model');
+        $this->load->model('partner_model');
         $this->load->model('inventory_model');
         $this->load->model('booking_model');
         $this->load->library('form_validation');
         $this->load->library('session');
         $this->load->library('notify');
+        $this->load->library("pagination");
+	
+
     }
 
     public function index() {
@@ -66,7 +70,7 @@ class Inventory extends CI_Controller {
         if ($this->form_validation->run()) {
 
             $data = $this->input->post();
-            foreach ($data['choice'] as $key => $value) {
+            foreach ($data['choice'] as $value) {
                 
                 // New Pattern for Order ID for brackets
                 $order_id_array = $this->inventory_model->get_latest_order_id();
@@ -713,5 +717,156 @@ class Inventory extends CI_Controller {
         $rm_poc_email = $rm_details[0]['primary_contact_email'];
         return $rm_poc_email;
     }
+    
+    /**
+     * @desc: This is used to display all spare parts booking
+     */
+    function get_spare_parts(){
+
+	$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
+       
+	$config['base_url'] = base_url() . 'employee/inventory/get_spare_parts/';
+        $total_rows =  $this->booking_model->get_spare_parts_booking(0, "All");
+        
+	$config['total_rows'] = $total_rows[0]['count'];
+
+	$config['per_page'] = 50;
+	
+	$config['uri_segment'] = 4;
+	$config['first_link'] = 'First';
+	$config['last_link'] = 'Last';
+
+	$this->pagination->initialize($config);
+	$data['links'] = $this->pagination->create_links();
+	$data['spare_parts'] = $this->booking_model->get_spare_parts_booking($config['per_page'], $offset);
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/get_spare_parts', $data);
+    }
+    /**
+     * @desc: load to Spare parts booking by Admin Panel
+     * @param type $booking_id
+     */
+    function update_spare_parts($booking_id){
+
+        $where = array('spare_parts_details.booking_id'=> $booking_id);
+        $where_in = array('Pending','Rescheduled', 'Completed', 'Cancelled');
+        $data['bookinghistory'] = $this->partner_model->get_spare_parts_booking($where, $where_in);
+        
+        if(!empty($data['bookinghistory'][0])){
+            
+            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->load->view('employee/update_spare_parts', $data);
+        } else{
+            echo "Booking Not Found. Please Retry Again";
+        }
+    }
+    /**
+     * @desc: Process to update Spare parts booking by Admin Panel
+     * @param type $booking_id
+     */
+    function process_update_booking($booking_id){
+        $this->checkUserSession();
+        $data['model_number'] = $this->input->post('model_number');
+        $data['serial_number'] = $this->input->post('serial_number');
+        $data['parts_requested'] = $this->input->post('parts_name');
+        $data['parts_shipped'] = $this->input->post('shipped_parts_name');
+        $data['date_of_request'] = $this->input->post('dop');       
+        $data['remarks_by_sc'] = $this->input->post('reason_text');
+        $data['remarks_by_partner'] = $this->input->post('remarks_by_partner');
+        $data['courier_name_by_partner'] = $this->input->post('courier_name');
+        $data['awb_by_partner'] = $this->input->post('awb');
+        $data['shipped_date'] = $this->input->post('shipment_date');
+        $data['status'] = $this->input->post('status');
+        
+         if(isset($_FILES["invoice_image"])){
+            $invoice_name = $this->upload_spare_pic($_FILES["invoice_image"], "Invoice");
+            if (isset($invoice_name)) {
+                $data['invoice_pic'] = $invoice_name;
+            }
+        }
+        
+        if(isset($_FILES["serial_number_pic"])){
+
+            $serial_number_pic = $this->upload_spare_pic($_FILES["serial_number_pic"],"Serial_NO");
+            if (isset($serial_number_pic)) {
+                $data['serial_number_pic'] = $serial_number_pic;
+            }
+        }
+        
+         if(isset($_FILES["defective_parts_pic"])){
+
+            $defective_parts_pic = $this->upload_spare_pic($_FILES["defective_parts_pic"],"Defective_Parts");
+            if (isset($defective_parts_pic)) {
+                $data['defective_parts_pic'] = $defective_parts_pic;
+            }
+        }
+        
+        $where = array('booking_id'=> $booking_id);
+        $status_spare = $this->service_centers_model->spare_parts_action($where, $data);
+        if($status_spare){
+            if($data['status'] == "Spare Parts Requested"){
+                $sc_data['current_status'] = "InProcess";
+                $sc_data['internal_status'] = $data['status'];
+                $sc_data['update_date'] = date("Y-m-d H:i:s");
+
+                $this->vendor_model->update_service_center_action($booking_id,$sc_data);
+            }
+            
+            $this->notify->insert_state_change($booking_id, $data['status'], "" , "Spare Parts Updated By ".$this->session->userdata('employee_id') , $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+            
+        }
+        
+        redirect(base_url()."employee/inventory/update_spare_parts/".$booking_id);
+    }
+    
+    /**
+     * @esc: This method upload invoice image OR panel image to S3
+     * @param _FILE $file
+     * @param String $type
+     * @return boolean|string
+     */
+     public function upload_spare_pic($file, $type) {
+        log_message('info', __FUNCTION__. " Enterring Service_center ID: ". $this->session->userdata('service_center_id'));
+        $this->checkUserSession();
+	$allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+	$temp = explode(".", $file['name']);
+	$extension = end($temp);
+	//$filename = prev($temp);
+
+	if ($file["name"] != null) {
+	    if (($file["size"] < 2e+6) && in_array($extension, $allowedExts)) {
+		if ($file["error"] > 0) {
+		    $this->form_validation->set_message('upload_spare_pic', $file["error"]);
+		} else {
+		    $pic = str_replace(' ', '-', $this->input->post('booking_id'));
+		    $picName = $type. $pic . "." . $extension;
+		    $bucket = "bookings-collateral";
+                    
+		    $directory = "misc-images/" . $picName;
+		    $this->s3->putObjectFile($file["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+
+		    return $picName;
+		}
+	    } else {
+		$this->form_validation->set_message('upload_spare_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+		    . 'Maximum file size is 2 MB.');
+		return FALSE;
+	    }
+	}
+        log_message('info', __FUNCTION__. " Exit Service_center ID: ". $this->session->userdata('service_center_id'));
+    }
+    /**
+     * @desc: Check user Seession
+     * @return boolean
+     */
+    function checkUserSession(){
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+	    return TRUE;
+	} else {
+	    redirect(base_url() . "employee/login");
+	}
+    }
+        
+        
 
 }
