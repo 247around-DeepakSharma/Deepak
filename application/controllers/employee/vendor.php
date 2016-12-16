@@ -916,12 +916,15 @@ class vendor extends CI_Controller {
         log_message('info', __FUNCTION__ . ' => Input ZIP file: ' . $inputFileName);
         
         $newZipFileName = TMP_FOLDER."vendor_pincode_mapping_temp.zip";
+        $CSVFileName = "vendor_pincode_mapping.csv";
         $newCSVFileName = "vendor_pincode_mapping_temp_".date('j-M-Y').".csv";
         move_uploaded_file($inputFileName, $newZipFileName);
         
         $res = 0; 
-        system("unzip" . $newZipFileName . " " . $newCSVFileName . " -d ".TMP_FOLDER, $res);
-        
+        system("unzip " . $newZipFileName . " " . $CSVFileName . " -d ".TMP_FOLDER, $res);
+        $re1 = 0; 
+        system("mv " . TMP_FOLDER . $CSVFileName ." ".TMP_FOLDER . $newCSVFileName, $re1);
+  
         log_message('info', __FUNCTION__ . ' => New CSV file: ' . $newCSVFileName);
         
         $sql_commands = array();
@@ -960,7 +963,9 @@ class vendor extends CI_Controller {
         $this->vendor_model->insertS3FileDetails($data);
 
 
-        system ("rm -rf ".TMP_FOLDER."vendor_pincode_mapping_temp.*"); 
+        system ("rm -rf ".$newZipFileName);
+        system ("rm -rf ".TMP_FOLDER . $CSVFileName );
+        system ("rm -rf ".TMP_FOLDER . $newCSVFileName );
        log_message('info', __FUNCTION__ . ' => All queries executed: ' . print_r($sql_commands, TRUE));
         //log_message('info', __FUNCTION__ . ' => New pincode count: ' . $count);
         
