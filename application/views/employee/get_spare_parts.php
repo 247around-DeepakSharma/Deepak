@@ -21,6 +21,7 @@
                            <th class="text-center">Parts Shipped</th>
                            <th class="text-center">Status</th>
                            <th class="text-center">Booking Status</th>
+                           <th class="text-center">Update</th>
                              
                          </tr>
                      </thead>
@@ -39,6 +40,7 @@
                               <td class="text-center"><?php echo $value['parts_shipped'];?></td>
                               <td class="text-center"><?php echo $value['status'];?></td> 
                               <td class="text-center"><?php echo $value['current_status'];?></td> 
+                              <td class="text-center"><a href="<?php echo base_url(); ?>employee/inventory/update_spare_parts/<?php echo $value['booking_id'];?>" >Edit</a></td>
                          </tr>
                              
                         <?php $sn_no++; }?>
