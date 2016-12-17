@@ -1,11 +1,16 @@
 <div id="page-wrapper">
    <div class="container-fluid">
+        <a class="btn btn-lg btn-primary pull-right" style="margin-top:20px;" href="<?php echo base_url();?>employee/invoice/insert_update_invoice/"<?php if(isset($service_center)){"vendor"; } else { echo "partner";}?>>Create Invoice</a>
       <div class="row">
          <div class="col-md-6 ">
              <h1 class="page-header"><b><?php if(isset($service_center)){ ?>Service Center Invoices<?php } else {?>
                Partner Invoices
-            <?php } ?></b></h1>
+            <?php } ?>
+            </b>
+             </h1>
+            
          </div>
+          
       </div>
       <div class="row" >
          <div class="form-group">
