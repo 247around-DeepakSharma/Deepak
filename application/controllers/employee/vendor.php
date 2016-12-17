@@ -2821,14 +2821,27 @@ class vendor extends CI_Controller {
             $output_file_name = $output_file . ".xls";
             $output_file_excel = $output_file_dir . $output_file_name;
             $R->render('excel2003', $output_file_excel);
+            
+            //Generating PDF File
+            $output_file_pdf_name = $output_file . ".pdf";
+            $output_file_pdf = $output_file_dir . $output_file_pdf_name;
+            putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+            $tmp_path = TMP_FOLDER;
+            $tmp_output_file = TMP_FOLDER.'output_' . __FUNCTION__ . '.txt';
+            $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+                    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+                    $output_file_excel . ' 2> ' . $tmp_output_file;
+            $output = '';
+            $result_var = '';
+            exec($cmd, $output, $result_var);
 
             //Downloading File
-            if(file_exists($output_file_excel)){
+            if(file_exists($output_file_pdf)){
 
                 header('Content-Description: File Transfer');
                 header('Content-Type: application/octet-stream');
-                header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
-                readfile($output_file_excel);
+                header("Content-Disposition: attachment; filename=\"$output_file_pdf_name\""); 
+                readfile($output_file_pdf);
                 exit;
             }           
     }
