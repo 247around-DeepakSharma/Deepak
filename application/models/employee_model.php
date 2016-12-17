@@ -117,5 +117,19 @@ class Employee_model extends CI_Model{
           $query = $this->db->get('employee');
           return $query->result_array();
       }
+      
+      /**
+       * @Desc: This function is used to get Holiday List
+       * @params: Active
+       * @return : Array
+       * 
+       */
+      function get_holiday_list(){
+          $this->db->select('*');
+          $this->db->where('active',1);
+          $this->db->order_by('event_date','asc');
+          $query = $this->db->get('holiday_list');
+          return $query->result_array();
+      }
 
 }
