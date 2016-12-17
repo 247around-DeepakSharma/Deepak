@@ -70,86 +70,82 @@ class Inventory extends CI_Controller {
         if ($this->form_validation->run()) {
 
             $data = $this->input->post();
-            foreach ($data['choice'] as $value) {
-                
+            foreach ($data['choice'] as $key=>$value) {
+
                 // New Pattern for Order ID for brackets
                 $order_id_array = $this->inventory_model->get_latest_order_id();
-                if(empty($order_id_array[0]['order_id'])){
-                   $order_id = _247_AROUND_DEFAULT_BRACKETS_ORDER_ID; 
-                }else{
+                if (empty($order_id_array[0]['order_id'])) {
+                    $order_id = _247_AROUND_DEFAULT_BRACKETS_ORDER_ID;
+                } else {
                     $order_id = $order_id_array[0]['order_id'] + 1;
                 }
-                
+
                 //Making array for Brackets Database
-                $data_post[] = array(
+                $data_post = array(
                     'order_id' => $order_id,
-                    'order_received_from' => $data['order_received_from'][$value],
-                    'order_given_to' => $data['order_given_to'][$value],
-                    '19_24_requested' => $data['_19_24'][$value],
-                    '26_32_requested' => $data['_26_32'][$value],
-                    '36_42_requested' => $data['_36_42'][$value],
+                    'order_received_from' => $data['order_received_from'][$key],
+                    'order_given_to' => $data['order_given_to'][$key],
+                    '19_24_requested' => $data['_19_24'][$key],
+                    '26_32_requested' => $data['_26_32'][$key],
+                    '36_42_requested' => $data['_36_42'][$key],
                     'order_date' => date('Y-m-d h:i:s'),
-                    'total_requested' => ($data['_19_24'][$value] + $data['_26_32'][$value] + $data['_36_42'][$value]),
+                    'total_requested' => ($data['_19_24'][$key] + $data['_26_32'][$key] + $data['_36_42'][$key]),
                 );
-            }
 
-            //Inserting data in Brackets Database
-            $check_flag = $this->inventory_model->insert_brackets($data_post);
-            if ($check_flag) {
-                //Logging Success
-                log_message('info', __FUNCTION__ . ' Brackets have been added successfully ' . print_r($data_post, TRUE));
+                //Inserting data in Brackets Database
+                $check_flag = $this->inventory_model->insert_brackets($data_post);
+                if ($check_flag) {
+                    //Logging Success
+                    log_message('info', __FUNCTION__ . ' Brackets have been added successfully ' . print_r($data_post, TRUE));
 
-                //Logging Success
-                log_message('info', __FUNCTION__ . ' Brackets Requested- Pending state have been added in Booking State Change ');
+                    //Logging Success
+                    log_message('info', __FUNCTION__ . ' Brackets Requested- Pending state have been added in Booking State Change ');
 
-                // Sending Mail to order received from vendors
-                foreach ($data_post as $val) {
                     //Adding value in Booking State Change
-                    $this->notify->insert_state_change($val['order_id'], _247AROUND_BRACKETS_PENDING, _247AROUND_BRACKETS_REQUESTED, "Brackets Requested", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
-                    
-                    $vendor_requested = $this->vendor_model->getVendorContact($val['order_received_from']);
+                    $this->notify->insert_state_change($data_post['order_id'], _247AROUND_BRACKETS_PENDING, _247AROUND_BRACKETS_REQUESTED, "Brackets Requested", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+
+                    $vendor_requested = $this->vendor_model->getVendorContact($data_post['order_received_from']);
                     
                     $vendor_poc_mail = $vendor_requested[0]['primary_contact_email'];
                     $vendor_owner_mail = $vendor_requested[0]['owner_email'];
-                    $to = $vendor_poc_mail.','.$vendor_owner_mail;
-                    
+                    $to = $vendor_poc_mail . ',' . $vendor_owner_mail;
+
                     // Sending brackets confirmation details mail to Vendor using Template
-                   $email = array();
-                   //Getting template from Database
-                   $template = $this->booking_model->get_booking_email_template("brackets_order_received_from_vendor");
-                   
-                   if(!empty($template)){
-                        $email['order_id'] = $order_id;
-                        $email['19_24_requested'] = $val['19_24_requested'];
-                        $email['26_32_requested'] = $val['26_32_requested'];
-                        $email['36_42_requested'] = $val['36_42_requested'];
-                        $email['total_requested'] = $val['total_requested'];
-                        $subject = "Brackets Requested by ".$vendor_requested[0]['company_name'];
-                        $emailBody = vsprintf($template[0], $email);
-                        $this->notify->sendEmail($template[2], $to , $template[3].','.$this->get_rm_email($val['order_received_from']), '', $subject , $emailBody, "");
-                   }
+                    $email_order_received_from = array();
+                    //Getting template from Database
+                    $template = $this->booking_model->get_booking_email_template("brackets_order_received_from_vendor");
+
+                    if (!empty($template)) {
+                        $email_order_received_from['order_id'] = $order_id;
+                        $email_order_received_from['19_24_requested'] = $data_post['19_24_requested'];
+                        $email_order_received_from['26_32_requested'] = $data_post['26_32_requested'];
+                        $email_order_received_from['36_42_requested'] = $data_post['36_42_requested'];
+                        $email_order_received_from['total_requested'] = $data_post['total_requested'];
+                        $subject = "Brackets Requested by " . $vendor_requested[0]['company_name'];
+                        $emailBody = vsprintf($template[0], $email_order_received_from);
+                        $this->notify->sendEmail($template[2], $to, $template[3] . ',' . $this->get_rm_email($data_post['order_received_from']), '', $subject, $emailBody, "");
+                    }
                     
                     //Logging Email Send to order received from vendor
-                    log_message('info', __FUNCTION__ . ' Email has been sent to order_received_from vendors '.print_r($vendor_requested[0]['company_name']));
-                
+                    log_message('info', __FUNCTION__ . ' Email has been sent to order_received_from vendor ' . $vendor_requested[0]['company_name']);
+
                     //Sending Mail to order given to
-                    $vendor_requested_to = $this->vendor_model->getVendorContact($val['order_given_to'])[0];
-                    
+                    $vendor_requested_to = $this->vendor_model->getVendorContact($data_post['order_given_to'])[0];
                     $vendor_poc_mail = $vendor_requested_to['primary_contact_email'];
                     $vendor_owner_mail = $vendor_requested_to['owner_email'];
-                    $to = $vendor_poc_mail.','.$vendor_owner_mail;
+                    $to = $vendor_poc_mail . ',' . $vendor_owner_mail;
 
                     // Sending Mail to order given to vendor using Template
-                   $email = array();
-                   //Getting template from Database
-                   $template = $this->booking_model->get_booking_email_template("brackets_requested_from_vendor");
-                   
-                   if(!empty($template)){
+                    $email = array();
+                    //Getting template from Database
+                    $template = $this->booking_model->get_booking_email_template("brackets_requested_from_vendor");
+
+                    if (!empty($template)) {
                         $email['order_id'] = $order_id;
-                        $email['19_24_requested'] = $val['19_24_requested'];
-                        $email['26_32_requested'] = $val['26_32_requested'];
-                        $email['36_42_requested'] = $val['36_42_requested'];
-                        $email['total_requested'] = $val['total_requested'];
+                        $email['19_24_requested'] = $data_post['19_24_requested'];
+                        $email['26_32_requested'] = $data_post['26_32_requested'];
+                        $email['36_42_requested'] = $data_post['36_42_requested'];
+                        $email['total_requested'] = $data_post['total_requested'];
                         $email['owner_name'] = $vendor_requested[0]['owner_name'];
                         $email['company_name'] = $vendor_requested[0]['company_name'];
                         $email['address'] = $vendor_requested[0]['address'];
@@ -158,31 +154,30 @@ class Inventory extends CI_Controller {
                         $email['pincode'] = $vendor_requested[0]['pincode'];
                         $email['primary_contact_phone_1'] = $vendor_requested[0]['primary_contact_phone_1'];
                         $email['owner_phone_1'] = $vendor_requested[0]['owner_phone_1'];
-                        $subject = "Brackets Requested by ".$vendor_requested[0]['company_name'];
+                        $subject = "Brackets Requested by " . $vendor_requested[0]['company_name'];
 
                         $emailBody = vsprintf($template[0], $email);
 
-                        $this->notify->sendEmail($template[2], $to , $template[3].','.$this->get_rm_email($val['order_given_to']), '', $subject , $emailBody, "");
-                   }
-                    
-                          //Logging Email Send to order sent to vendor
-                    log_message('info', __FUNCTION__ . ' Email has been sent to order_sent_to vendor '.print_r($vendor_requested_to['company_name']));
+                        $this->notify->sendEmail($template[2], $to, $template[3] . ',' . $this->get_rm_email($data_post['order_given_to']), '', $subject, $emailBody, "");
+                    }
+                    //Logging Email Send to order sent to vendor
+                    log_message('info', __FUNCTION__ . ' Email has been sent to order_sent_to vendor ' . $vendor_requested_to['company_name']);
+                } else {
+                    //Logging Error
+                    log_message('info', __FUNCTION__ . ' Err in adding Brackets ' . print_r($data_post, TRUE));
+                    $this->session->set_userdata('brackets_error', 'Error in addding Brackets');
+                    $this->get_bracket_add_form();
                 }
-
-                //Setting success session data 
-                $this->session->set_userdata('brackets_success', 'Brackets Added Successfully');
-                
-                redirect(base_url() . 'employee/inventory/get_bracket_add_form');
-            } else {
-                //Logging Error
-                log_message('info', __FUNCTION__ . ' Err in adding Brackets ' . print_r($data_post, TRUE));
-                $this->session->set_userdata('brackets_error', 'Error in addding Brackets');
-                $this->get_bracket_add_form();
             }
-            
-        } else {
-            //Return if validation error occurs
-            $this->get_bracket_add_form();
+            //Setting success session data 
+            $this->session->set_userdata('brackets_success', 'Brackets Added Successfully');
+
+            redirect(base_url() . 'employee/inventory/get_bracket_add_form');
+        }else{
+            //Setting success session data 
+            $this->session->set_userdata('brackets_error', 'Please select Vendor Details');
+
+            redirect(base_url() . 'employee/inventory/get_bracket_add_form');
         }
     }
     

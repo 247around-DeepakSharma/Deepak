@@ -20,7 +20,7 @@ class Inventory_model extends CI_Model {
      */
     function insert_brackets($data){
         
-        $this->db->insert_batch('brackets', $data);
+        $this->db->insert('brackets', $data);
          if($this->db->affected_rows() > 0){
             return true;
         }else{
