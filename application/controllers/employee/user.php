@@ -438,5 +438,17 @@ class User extends CI_Controller {
         
         redirect(base_url() . "employee/user/show_employee_list");
     }
+    
+    /**
+     *@Desc: This function is used to show holiday list to employees
+     * @params: void
+     * @return: void 
+     * 
+     */
+    function show_holiday_list(){
+        $data['data'] = $this->employee_model->get_holiday_list();
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/show_holiday_list',$data);
+    }
      
 }

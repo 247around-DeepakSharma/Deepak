@@ -151,6 +151,10 @@
                         <li>
                             <a href="<?php echo base_url() ?>employee/user/update_employee/<?php echo $logged_id; ?>"><i class="fa fa-fw fa-desktop "></i> <strong>Edit Profile</strong></a>
                         </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url() ?>employee/user/show_holiday_list"><i class="fa fa-fw fa-desktop "></i> <strong>Holiday List 2017</strong></a>
+                        </li>
                     </ul>
                 </li>
                 <li><a href="<?php echo base_url()?>employee/login/logout"><i class="fa fa-fw fa-power-off"></i></a></li>
