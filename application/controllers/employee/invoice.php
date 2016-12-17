@@ -286,7 +286,7 @@ class Invoice extends CI_Controller {
     function getPartnerOrVendor($par_ven) {
         $vendor_partner_id = $this->input->post('vendor_partner_id');
         $flag = $this->input->post('invoice_flag');
-
+          
         if ($par_ven == 'partner') {
             if ($flag == 1) {
                 echo "<option value='All'>All</option>";
@@ -2457,6 +2457,98 @@ class Invoice extends CI_Controller {
             echo "Data Not Found for Cash Invoice" . PHP_EOL;
             
             return FALSE;
+        }
+    }
+    /**
+     * @desc: This is used to load invoice insert/update form
+     * @param Sting $vendor_partner
+     * @param String $invoice_id
+     */
+    function insert_update_invoice($vendor_partner, $invoice_id = FALSE){
+        log_message('info', __FUNCTION__ . " Entering...." . $invoice_id);
+        if($invoice_id){
+        $where = " `invoice_id` = '$invoice_id'";
+        //Get Invocie details from Vendor Partner Invoice Table
+        $invoice_details['invoice_details'] = $this->invoices_model->get_invoices_details($where);
+        } 
+        $invoice_details['vendor_partner'] = $vendor_partner;
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));     
+        $this->load->view('employee/insert_update_invoice', $invoice_details);     
+    }
+    /**
+     * @desc: Update/ Insert Partner Invoice Details from panel
+     * @param String $vendor_partner
+     */
+    function process_insert_update_invoice($vendor_partner){
+        log_message('info', __FUNCTION__ . " Entering....". $vendor_partner);
+        $this->form_validation->set_rules('invoice_id', ' Invoice Id', 'required|trim|xss_clean');
+        if($this->form_validation->run()){
+            $data['invoice_id'] = $this->input->post('invoice_id');
+            $data['type_code'] = $this->input->post('type_code');
+            switch ($data['type_code']){
+                case 'A':
+                     $data['type_code'] = "FOC";
+                    break;
+                case 'B':
+                    $data['type_code'] = 'Cash';
+                    break;
+                case 'D':
+                    $data['type_code'] = "Stand";
+                    break;
+            }
+            $data['vendor_partner'] = $vendor_partner;
+            $data['vendor_partner_id'] = $this->input->post('vendor_partner_id');
+            $data['from_date'] = $this->input->post('from_date');
+            $data['to_date'] = $this->input->post('to_date');
+            $data['num_bookings'] = $this->input->post('num_bookings');
+            $data['total_service_charge'] = $this->input->post('total_service_charge');
+            $data['total_additional_service_charge'] = $this->input->post('total_additional_service_charge');
+            $data['service_tax'] = $this->input->post('service_tax');
+            $data['parts_cost'] = $this->input->post('parts_cost');
+            $data['vat'] = $this->input->post('vat');
+            $data['total_amount_collected'] = $this->input->post('total_amount_collected');
+            $data['around_royalty'] = $this->input->post('around_royalty');
+            $data['amount_collected_paid'] = $this->input->post('amount_collected_paid');
+            $data['tds_amount'] = $this->input->post('tds_amount');
+            $data['amount_paid'] = $this->input->post('amount_paid');
+            $data['settle_amount'] = $this->input->post('settle_amount');
+            $data['mail_sent'] = $this->input->post('mail_sent');
+            $data['sms_sent'] = $this->input->post('sms_sent');
+            $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
+            if(isset($_FILES["invoice_image"])){
+               // Uploading to S3
+		$bucket = BITBUCKET_DIRECTORY;
+		$directory = "invoices-excel/" . $data['invoice_id'].".xlsx";
+		$is_s3 = $this->s3->putObjectFile($_FILES["invoice_image"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+                if($is_s3){
+                    log_message('info', __FUNCTION__ . " Main Invoice upload"); 
+                    $data['invoice_file_excel'] = $data['invoice_id'].".xlsx";
+                } else {
+                   log_message('info', __FUNCTION__ . " Main Invoice upload failed"); 
+                }
+            }
+            if(isset($_FILES["invoice_detailed_excel"])){
+               // Uploading to S3
+		$bucket = BITBUCKET_DIRECTORY;
+		$directory = "invoices-excel/" . $data['invoice_id']."-detailed.xlsx";
+		$is_s3 = $this->s3->putObjectFile($_FILES["invoice_detailed_excel"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+                if($is_s3){
+                    log_message('info', __FUNCTION__ . " Main Invoice upload"); 
+                    $data['invoice_detailed_excel'] = $data['invoice_id']."-detailed.xlsx";
+                } else {
+                   log_message('info', __FUNCTION__ . " Main Invoice upload failed"); 
+                }
+            }
+            $status = $this->invoices_model->action_partner_invoice($data);
+            if($status){
+                log_message('info', __METHOD__ . ' Invoice details inserted '. $data['invoice_date']);
+            } else {
+                 log_message('info', __METHOD__ . ' Invoice details not inserted '. $data['invoice_date']);
+            } 
+            
+            redirect(base_url() . 'employee/invoice/invoice_summary/' . $data['vendor_partner'] . "/" . $data['vendor_partner_id']);
+        }  else {
+            echo "Please Enter Evoice Id";
         }
     }
 

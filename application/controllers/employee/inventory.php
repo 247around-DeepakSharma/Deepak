@@ -717,7 +717,8 @@ class Inventory extends CI_Controller {
      * @desc: This is used to display all spare parts booking
      */
     function get_spare_parts(){
-
+        log_melogssage('info', __FUNCTION__. "Entering... ");
+        $this->checkUserSession();
 	$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
        
 	$config['base_url'] = base_url() . 'employee/inventory/get_spare_parts/';
@@ -742,7 +743,9 @@ class Inventory extends CI_Controller {
      * @param type $booking_id
      */
     function update_spare_parts($booking_id){
-
+        log_melogssage('info', __FUNCTION__. "Entering... ");
+        $this->checkUserSession();
+        
         $where = array('spare_parts_details.booking_id'=> $booking_id);
         $where_in = array('Pending','Rescheduled', 'Completed', 'Cancelled');
         $data['bookinghistory'] = $this->partner_model->get_spare_parts_booking($where, $where_in);
@@ -760,7 +763,9 @@ class Inventory extends CI_Controller {
      * @param type $booking_id
      */
     function process_update_booking($booking_id){
+        log_melogssage('info', __FUNCTION__. "Entering... ");
         $this->checkUserSession();
+        if(!empty($booking_id)){
         $data['model_number'] = $this->input->post('model_number');
         $data['serial_number'] = $this->input->post('serial_number');
         $data['parts_requested'] = $this->input->post('parts_name');
@@ -799,19 +804,26 @@ class Inventory extends CI_Controller {
         $where = array('booking_id'=> $booking_id);
         $status_spare = $this->service_centers_model->spare_parts_action($where, $data);
         if($status_spare){
+            log_melogssage('info', __FUNCTION__. " Spare Parts Booking is updated");
             if($data['status'] == "Spare Parts Requested"){
+                log_melogssage('info', __FUNCTION__. " Change Current Status in Service Center Action table");
                 $sc_data['current_status'] = "InProcess";
                 $sc_data['internal_status'] = $data['status'];
                 $sc_data['update_date'] = date("Y-m-d H:i:s");
-
+          
                 $this->vendor_model->update_service_center_action($booking_id,$sc_data);
             }
             
             $this->notify->insert_state_change($booking_id, $data['status'], "" , "Spare Parts Updated By ".$this->session->userdata('employee_id') , $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
             
+        } else {
+            log_melogssage('info', __FUNCTION__. " Spare Parts Booking is not updated");
         }
         
         redirect(base_url()."employee/inventory/update_spare_parts/".$booking_id);
+        } else {
+            echo "Please Provide Booking Id";
+        }
     }
     
     /**
@@ -848,7 +860,7 @@ class Inventory extends CI_Controller {
 		return FALSE;
 	    }
 	}
-        log_message('info', __FUNCTION__. " Exit Service_center ID: ". $this->session->userdata('service_center_id'));
+        
     }
     /**
      * @desc: Check user Seession
@@ -861,7 +873,5 @@ class Inventory extends CI_Controller {
 	    redirect(base_url() . "employee/login");
 	}
     }
-        
-        
 
 }

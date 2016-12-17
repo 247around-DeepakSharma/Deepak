@@ -66,7 +66,7 @@
      <?php $count = 1; foreach ($invoicing_summary as $key => $value) { ?>
       <tr> 
         <td><?php echo $count; ?></td>
-        <td><?php echo $value['name']?></td>
+        <td> <a href="<?php echo base_url()?>employee/invoice/invoice_summary/<?php echo $value['vendor_partner']?>/<?php echo $value['id'] ?>" target='_blank'><?php echo $value['name']?></a></td>
         <td><?php if($value['final_amount'] <0){echo round($value['final_amount'],0); $foc +=abs(round($value['final_amount'],0));}?></td>
         <td><?php if($value['final_amount'] >0){echo round($value['final_amount'],0);  $cash +=abs(round($value['final_amount'],0));}?></td>
        
