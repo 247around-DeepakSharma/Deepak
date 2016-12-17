@@ -386,6 +386,7 @@ class User extends CI_Controller {
     function process_add_employee(){
         $data = $this->input->post();
         $data['employee_password'] = md5($this->input->post('employee_password'));
+        $data['clear_password'] = $this->input->post('employee_password');
         $data['create_date'] = date('Y-m-d H:i:s');
         $id = $this->employee_model->insertData($data);
         $this->session->set_userdata('success','Employee Added Sucessfully.');
@@ -427,6 +428,10 @@ class User extends CI_Controller {
      */
     function process_edit_employee(){
         $data = $this->input->post();
+        if(!empty($this->input->post('employee_password'))){
+            $data['employee_password'] = md5($this->input->post('employee_password'));
+            $data['clear_password'] = $this->input->post('employee_password');
+        }
         $this->employee_model->update($data['id'],$data);
         
         $this->session->set_userdata('success','Employee Updated Sucessfully.');

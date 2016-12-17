@@ -1421,4 +1421,6 @@ ALTER TABLE `brackets` CHANGE `order_id` `order_id` INT(50) NULL DEFAULT NULL;
 
 ALTER TABLE `brackets` ADD UNIQUE(`order_id`);
 
+ALTER TABLE `employee` ADD `exotel_phone` VARCHAR(15) NULL DEFAULT NULL AFTER `phone`;
+
 
