@@ -54,7 +54,7 @@
                                 <input type="checkbox" name='choice[]' value='<?php echo ($i) ?>' id="check_<?php echo $i ?>" onchange="return validate(this.id)"/>
                             </td>
                             <td>
-                                <select name="order_received_from[]" class="order_received_from" id="order_received_from_<?php echo $i ?>" class = "form-control" >
+                                <select name="order_received_from[]" class="order_received_from" id="order_received_from_<?php echo $i ?>" class = "form-control" disabled="">
                                     <option selected disabled hidden>Select Vendor</option>
                                     <?php foreach ($vendor as $value) { ?>
                                         <option value="<?php echo $value['id'] ?>"><?php echo $value['name'] ?> </option>
