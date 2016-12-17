@@ -38,6 +38,8 @@
          
     </head>
     <body>
+         <?php $CI =& get_instance(); 
+        $logged_id = $CI->session->userdata('id'); ?>
         <div id="wrapper">
         <!-- Navigation -->
         <!-- Navigation -->
@@ -147,7 +149,7 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="verifyby"><i class="fa fa-user"></i> <?php echo $this->session->userdata('employee_id'); ?> <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                         <li>
-                            <a href="<?php echo base_url() ?>employee/user/show_employee_list"><i class="fa fa-fw fa-desktop "></i> <strong>Show Employee List</strong></a>
+                            <a href="<?php echo base_url() ?>employee/user/update_employee/<?php echo $logged_id; ?>"><i class="fa fa-fw fa-desktop "></i> <strong>Edit Profile</strong></a>
                         </li>
                     </ul>
                 </li>
