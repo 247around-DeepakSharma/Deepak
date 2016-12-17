@@ -10,7 +10,7 @@
                     <center><?php
                         if (isset($id)) {
                             $action = "employee/user/process_edit_employee";
-                            echo "EDIT EMPLOYEE";
+                            echo "EDIT PROFILE";
                         } else {
                             $action = "employee/user/process_add_employee";
                             echo "ADD EMPLOYEE";
@@ -71,8 +71,8 @@
                             <label  for="employee_password" class="col-md-4">Password</label>
                             <div class="col-md-7">
                                 <input  type="password" class="form-control" id="employee_password" name="employee_password" value = "<?php
-                                if (isset($query[0]['employee_password'])) {
-                                    echo $query[0]['employee_password'];
+                                if (isset($query[0]['clear_password'])) {
+                                    echo $query[0]['clear_password'];
                                 }
                                 ?>" >
                                         <?php echo form_error('employee_password'); ?>
@@ -81,29 +81,11 @@
                     </div>
                     <div class="col-md-6">
                         <div  class="form-group <?php
-                        if (form_error('clear_password')) {
-                            echo 'has-error';
-                        }
-                        ?>">
-                            <label  for="clear_password" class="col-md-4">Clear Password</label>
-                            <div class="col-md-7">
-                                <input  type="text" class="form-control" id="clear_password" name="clear_password" value = "<?php
-                                if (isset($query[0]['clear_password'])) {
-                                    echo $query[0]['clear_password'];
-                                }
-                                ?>" placeholder="Clear Password">
-                                        <?php echo form_error('clear_password'); ?>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div  class="form-group <?php
                         if (form_error('phone')) {
                             echo 'has-error';
                         }
                         ?>">
-                            <label  for="phone" class="col-md-4">Phone</label>
+                            <label  for="phone" class="col-md-4">Personal Phone</label>
                             <div class="col-md-7">
                                 <input  type="text" class="form-control" id="phone" name="phone" value = "<?php
                                 if (isset($query[0]['phone'])) {
@@ -111,6 +93,23 @@
                                 }
                                 ?>" placeholder="Phone">
                                         <?php echo form_error('phone'); ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div  class="form-group <?php
+                        if (form_error('phone')) {
+                            echo 'has-error';
+                        }
+                        ?>">
+                            <label  for="exotel_phone" class="col-md-4">Exotel Phone</label>
+                            <div class="col-md-7">
+                                <input  type="text" class="form-control" id="exotel_phone" name="exotel_phone" value = "<?php
+                                if (isset($query[0]['exotel_phone'])) {
+                                    echo $query[0]['exotel_phone'];
+                                }
+                                ?>" placeholder="Exotel Phone">
+                                        <?php echo form_error('exotel_phone'); ?>
                             </div>
                         </div>
                     </div>
@@ -158,10 +157,11 @@
                             <div class="col-md-7">
                                 <select id="groups" class="form-control" name ="groups">
                                                 <option selected disabled>Select Groups</option>
-                                                <option value ="admin" <?php if($query[0]['groups'] == _247AROUND_ADMIN ){echo 'selected';}?> >ADMIN</option>
-                                                <option value ="regionalmanager" <?php if($query[0]['groups'] == _247AROUND_RM ){echo 'selected';}?> >Regional Managers</option>
-                                                <option value ="closure" <?php if($query[0]['groups'] == _247AROUND_CLOSURE ){echo 'selected';}?> >Closure</option>
-                                                <option value ="callcenter" <?php if($query[0]['groups'] == _247AROUND_CALLCENTER ){echo 'selected';}?> >Call-Center</option>
+                                                <option value ="admin" <?php if(isset($query[0]['groups']) == _247AROUND_ADMIN ){echo 'selected';}?> >ADMIN</option>
+                                                <option value ="developer" <?php if(isset($query[0]['groups']) == _247AROUND_DEVELOPER ){echo 'selected';}?> >Developer</option>
+                                                <option value ="regionalmanager" <?php if(isset($query[0]['groups']) == _247AROUND_RM ){echo 'selected';}?> >Regional Managers</option>
+                                                <option value ="closure" <?php if(isset($query[0]['groups']) == _247AROUND_CLOSURE ){echo 'selected';}?> >Closure</option>
+                                                <option value ="callcenter" <?php if(isset($query[0]['groups']) == _247AROUND_CALLCENTER ){echo 'selected';}?> >Call-Center</option>
                                              
                                 </select>
                                         <?php echo form_error('groups'); ?>
@@ -215,6 +215,9 @@
                                 },
                                 personal_email: {
                                     email: true
+                                },
+                                exotel_phone:{
+                                    required:true
                                 }
                             },
                             messages: {
@@ -222,7 +225,9 @@
                                 employee_password: "Please enter Password",
                                 clear_password: "Please Select Clear Password",
                                 groups: "Please select Groups",
-                                official_email: "Please enter Official email"
+                                official_email: "Please enter Official email",
+                                exotel_phone: "Please enter Exotel Phone",
+                                phone: "Please enter Personal Phone"
                             },
                             submitHandler: function (form) {
                                 form.submit();

@@ -66,7 +66,8 @@
                         <th class="jumbotron" style="padding:1px;text-align: center">Name</th>
                         <?php }?>
                         <th class="jumbotron" style="padding:1px;text-align: center">Full Name</th>
-                        <th class="jumbotron" style="padding:1px;text-align: center">Phone</th>
+                        <th class="jumbotron" style="padding:1px;text-align: center">Personal Phone</th>
+                        <th class="jumbotron" style="padding:1px;text-align: center">Exotel Phone</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">Official Email</th>
                         <th class="jumbotron" style="padding:1px;text-align: center">Personal Email</th>
                         <?php if($session_data['user_group'] == _247AROUND_ADMIN || $session_data['user_group'] == _247AROUND_DEVELOPER){?>
@@ -101,6 +102,7 @@
                             </td>
                             <td style="text-align: center;"><?php echo $value['full_name']?></td>
                             <td style="text-align: center;"><?php echo $value['phone']?></td>
+                            <td style="text-align: center;"><?php echo $value['exotel_phone']?></td>
                             <td style="text-align: center;"><?php echo $value['official_email']?></td>
                             <td style="text-align: center;"><?php echo $value['personal_email']?></td>
                             <?php if($session_data['user_group'] == _247AROUND_ADMIN || $session_data['user_group'] == _247AROUND_DEVELOPER) {?>
