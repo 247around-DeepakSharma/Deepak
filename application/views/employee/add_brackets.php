@@ -54,7 +54,7 @@
                                 <input type="checkbox" name='choice[]' value='<?php echo ($i) ?>' id="check_<?php echo $i ?>" onchange="return validate(this.id)"/>
                             </td>
                             <td>
-                                <select name="order_received_from[]" class="order_received_from" id="order_received_from_<?php echo $i ?>" class = "form-control">
+                                <select name="order_received_from[]" class="order_received_from" id="order_received_from_<?php echo $i ?>" class = "form-control" >
                                     <option selected disabled hidden>Select Vendor</option>
                                     <?php foreach ($vendor as $value) { ?>
                                         <option value="<?php echo $value['id'] ?>"><?php echo $value['name'] ?> </option>
@@ -62,13 +62,13 @@
                                 </select>
                             </td>
                             <td>
-                                <input typt='text' name='_19_24[]' id ="_19_24_<?php echo $i ?>"  class = "form-control" onchange="return add_value(this.id)"/>
+                                <input typt='text' name='_19_24[]' id ="_19_24_<?php echo $i ?>"   disabled="" class = "form-control" onchange="return add_value(this.id)"/>
                             </td>
                             <td>
-                                <input typt='text' name='_26_32[]' id = "_26_32_<?php echo $i ?>" class = "form-control" onchange="return add_value(this.id)"/>
+                                <input typt='text' name='_26_32[]' id = "_26_32_<?php echo $i ?>" disabled="" class = "form-control" onchange="return add_value(this.id)"/>
                             </td>
                             <td>
-                                <input typt='text' name='_36_42[]' id = "_36_42_<?php echo $i ?>"  class = "form-control" onchange="return add_value(this.id)"/>
+                                <input typt='text' name='_36_42[]' id = "_36_42_<?php echo $i ?>" disabled="" class = "form-control" onchange="return add_value(this.id)"/>
                             </td>
                             <td>
                                 <input type='text' id = 'total_<?php echo $i ?>' name='total' value='0' disabled="" class = "form-control"/>
@@ -102,7 +102,7 @@ $this->session->unset_userdata('brackets_error');
     
     $(document).ready(function(){
        $(".order_received_from").select2(); 
-       $(".order_given_to").select2(); 
+       $(".order_given_to").select2();
     });
 
 
@@ -150,16 +150,22 @@ $this->session->unset_userdata('brackets_error');
         var id = id.split("_")[1];
         if ($('#check_' + id).is(':checked')) {
             $("#_19_24_" + id).attr('required', true);
+            $("#_19_24_" + id).attr('disabled', false);
+            $("#order_received_from_" + id).attr('disabled', false);
             $("#_26_32_" + id).attr('required', true);
+            $("#_26_32_" + id).attr('disabled', false);
             $("#_36_42_" + id).attr('required', true);
+            $("#_36_42_" + id).attr('disabled', false);
             $("#order_received_from_" + id).attr('required', true);
-            $("#order_given_to_" + id).attr('required', true);
         } else {
-            $("#_19_24_" + id).removeAttr('required');
-            $("#_26_32_" + id).removeAttr('required');
-            $("#_36_42_" + id).removeAttr('required');
+            $("#order_received_from_" + id).attr('disabled', true);
             $("#order_received_from_" + id).removeAttr('required');
-            $("#order_given_to_" + id).removeAttr('required');
+            $("#_19_24_" + id).removeAttr('required');
+            $("#_19_24_" + id).attr('disabled', true);
+            $("#_26_32_" + id).removeAttr('required');
+            $("#_26_32_" + id).attr('disabled', true);
+            $("#_36_42_" + id).removeAttr('required');
+            $("#_36_42_" + id).attr('disabled', true);
         }
     }
 

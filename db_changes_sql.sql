@@ -1415,3 +1415,10 @@ ALTER TABLE `login_logout_details` CHANGE `employee_id` `entity_id` INT NOT NULL
 ALTER TABLE `login_logout_details` CHANGE `employee_type` `entity_type` VARCHAR(128) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
 
 
+-- Belal 17 Dec
+
+ALTER TABLE `brackets` CHANGE `order_id` `order_id` INT(50) NULL DEFAULT NULL;
+
+ALTER TABLE `brackets` ADD UNIQUE(`order_id`);
+
+
