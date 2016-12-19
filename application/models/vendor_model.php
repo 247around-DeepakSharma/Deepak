@@ -1113,11 +1113,13 @@ class vendor_model extends CI_Model {
 
     function get_all_pincode_mapping(){
         $sql = "SELECT vendor_pincode_mapping.Pincode, "
-                . "CONCAT('',GROUP_CONCAT(DISTINCT(vendor_pincode_mapping.Appliance)),'') as Appliance "
-                . "FROM vendor_pincode_mapping, service_centres "
-                . "WHERE Vendor_ID != '0' AND `Vendor_ID` = `service_centres`.`id` "
+                . "CONCAT('',GROUP_CONCAT(DISTINCT(services.services)),'') as Appliance "
+                . "FROM vendor_pincode_mapping, service_centres, services "
+                . "WHERE Vendor_ID != '0' "
+                . "AND `Vendor_ID` = `service_centres`.`id` "
                 . "AND `service_centres`.`active` = 1 "
-                . "GROUP BY vendor_pincode_mapping.Pincode ";
+                . "AND services.id = `Appliance_ID` "
+                . "GROUP BY vendor_pincode_mapping.Pincode";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
