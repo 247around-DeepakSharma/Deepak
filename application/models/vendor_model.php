@@ -1497,5 +1497,18 @@ class vendor_model extends CI_Model {
         return $query->result_array();
         
     }
+    /**
+     * @desc: This method is used to assign sc for given booking
+     * @param String $booking_id
+     * @param Array $data
+     * @return boolean
+     */
+    function assign_service_center_for_booking($booking_id, $data){
+        $this->db->where('booking_id', $booking_id);
+        $this->db->where('assigned_vendor_id is NOT NULL', NULL, FALSE);
+        $this->db->update('booking_details',$data);
+        return $this->db->affected_rows();
+        
+    }
     
 }
