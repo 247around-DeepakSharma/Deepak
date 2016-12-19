@@ -574,6 +574,31 @@ class vendor extends CI_Controller {
      */
     function activate($id) {
         $this->vendor_model->activate($id);
+        
+        //Getting Vendor Details
+        $sf_details = $this->vendor_model->getVendorContact($id);
+        $sf_name = $sf_details[0]['name'];
+        
+        //Sending Mail to corresponding RM and admin group 
+        $employee_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
+        if (!empty($employee_relation)) {
+            $rm_details = $this->employee_model->getemployeefromid($employee_relation[0]['agent_id']);
+            $to = $rm_details[0]['official_email'];
+
+            //Getting template from Database
+            $template = $this->booking_model->get_booking_email_template("sf_permanent_on_off");
+            if (!empty($template)) {
+                $email['rm_name'] = $rm_details[0]['full_name'];
+                $email['sf_name'] = ucfirst($sf_name);
+                $email['on_off'] = 'ON';
+                $subject = " Permanent ON Vendor " . $sf_name;
+                $emailBody = vsprintf($template[0], $email);
+                $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "");
+            }
+
+            log_message('info', __FUNCTION__ . ' Permanent ON of Vendor' . $sf_name);
+        }
+        
         //Storing State change values in Booking_State_Change Table
         $this->notify->insert_state_change('', _247AROUND_VENDOR_ACTIVATED, _247AROUND_VENDOR_DEACTIVATED, 'Vendor ID = '.$id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
         redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
@@ -589,6 +614,31 @@ class vendor extends CI_Controller {
      */
     function deactivate($id) {
         $this->vendor_model->deactivate($id);
+        
+        //Getting Vendor Details
+        $sf_details = $this->vendor_model->getVendorContact($id);
+        $sf_name = $sf_details[0]['name'];
+        
+        //Sending Mail to corresponding RM and admin group 
+        $employee_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
+        if (!empty($employee_relation)) {
+            $rm_details = $this->employee_model->getemployeefromid($employee_relation[0]['agent_id']);
+            $to = $rm_details[0]['official_email'];
+
+            //Getting template from Database
+            $template = $this->booking_model->get_booking_email_template("sf_permanent_on_off");
+            if (!empty($template)) {
+                $email['rm_name'] = $rm_details[0]['full_name'];
+                $email['sf_name'] = ucfirst($sf_name);
+                $email['on_off'] = 'OFF';
+                $subject = " Permanent OFF Vendor " . $sf_name;
+                $emailBody = vsprintf($template[0], $email);
+                $this->notify->sendEmail($template[2], $to, $template[3], '', $subject, $emailBody, "");
+            }
+
+            log_message('info', __FUNCTION__ . ' Permanent OFF of Vendor' . $sf_name);
+        }
+        
         //Storing State change values in Booking_State_Change Table
         $this->notify->insert_state_change('', _247AROUND_VENDOR_DEACTIVATED, _247AROUND_VENDOR_ACTIVATED, 'Vendor ID = '.$id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
         redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
