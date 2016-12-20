@@ -401,6 +401,7 @@ class vendor extends CI_Controller {
 		   $login['user_name'] = $sc_login_uname;
 		   $login['password'] = md5($sc_login_uname);
 		   $login['active'] = 1;
+                   $login['full_name'] = $this->input->post('primary_contact_name');
 
 		   $this->vendor_model->add_vendor_login($login);
                    
