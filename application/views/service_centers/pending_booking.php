@@ -455,7 +455,7 @@
                                             <th class="text-center" data-orderable="false">User/Phone</th>
                                             <th class="text-center" style="min-width:85px;"data-orderable="false">Address</th>
                                             
-                                            <th class="text-center" data-orderable="false">>Appliance</th>
+                                            <th class="text-center" data-orderable="false">Appliance</th>
                                             <th class="text-center" style="min-width:86px;" data-orderable="false">Booking Date</th>
                                             <th class="text-center" data-orderable="false">Age</th>
                                             <th class="text-center" data-orderable="false">Call Center Remarks</th>

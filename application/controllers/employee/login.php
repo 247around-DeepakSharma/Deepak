@@ -13,9 +13,10 @@ class Login extends CI_Controller {
         parent::__Construct();
         $this->load->model('employeelogin');
         $this->load->model('employee_model');
-        $this->load->model('filter_model');
+        
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
+        $this->load->library('user_agent');
     }
 
     /**
@@ -50,6 +51,24 @@ class Login extends CI_Controller {
             if ($login) {
                 $this->session->unset_userdata('email');
                 $this->setSession($login[0]['employee_id'], $login[0]['id'], $login[0]['phone']);
+                
+                //Saving Login Details in Database
+                $data['browser'] = $this->agent->browser();
+                $data['agent_string'] = $this->agent->agent_string();
+                $data['ip'] = $this->session->all_userdata()['ip_address'];
+                $data['action'] = _247AROUND_LOGIN;
+                $data['entity_type'] = $this->session->all_userdata()['userType'];
+                $data['agent_id'] = $this->session->all_userdata()['id'];
+                $data['entity_id'] = _247AROUND;
+                
+                $login_id = $this->employee_model->add_login_logout_details($data);
+                //Adding Log Details
+                if($login_id){
+                    log_message('info',__FUNCTION__.' Logging details have been captured for employee. Details are : '.print_r($data, TRUE));
+                }else{
+                    log_message('info',__FUNCTION__.' Err in capturing logging details for employee. Details are :  '. print_r($data, TRUE));
+                }
+               
                 $this->dashboard();
             } else {
                 $output = "Employee Name/ID or password is incorrect.";
@@ -90,7 +109,9 @@ class Login extends CI_Controller {
      *  @return : void
      */
     function setSession($employee_id, $id, $phone) {
-
+        // Getting values for Groups of particular employee
+        $groups = $this->employeelogin->get_employee_group_name($employee_id);
+        if($groups){
         $userSession = array(
             'session_id' => md5(uniqid(mt_rand(), true)),
             'employee_id' => $employee_id,
@@ -98,8 +119,16 @@ class Login extends CI_Controller {
             'phone' => $phone,
             'sess_expiration' => 30000,
             'loggedIn' => TRUE,
-            'userType' => 'employee'
+                'userType' => 'employee',
+                'user_group'=> $groups
         );
+        }
+        else{
+            //Logging Message 
+            log_message('info',__FUNCTION__.' No group has been assigned to employee with ID : '.$employee_id);
+            echo 'Sorry, this User is Not assigned in any groups.';
+            exit;
+        }
 
         $this->session->set_userdata($userSession);
     }
@@ -128,6 +157,24 @@ class Login extends CI_Controller {
      *  @return : void
      */
     function logout() {
+        //Saving Logout Details in Database
+
+        $data['browser'] = $this->agent->browser();
+        $data['agent_string'] = $this->agent->agent_string();
+        $data['ip'] = $this->session->all_userdata()['ip_address'];
+        $data['action'] = _247AROUND_LOGOUT;
+        $data['entity_type'] = $this->session->all_userdata()['userType'];
+        $data['agent_id'] = $this->session->all_userdata()['id'];
+        $data['entity_id'] = _247AROUND;
+        
+        $logout_id = $this->employee_model->add_login_logout_details($data);
+        //Adding Log Details
+        if ($logout_id) {
+            log_message('info', __FUNCTION__ . ' LOG OUT  details have been captured for employee ' . print_r($data,TRUE));
+        } else {
+            log_message('info', __FUNCTION__ . ' Err in capturing LOG OUT details for employee ' . print_r($data, TRUE));
+        }
+
         $this->session->sess_destroy();
         redirect(base_url() . "employee/login");
     }

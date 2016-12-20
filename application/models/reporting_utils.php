@@ -7,13 +7,28 @@ class Reporting_utils extends CI_Model {
      */
     function __construct() {
         parent::__Construct();
-
-        $this->db = $this->load->database('default', TRUE, TRUE);
     }
 
     //Get today's pending bookings to generate summary mail for Admin
     //Ignore queries and bookings having age < 3 days
-    function get_pending_bookings() {
+    //@params: id - ID of Employee logged in
+    //@return: user_group - Group of logged in user
+    
+    function get_pending_bookings($sf_list = "") {
+        if($sf_list != ""){
+            $where = "booking_details.current_status IN ('Pending', 'Rescheduled') 
+                AND service_centres.id  
+                                IN ("
+                                    .$sf_list.
+                                   ")
+                AND
+        DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 2
+                AND booking_details.assigned_vendor_id IS NOT NULL";
+        }else{
+            $where = "booking_details.current_status IN ('Pending', 'Rescheduled') AND 
+        DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 2
+                AND booking_details.assigned_vendor_id IS NOT NULL";
+        }
         $query = $this->db->query("SELECT booking_details.booking_id,
                 booking_details.booking_address,
                 booking_details.booking_pincode,
@@ -31,16 +46,16 @@ class Reporting_utils extends CI_Model {
                 users.name AS user_name,
                 users.phone_number AS user_phone,
                 service_centres.name AS sc_name,
+                service_centres.id AS sc_id,
                 service_centres.primary_contact_name AS sc_contact,
                 service_centres.primary_contact_phone_1 AS sc_phone
                 FROM (booking_details)
                 JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
                 JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
                 LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-                WHERE booking_details.current_status IN ('Pending', 'Rescheduled') AND
-		DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 2
-		ORDER BY booking_age DESC"
-	);
+                WHERE ".$where."
+        ORDER BY booking_age DESC"
+    );
 
         //$result = (bool) ($this->db->affected_rows() > 0);
 
@@ -49,7 +64,7 @@ class Reporting_utils extends CI_Model {
 
     //Get pending bookings to generate summary mail for service center
     function get_pending_bookings_by_sc($id) {
-	$query = $this->db->query("SELECT booking_details.booking_id,
+    $query = $this->db->query("SELECT booking_details.booking_id,
                 booking_details.booking_address,
                 booking_details.booking_pincode,
                 booking_details.booking_date,
@@ -72,19 +87,36 @@ class Reporting_utils extends CI_Model {
                 WHERE booking_details.assigned_vendor_id = '$id' AND
                 (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0) AND
                 booking_details.current_status IN ('Pending', 'Rescheduled')"
-	);
+    );
 
-	//$result = (bool) ($this->db->affected_rows() > 0);
+    //$result = (bool) ($this->db->affected_rows() > 0);
 
-	return $query->result_array();
+    return $query->result_array();
     }
 
     //Get num of pending bookings for each vendor
     //Ignore queries and bookings having age < 3 days
-    function get_num_pending_bookings_for_all_sc() {
-	$query = $this->db->query("SELECT service_centres.name AS sc_name, COUNT(booking_details.booking_id) AS num_bookings FROM `booking_details` LEFT JOIN service_centres ON booking_details.assigned_vendor_id = service_centres.id WHERE booking_details.current_status IN ('Pending', 'Rescheduled') AND  DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 2 GROUP BY sc_name ORDER BY num_bookings DESC");
+    function get_num_pending_bookings_for_all_sc($sf_list = "") {
+        if($sf_list != ""){
+            $where = "booking_details.current_status IN ('Pending', 'Rescheduled') "
+                    ."AND service_centres.id  
+                                IN ("
+                                    .$sf_list.
+                                   ")
+                AND
+        DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 2 ";
+        }else{
+            $where = "booking_details.current_status IN ('Pending', 'Rescheduled') "
+                   . "AND  DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 2 ";
+        }
+    $query = $this->db->query("SELECT service_centres.name AS sc_name, "
+                . "COUNT(booking_details.booking_id) AS num_bookings "
+                . "FROM `booking_details` LEFT JOIN service_centres "
+                . "ON booking_details.assigned_vendor_id = service_centres.id "
+                . "WHERE ".$where.""
+                . "GROUP BY sc_name ORDER BY num_bookings DESC");
 
-	return $query->result_array();
+    return $query->result_array();
     }
 
     //Get today's bookings for which job cards need to be generated
@@ -185,39 +217,14 @@ class Reporting_utils extends CI_Model {
         //echo $this->db->last_query();
     }
 
-    function get_pending_bookings2() {
-        //log_message('info', __METHOD__);
-
-        $this->db->select("booking_details.booking_id, booking_details.create_date, "
-            . "booking_details.items_selected, booking_details.total_price,"
-            . "DATEDIFF (CURRENT_TIMESTAMP, booking_details.create_date) as booking_age,"
-            . "services.services as service_name,"
-            . "users.name as user_name, users.phone_number as user_phone,"
-            . "service_centres.name as sc_name, "
-            . "service_centres.primary_contact_name as sc_contact,"
-            . "service_centres.primary_contact_phone_1 as sc_phone");
-        $this->db->from("booking_details");
-        $this->db->join('services', 'services.id = booking_details.service_id');
-        $this->db->join('users', 'users.user_id = booking_details.user_id');
-        $this->db->join('service_centres', 'service_centres.id = booking_details.assigned_vendor_id');
-
-        $query = $this->db->get();
-
-        //$result = (bool) ($this->db->affected_rows() > 0);
-        //log_message('info', __METHOD__ . " => SQL: " . $this->db->last_query() . ", Result: " . $result);
-        //log_message('info', print_r($query->result_array(), TRUE));
-
-        return $query->result_array();
-    }
-
     function find_service_centers() {
-	$query = $this->db->query("Select * from service_centres where active = 1");
-	return $query->result_array();
+    $query = $this->db->query("Select * from service_centres where active = 1");
+    return $query->result_array();
     }
 
     function find_all_service_centers() {
-	$query = $this->db->get("service_centres");
-	return $query->result_array();
+    $query = $this->db->get("service_centres");
+    return $query->result_array();
     }
 
     function installation_request_leads($partner_id, $date =""){
@@ -278,285 +285,285 @@ class Reporting_utils extends CI_Model {
     }
 
     function get_snapdeal_summary_params() {
-	//Count all leads
-	$total_install_req = $this->db->count_all_results('snapdeal_leads');
+    //Count all leads
+    $total_install_req = $this->db->count_all_results('snapdeal_leads');
 
-	//Count today leads
-	$today = date("d") . "/" . date("m");
-	$this->db->like('Referred_Date_and_Time', $today);
-	$today_install_req = $this->db->count_all_results('snapdeal_leads');
+    //Count today leads
+    $today = date("d") . "/" . date("m");
+    $this->db->like('Referred_Date_and_Time', $today);
+    $today_install_req = $this->db->count_all_results('snapdeal_leads');
 
-	//Count y'day leads
-	$yday = date("d", strtotime("-1 days")) . "/" . date("m", strtotime("-1 days"));
-	$this->db->like('Referred_Date_and_Time', $yday);
-	$yday_install_req = $this->db->count_all_results('snapdeal_leads');
+    //Count y'day leads
+    $yday = date("d", strtotime("-1 days")) . "/" . date("m", strtotime("-1 days"));
+    $this->db->like('Referred_Date_and_Time', $yday);
+    $yday_install_req = $this->db->count_all_results('snapdeal_leads');
 
-	//Count total installations scheduled
-	$this->db->where_in('Status_by_247around', array('Completed', 'Pending', 'Rescheduled'));
-	$total_install_sched = $this->db->count_all_results('snapdeal_leads');
+    //Count total installations scheduled
+    $this->db->where_in('Status_by_247around', array('Completed', 'Pending', 'Rescheduled'));
+    $total_install_sched = $this->db->count_all_results('snapdeal_leads');
 
-	//Count today installations scheduled
-	$this->db->where_in('Status_by_247around', array('Completed', 'Pending', 'Rescheduled'));
-	$this->db->like('Referred_Date_and_Time', $today);
-	$today_install_sched = $this->db->count_all_results('snapdeal_leads');
+    //Count today installations scheduled
+    $this->db->where_in('Status_by_247around', array('Completed', 'Pending', 'Rescheduled'));
+    $this->db->like('Referred_Date_and_Time', $today);
+    $today_install_sched = $this->db->count_all_results('snapdeal_leads');
 
-	//Count y'day installations scheduled
-	$this->db->where_in('Status_by_247around', array('Completed', 'Pending', 'Rescheduled'));
-	$this->db->like('Referred_Date_and_Time', $yday);
-	$yday_install_sched = $this->db->count_all_results('snapdeal_leads');
+    //Count y'day installations scheduled
+    $this->db->where_in('Status_by_247around', array('Completed', 'Pending', 'Rescheduled'));
+    $this->db->like('Referred_Date_and_Time', $yday);
+    $yday_install_sched = $this->db->count_all_results('snapdeal_leads');
 
-	//Count total installations completed
-	$this->db->where_in('Status_by_247around', array('Completed'));
-	$total_install_compl = $this->db->count_all_results('snapdeal_leads');
+    //Count total installations completed
+    $this->db->where_in('Status_by_247around', array('Completed'));
+    $total_install_compl = $this->db->count_all_results('snapdeal_leads');
 
-	//Count today installations completed
-	$this->db->where_in('Status_by_247around', array('Completed'));
-	$this->db->like('Referred_Date_and_Time', $today);
-	$today_install_compl = $this->db->count_all_results('snapdeal_leads');
+    //Count today installations completed
+    $this->db->where_in('Status_by_247around', array('Completed'));
+    $this->db->like('Referred_Date_and_Time', $today);
+    $today_install_compl = $this->db->count_all_results('snapdeal_leads');
 
-	//Count y'day installations completed
-	$this->db->where_in('Status_by_247around', array('Completed'));
-	$this->db->like('Referred_Date_and_Time', $yday);
-	$yday_install_compl = $this->db->count_all_results('snapdeal_leads');
+    //Count y'day installations completed
+    $this->db->where_in('Status_by_247around', array('Completed'));
+    $this->db->like('Referred_Date_and_Time', $yday);
+    $yday_install_compl = $this->db->count_all_results('snapdeal_leads');
 
-	//Count total installations pending
-	$total_install_pend = $total_install_sched - $total_install_compl;
-	//Count today installations pending
-	$today_install_pend = $today_install_sched - $today_install_compl;
-	//Count y'day installations pending
-	$yday_install_pend = $yday_install_sched - $yday_install_compl;
+    //Count total installations pending
+    $total_install_pend = $total_install_sched - $total_install_compl;
+    //Count today installations pending
+    $today_install_pend = $today_install_sched - $today_install_compl;
+    //Count y'day installations pending
+    $yday_install_pend = $yday_install_sched - $yday_install_compl;
 
-	//Count phone not reachable and to be followed up - Total
-	$this->db->where_in('Status_by_247around', array('FollowUp'));
-	$this->db->where_in('Remarks_by_247around', array('Customer Not Reachable'));
-	$total_ph_unreach = $this->db->count_all_results('snapdeal_leads');
+    //Count phone not reachable and to be followed up - Total
+    $this->db->where_in('Status_by_247around', array('FollowUp'));
+    $this->db->where_in('Remarks_by_247around', array('Customer Not Reachable'));
+    $total_ph_unreach = $this->db->count_all_results('snapdeal_leads');
 
-	//Count phone not reachable and to be followed up - Today
-	$this->db->where_in('Status_by_247around', array('FollowUp'));
-	$this->db->where_in('Remarks_by_247around', array('Customer Not Reachable'));
-	$this->db->like('Referred_Date_and_Time', $today);
-	$today_ph_unreach = $this->db->count_all_results('snapdeal_leads');
+    //Count phone not reachable and to be followed up - Today
+    $this->db->where_in('Status_by_247around', array('FollowUp'));
+    $this->db->where_in('Remarks_by_247around', array('Customer Not Reachable'));
+    $this->db->like('Referred_Date_and_Time', $today);
+    $today_ph_unreach = $this->db->count_all_results('snapdeal_leads');
 
-	//Count phone not reachable and to be followed up - Y'day
-	$this->db->where_in('Status_by_247around', array('FollowUp'));
-	$this->db->where_in('Remarks_by_247around', array('Customer Not Reachable'));
-	$this->db->like('Referred_Date_and_Time', $yday);
-	$yday_ph_unreach = $this->db->count_all_results('snapdeal_leads');
+    //Count phone not reachable and to be followed up - Y'day
+    $this->db->where_in('Status_by_247around', array('FollowUp'));
+    $this->db->where_in('Remarks_by_247around', array('Customer Not Reachable'));
+    $this->db->like('Referred_Date_and_Time', $yday);
+    $yday_ph_unreach = $this->db->count_all_results('snapdeal_leads');
 
-	//Count total installations Cancelled
-	$this->db->where_in('Status_by_247around', array('Cancelled'));
-	$total_install_cancl = $this->db->count_all_results('snapdeal_leads');
+    //Count total installations Cancelled
+    $this->db->where_in('Status_by_247around', array('Cancelled'));
+    $total_install_cancl = $this->db->count_all_results('snapdeal_leads');
 
-	//Count today installations Cancelled
-	$this->db->where_in('Status_by_247around', array('Cancelled'));
-	$this->db->like('Referred_Date_and_Time', $today);
-	$today_install_cancl = $this->db->count_all_results('snapdeal_leads');
+    //Count today installations Cancelled
+    $this->db->where_in('Status_by_247around', array('Cancelled'));
+    $this->db->like('Referred_Date_and_Time', $today);
+    $today_install_cancl = $this->db->count_all_results('snapdeal_leads');
 
-	//Count y'day installations Cancelled
-	$this->db->where_in('Status_by_247around', array('Cancelled'));
-	$this->db->like('Referred_Date_and_Time', $yday);
-	$yday_install_cancl = $this->db->count_all_results('snapdeal_leads');
+    //Count y'day installations Cancelled
+    $this->db->where_in('Status_by_247around', array('Cancelled'));
+    $this->db->like('Referred_Date_and_Time', $yday);
+    $yday_install_cancl = $this->db->count_all_results('snapdeal_leads');
 
-	//Count total - Already Installed
-	$this->db->where_in('Remarks_by_247around', array('Already Installed'));
-	$total_already_inst = $this->db->count_all_results('snapdeal_leads');
+    //Count total - Already Installed
+    $this->db->where_in('Remarks_by_247around', array('Already Installed'));
+    $total_already_inst = $this->db->count_all_results('snapdeal_leads');
 
-	//Count today - Already Installed
-	$this->db->where_in('Remarks_by_247around', array('Already Installed'));
-	$this->db->like('Referred_Date_and_Time', $today);
-	$today_already_inst = $this->db->count_all_results('snapdeal_leads');
+    //Count today - Already Installed
+    $this->db->where_in('Remarks_by_247around', array('Already Installed'));
+    $this->db->like('Referred_Date_and_Time', $today);
+    $today_already_inst = $this->db->count_all_results('snapdeal_leads');
 
-	//Count y'day - Already Installed
-	$this->db->where_in('Remarks_by_247around', array('Already Installed'));
-	$this->db->like('Referred_Date_and_Time', $yday);
-	$yday_already_inst = $this->db->count_all_results('snapdeal_leads');
+    //Count y'day - Already Installed
+    $this->db->where_in('Remarks_by_247around', array('Already Installed'));
+    $this->db->like('Referred_Date_and_Time', $yday);
+    $yday_already_inst = $this->db->count_all_results('snapdeal_leads');
 
-	//Count - Cancelled - Other reasons
-	$total_cancel_other = $total_install_cancl - $total_already_inst;
-	$today_cancel_other = $today_install_cancl - $today_already_inst;
-	$yday_cancel_other = $yday_install_cancl - $yday_already_inst;
+    //Count - Cancelled - Other reasons
+    $total_cancel_other = $total_install_cancl - $total_already_inst;
+    $today_cancel_other = $today_install_cancl - $today_already_inst;
+    $yday_cancel_other = $yday_install_cancl - $yday_already_inst;
 
-	//TAT calculation
-	$tat = "100";
-	//SELECT DATEDIFF(`closed_date`, STR_TO_DATE(`booking_date`,"%d-%m-%Y")) FROM `booking_details` where source='SS' AND current_status='Completed'
-	//Average Rating
-	$this->db->where('Rating_Stars !=', '');
-	$this->db->select_avg('Rating_Stars');
-	$query = $this->db->get('snapdeal_leads');
-	$avg_rating = $query->result_array()[0]['Rating_Stars'];
+    //TAT calculation
+    $tat = "100";
+    //SELECT DATEDIFF(`closed_date`, STR_TO_DATE(`booking_date`,"%d-%m-%Y")) FROM `booking_details` where source='SS' AND current_status='Completed'
+    //Average Rating
+    $this->db->where('Rating_Stars !=', '');
+    $this->db->select_avg('Rating_Stars');
+    $query = $this->db->get('snapdeal_leads');
+    $avg_rating = $query->result_array()[0]['Rating_Stars'];
 
-	$result = array(
-	    "total_install_req" => $total_install_req,
-	    "today_install_req" => $today_install_req,
-	    "yday_install_req" => $yday_install_req,
-	    "total_install_sched" => $total_install_sched,
-	    "today_install_sched" => $today_install_sched,
-	    "yday_install_sched" => $yday_install_sched,
-	    "total_install_compl" => $total_install_compl,
-	    "today_install_compl" => $today_install_compl,
-	    "yday_install_compl" => $yday_install_compl,
-	    "total_install_pend" => $total_install_pend,
-	    "today_install_pend" => $today_install_pend,
-	    "yday_install_pend" => $yday_install_pend,
-	    "total_ph_unreach" => $total_ph_unreach,
-	    "today_ph_unreach" => $today_ph_unreach,
-	    "yday_ph_unreach" => $yday_ph_unreach,
-	    "total_install_cancl" => $total_install_cancl,
-	    "today_install_cancl" => $today_install_cancl,
-	    "yday_install_cancl" => $yday_install_cancl,
-	    "total_already_inst" => $total_already_inst,
-	    "today_already_inst" => $today_already_inst,
-	    "yday_already_inst" => $yday_already_inst,
-	    "total_cancel_other" => $total_cancel_other,
-	    "today_cancel_other" => $today_cancel_other,
-	    "yday_cancel_other" => $yday_cancel_other,
-	    "tat" => $tat,
-	    "avg_rating" => round(floatval($avg_rating), 1)
-	);
+    $result = array(
+        "total_install_req" => $total_install_req,
+        "today_install_req" => $today_install_req,
+        "yday_install_req" => $yday_install_req,
+        "total_install_sched" => $total_install_sched,
+        "today_install_sched" => $today_install_sched,
+        "yday_install_sched" => $yday_install_sched,
+        "total_install_compl" => $total_install_compl,
+        "today_install_compl" => $today_install_compl,
+        "yday_install_compl" => $yday_install_compl,
+        "total_install_pend" => $total_install_pend,
+        "today_install_pend" => $today_install_pend,
+        "yday_install_pend" => $yday_install_pend,
+        "total_ph_unreach" => $total_ph_unreach,
+        "today_ph_unreach" => $today_ph_unreach,
+        "yday_ph_unreach" => $yday_ph_unreach,
+        "total_install_cancl" => $total_install_cancl,
+        "today_install_cancl" => $today_install_cancl,
+        "yday_install_cancl" => $yday_install_cancl,
+        "total_already_inst" => $total_already_inst,
+        "today_already_inst" => $today_already_inst,
+        "yday_already_inst" => $yday_already_inst,
+        "total_cancel_other" => $total_cancel_other,
+        "today_cancel_other" => $today_cancel_other,
+        "yday_cancel_other" => $yday_cancel_other,
+        "tat" => $tat,
+        "avg_rating" => round(floatval($avg_rating), 1)
+    );
 
-	return $result;
+    return $result;
     }
 
     function get_snapdeal_summary_params_new() {
-	//Count all Snapdeal leads
-	$this->db->like('source', 'SS');
-	$total_install_req = $this->db->count_all_results('booking_details');
+    //Count all Snapdeal leads
+    $this->db->like('source', 'SS');
+    $total_install_req = $this->db->count_all_results('booking_details');
 
-	//Count today leads which has create_date as today
-	$this->db->where('source', 'SS');
-	$this->db->where('create_date >= ', date('Y-m-d'));
-	$today_install_req = $this->db->count_all_results('booking_details');
+    //Count today leads which has create_date as today
+    $this->db->where('source', 'SS');
+    $this->db->where('create_date >= ', date('Y-m-d'));
+    $today_install_req = $this->db->count_all_results('booking_details');
 
-	//Count y'day leads
-	$this->db->where('source', 'SS');
-	$this->db->where('create_date >= ', date('Y-m-d', strtotime("-1 days")));
-	$this->db->where('create_date < ', date('Y-m-d'));
-	$yday_install_req = $this->db->count_all_results('booking_details');
+    //Count y'day leads
+    $this->db->where('source', 'SS');
+    $this->db->where('create_date >= ', date('Y-m-d', strtotime("-1 days")));
+    $this->db->where('create_date < ', date('Y-m-d'));
+    $yday_install_req = $this->db->count_all_results('booking_details');
 
-	//Count total installations scheduled
-	$this->db->where('source', 'SS');
-	$this->db->where_in('current_status', array('Pending', 'Rescheduled'));
-	$total_install_sched = $this->db->count_all_results('booking_details');
+    //Count total installations scheduled
+    $this->db->where('source', 'SS');
+    $this->db->where_in('current_status', array('Pending', 'Rescheduled'));
+    $total_install_sched = $this->db->count_all_results('booking_details');
 
-	//Count today installations scheduled
-	$this->db->like('booking_id', 'SS');
-	$this->db->where('new_state', 'Pending');
-	$this->db->where('create_date >= ', date('Y-m-d'));
-	$today_install_sched = $this->db->count_all_results('booking_state_change');
+    //Count today installations scheduled
+    $this->db->like('booking_id', 'SS');
+    $this->db->where('new_state', 'Pending');
+    $this->db->where('create_date >= ', date('Y-m-d'));
+    $today_install_sched = $this->db->count_all_results('booking_state_change');
 
-	//Count y'day installations scheduled
-	$this->db->like('booking_id', 'SS');
-	$this->db->where('new_state', 'Pending');
-	$this->db->where('create_date >= ', date('Y-m-d', strtotime("-1 days")));
-	$this->db->where('create_date < ', date('Y-m-d'));
-	$yday_install_sched = $this->db->count_all_results('booking_state_change');
+    //Count y'day installations scheduled
+    $this->db->like('booking_id', 'SS');
+    $this->db->where('new_state', 'Pending');
+    $this->db->where('create_date >= ', date('Y-m-d', strtotime("-1 days")));
+    $this->db->where('create_date < ', date('Y-m-d'));
+    $yday_install_sched = $this->db->count_all_results('booking_state_change');
 
-	//Count total installations completed
-	$this->db->where('source', 'SS');
-	$this->db->where_in('current_status', array('Completed'));
-	$total_install_compl = $this->db->count_all_results('booking_details');
+    //Count total installations completed
+    $this->db->where('source', 'SS');
+    $this->db->where_in('current_status', array('Completed'));
+    $total_install_compl = $this->db->count_all_results('booking_details');
 
-	//Count today installations completed
-	$this->db->where('source', 'SS');
-	$this->db->where_in('current_status', array('Completed'));
-	$this->db->where('closed_date >= ', date('Y-m-d'));
-	$today_install_compl = $this->db->count_all_results('booking_details');
+    //Count today installations completed
+    $this->db->where('source', 'SS');
+    $this->db->where_in('current_status', array('Completed'));
+    $this->db->where('closed_date >= ', date('Y-m-d'));
+    $today_install_compl = $this->db->count_all_results('booking_details');
 
-	//Count y'day installations completed
-	$this->db->where('source', 'SS');
-	$this->db->where_in('current_status', array('Completed'));
-	$this->db->where('closed_date >= ', date('Y-m-d', strtotime("-1 days")));
-	$this->db->where('closed_date < ', date('Y-m-d'));
-	$yday_install_compl = $this->db->count_all_results('booking_details');
+    //Count y'day installations completed
+    $this->db->where('source', 'SS');
+    $this->db->where_in('current_status', array('Completed'));
+    $this->db->where('closed_date >= ', date('Y-m-d', strtotime("-1 days")));
+    $this->db->where('closed_date < ', date('Y-m-d'));
+    $yday_install_compl = $this->db->count_all_results('booking_details');
 
-	//Count total follow-ups pending
-	$this->db->where('source', 'SS');
-	$this->db->where('current_status', 'FollowUp');
-	$total_followup_pend = $this->db->count_all_results('booking_details');
+    //Count total follow-ups pending
+    $this->db->where('source', 'SS');
+    $this->db->where('current_status', 'FollowUp');
+    $total_followup_pend = $this->db->count_all_results('booking_details');
 
-	//Count today follow-ups pending
-	$today = date("d-m-Y");
-	$where_today = "`source` LIKE '%SS%' AND `current_status`='FollowUp' AND (`booking_date`='' OR `booking_date`=$today)";
-	$this->db->where($where_today);
-	$today_followup_pend = $this->db->count_all_results('booking_details');
+    //Count today follow-ups pending
+    $today = date("d-m-Y");
+    $where_today = "`source` LIKE '%SS%' AND `current_status`='FollowUp' AND (`booking_date`='' OR `booking_date`=$today)";
+    $this->db->where($where_today);
+    $today_followup_pend = $this->db->count_all_results('booking_details');
 
-	//Count yday follow-ups pending
-	$yday = date("d-m-Y", strtotime("-1 days"));
-	$where_yday = "`source` LIKE '%SS%' AND `current_status`='FollowUp' AND `booking_date`=$yday";
-	$this->db->where($where_yday);
-	$yday_followup_pend = $this->db->count_all_results('booking_details');
+    //Count yday follow-ups pending
+    $yday = date("d-m-Y", strtotime("-1 days"));
+    $where_yday = "`source` LIKE '%SS%' AND `current_status`='FollowUp' AND `booking_date`=$yday";
+    $this->db->where($where_yday);
+    $yday_followup_pend = $this->db->count_all_results('booking_details');
 
-	//Count total installations Cancelled
-	$this->db->where('source', 'SS');
-	$this->db->where('current_status', 'Cancelled');
-	$total_install_cancl = $this->db->count_all_results('booking_details');
+    //Count total installations Cancelled
+    $this->db->where('source', 'SS');
+    $this->db->where('current_status', 'Cancelled');
+    $total_install_cancl = $this->db->count_all_results('booking_details');
 
-	//Count today installations Cancelled
-	$this->db->like('booking_id', 'SS');
-	$this->db->where('new_state', 'Cancelled');
-	$this->db->where('create_date >= ', date('Y-m-d'));
-	$today_install_cancl = $this->db->count_all_results('booking_state_change');
+    //Count today installations Cancelled
+    $this->db->like('booking_id', 'SS');
+    $this->db->where('new_state', 'Cancelled');
+    $this->db->where('create_date >= ', date('Y-m-d'));
+    $today_install_cancl = $this->db->count_all_results('booking_state_change');
 
-	//Count y'day installations Cancelled
-	$this->db->like('booking_id', 'SS');
-	$this->db->where('new_state', 'Cancelled');
-	$this->db->where('create_date >= ', date('Y-m-d', strtotime("-1 days")));
-	$this->db->where('create_date < ', date('Y-m-d'));
-	$yday_install_cancl = $this->db->count_all_results('booking_state_change');
+    //Count y'day installations Cancelled
+    $this->db->like('booking_id', 'SS');
+    $this->db->where('new_state', 'Cancelled');
+    $this->db->where('create_date >= ', date('Y-m-d', strtotime("-1 days")));
+    $this->db->where('create_date < ', date('Y-m-d'));
+    $yday_install_cancl = $this->db->count_all_results('booking_state_change');
 
-	//TAT calculation
-	$tat = "100";
-	//SELECT DATEDIFF(`closed_date`, STR_TO_DATE(`booking_date`,"%d-%m-%Y")) FROM `booking_details` where source='SS' AND current_status='Completed'
-	//Average Rating
-//	$this->db->where('Rating_Stars !=', '');
-//	$this->db->select_avg('Rating_Stars');
-//	$query = $this->db->get('snapdeal_leads');
-//	$avg_rating = $query->result_array()[0]['Rating_Stars'];
+    //TAT calculation
+    $tat = "100";
+    //SELECT DATEDIFF(`closed_date`, STR_TO_DATE(`booking_date`,"%d-%m-%Y")) FROM `booking_details` where source='SS' AND current_status='Completed'
+    //Average Rating
+//  $this->db->where('Rating_Stars !=', '');
+//  $this->db->select_avg('Rating_Stars');
+//  $query = $this->db->get('snapdeal_leads');
+//  $avg_rating = $query->result_array()[0]['Rating_Stars'];
 
-	$result = array(
-	    "total_install_req" => $total_install_req,
-	    "today_install_req" => $today_install_req,
-	    "yday_install_req" => $yday_install_req,
+    $result = array(
+        "total_install_req" => $total_install_req,
+        "today_install_req" => $today_install_req,
+        "yday_install_req" => $yday_install_req,
 
-	    "total_install_sched" => $total_install_sched,
-	    "today_install_sched" => $today_install_sched,
-	    "yday_install_sched" => $yday_install_sched,
+        "total_install_sched" => $total_install_sched,
+        "today_install_sched" => $today_install_sched,
+        "yday_install_sched" => $yday_install_sched,
 
-	    "total_install_compl" => $total_install_compl,
-	    "today_install_compl" => $today_install_compl,
-	    "yday_install_compl" => $yday_install_compl,
+        "total_install_compl" => $total_install_compl,
+        "today_install_compl" => $today_install_compl,
+        "yday_install_compl" => $yday_install_compl,
 
-	    "total_followup_pend" => $total_followup_pend,
-	    "today_followup_pend" => $today_followup_pend,
-	    "yday_followup_pend" => $yday_followup_pend,
+        "total_followup_pend" => $total_followup_pend,
+        "today_followup_pend" => $today_followup_pend,
+        "yday_followup_pend" => $yday_followup_pend,
 
-	    "total_install_cancl" => $total_install_cancl,
-	    "today_install_cancl" => $today_install_cancl,
-	    "yday_install_cancl" => $yday_install_cancl,
-	    "tat" => $tat,
-	);
+        "total_install_cancl" => $total_install_cancl,
+        "today_install_cancl" => $today_install_cancl,
+        "yday_install_cancl" => $yday_install_cancl,
+        "tat" => $tat,
+    );
 
-	return $result;
+    return $result;
     }
 
     function get_all_sd_leads() {
-//	$query = $this->db->query("SELECT * FROM snapdeal_leads");
-	$query = $this->db->query("SELECT BD.booking_id, order_id, booking_date, booking_timeslot,
-			BD.current_status, BD.internal_status, rating_stars,
-			DATE_FORMAT(BD.create_date, '%d/%M') as create_date,
-			services,
-			UD.appliance_brand, UD.appliance_description,
-			name, phone_number, home_address, pincode, users.city
-			FROM booking_details as BD, users, services, booking_unit_details as UD
-			WHERE BD.booking_id = UD.booking_id AND
-			BD.service_id = services.id AND
-			BD.user_id = users.user_id AND
-			BD.source = 'SS' AND
-			BD.create_date > (CURDATE() - INTERVAL 1 MONTH)");
+//  $query = $this->db->query("SELECT * FROM snapdeal_leads");
+    $query = $this->db->query("SELECT BD.booking_id, order_id, booking_date, booking_timeslot,
+            BD.current_status, BD.internal_status, rating_stars,
+            DATE_FORMAT(BD.create_date, '%d/%M') as create_date,
+            services,
+            UD.appliance_brand, UD.appliance_description,
+            name, phone_number, home_address, pincode, users.city
+            FROM booking_details as BD, users, services, booking_unit_details as UD
+            WHERE BD.booking_id = UD.booking_id AND
+            BD.service_id = services.id AND
+            BD.user_id = users.user_id AND
+            BD.source = 'SS' AND
+            BD.create_date > (CURDATE() - INTERVAL 1 MONTH)");
 
-	//$result = (bool) ($this->db->affected_rows() > 0);
+    //$result = (bool) ($this->db->affected_rows() > 0);
 
-	return $query->result_array();
+    return $query->result_array();
     }
 
     function get_all_partner_leads($partner_id){
@@ -580,30 +587,30 @@ class Reporting_utils extends CI_Model {
      */
 
     function get_completed_bookings_by_sc($id, $s_date, $e_date) {
-	$query = $this->db->query("
-	    SELECT booking_details.booking_id,
-	    services.services AS service_name,
-	    booking_details.booking_date,
-	    Date_Format(booking_details.closed_date,'%d-%m-%Y') AS closed_date,
-	    booking_details.service_charge,
-	    booking_details.additional_service_charge,
-	    booking_details.parts_cost,
-	    booking_details.amount_paid,
-	    booking_details.rating_stars AS rating
-	    FROM booking_details, services
-	    WHERE booking_details.current_status =  'Completed'
-	    AND booking_details.closed_date >=  '$s_date'
-	    AND booking_details.closed_date <=  '$e_date'
-	    AND
-		((booking_details.partner_id IS NULL) OR
-		(booking_details.partner_id = 1 AND booking_details.service_id IN (44,50)) OR
-		(booking_details.partner_id = 1 AND booking_details.service_id NOT IN (44,50) AND booking_details.parts_cost!='0'))
-	    AND booking_details.service_id = services.id
-	    AND booking_details.assigned_vendor_id = $id");
+    $query = $this->db->query("
+        SELECT booking_details.booking_id,
+        services.services AS service_name,
+        booking_details.booking_date,
+        Date_Format(booking_details.closed_date,'%d-%m-%Y') AS closed_date,
+        booking_details.service_charge,
+        booking_details.additional_service_charge,
+        booking_details.parts_cost,
+        booking_details.amount_paid,
+        booking_details.rating_stars AS rating
+        FROM booking_details, services
+        WHERE booking_details.current_status =  'Completed'
+        AND booking_details.closed_date >=  '$s_date'
+        AND booking_details.closed_date <=  '$e_date'
+        AND
+        ((booking_details.partner_id IS NULL) OR
+        (booking_details.partner_id = 1 AND booking_details.service_id IN (44,50)) OR
+        (booking_details.partner_id = 1 AND booking_details.service_id NOT IN (44,50) AND booking_details.parts_cost!='0'))
+        AND booking_details.service_id = services.id
+        AND booking_details.assigned_vendor_id = $id");
 
-	//$result = (bool) ($this->db->affected_rows() > 0);
+    //$result = (bool) ($this->db->affected_rows() > 0);
 
-	return $query->result_array();
+    return $query->result_array();
     }
 
     /*
@@ -615,27 +622,27 @@ class Reporting_utils extends CI_Model {
      */
 
     function get_sw_completed_bookings_by_sc($id, $s_date, $e_date) {
-	$query = $this->db->query("
-	    SELECT booking_details.booking_id,
-	    services.services AS service_name,
-	    booking_details.booking_date,
-	    Date_Format(booking_details.closed_date,'%d-%m-%Y') AS closed_date,
-	    booking_details.service_charge,
-	    booking_details.additional_service_charge,
-	    booking_details.parts_cost,
-	    booking_details.amount_paid,
-	    booking_details.rating_stars AS rating
-	    FROM booking_details, services
-	    WHERE booking_details.current_status =  'Completed'
-	    AND booking_details.closed_date >=  '$s_date'
-	    AND booking_details.closed_date <=  '$e_date'
-	    AND booking_details.partner_id LIKE 247001
-	    AND booking_details.service_id = services.id
-	    AND booking_details.assigned_vendor_id = $id");
+    $query = $this->db->query("
+        SELECT booking_details.booking_id,
+        services.services AS service_name,
+        booking_details.booking_date,
+        Date_Format(booking_details.closed_date,'%d-%m-%Y') AS closed_date,
+        booking_details.service_charge,
+        booking_details.additional_service_charge,
+        booking_details.parts_cost,
+        booking_details.amount_paid,
+        booking_details.rating_stars AS rating
+        FROM booking_details, services
+        WHERE booking_details.current_status =  'Completed'
+        AND booking_details.closed_date >=  '$s_date'
+        AND booking_details.closed_date <=  '$e_date'
+        AND booking_details.partner_id LIKE 247001
+        AND booking_details.service_id = services.id
+        AND booking_details.assigned_vendor_id = $id");
 
-	//$result = (bool) ($this->db->affected_rows() > 0);
+    //$result = (bool) ($this->db->affected_rows() > 0);
 
-	return $query->result_array();
+    return $query->result_array();
     }
 
     /*
@@ -669,25 +676,25 @@ class Reporting_utils extends CI_Model {
      */
 
     function get_completed_partner_bookings_by_sc($id) {
-	/*
-	 *
-	 * SELECT partner_leads_for_foc_invoicing.*, booking_details.assigned_vendor_id
-	  FROM partner_leads_for_foc_invoicing, booking_details
-	  WHERE partner_leads_for_foc_invoicing.booking_id = booking_details.booking_id
-	  AND booking_details.assigned_vendor_id = $id
-	 */
+    /*
+     *
+     * SELECT partner_leads_for_foc_invoicing.*, booking_details.assigned_vendor_id
+      FROM partner_leads_for_foc_invoicing, booking_details
+      WHERE partner_leads_for_foc_invoicing.booking_id = booking_details.booking_id
+      AND booking_details.assigned_vendor_id = $id
+     */
 
-	$query = $this->db->query("
-	    SELECT partner_leads_for_foc_invoicing_may.*, booking_details.assigned_vendor_id
-	  FROM partner_leads_for_foc_invoicing_may, booking_details
-	  WHERE partner_leads_for_foc_invoicing_may.booking_id = booking_details.booking_id
-	  AND booking_details.assigned_vendor_id = $id");
+    $query = $this->db->query("
+        SELECT partner_leads_for_foc_invoicing_may.*, booking_details.assigned_vendor_id
+      FROM partner_leads_for_foc_invoicing_may, booking_details
+      WHERE partner_leads_for_foc_invoicing_may.booking_id = booking_details.booking_id
+      AND booking_details.assigned_vendor_id = $id");
 
-	return $query->result_array();
+    return $query->result_array();
     }
 
     function get_email_for_partner($partner_id) {
-	$this->db->select('partner_email_for_to, partner_email_for_cc');
+    $this->db->select('partner_email_for_to, partner_email_for_cc');
         $this->db->where('partner_id',$partner_id);
         $query = $this->db->get('bookings_sources');
         return $query->result_array();
@@ -850,18 +857,23 @@ class Reporting_utils extends CI_Model {
     
     /*
      * @desc: This function is used to get reporting data acc to service center
-     * params: void
+     * params: String sf_list
      * return: Array
      */
 
-    function get_booking_by_service_center() {
+    function get_booking_by_service_center($sf_list = "") {
+        if($sf_list != ""){
+            $where = " AND service_centres.id  IN (".$sf_list.") ";
+        }else{
+            $where = "";
+        }
 
         $sql_yesterday_booked = "SELECT count(distinct(`booking_state_change`.booking_id)) as booked, service_centres.name as service_center_name, service_centres.state, service_centres.district as city ,service_centres.id as service_center_id , service_centres.active as active 
                                 FROM  `booking_state_change`, `booking_details` , service_centres
                                 WHERE  `new_state`
                                 IN (
                                 'Pending',  'Rescheduled'
-                                )
+                                )".$where."
                                 AND booking_state_change.create_date >= DATE_SUB( CURDATE( ) , INTERVAL 1
                                 DAY )
                                 AND booking_state_change.create_date < CURDATE()
@@ -874,6 +886,7 @@ class Reporting_utils extends CI_Model {
                                     ) ) AS completed, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city ,service_centres.id as service_center_id , service_centres.active as active
                                     FROM `booking_details` , service_centres
                                     WHERE `current_status` = 'Completed'
+                                    ".$where."
                                     AND booking_details.closed_date >= DATE_SUB( CURDATE() , INTERVAL 1 
                                     DAY ) 
                                     AND booking_details.closed_date < CURDATE() 
@@ -885,6 +898,7 @@ class Reporting_utils extends CI_Model {
                                     ) ) AS cancelled, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city, service_centres.id as service_center_id , service_centres.active as active
                                     FROM `booking_details` , service_centres
                                     WHERE `current_status` = 'Cancelled'
+                                    ".$where."
                                     AND booking_details.closed_date >= DATE_SUB( CURDATE() , INTERVAL 1 
                                     DAY ) 
                                     AND booking_details.closed_date < CURDATE() 
@@ -896,6 +910,7 @@ class Reporting_utils extends CI_Model {
                                             ) ) AS completed, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city , service_centres.id as service_center_id , service_centres.active as active
                                             FROM `booking_details` , service_centres
                                             WHERE `current_status` = 'Completed'
+                                            ".$where."
                                             AND DATE_FORMAT( booking_details.closed_date, '%m' ) = MONTH( CURDATE() ) 
                                             AND DATE_FORMAT( booking_details.closed_date, '%Y' ) = YEAR( CURDATE() )
                                             AND `service_centres`.id = `booking_details`.assigned_vendor_id
@@ -905,6 +920,7 @@ class Reporting_utils extends CI_Model {
                                             ) ) AS cancelled, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city , service_centres.id as service_center_id , service_centres.active as active
                                             FROM `booking_details` , service_centres
                                             WHERE `current_status` = 'Cancelled'
+                                            ".$where."
                                             AND DATE_FORMAT( booking_details.closed_date, '%m' ) = MONTH( CURDATE() ) 
                                             AND DATE_FORMAT( booking_details.closed_date, '%Y' ) = YEAR( CURDATE() )
                                             AND `service_centres`.id = `booking_details`.assigned_vendor_id
@@ -917,6 +933,7 @@ class Reporting_utils extends CI_Model {
                             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0
                             AND 
                             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) <= 2
+                            ".$where."
                             AND current_status
                             IN (
                             'Pending', 'Rescheduled'
@@ -930,6 +947,7 @@ class Reporting_utils extends CI_Model {
                             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 3
                             AND 
                             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) <= 5
+                            ".$where."
                             AND current_status
                             IN (
                             'Pending', 'Rescheduled'
@@ -940,7 +958,8 @@ class Reporting_utils extends CI_Model {
                             FROM booking_details
                             JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id
                             WHERE 
-				DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 5
+                DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 5
+                            ".$where."
                             AND current_status
                             IN (
                             'Pending', 'Rescheduled'
@@ -1157,13 +1176,13 @@ class Reporting_utils extends CI_Model {
      */
     function get_sc_crimes($where){
         log_message('info', __FUNCTION__);
-        
+
         // Get All Service center who has is_update filed is 1.
         $sql = "SELECT id, name FROM service_centres WHERE "
                 . " active = '1' AND is_update = '1' $where ORDER BY name ";
         $query = $this->db->query($sql);
         $sc = $query->result_array();
-        
+
         $data = array();
         foreach ($sc as $value) {
             $un_assigned = 0;
@@ -1176,67 +1195,66 @@ class Reporting_utils extends CI_Model {
             $query1 = $this->db->query($sql1);
             $result1 = $query1->result_array();
             // Count, Booking is not updated
-             $sql2 = "SELECT count(distinct(BD.booking_id)) as not_update FROM booking_details as BD, 
+            $sql2 = "SELECT count(distinct(BD.booking_id)) as not_update FROM booking_details as BD, 
                       service_center_booking_action as sc 
                       WHERE BD.Current_status IN ('Pending', 'Rescheduled') 
-                      AND assigned_vendor_id = '".$value['id']."' 
+                      AND assigned_vendor_id = '" . $value['id'] . "' 
                       
                       AND sc.current_status = 'Pending' 
                       AND sc.booking_id = BD.booking_id 
                       AND NOT EXISTS (SELECT booking_id FROM booking_state_change WHERE booking_id =BD.booking_id 
-                      AND service_center_id = '".$value['id']."' 
+                      AND service_center_id = '" . $value['id'] . "' 
                       AND DATEDIFF(CURRENT_TIMESTAMP , create_date) = 0) 
                       AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= 0";
             $query2 = $this->db->query($sql2);
             $result2 = $query2->result_array();
-            
-            if(!empty($result1)){
-                    $un_assigned = $result1[0]['unassigned_engineer'];
-            }
-            
-             if(!empty($result2)){
-                 $not_update = $result2[0]['not_update'];
-             }
-             
-            $where = array('service_center_id'=>$value['id']);
-            // Get Old Crimes
-            $old_crimes = $this->get_crimes($where);
-            if(!empty($old_crimes)){
-                $data1['old_crimes'] = $old_crimes[0]['total_missed_target'];
-            } else {
-                 $data1['old_crimes'] = 0;
-            }
-            
-            // insert or update crimes after 10:15 PM
-           
-            if(date('H:i') > '22:15'){
-               
-                $sc_crimes['service_center_id'] = $value['id'];
-                if(!empty($result1)){
-                    $sc_crimes['engineer_not_assigned'] = $un_assigned;
-                   
-                }
-                
-                if(!empty($result2)){
-                    $sc_crimes['booking_not_updated'] = $not_update;
-                    
-                }
-                
-                $sc_crimes['total_missed_target'] = ($un_assigned + $not_update );
-                $sc_crimes['update_date'] = date('Y-m-d H:i:s');
-                
-                $this->store_old_sc_crimes($sc_crimes);
-            }
-            
-            $data1['service_center_id'] = $value['id'];
-            $data1['service_center_name'] = $value['name'];
-            $data1['un_assigned'] = $un_assigned;
-            $data1['not_update'] = $not_update;
-            $data1['total_crimes'] = ($un_assigned +$not_update );
-            
-            array_push($data, $data1);
-            unset($data1);
+            if (!empty($result2)) {
 
+                if (!empty($result1)) {
+                    $un_assigned = $result1[0]['unassigned_engineer'];
+                }
+
+                if (!empty($result2)) {
+                    $not_update = $result2[0]['not_update'];
+                }
+
+                $where = array('service_center_id' => $value['id']);
+                // Get Old Crimes
+                $old_crimes = $this->get_crimes($where);
+                if (!empty($old_crimes)) {
+                    $data1['old_crimes'] = $old_crimes[0]['total_missed_target'];
+                } else {
+                    $data1['old_crimes'] = 0;
+                }
+
+                // insert or update crimes after 10:15 PM
+
+                if (date('H:i') > '22:15') {
+
+                    $sc_crimes['service_center_id'] = $value['id'];
+                    if (!empty($result1)) {
+                        $sc_crimes['engineer_not_assigned'] = $un_assigned;
+                    }
+
+                    if (!empty($result2)) {
+                        $sc_crimes['booking_not_updated'] = $not_update;
+                    }
+
+                    $sc_crimes['total_missed_target'] = ($un_assigned + $not_update );
+                    $sc_crimes['update_date'] = date('Y-m-d H:i:s');
+
+                    $this->store_old_sc_crimes($sc_crimes);
+                }
+
+                $data1['service_center_id'] = $value['id'];
+                $data1['service_center_name'] = $value['name'];
+                $data1['un_assigned'] = $un_assigned;
+                $data1['not_update'] = $not_update;
+                $data1['total_crimes'] = ($un_assigned + $not_update );
+
+                array_push($data, $data1);
+                unset($data1);
+            }
         }
         return $data;
     }
@@ -1306,18 +1324,22 @@ class Reporting_utils extends CI_Model {
 
     /**
      * @Desc: This function is used to get New Vendors Data
-     * @params: void
+     * @params: string sf_list for RM
      * @return : void
      */
-    function get_booking_for_new_service_center(){
-        
-        $data = [];
+    function get_booking_for_new_service_center($sf_list = ""){
+        if($sf_list != ""){
+            $where = " AND service_centres.id  IN (" .$sf_list.") ";
+        }else{
+            $where = "";
+        }
         $yesterday_bookings_gone = "SELECT count(distinct(`booking_state_change`.booking_id)) as booked, service_centres.id as service_center_id 
                                 FROM  `booking_state_change`, `booking_details` , service_centres
                                 WHERE  `new_state`
                                 IN (
                                 'Pending',  'Rescheduled'
                                 )
+                                ".$where."
                                 AND booking_state_change.create_date >= DATE_SUB( CURDATE( ) , INTERVAL 1
                                 DAY )
                                 AND booking_state_change.create_date < CURDATE()
@@ -1333,6 +1355,7 @@ class Reporting_utils extends CI_Model {
                                             WHERE 
                                                 DATE_FORMAT( booking_details.create_date, '%m' ) = MONTH( CURDATE() ) 
                                                 AND DATE_FORMAT( booking_details.create_date, '%Y' ) = YEAR( CURDATE() )
+                                            ".$where."
                                             AND service_centres.create_date BETWEEN CURDATE() - INTERVAL 60 DAY AND CURDATE()
                                             AND `service_centres`.id = `booking_details`.assigned_vendor_id
                                             GROUP BY service_centres.state, service_centres.name";
@@ -1342,6 +1365,7 @@ class Reporting_utils extends CI_Model {
                                             ) ) AS cancelled, service_centres.id as service_center_id 
                                             FROM `booking_details` , service_centres
                                             WHERE `current_status` = 'Cancelled'
+                                            ".$where."
                                             AND DATE_FORMAT( booking_details.create_date, '%m' ) = MONTH( CURDATE() ) 
                                             AND DATE_FORMAT( booking_details.create_date, '%Y' ) = YEAR( CURDATE() )
                                             AND service_centres.create_date BETWEEN CURDATE() - INTERVAL 60 DAY AND CURDATE()
@@ -1352,6 +1376,7 @@ class Reporting_utils extends CI_Model {
                                             ) ) AS completed, service_centres.id as service_center_id 
                                             FROM `booking_details` , service_centres
                                             WHERE `current_status` = 'Completed'
+                                            ".$where."
                                             AND DATE_FORMAT( booking_details.create_date, '%m' ) = MONTH( CURDATE() ) 
                                             AND DATE_FORMAT( booking_details.create_date, '%Y' ) = YEAR( CURDATE() )
                                              AND service_centres.create_date BETWEEN CURDATE() - INTERVAL 60 DAY AND CURDATE()
@@ -1363,6 +1388,7 @@ class Reporting_utils extends CI_Model {
                                             JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id
                                             WHERE 
                                             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0
+                                            ".$where."
                                             AND 
                                             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) <= 2
                                             AND current_status
@@ -1379,6 +1405,7 @@ class Reporting_utils extends CI_Model {
                                             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 3
                                             AND 
                                             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) <= 5
+                                            ".$where."
                                             AND current_status
                                             IN (
                                             'Pending', 'Rescheduled'
@@ -1391,6 +1418,7 @@ class Reporting_utils extends CI_Model {
                                                     JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id
                                                     WHERE 
                                                                 DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 5
+                                                    ".$where."
                                                     AND current_status
                                                     IN (
                                                     'Pending', 'Rescheduled'
@@ -1422,6 +1450,30 @@ class Reporting_utils extends CI_Model {
         }
         return $sc_array;
     }
-
+    
+    /**
+     * @Desc : This function is used to insert values in scheduler_tasks_log table for each execution of 
+     *          Scheduler Tasks that has been executed.
+     * @params: Array of Data
+     * @return : void
+     * 
+     */
+    function insert_scheduler_tasks_log($tasks){
+        $data['task_name'] = $tasks;
+        $this->db->insert('scheduler_tasks_log',$data);
+    }
+    
+    /**
+     * @Desc: This function is used to get values from scheduler tasks log table by Date
+     * @params: date
+     * @return: Array
+     * 
+     */
+    function  get_scheduler_tasks_log($date){
+        $this->db->select('*');
+        $this->db->like('executed_on',$date);
+        $query = $this->db->get('scheduler_tasks_log');
+        return $query->result_array();
+    }
 
 }

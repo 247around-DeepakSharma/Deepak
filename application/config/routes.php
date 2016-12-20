@@ -94,7 +94,8 @@ $route['partner/update_spare_parts_form/(:any)'] = 'employee/partner/update_spar
 $route['partner/download_spare_parts'] = 'employee/partner/download_spare_parts';
 $route['partner/download_sc_address/(:any)'] = 'employee/partner/download_sc_address/$1';
 $route['partner/download_courier_manifest/(:any)'] = 'employee/partner/download_courier_manifest/$1';
-
+$route['partner/get_booking_life_cycle/(:any)'] = 'employee/partner/get_booking_life_cycle/$1';
+$route['partner/print_all'] = 'employee/partner/print_all';
 //$route['api/(:any)'] = 'partner/$2';
 
 /* End of file routes.php */

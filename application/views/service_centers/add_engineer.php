@@ -135,6 +135,19 @@
                                     <div class="col-md-6" >
                                        <input type="file" class="form-control" name="file" >
                                     </div>
+                                    <div class='col-md-2'>
+                                        <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                if (isset($data[0]['identity_proof_pic']) && !empty($data[0]['identity_proof_pic'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/bookings-collateral/engineer-id-proofs/" . $data[0]['identity_proof_pic'];
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                            <?php if(isset($data[0]['identity_proof_pic']) && !empty($data[0]['identity_proof_pic'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('identity_proof_pic',<?php echo $data[0]['id']?>)" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 40px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php }?>
+                                    </div>
                                     
                                     <?php echo form_error('file'); ?>
                                 </div>
@@ -183,6 +196,19 @@
                                     <label for="Identity Picture" class="col-md-4">Bank Passbook/Cheque Photo</label>
                                     <div class="col-md-6" >
                                        <input type="file" class="form-control" name="bank_proof_pic" >
+                                    </div>
+                                    <div class='col-md-2'>
+                                        <?php
+                                                $src = base_url() . 'images/no_image.png';
+                                                if (isset($data[0]['bank_proof_pic']) && !empty($data[0]['bank_proof_pic'])) {
+                                                    //Path to be changed
+                                                    $src = "https://s3.amazonaws.com/bookings-collateral/engineer-bank-proofs/" . $data[0]['bank_proof_pic'];
+                                                }
+                                                ?>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                            <?php if(isset($data[0]['bank_proof_pic']) && !empty($data[0]['bank_proof_pic'])){?>
+                                            <a href="javascript:void(0)" onclick="remove_image('bank_proof_pic',<?php echo $data[0]['id']?>)" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 40px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <?php }?>
                                     </div>
                                     
                                     <?php echo form_error('bank_proof_pic'); ?>
@@ -337,7 +363,22 @@
 //        }
 
     }
-
+    
+    function remove_image(type,engineer_id){
+            var c  = confirm('Do you want to permanently remove photo?');
+            if(c){
+             $.ajax({
+                        type: 'POST',
+                        url: '<?php echo base_url(); ?>employee/vendor/remove_engineer_image',
+                        data: {type: type, id: engineer_id},
+                        success: function (data) {
+                             location.reload();
+                            }
+                    });
+                 }else{
+                    return false;
+                 }
+        }
   
 
 

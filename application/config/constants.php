@@ -136,6 +136,12 @@ define('_247AROUND_VENDOR_NON_SUSPENDED','Vendor Non_Suspended');
 
 define("INSERT_NEW_BOOKING", "INSERT_NEW_BOOKING");
 
+//Constant to define groups
+define('_247AROUND_ADMIN','admin');
+define('_247AROUND_CALLCENTER','callcenter');
+define('_247AROUND_CLOSURE','closure');
+define('_247AROUND_RM','regionalmanager');
+define('_247AROUND_DEVELOPER','developer');
 
 define('SPARE_PARTS_REQUIRED', 'Spare Parts Required');
 
@@ -152,8 +158,6 @@ define('CUSTOMER_ASK_TO_RESCHEDULE','Customer asked to reschedule');
 define('CUSTOMER_NOT_REACHABLE','Customer not reachable');
 //constant to define default brackets order id
 define('_247_AROUND_DEFAULT_BRACKETS_ORDER_ID',201611000001);
-
-
 
 
 

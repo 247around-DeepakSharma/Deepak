@@ -28,16 +28,16 @@
                <th  style="border-bottom-width: 2px;border: 1px solid #ddd;
                   vertical-align: bottom;padding: 8px;
                   line-height: 1.42857143;     text-align: center;">Booking Not Updated </th>
-               <th  style="border-bottom-width: 2px;border: 1px solid #ddd;
+<!--               <th  style="border-bottom-width: 2px;border: 1px solid #ddd;
                   vertical-align: bottom;padding: 8px;
-                  line-height: 1.42857143;     text-align: center;">Total Missed Targets</th>
+                  line-height: 1.42857143;     text-align: center;">Total Missed Targets</th>-->
                <th  style="border-bottom-width: 2px;border: 1px solid #ddd;
                   vertical-align: bottom;padding: 8px;
                   line-height: 1.42857143;     text-align: center;">Old Missed Targets</th>
             </tr>
          </thead>
          <tbody>
-            <?php foreach ($data as $key => $value) { ?>
+            <?php foreach ($data as $key => $value) {if($value['not_update'] > 0) {?>
             <tr>
                <td style="    border: 1px solid #ddd;    padding: 8px;
                   line-height: 1.42857143;
@@ -51,15 +51,15 @@
                <td style="    border: 1px solid #ddd;    padding: 8px;
                   line-height: 1.42857143;
                   vertical-align: top;    text-align: center;"><?php echo $value['not_update']; ?></td>
-               <td style="    border: 1px solid #ddd;    padding: 8px;
+<!--               <td style="    border: 1px solid #ddd;    padding: 8px;
                   line-height: 1.42857143;
-                  vertical-align: top;    text-align: center;"><?php echo $value['total_crimes']; ?></td>
+                  vertical-align: top;    text-align: center;"><?php //echo $value['total_crimes']; ?></td>-->
                <td style="    border: 1px solid #ddd;    padding: 8px;
                   line-height: 1.42857143;
                   vertical-align: top;    text-align: center;"><?php echo $value['old_crimes']; ?></td>
             </tr>
-            <?php  }?>
+            <?php }  }?>
          </tbody>
-      </table>
+      </table> 
    </div>
 </div>

@@ -141,7 +141,7 @@ class vendor_partner_invoice extends CI_Controller {
 		);
 
 		//Get populated XLS with data
-		$output_file_dir = "/tmp/";
+		$output_file_dir = TMP_FOLDER;
 		$output_file = $invoice_id;
 		$output_file_excel = $output_file_dir . $output_file . ".xlsx";
 		//for xlsx: excel, for xls: excel2003
@@ -384,7 +384,7 @@ class vendor_partner_invoice extends CI_Controller {
 		);
 
 		//Get populated XLS with data
-		$output_file_dir = "/tmp/";
+		$output_file_dir = TMP_FOLDER;
 		$output_file = $invoice_id;
 		$output_file_excel = $output_file_dir . $output_file . ".xlsx";
 		//for xlsx: excel, for xls: excel2003
@@ -617,7 +617,7 @@ class vendor_partner_invoice extends CI_Controller {
 		);
 
 		//Get populated XLS with data
-		$output_file_dir = "/tmp/";
+		$output_file_dir = TMP_FOLDER;
 		$output_file = $invoice_id;
 		$output_file_excel = $output_file_dir . $output_file . ".xlsx";
 		//for xlsx: excel, for xls: excel2003

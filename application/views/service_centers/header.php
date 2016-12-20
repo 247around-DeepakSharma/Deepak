@@ -138,6 +138,10 @@
                         <li>
                             <a href="<?php echo base_url() ?>service_center/invoices_details" ><i class="fa fa-fw fa-desktop"></i> <strong> Invoice Summary</strong></a>
                         </li>
+                        <li role="separator" class="divider"></li>
+                         <li>
+                            <a href="<?php echo base_url() ?>employee/service_centers/download_sf_charges_excel" ><i class="fa fa-fw fa-desktop"></i> <strong> Charges List</strong></a>
+                        </li>
                          
  
                     </ul>
@@ -145,6 +149,11 @@
                   <li>
                        <a href="#" class="dropdown-toggle" data-toggle="modal" data-target="#contactusmodal"><i class="fa fa-phone"></i>&nbsp;Contact Us&nbsp;</a>
                   </li>
+                  <li class="dropdown">
+                    <a class="dropdown-toggle" href="<?php echo base_url()?>employee/service_centers/show_vendor_details">
+                    <i ></i> Profile <i class="fa fa-caret-down"></i>
+                    </a>
+                </li>
                </ul>
                
                <ul class="nav navbar-nav navbar-right">

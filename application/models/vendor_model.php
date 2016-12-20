@@ -7,9 +7,6 @@ class vendor_model extends CI_Model {
      */
     function __construct() {
         parent::__Construct();
-
-
-        $this->db = $this->load->database('default', TRUE, TRUE);
     }
 
     /**
@@ -21,24 +18,37 @@ class vendor_model extends CI_Model {
      * @param: $vendor_id
      * @return: array of vendor details
      */
-    function viewvendor($vendor_id = "",$active = "") {
-        $where = "";
-        $where_1 = "";
+    function viewvendor($vendor_id = "",$active = "",$sf_list = "") {
+        $where_id = "";
+        $where_active = "";
+        $where_sf = "";
         $where_final = "";
 
         if ($vendor_id != "") {
-            $where .= "where id= '$vendor_id'";
+            $where_id .= "id= '$vendor_id'";
         }
         if ($active != "") {
-            $where_1 .= "where active= '$active'";
+            $where_active .= "active= '$active'";
         }
-        if($vendor_id != "" && $active != ""){
-            $where_final = $where." AND ".$where_1;
-        }elseif($vendor_id != ''){
-            $where_final = $where;
-        }elseif($active != ""){
-            $where_final = $where_1;
+        if($sf_list != ""){
+            $where_sf .= "service_centres.id  IN (" .$sf_list.")";
         }
+        if($vendor_id != "" && $active != "" ){
+            $where_final = 'where '.$where_id." AND ".$where_active;
+        }
+        if($vendor_id != ''){
+            $where_final = 'where '.$where_id;
+        }
+        if($active != ""){
+            $where_final = 'where '.$where_active;
+        }
+        if($sf_list != "" ){
+            $where_final = 'where '.$where_sf;
+        }
+        if($sf_list != "" && $active != ""){
+            $where_final = 'where '.$where_sf." AND ".$where_active;
+        }
+        
         $sql = "Select * from service_centres $where_final";
 
         $query = $this->db->query($sql);
@@ -1102,7 +1112,15 @@ class vendor_model extends CI_Model {
      */
 
     function get_all_pincode_mapping(){
-        $query = $this->db->query("SELECT * from vendor_pincode_mapping");
+        $sql = "SELECT vendor_pincode_mapping.Pincode, "
+                . "CONCAT('',GROUP_CONCAT(DISTINCT(services.services)),'') as Appliance "
+                . "FROM vendor_pincode_mapping, service_centres, services "
+                . "WHERE Vendor_ID != '0' "
+                . "AND `Vendor_ID` = `service_centres`.`id` "
+                . "AND `service_centres`.`active` = 1 "
+                . "AND services.id = `Appliance_ID` "
+                . "GROUP BY vendor_pincode_mapping.Pincode";
+        $query = $this->db->query($sql);
         return $query->result_array();
     }
 
@@ -1304,19 +1322,27 @@ class vendor_model extends CI_Model {
     }
     
     /**
-     * @desc:  get all New vendor 
-     * @param: void
+     * @desc:  get all New vendor acc to agent sf listing
+     * @param: String sf_list
      * @return : Array
      */
-    function get_new_vendor() {
-        $new_vendor = "SELECT name, id, district, state ,
+    function get_new_vendor($sf_list = "") {
+        if($sf_list != ""){
+            $where = " AND service_centres.id  IN (".$sf_list.") ";
+        }else{
+            $where = "";
+        }
+        $new_vendor = "SELECT id,name, district, state ,
                                             DATEDIFF(CURRENT_TIMESTAMP , create_date) AS age
                                             FROM  service_centres
-                                            WHERE create_date BETWEEN CURDATE() - INTERVAL 60 DAY AND CURDATE()
+                                            WHERE 
+                                            create_date BETWEEN CURDATE() - INTERVAL 60 DAY AND CURDATE()
+                                            ".$where."
                                             ORDER BY state";
 
         return $this->db->query($new_vendor)->result_array();
     }
+
     /**
      * @desc : This method checks assigned vendor has service tax for the given booking id
      * @param type $booking_id
@@ -1345,4 +1371,145 @@ class vendor_model extends CI_Model {
         $this->db->query($sql);
     }
 
+    /**
+     * 
+     * @Desc: This function is used to get employee_relation if present in employee_relation
+     * @params: agent_id
+     * @return: Array or Empty
+     */
+    function get_employee_relation($agent_id){
+        $this->db->select('*');
+        $this->db->where('agent_id',$agent_id);
+        $query = $this->db->get('employee_relation');
+        $result = $query->result_array();
+        if(!empty($result)){
+            return $result;
+        }else{
+            return '';
+}
+    }
+    
+    /**
+     * @DESC: This function is used to add employee_sf_realtion table
+     *          update SF list for particular RM
+     * @parmas: agent_id, sf_id
+     * @return: boolean
+     */
+    function add_rm_to_sf_relation($agent_id, $sf_id){
+        $this->db->where('agent_id', $agent_id);
+        $this->db->set('service_centres_id', "CONCAT( service_centres_id, ',".$sf_id."' )", FALSE);
+        $this->db->update('employee_relation');
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    /**
+     * @Desc: This function is used to get relation of RM SF is present by using SF ID
+     *          We are not getting Row for Admin group present for relation
+     * @params: sf_id
+     * @return: Array
+     * 
+     */
+    function get_rm_sf_relation_by_sf_id($sf_id){
+        $sql = "Select employee_relation.* from employee_relation,employee "
+                . "where FIND_IN_SET($sf_id,employee_relation.service_centres_id) "
+                . "AND employee.groups != '"._247AROUND_ADMIN."' "
+                . "AND employee_relation.agent_id = employee.id";
+        return $this->db->query($sql)->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to update employee_relation table
+     * @parmas: $agent_id, $sf_id
+     * @return: boolean
+     * 
+     */
+    function update_rm_to_sf_relation($agent_id,$sf_id){
+        //Getting values of SF RM relation if present
+        $query_result = $this->get_rm_sf_relation_by_sf_id($sf_id);
+        if(!empty($query_result)){
+            //Delete values from this currently assigned RM String
+            $arr = explode(",",$query_result[0]['service_centres_id']);
+            unset($arr[array_search($sf_id, $arr)]);
+            $sf_details_list = implode(",",$arr);
+            
+            $this->db->where('agent_id',$query_result[0]['agent_id']);
+            $this->db->set('service_centres_id',$sf_details_list);
+            $this->db->update('employee_relation');
+            //Now adding SF to New RM
+             $this->add_rm_to_sf_relation($agent_id, $sf_id);
+            
+        }else{
+            //No assignment has been done earlier ADD NEW
+            $this->add_rm_to_sf_relation($agent_id, $sf_id);
+        }
+        
+    }
+    
+    /**
+     * @Desc: This function is used to add newly added sf to admin present in Employee_SF_relation
+     * @params: sf_id
+     * @return: boolean
+     * 
+     */
+    function add_sf_to_admin_relation($sf_id){
+        $sql = "Select employee_relation.* from employee_relation,employee "
+                . "WHERE employee.groups = '"._247AROUND_ADMIN."' "
+                . "AND employee_relation.agent_id = employee.id";
+        $query_array = $this->db->query($sql)->result_array();
+        if(!empty($query_array)){
+            foreach($query_array as $value){
+                //Now adding SF to Admin
+                 $this->add_rm_to_sf_relation($value['agent_id'], $sf_id);
+            }   
+        }else{
+            return FALSE;
+        }
+    }
+    
+    function insert_india_pincode_in_batch($rows) {
+	$query = $this->db->insert_batch('india_pincode', $rows);
+    }
+    
+    /**
+     * @Desc: This function is used to count total pincodes present
+     * @params: void
+     * @return: void
+     * 
+     */
+    function get_total_vendor_pincode_mapping(){
+        return $this->db->count_all_results("vendor_pincode_mapping");
+        
+    }
+    
+    /**
+     * @Desc: This function is used to get latest entry details for vendor_pincode_mapping table
+     * @params: void
+     * @return: void
+     * 
+     */
+    function get_latest_vendor_pincode_mapping_details(){
+        $sql = 'SELECT Vendor_Name, Appliance, Brand, Area, Pincode, Region, City, State'
+                . ' FROM vendor_pincode_mapping ORDER BY create_date DESC LIMIT 0 , 1';
+        $query = $this->db->query($sql);
+
+        return $query->result_array();
+        
+    }
+    /**
+     * @desc: This method is used to assign sc for given booking
+     * @param String $booking_id
+     * @param Array $data
+     * @return boolean
+     */
+    function assign_service_center_for_booking($booking_id, $data){
+        $this->db->where('booking_id', $booking_id);
+        $this->db->where('assigned_vendor_id is NULL', NULL, FALSE);
+        $this->db->update('booking_details',$data);
+        return $this->db->affected_rows();
+    }
+    
 }

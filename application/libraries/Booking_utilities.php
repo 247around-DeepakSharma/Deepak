@@ -23,7 +23,7 @@ class Booking_utilities {
 	$this->My_CI->load->library('s3');
 	$this->My_CI->load->library('form_validation');
 	$this->My_CI->load->library("session");
-    $this->My_CI->load->library("notify");
+        $this->My_CI->load->library("notify");
 	$this->My_CI->load->helper('download');
 	$this->My_CI->load->helper(array('form', 'url'));
 	$this->My_CI->load->model('employee_model');
@@ -36,7 +36,7 @@ class Booking_utilities {
 
 	$template = 'BookingJobCard_Template-v8.xlsx';
 	//set absolute path to directory with template files
-	$templateDir = __DIR__ . "/../controllers/";
+	$templateDir = FCPATH."application/controllers/excel-templates/";
 	//set config for report
 	$config = array(
 	    'template' => $template,
@@ -80,7 +80,7 @@ class Booking_utilities {
 	    $output_file_suffix = "";
         }
 
-	$output_file_dir = "/tmp/";
+	$output_file_dir = TMP_FOLDER;
 	$output_file = "BookingJobCard-" . $booking_id . $output_file_suffix;
 
 	$output_file_excel = $output_file_dir . $output_file . ".xlsx";
@@ -164,17 +164,11 @@ class Booking_utilities {
 
             $message = $salutation . $heading . $note . $fixedPara;
 
-            $to = $getbooking[0]['primary_contact_email'];
-            $owner = $getbooking[0]['owner_email'];
-            $from = "booking@247around.com";
-            $cc = $owner;
-	    $bcc = '';
-
 	    $subject = "247Around / Job Card " . $getbooking[0]['booking_id'] . " / " . $getbooking[0]['booking_date'] .
                     " / " . $getbooking[0]['booking_timeslot'];
 
             $file_pdf = $getbooking[0]['booking_jobcard_filename'];
-            $output_file_pdf = "/tmp/" . $getbooking[0]['booking_jobcard_filename'];
+            $output_file_pdf = TMP_FOLDER . $getbooking[0]['booking_jobcard_filename'];
 
             $cmd = "curl https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/" . $file_pdf . " -o " . $output_file_pdf;
             exec($cmd);
@@ -196,7 +190,6 @@ class Booking_utilities {
                 $bookingdate = $dd . " " . $mm;
             }
 
-
             $smsBody = "Booking - " . $getbooking[0]['name'] . ", " . $getbooking[0]['booking_primary_contact_no'] . ", " . $getbooking[0]['services'] . ", " . $bookingdate ."/" . $getbooking[0]['booking_timeslot'] .  ", " . $getbooking[0]['booking_address'] . ", ". $getbooking[0]['booking_pincode'] . ". 247around";
 
             //Send SMS to vendor
@@ -207,9 +200,7 @@ class Booking_utilities {
                 "attachment" => $getbooking[0]['booking_jobcard_filename']);
             $this->My_CI->booking_model->save_vendor_email($details);
 
-	       //$is_mail = $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $output_file_pdf);
-              $this->My_CI->booking_model->set_mail_to_vendor($booking_id);
-
+            $this->My_CI->booking_model->set_mail_to_vendor($booking_id);
            
         } else {
             echo "Booking does not exist.";
@@ -221,16 +212,16 @@ class Booking_utilities {
      /*
      * @desc: This function is used to create acc to Service center, state and city
      * 
-    * params: void
+    * params: String sf_list
     * return :void
     *
     */
 
-   function booking_report_by_service_center() {
+   function booking_report_by_service_center($sf_list) {
 
        $CI = get_instance();
        $CI->load->model('reporting_utils');
-       $data = $CI->reporting_utils->get_booking_by_service_center();
+       $data = $CI->reporting_utils->get_booking_by_service_center($sf_list);
        //Generating HTML for the email
        $html = '
                    <html xmlns="http://www.w3.org/1999/xhtml">
@@ -460,18 +451,17 @@ class Booking_utilities {
    
    /*
      * @desc: This function is used to create report for service centers who is new (withins 2 months old)
-     * params: void
+     * params: String sf list
      * return :void
      *
      */
 
-    function booking_report_for_new_service_center() {
-
+    function booking_report_for_new_service_center($sf_list) {
         $CI = get_instance();
         $CI->load->model('reporting_utils');
         $CI->load->model('vendor_model');
-        $data = $CI->reporting_utils->get_booking_for_new_service_center();
-        $new_vendors = $CI->vendor_model->get_new_vendor();
+        $data = $CI->reporting_utils->get_booking_for_new_service_center($sf_list);
+        $new_vendors = $CI->vendor_model->get_new_vendor($sf_list);
 
         //Generating HTML for the email
         $html = '
@@ -483,21 +473,21 @@ class Booking_utilities {
                          <table style="width: 95%;margin-bottom: 20px;border: 1px solid #ddd; border-collapse: collapse;">
                            <thead>
                              <tr style="padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd">
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:14%">STATE</th>
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:14%">CITY</th>
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:14%">NAME</th>
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:7%">AGE</th>
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:7%">TODAY BOOKINGS</th>
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:7%">BOOKINGS MTD</th>
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:7%"> BOOKINGS COMPLETED</th>
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:7%"> BOOKINGS CANCELLED</th>
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:7%"> 0-2 Days</th>
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:7%"> 3-5 Days</th>
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:7%"> >5 Days</th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:14%;padding-top:8px;">STATE</th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:14%;padding-top:8px;">CITY</th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:14%;padding-top:8px;">NAME</th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:5%;padding-top:8px;">AGE</th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:5%;padding-top:8px;">TODAY BOOKINGS</th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:5%;padding-top:8px;">BOOKINGS MTD</th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:5%;padding-top:8px;"> BOOKINGS COMPLETED</th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:5%;padding-top:8px;"> BOOKINGS CANCELLED</th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:5%;padding-top:8px;"> 0-2 Days</th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:5%;padding-top:8px;"> 3-5 Days</th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:5%;padding-top:8px;"> >5 Days</th>
 
                              </tr>
                            </thead>
-                           <tbody >';
+                           <tbody>';
 
         foreach ($new_vendors as $value) {
             if (!empty($data['yesterday_bookings_gone'][$value['id']])) {
@@ -536,7 +526,7 @@ class Booking_utilities {
                 $pending_bookings_greater_than_5_days = "";
             }
             $html.="<tr>" .
-                    "<td style='text-align: center;border: 1px solid #001D48;'>" . $value['state'] .
+                    "<td style='text-align: center;border: 1px solid #001D48;padding:10px;'>" . $value['state'] .
                     "</td><td style='text-align: center;border: 1px solid #001D48;'>" . $value['district'] .
                     "</td><td style='text-align: center;border: 1px solid #001D48;font-size:90%;'>" . $value['name'] .
                     "</td><td style='text-align: center;border: 1px solid #001D48;font-size:90%;'>" . $value['age'] .

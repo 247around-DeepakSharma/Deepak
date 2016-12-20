@@ -73,6 +73,9 @@
                         <input type="text" class="form-control"  name="mobile" value = "<?php if (isset($data[0]['booking_primary_contact_no'])) {echo $data[0]['booking_primary_contact_no']; }?>"  disabled>
                         <?php echo form_error('mobile'); ?>
                       </div>
+                      <div class="col-md-2">
+                          <button type="button" onclick="outbound_call(<?php echo $data[0]['booking_primary_contact_no']; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
+                      </div>
                     </div>
 
                     <div class="form-group <?php if( form_error('booking_id') ) { echo 'has-error';} ?>">
@@ -132,5 +135,24 @@
 <script type="text/javascript">
 
    $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
+   
+   function outbound_call(phone_number){
+        var confirm_call = confirm("Call Customer ?");
+
+        if (confirm_call == true) {
+
+             $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/booking/call_customer/' + phone_number,
+                success: function(response) {
+                    //console.log(response);
+
+                }
+            });
+        } else {
+            return false;
+        }
+
+    }
 
 </script>

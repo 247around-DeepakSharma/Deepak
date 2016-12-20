@@ -21,6 +21,7 @@
          <th>Amount to be Pay By Partner</th>
          <th>Paid Amount</th> 
          <th>Checkbox</th>
+         <th>ReGenerate</th>
          <th>Update</th>
 <!--         <th>Send Email</th>-->
       </tr>
@@ -68,7 +69,7 @@
          </td>
          <td>
              <div class="dropdown">
-                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Update
+                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">ReGenerate
                 <span class="caret"></span></button>
                 <ul class="dropdown-menu">
                     <li><a href="<?php echo base_url();?>employee/invoice/regenerate_invoice/<?php echo $invoice['invoice_id'];?>/final">Final</a></li>
@@ -77,10 +78,13 @@
                 </ul>
               </div>
          </td>
+         <td>
+             <a href="<?php echo base_url()?>employee/invoice/insert_update_invoice/<?php echo $invoice['vendor_partner_id'];?>/<?php echo $invoice['invoice_id'];?>" class="btn btn-sm btn-info" >Update</a>
+         </td>
 
           <?php  $count = $count+1;  ?>
 <!--         <td class="col-md-6">
-          <form class="form-horizontal" method="POST" action="<?php echo base_url()?>employee/invoice/sendInvoiceMail/<?php echo $invoice['invoice_id'].'/'.$invoice['vendor_partner_id'].'/'.$invoice['from_date'].'/'.$invoice['to_date'].'/'.$invoice['vendor_partner']; ?>" >
+          <form class="form-horizontal" method="POST" action="<?php echo base_url()?>employee/invoice/sendInvoiceMail/<?php //echo $invoice['invoice_id'].'/'.$invoice['vendor_partner_id'].'/'.$invoice['from_date'].'/'.$invoice['to_date'].'/'.$invoice['vendor_partner']; ?>" >
 
             <input type="text" class="form-control"  name="email" >
             <input style ="margin-top:8px;" type="submit"  value="Send Mail" >
@@ -128,7 +132,8 @@
               div = this.id .split('_');
             
               var tds_amount = $('#tds_'+ div[1]).text();
-              var pay = Number($('#pay_247'+ div[1]).text()) + Number($('#pay_partner'+ div[1]).text());
+              var pay = Number($('#pay_247'+ div[1]).text()) + Number($('#pay_partner'+ div[1]).text()) + Number($('#amount_paid_'+ div[1]).text());
+            
               
               total_amount_collected += Number(pay);
               total_tds += Number(tds_amount);

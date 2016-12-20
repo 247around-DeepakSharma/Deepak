@@ -47,7 +47,7 @@ class bookings_excel extends CI_Controller {
      */
 
     public function index() {
-	$this->load->view('employee/header');
+	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/upload_bookings_excel');
     }
 
@@ -329,7 +329,7 @@ class bookings_excel extends CI_Controller {
      */
 
     public function upload_shipped_products_excel() {
-	$this->load->view('employee/header');
+	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/upload_shippings_excel');
     }
 
@@ -654,7 +654,7 @@ class bookings_excel extends CI_Controller {
      */
 
     public function upload_delivered_products_for_paytm_excel() {
-	$this->load->view('employee/header');
+	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/upload_delivered_excel');
     }
 

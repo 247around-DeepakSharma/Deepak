@@ -47,7 +47,7 @@ class Invoice extends CI_Controller {
         $data['service_center'] = $this->vendor_model->getActiveVendor("", 0);
         $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("vendor");
 
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/invoice_list', $data);
     }
 
@@ -135,7 +135,7 @@ class Invoice extends CI_Controller {
         $data['partner'] = $this->partner_model->getpartner();
         $data['invoicing_summary'] = $this->invoices_model->getsummary_of_invoice("partner");
 
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/invoice_list', $data);
     }
 
@@ -180,14 +180,14 @@ class Invoice extends CI_Controller {
      *  @param : Type $partnerId
      *  @return : void
      */
-    function get_add_new_transaction($vendor_partner, $id) {
+    function get_add_new_transaction($vendor_partner="", $id="") {
         $data['vendor_partner'] = $vendor_partner;
         $data['id'] = $id;
         $data['invoice_id'] = $this->input->post('invoice_id');
         $data['selected_amount_collected'] = $this->input->post('selected_amount_collected');
         $data['selected_tds'] = $this->input->post('selected_tds');
 
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/addnewtransaction', $data);
     }
     /**
@@ -213,7 +213,7 @@ class Invoice extends CI_Controller {
             $data['selected_amount_collected'] = $amount;
             $data['selected_tds'] = $details[0]['tds_amount'];
             
-            $this->load->view('employee/header');
+            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
             $this->load->view('employee/addnewtransaction', $data);
         }
         
@@ -286,7 +286,7 @@ class Invoice extends CI_Controller {
     function getPartnerOrVendor($par_ven) {
         $vendor_partner_id = $this->input->post('vendor_partner_id');
         $flag = $this->input->post('invoice_flag');
-
+          
         if ($par_ven == 'partner') {
             if ($flag == 1) {
                 echo "<option value='All'>All</option>";
@@ -355,7 +355,7 @@ class Invoice extends CI_Controller {
 
         $invoice['bank_statement'] = $this->invoices_model->get_all_bank_transactions($type);
 
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/view_transactions', $invoice);
     }
 
@@ -563,8 +563,8 @@ class Invoice extends CI_Controller {
         $output_file_pdf = $output_file_dir . $output_file . ".pdf";
         //$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=" . CONVERTAPI_KEY . " -o " . $output_file_pdf;
         putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-        $tmp_path = '/tmp/';
-        $tmp_output_file = '/tmp/output_' . __FUNCTION__ . '.txt';
+        $tmp_path = TMP_FOLDER;
+        $tmp_output_file = TMP_FOLDER.'output_' . __FUNCTION__ . '.txt';
         $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
                 '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
                 $output_file_excel . ' 2> ' . $tmp_output_file;
@@ -572,7 +572,7 @@ class Invoice extends CI_Controller {
         $result_var = '';
         exec($cmd, $output, $result_var);
         // Dump data in a file as a Json
-        $file = fopen("/tmp/" . $output_file . ".txt", "w") or die("Unable to open file!");
+        $file = fopen(TMP_FOLDER . $output_file . ".txt", "w") or die("Unable to open file!");
         $res = 0;
         system(" chmod 777 ".TMP_FOLDER . $output_file . ".txt", $res);
         $json_data['excel_data'] = $excel_data;
@@ -1301,7 +1301,7 @@ class Invoice extends CI_Controller {
     function get_invoices_form() {
         $data['vendor_partner'] = "vendor";
         $data['id'] = "";
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/get_invoices_form', $data);
     }
 
@@ -1604,7 +1604,7 @@ class Invoice extends CI_Controller {
 
         $data['vendor_partner_id'] = $vendor_partner_id;
         $data['vendor_partner'] = $vendor_partner;
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/invoices_details', $data);
     }
 
@@ -2457,6 +2457,98 @@ class Invoice extends CI_Controller {
             echo "Data Not Found for Cash Invoice" . PHP_EOL;
             
             return FALSE;
+        }
+    }
+    /**
+     * @desc: This is used to load invoice insert/update form
+     * @param Sting $vendor_partner
+     * @param String $invoice_id
+     */
+    function insert_update_invoice($vendor_partner, $invoice_id = FALSE){
+        log_message('info', __FUNCTION__ . " Entering...." . $invoice_id);
+        if($invoice_id){
+        $where = " `invoice_id` = '$invoice_id'";
+        //Get Invocie details from Vendor Partner Invoice Table
+        $invoice_details['invoice_details'] = $this->invoices_model->get_invoices_details($where);
+        } 
+        $invoice_details['vendor_partner'] = $vendor_partner;
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));     
+        $this->load->view('employee/insert_update_invoice', $invoice_details);     
+    }
+    /**
+     * @desc: Update/ Insert Partner Invoice Details from panel
+     * @param String $vendor_partner
+     */
+    function process_insert_update_invoice($vendor_partner){
+        log_message('info', __FUNCTION__ . " Entering....". $vendor_partner);
+        $this->form_validation->set_rules('invoice_id', ' Invoice Id', 'required|trim|xss_clean');
+        if($this->form_validation->run()){
+            $data['invoice_id'] = $this->input->post('invoice_id');
+            $data['type_code'] = $this->input->post('type_code');
+            switch ($data['type_code']){
+                case 'A':
+                     $data['type_code'] = "FOC";
+                    break;
+                case 'B':
+                    $data['type_code'] = 'Cash';
+                    break;
+                case 'D':
+                    $data['type_code'] = "Stand";
+                    break;
+            }
+            $data['vendor_partner'] = $vendor_partner;
+            $data['vendor_partner_id'] = $this->input->post('vendor_partner_id');
+            $data['from_date'] = $this->input->post('from_date');
+            $data['to_date'] = $this->input->post('to_date');
+            $data['num_bookings'] = $this->input->post('num_bookings');
+            $data['total_service_charge'] = $this->input->post('total_service_charge');
+            $data['total_additional_service_charge'] = $this->input->post('total_additional_service_charge');
+            $data['service_tax'] = $this->input->post('service_tax');
+            $data['parts_cost'] = $this->input->post('parts_cost');
+            $data['vat'] = $this->input->post('vat');
+            $data['total_amount_collected'] = $this->input->post('total_amount_collected');
+            $data['around_royalty'] = $this->input->post('around_royalty');
+            $data['amount_collected_paid'] = $this->input->post('amount_collected_paid');
+            $data['tds_amount'] = $this->input->post('tds_amount');
+            $data['amount_paid'] = $this->input->post('amount_paid');
+            $data['settle_amount'] = $this->input->post('settle_amount');
+            $data['mail_sent'] = $this->input->post('mail_sent');
+            $data['sms_sent'] = $this->input->post('sms_sent');
+            $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
+            if(isset($_FILES["invoice_image"])){
+               // Uploading to S3
+		$bucket = BITBUCKET_DIRECTORY;
+		$directory = "invoices-excel/" . $data['invoice_id'].".xlsx";
+		$is_s3 = $this->s3->putObjectFile($_FILES["invoice_image"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+                if($is_s3){
+                    log_message('info', __FUNCTION__ . " Main Invoice upload"); 
+                    $data['invoice_file_excel'] = $data['invoice_id'].".xlsx";
+                } else {
+                   log_message('info', __FUNCTION__ . " Main Invoice upload failed"); 
+                }
+            }
+            if(isset($_FILES["invoice_detailed_excel"])){
+               // Uploading to S3
+		$bucket = BITBUCKET_DIRECTORY;
+		$directory = "invoices-excel/" . $data['invoice_id']."-detailed.xlsx";
+		$is_s3 = $this->s3->putObjectFile($_FILES["invoice_detailed_excel"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+                if($is_s3){
+                    log_message('info', __FUNCTION__ . " Main Invoice upload"); 
+                    $data['invoice_detailed_excel'] = $data['invoice_id']."-detailed.xlsx";
+                } else {
+                   log_message('info', __FUNCTION__ . " Main Invoice upload failed"); 
+                }
+            }
+            $status = $this->invoices_model->action_partner_invoice($data);
+            if($status){
+                log_message('info', __METHOD__ . ' Invoice details inserted '. $data['invoice_date']);
+            } else {
+                 log_message('info', __METHOD__ . ' Invoice details not inserted '. $data['invoice_date']);
+            } 
+            
+            redirect(base_url() . 'employee/invoice/invoice_summary/' . $data['vendor_partner'] . "/" . $data['vendor_partner_id']);
+        }  else {
+            echo "Please Enter Evoice Id";
         }
     }
 

@@ -97,7 +97,7 @@ class Do_background_process extends CI_Controller {
         $mapping_file['pincode_mapping_file'] = $this->vendor_model->getLatestVendorPincodeMappingFile();
 
         $reader = ReaderFactory::create(Type::XLSX);
-        $reader->open("/tmp/" . $mapping_file['pincode_mapping_file'][0]['file_name']);
+        $reader->open(TMP_FOLDER . $mapping_file['pincode_mapping_file'][0]['file_name']);
         $count = 1;
         $pincodes_inserted = 0;
         $err_count = 0;
@@ -254,53 +254,6 @@ class Do_background_process extends CI_Controller {
 	$this->notify->send_sms_email_for_booking($booking_id, $state);
         log_message('info', ":  Send sms and email request for booking_id" .print_r($booking_id, TRUE). " and state ". print_r($state, TRUE));
 
-    }
-
-
-    /**
-     * @desc: This method is used to dump all vendor mapping Pincode data into excel and sen to mail.
-     * Email id provided by form
-     * @param: void
-     * @return: void
-     */
-    function download_latest_pincode_excel(){
-
-        log_message('info', __FUNCTION__);
-        $to_email = $this->input->post('email');
-        $notes = $this->input->post('notes');
-
-        $template = 'Vendor_Pincode_Mapping_Template.xlsx';
-        //set absolute path to directory with template files
-        $templateDir = __DIR__ . "/../excel-templates/";
-        //set config for report
-        $config = array(
-            'template' => $template,
-            'templateDir' => $templateDir
-        );
-        //load template
-        $R = new PHPReport($config);
-        $vendor = $this->vendor_model->get_all_pincode_mapping();
-
-        $R->load(array(
-
-                 'id' => 'vendor',
-                'repeat' => TRUE,
-                'data' => $vendor
-            ));
-
-        $output_file_dir = "/tmp/";
-        $output_file = "Vendor_Pincode_Mapping" . date('y-m-d');
-        $output_file_name = $output_file . ".xlsx";
-        $output_file_excel = $output_file_dir . $output_file_name;
-        $response = $R->render('excel', $output_file_excel);
-        //Attach file with mail
-        $cc = $bcc = "";
-        $from ="booking@247around.com";
-        $subject = "Vendor Mapping Pincode File";
-        $message = $notes;
-        log_message('info', __FUNCTION__." => Pincode File Sent to email: ". $to_email. " File ". $output_file_excel);
-
-        $this->notify->sendEmail($from, $to_email, $cc, $bcc, $subject, $message, $output_file_excel);
     }
 
     /* end controller */

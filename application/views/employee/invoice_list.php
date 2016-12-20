@@ -1,11 +1,16 @@
 <div id="page-wrapper">
    <div class="container-fluid">
+        <a class="btn btn-lg btn-primary pull-right" style="margin-top:20px;" href="<?php echo base_url();?>employee/invoice/insert_update_invoice/"<?php if(isset($service_center)){"vendor"; } else { echo "partner";}?>>Create Invoice</a>
       <div class="row">
          <div class="col-md-6 ">
              <h1 class="page-header"><b><?php if(isset($service_center)){ ?>Service Center Invoices<?php } else {?>
                Partner Invoices
-            <?php } ?></b></h1>
+            <?php } ?>
+            </b>
+             </h1>
+            
          </div>
+          
       </div>
       <div class="row" >
          <div class="form-group">
@@ -66,7 +71,7 @@
      <?php $count = 1; foreach ($invoicing_summary as $key => $value) { ?>
       <tr> 
         <td><?php echo $count; ?></td>
-        <td><?php echo $value['name']?></td>
+        <td> <a href="<?php echo base_url()?>employee/invoice/invoice_summary/<?php echo $value['vendor_partner']?>/<?php echo $value['id'] ?>" target='_blank'><?php echo $value['name']?></a></td>
         <td><?php if($value['final_amount'] <0){echo round($value['final_amount'],0); $foc +=abs(round($value['final_amount'],0));}?></td>
         <td><?php if($value['final_amount'] >0){echo round($value['final_amount'],0);  $cash +=abs(round($value['final_amount'],0));}?></td>
        

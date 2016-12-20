@@ -6,6 +6,7 @@ if (!defined('BASEPATH')){
 
 error_reporting(E_ALL);
             ini_set('display_errors', 1);
+            ini_set('memory_limit', -1);
 
 class Service_centers extends CI_Controller {
 
@@ -15,10 +16,13 @@ class Service_centers extends CI_Controller {
     function __Construct() {
         parent::__Construct();
         $this->load->model('service_centers_model');
+        $this->load->model('service_centre_charges_model');
         $this->load->model('booking_model');
+        $this->load->model('reporting_utils');
         $this->load->model('partner_model');
         $this->load->model('vendor_model');
         $this->load->model('user_model');
+        $this->load->model('employee_model');
         $this->load->model('invoices_model');
         $this->load->library("pagination");
         $this->load->library('asynchronous_lib');
@@ -28,6 +32,7 @@ class Service_centers extends CI_Controller {
         $this->load->library('form_validation');
         $this->load->library('PHPReport');
         $this->load->helper('download');
+        $this->load->library('user_agent');
     }
 
     /**
@@ -54,16 +59,33 @@ class Service_centers extends CI_Controller {
         $agent = $this->service_centers_model->service_center_login($data);
 
         if ($agent) {
-	    //get sc details now
-	    $sc_details = $this->vendor_model->getVendorContact($agent['service_center_id']);
+        //get sc details now
+        $sc_details = $this->vendor_model->getVendorContact($agent['service_center_id']);
             $this->setSession($sc_details[0]['id'], $sc_details[0]['name'], $agent['id'], $sc_details[0]['is_update']);
 
-	    redirect(base_url() . "service_center/pending_booking");
+            //Saving Login Details in Database
+            $login_data['browser'] = $this->agent->browser();
+            $login_data['agent_string'] = $this->agent->agent_string();
+            $login_data['ip'] = $this->session->all_userdata()['ip_address'];
+            $login_data['action'] = _247AROUND_LOGIN;
+            $login_data['entity_type'] = $this->session->all_userdata()['userType'];
+            $login_data['agent_id'] = $this->session->all_userdata()['service_center_agent_id'];
+            $login_data['entity_id'] = $this->session->all_userdata()['service_center_id'];
+
+            $login_id = $this->employee_model->add_login_logout_details($login_data);
+            //Adding Log Details
+            if ($login_id) {
+                log_message('info', __FUNCTION__ . ' Logging details have been captured for service center ' . $login_data['employee_name']);
+            } else {
+                log_message('info', __FUNCTION__ . ' Err in capturing logging details for service center ' . $login_data['employee_name']);
+            }
+
+        redirect(base_url() . "service_center/pending_booking");
         } else {
             $userSession = array('error' => 'Please enter correct user name and password' );
             $this->session->set_userdata($userSession);
             redirect(base_url() . "service_center");
-        }
+        } 
     }
 
     /**
@@ -174,7 +196,7 @@ class Service_centers extends CI_Controller {
                  $data['internal_status'] = $booking_status[$unit_id];
                  $data['current_status'] = "InProcess";
                  $data['closed_date'] = date('Y-m-d H:i:s');
-                
+                 $data['booking_id'] =  $booking_id;
                  $data['amount_paid'] = $total_amount_paid;
                  if(isset($serial_number[$unit_id])){
                     $data['serial_number'] =  $serial_number[$unit_id];
@@ -197,16 +219,9 @@ class Service_centers extends CI_Controller {
 
             }
 
-             $state_change['booking_id'] = $booking_id;
-             $state_change['new_state'] = 'InProcess_Completed';
-             $state_change['old_state'] = "Pending";
-             $state_change['agent_id'] = $this->session->userdata('service_center_agent_id');
-             $state_change['service_center_id'] = $this->session->userdata('service_center_id');
-             $state_change['remarks'] = $closing_remarks;
-
-             // Insert data into booking state change
-             $this->booking_model->insert_booking_state_change($state_change);
-
+            // Insert data into booking state change
+            $this->insert_details_in_state_change($booking_id, 'InProcess_Completed', $closing_remarks);
+             
              redirect(base_url() . "service_center/pending_booking");
         }
     }
@@ -288,12 +303,13 @@ class Service_centers extends CI_Controller {
         $this->booking_model->update_booking($booking_id, $booking);
         
         $unit_details['booking_id'] = "Q-".$booking_id;
+        $unit_details['booking_status'] = "FollowUp";
         //update unit details
         $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
         // Delete booking from sc action table
         $this->service_centers_model->delete_booking_id($booking_id);
         //Insert Data into Booking state change
-        $this->insert_details_in_state_change($booking_id, PRODUCT_NOT_DELIVERED_TO_CUSTOMER, PRODUCT_NOT_DELIVERED_TO_CUSTOMER);
+        $this->insert_details_in_state_change($booking_id, PRODUCT_NOT_DELIVERED_TO_CUSTOMER, "Convert Booking to Query");
         redirect(base_url() . "service_center/pending_booking");  
     }
 
@@ -341,6 +357,23 @@ class Service_centers extends CI_Controller {
      * @return: void
      */
     function logout() {
+       //Saving Login Details in Database
+        $login_data['browser'] = $this->agent->browser();
+        $login_data['ip'] = $this->session->all_userdata()['ip_address'];
+        $login_data['action'] = _247AROUND_LOGOUT;
+        $login_data['agent_string'] = $this->agent->agent_string();
+        $login_data['entity_type'] = $this->session->all_userdata()['userType'];
+        $login_data['entity_id'] = $this->session->all_userdata()['service_center_id'];
+        $login_data['agent_id'] = $this->session->all_userdata()['service_center_agent_id'];
+
+        $logout_id = $this->employee_model->add_login_logout_details($login_data);
+        //Adding Log Details
+        if ($logout_id) {
+            log_message('info', __FUNCTION__ . ' Logging details have been captured for service center ' . $login_data['employee_name']);
+        } else {
+            log_message('info', __FUNCTION__ . ' Err in capturing logging details for service center ' . $login_data['employee_name']);
+        }
+        
         $this->session->sess_destroy();
         redirect(base_url() . "service_center");
     }
@@ -458,7 +491,13 @@ class Service_centers extends CI_Controller {
             
         }
     }
-    
+    /**
+     * @desc: This method is used to insert action log into state change table. 
+     * Just pass booking id, new state and remarks as parameter
+     * @param String $booking_id
+     * @param String $new_state
+     * @param String $remarks
+     */
     function insert_details_in_state_change($booking_id, $new_state, $remarks){
            //Save state change
             $state_change['booking_id'] = $booking_id;
@@ -862,8 +901,24 @@ class Service_centers extends CI_Controller {
                 $booking['booking_date'] = date('d-m-Y', strtotime('+1 days'));
                 $b_status = $this->booking_model->update_booking($booking_id, $booking);
                 if ($b_status) {
-                   // $this->insert_details_in_state_change($booking_id, SPARE_PARTS_DELIVERED, "SF acknowledged to receive spare parts");
-                   
+                    $state_change['booking_id'] = $booking_id;
+                    $state_change['new_state'] =  SPARE_PARTS_DELIVERED;
+           
+                    $booking_state_change = $this->booking_model->get_booking_state_change($state_change['booking_id']);
+            
+                    if ($booking_state_change > 0) {
+                        $state_change['old_state'] = $booking_state_change[count($booking_state_change) - 1]['new_state'];
+                    } else { //count($booking_state_change)
+                        $state_change['old_state'] = "Pending";
+                    }
+          
+                $state_change['agent_id'] = 1;
+                $state_change['partner_id'] = _247AROUND;
+                $state_change['remarks'] = "SF acknowledged to receive spare parts";
+
+                // Insert data into booking state change
+                $this->booking_model->insert_booking_state_change($state_change);
+
                     $sc_data['current_status'] = "Pending";
                     $sc_data['internal_status'] = SPARE_PARTS_DELIVERED;
                     $this->vendor_model->update_service_center_action($booking_id, $sc_data);
@@ -906,6 +961,8 @@ class Service_centers extends CI_Controller {
      */
     function convert_updated_booking_to_pending(){
         $this->service_centers_model->get_updated_booking_to_convert_pending();
+        // Inserting values in scheduler tasks log
+        $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
         
     }
     
@@ -973,7 +1030,7 @@ class Service_centers extends CI_Controller {
                 'data' => $booking_details
             ));
         
-        $output_file_dir = "/tmp/";
+        $output_file_dir = TMP_FOLDER;
         $output_file = "SF-".$service_center_id."-Pending-Bookings-List-" . date('y-m-d');
         $output_file_name = $output_file . ".xls";
         $output_file_excel = $output_file_dir . $output_file_name;
@@ -990,7 +1047,92 @@ class Service_centers extends CI_Controller {
         }
 
     }
+    
+    /**
+     * @Desc: This function is used to download the SC charges excel
+     * @params: void
+     * @return: void
+     * 
+     */
+    function download_sf_charges_excel(){
+        log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
+        //Getting SC ID from session
+        $service_center_id  =  $this->session->userdata('service_center_id');
+        if(!empty($service_center_id)){
+            //Getting SF Details
+            $sc_details = $this->vendor_model->getVendorContact($service_center_id);
+            //Getting Charges Data
+            $sc_charges_data = $this->service_centre_charges_model->get_service_centre_charges($sc_details[0]['state']);
+            //Looping through all the values 
+            foreach ($sc_charges_data as $value) {
+                //Getting Details from Booking Sources
+                $booking_sources = $this->partner_model->get_booking_sources_by_price_mapping_id($value['partner_id']);
+                $code_source = $booking_sources[0]['code'];
+                
+                //Calculating vendor base charge 
+                $vendor_base_charge = $value['vendor_total']/(1+($value['rate']/100));
+                //Calculating vendor tax - [Vendor Total - Vendor Base Charge]
+                $vendor_tax = $value['vendor_total'] - $vendor_base_charge;
+                
+                $array_final['sc_code'] = $code_source;
+                $array_final['product'] = $value['product'];
+                $array_final['category'] = $value['category'];
+                $array_final['capacity'] = $value['capacity'];
+                $array_final['service_category'] = $value['service_category'];
+                $array_final['vendor_basic_charges'] = round($vendor_base_charge,2);
+                $array_final['vendor_tax_basic_charges'] = round($vendor_tax,2);
+                $array_final['vendor_total'] = $value['vendor_total'];
+                $array_final['customer_net_payable'] = $value['customer_net_payable'];
+                $array_final['pod'] = $value['pod'];
+                
+                $final_array[] = $array_final;
+            }
+            $data['final_array'] = $final_array;
+            $this->load->view('service_centers/header');
+            $this->load->view('service_centers/download_sf_charges_excel', $data);
 
+        }else{
+            echo 'Sorry, Session has expired, please log in again!';
+        }
+    }
+    
+    /**
+     * @Desc: This function is used to show vendor details
+     * @params: void
+     * @return: void
+     * 
+     */
+    function show_vendor_details(){
+        $id = $this->session->userdata('service_center_id');
+        if(!empty($id)){
+            
+            $query = $this->vendor_model->editvendor($id);
+
+            $results['services'] = $this->vendor_model->selectservice();
+            $results['brands'] = $this->vendor_model->selectbrand();
+            $results['select_state'] = $this->vendor_model->getall_state();
+            $results['employee_rm'] = $this->employee_model->get_rm_details();
+
+            $appliances = $query[0]['appliances'];
+            $selected_appliance_list = explode(",", $appliances);
+            $brands = $query[0]['brands'];
+            $selected_brands_list = explode(",", $brands);
+
+            $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
+
+            $days = ['Sunday', 'Monday', 'Tuseday', 'Wednesday', 'Thursday', 'Friday', 'Satarday'];
+            $non_working_days = $query[0]['non_working_days'];
+            $selected_non_working_days = explode(",", $non_working_days);
+            $this->load->view('service_centers/header');
+
+            $this->load->view('service_centers/show_vendor_details', array('query' => $query, 'results' => $results, 'selected_brands_list'
+                => $selected_brands_list, 'selected_appliance_list' => $selected_appliance_list,
+                'days' => $days, 'selected_non_working_days' => $selected_non_working_days,'rm'=>$rm));
+            
+        }else{
+            echo 'Sorry, Session has Expired, Please Log In Again!';
+        }
+    }
 
 
 

@@ -13,8 +13,6 @@ class Partner_model extends CI_Model {
      */
     function __construct() {
       parent::__Construct();
-
-      $this->db = $this->load->database('default', TRUE, TRUE);
     }
 
     function log_partner_activity($activity) {
@@ -43,7 +41,6 @@ class Partner_model extends CI_Model {
 
     function get_partner_lead_by_id($id) {
       $this->db->where(array("id" => $id));
-  //$query = $this->db->query("SELECT * FROM partner_leads WHERE id='$id'");
       $query = $this->db->get("partner_leads");
       $results = $query->result_array();
 
@@ -301,12 +298,13 @@ class Partner_model extends CI_Model {
             $this->db->limit($limit, $start);
         }
 
-        $this->db->select('booking_details.booking_id, users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.closing_remarks, booking_details.booking_timeslot, booking_details.city, booking_details.cancellation_reason, booking_details.order_id');
+        $this->db->select('request_type,booking_details.booking_id, users.name as customername, booking_details.booking_primary_contact_no, services.services, booking_details.booking_date, booking_details.closing_remarks, booking_details.booking_timeslot, booking_details.city, booking_details.cancellation_reason, booking_details.order_id');
         $this->db->from('booking_details');
         $this->db->join('services','services.id = booking_details.service_id');
         $this->db->join('users','users.user_id = booking_details.user_id');
         $this->db->where('booking_details.current_status', $status);
         $this->db->where('partner_id',$partner_id);
+        $this->db->order_by('booking_details.closed_date','desc');
         $query = $this->db->get();
 
         $result = $query->result_array();
@@ -671,7 +669,7 @@ class Partner_model extends CI_Model {
      * @return Array
      */
     function get_spare_parts_booking($where, $where_in){
-        $this->db->select('spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, '
+        $this->db->select('spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, booking_details.booking_address,booking_details.initial_booking_date,'
                 . ' service_centres.name as vendor_name, service_centres.address, service_centres.state, service_centres.pincode, service_centres.district');
         $this->db->from('spare_parts_details'); 
         $this->db->join('booking_details', 'booking_details.booking_id = spare_parts_details.booking_id');
@@ -693,6 +691,19 @@ class Partner_model extends CI_Model {
         $this->db->select('user_name,password,clear_text');
         $this->db->where('partner_id', $partner_id);
         $query = $this->db->get('partner_login');
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to get booking sources details from price_mapping_id
+     * @param int price_mapping_id
+     * @return: Array
+     * 
+     */
+    function get_booking_sources_by_price_mapping_id($price_mapping_id){
+        $this->db->select('*');
+        $this->db->where('price_mapping_id', $price_mapping_id);
+        $query =  $this->db->get('bookings_sources');
         return $query->result_array();
     }
 

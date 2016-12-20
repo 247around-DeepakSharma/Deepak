@@ -28,6 +28,7 @@ class DatabaseTesting extends CI_Controller {
 	parent::__Construct();
 
 	$this->load->model('database_testing_model');
+	$this->load->model('reporting_utils');
 
 	$this->load->library('notify');
 	$this->load->library('email');
@@ -35,9 +36,9 @@ class DatabaseTesting extends CI_Controller {
     }
 
     function index() {
-        $file = fopen("/tmp/" . date('Y-m-d') . ".txt", "w") or die("Unable to open file!");
+        $file = fopen(TMP_FOLDER. date('Y-m-d') . ".txt", "w") or die("Unable to open file!");
         $res = 0;
-        system(" chmod 777 /tmp/" . date('Y-m-d') . ".txt", $res);
+        system(" chmod 777 ".TMP_FOLDER . date('Y-m-d') . ".txt", $res);
         $data = $this->database_testing_model->check_unit_details();
 
         if (!empty($data)) {
@@ -412,10 +413,19 @@ class DatabaseTesting extends CI_Controller {
         $cc = "abhaya@247around.com,belal@247around.com";
         $subject = "Inconsistent Data";
         $message = $table;
-        $attachment = "/tmp/" . date('Y-m-d') . ".txt";
+        $attachment = TMP_FOLDER. date('Y-m-d') . ".txt";
         $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
         
-        exec("rm -rf " . escapeshellarg("/tmp/" . date('Y-m-d') . ".txt"));
+        exec("rm -rf " . escapeshellarg(TMP_FOLDER . date('Y-m-d') . ".txt", $out, $return));
+        // Return will return non-zero upon an error
+
+        if (!$return) {
+            // exec() has been executed sucessfully
+            // Inserting values in scheduler tasks log
+            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
+            //Logging
+            log_message('info', __FUNCTION__ . ' Executed Sucessfully ' . $output_file);
+        }
     }
     
     /**
@@ -432,7 +442,9 @@ class DatabaseTesting extends CI_Controller {
             $message = "Find Attachment";
         
             $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
-             exec("rm -rf " . escapeshellarg($attachment));
+            
+            // Inserting values in scheduler tasks log
+            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__); 
         }
     }
     

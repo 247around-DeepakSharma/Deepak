@@ -12,7 +12,7 @@
                         <th>26 to 32 inch</th>
                         <th>36 to 42 inch</th>
                         <th>Total</th>
-                        <th>Order Given To</th>
+                        <!--<th>Order Given To</th>-->
                     </tr>
                 </thead>
                 <tbody>
@@ -53,32 +53,33 @@
                             <td>
                                 <input type="checkbox" name='choice[]' value='<?php echo ($i) ?>' id="check_<?php echo $i ?>" onchange="return validate(this.id)"/>
                             </td>
-                            <td style="width:30%;">
-                                <select name="order_received_from[]" class="order_received_from" id="order_received_from_<?php echo $i ?>" class = "form-control">
+                            <td>
+                                <select name="order_received_from[]" class="order_received_from" id="order_received_from_<?php echo $i ?>" class = "form-control" disabled="">
                                     <option selected disabled hidden>Select Vendor</option>
                                     <?php foreach ($vendor as $value) { ?>
                                         <option value="<?php echo $value['id'] ?>"><?php echo $value['name'] ?> </option>
                                     <?php } ?>
                                 </select>
                             </td>
-                            <td style="width:10%;">
-                                <input typt='text' name='_19_24[]' id ="_19_24_<?php echo $i ?>"  class = "form-control" onchange="return add_value(this.id)"/>
+                            <td>
+                                <input typt='text' name='_19_24[]' id ="_19_24_<?php echo $i ?>"   disabled="" class = "form-control" onchange="return add_value(this.id)"/>
                             </td>
-                            <td style="width:10%;">
-                                <input typt='text' name='_26_32[]' id = "_26_32_<?php echo $i ?>" class = "form-control" onchange="return add_value(this.id)"/>
+                            <td>
+                                <input typt='text' name='_26_32[]' id = "_26_32_<?php echo $i ?>" disabled="" class = "form-control" onchange="return add_value(this.id)"/>
                             </td>
-                            <td style="width:10%;">
-                                <input typt='text' name='_36_42[]' id = "_36_42_<?php echo $i ?>"  class = "form-control" onchange="return add_value(this.id)"/>
+                            <td>
+                                <input typt='text' name='_36_42[]' id = "_36_42_<?php echo $i ?>" disabled="" class = "form-control" onchange="return add_value(this.id)"/>
                             </td>
-                            <td style="width:10%;">
+                            <td>
                                 <input type='text' id = 'total_<?php echo $i ?>' name='total' value='0' disabled="" class = "form-control"/>
                             </td>
-                            <td style="width:30%;">
-                                <select style="width: 100%" name="order_given_to[]" class="order_given_to"  id="order_given_to_<?php echo $i ?>" class = "form-control">
+<!--                            <td style="width:30%;">
+                                <select style="width: 100%;" name="order_given_to[]" class="order_given_to"  id="order_given_to_<?php echo $i ?>" class = "form-control">
                                     <option  disabled hidden>Select Vendor</option>
                                     <option value="10" selected>Manish Kapoor</option>
                                 </select>
-                            </td>
+                            </td>-->
+                        <input type="hidden" name = "order_given_to[]" value="10"/>
 
 
                         </tr>
@@ -101,7 +102,7 @@ $this->session->unset_userdata('brackets_error');
     
     $(document).ready(function(){
        $(".order_received_from").select2(); 
-       $(".order_given_to").select2(); 
+       $(".order_given_to").select2();
     });
 
 
@@ -149,16 +150,22 @@ $this->session->unset_userdata('brackets_error');
         var id = id.split("_")[1];
         if ($('#check_' + id).is(':checked')) {
             $("#_19_24_" + id).attr('required', true);
+            $("#_19_24_" + id).attr('disabled', false);
+            $("#order_received_from_" + id).attr('disabled', false);
             $("#_26_32_" + id).attr('required', true);
+            $("#_26_32_" + id).attr('disabled', false);
             $("#_36_42_" + id).attr('required', true);
+            $("#_36_42_" + id).attr('disabled', false);
             $("#order_received_from_" + id).attr('required', true);
-            $("#order_given_to_" + id).attr('required', true);
         } else {
-            $("#_19_24_" + id).removeAttr('required');
-            $("#_26_32_" + id).removeAttr('required');
-            $("#_36_42_" + id).removeAttr('required');
+            $("#order_received_from_" + id).attr('disabled', true);
             $("#order_received_from_" + id).removeAttr('required');
-            $("#order_given_to_" + id).removeAttr('required');
+            $("#_19_24_" + id).removeAttr('required');
+            $("#_19_24_" + id).attr('disabled', true);
+            $("#_26_32_" + id).removeAttr('required');
+            $("#_26_32_" + id).attr('disabled', true);
+            $("#_36_42_" + id).removeAttr('required');
+            $("#_36_42_" + id).attr('disabled', true);
         }
     }
 

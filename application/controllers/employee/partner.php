@@ -24,6 +24,7 @@ class Partner extends CI_Controller {
         $this->load->library('notify');
         $this->load->library('asynchronous_lib');
         $this->load->library('booking_utilities');
+        $this->load->library('user_agent');
 
         $this->load->helper(array('form', 'url'));
     }
@@ -54,17 +55,34 @@ class Partner extends CI_Controller {
         $partner = $this->partner_model->partner_login($data);
 
         if ($partner) {
-        //get partner details now
-        $partner_details = $this->partner_model->getpartner($partner['partner_id']);
+            //get partner details now
+            $partner_details = $this->partner_model->getpartner($partner['partner_id']);
 
-        $this->setSession($partner_details[0]['id'], $partner_details[0]['public_name'], $partner['id']);
-        log_message('info', 'Partner loggedIn  partner id' .
-                $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
+            $this->setSession($partner_details[0]['id'], $partner_details[0]['public_name'], $partner['id']);
+            log_message('info', 'Partner loggedIn  partner id' .
+                    $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
 
-        redirect(base_url() . "partner/get_spare_parts_booking");
+            //Saving Login Details in Database
+            $login_data['browser'] = $this->agent->browser();
+            $login_data['agent_string'] = $this->agent->agent_string();
+            $login_data['ip'] = $this->session->all_userdata()['ip_address'];
+            $login_data['action'] = _247AROUND_LOGIN;
+            $login_data['entity_type'] = $this->session->all_userdata()['userType'];
+            $login_data['agent_id'] = $this->session->all_userdata()['agent_id'];
+            $login_data['entity_id'] = $this->session->all_userdata()['partner_id'];
+
+            $login_id = $this->employee_model->add_login_logout_details($login_data);
+            //Adding Log Details
+            if ($login_id) {
+                log_message('info', __FUNCTION__ . ' Logging details have been captured for partner ' . $login_data['employee_name']);
+            } else {
+                log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['employee_name']);
+            }
+
+            redirect(base_url() . "partner/get_spare_parts_booking");
         } else {
 
-            $userSession = array('error' => 'Please enter correct user name and password' );
+            $userSession = array('error' => 'Please enter correct user name and password');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/login");
         }
@@ -228,6 +246,23 @@ class Partner extends CI_Controller {
      */
     function logout() {
         log_message('info', 'Partner logout  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'));
+        
+        //Saving Logout Details in Database
+        $login_data['browser'] = $this->agent->browser();
+        $login_data['agent_string'] = $this->agent->agent_string();
+        $login_data['ip'] = $this->session->all_userdata()['ip_address'];
+        $login_data['action'] = _247AROUND_LOGOUT;
+        $login_data['entity_type'] = $this->session->all_userdata()['userType'];
+        $login_data['agent_id'] = $this->session->all_userdata()['agent_id'];
+        $login_data['entity_id'] = $this->session->all_userdata()['partner_id'];
+
+        $logout_id = $this->employee_model->add_login_logout_details($login_data);
+        //Adding Log Details
+        if ($logout_id) {
+            log_message('info', __FUNCTION__ . ' Logging details have been captured for partner ' . $login_data['employee_name']);
+        } else {
+            log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['employee_name']);
+        }
 
         $this->session->sess_destroy();
         redirect(base_url() . "partner/login");
@@ -413,7 +448,7 @@ class Partner extends CI_Controller {
         $results['services'] = $this->vendor_model->selectservice();
         $results['brands'] = $this->vendor_model->selectbrand();
         $results['select_state'] = $this->vendor_model->getall_state();
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/addpartner', array('results' => $results));
     }
 
@@ -450,7 +485,7 @@ class Partner extends CI_Controller {
                     $this->session->set_flashdata('success','Partner added successfully.');
 
                     //Echoing inserted ID in Log file
-                    log_message('info',__FUNCTION__.' New Partner has been added with ID '.  $partner_id);
+                    log_message('info',__FUNCTION__.' New Partner has been added with ID '.  $partner_id." Done By " . $this->session->userdata('employee_id'));
                 }else{
                     $this->session->set_flashdata('error','Error in adding Partner.');
 
@@ -517,7 +552,7 @@ class Partner extends CI_Controller {
             $data[] = $value;
         }
      
-        $this->load->view('employee/header');
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
 
         $this->load->view('employee/viewpartner', array('query' => $data));
     }
@@ -564,8 +599,8 @@ class Partner extends CI_Controller {
     function editpartner($id) {
         $query = $this->partner_model->viewpartner($id);
         $results['select_state'] = $this->vendor_model->getall_state();
-        $this->load->view('employee/header');
-        $this->load->view('employee/addpartner', array('query' => $query,'results'=>$results));
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results));
     }
 
     /**
@@ -806,7 +841,7 @@ class Partner extends CI_Controller {
             $send['booking_id'] = $booking_id;
             $send['state'] = $data['current_status'];
             $this->asynchronous_lib->do_background_process($url, $send);
-            $this->My_CI->session->set_flashdata('success', $booking_id . ' Booking Cancelled');
+            $this->session->set_flashdata('success', $booking_id . ' Booking Cancelled');
 
             redirect(base_url() . "partner/get_user_form");
         } else {
@@ -1255,7 +1290,7 @@ class Partner extends CI_Controller {
 	    )
 	);
         
-        $output_file_excel  = "/tmp/spare_parts-".date('Y-m-d').".xlsx";
+        $output_file_excel  = TMP_FOLDER."spare_parts-".date('Y-m-d').".xlsx";
         $R->render('excel', $output_file_excel);
         if (file_exists($output_file_excel)) {
                 header('Content-Description: File Transfer');
@@ -1271,140 +1306,126 @@ class Partner extends CI_Controller {
          }
         
     }
+    
+    
     /**
-     * @desc: This method is used to download Shippemnt Address as Pdf file
-     * @param type $booking_id
+     * @desc: This is used to show Booking Life Cycle of particular Booking
+     * params: String Booking_ID
+     * return: Array of Data for View
      */
-    function download_sc_address($booking_id){
-         $this->checkUserSession();
+    function get_booking_life_cycle($booking_id){
+        $this->checkUserSession();
         log_message('info', __FUNCTION__. " Booking_id". $booking_id);
-        $booking_history  = $this->booking_model->getbooking_history($booking_id, "join");
-        $template = 'Address_Printout.xlsx';
-	//set absolute path to directory with template files
-	$templateDir = __DIR__ . "/../excel-templates/";
-        $config = array(
-		'template' => $template,
-		'templateDir' => $templateDir
-            );
+        $data['data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
+        $data['booking_details'] = $this->booking_model->getbooking_history($booking_id);
+        // send empty beacuse there is no need to display sms to partner panel
+        $data['sms_sent_details'] = array();
+       
+        $this->load->view('partner/header');
 
-        //load template
-        $R = new PHPReport($config);
-        
-        $R->load(array(
-                array(
-                    'id' => 'meta',
-                    'data' => $booking_history[0],
-                ),
-	    )
-	);
-        
-        $output_file_excel  = "/tmp/shippment_address-".$booking_id.".xlsx";
-        $output_file_pdf = "/tmp/shippment_address-".$booking_id.".pdf";
-        $R->render('excel', $output_file_excel);
-        
-        putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-        $tmp_path = libreoffice_pdf;
-        $tmp_output_file = libreoffice_output_file;
-	$cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
-	    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
-	    $output_file_excel . ' 2> ' . $tmp_output_file;
-         
-	$output = '';
-	$result_var = '';
-	exec($cmd, $output, $result_var);
-        //Download PDF file
-        if (file_exists($output_file_pdf)) {
-                header('Content-Description: File Transfer');
-                header('Content-Type: application/octet-stream');
-                header('Content-Disposition: attachment; filename="'.basename($output_file_pdf).'"');
-                header('Expires: 0');
-                header('Cache-Control: must-revalidate');
-                header('Pragma: public');
-                header('Content-Length: ' . filesize($output_file_pdf));
-                readfile($output_file_pdf);
-                exec("rm -rf " . escapeshellarg($output_file_pdf));
-                exec("rm -rf " . escapeshellarg($output_file_excel));
-                exit;
-         }
-        
-        log_message('info', __FUNCTION__ . " => Exiting, Booking ID: " . $booking_id);
+        $this->load->view('employee/show_booking_life_cycle', $data);
+
+    }
+    /**
+     * @desc: This is used to print  address for selected booking
+     * @param Array $booking_address
+     */
+    function download_shippment_address($booking_address){
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
+       
+        $booking_history['details'] = array();
+        foreach ($booking_address as $key=> $value) {
+            $booking_history['details'][$key]  = $this->booking_model->getbooking_history($value, "join")[0];
+        }
+       
+        $this->load->view('partner/print_address',$booking_history);
         
     }
+    /**
+     * @desc: This is used to print courier manifest or address for selected booking
+     */
+    function print_all(){
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
+        $booking_address = $this->input->post('download_address');
+        $booking_manifest = $this->input->post('download_courier_manifest');
     
-    function download_courier_manifest($booking_id){
-         $this->checkUserSession();
-        log_message('info', __FUNCTION__. " Booking_id". $booking_id);
-        $booking_history  = $this->booking_model->getbooking_history($booking_id);
-        $where = array('spare_parts_details.booking_id'=> $booking_id);
-        $where_in = array('Pending','Rescheduled');
-        $spare_parts_details = $this->partner_model->get_spare_parts_booking($where, $where_in);
-        $template = 'Courier_Manifest.xlsx';
-        
-        $date1=date_create($booking_history[0]['create_date']);
-        $date2=date_create(date('Y-m-d H:i:s'));
-        $diff=date_diff($date1,$date2);
-        $age['booking_age'] = $diff->days;
-	//set absolute path to directory with template files
-	$templateDir = __DIR__ . "/../excel-templates/";
-        $config = array(
-		'template' => $template,
-		'templateDir' => $templateDir
-            );
+        if(!empty($booking_address)){
+            
+            $this->download_shippment_address($booking_address);
+            
+        } else if(!empty($booking_manifest)){
+            
+            $this->download_mainfest($booking_manifest);
 
-        //load template
-        $R = new PHPReport($config);
+        } else if(empty($booking_address) && empty($booking_manifest)){
+            echo "Please Select Any Checkbox";
+        }
+ 
+    }
+    /**
+     * @desc: This is used to print courier manifest for selected booking
+     * @param type $booking_manifest
+     */
+    function download_mainfest($booking_manifest){
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
+        $spare_parts_details['courier_manifest'] = array();
+        foreach ($booking_manifest as $key => $value) {
+            $where = array('spare_parts_details.booking_id'=> $value);
+            $where_in = array('Pending','Rescheduled');
+            $spare_parts_details['courier_manifest'][$key] = $this->partner_model->get_spare_parts_booking($where, $where_in)[0];
+            $spare_parts_details['courier_manifest'][$key]['brand'] = $this->booking_model->get_unit_details(array('booking_id'=> $value))[0]['appliance_brand'];
+        }
         
-        $R->load(array(
-                array(
-                    'id' => 'meta',
-                    'data' => $booking_history[0],
-                ),
-                array(
-                    'id' => 'meta2',
-                    'data' => $spare_parts_details[0],
-                ),
-                array(
-                    'id' => 'meta1',
-                    'data' => $age,
-                ),
-	    )
-	);
+        $this->load->view('partner/courier_manifest', $spare_parts_details);
+    }
+    
+    /**
+     * @Desc: This function is used to login to particular Partner
+     *          This function is being called using AJAX
+     * @params: partner id
+     * @return: void
+     * 
+     */
+    function allow_log_in_to_partner($partner_id){
+        //Getting partner details
+        $partner_details = $this->partner_model->get_partner_login_details($partner_id);
+        $data['user_name'] = strtolower($partner_details[0]['user_name']);
+        $data['password'] = $partner_details[0]['password'];
         
-        $output_file_excel  = "/tmp/courier_manifest-".$booking_id.".xlsx";
-        $output_file_pdf = "/tmp/courier_manifest-".$booking_id.".pdf";
-        $R->render('excel', $output_file_excel);
-        
-        putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
-        $tmp_path = libreoffice_pdf;
-        $tmp_output_file = libreoffice_output_file;
-	$cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
-	    '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
-	    $output_file_excel . ' 2> ' . $tmp_output_file;
+         //Loggin to SF Panel with username and password
          
-	$output = '';
-	$result_var = '';
-	exec($cmd, $output, $result_var);
-       
-        //Download PDF file
-        if (file_exists($output_file_pdf)) {
-                header('Content-Description: File Transfer');
-                header('Content-Type: application/octet-stream');
-                header('Content-Disposition: attachment; filename="'.basename($output_file_pdf).'"');
-                header('Expires: 0');
-                header('Cache-Control: must-revalidate');
-                header('Pragma: public');
-                header('Content-Length: ' . filesize($output_file_pdf));
-                readfile($output_file_pdf);
-                exec("rm -rf " . escapeshellarg($output_file_pdf));
-                exec("rm -rf " . escapeshellarg($output_file_excel));
-                
-                exit;
-         }
-         
-        
-        log_message('info', __FUNCTION__ . " => Exiting, Booking ID: " . $booking_id);
-        
-        
+        $partner = $this->partner_model->partner_login($data);
+
+        if ($partner) {
+            //get partner details now
+            $partner_details = $this->partner_model->getpartner($partner['partner_id']);
+
+            $this->setSession($partner_details[0]['id'], $partner_details[0]['public_name'], $partner['id']);
+            log_message('info', 'Partner loggedIn  partner id' .
+                    $partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
+
+            //Saving Login Details in Database
+            $login_data['browser'] = $this->agent->browser();
+            $login_data['agent_string'] = $this->agent->agent_string();
+            $login_data['ip'] = $this->session->all_userdata()['ip_address'];
+            $login_data['action'] = _247AROUND_LOGIN;
+            $login_data['entity_type'] = $this->session->all_userdata()['userType'];
+            $login_data['agent_id'] = $this->session->all_userdata()['agent_id'];
+            $login_data['entity_id'] = $this->session->all_userdata()['partner_id'];
+
+            $login_id = $this->employee_model->add_login_logout_details($login_data);
+            //Adding Log Details
+            if ($login_id) {
+                log_message('info', __FUNCTION__ . ' Logging details have been captured for partner ' . $login_data['employee_name']);
+            } else {
+                log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['employee_name']);
+            }
+
+            redirect(base_url() . "partner/get_spare_parts_booking");   
+        }
     }
 
 }
