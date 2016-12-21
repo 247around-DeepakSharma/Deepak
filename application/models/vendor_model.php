@@ -349,12 +349,12 @@ class vendor_model extends CI_Model {
         $this->db->select('vendor_pincode_mapping.State as state');
         $this->db->from('vendor_pincode_mapping');
         $this->db->order_by('vendor_pincode_mapping.State');
-        $this->db->where('vendor_pincode_mapping.active', 1);
         $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
         $this->db->where('service_centres.active', '1');
 
-        if ($city != "")
+        if ($city != ""){
             $this->db->where('vendor_pincode_mapping.City', $city);
+        }
         $query = $this->db->get();
         return $query->result_array();
     }
@@ -434,13 +434,12 @@ class vendor_model extends CI_Model {
         $this->db->select('vendor_pincode_mapping.City as district');
         $this->db->from('vendor_pincode_mapping');
         $this->db->order_by('vendor_pincode_mapping.City');
-
-        $this->db->where('vendor_pincode_mapping.active', 1);
         $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
         $this->db->where('service_centres.active', '1');
 
-        if ($state != "")
+        if ($state != ""){
             $this->db->where('vendor_pincode_mapping.State', $state);
+        }
 
         $query = $this->db->get();
         return $query->result_array();
@@ -459,7 +458,6 @@ class vendor_model extends CI_Model {
         $this->db->from('vendor_pincode_mapping');
         $this->db->order_by('vendor_pincode_mapping.Pincode');
         $this->db->where('vendor_pincode_mapping.City', $district);
-        $this->db->where('vendor_pincode_mapping.active', 1);
         $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
         $this->db->where('service_centres.active', '1');
         $query = $this->db->get();
@@ -597,7 +595,6 @@ class vendor_model extends CI_Model {
     function get_city() {
         $this->db->distinct();
         $this->db->select('City');
-        $this->db->where('active', 1);
         $this->db->order_by('City');
         $query = $this->db->get('vendor_pincode_mapping');
         return $query->result_array();
@@ -616,7 +613,6 @@ class vendor_model extends CI_Model {
         $this->db->distinct();
         $this->db->select('Pincode');
         $this->db->order_by("Pincode");
-        $this->db->where('active', 1);
         $query4 = $this->db->get('vendor_pincode_mapping');
 
         $query3['pincode'] = $query4->result_array();
@@ -642,7 +638,6 @@ class vendor_model extends CI_Model {
         if ($data['pincode'] != "Select Pincode")
             $this->db->where('vendor_pincode_mapping.Pincode', $data['pincode']);
 
-        $this->db->where('vendor_pincode_mapping.active', 1);
         $this->db->where('service_centres.active', 1);
         //Checking Temporary On/Off values
         $this->db->where('service_centres.on_off', 1);
@@ -708,7 +703,7 @@ class vendor_model extends CI_Model {
         }
         $this->db->distinct();
         $this->db->select('Vendor_Name as name, Vendor_ID as id, Appliance, Appliance_ID');
-        $this->db->where('active', 1);
+       
         if ($vendor_id != "")
             $this->db->where('Vendor_ID', $vendor_id);
 
@@ -1136,7 +1131,6 @@ class vendor_model extends CI_Model {
         $this->db->select('Vendor_ID, Vendor_Name');
         $this->db->where('vendor_pincode_mapping.Appliance_ID', $service_id);
         $this->db->where('vendor_pincode_mapping.Pincode', $pincode);
-        $this->db->where('vendor_pincode_mapping.active', "1");
         $this->db->from('vendor_pincode_mapping');
         $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
         $this->db->where('service_centres.active', "1");

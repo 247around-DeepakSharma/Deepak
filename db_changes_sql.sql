@@ -1424,6 +1424,19 @@ ALTER TABLE `brackets` ADD UNIQUE(`order_id`);
 ALTER TABLE `employee` ADD `exotel_phone` VARCHAR(15) NULL DEFAULT NULL AFTER `phone`;
 
 
+--Abhay 19 DEC
+ALTER TABLE `spare_parts_details` ADD `defective_part_shipped` VARCHAR(100) NULL DEFAULT NULL AFTER `awb_by_partner`, 
+ADD `defective_part_shipped_date` DATE NULL DEFAULT NULL AFTER `defective_part_shipped`, 
+ADD `awb_by_sf` VARCHAR(100) NULL DEFAULT NULL AFTER `defective_part_shipped_date`, 
+ADD `courier_name_by_sf` VARCHAR(100) NULL DEFAULT NULL AFTER `awb_by_sf`, 
+ADD `remarks_defective_part` VARCHAR(200) NULL DEFAULT NULL AFTER `courier_name_by_sf`, 
+ADD `defective_part_required` INT(10) NULL DEFAULT '1' AFTER `remarks_defective_part`;
+
+ALTER TABLE `spare_parts_details` CHANGE `status` `status` VARCHAR(50) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+ALTER TABLE `spare_parts_details` CHANGE `remarks_defective_part` `remarks_defective_part_by_sf` VARCHAR(200) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+ALTER TABLE `spare_parts_details` ADD `remarks_defective_part_by_partner` VARCHAR(200) NULL DEFAULT NULL AFTER `remarks_defective_part_by_sf`;
+
 INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'sf_temporary_on_off', 'Dear %s,<br><br> <b> %s </b> Service Franchise has been made Temporarily <b> %s </b> <br><br> Thanks<br> 247Around Team', 'booking@247around.com', '', 'anuj@247around.com', '', '1', '2016-09-26 18:30:00');
 
 INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'sf_permanent_on_off', 'Dear %s,<br><br> <b> %s </b> Service Franchise has been made Permanent <b> %s </b> <br><br> Thanks<br> 247Around Team', 'booking@247around.com', '', 'anuj@247around.com', '', '1', '2016-09-26 18:30:00');
+

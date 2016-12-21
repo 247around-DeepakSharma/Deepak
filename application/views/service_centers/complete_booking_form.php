@@ -92,7 +92,7 @@
 			</div>
 		    </div>
 		    <!-- row End  -->
-
+                    <input type="hidden" name="spare_parts_required" value="<?php if(isset($booking_history['spare_parts'])){ echo "1";} else { echo "0";}?>" />
 		    <?php $count = 0; foreach ($bookng_unit_details as $key => $unit_details) { ?>
     		    <div class="clonedInput panel panel-info " id="clonedInput1">
     			<div class="panel-body">
@@ -334,17 +334,17 @@
 	    //console.log($(this).val());
 	    var div_no = this.id.split('_');
 	    is_completed_checkbox[i] = div_no[0];
-	    if (div_no[0] == "completed") {
+	    if (div_no[0] === "completed") {
 		//if POD is also 1, only then check for serial number.
-		if (div_no[1] == "1") {
+		if (div_no[1] === "1") {
 		    var serial_number = $("#serial_number" + div_no[2]).val();
-		    if (serial_number == "") {
+		    if (serial_number === "") {
 
 			document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
 			flag = 1;
 		    }
 
-		    if (serial_number == "0") {
+		    if (serial_number === "0") {
 			document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
 			flag = 1;
 		    }
@@ -383,10 +383,10 @@
 	    return false;
 
 	}
-	if (flag == 0) {
+	if (flag === 0) {
 	    return true;
 
-	} else if (flag == 1) {
+	} else if (flag === 1) {
 
 	    return false;
 	}
