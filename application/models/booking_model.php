@@ -1034,7 +1034,6 @@ class Booking_model extends CI_Model {
                 JOIN `service_centres` ON `service_centres`.`id` = `vendor_pincode_mapping`.`Vendor_ID`
                 WHERE `vendor_pincode_mapping`.`Appliance_ID` = bd.service_id
                 AND `vendor_pincode_mapping`.`Pincode` = bd.booking_pincode
-                AND `vendor_pincode_mapping`.`active` = '1'
                 AND `service_centres`.`active` = '1' AND `service_centres`.on_off = '1')  ";
             }
         }
@@ -1083,7 +1082,6 @@ class Booking_model extends CI_Model {
             $this->db->select('count(Vendor_ID) as count');
             $this->db->where('vendor_pincode_mapping.Appliance_ID', $value->service_id);
             $this->db->where('vendor_pincode_mapping.Pincode', $value->booking_pincode);
-            $this->db->where('vendor_pincode_mapping.active', "1");
             $this->db->from('vendor_pincode_mapping');
 
             $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
@@ -1206,7 +1204,6 @@ class Booking_model extends CI_Model {
         $query = $this->db->query("SELECT DISTINCT(`service_centres`.`id`) FROM (`vendor_pincode_mapping`)
 	    JOIN `service_centres` ON `service_centres`.`id` = `vendor_pincode_mapping`.`Vendor_ID`
     		WHERE `Appliance_ID` = '$appliance' AND `vendor_pincode_mapping`.`Pincode` = '$pincode'
-	    AND `vendor_pincode_mapping`.`active` = 1
 	    AND `service_centres`.`active` = '1'
             AND `service_centres`.`on_off` = '1'");
 
@@ -1649,7 +1646,7 @@ class Booking_model extends CI_Model {
 
         if($booking_id !=""){
            $where = " `booking_unit_details`.booking_id = '$booking_id' ";
-            $sql = "SELECT distinct(appliance_id), appliance_brand as brand, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_month`, `booking_unit_details`.`purchase_year`
+            $sql = "SELECT distinct(appliance_id), appliance_brand as brand, service_id, booking_id, appliance_category as category, appliance_capacity as capacity, `booking_unit_details`.`model_number`, appliance_description as description, `booking_unit_details`.`purchase_month`, `booking_unit_details`.`purchase_year`
             from booking_unit_details Where $where  ";
 
         } else if ($appliance_id != "") {

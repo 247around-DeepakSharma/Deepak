@@ -745,10 +745,9 @@ class Inventory extends CI_Controller {
     function update_spare_parts($booking_id){
         log_melogssage('info', __FUNCTION__. "Entering... ");
         $this->checkUserSession();
-        
-        $where = array('spare_parts_details.booking_id'=> $booking_id);
-        $where_in = array('Pending','Rescheduled', 'Completed', 'Cancelled');
-        $data['bookinghistory'] = $this->partner_model->get_spare_parts_booking($where, $where_in);
+        $where = "spare_parts_details.booking_id = '".$booking_id."' "
+                . " AND booking_details.current_status IN ('Pending', 'Rescheduled', 'Completed', 'Cancelled') ";
+        $data['bookinghistory'] = $this->partner_model->get_spare_parts_booking($where);
         
         if(!empty($data['bookinghistory'][0])){
             

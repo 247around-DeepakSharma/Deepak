@@ -17,7 +17,7 @@
     function outbound_call(phone_number){
         var confirm_call = confirm("Call Customer ?");
 
-        if (confirm_call == true) {
+        if (confirm_call === true) {
 
              $.ajax({
                 type: 'POST',
@@ -212,7 +212,7 @@
                             if (is_null($row->booking_jobcard_filename)) {
                                 echo $row->booking_id;
                             } else {
-                                echo '<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';
+                                echo '<a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';
                             }
                             ?>
                         </td>
@@ -377,7 +377,7 @@
         if (!index) return;
         $(this).find("td").each(function () {
             var id = $(this).text().toLowerCase().trim();
-            var not_found = (id.indexOf(value) == -1);
+            var not_found = (id.indexOf(value) === -1);
             $(this).closest('tr').toggle(!not_found);
             return not_found;
         });

@@ -228,92 +228,133 @@
                     </table>
                 </div>
                 <?php } ?>
-                
+               
+               
                 <?php if(isset($booking_history['spare_parts'])){ ?>
                 <div class="col-md-12">
-                    <h3 style="margin-left:15px;">Spare Parts Details</h3>
-                    <div class="col-md-6">
-                       
-                    <table class="table  table-striped table-bordered" >
-                        <tr>
-                            <th >Model Number: </th>
-                            <td><?php echo $booking_history['spare_parts']['serial_number']; ?></td>
-                        </tr>
-                       <tr>
-                            <th >Requested Parts: </th>
-                            <td><?php echo $booking_history['spare_parts']['parts_requested']; ?></td>
-                        </tr>
-                         <tr>
-                            <th >Requested Date: </th>
-                            <td><?php echo $booking_history['spare_parts']['create_date']; ?></td>
-                        </tr>
-                        <tr>
-                            <th >Invoice Image: </th>
-                            <td><?php if(!is_null($booking_history['spare_parts']['invoice_pic'])) { ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $booking_history['spare_parts']['invoice_pic']; ?> " target="_blank">Click Here to view Invoice Image</a><?php } ?></td>
-                        </tr>
-                         <tr>
-                            <th >Panel Image: </th>
-                            <td><?php if(!is_null($booking_history['spare_parts']['serial_number_pic'])) { ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $booking_history['spare_parts']['serial_number_pic']; ?> " target="_blank">Click Here to view Serial Number Image</a><?php } ?></td>
-                        </tr>
-                         <tr>
-                            <th >Defective Part Image: </th>
-                            <td><?php if(!is_null($booking_history['spare_parts']['defective_parts_pic'])) { ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $booking_history['spare_parts']['defective_parts_pic']; ?> " target="_blank">Click Here to view Defective Part Image</a><?php } ?></td>
-                        </tr>
-                         <tr>
-                            <th >Acknowledge Date BY SF: </th>
-                            <td><?php echo $booking_history['spare_parts']['acknowledge_date']; ?></td>
-                        </tr>
-                         <tr>
-                            <th >Remarks By SC: </th>
-                            <td><?php echo $booking_history['spare_parts']['remarks_by_sc']; ?></td>
-                        </tr>
-                       
-                        
-                    </table>
-                </div>
-                    <div class="col-md-6">
-                        
+                    <h1 style='font-size:24px;'>Spare Parts Requested By SF</h1>
+                    <div class="col-md-6" style="padding-left:1px;">
                         <table class="table  table-striped table-bordered" >
-                       
-                        <tr>
-                            <th >Serial Number: </th>
-                            <td><?php echo $booking_history['spare_parts']['serial_number']; ?></td>
-                        </tr>
-                          <tr>
-                            <th >Shipped Parts: </th>
-                            <td><?php echo $booking_history['spare_parts']['parts_shipped']; ?></td>
-                        </tr>
-                        <tr>
-                            <th >Courier Name: </th>
-                            <td><?php echo $booking_history['spare_parts']['courier_name_by_partner']; ?></td>
-                        </tr>
-                        <tr>
-                            <th >AWB: </th>
-                            <td><?php echo $booking_history['spare_parts']['awb_by_partner']; ?></td>
-                        </tr>
-                        <tr>
-                            <th >Shipped date: </th>
-                            <td><?php echo $booking_history['spare_parts']['shipped_date']; ?></td>
-                        </tr>
-                         
-                         <tr>
-                            <th >EDD: </th>
-                            <td><?php echo $booking_history['spare_parts']['edd']; ?></td>
-                        </tr>
-                         <tr>
-                            <th >Remarks By Partner: </th>
-                            <td><?php echo $booking_history['spare_parts']['remarks_by_partner']; ?></td>
-                        </tr>
-                          
-                       
-                        
+                            <tr>
+                                <th >Model Number: </th>
+                                <td><?php echo $booking_history['spare_parts']['serial_number']; ?></td>
+                            </tr>
+                            <tr>
+                                <th >Requested Parts: </th>
+                                <td><?php echo $booking_history['spare_parts']['parts_requested']; ?></td>
+                            </tr>
+                            <tr>
+                                <th >Requested Date: </th>
+                                <td><?php echo $booking_history['spare_parts']['create_date']; ?></td>
+                            </tr>
+                            <tr>
+                                <th >Invoice Image: </th>
+                                <td><?php if(!is_null($booking_history['spare_parts']['invoice_pic'])) { ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $booking_history['spare_parts']['invoice_pic']; ?> " target="_blank">Click Here to view Invoice Image</a><?php } ?></td>
+                            </tr>
+                            <tr>
+                                <th >Serial Number Image: </th>
+                                <td><?php if(!is_null($booking_history['spare_parts']['serial_number_pic'])) { ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $booking_history['spare_parts']['serial_number_pic'];  ?> " target="_blank">Click Here to view Serial Number Image</a><?php } ?></td>
+                            </tr>
                         </table>
                     </div>
-                   
+                    <div class="col-md-6">
+                        <table class="table  table-striped table-bordered" >
+                            <tr>
+                                <th >Defective Part Image: </th>
+                                <td><?php if(!is_null($booking_history['spare_parts']['defective_parts_pic'])) { ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $booking_history['spare_parts']['defective_parts_pic'];  ?> " target="_blank">Click Here to view Defective Part Image</a><?php } ?></td>
+                            </tr>
+                            
+                            <tr>
+                                <th >Serial Number: </th>
+                                <td><?php echo $booking_history['spare_parts']['serial_number']; ?></td>
+                            </tr>
+                             <tr>
+                                <th >Acknowledge Date BY SF: </th>
+                                <td><?php echo $booking_history['spare_parts']['acknowledge_date']; ?></td>
+                            </tr>
+                             <tr>
+                                <th >Remarks By SC: </th>
+                                <td><?php echo $booking_history['spare_parts']['remarks_by_sc']; ?></td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
                 
-                    
+                <div class="col-md-12">
+                    <h1 style='font-size:24px;'>Spare Parts Shipped By <?php echo $this->session->userdata('partner_name');?></h1>
+                    <div class="col-md-6" style="padding-left:1px;">
+                        <table class="table  table-striped table-bordered" >
+                            <tr>
+                                <th >Shipped Parts: </th>
+                                <td><?php echo $booking_history['spare_parts']['parts_shipped']; ?></td>
+                            </tr>
+                            <tr>
+                                <th >Courier Name: </th>
+                                <td><?php echo $booking_history['spare_parts']['courier_name_by_partner']; ?></td>
+                            </tr>
+                            <tr>
+                                <th >AWB: </th>
+                                <td><?php echo $booking_history['spare_parts']['awb_by_partner']; ?></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table  table-striped table-bordered" >
+                            <tr>
+                                <th >Shipped date: </th>
+                                <td><?php echo $booking_history['spare_parts']['shipped_date']; ?></td>
+                            </tr>
+                            <tr>
+                                <th >EDD: </th>
+                                <td><?php echo $booking_history['spare_parts']['edd']; ?></td>
+                            </tr>
+                            <tr>
+                                <th >Remarks By Partner: </th>
+                                <td><?php echo $booking_history['spare_parts']['remarks_by_partner']; ?></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="col-md-12">
+                    <h1 style='font-size:24px;'>Defective Spare Parts Shipped By SF</h1>
+                    <div class="col-md-6" style="padding-left:1px;">
+                        <table class="table  table-striped table-bordered" >
+                            <tr>
+                                <th >Shipped Parts: </th>
+                                <td><?php echo $booking_history['spare_parts']['defective_part_shipped']; ?></td>
+                            </tr>
+                            <tr>
+                                <th >Courier Name: </th>
+                                <td><?php echo $booking_history['spare_parts']['courier_name_by_sf']; ?></td>
+                            </tr>
+                            <tr>
+                                <th >AWB: </th>
+                                <td><?php echo $booking_history['spare_parts']['awb_by_sf']; ?></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table  table-striped table-bordered" >
+                            <tr>
+                                <th >Shipped date: </th>
+                                <td><?php echo date('Y-m-d', strtotime($booking_history['spare_parts']['defective_part_shipped_date'])); ?></td>
+                            </tr>
+                           
+                            <tr>
+                                <th >Remarks By SF: </th>
+                                <td><?php echo $booking_history['spare_parts']['remarks_defective_part_by_sf']; ?></td>
+                            </tr>
+                             <tr>
+                                <th >Rejected Remarks By Partner: </th>
+                                <td><?php echo $booking_history['spare_parts']['remarks_defective_part_by_partner']; ?></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
                 <?php } ?>
+                
+
                 
                 <?php if(!empty($service_center)){?>
                 <div class="col-md-6">

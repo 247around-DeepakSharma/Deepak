@@ -34,29 +34,16 @@
                                         <?php if( form_error('excel') ) { echo 'File size or file type is not supported. Allowed extensions are "xls" or "xlsx". Maximum file size is 2 MB.';} ?>
                                     </div>
                                 </div>
-                                <div class="form-group  col-md-12 <?php if( form_error('emailID') ) { echo 'has-error';} ?>">
-                                    <label for="excel" class="col-md-4">Email:</label>
-                                    <div class="col-md-8">
-                                        <input type="email" class="form-control" id="email_id" name="emailID" >
-                                        <?php echo form_error('emailID'); ?>
-                                    </div>
-                                </div>
-                                <div class="form-group  col-md-12 <?php if( form_error('emailID') ) { echo 'has-error';} ?>">
-                                    <label for="excel" class="col-md-4">Notes</label>
-                                    <div class="col-md-8">
-                                        <textarea rows="4" id="notes" name ="notes" cols="55" ></textarea>
-                                        <?php echo form_error('emailID'); ?>
-                                    </div>
-                                </div>
+                               
                                 <div class="form-group">
-                                    <div class="col-md-12">
+                                    <div class="col-md-12 col-md-offset-2">
                                         <center>
                                             <input type= "submit"  class="btn btn-danger btn-md" value ="Upload" >
                                            <!--  <input type="hidden" value="https://s3.amazonaws.com/bookings-collateral/vendor-pincodes/<?php echo $pincode_mapping_file[0]['file_name']; ?>" id="fileUrl"></input> -->
 
                                             <a href="<?php echo base_url()?>employee/vendor/download_pincode_latest_file" class="btn btn-primary btn-md">Download latest File</a> 
                                             <a href="<?php echo base_url()?>employee/vendor/download_unique_pincode_excel" class="btn btn-primary btn-md">Get Unique Pincode</a> 
-                                            <a href="#" onclick="sendEmail()" class="btn btn-success btn-md" >Send Email</a>
+                                            
                                         </center>
                                     </div>
                                 </div>
@@ -99,23 +86,4 @@
     </div>
 </div>
 
-<script type="text/javascript">
-  function sendEmail(){
-    var postdata = {};
-    postdata['email'] = $('#email_id').val();
-    postdata['notes'] = $('#notes').val();
-    postdata['fileUrl'] = $('#fileUrl').val();
 
-    $.ajax({
-          type: 'POST',
-          url: '<?php echo base_url() ?>employee/vendor/send_email_with_latest_pincode_excel',
-          data: postdata,
-          success: function (data) {
-            console.log(data);
-            $("#success").html(data);   
-                
-          }
-        });
-  }
-
-</script>

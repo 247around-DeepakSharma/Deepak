@@ -91,6 +91,7 @@
          </div>
       </div>
    </div>
+<div class="custom_pagination" style="margin-left: 16px; margin-bottom:40px;" > <?php if(isset($links)) echo $links; ?></div>
 </div>
 
 <script type="text/javascript">

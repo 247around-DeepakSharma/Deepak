@@ -76,7 +76,6 @@ class service_centre_charges_model extends CI_Model {
         
         $this->db->distinct();
         $this->db->select('City');
-        $this->db->where('active', 1);
         $sql2 = $this->db->get('vendor_pincode_mapping');
 
         $query2['city'] = $sql2->result_array();

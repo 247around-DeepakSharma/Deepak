@@ -668,16 +668,46 @@ class Partner_model extends CI_Model {
      * @param Array $where
      * @return Array
      */
-    function get_spare_parts_booking($where, $where_in){
-        $this->db->select('spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, booking_details.booking_address,booking_details.initial_booking_date,'
-                . ' service_centres.name as vendor_name, service_centres.address, service_centres.state, service_centres.pincode, service_centres.district');
-        $this->db->from('spare_parts_details'); 
-        $this->db->join('booking_details', 'booking_details.booking_id = spare_parts_details.booking_id');
-        $this->db->join('users', 'users.user_id = booking_details.user_id');
-        $this->db->join('service_centres', 'service_centres.id = spare_parts_details.service_center_id');
-        $this->db->where($where);
-        $this->db->where_in($where_in);
-        $query = $this->db->get();
+    function get_spare_parts_booking($where){
+        $sql = "SELECT spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, "
+                . " booking_details.booking_address,booking_details.initial_booking_date,"
+                . " service_centres.name as vendor_name, service_centres.address, service_centres.state, "
+                . " service_centres.pincode, service_centres.district"
+                . " FROM spare_parts_details,booking_details,users, "
+                . " service_centres WHERE booking_details.booking_id = spare_parts_details.booking_id"
+                . " AND users.user_id = booking_details.user_id AND service_centres.id = spare_parts_details.service_center_id "
+                . " AND ".$where . "  ORDER BY spare_parts_details.create_date ASC";
+        $query = $this->db->query($sql);
+       
+        return $query->result_array();
+    }
+    /**
+     * @desc: This is used to return Spare booking List
+     * @param String $where
+     * @param integer/boolean $start
+     * @param integer/boolean $end
+     * @param boolean $flag_select
+     * @return Array
+     */
+    function get_spare_parts_booking_list($where, $start, $end,$flag_select){
+        $limit = "";
+        $select = " ";
+        if($flag_select){
+            $select = "SELECT spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, "
+                . " booking_details.booking_address,booking_details.initial_booking_date,"
+                . " service_centres.name as vendor_name, service_centres.address, service_centres.state, "
+                . " service_centres.pincode, service_centres.district";
+            $limit = "LIMIT $start, $end";
+        } else {
+            $select = "SELECT count(spare_parts_details.id) as total_rows ";
+        }
+        $sql =   $select
+                ." FROM spare_parts_details,booking_details,users, "
+                . " service_centres WHERE booking_details.booking_id = spare_parts_details.booking_id"
+                . " AND users.user_id = booking_details.user_id AND service_centres.id = spare_parts_details.service_center_id "
+                . " AND ".$where . "  ORDER BY status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC $limit";
+        $query = $this->db->query($sql);
+       
         return $query->result_array();
     }
 
