@@ -213,13 +213,15 @@
                 shipped_parts_name: "required",
                 remarks_by_partner: "required",
                 courier_name:"required",
-                awb: "required"
+                awb: "required",
+                shipment_date:"reuired"
                 },
                 messages: {
                 shipped_parts_name: "Please Enter Shipped Parts",
                 remarks_by_partner: "Please Enter Remarks",
                 courier_name: "Please Courier Name",
-                awb: "Please Enter Valid AWB"
+                awb: "Please Enter Valid AWB",
+                shipment_date:"Please Enter Shipped date"
               
                 },
                 submitHandler: function (form) {

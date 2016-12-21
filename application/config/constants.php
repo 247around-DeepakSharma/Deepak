@@ -158,6 +158,14 @@ define('CUSTOMER_ASK_TO_RESCHEDULE','Customer asked to reschedule');
 define('CUSTOMER_NOT_REACHABLE','Customer not reachable');
 //constant to define default brackets order id
 define('_247_AROUND_DEFAULT_BRACKETS_ORDER_ID',201611000001);
+// Defective Parts pending
+define('DEFECTIVE_PARTS_PENDING','defective_part_pending');
+// Defective Parts Shipped by SF
+define('DEFECTIVE_PARTS_SHIPPED','defective_part_shipped_by_SF');
+// Defective Parts Received by SF
+define('DEFECTIVE_PARTS_RECEIVED','defective_part_received_by_partner');
+// Defective Parts Received by SF
+define('DEFECTIVE_PARTS_REJECTED','defective_part_rejected_by_partner');
 
 
 

@@ -1154,13 +1154,27 @@ class Partner extends CI_Controller {
     /**
      * @desc: This is used to get those booking who has requested to spare parts by SF
      */
-    function get_spare_parts_booking(){
+    function get_spare_parts_booking($offset = 0){
         log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
-        $where = array('spare_parts_details.partner_id'=> $partner_id, 'status'=> SPARE_PARTS_REQUESTED);
-        $where_in = array('Pending','Rescheduled');
-        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where, $where_in);
+        $where = "spare_parts_details.partner_id = '".$partner_id."' AND status = '".SPARE_PARTS_REQUESTED."' "
+                . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
+        
+        $config['base_url'] = base_url() . 'partner/get_spare_parts_booking';
+        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
+        $config['total_rows'] = $total_rows[0]['total_rows'];
+
+        $config['per_page'] = 50;
+        $config['uri_segment'] = 3;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+
+        $data['count'] = $config['total_rows'];
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
+        
         $this->load->view('partner/header');
         $this->load->view('partner/spare_parts_booking', $data);
     }
@@ -1203,9 +1217,11 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'). " Booking ID: ". $booking_id);
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
-        $where_in = array('Pending','Rescheduled');
-        $where = array('spare_parts_details.partner_id'=> $partner_id, 'status'=> SPARE_PARTS_REQUESTED, 'spare_parts_details.booking_id'=> $booking_id);
-        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where, $where_in);
+        
+        $where = "spare_parts_details.partner_id = '".$partner_id."' AND status = '".SPARE_PARTS_REQUESTED."' "
+               . " AND spare_parts_details.booking_id = '".$booking_id."' "
+               . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
         
         $this->load->view('partner/header');
         $this->load->view('partner/update_spare_parts_form', $data);
@@ -1235,8 +1251,7 @@ class Partner extends CI_Controller {
             $data['awb_by_partner'] = $this->input->post('awb');
             $data['remarks_by_partner'] = $this->input->post('remarks_by_partner');
             $data['shipped_date'] = $this->input->post('shipment_date');
-            //$data['edd'] = $this->input->post('edd');
-           
+            
             $data['status'] = "Shipped";
             $where  = array('booking_id'=> $booking_id, 'partner_id'=> $partner_id);
             $response = $this->service_centers_model->update_spare_parts($where, $data);
@@ -1267,9 +1282,9 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
-        $where_in = array('Pending','Rescheduled');
-        $where = array('spare_parts_details.partner_id'=> $partner_id, 'status'=> SPARE_PARTS_REQUESTED);
-        $data = $this->partner_model->get_spare_parts_booking($where, $where_in);
+        $where = "spare_parts_details.partner_id = '".$partner_id."' AND status = '".SPARE_PARTS_REQUESTED."' "
+                . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
+        $data = $this->partner_model->get_spare_parts_booking($where);
         $template = 'download_spare_parts.xlsx';
 	//set absolute path to directory with template files
 	$templateDir = __DIR__ . "/../excel-templates/";
@@ -1373,9 +1388,10 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
         $spare_parts_details['courier_manifest'] = array();
         foreach ($booking_manifest as $key => $value) {
-            $where = array('spare_parts_details.booking_id'=> $value);
-            $where_in = array('Pending','Rescheduled');
-            $spare_parts_details['courier_manifest'][$key] = $this->partner_model->get_spare_parts_booking($where, $where_in)[0];
+          
+            $where = "spare_parts_details.booking_id = '".$value."' AND status = '".SPARE_PARTS_REQUESTED."' "
+                . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
+            $spare_parts_details['courier_manifest'][$key] = $this->partner_model->get_spare_parts_booking($where)[0];
             $spare_parts_details['courier_manifest'][$key]['brand'] = $this->booking_model->get_unit_details(array('booking_id'=> $value))[0]['appliance_brand'];
         }
         
@@ -1425,6 +1441,125 @@ class Partner extends CI_Controller {
             }
 
             redirect(base_url() . "partner/get_spare_parts_booking");   
+        }
+    }
+    /**
+     * @desc: Display list of Shipped Parts in the Partner Panel
+     */
+    function get_shipped_parts_list($offset= 0){
+        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
+        $this->checkUserSession();
+        $partner_id = $this->session->userdata('partner_id');
+        $where = "spare_parts_details.partner_id = '".$partner_id."' "
+                . " AND status IN ('Delivered', 'Shipped', '".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_SHIPPED."')  ";
+          
+        $config['base_url'] = base_url() . 'partner/get_shipped_parts_list';
+        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
+        $config['total_rows'] = $total_rows[0]['total_rows'];
+
+        $config['per_page'] = 50;
+        $config['uri_segment'] = 3;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+
+        $data['count'] = $config['total_rows'];
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
+        
+        
+        $this->load->view('partner/header');
+        $this->load->view('partner/shipped_spare_part_booking', $data);
+    }
+    /**
+     * @desc: Pending Defective Parts list 
+     */
+    function get_waiting_defective_parts($offset = 0){
+        log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
+        $this->checkUserSession();
+        $partner_id = $this->session->userdata('partner_id');
+        $where = "spare_parts_details.partner_id = '".$partner_id."' "
+                . " AND status IN ('".DEFECTIVE_PARTS_PENDING."','".DEFECTIVE_PARTS_SHIPPED ."')  ";
+          
+        $config['base_url'] = base_url() . 'partner/get_waiting_defective_parts';
+        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
+        $config['total_rows'] = $total_rows[0]['total_rows'];
+
+        $config['per_page'] = 50;
+        $config['uri_segment'] = 3;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+
+        $data['count'] = $config['total_rows'];
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
+        $where_internal_status = array("page" => "defective_parts", "active" => '1');
+        $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
+        $this->load->view('partner/header');
+        $this->load->view('partner/waiting_defective_parts', $data);
+        
+    }
+    /**
+     * @desc: Partner acknowledge to receive defective spare parts
+     * @param String $booking_id
+     */
+    function acknowledge_received_defective_parts($booking_id) {
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'). " Booking Id ". $booking_id);
+        $this->checkUserSession();
+        $partner_id = $this->session->userdata('partner_id');
+        $where = array('booking_id' => $booking_id, 'partner_id' => $partner_id);
+        $response = $this->service_centers_model->update_spare_parts($where, array('status' => DEFECTIVE_PARTS_RECEIVED));
+        if ($response) {
+            log_message('info', __FUNCTION__ . " Sucessfully Acknowleded to Receive Defective Spare Parts ".$booking_id
+                    ." Partner Id". $this->session->userdata('partner_id'));
+            $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner acknowledged to received defective spare parts");
+
+            $sc_data['current_status'] = "InProcess";
+            $sc_data['internal_status'] = _247AROUND_COMPLETED;
+            $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+
+            $userSession = array('success' => 'Sucessfully Acknowleded to Receive Defective Spare Parts');
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "partner/get_waiting_defective_parts");
+        } else { //if($response){
+            log_message('info', __FUNCTION__ . '=> Defective Spare Parts not udated  by Partner ' . $this->session->userdata('partner_id') .
+                    " booking id " . $booking_id);
+            $userSession = array('success' => 'There is some error. Please try again.');
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "partner/get_waiting_defective_parts");
+        }
+    }
+    /**
+     * @desc: Partner rejected Defective Parts with reason.
+     * @param Sting $booking_id
+     * @param Urlencoded $status (Rejection Reason)
+     */
+    function reject_defective_part($booking_id,$status){
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'). " Booking Id ". $booking_id);
+        $rejection_reason = base64_decode(urldecode($status));
+        $partner_id = $this->session->userdata('partner_id');
+        $where = array('booking_id' => $booking_id, 'partner_id' => $partner_id);
+        $response = $this->service_centers_model->update_spare_parts($where, array('status' => DEFECTIVE_PARTS_REJECTED, 
+            'remarks_defective_part_by_partner' => $rejection_reason));
+        if ($response) {
+            log_message('info', __FUNCTION__ . " Sucessfully updated Table ".$booking_id
+                    ." Partner Id". $this->session->userdata('partner_id'));
+            $this->insert_details_in_state_change($booking_id, $rejection_reason, DEFECTIVE_PARTS_REJECTED);
+
+            $sc_data['current_status'] = "InProcess";
+            $sc_data['internal_status'] = $rejection_reason;
+            $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+
+            $userSession = array('success' => 'Defective Parts Rejected To SF. They will take an action soon!');
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "partner/get_waiting_defective_parts");
+        } else { //if($response){
+            log_message('info', __FUNCTION__ . '=> Defective Spare Parts not udated  by Partner ' . $this->session->userdata('partner_id') .
+                    " booking id " . $booking_id);
+            $userSession = array('success' => 'There is some error. Please try again.');
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "partner/get_waiting_defective_parts");
         }
     }
 
