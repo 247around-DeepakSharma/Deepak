@@ -169,7 +169,7 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('booking_status', 'Status', 'required');
 
         if (($this->form_validation->run() == FALSE) || ($booking_id =="") || (is_null($booking_id))) {
-            $this->complete_booking_form($booking_id);
+            $this->complete_booking_form(urlencode(base64_encode($booking_id)));
         } else {
             // customer paid basic charge is comming in array
             // Array ( [100] =>  500 , [102] =>  300 )  
@@ -265,7 +265,7 @@ class Service_centers extends CI_Controller {
 
         if (($this->form_validation->run() == FALSE) || $booking_id =="" || $booking_id == NULL) {
             log_message('info', __FUNCTION__ . " Form validation failed Booking ID: " . $booking_id);
-            $this->cancel_booking_form($booking_id);
+            $this->cancel_booking_form(urlencode(base64_encode($booking_id)));
         } else {
            
             $cancellation_reason = $this->input->post('cancellation_reason');

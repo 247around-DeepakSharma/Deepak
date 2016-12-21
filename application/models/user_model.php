@@ -134,13 +134,16 @@ class User_model extends CI_Model {
      *  @param : phone number
      *  @return : array(user details)
      */
-    function search_user($phone_number) {
-        $this->db->select("*");
-        $this->db->where('booking_primary_contact_no', $phone_number);
-        $this->db->or_where('booking_alternate_contact_no', $phone_number);
-        $this->db->join('users', 'users.user_id = booking_details.user_id');
-        $query = $this->db->get("booking_details");
-        return $query->result_array();
+    function search_user($phone_number,  $end, $start) {
+        $sql = "(SELECT booking_id, 0 as isuser
+                FROM booking_details bd
+                WHERE bd.booking_primary_conatct_no = '$phone_number
+               
+               ) UNION ALL
+               (SELECT user_id, 1 as isuser
+                FROM users As u
+                WHERE u.phone_number = '$phone_number'
+                )";
     }
 
     /* function total_user_count($userName) {
