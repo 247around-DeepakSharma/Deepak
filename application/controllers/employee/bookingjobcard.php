@@ -25,7 +25,7 @@ class bookingjobcard extends CI_Controller {
         $this->load->model('employee_model');
         $this->load->model('vendor_model');
         $this->load->model('booking_model');
-        $this->load->model('filter_model');
+        
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
         $this->load->library("pagination");
