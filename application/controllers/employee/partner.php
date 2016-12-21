@@ -245,6 +245,7 @@ class Partner extends CI_Controller {
      * @return: void
      */
     function logout() {
+        $this->checkUserSession();
         log_message('info', 'Partner logout  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'));
         
         //Saving Logout Details in Database

@@ -157,6 +157,7 @@ class Login extends CI_Controller {
      *  @return : void
      */
     function logout() {
+        $this->checkUserSession();
         //Saving Logout Details in Database
 
         $data['browser'] = $this->agent->browser();

@@ -367,6 +367,7 @@ class Service_centers extends CI_Controller {
      * @return: void
      */
     function logout() {
+        $this->checkUserSession();
        //Saving Login Details in Database
         $login_data['browser'] = $this->agent->browser();
         $login_data['ip'] = $this->session->all_userdata()['ip_address'];
