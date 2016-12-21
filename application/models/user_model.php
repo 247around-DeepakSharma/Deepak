@@ -134,17 +134,13 @@ class User_model extends CI_Model {
      *  @param : phone number
      *  @return : array(user details)
      */
-    function search_user($phone_number,  $end, $start) {
-        $sql = "(SELECT booking_id, 0 as isuser
-                FROM booking_details bd
-                WHERE bd.booking_primary_conatct_no = '$phone_number
-               
-               ) UNION ALL
-               (SELECT user_id, 1 as isuser
-                FROM users As u
-                WHERE u.phone_number = '$phone_number'
-                )";
-    }
+    function search_user($phone_number) {
+        $this->db->select("*");
+        $this->db->where('phone_number', $phone_number);
+
+        $query = $this->db->get("users");
+        return $query->result_array();
+    } 
 
     /* function total_user_count($userName) {
       $this->db->select('user_id');
@@ -220,14 +216,14 @@ class User_model extends CI_Model {
         $sql = " SELECT services.services, users.user_id, users.city, users.state, users.phone_number, users.user_email, users.home_address, users.name, users.pincode, "
                 . " booking_details.* "
                 . " FROM booking_details, users,services WHERE "
-                . " users.phone_number='$phone_number' OR booking_details.booking_alternate_contact_no = '$phone_number' AND booking_details.user_id=users.user_id AND "
+                . " users.phone_number='$phone_number' AND booking_details.user_id=users.user_id AND "
                 . " services.id=booking_details.service_id LIMIT $start, $limit";
         $query = $this->db->query($sql);
-        
+
         log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
-        
+
         return $query->result_array();
-    }
+    } 
     
     /** @description : Search user and booking details for a particular user through his phone number,partner ID also for pagination
      * 
