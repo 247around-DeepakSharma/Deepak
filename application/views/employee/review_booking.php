@@ -128,10 +128,10 @@
                                                 
                                             } else if($value1['internal_status'] == "Completed" && $value1['customer_net_payable'] ==0  && 
                                                     ($value1['service_charge'] + $value1['additional_service_charge'] + $value1['parts_cost']) > 0){
-                                                 $style = "background-color:#FF8080";
+                                                 $style = "background-color:#4CBA90";
                                             }
- 
-                                            ?>
+   
+                                               ?>
                                        <tr style="<?php echo $style?>">
                                             <td><span class="<?php echo "brand".$count; ?>"><?php echo $value1['appliance_brand']; ?></span></td>
                                            <td><span class="<?php echo "category".$count; ?>"><?php echo $value1['appliance_category']."/". $value1['appliance_capacity']; ?></span></td>
