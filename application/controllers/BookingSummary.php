@@ -1057,4 +1057,20 @@ EOD;
             $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $view, "");
         }
     }
+
+    /**
+     * @desc: This function is used to get agent current day working details
+     * params: void
+     * retun :void
+     *
+     */
+
+    function agent_working_details()
+    {
+            log_message('info', __FUNCTION__ . ": Fetched Agent Daily Working Report");
+            $data['data'] = $this->reporting_utils->get_agent_daily_reports();
+            //print_r($data);
+            $this->load->view('employee/header/admin');
+            $this->load->view('employee/agent_working_details', $data);     
+    }
 }

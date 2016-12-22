@@ -1476,4 +1476,98 @@ class Reporting_utils extends CI_Model {
         return $query->result_array();
     }
 
+    /**
+    * @Desc: This is used to get agent daily reports
+    * @params: void
+    * 
+    * @return: Array
+    */  
+    function get_agent_daily_reports()
+    {               
+        
+        $data = array();
+        $where = 'and DATE(booking_state_change.create_date) = DATE(CURDATE())';
+        $sql = "select employee_id, id from employee where groups not in ('developer')";
+        $query = $this->db->query($sql);
+        $employee_id = $query->result_array();
+        foreach ($employee_id as $value) {
+
+            //getting insert query data
+            $insert_query = "SELECT count(booking_id) AS query_insert FROM booking_state_change JOIN employee on booking_state_change.agent_id=employee.id WHERE booking_state_change.old_state = 'New_Query' and booking_state_change.new_state='FollowUP' and employee.id= '".$value['id']."' $where";
+
+            // getting update query data 
+            $update_query = "SELECT count(booking_id) AS query_update FROM booking_state_change JOIN employee on booking_state_change.agent_id=employee.id WHERE booking_state_change.old_state = 'FollowUP' and booking_state_change.new_state='FollowUP' and employee.id= '".$value['id']."' $where";
+            
+            // getting cancel query data
+            $cancel_query = "SELECT count(booking_id) AS query_cancel FROM booking_state_change JOIN employee on booking_state_change.agent_id=employee.id WHERE booking_state_change.old_state = 'FollowUP' and booking_state_change.new_state='Cancelled' and employee.id= '".$value['id']."' $where";
+            //getting booking query data
+            $booking_query = "SELECT count(booking_id) AS query_booking FROM booking_state_change JOIN employee on booking_state_change.agent_id=employee.id WHERE booking_state_change.old_state = 'FollowUP' and booking_state_change.new_state='Pending' and employee.id= '".$value['id']."' $where";
+
+            //getting cancel booking data
+            $cancel_booking = "SELECT count(booking_id) AS booking_cancel FROM booking_state_change JOIN employee on booking_state_change.agent_id=employee.id WHERE booking_state_change.old_state = 'Pending' and booking_state_change.new_state='Cancelled' and employee.id= '".$value['id']."' $where";
+
+            //getting completed booking data 
+            $completed_booking = "SELECT count(booking_id) AS booking_completed FROM booking_state_change JOIN employee on booking_state_change.agent_id=employee.id WHERE booking_state_change.old_state = 'Pending' and booking_state_change.new_state='Completed' and employee.id= '".$value['id']."' $where";
+
+            //getting insert booking data
+            $insert_booking = "SELECT count(booking_id) AS booking_insert FROM booking_state_change JOIN employee on booking_state_change.agent_id=employee.id WHERE booking_state_change.old_state = 'New_Booking' and booking_state_change.new_state='Pending' and employee.id= '".$value['id']."' $where";
+
+            //getting rescheduled data
+            $rescheduled_booking = "SELECT count(booking_id) AS booking_rescheduled FROM booking_state_change JOIN employee on booking_state_change.agent_id=employee.id WHERE booking_state_change.old_state = 'Pending' and booking_state_change.new_state='Rescheduled' and employee.id= '".$value['id']."' $where";
+            //getting escallation data
+            $escalation_query = "SELECT count(booking_id) AS Escalation FROM booking_state_change JOIN employee on booking_state_change.agent_id=employee.id WHERE booking_state_change.old_state = 'Pending' and booking_state_change.new_state='Escalation' and employee.id= '".$value['id']."' $where";
+            //getting outgoing calls data
+            $calls_placed = "SELECT count(agent_id) AS calls_placed FROM agent_outbound_call_log JOIN employee on agent_outbound_call_log.agent_id=employee.id WHERE employee.id= '".$value['id']."'  and DATE(agent_outbound_call_log.create_date) = DATE(CURDATE())";
+            //getting incomming calls data
+            $calls_recevied = "SELECT COUNT(DialWhomNumber) AS incomming FROM passthru_misscall_log JOIN employee on passthru_misscall_log.DialWhomNumber=employee.phone WHERE employee.id='".$value['id']."' AND DATE(passthru_misscall_log.create_date) = DATE(CURDATE())";
+            
+            //execute the query to get data
+            $query1 =  $this->db->query($insert_query);
+            $query2 =  $this->db->query($update_query);
+            $query3 =  $this->db->query($cancel_query);
+            $query4 =  $this->db->query($booking_query);
+            $query5 =  $this->db->query($cancel_booking);
+            $query6 =  $this->db->query($completed_booking);
+            $query7 =  $this->db->query($rescheduled_booking);
+            $query8 =  $this->db->query($escalation_query);
+            $query9 =  $this->db->query($calls_placed);
+            $query10 = $this->db->query($insert_booking);
+            $query11 = $this->db->query($calls_recevied);
+
+            //getting result array from executed queries
+            $result1 = $query1->result_array();
+            $result2 = $query2->result_array();
+            $result3 = $query3->result_array();
+            $result4 = $query4->result_array();
+            $result5 = $query5->result_array();
+            $result6 = $query6->result_array();
+            $result7 = $query7->result_array();
+            $result8 = $query8->result_array();
+            $result9 = $query9->result_array();
+            $result10 = $query10->result_array();
+            $result11 = $query11->result_array();
+            
+            //storing key value from $result to $data_details  
+            $data_details['employee_id'] =  $value['employee_id'];
+            $data_details['new_query_to_followup'] =  $result1[0]['query_insert'];
+            $data_details['followup_to_followup'] =  $result2[0]['query_update'];
+            $data_details['followup_to_cancel'] =  $result3[0]['query_cancel'];
+            $data_details['followup_to_pending'] =  $result4[0]['query_booking'];
+            $data_details['pending_to_cancel'] =  $result5[0]['booking_cancel'];
+            $data_details['pending_to_completed'] =  $result6[0]['booking_completed'];
+            $data_details['pending_to_rescheduled'] =  $result7[0]['booking_rescheduled'];
+            $data_details['pending_to_escalation'] =  $result8[0]['Escalation'];
+            $data_details['calls_placed'] =  $result9[0]['calls_placed'];
+            $data_details['booking_insert'] =  $result10[0]['booking_insert'];
+            $data_details['calls_recevied'] =  $result11[0]['incomming'];
+
+            //store all data into array $data
+            array_push($data, $data_details);
+           
+        }
+
+        return $data;
+
+    }
+
 }
