@@ -495,7 +495,6 @@ class Inventory extends CI_Controller {
         $data['data'] = $this->inventory_model->get_brackets_by_order_id($order_id);
         $data['order_id'] = $order_id;
         $data['brackets'] = $this->inventory_model->get_brackets_by_id($order_id);
-        $data['invoice_id'] = $this->inventory_model->get_brackets_invoice_by_order_id($order_id);
         $data['order_received_from'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_received_from'])[0]['name'];
         $data['order_given_to'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_given_to'])[0]['name'];
         
@@ -717,7 +716,7 @@ class Inventory extends CI_Controller {
      * @desc: This is used to display all spare parts booking
      */
     function get_spare_parts(){
-        log_melogssage('info', __FUNCTION__. "Entering... ");
+        log_message('info', __FUNCTION__. "Entering... ");
         $this->checkUserSession();
 	$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
        
@@ -881,10 +880,19 @@ class Inventory extends CI_Controller {
      */
     function uncancel_brackets_request($order_id){
         
-        $data = array('active' => 1);
-        $this->inventory_model->uncancel_brackets($order_id, $data);
-        //Setting success session data 
-        $this->session->set_userdata('brackets_update_success', 'Brackets has been Un-Cancelled for Order ID ' . $order_id);
+        $data = array('active' => 1,'cancellation_reason'=>'');
+        $brackets_id = $this->inventory_model->uncancel_brackets($order_id, $data);
+        if(!empty($brackets_id)){
+            //Setting success session data 
+            $this->session->set_userdata('brackets_update_success', 'Brackets has been Un-Cancelled for Order ID ' . $order_id);
+            //Logging
+            log_message('info',__FUNCTION__.' Brackets Request has been Un cancelled for Order ID '.$order_id);
+        }else{
+            //Setting error session data 
+            $this->session->set_userdata('brackets_update_error', 'Error in Un-Cancellation of Brackets Requested for Order ID .'.$order_id);
+            log_message('info',__FUNCTION__.' Error in Brackets Request un-Cancellation for Order ID '.$order_id);
+        }
+        
         redirect(base_url() . 'employee/inventory/show_brackets_list');
     }
 

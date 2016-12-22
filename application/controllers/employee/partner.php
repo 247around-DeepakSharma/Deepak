@@ -74,9 +74,9 @@ class Partner extends CI_Controller {
             $login_id = $this->employee_model->add_login_logout_details($login_data);
             //Adding Log Details
             if ($login_id) {
-                log_message('info', __FUNCTION__ . ' Logging details have been captured for partner ' . $login_data['employee_name']);
+                log_message('info', __FUNCTION__ . ' Logging details have been captured for partner ' . $login_data['agent_id']);
             } else {
-                log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['employee_name']);
+                log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['agent_id']);
             }
 
             redirect(base_url() . "partner/get_spare_parts_booking");
@@ -260,9 +260,9 @@ class Partner extends CI_Controller {
         $logout_id = $this->employee_model->add_login_logout_details($login_data);
         //Adding Log Details
         if ($logout_id) {
-            log_message('info', __FUNCTION__ . ' Logging details have been captured for partner ' . $login_data['employee_name']);
+            log_message('info', __FUNCTION__ . ' Logging details have been captured for partner ' . $login_data['agent_id']);
         } else {
-            log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['employee_name']);
+            log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['agent_id']);
         }
 
         $this->session->sess_destroy();

@@ -3,7 +3,7 @@
         <div class="panel-heading"><center style="font-size: 130%;">Brackets History</center></div>
         <div class="panel-body">
             <div class="span6 pull-right">
-                <a href="<?php echo !empty($invoice_id[0]['invoice_id'])?'https://s3.amazonaws.com/bookings-collateral/invoices-excel/'.$invoice_id[0]['invoice_id']:''?>" class="btn btn-primary" <?php echo !empty($invoice_id[0]['invoice_id'])?'':'disabled'?>>Download Invoice</a>
+                <a href="<?php echo !empty($data[0]['invoice_id'])?'https://s3.amazonaws.com/bookings-collateral/invoices-excel/'.$data[0]['invoice_id']:''?>" class="btn btn-primary" <?php echo !empty($data[0]['invoice_id'])?'':'disabled'?>>Download Invoice</a>
             </div>
            
             <div class="clear"></div>

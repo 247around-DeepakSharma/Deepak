@@ -130,7 +130,7 @@
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Add Booking</a>
 					<ul class="dropdown-menu" role="menu">
 						<li>
-                          <form method="POST" class="navbar-form navbar-left" action ="<?php echo base_url(); ?>/partner/booking_form" role="add booking">
+                          <form method="POST" class="navbar-form navbar-left" action ="<?php echo base_url(); ?>partner/booking_form" role="add booking">
                               <div class="form-group">
                               <input type="text" id="phone_number" class="form-control" name="phone_number" placeholder="Phone Number">
                               </div>

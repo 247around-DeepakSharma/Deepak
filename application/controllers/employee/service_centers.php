@@ -75,9 +75,9 @@ class Service_centers extends CI_Controller {
             $login_id = $this->employee_model->add_login_logout_details($login_data);
             //Adding Log Details
             if ($login_id) {
-                log_message('info', __FUNCTION__ . ' Logging details have been captured for service center ' . $data['user_name']);
+                log_message('info', __FUNCTION__ . ' Logging details have been captured for service center ' . $login_data['agent_id']);
             } else {
-                log_message('info', __FUNCTION__ . ' Err in capturing logging details for service center ' . $data['user_name']);
+                log_message('info', __FUNCTION__ . ' Err in capturing logging details for service center ' . $login_data['agent_id']);
             }
 
         redirect(base_url() . "service_center/pending_booking");
@@ -380,9 +380,9 @@ class Service_centers extends CI_Controller {
         $logout_id = $this->employee_model->add_login_logout_details($login_data);
         //Adding Log Details
         if ($logout_id) {
-            log_message('info', __FUNCTION__ . ' Logging details have been captured for service center ' . $login_data['employee_name']);
+            log_message('info', __FUNCTION__ . ' Logging details have been captured for service center ' . $login_data['entity_id']);
         } else {
-            log_message('info', __FUNCTION__ . ' Err in capturing logging details for service center ' . $login_data['employee_name']);
+            log_message('info', __FUNCTION__ . ' Err in capturing logging details for service center ' . $login_data['entity_id']);
         }
         
         $this->session->sess_destroy();
