@@ -179,53 +179,18 @@ class Partner extends CI_Controller {
                             $user_id = $output[0]['user_id'];
                         }
                         
-
-                        //Add partner code from sources table
-			//All partners should have a valid partner code in the bookings_sources table
-                        //Wybor brand should be tagged to Partner Wybor only if the
-                        //States are:
-                        // - Tamilnadu (pincode starts from 6).
-                        // - AP / Telangana (pincode starts from 5)
-                        // (Karnataka also starts from 5, we will leave that as of now)
-			//Ray brand should be tagged to Ray.
-			//All other brands would go to the original partner.
-			switch ($requestData['brand']) {
-			    case 'Wybor':
-				if ((substr($requestData['pincode'], 0, 1) == "5") || 
-                                        (substr($requestData['pincode'], 0, 1) == "6")) {
-				    $booking['partner_id'] = '247010';
-				    $booking['source'] = "SY";
-				} else {
-				    $booking['partner_id'] = $this->partner['id'];
-				    $booking['source'] = $this->partner_model->get_source_code_for_partner($this->partner['id']);
-				}
-
-				break;
-
-			    case 'Ray':
-				$booking['partner_id'] = '247011';
-				$booking['source'] = "SR";
-				break;
-
-                            /*
-                            case 'Nacson':
-                                $booking['partner_id'] = '247013';
-                                $booking['source'] = "SN";
-                                break;
-
-                            case 'Bosch & Delon':
-                                $booking['partner_id'] = '247014';
-                                $booking['source'] = "SB";
-                                break;
-                             * 
-                             */
-
-			    default:
-				$booking['partner_id'] = $this->partner['id'];
-				$booking['source'] = $this->partner_model->get_source_code_for_partner($this->partner['id']);
-				break;
-			}
-
+                        //Assigning Booking Source and Partner ID for Brand Requested
+                        
+                        // First we send Service id and Brand and get Partner_id from it
+                        // Now we send state, partner_id and service_id 
+                         
+                        
+                        
+                        $data = $this->allot_source_partner_id_for_pincode($requestData['product'],$requestData['pincode'],$requestData['brand']);
+                        
+                        $booking['partner_id'] = $data['partner_id'];
+                        $booking['source'] = $data['source'];
+                        
                         
                         log_message('info', 'Product type: ' . $requestData['product']);
                         $prod = trim($requestData['product']);
@@ -1782,6 +1747,47 @@ class Partner extends CI_Controller {
     }
 
     return $resultArr;
+    }
+    
+    /**
+     * @Desc: This function is used to allot_source_partner_id_for_pincode
+     * @params: String Pincode, brnad, default partner id(SS)
+     * @return : Array
+     * 
+     */
+    public function allot_source_partner_id_for_pincode($product, $pincode, $brand) {
+        log_message('info', __FUNCTION__ . ' ' . $product, $pincode, $brand);
+        $data = [];
+
+        //Getting Service ID from product name
+        $service_id = $this->booking_model->getServiceId($product);
+        $partner_array = $this->partner_model->get_active_partner_id_by_service_id_brand($brand, $service_id);
+
+
+        $state_array = $this->vendor_model->get_state_from_pincode($pincode);
+        $state = $state_array['state'];
+        if (!empty($partner_array)) {
+
+            foreach ($partner_array as $value) {
+                //Now getting details for each Partner 
+                $filtered_partner_state = $this->partner_model->check_activated_partner_for_state_service($state, $value['partner_id'], $service_id);
+                if ($filtered_partner_state) {
+                    //Now assigning this case to Partner
+                    $data['partner_id'] = $value['partner_id'];
+                    $data['source'] = $this->partner_model->get_source_code_for_partner($value['partner_id']);
+                } else {
+                    //Now assigning this case to SS
+                    $data['partner_id'] = SNAPDEAL_ID;
+                    $data['source'] = $this->partner_model->get_source_code_for_partner(SNAPDEAL_ID);
+                }
+            }
+        } else {
+            log_message('info', ' No Active Partner has been Found in for Brand ' . $brand . ' and service_id ' . $service_id);
+            //Now assigning this case to SS
+            $data['partner_id'] = SNAPDEAL_ID;
+            $data['source'] = $this->partner_model->get_source_code_for_partner(SNAPDEAL_ID);
+        }
+        return $data;
     }
 
 }

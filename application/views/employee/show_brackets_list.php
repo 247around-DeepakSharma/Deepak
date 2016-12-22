@@ -136,6 +136,7 @@
                                 <a href="<?php base_url()?>get_update_requested_form/<?php echo $value['order_id']?>" class="btn btn-sm btn-primary" title="Update Requested" <?php if($value['is_shipped'] == 1 || $value['active'] == 0){echo 'disabled=TRUE';}?> > <i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
                                 <a href="<?php base_url()?>get_update_shipment_form/<?php echo $value['order_id']?>" class="btn btn-sm btn-primary" title="Update Shipment" style="margin-bottom: 3px;" <?php if($value['active'] == 0){echo 'disabled=TRUE';}?>>  <i class="fa fa-truck" aria-hidden="true"></i></a>&nbsp;
                                 <a href="<?php base_url()?>get_update_receiving_form/<?php echo $value['order_id']?>" class="btn btn-sm btn-primary" style="margin-bottom: 3px;" title="Update Receiving" <?php if($value['is_shipped'] != 1 || $value['active'] == 0){echo 'disabled=TRUE';}?> > <i class="fa fa-shopping-cart" aria-hidden="true"></i></a>&nbsp;
+                                <a href="<?php base_url()?>uncancel_brackets_request/<?php echo $value['order_id']?>" class="btn btn-sm btn-primary" style="margin-bottom: 3px;" title="Un-Cancel Request" <?php if($value['active'] == 1){echo 'disabled=TRUE';}?> > <i class="fa fa-undo" aria-hidden="true"></i></a>&nbsp;
                             </td>
                                 
 

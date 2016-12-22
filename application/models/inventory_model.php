@@ -220,5 +220,15 @@ class Inventory_model extends CI_Model {
         return $query->result_array();
     }
     
-    
+    /**
+     * @Desc: This function is used to Uncancel Brackets Order for particular order ID
+     * @params: Order ID
+     * @return: Boolean
+     * 
+     */
+    function uncancel_brackets($order_id,$data) {
+        $this->db->where('order_id', $order_id);
+        $this->db->update('brackets', $data);
+    }
+
 }

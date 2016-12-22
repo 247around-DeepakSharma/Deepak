@@ -1438,5 +1438,30 @@ ALTER TABLE `spare_parts_details` ADD `remarks_defective_part_by_partner` VARCHA
 
 INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'sf_temporary_on_off', 'Dear %s,<br><br> <b> %s </b> Service Franchise has been made Temporarily <b> %s </b> <br><br> Thanks<br> 247Around Team', 'booking@247around.com', '', 'anuj@247around.com', '', '1', '2016-09-26 18:30:00');
 
+
 INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'sf_permanent_on_off', 'Dear %s,<br><br> <b> %s </b> Service Franchise has been made Permanent <b> %s </b> <br><br> Thanks<br> 247Around Team', 'booking@247around.com', '', 'anuj@247around.com', '', '1', '2016-09-26 18:30:00');
 
+-- Belal 19 Dec
+
+CREATE TABLE `partner_operation_region` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `partner_id` int(11) NOT NULL,
+ `service_id` int(11) NOT NULL,
+ `state` varchar(256) NOT NULL,
+ `active` int(2) NOT NULL DEFAULT '1' COMMENT '1->active region, 0->Not active region',
+ `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+
+CREATE TABLE `partner_service_brand_relation` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `partner_id` int(11) DEFAULT NULL,
+ `service_id` int(11) DEFAULT NULL,
+ `brand_name` varchar(256) DEFAULT NULL,
+ `active` int(2) NOT NULL DEFAULT '1',
+ `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+
+ALTER TABLE `247around-aws`.`partner_operation_region` ADD INDEX `Partner_id ` (`partner_id`);
+ALTER TABLE `247around-aws`.`partner_service_brand_relation` ADD INDEX `Partner_id` (`partner_id`);

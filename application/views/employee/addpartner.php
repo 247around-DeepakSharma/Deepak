@@ -8,12 +8,11 @@
 </style>
 <div id="page-wrapper">
   <div class="row">
-      <div class="container">
       <div class="clear">
        <div class="panel panel-info">
            <div class="panel-heading"><b><?php if(isset($selected_brands_list)){echo "Edit Partner";}else{echo "Add Partner";}?></b></div>
-       </div>
-<hr>
+      
+           <br>
       <?php if($this->session->flashdata('success')){
                     echo '<div class="alert alert-success alert-dismissible" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -102,9 +101,7 @@
     <div class="form-group <?php if( form_error('district') ) { echo 'has-error';} ?>">
       <label for="state" class="col-md-4">District:</label>
       <div class="col-md-8">
-         <select class="district form-control" name ="district" onChange="getPincode()">
-            <option selected disabled>Select District</option>
-
+         <select class="district form-control" name ="district" id="district" onChange="getPincode()">
             <option <?php if (isset($query[0]['district'])){ echo "selected";}?>><?php if (isset($query[0]['district'])){echo $query[0]['district'];}?></option>
          </select>
           <?php echo form_error('district'); ?>
@@ -114,8 +111,7 @@
     <div class="form-group ">
       <label for="state" class="col-md-4">Pincode:</label>
       <div class="col-md-8">
-          <select class="pincode form-control" name ="pincode"  >
-            <option selected disabled>Select Pincode</option>
+          <select class="pincode form-control" name ="pincode"  id="pincode">
             <option <?php if (isset($query[0]['pincode'])){ echo "selected";}?>><?php if (isset($query[0]['pincode'])){echo $query[0]['pincode'];}?></option>
          </select>
       </div>
@@ -271,18 +267,105 @@
           </div>
           
         </div>
+        
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading"><b>Login Details</b></div>
+            </div>
+
+          <div class="col-md-4 form-group <?php if( form_error('username') ) { echo 'has-error';} ?>">
+            <label for="username" class="col-md-4">User Name</label>
+            <div class="col-md-8">
+                <input type="text" class="form-control"  id="username" name="username" placeholder="Enter User Name" value = "<?php if (isset($results['login_details'][0]['user_name'])){echo $results['login_details'][0]['user_name'];}?>">
+              <?php echo form_error('username'); ?>
+            </div>
+          </div>
+
+          <div class="col-md-4 form-group <?php if( form_error('password') ) { echo 'has-error';} ?>">
+            <label for="password" class="col-md-4">Password</label>
+            <div class="col-md-8">
+                <input type="password" class="form-control"  name="password" placeholder="Enter Password" value = "<?php if (isset($results['login_details'][0]['clear_text'])){echo $results['login_details'][0]['clear_text'];}?>">
+              <?php echo form_error('password'); ?>
+            </div>
+          </div>
+
+        </div>
+        
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-heading"><b>Partner Operation Region / Brands</b></div>
+            </div>
+            <?php foreach ($results['services'] as $value) { 
+                //Checking Operation regions if Present for User Edit
+                $operation_region_state = [];
+                if(!empty($results['partner_operation_region'])){
+                    foreach($results['partner_operation_region'] as $val){
+                        if($val['service_id'] == $value->id){
+                            $operation_region_state[] = $val['state'];
+                        }
+                    }
+                }
+                
+                //Cheking for Brands for particular service for User Edit
+                $service_brands = [];
+                if(!empty($results['partner_brands'])){
+                    foreach($results['partner_brands'] as $val){
+                        if($val['service_id'] == $value->id){
+                            $service_brands[] = $val['brand_name'];
+                        }
+                    }
+                }
+                
+                ?>
+                <div class="col-md-12 form-group">  
+                    <div class="col-md-3"><?php echo $value->services ?></div>
+                    <select name ="select_state[<?php echo $value->id?>][]" class=" col-md-4 select_state" multiple="multiple">
+                        <option value="all">ALL</option>
+                        <?php foreach ($results['select_state'] as $val) { ?>
+                            <option value="<?php echo $val['state'] ?>" <?php echo (isset($operation_region_state) && in_array($val['state'],$operation_region_state))?'selected="selected"':''?> ><?php echo $val['state'] ?></option>
+                        <?php } ?>
+                    </select>
+                    <select name ="select_brands[<?php echo $value->id?>][]" class=" col-md-4 select_brands" multiple="multiple">
+                        <?php foreach ($results['brands'] as $val) { ?>
+                            <option value="<?php echo $val->brand_name?>" <?php echo (isset($service_brands) && in_array($val->brand_name, $service_brands))?'selected="selected"':''?> > <?php echo $val->brand_name ?> </option>
+                        <?php } ?>
+                    </select>
+                </div>
+
+            <?php } ?>
+        </div>
+        
         <div class="clear clear_bottom">
+            <br>
             <center><input type="Submit" value="<?php if (isset($query[0]['id'])){echo "Update Partner";}else{echo "Save Partner";}?>" class="btn btn-primary" >
             <?php echo "<a class='btn btn-small btn-primary' href=".base_url()."employee/partner/viewpartner>Cancel</a>";?>
             </center>
         </div>    
         </form>
-    </div>
+      </div>
    </div>
   </div>
 </div>
 <script type="text/javascript">
-
+    
+  $('.select_state').select2({
+    placeholder: "Select State",
+    allowClear: true
+  });
+  $('.select_brands').select2({
+    placeholder: "Select Brands",
+    allowClear: true
+  });
+  $('#state').select2({
+      placeholder: "Select State"
+  });
+  $('#district').select2({
+      placeholder: "Select City"
+  });
+  $('#pincode').select2({
+      placeholder: "Select Pincode"
+  });
+  
   function getDistrict(){
      var state = $("#state").val();
      var district = $(".district").val();
@@ -317,6 +400,14 @@
         getDistrict();
     }
   });
+  
+  $(function() {
+    $('#username').on('keypress', function(e) {
+        if (e.which == 32)
+            return false;
+    });
+});
+  
 </script>
 <script type="text/javascript">
 
@@ -334,6 +425,8 @@
                     public_name: "required",
                     address: "required",
                     district: "required",
+                    username: "required",
+                    password: "required",
                     phone_1: {
                         required: true,
                         rangelength: [10,10]
@@ -380,7 +473,9 @@
                     primary_contact_name: "Please fill Name",
                     owner_name: "Please fill Name",
                     primary_contact_email: "Please fill correct email",
-                    owner_email: "Please fill correct email"
+                    owner_email: "Please fill correct email",
+                    username: "Please fill User Name",
+                    password: "Please fill Password"
                 },
                 submitHandler: function(form) {
                     form.submit();
