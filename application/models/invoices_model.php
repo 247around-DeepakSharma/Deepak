@@ -922,6 +922,7 @@ class invoices_model extends CI_Model {
             } else {
                 switch($result[0]['company_type']){
                     case "Individual":
+                    case 'Proprietorship Firm':
                         $meta['tds'] = $meta['sub_service_cost'] *.01;
                         $meta['tds_tax_rate'] = "1%";
                         break;
