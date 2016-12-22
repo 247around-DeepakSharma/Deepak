@@ -872,5 +872,20 @@ class Inventory extends CI_Controller {
 	    redirect(base_url() . "employee/login");
 	}
     }
+    
+    /**
+     * @Desc: This function is used to Uncancel Brackets Request
+     * @params: Order ID
+     * @return: void
+     * 
+     */
+    function uncancel_brackets_request($order_id){
+        
+        $data = array('active' => 1);
+        $this->inventory_model->uncancel_brackets($order_id, $data);
+        //Setting success session data 
+        $this->session->set_userdata('brackets_update_success', 'Brackets has been Un-Cancelled for Order ID ' . $order_id);
+        redirect(base_url() . 'employee/inventory/show_brackets_list');
+    }
 
 }

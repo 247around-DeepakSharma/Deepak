@@ -113,7 +113,12 @@
           	</td>
           	
           	<td><?=$row['owner_email'];?></td>
-                <td><a href="javascript:void(0)"  onclick='return login_to_vendor(<?php echo $row['id']?>)'><?php echo strtolower($row['sc_code']) . " / " . strtolower($row['sc_code']);  ?></a></td>
+                <td><?php if($row['active']==1){ ?>
+                    <a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_vendor(<?php echo $row['id']?>)' title="<?php echo strtolower($row['sc_code']) . " / " . strtolower($row['sc_code']);  ?>">Login</a>
+                <?php } else {?>
+                    <a href="" class="btn btn-md btn-danger" disabled="">Disabled</a>
+                <?php }?>
+                </td>
                 <td>
                         <?php
                         if ($row['on_off'] == 1) { ?>
@@ -165,7 +170,7 @@
             $.ajax({
                 url:'<?php echo base_url()."employee/vendor/allow_log_in_to_vendor/" ?>'+vendor_id,
                 success: function (data) {
-                    window.location = "<?php echo base_url().'employee/service_centers/pending_booking'?>";
+                    window.open("<?php echo base_url().'employee/service_centers/pending_booking'?>",'_blank');
                 }
             });
             
