@@ -10,7 +10,7 @@
   <div class="row">
       <div class="clear">
        <div class="panel panel-info">
-           <div class="panel-heading"><b><?php if(isset($selected_brands_list)){echo "Edit Partner";}else{echo "Add Partner";}?></b></div>
+           <div class="panel-heading"><b><?php if(isset($query[0]['id'])){echo "Edit Partner";}else{echo "Add Partner";}?></b></div>
       
            <br>
       <?php if($this->session->flashdata('success')){
@@ -426,7 +426,6 @@
                     address: "required",
                     district: "required",
                     username: "required",
-                    password: "required",
                     phone_1: {
                         required: true,
                         rangelength: [10,10]
@@ -475,7 +474,6 @@
                     primary_contact_email: "Please fill correct email",
                     owner_email: "Please fill correct email",
                     username: "Please fill User Name",
-                    password: "Please fill Password"
                 },
                 submitHandler: function(form) {
                     form.submit();

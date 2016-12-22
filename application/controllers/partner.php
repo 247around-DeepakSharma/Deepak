@@ -112,7 +112,7 @@ class Partner extends CI_Controller {
         } else {
             $this->header = json_encode($h);
             $this->token = $h['Authorization'];
-
+            
             //Validate token
             $this->partner = $this->partner_model->validate_partner($this->token);
             if ($this->partner !== FALSE) {
@@ -179,18 +179,6 @@ class Partner extends CI_Controller {
                             $user_id = $output[0]['user_id'];
                         }
                         
-                        //Assigning Booking Source and Partner ID for Brand Requested
-                        
-                        // First we send Service id and Brand and get Partner_id from it
-                        // Now we send state, partner_id and service_id 
-                         
-                        
-                        
-                        $data = $this->allot_source_partner_id_for_pincode($requestData['product'],$requestData['pincode'],$requestData['brand']);
-                        
-                        $booking['partner_id'] = $data['partner_id'];
-                        $booking['source'] = $data['source'];
-                        
                         
                         log_message('info', 'Product type: ' . $requestData['product']);
                         $prod = trim($requestData['product']);
@@ -225,6 +213,18 @@ class Partner extends CI_Controller {
                         log_message('info', 'Product type matched: ' . $lead_details['Product']);
                         
                         $service_id = $this->booking_model->getServiceId($lead_details['Product']);
+                        
+                        //Assigning Booking Source and Partner ID for Brand Requested
+                        
+                        // First we send Service id and Brand and get Partner_id from it
+                        // Now we send state, partner_id and service_id 
+                         
+                        
+                        
+                        $data = $this->allot_source_partner_id_for_pincode($service_id,$state['state'],$requestData['brand']);
+                        
+                        $booking['partner_id'] = $data['partner_id'];
+                        $booking['source'] = $data['source'];
                         
                         if($booking['partner_id'] == "1"){
                            
@@ -1755,17 +1755,12 @@ class Partner extends CI_Controller {
      * @return : Array
      * 
      */
-    public function allot_source_partner_id_for_pincode($product, $pincode, $brand) {
-        log_message('info', __FUNCTION__ . ' ' . $product, $pincode, $brand);
+    public function allot_source_partner_id_for_pincode($service_id, $state, $brand) {
+        log_message('info', __FUNCTION__ . ' ' . $service_id, $state, $brand);
         $data = [];
 
-        //Getting Service ID from product name
-        $service_id = $this->booking_model->getServiceId($product);
         $partner_array = $this->partner_model->get_active_partner_id_by_service_id_brand($brand, $service_id);
-
-
-        $state_array = $this->vendor_model->get_state_from_pincode($pincode);
-        $state = $state_array['state'];
+        
         if (!empty($partner_array)) {
 
             foreach ($partner_array as $value) {
@@ -1778,14 +1773,14 @@ class Partner extends CI_Controller {
                 } else {
                     //Now assigning this case to SS
                     $data['partner_id'] = SNAPDEAL_ID;
-                    $data['source'] = $this->partner_model->get_source_code_for_partner(SNAPDEAL_ID);
+                    $data['source'] = 'SS';
                 }
             }
         } else {
             log_message('info', ' No Active Partner has been Found in for Brand ' . $brand . ' and service_id ' . $service_id);
             //Now assigning this case to SS
             $data['partner_id'] = SNAPDEAL_ID;
-            $data['source'] = $this->partner_model->get_source_code_for_partner(SNAPDEAL_ID);
+            $data['source'] = 'SS';
         }
         return $data;
     }

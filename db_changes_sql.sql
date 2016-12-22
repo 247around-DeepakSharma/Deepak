@@ -1451,7 +1451,7 @@ CREATE TABLE `partner_operation_region` (
  `active` int(2) NOT NULL DEFAULT '1' COMMENT '1->active region, 0->Not active region',
  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `partner_service_brand_relation` (
  `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1461,7 +1461,8 @@ CREATE TABLE `partner_service_brand_relation` (
  `active` int(2) NOT NULL DEFAULT '1',
  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-ALTER TABLE `247around-aws`.`partner_operation_region` ADD INDEX `Partner_id ` (`partner_id`);
+ALTER TABLE `247around-aws`.`partner_operation_region` ADD INDEX `Partner_id` (`partner_id`);
 ALTER TABLE `247around-aws`.`partner_service_brand_relation` ADD INDEX `Partner_id` (`partner_id`);
+

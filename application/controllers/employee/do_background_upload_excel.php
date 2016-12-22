@@ -262,10 +262,10 @@ class Do_background_upload_excel extends CI_Controller {
 	    }
 
 	    
-	    //All other brands would go to Snapdeal.
-            
-            //Assigning Booking Source and Partner ID for Brand Requested
-            $data = $this->allot_source_partner_id_for_pincode($requestData['product'], $requestData['pincode'], $requestData['brand']);
+	    //Assigning Booking Source and Partner ID for Brand Requested
+            // First we send Service id and Brand and get Partner_id from it
+            // Now we send state, partner_id and service_id 
+            $data = $this->allot_source_partner_id_for_pincode($value['service_id'], $state['state'], $value['Brand']);
 
             $booking['partner_id'] = $data['partner_id'];
             $booking['source'] = $data['source'];
@@ -1092,17 +1092,12 @@ class Do_background_upload_excel extends CI_Controller {
      * @return : Array
      * 
      */
-    public function allot_source_partner_id_for_pincode($product, $pincode, $brand) {
-        log_message('info', __FUNCTION__ . ' ' . $product, $pincode, $brand);
+    public function allot_source_partner_id_for_pincode($service_id, $state, $brand) {
+        log_message('info', __FUNCTION__ . ' ' . $service_id, $state, $brand);
         $data = [];
 
-        //Getting Service ID from product name
-        $service_id = $this->booking_model->getServiceId($product);
         $partner_array = $this->partner_model->get_active_partner_id_by_service_id_brand($brand, $service_id);
-
-
-        $state_array = $this->vendor_model->get_state_from_pincode($pincode);
-        $state = $state_array['state'];
+        
         if (!empty($partner_array)) {
 
             foreach ($partner_array as $value) {
@@ -1115,14 +1110,14 @@ class Do_background_upload_excel extends CI_Controller {
                 } else {
                     //Now assigning this case to SS
                     $data['partner_id'] = SNAPDEAL_ID;
-                    $data['source'] = $this->partner_model->get_source_code_for_partner(SNAPDEAL_ID);
+                    $data['source'] = 'SS';
                 }
             }
         } else {
             log_message('info', ' No Active Partner has been Found in for Brand ' . $brand . ' and service_id ' . $service_id);
             //Now assigning this case to SS
             $data['partner_id'] = SNAPDEAL_ID;
-            $data['source'] = $this->partner_model->get_source_code_for_partner(SNAPDEAL_ID);
+            $data['source'] = 'SS';
         }
         return $data;
     }

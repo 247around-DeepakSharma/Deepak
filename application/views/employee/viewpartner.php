@@ -56,7 +56,7 @@
                     if (!empty($service_brands[$key])) {
                         $str = "";
                         foreach ($service_brands[$key] as $val) {
-                            $str .= ' <b>'.$val['brand_name'] .'</b> - '.$val['services'].' ,';
+                            $str .= ' <b>'.$val['services'] .'</b> - '.$val['brand_name'].' ,';
                         }
                         echo (rtrim($str,","));
                         
@@ -75,20 +75,14 @@
           	</td>
           	
           	<td><?=$row['owner_email'];?></td>
-                <td><?php if($row['is_active']==1){ ?>
-                    <span class="btn btn-md btn-success" onclick='return login_to_partner(<?php echo $row['id']?>)' title="<?php echo isset($row['clear_text']) && $row['clear_text']?$row['user_name'].'/'.$row['clear_text']:'';?>">Login</span>
-                    <?php } else{ ?>
-                    <a href="" class="btn btn-md btn-danger" disabled="">Disbaled</a>  
-                <?php }?>
+                <td>
+                    <a href="" class="btn btn-md btn-success"  onclick='return login_to_partner(<?php echo $row['id']?>)' <?php echo ($row['is_active'] == 0)?'disabled=""':'' ?>  title="<?php echo isset($row['clear_text']) && $row['clear_text']?$row['user_name'].'/'.$row['clear_text']:'';?>">Login</a>  
+              
                 </td>
           	<td><?php if($row['is_active']==1){ ?>
-                  <a id='edit' href="<?php echo base_url() ?>employee/partner/deactivate/<?php echo $row['id'] ?>">
-                      <img src="<?php echo base_url()?>images/deactivate.png" height="40px" width="40px" title="Deactivate"/>
-                  </a>       
+                  <a class="btn btn-md btn-danger" href="<?php echo base_url() ?>employee/partner/deactivate/<?php echo $row['id'] ?>">Deactivate</a>       
                 <?php } else {?>
-                 <a id='edit' href="<?php echo base_url() ?>employee/partner/activate/<?php echo $row['id'] ?>">
-                     <img src="<?php echo base_url()?>images/activate.png" height="40px" width="40px" title="Activate"/>
-                 </a>                
+                 <a class="btn btn-md btn-primary" href="<?php echo base_url() ?>employee/partner/activate/<?php echo $row['id'] ?>">Activate</a>                
                 <?php } ?>
             </td>
             

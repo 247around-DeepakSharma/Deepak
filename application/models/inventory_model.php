@@ -151,7 +151,7 @@ class Inventory_model extends CI_Model {
      * 
      */
     function get_brackets_by_order_id($order_id){
-        $this->db->select('brackets.id,brackets.order_id,brackets.order_received_from,brackets.order_given_to,brackets.order_date,brackets.shipment_date,'
+        $this->db->select('brackets.id,brackets.order_id,brackets.invoice_id,brackets.purchase_invoice_id,brackets.order_received_from,brackets.order_given_to,brackets.order_date,brackets.shipment_date,'
                 . 'brackets.received_date,brackets.19_24_requested,brackets.26_32_requested,brackets.36_42_requested,'
                 . 'brackets.total_requested,brackets.19_24_shipped,brackets.26_32_shipped,brackets.36_42_shipped,brackets.total_shipped,'
                 . 'brackets.19_24_received,brackets.26_32_received,brackets.36_42_received,brackets.total_received,brackets.is_shipped,brackets.is_received,'
@@ -207,18 +207,6 @@ class Inventory_model extends CI_Model {
         return $query->result_array();
     }
     
-    /**
-     * 
-     * @Desc: This function is used to get invoice id from vendor partner invoices table
-     * @parmas: order_id
-     * @return: Array
-     */
-    function get_brackets_invoice_by_order_id($order_id){
-        $this->db->select('invoice_id');
-        $this->db->where('order_id',$order_id);
-        $query = $this->db->get('vendor_partner_invoices');
-        return $query->result_array();
-    }
     
     /**
      * @Desc: This function is used to Uncancel Brackets Order for particular order ID
@@ -229,6 +217,7 @@ class Inventory_model extends CI_Model {
     function uncancel_brackets($order_id,$data) {
         $this->db->where('order_id', $order_id);
         $this->db->update('brackets', $data);
+        return $this->db->affected_rows();
     }
 
 }
