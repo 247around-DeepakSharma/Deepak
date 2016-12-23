@@ -1311,17 +1311,17 @@ class Partner extends CI_Controller {
     function getallheaders() {
         //Use this if you are using Nginx
 
-//        $headers = '';
-//        foreach ($_SERVER as $name => $value) {
-//            if (substr($name, 0, 5) == 'HTTP_') {
-//                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
-//            }
-//        }
-//
-//        return $headers;
+        $headers = '';
+        foreach ($_SERVER as $name => $value) {
+            if (substr($name, 0, 5) == 'HTTP_') {
+                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+            }
+        }
+
+        return $headers;
 
         //It works only with Apache
-        return getallheaders();
+//        return getallheaders();
     }
 
     function getDateTime($dt) {
