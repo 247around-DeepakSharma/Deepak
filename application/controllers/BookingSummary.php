@@ -30,6 +30,8 @@ class BookingSummary extends CI_Controller {
         $this->load->library('email');
         $this->load->library('s3');
         $this->load->library('booking_utilities');
+        
+        $this->load->helper('url');
     }
 
     public function test($a = "a", $b = "b") {
@@ -1065,12 +1067,17 @@ EOD;
      *
      */
 
-    function agent_working_details()
+    function agent_working_details($flag = "")
     {
             log_message('info', __FUNCTION__ . ": Fetched Agent Daily Working Report");
-            $data['data'] = $this->reporting_utils->get_agent_daily_reports();
+            
+            $data['data'] = $this->reporting_utils->get_agent_daily_reports($flag);
+            
             //print_r($data);
             $this->load->view('employee/header/admin');
-            $this->load->view('employee/agent_working_details', $data);     
+            $this->load->view('employee/agent_working_details', $data);  
+            
+            //echo json_encode($data);
+            
     }
 }
