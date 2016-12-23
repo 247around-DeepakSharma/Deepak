@@ -221,7 +221,7 @@ class Partner extends CI_Controller {
                          
                         
                         
-                        $data = $this->allot_source_partner_id_for_pincode($service_id,$state['state'],$requestData['brand']);
+                        $data = $this->_allot_source_partner_id_for_pincode($service_id,$state['state'],$requestData['brand']);
                         
                         $booking['partner_id'] = $data['partner_id'];
                         $booking['source'] = $data['source'];
@@ -1311,17 +1311,17 @@ class Partner extends CI_Controller {
     function getallheaders() {
         //Use this if you are using Nginx
 
-        $headers = '';
-        foreach ($_SERVER as $name => $value) {
-            if (substr($name, 0, 5) == 'HTTP_') {
-                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
-            }
-        }
-
-        return $headers;
+//        $headers = '';
+//        foreach ($_SERVER as $name => $value) {
+//            if (substr($name, 0, 5) == 'HTTP_') {
+//                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+//            }
+//        }
+//
+//        return $headers;
 
         //It works only with Apache
-        //return getallheaders();
+        return getallheaders();
     }
 
     function getDateTime($dt) {
@@ -1750,12 +1750,12 @@ class Partner extends CI_Controller {
     }
     
     /**
-     * @Desc: This function is used to allot_source_partner_id_for_pincode
+     * @Desc: This function is used to _allot_source_partner_id_for_pincode
      * @params: String Pincode, brnad, default partner id(SS)
      * @return : Array
      * 
      */
-    public function allot_source_partner_id_for_pincode($service_id, $state, $brand) {
+    private function _allot_source_partner_id_for_pincode($service_id, $state, $brand) {
         log_message('info', __FUNCTION__ . ' ' . $service_id, $state, $brand);
         $data = [];
 
