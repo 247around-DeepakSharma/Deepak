@@ -164,12 +164,6 @@ class Booking_utilities {
 
             $message = $salutation . $heading . $note . $fixedPara;
 
-//            $to = $getbooking[0]['primary_contact_email'];
-//            $owner = $getbooking[0]['owner_email'];
-//            $from = "booking@247around.com";
-//            $cc = $owner;
-//	    $bcc = '';
-
 	    $subject = "247Around / Job Card " . $getbooking[0]['booking_id'] . " / " . $getbooking[0]['booking_date'] .
                     " / " . $getbooking[0]['booking_timeslot'];
 
@@ -196,7 +190,6 @@ class Booking_utilities {
                 $bookingdate = $dd . " " . $mm;
             }
 
-
             $smsBody = "Booking - " . $getbooking[0]['name'] . ", " . $getbooking[0]['booking_primary_contact_no'] . ", " . $getbooking[0]['services'] . ", " . $bookingdate ."/" . $getbooking[0]['booking_timeslot'] .  ", " . $getbooking[0]['booking_address'] . ", ". $getbooking[0]['booking_pincode'] . ". 247around";
 
             //Send SMS to vendor
@@ -207,9 +200,7 @@ class Booking_utilities {
                 "attachment" => $getbooking[0]['booking_jobcard_filename']);
             $this->My_CI->booking_model->save_vendor_email($details);
 
-	       //$is_mail = $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $output_file_pdf);
-              $this->My_CI->booking_model->set_mail_to_vendor($booking_id);
-
+            $this->My_CI->booking_model->set_mail_to_vendor($booking_id);
            
         } else {
             echo "Booking does not exist.";

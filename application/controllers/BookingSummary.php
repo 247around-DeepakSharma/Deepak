@@ -122,23 +122,29 @@ class BookingSummary extends CI_Controller {
             }
         } else {
             //Function is being called from CRON
-            
             //Getting list of RM details
             $rms = $this->employee_model->get_rm_details();
             foreach ($rms as $value) {
 
-                $sf_list = $this->vendor_model->get_employee_relation($value['id'])[0]['service_centres_id'];
+                $sf_list = $this->vendor_model->get_employee_relation($value['id']);
+                if(!empty($sf_list)){
+                    $sf_list = $sf_list[0]['service_centres_id'];
+                }
                 $to = $value['official_email'];
 
                 //Fetching pending bookings
                 $pending_bookings = $this->reporting_utils->get_pending_bookings($sf_list);
                 $count = count($pending_bookings);
-                //log_message('info', "Count: " . $count);
+                log_message('info', "Count: " . $count);
 
                 if ($count > 0) {
                     //Get num of pending bookings for each vendor
                     $sc_pending_bookings = $this->reporting_utils->get_num_pending_bookings_for_all_sc($sf_list);
-
+                    log_message('info',print_r($sc_pending_bookings,TRUE));
+                    
+                    //load template
+                    $R = new PHPReport($config);
+                    
                     $R->load(array(
                         array(
                             'id' => 'meta',
@@ -151,7 +157,6 @@ class BookingSummary extends CI_Controller {
                             'id' => 'booking',
                             'repeat' => true,
                             'data' => $pending_bookings,
-                            //'minRows' => 2,
                             'format' => array(
                                 'create_date' => array('datetime' => 'd/M/Y'),
                                 'total_price' => array('number' => array('prefix' => 'Rs. ')),
@@ -166,12 +171,13 @@ class BookingSummary extends CI_Controller {
                     );
 
                     //Get populated XLS with data
-                    $output_file = TMP_FOLDER . "BookingSummary-" . date('d-M-Y') . ".xls";
-                    $R->render('excel2003', $output_file);
+                    $output_file = TMP_FOLDER . "BookingSummary-" . date('d-M-Y') . ".xlsx";
+                    $R->render('excel', $output_file);
+                    log_message('info','Rendered');
 
                     if ($mail_flag) {
 
-                        //log_message('info', "Report generated with $count records");
+                        log_message('info', "Report generated with $count records");
                         //Send report via email
                         $this->email->from('booking@247around.com', '247around Team');
                         $this->email->to($to);
@@ -183,24 +189,18 @@ class BookingSummary extends CI_Controller {
                         if ($this->email->send()) {
                             log_message('info', __METHOD__ . ": Mail sent successfully");
                         } else {
-                            log_message('info', __METHOD__ . ": Mail could not be sent");
+                            log_message('info', __METHOD__ . ": Mail could not be sent".print_r($this->email->print_debugger()));
                         }
-
                         //Upload Excel to AWS
-                        $bucket = 'bookings-collateral';
-                        $directory_xls = "summary-excels/" . $output_file;
+                        $bucket = BITBUCKET_DIRECTORY;
+                        $directory_xls = "summary-excels/" . "BookingSummary-" . date('d-M-Y') . ".xlsx";
                         $this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
-
                         //Delete this file
                         exec("rm -rf " . $output_file, $out, $return);
                         // Return will return non-zero upon an error
-
                         if (!$return) {
-                            // exec() has been executed sucessfully
-                            // Inserting values in scheduler tasks log
-                            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
                             //Logging
-                            log_message('info', __FUNCTION__ . ' Executed Sucessfully ' . $output_file);
+                            log_message('info', __FUNCTION__ . ' Executed Sucessfully ' . "BookingSummary-" . date('d-M-Y') . ".xlsx");
                         }
                     }
                 }
@@ -210,19 +210,25 @@ class BookingSummary extends CI_Controller {
             
             $where = array('groups' => 'closure');
             $closure = $this->employee_model->get_employee_by_group($where);
-
+            
+            $tmp = "";
             foreach ($closure as $value) {
+                $tmp .= $value['official_email'].',';
+            }
+            $to = (rtrim($tmp,",")); 
                 $sf_list = ''; // Setting empty for all SF List value
-                $to = $value['official_email'];
 
                 //Fetching pending bookings
                 $pending_bookings = $this->reporting_utils->get_pending_bookings($sf_list);
                 $count = count($pending_bookings);
-
+                
                 if ($count > 0) {
                     //Get num of pending bookings for each vendor
                     $sc_pending_bookings = $this->reporting_utils->get_num_pending_bookings_for_all_sc($sf_list);
-
+                    
+                    //load template
+                    $R = new PHPReport($config);
+                    
                     $R->load(array(
                         array(
                             'id' => 'meta',
@@ -235,7 +241,6 @@ class BookingSummary extends CI_Controller {
                             'id' => 'booking',
                             'repeat' => true,
                             'data' => $pending_bookings,
-                            //'minRows' => 2,
                             'format' => array(
                                 'create_date' => array('datetime' => 'd/M/Y'),
                                 'total_price' => array('number' => array('prefix' => 'Rs. ')),
@@ -250,8 +255,8 @@ class BookingSummary extends CI_Controller {
                     );
 
                     //Get populated XLS with data
-                    $output_file = TMP_FOLDER . "BookingSummary-" . date('d-M-Y') . ".xls";
-                    $R->render('excel2003', $output_file);
+                    $output_file = TMP_FOLDER . "BookingSummary-" . date('d-M-Y') . ".xlsx";
+                    $R->render('excel', $output_file);
 
                     if ($mail_flag) {
 
@@ -264,14 +269,14 @@ class BookingSummary extends CI_Controller {
                         $this->email->attach($output_file, 'attachment');
 
                         if ($this->email->send()) {
-                            log_message('info', __METHOD__ . ": Mail sent successfully to " . print_r($value['full_name'].' of Closure Team'));
+                            log_message('info', __METHOD__ . ": Mail sent successfully to " . $value['full_name'].' of Closure Team');
                         } else {
-                            log_message('info', __METHOD__ . ": Mail could not be sent to " . print_r($value['full_name'].' of Closure Team'));
+                            log_message('info', __METHOD__ . ": Mail could not be sent to " . $value['full_name'].' of Closure Team');
                         }
 
                         //Upload Excel to AWS
-                        $bucket = 'bookings-collateral';
-                        $directory_xls = "summary-excels/" . $output_file;
+                        $bucket = BITBUCKET_DIRECTORY;
+                        $directory_xls = "summary-excels/" . "BookingSummary-" . date('d-M-Y') . ".xlsx";
                         $this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
 
                         //Delete this file
@@ -279,18 +284,15 @@ class BookingSummary extends CI_Controller {
                         // Return will return non-zero upon an error
 
                         if (!$return) {
-                            // exec() has been executed sucessfully
-                            // Inserting values in scheduler tasks log
-                            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
                             //Logging
-                            log_message('info', __FUNCTION__ . ' Executed Sucessfully ' . $output_file);
+                            log_message('info', __FUNCTION__ . ' Executed Sucessfully ' . "BookingSummary-" . date('d-M-Y') . ".xlsx");
                         }
                     }
                 }
-            }
         }
-
-
+        //Adding Details in Scheduler tasks table
+        
+        $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
         log_message('info', __FUNCTION__ . ' => Exiting');
         exit(0);
     }

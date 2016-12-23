@@ -74,9 +74,9 @@ class Partner extends CI_Controller {
             $login_id = $this->employee_model->add_login_logout_details($login_data);
             //Adding Log Details
             if ($login_id) {
-                log_message('info', __FUNCTION__ . ' Logging details have been captured for partner ' . $login_data['employee_name']);
+                log_message('info', __FUNCTION__ . ' Logging details have been captured for partner ' . $login_data['agent_id']);
             } else {
-                log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['employee_name']);
+                log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['agent_id']);
             }
 
             redirect(base_url() . "partner/get_spare_parts_booking");
@@ -260,9 +260,9 @@ class Partner extends CI_Controller {
         $logout_id = $this->employee_model->add_login_logout_details($login_data);
         //Adding Log Details
         if ($logout_id) {
-            log_message('info', __FUNCTION__ . ' Logging details have been captured for partner ' . $login_data['employee_name']);
+            log_message('info', __FUNCTION__ . ' Logging details have been captured for partner ' . $login_data['agent_id']);
         } else {
-            log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['employee_name']);
+            log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['agent_id']);
         }
 
         $this->session->sess_destroy();
@@ -463,14 +463,103 @@ class Partner extends CI_Controller {
      * @return : void
      */
     function process_add_edit_partner_form(){
-
         //Check form validation
         $checkValidation = $this->check_partner_Validation();
         if ($checkValidation) {
             // Used when we edit a particular Partner
             if (!empty($this->input->post('id'))) {
                 //if vendor exists, details are edited
-                $this->partner_model->edit_partner($this->input->post(), $this->input->post('id'));
+                $partner_id = $this->input->post('id');
+                
+                //Getting partner operation regions details from POST
+                $partner_operation_state = $this->input->post('select_state');
+                unset($_POST['select_state']);
+                
+                //Getting Brands Details
+                $partner_service_brand = $this->input->post('select_brands');
+                unset($_POST['select_brands']);
+               
+                //Getting Login Details
+                $login['user_name'] = $this->input->post('username');
+                $login['password'] = md5($this->input->post('password'));
+                $login['clear_text'] = $this->input->post('password');
+                
+                //Unsetting Username and Password
+                unset($_POST['username']);
+                unset($_POST['password']);
+                
+                //Editing User Login Details
+                $where = array('partner_id' =>$partner_id);
+                $update_login = $this->partner_model->update_partner_login_details($login,$where);
+                
+                //Updating Partner Operation Region
+                //Processing Partner Operation Region
+                    if (!empty($partner_operation_state)) {
+                        $all_flag = FALSE;
+                        foreach ($partner_operation_state as $key => $value) {
+                            foreach($value as $val){
+                                //Checking if ALL state has been selected
+                                if($val == 'all'){
+                                    $all_states = $this->vendor_model->getall_state();
+                                    foreach ($all_states as $value) {
+                                        $data['partner_id'] = $partner_id;
+                                        $data['service_id'] = $key;
+                                        $data['state'] = $value['state'];
+                                        $data['active'] = 1;
+                                        $data_final[] = $data;
+                                    }
+                                    break;
+                                }
+                                $data['partner_id'] = $partner_id;
+                                $data['service_id'] = $key;
+                                $data['state'] = $val;
+                                $data['active'] = 1;
+                                $data_final[] = $data;
+                            }
+                        }
+                        
+                        //Deleting Previous Values
+                        $this->partner_model->delete_partner_operation_region($partner_id);
+                        
+                        //Inserting Array in batch in partner operation region
+                        $operation_update_flag = $this->partner_model->insert_batch_partner_operation_region($data_final,$where);
+                        if ($operation_update_flag) {
+                            //Loggin Success
+                            log_message('info', 'Parnter Operation Region has been added sucessfully for partner ' . print_r($partner_id));
+                        }
+                    } else {
+                        //Echoing message in Log file
+                        log_message('error', __FUNCTION__ . ' No Input provided for Partner Operation Region Relation  ');
+                    }
+                
+                
+                //Updating Partner Brands Details
+                    
+                    if (!empty($partner_service_brand)) {
+                        foreach ($partner_service_brand as $key => $value) {
+                            foreach($value as $val){
+                                $data_brands['partner_id'] = $partner_id;
+                                $data_brands['service_id'] = $key;
+                                $data_brands['brand_name'] = $val;
+                                $data_brands['active'] = 1;
+                                $data_final_brands[] = $data_brands;
+                            }
+                        }
+                        //Deleting Previous Values
+                        $this->partner_model->delete_partner_brand_relation($partner_id);
+                        
+                        //Inserting Array in batch in partner brand relation
+                        $operation_update_brand_flag = $this->partner_model->insert_batch_partner_brand_relation($data_final_brands);
+                        if ($operation_update_brand_flag) {
+                            //Loggin Success
+                            log_message('info', 'Parnter Brand Relation has been added sucessfully for partner ' . print_r($partner_id));
+                        }
+                    } else {
+                        //Echoing message in Log file
+                        log_message('error', __FUNCTION__ . ' No Input provided for Partner Brand Relation  ');
+                    }
+                
+                $this->partner_model->edit_partner($this->input->post(), $partner_id);
 
                 redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
             }else{
@@ -478,7 +567,25 @@ class Partner extends CI_Controller {
                 $_POST['is_active'] = '1';
                 //Temporary value
                 $_POST['auth_token'] = rand(1,100);
-
+                
+                //Getting partner operation regions details from POST
+                $partner_operation_state = $this->input->post('select_state');
+                unset($_POST['select_state']);
+                
+                //Getting Brands Details
+                $partner_service_brand = $this->input->post('select_brands');
+                unset($_POST['select_brands']);
+               
+                //Getting Login Details
+                $login['user_name'] = $this->input->post('username');
+                $login['password'] = md5($this->input->post('password'));
+                $login['clear_text'] = $this->input->post('password');
+                
+                //Unsetting Username and Password
+                unset($_POST['username']);
+                unset($_POST['password']);
+                
+                
                 //Sending POST array to Model
                 $partner_id = $this->partner_model->add_partner($this->input->post());
                 //Set Flashdata on success or on Error of Data insert in table
@@ -487,13 +594,90 @@ class Partner extends CI_Controller {
 
                     //Echoing inserted ID in Log file
                     log_message('info',__FUNCTION__.' New Partner has been added with ID '.  $partner_id." Done By " . $this->session->userdata('employee_id'));
+                    
+                     //Processing Inputs for Partner Login Username and Password
+                    
+                    $login['partner_id'] = $partner_id;
+                    $login['full_name'] = $this->input->post('primary_contact_name');
+                    $login['active'] = 1; 
+                    
+                    $login_details = $this->partner_model->add_partner_login($login);
+                    if($login_details){
+                        log_message('info',' Parnter Login Details has been addded '.print_r($login_details,TRUE));
+                    }else{
+                        log_message('info',' Error in Parnter Login Details has been addded '.print_r($login_details,TRUE));
+                    }
+                
+                
+                    
+                    //Processing Partner Operation Region
+                    if (!empty($partner_operation_state)) {
+                        $all_flag = FALSE;
+                        foreach ($partner_operation_state as $key => $value) {
+                            foreach($value as $val){
+                                //Checking if ALL state has been selected
+                                if($val == 'all'){
+                                    $all_states = $this->vendor_model->getall_state();
+                                    foreach ($all_states as $value) {
+                                        $data['partner_id'] = $partner_id;
+                                        $data['service_id'] = $key;
+                                        $data['state'] = $value['state'];
+                                        $data['active'] = 1;
+                                        $data_final[] = $data;
+                                    }
+                                    break;
+                                }
+                                $data['partner_id'] = $partner_id;
+                                $data['service_id'] = $key;
+                                $data['state'] = $val;
+                                $data['active'] = 1;
+                                $data_final[] = $data;
+                            }
+                        }
+                        
+                        //Inserting Array in batch in partner operation region
+                        $operation_insert_flag = $this->partner_model->insert_batch_partner_operation_region($data_final);
+                        if ($operation_insert_flag) {
+                            //Loggin Success
+                            log_message('info', 'Parnter Operation Region has been added sucessfully for partner ' . print_r($partner_id));
+                        }
+                    } else {
+                        //Echoing message in Log file
+                        log_message('error', __FUNCTION__ . ' No Input provided for Partner Operation Region Relation  ');
+                    }
+
+                    // Processing Partner Brands Relation
+                    
+                    if (!empty($partner_service_brand)) {
+                        foreach ($partner_service_brand as $key => $value) {
+                            foreach($value as $val){
+                                $data_brands['partner_id'] = $partner_id;
+                                $data_brands['service_id'] = $key;
+                                $data_brands['brand_name'] = $val;
+                                $data_brands['active'] = 1;
+                                $data_final_brands[] = $data_brands;
+                            }
+                        }
+                        //Inserting Array in batch in partner brand relation
+                        $operation_insert_brand_flag = $this->partner_model->insert_batch_partner_brand_relation($data_final_brands);
+                        if ($operation_insert_brand_flag) {
+                            //Loggin Success
+                            log_message('info', 'Parnter Brand Relation has been added sucessfully for partner ' . print_r($partner_id));
+                        }
+                    } else {
+                        //Echoing message in Log file
+                        log_message('error', __FUNCTION__ . ' No Input provided for Partner Brand Relation  ');
+                    }
+                    
                 }else{
                     $this->session->set_flashdata('error','Error in adding Partner.');
 
                     //Echoing message in Log file
                     log_message('error',__FUNCTION__.' Error in adding Partner  '. print_r($this->input->post(),TRUE));
                 }
-
+                
+                
+                
            redirect(base_url() . 'employee/partner/get_add_partner_form');
             }
         } else {
@@ -514,11 +698,7 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('address', 'Partner Address', 'trim|required');
         $this->form_validation->set_rules('state', 'State', 'trim|required');
         $this->form_validation->set_rules('district', 'District', 'trim|required');
-        if ($this->form_validation->run() == FALSE) {
-            return FALSE;
-        } else {
-            return TRUE;
-        }
+        return $this->form_validation->run(); 
     }
 
     /**
@@ -532,7 +712,10 @@ class Partner extends CI_Controller {
     function viewpartner($partner_id = "") {
         $data = [];
         $query = $this->partner_model->viewpartner($partner_id);
+        
         foreach($query as $value){
+            //Getting Appliances and Brands details for partner
+            $service_brands[] = $this->partner_model->get_service_brands_for_partner($value['id']);
             
             $login = $this->partner_model->get_partner_login_details($value['id']);
             if (!empty($login)) {
@@ -552,10 +735,10 @@ class Partner extends CI_Controller {
             }
             $data[] = $value;
         }
-     
+        
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
 
-        $this->load->view('employee/viewpartner', array('query' => $data));
+        $this->load->view('employee/viewpartner', array('query' => $data,'service_brands' =>$service_brands));
     }
 
     /**
@@ -600,6 +783,16 @@ class Partner extends CI_Controller {
     function editpartner($id) {
         $query = $this->partner_model->viewpartner($id);
         $results['select_state'] = $this->vendor_model->getall_state();
+        $results['services'] = $this->vendor_model->selectservice();
+        $results['brands'] = $this->vendor_model->selectbrand();
+        //Getting Login Details for this partner
+        $results['login_details'] = $this->partner_model->get_partner_login_details($id);
+        //Getting Parnter Operation Region Details
+        $where = array('partner_id' => $id);
+        $results['partner_operation_region'] = $this->partner_model->get_partner_operation_region($where);
+        //Getting Partner Brands Relation from partner_service_brand_relation
+        $results['partner_brands'] = $this->partner_model->get_partner_service_brand_relation($where);
+        
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results));
     }

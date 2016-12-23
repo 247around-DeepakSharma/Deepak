@@ -126,7 +126,7 @@ class vendor_model extends CI_Model {
      * @return: array of all active services
      */
     function selectservice() {
-        $query = $this->db->query("Select id,services from services where isBookingActive='1'");
+        $query = $this->db->query("Select id,services from services where isBookingActive='1' order by services");
         return $query->result();
     }
 
@@ -1501,10 +1501,9 @@ class vendor_model extends CI_Model {
      */
     function assign_service_center_for_booking($booking_id, $data){
         $this->db->where('booking_id', $booking_id);
-        $this->db->where('assigned_vendor_id is NOT NULL', NULL, FALSE);
+        $this->db->where('assigned_vendor_id is NULL', NULL, FALSE);
         $this->db->update('booking_details',$data);
         return $this->db->affected_rows();
-        
     }
     
 }
