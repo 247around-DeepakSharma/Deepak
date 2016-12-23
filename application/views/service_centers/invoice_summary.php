@@ -15,8 +15,8 @@
          <th>Parts / Stands</th>
          <th>Total</th>
          <th>TDS</th>
-         <th>Amount to be Pay By 247Around</th>
-         <th>Amount to be Pay By Partner</th>
+         <th>Amount to be Paid By 247Around</th>
+         <th>Amount to be Paid By Partner</th>
          <th>Paid Amount</th>
   
       </tr>

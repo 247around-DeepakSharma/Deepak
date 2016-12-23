@@ -61,8 +61,8 @@
       <tr>
          <th>No #</th>
          <th>Vendor/Partner</th>
-         <th>Amount to be Pay</th>
-         <th>Amount to be Get</th>
+         <th>Amount to be Paid</th>
+         <th>Amount to be Received</th>
          <th>Pay</th>
       
       </tr>

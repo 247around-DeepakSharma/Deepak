@@ -12,15 +12,15 @@
           <th>Main Invoice File</th>
          <th>Detailed Invoice File</th>
          <th>Type</th>
-         <th>Invoicing Range</th>
+         <th>Invoice Period</th>
          <th>Service Charges</th>
          <th>Additional Service Charges</th>
          <th>Parts / Stands</th>
          <th>TDS Amount</th>
-         <th>Amount to be Pay By 247Around</th>
-         <th>Amount to be Pay By Partner</th>
-         <th>Paid Amount</th> 
-         <th>Checkbox</th>
+         <th>Amount to be Paid By 247Around</th>
+         <th>Amount to be Paid By Partner</th>
+         <th>Amount Paid</th> 
+         <th>Select</th>
          <th>ReGenerate</th>
          <th>Update</th>
 <!--         <th>Send Email</th>-->
