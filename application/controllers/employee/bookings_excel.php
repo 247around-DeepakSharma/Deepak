@@ -835,7 +835,7 @@ class bookings_excel extends CI_Controller {
 		//Assigning Booking Source and Partner ID for Brand Requested
                 // First we send Service id and Brand and get Partner_id from it
                 // Now we send state, partner_id and service_id 
-                $data = $this->allot_source_partner_id_for_pincode($booking['service_id'], $booking['state'], $appliance_details['brand']);
+                $data = $this->_allot_source_partner_id_for_pincode($booking['service_id'], $booking['state'], $appliance_details['brand']);
 
                 $booking['partner_id'] = $data['partner_id'];
                 $booking['source'] = $data['source'];
@@ -932,12 +932,12 @@ class bookings_excel extends CI_Controller {
     }
     
     /**
-     * @Desc: This function is used to allot_source_partner_id_for_pincode
+     * @Desc: This function is used to _allot_source_partner_id_for_pincode
      * @params: String Pincode, brnad, default partner id(SS)
      * @return : Array
      * 
      */
-    public function allot_source_partner_id_for_pincode($service_id, $state, $brand) {
+    private function _allot_source_partner_id_for_pincode($service_id, $state, $brand) {
         log_message('info', __FUNCTION__ . ' ' . $service_id, $state, $brand);
         $data = [];
 

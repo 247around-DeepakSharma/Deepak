@@ -372,18 +372,14 @@ class Inventory extends CI_Controller {
             log_message('info',__FUNCTION__.' Received mail has been sent to order_received_from vendor '. $emailBody);
             
             //2. Sending mail to order_given_to vendor
-            $body_order_given_to = $order_given_to_email[0]['company_name']." brackets has been delivered successfully to the following vendor ".$order_received_from_email[0]['company_name']."<br><br>"
-                    . "Please contact us in case of any query.<br><br> "
-                    . "247Around Team";
             
             $email = array();
                    //Getting template from Database
                    $template = $this->booking_model->get_booking_email_template("brackets_received_mail_vendor_order_given_to");
                    
                    if(!empty($template)){
-                        $email['order_given_to'] = $order_given_to_email[0]['company_name'];
-                        $email['order_id'] = $order_id;
                         $email['order_recieved_from'] = $order_received_from_email[0]['company_name'];
+                        $email['order_id'] = $order_id;
                         $subject = "Brackets Received by ".$order_given_to_email[0]['company_name'];
                         $emailBody = vsprintf($template[0], $email);
                         
@@ -742,7 +738,7 @@ class Inventory extends CI_Controller {
      * @param type $booking_id
      */
     function update_spare_parts($booking_id){
-        log_melogssage('info', __FUNCTION__. "Entering... ");
+        log_message('info', __FUNCTION__. "Entering... ");
         $this->checkUserSession();
         $where = "spare_parts_details.booking_id = '".$booking_id."' "
                 . " AND booking_details.current_status IN ('Pending', 'Rescheduled', 'Completed', 'Cancelled') ";
@@ -761,7 +757,7 @@ class Inventory extends CI_Controller {
      * @param type $booking_id
      */
     function process_update_booking($booking_id){
-        log_melogssage('info', __FUNCTION__. "Entering... ");
+        log_message('info', __FUNCTION__. "Entering... ");
         $this->checkUserSession();
         if(!empty($booking_id)){
         $data['model_number'] = $this->input->post('model_number');
@@ -802,9 +798,9 @@ class Inventory extends CI_Controller {
         $where = array('booking_id'=> $booking_id);
         $status_spare = $this->service_centers_model->spare_parts_action($where, $data);
         if($status_spare){
-            log_melogssage('info', __FUNCTION__. " Spare Parts Booking is updated");
+            log_message('info', __FUNCTION__. " Spare Parts Booking is updated");
             if($data['status'] == "Spare Parts Requested"){
-                log_melogssage('info', __FUNCTION__. " Change Current Status in Service Center Action table");
+                log_message('info', __FUNCTION__. " Change Current Status in Service Center Action table");
                 $sc_data['current_status'] = "InProcess";
                 $sc_data['internal_status'] = $data['status'];
                 $sc_data['update_date'] = date("Y-m-d H:i:s");
@@ -815,7 +811,7 @@ class Inventory extends CI_Controller {
             $this->notify->insert_state_change($booking_id, $data['status'], "" , "Spare Parts Updated By ".$this->session->userdata('employee_id') , $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
             
         } else {
-            log_melogssage('info', __FUNCTION__. " Spare Parts Booking is not updated");
+            log_message('info', __FUNCTION__. " Spare Parts Booking is not updated");
         }
         
         redirect(base_url()."employee/inventory/update_spare_parts/".$booking_id);
