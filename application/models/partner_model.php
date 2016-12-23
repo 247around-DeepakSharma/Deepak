@@ -752,7 +752,7 @@ class Partner_model extends CI_Model {
      * @return: BOOLEAN
      */
     function insert_batch_partner_brand_relation($data){
-        return $this->db->insert_batch('partner_service_brand_relation', $data);
+        return $this->db->insert_batch('partner_appliance_details', $data);
     }
     
     /**
@@ -792,10 +792,10 @@ class Partner_model extends CI_Model {
      * 
      * 
      */
-    function get_partner_service_brand_relation($where){
+    function get_partner_appliance_details($where){
         $this->db->select('*');
         $this->db->where($where);
-        $query = $this->db->get('partner_service_brand_relation');
+        $query = $this->db->get('partner_appliance_details');
         return $query->result_array();
     }
     
@@ -839,7 +839,7 @@ class Partner_model extends CI_Model {
      */
     function delete_partner_brand_relation($partner_id){
         $this->db->where('partner_id',$partner_id);
-        $this->db->delete('partner_service_brand_relation');
+        $this->db->delete('partner_appliance_details');
         if($this->db->affected_rows() > 0 ){
             return TRUE;
         }else{
@@ -855,16 +855,16 @@ class Partner_model extends CI_Model {
      * 
      */
     function get_service_brands_for_partner($partner_id){
-        $sql = "Select partner_service_brand_relation.brand_name, services.services  "
-                . "From partner_service_brand_relation, services "
-                . "where partner_service_brand_relation.service_id = services.id "
-                . "AND partner_service_brand_relation.partner_id = '".$partner_id."'";
+        $sql = "Select partner_appliance_details.brand_name, services.services  "
+                . "From partner_appliance_details, services "
+                . "where partner_appliance_details.service_id = services.id "
+                . "AND partner_appliance_details.partner_id = '".$partner_id."'";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
     
     /**
-     * @Desc: This funtion is used to get Partner by Brands and Service ID from partner_service_brand_relation
+     * @Desc: This funtion is used to get Partner by Brands and Service ID from partner_appliance_details
      *         We also get only those Partner whose relation is being Active
      * @params: String Brands, service id
      * @return : Array
@@ -874,7 +874,7 @@ class Partner_model extends CI_Model {
         $this->db->where('brand_name',$brands);
         $this->db->where('service_id',$service_id);
         $this->db->where('active',1);
-        $query = $this->db->get('partner_service_brand_relation');
+        $query = $this->db->get('partner_appliance_details');
         return $query->result_array();
         
         

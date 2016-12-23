@@ -372,9 +372,6 @@ class Inventory extends CI_Controller {
             log_message('info',__FUNCTION__.' Received mail has been sent to order_received_from vendor '. $emailBody);
             
             //2. Sending mail to order_given_to vendor
-            $body_order_given_to = $order_given_to_email[0]['company_name']." brackets has been delivered successfully to the following vendor ".$order_received_from_email[0]['company_name']."<br><br>"
-                    . "Please contact us in case of any query.<br><br> "
-                    . "247Around Team";
             
             $email = array();
                    //Getting template from Database
