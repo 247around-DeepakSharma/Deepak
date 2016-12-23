@@ -1509,7 +1509,6 @@ class Partner extends CI_Controller {
             $booking['source'] = $this->partner_model->get_source_code_for_partner($this->partner['id']);
             $booking['booking_id'] = $booking['source'] . "-" . $booking['booking_id'];
             $unit_details['booking_id'] = $booking['booking_id'];
-            $booking['initial_booking_date'] = $booking['booking_id'];
 
             $booking['quantity'] = '1';
 
@@ -1542,6 +1541,7 @@ class Partner extends CI_Controller {
             $booking['internal_status'] = "Scheduled";
             $booking['type'] = "Booking";
             $booking['booking_date'] = $requestData['booking_date'];
+            $booking['initial_booking_date'] = $requestData['booking_date'];
             $booking['booking_timeslot'] = '';
             $booking['booking_address'] =$requestData['address'] . ", " . $requestData['landmark'] ;
             $booking['amount_due'] = '';
