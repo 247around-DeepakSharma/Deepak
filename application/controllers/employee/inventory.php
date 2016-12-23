@@ -16,6 +16,7 @@ class Inventory extends CI_Controller {
         $this->load->model('partner_model');
         $this->load->model('inventory_model');
         $this->load->model('booking_model');
+        $this->load->model('employee_model');
         $this->load->library('form_validation');
         $this->load->library('session');
         $this->load->library('notify');
@@ -640,6 +641,8 @@ class Inventory extends CI_Controller {
                    $template = $this->booking_model->get_booking_email_template("cancel_brackets_order_received_from_vendor");
                    if(!empty($template)){
                         $email['company_name'] = $order_received_from_email[0]['company_name'];
+                        $email['order_id'] = $order_id;
+                        $email['reason'] = $brackets_details[0]['cancellation_reason'];
                         $email['19_24_requested'] = $brackets_details[0]['19_24_requested'];
                         $email['26_32_requested'] = $brackets_details[0]['26_32_requested'];
                         $email['36_42_requested'] = $brackets_details[0]['36_42_requested'];
@@ -663,6 +666,8 @@ class Inventory extends CI_Controller {
                    $template = $this->booking_model->get_booking_email_template("cancel_brackets_requested_from_vendor");
                    
                    if(!empty($template)){
+                        $email['order_id'] = $order_id;
+                        $email['reason'] = $brackets_details[0]['cancellation_reason'];
                         $email['19_24_requested'] = $brackets_details[0]['19_24_requested'];
                         $email['26_32_requested'] = $brackets_details[0]['26_32_requested'];
                         $email['36_42_requested'] = $brackets_details[0]['36_42_requested'];
@@ -703,8 +708,8 @@ class Inventory extends CI_Controller {
     private function get_rm_email($vendor_id) {
         $employee_rm_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
         $rm_id = $employee_rm_relation[0]['agent_id'];
-        $rm_details = $this->vendor_model->getVendorContact($rm_id);
-        $rm_poc_email = $rm_details[0]['primary_contact_email'];
+        $rm_details = $this->employee_model->getemployeefromid($rm_id);
+        $rm_poc_email = $rm_details[0]['official_email'];
         return $rm_poc_email;
     }
     
