@@ -291,7 +291,7 @@
                             <a href="<?php echo base_url()?>employee/user/user_count" ><i class="fa fa-fw fa-desktop"></i> <strong> Users</strong></a>
                         </li><li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url()?>BookingSummary/agent_working_details" ><i class="fa fa-fw fa-desktop"></i> <strong> Agent Working Details</strong></a>
+                            <a href="<?php echo base_url()?>BookingSummary/agent_working_details/month" ><i class="fa fa-fw fa-desktop"></i> <strong> Agents Booking Stats</strong></a>
                         </li>
                         
                     </ul>
