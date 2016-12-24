@@ -118,7 +118,7 @@ function outbound_call(phone_number){
                     <input type="hidden" id="<?php echo "pincode_".($key +1); ?>" value="<?php echo $row->booking_pincode; ?>" />
                     <td><a href="<?php echo base_url(); ?>employee/user/finduser/0/0/<?php echo $row->phone_number; ?>"><?php echo $row->customername; ?></a></td>
                     <td class="hide_div"><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $row->phone_number;?>"><?php echo $row->booking_primary_contact_no; ?></a></td>
-                    <td class ="display_mobile" onclick="call_on_phone(<?php echo $row->phone_number;?>)"><?php echo $row->phone_number;?></td>
+              <td class ="display_mobile" ><p onclick="call_on_phone('<?php echo $row->phone_number;?>')" ><?php echo $row->phone_number;?></p></td>
                     <td><?= $row->services;  ?></td>
                    
                     <td class="hide_div"><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
@@ -268,6 +268,7 @@ function outbound_call(phone_number){
     }
     .display_mobile{
         display: inline-grid;
+        color:blueviolet;
     }
 }
 
@@ -280,6 +281,7 @@ function outbound_call(phone_number){
     .display_mobile{
         display: inline-grid;
         color:blueviolet;
+
     }
 }
 
@@ -316,12 +318,12 @@ function outbound_call(phone_number){
 </style>
 
 <script>
-<script>
+
 function call_on_phone(phone)
 {
-    localStorage.setItem("phone", phone);
+//alert(phone);
+    localStorage.setItem("Android", phone);
     Android.nextScreen(phone);
 }
 </script>
 
-</script>
