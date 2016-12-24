@@ -1730,6 +1730,9 @@ class Partner extends CI_Controller {
     
     /**
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> b70e85a... Partner Add Booking Form changes for Services, Brands, Category, Capacity, Model
      * @Desc: This function is used to get Brands for selected Services of particular Partner 
      *          This is being called from AJAX
      * @params: partner_id, service_name
@@ -1822,7 +1825,6 @@ class Partner extends CI_Controller {
         $config['last_link'] = 'Last';
         $this->pagination->initialize($config);
         $data['links'] = $this->pagination->create_links();
-
         $data['count'] = $config['total_rows'];
         $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
         
