@@ -53,7 +53,6 @@ class Partner extends CI_Controller {
         $data['user_name'] = $this->input->post('user_name');
         $data['password'] = md5($this->input->post('password'));
         $partner = $this->partner_model->partner_login($data);
-
         if ($partner) {
             //get partner details now
             $partner_details = $this->partner_model->getpartner($partner['partner_id']);
@@ -282,6 +281,7 @@ class Partner extends CI_Controller {
         } else {
             $phone_number = $this->input->post('phone_number');
             $data = $this->booking_model->get_city_booking_source_services($phone_number);
+            $data['appliances'] = $this->partner_model->get_appliances_for_partner($this->session->userdata('partner_id'));
             $this->load->view('partner/header');
             $this->load->view('partner/get_addbooking', $data);
         }
@@ -540,7 +540,7 @@ class Partner extends CI_Controller {
                             foreach($value as $val){
                                 $data_brands['partner_id'] = $partner_id;
                                 $data_brands['service_id'] = $key;
-                                $data_brands['brand_name'] = $val;
+                                $data_brands['brand'] = $val;
                                 $data_brands['active'] = 1;
                                 $data_final_brands[] = $data_brands;
                             }
@@ -653,7 +653,7 @@ class Partner extends CI_Controller {
                             foreach($value as $val){
                                 $data_brands['partner_id'] = $partner_id;
                                 $data_brands['service_id'] = $key;
-                                $data_brands['brand_name'] = $val;
+                                $data_brands['brand'] = $val;
                                 $data_brands['active'] = 1;
                                 $data_final_brands[] = $data_brands;
                             }
@@ -1755,6 +1755,78 @@ class Partner extends CI_Controller {
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
         }
+    }
+    
+    /**
+     * @Desc: This function is used to get Brands for selected Services of particular Partner 
+     *          This is being called from AJAX
+     * @params: partner_id, service_name
+     * @return: String
+     * 
+     */
+    function get_brands_from_service(){
+        $partner_id = $this->input->post('partner_id');
+        $service_id = $this->input->post('service_id');
+        //Getting Unique values of Brands for Particular Partner and service id
+        $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id);
+        $data = $this->partner_model->get_partner_service_brands($where);
+        $option = "";
+        foreach($data as $value){
+            $option .="<option value='".$value['brand']."'>".$value['brand']."</option>";
+        }
+        echo $option;
+        
+    }
+    
+    /**
+     * @Desc: This function is used to get Category Details for Partner
+     *          This is being called from AJAX
+     * @params: partner_id, service_name, brand name
+     * @return: String
+     * 
+     */
+    function get_category_from_service(){
+        $partner_id = $this->input->post('partner_id');
+        $service_id = $this->input->post('service_id');
+        $brand = $this->input->post('brand');
+        //Getting Unique values of Category for Particular Partner ,service id and brand
+        $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id,'brand'=>$brand);
+        $data = $this->partner_model->get_category_service_brands($where);
+        $option = "";
+        foreach($data as $value){
+            $option .="<option value='".$value['category']."'>".$value['category']."</option>";
+        }
+        echo $option;
+        
+    }
+    
+    /**
+     * @Desc: This function is used to get Capacity Model for Partner for particular Brand, service_id and category
+     *      This is being called from AJAX
+     * @params: partner_id, service_name, brand_name, category
+     * $return: Json
+     * 
+     */
+    function get_capacity_model(){
+        $partner_id = $this->input->post('partner_id');
+        $service_id = $this->input->post('service_id');
+        $brand = $this->input->post('brand');
+        $category = $this->input->post('category');
+        //Getting Unique values of Category for Particular Partner ,service id and brand
+        $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id,'brand'=>$brand,'category'=>$category);
+        $data = $this->partner_model->get_partner_appliance_details($where);
+        $capacity = "";
+        foreach($data as $value){
+            $capacity .="<option value='".$value['capacity']."'>".$value['capacity']."</option>";
+        }
+        $option['capacity'] = $capacity;
+        
+        $model = "";
+        foreach($data as $value){
+            $model .="<option value='".$value['model']."'>".$value['model']."</option>";
+        }
+        $option['model'] = $model;
+        print_r(json_encode($option));
     }
 
 }
