@@ -1785,7 +1785,7 @@ class Partner extends CI_Controller {
      * $return: Json
      * 
      */
-    function get_capacity_model(){
+    function get_capacity_for_partner(){
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('service_id');
         $brand = $this->input->post('brand');
@@ -1798,6 +1798,26 @@ class Partner extends CI_Controller {
             $capacity .="<option value='".$value['capacity']."'>".$value['capacity']."</option>";
         }
         $option['capacity'] = $capacity;
+        
+        print_r(json_encode($option));
+    }
+    
+    /**
+     * @Desc: This function is used to get  Model for Partner for particular Brand, service_id, capacity and category
+     *      This is being called from AJAX
+     * @params: partner_id, service_name, brand_name, category
+     * $return: Json
+     * 
+     */
+    function get_model_for_partner(){
+        $partner_id = $this->input->post('partner_id');
+        $service_id = $this->input->post('service_id');
+        $brand = $this->input->post('brand');
+        $category = $this->input->post('category');
+        $capacity = $this->input->post('capacity');
+        //Getting Unique values of Model for Particular Partner ,service id and brand
+        $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id,'brand'=>$brand,'category'=>$category,'capacity'=>$capacity);
+        $data = $this->partner_model->get_partner_appliance_details($where);
         
         $model = "";
         foreach($data as $value){

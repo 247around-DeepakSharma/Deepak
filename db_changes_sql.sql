@@ -1531,3 +1531,7 @@ ADD `all_upcountry_pincode_details` TEXT NULL DEFAULT NULL AFTER `upcountry_pric
 
 ALTER TABLE `bank_transactions` CHANGE `credit_amount` `credit_amount` DECIMAL(10,2) NOT NULL, CHANGE `debit_amount` `debit_amount` DECIMAL(10,2) NOT NULL;
 
+-- Belal 24 Dec
+
+UPDATE `partner_appliance_details` SET `category` = 'TV-LED';
+

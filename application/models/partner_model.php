@@ -926,6 +926,7 @@ class Partner_model extends CI_Model {
         $this->db->select('brand');
         $this->db->where($where);
         $this->db->where('active',1);
+        $this->db->order_by('brand', 'asc');
         $query = $this->db->get('partner_appliance_details');
         return $query->result_array();
     }
@@ -940,6 +941,7 @@ class Partner_model extends CI_Model {
         $this->db->select('category');
         $this->db->where($where);
         $this->db->where('active',1);
+        $this->db->order_by('category', 'asc');
         $query = $this->db->get('partner_appliance_details');
         return $query->result_array();
     }
