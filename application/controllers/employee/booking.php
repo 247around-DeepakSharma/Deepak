@@ -435,8 +435,8 @@ class Booking extends CI_Controller {
 		    $data['booking_id'] = $booking_id_array[1];
 		    $data['query_to_booking'] = '1';
 		    
-                    $data['old_state'] = _247AROUND_PENDING;
-                    $data['new_state'] = _247AROUND_FOLLOWUP;
+                    $data['old_state'] = _247AROUND_FOLLOWUP;
+                    $data['new_state'] = _247AROUND_PENDING;
                     
                     log_message('info', __FUNCTION__ . " Query Converted to Booking Booking ID" . print_r($data['booking_id'], true));
 		    
@@ -459,8 +459,8 @@ class Booking extends CI_Controller {
 		    $data['booking_id'] = "Q-" . $booking_id;
 		    log_message('info', __FUNCTION__ . " Booking to be Converted to Query Booking ID" . print_r($data['booking_id'], true));
 		    
-                    $data['old_state'] = _247AROUND_FOLLOWUP;
-                    $data['new_state'] = _247AROUND_PENDING;
+                    $data['old_state'] = _247AROUND_PENDING;
+                    $data['new_state'] = _247AROUND_FOLLOWUP;
 
                     //Since booking has been converted to query, delete this entry from
                     //service center booking action table as well.
