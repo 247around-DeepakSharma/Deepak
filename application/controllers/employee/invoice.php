@@ -1026,6 +1026,7 @@ class Invoice extends CI_Controller {
                  
             } else {
                 switch($invoices[0]['company_type']){
+                    case 'Proprietorship Firm':
                     case "Individual":
                         $tds = ($total_inst_charge + $total_st_charge) *.01;
                         $tds_tax_rate = "1%";
@@ -2481,75 +2482,288 @@ class Invoice extends CI_Controller {
      */
     function process_insert_update_invoice($vendor_partner){
         log_message('info', __FUNCTION__ . " Entering....". $vendor_partner);
-        $this->form_validation->set_rules('invoice_id', ' Invoice Id', 'required|trim|xss_clean');
+        $this->form_validation->set_rules('vendor_partner_id', 'Vendor Partner', 'required|trim|xss_clean');
         if($this->form_validation->run()){
-            $data['invoice_id'] = $this->input->post('invoice_id');
+            
+            echo  $sms_sent = $this->input->post('sms_sent');
+            echo $mail_sent = $this->input->post('mail_sent');
+            exit();
             $data['type_code'] = $this->input->post('type_code');
-            switch ($data['type_code']){
-                case 'A':
-                     $data['type_code'] = "FOC";
-                    break;
-                case 'B':
-                    $data['type_code'] = 'Cash';
-                    break;
-                case 'D':
-                    $data['type_code'] = "Stand";
-                    break;
-            }
             $data['vendor_partner'] = $vendor_partner;
             $data['vendor_partner_id'] = $this->input->post('vendor_partner_id');
             $data['from_date'] = $this->input->post('from_date');
             $data['to_date'] = $this->input->post('to_date');
             $data['num_bookings'] = $this->input->post('num_bookings');
+            $invoice_id = $this->input->post('invoice_id');
             $data['total_service_charge'] = $this->input->post('total_service_charge');
             $data['total_additional_service_charge'] = $this->input->post('total_additional_service_charge');
             $data['service_tax'] = $this->input->post('service_tax');
             $data['parts_cost'] = $this->input->post('parts_cost');
             $data['vat'] = $this->input->post('vat');
-            $data['total_amount_collected'] = $this->input->post('total_amount_collected');
-            $data['around_royalty'] = $this->input->post('around_royalty');
-            $data['amount_collected_paid'] = $this->input->post('amount_collected_paid');
-            $data['tds_amount'] = $this->input->post('tds_amount');
-            $data['amount_paid'] = $this->input->post('amount_paid');
-            $data['settle_amount'] = $this->input->post('settle_amount');
-            $data['mail_sent'] = $this->input->post('mail_sent');
-            $data['sms_sent'] = $this->input->post('sms_sent');
+            $data['total_amount_collected'] = round(($data['total_service_charge'] + $data['total_additional_service_charge'] + $data['parts_cost']
+                   + $data['vat'] + $data['service_tax'] ),0);
+            
+            $entity_details = array();
+            $main_invoice_file = "";
+            $detailed_invoice_file = "";
+            $sms = array();
+            if($data['vendor_partner'] == "vendor"){
+                $entity_details = $this->vendor_model->viewvendor($data['vendor_partner_id']);
+            }
+            if(!empty($invoice_id)){
+                $data['invoice_id'] = $invoice_id;
+            }
+
+            switch ($data['type_code']){
+                
+                case 'A':
+                    log_message('info', __FUNCTION__ . " .. type code:- A");
+                    $data['type'] = 'Cash';
+                    $data['around_royalty'] = round($data['total_amount_collected'],0);
+                    $data['amount_collected_paid'] = round($data['total_amount_collected'],0);
+                    
+                    if(empty($invoice_id)){
+                        log_message('info', __FUNCTION__ . " Invoice Id Empty");
+                        if($data['vendor_partner'] == "partner"){
+                            $entity_details = $this->partner_model->getpartner($data['vendor_partner_id']);
+                            $data['invoice_id'] = $this->create_invoice_id_to_insert($entity_details,$data['from_date'], "Around-");
+
+                        } else if($data['vendor_partner'] == "vendor"){
+                            
+                            $data['invoice_id'] = $this->create_invoice_id_to_insert($entity_details,$data['from_date'], "Around-"); 
+                        }
+                        log_message('info', __FUNCTION__ . " Invoice Id is generated ". $data['invoice_id']);
+                        
+                    }
+                    if($sms_sent){
+                        $sms['tag'] = "vendor_invoice_mailed";
+                        $sms['smsData']['type'] = 'Cash';
+                        $sms['smsData']['month'] = date('M Y', strtotime($data['from_date']));
+                        $sms['smsData']['amount'] = $data['amount_collected_paid'];
+                        $sms['phone_no'] = $entity_details[0]['owner_phone_1'];
+                        $sms['booking_id'] = "";
+                        $sms['type'] = "vendor";
+                        $sms['type_id'] = $data['vendor_partner_id'];
+                    }
+                    break;
+                case 'B':
+                    log_message('info', __FUNCTION__ . " .. type code:- B");
+                    $data['type'] = "FOC";
+                    
+                    $tds = $this->check_tds_sc($entity_details[0],$data['total_service_charge'] + $data['service_tax'] );
+                    $data['around_royalty'] = 0;
+                    $data['amount_collected_paid'] = -($data['total_amount_collected'] - $tds);
+                    $data['tds_amount'] = $tds;
+                    
+                    if(empty($invoice_id)){
+                        log_message('info', __FUNCTION__ . " Invoice Id Empty");
+                        
+                        $data['invoice_id'] = $this->create_invoice_id_to_insert($entity_details,$data['from_date'], $entity_details[0]['sc_code']);
+                        log_message('info', __FUNCTION__ . " Invoice Id is generated ". $data['invoice_id']);
+                    }
+                    
+                    if($sms_sent){
+                        $sms['tag'] = "vendor_invoice_mailed";
+                        $sms['smsData']['type'] = 'FOC';
+                        $sms['smsData']['month'] = date('M Y', strtotime($data['from_date']));
+                        $sms['smsData']['amount'] =  abs($data['amount_collected_paid']);
+                        $sms['phone_no'] = $entity_details[0]['owner_phone_1'];
+                        $sms['booking_id'] = "";
+                        $sms['type'] = "vendor";
+                        $sms['type_id'] = $data['vendor_partner_id'];
+                    }
+                   
+                    break;
+                case 'D':
+                    log_message('info', __FUNCTION__ . " .. type code:- D");
+                    $data['type'] = "Stand";
+                    $data['around_royalty'] = $data['total_amount_collected'];
+                    $data['amount_collected_paid'] = $data['total_amount_collected'];
+                   
+                     if(empty($invoice_id)){
+                         log_message('info', __FUNCTION__ . " Invoice Id Empty");
+                        
+                        $data['invoice_id'] =  $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Adround-");
+                        log_message('info', __FUNCTION__ . " Invoice Id is generated ". $data['invoice_id']);
+                    }
+                    
+                    if($sms_sent){
+                        $sms['tag'] = "vendor_invoice_mailed";
+                        $sms['smsData']['type'] = 'Stand';
+                        $sms['smsData']['month'] = date('M Y', strtotime($data['from_date']));
+                        $sms['smsData']['amount'] =  $data['amount_collected_paid'];
+                        $sms['phone_no'] = $entity_details[0]['owner_phone_1'];
+                        $sms['booking_id'] = "";
+                        $sms['type'] = "vendor";
+                        $sms['type_id'] = $data['vendor_partner_id'];
+                    }
+                    
+                    break;
+            }
+
             $data['due_date'] = date("Y-m-d", strtotime($data['to_date'] . "+1 month"));
-            if(isset($_FILES["invoice_image"])){
+        
+            if(!empty($_FILES["invoice_file_excel"]['tmp_name'])){
+                $temp = explode(".", $_FILES["invoice_file_excel"]["name"]);
+	        $extension = end($temp);
                // Uploading to S3
 		$bucket = BITBUCKET_DIRECTORY;
-		$directory = "invoices-excel/" . $data['invoice_id'].".xlsx";
-		$is_s3 = $this->s3->putObjectFile($_FILES["invoice_image"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+		$directory = "invoices-excel/" . $data['invoice_id'].".".$extension;
+		$is_s3 = $this->s3->putObjectFile($_FILES["invoice_file_excel"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+                echo $is_s3;
                 if($is_s3){
                     log_message('info', __FUNCTION__ . " Main Invoice upload"); 
-                    $data['invoice_file_excel'] = $data['invoice_id'].".xlsx";
+                    $data['invoice_file_excel'] = $data['invoice_id'].".".$extension;
+                    $main_invoice_file = $data['invoice_file_excel'];
                 } else {
                    log_message('info', __FUNCTION__ . " Main Invoice upload failed"); 
                 }
             }
-            if(isset($_FILES["invoice_detailed_excel"])){
+            if(!empty($_FILES["invoice_detailed_excel"]['tmp_name'])){
+                $temp1 = explode(".", $_FILES["invoice_detailed_excel"]["name"]);
+	        $extension1 = end($temp1);
                // Uploading to S3
 		$bucket = BITBUCKET_DIRECTORY;
-		$directory = "invoices-excel/" . $data['invoice_id']."-detailed.xlsx";
+		$directory = "invoices-excel/" . $data['invoice_id']."-detailed.".$extension1;
 		$is_s3 = $this->s3->putObjectFile($_FILES["invoice_detailed_excel"]["tmp_name"], $bucket, $directory, S3::ACL_PUBLIC_READ);
+                 echo $is_s3;
                 if($is_s3){
                     log_message('info', __FUNCTION__ . " Main Invoice upload"); 
-                    $data['invoice_detailed_excel'] = $data['invoice_id']."-detailed.xlsx";
+                    $data['invoice_detailed_excel'] = $data['invoice_id']."-detailed.".$extension1;
+                    $detailed_invoice_file = $data['invoice_detailed_excel'];
                 } else {
                    log_message('info', __FUNCTION__ . " Main Invoice upload failed"); 
                 }
             }
+
             $status = $this->invoices_model->action_partner_invoice($data);
             if($status){
-                log_message('info', __METHOD__ . ' Invoice details inserted '. $data['invoice_date']);
+                log_message('info', __METHOD__ . ' Invoice details inserted '. $data['invoice_id']);
+                if($sms_sent){
+                     
+                    $this->notify->send_sms_acl($sms);
+                    log_message('info', __METHOD__ . ' SMS Sent '.$data['invoice_id']);
+                }
+                
+                if($mail_sent){
+                    if($main_invoice_file != ""){
+                        $this->send_attach_email_to_sf($entity_details, $data['type'], $data['from_date'],
+                                $data['to_date'], $main_invoice_file, $detailed_invoice_file);
+                    }
+                
+                }
             } else {
-                 log_message('info', __METHOD__ . ' Invoice details not inserted '. $data['invoice_date']);
+                
+                 log_message('info', __METHOD__ . ' Invoice details not inserted '. $data['invoice_id']);
             } 
             
-            redirect(base_url() . 'employee/invoice/invoice_summary/' . $data['vendor_partner'] . "/" . $data['vendor_partner_id']);
+           redirect(base_url() . 'employee/invoice/invoice_summary/' . $data['vendor_partner'] . "/" . $data['vendor_partner_id']);
         }  else {
-            echo "Please Enter Evoice Id";
+            echo "Please Enter Vendor Partner";
         }
     }
+    /**
+     * @desc: Calculate TDS Amount 
+     * @param Array $sc_details
+     * @param String $total_sc_details
+     * @return String tds amount
+     */
+    function check_tds_sc($sc_details, $total_sc_details){
+        $tds = 0;
+        if(empty($sc_details['pan_no'])){
+               $tds = ($total_sc_details)*.20;
+               $tds_tax_rate = "20%";
+                
+            } else if(empty ($sc_details['contract_file'])){
+                
+                 $tds = ($total_sc_details) *.05;
+                 $tds_tax_rate = "5%";
+                 
+            } else {
+                switch($sc_details['company_type']){
+                    case 'Proprietorship Firm':
+                    case "Individual":
+                        $tds = ($total_sc_details) *.01;
+                        $tds_tax_rate = "1%";
+                        break;
+                    
+                    case "Partnership Firm":
+                    case "Company (Pvt Ltd)":
+                        $tds = ($total_sc_details) *.02;
+                        $tds_tax_rate = "2%";
+                        break;
+            }
+        }
+        
+        return $tds;
+    }
+    /**
+     * @desc: Generate Invoice ID
+     * @param type $entity_details
+     * @param type $from_date
+     * @param type $start_name
+     * @return invoice id
+     */
+    function create_invoice_id_to_insert($entity_details, $from_date, $start_name){
+        if ($entity_details[0]['state'] == "DELHI") {
+
+            $invoice_version = "T";
+            $invoices['meta']['invoice_type'] = "TAX INVOICE";
+            
+        } else {
+            $invoice_version = "R";
+            $invoices['meta']['invoice_type'] = "RETAIL INVOICE";
+        }
+
+        $current_month = date('m');
+        // 3 means March Month
+        if ($current_month > 3) {
+            $financial = date('Y') . "-" . (date('y') + 1);
+        } else {
+            $financial = (date('Y') - 1) . "-" . date('y');
+        }
+
+        //Make sure it is unique
+        $invoice_id_tmp = $start_name . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
+        $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
+        $invoice_no = $this->invoices_model->get_invoices_details($where);
+
+        return $invoice_id_tmp . "-" . (count($invoice_no) + 1);
+        
+    }
+    /**
+     * @desc: Send Emailt to SF with attach invoice file while create a new invoice from Form 
+     * @param type $vendor_detail
+     * @param type $type
+     * @param type $start_date
+     * @param type $end_date
+     * @param type $main_invoice_file
+     * @param type $detailed_invoice_file
+     * @return boolean
+     */
+    function send_attach_email_to_sf($vendor_detail, $type, $start_date, $end_date,$main_invoice_file, $detailed_invoice_file){
+           
+            $to = $vendor_detail[0]['owner_email'] . ", " . $vendor_detail[0]['primary_contact_email'];
+            $subject = "247around - " . $vendor_detail[0]['company_name'] . " - ".$type."  Invoice for period: " . $start_date . " to " . $end_date;
+            $cc = "anuj@247around.com, nits@247around.com";
+
+           $this->email->to($to);
+           $this->email->cc($cc);
+           $this->email->subject($subject);
+           $this->email->attach("https://s3.amazonaws.com/bookings-collateral/invoices-excel/".$main_invoice_file, 'attachment');
+           if($detailed_invoice_file != ""){
+               $this->email->attach("https://s3.amazonaws.com/bookings-collateral/invoices-excel/" . $detailed_invoice_file, 'attachment');
+           }
+           $mail_ret = $this->email->send();
+
+           if ($mail_ret) {
+               log_message('info', __METHOD__ . ": Mail sent successfully");
+               echo "Mail sent successfully..............." . PHP_EOL;
+           } else {
+               log_message('info', __METHOD__ . ": Mail could not be sent");
+               echo "Mail could not be sent..............." . PHP_EOL;
+        }
+        return true;
+   }
 
 }
