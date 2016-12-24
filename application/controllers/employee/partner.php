@@ -1599,8 +1599,8 @@ class Partner extends CI_Controller {
                 log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['employee_name']);
             }
 
-            redirect(base_url() . "partner/get_spare_parts_booking");   
         }
+             log_message('info',__FUNCTION__." No partner Details has been found for Login");
     }
     /**
      * @desc: Display list of Shipped Parts in the Partner Panel
