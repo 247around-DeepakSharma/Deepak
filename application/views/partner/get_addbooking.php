@@ -130,7 +130,7 @@
                                     <label for="brand" class="col-md-4">Brand *</label>
                                     <div class="col-md-6">
                                         <select type="text" class="form-control appliance_brand"    name="appliance_brand" id="appliance_brand_1" required onchange="return get_category(this.value)">
-                                            <option selected disabled>Select Brand</option>
+                                            <option selected disabled value="option1">Select Brand</option>
                                       
                                         </select>
                                     </div>
@@ -140,9 +140,7 @@
                                     <label for="category" class="col-md-4">Category *</label>
                                     <div class="col-md-6">
                                         <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category"   required onchange="return get_capacity_model(this.value)">
-                                            <option selected disabled>Select Appliance Category</option>
-<!--                                            <option <?php if(set_value('appliance_category') == "TV-LED"){ echo "selected";} ?>>TV-LED</option>
-                                            <option <?php if(set_value('appliance_category') == "TV-LCD"){ echo "selected";} ?>>TV-LCD</option>-->
+                                            <option selected disabled value="option1">Select Appliance Category</option>
                                         </select>
                                         <?php echo form_error('appliance_category'); ?>
                                     </div>
@@ -154,7 +152,7 @@
                                     <label for="capacity" class="col-md-4">Capacity *</label>
                                     <div class="col-md-6">
                                         <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" >
-                                            <option selected disabled>Select Appliance Capacity</option>
+                                            <option selected disabled value="option1">Select Appliance Capacity</option>
                                         </select>
                                         <?php echo form_error('appliance_capacity'); ?>
                                     </div>
@@ -165,7 +163,7 @@
                                     <div class="col-md-6">
                                         
                                         <select class="form-control"  name="model_number" id="model_number_1" >
-                                            <option selected disabled>Select Model</option>
+                                            <option selected disabled value="option1">Select Model</option>
                                         </select>
                                          <?php echo form_error('model_number'); ?>
                                     </div>
@@ -433,6 +431,8 @@
                         data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>},
                         success: function (data) {
                                 console.log('Brands Added for Selected Service');
+                                //First Resetting Options values present if any
+                                $("#appliance_brand_1 option[value !='option1']").remove();
                                 $('#appliance_brand_1').append(data);
                             }
                     });
@@ -448,6 +448,8 @@
                         data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, brand: brand},
                         success: function (data) {
                                 console.log('Category Added for Selected Service');
+                                //First Resetting Options values present if any
+                                $("#appliance_category_1 option[value !='option1']").remove();
                                 $('#appliance_category_1').append(data);
                             }
                     });

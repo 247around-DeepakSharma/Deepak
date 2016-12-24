@@ -9,6 +9,7 @@
             $.ajax({
                 url:'<?php echo base_url()."employee/partner/allow_log_in_to_partner/" ?>'+partner_id,
                 success: function (data) {
+                    console.log(data);
                     window.open("<?php echo base_url().'employee/partner/get_spare_parts_booking'?>",'_blank');
                 }
             });
@@ -56,7 +57,7 @@
                     if (!empty($service_brands[$key])) {
                         $str = "";
                         foreach ($service_brands[$key] as $val) {
-                            $str .= ' <b>'.$val['services'] .'</b> - '.$val['brand_name'].' ,';
+                            $str .= ' <b>'.$val['services'] .'</b> - '.$val['brand'].' ,';
                         }
                         echo (rtrim($str,","));
                         
@@ -76,7 +77,7 @@
           	
           	<td><?=$row['owner_email'];?></td>
                 <td>
-                    <a href="" class="btn btn-md btn-success"  onclick='return login_to_partner(<?php echo $row['id']?>)' <?php echo ($row['is_active'] == 0)?'disabled=""':'' ?>  title="<?php echo isset($row['clear_text']) && $row['clear_text']?$row['user_name'].'/'.$row['clear_text']:'';?>">Login</a>  
+                    <a href="javascript:void(0)" class="btn btn-md btn-success"  onclick='return login_to_partner(<?php echo $row['id']?>)' <?php echo ($row['is_active'] == 0)?'disabled=""':'' ?>  title="<?php echo isset($row['clear_text']) && $row['clear_text']?$row['user_name'].'/'.$row['clear_text']:'';?>">Login</a>  
               
                 </td>
           	<td><?php if($row['is_active']==1){ ?>
