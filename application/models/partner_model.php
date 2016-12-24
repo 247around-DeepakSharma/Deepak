@@ -871,7 +871,7 @@ class Partner_model extends CI_Model {
      */
     function get_active_partner_id_by_service_id_brand($brands, $service_id){
         $this->db->select('partner_id');
-        $this->db->where('brand_name',$brands);
+        $this->db->where('brand',$brands);
         $this->db->where('service_id',$service_id);
         $this->db->where('active',1);
         $query = $this->db->get('partner_appliance_details');
@@ -901,6 +901,47 @@ class Partner_model extends CI_Model {
         }
         
     }
-
+    
+    /**
+     * @Desc: This function is used to get Distinct Appliances for Partner
+     * @params: Partner ID
+     * @return: Array
+     */
+    function get_appliances_for_partner($partner_id){
+        $sql = "Select Distinct services.services, services.id  "
+                . "From partner_appliance_details, services "
+                . "where partner_appliance_details.service_id = services.id "
+                . "AND partner_appliance_details.partner_id = '".$partner_id."'";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This fucntion is used to get Distinct values of Brands for Particular Partner and service id
+     * @params: Where string
+     * @return: Array
+     */
+    function get_partner_service_brands($where){
+        $this->db->distinct();
+        $this->db->select('brand');
+        $this->db->where($where);
+        $this->db->where('active',1);
+        $query = $this->db->get('partner_appliance_details');
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This fucntion is used to get Distinct values of Brands for Particular Partner and service id
+     * @params: Where string
+     * @return: Array
+     */
+    function get_category_service_brands($where){
+        $this->db->distinct();
+        $this->db->select('category');
+        $this->db->where($where);
+        $this->db->where('active',1);
+        $query = $this->db->get('partner_appliance_details');
+        return $query->result_array();
+    }
 }
 
