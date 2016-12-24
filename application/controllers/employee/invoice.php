@@ -2654,7 +2654,7 @@ class Invoice extends CI_Controller {
                 log_message('info', __METHOD__ . ' Invoice details not inserted ' . $data['invoice_id']);
             }
 
-            //redirect(base_url() . 'employee/invoice/invoice_summary/' . $data['vendor_partner'] . "/" . $data['vendor_partner_id']);
+            redirect(base_url() . 'employee/invoice/invoice_summary/' . $data['vendor_partner'] . "/" . $data['vendor_partner_id']);
         } else {
             echo "Please Enter Vendor Partner";
         }
