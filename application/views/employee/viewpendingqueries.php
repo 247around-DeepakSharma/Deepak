@@ -31,26 +31,7 @@ function outbound_call(phone_number){
 }
 
 </script>
-<style type="text/css">
-    table{
 
-    }
-    th,td{
-        border: 1px #f2f2f2 solid;
-        text-align:center;
-        vertical-align: center;
-        padding: 2px;
-    }
-
-    th{
-        height: 50px;
-        background-color: #4CBA90;
-        color: white;
-    }
-    tr:nth-child(even) {background-color: #f2f2f2}
-
-
-</style>
 
 <div id="page-wrapper" >
     <div class="">
@@ -88,39 +69,39 @@ function outbound_call(phone_number){
                    </div>';
                 }
                 ?>
-                <table >
+                <table class="table table-bordered table-hover table-striped">
 
                     <thead>
                     <tr>
                     <th>S No.</th>
-                    <th width="160px;">Booking Id</th>
+                    <th >Booking Id</th>
 
-                    <th width="140px;">User Name</th>
-                    <th width="125px;">Phone No.</th>
-                    <th width="125px;">Service Name</th>
-                    <th width="165px;">Potential Value</th>
-                    <th width="165px;">Booking Date/Time</th>
+                    <th>User Name</th>
+                    <th >Phone No.</th>
+                    <th >Service Name</th>
+                   
+                    <th class="hide_div" >Booking Date/Time</th>
                     <?php if($status != "Cancelled"){?>
-                    <th width="100px;">Status</th>
+                    <th class="hide_div" >Status</th>
                      <?php } ?>
-                    <th width="100px;">City</th>
+                    <th class="hide_div">City</th>
 
-                    <th width="250px;">Query Remarks</th>
+                    <th class="hide_div">Query Remarks</th>
                      
                     <?php if($status != "Cancelled"){ ?>
                     <?php if($p_av == PINCODE_NOT_AVAILABLE){ ?>
-                    <th>Pincode</th>
+                    <th class="hide_div">Pincode</th>
                     <?php } else { ?>
-                    <th>Vendor Status</th>
+                    <th class="hide_div">Vendor Status</th>
                    <?php } } ?>
-                    <th width="60px;">Call</th>
-                    <th width="60px;">View</th>
+                    <th class="hide_div" >Call</th>
+                    <th class="hide_div">View</th>
                      <?php if($status != "Cancelled"){?>
-                    <th width="60px;">Update</th>
+                    <th class="hide_div">Update</th>
 
-                    <th width="60px;">Cancel</th>
+                    <th class="hide_div">Cancel</th>
                     <?php } if($status == "Cancelled"){ ?>
-                     <th width="60px;">Un-Cancel</th>
+                     <th class="hide_div">Un-Cancel</th>
                     <?php } ?>
 
                     </tr>
@@ -136,12 +117,13 @@ function outbound_call(phone_number){
                     <input type="hidden" id="<?php echo "service_id_".($key +1); ?>"  value="<?php echo $row->service_id;?>"/>
                     <input type="hidden" id="<?php echo "pincode_".($key +1); ?>" value="<?php echo $row->booking_pincode; ?>" />
                     <td><a href="<?php echo base_url(); ?>employee/user/finduser/0/0/<?php echo $row->phone_number; ?>"><?php echo $row->customername; ?></a></td>
-                    <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $row->phone_number;?>"><?php echo $row->booking_primary_contact_no; ?></a></td>
+                    <td class="hide_div"><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?php echo $row->phone_number;?>"><?php echo $row->booking_primary_contact_no; ?></a></td>
+              <td class ="display_mobile" ><p onclick="call_on_phone('<?php echo $row->phone_number;?>')" ><?php echo $row->phone_number;?></p></td>
                     <td><?= $row->services;  ?></td>
-                    <td><?= $row->potential_value; ?></td>
-                    <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
+                   
+                    <td class="hide_div"><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
                     <?php if($status !="Cancelled"){ ?>
-                    <td id="status_<?php echo $row->booking_id; ?>">
+                    <td class="hide_div" id="status_<?php echo $row->booking_id; ?>">
                         <?php
                             echo $row->current_status;
                             if ($row->current_status != $row->internal_status)
@@ -149,14 +131,14 @@ function outbound_call(phone_number){
                         ?>
                     </td>
                     <?php } ?>
-                     <td><?= $row->city; ?></td>
+                     <td class="hide_div"><?= $row->city; ?></td>
 
 
-                    <td><?= $row->query_remarks; ?></td>
+                    <td class="hide_div"><?= $row->query_remarks; ?></td>
                     <?php  if($status != "Cancelled"){  if($p_av == PINCODE_NOT_AVAILABLE){?>
-                    <td><a href="javascript:void(0)" style="color: red;" onclick='form_submit("<?php echo $row->booking_id?>")'><?php print_r($row->booking_pincode); ?></a></td>
+                    <td class="hide_div"><a href="javascript:void(0)" style="color: red;" onclick='form_submit("<?php echo $row->booking_id?>")'><?php print_r($row->booking_pincode); ?></a></td>
                     <?php } else if($p_av == PINCODE_ALL_AVAILABLE || $p_av == PINCODE_AVAILABLE ){ ?>
-                    <td>
+                    <td class="hide_div">
                         
                         <select id="<?php  echo "av_vendor". ($key+1); ?>" style="max-width:100px;">
                             <option>Vendor Available</option>
@@ -168,27 +150,27 @@ function outbound_call(phone_number){
                     </td>
                     <?php } }  ?>
 
-                      <td><button type="button" onclick="outbound_call(<?php echo $row->booking_primary_contact_no; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
+                    <td class="hide_div"><button type="button" onclick="outbound_call(<?php echo $row->booking_primary_contact_no; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button>
                      </td>
 
-                    <td>
+                    <td class="hide_div">
                         <?php echo "<a class='btn btn-sm btn-primary' "
                         . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
                         ?>
                     </td>
  <?php if($status !="Cancelled"){ ?>
-                    <td><?php
+                    <td class="hide_div" ><?php
                         echo "<a class='btn btn-small btn-success btn-sm' href=".base_url()."employee/booking/get_edit_booking_form/$row->booking_id title='Update'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
                         ?>
                     </td>
 
-                    <td>
+                    <td class="hide_div">
                         <?php
                         echo "<a class='btn btn-small btn-warning btn-sm' href=".base_url()."employee/booking/get_cancel_form/$row->booking_id/FollowUp title='Cancel'> <i class='fa fa-times' aria-hidden='true'></i></a>";
                         ?>
                     </td>
                     <?php } if($status == "Cancelled"){  ?>
-                     <td>
+                     <td class="hide_div">
                         <?php echo "<a class='btn btn-sm btn-warning' "
                         . "href=" . base_url() . "employee/booking/open_cancelled_query/$row->booking_id title='open'><i class='fa fa-calendar' aria-hidden='true'></i></a>";
     ?>
@@ -276,3 +258,72 @@ function outbound_call(phone_number){
     /* special filter field styling for this example */
     .input-filter-container { position: absolute; top: 7em; right: 1em; border: 2px solid #66f; background-color: #eef; padding: 0.5em; }
 </style>
+
+<style>
+    
+/* Extra small devices (portrait phones, less than 544px)*/
+@media (max-width: 543px) { 
+    .hide_div{
+        display:none;
+    }
+    .display_mobile{
+        display: inline-grid;
+        color:blueviolet;
+    }
+}
+
+/* Small devices (landscape phones, 544px and up) */
+@media (min-width: 544px) and (max-width: 767px) { 
+
+    .hide_div{
+        display:none;
+    }
+    .display_mobile{
+        display: inline-grid;
+        color:blueviolet;
+
+    }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) and (max-width: 991px) { 
+    .hide_div{
+        display:-inline-grid;
+    }
+     .display_mobile{
+        display: none;
+        color:blueviolet;
+    }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) and (max-width: 1199px) { 
+    .hide_div{
+        display:inline-grid;
+    }
+     .display_mobile{
+        display: none;
+    }
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) { 
+    .hide_div{
+        display:inline-grid;
+    }
+    .display_mobile{
+        display: none;
+    }
+}
+</style>
+
+<script>
+
+function call_on_phone(phone)
+{
+//alert(phone);
+    localStorage.setItem("Android", phone);
+    Android.nextScreen(phone);
+}
+</script>
+
