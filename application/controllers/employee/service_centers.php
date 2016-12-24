@@ -226,7 +226,7 @@ class Service_centers extends CI_Controller {
             }
             if($is_update_spare_parts){
                 $sp['status'] = DEFECTIVE_PARTS_PENDING;
-                $this->service_centers_model->spare_parts_details($booking_id, $sp);
+                $this->service_centers_model->update_spare_parts(array('booking_id'=>$booking_id), $sp);
             }
 
             // Insert data into booking state change
