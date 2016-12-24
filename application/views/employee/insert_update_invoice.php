@@ -66,7 +66,7 @@
                                         
                                                 if (isset($invoice_details[0]['invoice_file_excel']) && !empty($invoice_details[0]['invoice_file_excel'])) {
                                                     //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/bookings-collateral/misc-images/" . $invoice_details[0]['invoice_file_excel']; ?>
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/" . $invoice_details[0]['invoice_file_excel']; ?>
                                     <a href="<?php echo $src ?>" target="_blank">click Here</a>
                                     <?php }
                                         }
@@ -139,7 +139,7 @@
                                         
                                                 if (isset($invoice_details[0]['invoice_detailed_excel']) && !empty($invoice_details[0]['invoice_detailed_excel'])) {
                                                     //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/bookings-collateral/misc-images/" . $invoice_details[0]['invoice_detailed_excel']; ?>
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/" . $invoice_details[0]['invoice_detailed_excel']; ?>
                                     <a href="<?php echo $src ?>" target="_blank">click Here</a>
                                     <?php }
                                         }
