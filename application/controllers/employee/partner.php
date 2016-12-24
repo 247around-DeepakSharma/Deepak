@@ -333,6 +333,7 @@ class Partner extends CI_Controller {
                         $this->session->set_userdata($userSession);
 
                         $data = $this->booking_model->get_city_booking_source_services($this->input->post('booking_primary_contact_no'));
+                        $data['appliances'] = $this->partner_model->get_appliances_for_partner($this->session->userdata('partner_id'));
                         $this->load->view('partner/header');
                         $this->load->view('partner/get_addbooking', $data);
                     } else {
@@ -354,6 +355,7 @@ class Partner extends CI_Controller {
                     $this->session->set_userdata($userSession);
 
                     $data = $this->booking_model->get_city_booking_source_services($this->input->post('booking_primary_contact_no'));
+                    $data['appliances'] = $this->partner_model->get_appliances_for_partner($this->session->userdata('partner_id'));
                     $this->load->view('partner/header');
                     $this->load->view('partner/get_addbooking', $data);
                 }
@@ -364,6 +366,7 @@ class Partner extends CI_Controller {
         } else {
             log_message('info', 'Partner add booking' . $this->session->userdata('partner_name') . " Validation failed ");
             $data = $this->booking_model->get_city_booking_source_services($this->input->post('booking_primary_contact_no'));
+            $data['appliances'] = $this->partner_model->get_appliances_for_partner($this->session->userdata('partner_id'));
             $this->load->view('partner/header');
             $this->load->view('partner/get_addbooking', $data);
         }
