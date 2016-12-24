@@ -855,7 +855,7 @@ class Partner_model extends CI_Model {
      * 
      */
     function get_service_brands_for_partner($partner_id){
-        $sql = "Select partner_appliance_details.brand_name, services.services  "
+        $sql = "Select partner_appliance_details.brand, services.services  "
                 . "From partner_appliance_details, services "
                 . "where partner_appliance_details.service_id = services.id "
                 . "AND partner_appliance_details.partner_id = '".$partner_id."'";
