@@ -400,7 +400,7 @@ class Partner extends CI_Controller {
     }
 
     function insertion_failure($post){
-        $to = "anuj@247around.com, abhay@247around.com";
+        $to = "anuj@247around.com, abhaya@247around.com, belal@247around.com, sachinj@247around.com";
         $cc = "";
         $bcc = "";
         $subject = "Booking Insertion Failure By ".$this->session->userdata('partner_name');
