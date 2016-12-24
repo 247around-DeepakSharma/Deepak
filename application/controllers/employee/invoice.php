@@ -2485,9 +2485,9 @@ class Invoice extends CI_Controller {
         $this->form_validation->set_rules('vendor_partner_id', 'Vendor Partner', 'required|trim|xss_clean');
         if($this->form_validation->run()){
             
-            echo  $sms_sent = $this->input->post('sms_sent');
-            echo $mail_sent = $this->input->post('mail_sent');
-            exit();
+            $sms_sent = $this->input->post('sms_sent');
+            $mail_sent = $this->input->post('mail_sent');
+            
             $data['type_code'] = $this->input->post('type_code');
             $data['vendor_partner'] = $vendor_partner;
             $data['vendor_partner_id'] = $this->input->post('vendor_partner_id');
