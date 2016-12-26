@@ -1535,3 +1535,5 @@ ALTER TABLE `bank_transactions` CHANGE `credit_amount` `credit_amount` DECIMAL(1
 
 UPDATE `partner_appliance_details` SET `category` = 'TV-LED';
 
+ALTER TABLE `partners` ADD `contract_file` VARCHAR(256) NOT NULL AFTER `service_tax`;
+

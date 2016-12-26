@@ -30,7 +30,7 @@
                     </div>';
                     }
                     ?>
-    <form name="myForm" class="form-horizontal" id ="booking_form" novalidate="novalidate" action="<?php echo base_url()?>employee/partner/process_add_edit_partner_form" method="POST">
+           <form name="myForm" class="form-horizontal" id ="booking_form" novalidate="novalidate" action="<?php echo base_url()?>employee/partner/process_add_edit_partner_form" method="POST" enctype="multipart/form-data">
 
           <div>
               <input style="width:200px;" type="hidden" class="form-control"  name="id" value = "<?php if (isset($query[0]['id'])){echo $query[0]['id'];}?>">
@@ -305,11 +305,11 @@
         
         <div class="col-md-12">
             <div class="panel panel-default">
-                <div class="panel-heading"><b>Login Details</b></div>
+                <div class="panel-heading"><b>Registration Details</b></div>
             </div>
 
           <div class="col-md-4 form-group <?php if( form_error('username') ) { echo 'has-error';} ?>">
-            <label for="username" class="col-md-4">User Name</label>
+            <label for="username" class="col-md-4">User Name:</label>
             <div class="col-md-8">
                 <input type="text" class="form-control"  id="username" name="username" placeholder="Enter User Name" value = "<?php if (isset($results['login_details'][0]['user_name'])){echo $results['login_details'][0]['user_name'];}?>">
               <?php echo form_error('username'); ?>
@@ -317,10 +317,29 @@
           </div>
 
           <div class="col-md-4 form-group <?php if( form_error('password') ) { echo 'has-error';} ?>">
-            <label for="password" class="col-md-4">Password</label>
+            <label for="password" class="col-md-4">Password:</label>
             <div class="col-md-8">
                 <input type="password" class="form-control"  name="password" placeholder="Enter Password" value = "<?php if (isset($results['login_details'][0]['clear_text'])){echo $results['login_details'][0]['clear_text'];}?>">
               <?php echo form_error('password'); ?>
+            </div>
+          </div>
+            
+         <div class="col-md-4 form-group <?php if( form_error('contract_file') ) { echo 'has-error';} ?>">
+            <label for="contract_file" class="col-md-4">Contract File:</label>
+            <div class="col-md-7">
+                <input type="file" class="form-control"  name="contract_file">
+              <?php echo form_error('contract_file'); ?>
+            </div>
+            <div class="col-md-1">
+                <?php
+                $src = base_url() . 'images/no_image.png';
+                if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) {
+                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['contract_file'];
+                }?>
+                <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                <?php if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) { ?>
+                    <a href="javascript:void(0)" onclick="remove_image(<?php echo $query[0]['id'] ?>,'<?php echo $query[0]['contract_file'] ?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                <?php } ?>
             </div>
           </div>
 
@@ -341,16 +360,6 @@
                     }
                 }
                 
-//                //Cheking for Brands for particular service for User Edit
-//                $service_brands = [];
-//                if(!empty($results['partner_brands'])){
-//                    foreach($results['partner_brands'] as $val){
-//                        if($val['service_id'] == $value->id){
-//                            $service_brands[] = $val['brand_name'];
-//                        }
-//                    }
-//                }
-                
                 ?>
                 <div class="col-md-12 form-group">  
                     <div class="col-md-3"><?php echo $value->services ?></div>
@@ -360,11 +369,6 @@
                             <option value="<?php echo $val['state'] ?>" <?php echo (isset($operation_region_state) && in_array($val['state'],$operation_region_state))?'selected="selected"':''?> ><?php echo $val['state'] ?></option>
                         <?php } ?>
                     </select>
-<!--                    <select name ="select_brands[<?php echo $value->id?>][]" class=" col-md-4 select_brands" multiple="multiple">
-                        <?php foreach ($results['brands'] as $val) { ?>
-                            <option value="<?php echo $val->brand_name?>" <?php echo (isset($service_brands) && in_array($val->brand_name, $service_brands))?'selected="selected"':''?> > <?php echo $val->brand_name ?> </option>
-                        <?php } ?>
-                    </select>-->
                 </div>
 
             <?php } ?>
@@ -387,10 +391,6 @@
     placeholder: "Select State",
     allowClear: true
   });
-//  $('.select_brands').select2({
-//    placeholder: "Select Brands",
-//    allowClear: true
-//  });
   $('#state').select2({
       placeholder: "Select State"
   });
@@ -443,6 +443,22 @@
     });
 });
   
+  function remove_image(vendor_id,file_name){
+            var c  = confirm('Do you want to permanently remove photo?');
+            if(c){
+             $.ajax({
+                        type: 'POST',
+                        url: '<?php echo base_url(); ?>employee/partner/remove_contract_image',
+                        data: {id: vendor_id,file_name:file_name},
+                        success: function (data) {
+                             location.reload();
+                            }
+                    });
+                 }else{
+                    return false;
+                 }
+        }
+        
 </script>
 <script type="text/javascript">
 

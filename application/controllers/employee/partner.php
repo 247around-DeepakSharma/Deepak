@@ -480,6 +480,22 @@ class Partner extends CI_Controller {
                 //if vendor exists, details are edited
                 $partner_id = $this->input->post('id');
                 
+                //Processing Contract File
+                if(!empty($_FILES['contract_file']['tmp_name'])){
+                    $tmpFile = $_FILES['contract_file']['tmp_name'];
+                    $contract_file = "Partner-".$this->input->post('public_name').'-Contract'.".".explode(".",$_FILES['contract_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$contract_file);
+                    
+                    //Upload files to AWS
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/".$contract_file;
+                    $this->s3->putObjectFile(TMP_FOLDER.$contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $_POST['contract_file'] = $contract_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' CONTRACT FILE is being uploaded sucessfully.');
+                }
+                
                 //Getting partner operation regions details from POST
                 $partner_operation_state = $this->input->post('select_state');
                 unset($_POST['select_state']);
@@ -553,6 +569,24 @@ class Partner extends CI_Controller {
                 redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
             }else{
                 //If Partner not present, Partner is being added
+                
+                //Processing Contract File
+                if(!empty($_FILES['contract_file']['tmp_name'])){
+                    $tmpFile = $_FILES['contract_file']['tmp_name'];
+                    $contract_file = "Partner-".$this->input->post('public_name').'-Contract'.".".explode(".",$_FILES['contract_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$contract_file);
+                    
+                    //Upload files to AWS
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/".$contract_file;
+                    $this->s3->putObjectFile(TMP_FOLDER.$contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $_POST['contract_file'] = $contract_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' CONTRACT FILE is being uploaded sucessfully.');
+                }
+                
+                
                 $_POST['is_active'] = '1';
                 //Temporary value
                 $_POST['auth_token'] = rand(1,100);
@@ -1828,4 +1862,21 @@ class Partner extends CI_Controller {
         $this->load->view('partner/header');
         $this->load->view('partner/approved_defective_parts', $data);
     }
+    
+    /**
+     * @Desc: This function is used to remove images from partner add/edit form
+     *          It is being called using AJAX Request
+     * params: partner id
+     * return: Boolean
+     */
+    function remove_contract_image(){
+        $partner['contract_file'] = '';
+        //Making Database Entry as Empty for contract file
+        $this->partner_model->edit_partner($partner, $this->input->post('id'));
+        
+        //Logging 
+        log_message('info',__FUNCTION__.' Contract File has been removed sucessfully for partner id '.$this->input->post('id'));
+        echo TRUE;
+}
+    
 }
