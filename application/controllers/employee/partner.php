@@ -498,12 +498,12 @@ class Partner extends CI_Controller {
                 $update_login = $this->partner_model->update_partner_login_details($login,$where);
                 
                 //updating Partner code in Bookings_sources table
-                    $data['source'] = $this->input->post('public_name');
-                    $data['code'] = $this->input->post('partner_code');
-                    if($this->partner_model->update_partner_code($where,$data)){
-                        log_message('info',' Parnter code has been Updated in Bookings_sources table '.print_r($data,TRUE));
+                    $bookings_sources['source'] = $this->input->post('public_name');
+                    $bookings_sources['code'] = $this->input->post('partner_code');
+                    if($this->partner_model->update_partner_code($where,$bookings_sources)){
+                        log_message('info',' Parnter code has been Updated in Bookings_sources table '.print_r($bookings_sources,TRUE));
                     }else{
-                        log_message('info',' Error in Updating Parnter code has been added in Bookings_sources table '.print_r($data,TRUE));
+                        log_message('info',' Error in Updating Parnter code has been added in Bookings_sources table '.print_r($bookings_sources,TRUE));
                     }
                 //Unsetting partner code
                 unset($_POST['partner_code']);
