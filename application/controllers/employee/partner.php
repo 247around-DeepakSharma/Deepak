@@ -404,7 +404,7 @@ class Partner extends CI_Controller {
     }
 
     function insertion_failure($post){
-        $to = "anuj@247around.com, abhay@247around.com";
+        $to = DEVELOPER_EMAIL;
         $cc = "";
         $bcc = "";
         $subject = "Booking Insertion Failure By ".$this->session->userdata('partner_name');
@@ -451,8 +451,13 @@ class Partner extends CI_Controller {
     function get_add_partner_form() {
 
         $results['services'] = $this->vendor_model->selectservice();
-        $results['brands'] = $this->vendor_model->selectbrand();
         $results['select_state'] = $this->vendor_model->getall_state();
+        $partner_code = $this->partner_model->get_availiable_partner_code();
+        foreach($partner_code as $row)
+        {
+            $code[] = $row['code']; // add each partner code to the array
+        }
+        $results['partner_code'] = $code;
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/addpartner', array('results' => $results));
     }
@@ -478,10 +483,6 @@ class Partner extends CI_Controller {
                 //Getting partner operation regions details from POST
                 $partner_operation_state = $this->input->post('select_state');
                 unset($_POST['select_state']);
-                
-                //Getting Brands Details
-                $partner_service_brand = $this->input->post('select_brands');
-                unset($_POST['select_brands']);
                
                 //Getting Login Details
                 $login['user_name'] = $this->input->post('username');
@@ -495,6 +496,17 @@ class Partner extends CI_Controller {
                 //Editing User Login Details
                 $where = array('partner_id' =>$partner_id);
                 $update_login = $this->partner_model->update_partner_login_details($login,$where);
+                
+                //updating Partner code in Bookings_sources table
+                    $data['source'] = $this->input->post('public_name');
+                    $data['code'] = $this->input->post('partner_code');
+                    if($this->partner_model->update_partner_code($where,$data)){
+                        log_message('info',' Parnter code has been Updated in Bookings_sources table '.print_r($data,TRUE));
+                    }else{
+                        log_message('info',' Error in Updating Parnter code has been added in Bookings_sources table '.print_r($data,TRUE));
+                    }
+                //Unsetting partner code
+                unset($_POST['partner_code']);
                 
                 //Updating Partner Operation Region
                 //Processing Partner Operation Region
@@ -536,33 +548,6 @@ class Partner extends CI_Controller {
                         log_message('error', __FUNCTION__ . ' No Input provided for Partner Operation Region Relation  ');
                     }
                 
-                
-                //Updating Partner Brands Details
-                    
-                    if (!empty($partner_service_brand)) {
-                        foreach ($partner_service_brand as $key => $value) {
-                            foreach($value as $val){
-                                $data_brands['partner_id'] = $partner_id;
-                                $data_brands['service_id'] = $key;
-                                $data_brands['brand'] = $val;
-                                $data_brands['active'] = 1;
-                                $data_final_brands[] = $data_brands;
-                            }
-                        }
-                        //Deleting Previous Values
-                        $this->partner_model->delete_partner_brand_relation($partner_id);
-                        
-                        //Inserting Array in batch in partner brand relation
-                        $operation_update_brand_flag = $this->partner_model->insert_batch_partner_brand_relation($data_final_brands);
-                        if ($operation_update_brand_flag) {
-                            //Loggin Success
-                            log_message('info', 'Parnter Brand Relation has been added sucessfully for partner ' . print_r($partner_id));
-                        }
-                    } else {
-                        //Echoing message in Log file
-                        log_message('error', __FUNCTION__ . ' No Input provided for Partner Brand Relation  ');
-                    }
-                
                 $this->partner_model->edit_partner($this->input->post(), $partner_id);
 
                 redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
@@ -575,10 +560,6 @@ class Partner extends CI_Controller {
                 //Getting partner operation regions details from POST
                 $partner_operation_state = $this->input->post('select_state');
                 unset($_POST['select_state']);
-                
-                //Getting Brands Details
-                $partner_service_brand = $this->input->post('select_brands');
-                unset($_POST['select_brands']);
                
                 //Getting Login Details
                 $login['user_name'] = $this->input->post('username');
@@ -589,6 +570,10 @@ class Partner extends CI_Controller {
                 unset($_POST['username']);
                 unset($_POST['password']);
                 
+                //Getting Partner code
+                $code = $this->input->post('partner_code');
+                //unsetting Partner code
+                unset($_POST['partner_code']);
                 
                 //Sending POST array to Model
                 $partner_id = $this->partner_model->add_partner($this->input->post());
@@ -611,7 +596,21 @@ class Partner extends CI_Controller {
                     }else{
                         log_message('info',' Error in Parnter Login Details has been addded '.print_r($login_details,TRUE));
                     }
-                
+                    
+                    //Adding Partner code in Bookings_sources table
+                    $data['source'] = $this->input->post('public_name');
+                    $data['code'] = $code;
+                    $data['partner_id'] = $partner_id;
+                    //Getting last price_mapping_id from bookings_sources table
+                    $price_mapping_id = $this->partner_model->get_latest_price_mapping_id();
+                    // Adding 1 to latest price mapping id
+                    $data['price_mapping_id'] = ($price_mapping_id->price_mapping_id + 1);
+                    $partner_code = $this->partner_model->add_partner_code($data);
+                    if($partner_code){
+                        log_message('info',' Parnter code has been added in Bookings_sources table '.print_r($data,TRUE));
+                    }else{
+                        log_message('info',' Error in adding Parnter code has been added in Bookings_sources table '.print_r($data,TRUE));
+                    }
                 
                     
                     //Processing Partner Operation Region
@@ -649,29 +648,6 @@ class Partner extends CI_Controller {
                         //Echoing message in Log file
                         log_message('error', __FUNCTION__ . ' No Input provided for Partner Operation Region Relation  ');
                     }
-
-                    // Processing Partner Brands Relation
-                    
-                    if (!empty($partner_service_brand)) {
-                        foreach ($partner_service_brand as $key => $value) {
-                            foreach($value as $val){
-                                $data_brands['partner_id'] = $partner_id;
-                                $data_brands['service_id'] = $key;
-                                $data_brands['brand'] = $val;
-                                $data_brands['active'] = 1;
-                                $data_final_brands[] = $data_brands;
-                            }
-                        }
-                        //Inserting Array in batch in partner brand relation
-                        $operation_insert_brand_flag = $this->partner_model->insert_batch_partner_brand_relation($data_final_brands);
-                        if ($operation_insert_brand_flag) {
-                            //Loggin Success
-                            log_message('info', 'Parnter Brand Relation has been added sucessfully for partner ' . print_r($partner_id));
-                        }
-                    } else {
-                        //Echoing message in Log file
-                        log_message('error', __FUNCTION__ . ' No Input provided for Partner Brand Relation  ');
-                    }
                     
                 }else{
                     $this->session->set_flashdata('error','Error in adding Partner.');
@@ -679,8 +655,6 @@ class Partner extends CI_Controller {
                     //Echoing message in Log file
                     log_message('error',__FUNCTION__.' Error in adding Partner  '. print_r($this->input->post(),TRUE));
                 }
-                
-                
                 
            redirect(base_url() . 'employee/partner/get_add_partner_form');
             }
@@ -788,14 +762,18 @@ class Partner extends CI_Controller {
         $query = $this->partner_model->viewpartner($id);
         $results['select_state'] = $this->vendor_model->getall_state();
         $results['services'] = $this->vendor_model->selectservice();
-        $results['brands'] = $this->vendor_model->selectbrand();
         //Getting Login Details for this partner
         $results['login_details'] = $this->partner_model->get_partner_login_details($id);
+        $results['partner_code'] = $this->partner_model->get_partner_code($id);
+        $partner_code = $this->partner_model->get_availiable_partner_code();
+        foreach($partner_code as $row)
+        {
+            $code[] = $row['code']; // add each partner code to the array
+        }
+        $results['partner_code_availiable'] = $code;
         //Getting Parnter Operation Region Details
         $where = array('partner_id' => $id);
         $results['partner_operation_region'] = $this->partner_model->get_partner_operation_region($where);
-        //Getting Partner Brands Relation from partner_service_brand_relation
-        $results['partner_brands'] = $this->partner_model->get_partner_service_brand_relation($where);
         
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results));
@@ -1732,10 +1710,6 @@ class Partner extends CI_Controller {
     }
     
     /**
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> b70e85a... Partner Add Booking Form changes for Services, Brands, Category, Capacity, Model
      * @Desc: This function is used to get Brands for selected Services of particular Partner 
      *          This is being called from AJAX
      * @params: partner_id, service_name

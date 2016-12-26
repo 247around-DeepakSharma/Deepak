@@ -20,6 +20,7 @@ class Inventory extends CI_Controller {
         $this->load->library('form_validation');
         $this->load->library('session');
         $this->load->library('notify');
+        $this->load->library('S3');
         $this->load->library("pagination");
 	
 
@@ -234,8 +235,15 @@ class Inventory extends CI_Controller {
         //Saving Uploading file.
         if(!empty($_FILES)){
             $tmpFile = $_FILES['shipment_receipt']['tmp_name'];
-            $fileName = $_FILES['shipment_receipt']['name'];
+            //Assigning File Name for uploaded shipment receipt
+            $fileName = "Shipment-Receipt-".$this->input->post('order_id').'.'.explode('.',$_FILES['shipment_receipt']['name'])[1];
             move_uploaded_file($tmpFile, TMP_FOLDER.$fileName);
+            
+             //Uploading images to S3 
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory = "misc-images/" . $fileName;
+            $this->s3->putObjectFile(TMP_FOLDER.$fileName, $bucket, $directory, S3::ACL_PUBLIC_READ);
+            
             $data['shipment_receipt'] = $fileName;
         }
         $order_id = $this->input->post('order_id');
