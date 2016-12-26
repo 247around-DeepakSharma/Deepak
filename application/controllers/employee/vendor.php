@@ -2527,6 +2527,12 @@ class vendor extends CI_Controller {
      */
     function control_update_process($service_center_id, $flag){
         $this->vendor_model->edit_vendor(array('is_update'=> $flag), $service_center_id);
+        //Adding details in Booking State Change Table
+        if($flag == 1){
+            $this->notify->insert_state_change("", NEW_SF_CRM, OLD_SF_CRM , "New CRM Enabled for SF ID: ".$service_center_id , $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+        }else{
+            $this->notify->insert_state_change("", OLD_SF_CRM, NEW_SF_CRM , "Old CRM Enabled for SF ID: ".$service_center_id , $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+        }
         redirect(base_url() . 'employee/vendor/viewvendor');
     }
 

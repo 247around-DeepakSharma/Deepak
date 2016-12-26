@@ -170,6 +170,10 @@ define('DEFECTIVE_PARTS_REJECTED','defective_part_rejected_by_partner');
 define('SNAPDEAL_ID',1);
 //Define Developer Email id
 define('DEVELOPER_EMAIL','anuj@247around.com, abhaya@247around.com, belal@247around.com, sachinj@247around.com');
+//Define New CRM Contstant for SF
+define('NEW_SF_CRM',"New SF CRM");
+//Define Ols CRM Contstant for SF
+define('OLD_SF_CRM',"Old SF CRM");
 
 
 

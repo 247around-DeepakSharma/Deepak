@@ -597,18 +597,18 @@ class Partner extends CI_Controller {
                     }
                     
                     //Adding Partner code in Bookings_sources table
-                    $data['source'] = $this->input->post('public_name');
-                    $data['code'] = $code;
-                    $data['partner_id'] = $partner_id;
+                    $bookings_sources['source'] = $this->input->post('public_name');
+                    $bookings_sources['code'] = $code;
+                    $bookings_sources['partner_id'] = $partner_id;
                     //Getting last price_mapping_id from bookings_sources table
                     $price_mapping_id = $this->partner_model->get_latest_price_mapping_id();
                     // Adding 1 to latest price mapping id
-                    $data['price_mapping_id'] = ($price_mapping_id->price_mapping_id + 1);
-                    $partner_code = $this->partner_model->add_partner_code($data);
+                    $bookings_sources['price_mapping_id'] = ($price_mapping_id->price_mapping_id + 1);
+                    $partner_code = $this->partner_model->add_partner_code($bookings_sources);
                     if($partner_code){
-                        log_message('info',' Parnter code has been added in Bookings_sources table '.print_r($data,TRUE));
+                        log_message('info',' Parnter code has been added in Bookings_sources table '.print_r($bookings_sources,TRUE));
                     }else{
-                        log_message('info',' Error in adding Parnter code has been added in Bookings_sources table '.print_r($data,TRUE));
+                        log_message('info',' Error in adding Parnter code has been added in Bookings_sources table '.print_r($bookings_sources,TRUE));
                     }
                 
                     
