@@ -108,13 +108,15 @@
                      <ul class="dropdown-menu">
                         <li><a href="<?php echo base_url();?>service_center/pending_booking">Pending Bookings</a></li>
                          <li role="separator" class="divider"></li>
+                        <li><a href="<?php echo base_url();?>service_center/get_defective_parts_booking">Defective Parts</a></li>
+                         <li role="separator" class="divider"></li>
                         <li><a href="<?php echo base_url();?>service_center/completed_booking">Completed Bookings</a></li>
                          <li role="separator" class="divider"></li>
                         <li><a href="<?php echo base_url();?>service_center/cancelled_booking">Cancelled Bookings</a></li>
                        
                      </ul>
                   </li>
-
+                  
                    <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                     <i ></i> Engineers <i class="fa fa-caret-down"></i>

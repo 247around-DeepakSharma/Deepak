@@ -15,8 +15,7 @@
                                     <th>247Around Booking Id</th>
                                     <th>User Name</th>
                                     <th>Mobile</th>
-                                    <th>Service Name</th>
-                                    <th>Booking Date</th>
+                                    <th>Service Name</th> 
                                     <th>Closing Date</th>
                                     <th>Closing Remarks</th>
                                     <th>View</th>
@@ -42,12 +41,8 @@
                                             <td>
                                                 <?php echo  $row['services']; ?>
                                             </td>
-                                            <td>
-                                                <?php echo $row['booking_date']; ?> /
-                                                    <?php echo $row['booking_timeslot']; ?>
-                                            </td>
-                                        
-                                            <td><?php echo $row['closed_date']; ?></td>
+
+                                            <td><?php echo date('d-m-Y', strtotime($row['closed_date'])); ?></td>
                                              <td data-popover="true" style="position: absolute; border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 140px;" data-html=true data-content=" <?php if ($status == "Completed")
                                                             echo $row['closing_remarks'];
                                                           else 

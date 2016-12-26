@@ -1424,6 +1424,61 @@ ALTER TABLE `brackets` ADD UNIQUE(`order_id`);
 ALTER TABLE `employee` ADD `exotel_phone` VARCHAR(15) NULL DEFAULT NULL AFTER `phone`;
 
 
+
 INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'sf_temporary_on_off', 'Dear %s,<br><br> <b> %s </b> Service Franchise has been made Temporarily <b> %s </b> <br><br> Thanks<br> 247Around Team', 'booking@247around.com', '', 'anuj@247around.com', '', '1', '2016-09-26 18:30:00');
 
 INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'sf_permanent_on_off', 'Dear %s,<br><br> <b> %s </b> Service Franchise has been made Permanent <b> %s </b> <br><br> Thanks<br> 247Around Team', 'booking@247around.com', '', 'anuj@247around.com', '', '1', '2016-09-26 18:30:00');
+
+--Abhay 19 DEC
+ALTER TABLE `spare_parts_details` ADD `defective_part_shipped` VARCHAR(100) NULL DEFAULT NULL AFTER `awb_by_partner`, 
+ADD `defective_part_shipped_date` DATE NULL DEFAULT NULL AFTER `defective_part_shipped`, 
+ADD `awb_by_sf` VARCHAR(100) NULL DEFAULT NULL AFTER `defective_part_shipped_date`, 
+ADD `courier_name_by_sf` VARCHAR(100) NULL DEFAULT NULL AFTER `awb_by_sf`, 
+ADD `remarks_defective_part` VARCHAR(200) NULL DEFAULT NULL AFTER `courier_name_by_sf`, 
+ADD `defective_part_required` INT(10) NULL DEFAULT '1' AFTER `remarks_defective_part`;
+
+ALTER TABLE `spare_parts_details` CHANGE `status` `status` VARCHAR(50) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+ALTER TABLE `spare_parts_details` CHANGE `remarks_defective_part` `remarks_defective_part_by_sf` VARCHAR(200) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+ALTER TABLE `spare_parts_details` ADD `remarks_defective_part_by_partner` VARCHAR(200) NULL DEFAULT NULL AFTER `remarks_defective_part_by_sf`;
+
+INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'sf_temporary_on_off', 'Dear %s,<br><br> <b> %s </b> Service Franchise has been made Temporarily <b> %s </b> <br><br> Thanks<br> 247Around Team', 'booking@247around.com', '', 'anuj@247around.com', '', '1', '2016-09-26 18:30:00');
+
+
+INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'sf_permanent_on_off', 'Dear %s,<br><br> <b> %s </b> Service Franchise has been made Permanent <b> %s </b> <br><br> Thanks<br> 247Around Team', 'booking@247around.com', '', 'anuj@247around.com', '', '1', '2016-09-26 18:30:00');
+
+-- Belal 19 Dec
+
+CREATE TABLE `partner_operation_region` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `partner_id` int(11) NOT NULL,
+ `service_id` int(11) NOT NULL,
+ `state` varchar(256) NOT NULL,
+ `active` int(2) NOT NULL DEFAULT '1' COMMENT '1->active region, 0->Not active region',
+ `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `partner_service_brand_relation` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `partner_id` int(11) DEFAULT NULL,
+ `service_id` int(11) DEFAULT NULL,
+ `brand_name` varchar(256) DEFAULT NULL,
+ `active` int(2) NOT NULL DEFAULT '1',
+ `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `247around-aws`.`partner_operation_region` ADD INDEX `Partner_id` (`partner_id`);
+ALTER TABLE `247around-aws`.`partner_service_brand_relation` ADD INDEX `Partner_id` (`partner_id`);
+
+UPDATE `email_template` SET `template` = 'Dear Partner brackets for your Order ID <b> %s </b> have been delivered to you sucessfully.<br><br> Thnakyou for placing an order with us.<br.<br> Regards,<br> 247Around Team' WHERE `email_template`.`tag` = 'brackets_received_mail_vendor_order_requested_from';
+
+RENAME TABLE `partner_service_brand_relation` TO `partner_appliance_details`;
+
+UPDATE `email_template` SET `template` = 'An order has been <b>Cancelled</b> for Brackets of <strong>Order ID : %s </strong> <br><br><strong>Reason : </strong> %s <br><br> <strong>Order Details:</strong><br><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Total Requested : %s<br><br> <strong>Requested From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br> City: %s <br> State: %s <br> Pincode: %s <br> Phone Number: %s, %s<br><br> Please <b>don''t</b> ship the following orders.' WHERE `email_template`.`tag` = 'cancel_brackets_requested_from_vendor';
+
+UPDATE `email_template` SET `template` = '%s order has been Cancelled sucessfully for the <strong>Order ID : %s </strong><br><br><strong>Reason : </strong> %s <br><br> <strong>Order Details are:</strong><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Total Requested : %s<br><br> Thanks Team 247Around' WHERE `email_template`.`tag` = 'cancel_brackets_order_received_from_vendor';
+
+--Abhay 26 DEC
+
+ALTER TABLE `spare_parts_details` ADD `approved_defective_parts_by_partner` INT(2) NULL DEFAULT '0' AFTER `defective_part_required`;

@@ -668,16 +668,46 @@ class Partner_model extends CI_Model {
      * @param Array $where
      * @return Array
      */
-    function get_spare_parts_booking($where, $where_in){
-        $this->db->select('spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, booking_details.booking_address,booking_details.initial_booking_date,'
-                . ' service_centres.name as vendor_name, service_centres.address, service_centres.state, service_centres.pincode, service_centres.district');
-        $this->db->from('spare_parts_details'); 
-        $this->db->join('booking_details', 'booking_details.booking_id = spare_parts_details.booking_id');
-        $this->db->join('users', 'users.user_id = booking_details.user_id');
-        $this->db->join('service_centres', 'service_centres.id = spare_parts_details.service_center_id');
-        $this->db->where($where);
-        $this->db->where_in($where_in);
-        $query = $this->db->get();
+    function get_spare_parts_booking($where){
+        $sql = "SELECT spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, "
+                . " booking_details.booking_address,booking_details.initial_booking_date,"
+                . " service_centres.name as vendor_name, service_centres.address, service_centres.state, "
+                . " service_centres.pincode, service_centres.district"
+                . " FROM spare_parts_details,booking_details,users, "
+                . " service_centres WHERE booking_details.booking_id = spare_parts_details.booking_id"
+                . " AND users.user_id = booking_details.user_id AND service_centres.id = spare_parts_details.service_center_id "
+                . " AND ".$where . "  ORDER BY spare_parts_details.create_date ASC";
+        $query = $this->db->query($sql);
+       
+        return $query->result_array();
+    }
+    /**
+     * @desc: This is used to return Spare booking List
+     * @param String $where
+     * @param integer/boolean $start
+     * @param integer/boolean $end
+     * @param boolean $flag_select
+     * @return Array
+     */
+    function get_spare_parts_booking_list($where, $start, $end,$flag_select){
+        $limit = "";
+        $select = " ";
+        if($flag_select){
+            $select = "SELECT spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, "
+                . " booking_details.booking_address,booking_details.initial_booking_date,"
+                . " service_centres.name as vendor_name, service_centres.address, service_centres.state, "
+                . " service_centres.pincode, service_centres.district";
+            $limit = "LIMIT $start, $end";
+        } else {
+            $select = "SELECT count(spare_parts_details.id) as total_rows ";
+        }
+        $sql =   $select
+                ." FROM spare_parts_details,booking_details,users, "
+                . " service_centres WHERE booking_details.booking_id = spare_parts_details.booking_id"
+                . " AND users.user_id = booking_details.user_id AND service_centres.id = spare_parts_details.service_center_id "
+                . " AND ".$where . "  ORDER BY status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC $limit";
+        $query = $this->db->query($sql);
+       
         return $query->result_array();
     }
 
@@ -705,6 +735,171 @@ class Partner_model extends CI_Model {
         $this->db->where('price_mapping_id', $price_mapping_id);
         $query =  $this->db->get('bookings_sources');
         return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to add partner operation region table values
+     * @params: Array
+     * @return: BOOLEAN
+     */
+    function insert_batch_partner_operation_region($data){
+        return $this->db->insert_batch('partner_operation_region', $data);
+    }
+    
+    /**
+     * @Desc: This function is used to add partner operation region table values
+     * @params: Array
+     * @return: BOOLEAN
+     */
+    function insert_batch_partner_brand_relation($data){
+        return $this->db->insert_batch('partner_appliance_details', $data);
+    }
+    
+    /**
+     * @Desc: This function is used to add Partner Login details in Partner Login Table
+     * @params: Array
+     * @return: Boolean
+     * 
+     */
+    function add_partner_login($data){
+        $this->db->insert("partner_login", $data);
+        if($this->db->affected_rows() > 0){
+            return TRUE;
+        }else{
+            return FALSE;
+        }
+    }
+    
+    /**
+     * @Desc: This function is used to get Partner Operation Region Details for particular Partner
+     * @params: Array
+     * @return: Array
+     * 
+     * 
+     */
+    function get_partner_operation_region($where){
+        $this->db->select('*');
+        $this->db->where($where);
+        $query = $this->db->get('partner_operation_region');
+        return $query->result_array();
+    }
+    
+    
+    /**
+     * @Desc: This function is used to get Partner Brands Details for Particular service
+     * @params: Array
+     * @return: Array
+     * 
+     * 
+     */
+    function get_partner_appliance_details($where){
+        $this->db->select('*');
+        $this->db->where($where);
+        $query = $this->db->get('partner_appliance_details');
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to Update Partner Login Details
+     * @params: Array
+     * @return: Boolean
+     * 
+     */
+    function update_partner_login_details($data,$where){
+        $this->db->where($where);
+        $this->db->update('partner_login',$data);
+        if($this->db->affected_rows() > 0 ){
+            return TRUE;
+        }else{
+            return FALSE;
+        }
+    }
+    
+    /**
+     * @Desc: This funtion is used to delete partner operation region
+     * @params:Array
+     * @return: Boolean
+     * 
+     */
+    function delete_partner_operation_region($partner_id){
+        $this->db->where('partner_id',$partner_id);
+        $this->db->delete('partner_operation_region');
+        if($this->db->affected_rows() > 0 ){
+            return TRUE;
+        }else{
+            return FALSE;
+        }
+    }
+    
+    /**
+     * @Desc: This funtion is used to delete partner service brand relation
+     * @params:Array
+     * @return: Boolean
+     * 
+     */
+    function delete_partner_brand_relation($partner_id){
+        $this->db->where('partner_id',$partner_id);
+        $this->db->delete('partner_appliance_details');
+        if($this->db->affected_rows() > 0 ){
+            return TRUE;
+        }else{
+            return FALSE;
+        }
+    }
+    
+   
+    /**
+     * @Desc: This function is used to get Partner Services and Brands details
+     * @params: Partner ID
+     * @return: Array
+     * 
+     */
+    function get_service_brands_for_partner($partner_id){
+        $sql = "Select partner_appliance_details.brand_name, services.services  "
+                . "From partner_appliance_details, services "
+                . "where partner_appliance_details.service_id = services.id "
+                . "AND partner_appliance_details.partner_id = '".$partner_id."'";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This funtion is used to get Partner by Brands and Service ID from partner_appliance_details
+     *         We also get only those Partner whose relation is being Active
+     * @params: String Brands, service id
+     * @return : Array
+     */
+    function get_active_partner_id_by_service_id_brand($brands, $service_id){
+        $this->db->select('partner_id');
+        $this->db->where('brand_name',$brands);
+        $this->db->where('service_id',$service_id);
+        $this->db->where('active',1);
+        $query = $this->db->get('partner_appliance_details');
+        return $query->result_array();
+        
+        
+    }
+    
+    /**
+     * @Desc: This function is used to check for partner for particular state and service in partner_operation_region
+     *          This is for ACtivated Partner
+     * @params: state, partner_id, service_id
+     * @return: Boolean
+     * 
+     */
+    function check_activated_partner_for_state_service($state, $partner_id, $service_id){
+        $this->db->select('partner_id');
+        $this->db->where('partner_id',$partner_id);
+        $this->db->where('service_id',$service_id);
+        $this->db->where('state',$state);
+        $this->db->where('active',1);
+        $query = $this->db->get('partner_operation_region');
+        if($query->num_rows() > 0){
+            return TRUE;
+        }else{
+            return FALSE;
+        }
+        
     }
 
 }

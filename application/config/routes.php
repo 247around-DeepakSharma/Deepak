@@ -64,6 +64,10 @@ $route['service_center/process_update_booking'] = 'employee/service_centers/proc
 $route['service_center/acknowledge_delivered_spare_parts/(:any)'] = 'employee/service_centers/acknowledge_delivered_spare_parts/$1';
 $route['service_center/get_search_form'] = 'employee/service_centers/get_search_form';
 $route['service_center/search'] = 'employee/service_centers/search';
+$route['service_center/get_defective_parts_booking'] = 'employee/service_centers/get_defective_parts_booking';
+$route['service_center/get_defective_parts_booking/(:any)'] = 'employee/service_centers/get_defective_parts_booking/$1';
+$route['service_center/update_defective_parts/(:any)'] = 'employee/service_centers/update_defective_parts/$1';
+$route['service_center/process_update_defective_parts/(:any)'] = 'employee/service_centers/process_update_defective_parts/$1';
 
 $route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';
 
@@ -89,6 +93,7 @@ $route['partner/process_escalation/(:any)'] = 'employee/partner/process_escalati
 $route['partner/update_booking/(:any)'] = 'employee/partner/get_editbooking_form/$1';
 $route['partner/process_update_booking/(:any)'] = 'employee/partner/process_editbooking/$1';
 $route['partner/get_spare_parts_booking'] = 'employee/partner/get_spare_parts_booking';
+$route['partner/get_spare_parts_booking/(:any)'] = 'employee/partner/get_spare_parts_booking/$1';
 $route['partner/process_update_spare_parts/(:any)'] = 'employee/partner/process_update_spare_parts/$1';
 $route['partner/update_spare_parts_form/(:any)'] = 'employee/partner/update_spare_parts_form/$1';
 $route['partner/download_spare_parts'] = 'employee/partner/download_spare_parts';
@@ -96,6 +101,11 @@ $route['partner/download_sc_address/(:any)'] = 'employee/partner/download_sc_add
 $route['partner/download_courier_manifest/(:any)'] = 'employee/partner/download_courier_manifest/$1';
 $route['partner/get_booking_life_cycle/(:any)'] = 'employee/partner/get_booking_life_cycle/$1';
 $route['partner/print_all'] = 'employee/partner/print_all';
+$route['partner/get_shipped_parts_list'] = 'employee/partner/get_shipped_parts_list';
+$route['partner/get_shipped_parts_list/(:any)'] = 'employee/partner/get_shipped_parts_list/$1';
+$route['partner/get_waiting_defective_parts'] = 'employee/partner/get_waiting_defective_parts';
+$route['partner/acknowledge_received_defective_parts/(:any)'] = 'employee/partner/acknowledge_received_defective_parts/$1';
+$route['partner/reject_defective_part/(:any)/(:any)'] = 'employee/partner/reject_defective_part/$1/$2';
 //$route['api/(:any)'] = 'partner/$2';
 
 /* End of file routes.php */

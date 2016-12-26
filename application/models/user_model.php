@@ -130,16 +130,36 @@ class User_model extends CI_Model {
         $this->db->update('handyman', $update);
     }
 
-    /** @description* This funtion searches user with his phone number
-     *  @param : phone number
+    /** @description* This funtion is used to search user and his booking
+     *  @param : String phone number
+     *  @param String $start (optional)
+     *  @param String $end (optional)
      *  @return : array(user details)
      */
-    function search_user($phone_number) {
-        $this->db->select("*");
-        $this->db->where('phone_number', $phone_number);
-
-        $query = $this->db->get("users");
-        return $query->result_array();
+    function search_user($phone_number, $start ="", $end = "") {
+        $limit = "";
+        if($start !=""){
+            $limit = " LIMIT $start, $end ";
+        }
+        $sql = "SELECT u.name,u.pincode,u.city, u.state, u.user_email, "
+                . " bd.user_id, bd.*, "
+                . " u.phone_number,home_address,u.alternate_phone_number, services.services FROM booking_details as bd, users as u, services "
+                . " WHERE (bd.booking_primary_contact_no = '$phone_number' "
+                . " OR bd.booking_alternate_contact_no = '$phone_number'"
+                . " OR u.phone_number = '$phone_number') AND bd.user_id = u.user_id "
+                . " AND services.id = bd.service_id  ORDER BY bd.create_date desc  $limit";
+       
+        $query = $this->db->query($sql);
+       
+        if($query->num_rows > 0){
+            return $query->result_array();
+            
+        } else {
+            $sql1 = "SELECT name,pincode,city,state, user_email,user_id, home_address, phone_number,alternate_phone_number FROM "
+                    . " users WHERE (users.phone_number = '$phone_number')";
+            $query1 = $this->db->query($sql1);
+            return $query1->result_array();
+        }
     } 
 
     /* function total_user_count($userName) {
@@ -205,26 +225,6 @@ class User_model extends CI_Model {
         return $id;
     }
 
-    /** @description : Search user and booking details for a particular user through his phone number, also for pagination
-     * 
-     *  This gets the basic user and booking details and services name as well
-     * 
-     *  @param : phone no, start and limit
-     *  @return : array of user and booking details
-     */
-    function booking_history($phone_number, $limit, $start) {
-        $sql = " SELECT services.services, users.user_id, users.city, users.state, users.phone_number, users.user_email, users.home_address, users.name, users.pincode, "
-                . " booking_details.* "
-                . " FROM booking_details, users,services WHERE "
-                . " users.phone_number='$phone_number' AND booking_details.user_id=users.user_id AND "
-                . " services.id=booking_details.service_id LIMIT $start, $limit";
-        $query = $this->db->query($sql);
-
-        log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
-
-        return $query->result_array();
-    } 
-    
     /** @description : Search user and booking details for a particular user through his phone number,partner ID also for pagination
      * 
      *  This gets the basic user and booking details and services name as well
@@ -232,15 +232,30 @@ class User_model extends CI_Model {
      *  @param : phone no,partner ID start and limit
      *  @return : array of user and booking details
      */
-    function partner_booking_history($phone_number,$partner_id, $limit, $start) {
-        $sql = "Select services.services, users.user_id, users.city, users.state, users.phone_number, users.user_email, users.home_address, users.name, users.pincode, booking_details.booking_id,"
-                . "booking_details.booking_date, booking_details.booking_timeslot, booking_details.current_status,"
-                . "booking_details.closed_date from booking_details, users,services where "
-                . "users.phone_number='$phone_number' and booking_details.user_id=users.user_id and "
-                . "booking_details.partner_id='$partner_id' and booking_details.user_id=users.user_id and "
-                . "services.id=booking_details.service_id LIMIT $start, $limit";
+    function search_by_partner($phone_number,$partner_id, $start, $end) {
+       $limit = "";
+        if($start !=""){
+            $limit = " LIMIT $start, $end ";
+        }
+        $sql = "SELECT u.name,u.pincode,u.city, u.state, u.user_email, "
+                . " bd.user_id, bd.*, "
+                . " u.phone_number,home_address,u.alternate_phone_number, services.services FROM booking_details as bd, users as u, services "
+                . " WHERE (bd.booking_primary_contact_no = '$phone_number' "
+                . " OR bd.booking_alternate_contact_no = '$phone_number'"
+                . " OR u.phone_number = '$phone_number') AND bd.user_id = u.user_id "
+                . " AND bd.partner_id = '$partner_id' AND services.id = bd.service_id  ORDER BY bd.create_date desc  $limit";
+       
         $query = $this->db->query($sql);
-        return $query->result_array();
+       
+        if($query->num_rows > 0){
+            return $query->result_array();
+            
+        } else {
+            $sql1 = "SELECT name,pincode,city,state, user_email,user_id, home_address, phone_number,alternate_phone_number FROM "
+                    . " users WHERE (users.phone_number = '$phone_number')";
+            $query1 = $this->db->query($sql1);
+            return $query1->result_array();
+        }
     }
 
     /** @description : Function to edit user's details
