@@ -819,37 +819,30 @@ class Partner extends CI_Controller {
      * @param: offset, per page number and phone number
      * @return : print Booking on Booking Page
      */
-    function finduser($offset = 0, $page = 0, $phone_number = '') {
+    
+     function finduser($offset = 0, $page = 0, $phone_number = '') {
         $this->checkUserSession();
         $booking_id = $this->input->post('booking_id');
         $order_id = $this->input->post('order_id');
         $serial_no = $this->input->post('serial_number');
         $partner_id = $this->session->userdata('partner_id');
-
         if ($this->input->post('phone_number')) {
             $phone_number = $this->input->post('phone_number');
         }
-
+        
         if ($phone_number != "") {
-            //search user by phone number
-            $output = $this->user_model->search_user($phone_number);
+            $page = 0;
+                
+            if ($page == 0) {
+                $page = 50;
+            }
 
-            if (empty($output)) {
-                //if user not found set error session data
-                $this->session->set_flashdata('error', 'Booking Not Found');
+            $offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
 
-                redirect(base_url() . 'employee/partner/get_user_form');
-            } else {
-                //if entered detail matches it will be displayed in a page
-                $page = 0;
-                $offset = 0;
-                if ($page == 0) {
-                    $page = 50;
-                }
-                $offset = ($this->uri->segment(7) != '' ? $this->uri->segment(7) : 0);
-
-                $config['base_url'] = base_url() . "employee/partner/finduser/" . $offset . "/" . $page . "/" . $phone_number;
-                $config['total_rows'] = $this->partner_model->total_user_booking($output[0]['user_id'], $partner_id);
+            $config['base_url'] = base_url() . "employee/partner/finduser/" . $offset . "/" . $page . "/" . $phone_number;
+           
+            $output_data = $this->user_model->search_by_partner($phone_number, $partner_id, $offset, $page);
+            if(!empty($output_data)){
                 $config['per_page'] = $page;
                 $config['uri_segment'] = 7;
                 $config['first_link'] = 'First';
@@ -858,71 +851,42 @@ class Partner extends CI_Controller {
                 $this->pagination->initialize($config);
                 $data['links'] = $this->pagination->create_links();
 
-                $data['data'] = $this->user_model->partner_booking_history($phone_number, $partner_id, $config['per_page'], $offset);
-
-                if (empty($data['data'])) {
-
-                    $data['data'] = $output;
-                }
-
-                $data['appliance_details'] = $this->user_model->appliance_details($phone_number);
-
-
+                $data['data'] = $output_data;
                 $this->load->view('partner/header');
                 $this->load->view('partner/bookinghistory', $data);
-            }
-        } elseif ($booking_id != "") {  //if booking id given and matched, will be displayed
-            $where = array('booking_details.booking_id' => $booking_id);
-            $data['Bookings'] = $this->booking_model->search_bookings($where,$partner_id);
-
-            $data_value = search_for_key($data['Bookings']);
-
-            if (isset($data_value['Pending']) || isset($data_value['Cancelled']) || isset($data_value['Completed'])){
-                $this->load->view('partner/header');
-                $this->load->view('partner/search_result',$data);
-            }else{
-                //if user not found set error session data
-                $this->session->set_flashdata('error', 'Booking Not Found');
+            } else {
+                $this->session->set_flashdata('error', 'User Not Exist');
 
                 redirect(base_url() . 'employee/partner/get_user_form');
             }
 
-
-        } else if (!empty($order_id)) {
+        } else if ($booking_id != "") {  //if booking id given and matched, will be displayed
+            $where = array('booking_details.booking_id' => $booking_id);
+            $data['Bookings'] = $this->booking_model->search_bookings($where,$partner_id);
+          
+            $this->load->view('partner/header');
+            $this->load->view('partner/search_result',$data);
+            
+        } else if(!empty($order_id)) {
 
             $where = array('order_id' => $order_id);
             $data['Bookings'] = $this->booking_model->search_bookings($where, $partner_id);
-            $data['search'] = "Search";
-
-           $data_value = search_for_key($data['Bookings']);
-
-            if (isset($data_value['Pending']) || isset($data_value['Cancelled']) || isset($data_value['Completed'])){
-                $this->load->view('partner/header');
-                $this->load->view('partner/search_result',$data);
-            }else{
-                //if user not found set error session data
-                $this->session->set_flashdata('error', 'Booking Not Found');
-
-                redirect(base_url() . 'employee/partner/get_user_form');
-            }
+            
+            $this->load->view('partner/header');
+            $this->load->view('partner/search_result',$data);
         } else if (!empty($serial_no)) {
 
             $where = array('partner_serial_number' => $serial_no);
             $data['Bookings'] = $this->booking_model->search_bookings($where, $partner_id);
+           
             $data['search'] = "Search";
-
-            $data_value = search_for_key($data['Bookings']);
-
-            if (isset($data_value['Pending']) || isset($data_value['Cancelled']) || isset($data_value['Completed'])){
-                $this->load->view('partner/header');
-                $this->load->view('partner/search_result',$data);
-            }else{
-                //if user not found set error session data
-                $this->session->set_flashdata('error', 'Booking Not Found');
-
-                redirect(base_url() . 'employee/partner/get_user_form');
-            }
+            $this->load->view('partner/header');
+            $this->load->view('partner/search_result',$data);
+        } else {
+            $this->session->set_flashdata('error', 'User Not Exist');
+            redirect(base_url() . 'employee/partner/get_user_form');
         }
+        
     }
 
     /**
@@ -1703,7 +1667,8 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         $where = array('booking_id' => $booking_id, 'partner_id' => $partner_id);
-        $response = $this->service_centers_model->update_spare_parts($where, array('status' => DEFECTIVE_PARTS_RECEIVED));
+        $response = $this->service_centers_model->update_spare_parts($where, array('status' => DEFECTIVE_PARTS_RECEIVED,
+            'approved_defective_parts_by_partner'=> '1'));
         if ($response) {
             log_message('info', __FUNCTION__ . " Sucessfully Acknowleded to Receive Defective Spare Parts ".$booking_id
                     ." Partner Id". $this->session->userdata('partner_id'));
@@ -1735,7 +1700,13 @@ class Partner extends CI_Controller {
         $partner_id = $this->session->userdata('partner_id');
         $where = array('booking_id' => $booking_id, 'partner_id' => $partner_id);
         $response = $this->service_centers_model->update_spare_parts($where, array('status' => DEFECTIVE_PARTS_REJECTED, 
-            'remarks_defective_part_by_partner' => $rejection_reason));
+            'remarks_defective_part_by_partner' => $rejection_reason, 
+            'approved_defective_parts_by_partner'=> '0',
+            'defective_part_shipped' => NULL,
+            'defective_part_shipped_date' =>NULL,
+            'awb_by_sf'=> NULL,
+            'courier_name_by_sf'=> NULL,
+            'remarks_defective_part_by_sf'=> NULL));
         if ($response) {
             log_message('info', __FUNCTION__ . " Sucessfully updated Table ".$booking_id
                     ." Partner Id". $this->session->userdata('partner_id'));
