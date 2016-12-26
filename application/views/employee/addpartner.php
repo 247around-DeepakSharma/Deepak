@@ -117,6 +117,41 @@
       </div>
     </div>
         
+    <div class="form-group ">
+      <label for="partner_code" class="col-md-4">Partner Code:</label>
+      <div class="col-md-8">
+          <select class="form-control" name ="partner_code"  id="partner_code">
+              <option value="" disabled="" selected="">Select Partner Code</option>
+              <?php
+              //Checking for Edit Parnter
+              if (isset($query[0]['id'])) {
+                  foreach (range('A', 'Z') as $char) {
+                      $code = "S" . $char;
+                      if (!in_array($code, $results['partner_code_availiable']) || isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code)) {
+                          ?>
+                          <option value="<?php echo $code; ?>" <?php
+                          if (isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code )) {
+                              echo "selected=''";
+                          }
+                          ?>><?php echo $code; ?></option>
+                                  <?php
+                              }
+                          }
+                      } else {// New Partner Addition
+                          foreach (range('A', 'Z') as $char) {
+                              $code = "S" . $char;
+                              if (!in_array($code, $results['partner_code'])) {
+                                  ?>
+                          <option value="<?php echo $code; ?>" ><?php echo $code; ?></option>
+                          <?php
+                      }
+                  }
+              }
+              ?>
+         </select>
+      </div>
+    </div>
+        
     </div>
     </div>
         
@@ -306,15 +341,15 @@
                     }
                 }
                 
-                //Cheking for Brands for particular service for User Edit
-                $service_brands = [];
-                if(!empty($results['partner_brands'])){
-                    foreach($results['partner_brands'] as $val){
-                        if($val['service_id'] == $value->id){
-                            $service_brands[] = $val['brand_name'];
-                        }
-                    }
-                }
+//                //Cheking for Brands for particular service for User Edit
+//                $service_brands = [];
+//                if(!empty($results['partner_brands'])){
+//                    foreach($results['partner_brands'] as $val){
+//                        if($val['service_id'] == $value->id){
+//                            $service_brands[] = $val['brand_name'];
+//                        }
+//                    }
+//                }
                 
                 ?>
                 <div class="col-md-12 form-group">  
@@ -325,11 +360,11 @@
                             <option value="<?php echo $val['state'] ?>" <?php echo (isset($operation_region_state) && in_array($val['state'],$operation_region_state))?'selected="selected"':''?> ><?php echo $val['state'] ?></option>
                         <?php } ?>
                     </select>
-                    <select name ="select_brands[<?php echo $value->id?>][]" class=" col-md-4 select_brands" multiple="multiple">
+<!--                    <select name ="select_brands[<?php echo $value->id?>][]" class=" col-md-4 select_brands" multiple="multiple">
                         <?php foreach ($results['brands'] as $val) { ?>
                             <option value="<?php echo $val->brand_name?>" <?php echo (isset($service_brands) && in_array($val->brand_name, $service_brands))?'selected="selected"':''?> > <?php echo $val->brand_name ?> </option>
                         <?php } ?>
-                    </select>
+                    </select>-->
                 </div>
 
             <?php } ?>
@@ -352,10 +387,10 @@
     placeholder: "Select State",
     allowClear: true
   });
-  $('.select_brands').select2({
-    placeholder: "Select Brands",
-    allowClear: true
-  });
+//  $('.select_brands').select2({
+//    placeholder: "Select Brands",
+//    allowClear: true
+//  });
   $('#state').select2({
       placeholder: "Select State"
   });
