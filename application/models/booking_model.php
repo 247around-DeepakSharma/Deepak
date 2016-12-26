@@ -1133,10 +1133,6 @@ class Booking_model extends CI_Model {
     function search_bookings($where, $partner_id = "") {
     // Need to get brand to send to vendor pincode mapping add form, So we will use join with booking_unit_details
 
-    if($partner_id !=""){
-        $this->db->where('booking_details.partner_id', $partner_id);
-    }
-
     $this->db->select("services.services, users.name as customername,
             users.phone_number, booking_details.*");
     $this->db->from('booking_details');
@@ -1144,6 +1140,7 @@ class Booking_model extends CI_Model {
     $this->db->join('services', 'services.id = booking_details.service_id');
     if($partner_id !=""){
         $this->db->join('booking_unit_details', 'booking_unit_details.booking_id = booking_details.booking_id');
+        $this->db->where('booking_details.partner_id', $partner_id);
     }
 
     $this->db->like($where);

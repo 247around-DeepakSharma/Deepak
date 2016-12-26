@@ -1474,6 +1474,12 @@ UPDATE `email_template` SET `template` = 'An order has been <b>Cancelled</b> for
 
 UPDATE `email_template` SET `template` = '%s order has been Cancelled sucessfully for the <strong>Order ID : %s </strong><br><br><strong>Reason : </strong> %s <br><br> <strong>Order Details are:</strong><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Total Requested : %s<br><br> Thanks Team 247Around' WHERE `email_template`.`tag` = 'cancel_brackets_order_received_from_vendor';
 
+
+--Abhay 26 DEC
+
+ALTER TABLE `spare_parts_details` ADD `approved_defective_parts_by_partner` INT(2) NULL DEFAULT '0' AFTER `defective_part_required`;
+
 -- Belal 24 Dec
 
 UPDATE `partner_appliance_details` SET `category` = 'TV-LED';
+

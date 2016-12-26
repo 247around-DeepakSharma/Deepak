@@ -99,6 +99,7 @@ class Service_centers extends CI_Controller {
         $data['bookings'] = $this->service_centers_model->pending_booking($service_center_id, $booking_id);
         $data['eraned_details'] =  $this->service_centers_model->get_sc_earned($service_center_id);
         $data['cancel_booking'] = $this->service_centers_model->count_cancel_booking_sc($service_center_id);
+        $data['booking_id'] = $booking_id;
         if($this->session->userdata('is_update') == 1){
         //$data['engineer_details'] = $this->vendor_model->get_engineers($service_center_id);
         $data['spare_parts_data'] = $this->service_centers_model->get_updated_spare_parts_booking($service_center_id);
@@ -218,21 +219,22 @@ class Service_centers extends CI_Controller {
                          $data['service_center_remarks'] = date("F j") . ":- " .$closing_remarks;
                      }
                  }
-
                  $i++;
-
                 $this->vendor_model->update_service_center_action($booking_id, $data);
 
             }
-            if($is_update_spare_parts){
-                $sp['status'] = DEFECTIVE_PARTS_PENDING;
-                $this->service_centers_model->update_spare_parts(array('booking_id'=>$booking_id), $sp);
-            }
-
             // Insert data into booking state change
             $this->insert_details_in_state_change($booking_id, 'InProcess_Completed', $closing_remarks);
-             
-            redirect(base_url() . "service_center/pending_booking");
+            
+            if($is_update_spare_parts){
+                
+                $sp['status'] = DEFECTIVE_PARTS_PENDING;
+                $this->service_centers_model->update_spare_parts(array('booking_id'=>$booking_id), $sp);
+                redirect(base_url()."service_center/get_defective_parts_booking");
+                
+            } else {
+                redirect(base_url() . "service_center/pending_booking");
+            } 
         }
     }
 
