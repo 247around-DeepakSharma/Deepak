@@ -1483,3 +1483,5 @@ ALTER TABLE `spare_parts_details` ADD `approved_defective_parts_by_partner` INT(
 
 UPDATE `partner_appliance_details` SET `category` = 'TV-LED';
 
+ALTER TABLE `partners` ADD `contract_file` VARCHAR(256) NOT NULL AFTER `service_tax`;
+
