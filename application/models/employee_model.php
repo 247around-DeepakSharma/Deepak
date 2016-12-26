@@ -131,5 +131,18 @@ class Employee_model extends CI_Model{
           $query = $this->db->get('holiday_list');
           return $query->result_array();
       }
+      
+      /**
+       * @Desc: This function is used to get employee for particular group
+       * @params: String user_group
+       * @return: Array
+       * 
+       */
+      function get_employee_by_group($where){
+          $this->db->select('*');
+          $this->db->where($where);
+          $query = $this->db->get('employee');
+          return $query->result_array();
+      }
 
 }

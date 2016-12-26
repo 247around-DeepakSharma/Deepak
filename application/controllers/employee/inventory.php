@@ -16,6 +16,7 @@ class Inventory extends CI_Controller {
         $this->load->model('partner_model');
         $this->load->model('inventory_model');
         $this->load->model('booking_model');
+        $this->load->model('employee_model');
         $this->load->library('form_validation');
         $this->load->library('session');
         $this->load->library('notify');
@@ -372,18 +373,14 @@ class Inventory extends CI_Controller {
             log_message('info',__FUNCTION__.' Received mail has been sent to order_received_from vendor '. $emailBody);
             
             //2. Sending mail to order_given_to vendor
-            $body_order_given_to = $order_given_to_email[0]['company_name']." brackets has been delivered successfully to the following vendor ".$order_received_from_email[0]['company_name']."<br><br>"
-                    . "Please contact us in case of any query.<br><br> "
-                    . "247Around Team";
             
             $email = array();
                    //Getting template from Database
                    $template = $this->booking_model->get_booking_email_template("brackets_received_mail_vendor_order_given_to");
                    
                    if(!empty($template)){
-                        $email['order_given_to'] = $order_given_to_email[0]['company_name'];
-                        $email['order_id'] = $order_id;
                         $email['order_recieved_from'] = $order_received_from_email[0]['company_name'];
+                        $email['order_id'] = $order_id;
                         $subject = "Brackets Received by ".$order_given_to_email[0]['company_name'];
                         $emailBody = vsprintf($template[0], $email);
                         
@@ -495,7 +492,6 @@ class Inventory extends CI_Controller {
         $data['data'] = $this->inventory_model->get_brackets_by_order_id($order_id);
         $data['order_id'] = $order_id;
         $data['brackets'] = $this->inventory_model->get_brackets_by_id($order_id);
-        $data['invoice_id'] = $this->inventory_model->get_brackets_invoice_by_order_id($order_id);
         $data['order_received_from'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_received_from'])[0]['name'];
         $data['order_given_to'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_given_to'])[0]['name'];
         
@@ -645,6 +641,8 @@ class Inventory extends CI_Controller {
                    $template = $this->booking_model->get_booking_email_template("cancel_brackets_order_received_from_vendor");
                    if(!empty($template)){
                         $email['company_name'] = $order_received_from_email[0]['company_name'];
+                        $email['order_id'] = $order_id;
+                        $email['reason'] = $brackets_details[0]['cancellation_reason'];
                         $email['19_24_requested'] = $brackets_details[0]['19_24_requested'];
                         $email['26_32_requested'] = $brackets_details[0]['26_32_requested'];
                         $email['36_42_requested'] = $brackets_details[0]['36_42_requested'];
@@ -668,6 +666,8 @@ class Inventory extends CI_Controller {
                    $template = $this->booking_model->get_booking_email_template("cancel_brackets_requested_from_vendor");
                    
                    if(!empty($template)){
+                        $email['order_id'] = $order_id;
+                        $email['reason'] = $brackets_details[0]['cancellation_reason'];
                         $email['19_24_requested'] = $brackets_details[0]['19_24_requested'];
                         $email['26_32_requested'] = $brackets_details[0]['26_32_requested'];
                         $email['36_42_requested'] = $brackets_details[0]['36_42_requested'];
@@ -708,8 +708,8 @@ class Inventory extends CI_Controller {
     private function get_rm_email($vendor_id) {
         $employee_rm_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
         $rm_id = $employee_rm_relation[0]['agent_id'];
-        $rm_details = $this->vendor_model->getVendorContact($rm_id);
-        $rm_poc_email = $rm_details[0]['primary_contact_email'];
+        $rm_details = $this->employee_model->getemployeefromid($rm_id);
+        $rm_poc_email = $rm_details[0]['official_email'];
         return $rm_poc_email;
     }
     
@@ -717,7 +717,7 @@ class Inventory extends CI_Controller {
      * @desc: This is used to display all spare parts booking
      */
     function get_spare_parts(){
-        log_melogssage('info', __FUNCTION__. "Entering... ");
+        log_message('info', __FUNCTION__. "Entering... ");
         $this->checkUserSession();
 	$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
        
@@ -743,12 +743,11 @@ class Inventory extends CI_Controller {
      * @param type $booking_id
      */
     function update_spare_parts($booking_id){
-        log_melogssage('info', __FUNCTION__. "Entering... ");
+        log_message('info', __FUNCTION__. "Entering... ");
         $this->checkUserSession();
-        
-        $where = array('spare_parts_details.booking_id'=> $booking_id);
-        $where_in = array('Pending','Rescheduled', 'Completed', 'Cancelled');
-        $data['bookinghistory'] = $this->partner_model->get_spare_parts_booking($where, $where_in);
+        $where = "spare_parts_details.booking_id = '".$booking_id."' "
+                . " AND booking_details.current_status IN ('Pending', 'Rescheduled', 'Completed', 'Cancelled') ";
+        $data['bookinghistory'] = $this->partner_model->get_spare_parts_booking($where);
         
         if(!empty($data['bookinghistory'][0])){
             
@@ -763,7 +762,7 @@ class Inventory extends CI_Controller {
      * @param type $booking_id
      */
     function process_update_booking($booking_id){
-        log_melogssage('info', __FUNCTION__. "Entering... ");
+        log_message('info', __FUNCTION__. "Entering... ");
         $this->checkUserSession();
         if(!empty($booking_id)){
         $data['model_number'] = $this->input->post('model_number');
@@ -804,9 +803,9 @@ class Inventory extends CI_Controller {
         $where = array('booking_id'=> $booking_id);
         $status_spare = $this->service_centers_model->spare_parts_action($where, $data);
         if($status_spare){
-            log_melogssage('info', __FUNCTION__. " Spare Parts Booking is updated");
+            log_message('info', __FUNCTION__. " Spare Parts Booking is updated");
             if($data['status'] == "Spare Parts Requested"){
-                log_melogssage('info', __FUNCTION__. " Change Current Status in Service Center Action table");
+                log_message('info', __FUNCTION__. " Change Current Status in Service Center Action table");
                 $sc_data['current_status'] = "InProcess";
                 $sc_data['internal_status'] = $data['status'];
                 $sc_data['update_date'] = date("Y-m-d H:i:s");
@@ -817,7 +816,7 @@ class Inventory extends CI_Controller {
             $this->notify->insert_state_change($booking_id, $data['status'], "" , "Spare Parts Updated By ".$this->session->userdata('employee_id') , $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
             
         } else {
-            log_melogssage('info', __FUNCTION__. " Spare Parts Booking is not updated");
+            log_message('info', __FUNCTION__. " Spare Parts Booking is not updated");
         }
         
         redirect(base_url()."employee/inventory/update_spare_parts/".$booking_id);
@@ -872,6 +871,30 @@ class Inventory extends CI_Controller {
 	} else {
 	    redirect(base_url() . "employee/login");
 	}
+    }
+    
+    /**
+     * @Desc: This function is used to Uncancel Brackets Request
+     * @params: Order ID
+     * @return: void
+     * 
+     */
+    function uncancel_brackets_request($order_id){
+        
+        $data = array('active' => 1,'cancellation_reason'=>'');
+        $brackets_id = $this->inventory_model->uncancel_brackets($order_id, $data);
+        if(!empty($brackets_id)){
+            //Setting success session data 
+            $this->session->set_userdata('brackets_update_success', 'Brackets has been Un-Cancelled for Order ID ' . $order_id);
+            //Logging
+            log_message('info',__FUNCTION__.' Brackets Request has been Un cancelled for Order ID '.$order_id);
+        }else{
+            //Setting error session data 
+            $this->session->set_userdata('brackets_update_error', 'Error in Un-Cancellation of Brackets Requested for Order ID .'.$order_id);
+            log_message('info',__FUNCTION__.' Error in Brackets Request un-Cancellation for Order ID '.$order_id);
+        }
+        
+        redirect(base_url() . 'employee/inventory/show_brackets_list');
     }
 
 }

@@ -44,14 +44,14 @@ function partner_vendor1(vendor_partner_id){
                     credit_debit: "required",
                     amount: "required",
                     tdate: "required",
-                    tds_amount: "required",
+                    tds_amount: "required"
                 },
                 messages: {
                    // partner_vendor: "Please select Partner/Vendor",
                     credit_debit: "Please select credit/debit.",
                     amount: "Please enter credit/debit amount.",
                     tdate: "Please enter transaction date",
-                    tds_amount: "Please enter TDA",
+                    tds_amount: "Please enter TDA"
                 },
                 submitHandler: function(form) {
                     form.submit();
@@ -59,7 +59,7 @@ function partner_vendor1(vendor_partner_id){
 
             });
         }
-    }
+    };
 
 
     //when the dom has loaded setup form validation rules

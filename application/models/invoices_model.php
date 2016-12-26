@@ -62,9 +62,16 @@ class invoices_model extends CI_Model {
         if ($query->num_rows > 0) {
             $this->db->where('invoice_id', $details['invoice_id']);
             $this->db->update('vendor_partner_invoices', $details);
+            return true;
+//            if($this->db->affected_rows() > 0){
+//               return true;
+//            }else{
+//                return false;
+//            }
         } else {
 
             $this->db->insert('vendor_partner_invoices', $details);
+            return $this->db->insert_id();
         }
     }
 
@@ -922,6 +929,7 @@ class invoices_model extends CI_Model {
             } else {
                 switch($result[0]['company_type']){
                     case "Individual":
+                    case 'Proprietorship Firm':
                         $meta['tds'] = $meta['sub_service_cost'] *.01;
                         $meta['tds_tax_rate'] = "1%";
                         break;

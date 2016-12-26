@@ -120,14 +120,17 @@
                                     </thead>
                                     <tbody>
                                        <?php foreach ($value['unit_details'] as $key1 => $value1) {
+                                            $style = "";
                                            
-                                           $style = "";
-                                               if ($value1['amount_paid'] == 0 && $value1['internal_status'] == "Completed" && $value['booking'][0]['amount_due'] > 0) {
-                                                   $style = "background-color:#FF8080";
-                                               }
-                                               if ($value1['amount_paid'] > 0 && $value1['internal_status'] == "Completed" && $value['booking'][0]['amount_due'] == 0) {
-                                                   $style = "background-color:#4CBA90";
-                                               }
+                                            if($value1['customer_net_payable'] > 0 && $value1['internal_status'] == "Completed" 
+                                                   && ($value1['service_charge'] + $value1['additional_service_charge'] + $value1['parts_cost']) ==0 ){
+                                                $style = "background-color:#FF8080";
+                                                
+                                            } else if($value1['internal_status'] == "Completed" && $value1['customer_net_payable'] ==0  && 
+                                                    ($value1['service_charge'] + $value1['additional_service_charge'] + $value1['parts_cost']) > 0){
+                                                 $style = "background-color:#4CBA90";
+                                            }
+   
                                                ?>
                                        <tr style="<?php echo $style?>">
                                             <td><span class="<?php echo "brand".$count; ?>"><?php echo $value1['appliance_brand']; ?></span></td>

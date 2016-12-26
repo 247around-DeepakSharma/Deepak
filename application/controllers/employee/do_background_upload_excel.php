@@ -261,52 +261,17 @@ class Do_background_upload_excel extends CI_Controller {
 		$user['name'] = $value['Customer_Name'];
 	    }
 
-	    //Wybor brand should be tagged to Partner Wybor only if the
-	    //States are:
-            // - Tamilnadu (pincode starts from 6).
-            // - AP / Telangana (pincode starts from 5)
-            // (Karnataka also starts from 5, we will leave that as of now)
-            // Else it would be
-	    //tagged to Snapdeal.
-	    //Ray brand should be tagged to Ray.
-	    //All other brands would go to Snapdeal.
-	    switch ($value['Brand']) {
-		case 'Wybor':
-		    if ((substr($value['Pincode'], 0, 1) == "5") ||
-                        (substr($value['Pincode'], 0, 1) == "6")) {
-			$booking['partner_id'] = '247010';
-			$booking['source'] = "SY";
-		    } else {
-			$booking['partner_id'] = '1';
-			$booking['source'] = "SS";
-		    }
+	    
+	    //Assigning Booking Source and Partner ID for Brand Requested
+            // First we send Service id and Brand and get Partner_id from it
+            // Now we send state, partner_id and service_id 
+            $data = $this->_allot_source_partner_id_for_pincode($value['service_id'], $state['state'], $value['Brand']);
 
-		    break;
+            $booking['partner_id'] = $data['partner_id'];
+            $booking['source'] = $data['source'];
 
-		case 'Ray':
-		    $booking['partner_id'] = '247011';
-		    $booking['source'] = "SR";
-		    break;
 
-                /*
-		case 'Nacson':
-		    $booking['partner_id'] = '247013';
-		    $booking['source'] = "SN";
-		    break;
-
-		case 'Bosch & Delon':
-		    $booking['partner_id'] = '247014';
-		    $booking['source'] = "SB";
-		    break;
-                */
-
-		default:
-		    $booking['partner_id'] = '1';
-		    $booking['source'] = "SS";
-		    break;
-	    }
-
-	    $partner_booking = $this->partner_model->get_order_id_for_partner($booking['partner_id'], $value['Sub_Order_ID']);
+            $partner_booking = $this->partner_model->get_order_id_for_partner($booking['partner_id'], $value['Sub_Order_ID']);
 	    //log_message('info', print_r($partner_booking, TRUE));
 
             //Check whether order id exists or not
@@ -1119,6 +1084,42 @@ class Do_background_upload_excel extends CI_Controller {
         }
 
         return true;
+    }
+    
+    /**
+     * @Desc: This function is used to _allot_source_partner_id_for_pincode
+     * @params: String Pincode, brnad, default partner id(SS)
+     * @return : Array
+     * 
+     */
+    private function _allot_source_partner_id_for_pincode($service_id, $state, $brand) {
+        log_message('info', __FUNCTION__ . ' ' . $service_id, $state, $brand);
+        $data = [];
+
+        $partner_array = $this->partner_model->get_active_partner_id_by_service_id_brand($brand, $service_id);
+        
+        if (!empty($partner_array)) {
+
+            foreach ($partner_array as $value) {
+                //Now getting details for each Partner 
+                $filtered_partner_state = $this->partner_model->check_activated_partner_for_state_service($state, $value['partner_id'], $service_id);
+                if ($filtered_partner_state) {
+                    //Now assigning this case to Partner
+                    $data['partner_id'] = $value['partner_id'];
+                    $data['source'] = $this->partner_model->get_source_code_for_partner($value['partner_id']);
+                } else {
+                    //Now assigning this case to SS
+                    $data['partner_id'] = SNAPDEAL_ID;
+                    $data['source'] = 'SS';
+                }
+            }
+        } else {
+            log_message('info', ' No Active Partner has been Found in for Brand ' . $brand . ' and service_id ' . $service_id);
+            //Now assigning this case to SS
+            $data['partner_id'] = SNAPDEAL_ID;
+            $data['source'] = 'SS';
+        }
+        return $data;
     }
 
 }

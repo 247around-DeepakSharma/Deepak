@@ -101,14 +101,27 @@
                                 <li role="separator" class="divider"></li> -->
                         <li><a href="<?php echo base_url();?>partner/pending_booking">Pending Bookings</a></li>
                                 <li role="separator" class="divider"></li>
-                        <li><a href="<?php echo base_url();?>partner/get_spare_parts_booking">Pending Spare Parts Bookings</a></li>
-                                <li role="separator" class="divider"></li>
                         <li><a href="<?php echo base_url();?>partner/closed_booking/Completed">Completed Bookings</a></li>
                                 <li role="separator" class="divider"></li>
                         <li><a href="<?php echo base_url();?>partner/closed_booking/Cancelled">Cancelled Bookings</a></li>
 
                             </ul>
                         </li>
+                        
+                         <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Spare Bookings <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+
+                                
+                        <li><a href="<?php echo base_url();?>partner/get_spare_parts_booking">Pending Spare Parts</a></li>
+                         <li role="separator" class="divider"></li>
+                         <li><a href="<?php echo base_url();?>partner/get_shipped_parts_list">Shipped Spare Parts</a></li>
+                          <li role="separator" class="divider"></li>
+                         <li><a href="<?php echo base_url();?>partner/get_waiting_defective_parts">Defective Spare Parts</a></li>
+
+                            </ul>
+                        </li>
+
 
                         <li>
                      <a href="<?php echo base_url();?>partner/invoices_details">Invoice</a>
@@ -117,7 +130,7 @@
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Add Booking</a>
 					<ul class="dropdown-menu" role="menu">
 						<li>
-                          <form method="POST" class="navbar-form navbar-left" action ="<?php echo base_url(); ?>/partner/booking_form" role="add booking">
+                          <form method="POST" class="navbar-form navbar-left" action ="<?php echo base_url(); ?>partner/booking_form" role="add booking">
                               <div class="form-group">
                               <input type="text" id="phone_number" class="form-control" name="phone_number" placeholder="Phone Number">
                               </div>

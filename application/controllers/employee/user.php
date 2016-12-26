@@ -48,35 +48,37 @@ class User extends CI_Controller {
      * @param: offset, per page number and phone number
      * @return : print Booking on Booking Page
      */
-    function finduser($offset = 0, $page = 0, $phone_number = '') {
-
+    
+    function finduser($offset = 0, $page = 0, $phone_number = ''){
         $booking_id = $this->input->post('booking_id');
         $order_id = $this->input->post('order_id');
+        $userName = $this->input->post('userName');
         $partner_id = $this->input->post('partner');
-
         if ($this->input->post('phone_number')) {
             $phone_number = $this->input->post('phone_number');
         }
-
+        
         //search user by name
-        if (!empty($_POST['userName'])) {
+        if (!empty($userName)) {
+            
             $this->search_user_by_name();
-        }
+            
+        } else if(!empty($booking_id)){ // Search by booking id
+            
+            $where  = array('booking_details.booking_id' => $booking_id );
+            $data['Bookings'] = $this->booking_model->search_bookings($where);
+            $this->load_search_view($data);
+            
+        } else if(!empty($order_id)){ // search by order id
+            $where  = array('order_id' => $order_id );
+            $data['Bookings'] = $this->booking_model->search_bookings($where, $partner_id);
+            $data['search'] = "Search";
 
-        if ($phone_number != "") {
-            //search user by phone number
-            $output = $this->user_model->search_user($phone_number);
-
-            if (empty($output)) {
-                //if user not found take's to add user
-                $output['phone_number'] = $phone_number;
-                $this->loadViews($output);
-
-            } else {
-                //if entered detail matches it will be displayed in a page
-                //$this->user_details($phone_number,$offset = 0, $page = 0)
+            $this->load_search_view($data);
+        } else if(!empty ($phone_number)){ // search by phone number
+            
                 $page = 0;
-                $offset = 0;
+                
                 if ($page == 0) {
                     $page = 50;
                 }
@@ -84,43 +86,34 @@ class User extends CI_Controller {
                 $offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
 
                 $config['base_url'] = base_url() . "employee/user/finduser/" . $offset . "/" . $page . "/" . $phone_number;
-                $config['total_rows'] = $this->booking_model->total_user_booking($output[0]['user_id']);
-                $config['per_page'] = $page;
-                $config['uri_segment'] = 5;
-                $config['first_link'] = 'First';
-                $config['last_link'] = 'Last';
+                $output_data = $this->user_model->search_user($phone_number, $offset, $page);
+                if(!empty($output_data)){
+                
+                    $config['total_rows'] = count($output_data);
+                    $config['per_page'] = $page;
+                    $config['uri_segment'] = 5;
+                    $config['first_link'] = 'First';
+                    $config['last_link'] = 'Last';
 
-                $this->pagination->initialize($config);
-                $data['links'] = $this->pagination->create_links();
+                    $this->pagination->initialize($config);
+                    $data['links'] = $this->pagination->create_links();
 
-                $data['data'] = $this->user_model->booking_history($phone_number, $config['per_page'], $offset);
+                    $data['data'] = $output_data;
+                    $data['appliance_details'] = $this->user_model->appliance_details($phone_number);
 
-                if (empty($data['data'])) {
-
-                    $data['data'] = $output;
+                    $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+                    $this->load->view('employee/bookinghistory', $data);
+                } else {
+                    $output['phone_number'] = $phone_number;
+                    $this->loadViews($output);
                 }
 
-                $data['appliance_details'] = $this->user_model->appliance_details($phone_number);
-
-
-                $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-                $this->load->view('employee/bookinghistory', $data);
-            }
-        } elseif ($booking_id != "") {  //if booking id given and matched, will be displayed
+        } else {
+         
+            echo "Please Select Any Field";
             
-            $where  = array('booking_details.booking_id' => $booking_id );
-            $data['Bookings'] = $this->booking_model->search_bookings($where);
-            $this->load_search_view($data);
-
-	    } else if (!empty($order_id)) {
-
-            $where  = array('order_id' => $order_id );
-            $data['Bookings'] = $this->booking_model->search_bookings($where, $partner_id);
-            $data['search'] = "Search";
-
-            $this->load_search_view($data);
         }
-
+        
     }
 
     /**

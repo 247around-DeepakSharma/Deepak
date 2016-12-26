@@ -113,11 +113,13 @@
           	</td>
           	
           	<td><?=$row['owner_email'];?></td>
-                <td><a href="javascript:void(0)"  onclick='return login_to_vendor(<?php echo $row['id']?>)'><?php echo strtolower($row['sc_code']) . " / " . strtolower($row['sc_code']);  ?></a></td>
+                <td>
+                    <a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_vendor(<?php echo $row['id']?>)'  <?php echo ($row['active'] == 0)?'disabled=""':'' ?> title="<?php echo strtolower($row['sc_code']) . " / " . strtolower($row['sc_code']);  ?>">Login</a>
+                </td>
                 <td>
                         <?php
                         if ($row['on_off'] == 1) { ?>
-                            <a id='edit' class='btn btn-small btn-primary' href="<?php base_url() ?>temporary_on_off_vendor/<?php echo $row['id']?>/0" <?php if($row['active'] == 0){echo 'disabled';}?>>Off</a>
+                            <a id='edit' class='btn btn-small btn-danger' href="<?php base_url() ?>temporary_on_off_vendor/<?php echo $row['id']?>/0" <?php if($row['active'] == 0){echo 'disabled';}?>>Off</a>
                         <?php } else { ?>
                             <a id='edit' class='btn btn-small btn-success' href="<?php base_url() ?>temporary_on_off_vendor/<?php echo $row['id']?>/1" <?php if($row['active'] == 0){echo 'disabled';}?>>On</a>
                         <?php }
@@ -125,12 +127,12 @@
                     </td>
           	<td><?php if($row['active']==1)
                 {
-                  echo "<a id='edit' class='btn btn-small btn-primary' "
+                  echo "<a id='edit' class='btn btn-small btn-danger' "
                                     . "href=" . base_url() . "employee/vendor/deactivate/$row[id]>Deactivate</a>";                
                 }
                 else
                 {
-                  echo "<a id='edit' class='btn btn-small btn-success' "
+                  echo "<a id='edit' class='btn btn-small btn-primary' "
                                     . "href=" . base_url() . "employee/vendor/activate/$row[id]>Activate</a>";                
                 }
               ?>
@@ -165,7 +167,7 @@
             $.ajax({
                 url:'<?php echo base_url()."employee/vendor/allow_log_in_to_vendor/" ?>'+vendor_id,
                 success: function (data) {
-                    window.location = "<?php echo base_url().'employee/service_centers/pending_booking'?>";
+                    window.open("<?php echo base_url().'employee/service_centers/pending_booking'?>",'_blank');
                 }
             });
             
