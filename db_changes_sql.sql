@@ -1473,3 +1473,7 @@ RENAME TABLE `partner_service_brand_relation` TO `partner_appliance_details`;
 UPDATE `email_template` SET `template` = 'An order has been <b>Cancelled</b> for Brackets of <strong>Order ID : %s </strong> <br><br><strong>Reason : </strong> %s <br><br> <strong>Order Details:</strong><br><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Total Requested : %s<br><br> <strong>Requested From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br> City: %s <br> State: %s <br> Pincode: %s <br> Phone Number: %s, %s<br><br> Please <b>don''t</b> ship the following orders.' WHERE `email_template`.`tag` = 'cancel_brackets_requested_from_vendor';
 
 UPDATE `email_template` SET `template` = '%s order has been Cancelled sucessfully for the <strong>Order ID : %s </strong><br><br><strong>Reason : </strong> %s <br><br> <strong>Order Details are:</strong><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Total Requested : %s<br><br> Thanks Team 247Around' WHERE `email_template`.`tag` = 'cancel_brackets_order_received_from_vendor';
+
+--Abhay 26 DEC
+
+ALTER TABLE `spare_parts_details` ADD `approved_defective_parts_by_partner` INT(2) NULL DEFAULT '0' AFTER `defective_part_required`;

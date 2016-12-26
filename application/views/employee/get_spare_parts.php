@@ -20,6 +20,7 @@
                            <th class="text-center">Parts Requested</th>
                            <th class="text-center">Parts Shipped</th>
                            <th class="text-center">Status</th>
+                           <th class="text-center">Defective Parts Rejection Reason</th>
                            <th class="text-center">Booking Status</th>
                            <th class="text-center">Update</th>
                              
@@ -39,8 +40,10 @@
                               <td class="text-center"><?php echo $value['parts_requested'];?></td>
                               <td class="text-center"><?php echo $value['parts_shipped'];?></td>
                               <td class="text-center"><?php echo $value['status'];?></td> 
+                              <td class="text-center"><?php echo $value['remarks_defective_part_by_partner'];?></td> 
                               <td class="text-center"><?php echo $value['current_status'];?></td> 
-                              <td class="text-center"><a href="<?php echo base_url(); ?>employee/inventory/update_spare_parts/<?php echo $value['booking_id'];?>" >Edit</a></td>
+                              
+                              <td class="text-center"><a href="<?php echo base_url(); ?>employee/inventory/update_spare_parts/<?php echo $value['booking_id'];?>" class="btn btn-sm btn-primary" ><i class="fa fa-edit"></i></a></td>
                          </tr>
                              
                         <?php $sn_no++; }?>

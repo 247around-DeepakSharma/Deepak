@@ -279,7 +279,7 @@
                         </table>
                     </div>
                 </div>
-                
+                 <?php if(!is_null($booking_history['spare_parts']['parts_shipped'])){ ?>
                 <div class="col-md-12">
                     <h1 style='font-size:24px;'>Spare Parts Shipped By <?php echo $this->session->userdata('partner_name');?></h1>
                     <div class="col-md-6" style="padding-left:1px;">
@@ -315,7 +315,7 @@
                         </table>
                     </div>
                 </div>
-                
+                <?php } if($booking_history['spare_parts']['approved_defective_parts_by_partner'] == "1"){ ?>
                 <div class="col-md-12">
                     <h1 style='font-size:24px;'>Defective Spare Parts Shipped By SF</h1>
                     <div class="col-md-6" style="padding-left:1px;">
@@ -352,7 +352,7 @@
                         </table>
                     </div>
                 </div>
-                <?php } ?>
+                <?php } } ?>
                 
 
                 
