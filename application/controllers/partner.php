@@ -233,11 +233,11 @@ class Partner extends CI_Controller {
                             if($cancelled_follow_up){
                                 $booking['internal_status'] = $cancelled_follow_up;
                             } else {
-                               $booking['internal_status'] = "FollowUp"; 
+                               $booking['internal_status'] = "Missed_call_not_confirmed"; 
                             }
                             
                         } else {
-                            $booking['internal_status'] = "FollowUp"; 
+                            $booking['internal_status'] = "Missed_call_not_confirmed"; 
                         }
 
                         $unit_details['partner_id'] = $booking['partner_id'];
