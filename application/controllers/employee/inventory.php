@@ -887,21 +887,82 @@ class Inventory extends CI_Controller {
      * @return: void
      * 
      */
-    function uncancel_brackets_request($order_id){
-        
-        $data = array('active' => 1,'cancellation_reason'=>'');
+    function uncancel_brackets_request($order_id) {
+
+        $data = array('active' => 1, 'cancellation_reason' => '');
         $brackets_id = $this->inventory_model->uncancel_brackets($order_id, $data);
-        if(!empty($brackets_id)){
+        if (!empty($brackets_id)) {
+            //Getiting brackets details
+            $brackets_details = $this->inventory_model->get_brackets_by_id($order_id);
+
+            //1. Now Send mail to vendor (order received from) for uncancellation Process
+            // Sending mail to order_received_from vendor
+            $order_received_from_email = $this->vendor_model->getVendorContact($brackets_details[0]['order_received_from']);
+
+            $vendor_poc_mail = $order_received_from_email[0]['primary_contact_email'];
+            $vendor_owner_mail = $order_received_from_email[0]['owner_email'];
+            $to = $vendor_poc_mail . ',' . $vendor_owner_mail;
+
+
+            //Getting template from Database
+            $template_to = $this->booking_model->get_booking_email_template("un-cancel_brackets_order_received_from_vendor");
+            if (!empty($template_to)) {
+                $email_to['company_name'] = $order_received_from_email[0]['company_name'];
+                $email_to['order_id'] = $order_id;
+                $email_to['19_24_requested'] = $brackets_details[0]['19_24_requested'];
+                $email_to['26_32_requested'] = $brackets_details[0]['26_32_requested'];
+                $email_to['36_42_requested'] = $brackets_details[0]['36_42_requested'];
+                $email_to['total_requested'] = $brackets_details[0]['total_requested'];
+                $subject = "Brackets Request Un-Cancelled";
+                $emailBody = vsprintf($template_to[0], $email_to);
+                $this->notify->sendEmail($template_to[2], $to, $template_to[3] . ',' . $this->get_rm_email($brackets_details[0]['order_received_from']), '', $subject, $emailBody, "");
+                //Loggin send mail success
+                log_message('info', __FUNCTION__ . ' Un-Cancelled Brackets mail has been sent to order_received_from vendor ' . print_r($emailBody,TRUE));
+            }
+
+            // 2. Now sending mail to Order Received From Vendor
+            //Sending Mail to order given to
+            $vendor_requested_to = $this->vendor_model->getVendorContact($brackets_details[0]['order_given_to']);
+            $vendor_poc_mail_1 = $vendor_requested_to[0]['primary_contact_email'];
+            $vendor_owner_mail_1 = $vendor_requested_to[0]['owner_email'];
+            $to = $vendor_poc_mail_1 . ',' . $vendor_owner_mail_1;
+
+            //Getting template from Database
+            $template_from = $this->booking_model->get_booking_email_template("un-cancel_brackets_requested_from_vendor");
+
+            if (!empty($template_from)) {
+                $email_from['order_id'] = $order_id;
+                $email_from['19_24_requested'] = $brackets_details[0]['19_24_requested'];
+                $email_from['26_32_requested'] = $brackets_details[0]['26_32_requested'];
+                $email_from['36_42_requested'] = $brackets_details[0]['36_42_requested'];
+                $email_from['total_requested'] = $brackets_details[0]['total_requested'];
+                $email_from['owner_name'] = $order_received_from_email[0]['owner_name'];
+                $email_from['company_name'] = $order_received_from_email[0]['company_name'];
+                $email_from['address'] = $order_received_from_email[0]['address'];
+                $email_from['district'] = $order_received_from_email[0]['district'];
+                $email_from['state'] = $order_received_from_email[0]['state'];
+                $email_from['pincode'] = $order_received_from_email[0]['pincode'];
+                $email_from['primary_contact_phone_1'] = $order_received_from_email[0]['primary_contact_phone_1'];
+                $email_from['owner_phone_1'] = $order_received_from_email[0]['owner_phone_1'];
+                $subject = "Brackets Request Un-Cancelled";
+
+                $emailBody = vsprintf($template_from[0], $email_from);
+                $this->notify->sendEmail($template_from[2], $to, $template_from[3] . ',' . $this->get_rm_email($brackets_details[0]['order_given_to']), '', $subject, $emailBody, "");
+                //Loggin send mail success
+                log_message('info', __FUNCTION__ . '  Cancelled Brackets mail has been sent to order_given_to vendor ' . print_r($emailBody,TRUE));
+            }
+
+
             //Setting success session data 
             $this->session->set_userdata('brackets_update_success', 'Brackets has been Un-Cancelled for Order ID ' . $order_id);
             //Logging
-            log_message('info',__FUNCTION__.' Brackets Request has been Un cancelled for Order ID '.$order_id);
-        }else{
+            log_message('info', __FUNCTION__ . ' Brackets Request has been Un cancelled for Order ID ' . $order_id);
+        } else {
             //Setting error session data 
-            $this->session->set_userdata('brackets_update_error', 'Error in Un-Cancellation of Brackets Requested for Order ID .'.$order_id);
-            log_message('info',__FUNCTION__.' Error in Brackets Request un-Cancellation for Order ID '.$order_id);
+            $this->session->set_userdata('brackets_update_error', 'Error in Un-Cancellation of Brackets Requested for Order ID .' . $order_id);
+            log_message('info', __FUNCTION__ . ' Error in Brackets Request un-Cancellation for Order ID ' . $order_id);
         }
-        
+
         redirect(base_url() . 'employee/inventory/show_brackets_list');
     }
 

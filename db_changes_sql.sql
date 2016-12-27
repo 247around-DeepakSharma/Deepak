@@ -1537,3 +1537,8 @@ UPDATE `partner_appliance_details` SET `category` = 'TV-LED';
 
 ALTER TABLE `partners` ADD `contract_file` VARCHAR(256) NOT NULL AFTER `service_tax`;
 
+--Belal 27 Dec
+INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'un-cancel_brackets_order_received_from_vendor', '%s order has been Un-Cancelled sucessfully for the <strong>Order ID : %s </strong><br><br> <strong>Order Details are:</strong><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Total Requested : %s<br><br> Thanks Team 247Around', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com,vijaya@247around.com', '', '1', '2016-09-26 18:30:00');
+
+INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'un-cancel_brackets_requested_from_vendor', 'An order has been <b>Un-Cancelled</b> for Brackets of <strong>Order ID : %s </strong><br><br> <strong>Order Details:</strong><br><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Total Requested : %s<br><br> <strong>Requested From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br> Phone Number: %s, %s<br><br> Please <b>ship</b> the following orders.', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com,vijaya@247around.com', '', '1', '2016-09-26 18:30:00');
+
