@@ -403,7 +403,7 @@ class Partner extends CI_Controller {
     }
 
     function insertion_failure($post){
-        $to = "anuj@247around.com, abhaya@247around.com, belal@247around.com, sachinj@247around.com";
+        $to = DEVELOPER_EMAIL;
         $cc = "";
         $bcc = "";
         $subject = "Booking Insertion Failure By ".$this->session->userdata('partner_name');
@@ -450,8 +450,13 @@ class Partner extends CI_Controller {
     function get_add_partner_form() {
 
         $results['services'] = $this->vendor_model->selectservice();
-        $results['brands'] = $this->vendor_model->selectbrand();
         $results['select_state'] = $this->vendor_model->getall_state();
+        $partner_code = $this->partner_model->get_availiable_partner_code();
+        foreach($partner_code as $row)
+        {
+            $code[] = $row['code']; // add each partner code to the array
+        }
+        $results['partner_code'] = $code;
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/addpartner', array('results' => $results));
     }
@@ -474,13 +479,25 @@ class Partner extends CI_Controller {
                 //if vendor exists, details are edited
                 $partner_id = $this->input->post('id');
                 
+                //Processing Contract File
+                if(!empty($_FILES['contract_file']['tmp_name'])){
+                    $tmpFile = $_FILES['contract_file']['tmp_name'];
+                    $contract_file = "Partner-".$this->input->post('public_name').'-Contract'.".".explode(".",$_FILES['contract_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$contract_file);
+                    
+                    //Upload files to AWS
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/".$contract_file;
+                    $this->s3->putObjectFile(TMP_FOLDER.$contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $_POST['contract_file'] = $contract_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' CONTRACT FILE is being uploaded sucessfully.');
+                }
+                
                 //Getting partner operation regions details from POST
                 $partner_operation_state = $this->input->post('select_state');
                 unset($_POST['select_state']);
-                
-                //Getting Brands Details
-                $partner_service_brand = $this->input->post('select_brands');
-                unset($_POST['select_brands']);
                
                 //Getting Login Details
                 $login['user_name'] = $this->input->post('username');
@@ -494,6 +511,17 @@ class Partner extends CI_Controller {
                 //Editing User Login Details
                 $where = array('partner_id' =>$partner_id);
                 $update_login = $this->partner_model->update_partner_login_details($login,$where);
+                
+                //updating Partner code in Bookings_sources table
+                    $bookings_sources['source'] = $this->input->post('public_name');
+                    $bookings_sources['code'] = $this->input->post('partner_code');
+                    if($this->partner_model->update_partner_code($where,$bookings_sources)){
+                        log_message('info',' Parnter code has been Updated in Bookings_sources table '.print_r($bookings_sources,TRUE));
+                    }else{
+                        log_message('info',' Error in Updating Parnter code has been added in Bookings_sources table '.print_r($bookings_sources,TRUE));
+                    }
+                //Unsetting partner code
+                unset($_POST['partner_code']);
                 
                 //Updating Partner Operation Region
                 //Processing Partner Operation Region
@@ -535,38 +563,29 @@ class Partner extends CI_Controller {
                         log_message('error', __FUNCTION__ . ' No Input provided for Partner Operation Region Relation  ');
                     }
                 
-                
-                //Updating Partner Brands Details
-                    
-                    if (!empty($partner_service_brand)) {
-                        foreach ($partner_service_brand as $key => $value) {
-                            foreach($value as $val){
-                                $data_brands['partner_id'] = $partner_id;
-                                $data_brands['service_id'] = $key;
-                                $data_brands['brand'] = $val;
-                                $data_brands['active'] = 1;
-                                $data_final_brands[] = $data_brands;
-                            }
-                        }
-                        //Deleting Previous Values
-                        $this->partner_model->delete_partner_brand_relation($partner_id);
-                        
-                        //Inserting Array in batch in partner brand relation
-                        $operation_update_brand_flag = $this->partner_model->insert_batch_partner_brand_relation($data_final_brands);
-                        if ($operation_update_brand_flag) {
-                            //Loggin Success
-                            log_message('info', 'Parnter Brand Relation has been added sucessfully for partner ' . print_r($partner_id));
-                        }
-                    } else {
-                        //Echoing message in Log file
-                        log_message('error', __FUNCTION__ . ' No Input provided for Partner Brand Relation  ');
-                    }
-                
                 $this->partner_model->edit_partner($this->input->post(), $partner_id);
 
                 redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
             }else{
                 //If Partner not present, Partner is being added
+                
+                //Processing Contract File
+                if(!empty($_FILES['contract_file']['tmp_name'])){
+                    $tmpFile = $_FILES['contract_file']['tmp_name'];
+                    $contract_file = "Partner-".$this->input->post('public_name').'-Contract'.".".explode(".",$_FILES['contract_file']['name'])[1];
+                    move_uploaded_file($tmpFile, TMP_FOLDER.$contract_file);
+                    
+                    //Upload files to AWS
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory_xls = "vendor-partner-docs/".$contract_file;
+                    $this->s3->putObjectFile(TMP_FOLDER.$contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                    $_POST['contract_file'] = $contract_file;
+                    
+                    //Logging success for file uppload
+                    log_message('info',__CLASS__.' CONTRACT FILE is being uploaded sucessfully.');
+                }
+                
+                
                 $_POST['is_active'] = '1';
                 //Temporary value
                 $_POST['auth_token'] = rand(1,100);
@@ -574,10 +593,6 @@ class Partner extends CI_Controller {
                 //Getting partner operation regions details from POST
                 $partner_operation_state = $this->input->post('select_state');
                 unset($_POST['select_state']);
-                
-                //Getting Brands Details
-                $partner_service_brand = $this->input->post('select_brands');
-                unset($_POST['select_brands']);
                
                 //Getting Login Details
                 $login['user_name'] = $this->input->post('username');
@@ -588,6 +603,10 @@ class Partner extends CI_Controller {
                 unset($_POST['username']);
                 unset($_POST['password']);
                 
+                //Getting Partner code
+                $code = $this->input->post('partner_code');
+                //unsetting Partner code
+                unset($_POST['partner_code']);
                 
                 //Sending POST array to Model
                 $partner_id = $this->partner_model->add_partner($this->input->post());
@@ -610,7 +629,21 @@ class Partner extends CI_Controller {
                     }else{
                         log_message('info',' Error in Parnter Login Details has been addded '.print_r($login_details,TRUE));
                     }
-                
+                    
+                    //Adding Partner code in Bookings_sources table
+                    $bookings_sources['source'] = $this->input->post('public_name');
+                    $bookings_sources['code'] = $code;
+                    $bookings_sources['partner_id'] = $partner_id;
+                    //Getting last price_mapping_id from bookings_sources table
+                    $price_mapping_id = $this->partner_model->get_latest_price_mapping_id();
+                    // Adding 1 to latest price mapping id
+                    $bookings_sources['price_mapping_id'] = ($price_mapping_id->price_mapping_id + 1);
+                    $partner_code = $this->partner_model->add_partner_code($bookings_sources);
+                    if($partner_code){
+                        log_message('info',' Parnter code has been added in Bookings_sources table '.print_r($bookings_sources,TRUE));
+                    }else{
+                        log_message('info',' Error in adding Parnter code has been added in Bookings_sources table '.print_r($bookings_sources,TRUE));
+                    }
                 
                     
                     //Processing Partner Operation Region
@@ -648,29 +681,6 @@ class Partner extends CI_Controller {
                         //Echoing message in Log file
                         log_message('error', __FUNCTION__ . ' No Input provided for Partner Operation Region Relation  ');
                     }
-
-                    // Processing Partner Brands Relation
-                    
-                    if (!empty($partner_service_brand)) {
-                        foreach ($partner_service_brand as $key => $value) {
-                            foreach($value as $val){
-                                $data_brands['partner_id'] = $partner_id;
-                                $data_brands['service_id'] = $key;
-                                $data_brands['brand'] = $val;
-                                $data_brands['active'] = 1;
-                                $data_final_brands[] = $data_brands;
-                            }
-                        }
-                        //Inserting Array in batch in partner brand relation
-                        $operation_insert_brand_flag = $this->partner_model->insert_batch_partner_brand_relation($data_final_brands);
-                        if ($operation_insert_brand_flag) {
-                            //Loggin Success
-                            log_message('info', 'Parnter Brand Relation has been added sucessfully for partner ' . print_r($partner_id));
-                        }
-                    } else {
-                        //Echoing message in Log file
-                        log_message('error', __FUNCTION__ . ' No Input provided for Partner Brand Relation  ');
-                    }
                     
                 }else{
                     $this->session->set_flashdata('error','Error in adding Partner.');
@@ -678,8 +688,6 @@ class Partner extends CI_Controller {
                     //Echoing message in Log file
                     log_message('error',__FUNCTION__.' Error in adding Partner  '. print_r($this->input->post(),TRUE));
                 }
-                
-                
                 
            redirect(base_url() . 'employee/partner/get_add_partner_form');
             }
@@ -787,14 +795,18 @@ class Partner extends CI_Controller {
         $query = $this->partner_model->viewpartner($id);
         $results['select_state'] = $this->vendor_model->getall_state();
         $results['services'] = $this->vendor_model->selectservice();
-        $results['brands'] = $this->vendor_model->selectbrand();
         //Getting Login Details for this partner
         $results['login_details'] = $this->partner_model->get_partner_login_details($id);
+        $results['partner_code'] = $this->partner_model->get_partner_code($id);
+        $partner_code = $this->partner_model->get_availiable_partner_code();
+        foreach($partner_code as $row)
+        {
+            $code[] = $row['code']; // add each partner code to the array
+        }
+        $results['partner_code_availiable'] = $code;
         //Getting Parnter Operation Region Details
         $where = array('partner_id' => $id);
         $results['partner_operation_region'] = $this->partner_model->get_partner_operation_region($where);
-        //Getting Partner Brands Relation from partner_service_brand_relation
-        $results['partner_brands'] = $this->partner_model->get_partner_service_brand_relation($where);
         
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results));
@@ -1822,5 +1834,22 @@ class Partner extends CI_Controller {
         $option['model'] = $model;
         print_r(json_encode($option));
     }
+    
+    /**
+     * @Desc: This function is used to remove images from partner add/edit form
+     *          It is being called using AJAX Request
+     * params: partner id
+     * return: Boolean
+     */
+    function remove_contract_image(){
+        $partner['contract_file'] = '';
+        //Making Database Entry as Empty for contract file
+        $this->partner_model->edit_partner($partner, $this->input->post('id'));
+        
+        //Logging 
+        log_message('info',__FUNCTION__.' Contract File has been removed sucessfully for partner id '.$this->input->post('id'));
+        echo TRUE;
+}
+    
 
 }

@@ -855,7 +855,7 @@ class Partner_model extends CI_Model {
      * 
      */
     function get_service_brands_for_partner($partner_id){
-        $sql = "Select partner_appliance_details.brand, services.services  "
+        $sql = "Select Distinct partner_appliance_details.brand, services.services  "
                 . "From partner_appliance_details, services "
                 . "where partner_appliance_details.service_id = services.id "
                 . "AND partner_appliance_details.partner_id = '".$partner_id."'";
@@ -944,6 +944,71 @@ class Partner_model extends CI_Model {
         $this->db->order_by('category', 'asc');
         $query = $this->db->get('partner_appliance_details');
         return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to get Patner codes from bookings_sources
+     * @params: void
+     * @return: Array
+     * 
+     */
+    function get_availiable_partner_code(){
+        $sql = "Select Distinct code from bookings_sources";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to add parter code in bookings_sources table
+     * @params: Array
+     * @return: Int
+     * 
+     */
+    function add_partner_code($data) {
+        $this->db->insert('bookings_sources', $data);
+        return $this->db->insert_id();
+    }
+    
+    /**
+     * @Desc: This function is used to get code for particular partner
+     * @params: partner id
+     * @return: array
+     * 
+     */
+    function get_partner_code($partner_id){
+        $this->db->select('code');
+        $this->db->where('partner_id',$partner_id);
+        $query = $this->db->get('bookings_sources');
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to update partner details in bookings_sources table
+     * @params: where array, data array
+     * 
+     */
+    function update_partner_code($where, $data){
+        $this->db->where($where);
+        $this->db->update('bookings_sources',$data);
+        if($this->db->affected_rows() > 0 ){
+            return TRUE;
+        }else{
+            return FALSE;
+        }
+        
+    }
+    
+    /**
+     * @Desc: This function is used to get latest price_mapping_id from bookings_sources table
+     * @params: void
+     * @return: void
+     * 
+     */
+    function get_latest_price_mapping_id(){
+        $this->db->select('price_mapping_id');
+        $this->db->order_by('create_date','desc');
+        $query = $this->db->get('bookings_sources');
+        return $query->first_row();
     }
 }
 
