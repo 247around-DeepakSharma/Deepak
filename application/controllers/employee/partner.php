@@ -493,7 +493,7 @@ class Partner extends CI_Controller {
                     $_POST['contract_file'] = $contract_file;
                     
                     //Logging success for file uppload
-                    log_message('info',__CLASS__.' CONTRACT FILE is being uploaded sucessfully.');
+                    log_message('info',__FUNCTION__.' CONTRACT FILE is being uploaded sucessfully.');
                 }
                 
                 //Getting partner operation regions details from POST
@@ -583,7 +583,7 @@ class Partner extends CI_Controller {
                     $_POST['contract_file'] = $contract_file;
                     
                     //Logging success for file uppload
-                    log_message('info',__CLASS__.' CONTRACT FILE is being uploaded sucessfully.');
+                    log_message('info',__FUNCTION__.' CONTRACT FILE is being uploaded sucessfully.');
                 }
                 
                 
@@ -723,7 +723,7 @@ class Partner extends CI_Controller {
      */
     function viewpartner($partner_id = "") {
         $data = [];
-        $query = $this->partner_model->viewpartner($partner_id);
+        $query = $this->partner_model->get_all_partner($partner_id);
         
         foreach($query as $value){
             //Getting Appliances and Brands details for partner
