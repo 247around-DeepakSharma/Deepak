@@ -23,6 +23,7 @@
 				<div class="form-group ">
 				    <label for="booking_id" class="col-md-4">Booking ID</label>
 				    <div class="col-md-6">
+                                       
 					<input type="text" class="form-control"  id="booking_id" name="booking_id" value = "<?php
 					       if (isset($booking_history[0]['booking_id'])) {
 						   echo $booking_history[0]['booking_id'];
@@ -475,11 +476,20 @@
 	{
 	    
 	} else {
-      alert('Please Select atleast one Completed or Delivered checkbox.');
-	   $flag = 0;
+           alert('Please Select atleast one Completed or Delivered checkbox.');
+	   flag = 0;
 	   return false;
 
 	}
+        
+        <?php if(isset($booking_history['spare_parts']['approved_defective_parts_by_partner'])){
+            if($booking_history['spare_parts']['approved_defective_parts_by_partner'] == 1){ ?> 
+            flag = 0;
+            alert("Please Ensure Defective Parts Shipped By SF");
+            return false;
+        <?php } }  ?>
+            
+        
 	if (flag === 0) {
 	    return true;
 
