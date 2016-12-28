@@ -890,26 +890,6 @@ class Partner extends CI_Controller {
     }
 
     /**
-     *  @desc : This function is to view details of any particular booking to partner
-     *
-     * 	We get all the details like User's details, booking details, and also the appliance's unit details of particular partner
-     *
-     *  @param : booking id, partner ID
-     *  @return : booking details and load view
-     */
-    function viewdetails($booking_id, $partner_id) {
-         $this->checkUserSession();
-        $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
-        $unit_where = array('booking_id'=>$booking_id, 'partner_id' => $partner_id);
-        $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
-
-        $data['service_center'] = $this->booking_model->selectservicecentre($booking_id);
-
-        $this->load->view('partner/header');
-        $this->load->view('partner/viewdetails', $data);
-    }
-
-    /**
      * @desc: get invoice details and bank transacton details to display in partner invoice view
      * Get partner Id from session.
      */
