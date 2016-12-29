@@ -905,26 +905,6 @@ class Partner extends CI_Controller {
     }
 
     /**
-     *  @desc : This function is to view details of any particular booking to partner
-     *
-     * 	We get all the details like User's details, booking details, and also the appliance's unit details of particular partner
-     *
-     *  @param : booking id, partner ID
-     *  @return : booking details and load view
-     */
-    function viewdetails($booking_id, $partner_id) {
-         $this->checkUserSession();
-        $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
-        $unit_where = array('booking_id'=>$booking_id, 'partner_id' => $partner_id);
-        $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
-
-        $data['service_center'] = $this->booking_model->selectservicecentre($booking_id);
-
-        $this->load->view('partner/header');
-        $this->load->view('partner/viewdetails', $data);
-    }
-
-    /**
      * @desc: get invoice details and bank transacton details to display in partner invoice view
      * Get partner Id from session.
      */
@@ -949,7 +929,7 @@ class Partner extends CI_Controller {
      *
      * Opens a form with user's name and option to be choosen to cancel the booking.
      *
-     * Atleast one booking/Query cancellation reason must be selected.
+     * Atleast one booking/Query cancellation reasbon must be selected.
      *
      * If others option is choosen, then the cancellation reason must be entered in the textarea.
      *
@@ -1525,6 +1505,7 @@ class Partner extends CI_Controller {
         $booking_history['details'] = array();
         foreach ($booking_address as $key=> $value) {
             $booking_history['details'][$key]  = $this->booking_model->getbooking_history($value, "join")[0];
+            $booking_history['details'][$key]['partner'] = $this->partner_model->getpartner($this->session->userdata('partner_id'))[0];
         }
        
         $this->load->view('partner/print_address',$booking_history);
@@ -1683,17 +1664,17 @@ class Partner extends CI_Controller {
         $partner_id = $this->session->userdata('partner_id');
         $where = array('booking_id' => $booking_id, 'partner_id' => $partner_id);
         $response = $this->service_centers_model->update_spare_parts($where, array('status' => DEFECTIVE_PARTS_RECEIVED,
-            'approved_defective_parts_by_partner'=> '1'));
+            'approved_defective_parts_by_partner'=> '1', 'remarks_defective_part_by_partner'=> NULL));
         if ($response) {
-            log_message('info', __FUNCTION__ . " Sucessfully Acknowleded to Receive Defective Spare Parts ".$booking_id
+            log_message('info', __FUNCTION__ . " Received Defective Spare Parts ".$booking_id
                     ." Partner Id". $this->session->userdata('partner_id'));
-            $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner acknowledged to received defective spare parts");
+            $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts");
 
             $sc_data['current_status'] = "InProcess";
             $sc_data['internal_status'] = _247AROUND_COMPLETED;
             $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
-            $userSession = array('success' => 'Sucessfully Acknowleded to Receive Defective Spare Parts');
+            $userSession = array('success' => ' Received Defective Spare Parts');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
         } else { //if($response){
@@ -1731,7 +1712,7 @@ class Partner extends CI_Controller {
             $sc_data['internal_status'] = $rejection_reason;
             $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
-            $userSession = array('success' => 'Defective Parts Rejected To SF. They will take an action soon!');
+            $userSession = array('success' => 'Defective Parts Rejected To SF');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
         } else { //if($response){
