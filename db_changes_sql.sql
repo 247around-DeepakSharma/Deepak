@@ -1490,3 +1490,37 @@ INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`
 
 INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'un-cancel_brackets_requested_from_vendor', 'An order has been <b>Un-Cancelled</b> for Brackets of <strong>Order ID : %s </strong><br><br> <strong>Order Details:</strong><br><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Total Requested : %s<br><br> <strong>Requested From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br> Phone Number: %s, %s<br><br> Please <b>ship</b> the following orders.', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com,vijaya@247around.com', '', '1', '2016-09-26 18:30:00');
 
+-- Belal 28 Dec
+
+CREATE TABLE `partner_missed_calls` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `phone` varchar(20) DEFAULT NULL,
+ `counter` int(11) NOT NULL DEFAULT '0',
+ `status` varchar(20) NOT NULL DEFAULT 'FollowUp',
+ `updation_reason` varchar(512) DEFAULT NULL,
+ `cancellation_reason` varchar(512) DEFAULT NULL,
+ `action_date` datetime DEFAULT NULL,
+ `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `create_date` timestamp NULL DEFAULT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'partner_missed_call_welcome_sms', 'Yippie! Your request for Installation and Repair services has been Acknowledged by 247around Team. Like us on Facebook goo.gl/Y4L6Hj. For any issues & feedback, call @ 9555000247.', NULL, '1', '2016-07-22 14:46:17');
+
+--Belal 29 Dec
+
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Mobile no invalid / not in use', 'partner_missed_calls', '1');
+
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Customer gave missed call by mistake', 'partner_missed_calls', '1');
+
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Installation not Required', 'partner_missed_calls', '1');
+
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Customer not reachable', 'partner_missed_calls', '1');
+
+INSERT INTO `booking_updation_reasons` (`id`, `old_state`, `new_state`, `reason`, `reason_of`, `show_on_app`, `active`) VALUES (NULL, '', '', 'Customer Not Picking Call', 'partner_missed_calls', '1', '1');
+
+INSERT INTO `booking_updation_reasons` (`id`, `old_state`, `new_state`, `reason`, `reason_of`, `show_on_app`, `active`) VALUES (NULL, '', '', 'Customer asked to call after 1 day', 'partner_missed_calls', '1', '1');
+
+INSERT INTO `booking_updation_reasons` (`id`, `old_state`, `new_state`, `reason`, `reason_of`, `show_on_app`, `active`) VALUES (NULL, '', '', 'Customer asked to call after 2 day', 'partner_missed_calls', '1', '1');
+
+INSERT INTO `booking_updation_reasons` (`id`, `old_state`, `new_state`, `reason`, `reason_of`, `show_on_app`, `active`) VALUES (NULL, '', '', 'Customer asked to call after 3 day', 'partner_missed_calls', '1', '1');
