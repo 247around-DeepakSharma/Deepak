@@ -736,6 +736,10 @@ class Booking extends CI_Controller {
 	$this->vendor_model->update_service_center_action($booking_id, $data_vendor);
 
 	$this->update_price_while_cancel_booking($booking_id);
+        
+        //Update Spare parts details table
+        $this->service_centers_model->update_spare_parts(array('booking_id', $booking_id), 
+                 array('status'=> _247AROUND_CANCELLED));
 
 	//Log this state change as well for this booking
 	//param:-- booking id, new state, old state, employee id, employee name
@@ -1607,6 +1611,9 @@ class Booking extends CI_Controller {
 	log_message('info', ": " . " update booking details data (" . $booking['current_status'] . ")" . print_r($booking, TRUE));
 	// this function is used to update booking details table
 	$this->booking_model->update_booking($booking_id, $booking);
+        //Update Spare parts details table
+        $this->service_centers_model->update_spare_parts(array('booking_id', $booking_id), 
+                 array('status'=> $internal_status));
 
 	//Log this state change as well for this booking
 	//param:-- booking id, new state, old state, employee id, employee name

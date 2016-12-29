@@ -1922,7 +1922,7 @@ class Booking_model extends CI_Model {
                 }
             } else if(!is_null($value['service_center_id'])){
                 // For Service center
-                $this->db->select('full_name, company_name as source');
+                $this->db->select("CONCAT('Agent Id: ',service_centers_login.id ) As full_name , CONCAT('SF Id: ',service_centres.id ) As source");
                 $this->db->from('service_centers_login');
                 $this->db->where('service_centers_login.id', $value['agent_id']);
                 $this->db->join('service_centres', 'service_centres.id = service_centers_login.service_center_id');
