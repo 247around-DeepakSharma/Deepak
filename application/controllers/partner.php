@@ -226,6 +226,7 @@ class Partner extends CI_Controller {
                         $booking['partner_id'] = $data['partner_id'];
                         $booking['source'] = $data['source'];
                         
+                        /*
                         if($booking['partner_id'] == "1"){
                            
                             $cancelled_follow_up = $this->booking_model->cancel_duplicate_booking_for_sts($requestData, $service_id);
@@ -239,6 +240,9 @@ class Partner extends CI_Controller {
                         } else {
                             $booking['internal_status'] = "Missed_call_not_confirmed"; 
                         }
+                        */
+                        
+                        $booking['internal_status'] = "Missed_call_not_confirmed";
 
                         $unit_details['partner_id'] = $booking['partner_id'];
                         $booking['order_id'] = $requestData['orderID'];

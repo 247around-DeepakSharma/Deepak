@@ -1650,15 +1650,15 @@ class Partner extends CI_Controller {
         $response = $this->service_centers_model->update_spare_parts($where, array('status' => DEFECTIVE_PARTS_RECEIVED,
             'approved_defective_parts_by_partner'=> '1'));
         if ($response) {
-            log_message('info', __FUNCTION__ . " Sucessfully Acknowleded to Receive Defective Spare Parts ".$booking_id
+            log_message('info', __FUNCTION__ . " Defective Spare Parts Received: ".$booking_id
                     ." Partner Id". $this->session->userdata('partner_id'));
-            $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner acknowledged to received defective spare parts");
+            $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner received defective spare parts");
 
             $sc_data['current_status'] = "InProcess";
             $sc_data['internal_status'] = _247AROUND_COMPLETED;
             $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
-            $userSession = array('success' => 'Sucessfully Acknowleded to Receive Defective Spare Parts');
+            $userSession = array('success' => 'Defective Spare Parts Received');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
         } else { //if($response){
@@ -1696,11 +1696,11 @@ class Partner extends CI_Controller {
             $sc_data['internal_status'] = $rejection_reason;
             $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
-            $userSession = array('success' => 'Defective Parts Rejected To SF. They will take an action soon!');
+            $userSession = array('success' => 'Defective Parts Rejected');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
         } else { //if($response){
-            log_message('info', __FUNCTION__ . '=> Defective Spare Parts not udated  by Partner ' . $this->session->userdata('partner_id') .
+            log_message('info', __FUNCTION__ . '=> Defective Spare Parts Not Updated by Partner' . $this->session->userdata('partner_id') .
                     " booking id " . $booking_id);
             $userSession = array('success' => 'There is some error. Please try again.');
             $this->session->set_userdata($userSession);

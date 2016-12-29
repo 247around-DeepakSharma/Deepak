@@ -1482,3 +1482,9 @@ UPDATE `email_template` SET `template` = '%s order has been Cancelled sucessfull
 --Abhay 26 DEC
 
 ALTER TABLE `spare_parts_details` ADD `approved_defective_parts_by_partner` INT(2) NULL DEFAULT '0' AFTER `defective_part_required`;
+
+-- Anuj 28 Dec
+
+ALTER TABLE  `booking_details` CHANGE  `user_id`  `user_id` INT( 11 ) NOT NULL ;
+ALTER TABLE  `booking_details` CHANGE  `service_id`  `service_id` INT( 11 ) NOT NULL ;
+ALTER TABLE  `booking_details` CHANGE  `order_id`  `order_id` VARCHAR( 64 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
