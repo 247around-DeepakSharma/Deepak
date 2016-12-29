@@ -1851,5 +1851,120 @@ class Booking extends CI_Controller {
         }
         //End inventory
     }
+    
+    /**
+     * @Desc: This function is used to show Missed Calls view for Offline Partners work
+     * @parmas: void
+     * @return: view
+     * 
+     */
+    function get_missed_calls_view(){
+        $data['data'] = $this->partner_model->get_missed_calls_details();
+        $data['cancellation_reason'] = $this->partner_model->get_missed_calls_cancellation_reason();
+        $data['updation_reason'] = $this->partner_model->get_missed_calls_updation_reason();
+        
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+	$this->load->view('employee/get_missed_calls_view', $data);
+    }
+    
+    /**
+     * @Desc: This function is used to update partner missed calls details on completion
+     *          It is being called by AJAX
+     * @params: id, status
+     * @return: Boolean
+     */
+    function update_partner_missed_calls($id, $status){
+        $missed_call_leads = $this->partner_model->get_missed_calls_leads_by_id($id);
+        //Incrementing counter by 1 , from its LATEST value
+        $data['counter'] = ($missed_call_leads[0]['counter']+1);
+        $data['status'] = $status;
+        $data['update_date'] = date('Y-m-d H:i:s');
+        $where = array('id'=>$id);
+        $update = $this->partner_model->update_partner_missed_calls($where,$data);
+        //Add Log
+        log_message('info',__FUNCTION__.' Partner Missed calls leads has been Completed for id '.$id);
+        echo $update;
+        
+    }
+    
+    /**
+     * @Desc: This function is used to Cancel Leads
+     * @params: POST ARRAY
+     * @return: view
+     * 
+     */
+    function cancel_missed_calls_lead(){
+        $id = $this->input->post('id');
+        $missed_call_leads = $this->partner_model->get_missed_calls_leads_by_id($id);
+        //Incrementing counter by 1 , from its LATEST value
+        $data['counter'] = ($missed_call_leads[0]['counter']+1);
+        $data['status'] = 'Cancelled';
+        $data['update_date'] = date('Y-m-d H:i:s');
+        $data['cancellation_reason'] = $this->input->post('cancellation_reason');
+        $where = array('id'=>$id);
+        $update = $this->partner_model->update_partner_missed_calls($where,$data);
+        
+        $this->session->set_flashdata('cancel_leads', 'Leads has been cancelled for phone '.$missed_call_leads[0]['phone']);
+        redirect(base_url() . "employee/booking/get_missed_calls_view");
+    }
+    
+    /**
+     * @Desc: This function is used to Update Leads
+     * @params: POST ARRAY
+     * @return: view
+     * 
+     */
+    function update_missed_calls_lead(){
+        $id = $this->input->post('id');
+        $missed_call_leads = $this->partner_model->get_missed_calls_leads_by_id($id);
+        
+        //When Customer Not Pick Call
+        if($this->input->post('updation_reason') == "Customer Not Picking Call"){
+            //Incrementing counter by 1 , from its LATEST value
+            $data['counter'] = ($missed_call_leads[0]['counter'] + 1);
+            $data['update_date'] = date('Y-m-d H:i:s');
+            $data['action_date'] = date("Y-m-d H:i:s", strtotime('+5 hours'));
+            $data['updation_reason'] = $this->input->post('updation_reason');
+            $where = array('id' => $id);
+            $update = $this->partner_model->update_partner_missed_calls($where,$data);
+            
+        } // 1 Day scheduled
+        else if($this->input->post('updation_reason') == "Customer asked to call after 1 day"){
+            
+            //Incrementing counter by 1 , from its LATEST value
+            $data['counter'] = ($missed_call_leads[0]['counter'] + 1);
+            $data['update_date'] = date('Y-m-d H:i:s');
+            $data['action_date'] = date("Y-m-d ", strtotime('+1 days'));
+            $data['updation_reason'] = $this->input->post('updation_reason');
+            $where = array('id' => $id);
+            $update = $this->partner_model->update_partner_missed_calls($where,$data);
+            
+        }   // 2 Day Scheduled
+        else if($this->input->post('updation_reason') == "Customer asked to call after 2 day"){
+            
+            //Incrementing counter by 1 , from its LATEST value
+            $data['counter'] = ($missed_call_leads[0]['counter'] + 1);
+            $data['update_date'] = date('Y-m-d H:i:s');
+            $data['action_date'] = date("Y-m-d ", strtotime('+2 days'));
+            $data['updation_reason'] = $this->input->post('updation_reason');
+            $where = array('id' => $id);
+            $update = $this->partner_model->update_partner_missed_calls($where,$data);
+            
+        } // 3 day scheduled
+        else if($this->input->post('updation_reason') == "Customer asked to call after 3 day"){
+            
+            //Incrementing counter by 1 , from its LATEST value
+            $data['counter'] = ($missed_call_leads[0]['counter'] + 1);
+            $data['update_date'] = date('Y-m-d H:i:s');
+            $data['action_date'] = date("Y-m-d ", strtotime('+3 days'));
+            $data['updation_reason'] = $this->input->post('updation_reason');
+            $where = array('id' => $id);
+            $update = $this->partner_model->update_partner_missed_calls($where,$data);
+            
+        }
+        
+        $this->session->set_flashdata('update_leads', 'Leads has been Updated for phone '.$missed_call_leads[0]['phone']);
+        redirect(base_url() . "employee/booking/get_missed_calls_view");
+    }
 
 }

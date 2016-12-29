@@ -1027,5 +1027,98 @@ class Partner_model extends CI_Model {
 
 	    return $query->result_array();
     }
+    
+    /**
+     * @Desc: This function is used to insert value in partner_missed_calls table
+     * @params: array
+     * @return: Boolean
+     * 
+     */
+    function insert_partner_missed_calls_detail($data){
+        $this->db->insert("partner_missed_calls", $data);
+        $result = (bool) ($this->db->affected_rows() > 0);
+        return $result;
+    }
+    
+    /**
+     * @Desc: This function is used to get missed calls details
+     *        Only those rows will be taken whose status is FollowUp and action date in on or before current time
+     * @params: void 
+     * @return: Array
+     */
+    function get_missed_calls_details(){
+        $sql = "Select * from partner_missed_calls where status = 'FollowUp' "
+                . "AND action_date <= NOW() ORDER BY action_date Desc " ;
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to get value for particular Missed calls Leads in partner_missed_calls table by ID
+     * @params: id
+     * @return Array
+     * 
+     */
+    function get_missed_calls_leads_by_id($id){
+        $this->db->select('*');
+        $this->db->where('id',$id);
+        $query = $this->db->get('partner_missed_calls');
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to Updated partner_missed_calls lead table
+     * @params: Where Array, Data Array
+     * @return: Boolean
+     * 
+     */
+    function update_partner_missed_calls($where, $data){
+        $this->db->where($where);
+        $this->db->update('partner_missed_calls',$data);
+        $result = (bool) ($this->db->affected_rows() > 0);
+        return $result;
+    }
+    
+    /**
+     * @Desc: This function is used to get Partner Missed calls cancellation reason
+     * @params: void
+     * @return: Array
+     * 
+     * 
+     */
+    function get_missed_calls_cancellation_reason(){
+        $this->db->select('*');
+        $this->db->where('reason_of','partner_missed_calls');
+        $query = $this->db->get('booking_cancellation_reasons');
+        return $query->result_array();
+        
+    }
+    
+    /**
+     * 
+     * @Desc: This function is used get partner missed calls updation reason
+     * @params: void
+     * return: Array
+     * 
+     */
+    function get_missed_calls_updation_reason(){
+        $this->db->select('*');
+        $this->db->where('reason_of','partner_missed_calls');
+        $query = $this->db->get('booking_updation_reasons');
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to get details from partner_missed_calls table by Phone number
+     * @params: Phone
+     * @return: Array
+     * 
+     */
+    function get_partner_missed_calls_by_phone($num){
+        $this->db->select('*');
+        $this->db->where('phone',$num);
+        $query = $this->db->get('partner_missed_calls');
+        return $query->result_array();
+    }
 }
 
