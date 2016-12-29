@@ -359,7 +359,7 @@ class Partner_model extends CI_Model {
 
     //Return all leads shared by Partner in the last 30 days
     function get_partner_leads_for_summary_email($partner_id) {
-	$query = $this->db->query("SELECT BD.booking_id, order_id, booking_date, booking_timeslot,
+	$query = $this->db->query("SELECT DISTINCT BD.booking_id, order_id, booking_date, booking_timeslot,
 			BD.current_status, BD.cancellation_reason, rating_stars,
 			DATE_FORMAT(BD.create_date, '%d/%M') as create_date,
 			services,
@@ -870,11 +870,14 @@ class Partner_model extends CI_Model {
      * @return : Array
      */
     function get_active_partner_id_by_service_id_brand($brands, $service_id){
-        $this->db->select('partner_id');
-        $this->db->where('brand',$brands);
-        $this->db->where('service_id',$service_id);
-        $this->db->where('active',1);
-        $query = $this->db->get('partner_appliance_details');
+        $sql = "Select partner_appliance_details.partner_id from partner_appliance_details, partners"
+                . " where  partner_appliance_details.partner_id = partners.id "
+                . "AND partner_appliance_details.brand = '".$brands."' "
+                . 'AND partner_appliance_details.service_id = '.$service_id." "
+                . 'AND partner_appliance_details.active = 1 '
+                . 'AND partners.is_active = 1';
+        $query = $this->db->query($sql);
+        
         return $query->result_array();
         
         
@@ -1009,6 +1012,20 @@ class Partner_model extends CI_Model {
         $this->db->order_by('create_date','desc');
         $query = $this->db->get('bookings_sources');
         return $query->first_row();
+    }
+    
+    /*
+     * @desc: This is used to get active partner details and also get partner details by partner id
+     *          Without looking for Active or Disabled
+     */
+    function get_all_partner($partner_id = "") {
+	    if ($partner_id != "") {
+	        $this->db->where('id', $partner_id);
+	    }
+	    $this->db->select('*');
+	    $query = $this->db->get('partners');
+
+	    return $query->result_array();
     }
 }
 

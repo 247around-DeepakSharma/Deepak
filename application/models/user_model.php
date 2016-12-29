@@ -224,6 +224,26 @@ class User_model extends CI_Model {
 
         return $id;
     }
+    
+     /** @description : Search user and booking details for a particular user through his phone number, also for pagination
+     * 
+     *  This gets the basic user and booking details and services name as well
+     * 
+     *  @param : phone no, start and limit
+     *  @return : array of user and booking details
+     */
+    function booking_history($phone_number, $limit, $start) {
+        $sql = " SELECT services.services, users.user_id, users.city, users.state, users.phone_number, users.user_email, users.home_address, users.name, users.pincode, "
+                . " booking_details.* "
+                . " FROM booking_details, users,services WHERE "
+                . " users.phone_number='$phone_number' AND booking_details.user_id=users.user_id AND "
+                . " services.id=booking_details.service_id LIMIT $start, $limit";
+        $query = $this->db->query($sql);
+        
+        log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
+        
+        return $query->result_array();
+    }
 
     /** @description : Search user and booking details for a particular user through his phone number,partner ID also for pagination
      * 
