@@ -34,6 +34,26 @@
 </script>
 <div  id="page-wrapper">
     <div class="row">
+        <?php
+    if ($this->session->userdata('success')) {
+    echo '<div class="alert alert-success alert-dismissible" role="alert">
+                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                         <span aria-hidden="true">&times;</span>
+                     </button>
+                     <strong>' . $this->session->userdata('success') . '</strong>
+                 </div>';
+    }
+    ?>
+        <?php
+    if ($this->session->userdata('error')) {
+    echo '<div class="alert alert-danger alert-dismissible" role="alert">
+                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                         <span aria-hidden="true">&times;</span>
+                     </button>
+                     <strong>' . $this->session->userdata('error') . '</strong>
+                 </div>';
+    }
+    ?>
       <div >
        
         <h1>Service Center</h1>
@@ -176,3 +196,9 @@
         }
     }
     </script>
+    
+    <?php if ($this->session->userdata('success')) {
+        $this->session->unset_userdata('success'); 
+    } if ($this->session->userdata('error')) {
+         $this->session->unset_userdata('error'); 
+    }?>

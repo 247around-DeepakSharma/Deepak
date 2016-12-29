@@ -65,7 +65,7 @@
                                                 <?php
                                                     $src = base_url() . 'images/no_image.png';
                                                     if (isset($bookinghistory[0]['defective_parts_pic'])) {
-                                                        if (!is_null($bookinghistory['defective_parts_pic'])) {
+                                                        if (!is_null($bookinghistory[0]['defective_parts_pic'])) {
                                                     
                                                             if (isset($bookinghistory[0]['defective_parts_pic']) && !empty($bookinghistory[0]['defective_parts_pic'])) {
                                                                 //Path to be changed
