@@ -1114,9 +1114,10 @@ class Partner_model extends CI_Model {
      * @return: Array
      * 
      */
-    function get_partner_missed_calls_by_phone($num){
+    function get_partner_leads_by_phone_status($num,$status){
         $this->db->select('*');
         $this->db->where('phone',$num);
+        $this->db->where('status',$status);
         $query = $this->db->get('partner_missed_calls');
         return $query->result_array();
     }
