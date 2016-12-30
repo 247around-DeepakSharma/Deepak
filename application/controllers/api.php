@@ -28,6 +28,7 @@ class Api extends CI_Controller {
         $this->load->model('booking_model');
         $this->load->model('vendor_model');
         $this->load->model('user_model');
+        $this->load->model('partner_model');
         $this->load->library('notify');
 	$this->load->library('s3');
         $this->load->library('email');
@@ -1195,7 +1196,7 @@ class Api extends CI_Controller {
      */
     public function pass_through() {
         //log_message('info', "Entering: " . __METHOD__);
-
+        
 	$activity = array('activity' => 'process exotel request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
         $this->apis->logTable($activity);
 
@@ -1299,10 +1300,82 @@ class Api extends CI_Controller {
 //                    }
                 }
             } else {
-                //No bookings found, send sms asking him to call from his registered mobile no.
-                //Do not send this SMS now as it will also go to customer downloading our APP
-                //Check whether this customer has downloaded App and then decide
-                //$this->send_missed_call_booking_not_found_sms($num);
+                //Handling case when User is not being Found in DB, sending Installation and Request
+                // welcome SMS to the corresponding user and adding the details in Partner Missed Calls table as well
+                
+                //1. Sending SMS to the user
+                $sms['tag'] = "partner_missed_call_welcome_sms";
+                $sms['phone_no'] = $num;
+                $sms['smsData'] = '';
+                $sms['booking_id'] = '';
+                $sms['type'] = "user";
+                $sms['type_id'] = '';
+
+                $this->notify->send_sms_acl($sms);
+                //Logging
+                log_message('info', __FUNCTION__.' Partner Missed Call Welcome SMS has been sent to '. $num);
+                
+                
+                //2. Now adding details in partner_missed_calls table
+                
+                //Checking the Case when Number is already present in Table
+                
+                //Getting FollowUp Leads
+                $leads_followUp = $this->partner_model->get_partner_leads_by_phone_status($num, 'FollowUp');
+                //Getting Completed Leads
+                $leads_completed = $this->partner_model->get_partner_leads_by_phone_status($num, 'Completed');
+                //Getting Cancelled Leads
+                $leads_cancelled = $this->partner_model->get_partner_leads_by_phone_status($num, 'Cancelled');
+                // a . First checking if FollowUp leads is Present
+                if (!empty($leads_followUp)) {
+
+                    //Updating Previously present Row, by changing Dates when Phone is present in FollowUp state
+                    $data['action_date'] = date('Y-m-d H:i:s');
+                    $data['create_date'] = date('Y-m-d H:i:s');
+                    $data['update_date'] = date('Y-m-d H:i:s');
+                    $where = array('id' => $leads_followUp[0]['id']);
+                    $inserted_id = $this->partner_model->update_partner_missed_calls($where, $data);
+                    if ($inserted_id) {
+                        //Logging
+                        log_message('info', __FUNCTION__ . ' Previous Phone has been updated in partner_missed_calls table with no: ' . $num);
+                    } else {
+                        //Logging
+                        log_message('info', __FUNCTION__ . ' Error in adding Phone to partner_missed_calls details ' . $num);
+                    }
+                }
+                // b. Checking case when leads is Completed or Cancelled
+                else if (!empty($leads_cancelled) || !empty($leads_completed)) {
+
+                    // Adding a new Row in Partner missed calls details in case of completed or cancelled
+                    $data['phone'] = $num;
+                    $data['action_date'] = date('Y-m-d H:i:s');
+                    $data['create_date'] = date('Y-m-d H:i:s');
+                    $inserted_id = $this->partner_model->insert_partner_missed_calls_detail($data);
+                    if ($inserted_id) {
+                        //Logging
+                        log_message('info', __FUNCTION__ . ' New Entry for SAME PHONE has been added in partner_missed_calls table with no: ' . $num);
+                    } else {
+                        //Logging
+                        log_message('info', __FUNCTION__ . ' Error in adding Phone to partner_missed_calls details ' . $num);
+                    }
+                }
+                // c. No leads is Present
+                else {
+
+                    //Condition when Phone is Not Present - Insert New Row
+                    $data['phone'] = $num;
+                    $data['action_date'] = date('Y-m-d H:i:s');
+                    $data['create_date'] = date('Y-m-d H:i:s');
+                    $inserted_id = $this->partner_model->insert_partner_missed_calls_detail($data);
+                    if ($inserted_id) {
+                        //Logging
+                        log_message('info', __FUNCTION__ . ' New Phone has been added in partner_missed_calls table with no: ' . $num);
+                    } else {
+                        //Logging
+                        log_message('info', __FUNCTION__ . ' Error in adding Phone to partner_missed_calls details ' . $num);
+                    }
+                }
+                
             }
 	}
 

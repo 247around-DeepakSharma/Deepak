@@ -106,6 +106,11 @@
                                 <li>
                                     <a href="<?php echo base_url() ?>employee/booking/viewclosedbooking/Cancelled"><i class="fa fa-fw fa-desktop"></i> <strong>View Cancelled Booking</strong></a>
                                 </li>
+                                <li class="divider"></li>
+                                <li >
+                                    <a href="<?php echo base_url() ?>employee/booking/get_missed_calls_view"><i class="fa fa-fw fa-desktop"></i> <strong>View Partner Leads</strong></a>
+                                </li>
+                                
                             </ul>
                             <!-- /.dropdown-tasks -->
                         </li>
