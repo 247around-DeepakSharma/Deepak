@@ -2844,6 +2844,7 @@ class vendor extends CI_Controller {
                 //Calculating vendor tax - [Vendor Total - Vendor Base Charge]
                 $vendor_tax = $value['vendor_total'] - $vendor_base_charge;
                 
+                $array_final['state'] = $state;
                 $array_final['sc_code'] = $code_source;
                 $array_final['product'] = $value['product'];
                 $array_final['category'] = $value['category'];
@@ -2877,11 +2878,10 @@ class vendor extends CI_Controller {
                 ));
 
             $output_file_dir = TMP_FOLDER;
-            $output_file = ucfirst($state)."-Charges-List-" . date('j M Y');
-            $output_file_name = $output_file . ".xls";
+            $output_file = ucfirst($state)."-Charges-List-" . date('j-M-Y');
+            $output_file_name = $output_file . ".xlsx";
             $output_file_excel = $output_file_dir . $output_file_name;
-            $R->render('excel2003', $output_file_excel);
-
+            $R->render('excel', $output_file_excel);
             //Downloading File
             if(file_exists($output_file_excel)){
 
