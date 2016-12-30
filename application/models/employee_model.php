@@ -144,5 +144,19 @@ class Employee_model extends CI_Model{
           $query = $this->db->get('employee');
           return $query->result_array();
       }
+      
+      /**
+       * @Desc: This function is used to get admin and RM for CRON function mails
+       * @params: void
+       * @return: Array
+       * 
+       */
+      function get_employee_for_cron_mail(){
+          $this->db->select('*');
+          $this->db->where('groups',_247AROUND_ADMIN);
+          $this->db->or_where('groups',_247AROUND_RM);
+          $query = $this->db->get('employee');
+          return $query->result_array();
+      }
 
 }
