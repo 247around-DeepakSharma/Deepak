@@ -784,10 +784,13 @@ class vendor extends CI_Controller {
         $service_center_id = $this->input->post('service');
 
 	if ($service_center_id != "Select") {
-            $engineer = $this->vendor_model->get_engineers($service_center_id);
-            $b['assigned_vendor_id'] = $service_center_id;
-            if(!empty($engineer)){
-                $b['assigned_engineer_id'] = $engineer[0]['id'];
+            if (IS_DEFAULT_ENGINEER == TRUE) {
+                $b['assigned_engineer_id'] = DEFAULT_ENGINEER;
+            } else {
+                $engineer = $this->vendor_model->get_engineers($service_center_id);
+                if (!empty($engineer)) {
+                    $b['assigned_engineer_id'] = $engineer[0]['id'];
+                }
             }
             //Assign service centre and engineer
             $this->booking_model->update_booking($booking_id, $b);

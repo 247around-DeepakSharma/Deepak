@@ -68,6 +68,9 @@ $route['service_center/get_defective_parts_booking'] = 'employee/service_centers
 $route['service_center/get_defective_parts_booking/(:any)'] = 'employee/service_centers/get_defective_parts_booking/$1';
 $route['service_center/update_defective_parts/(:any)'] = 'employee/service_centers/update_defective_parts/$1';
 $route['service_center/process_update_defective_parts/(:any)'] = 'employee/service_centers/process_update_defective_parts/$1';
+$route['service_center/get_approved_defective_parts_booking'] = 'employee/service_centers/get_approved_defective_parts_booking';
+$route['service_center/get_approved_defective_parts_booking/(:any)'] = 'employee/service_centers/get_approved_defective_parts_booking/$1';
+
 
 $route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';
 
@@ -106,6 +109,9 @@ $route['partner/get_shipped_parts_list/(:any)'] = 'employee/partner/get_shipped_
 $route['partner/get_waiting_defective_parts'] = 'employee/partner/get_waiting_defective_parts';
 $route['partner/acknowledge_received_defective_parts/(:any)'] = 'employee/partner/acknowledge_received_defective_parts/$1';
 $route['partner/reject_defective_part/(:any)/(:any)'] = 'employee/partner/reject_defective_part/$1/$2';
+$route['partner/get_approved_defective_parts_booking'] = 'employee/partner/get_approved_defective_parts_booking';
+$route['partner/get_approved_defective_parts_booking/(:any)'] = 'employee/partner/get_approved_defective_parts_booking/$1';
+
 //$route['api/(:any)'] = 'partner/$2';
 
 /* End of file routes.php */
