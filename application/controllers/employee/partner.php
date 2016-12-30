@@ -1153,6 +1153,7 @@ class Partner extends CI_Controller {
                     $this->session->userdata('partner_id'));
             if($escalation_id){
                 log_message('info', __FUNCTION__ . " Escalation INSERTED ");
+                $this->booking_model->increase_escalation_reschedule($booking_id, "count_escalation");
                 $from = "escalations@247around.com";
                 $bcc=""; $attachment = "";
                 
