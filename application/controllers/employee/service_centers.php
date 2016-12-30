@@ -1180,6 +1180,35 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/defective_parts', $data);
     }
+    
+    /**
+     * @desc: This method is used to display list of booking which received by Partner
+     * @param Integer $offset
+     */
+    function get_approved_defective_parts_booking($offset = 0){
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
+        $service_center_id = $this->session->userdata('service_center_id');
+        $where = "spare_parts_details.service_center_id = '".$service_center_id."' "
+                . " AND approved_defective_parts_by_partner = '1' ";
+          
+        $config['base_url'] = base_url() . 'service_center/get_approved_defective_parts_booking';
+        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
+        $config['total_rows'] = $total_rows[0]['total_rows'];
+
+        $config['per_page'] = 50;
+        $config['uri_segment'] = 3;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+
+        $data['count'] = $config['total_rows'];
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
+        
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/approved_defective_parts', $data);
+    }
     /**
      * @desc: This method is used to load update form(defective shipped parts)
      * @param String $booking_id

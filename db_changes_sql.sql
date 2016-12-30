@@ -1490,6 +1490,34 @@ INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`
 
 INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'un-cancel_brackets_requested_from_vendor', 'An order has been <b>Un-Cancelled</b> for Brackets of <strong>Order ID : %s </strong><br><br> <strong>Order Details:</strong><br><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Total Requested : %s<br><br> <strong>Requested From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br> Phone Number: %s, %s<br><br> Please <b>ship</b> the following orders.', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com,vijaya@247around.com', '', '1', '2016-09-26 18:30:00');
 
+<<<<<<< HEAD
+----Abhay 27 Dec
+ALTER TABLE  `agent_outbound_call_log` ADD  `call_duration` INT( 50 ) NULL DEFAULT NULL ;
+
+
+ALTER TABLE `partners` ADD `upcountry` INT(2) NULL DEFAULT '0' AFTER `is_reporting_mail`;
+
+---Abhay 28 DEC
+ALTER TABLE `booking_details` DROP `discount_coupon`, DROP `discount_amount`, 
+DROP `appliance_brand`, DROP `appliance_category`, DROP `appliance_capacity`, 
+DROP `items_selected`, DROP `appliance_tags`, DROP `service_charge`, 
+DROP `service_charge_collected_by`, DROP `additional_service_charge`,
+ DROP `additional_service_charge_collected_by`, DROP `parts_cost`, 
+DROP `parts_cost_collected_by`, DROP `payment_method`, 
+DROP `payment_txn_id`;
+
+
+ALTER TABLE `booking_details` ADD `is_upcountry` INT NULL DEFAULT '0' 
+AFTER `count_escalation`, ADD `upcountry_pincode` INT(20) NULL DEFAULT NULL AFTER `is_upcountry`, 
+ADD `sub_vendor_id` INT(11) NULL DEFAULT NULL AFTER `upcountry_pincode`, 
+ADD `upcountry_rate` INT(11) NULL DEFAULT NULL AFTER `sub_vendor_id`, 
+ADD `upcountry_distance` INT(11) NULL DEFAULT NULL AFTER `upcountry_rate`;
+
+ALTER TABLE `booking_details` ADD `upcountry_price` INT(11) NULL DEFAULT NULL AFTER `upcountry_distance`, 
+ADD `all_upcountry_pincode_details` TEXT NULL DEFAULT NULL AFTER `upcountry_price`;
+
+ALTER TABLE `bank_transactions` CHANGE `credit_amount` `credit_amount` DECIMAL(10,2) NOT NULL, CHANGE `debit_amount` `debit_amount` DECIMAL(10,2) NOT NULL;
+
 -- Belal 28 Dec
 
 CREATE TABLE `partner_missed_calls` (
@@ -1524,3 +1552,4 @@ INSERT INTO `booking_updation_reasons` (`id`, `old_state`, `new_state`, `reason`
 INSERT INTO `booking_updation_reasons` (`id`, `old_state`, `new_state`, `reason`, `reason_of`, `show_on_app`, `active`) VALUES (NULL, '', '', 'Customer asked to call after 2 day', 'partner_missed_calls', '1', '1');
 
 INSERT INTO `booking_updation_reasons` (`id`, `old_state`, `new_state`, `reason`, `reason_of`, `show_on_app`, `active`) VALUES (NULL, '', '', 'Customer asked to call after 3 day', 'partner_missed_calls', '1', '1');
+

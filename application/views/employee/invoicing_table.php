@@ -165,6 +165,7 @@
              <th class="text-center">VAT/TIN</th>
              <th class="text-center">CST</th>
              <th class="text-center">Contract</th>
+             <th class="text-center">Count Defective Parts Not Shipped</th>
           </tr>
        </thead>
        <tbody>
@@ -189,9 +190,11 @@
                  
                    <img src="<?php echo  base_url(); ?><?php if(!empty($vendor_details[0]['contract_file'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
                </td>
-               
-               
-               
+               <td class="text-center">
+                 
+                  <?php  if(isset($count_spare_parts)){ echo $count_spare_parts;}?>
+               </td>
+
            </tr>
        </tbody>
       </table>

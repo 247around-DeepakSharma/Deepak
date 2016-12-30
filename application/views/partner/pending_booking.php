@@ -33,7 +33,7 @@
                            <th>Cancel</th>
                            <th>JobCard</th>
                            
-                           <!-- <th>Escalate</th> -->
+                           <th>Escalate</th>
 
                         </tr>
                      </thead>
@@ -93,9 +93,9 @@
 
                             <td><a href="javascript: w=window.open('https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?>'); w.print()" class='btn btn-sm btn-warning btn-sm' target="_blank" ><i class="fa fa-download" aria-hidden="true"></i></a></td>
 
-                            <!-- <td>
+                            <td>
                                 <a href="<?php echo base_url(); ?>partner/escalation_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-danger' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
-                            </td> -->
+                            </td>
                            
 
                         </tr>

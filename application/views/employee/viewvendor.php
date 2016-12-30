@@ -86,6 +86,7 @@
           <tr>
           	<th class="jumbotron">ID</th>
           	<th class="jumbotron">Name</th>
+                <th class="jumbotron">CRM Login / Password</th>
           	<th class="jumbotron">Phone No.</th>
           	<th class="jumbotron">Email</th>
           	<th width="250px;" class="jumbotron">Address</th>
@@ -95,7 +96,7 @@
           	<th class="jumbotron">Owner Name</th>
           	<th class="jumbotron">Owner Phone No.</th>
           	<th class="jumbotron">Owner Email</th>
-          	<th class="jumbotron">CRM Login / Password</th>
+          	
           	<th class="jumbotron">Temporary</th>
           	<th colspan="2" class="jumbotron">Permanent</th>
           </tr>
@@ -105,6 +106,9 @@
           <tr>
             <td><?=$row['id'];?></td>
             <td><a href="<?php echo base_url();?>employee/vendor/editvendor/<?=$row['id'];?>"><?=$row['name'];?></a></td>
+            <td class="text-center">
+                    <a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_vendor(<?php echo $row['id']?>)'  <?php echo ($row['active'] == 0)?'disabled=""':'' ?> title="<?php echo strtolower($row['sc_code']) . " / " . strtolower($row['sc_code']);  ?>">Login</a>
+            </td>
             <td>
                 <?=$row['phone_1'];?>
                 <button type="button" onclick="outbound_call(<?php echo $row['phone_1']; ?>)" 
@@ -133,9 +137,7 @@
           	</td>
           	
           	<td><?=$row['owner_email'];?></td>
-                <td>
-                    <a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_vendor(<?php echo $row['id']?>)'  <?php echo ($row['active'] == 0)?'disabled=""':'' ?> title="<?php echo strtolower($row['sc_code']) . " / " . strtolower($row['sc_code']);  ?>">Login</a>
-                </td>
+                
                 <td>
                         <?php
                         if ($row['on_off'] == 1) { ?>

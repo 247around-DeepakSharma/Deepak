@@ -70,6 +70,11 @@ class Invoice extends CI_Controller {
 
         if ($data['vendor_partner'] == "vendor") {
             $invoice['vendor_details'] = $this->vendor_model->getVendorContact($data['vendor_partner_id']);
+            $where = "service_center_id = '".$data['vendor_partner_id']. "' AND approved_defective_parts_by_partner = '0' "
+                    . " AND parts_shipped IS NOT NULL ";
+
+            $invoice['count_spare_parts'] = count($this->partner_model->get_spare_parts_booking($where));
+            
         }
 
         echo $this->load->view('employee/invoicing_table', $invoice);
