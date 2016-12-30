@@ -35,7 +35,7 @@
                     <td class="text-center"><?php echo $cancel_booking[2][0]['cancel_booking']; ?></td>
                
                     <th >Amount Lost in <?php echo date("F", strtotime("-2 Months"));?></th>
-                    <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",($eraned_details[2][0]['earned']/$eraned_details[2][0]['total_booking'])* $cancel_booking[2][0]['cancel_booking']); ?></td>
+                    <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo $cancel_booking[2][0]['lose_amount']; ?></td>
                
                     <th >Booking Completed In <?php echo date("F", strtotime("-2 Months"));?></th>
                     <td class="text-center"><?php echo $eraned_details[2][0]['total_booking']; ?></td>
@@ -49,7 +49,7 @@
                     <td class="text-center"><?php echo $cancel_booking[1][0]['cancel_booking']; ?></td>
                
                     <th >Amount Lost in <?php echo date("F", strtotime("last month"));?></th>
-                    <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",($eraned_details[1][0]['earned']/$eraned_details[1][0]['total_booking'])* $cancel_booking[1][0]['cancel_booking']); ?></td>
+                    <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo  $cancel_booking[1][0]['lose_amount']; ?></td>
                
                     <th >Booking Completed In <?php echo date("F", strtotime("last month"));?></th>
                     <td class="text-center"><?php echo $eraned_details[1][0]['total_booking']; ?></td>
@@ -63,7 +63,7 @@
                     <td class="text-center"><?php echo $cancel_booking[0][0]['cancel_booking']; ?></td>
                
                     <th >Amount Lost in <?php echo date('F');?></th>
-                    <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",($eraned_details[0][0]['earned']/$eraned_details[0][0]['total_booking'])* $cancel_booking[0][0]['cancel_booking']); ?></td>
+                    <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo $cancel_booking[0][0]['lose_amount']; ?></td>
                
                     <th >Booking Completed In <?php echo date('F');?></th>
                     <td class="text-center"><?php echo $eraned_details[0][0]['total_booking']; ?></td>

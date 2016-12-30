@@ -10,15 +10,10 @@
          <th>Invoice Excel File</th>
          <th>Invoice Detailed File</th>
          <th>Number of Bookings</th>
-         <th>Service Charges</th>
-         <th>Additional Service Charges</th>
-         <th>Parts / Stands</th>
-         <th>Total</th>
          <th>TDS</th>
-         <th>Amount to be Paid By 247Around</th>
-         <th>Amount to be Paid By Partner</th>
-         <th>Paid Amount</th>
-  
+         <th>Amount to be Pay By 247Around</th>
+         <th>Amount to be Pay By Partner</th>
+
       </tr>
    </thead>
    <tbody>
@@ -40,16 +35,11 @@
          <td><a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $invoice['invoice_file_excel']; ?>"><?php echo $invoice['invoice_file_excel']; ?></a></td>
          <td><a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $invoice['invoice_detailed_excel']; ?>"><?php echo $invoice['invoice_detailed_excel']; ?></a></td>
          <td><?php echo $invoice['num_bookings'];  $sum_no_of_booking += $invoice['num_bookings']; ?></td>
-         <td><?php echo round($invoice['total_service_charge'] + $invoice['service_tax'], 2);?></td>
-         <td><?php echo round($invoice['total_additional_service_charge'],2); ?></td>
-         <td><?php echo ($invoice['parts_cost'] + $invoice['vat']);  ?></td>
-         <td><?php echo round($invoice['total_amount_collected'],2); $total_amount_collected += round($invoice['total_amount_collected'],2);?></td>
+        
           <td><?php echo $invoice['tds_amount'];$tds += abs($invoice['tds_amount']); ?></td>
          <td ><?php  if($invoice['amount_collected_paid'] < 0){ echo abs($invoice['amount_collected_paid']); $pay_247 += abs($invoice['amount_collected_paid']);} else {echo "0.00"; } ?></td>
          <td ><?php if($invoice['amount_collected_paid'] > 0){ echo $invoice['amount_collected_paid']; $pay_sf += abs($invoice['amount_collected_paid']); } else {echo "0.00";} ?></td>
-        
-         <td><?php echo $invoice['amount_paid'] ?></td>
- 
+
          <?php  $count = $count+1;  ?>
 
       </tr>
@@ -62,14 +52,9 @@
          <td></td>
          <td></td>
          <td><?php echo $sum_no_of_booking;?></td>
-         <td></td>
-         <td></td>
-         <td></td>
-         <td><?php echo round($total_amount_collected,1);?></td>
          <td><?php echo round($tds,2);?></td>
          <td><?php echo round($pay_247,2);?></td>
          <td><?php echo round($pay_sf,2);?></td>
-         <td></td>
         
       </tr>
    </tbody>
