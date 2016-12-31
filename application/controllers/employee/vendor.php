@@ -784,16 +784,16 @@ class vendor extends CI_Controller {
         $service_center_id = $this->input->post('service');
 
 	if ($service_center_id != "Select") {
-            if (IS_DEFAULT_ENGINEER == TRUE) {
-                $b['assigned_engineer_id'] = DEFAULT_ENGINEER;
-            } else {
-                $engineer = $this->vendor_model->get_engineers($service_center_id);
-                if (!empty($engineer)) {
-                    $b['assigned_engineer_id'] = $engineer[0]['id'];
-                }
-            }
+//            if (IS_DEFAULT_ENGINEER == TRUE) {
+//                $b['assigned_engineer_id'] = DEFAULT_ENGINEER;
+//            } else {
+//                $engineer = $this->vendor_model->get_engineers($service_center_id);
+//                if (!empty($engineer)) {
+//                    $b['assigned_engineer_id'] = $engineer[0]['id'];
+//                }
+//            }
             //Assign service centre and engineer
-            $this->booking_model->update_booking($booking_id, $b);
+            $this->booking_model->update_booking($booking_id, array('assigned_vendor_id'=>$service_center_id));
             //$this->booking_model->assign_booking($booking_id, $service_center_id);
 
            // $pre_service_center_data['current_status'] = "Cancelled";
@@ -822,7 +822,7 @@ class vendor extends CI_Controller {
             $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
 
             //Setting mail to vendor flag to 0, once booking is re-assigned
-            $this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
+            //$this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
 
 	     log_message('info', "Reassigned - Booking id: " . $booking_id . "  By " .
 		$this->session->userdata('employee_id') . " service center id " . $service_center_id);
