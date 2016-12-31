@@ -1504,11 +1504,13 @@ class Reporting_utils extends CI_Model {
             
         }
         
+
         $this->db->select('full_name , id');
         $this->db->from('employee');
         $this->db->where_in('groups', array('callcenter', 'closure'));
         $this->db->order_by('full_name');
         $query = $this->db->get();
+
         $employee_id = $query->result_array();
         foreach ($employee_id as $value) {
 
