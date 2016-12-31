@@ -1088,7 +1088,7 @@ class Partner_model extends CI_Model {
      */
     function get_missed_calls_cancellation_reason(){
         $this->db->select('*');
-        $this->db->where('reason_of','partner_missed_calls');
+        $this->db->where('reason_of','missed_cancellation');
         $query = $this->db->get('booking_cancellation_reasons');
         return $query->result_array();
         
@@ -1103,8 +1103,8 @@ class Partner_model extends CI_Model {
      */
     function get_missed_calls_updation_reason(){
         $this->db->select('*');
-        $this->db->where('reason_of','partner_missed_calls');
-        $query = $this->db->get('booking_updation_reasons');
+        $this->db->where('reason_of','missed_updation');
+        $query = $this->db->get('booking_cancellation_reasons');
         return $query->result_array();
     }
     

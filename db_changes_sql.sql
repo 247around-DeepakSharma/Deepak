@@ -1468,16 +1468,26 @@ CREATE TABLE `partner_service_brand_relation` (
  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-ALTER TABLE `247around-aws`.`partner_operation_region` ADD INDEX `Partner_id` (`partner_id`);
-ALTER TABLE `247around-aws`.`partner_service_brand_relation` ADD INDEX `Partner_id` (`partner_id`);
+ALTER TABLE `partner_operation_region` ADD INDEX `Partner_id` (`partner_id`);
+ALTER TABLE `partner_service_brand_relation` ADD INDEX `Partner_id` (`partner_id`);
 
-UPDATE `email_template` SET `template` = 'Dear Partner brackets for your Order ID <b> %s </b> have been delivered to you sucessfully.<br><br> Thnakyou for placing an order with us.<br.<br> Regards,<br> 247Around Team' WHERE `email_template`.`tag` = 'brackets_received_mail_vendor_order_requested_from';
+UPDATE `email_template` SET `template` = 'Dear Partner brackets for your Order ID <b> %s </b> have been delivered to you 
+sucessfully.<br><br> Thnakyou for placing an order with us.<br.<br> Regards,<br> 247Around Team' 
+WHERE `email_template`.`tag` = 'brackets_received_mail_vendor_order_requested_from';
 
 RENAME TABLE `partner_service_brand_relation` TO `partner_appliance_details`;
 
-UPDATE `email_template` SET `template` = 'An order has been <b>Cancelled</b> for Brackets of <strong>Order ID : %s </strong> <br><br><strong>Reason : </strong> %s <br><br> <strong>Order Details:</strong><br><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Total Requested : %s<br><br> <strong>Requested From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br> City: %s <br> State: %s <br> Pincode: %s <br> Phone Number: %s, %s<br><br> Please <b>don''t</b> ship the following orders.' WHERE `email_template`.`tag` = 'cancel_brackets_requested_from_vendor';
+UPDATE `email_template` SET `template` = 'An order has been <b>Cancelled</b> for Brackets of <strong>Order ID : 
+%s </strong> <br><br><strong>Reason : </strong> %s <br><br> <strong>Order Details:</strong><br><br> 19 to 24 Inch 
+Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Total Requested : %s<br><br> 
+<strong>Requested From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br> City: %s <br> State: %s <br> Pincode: 
+%s <br> Phone Number: %s, %s<br><br> Please <b>don''t</b> ship the following orders.' 
+WHERE `email_template`.`tag` = 'cancel_brackets_requested_from_vendor';
 
-UPDATE `email_template` SET `template` = '%s order has been Cancelled sucessfully for the <strong>Order ID : %s </strong><br><br><strong>Reason : </strong> %s <br><br> <strong>Order Details are:</strong><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Total Requested : %s<br><br> Thanks Team 247Around' WHERE `email_template`.`tag` = 'cancel_brackets_order_received_from_vendor';
+UPDATE `email_template` SET `template` = '%s order has been Cancelled sucessfully for the <strong>Order ID : %s 
+</strong><br><br><strong>Reason : </strong> %s <br><br> <strong>Order Details are:</strong><br> 19 to 24 Inch 
+Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Total Requested : %s<br><br> 
+Thanks Team 247Around' WHERE `email_template`.`tag` = 'cancel_brackets_order_received_from_vendor';
 
 --Abhay 26 DEC
 
@@ -1488,10 +1498,6 @@ ALTER TABLE `spare_parts_details` ADD `approved_defective_parts_by_partner` INT(
 ALTER TABLE  `booking_details` CHANGE  `user_id`  `user_id` INT( 11 ) NOT NULL ;
 ALTER TABLE  `booking_details` CHANGE  `service_id`  `service_id` INT( 11 ) NOT NULL ;
 ALTER TABLE  `booking_details` CHANGE  `order_id`  `order_id` VARCHAR( 64 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
-
-ALTER TABLE `spare_parts_details` ADD `approved_defective_parts_by_partner` INT(2) NULL DEFAULT '0' AFTER `defective_part_required`;
-
-ALTER TABLE `spare_parts_details` ADD `approved_defective_parts_by_partner` INT(2) NULL DEFAULT '0' AFTER `defective_part_required`;
 
 -- Belal 24 Dec
 
@@ -1561,18 +1567,24 @@ INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `crea
 
 --Belal 29 Dec
 
-INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Mobile no invalid / not in use', 'partner_missed_calls', '1');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Mobile no invalid / not in use', 'missed_cancellation', '0');
 
-INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Customer gave missed call by mistake', 'partner_missed_calls', '1');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Customer gave missed call by mistake', 'missed_cancellation', '0');
 
-INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Installation not Required', 'partner_missed_calls', '1');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Installation not Required', 'missed_cancellation', '0');
 
-INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Customer not reachable', 'partner_missed_calls', '1');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Customer not picking call', 'missed_cancellation', '0');
 
-INSERT INTO `booking_updation_reasons` (`id`, `old_state`, `new_state`, `reason`, `reason_of`, `show_on_app`, `active`) VALUES (NULL, '', '', 'Customer Not Picking Call', 'partner_missed_calls', '1', '1');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Customer Not Picking Call', 'missed_updation', '0');
 
-INSERT INTO `booking_updation_reasons` (`id`, `old_state`, `new_state`, `reason`, `reason_of`, `show_on_app`, `active`) VALUES (NULL, '', '', 'Customer asked to call after 1 day', 'partner_missed_calls', '1', '1');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Customer asked to call after 1 day', 'missed_updation', '0');
 
-INSERT INTO `booking_updation_reasons` (`id`, `old_state`, `new_state`, `reason`, `reason_of`, `show_on_app`, `active`) VALUES (NULL, '', '', 'Customer asked to call after 2 day', 'partner_missed_calls', '1', '1');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Customer asked to call after 2 day', 'missed_updation', '0');
 
-INSERT INTO `booking_updation_reasons` (`id`, `old_state`, `new_state`, `reason`, `reason_of`, `show_on_app`, `active`) VALUES (NULL, '', '', 'Customer asked to call after 3 day', 'partner_missed_calls', '1', '1');
+INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Customer asked to call after 3 day', 'missed_updation', '0');
+
+--ANUJ 31 Dec
+
+ALTER TABLE  `partners` CHANGE  `contract_file`  `contract_file` VARCHAR( 256 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
+
+-- =========================  SERVER DB UPDATED, ADD YOUR CHANGES BELOW THIS LINE  ========================= --
