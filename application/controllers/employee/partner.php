@@ -914,7 +914,7 @@ class Partner extends CI_Controller {
      *
      * Opens a form with user's name and option to be choosen to cancel the booking.
      *
-     * Atleast one booking/Query cancellation reason must be selected.
+     * Atleast one booking/Query cancellation reasbon must be selected.
      *
      * If others option is choosen, then the cancellation reason must be entered in the textarea.
      *
@@ -1138,6 +1138,7 @@ class Partner extends CI_Controller {
                     $this->session->userdata('partner_id'));
             if($escalation_id){
                 log_message('info', __FUNCTION__ . " Escalation INSERTED ");
+                $this->booking_model->increase_escalation_reschedule($booking_id, "count_escalation");
                 $from = "escalations@247around.com";
                 $bcc=""; $attachment = "";
                 
@@ -1490,6 +1491,7 @@ class Partner extends CI_Controller {
         $booking_history['details'] = array();
         foreach ($booking_address as $key=> $value) {
             $booking_history['details'][$key]  = $this->booking_model->getbooking_history($value, "join")[0];
+            $booking_history['details'][$key]['partner'] = $this->partner_model->getpartner($this->session->userdata('partner_id'))[0];
         }
        
         $this->load->view('partner/print_address',$booking_history);
@@ -1648,17 +1650,18 @@ class Partner extends CI_Controller {
         $partner_id = $this->session->userdata('partner_id');
         $where = array('booking_id' => $booking_id, 'partner_id' => $partner_id);
         $response = $this->service_centers_model->update_spare_parts($where, array('status' => DEFECTIVE_PARTS_RECEIVED,
-            'approved_defective_parts_by_partner'=> '1'));
+            'approved_defective_parts_by_partner'=> '1', 'remarks_defective_part_by_partner'=> NULL,
+            'received_defective_part_date' => date("Y-m-d H:i:s")));
         if ($response) {
-            log_message('info', __FUNCTION__ . " Defective Spare Parts Received: ".$booking_id
+            log_message('info', __FUNCTION__ . " Received Defective Spare Parts ".$booking_id
                     ." Partner Id". $this->session->userdata('partner_id'));
-            $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner received defective spare parts");
+            $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts");
 
             $sc_data['current_status'] = "InProcess";
             $sc_data['internal_status'] = _247AROUND_COMPLETED;
             $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
-            $userSession = array('success' => 'Defective Spare Parts Received');
+            $userSession = array('success' => ' Received Defective Spare Parts');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
         } else { //if($response){
@@ -1676,6 +1679,7 @@ class Partner extends CI_Controller {
      */
     function reject_defective_part($booking_id,$status){
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'). " Booking Id ". $booking_id);
+        $this->checkUserSession();
         $rejection_reason = base64_decode(urldecode($status));
         $partner_id = $this->session->userdata('partner_id');
         $where = array('booking_id' => $booking_id, 'partner_id' => $partner_id);
@@ -1696,7 +1700,7 @@ class Partner extends CI_Controller {
             $sc_data['internal_status'] = $rejection_reason;
             $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
-            $userSession = array('success' => 'Defective Parts Rejected');
+            $userSession = array('success' => 'Defective Parts Rejected To SF');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
         } else { //if($response){
@@ -1707,5 +1711,34 @@ class Partner extends CI_Controller {
             redirect(base_url() . "partner/get_waiting_defective_parts");
         }
     }
+    
+    /**
+     * @desc: This method is used to display list of booking which received by Partner
+     * @param Integer $offset
+     */
+    function get_approved_defective_parts_booking($offset = 0){
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
+        
+        $partner_id = $this->session->userdata('partner_id');
+        $where = "spare_parts_details.partner_id = '".$partner_id."' "
+                . " AND approved_defective_parts_by_partner = '1' ";
+          
+        $config['base_url'] = base_url() . 'partner/get_approved_defective_parts_booking';
+        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
+        $config['total_rows'] = $total_rows[0]['total_rows'];
 
+        $config['per_page'] = 50;
+        $config['uri_segment'] = 3;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+
+        $data['count'] = $config['total_rows'];
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
+        
+        $this->load->view('partner/header');
+        $this->load->view('partner/approved_defective_parts', $data);
+    }
 }

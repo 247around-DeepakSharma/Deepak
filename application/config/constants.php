@@ -159,15 +159,23 @@ define('CUSTOMER_NOT_REACHABLE','Customer not reachable');
 //constant to define default brackets order id
 define('_247_AROUND_DEFAULT_BRACKETS_ORDER_ID',201611000001);
 // Defective Parts pending
-define('DEFECTIVE_PARTS_PENDING','defective_part_pending');
+define('DEFECTIVE_PARTS_PENDING','Defective Part Pending');
 // Defective Parts Shipped by SF
-define('DEFECTIVE_PARTS_SHIPPED','defective_part_shipped_by_SF');
+define('DEFECTIVE_PARTS_SHIPPED','Defective Part Shipped By SF');
 // Defective Parts Received by SF
-define('DEFECTIVE_PARTS_RECEIVED','defective_part_received_by_partner');
+define('DEFECTIVE_PARTS_RECEIVED','Defective Part Received By Partner');
 // Defective Parts Received by SF
-define('DEFECTIVE_PARTS_REJECTED','defective_part_rejected_by_partner');
+define('DEFECTIVE_PARTS_REJECTED','Defective Part Rejected By Partner');
 //Snapdeal ID
 define('SNAPDEAL_ID',1);
+//Define Developer Email id
+define('DEVELOPER_EMAIL','anuj@247around.com, abhaya@247around.com, belal@247around.com, sachinj@247around.com');
+//Define New CRM Contstant for SF
+define('NEW_SF_CRM',"New SF CRM");
+//Define Ols CRM Contstant for SF
+define('OLD_SF_CRM',"Old SF CRM");
+//Define Upcountry threshold
+define('UPCOUNTRY_DISTANCE_THRESHOLD',100);
 
 
 

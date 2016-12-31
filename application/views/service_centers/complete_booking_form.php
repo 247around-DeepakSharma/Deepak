@@ -385,7 +385,7 @@
 	}
         
         <?php if(isset($booking_history['spare_parts'])){ ?> 
-                alert("Please Return Defective Spare Parts");
+                alert("Ship Defective Spare Parts");
         
         <?php }?>
             

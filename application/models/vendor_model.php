@@ -273,7 +273,10 @@ class vendor_model extends CI_Model {
      */
     function getVendor($booking_id) {
 
-        $this->db->select("service_centres.name, service_centres.id ");
+        $this->db->select("service_centres.name, service_centres.id, company_name, "
+                . "service_centres.address,service_centres.pincode, service_centres.state, "
+                . "service_centres.district, service_centres.primary_contact_name,"
+                . "service_centres.primary_contact_phone_1 ");
         $this->db->from('booking_details');
         $this->db->where('booking_id', $booking_id);
         $this->db->join('service_centres', 'service_centres.id = booking_details.assigned_vendor_id');

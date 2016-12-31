@@ -206,6 +206,7 @@ class Service_centers extends CI_Controller {
                  $data['closed_date'] = date('Y-m-d H:i:s');
                  $data['booking_id'] =  $booking_id;
                  $data['amount_paid'] = $total_amount_paid;
+                 $data['update_date'] = date("Y-m-d H:i:s");
                  if(isset($serial_number[$unit_id])){
                     $data['serial_number'] =  $serial_number[$unit_id];
                  }
@@ -289,6 +290,7 @@ class Service_centers extends CI_Controller {
                     $data['service_charge'] = $data['additional_service_charge'] = $data['parts_cost'] = $data['amount_paid'] = 0;
                     $data['cancellation_reason'] = $cancellation_reason;
                     $data['closed_date'] = date('Y-m-d H:i:s');
+                    $data['update_date'] = date('Y-m-d H:i:s');
 
                     $this->vendor_model->update_service_center_action($booking_id, $data);
 
@@ -935,6 +937,7 @@ class Service_centers extends CI_Controller {
 
                     $sc_data['current_status'] = "Pending";
                     $sc_data['internal_status'] = SPARE_PARTS_DELIVERED;
+                    $sc_data['update_date'] = date("Y-m-d H:i:s");
                     $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
                   //  $userSession = array('success' => 'Booking Updated');
@@ -1000,7 +1003,7 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
         $searched_text = trim($this->input->post('searched_text'));
         $service_center_id = $this->session->userdata('service_center_id');
-        $data['data'] = $this->service_centers_model->search_booking_history($searched_text, $service_center_id);
+        $data['data'] = $this->service_centers_model->search_booking_history(trim($searched_text), $service_center_id);
 
         if (!empty($data['data'])) {
             $this->load->view('service_centers/header');
@@ -1178,6 +1181,35 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/defective_parts', $data);
     }
+    
+    /**
+     * @desc: This method is used to display list of booking which received by Partner
+     * @param Integer $offset
+     */
+    function get_approved_defective_parts_booking($offset = 0){
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
+        $service_center_id = $this->session->userdata('service_center_id');
+        $where = "spare_parts_details.service_center_id = '".$service_center_id."' "
+                . " AND approved_defective_parts_by_partner = '1' ";
+          
+        $config['base_url'] = base_url() . 'service_center/get_approved_defective_parts_booking';
+        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
+        $config['total_rows'] = $total_rows[0]['total_rows'];
+
+        $config['per_page'] = 50;
+        $config['uri_segment'] = 3;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+
+        $data['count'] = $config['total_rows'];
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
+        
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/approved_defective_parts', $data);
+    }
     /**
      * @desc: This method is used to load update form(defective shipped parts)
      * @param String $booking_id
@@ -1191,9 +1223,12 @@ class Service_centers extends CI_Controller {
                . " AND spare_parts_details.booking_id = '".$booking_id."' "
                . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
         $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
-        
+        if(!empty($data['spare_parts'])){
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/update_defective_spare_parts_form', $data);
+        } else {
+            echo "Please Try Again Later";
+        }
     }
     /**
      * @desc: Process to update defective spare parts
@@ -1225,9 +1260,10 @@ class Service_centers extends CI_Controller {
             $response = $this->service_centers_model->update_spare_parts($where, $data);
             if($response){
                 
-                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_SHIPPED, "Defective Parts Shipped By SF");
+                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_SHIPPED, $data['remarks_defective_part_by_sf']);
                
                 $sc_data['current_status'] = "InProcess";
+                $sc_data['update_date'] = date('Y-m-d H:i:s');
                 $sc_data['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
                 $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                 
@@ -1245,6 +1281,23 @@ class Service_centers extends CI_Controller {
             
         }
         
+    }
+    /**
+     * @desc: This is used to print booking partner Address
+     */
+    function print_partner_address(){
+        $this->checkUserSession();
+        $booking_address = $this->input->post('download_address');
+        $booking_history['details'] = array();
+        $i=0;
+        foreach ($booking_address as $partner_id=> $booking_id) {
+            $booking_history['details'][$i]  = $this->partner_model->getpartner($partner_id)[0];
+            $booking_history['details'][$i]['vendor'] = $this->vendor_model->getVendor($booking_id)[0];
+            $booking_history['details'][$i]['booking_id'] = $booking_id;
+            $i++;
+        }
+        $this->load->view('service_centers/print_partner_address',$booking_history);
+       
     }
 
 }

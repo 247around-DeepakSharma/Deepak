@@ -117,9 +117,10 @@
                          <li role="separator" class="divider"></li>
                          <li><a href="<?php echo base_url();?>partner/get_shipped_parts_list">Shipped Spare Parts</a></li>
                           <li role="separator" class="divider"></li>
-                         <li><a href="<?php echo base_url();?>partner/get_waiting_defective_parts">Defective Spare Parts</a></li>
-
-                            </ul>
+                         <li><a href="<?php echo base_url();?>partner/get_waiting_defective_parts">Shipped Defective Spare Parts</a></li>
+                         <li role="separator" class="divider"></li>
+                          <li><a href="<?php echo base_url();?>partner/get_approved_defective_parts_booking">Received Defective Spare Parts</a></li>
+                         </ul>
                         </li>
 
 
