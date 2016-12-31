@@ -230,7 +230,7 @@ class Do_background_process extends CI_Controller {
 
         $this->booking_model->update_booking($booking_id, $booking);
         //Update Spare parts details table
-        $this->service_centers_model->update_spare_parts(array('booking_id', $booking_id), 
+        $this->service_centers_model->update_spare_parts(array('booking_id'=> $booking_id), 
                  array('status'=> $current_status));
 
         //Log this state change as well for this booking

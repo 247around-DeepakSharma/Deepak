@@ -738,7 +738,7 @@ class Booking extends CI_Controller {
 	$this->update_price_while_cancel_booking($booking_id);
         
         //Update Spare parts details table
-        $this->service_centers_model->update_spare_parts(array('booking_id', $booking_id), 
+        $this->service_centers_model->update_spare_parts(array('booking_id'=> $booking_id), 
                  array('status'=> _247AROUND_CANCELLED));
 
 	//Log this state change as well for this booking
@@ -1612,7 +1612,7 @@ class Booking extends CI_Controller {
 	// this function is used to update booking details table
 	$this->booking_model->update_booking($booking_id, $booking);
         //Update Spare parts details table
-        $this->service_centers_model->update_spare_parts(array('booking_id', $booking_id), 
+        $this->service_centers_model->update_spare_parts(array('booking_id'=> $booking_id), 
                  array('status'=> $internal_status));
 
 	//Log this state change as well for this booking
