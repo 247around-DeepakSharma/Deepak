@@ -43,6 +43,12 @@
                                  <?php echo form_error('escalation_reason_id'); ?>
                               </div>
                            </div>
+                               <div class="form-group">
+                              <label for="Escalation Remarks" class="col-md-2">Remarks</label>
+                              <div class="col-md-6">
+                                  <textarea  class="form-control"  name="escalation_remarks" placeholder = "Remarks" ></textarea>
+                              </div>
+                           </div>
                            
                            <div class="form-group ">
                               
