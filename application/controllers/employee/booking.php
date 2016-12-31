@@ -1883,6 +1883,9 @@ class Booking extends CI_Controller {
         $update = $this->partner_model->update_partner_missed_calls($where,$data);
         //Add Log
         log_message('info',__FUNCTION__.' Partner Missed calls leads has been Completed for id '.$id);
+        //Adding details in Booking State Change
+        $this->notify->insert_state_change("", _247AROUND_COMPLETED, _247AROUND_FOLLOWUP ,"Lead Completed Phone: ".$missed_call_leads[0]['phone'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+        
         echo $update;
         
     }
@@ -1903,6 +1906,12 @@ class Booking extends CI_Controller {
         $data['cancellation_reason'] = $this->input->post('cancellation_reason');
         $where = array('id'=>$id);
         $update = $this->partner_model->update_partner_missed_calls($where,$data);
+        
+        //Add Log
+        log_message('info',__FUNCTION__.' Partner Missed calls leads has been Cancelled for id '.$id);
+        
+        //Adding details in Booking State Change
+        $this->notify->insert_state_change("", _247AROUND_CANCELLED, _247AROUND_FOLLOWUP ,data['cancellation_reason']." Phone: ".$missed_call_leads[0]['phone'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
         
         $this->session->set_flashdata('cancel_leads', 'Leads has been cancelled for phone '.$missed_call_leads[0]['phone']);
         redirect(base_url() . "employee/booking/get_missed_calls_view");
@@ -1928,6 +1937,9 @@ class Booking extends CI_Controller {
             $where = array('id' => $id);
             $update = $this->partner_model->update_partner_missed_calls($where,$data);
             
+            //Add Log
+            log_message('info',__FUNCTION__.' Partner Missed calls leads has been Updated for id '.$id);
+            
         } // 1 Day scheduled
         else if($this->input->post('updation_reason') == "Customer asked to call after 1 day"){
             
@@ -1938,6 +1950,9 @@ class Booking extends CI_Controller {
             $data['updation_reason'] = $this->input->post('updation_reason');
             $where = array('id' => $id);
             $update = $this->partner_model->update_partner_missed_calls($where,$data);
+            
+            //Add Log
+            log_message('info',__FUNCTION__.' Partner Missed calls leads has been Updated for 1 Days - id '.$id);
             
         }   // 2 Day Scheduled
         else if($this->input->post('updation_reason') == "Customer asked to call after 2 day"){
@@ -1950,6 +1965,9 @@ class Booking extends CI_Controller {
             $where = array('id' => $id);
             $update = $this->partner_model->update_partner_missed_calls($where,$data);
             
+            //Add Log
+            log_message('info',__FUNCTION__.' Partner Missed calls leads has been Updated for 2 Days - id '.$id);
+            
         } // 3 day scheduled
         else if($this->input->post('updation_reason') == "Customer asked to call after 3 day"){
             
@@ -1961,7 +1979,13 @@ class Booking extends CI_Controller {
             $where = array('id' => $id);
             $update = $this->partner_model->update_partner_missed_calls($where,$data);
             
+            //Add Log
+            log_message('info',__FUNCTION__.' Partner Missed calls leads has been Updated for 3 Days - id '.$id);
+            
         }
+        
+        //Adding details in Booking State Change
+        $this->notify->insert_state_change("", _247AROUND_FOLLOWUP, _247AROUND_FOLLOWUP ,$this->input->post('updation_reason')." Phone: ".$missed_call_leads[0]['phone'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
         
         $this->session->set_flashdata('update_leads', 'Leads has been Updated for phone '.$missed_call_leads[0]['phone']);
         redirect(base_url() . "employee/booking/get_missed_calls_view");
