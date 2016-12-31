@@ -121,8 +121,8 @@ class bookings_excel extends CI_Controller {
 
 	    //Insert user if phone number doesn't exist
 	    $output = $this->user_model->search_user(trim($rowData[0]['Phone']));
-	    $state = "";
-
+            $state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
+	    
 	    if (empty($output)) {
 		//User doesn't exist
 		$user['name'] = $rowData[0]['Customer_Name'];
@@ -132,7 +132,6 @@ class bookings_excel extends CI_Controller {
 		$user['pincode'] = $rowData[0]['Pincode'];
 		$user['city'] = $rowData[0]['CITY'];
 
-		$state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
 
 		$user['state'] = $state['state'];
 
@@ -152,37 +151,7 @@ class bookings_excel extends CI_Controller {
 		$user['name'] = $rowData[0]['Customer_Name'];
 	    }
 
-	    //Wybor brand should be tagged to Partner Wybor only if the
-	    //States are:
-            // - Tamilnadu (pincode starts from 6).
-            // - AP / Telangana (pincode starts from 5)
-            // (Karnataka also starts from 5, we will leave that as of now)
-	    //Ray brand should be tagged to Ray.
-	    //All other brands would go to Snapdeal.
-	    switch ($rowData[0]['Brand']) {
-		case 'Wybor':
-		    if ((substr($rowData[0]['Pincode'], 0, 1) == "5") || 
-                            (substr($rowData[0]['Pincode'], 0, 1) == "6")) {
-			$booking['partner_id'] = '247010';
-			$booking['source'] = "SY";
-		    } else {
-			$booking['partner_id'] = '1';
-			$booking['source'] = "SS";
-		    }
-
-		    break;
-
-		case 'Ray':
-		    $booking['partner_id'] = '247011';
-		    $booking['source'] = "SR";
-		    break;
-
-		default:
-		    $booking['partner_id'] = '1';
-		    $booking['source'] = "SS";
-		    break;
-	    }
-
+	    
 	    //Add this lead into the leads table
 	    //Check whether this is a new Lead or Not
 	    $partner_booking = $this->partner_model->get_order_id_for_partner($booking['partner_id'], $rowData[0]['Sub_Order_ID']);
@@ -218,6 +187,12 @@ class bookings_excel extends CI_Controller {
 		$appliance_details['user_id'] = $booking['user_id'] = $user_id;
 		$appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $this->booking_model->getServiceId($prod);
 		//echo "Service ID: " . $booking['service_id'] . PHP_EOL;
+                
+                //Asigning Bookings Source for the booking
+                $data = $this->_allot_source_partner_id_for_pincode($booking['service_id'], $state['state'], $rowData[0]['Brand']);
+
+                $booking['partner_id'] = $data['partner_id'];
+                $booking['source'] = $data['source'];
 
 		$booking['booking_pincode'] = $rowData[0]['Pincode'];
 		$appliance_details['brand'] = $unit_details['appliance_brand'] = $rowData[0]['Brand'];
@@ -395,7 +370,7 @@ class bookings_excel extends CI_Controller {
 
 	    //Insert user if phone number doesn't exist
 	    $output = $this->user_model->search_user(trim($rowData[0]['Phone']));
-	    $state = "";
+	    $state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
 
 	    if (empty($output)) {
 		//User doesn't exist
@@ -406,7 +381,6 @@ class bookings_excel extends CI_Controller {
 		$user['pincode'] = $rowData[0]['Pincode'];
 		$user['city'] = $rowData[0]['CITY'];
 
-		$state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
 		$user['state'] = $state['state'];
 
 		$user_id = $this->user_model->add_user($user);
@@ -425,34 +399,7 @@ class bookings_excel extends CI_Controller {
 		$user['user_email'] = (isset($rowData[0]['Email_ID']) ? $rowData[0]['Email_ID'] : "");
 	    }
 
-	    //Wybor brand should be tagged to Partner Wybor only if the
-	    //state is Tamilnadu (pincode starts from 6). Else it would be
-	    //tagged to Snapdeal.
-	    //Ray brand should be tagged to Ray.
-	    //All other brands would go to Snapdeal.
-	    switch ($rowData[0]['Brand']) {
-		case 'Wybor':
-		    if ((substr($rowData[0]['Pincode'], 0, 1) == "5") || 
-                            (substr($rowData[0]['Pincode'], 0, 1) == "6")) {
-			$booking['partner_id'] = '247010';
-			$booking['source'] = "SY";
-		    } else {
-			$booking['partner_id'] = '1';
-			$booking['source'] = "SS";
-		    }
-
-		    break;
-
-		case 'Ray':
-		    $booking['partner_id'] = '247011';
-		    $booking['source'] = "SR";
-		    break;
-
-		default:
-		    $booking['partner_id'] = '1';
-		    $booking['source'] = "SS";
-		    break;
-	    }
+	    
 
 	    //Add this lead into the leads table
 	    //Check whether this is a new Lead or Not
@@ -502,6 +449,14 @@ class bookings_excel extends CI_Controller {
 		if (stristr($prod, "Geyser")) {
 		    $lead_details['Product'] = 'Geyser';
 		}
+                
+                $unit_details['service_id'] = $appliance_details['service_id'] = $booking['service_id'] = $this->booking_model->getServiceId($lead_details['Product']);
+                
+                //Asigning Bookings Source for the booking
+                $data = $this->_allot_source_partner_id_for_pincode($booking['service_id'], $state['state'], $rowData[0]['Brand']);
+
+                $booking['partner_id'] = $data['partner_id'];
+                $booking['source'] = $data['source'];
 
 		$unit_details['appliance_description'] = $appliance_details['description'] = $rowData[0]['Product_Type'];
 

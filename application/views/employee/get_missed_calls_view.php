@@ -79,6 +79,16 @@
                     </div>';
                     }
                     ?>
+         <?php
+                    if ($this->session->flashdata('update_leads')) {
+                        echo '<div class="alert alert-success alert-dismissible" role="alert" style="margin-top:10px;width:25%;margin-left:1%;margin-bottom:-10px;">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <strong>'.$this->session->flashdata('update_leads').'</strong>
+                    </div>';
+                    }
+                    ?>
         
         <div class="panel-body">
             <table class="table table-condensed table-bordered table-striped">
@@ -111,7 +121,9 @@
                             <td style="text-align: center"><?php echo $value['counter'];?></td>
                             <td style="text-align: center"><?php 
                                     $old_date_timestamp = strtotime($value['update_date']);
-                                    echo date('j M, Y g:i A', $old_date_timestamp);  
+                                    if($value['counter'] != 0){
+                                        echo date('j M, Y g:i A', $old_date_timestamp);  
+                                    }
                                 ?>
                             </td>
                             <td style="text-align: center"><?php echo $value['updation_reason'];?></td>
@@ -156,9 +168,7 @@
     }
     
     function update_partner_missed_calls(id,phone){
-        var confirm_complete = confirm("Add Booking ?");
         
-        if(confirm_complete == true){
              $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/booking/update_partner_missed_calls/' + id+'/Completed',
@@ -175,9 +185,6 @@
 
                 }
             });
-        } else {
-            return false;
-        }
     }
     
     function assign_id(id){

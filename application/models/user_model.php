@@ -456,6 +456,19 @@ class User_model extends CI_Model {
 
         return $query1->result_array();
     }
+    
+    /**
+     * @Desc: This function is used to get user device id, from phone number
+     * @params: phone number
+     * @return: Array
+     * 
+     */
+    function get_user_device_id_by_phone($phone){
+        $this->db->select('device_id');
+        $this->db->where('phone_number',$phone);
+        $query = $this->db->get('users');
+        return $query->result_array();
+    }
 
     // end of model
 }

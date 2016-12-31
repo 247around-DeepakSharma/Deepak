@@ -176,6 +176,8 @@ define('NEW_SF_CRM',"New SF CRM");
 define('OLD_SF_CRM',"Old SF CRM");
 //Define Upcountry threshold
 define('UPCOUNTRY_DISTANCE_THRESHOLD',100);
+//Define New Partner Lead
+define('_247AROUND_NEW_PARTNER_LEAD','New_Lead');
 
 
 
