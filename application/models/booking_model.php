@@ -672,6 +672,23 @@ class Booking_model extends CI_Model {
         return $result;
     }
 
+    function update_booking_by_order_id($order_id, $data) {
+        $this->db->where(array("order_id" => $order_id, "current_status" => "FollowUp"));
+        $result =  $this->db->update("booking_details", $data);
+
+        log_message ('info', __METHOD__ . "=> Booking SQL ". $this->db->last_query() . ", Result: " . $result);
+
+        //return corresponding booking_id if booking gets updated else return false
+        if ($this->db->affected_rows() > 0) {
+            $this->db->select('booking_id');
+            $this->db->where('order_id', $order_id);
+            $query = $this->db->get('booking_details');
+            return $query->result_array()[0]['booking_id'];
+        } else {
+            return FALSE;
+        }
+    }
+
     /**
      *  @desc : Function to update booking(vendor's) details
      *
