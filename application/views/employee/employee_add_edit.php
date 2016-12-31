@@ -215,9 +215,6 @@
                                 },
                                 personal_email: {
                                     email: true
-                                },
-                                exotel_phone:{
-                                    required:true
                                 }
                             },
                             messages: {
@@ -226,7 +223,6 @@
                                 clear_password: "Please Select Clear Password",
                                 groups: "Please select Groups",
                                 official_email: "Please enter Official email",
-                                exotel_phone: "Please enter Exotel Phone",
                                 phone: "Please enter Personal Phone"
                             },
                             submitHandler: function (form) {
