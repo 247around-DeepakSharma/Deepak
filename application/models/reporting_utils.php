@@ -1504,7 +1504,7 @@ class Reporting_utils extends CI_Model {
             
         }
         
-        $sql = "select employee_id, id from employee where groups not in ('developer')";
+        $sql = "select employee_id, id from employee where groups in ('callcenter', 'closure')";
         $query = $this->db->query($sql);
         $employee_id = $query->result_array();
         foreach ($employee_id as $value) {
