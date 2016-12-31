@@ -2491,7 +2491,7 @@ class Invoice extends CI_Controller {
         if ($this->form_validation->run()) {
 
             $sms_sent = $this->input->post('sms_sent');
-            echo $mail_sent = $this->input->post('mail_sent');
+            $mail_sent = $this->input->post('mail_sent');
 
             $data['type_code'] = $this->input->post('type_code');
             $data['vendor_partner'] = $vendor_partner;
@@ -2659,7 +2659,7 @@ class Invoice extends CI_Controller {
                 log_message('info', __METHOD__ . ' Invoice details not inserted ' . $data['invoice_id']);
             }
 
-            redirect(base_url() . 'employee/invoice/invoice_summary/' . $data['vendor_partner'] . "/" . $data['vendor_partner_id']);
+             redirect(base_url() . 'employee/invoice/invoice_summary/' . $data['vendor_partner'] . "/" . $data['vendor_partner_id']);
         } else {
             echo "Please Enter Vendor Partner";
         }
