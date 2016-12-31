@@ -247,6 +247,51 @@ class Around_scheduler extends CI_Controller {
         
         echo 'Cancelled ................' . PHP_EOL;
     }
+    
+    
+    /**
+     *  @desc : This function is to cancels wrong orders inserted by incorrect snapdeal file
+     *
+     *  @param : order id
+     *  @return : 
+     */
+    function cancel_wrong_orders($order_id) {
+	log_message('info', __METHOD__ . " => Order ID: " . $order_id);
+        
+        $data['cancellation_reason'] = 'Installation Not Required';
+	$data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");        
+	$data['current_status'] = $data['internal_status'] = _247AROUND_CANCELLED ;
+	$data_vendor['cancellation_reason'] = $data['cancellation_reason'];
+
+	log_message('info', __FUNCTION__ . " Update query  " . print_r($data, true));
+
+	$booking_id = $this->booking_model->update_booking_by_order_id($order_id, $data);
+        echo 'Booking ID: ' . $booking_id . PHP_EOL;
+
+        if ($booking_id !== FALSE) {
+            //Update this booking in vendor action table
+            $data_vendor['update_date'] = date("Y-m-d H:i:s");
+            $data_vendor['current_status'] = $data_vendor['internal_status'] = _247AROUND_CANCELLED ;
+
+            log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($data_vendor, true));
+            $this->vendor_model->update_service_center_action($booking_id, $data_vendor);
+
+            $unit_details['booking_status'] = _247AROUND_CANCELLED;
+            $unit_details['vendor_to_around'] = $unit_details['around_to_vendor'] = 0;
+
+            log_message('info', __FUNCTION__ . " Update unit details  " . print_r($unit_details, true));
+
+            $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
+
+            //Log this state change as well for this booking
+            $this->notify->insert_state_change($booking_id, $data['current_status'], _247AROUND_FOLLOWUP, 
+                    $data['cancellation_reason'] , '1', '247around', _247AROUND);
+
+            echo 'Cancelled ................' . PHP_EOL;
+        }
+    }
+
+    
     /**
      * @desc: This function is used to send SMS for all Snapdeal pending queries 
      */
@@ -338,6 +383,14 @@ class Around_scheduler extends CI_Controller {
                 $subject = " ERROR IN CRON TASK EXECUTION " . date("d-M-Y");
                 $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $html, "");
         }
+    }
+    
+    function check_acl_credits () {
+        $subject = "ACL Balance Credits - " . date("d-M-Y");
+        $message = system('elinks -dump "https://push3.maccesssmspush.com/servlet/com.aclwireless.pushconnectivity.listeners.ConfigurationListener?action=prepaid&userid=blackmalt&pass=blackmalt67&appid=blackmalt&subappid=blackmalt"');
+        
+        $to = "anuj@247around.com";
+        $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
     }
 
 }

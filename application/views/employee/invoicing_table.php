@@ -12,15 +12,16 @@
           <th>Main Invoice File</th>
          <th>Detailed Invoice File</th>
          <th>Type</th>
-         <th>Invoicing Range</th>
+         <th>Bookings</th>
+         <th>Invoice Period</th>
          <th>Service Charges</th>
          <th>Additional Service Charges</th>
          <th>Parts / Stands</th>
          <th>TDS Amount</th>
-         <th>Amount to be Pay By 247Around</th>
-         <th>Amount to be Pay By Partner</th>
-         <th>Paid Amount</th> 
-         <th>Checkbox</th>
+         <th>Amount to be Paid By 247Around</th>
+         <th>Amount to be Paid By Partner</th>
+         <th>Amount Paid</th> 
+         <th>Select</th>
          <th>ReGenerate</th>
          <th>Update</th>
 <!--         <th>Send Email</th>-->
@@ -50,6 +51,7 @@
          <td><a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $invoice['invoice_detailed_excel']; ?>"><?php echo $invoice['invoice_detailed_excel']; ?></a></td>
         
          <td style="max-width: 56px; word-wrap:break-word;"><?php echo $invoice['type']; ?></td>
+         <td ><?php echo $invoice['num_bookings']; ?></td>
          <td><?php echo date("jS M, Y", strtotime($invoice['from_date'])). " to ". date("jS M, Y", strtotime($invoice['to_date'])); ?></td>
          
          <td><?php echo ($invoice['total_service_charge'] + $invoice['service_tax']); $sum_of_total_service_charges +=  $invoice['total_service_charge'] + $invoice['service_tax']; ?></td>
@@ -79,7 +81,7 @@
               </div>
          </td>
          <td>
-             <a href="<?php echo base_url()?>employee/invoice/insert_update_invoice/<?php echo $invoice['vendor_partner_id'];?>/<?php echo $invoice['invoice_id'];?>" class="btn btn-sm btn-info" >Update</a>
+             <a href="<?php echo base_url()?>employee/invoice/insert_update_invoice/<?php echo $invoice['vendor_partner'];?>/<?php echo $invoice['invoice_id'];?>" class="btn btn-sm btn-info" >Update</a>
          </td>
 
           <?php  $count = $count+1;  ?>
@@ -163,6 +165,7 @@
              <th class="text-center">VAT/TIN</th>
              <th class="text-center">CST</th>
              <th class="text-center">Contract</th>
+             <th class="text-center">Count Defective Parts Not Shipped</th>
           </tr>
        </thead>
        <tbody>
@@ -187,9 +190,11 @@
                  
                    <img src="<?php echo  base_url(); ?><?php if(!empty($vendor_details[0]['contract_file'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
                </td>
-               
-               
-               
+               <td class="text-center">
+                 
+                  <?php  if(isset($count_spare_parts)){ echo $count_spare_parts;}?>
+               </td>
+
            </tr>
        </tbody>
       </table>

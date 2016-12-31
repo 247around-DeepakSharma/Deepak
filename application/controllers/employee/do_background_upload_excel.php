@@ -458,17 +458,18 @@ class Do_background_upload_excel extends CI_Controller {
 	    	log_message('info', __FUNCTION__ . "=> File type: " . $file_type . 
                         ", Order ID found: " . $value['Sub_Order_ID']);
                 $status = $partner_booking['current_status'];
+                $int_status = $partner_booking['internal_status'];
               
                 switch ($file_type){
                     case 'delivered':
                             //If state is followup and booking date not empty, reset the date
-                            if ($status == "FollowUp" && $partner_booking['booking_date'] != '') {
+                            if ($status == "FollowUp" && $partner_booking['booking_date'] != '' &&
+                                    $int_status == 'Missed_call_not_confirmed') {
                                 if(isset($value['fso_delivery_date'])){
-                                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['fso_delivery_date']);
-
-                            } else {
-                                $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
-                            }
+                                    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['fso_delivery_date']);
+                                } else {
+                                    $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
+                                }
                             $delivery_date = $dateObj2;
                             
                             $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($delivery_date);
@@ -493,7 +494,6 @@ class Do_background_upload_excel extends CI_Controller {
                     case 'shipped':
                         if(isset($value['Delivery_End_Date'])){
                             $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_End_Date']);
-                
                         } else {
                             $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Delivery_Date']);
                         }

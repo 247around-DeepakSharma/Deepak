@@ -133,6 +133,10 @@
                             <a href="<?php echo base_url() ?>employee/vendor/process_vendor_pincode_delete_form"><i class="fa fa-fw fa-desktop "></i> <strong>Delete Vendor Pincode Mapping</strong></a>
                         </li>
                         <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/vendor/show_vendor_documents_view"><i class="fa fa-fw fa-desktop "></i> <strong>SF Document List</strong></a>
+                        </li>
+                        <li class="divider"></li>
                         <li class="dropdown dropdown-submenu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-fw fa-desktop "></i> <strong>Engineers</strong></a>
                             <ul class="dropdown-menu">

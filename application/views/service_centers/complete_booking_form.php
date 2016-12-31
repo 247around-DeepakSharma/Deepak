@@ -383,6 +383,12 @@
 	    return false;
 
 	}
+        
+        <?php if(isset($booking_history['spare_parts'])){ ?> 
+                alert("Ship Defective Spare Parts");
+        
+        <?php }?>
+            
 	if (flag === 0) {
 	    return true;
 

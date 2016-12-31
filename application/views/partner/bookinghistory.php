@@ -28,7 +28,7 @@ $this->db = $this->load->database('default', TRUE, TRUE);
         <div class="row">
             <div id="for_user" style="width:90%;margin:50px;">
                 <div class="panel" style="width:90%;margin:50px 0px 10px  50px;background-color: #2C9D9C; border-color: #2C9D9C;color:#fff">
-                    <div class="panel-heading"><center><span style="font-size: 120%;">Booking History: <b><?php echo ucfirst($data[0]['name']); ?></b></span></center></div>
+                    <div class="panel-heading"><center><span style="font-size: 120%;"><b><?php echo ucfirst($data[0]['name']); ?></b></span></center></div>
                 </div>
 
 
@@ -78,7 +78,7 @@ $this->db = $this->load->database('default', TRUE, TRUE);
                                 <td>
                                     <?php
                                     echo "<a class='btn btn-sm btn-primary' "
-                                    . "href=" . base_url() . "employee/partner/viewdetails/$row[booking_id]/" . $this->session->userdata('partner_id') . " target='_blank'title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
+                                    . "href=" . base_url() . "partner/booking_details/$row[booking_id]/" . $this->session->userdata('partner_id') . " target='_blank'title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
                                     ?>
                                 </td>
 

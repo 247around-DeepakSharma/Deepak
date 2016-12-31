@@ -40,7 +40,7 @@
                             ?>
                             <tr <?php if ($row->internal_status == "Missed_call_confirmed") { ?> style="background-color:rgb(0,255,0); color:#000;"<?php } ?> >
                                 <td><?php echo $count . '.'; ?></td>
-                                <td><?php echo $row->customername ?></td>
+                                <td><?php echo $row->order_id; ?></td>
                                 <td><?php echo $row->booking_id ?></td>
                                 <td><?= $row->customername; ?></td>
                                 <td><?= $row->booking_primary_contact_no; ?></td>
@@ -93,7 +93,7 @@
                                 ?>
                                 <tr id="row_color<?php echo $count; ?>">
                                     <td><?php echo $count . '.'; ?></td>
-                                    <td><?php echo $row->customername ?></td>
+                                    <td><?php echo $row->order_id ?></td>
                                     <td><?php echo $row->booking_id ?></td>
                                     <td><?= $row->customername; ?></td>
                                     <td><?= $row->booking_primary_contact_no; ?></td>
@@ -117,7 +117,7 @@
                     </table>
                 <?php } if (isset($data['Completed'])) { ?>
                     <br><div class="panel-heading">
-                        <h2 class="panel-title"><i class="fa fa-money fa-fw"></i>Completed Bookings </h2>
+                        <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Completed Bookings </h2>
                     </div>
                     <table class="table table-striped table-bordered table-hover">
                         <thead>
@@ -128,7 +128,7 @@
                                 <th  class="jumbotron">User Name</th>
                                 <th  class="jumbotron">Mobile</th>
                                 <th  class="jumbotron">City</th>
-                                <th  class="jumbotron">Booking Date</th>
+                                <th  class="jumbotron">Closed Date</th>
                                 <th  class="jumbotron">Status</th>
                                 <th  class="jumbotron">View</th>
                             </tr>
@@ -139,12 +139,12 @@
                                 ?>
                                 <tr>
                                     <td><?php echo $count . '.'; ?></td>
-                                    <td><?php echo $row->customername ?></td>
+                                    <td><?php echo $row->order_id ?></td>
                                     <td><?php echo $row->booking_id ?></td>
                                     <td><?= $row->customername; ?></td>
                                     <td><?= $row->booking_primary_contact_no; ?></td>
                                     <td><?= $row->city; ?></td>
-                                    <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
+                                    <td><?php echo date('d-m-y', strtotime($row->booking_date)); ?> </td>
                                     <td id="status_<?php echo $row->booking_id; ?>"><?php echo $row->current_status; ?></td>
                                     <td>
                                         <?php
@@ -171,7 +171,8 @@
                                 <th  class="jumbotron">User Name</th>
                                 <th  class="jumbotron">Mobile</th>
                                 <th  class="jumbotron">City</th>
-                                <th  class="jumbotron">Booking Date</th>
+                                <th  class="jumbotron">Closed Date</th>
+                                <th  class="jumbotron">Cancellation Reason</th>
                                 <th  class="jumbotron">Status</th>
                                 <th  class="jumbotron">View</th>
                             </tr>
@@ -183,12 +184,13 @@
                                 <tr>
 
                                     <td><?php echo $count . '.'; ?></td>
-                                    <td><?php echo $row->customername ?></td>
+                                    <td><?php echo $row->order_id ?></td>
                                     <td><?php echo $row->booking_id ?></td>
                                     <td><?= $row->customername; ?></td>
                                     <td><?= $row->booking_primary_contact_no; ?></td>
                                     <td><?= $row->city; ?></td>
-                                    <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
+                                    <td><?php echo date('d-m-y', strtotime($row->booking_date)); ?> </td>
+                                    <td><?php echo $row->cancellation_reason; ?></td>
                                     <td id="status_<?php echo $row->booking_id; ?>"><?php echo $row->current_status; ?></td>
                                     <td>
                                         <?php
@@ -202,7 +204,13 @@
                         }
                         ?>
                     </table>
-                <?php } ?>
+                <?php }  ?>
+                 <?php if(isset($data['Pending']) || isset($data['Cancelled']) || isset($data['FollowUp']) || isset($data['Completed'])){} else { 
+                     $this->session->set_flashdata('error', 'User Not Exist');
+                     redirect(base_url() . 'employee/partner/get_user_form');
+                 }
+
+                  ?>
             </div>
         </div>
     </div>

@@ -83,7 +83,7 @@
             </div>
             <!-- Modal End -->
 
-         <div class="container-fluid">
+            <div class="container-fluid" style="padding-left:0px">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
@@ -108,11 +108,18 @@
                      <ul class="dropdown-menu">
                         <li><a href="<?php echo base_url();?>service_center/pending_booking">Pending Bookings</a></li>
                          <li role="separator" class="divider"></li>
-                        <li><a href="<?php echo base_url();?>service_center/get_defective_parts_booking">Defective Parts</a></li>
-                         <li role="separator" class="divider"></li>
                         <li><a href="<?php echo base_url();?>service_center/completed_booking">Completed Bookings</a></li>
                          <li role="separator" class="divider"></li>
                         <li><a href="<?php echo base_url();?>service_center/cancelled_booking">Cancelled Bookings</a></li>
+                     </ul>
+                  </li>
+                   <li class="dropdown">
+                  
+                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Spare Parts <span class="caret"></span></a>
+                     <ul class="dropdown-menu">
+                         <li><a href="<?php echo base_url();?>service_center/get_defective_parts_booking">Defective Parts</a></li>
+                         <li role="separator" class="divider"></li>
+                         <li><a href="<?php echo base_url();?>service_center/get_approved_defective_parts_booking">Approved Defective Parts</a></li>
                        
                      </ul>
                   </li>

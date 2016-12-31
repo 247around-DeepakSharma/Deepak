@@ -62,9 +62,16 @@ class invoices_model extends CI_Model {
         if ($query->num_rows > 0) {
             $this->db->where('invoice_id', $details['invoice_id']);
             $this->db->update('vendor_partner_invoices', $details);
+            return true;
+//            if($this->db->affected_rows() > 0){
+//               return true;
+//            }else{
+//                return false;
+//            }
         } else {
 
             $this->db->insert('vendor_partner_invoices', $details);
+            return $this->db->insert_id();
         }
     }
 

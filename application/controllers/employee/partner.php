@@ -108,6 +108,7 @@ class Partner extends CI_Controller {
 
         $data['count'] = $config['total_rows'];
         $data['bookings'] = array_slice($total_rows, $offset, $config['per_page']);
+        $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'partner', 'active'=> '1'));
                
         if ($this->session->flashdata('result') != '') {
             $data['success'] = $this->session->flashdata('result');
@@ -819,37 +820,30 @@ class Partner extends CI_Controller {
      * @param: offset, per page number and phone number
      * @return : print Booking on Booking Page
      */
-    function finduser($offset = 0, $page = 0, $phone_number = '') {
+    
+     function finduser($offset = 0, $page = 0, $phone_number = '') {
         $this->checkUserSession();
         $booking_id = $this->input->post('booking_id');
         $order_id = $this->input->post('order_id');
         $serial_no = $this->input->post('serial_number');
         $partner_id = $this->session->userdata('partner_id');
-
         if ($this->input->post('phone_number')) {
             $phone_number = $this->input->post('phone_number');
         }
-
+        
         if ($phone_number != "") {
-            //search user by phone number
-            $output = $this->user_model->search_user($phone_number);
+            $page = 0;
+                
+            if ($page == 0) {
+                $page = 50;
+            }
 
-            if (empty($output)) {
-                //if user not found set error session data
-                $this->session->set_flashdata('error', 'Booking Not Found');
+            $offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
 
-                redirect(base_url() . 'employee/partner/get_user_form');
-            } else {
-                //if entered detail matches it will be displayed in a page
-                $page = 0;
-                $offset = 0;
-                if ($page == 0) {
-                    $page = 50;
-                }
-                $offset = ($this->uri->segment(7) != '' ? $this->uri->segment(7) : 0);
-
-                $config['base_url'] = base_url() . "employee/partner/finduser/" . $offset . "/" . $page . "/" . $phone_number;
-                $config['total_rows'] = $this->partner_model->total_user_booking($output[0]['user_id'], $partner_id);
+            $config['base_url'] = base_url() . "employee/partner/finduser/" . $offset . "/" . $page . "/" . $phone_number;
+           
+            $output_data = $this->user_model->search_by_partner($phone_number, $partner_id, $offset, $page);
+            if(!empty($output_data)){
                 $config['per_page'] = $page;
                 $config['uri_segment'] = 7;
                 $config['first_link'] = 'First';
@@ -858,91 +852,42 @@ class Partner extends CI_Controller {
                 $this->pagination->initialize($config);
                 $data['links'] = $this->pagination->create_links();
 
-                $data['data'] = $this->user_model->partner_booking_history($phone_number, $partner_id, $config['per_page'], $offset);
-
-                if (empty($data['data'])) {
-
-                    $data['data'] = $output;
-                }
-
-                $data['appliance_details'] = $this->user_model->appliance_details($phone_number);
-
-
+                $data['data'] = $output_data;
                 $this->load->view('partner/header');
                 $this->load->view('partner/bookinghistory', $data);
-            }
-        } elseif ($booking_id != "") {  //if booking id given and matched, will be displayed
-            $where = array('booking_details.booking_id' => $booking_id);
-            $data['Bookings'] = $this->booking_model->search_bookings($where,$partner_id);
-
-            $data_value = search_for_key($data['Bookings']);
-
-            if (isset($data_value['Pending']) || isset($data_value['Cancelled']) || isset($data_value['Completed'])){
-                $this->load->view('partner/header');
-                $this->load->view('partner/search_result',$data);
-            }else{
-                //if user not found set error session data
-                $this->session->set_flashdata('error', 'Booking Not Found');
+            } else {
+                $this->session->set_flashdata('error', 'User Not Exist');
 
                 redirect(base_url() . 'employee/partner/get_user_form');
             }
 
-
-        } else if (!empty($order_id)) {
+        } else if ($booking_id != "") {  //if booking id given and matched, will be displayed
+            $where = array('booking_details.booking_id' => $booking_id);
+            $data['Bookings'] = $this->booking_model->search_bookings($where,$partner_id);
+          
+            $this->load->view('partner/header');
+            $this->load->view('partner/search_result',$data);
+            
+        } else if(!empty($order_id)) {
 
             $where = array('order_id' => $order_id);
             $data['Bookings'] = $this->booking_model->search_bookings($where, $partner_id);
-            $data['search'] = "Search";
-
-           $data_value = search_for_key($data['Bookings']);
-
-            if (isset($data_value['Pending']) || isset($data_value['Cancelled']) || isset($data_value['Completed'])){
-                $this->load->view('partner/header');
-                $this->load->view('partner/search_result',$data);
-            }else{
-                //if user not found set error session data
-                $this->session->set_flashdata('error', 'Booking Not Found');
-
-                redirect(base_url() . 'employee/partner/get_user_form');
-            }
+            
+            $this->load->view('partner/header');
+            $this->load->view('partner/search_result',$data);
         } else if (!empty($serial_no)) {
 
             $where = array('partner_serial_number' => $serial_no);
             $data['Bookings'] = $this->booking_model->search_bookings($where, $partner_id);
+           
             $data['search'] = "Search";
-
-            $data_value = search_for_key($data['Bookings']);
-
-            if (isset($data_value['Pending']) || isset($data_value['Cancelled']) || isset($data_value['Completed'])){
-                $this->load->view('partner/header');
-                $this->load->view('partner/search_result',$data);
-            }else{
-                //if user not found set error session data
-                $this->session->set_flashdata('error', 'Booking Not Found');
-
-                redirect(base_url() . 'employee/partner/get_user_form');
-            }
+            $this->load->view('partner/header');
+            $this->load->view('partner/search_result',$data);
+        } else {
+            $this->session->set_flashdata('error', 'User Not Exist');
+            redirect(base_url() . 'employee/partner/get_user_form');
         }
-    }
-
-    /**
-     *  @desc : This function is to view details of any particular booking to partner
-     *
-     * 	We get all the details like User's details, booking details, and also the appliance's unit details of particular partner
-     *
-     *  @param : booking id, partner ID
-     *  @return : booking details and load view
-     */
-    function viewdetails($booking_id, $partner_id) {
-         $this->checkUserSession();
-        $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
-        $unit_where = array('booking_id'=>$booking_id, 'partner_id' => $partner_id);
-        $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
-
-        $data['service_center'] = $this->booking_model->selectservicecentre($booking_id);
-
-        $this->load->view('partner/header');
-        $this->load->view('partner/viewdetails', $data);
+        
     }
 
     /**
@@ -970,7 +915,7 @@ class Partner extends CI_Controller {
      *
      * Opens a form with user's name and option to be choosen to cancel the booking.
      *
-     * Atleast one booking/Query cancellation reason must be selected.
+     * Atleast one booking/Query cancellation reasbon must be selected.
      *
      * If others option is choosen, then the cancellation reason must be entered in the textarea.
      *
@@ -1134,7 +1079,6 @@ class Partner extends CI_Controller {
             }
         }
     }
-    
     /**
      * @desc: Load escalation form  in the partner panel. Partner esclates on booking.
      * That will send notification to 247Around.
@@ -1155,18 +1099,18 @@ class Partner extends CI_Controller {
      * @param String $booking_id
      */
     function process_escalation($booking_id){
-        log_message('info', __FUNCTION__ . " Booking Id: " . $booking_id);
         
         $this->checkUserSession();
-        
         $this->form_validation->set_rules('escalation_reason_id', 'Escalation Reason', 'trim|required');
-
+        
         if ($this->form_validation->run() == FALSE) {
             $this->escalation_form($booking_id);
         } else {
-            $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
-            $bookinghistory = $this->vendor_model->getbooking_history($booking_id);
             
+            $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
+            $escalation_remarks = $this->input->post('escalation_remarks');
+            $bookinghistory = $this->booking_model->getbooking_history($booking_id);
+           
             $escalation['booking_id'] = $booking_id;
             if(!is_null($bookinghistory[0]['assigned_vendor_id'])){
                 $escalation['vendor_id'] = $bookinghistory[0]['assigned_vendor_id'];
@@ -1174,40 +1118,57 @@ class Partner extends CI_Controller {
                 $to = $vendorContact[0]['primary_contact_email'];
                 $cc = $vendorContact[0]['owner_email'].",nits@247around.com,escalations@247around.com";
                 
+                $message = "Booking " . $booking_id . " Escalated By Partner " . $this->session->userdata('partner_name'). " SF State ". 
+                        $vendorContact[0]['state']. " SF City ". $vendorContact[0]['city'];
+                
             } else {
                 $escalation['vendor_id'] = "";
                 $to = "escalations@247around.com"; 
                 $cc = "nits@247around.com";
+                $message = "Booking " . $booking_id . " Escalated By Partner " . $this->session->userdata('partner_name'). " SF State ";
             }
             
             $escalation['booking_date'] = date('Y-m-d', strtotime($bookinghistory[0]['booking_date']));
             $escalation['booking_time'] = $bookinghistory[0]['booking_timeslot'];
             
             log_message('info', __FUNCTION__ . " escalation_reason  " . print_r($escalation, true));
-            
+          
             //inserts vendor escalation details
             $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
             $escalation_reason  = $this->vendor_model->getEscalationReason(array('id'=>$escalation['escalation_reason']));
+            if(!empty($escalation_remarks)){
+                $remarks = $escalation_reason[0]['escalation_reason']." -".
+                    $escalation_remarks;
+            } else {
+                $remarks = $escalation_reason[0]['escalation_reason'];
+            }
             $this->notify->insert_state_change($escalation['booking_id'], 
-                    "Escalation" , _247AROUND_PENDING , $escalation_reason[0]['escalation_reason'], 
+                    "Escalation" , _247AROUND_PENDING , $remarks, 
                     $this->session->userdata('agent_id'), $this->session->userdata('partner_name'),
                     $this->session->userdata('partner_id'));
             if($escalation_id){
-                log_message('info', __FUNCTION__ . " Escalation INSERTED ");
+                log_message('info', __FUNCTION__ . " Escalation Inserted ");
+                $this->booking_model->increase_escalation_reschedule($booking_id, "count_escalation");
                 $from = "escalations@247around.com";
                 $bcc=""; $attachment = "";
                 
                 $subject = "Booking " . $booking_id . " Escalated By Partner " . $this->session->userdata('partner_name');
-                $message = "Booking " . $booking_id . " Escalated By Partner " . $this->session->userdata('partner_name');
-                
+
                 $is_mail = $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
+                $partner_details = $this->partner_model->getpartner($this->session->userdata('partner_id'))[0];
+                $partner_mail_to = $partner_details['primary_contact_email'];
+                $partner_mail_cc = "nits@247around.com,escalations@247around.com";
+                $partner_subject = "Booking " . $booking_id . " Escalated ";
+                $partner_message = "Booking " . $booking_id . " Escalated" ;
+                $this->notify->sendEmail($from, $partner_mail_to, $partner_mail_cc, $bcc, $partner_subject, $partner_message, $attachment);
                 
                 if($is_mail){
                     log_message('info', __FUNCTION__ . " Escalation Mail Sent ");
                     
                     $reason_flag['escalation_policy_flag'] = json_encode(array('mail_to_escalation_team'=>1), true);
-                    
+
                     $this->vendor_model->update_esclation_policy_flag($escalation_id, $reason_flag, $booking_id);
+                    
                 }
             }
             
@@ -1215,8 +1176,8 @@ class Partner extends CI_Controller {
             
             $this->session->set_flashdata('success', 'Booking '. $booking_id. " has been escalated, our team will look into this immediately.");
 
-            redirect(base_url() . "partner/escalation_form/".$booking_id);
-        }
+          //  redirect(base_url() . "partner/escalation_form/".$booking_id);
+       }
         
     }
     /**
@@ -1546,6 +1507,7 @@ class Partner extends CI_Controller {
         $booking_history['details'] = array();
         foreach ($booking_address as $key=> $value) {
             $booking_history['details'][$key]  = $this->booking_model->getbooking_history($value, "join")[0];
+            $booking_history['details'][$key]['partner'] = $this->partner_model->getpartner($this->session->userdata('partner_id'))[0];
         }
        
         $this->load->view('partner/print_address',$booking_history);
@@ -1703,17 +1665,19 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         $where = array('booking_id' => $booking_id, 'partner_id' => $partner_id);
-        $response = $this->service_centers_model->update_spare_parts($where, array('status' => DEFECTIVE_PARTS_RECEIVED));
+        $response = $this->service_centers_model->update_spare_parts($where, array('status' => DEFECTIVE_PARTS_RECEIVED,
+            'approved_defective_parts_by_partner'=> '1', 'remarks_defective_part_by_partner'=> NULL,
+            'received_defective_part_date' => date("Y-m-d H:i:s")));
         if ($response) {
-            log_message('info', __FUNCTION__ . " Sucessfully Acknowleded to Receive Defective Spare Parts ".$booking_id
+            log_message('info', __FUNCTION__ . " Received Defective Spare Parts ".$booking_id
                     ." Partner Id". $this->session->userdata('partner_id'));
-            $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner acknowledged to received defective spare parts");
+            $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Partner Received Defective Spare Parts");
 
             $sc_data['current_status'] = "InProcess";
             $sc_data['internal_status'] = _247AROUND_COMPLETED;
             $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
-            $userSession = array('success' => 'Sucessfully Acknowleded to Receive Defective Spare Parts');
+            $userSession = array('success' => ' Received Defective Spare Parts');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
         } else { //if($response){
@@ -1731,11 +1695,18 @@ class Partner extends CI_Controller {
      */
     function reject_defective_part($booking_id,$status){
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'). " Booking Id ". $booking_id);
+        $this->checkUserSession();
         $rejection_reason = base64_decode(urldecode($status));
         $partner_id = $this->session->userdata('partner_id');
         $where = array('booking_id' => $booking_id, 'partner_id' => $partner_id);
         $response = $this->service_centers_model->update_spare_parts($where, array('status' => DEFECTIVE_PARTS_REJECTED, 
-            'remarks_defective_part_by_partner' => $rejection_reason));
+            'remarks_defective_part_by_partner' => $rejection_reason, 
+            'approved_defective_parts_by_partner'=> '0',
+            'defective_part_shipped' => NULL,
+            'defective_part_shipped_date' =>NULL,
+            'awb_by_sf'=> NULL,
+            'courier_name_by_sf'=> NULL,
+            'remarks_defective_part_by_sf'=> NULL));
         if ($response) {
             log_message('info', __FUNCTION__ . " Sucessfully updated Table ".$booking_id
                     ." Partner Id". $this->session->userdata('partner_id'));
@@ -1745,11 +1716,11 @@ class Partner extends CI_Controller {
             $sc_data['internal_status'] = $rejection_reason;
             $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
-            $userSession = array('success' => 'Defective Parts Rejected To SF. They will take an action soon!');
+            $userSession = array('success' => 'Defective Parts Rejected To SF');
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
         } else { //if($response){
-            log_message('info', __FUNCTION__ . '=> Defective Spare Parts not udated  by Partner ' . $this->session->userdata('partner_id') .
+            log_message('info', __FUNCTION__ . '=> Defective Spare Parts Not Updated by Partner' . $this->session->userdata('partner_id') .
                     " booking id " . $booking_id);
             $userSession = array('success' => 'There is some error. Please try again.');
             $this->session->set_userdata($userSession);
@@ -1758,6 +1729,7 @@ class Partner extends CI_Controller {
     }
     
     /**
+<<<<<<< HEAD
      * @Desc: This function is used to get Brands for selected Services of particular Partner 
      *          This is being called from AJAX
      * @params: partner_id, service_name
@@ -1828,5 +1800,33 @@ class Partner extends CI_Controller {
         $option['model'] = $model;
         print_r(json_encode($option));
     }
+    
+    /**
+     * @desc: This method is used to display list of booking which received by Partner
+     * @param Integer $offset
+     */
+    function get_approved_defective_parts_booking($offset = 0){
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
+        
+        $partner_id = $this->session->userdata('partner_id');
+        $where = "spare_parts_details.partner_id = '".$partner_id."' "
+                . " AND approved_defective_parts_by_partner = '1' ";
+          
+        $config['base_url'] = base_url() . 'partner/get_approved_defective_parts_booking';
+        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
+        $config['total_rows'] = $total_rows[0]['total_rows'];
+        $config['per_page'] = 50;
+        $config['uri_segment'] = 3;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
 
+        $data['count'] = $config['total_rows'];
+        $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, $config['per_page'], true);
+        
+        $this->load->view('partner/header');
+        $this->load->view('partner/approved_defective_parts', $data);
+    }
 }

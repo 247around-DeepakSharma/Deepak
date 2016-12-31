@@ -435,8 +435,8 @@ class Booking extends CI_Controller {
 		    $data['booking_id'] = $booking_id_array[1];
 		    $data['query_to_booking'] = '1';
 		    
-                    $data['old_state'] = _247AROUND_PENDING;
-                    $data['new_state'] = _247AROUND_FOLLOWUP;
+                    $data['old_state'] = _247AROUND_FOLLOWUP;
+                    $data['new_state'] = _247AROUND_PENDING;
                     
                     log_message('info', __FUNCTION__ . " Query Converted to Booking Booking ID" . print_r($data['booking_id'], true));
 		    
@@ -459,8 +459,8 @@ class Booking extends CI_Controller {
 		    $data['booking_id'] = "Q-" . $booking_id;
 		    log_message('info', __FUNCTION__ . " Booking to be Converted to Query Booking ID" . print_r($data['booking_id'], true));
 		    
-                    $data['old_state'] = _247AROUND_FOLLOWUP;
-                    $data['new_state'] = _247AROUND_PENDING;
+                    $data['old_state'] = _247AROUND_PENDING;
+                    $data['new_state'] = _247AROUND_FOLLOWUP;
 
                     //Since booking has been converted to query, delete this entry from
                     //service center booking action table as well.
@@ -736,6 +736,10 @@ class Booking extends CI_Controller {
 	$this->vendor_model->update_service_center_action($booking_id, $data_vendor);
 
 	$this->update_price_while_cancel_booking($booking_id);
+        
+        //Update Spare parts details table
+        $this->service_centers_model->update_spare_parts(array('booking_id'=> $booking_id), 
+                 array('status'=> _247AROUND_CANCELLED));
 
 	//Log this state change as well for this booking
 	//param:-- booking id, new state, old state, employee id, employee name
@@ -1607,6 +1611,9 @@ class Booking extends CI_Controller {
 	log_message('info', ": " . " update booking details data (" . $booking['current_status'] . ")" . print_r($booking, TRUE));
 	// this function is used to update booking details table
 	$this->booking_model->update_booking($booking_id, $booking);
+        //Update Spare parts details table
+        $this->service_centers_model->update_spare_parts(array('booking_id'=> $booking_id), 
+                 array('status'=> $internal_status));
 
 	//Log this state change as well for this booking
 	//param:-- booking id, new state, old state, employee id, employee name
