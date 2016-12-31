@@ -122,9 +122,9 @@ class BookingSummary extends CI_Controller {
             }
         } else {
             //Function is being called from CRON
-            //Getting list of RM details
-            $rms = $this->employee_model->get_rm_details();
-            foreach ($rms as $value) {
+            //Getting list of RM and Admin details
+            $employee_for_cron_mail_list = $this->employee_model->get_employee_for_cron_mail();
+            foreach ($employee_for_cron_mail_list as $value) {
 
                 $sf_list = $this->vendor_model->get_employee_relation($value['id']);
                 if(!empty($sf_list)){
@@ -201,11 +201,11 @@ class BookingSummary extends CI_Controller {
                         if (!$return) {
                             //Logging
                             log_message('info', __FUNCTION__ . ' Executed Sucessfully ' . "BookingSummary-" . date('d-M-Y') . ".xlsx");
-                        }
                     }
                 }
             }
-
+            }
+            
             //Processing Get Pending Bookings for Closure Team of ALL SF
             
             $where = array('groups' => 'closure');
@@ -221,6 +221,7 @@ class BookingSummary extends CI_Controller {
                 //Fetching pending bookings
                 $pending_bookings = $this->reporting_utils->get_pending_bookings($sf_list);
                 $count = count($pending_bookings);
+                 log_message('info', "Count: " . $count);
                 
                 if ($count > 0) {
                     //Get num of pending bookings for each vendor
@@ -286,9 +287,9 @@ class BookingSummary extends CI_Controller {
                         if (!$return) {
                             //Logging
                             log_message('info', __FUNCTION__ . ' Executed Sucessfully ' . "BookingSummary-" . date('d-M-Y') . ".xlsx");
-                        }
                     }
                 }
+        }
         }
         //Adding Details in Scheduler tasks table
         
@@ -835,22 +836,23 @@ EOD;
      *
      */
     function new_send_service_center_report_mail(){
-        //Geting Array of RM's
-        $rms = $this->employee_model->get_rm_details();
+        //Geting Array of RM and Admin list
+        $employee_for_cron_mail_list = $this->employee_model->get_employee_for_cron_mail();
         //Looping for each RM to send their corresponding reports of SF
-        foreach($rms as $value){
+        foreach ($employee_for_cron_mail_list as $value) {
             //Getting RM to SF Relation
             $sf_list = $this->vendor_model->get_employee_relation($value['id']);
-            if(!empty($sf_list)){
-                $html = $this->booking_utilities->booking_report_for_new_service_center($sf_list[0]['service_centres_id']);
-                $to = $value['official_email'];
-
-                $this->notify->sendEmail("booking@247around.com", $to, "", "", "New Service Center Report ".date('d-M,Y'), $html, "");
-                log_message('info', __FUNCTION__ . ' New Service Center Report mail sent to '. $to);
-                
-                // Inserting values in scheduler tasks log
-                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
+            if (!empty($sf_list)) {
+                $sf_list = $sf_list[0]['service_centres_id'];
             }
+            $html = $this->booking_utilities->booking_report_for_new_service_center($sf_list);
+            $to = $value['official_email'];
+
+            $this->notify->sendEmail("booking@247around.com", $to, "", "", "New Service Center Report " . date('d-M,Y'), $html, "");
+            log_message('info', __FUNCTION__ . ' New Service Center Report mail sent to ' . $to);
+
+            // Inserting values in scheduler tasks log
+            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
         }
     }
     
@@ -863,22 +865,23 @@ EOD;
      */
     
     function send_service_center_report_mail() {
-        //Geting Array of RM's
-        $rms = $this->employee_model->get_rm_details();
+        //Geting Array of RM's and Admin
+        $employee_for_cron_mail_list = $this->employee_model->get_employee_for_cron_mail();
         //Looping for each RM 
-        foreach($rms as $value){
+        foreach ($employee_for_cron_mail_list as $value) {
             //Getting RM to SF relation
             $sf_list = $this->vendor_model->get_employee_relation($value['id']);
-            if(!empty($sf_list)){
-                $html = $this->booking_utilities->booking_report_by_service_center($sf_list[0]['service_centres_id']);
-                $to = $value['official_email'];
-        
-                $this->notify->sendEmail("booking@247around.com", $to, "", "", "Service Center Report ".date('d-M,Y'), $html, "");
-                log_message('info', __FUNCTION__ . ' Service Center Report mail sent to '. $to);
-                
-                // Inserting values in scheduler tasks log
-                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
+            if (!empty($sf_list)) {
+                $sf_list = $sf_list[0]['service_centres_id'];
             }
+            $html = $this->booking_utilities->booking_report_by_service_center($sf_list);
+            $to = $value['official_email'];
+
+            $this->notify->sendEmail("booking@247around.com", $to, "", "", "Service Center Report " . date('d-M,Y'), $html, "");
+            log_message('info', __FUNCTION__ . ' Service Center Report mail sent to ' . $to);
+
+            // Inserting values in scheduler tasks log
+            $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
         }
     }
 
@@ -962,15 +965,16 @@ EOD;
         } else {
             //The function is being called from CRON
             if (date('l') != "Sunday") {
-                //Geting Array of RM's
-                $rms = $this->employee_model->get_rm_details();
-                foreach ($rms as $value) {
+                //Geting Array of RM and Admin group
+                $employee_for_cron_mail_list = $this->employee_model->get_employee_for_cron_mail();
+                foreach ($employee_for_cron_mail_list as $value) {
                     //Getting RM to SF relation
+                    $where = "";
                     $sf_list = $this->vendor_model->get_employee_relation($value['id']);
                     if (!empty($sf_list)) {
                         $sf_list = $sf_list[0]['service_centres_id'];
+                        $where = "AND service_centres.id IN (" . $sf_list . ")";
                     }
-                    $where = "AND service_centres.id IN (" . $sf_list . ")";
 
                     $data['data'] = $this->reporting_utils->get_sc_crimes($where);
                     if (!empty($data['data'])) {

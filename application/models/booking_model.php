@@ -672,6 +672,23 @@ class Booking_model extends CI_Model {
         return $result;
     }
 
+    function update_booking_by_order_id($order_id, $data) {
+        $this->db->where(array("order_id" => $order_id, "current_status" => "FollowUp"));
+        $result =  $this->db->update("booking_details", $data);
+
+        log_message ('info', __METHOD__ . "=> Booking SQL ". $this->db->last_query() . ", Result: " . $result);
+
+        //return corresponding booking_id if booking gets updated else return false
+        if ($this->db->affected_rows() > 0) {
+            $this->db->select('booking_id');
+            $this->db->where('order_id', $order_id);
+            $query = $this->db->get('booking_details');
+            return $query->result_array()[0]['booking_id'];
+        } else {
+            return FALSE;
+        }
+    }
+
     /**
      *  @desc : Function to update booking(vendor's) details
      *
@@ -1922,7 +1939,7 @@ class Booking_model extends CI_Model {
                 }
             } else if(!is_null($value['service_center_id'])){
                 // For Service center
-                $this->db->select('full_name, company_name as source');
+                $this->db->select("CONCAT('Agent Id: ',service_centers_login.id ) As full_name , CONCAT('SF Id: ',service_centres.id ) As source");
                 $this->db->from('service_centers_login');
                 $this->db->where('service_centers_login.id', $value['agent_id']);
                 $this->db->join('service_centres', 'service_centres.id = service_centers_login.service_center_id');

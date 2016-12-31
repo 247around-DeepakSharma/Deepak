@@ -784,10 +784,13 @@ class vendor extends CI_Controller {
         $service_center_id = $this->input->post('service');
 
 	if ($service_center_id != "Select") {
-            $engineer = $this->vendor_model->get_engineers($service_center_id);
-            $b['assigned_vendor_id'] = $service_center_id;
-            if(!empty($engineer)){
-                $b['assigned_engineer_id'] = $engineer[0]['id'];
+            if (IS_DEFAULT_ENGINEER == TRUE) {
+                $b['assigned_engineer_id'] = DEFAULT_ENGINEER;
+            } else {
+                $engineer = $this->vendor_model->get_engineers($service_center_id);
+                if (!empty($engineer)) {
+                    $b['assigned_engineer_id'] = $engineer[0]['id'];
+                }
             }
             //Assign service centre and engineer
             $this->booking_model->update_booking($booking_id, $b);
@@ -2527,6 +2530,12 @@ class vendor extends CI_Controller {
      */
     function control_update_process($service_center_id, $flag){
         $this->vendor_model->edit_vendor(array('is_update'=> $flag), $service_center_id);
+        //Adding details in Booking State Change Table
+        if($flag == 1){
+            $this->notify->insert_state_change("", NEW_SF_CRM, OLD_SF_CRM , "New CRM Enabled for SF ID: ".$service_center_id , $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+        }else{
+            $this->notify->insert_state_change("", OLD_SF_CRM, NEW_SF_CRM , "Old CRM Enabled for SF ID: ".$service_center_id , $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+        }
         redirect(base_url() . 'employee/vendor/viewvendor');
     }
 
@@ -2835,6 +2844,7 @@ class vendor extends CI_Controller {
                 //Calculating vendor tax - [Vendor Total - Vendor Base Charge]
                 $vendor_tax = $value['vendor_total'] - $vendor_base_charge;
                 
+                $array_final['state'] = $state;
                 $array_final['sc_code'] = $code_source;
                 $array_final['product'] = $value['product'];
                 $array_final['category'] = $value['category'];
@@ -2868,11 +2878,10 @@ class vendor extends CI_Controller {
                 ));
 
             $output_file_dir = TMP_FOLDER;
-            $output_file = ucfirst($state)."-Charges-List-" . date('j M Y');
-            $output_file_name = $output_file . ".xls";
+            $output_file = ucfirst($state)."-Charges-List-" . date('j-M-Y');
+            $output_file_name = $output_file . ".xlsx";
             $output_file_excel = $output_file_dir . $output_file_name;
-            $R->render('excel2003', $output_file_excel);
-
+            $R->render('excel', $output_file_excel);
             //Downloading File
             if(file_exists($output_file_excel)){
 

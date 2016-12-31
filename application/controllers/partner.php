@@ -139,7 +139,8 @@ class Partner extends CI_Controller {
                         //Search for user
                         //Insert user if phone number doesn't exist
                         $output = $this->user_model->search_user($requestData['mobile']);
-
+                        $state = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
+                        
                         if (empty($output)) {
                             log_message('info', $requestData['mobile'] . ' does not exist');
 
@@ -156,8 +157,6 @@ class Partner extends CI_Controller {
                             $user['home_address'] = $address;
                             $user['pincode'] = $requestData['pincode'];
                             $user['city'] = $requestData['city'];
-
-                            $state = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
 
                             $user['state'] = $state['state'];
 
@@ -226,6 +225,7 @@ class Partner extends CI_Controller {
                         $booking['partner_id'] = $data['partner_id'];
                         $booking['source'] = $data['source'];
                         
+                        /*
                         if($booking['partner_id'] == "1"){
                            
                             $cancelled_follow_up = $this->booking_model->cancel_duplicate_booking_for_sts($requestData, $service_id);
@@ -239,6 +239,9 @@ class Partner extends CI_Controller {
                         } else {
                             $booking['internal_status'] = "Missed_call_not_confirmed"; 
                         }
+                        */
+                        
+                        $booking['internal_status'] = "Missed_call_not_confirmed";
 
                         $unit_details['partner_id'] = $booking['partner_id'];
                         $booking['order_id'] = $requestData['orderID'];

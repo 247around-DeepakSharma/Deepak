@@ -359,7 +359,7 @@ class Partner_model extends CI_Model {
 
     //Return all leads shared by Partner in the last 30 days
     function get_partner_leads_for_summary_email($partner_id) {
-	$query = $this->db->query("SELECT BD.booking_id, order_id, booking_date, booking_timeslot,
+	$query = $this->db->query("SELECT DISTINCT BD.booking_id, order_id, booking_date, booking_timeslot,
 			BD.current_status, BD.cancellation_reason, rating_stars,
 			DATE_FORMAT(BD.create_date, '%d/%M') as create_date,
 			services,
@@ -855,7 +855,7 @@ class Partner_model extends CI_Model {
      * 
      */
     function get_service_brands_for_partner($partner_id){
-        $sql = "Select partner_appliance_details.brand_name, services.services  "
+        $sql = "Select Distinct partner_appliance_details.brand, services.services  "
                 . "From partner_appliance_details, services "
                 . "where partner_appliance_details.service_id = services.id "
                 . "AND partner_appliance_details.partner_id = '".$partner_id."'";
@@ -870,11 +870,14 @@ class Partner_model extends CI_Model {
      * @return : Array
      */
     function get_active_partner_id_by_service_id_brand($brands, $service_id){
-        $this->db->select('partner_id');
-        $this->db->where('brand_name',$brands);
-        $this->db->where('service_id',$service_id);
-        $this->db->where('active',1);
-        $query = $this->db->get('partner_appliance_details');
+        $sql = "Select partner_appliance_details.partner_id from partner_appliance_details, partners"
+                . " where  partner_appliance_details.partner_id = partners.id "
+                . "AND partner_appliance_details.brand = '".$brands."' "
+                . 'AND partner_appliance_details.service_id = '.$service_id." "
+                . 'AND partner_appliance_details.active = 1 '
+                . 'AND partners.is_active = 1';
+        $query = $this->db->query($sql);
+        
         return $query->result_array();
         
         
@@ -901,6 +904,222 @@ class Partner_model extends CI_Model {
         }
         
     }
+    
+    /**
+     * @Desc: This function is used to get Distinct Appliances for Partner
+     * @params: Partner ID
+     * @return: Array
+     */
+    function get_appliances_for_partner($partner_id){
+        $sql = "Select Distinct services.services, services.id  "
+                . "From partner_appliance_details, services "
+                . "where partner_appliance_details.service_id = services.id "
+                . "AND partner_appliance_details.partner_id = '".$partner_id."'";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This fucntion is used to get Distinct values of Brands for Particular Partner and service id
+     * @params: Where string
+     * @return: Array
+     */
+    function get_partner_service_brands($where){
+        $this->db->distinct();
+        $this->db->select('brand');
+        $this->db->where($where);
+        $this->db->where('active',1);
+        $this->db->order_by('brand', 'asc');
+        $query = $this->db->get('partner_appliance_details');
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This fucntion is used to get Distinct values of Brands for Particular Partner and service id
+     * @params: Where string
+     * @return: Array
+     */
+    function get_category_service_brands($where){
+        $this->db->distinct();
+        $this->db->select('category');
+        $this->db->where($where);
+        $this->db->where('active',1);
+        $this->db->order_by('category', 'asc');
+        $query = $this->db->get('partner_appliance_details');
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to get Patner codes from bookings_sources
+     * @params: void
+     * @return: Array
+     * 
+     */
+    function get_availiable_partner_code(){
+        $sql = "Select Distinct code from bookings_sources";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to add parter code in bookings_sources table
+     * @params: Array
+     * @return: Int
+     * 
+     */
+    function add_partner_code($data) {
+        $this->db->insert('bookings_sources', $data);
+        return $this->db->insert_id();
+    }
+    
+    /**
+     * @Desc: This function is used to get code for particular partner
+     * @params: partner id
+     * @return: array
+     * 
+     */
+    function get_partner_code($partner_id){
+        $this->db->select('code');
+        $this->db->where('partner_id',$partner_id);
+        $query = $this->db->get('bookings_sources');
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to update partner details in bookings_sources table
+     * @params: where array, data array
+     * 
+     */
+    function update_partner_code($where, $data){
+        $this->db->where($where);
+        $this->db->update('bookings_sources',$data);
+        if($this->db->affected_rows() > 0 ){
+            return TRUE;
+        }else{
+            return FALSE;
+        }
+        
+    }
+    
+    /**
+     * @Desc: This function is used to get latest price_mapping_id from bookings_sources table
+     * @params: void
+     * @return: void
+     * 
+     */
+    function get_latest_price_mapping_id(){
+        $this->db->select('price_mapping_id');
+        $this->db->order_by('create_date','desc');
+        $query = $this->db->get('bookings_sources');
+        return $query->first_row();
+    }
+    
+    /*
+     * @desc: This is used to get active partner details and also get partner details by partner id
+     *          Without looking for Active or Disabled
+     */
+    function get_all_partner($partner_id = "") {
+	    if ($partner_id != "") {
+	        $this->db->where('id', $partner_id);
+	    }
+	    $this->db->select('*');
+	    $query = $this->db->get('partners');
 
+	    return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to insert value in partner_missed_calls table
+     * @params: array
+     * @return: Boolean
+     * 
+     */
+    function insert_partner_missed_calls_detail($data){
+        $this->db->insert("partner_missed_calls", $data);
+        $result = (bool) ($this->db->affected_rows() > 0);
+        return $result;
+    }
+    
+    /**
+     * @Desc: This function is used to get missed calls details
+     *        Only those rows will be taken whose status is FollowUp and action date in on or before current time
+     * @params: void 
+     * @return: Array
+     */
+    function get_missed_calls_details(){
+        $sql = "Select * from partner_missed_calls where status = 'FollowUp' "
+                . "AND action_date <= NOW() ORDER BY action_date Desc " ;
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to get value for particular Missed calls Leads in partner_missed_calls table by ID
+     * @params: id
+     * @return Array
+     * 
+     */
+    function get_missed_calls_leads_by_id($id){
+        $this->db->select('*');
+        $this->db->where('id',$id);
+        $query = $this->db->get('partner_missed_calls');
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to Updated partner_missed_calls lead table
+     * @params: Where Array, Data Array
+     * @return: Boolean
+     * 
+     */
+    function update_partner_missed_calls($where, $data){
+        $this->db->where($where);
+        $this->db->update('partner_missed_calls',$data);
+        $result = (bool) ($this->db->affected_rows() > 0);
+        return $result;
+    }
+    
+    /**
+     * @Desc: This function is used to get Partner Missed calls cancellation reason
+     * @params: void
+     * @return: Array
+     * 
+     * 
+     */
+    function get_missed_calls_cancellation_reason(){
+        $this->db->select('*');
+        $this->db->where('reason_of','partner_missed_calls');
+        $query = $this->db->get('booking_cancellation_reasons');
+        return $query->result_array();
+        
+    }
+    
+    /**
+     * 
+     * @Desc: This function is used get partner missed calls updation reason
+     * @params: void
+     * return: Array
+     * 
+     */
+    function get_missed_calls_updation_reason(){
+        $this->db->select('*');
+        $this->db->where('reason_of','partner_missed_calls');
+        $query = $this->db->get('booking_updation_reasons');
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to get details from partner_missed_calls table by Phone number
+     * @params: Phone
+     * @return: Array
+     * 
+     */
+    function get_partner_leads_by_phone_status($num,$status){
+        $this->db->select('*');
+        $this->db->where('phone',$num);
+        $this->db->where('status',$status);
+        $query = $this->db->get('partner_missed_calls');
+        return $query->result_array();
+    }
 }
 

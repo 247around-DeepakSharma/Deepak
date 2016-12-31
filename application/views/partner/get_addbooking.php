@@ -28,9 +28,8 @@
                                     <label for="booking_primary_contact_no" class="col-md-4">Mobile *</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php if(isset($user[0]['phone_number'])){ echo $user[0]['phone_number']; } else if($phone_number !="process_addbooking"){ echo  $phone_number; }  ?>" required>
-                                        <?php echo form_error('booking_primary_contact_no'); ?>
+                                    <span id="error_mobile_number" style="color:red"></span>
                                     </div>
-                                    <span id="error_mobile_number"></span>
                                 </div>
                                 <div class="form-group <?php if( form_error('city') ) { echo 'has-error';} ?>">
                                     <label for="booking_city" class="col-md-4">City *</label>
@@ -52,8 +51,8 @@
                                     <div class="col-md-6">
                                         <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($user[0]['pincode'])){echo $user[0]['pincode'];} else { echo set_value('booking_pincode');} ?>" placeholder="Enter Area Pin" required>
                                         <?php echo form_error('booking_pincode'); ?>
-                                    </div>
                                     <span id="error_pincode" style="color: red;"></span>
+                                    </div>
                                 </div>
                                 <div class="form-group <?php if( form_error('landmark') ) { echo 'has-error';} ?>">
                                     <label for="booking_pincode" class="col-md-4"> Landmark</label>
@@ -96,8 +95,7 @@
             </div>
             <!-- row End  -->
             <div class="clonedInput panel panel-info " id="clonedInput1">
-                <!--  <i class="fa fa-plus addsection pull-right fa-3x" aria-hidden="true" style ="margin-top:15px; margin-bottom: 15px; margin-right:40px; "></i>
-                    <i class="fa fa-times pull-right deletesection  fa-3x"  style ="margin-top:15px; margin-bottom: 15px; margin-right:20px; " aria-hidden="true"></i>-->
+                
                 <div class="panel-heading">
                     Product Details
                 </div>
@@ -109,20 +107,18 @@
                                     <label for="order id" class="col-md-4">Order ID </label>
                                     <div class="col-md-6">
                                         <input class="form-control" name= "order_id" value="<?php if(isset($user[0]['order_id'])){  echo $user[0]['order_id']; } else { echo set_value('order_id');} ?>" placeholder ="Please Enter Order ID" id="order_id"  />
+                                    <p><span id="error_order_id" style="color:red"></span></p>
                                     </div>
-                                    <?php echo form_error('order_id'); ?>
-                                    <span id="error_order_id"></span>
                                 </div>
                                 <div class="form-group <?php if( form_error('service_name') ) { echo 'has-error';} ?>">
                                     <label for="service_name" class="col-md-4">Appliance *</label>
                                     <div class="col-md-6">
-                                        <select type="text" class="form-control"  id="service_name" name="service_name"   required>
+                                        <select type="text" class="form-control"  id="service_name" name="service_name"   required onchange="return get_brands(this.data-id)">
                                             <option selected disabled>Select Appliance</option>
-                                            <!--<?php foreach ($services as $key => $values) { ?>
-                                                <option  value=<?= $values->services; ?>>
-                                                    <?php echo $values->services; }    ?>
-                                                </option>-->
-                                            <option value="Television" selected="selected">Television</option>
+                                            <?php foreach ($appliances as $values) { ?>
+                                            <option data-id="<?php echo $values['id']?>" value=<?= $values['services'] ?>>
+                                                    <?php echo $values['services']; }    ?>
+                                                </option>
                                         </select>
                                         <?php echo form_error('service_name'); ?>
                                     </div>
@@ -130,19 +126,10 @@
                                 <div class="form-group <?php if( form_error('appliance_brand') ) { echo 'has-error';} ?>">
                                     <label for="brand" class="col-md-4">Brand *</label>
                                     <div class="col-md-6">
-                                        <select type="text" class="form-control appliance_brand"    name="appliance_brand" id="appliance_brand_1" required>
-                                            <option selected disabled>Select Brand</option>
-                                            <?php if($this->session->userdata('partner_id') == "247011"){ ?>
-                                            <option selected="selected">Ray</option>
-                                            <?php } else if($this->session->userdata('partner_id') == "247010") { ?>
-                                              <option selected="selected">Wybor</option>
-                                             <option>EgoVision</option>
-                                             <option>Belco</option>
-                                             <?php  } else if($this->session->userdata('partner_id') == "247013") {?>
-                                             <option selected="selected">Nacson</option>
-                                             <?php } else if($this->session->userdata('partner_id') == "247014") { ?>
-                                              <option selected="selected">BoschDelon</option>
-                                              <?php } ?>
+                                        <p style="color:grey;display:none" id="brand_loading">Loading ...</p>
+                                        <select type="text" class="form-control appliance_brand"    name="appliance_brand" id="appliance_brand_1" required onchange="return get_category(this.value)">
+                                            <option selected disabled value="option1">Select Brand</option>
+                                      
                                         </select>
                                     </div>
                                 </div>
@@ -150,10 +137,9 @@
                                 <div class="form-group <?php if( form_error('appliance_category') ) { echo 'has-error';} ?>">
                                     <label for="category" class="col-md-4">Category *</label>
                                     <div class="col-md-6">
-                                        <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category"   required>
-                                            <option selected disabled>Select Appliance Category</option>
-                                            <option <?php if(set_value('appliance_category') == "TV-LED"){ echo "selected";} ?>>TV-LED</option>
-                                            <option <?php if(set_value('appliance_category') == "TV-LCD"){ echo "selected";} ?>>TV-LCD</option>
+                                        <p style="color:grey;display:none" id="category_loading">Loading ...</p>
+                                        <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category"   required onchange="return get_capacity(this.value)">
+                                            <option selected disabled value="option1">Select Appliance Category</option>
                                         </select>
                                         <?php echo form_error('appliance_category'); ?>
                                     </div>
@@ -164,11 +150,9 @@
                                 <div class="form-group <?php if( form_error('appliance_capacity') ) { echo 'has-error';} ?>">
                                     <label for="capacity" class="col-md-4">Capacity *</label>
                                     <div class="col-md-6">
-                                        <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" >
-                                            <option selected disabled>Select Appliance Capacity</option>
-                                            <?php  for($i=16; $i<61; $i++){ ?>
-                                            <option <?php if(set_value('appliance_capacity') == $i." Inch" ){ echo "selected";} ?>><?php echo $i." Inch"; ?></option>
-                                            <?php } ?>
+                                        <p style="color:grey;display:none" id="capacity_loading">Loading ...</p>
+                                        <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" onchange="return get_models(this.value)">
+                                            <option selected disabled value="option1">Select Appliance Capacity</option>
                                         </select>
                                         <?php echo form_error('appliance_capacity'); ?>
                                     </div>
@@ -178,59 +162,9 @@
                                     <label for="type" class="col-md-4">Model Number</label>
                                     <div class="col-md-6">
                                         
-                                       <?php  if($this->session->userdata('partner_id') == "247010"){ ?>
                                         <select class="form-control"  name="model_number" id="model_number_1" >
-                                            <option value="">Select Model</option>
-                                            <option value='E-16' <?php if(set_value('model_number') == "E-16"){ echo "selected";} ?>>E-16</option>
-                                            <option value='E-19' <?php if(set_value('model_number') == "E-19"){ echo "selected";} ?>>E-19</option>
-                                            <option value='E-20' <?php if(set_value('model_number') == "E-20"){ echo "selected";} ?>>E-20</option>
-                                            <option value='E-21' <?php if(set_value('model_number') == "E-21"){ echo "selected";} ?>>E-21</option>
-                                            <option value='E-22' <?php if(set_value('model_number') == "E-22"){ echo "selected";} ?>>E-22</option>
-                                            <option value='E-24' <?php if(set_value('model_number') == "E-24"){ echo "selected";} ?>>E-24</option>
-                                            <option value='E-32' <?php if(set_value('model_number') == "E-32"){ echo "selected";} ?>>E-32</option>
-                                            <option value='E-32 SMART' <?php if(set_value('model_number') == "E-32 E-32 SMART"){ echo "selected";} ?>>E-32 SMART</option>
-                                            <option value='E-40' <?php if(set_value('model_number') == "E-40"){ echo "selected";} ?>>E-40 </option>
-                                            <option value='E-40 SMART' <?php if(set_value('model_number') == "E-40 SMART"){ echo "selected";} ?>>E-40 SMART</option>
-                                            <option value='E-48' <?php if(set_value('model_number') == "E-48"){ echo "selected";} ?>>E-48</option>
-                                            <option value='E-48 SMART' <?php if(set_value('model_number') == "E-48 SMART"){ echo "selected";} ?>>E-48 SMART</option>
-                                            <option value='E-49' <?php if(set_value('model_number') == "E-49"){ echo "selected";} ?>>E-49 </option>
-                                            <option value='E-49 SMART' <?php if(set_value('model_number') == "E-49 SMART"){ echo "selected";} ?>>E-49 SMART</option>
-                                            <option value='E-55 SMART' <?php if(set_value('model_number') == "E-55 SMART"){ echo "selected";} ?>>E-55 SMART</option>
-                                            <option value='W-16' <?php if(set_value('model_number') == "W-16"){ echo "selected";} ?>>W-16</option>
-                                           
-                                            <option value='W-19' <?php if(set_value('model_number') == "W-19"){ echo "selected";} ?>>W-19</option>
-                                            <option value='W-20' <?php if(set_value('model_number') == "W-20"){ echo "selected";} ?>>W-20</option>
-                                            <option value='W-21' <?php if(set_value('model_number') == "W-21"){ echo "selected";} ?>>W-21</option>
-                                            <option value='W-22' <?php if(set_value('model_number') == "W-22"){ echo "selected";} ?>>W-22</option>
-                                            <option value='W-24' <?php if(set_value('model_number') == "W-24"){ echo "selected";} ?>>W-24</option>
-                                            <option value='W-32' <?php if(set_value('model_number') == "W-32"){ echo "selected";} ?>>W-32</option>
-                                            <option value='W-32 SMART' <?php if(set_value('model_number') == "W-32 SMART"){ echo "selected";} ?>>W-32 SMART</option>
-                                            <option value='W-40' <?php if(set_value('model_number') == "W-40"){ echo "selected";} ?>>W-40 </option>
-                                            <option value='W-40 SMART' <?php if(set_value('model_number') == "W-40 SMART"){ echo "selected";} ?>>W-40 SMART</option>
-                                            <option value='W-48' <?php if(set_value('model_number') == "W-48"){ echo "selected";} ?>>W-48</option>
-                                            <option value='W-48 SMART' <?php if(set_value('model_number') == "W-48 SMART"){ echo "selected";} ?>>W-48 SMART</option>
-                                            <option value='W-49' <?php if(set_value('model_number') == "W-49"){ echo "selected";} ?>>W-49 </option>
-                                            <option value='W-49 SMART' <?php if(set_value('model_number') == "W-49 SMART"){ echo "selected";} ?>>W-49 SMART</option>
-                                            <option value='W-55 SMART'  <?php if(set_value('model_number') == "W-55 SMART"){ echo "selected";} ?>>W-55 SMART</option>
-                                            <option value='BL-16' <?php if(set_value('model_number') == "BL-16"){ echo "selected";} ?>>BL-16</option>
-                                            <option value='BL-19'  <?php if(set_value('model_number') == "BL-19"){ echo "selected";} ?>>BL-19</option>
-                                            <option value='BL-20'  <?php if(set_value('model_number') == "BL-20"){ echo "selected";} ?>>BL-20</option>
-                                            <option value='BL-21'  <?php if(set_value('model_number') == "BL-21"){ echo "selected";} ?>>BL-21</option>
-                                            <option value='BL-22'  <?php if(set_value('model_number') == "BL-22"){ echo "selected";} ?>>BL-22</option>
-                                            <option value='BL-24'  <?php if(set_value('model_number') == "BL-24"){ echo "selected";} ?>>BL-24</option>
-                                            <option value='BL-32'  <?php if(set_value('model_number') == "BL-32"){ echo "selected";} ?>>BL-32</option>
-                                            <option value='BL-32 SMART'  <?php if(set_value('model_number') == "BL-32 SMART"){ echo "selected";} ?>>BL-32 SMART</option>
-                                            <option value='BL-40' <?php if(set_value('model_number') == "BL-40"){ echo "selected";} ?>>BL-40 </option>
-                                            <option value='BL-40 SMART' <?php if(set_value('model_number') == "BL-40 SMART"){ echo "selected";} ?>>BL-40 SMART</option>
-                                            <option value='BL-48' <?php if(set_value('model_number') == "BL-48"){ echo "selected";} ?>>BL-48</option>
-                                            <option value='BL-48 SMART' <?php if(set_value('model_number') == "BL-48 SMART"){ echo "selected";} ?>>BL-48 SMART</option>
-                                            <option value='BL-49' <?php if(set_value('model_number') == "BL-49"){ echo "selected";} ?>>BL-49 </option>
-                                            <option value='BL-49 SMART' <?php if(set_value('model_number') == "BL-49 SMART"){ echo "selected";} ?>>BL-49 SMART</option>
-                                            <option value='BL-55 SMART' <?php if(set_value('model_number') == "BL-55 SMART"){ echo "selected";} ?>>BL-55 SMART</option>
+                                            <option selected disabled value="option1">Select Model</option>
                                         </select>
-                                        <?php } else { ?>
-                                        <input  type="text" class="form-control"  name="model_number" id="model_number_1" value = "<?php echo set_value('model_number'); ?>" placeholder="Enter Model" >
-                                        <?php } ?>
                                          <?php echo form_error('model_number'); ?>
                                     </div>
                                 </div>
@@ -238,13 +172,12 @@
                                     <label for="type" class="col-md-4">Serial Number </label>
                                     <div class="col-md-6">
                                         <input  type="text" class="form-control"  name="serial_number" id="serial_number" value = "<?php echo set_value('serial_number'); ?>" placeholder="Enter Serial Number" >
-                                        <?php echo form_error('serial_number'); ?>
+                                    <span id="error_serial_number" style="color:red"></span>
                                     </div>
-                                    <span id="error_serial_number"></span>
                                 </div>
                                 <div class="form-group <?php if( form_error('purchase_month') ) { echo 'has-error';} ?>">
                                     <label for="type" class="col-md-4">Date of Purchase</label>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <select  type="text" class=" form-control "   name="purchase_month" id="purchase_month_1" >
                                             <option selected="selected" value="">Month</option>
                                             <option <?php if(set_value('purchase_month') == "Jan"){ echo "selected";} ?> >Jan</option>
@@ -260,10 +193,10 @@
                                             <option <?php if(set_value('purchase_month') == "Nov"){ echo "selected";} ?>>Nov</option>
                                             <option <?php if(set_value('purchase_month') == "Dec"){ echo "selected";} ?>>Dec</option>
                                         </select>
-                                        <?php echo form_error('purchase_month'); ?>
+                                        <p><?php echo form_error('purchase_month'); ?></p>
                                     </div>
                                     <div class="form-group">
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <select  type="text" class="col-md-3 form-control "   name="purchase_year" id="purchase_year_1" >
                                                 <option selected="selected" value="" >Year</option>
                                                 <?php for($i = 0; $i> -26; $i--){ ?>
@@ -344,7 +277,7 @@
             <div class="row">
                 <div class="form-group  col-md-12" >
                     <center>
-                        <input type="submit" id="submitform" class="btn btn-info " onclick="return check_vakidation()" value="Submit Booking">
+                        <input type="submit" id="submitform" class="btn btn-info " onclick="return check_validation()" value="Submit Booking">
                         </center>
                 </div>
                 
@@ -354,10 +287,8 @@
         <!-- end Panel Body  -->
     </div>
 </div>
-</div>
-</div>
 <script type="text/javascript">
-    function check_vakidation(){
+    function check_validation(){
         var order_id =  $('#order_id').val();
         var booking_address = $('#booking_address').val();
         var mobile_number = $('#booking_primary_contact_no').val();
@@ -489,4 +420,96 @@
     $("#booking_city").select2({
          tags: true
     });
+    
+    //This funciton is used to get Distinct Brands for selected service for Logged Partner
+    function get_brands(){
+        service_id =  $("#service_name").find(':selected').attr('data-id');
+         $.ajax({
+                        type: 'POST',
+                        beforeSend: function(){
+                            $('#brand_loading').css("display", "block");
+                        },
+                        url: '<?php echo base_url(); ?>employee/partner/get_brands_from_service',
+                        data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>},
+                        success: function (data) {
+                                console.log('Brands Added for Selected Service');
+                                //First Resetting Options values present if any
+                                $("#appliance_brand_1 option[value !='option1']").remove();
+                                $('#appliance_brand_1').append(data);
+                            },
+                        complete: function(){
+                            $('#brand_loading').css("display", "none");
+                        }
+                    });
+    }
+    
+    //This function is used to get Category for partner id , service , brands specified
+    
+    function get_category(brand){
+        service_id =  $("#service_name").find(':selected').attr('data-id');
+        $.ajax({
+                        type: 'POST',
+                        beforeSend: function(){
+                            $('#category_loading').css("display", "block");
+                        },
+                        url: '<?php echo base_url(); ?>employee/partner/get_category_from_service',
+                        data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, brand: brand},
+                        success: function (data) {
+                                console.log('Category Added for Selected Service');
+                                //First Resetting Options values present if any
+                                $("#appliance_category_1 option[value !='option1']").remove();
+                                $('#appliance_category_1').append(data);
+                            },
+                        complete: function(){
+                            $('#category_loading').css("display", "none");
+                        }            
+                    });
+        
+    }
+    
+    //This function is used to get Capacity and Model
+    function get_capacity(category){
+        service_id =  $("#service_name").find(':selected').attr('data-id');
+        brand = $("#appliance_brand_1").find(':selected').val();
+        $.ajax({
+                        type: 'POST',
+                        beforeSend: function(){
+                            $('#capacity_loading').css("display", "block");
+                        },
+                        url: '<?php echo base_url(); ?>employee/partner/get_capacity_for_partner',
+                        data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, brand: brand,category:category},
+                        dataType:"json",
+                        success: function (data) {
+                                console.log('Capacity Added for Selected Service');
+                                
+                                //First Resetting Options values present if any
+                                $("#appliance_capacity_1 option[value !='option1']").remove();
+                                $('#appliance_capacity_1').append(data['capacity']);
+                            },
+                        complete: function(){
+                            $('#capacity_loading').css("display", "none");
+                        }  
+                    });
+    }
+    
+    //This function is used to get Model for corresponding previous data's
+    function get_models(capacity){
+        service_id =  $("#service_name").find(':selected').attr('data-id');
+        brand = $("#appliance_brand_1").find(':selected').val();
+        category = $("#appliance_category_1").find(':selected').val();
+        $.ajax({
+                        type: 'POST',
+                        url: '<?php echo base_url(); ?>employee/partner/get_model_for_partner',
+                        data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, brand: brand,category:category,capacity:capacity},
+                        dataType:"json",
+                        success: function (data) {
+                                console.log('Model Added for Selected Service');
+                                
+                                //First Resetting Options values present if any
+                                $("#model_number_1 option[value !='option1']").remove();
+                                $('#model_number_1').append(data['model']);
+                            }
+                    });
+    }
+    
 </script>

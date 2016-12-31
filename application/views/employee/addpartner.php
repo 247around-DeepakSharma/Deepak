@@ -30,7 +30,7 @@
                     </div>';
                     }
                     ?>
-    <form name="myForm" class="form-horizontal" id ="booking_form" novalidate="novalidate" action="<?php echo base_url()?>employee/partner/process_add_edit_partner_form" method="POST">
+           <form name="myForm" class="form-horizontal" id ="booking_form" novalidate="novalidate" action="<?php echo base_url()?>employee/partner/process_add_edit_partner_form" method="POST" enctype="multipart/form-data">
 
           <div>
               <input style="width:200px;" type="hidden" class="form-control"  name="id" value = "<?php if (isset($query[0]['id'])){echo $query[0]['id'];}?>">
@@ -44,7 +44,7 @@
             </div>
         <div class="col-md-6">
         <div  class="form-group <?php if( form_error('company_name') ) { echo 'has-error';} ?>">
-            <label  for="company_name" class="col-md-4">Company Name:</label>
+            <label  for="company_name" class="col-md-4">Company Name *</label>
         <div class="col-md-8">
             <input  type="text" class="form-control" id="company_name" name="company_name" value = "<?php if (isset($query[0]['company_name'])){echo $query[0]['company_name'];}?>" >
               <?php echo form_error('company_name'); ?>
@@ -52,7 +52,7 @@
         </div>
             
         <div  class="form-group <?php if( form_error('public_name') ) { echo 'has-error';} ?>">
-            <label  for="public_name" class="col-md-4">Public Name:</label>
+            <label  for="public_name" class="col-md-4">Public Name *</label>
         <div class="col-md-8">
             <input  type="text" class="form-control" id="public_name" name="public_name" value = "<?php if (isset($query[0]['public_name'])){echo $query[0]['public_name'];}?>" >
                 <?php echo form_error('public_name'); ?>
@@ -60,7 +60,7 @@
         </div>
 
         <div  class="form-group <?php if( form_error('address') ) { echo 'has-error';} ?>">
-            <label  for="address" class="col-md-4">Address:</label>
+            <label  for="address" class="col-md-4">Address *</label>
         <div class="col-md-8">
             <input  type="text" class="form-control"  name="address" value = "<?php if (isset($query[0]['address'])){echo $query[0]['address'];}?>" >
               <?php echo form_error('address'); ?>
@@ -68,7 +68,7 @@
         </div>
         
         <div class="form-group">
-         <label  for="address" class="col-md-4">Landmark:</label>
+         <label  for="address" class="col-md-4">Landmark </label>
          <div class="col-md-8">
             <input  type="text" class="form-control" value = "<?php if (isset($query[0]['landmark'])){echo $query[0]['landmark'];}?>" name="landmark" >
          </div>
@@ -77,7 +77,7 @@
    
     <div class="col-md-6">    
     <div class="form-group <?php if( form_error('state') ) { echo 'has-error';} ?>">
-      <label for="state" class="col-md-4">State:</label>
+      <label for="state" class="col-md-4">State *</label>
       <div class="col-md-8">
          <select class=" form-control" name ="state" id="state" onChange="getDistrict()" placeholder="Select State">
             <option disabled="disabled" selected="selected"> Select State</option>
@@ -99,7 +99,7 @@
       </div>
     </div>
     <div class="form-group <?php if( form_error('district') ) { echo 'has-error';} ?>">
-      <label for="state" class="col-md-4">District:</label>
+      <label for="state" class="col-md-4">District *</label>
       <div class="col-md-8">
          <select class="district form-control" name ="district" id="district" onChange="getPincode()">
             <option <?php if (isset($query[0]['district'])){ echo "selected";}?>><?php if (isset($query[0]['district'])){echo $query[0]['district'];}?></option>
@@ -109,13 +109,67 @@
    </div>
         
     <div class="form-group ">
-      <label for="state" class="col-md-4">Pincode:</label>
+      <label for="state" class="col-md-4">Pincode</label>
       <div class="col-md-8">
           <select class="pincode form-control" name ="pincode"  id="pincode">
             <option <?php if (isset($query[0]['pincode'])){ echo "selected";}?>><?php if (isset($query[0]['pincode'])){echo $query[0]['pincode'];}?></option>
          </select>
       </div>
     </div>
+        
+    <div class="form-group ">
+      <label for="partner_code" class="col-md-4">Partner Code</label>
+      <div class="col-md-8">
+          <select class="form-control" name ="partner_code"  id="partner_code">
+              <option value="" disabled="" selected="">Select Partner Code</option>
+              <?php
+              //Checking for Edit Parnter
+              if (isset($query[0]['id'])) {
+                  foreach (range('A', 'Z') as $char) {
+                      $code = "S" . $char;
+                      if (!in_array($code, $results['partner_code_availiable']) || isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code)) {
+                          ?>
+                          <option value="<?php echo $code; ?>" <?php
+                          if (isset($results['partner_code'][0]['code']) && ($results['partner_code'][0]['code'] == $code )) {
+                              echo "selected=''";
+                          }
+                          ?>><?php echo $code; ?></option>
+                                  <?php
+                              }
+                          }
+                      } else {// New Partner Addition
+                          foreach (range('A', 'Z') as $char) {
+                              $code = "S" . $char;
+                              if (!in_array($code, $results['partner_code'])) {
+                                  ?>
+                          <option value="<?php echo $code; ?>" ><?php echo $code; ?></option>
+                          <?php
+                      }
+                  }
+              }
+              ?>
+         </select>
+      </div>
+    </div>
+        
+        <div class="form-group <?php if( form_error('contract_file') ) { echo 'has-error';} ?>">
+            <label for="contract_file" class="col-md-4">Contract File</label>
+            <div class="col-md-6">
+                <input type="file" class="form-control"  name="contract_file">
+              <?php echo form_error('contract_file'); ?>
+            </div>
+            <div class="col-md-1">
+                <?php
+                $src = base_url() . 'images/no_image.png';
+                if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) {
+                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['contract_file'];
+                }?>
+                <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                <?php if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) { ?>
+                    <a href="javascript:void(0)" onclick="remove_image(<?php echo $query[0]['id'] ?>,'<?php echo $query[0]['contract_file'] ?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                <?php } ?>
+            </div>
+          </div>
         
     </div>
     </div>
@@ -127,7 +181,7 @@
            
         <div class="col-md-6">
           <div class="form-group <?php if( form_error('primary_contact_name') ) { echo 'has-error';} ?>">
-            <label  for="primary_contact_name" class="col-md-4">Primary Contact Name:</label>
+            <label  for="primary_contact_name" class="col-md-4">Primary Contact Name</label>
             <div class="col-md-8">
               <input  type="text" class="form-control"  name="primary_contact_name" value = "<?php if (isset($query[0]['primary_contact_name'])){echo $query[0]['primary_contact_name'];}?>">
               <?php echo form_error('primary_contact_name'); ?>
@@ -135,7 +189,7 @@
           </div>
 
           <div class="form-group <?php if( form_error('primary_contact_email') ) { echo 'has-error';} ?>">
-            <label for="primary_contact_email" class="col-md-4">Primary Contact Email:</label>
+            <label for="primary_contact_email" class="col-md-4">Primary Contact Email</label>
             <div class="col-md-8">
               <input  type="text" class="form-control"  name="primary_contact_email" value = "<?php if (isset($query[0]['primary_contact_email'])){echo $query[0]['primary_contact_email'];}?>">
               <?php echo form_error('primary_contact_email'); ?>
@@ -145,7 +199,7 @@
         </div>
         <div class="col-md-6">
           <div class="form-group <?php if( form_error('primary_contact_phone_1') ) { echo 'has-error';} ?>">
-            <label for="primary_contact_phone_1" class="col-md-4">Primary Contact Ph.No. 1:</label>
+            <label for="primary_contact_phone_1" class="col-md-4">Primary Contact Ph.No. 1</label>
             <div class="col-md-8">
               <input type="text" class="form-control" id="primary_contact_phone_1" name="primary_contact_phone_1" value = "<?php if (isset($query[0]['primary_contact_phone_1'])){echo $query[0]['primary_contact_phone_1'];}?>" >
               <?php echo form_error('primary_contact_phone_1'); ?>
@@ -154,7 +208,7 @@
 
 
           <div class="form-group <?php if( form_error('primary_contact_phone_2') ) { echo 'has-error';} ?>">
-            <label for="primary_contact_phone_2" class="col-md-4">Primary Contact Ph.No. 2:</label>
+            <label for="primary_contact_phone_2" class="col-md-4">Primary Contact Ph.No. 2</label>
             <div class="col-md-8">
               <input type="text" class="form-control" id="primary_contact_phone_2" name="primary_contact_phone_2" value = "<?php if (isset($query[0]['primary_contact_phone_2'])){echo $query[0]['primary_contact_phone_2'];}?>">
               <?php echo form_error('primary_contact_phone_2'); ?>
@@ -170,7 +224,7 @@
         <div class="col-md-6">    
             
           <div class="form-group <?php if( form_error('owner_name') ) { echo 'has-error';} ?>">
-            <label for="owner_name" class="col-md-4">Owner Name:</label>
+            <label for="owner_name" class="col-md-4">Owner Name</label>
             <div class="col-md-8">
               <input type="text" class="form-control"  name="owner_name" value = "<?php if (isset($query[0]['owner_name'])){echo $query[0]['owner_name'];}?>" >
               <?php echo form_error('owner_name'); ?>
@@ -180,7 +234,7 @@
 
 
           <div class="form-group <?php if( form_error('owner_email') ) { echo 'has-error';} ?>">
-            <label for="owner_email" class="col-md-4">Owner Email:</label>
+            <label for="owner_email" class="col-md-4">Owner Email</label>
             <div class="col-md-8">
               <input type="text" class="form-control"  name="owner_email" value = "<?php if (isset($query[0]['owner_email'])){echo $query[0]['owner_email'];}?>" >
               <?php echo form_error('owner_email'); ?>
@@ -190,7 +244,7 @@
         <div class="col-md-6">    
 
           <div class="form-group <?php if( form_error('owner_phone_1') ) { echo 'has-error';} ?>">
-            <label for="owner_phone_1" class="col-md-4">Owner Ph. No. 1:</label>
+            <label for="owner_phone_1" class="col-md-4">Owner Ph. No. 1</label>
             <div class="col-md-8">
               <input type="text" class="form-control" id="owner_phone_1" name="owner_phone_1" value = "<?php if (isset($query[0]['owner_phone_1'])){echo $query[0]['owner_phone_1'];}?>">
               <?php echo form_error('owner_phone_1'); ?>
@@ -198,7 +252,7 @@
           </div>
 
           <div class="form-group <?php if( form_error('owner_phone_2') ) { echo 'has-error';} ?>">
-            <label for="owner_phone_2" class="col-md-4">Owner Ph. No. 2:</label>
+            <label for="owner_phone_2" class="col-md-4">Owner Ph. No. 2</label>
             <div class="col-md-8">
               <input type="text" class="form-control" id="owner_phone_2" name="owner_phone_2" value = "<?php if (isset($query[0]['owner_phone_2'])){echo $query[0]['owner_phone_2'];}?>">
               <?php echo form_error('owner_phone_2'); ?>
@@ -213,7 +267,7 @@
             </div>
             
           <div class="col-md-4 form-group <?php if( form_error('summary_email_to') ) { echo 'has-error';} ?>">
-            <label  for="summary_email_to" class="col-md-4">To:</label>
+            <label  for="summary_email_to" class="col-md-4">To</label>
             <div class="col-md-8">
               <input style="width:200px;" type="text" class="form-control"  name="summary_email_to" value = "<?php if (isset($query[0]['summary_email_to'])){echo $query[0]['summary_email_to'];}?>">
               <?php echo form_error('summary_email_to'); ?>
@@ -221,20 +275,13 @@
           </div>
 
           <div class="col-md-4 form-group <?php if( form_error('summary_email_cc') ) { echo 'has-error';} ?>">
-            <label for="summary_email_cc" class="col-md-4">cc:</label>
+            <label for="summary_email_cc" class="col-md-4">cc</label>
             <div class="col-md-8">
               <input type="text" class="form-control"  name="summary_email_cc" value = "<?php if (isset($query[0]['summary_email_cc'])){echo $query[0]['summary_email_cc'];}?>">
               <?php echo form_error('summary_email_cc'); ?>
             </div>
           </div>
 
-          <div class="col-md-4 form-group <?php if( form_error('summary_email_bcc`') ) { echo 'has-error';} ?>">
-            <label for="summary_email_bcc" class="col-md-4">Bcc:</label>
-            <div class="col-md-8">
-              <input type="text" class="form-control"  name="summary_email_bcc" value = "<?php if (isset($query[0]['summary_email_bcc'])){echo $query[0]['summary_email_bcc'];}?>">
-              <?php echo form_error('summary_email_bcc'); ?>
-            </div>
-          </div>
           </div>
         
         <div class="col-md-12">
@@ -243,7 +290,7 @@
             </div>
 
           <div class="col-md-4 form-group <?php if( form_error('invoice_email_to') ) { echo 'has-error';} ?>">
-            <label for="invoice_email_to" class="col-md-4">To:</label>
+            <label for="invoice_email_to" class="col-md-4">To</label>
             <div class="col-md-8">
               <input type="text" class="form-control"  name="invoice_email_to" value = "<?php if (isset($query[0]['invoice_email_to'])){echo $query[0]['invoice_email_to'];}?>">
               <?php echo form_error('invoice_email_to'); ?>
@@ -251,30 +298,21 @@
           </div>
 
           <div class="col-md-4 form-group <?php if( form_error('invoice_email_cc') ) { echo 'has-error';} ?>">
-            <label for="invoice_email_cc" class="col-md-4">cc:</label>
+            <label for="invoice_email_cc" class="col-md-4">cc</label>
             <div class="col-md-8">
               <input type="text" class="form-control"  name="invoice_email_cc" value = "<?php if (isset($query[0]['invoice_email_cc'])){echo $query[0]['invoice_email_cc'];}?>">
               <?php echo form_error('invoice_email_cc'); ?>
             </div>
           </div>
-
-          <div class="col-md-4 form-group <?php if( form_error('invoice_email_bcc`') ) { echo 'has-error';} ?>">
-            <label for="invoice_email_bcc" class="col-md-4">Bcc:</label>
-            <div class="col-md-8">
-              <input type="text" class="form-control"  name="invoice_email_bcc" value = "<?php if (isset($query[0]['invoice_email_bcc'])){echo $query[0]['invoice_email_bcc'];}?>">
-              <?php echo form_error('invoice_email_bcc'); ?>
-            </div>
-          </div>
-          
         </div>
         
         <div class="col-md-12">
             <div class="panel panel-default">
-                <div class="panel-heading"><b>Login Details</b></div>
+                <div class="panel-heading"><b>Registration Details</b></div>
             </div>
 
           <div class="col-md-4 form-group <?php if( form_error('username') ) { echo 'has-error';} ?>">
-            <label for="username" class="col-md-4">User Name</label>
+            <label for="username" class="col-md-4">User Name *</label>
             <div class="col-md-8">
                 <input type="text" class="form-control"  id="username" name="username" placeholder="Enter User Name" value = "<?php if (isset($results['login_details'][0]['user_name'])){echo $results['login_details'][0]['user_name'];}?>">
               <?php echo form_error('username'); ?>
@@ -288,12 +326,13 @@
               <?php echo form_error('password'); ?>
             </div>
           </div>
-
+         
+            
         </div>
         
         <div class="col-md-12">
             <div class="panel panel-default">
-                <div class="panel-heading"><b>Partner Operation Region / Brands</b></div>
+                <div class="panel-heading"><b>Partner Operation Region</b></div>
             </div>
             <?php foreach ($results['services'] as $value) { 
                 //Checking Operation regions if Present for User Edit
@@ -306,16 +345,6 @@
                     }
                 }
                 
-                //Cheking for Brands for particular service for User Edit
-                $service_brands = [];
-                if(!empty($results['partner_brands'])){
-                    foreach($results['partner_brands'] as $val){
-                        if($val['service_id'] == $value->id){
-                            $service_brands[] = $val['brand_name'];
-                        }
-                    }
-                }
-                
                 ?>
                 <div class="col-md-12 form-group">  
                     <div class="col-md-3"><?php echo $value->services ?></div>
@@ -323,11 +352,6 @@
                         <option value="all">ALL</option>
                         <?php foreach ($results['select_state'] as $val) { ?>
                             <option value="<?php echo $val['state'] ?>" <?php echo (isset($operation_region_state) && in_array($val['state'],$operation_region_state))?'selected="selected"':''?> ><?php echo $val['state'] ?></option>
-                        <?php } ?>
-                    </select>
-                    <select name ="select_brands[<?php echo $value->id?>][]" class=" col-md-4 select_brands" multiple="multiple">
-                        <?php foreach ($results['brands'] as $val) { ?>
-                            <option value="<?php echo $val->brand_name?>" <?php echo (isset($service_brands) && in_array($val->brand_name, $service_brands))?'selected="selected"':''?> > <?php echo $val->brand_name ?> </option>
                         <?php } ?>
                     </select>
                 </div>
@@ -350,10 +374,6 @@
     
   $('.select_state').select2({
     placeholder: "Select State",
-    allowClear: true
-  });
-  $('.select_brands').select2({
-    placeholder: "Select Brands",
     allowClear: true
   });
   $('#state').select2({
@@ -408,6 +428,22 @@
     });
 });
   
+  function remove_image(vendor_id,file_name){
+            var c  = confirm('Do you want to permanently remove photo?');
+            if(c){
+             $.ajax({
+                        type: 'POST',
+                        url: '<?php echo base_url(); ?>employee/partner/remove_contract_image',
+                        data: {id: vendor_id,file_name:file_name},
+                        success: function (data) {
+                             location.reload();
+                            }
+                    });
+                 }else{
+                    return false;
+                 }
+        }
+        
 </script>
 <script type="text/javascript">
 

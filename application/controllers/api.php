@@ -28,6 +28,7 @@ class Api extends CI_Controller {
         $this->load->model('booking_model');
         $this->load->model('vendor_model');
         $this->load->model('user_model');
+        $this->load->model('partner_model');
         $this->load->library('notify');
 	$this->load->library('s3');
         $this->load->library('email');
@@ -1195,7 +1196,7 @@ class Api extends CI_Controller {
      */
     public function pass_through() {
         //log_message('info', "Entering: " . __METHOD__);
-
+        
 	$activity = array('activity' => 'process exotel request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
         $this->apis->logTable($activity);
 
@@ -1230,40 +1231,44 @@ class Api extends CI_Controller {
 	if ($callDetails['To'] == '01130017601') {
 	    //verify user phone no first
 	    $this->apis->verifyUserNumber($num);
+            
+            //Check if call has been made from APP
+            $check_app = $this->user_model->get_user_device_id_by_phone($num);
+            if(empty($check_app[0])){
+            
+                //find all pending queries for this user now
+                $bookings = $this->user_model->booking_history($num, 100, 0);
 
-	    //find all pending queries for this user now
-	    $bookings = $this->user_model->booking_history($num, 100, 0);
+                //change internal status to show missed call activity if it is
+                //a pending query waiting for confirmation and user has given missed
+                //call to confirm the installation
+                if (count($bookings) > 0) {
+                    foreach ($bookings as $b) {
+                        if (($b['type'] === 'Query' && $b['current_status'] === 'FollowUp') ||
+                                $b['current_status'] === "Cancelled" && $b['type'] === 'Query') {
+                            $d = array('internal_status' => 'Missed_call_confirmed',
+                                'booking_date' => '', 'booking_timeslot' => '',
+                                'delivery_date' => date('Y-m-d H:i:s'),
+                                'current_status' => 'FollowUp',
+                                'query_remarks' => 'Missed call received, Convert to Booking NOW !!!');
+                            $r = $this->booking_model->update_booking($b['booking_id'], $d);
 
-	    //change internal status to show missed call activity if it is
-	    //a pending query waiting for confirmation and user has given missed
-	    //call to confirm the installation
-            if (count($bookings) > 0) {
-                foreach ($bookings as $b) {
-                    if (($b['type'] === 'Query' && $b['current_status'] === 'FollowUp') || 
-                            $b['current_status'] === "Cancelled" && $b['type'] === 'Query') {
-                        $d = array('internal_status' => 'Missed_call_confirmed',
-                            'booking_date' => '', 'booking_timeslot' => '',
-                            'delivery_date' => date('Y-m-d H:i:s'),
-                            'current_status' => 'FollowUp',
-                            'query_remarks' => 'Missed call received, Convert to Booking NOW !!!');
-                        $r = $this->booking_model->update_booking($b['booking_id'], $d);
-  
-                        $this->send_missed_call_confirmation_sms($b);
+                            $this->send_missed_call_confirmation_sms($b);
 
-                        if ($r === FALSE) {
-                            log_message('info', __METHOD__ . '=> Booking confirmation '
-                                . 'through missed call failed for ' . $b['booking_id']);
+                            if ($r === FALSE) {
+                                log_message('info', __METHOD__ . '=> Booking confirmation '
+                                        . 'through missed call failed for ' . $b['booking_id']);
 
-                            //Send email
-                            $this->notify->sendEmail("booking@247around.com", "anuj@247around.com", "", "", "Query update Failed after Missed Call for Booking ID: " . $b['booking_id'], "", "");
-                        } else {
-                            log_message('info', __METHOD__ . '=> Booking confirmation '
-                                . 'through missed call succeeded for ' . $b['booking_id']);
-                            $u = array('booking_status'=> '');
-                            //Update unit details
-                            $this->booking_model->update_booking_unit_details($b['booking_id'], $u);
+                                //Send email
+                                $this->notify->sendEmail("booking@247around.com", "anuj@247around.com", "", "", "Query update Failed after Missed Call for Booking ID: " . $b['booking_id'], "", "");
+                            } else {
+                                log_message('info', __METHOD__ . '=> Booking confirmation '
+                                        . 'through missed call succeeded for ' . $b['booking_id']);
+                                $u = array('booking_status' => '');
+                                //Update unit details
+                                $this->booking_model->update_booking_unit_details($b['booking_id'], $u);
+                            }
                         }
-                    } 
 //                    else if( $b['current_status'] === "Cancelled" && $b['type'] === 'Booking'){
 //                        $d = array('internal_status' => 'Missed_call_confirmed',
 //                            'booking_date' => '', 'booking_timeslot' => '',
@@ -1297,12 +1302,93 @@ class Api extends CI_Controller {
 //                        }
 //                        
 //                    }
+                    }
+                } else {
+                    //Handling case when User is not being Found in DB, sending Installation and Request
+                    // welcome SMS to the corresponding user and adding the details in Partner Missed Calls table as well
+                    //1. Sending SMS to the user
+                    $sms['tag'] = "partner_missed_call_welcome_sms";
+                    $sms['phone_no'] = $num;
+                    $sms['smsData'] = '';
+                    $sms['booking_id'] = '';
+                    $sms['type'] = "user";
+                    $sms['type_id'] = '';
+
+                    $this->notify->send_sms_acl($sms);
+                    //Logging
+                    log_message('info', __FUNCTION__ . ' Partner Missed Call Welcome SMS has been sent to ' . $num);
+
+
+                    //2. Now adding details in partner_missed_calls table
+                    //Checking the Case when Number is already present in Table
+                    //Getting FollowUp Leads
+                    $leads_followUp = $this->partner_model->get_partner_leads_by_phone_status($num, 'FollowUp');
+                    //Getting Completed Leads
+                    $leads_completed = $this->partner_model->get_partner_leads_by_phone_status($num, 'Completed');
+                    //Getting Cancelled Leads
+                    $leads_cancelled = $this->partner_model->get_partner_leads_by_phone_status($num, 'Cancelled');
+                    // a . First checking if FollowUp leads is Present
+                    if (!empty($leads_followUp)) {
+
+                        //Updating Previously present Row, by changing Dates when Phone is present in FollowUp state
+                        $data['action_date'] = date('Y-m-d H:i:s');
+                        $data['create_date'] = date('Y-m-d H:i:s');
+                        $data['update_date'] = date('Y-m-d H:i:s');
+                        $where = array('id' => $leads_followUp[0]['id']);
+                        $inserted_id = $this->partner_model->update_partner_missed_calls($where, $data);
+                        if ($inserted_id) {
+                            //Logging
+                            log_message('info', __FUNCTION__ . ' Previous Phone has been updated in partner_missed_calls table with no: ' . $num);
+                            //Adding details in Booking State Change
+                            $this->notify->insert_state_change("", _247AROUND_FOLLOWUP, _247AROUND_FOLLOWUP, "Lead Updated Phone: " . $num, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                        } else {
+                            //Logging
+                            log_message('info', __FUNCTION__ . ' Error in adding Phone to partner_missed_calls details ' . $num);
+                        }
+                    }
+                    // b. Checking case when leads is Completed or Cancelled
+                    else if (!empty($leads_cancelled) || !empty($leads_completed)) {
+
+                        // Adding a new Row in Partner missed calls details in case of completed or cancelled
+                        $data['phone'] = $num;
+                        $data['action_date'] = date('Y-m-d H:i:s');
+                        $data['create_date'] = date('Y-m-d H:i:s');
+                        $inserted_id = $this->partner_model->insert_partner_missed_calls_detail($data);
+                        if ($inserted_id) {
+                            //Logging
+                            log_message('info', __FUNCTION__ . ' New Entry for SAME PHONE has been added in partner_missed_calls table with no: ' . $num);
+                            //Adding details in Booking State Change
+                            $this->notify->insert_state_change("", _247AROUND_FOLLOWUP, _247AROUND_NEW_PARTNER_LEAD, "Lead Added Phone: " . $num, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                        } else {
+                            //Logging
+                            log_message('info', __FUNCTION__ . ' Error in adding Phone to partner_missed_calls details ' . $num);
+                        }
+                    }
+                    // c. No leads is Present
+                    else {
+
+                        //Condition when Phone is Not Present - Insert New Row
+                        $data['phone'] = $num;
+                        $data['action_date'] = date('Y-m-d H:i:s');
+                        $data['create_date'] = date('Y-m-d H:i:s');
+                        $inserted_id = $this->partner_model->insert_partner_missed_calls_detail($data);
+                        if ($inserted_id) {
+                            //Logging
+                            log_message('info', __FUNCTION__ . ' New Phone has been added in partner_missed_calls table with no: ' . $num);
+                            //Adding details in Booking State Change
+                            $this->notify->insert_state_change("", _247AROUND_FOLLOWUP, _247AROUND_NEW_PARTNER_LEAD, "Lead Added Phone: " . $num, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                        } else {
+                            //Logging
+                            log_message('info', __FUNCTION__ . ' Error in adding Phone to partner_missed_calls details ' . $num);
+                        }
+                    }
                 }
-            } else {
+            }else{
                 //No bookings found, send sms asking him to call from his registered mobile no.
                 //Do not send this SMS now as it will also go to customer downloading our APP
                 //Check whether this customer has downloaded App and then decide
                 //$this->send_missed_call_booking_not_found_sms($num);
+                
             }
 	}
 
@@ -1328,9 +1414,9 @@ class Api extends CI_Controller {
 	$sms['phone_no'] = $booking['booking_primary_contact_no'];
 	$sms['smsData']['message'] = '';
 	$sms['smsData']['service'] = $booking['services'];
-	// Check time is greater than 2PM. If time is greater than 2 PM,
+	// Check time is greater than 1PM. If time is greater than 1 PM,
         // then set installation date Tommorrow otherwise Today.
-	if (date('H') > 14) {
+	if (date('H') > 13) {
 	    $sms['smsData']['date'] = "Tomorrow";
 	} else {
 	    $sms['smsData']['date'] = "Today";

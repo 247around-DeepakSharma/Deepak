@@ -22,6 +22,7 @@ class Do_background_process extends CI_Controller {
 
         $this->load->helper(array('form', 'url'));
         $this->load->model('booking_model');
+        $this->load->model('service_centers_model');
         $this->load->model('vendor_model');
         $this->load->model('invoices_model');
         $this->load->model('partner_model');
@@ -74,7 +75,6 @@ class Do_background_process extends CI_Controller {
                 log_message('info', "Async Process Exiting for Booking ID: " . $booking_id);
             }
         }
-        
         //Checking again for Pending Job cards
         $pending_booking_job_card = $this->database_testing_model->count_pending_bookings_without_job_card();
 	 if (!empty($pending_booking_job_card)) {
@@ -85,6 +85,7 @@ class Do_background_process extends CI_Controller {
             }
              
         }
+        
         
         log_message('info', __METHOD__ . " => Exiting");
     }
@@ -228,6 +229,9 @@ class Do_background_process extends CI_Controller {
         }
 
         $this->booking_model->update_booking($booking_id, $booking);
+        //Update Spare parts details table
+        $this->service_centers_model->update_spare_parts(array('booking_id'=> $booking_id), 
+                 array('status'=> $current_status));
 
         //Log this state change as well for this booking
         $this->notify->insert_state_change($booking_id, $current_status, _247AROUND_PENDING, $booking['closing_remarks'],
