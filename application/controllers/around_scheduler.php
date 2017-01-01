@@ -384,5 +384,16 @@ class Around_scheduler extends CI_Controller {
                 $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $html, "");
         }
     }
+    
+    /**
+     * @desc: Checks balance ACL credits, used to send SMSes
+     */
+    function check_acl_credits () {
+        $subject = "ACL Balance Credits - " . date("d-M-Y");
+        $message = system('elinks -dump "https://push3.maccesssmspush.com/servlet/com.aclwireless.pushconnectivity.listeners.ConfigurationListener?action=prepaid&userid=blackmalt&pass=blackmalt67&appid=blackmalt&subappid=blackmalt"');
+        
+        $to = "anuj@247around.com";
+        $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+    }
 
 }
