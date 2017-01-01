@@ -62,11 +62,15 @@
                     </a>
                     <ul class="dropdown-menu  ">
                         <li >
-                            <a  href="<?php echo base_url() ?>employee/booking/view_queries/FollowUp/p_av"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Queries</a></strong>
+                            <a  href="<?php echo base_url() ?>employee/booking/view_queries/FollowUp/p_av"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Queries (Pincode Available)</a></strong>
+                        </li>
+                        <li class="divider"></li>
+                        <li >
+                            <a href="<?php echo base_url() ?>employee/booking/get_missed_calls_view"><i class="fa fa-fw fa-desktop"></i> <strong> Missed Calls</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a  href="<?php echo base_url() ?>employee/booking/view_queries/FollowUp/p_nav"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Queries Pincode Not Available</a></strong>
+                            <a  href="<?php echo base_url() ?>employee/booking/view_queries/FollowUp/p_nav"><i class="fa fa-fw fa-desktop"></i> <strong> Pending Queries (Pincode Not Available)</a></strong>
                         </li>
                         <li class="divider"></li>
                         <li >
@@ -95,10 +99,6 @@
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url() ?>employee/booking/viewclosedbooking/Cancelled"><i class="fa fa-fw fa-desktop"></i> <strong>View Cancelled Booking</strong></a>
-                        </li>
-                        <li class="divider"></li>
-                        <li >
-                            <a href="<?php echo base_url() ?>employee/booking/get_missed_calls_view"><i class="fa fa-fw fa-desktop"></i> <strong>View Partner Leads</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li >
@@ -276,11 +276,15 @@
                         </li>
                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url()?>employee/vendor/show_around_dashboard"><i class="fa fa-fw fa-desktop "></i> <strong>Dashboard</strong></a>
+                            <a href="<?php echo base_url()?>employee/vendor/show_around_dashboard"><i class="fa fa-fw fa-desktop "></i> <strong>247around Dashboard</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>BookingSummary/get_sc_crimes/0"><i class="fa fa-fw fa-desktop "></i> <strong>SF Missed Target Report</strong></a>
+                        </li>
+                        </li><li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>BookingSummary/agent_working_details/month" ><i class="fa fa-fw fa-desktop"></i> <strong> Agents Booking Stats</strong></a>
                         </li>
                         <li class="divider"></li>
                         <li>
@@ -293,10 +297,6 @@
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>employee/user/user_count" ><i class="fa fa-fw fa-desktop"></i> <strong> Users</strong></a>
-                        </li><li class="divider"></li>
-                        <li>
-                            <a href="<?php echo base_url()?>BookingSummary/agent_working_details/month" ><i class="fa fa-fw fa-desktop"></i> <strong> Agents Booking Stats</strong></a>
-                        </li>
                         
                     </ul>
                     <!-- /.dropdown-user -->
