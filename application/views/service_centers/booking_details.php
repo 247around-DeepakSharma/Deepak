@@ -171,7 +171,7 @@
                         <table class="table  table-striped table-bordered" >
                             <tr>
                                 <th >Model Number: </th>
-                                <td><?php echo $booking_history['spare_parts']['serial_number']; ?></td>
+                                <td><?php echo $booking_history['spare_parts']['model_number']; ?></td>
                             </tr>
                             <tr>
                                 <th >Requested Parts: </th>
