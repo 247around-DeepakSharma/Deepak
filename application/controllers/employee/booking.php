@@ -762,6 +762,7 @@ class Booking extends CI_Controller {
 	log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
 	$unit_details['booking_status'] = "Cancelled";
 	$unit_details['vendor_to_around'] = $unit_details['around_to_vendor'] = 0;
+        $unit_details['ud_closed_date'] = date("Y-m-d H:i:s");
 
 	log_message('info', __FUNCTION__ . " Update unit details  " . print_r($unit_details, true));
 	$this->booking_model->update_booking_unit_details($booking_id, $unit_details);
@@ -1541,6 +1542,16 @@ class Booking extends CI_Controller {
 		if ($data['booking_status'] === _247AROUND_COMPLETED ) {
 		    $internal_status = _247AROUND_COMPLETED ;
 		}
+                
+                if(!empty($service_center_details)){
+                if($service_center_details[0]['closed_date'] === NULL){
+                    $service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
+                }else{
+                    $service_center['closed_date'] = $data['ud_closed_date'] = $service_center_details[0]['closed_date'];
+                }
+                } else {
+                     $service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
+                }
 
 		$data['id'] = $unit_id;
 
@@ -1570,17 +1581,7 @@ class Booking extends CI_Controller {
 		$service_center['parts_cost'] = $data['customer_paid_parts'];
 		$service_center['serial_number'] = $data['serial_number'];
 		$service_center['amount_paid'] = $total_amount_paid;
-                if(!empty($service_center_details)){
-                if($service_center_details[0]['closed_date'] === NULL){
-                    $service_center['closed_date'] = $data['ud_closed_date'] = date('Y-m-d H:i:s');
-                }else{
-                    $service_center['closed_date'] = $data['ud_closed_date'] = $service_center_details[0]['closed_date'];
-                }
-                } else {
-                     $service_center['closed_date'] =$data['ud_closed_date'] = date('Y-m-d H:i:s');
-                }
                 
-
 		log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
 		$this->vendor_model->update_service_center_action($booking_id, $service_center);
 	    }
@@ -1696,7 +1697,7 @@ class Booking extends CI_Controller {
             $service_center_data['admin_remarks'] = NULL;
 	    $service_center_data['service_center_remarks'] = $service_center_data['admin_remarks'] = NULL;
 	    $service_center_data['booking_date'] = $service_center_data['booking_timeslot'] = NUll;
-	    $service_center_data['closed_date'] = NUll;
+	    $service_center_data['closed_date'] = NULL;
 	    $service_center_data['service_charge'] = $service_center_data['additional_service_charge'] = $service_center_data['parts_cost'] = "0.00";
 	    log_message('info', __FUNCTION__ . " Convert booking, Service center data : " . print_r($service_center_data, true));
 	    $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
@@ -1705,6 +1706,7 @@ class Booking extends CI_Controller {
 	    $unit_details['booking_status'] = "Pending";
 	    $unit_details['vendor_to_around'] = "0.00";
 	    $unit_details['around_to_vendor'] = "0.00";
+            $unit_details['ud_closed_date'] = NULL;
 
 	    log_message('info', __FUNCTION__ . " Convert Unit Details - data : " . print_r($unit_details, true));
 

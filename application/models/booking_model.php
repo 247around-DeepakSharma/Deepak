@@ -1263,7 +1263,7 @@ class Booking_model extends CI_Model {
         $this->db->where("booking_id", $booking_id);
         $this->db->update("booking_details", $status);
 
-        $booking_status = array('booking_status' => '');
+        $booking_status = array('booking_status' => 'FollowUp');
 	$this->db->where("booking_id", $booking_id);
 	$this->db->update("booking_unit_details", $booking_status);
 

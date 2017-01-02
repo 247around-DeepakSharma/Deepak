@@ -194,6 +194,11 @@ class Do_background_process extends CI_Controller {
             $unit_details['id'] = $service_center['unit_details_id'] = $value['unit_details_id'];
 
             $service_center['update_date'] =  date('Y-m-d H:i:s');
+            if(is_null($value['closed_date'])){
+                $unit_details['ud_closed_date'] = $service_center['closed_date'] = date("Y-m-d H:i:s");
+            } else {
+                $unit_details['ud_closed_date'] = $value['closed_date'];
+            }
 
             log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
 
@@ -202,14 +207,20 @@ class Do_background_process extends CI_Controller {
             $unit_details['customer_paid_basic_charges'] = $value['service_charge'];
             $unit_details['customer_paid_extra_charges'] = $value['additional_service_charge'];
             $unit_details['customer_paid_parts'] = $value['parts_cost'];
-            $unit_details['ud_closed_date'] = $value['closed_date'];
+            
+            
 
             log_message('info', ": " . " update booking unit details data " . print_r($unit_details, TRUE));
              // update price in the booking unit details page
             $this->booking_model->update_unit_details($unit_details);
         }
-
-        $booking['closed_date'] = $value['closed_date'];
+        if(is_null($value['closed_date'])){
+            $booking['closed_date'] = date("Y-m-d H:i:s");
+            
+        } else {
+            $booking['closed_date'] = $value['closed_date'];
+        }
+        
         $booking['current_status'] = $current_status;
         $booking['internal_status'] = $current_status;
         $booking['amount_paid'] = $data[0]['amount_paid'];
