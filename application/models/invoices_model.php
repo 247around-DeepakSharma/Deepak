@@ -410,7 +410,6 @@ class invoices_model extends CI_Model {
                 . " `booking_details`.city, `booking_unit_details`.ud_closed_date as closed_date, "
                 . "  price_tags, `partners`.company_name, "
                 . " `partners`.company_address, "
-                . "  partner_paid_basic_charges, "
                 . " `booking_unit_details`.appliance_capacity, "
                 . " `services`.services, "
                 . " '$from_date' as start_date,  "
@@ -423,7 +422,14 @@ class invoices_model extends CI_Model {
              (case when (`booking_unit_details`.product_or_services = 'Service' ) 
              THEN (ROUND(partner_net_payable * 0.15,2) ) 
              ELSE 0 END) as st,
-
+             
+            ( CASE WHEN (booking_unit_details.product_or_services = 'Service')
+            THEN (ROUND(partner_net_payable,2) +  Round(partner_net_payable *0.15, 2))
+            WHEN (booking_unit_details.product_or_services = 'Product') 
+            THEN ( Round(partner_net_payable,2) + Round(partner_net_payable * 0.05,2))
+            ELSE 0 END) AS partner_paid_basic_charges,
+             
+            
              (case when (`booking_unit_details`.product_or_services = 'Product' )  
              THEN (ROUND(partner_net_payable,2) ) 
              ELSE 0 END) as stand,

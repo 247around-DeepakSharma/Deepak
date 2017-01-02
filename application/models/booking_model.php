@@ -1710,9 +1710,14 @@ class Booking_model extends CI_Model {
             $this->update_price_in_unit_details($data, $unit_details);
 
         } else if($data['booking_status'] == "Cancelled") {
+            $closed_date = date("Y-m-d H:i:s");
+            if(isset($data['ud_closed_date'])){
+                $closed_date = $data['ud_closed_date'];
+            } 
             // Update price in unit table
             $this->db->where('id', $data['id']);
-            $this->db->update('booking_unit_details', array('booking_status' => 'Cancelled'));
+            $this->db->update('booking_unit_details', array('booking_status' => 'Cancelled',
+                'ud_closed_date'=> $closed_date));
         }
 
     }
@@ -1851,6 +1856,7 @@ class Booking_model extends CI_Model {
         log_message('info', ": " . " insert new item in booking unit details returned id " . print_r($new_unit_id, TRUE));
 
         $data['id'] = $new_unit_id;
+        $data['ud_closed_date'] = date("Y-m-d H:i:s");
         log_message('info', ": " . " update booking unit details data " . print_r($data, TRUE));
 
         $this->update_unit_details($data);
