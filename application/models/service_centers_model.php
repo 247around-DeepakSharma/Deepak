@@ -362,28 +362,26 @@ class Service_centers_model extends CI_Model {
     function get_sc_earned($service_center_id){
         for($i =0; $i<3; $i++){
             if($i ==0){
-                $where = " AND `closed_date` >=  '".date('Y-m-01')."'";
+                $where = " AND `ud_closed_date` >=  '".date('Y-m-01')."'";
             } else if($i==1) {
-                $where = "  AND  closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
-			    AND closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";         
+                $where = "  AND  ud_closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
+			    AND ud_closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";         
             } else if($i ==2){
-                $where = "  AND  closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
-			    AND closed_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')";
+                $where = "  AND  ud_closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
+			    AND ud_closed_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')";
             }
-        $sql = "SELECT COUNT( b.`id` ) as total_booking, 
-                (
-                SELECT SUM( vendor_basic_charges +vendor_st_or_vat_basic_charges +
-                vendor_extra_charges + vendor_st_extra_charges + vendor_parts + vendor_st_parts) 
+        $sql = "SELECT COUNT( DISTINCT (
+                bd.`id`
+                ) ) AS total_booking, 
+                SUM( vendor_basic_charges + vendor_st_or_vat_basic_charges 
+                 + vendor_extra_charges + vendor_st_extra_charges 
+                 + vendor_parts + vendor_st_parts ) AS earned
                 FROM booking_unit_details AS ud, booking_details AS bd
-                WHERE ud.booking_id = bd.booking_id
-                AND bd.assigned_vendor_id =  '$service_center_id'
-                AND bd.`current_status` =  'Completed'
-                AND pay_to_sf = '1'
-                $where) AS earned
-                FROM  `booking_details` AS b
-                WHERE  `current_status` =  'Completed'
-                AND  `assigned_vendor_id` =  '$service_center_id'
-               $where";
+                WHERE bd.assigned_vendor_id = '$service_center_id'
+                AND pay_to_sf =  '1'
+                AND booking_status =  'Completed'
+                AND bd.booking_id = ud.booking_id
+                $where ";
         
         $query = $this->db->query($sql);
         $result = $query->result_array();
@@ -401,26 +399,25 @@ class Service_centers_model extends CI_Model {
     function count_cancel_booking_sc($service_center_id){
         for($i =0; $i<3; $i++){
             if($i ==0){
-                $where = " AND `closed_date` >=  '".date('Y-m-01')."'";
+                $where = " AND `ud_closed_date` >=  '".date('Y-m-01')."'";
             } else if($i==1) {
-                $where = "  AND  closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
-			    AND closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
+                $where = "  AND  ud_closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
+			    AND ud_closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
                 
             } else if($i==2){
-                 $where = "  AND  closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
-			    AND closed_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')";
+                 $where = "  AND  ud_closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
+			    AND ud_closed_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')";
                 
             }
-        $sql  = " SELECT COUNT( b.`id` ) as cancel_booking, 
-                  (SELECT SUM( vendor_basic_charges + vendor_st_or_vat_basic_charges ) 
-                    FROM booking_unit_details AS ud, booking_details AS bd
-                    WHERE ud.booking_id = bd.booking_id
-                    AND bd.assigned_vendor_id =  '$service_center_id'
-                    AND bd.`current_status` =  'Cancelled'
-                    $where ) AS lose_amount
-            FROM  `booking_details` AS b
-                WHERE  `current_status` =  'Cancelled'
-                AND  `assigned_vendor_id` =  '$service_center_id'
+        $sql  = " SELECT COUNT( DISTINCT (
+                bd.`id`
+                ) ) AS cancel_booking, 
+                SUM( vendor_basic_charges + vendor_st_or_vat_basic_charges  ) AS lose_amount
+                FROM booking_unit_details AS ud, booking_details AS bd
+                WHERE bd.assigned_vendor_id = '$service_center_id'
+                AND booking_status =  'Cancelled'
+                AND current_status = 'Cancelled'
+                AND bd.booking_id = ud.booking_id
                 $where";
         $query = $this->db->query($sql);
         $result = $query->result_array();

@@ -385,6 +385,10 @@ class Around_scheduler extends CI_Controller {
         }
     }
     
+    
+    /**
+     * @desc: Checks balance ACL credits, used to send SMSes
+     */
     function check_acl_credits () {
         $subject = "ACL Balance Credits - " . date("d-M-Y");
         $message = system('elinks -dump "https://push3.maccesssmspush.com/servlet/com.aclwireless.pushconnectivity.listeners.ConfigurationListener?action=prepaid&userid=blackmalt&pass=blackmalt67&appid=blackmalt&subappid=blackmalt"');

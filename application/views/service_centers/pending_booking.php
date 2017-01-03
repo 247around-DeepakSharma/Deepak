@@ -29,7 +29,7 @@
          <div class="col-md-12" style="margin-top:5px;">
             <table class="table table-striped table-bordered table-hover" style="font-size:13px">
                 <thead>
-                    <?php if($eraned_details[2][0]['total_booking'] == 0){ $eraned_details[2][0]['total_booking'] =1;}?>
+                   
                 <tr>
                     <th >Booking Cancelled In <?php echo date("F", strtotime("-2 Months")); ?></th>
                     <td class="text-center"><?php echo $cancel_booking[2][0]['cancel_booking']; ?></td>
@@ -44,7 +44,7 @@
                       <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$eraned_details[2][0]['earned']); ?></td>
                         </tr>
                         <tr>
-                <?php if($eraned_details[1][0]['total_booking'] == 0){ $eraned_details[1][0]['total_booking'] =1;}?>
+               
                       <th >Booking Cancelled In <?php echo date("F", strtotime("last month")); ?></th>
                     <td class="text-center"><?php echo $cancel_booking[1][0]['cancel_booking']; ?></td>
                
@@ -58,7 +58,7 @@
                       <td class="text-center"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$eraned_details[1][0]['earned']); ?></td>
                         </tr>
                         <tr>
-                       <?php if($eraned_details[0][0]['total_booking'] == 0){ $eraned_details[0][0]['total_booking'] =1;}?>
+                      
                     <th >Booking Cancelled In <?php echo date('F'); ?></th>
                     <td class="text-center"><?php echo $cancel_booking[0][0]['cancel_booking']; ?></td>
                
