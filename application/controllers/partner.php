@@ -1437,7 +1437,7 @@ class Partner extends CI_Controller {
             $booking['partner_id'] = $unit_details['partner_id'] = $this->partner['id'];
             $booking['order_id'] = $requestData['orderID'];
             $unit_details['appliance_brand'] = $appliance_details['brand'] =  $requestData['brand'];
-            $appliance_details['model_number'] = $unit_details['model_number'] = (isset($requestData['model']) ? $requestData['model'] : "");
+            $appliance_details['model_number'] = $unit_details['model_number'] = (!empty($requestData['model']) ? $requestData['model'] : "");
 
             log_message('info', 'Product type: ' . $requestData['product']);
             $prod = trim($requestData['product']);

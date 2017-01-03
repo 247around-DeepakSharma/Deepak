@@ -176,6 +176,8 @@ class BookingSummary extends CI_Controller {
                     log_message('info','Rendered');
 
                     if ($mail_flag) {
+                        //Cleaning Email Variables
+                        $this->email->clear(TRUE);
 
                         log_message('info', "Report generated with $count records");
                         //Send report via email
@@ -189,7 +191,7 @@ class BookingSummary extends CI_Controller {
                         if ($this->email->send()) {
                             log_message('info', __METHOD__ . ": Mail sent successfully");
                         } else {
-                            log_message('info', __METHOD__ . ": Mail could not be sent".print_r($this->email->print_debugger()));
+                            log_message('info', __METHOD__ . ": Mail could not be sent :".$this->email->print_debugger());
                         }
                         //Upload Excel to AWS
                         $bucket = BITBUCKET_DIRECTORY;
@@ -260,6 +262,8 @@ class BookingSummary extends CI_Controller {
                     $R->render('excel', $output_file);
 
                     if ($mail_flag) {
+                        //Cleaning Email Variables
+                        $this->email->clear(TRUE);
 
                         //Send report via email
                         $this->email->from('booking@247around.com', '247around Team');
