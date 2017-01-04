@@ -1611,3 +1611,6 @@ ALTER TABLE `vendor_partner_invoices` ADD `upcountry_price` DECIMAL(10,2) NOT NU
 ALTER TABLE `service_centres` CHANGE `on_off` `on_off` INT(2) NOT NULL DEFAULT '1' COMMENT '1->On,0->Off. Used to disable vendors temporarily in case of pending bookings cross a threhold';
 ALTER TABLE `service_centres` CHANGE `active` `active` INT(2) NULL DEFAULT '1';
 
+-- Sachin 4 Jan 2017
+
+ALTER TABLE  `service_centres` ADD `is_verified` int(2) NOT NULL DEFAULT '0' AFTER `is_cst_doc`;
