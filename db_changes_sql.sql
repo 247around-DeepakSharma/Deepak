@@ -1553,3 +1553,6 @@ INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_o
 
 INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Customer asked to call after 3 day', 'missed_updation', '1');
 
+-- Sachin 4 Jan 2017
+
+ALTER TABLE  `service_centres` ADD `is_verified` int(2) NOT NULL DEFAULT '0' AFTER `is_cst_doc`;
