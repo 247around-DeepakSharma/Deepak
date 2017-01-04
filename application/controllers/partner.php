@@ -295,7 +295,7 @@ class Partner extends CI_Controller {
 
                         $booking['quantity'] = '1';
                         $appliance_details['tag'] = $appliance_details['brand'] . " " . $lead_details['Product'];
-                        $appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
+                        $appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('M');
                         $appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
 
                         $appliance_details['last_service_date'] = date('d-m-Y');
