@@ -400,7 +400,7 @@ class Booking extends CI_Controller {
 	$booking['state'] = $state['state'];
 	$booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
 	$booking['order_id'] = $this->input->post('order_id');
-	$booking['potential_value'] = $this->input->post('potential_value');
+//	$booking['potential_value'] = $this->input->post('potential_value');
 	$booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
 	$booking['booking_timeslot'] = $this->input->post('booking_timeslot');
 	$booking['update_date'] = date("Y-m-d H:i:s");

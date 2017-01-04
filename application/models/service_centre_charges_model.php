@@ -179,7 +179,7 @@ class service_centre_charges_model extends CI_Model {
      * 
      */
     function get_unique_states_from_tax_rates(){
-        $sql = 'SELECT DISTINCT state FROM tax_rates';
+        $sql = 'SELECT DISTINCT state FROM tax_rates Order By State Asc';
         $query = $this->db->query($sql);
         return $query->result_array();
     }

@@ -507,16 +507,20 @@ class Partner extends CI_Controller {
                
                 //Getting Login Details
                 $login['user_name'] = $this->input->post('username');
-                $login['password'] = md5($this->input->post('password'));
-                $login['clear_text'] = $this->input->post('password');
+                //Where Clause
+                $where = array('partner_id' =>$partner_id);
+                //Updating  value only if only password is present
+                if(!empty($this->input->post('password'))){
+                    $login['password'] = md5($this->input->post('password'));
+                    $login['clear_text'] = $this->input->post('password');
+                    
+                    //Editing User Login Details
+                    $update_login = $this->partner_model->update_partner_login_details($login,$where);
+                }
                 
                 //Unsetting Username and Password
                 unset($_POST['username']);
                 unset($_POST['password']);
-                
-                //Editing User Login Details
-                $where = array('partner_id' =>$partner_id);
-                $update_login = $this->partner_model->update_partner_login_details($login,$where);
                 
                 //updating Partner code in Bookings_sources table
                     $bookings_sources['source'] = $this->input->post('public_name');
@@ -1179,7 +1183,7 @@ class Partner extends CI_Controller {
                 $partner_mail_to = $partner_details['primary_contact_email'];
                 $partner_mail_cc = "nits@247around.com,escalations@247around.com";
                 $partner_subject = "Booking " . $booking_id . " Escalated ";
-                $partner_message = "Booking " . $booking_id . " Escalated" ;
+                $partner_message = "Booking " . $booking_id . " Escalated <br><br><strong>Remarks : </strong>".$remarks ;
                 $this->notify->sendEmail($from, $partner_mail_to, $partner_mail_cc, $bcc, $partner_subject, $partner_message, $attachment);
                 
                 if($is_mail){
@@ -1830,7 +1834,7 @@ class Partner extends CI_Controller {
         $capacity = $this->input->post('capacity');
         //Getting Unique values of Model for Particular Partner ,service id and brand
         $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id,'brand'=>$brand,'category'=>$category,'capacity'=>$capacity);
-        $data = $this->partner_model->get_partner_appliance_details($where);
+        $data = $this->partner_model->get_partner_model_details($where);
         
         $model = "";
         foreach($data as $value){

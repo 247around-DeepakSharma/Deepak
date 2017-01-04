@@ -592,12 +592,12 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-group ">
+<!--                            <div class="form-group ">
                                 <label for="type"class="col-md-4">Potential Value</label>
                                 <div class="col-md-6">
                                     <input  type="text" class="form-control"  name="potential_value" id="potential_value" value = "<?php if(isset($booking_history[0]['potential_value'])){ echo $booking_history[0]['potential_value']; }?>" placeholder="Enter potential_value" >
                                 </div>
-                            </div>
+                            </div>-->
                             <div class="form-group ">
                                 <label for="type" class="col-md-4">Remarks</label>
                                 <div class="col-md-6">
