@@ -1512,6 +1512,9 @@ class Partner extends CI_Controller {
             $booking['source'] = $this->partner_model->get_source_code_for_partner($this->partner['id']);
             $booking['booking_id'] = $booking['source'] . "-" . $booking['booking_id'];
             $unit_details['booking_id'] = $booking['booking_id'];
+            
+            $appliance_details['purchase_month'] = $unit_details['purchase_month'] = $requestData['purchase_month'];
+            $appliance_details['purchase_year'] = $unit_details['purchase_year'] = $requestData['purchase_year'];
 
             $booking['quantity'] = '1';
 
