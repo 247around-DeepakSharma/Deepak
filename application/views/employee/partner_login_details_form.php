@@ -6,7 +6,7 @@
             
              <?php
                     if ($this->session->flashdata('login_error')) {
-                        echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:-10px;width:25%;margin-left:39%;margin-bottom:5px;">
+                        echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:-10px;width:40%;margin-left:32%;margin-bottom:5px;">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -16,7 +16,7 @@
                     ?>
             <?php
                     if ($this->session->flashdata('login_success')) {
-                        echo '<div class="alert alert-success alert-dismissible" role="alert" style="margin-top:-10px;width:25%;margin-left:39%;margin-bottom:5px;">
+                        echo '<div class="alert alert-success alert-dismissible" role="alert" style="margin-top:-10px;width:40%;margin-left:32%;margin-bottom:5px;">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -62,6 +62,7 @@
 
             <center>
                 <input type="submit" id="submitform" class="btn btn-info " value="Save"/>
+                <a href="<?php echo base_url()?>employee/partner/viewpartner" class="btn btn-info"/>Cancel</a>
             </center>
             </form>   
         </div>
