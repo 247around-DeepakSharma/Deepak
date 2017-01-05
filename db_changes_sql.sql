@@ -1567,3 +1567,13 @@ ALTER TABLE `service_centres` CHANGE `active` `active` INT(2) NULL DEFAULT '1';
 
 ALTER TABLE  `service_centres` ADD `is_verified` int(2) NOT NULL DEFAULT '0' AFTER `is_cst_doc`;
 
+
+-- =========================  SERVER DB UPDATED, ADD YOUR CHANGES BELOW THIS LINE  ========================= --
+
+
+-- Belal 5 Jan
+
+ALTER TABLE `partners` ADD `owner_alternate_email` VARCHAR(50) NOT NULL AFTER `owner_email`;
+
+ALTER TABLE `partners` ADD `pan_file` VARCHAR(512) NOT NULL AFTER `contract_file`, ADD `registration_no` VARCHAR(50) NOT NULL AFTER `pan_file`, ADD `registration_file` VARCHAR(512) NOT NULL AFTER `registration_no`;
+
