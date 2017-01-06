@@ -156,7 +156,7 @@
                                                     name="appliance_brand[]" id="appliance_brand_1" onChange="getCategoryForService(this.id)"  required>
                                                     <option selected disabled>Select Brand</option>
                                                     <?php foreach ($brand as  $appliance_brand) { ?>
-                                                    <option <?php if(isset($unit_details[0]['brand'])) { if($appliance_brand['brand_name'] == $unit_details[0]['brand']){ echo "selected";} } ?>
+                                                    <option <?php if(isset($unit_details[0]['brand'])) {  if (strcasecmp($appliance_brand['brand_name'], $unit_details[0]['brand']) == 0){ echo "selected";} } ?>
                                                         ><?php echo $appliance_brand['brand_name']; ?></option >
                                                     <?php } ?>
                                                 </select>
@@ -352,7 +352,7 @@
                                                     <select type="text" onchange="getCategoryForService(this.id)" class="form-control appliance_brand"    name="appliance_brand[]" id="<?php echo "appliance_brand_".$number;?>" required>
                                                         <option disabled>Select Brand</option>
                                                         <?php foreach ($brand as  $appliance_brand) { ?>
-                                                        <option <?php if($appliance_brand['brand_name'] == $booking_unit_details['brand']){ echo "selected";}?> ><?php echo $appliance_brand['brand_name']; ?></option>
+                                                        <option <?php  if (strcasecmp($appliance_brand['brand_name'], $booking_unit_details['brand']) == 0){ echo "selected";} ?> ><?php echo $appliance_brand['brand_name']; ?></option>
                                                         <?php } ?>
                                                     </select>
                                                 </div>

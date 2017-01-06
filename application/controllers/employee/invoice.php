@@ -1443,13 +1443,13 @@ class Invoice extends CI_Controller {
 
         if ($details['invoice_month'] == 12) {
             $next_month = 01;
-            $year = date('Y') + 1;
+            $year = date('Y') -1;
         } else {
             $next_month = $details['invoice_month'] + 1;
             $year = date('Y');
         }
 
-        $details['date_range'] = date('Y') . "/" . $details['invoice_month'] . "/01-" . $year . "/" . $next_month . "/01";
+        $details['date_range'] = $year . "/" . $details['invoice_month'] . "/01-" . date('Y') . "/" . $next_month . "/01";
         print_r($details);
 
         if ($details['vendor_partner'] === "vendor") {
