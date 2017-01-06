@@ -497,6 +497,8 @@ class Partner extends CI_Controller {
                     $this->s3->putObjectFile(TMP_FOLDER.$contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['contract_file'] = $contract_file;
                     
+                    $attachment_contract = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$contract_file;
+                    
                     //Logging success for file uppload
                     log_message('info',__FUNCTION__.' CONTRACT FILE is being uploaded sucessfully.');
                 }
@@ -512,6 +514,8 @@ class Partner extends CI_Controller {
                     $directory_xls = "vendor-partner-docs/".$pan_file;
                     $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['pan_file'] = $pan_file;
+                    
+                    $attachment_pan = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$pan_file;
                     
                     //Logging success for file uppload
                     log_message('info',__FUNCTION__.' PAN FILE is being uploaded sucessfully.');
@@ -529,8 +533,18 @@ class Partner extends CI_Controller {
                     $this->s3->putObjectFile(TMP_FOLDER.$registration_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['registration_file'] = $registration_file;
                     
+                    $attachment_registration_file = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$registration_file;
+                    
                     //Logging success for file uppload
                     log_message('info',__FUNCTION__.' Registration FILE is being uploaded sucessfully.');
+                }
+                
+                //Checking for Upcountry
+                $upcountry = $this->input->post('upcountry');
+                if(isset($upcountry) && $upcountry == 'on')
+                {
+                    //Setting Flag as 1
+                    $_POST['upcountry'] = 1;
                 }
                 
                 //Getting partner operation regions details from POST
@@ -597,6 +611,43 @@ class Partner extends CI_Controller {
                     }
                     
                 $this->partner_model->edit_partner($this->input->post(), $partner_id);
+                //Logging
+                log_message('info',__FUNCTION__.' Partner has been Updated : '.print_r($this->input->post(),TRUE));
+                
+                //Sending Mail for Updated details
+                $html = "<p>Following Partner has been Updated :</p><ul>";
+                foreach($this->input->post() as $key=>$value){
+                    $html .= "<li><b>".$key.'</b> =>';
+                    $html .= " ".$value.'</li>';
+                }
+                $html .="</ul>";
+                $to = "anuj@247around.com";
+                $attachment = "";
+                //Cleaning Email Variables
+                        $this->email->clear(TRUE);
+
+                        //Send report via email
+                        $this->email->from('booking@247around.com', '247around Team');
+                        $this->email->to($to);
+
+                        $this->email->subject("Partner Updated :  " . $partner_id);
+                        $this->email->message($html);
+                        
+                        if(isset($attachment_contract)){
+                        $this->email->attach($attachment_contract, 'attachment');
+                        }
+                        if(isset($attachment_pan)){
+                            $this->email->attach($attachment_pan, 'attachment');
+                        }
+                        if(isset($attachment_registration_file)){
+                            $this->email->attach($attachment_registration_file, 'attachment');
+                        }
+
+                        if ($this->email->send()) {
+                            log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
+                        } else {
+                            log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
+                        }
 
                 redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
             }else{
@@ -614,6 +665,8 @@ class Partner extends CI_Controller {
                     $this->s3->putObjectFile(TMP_FOLDER.$contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['contract_file'] = $contract_file;
                     
+                    $attachment_contract = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$contract_file;
+                    
                     //Logging success for file uppload
                     log_message('info',__FUNCTION__.' CONTRACT FILE is being uploaded sucessfully.');
                 }
@@ -629,6 +682,8 @@ class Partner extends CI_Controller {
                     $directory_xls = "vendor-partner-docs/".$pan_file;
                     $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['pan_file'] = $pan_file;
+                    
+                    $attachment_pan = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$pan_file;
                     
                     //Logging success for file uppload
                     log_message('info',__FUNCTION__.' PAN FILE is being uploaded sucessfully.');
@@ -646,6 +701,8 @@ class Partner extends CI_Controller {
                     $this->s3->putObjectFile(TMP_FOLDER.$registration_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['registration_file'] = $registration_file;
                     
+                    $attachment_registration_file = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$registration_file;
+                    
                     //Logging success for file uppload
                     log_message('info',__FUNCTION__.' Registration FILE is being uploaded sucessfully.');
                 }
@@ -659,6 +716,14 @@ class Partner extends CI_Controller {
                 //Agreement End Date - Checking (If Not Present unset from POST)
                 if(empty($this->input->post('agreement_end_date'))){
                     unset($_POST['agreement_end_date']);
+                }
+                
+                //Checking for Upcountry
+                $upcountry = $this->input->post('upcountry');
+                if(isset($upcountry) && $upcountry == 'on')
+                {
+                    //Setting Flag as 1
+                    $_POST['upcountry'] = 1;
                 }
                 
                 //Getting partner operation regions details from POST
@@ -678,6 +743,42 @@ class Partner extends CI_Controller {
 
                     //Echoing inserted ID in Log file
                     log_message('info',__FUNCTION__.' New Partner has been added with ID '.  $partner_id." Done By " . $this->session->userdata('employee_id'));
+                    log_message('info',__FUNCTION__.' Partner Added Details : '.print_r($this->input->post(),TRUE));
+                    
+                    //Sending Mail for Updated details
+                    $html = "<p>Following Partner has been Added :</p><ul>";
+                    foreach($this->input->post() as $key=>$value){
+                        $html .= "<li><b>".$key.'</b> =>';
+                        $html .= " ".$value.'</li>';
+                    }
+                    $html .="</ul>";
+                    $to = "anuj@247around.com";
+                    
+                    //Cleaning Email Variables
+                        $this->email->clear(TRUE);
+
+                        //Send report via email
+                        $this->email->from('booking@247around.com', '247around Team');
+                        $this->email->to($to);
+
+                        $this->email->subject("New Partner Added " . $partner_id);
+                        $this->email->message($html);
+                        
+                        if(isset($attachment_contract)){
+                        $this->email->attach($attachment_contract, 'attachment');
+                        }
+                        if(isset($attachment_pan)){
+                            $this->email->attach($attachment_pan, 'attachment');
+                        }
+                        if(isset($attachment_registration_file)){
+                            $this->email->attach($attachment_registration_file, 'attachment');
+                        }
+
+                        if ($this->email->send()) {
+                            log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
+                        } else {
+                            log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
+                        }
                     
                     //Adding Partner code in Bookings_sources table
                     $bookings_sources['source'] = $this->input->post('public_name');
@@ -1173,7 +1274,15 @@ class Partner extends CI_Controller {
             $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
             $escalation_remarks = $this->input->post('escalation_remarks');
             $bookinghistory = $this->booking_model->getbooking_history($booking_id);
-           
+            
+            $escalation_reason  = $this->vendor_model->getEscalationReason(array('id'=>$escalation['escalation_reason']));
+            if(!empty($escalation_remarks)){
+                $remarks = $escalation_reason[0]['escalation_reason']." -".
+                    $escalation_remarks;
+            } else {
+                $remarks = $escalation_reason[0]['escalation_reason'];
+            }
+            
             $escalation['booking_id'] = $booking_id;
             if(!is_null($bookinghistory[0]['assigned_vendor_id'])){
                 $escalation['vendor_id'] = $bookinghistory[0]['assigned_vendor_id'];
@@ -1182,13 +1291,26 @@ class Partner extends CI_Controller {
                 $cc = $vendorContact[0]['owner_email'].",nits@247around.com,escalations@247around.com";
                 
                 $message = "Booking " . $booking_id . " Escalated By Partner " . $this->session->userdata('partner_name'). " SF State ". 
-                        $vendorContact[0]['state']. " SF City ". $vendorContact[0]['city'];
+                        $vendorContact[0]['state']. " SF City ". $vendorContact[0]['city'].'<br><b>Remarks : '.$remarks.' </b>';
+                
+                $message .= "<br><br><b>Booking Details :</b><ul>";
+                    foreach($bookinghistory[0] as $key=>$value){
+                        $message .= "<li><b>".$key.'</b> =>';
+                        $message .= " ".$value.'</li>';
+                    }
+                    $message .="</ul>";
                 
             } else {
                 $escalation['vendor_id'] = "";
                 $to = "escalations@247around.com"; 
                 $cc = "nits@247around.com";
-                $message = "Booking " . $booking_id . " Escalated By Partner " . $this->session->userdata('partner_name'). " SF State ";
+                $message = "Booking " . $booking_id . " Escalated By Partner " . $this->session->userdata('partner_name'). " SF State ".'<br><b>Remarks : '.$remarks.' </b>';
+                $message .= "<br><br><b>Booking Details :</b><ul>";
+                    foreach($bookinghistory as $key=>$value){
+                        $message .= "<li><b>".$key.'</b> =>';
+                        $message .= " ".$value.'</li>';
+                    }
+                    $message .="</ul>";
             }
             
             $escalation['booking_date'] = date('Y-m-d', strtotime($bookinghistory[0]['booking_date']));
@@ -1198,13 +1320,7 @@ class Partner extends CI_Controller {
           
             //inserts vendor escalation details
             $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
-            $escalation_reason  = $this->vendor_model->getEscalationReason(array('id'=>$escalation['escalation_reason']));
-            if(!empty($escalation_remarks)){
-                $remarks = $escalation_reason[0]['escalation_reason']." -".
-                    $escalation_remarks;
-            } else {
-                $remarks = $escalation_reason[0]['escalation_reason'];
-            }
+            
             $this->notify->insert_state_change($escalation['booking_id'], 
                     "Escalation" , _247AROUND_PENDING , $remarks, 
                     $this->session->userdata('agent_id'), $this->session->userdata('partner_name'),
@@ -1222,7 +1338,7 @@ class Partner extends CI_Controller {
                 $partner_mail_to = $partner_details['primary_contact_email'];
                 $partner_mail_cc = "nits@247around.com,escalations@247around.com";
                 $partner_subject = "Booking " . $booking_id . " Escalated ";
-                $partner_message = "Booking " . $booking_id . " Escalated <br><br><strong>Remarks : </strong>".$remarks ;
+                $partner_message = "<p>This booking is ESCALATED to 247around, we will look into this very soon.</p><br>Booking " . $booking_id . " Escalated <br><br><strong>Remarks : </strong>".$remarks ;
                 $this->notify->sendEmail($from, $partner_mail_to, $partner_mail_cc, $bcc, $partner_subject, $partner_message, $attachment);
                 
                 if($is_mail){
