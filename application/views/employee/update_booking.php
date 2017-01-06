@@ -615,8 +615,8 @@
                         </div>
                         <div class="form-group  col-md-12" >
                             <center>
-                                <button style="margin-right: 25px;" type="button" class="btn btn-info btn-md open-AddBookingDialog" data-toggle="modal" data-target="#myModal">Check Details</button>
-                                <input type="submit" id="submitform" class="btn btn-primary disabled" value="Submit Booking">
+                                
+                                <input type="submit" id="submitform" onclick="return addBookingDialog()" class="btn btn-primary" value="Submit Booking">
                         </div>
                         </center>
                     </div>
@@ -640,11 +640,7 @@
     $("#partner_source").select2();
     //$(".appliance_capacity").select2();
 
-    $(document).ready(function(){
-        $("#submitform").click(function(){
-            $(this).button('loading');
-        });
-    });
+    
      $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
 
 </script>
@@ -663,7 +659,7 @@
                var id= this.id || "";
                var match = id.match(regex) || [];
                //console.log(match.length);
-               if (match.length == 3) {
+               if (match.length === 3) {
                    this.id = match[1]+ (cloneIndex);
             }
     })
