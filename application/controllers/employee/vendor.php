@@ -91,7 +91,7 @@ class vendor extends CI_Controller {
                     $attachment_pan = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$pan_file;
                     
                     //Logging success for file uppload
-                    log_message('info',__CLASS__.' PAN FILE is being uploaded sucessfully.');
+                    //log_message('info',__CLASS__.' PAN FILE is being uploaded sucessfully.');
                 } else {
                     //Redirect back to Form
 
@@ -332,7 +332,7 @@ class vendor extends CI_Controller {
             if(!isset($_POST['is_cst_doc'])){
                 $_POST['is_cst_doc'] = 1;
             }
-
+            
             unset($_POST['day']);
             
             //Checking if  pan_no, cst_no,service_tax_no
@@ -348,9 +348,17 @@ class vendor extends CI_Controller {
             if(empty($this->input->post('tin_no'))){
                 $_POST['tin_no'] = NULL;
             }
+             
+            if(isset($_POST['is_verified'])){
+               $_POST['is_verified'] = '1';
+            }
+            else if(!isset($_POST['is_verified']) && $this->session->userdata('user_group') == 'admin')
+            {
+                $_POST['is_verified'] = '0';
+            }
             
-           
             if (!empty($_POST['id'])) {
+                
                 //if vendor exists, details are edited
                 $this->vendor_model->edit_vendor($_POST, $_POST['id']);
                 //Log Message
@@ -524,7 +532,7 @@ class vendor extends CI_Controller {
 
                 $this->notify->sendEmail("booking@247around.com", $to , 'anuj@247around.com, nits@247around.com', '', $subject , $message, "");
 
-		  //create vendor login details as well
+//		  //create vendor login details as well
 		   $sc_login_uname = strtolower($_POST['sc_code']);
 		   $login['service_center_id'] = $sc_id;
 		   $login['user_name'] = $sc_login_uname;
