@@ -655,7 +655,7 @@ class vendor_model extends CI_Model {
      * @return : Array
      */
     function getActiveVendor($service_center_id = "", $active = 1) {
-        $this->db->select("service_centres.name, service_centres.id ");
+        $this->db->select("service_centres.name, service_centres.id,on_off,active ");
         if ($service_center_id != "") {
             $this->db->where('id', $service_center_id);
         }
@@ -1411,7 +1411,7 @@ class vendor_model extends CI_Model {
      * 
      */
     function get_rm_sf_relation_by_sf_id($sf_id){
-        $sql = "Select employee_relation.* from employee_relation,employee "
+        $sql = "Select employee_relation.*, employee.official_email from employee_relation,employee "
                 . "where FIND_IN_SET($sf_id,employee_relation.service_centres_id) "
                 . "AND employee.groups != '"._247AROUND_ADMIN."' "
                 . "AND employee_relation.agent_id = employee.id";

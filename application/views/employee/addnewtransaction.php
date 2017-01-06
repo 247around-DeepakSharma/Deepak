@@ -51,7 +51,7 @@ function partner_vendor1(vendor_partner_id){
                     credit_debit: "Please select credit/debit.",
                     amount: "Please enter credit/debit amount.",
                     tdate: "Please enter transaction date",
-                    tds_amount: "Please enter TDA"
+                    tds_amount: "Please enter TDS"
                 },
                 submitHandler: function(form) {
                     form.submit();
