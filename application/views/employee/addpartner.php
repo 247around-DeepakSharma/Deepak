@@ -79,6 +79,23 @@
             <input  type="text" class="form-control" value = "<?php if (isset($query[0]['landmark'])){echo $query[0]['landmark'];}?>" name="landmark" >
          </div>
         </div>
+            
+            <div class="form-group">
+                <label  for="upcountry_rate" class="col-md-4">Up-Country </label>
+                <div class="col-md-1">
+                    <input type="checkbox" name="upcountry" id="upcountry" style="zoom:1.5"/>
+                </div>
+                <div class="col-md-3">
+                    <input  type="number" class="form-control" value = "<?php
+                    if (isset($query[0]['upcountry_rate'])) {
+                        echo $query[0]['upcountry_rate'];
+                    }
+                    ?>" name="upcountry_rate" id="upcountry_rate" disabled="" placeholder="Enter KM's">
+                </div>
+                <div class="col-md-4">
+                    <span><i>[Tick checkbox to enter Km's]</i></span>
+                </div>
+            </div>
         </div>
    
     <div class="col-md-6">    
@@ -329,7 +346,19 @@
             <label for="agreement_start_date" class="col-md-4">Partnership Start Date</label>
             <div class="col-md-6">
               <div class="input-group input-append date" >
-              <input type="text" class="form-control"  name="agreement_start_date" id="agreement_start_date" value = "<?php if (isset($query[0]['agreement_start_date'])){echo $query[0]['agreement_start_date'];}?>">
+                  <?php 
+                    if(isset($query[0]['agreement_start_date'])){
+                        if($query[0]['agreement_start_date'] != "0000-00-00"){
+                            $aggrement_date = $query[0]['agreement_start_date'];
+                        }else{
+                            $aggrement_date =  date("Y-m-d",strtotime($query[0]['create_date']));
+                        }
+                        
+                    }else{
+                            $aggrement_date = date("Y-m-d");
+                    }
+                  ?>
+                  <input type="text" class="form-control"  name="agreement_start_date" id="agreement_start_date" value = "<?php echo $aggrement_date;?>">
               <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
               </div>
               <?php echo form_error('agreement_start_date'); ?>
@@ -455,12 +484,21 @@
   
   $("#agreement_start_date").datepicker({dateFormat: 'yy-mm-dd'});
   $("#agreement_end_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
+
   
-  var check_for_edit = '<?php if(isset($query[0]['id'])){ echo 'Edit';}else{echo 'Add';}?>';
-  if(check_for_edit === 'Add'){
-    $("#agreement_start_date").datepicker().datepicker("setDate", new Date());
-  }
-  
+  //Check for upcountry
+   $("#upcountry").change(function(){
+      if(this.checked){
+          $("#upcountry_rate").attr('required', true);
+          $("#upcountry_rate").attr('disabled', false);
+      }else{
+          $("#upcountry_rate").attr('required', false);
+          $("#upcountry_rate").attr('disabled', true);
+          $("#upcountry_rate").val('');
+      }
+      
+   });
+   
   
   function getDistrict(){
      var state = $("#state").val();
