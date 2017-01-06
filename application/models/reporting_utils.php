@@ -1523,8 +1523,12 @@ class Reporting_utils extends CI_Model {
             
         }
         
-        $sql = "select employee_id, id from employee where groups in ('callcenter', 'closure')";
-        $query = $this->db->query($sql);
+
+        $this->db->select('full_name , id');
+        $this->db->from('employee');
+        $this->db->where_in('groups', array('callcenter', 'closure'));
+        $this->db->order_by('full_name');
+        $query = $this->db->get();
         $employee_id = $query->result_array();
         foreach ($employee_id as $value) {
 
@@ -1593,8 +1597,9 @@ class Reporting_utils extends CI_Model {
                              JOIN employee on agent_outbound_call_log.agent_id=employee.id 
                              WHERE employee.id= '".$value['id']."'  $where2";
             //getting incomming calls data
-            $calls_recevied = "SELECT COUNT(DialWhomNumber) AS incomming FROM passthru_misscall_log
-                               JOIN employee on passthru_misscall_log.DialWhomNumber=employee.phone 
+            $calls_recevied = "SELECT COUNT(DialWhomNumber) AS incomming , full_name 
+                               FROM passthru_misscall_log JOIN employee ON passthru_misscall_log.DialWhomNumber 
+                               LIKE concat('%' , employee.phone ) 
                                WHERE employee.id='".$value['id']."' $where3";
             
             //execute the query to get data
@@ -1624,7 +1629,7 @@ class Reporting_utils extends CI_Model {
             $result11 = $query11->result_array();
             
             //storing key value from $result to $data_details  
-            $data_details['employee_id'] =  $value['employee_id'];
+            $data_details['employee_id'] =  $value['full_name'];
 //            $data_details['new_query_to_followup'] =  $result1[0]['query_insert'];
 //            $data_details['followup_to_followup'] =  $result2[0]['query_update'];
             $data_details['followup_to_cancel'] =  $result3[0]['query_cancel'];

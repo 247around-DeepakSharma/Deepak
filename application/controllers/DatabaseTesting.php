@@ -415,7 +415,8 @@ class DatabaseTesting extends CI_Controller {
         $message = $table;
         $attachment = TMP_FOLDER. date('Y-m-d') . ".txt";
         $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
-        
+        $out="";
+        $return ="";
         exec("rm -rf " . escapeshellarg(TMP_FOLDER . date('Y-m-d') . ".txt", $out, $return));
         // Return will return non-zero upon an error
 
@@ -424,7 +425,7 @@ class DatabaseTesting extends CI_Controller {
             // Inserting values in scheduler tasks log
             $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
             //Logging
-            log_message('info', __FUNCTION__ . ' Executed Sucessfully ' . $output_file);
+            log_message('info', __FUNCTION__ . ' Executed Sucessfully ' . TMP_FOLDER . date('Y-m-d') . ".txt");
         }
     }
     
