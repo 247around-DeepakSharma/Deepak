@@ -236,7 +236,7 @@ class Partner extends CI_Controller {
      * @return: true if details matches else session is distroyed.
      */
     function checkUserSession() {
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'partner')) {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'partner') &&  !empty($this->session->userdata('partner_id'))) {
             return TRUE;
         } else {
             $this->session->sess_destroy();
