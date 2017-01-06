@@ -207,7 +207,7 @@
 <!--                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Tag</label>
                                             <div class="col-md-6">
-                                                <input  type="text" class="form-control"  name="appliance_tags[]" id="appliance_tags_1" value = "<?php if(isset($unit_details[0]['appliance_tag'])) {  echo $unit_details[0]['appliance_tag']; } ?>" placeholder="Enter Tag"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
+                                                <input  type="text" class="form-control"  name="appliance_tags[]" id="appliance_tags_1" value = "<?php //if(isset($unit_details[0]['appliance_tag'])) {  echo $unit_details[0]['appliance_tag']; } ?>" placeholder="Enter Tag"  <?php// if(!empty($appliance_id)) { echo "readonly"; } ?> >
                                             </div>
                                         </div> -->
                                         <div class="form-group ">
@@ -376,7 +376,7 @@
                                                         <option  disabled>Select Appliance Capacity</option>
                                                         <?php foreach ($capacity[$key] as  $value) {  ?>
                                                         <option <?php if($value['capacity'] == $booking_unit_details['capacity']){ echo "selected";}?> ><?php echo $value['capacity'];?></option>
-                                                        <?php  $cap_no++; } ?>
+                                                        <?php   } ?>
                                                     </select>
                                                 </div>
                                             </div>
@@ -398,10 +398,10 @@
                                                     <input  type="text" class="form-control"  name="appliance_description[]" id="<?php echo "description".$number;?>"  value = "<?php if(isset($booking_unit_details['description'])) { echo $booking_unit_details['description']; } ?>"  placeholder="Enter Description"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
                                                 </div>
                                             </div>
-                                            <!--<div class="form-group <?php if( form_error('appliance_tags') ) { echo 'has-error';} ?>">
+                                            <!--<div class="form-group <?php //if( form_error('appliance_tags') ) { echo 'has-error';} ?>">
                                                 <label for="type" class="col-md-4">Appliance Tag</label>
                                                 <div class="col-md-6">
-                                                    <input  type="text" class="form-control"  name="appliance_tags[]" id="<?php echo "appliance_tags_".$number;?>" value = "<?php echo $booking_unit_details['appliance_tag']; ?>" placeholder="Enter Tag" >
+                                                    <input  type="text" class="form-control"  name="appliance_tags[]" id="<?php //echo "appliance_tags_".$number;?>" value = "<?php //echo $booking_unit_details['appliance_tag']; ?>" placeholder="Enter Tag" >
                                                 </div>
                                             </div>-->
                                             <div class="form-group ">
