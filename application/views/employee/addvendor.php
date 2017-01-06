@@ -1005,7 +1005,7 @@
                                 <div class="form-group">
                                     <label for="is_bank_details_verified" class="col-md-3">Verified/Not Verified </label>
                                     <div class="col-md-3">
-                                        <input type="checkbox" class="form-control" value="1" name="is_verified" id="is_bank_details_verified" <?php if($query[0]['is_verified'] == '1') { ?>checked<?php } ?> <?php if($this->session->userdata('user_group')!= 'admin'){ ?>disabled <?php }?> style="width:20%;">
+                                        <input type="checkbox" class="form-control" value="1" name="is_verified" id="is_bank_details_verified" <?php if(isset($query[0]['is_verified']) && $query[0]['is_verified'] == '1') { ?>checked<?php } ?> <?php if($this->session->userdata('user_group')!= 'admin'){ ?>disabled <?php }?> style="width:20%;">
                                     </div>
                                 </div>
                             </div>
