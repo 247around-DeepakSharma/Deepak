@@ -163,6 +163,7 @@
              <th class="text-center">Service Tax </th>
              <th class="text-center">VAT/TIN</th>
              <th class="text-center">CST</th>
+             <th class="text-center">Bank Details Verification</th>
              <th class="text-center">Contract</th>
              <th class="text-center">Count Defective Parts Not Shipped</th>
           </tr>
@@ -184,6 +185,11 @@
                 <td class="text-center">
                  
                    <img src="<?php echo  base_url(); ?><?php if(!empty($vendor_details[0]['cst_no'])){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
+               </td>
+               
+               <td class="text-center">
+                 
+                   <img src="<?php echo  base_url(); ?><?php if(!empty($vendor_details[0]['is_verified']) && $vendor_details[0]['is_verified'] == '1'){ echo "images/ok.png";} else { echo "images/red_cross.png";} ?>" style="width:15px; height: 15px;" /> 
                </td>
                 <td class="text-center">
                  
