@@ -104,8 +104,7 @@
          <td></td>
          <td></td>
          <td></td>
-         
-         
+         <td></td>
          <td><?php echo $sum_of_total_service_charges; ?></td>
          <td><?php echo $sum_total_additional_service_charge; ?></td>
          <td><?php echo $sum_total_parts_cost; ?></td>
@@ -113,9 +112,9 @@
          <td><?php echo $pay_by_247; ?></td>
          <td><?php echo $pay_by_partner; ?></td>
          <td id="final_amount_selected"></td>
-         <td id ="final_tds_selected"></td>
+         <td><input type="submit" class="form-control btn btn-sm btn-primary" value="Pay"></td>
         
-         <td> <input type="submit" class="form-control btn btn-sm btn-primary" value="Pay"></td>
+         <td> </td>
          
       </tr>
    </tbody>
@@ -147,7 +146,7 @@
               $('#selected_amount_collected').val(total_amount_collected.toFixed(2));
               $('#selected_tds').val(total_tds.toFixed(2));
               document.getElementById("final_amount_selected").innerHTML = Math.abs(total_amount_collected.toFixed(2));
-              document.getElementById("final_tds_selected").innerHTML = total_tds.toFixed(2);
+             // document.getElementById("final_tds_selected").innerHTML = total_tds.toFixed(2);
               
       }
   </script>
@@ -263,7 +262,12 @@
     ?>
     <p><h4>Vendor has to pay to 247around = Rs. <?php if($final_settlement >= 0){ echo round($final_settlement,2);} else { echo 0;} ?></h4></p>
     <p><h4>247around has to pay to vendor = Rs. <?php if($final_settlement < 0){ echo abs(round($final_settlement,2));} else {echo 0;} ?></h4></p>
+    <hr/>
+    <?php if(isset($unbilled_amount)){ ?> 
+     <h2><u>Unbilled Amount(Invoice is not generated)</u></h2>
+     <p><h4>Vendor has to pay to 247around = Rs. <?php if($unbilled_amount[0]['unbilled_amount'] >= 0){ echo round($unbilled_amount[0]['unbilled_amount'],2);} else { echo 0;} ?></h4></p>
+    <p><h4>247around has to pay to vendor = Rs. <?php if($unbilled_amount[0]['unbilled_amount'] < 0){ echo abs(round($unbilled_amount[0]['unbilled_amount'],2));} else { echo 0;} ?></h4></p>
     
-    <?php } ?>
+    <?php } } ?>
 
     

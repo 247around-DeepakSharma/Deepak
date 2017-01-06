@@ -793,7 +793,8 @@ class vendor extends CI_Controller {
 //                }
 //            }
             //Assign service centre and engineer
-            $this->booking_model->update_booking($booking_id, array('assigned_vendor_id'=>$service_center_id));
+            $this->booking_model->update_booking($booking_id, array('assigned_vendor_id'=>$service_center_id, 
+                'assigned_engineer_id' =>DEFAULT_ENGINEER));
             //$this->booking_model->assign_booking($booking_id, $service_center_id);
 
            // $pre_service_center_data['current_status'] = "Cancelled";
