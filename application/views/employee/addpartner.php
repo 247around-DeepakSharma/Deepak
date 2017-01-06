@@ -578,22 +578,28 @@
                     username: "required",
                     phone_1: {
                         required: true,
-                        rangelength: [10,10]
+                        minlength: 10,
+                        number: true
                     },
                     phone_2: {
-                        rangelength: [10,10]
+                        minlength: 10,
+                        number: true
                     },
                     primary_contact_phone_1: {
-                        rangelength: [10,10]
+                        minlength: 10,
+                        number: true
                     },
                     primary_contact_phone_2: {
-                        rangelength: [10,10]
+                        minlength: 10,
+                        number: true
                     },
                     owner_phone_1: {
-                        rangelength: [10,10]
+                        minlength: 10,
+                        number: true
                     },
                     owner_phone_2: {
-                        rangelength: [10,10]
+                        minlength: 10,
+                        number: true
                     },
                     state: "required",
                     email: {
