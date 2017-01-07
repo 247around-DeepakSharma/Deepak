@@ -27,7 +27,7 @@ class Database_testing_model extends CI_Model {
                 . " AND `create_date` >= '".DATE_FROM."'";
 
 	$query = $this->db->query($sql);
-	log_message('info', $this->db->last_query());
+	//log_message('info', $this->db->last_query());
 	//echo $this->db->last_query() . PHP_EOL;
 
 
@@ -54,7 +54,7 @@ class Database_testing_model extends CI_Model {
 	$this->db->where('booking_details.create_date >=', DATE_FROM);
 	$query = $this->db->get();
 
-	log_message('info', $this->db->last_query());
+	//log_message('info', $this->db->last_query());
 	//echo $this->db->last_query() . PHP_EOL;
 
 	if ($query->num_rows > 0) {
@@ -79,7 +79,7 @@ class Database_testing_model extends CI_Model {
 	$this->db->where_in('booking_unit_details.booking_status', array('Completed', ''));
 	$query = $this->db->get();
 
-	log_message('info', $this->db->last_query());
+	//log_message('info', $this->db->last_query());
 	//echo $this->db->last_query() . PHP_EOL;
 
 	if ($query->num_rows > 0) {
@@ -102,7 +102,7 @@ class Database_testing_model extends CI_Model {
 	$this->db->where_in('booking_details.current_status', array('Completed'));
 	$this->db->where('booking_details.create_date >=', DATE_FROM);
 	$query = $this->db->get();
-	log_message('info', $this->db->last_query());
+	//log_message('info', $this->db->last_query());
 	//echo $this->db->last_query() . PHP_EOL;
 	if ($query->num_rows > 0) {
 	    return $query->result_array();
@@ -198,7 +198,7 @@ class Database_testing_model extends CI_Model {
                 . " WHERE (`booking_id` = '0' OR `unit_details_id` IS NULL OR `unit_details_id` = '0' OR `service_center_id` = '0' OR `current_status` = '0' OR `internal_status` = '0') "
                 . " AND `create_date` >= '".DATE_FROM."'";
 	$query = $this->db->query($sql);
-	log_message('info', $this->db->last_query());
+	//log_message('info', $this->db->last_query());
 	//echo $this->db->last_query() . PHP_EOL;
 
 	if ($query->num_rows > 0) {
@@ -219,7 +219,7 @@ class Database_testing_model extends CI_Model {
 	$this->db->where_in('booking_details.current_status', array('Pending', 'Rescheduled'));
 	$this->db->where('booking_details.create_date >=', "2016-11-01");
 	$query = $this->db->get('booking_details');
-	log_message('info', $this->db->last_query());
+	//log_message('info', $this->db->last_query());
         
 	//echo $this->db->last_query() . PHP_EOL;
 	if ($query->num_rows > 0) {
@@ -253,7 +253,7 @@ class Database_testing_model extends CI_Model {
 				AND `assigned_vendor_id` is not null
 				AND BD.booking_id NOT IN (select booking_id from service_center_booking_action) AND BD.create_date >= '".DATE_FROM."'";
 	$query = $this->db->query($sql);
-	log_message('info', $this->db->last_query());
+	//log_message('info', $this->db->last_query());
 	if ($query->num_rows > 0) {
 	    return $query->result_array();
 	} else {
@@ -285,7 +285,7 @@ class Database_testing_model extends CI_Model {
 	$sql = "SELECT ud.id, ud.booking_id  FROM `booking_details` as bd, booking_unit_details as ud WHERE bd.`closed_date` >= '".DATE_FROM."' AND bd.`current_status`='Completed' AND bd.`booking_id`=ud.`booking_id` AND ud.`product_or_services`=''; ";
 	$query = $this->db->query($sql);
 
-	log_message('info', $this->db->last_query());
+	//log_message('info', $this->db->last_query());
 	//echo $this->db->last_query() . PHP_EOL;
 	if ($query->num_rows > 0) {
 	    return $query->result_array();
@@ -300,7 +300,7 @@ class Database_testing_model extends CI_Model {
     function check_prices_should_not_be_negative() {
         $sql = " SELECT booking_unit_details.id,booking_unit_details.booking_id  FROM booking_unit_details where (customer_net_payable <0 OR customer_total < 0 OR partner_net_payable <0 OR around_net_payable <0  OR customer_paid_basic_charges< 0 OR partner_paid_basic_charges<0 OR around_paid_basic_charges<0 OR around_comm_basic_charges<0 OR around_st_or_vat_basic_charges<0 OR vendor_basic_charges <0 OR vendor_to_around <0 OR around_to_vendor<0 OR vendor_st_or_vat_basic_charges<0 OR customer_paid_extra_charges< 0 OR around_comm_extra_charges<0 OR around_st_extra_charges<0 OR vendor_extra_charges< 0 OR vendor_st_extra_charges<0 OR customer_paid_parts<0 OR around_comm_parts<0 OR around_st_parts<0 OR vendor_parts<0 OR vendor_st_parts<0) AND create_date >= '".DATE_FROM."'";
         $query = $this->db->query($sql);
-        log_message('info', $this->db->last_query());
+        //log_message('info', $this->db->last_query());
         //echo $this->db->last_query() . PHP_EOL;
         if ($query->num_rows > 0) {
             return $query->result_array();
@@ -319,7 +319,7 @@ class Database_testing_model extends CI_Model {
                 . " AND create_date >=  '".DATE_FROM."'"
                 . " AND current_status IN  ('Pending', 'Rescheduled' )";
 	$query = $this->db->query($sql);
-	log_message('info', $this->db->last_query());
+	//log_message('info', $this->db->last_query());
 	//echo $this->db->last_query() . PHP_EOL;
 	if ($query->num_rows > 0) {
 	    return $query->result_array();
