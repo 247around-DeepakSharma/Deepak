@@ -43,7 +43,7 @@
                     <br>
                 </div>
                 <div class="col-md-12"><h3>Booking Details</h3>
-                    <a href="<?php echo base_url()?>employee/booking/get_booking_life_cycle/<?php echo $booking_history[0]['booking_id']?>" class="btn btn-info" style="margin-left:87%;margin-top:-5%;" target="_blank">View Booking History</a>
+<!--                    <a href="<?php echo base_url()?>employee/booking/get_booking_life_cycle/<?php echo $booking_history[0]['booking_id']?>" class="btn btn-info" style="margin-left:87%;margin-top:-5%;" target="_blank">View Booking History</a>-->
                 </div>
                 <div class="col-md-6">
                     <table class="table  table-striped table-bordered" >
@@ -379,6 +379,7 @@
                 </div>
                 <?php } ?>
             </div>
+            <div class="col-md-12"id="booking_history"></div>
         </div>
     </div>
 </div>
@@ -403,5 +404,19 @@
         }
 
     }
+    
+    $('document').ready(function(){
+        var booking_id = '<?php echo base_url()?>employee/booking/get_booking_life_cycle/<?php echo $booking_history[0]['booking_id']?>';
+        console.log(booking_id);
+            $.ajax({
+                type: 'POST',
+                url: booking_id,
+                success: function(response) {
+                    $('#booking_history').html(response);
+                      console.log(response);
+
+                }
+            });
+    });
 
 </script>
