@@ -64,7 +64,7 @@ select { width: 8.5em;height:2em; }
                             <td ><?php echo $value['name']?></td>
                             <td style="text-align: center">
                                 <?php  if(!empty($value['contract_file'])){
-                                    $contract++; ?>;
+                                    $contract++; ?>
                                     <a href='https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/<?php echo $value['contract_file']?>' target="_blank"><img src="<?php echo base_url()?>images/ok.png" width="20" height="20"/></a>
                                 <?php }?>
                             </td>
