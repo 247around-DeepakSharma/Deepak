@@ -785,7 +785,9 @@ class Invoice extends CI_Controller {
                 $this->email->attach($output_file_excel, 'attachment');
                 //attach mail invoice
                 $this->email->attach($output_file_dir . $invoice_id . ".xlsx", 'attachment');
-
+                $message = "Dear Partner,"."<br/>.Please find attached CASH invoice. Please do <strong>Reply</strong> All for raising any query or concern regarding the invoice.";
+                $message .= "<br/>Thanks,<br/>247around Team";
+                $this->email->message($message);
                 $this->email->subject($subject);
                 $mail_ret = $this->email->send();
 
@@ -1073,7 +1075,7 @@ class Invoice extends CI_Controller {
                 
                  $tds = ($total_inst_charge + $total_st_charge) *.05;
                  $tds_tax_rate = "5%";
-                 $tds_per_rate = 0;
+                 $tds_per_rate = 5;
                  
             } else {
                 switch($invoices[0]['company_type']){
@@ -1233,7 +1235,9 @@ class Invoice extends CI_Controller {
                 $this->email->subject($subject);
                 $this->email->attach($output_file_excel, 'attachment');
                 $this->email->attach($output_file_dir . $output_file . ".xlsx", 'attachment');
-                
+                $message = "Dear Partner,"."<br/>.Please find attached FOC invoice. Please do <strong>Reply</strong> All for raising any query or concern regarding the invoice.";
+                $message .= "<br/>Thanks,<br/>247around Team";
+                $this->email->message($message);
                 $mail_ret = $this->email->send();
                
                 if ($mail_ret) {
@@ -2902,7 +2906,7 @@ class Invoice extends CI_Controller {
             foreach ($data as $service_center_id => $amount) {
                 $sc_details = $this->vendor_model->viewvendor($service_center_id)[0];
                 $sc_details['final_amoont'] = round($amount, 0);
-                $sc_details['payment_date'] = date("d-m-Y");
+                $sc_details['payment_date'] = date("d-M-Y");
                 $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc_details['name']);
                 ;
 
