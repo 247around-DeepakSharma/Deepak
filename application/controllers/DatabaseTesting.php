@@ -448,6 +448,30 @@ class DatabaseTesting extends CI_Controller {
             $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__); 
         }
     }
+    /**
+     * @esc: This is used to send requested log file
+     * @param String $file_name
+     */
+    function get_log_file($file_name){
+        $attachment = FCPATH."/application/logs/".$file_name.".php";
+        if(file_exists($attachment)){
+            $from = "booking@247around.com";
+            $to= "abhaya@247around.com";
+            $bcc= "";
+            $cc = "belal@247around.com,anuj@247around.com";
+            $subject = "Log file ". $file_name.".php";
+            $message = "Find Attachment";
+        
+            $is_mail =$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment); 
+            if($is_mail){
+                echo "Mail Sent....". $file_name.".php";
+            } else {
+                echo "Mail Not Sent.....".$file_name.".php";
+            }
+        } else {
+            echo "File Not Found";
+        }
+    }
     
 
 }
