@@ -1841,12 +1841,11 @@ class vendor extends CI_Controller {
     function engineer_form_validation(){
 
         $this->form_validation->set_rules('name', 'Name', 'required|xss_clean');
-        $this->form_validation->set_rules('phone', 'Mobile Number', 'trim|exact_length[10]|numeric|required|xss_clean');
-        $this->form_validation->set_rules('alternate_phone', 'Alternate Mobile Number', 'trim|exact_length[10]|numeric|xss_clean');
+        $this->form_validation->set_rules('phone', 'Mobile Number', 'trim|numeric|required|xss_clean');
+        $this->form_validation->set_rules('alternate_phone', 'Alternate Mobile Number', 'trim|numeric|xss_clean');
         $this->form_validation->set_rules('identity_id_number', 'ID Number', 'xss_clean');
         $this->form_validation->set_rules('identity_proof', 'Identity Proof', 'xss_clean');
         $this->form_validation->set_rules('bank_account_no', 'Bank Account No', 'numeric|xss_clean');
-//        $this->form_validation->set_rules('address', 'Address', 'xss_clean');
 	$this->form_validation->set_rules('service_id', 'Appliance ', 'xss_clean');
         $this->form_validation->set_rules('bank_name', 'Bank Name', 'trim|xss_clean');
         $this->form_validation->set_rules('bank_ifsc_code', 'IFSC Code', 'trim|xss_clean');
