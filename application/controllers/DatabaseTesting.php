@@ -417,7 +417,7 @@ class DatabaseTesting extends CI_Controller {
         $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
         $out="";
         $return ="";
-        exec("rm -rf " . escapeshellarg(TMP_FOLDER . date('Y-m-d') . ".txt", $out, $return));
+        exec("rm -rf " . escapeshellarg(TMP_FOLDER . date('Y-m-d') . ".txt"), $out, $return);
         // Return will return non-zero upon an error
 
         if (!$return) {
