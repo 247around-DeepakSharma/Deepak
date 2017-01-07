@@ -319,11 +319,13 @@
                 name: "required",
                 phone: {
                         required: true,
-                        minlength: 10
+                        minlength: 10,
+                        number: true
                     },
                 alternate_phone:{
 
-                    minlength: 10
+                    minlength: 10,
+                    number: true
                     },
                 service_center_id:"required",
                 bank_ifsc_code: {
@@ -348,7 +350,7 @@
                 },
                 messages: {
                 name: "Please Enter Name",
-                phone: "Please Enter Mobile Number",
+                phone: "Please Enter valid Mobile Number",
                 service_center_id: "Please Select Service Center",
                 bank_name: "Please Enter Bank Name",
                 bank_ifsc_code:"Please Enter Correct IFSC Code",
