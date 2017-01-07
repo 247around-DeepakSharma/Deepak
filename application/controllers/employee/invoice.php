@@ -451,7 +451,7 @@ class Invoice extends CI_Controller {
             }
 
             $excel_data['invoice_id'] = $invoice_id;
-            $excel_data['today'] = date("jS M, Y");
+            $excel_data['today'] = date("jS M, Y", strtotime($end_date));
             $excel_data['company_name'] = $data[0]['company_name'];
             $excel_data['company_address'] = $data[0]['company_address'];
             $excel_data['total_installation_charge'] = $total_installation_charge;
@@ -1063,14 +1063,17 @@ class Invoice extends CI_Controller {
             $t_total = $total_inst_charge + $total_stand_charge + $total_st_charge + $total_vat_charge;
             $tds = 0;
             $tds_tax_rate = 0;
+            $tds_per_rate = 0;
             if(empty($invoices[0]['pan_no'])){
                $tds = ($total_inst_charge + $total_st_charge)*.20;
                $tds_tax_rate = "20%";
+               $tds_per_rate = 20;
                 
             } else if(empty ($invoices[0]['contract_file'])){
                 
                  $tds = ($total_inst_charge + $total_st_charge) *.05;
                  $tds_tax_rate = "5%";
+                 $tds_per_rate = 0;
                  
             } else {
                 switch($invoices[0]['company_type']){
@@ -1078,12 +1081,14 @@ class Invoice extends CI_Controller {
                     case "Individual":
                         $tds = ($total_inst_charge + $total_st_charge) *.01;
                         $tds_tax_rate = "1%";
+                        $tds_per_rate = 1;
                         break;
                     
                     case "Partnership Firm":
                     case "Company (Pvt Ltd)":
                         $tds = ($total_inst_charge + $total_st_charge) *.02;
                         $tds_tax_rate = "2%";
+                        $tds_per_rate = 2;
                         break;
                 }
             }
@@ -1303,7 +1308,7 @@ class Invoice extends CI_Controller {
                     'amount_collected_paid' => (0 - $excel_data['t_vp_w_tds']),
                     //Mail has not sent
                     'mail_sent' => $mail_ret,
-                    'tds_rate' => $tds_tax_rate,
+                    'tds_rate' => $tds_per_rate,
                     //SMS has been sent or not
                     'sms_sent' => 1,
                     'upcountry_booking' => $total_upcountry_booking,
@@ -2658,8 +2663,9 @@ class Invoice extends CI_Controller {
 
                     $tds = $this->check_tds_sc($entity_details[0], $data['total_service_charge'] + $data['service_tax']);
                     $data['around_royalty'] = 0;
-                    $data['amount_collected_paid'] = -($data['total_amount_collected'] - $tds);
-                    $data['tds_amount'] = $tds;
+                    $data['amount_collected_paid'] = -($data['total_amount_collected'] - $tds['tds']);
+                    $data['tds_amount'] = $tds['tds'];
+                    $data['tds_rate'] = $tds['tds_rate'];
 
                     if (empty($invoice_id)) {
                         log_message('info', __FUNCTION__ . " Invoice Id Empty");
@@ -2777,14 +2783,17 @@ class Invoice extends CI_Controller {
     function check_tds_sc($sc_details, $total_sc_details){
         log_message('info', __FUNCTION__ . " Entering....");
         $tds = 0;
+        $tds_per_rate = 0;
         if(empty($sc_details['pan_no'])){
                $tds = ($total_sc_details)*.20;
                $tds_tax_rate = "20%";
+               $tds_per_rate = 20;
                 
             } else if(empty ($sc_details['contract_file'])){
                 
                  $tds = ($total_sc_details) *.05;
                  $tds_tax_rate = "5%";
+                 $tds_per_rate = 5;
                  
             } else {
                 switch($sc_details['company_type']){
@@ -2792,17 +2801,21 @@ class Invoice extends CI_Controller {
                     case "Individual":
                         $tds = ($total_sc_details) *.01;
                         $tds_tax_rate = "1%";
+                        $tds_per_rate =1;
                         break;
                     
                     case "Partnership Firm":
                     case "Company (Pvt Ltd)":
                         $tds = ($total_sc_details) *.02;
                         $tds_tax_rate = "2%";
+                        $tds_per_rate = 2;
                         break;
             }
         }
+        $data['tds'] = $tds;
+        $data['tds_rate'] = $tds_per_rate;
         log_message('info', __FUNCTION__ . " Exit....");
-        return $tds;
+        return $data;
     }
     /**
      * @desc: Generate Invoice ID
