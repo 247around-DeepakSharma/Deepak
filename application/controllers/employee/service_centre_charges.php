@@ -34,6 +34,7 @@ class service_centre_charges extends CI_Controller {
 
 	$this->load->model('user_model');
 	$this->load->model('booking_model');
+        $this->load->model('partner_model');
 	$this->load->model('service_centre_charges_model');
 
 	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
@@ -360,4 +361,77 @@ class service_centre_charges extends CI_Controller {
 
     	echo "success";
     }
-}
+    
+    /**
+     *  @desc  : This function is used to show the partner services price
+     *  @param : void
+     *  @return : void
+     */
+    
+    function show_partner_service_price(){
+        
+        $data['partners'] = $this->partner_model->get_all_partner_source();
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/show_partner_services_price' , $data);
+    }
+    
+     /**
+     *  @desc  : This function is used to show the partner services price based on dropdown selection
+     *           through ajax call
+     *  @param : void
+     *  @return : array()
+     */
+    
+   
+    function show_partner_price(){
+        $data['price_mapping_id'] = $this->input->post('price_mapping_id');
+        $data['service_id'] = $this->input->post('service_id');
+        $data['service_category'] = $this->input->post('service_category');
+        $partner['price_data'] = $this->service_centre_charges_model->get_partner_price_data($data);
+        $this->load->view('employee/show_partner_services_price', $partner);
+        
+
+    }
+    
+     /**
+     *  @desc  : This function is used to populate the dropdown 
+     *           through ajax call
+     *  @param : void
+     *  @return : array()
+     */
+    
+    
+    function get_partner_data(){
+        if(isset($_POST['partner'])){
+            $price_mapping_id = $this->input->post('partner');
+            $services = $this->service_centre_charges_model->get_appliance_from_partner($price_mapping_id);
+
+            $option = '<option selected disabled>Select Appliance</option>';
+
+            foreach($services as $value)
+            {
+                $option .= "<option value='" . $value['id'] . "'";
+                $option .=" > ";
+                $option .= $value['services'] . "</option>";
+            }
+
+            echo $option;
+        }
+        
+        if(isset($_POST['service_id'])){
+            $service_id = $this->input->post('service_id');
+            $service_category = $this->service_centre_charges_model->get_service_category_from_service_id($service_id);
+
+            $option = '<option selected disabled>Select Service Category</option>';
+
+            foreach($service_category as $value)
+            {
+                $option .= "<option value='" . $value['service_category'] . "'";
+                $option .=" > ";
+                $option .= $value['service_category'] . "</option>";
+            }
+
+            echo $option;
+        }
+    }
+}    
