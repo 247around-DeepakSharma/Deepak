@@ -407,14 +407,11 @@
     
     $('document').ready(function(){
         var booking_id = '<?php echo base_url()?>employee/booking/get_booking_life_cycle/<?php echo $booking_history[0]['booking_id']?>';
-        console.log(booking_id);
             $.ajax({
                 type: 'POST',
                 url: booking_id,
                 success: function(response) {
                     $('#booking_history').html(response);
-                      console.log(response);
-
                 }
             });
     });
