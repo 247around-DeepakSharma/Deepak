@@ -133,7 +133,7 @@ class Partner_model extends CI_Model {
     }
 
     function get_all_partner_source($flag="", $source= ""){
-      $this->db->select("partner_id,source,code");
+      $this->db->select("partner_id,source,code,price_mapping_id");
         $this->db->order_by('source','ASC');
         if($flag ==""){
         $this->db->where('partner_id !=', 'NULL');

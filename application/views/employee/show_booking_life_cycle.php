@@ -1,8 +1,8 @@
-<script type="text/javascript" src="<?php echo base_url();?>js/jquery-1.3.2.min.js"></script>
+<!--<script type="text/javascript" src="<?php echo base_url();?>js/jquery-1.3.2.min.js"></script>-->
 <div  id="page-wrapper">
     <div class="row">
 
-        <div class="panel panel-info clear">
+<!--        <div class="panel panel-info clear">
             <div class="panel-heading"><center><strong>Booking History</strong></center></div>
         </div>
         <div>
@@ -43,7 +43,9 @@
                 </div>
 
             </div>
-        </div>
+        </div>-->
+
+        <h1 style='font-size:24px;'>Booking History</h1>
 
         <table  class="table table-striped table-bordered">
           <tr>

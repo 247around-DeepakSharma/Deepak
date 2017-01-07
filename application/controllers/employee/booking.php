@@ -1772,7 +1772,7 @@ class Booking extends CI_Controller {
         $data['booking_details'] = $this->booking_model->getbooking_history($booking_id);
         $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
        
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        //$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 
         $this->load->view('employee/show_booking_life_cycle', $data);
 
