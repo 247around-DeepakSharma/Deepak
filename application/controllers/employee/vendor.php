@@ -83,10 +83,12 @@ class vendor extends CI_Controller {
                     move_uploaded_file($tmpFile, TMP_FOLDER.$pan_file);
 
                     //Upload files to AWS
-                    $bucket = 'bookings-collateral';
+                    $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "vendor-partner-docs/" . $pan_file;
                     $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['pan_file'] = $pan_file;
+                    
+                    $attachment_pan = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$pan_file;
                     
                     //Logging success for file uppload
                     //log_message('info',__CLASS__.' PAN FILE is being uploaded sucessfully.');
@@ -117,10 +119,12 @@ class vendor extends CI_Controller {
                     move_uploaded_file($tmpFile, TMP_FOLDER.$cst_file);
 
                     //Upload files to AWS
-                    $bucket = 'bookings-collateral';
+                    $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "vendor-partner-docs/" . $cst_file;
                     $this->s3->putObjectFile(TMP_FOLDER.$cst_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['cst_file'] = $cst_file;
+                    
+                    $attachment_cst = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$cst_file;
                     
                     //Logging success for file uppload
                     log_message('info',__CLASS__.' CST FILE is being uploaded sucessfully.');
@@ -153,10 +157,12 @@ class vendor extends CI_Controller {
                     move_uploaded_file($tmpFile, TMP_FOLDER.$tin_file);
 
                     //Upload files to AWS
-                    $bucket = 'bookings-collateral';
+                    $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "vendor-partner-docs/" . $tin_file;
                     $this->s3->putObjectFile(TMP_FOLDER.$tin_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['tin_file'] = $tin_file;
+                    
+                    $attachment_tin = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$tin_file;
                     
                     //Logging success for file uppload
                     log_message('info',__CLASS__.' TIN FILE is being uploaded sucessfully.');
@@ -186,10 +192,12 @@ class vendor extends CI_Controller {
                     move_uploaded_file($tmpFile, TMP_FOLDER.$service_tax_file);
 
                     //Upload files to AWS
-                    $bucket = 'bookings-collateral';
+                    $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "vendor-partner-docs/" . $service_tax_file;
                     $this->s3->putObjectFile(TMP_FOLDER.$service_tax_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['service_tax_file'] = $service_tax_file;
+                    
+                    $attachment_service_tax = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$service_tax_file;
                     
                     //Logging success for file uppload
                     log_message('info',__CLASS__.' Serivce Tax FILE is being uploaded sucessfully.');
@@ -212,10 +220,12 @@ class vendor extends CI_Controller {
                     move_uploaded_file($tmpFile, TMP_FOLDER.$address_proof_file);
                     
                     //Upload files to AWS
-                    $bucket = 'bookings-collateral';
+                    $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "vendor-partner-docs/".$address_proof_file;
                     $this->s3->putObjectFile(TMP_FOLDER.$address_proof_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['address_proof_file'] = $address_proof_file;
+                    
+                    $attachment_address_proof = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$address_proof_file;
                     
                     //Logging success for file uppload
                     log_message('info',__CLASS__.' ADDRESS PROOF FILE is being uploaded sucessfully.');
@@ -233,6 +243,8 @@ class vendor extends CI_Controller {
                     $this->s3->putObjectFile(TMP_FOLDER.$cancelled_cheque_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['cancelled_cheque_file'] = $cancelled_cheque_file;
                     
+                    $attachment_cancelled_cheque = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$cancelled_cheque_file;
+                    
                     //Logging success for file uppload
                     log_message('info',__CLASS__.' CANCELLED CHEQUE FILE is being uploaded sucessfully.');
                 }
@@ -244,10 +256,12 @@ class vendor extends CI_Controller {
                     move_uploaded_file($tmpFile, TMP_FOLDER.$id_proof_1_file);
                     
                     //Upload files to AWS
-                    $bucket = 'bookings-collateral';
+                    $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "vendor-partner-docs/".$id_proof_1_file;
                     $this->s3->putObjectFile(TMP_FOLDER.$id_proof_1_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['id_proof_1_file'] = $id_proof_1_file;
+                    
+                    $attachment_id_proof_1 = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$id_proof_1_file;
                     
                     //Logging success for file uppload
                     log_message('info',__CLASS__.' ID PROOF 1 FILE is being uploaded sucessfully.');
@@ -260,10 +274,12 @@ class vendor extends CI_Controller {
                     move_uploaded_file($tmpFile, TMP_FOLDER.$id_proof_2_file);
                     
                     //Upload files to AWS
-                    $bucket = 'bookings-collateral';
+                    $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "vendor-partner-docs/".$id_proof_2_file;
                     $this->s3->putObjectFile(TMP_FOLDER.$id_proof_2_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['id_proof_2_file'] = $id_proof_2_file;
+                    
+                    $attachment_id_proof_2 = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$id_proof_2_file;
                     
                     //Logging success for file uppload
                     log_message('info',__CLASS__.' ID PROOF 2 FILE is being uploaded sucessfully.');
@@ -276,10 +292,12 @@ class vendor extends CI_Controller {
                     move_uploaded_file($tmpFile, TMP_FOLDER.$contract_file);
                     
                     //Upload files to AWS
-                    $bucket = 'bookings-collateral';
+                    $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "vendor-partner-docs/".$contract_file;
                     $this->s3->putObjectFile(TMP_FOLDER.$contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['contract_file'] = $contract_file;
+                    
+                    $attachment_contract = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$contract_file;
                     
                     //Logging success for file uppload
                     log_message('info',__CLASS__.' CONTRACT FILE is being uploaded sucessfully.');
@@ -343,6 +361,61 @@ class vendor extends CI_Controller {
                 
                 //if vendor exists, details are edited
                 $this->vendor_model->edit_vendor($_POST, $_POST['id']);
+                //Log Message
+                log_message('info', __FUNCTION__.' SF has been updated :'.print_r($_POST,TRUE));
+                
+                //Sending Mail for Updated details
+                    $html = "<p>Following SF has been Updated :</p><ul>";
+                    foreach($this->input->post() as $key=>$value){
+                        $html .= "<li><b>".$key.'</b> =>';
+                        $html .= " ".$value.'</li>';
+                    }
+                    $html .="</ul>";
+                    $to = "anuj@247around.com";
+                    
+                    //Cleaning Email Variables
+                        $this->email->clear(TRUE);
+
+                        //Send report via email
+                        $this->email->from('booking@247around.com', '247around Team');
+                        $this->email->to($to);
+
+                        $this->email->subject("Vendor Updated : " . $_POST['id']);
+                        $this->email->message($html);
+                        
+                        if(isset($attachment_pan)){
+                        $this->email->attach($attachment_pan, 'attachment');
+                        }
+                        if(isset($attachment_cst)){
+                            $this->email->attach($attachment_cst, 'attachment');
+                        }
+                        if(isset($attachment_tin)){
+                            $this->email->attach($attachment_tin, 'attachment');
+                        }
+                        if(isset($attachment_service_tax)){
+                            $this->email->attach($attachment_service_tax, 'attachment');
+                        }
+                        if(isset($attachment_address_proof)){
+                            $this->email->attach($attachment_address_proof, 'attachment');
+                        }
+                        if(isset($attachment_cancelled_cheque)){
+                            $this->email->attach($attachment_cancelled_cheque, 'attachment');
+                        }
+                        if(isset($attachment_id_proof_1)){
+                            $this->email->attach($attachment_id_proof_1, 'attachment');
+                        }
+                        if(isset($attachment_id_proof_2)){
+                            $this->email->attach($attachment_id_proof_2, 'attachment');
+                        }
+                        if(isset($attachment_contract)){
+                            $this->email->attach($attachment_contract, 'attachment');
+                        }
+
+                        if ($this->email->send()) {
+                            log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
+                        } else {
+                            log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
+                        }
 
                 //Updating details of SF in employee_relation table
                 $check_update_sf_rm_relation = $this->vendor_model->update_rm_to_sf_relation($rm, $_POST['id']);
@@ -377,6 +450,62 @@ class vendor extends CI_Controller {
 
                 //if vendor do not exists, vendor is added
                 $sc_id = $this->vendor_model->add_vendor($_POST);
+                
+                //Logging
+                log_message('info', __FUNCTION__.' SF has been Added :'.print_r($_POST,TRUE));
+                
+                //Sending Mail for Added details
+                    $html = "<p>Following SF has been Added :</p><ul>";
+                    foreach($this->input->post() as $key=>$value){
+                        $html .= "<li><b>".$key.'</b> =>';
+                        $html .= " ".$value.'</li>';
+                    }
+                    $html .="</ul>";
+                    $to = "anuj@247around.com";
+                    
+                    //Cleaning Email Variables
+                        $this->email->clear(TRUE);
+
+                        //Send report via email
+                        $this->email->from('booking@247around.com', '247around Team');
+                        $this->email->to($to);
+
+                        $this->email->subject("Vendor Added : " . $sc_id);
+                        $this->email->message($html);
+                        
+                        if(isset($attachment_pan)){
+                        $this->email->attach($attachment_pan, 'attachment');
+                        }
+                        if(isset($attachment_cst)){
+                            $this->email->attach($attachment_cst, 'attachment');
+                        }
+                        if(isset($attachment_tin)){
+                            $this->email->attach($attachment_tin, 'attachment');
+                        }
+                        if(isset($attachment_service_tax)){
+                            $this->email->attach($attachment_service_tax, 'attachment');
+                        }
+                        if(isset($attachment_address_proof)){
+                            $this->email->attach($attachment_address_proof, 'attachment');
+                        }
+                        if(isset($attachment_cancelled_cheque)){
+                            $this->email->attach($attachment_cancelled_cheque, 'attachment');
+                        }
+                        if(isset($attachment_id_proof_1)){
+                            $this->email->attach($attachment_id_proof_1, 'attachment');
+                        }
+                        if(isset($attachment_id_proof_2)){
+                            $this->email->attach($attachment_id_proof_2, 'attachment');
+                        }
+                        if(isset($attachment_contract)){
+                            $this->email->attach($attachment_contract, 'attachment');
+                        }
+
+                        if ($this->email->send()) {
+                            log_message('info', __METHOD__ . ": Mail sent successfully to " . $to);
+                        } else {
+                            log_message('info', __METHOD__ . ": Mail could not be sent to " . $to);
+                        }
 
                 //Adding values in admin groups present in employee_relation table
                 $check_admin_sf_relation = $this->vendor_model->add_sf_to_admin_relation($sc_id);
@@ -801,7 +930,8 @@ class vendor extends CI_Controller {
 //                }
 //            }
             //Assign service centre and engineer
-            $this->booking_model->update_booking($booking_id, array('assigned_vendor_id'=>$service_center_id));
+            $this->booking_model->update_booking($booking_id, array('assigned_vendor_id'=>$service_center_id, 
+                'assigned_engineer_id' =>DEFAULT_ENGINEER));
             //$this->booking_model->assign_booking($booking_id, $service_center_id);
 
            // $pre_service_center_data['current_status'] = "Cancelled";

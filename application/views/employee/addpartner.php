@@ -10,7 +10,13 @@
   <div class="row">
       <div class="clear">
        <div class="panel panel-info">
-           <div class="panel-heading"><b><?php if(isset($query[0]['id'])){echo "Edit Partner";}else{echo "Add Partner";}?></b></div>
+           <div class="panel-heading"><b><?php if(isset($query[0]['id'])){echo "EDIT PARTNER";}else{echo "ADD PARTNER";}?></b>
+               <div class="pull-right" style="margin-top:-7px;">
+                   <?php if(isset($query[0]['id'])){?>
+                   <a href="<?php echo base_url()?>employee/partner/get_partner_login_details_form/<?php echo $query[0]['id']?>" class="btn btn-primary"><b>MANAGE LOGIN</b></a>
+                   <?php }?>
+               </div>
+           </div>
       
            <br>
       <?php if($this->session->flashdata('success')){
@@ -73,6 +79,23 @@
             <input  type="text" class="form-control" value = "<?php if (isset($query[0]['landmark'])){echo $query[0]['landmark'];}?>" name="landmark" >
          </div>
         </div>
+            
+            <div class="form-group">
+                <label  for="upcountry_rate" class="col-md-4">Up-Country </label>
+                <div class="col-md-1">
+                    <input type="checkbox" name="upcountry" id="upcountry" style="zoom:1.5"/>
+                </div>
+                <div class="col-md-3">
+                    <input  type="number" class="form-control" value = "<?php
+                    if (isset($query[0]['upcountry_rate'])) {
+                        echo $query[0]['upcountry_rate'];
+                    }
+                    ?>" name="upcountry_rate" id="upcountry_rate" disabled="" placeholder="Enter KM's">
+                </div>
+                <div class="col-md-4">
+                    <span><i>[Tick checkbox to enter Km's]</i></span>
+                </div>
+            </div>
         </div>
    
     <div class="col-md-6">    
@@ -166,7 +189,7 @@
                 }?>
                 <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
                 <?php if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) { ?>
-                    <a href="javascript:void(0)" onclick="remove_image(<?php echo $query[0]['id'] ?>,'<?php echo $query[0]['contract_file'] ?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                    <a href="javascript:void(0)" onclick="remove_image(<?php echo $query[0]['id'] ?>,'<?php echo $query[0]['contract_file'] ?>','contract_file')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                 <?php } ?>
             </div>
           </div>
@@ -240,6 +263,14 @@
               <?php echo form_error('owner_email'); ?>
             </div>
           </div>
+            
+            <div class="form-group <?php if( form_error('owner_alternate_email') ) { echo 'has-error';} ?>">
+            <label for="owner_alternate_email" class="col-md-4">Owner Alternate Email</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control"  name="owner_alternate_email" value = "<?php if (isset($query[0]['owner_alternate_email'])){echo $query[0]['owner_alternate_email'];}?>" >
+              <?php echo form_error('owner_alternate_email'); ?>
+            </div>
+          </div>
         </div>
         <div class="col-md-6">    
 
@@ -266,17 +297,17 @@
                 <div class="panel-heading"><b>Summary Email</b></div>
             </div>
             
-          <div class="col-md-4 form-group <?php if( form_error('summary_email_to') ) { echo 'has-error';} ?>">
+          <div class="col-md-6 form-group <?php if( form_error('summary_email_to') ) { echo 'has-error';} ?>">
             <label  for="summary_email_to" class="col-md-4">To</label>
-            <div class="col-md-8">
-              <input style="width:200px;" type="text" class="form-control"  name="summary_email_to" value = "<?php if (isset($query[0]['summary_email_to'])){echo $query[0]['summary_email_to'];}?>">
+            <div class="col-md-6">
+              <input type="text" class="form-control"  name="summary_email_to" value = "<?php if (isset($query[0]['summary_email_to'])){echo $query[0]['summary_email_to'];}?>">
               <?php echo form_error('summary_email_to'); ?>
             </div>
           </div>
 
-          <div class="col-md-4 form-group <?php if( form_error('summary_email_cc') ) { echo 'has-error';} ?>">
+          <div class="col-md-6 form-group <?php if( form_error('summary_email_cc') ) { echo 'has-error';} ?>">
             <label for="summary_email_cc" class="col-md-4">cc</label>
-            <div class="col-md-8">
+            <div class="col-md-6">
               <input type="text" class="form-control"  name="summary_email_cc" value = "<?php if (isset($query[0]['summary_email_cc'])){echo $query[0]['summary_email_cc'];}?>">
               <?php echo form_error('summary_email_cc'); ?>
             </div>
@@ -289,17 +320,17 @@
                 <div class="panel-heading"><b>Invoice Email</b></div>
             </div>
 
-          <div class="col-md-4 form-group <?php if( form_error('invoice_email_to') ) { echo 'has-error';} ?>">
+          <div class="col-md-6 form-group <?php if( form_error('invoice_email_to') ) { echo 'has-error';} ?>">
             <label for="invoice_email_to" class="col-md-4">To</label>
-            <div class="col-md-8">
+            <div class="col-md-6">
               <input type="text" class="form-control"  name="invoice_email_to" value = "<?php if (isset($query[0]['invoice_email_to'])){echo $query[0]['invoice_email_to'];}?>">
               <?php echo form_error('invoice_email_to'); ?>
             </div>
           </div>
 
-          <div class="col-md-4 form-group <?php if( form_error('invoice_email_cc') ) { echo 'has-error';} ?>">
+          <div class="col-md-6 form-group <?php if( form_error('invoice_email_cc') ) { echo 'has-error';} ?>">
             <label for="invoice_email_cc" class="col-md-4">cc</label>
-            <div class="col-md-8">
+            <div class="col-md-6">
               <input type="text" class="form-control"  name="invoice_email_cc" value = "<?php if (isset($query[0]['invoice_email_cc'])){echo $query[0]['invoice_email_cc'];}?>">
               <?php echo form_error('invoice_email_cc'); ?>
             </div>
@@ -311,25 +342,90 @@
                 <div class="panel-heading"><b>Registration Details</b></div>
             </div>
 
-          <div class="col-md-4 form-group <?php if( form_error('username') ) { echo 'has-error';} ?>">
-            <label for="username" class="col-md-4">User Name *</label>
-            <div class="col-md-8">
-                <input type="text" class="form-control"  id="username" name="username" placeholder="Enter User Name" value = "<?php if (isset($results['login_details'][0]['user_name'])){echo $results['login_details'][0]['user_name'];}?>">
-              <?php echo form_error('username'); ?>
+          <div class="col-md-6 form-group <?php if( form_error('agreement_start_date') ) { echo 'has-error';} ?>">
+            <label for="agreement_start_date" class="col-md-4">Partnership Start Date</label>
+            <div class="col-md-6">
+              <div class="input-group input-append date" >
+                  <?php 
+                    if(isset($query[0]['agreement_start_date'])){
+                        if($query[0]['agreement_start_date'] != "0000-00-00"){
+                            $aggrement_date = $query[0]['agreement_start_date'];
+                        }else{
+                            $aggrement_date =  date("Y-m-d",strtotime($query[0]['create_date']));
+                        }
+                        
+                    }else{
+                            $aggrement_date = date("Y-m-d");
+                    }
+                  ?>
+                  <input type="text" class="form-control"  name="agreement_start_date" id="agreement_start_date" value = "<?php echo $aggrement_date;?>">
+              <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+              </div>
+              <?php echo form_error('agreement_start_date'); ?>
             </div>
           </div>
 
-          <div class="col-md-4 form-group <?php if( form_error('password') ) { echo 'has-error';} ?>">
-            <label for="password" class="col-md-4">Password</label>
-            <div class="col-md-8">
-                <input type="password" class="form-control"  name="password" placeholder="Enter Password" value = "<?php if (isset($results['login_details'][0]['clear_text'])){echo $results['login_details'][0]['clear_text'];}?>">
-              <?php echo form_error('password'); ?>
+          <div class="col-md-6 form-group <?php if( form_error('agreement_end_date') ) { echo 'has-error';} ?>">
+            <label for="agreement_end_date" class="col-md-4">Partnership End Date</label>
+            <div class="col-md-6">
+              <div class="input-group input-append date" >
+              <input type="text" class="form-control"  name="agreement_end_date" id="agreement_end_date" value = "<?php if (isset($query[0]['agreement_end_date'])){echo $query[0]['agreement_end_date'];}?>">
+              <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+              </div>
+              <?php echo form_error('agreement_end_date'); ?>
             </div>
           </div>
-         
             
-        </div>
-        
+          </div>
+               
+         <div class="col-md-12">
+             
+             <div class="col-md-12 form-group <?php if( form_error('pan') ) { echo 'has-error';} ?>">
+            <label for="pan" class="col-md-3">PAN No.</label>
+            <div class="col-md-4" style="width:25%">
+                <input type="text" class="form-control"  name="pan" value = "<?php if (isset($query[0]['pan'])){echo $query[0]['pan'];}?>" placeholder="PAN Number">
+            </div>
+            <div class="col-md-4">
+                <input type="file" class="form-control"  name="pan_file">
+            </div>
+            <div class="col-md-1">
+                <?php
+                $src = base_url() . 'images/no_image.png';
+                if (isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])) {
+                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['pan_file'];
+                }?>
+                <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                <?php if (isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])) { ?>
+                    <a href="javascript:void(0)" onclick="remove_image(<?php echo $query[0]['id'] ?>,'<?php echo $query[0]['pan_file'] ?>','pan_file')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                <?php } ?>
+            </div>
+            </div>
+         </div>
+               
+           <div class="col-md-12"> 
+             <div class="col-md-12 form-group <?php if( form_error('registration_no') ) { echo 'has-error';} ?>">
+            <label for="registration_no" class="col-md-3">Registration No.</label>
+            <div class="col-md-4" style="width:25%">
+                <input type="text" class="form-control"  name="registration_no" value = "<?php if (isset($query[0]['registration_no'])){echo $query[0]['registration_no'];}?>" placeholder="Company Registration No">
+            </div>
+            <div class="col-md-4">
+                <input type="file" class="form-control"  name="registration_file">
+            </div>
+            <div class="col-md-1">
+                <?php
+                $src = base_url() . 'images/no_image.png';
+                if (isset($query[0]['registration_file']) && !empty($query[0]['registration_file'])) {
+                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['registration_file'];
+                }?>
+                <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                <?php if (isset($query[0]['registration_file']) && !empty($query[0]['registration_file'])) { ?>
+                    <a href="javascript:void(0)" onclick="remove_image(<?php echo $query[0]['id'] ?>,'<?php echo $query[0]['registration_file'] ?>','registration_file')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                <?php } ?>
+            </div>
+            </div>
+             
+         </div>
+               
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading"><b>Partner Operation Region</b></div>
@@ -386,6 +482,24 @@
       placeholder: "Select Pincode"
   });
   
+  $("#agreement_start_date").datepicker({dateFormat: 'yy-mm-dd'});
+  $("#agreement_end_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
+
+  
+  //Check for upcountry
+   $("#upcountry").change(function(){
+      if(this.checked){
+          $("#upcountry_rate").attr('required', true);
+          $("#upcountry_rate").attr('disabled', false);
+      }else{
+          $("#upcountry_rate").attr('required', false);
+          $("#upcountry_rate").attr('disabled', true);
+          $("#upcountry_rate").val('');
+      }
+      
+   });
+   
+  
   function getDistrict(){
      var state = $("#state").val();
      var district = $(".district").val();
@@ -428,13 +542,13 @@
     });
 });
   
-  function remove_image(vendor_id,file_name){
+  function remove_image(vendor_id,file_name,type){
             var c  = confirm('Do you want to permanently remove photo?');
             if(c){
              $.ajax({
                         type: 'POST',
-                        url: '<?php echo base_url(); ?>employee/partner/remove_contract_image',
-                        data: {id: vendor_id,file_name:file_name},
+                        url: '<?php echo base_url(); ?>employee/partner/remove_uploaded_image',
+                        data: {id: vendor_id,file_name:file_name,type:type},
                         success: function (data) {
                              location.reload();
                             }
@@ -464,22 +578,28 @@
                     username: "required",
                     phone_1: {
                         required: true,
-                        rangelength: [10,10]
+                        minlength: 10,
+                        number: true
                     },
                     phone_2: {
-                        rangelength: [10,10]
+                        minlength: 10,
+                        number: true
                     },
                     primary_contact_phone_1: {
-                        rangelength: [10,10]
+                        minlength: 10,
+                        number: true
                     },
                     primary_contact_phone_2: {
-                        rangelength: [10,10]
+                        minlength: 10,
+                        number: true
                     },
                     owner_phone_1: {
-                        rangelength: [10,10]
+                        minlength: 10,
+                        number: true
                     },
                     owner_phone_2: {
-                        rangelength: [10,10]
+                        minlength: 10,
+                        number: true
                     },
                     state: "required",
                     email: {

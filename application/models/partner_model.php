@@ -718,7 +718,7 @@ class Partner_model extends CI_Model {
      * @return: Array
      */
     function get_partner_login_details($partner_id){
-        $this->db->select('user_name,password,clear_text');
+        $this->db->select('id,user_name,password,clear_text');
         $this->db->where('partner_id', $partner_id);
         $query = $this->db->get('partner_login');
         return $query->result_array();

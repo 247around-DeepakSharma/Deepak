@@ -124,9 +124,9 @@
                         </li>
 
 
-                        <li>
-                     <a href="<?php echo base_url();?>partner/invoices_details">Invoice</a>
-                        </li>
+<!--                        <li>
+                     <a href="<?php //echo base_url();?>partner/invoices_details">Invoice</a>
+                        </li>-->
                         <li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Add Booking</a>
 					<ul class="dropdown-menu" role="menu">

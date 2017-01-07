@@ -1270,24 +1270,30 @@
         rm: "required",
         phone_1: {
             required: true,
-            minlength: 10
+            minlength: 10,
+            number: true
         },
         phone_2: {
-            minlength: 10
+            minlength: 10,
+            number: true
         },
         primary_contact_phone_1: {
             required: true,
-            minlength: 10
+            minlength: 10,
+            number: true
         },
         primary_contact_phone_2: {
-            minlength: 10
+            minlength: 10,
+            number: true
         },
         owner_phone_1: {
             required: true,
-            minlength: 10
+            minlength: 10,
+            number: true
         },
         owner_phone_2: {
-            minlength: 10
+            minlength: 10,
+            number: true
         },
         state: "required",
         primary_contact_name: "required",
