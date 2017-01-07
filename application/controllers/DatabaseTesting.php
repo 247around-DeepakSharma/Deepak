@@ -433,12 +433,12 @@ class DatabaseTesting extends CI_Controller {
      * @desc: This is method is used to send Error file 
      */
     function send_error_file(){
-        $attachment = FCPATH."/application/logs/error_" . date('Y-m-d') . ".txt";
+        $attachment = FCPATH."application/logs/error_" . date('Y-m-d') . ".txt";
         if(file_exists($attachment)){
             $from = "booking@247around.com";
-            $to= "abhaya@247around.com";
+            $to= DEVELOPER_EMAIL;
             $bcc= "";
-            $cc = "anuj@247around.com,belal@247around.com";
+            $cc = "";
             $subject = "Error File";
             $message = "Find Attachment";
         
@@ -453,18 +453,24 @@ class DatabaseTesting extends CI_Controller {
      * @param String $file_name
      */
     function get_log_file($file_name){
-        $attachment = FCPATH."/application/logs/".$file_name.".php";
+        $attachment = FCPATH."application/logs/".$file_name.".php";
         if(file_exists($attachment)){
+            $attach_zip = FCPATH."application/logs/".$file_name.'.zip';
+            system('zip '. $attach_zip."  ". $attachment );
+            system("chmod 777 ".$attach_zip);
+            
             $from = "booking@247around.com";
             $to= "abhaya@247around.com";
             $bcc= "";
-            $cc = "belal@247around.com,anuj@247around.com";
+            $cc = "";
             $subject = "Log file ". $file_name.".php";
             $message = "Find Attachment";
-        
-            $is_mail =$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment); 
+            
+            $is_mail =$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message,  $attach_zip); 
             if($is_mail){
+                exec("rm -rf " . escapeshellarg($attach_zip));
                 echo "Mail Sent....". $file_name.".php";
+               
             } else {
                 echo "Mail Not Sent.....".$file_name.".php";
             }

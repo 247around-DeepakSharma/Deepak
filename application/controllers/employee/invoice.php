@@ -451,7 +451,7 @@ class Invoice extends CI_Controller {
             }
 
             $excel_data['invoice_id'] = $invoice_id;
-            $excel_data['today'] = date("jS M, Y");
+            $excel_data['today'] = date("jS M, Y", strtotime($end_date));
             $excel_data['company_name'] = $data[0]['company_name'];
             $excel_data['company_address'] = $data[0]['company_address'];
             $excel_data['total_installation_charge'] = $total_installation_charge;
