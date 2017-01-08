@@ -460,7 +460,7 @@ class DatabaseTesting extends CI_Controller {
             system("chmod 777 ".$attach_zip);
             
             $from = "booking@247around.com";
-            $to= "abhaya@247around.com";
+            $to= DEVELOPER_EMAIL;
             $bcc= "";
             $cc = "";
             $subject = "Log file ". $file_name.".php";
