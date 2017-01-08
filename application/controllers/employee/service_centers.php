@@ -357,10 +357,10 @@ class Service_centers extends CI_Controller {
      * @return: true if details matches else session is distroyed.
      */
     function checkUserSession() {
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center')) {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id'))) {
             return TRUE;
         } else {
-            log_message('info', __FUNCTION__. " Session Expire Service_center ID: ". $this->session->userdata('service_center_id'));
+            log_message('info', __FUNCTION__. " Session Expire for Service Center");
             $this->session->sess_destroy();
             redirect(base_url() . "service_center");
         }

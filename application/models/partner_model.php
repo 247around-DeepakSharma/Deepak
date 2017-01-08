@@ -133,7 +133,7 @@ class Partner_model extends CI_Model {
     }
 
     function get_all_partner_source($flag="", $source= ""){
-      $this->db->select("partner_id,source,code");
+      $this->db->select("partner_id,source,code,price_mapping_id");
         $this->db->order_by('source','ASC');
         if($flag ==""){
         $this->db->where('partner_id !=', 'NULL');
@@ -718,7 +718,7 @@ class Partner_model extends CI_Model {
      * @return: Array
      */
     function get_partner_login_details($partner_id){
-        $this->db->select('user_name,password,clear_text');
+        $this->db->select('id,user_name,password,clear_text');
         $this->db->where('partner_id', $partner_id);
         $query = $this->db->get('partner_login');
         return $query->result_array();
@@ -793,7 +793,23 @@ class Partner_model extends CI_Model {
      * 
      */
     function get_partner_appliance_details($where){
-        $this->db->select('*');
+        $this->db->distinct();
+        $this->db->select('capacity');
+        $this->db->where($where);
+        $query = $this->db->get('partner_appliance_details');
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to get Distinct Partner Model Details for Particular service
+     * @params: Array
+     * @return: Array
+     * 
+     * 
+     */
+    function get_partner_model_details($where){
+        $this->db->distinct();
+        $this->db->select('model');
         $this->db->where($where);
         $query = $this->db->get('partner_appliance_details');
         return $query->result_array();
@@ -873,7 +889,7 @@ class Partner_model extends CI_Model {
         $sql = "Select partner_appliance_details.partner_id from partner_appliance_details, partners"
                 . " where  partner_appliance_details.partner_id = partners.id "
                 . "AND partner_appliance_details.brand = '".$brands."' "
-                . 'AND partner_appliance_details.service_id = '.$service_id." "
+                . 'AND partner_appliance_details.service_id = "'.$service_id.'" '
                 . 'AND partner_appliance_details.active = 1 '
                 . 'AND partners.is_active = 1';
         $query = $this->db->query($sql);

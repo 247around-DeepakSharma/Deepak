@@ -149,6 +149,8 @@ class Booking extends CI_Controller {
             //Array ( ['brand'] => Array ( [0] => id_price ) )
             $pricesWithId = $this->input->post("prices");
             $user['user_email'] = $this->input->post('user_email');
+            $result =array();
+            $result['DEFAULT_TAX_RATE'] = 0;
 
             foreach ($appliance_brand as $key => $value) {
 
@@ -216,12 +218,12 @@ class Booking extends CI_Controller {
                     
                     switch ($booking_id){
                         case INSERT_NEW_BOOKING:
-                            log_message('info', __METHOD__ . " Insert Booking Unit Details: " . print_r($services_details, true));
+                            log_message('info', __METHOD__ . " Insert Booking Unit Details: " );
                             $result = $this->booking_model->insert_data_in_booking_unit_details($services_details, $booking['state']);
                             break;
                         default:
                             
-                            log_message('info', __METHOD__ . " Update Booking Unit Details: " . print_r($services_details, true) . " Previous booking id: " . $booking_id);
+                            log_message('info', __METHOD__ . " Update Booking Unit Details: " . " Previous booking id: " . $booking_id);
                             $result = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state']);
 
                             array_push($price_tags, $result['price_tags']);
@@ -400,7 +402,7 @@ class Booking extends CI_Controller {
 	$booking['state'] = $state['state'];
 	$booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
 	$booking['order_id'] = $this->input->post('order_id');
-	$booking['potential_value'] = $this->input->post('potential_value');
+//	$booking['potential_value'] = $this->input->post('potential_value');
 	$booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
 	$booking['booking_timeslot'] = $this->input->post('booking_timeslot');
 	$booking['update_date'] = date("Y-m-d H:i:s");
@@ -522,7 +524,6 @@ class Booking extends CI_Controller {
         $where_internal_status = array("page" => "FollowUp", "active" => '1');
 	$data['follow_up_internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
-	$this->load->view('employee/addbookingmodel');
 	$this->load->view('employee/addbooking', $data);
     }
 
@@ -1213,7 +1214,6 @@ class Booking extends CI_Controller {
 	}
 
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
-	$this->load->view('employee/addbookingmodel');
 	$this->load->view('employee/update_booking', $booking);
         } else {
             "Booking Id Not Exist";
@@ -1772,7 +1772,7 @@ class Booking extends CI_Controller {
         $data['booking_details'] = $this->booking_model->getbooking_history($booking_id);
         $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
        
-        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        //$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 
         $this->load->view('employee/show_booking_life_cycle', $data);
 
@@ -1791,8 +1791,13 @@ class Booking extends CI_Controller {
             $this->form_validation->set_rules('grand_total_price', 'Total Price', 'required');
             $this->form_validation->set_rules('city', 'City', 'required|xss_clean');
             $this->form_validation->set_rules('booking_date', 'Date', 'required');
+            $this->form_validation->set_rules('appliance_brand', 'Appliance Brand', 'required');
+            $this->form_validation->set_rules('appliance_category', 'Appliance Category', 'required');
+            
+            $this->form_validation->set_rules('partner_paid_basic_charges', 'Please Select Partner Charged', 'required');
             $this->form_validation->set_rules('booking_primary_contact_no', 'Mobile', 'required|trim|xss_clean|regex_match[/^[7-9]{1}[0-9]{9}$/]');
             $this->form_validation->set_rules('booking_timeslot', 'Time Slot', 'required|xss_clean');
+            
             return $this->form_validation->run();
     }  
    

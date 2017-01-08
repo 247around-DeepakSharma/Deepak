@@ -313,13 +313,13 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-group ">
+<!--                            <div class="form-group ">
                                 <label for="type" class="col-md-4">Potential Value</label>
                                 <div class="col-md-6">
 
                                     <input  type="text" class="form-control"  name="potential_value" id="potential_value" value = "<?php echo set_value('potential_value'); ?>" placeholder="Enter potential_value" >
                                 </div>
-                            </div>
+                            </div>-->
                             <div class="form-group ">
                                 <label for="type" class="col-md-4">Remarks</label>
                                 <div class="col-md-6">
@@ -331,8 +331,8 @@
                         </div>
                         <div class="form-group  col-md-12" >
                             <center>
-                                <button style="margin-right: 25px;" type="button" class="btn btn-info btn-md open-AddBookingDialog" data-toggle="modal" data-target="#myModal">Check Details</button>
-                                <input type="submit" id="submitform" class="btn btn-primary disabled" value="Submit Booking">
+<!--                                <button style="margin-right: 25px;" type="button" class="btn btn-info btn-md " data-toggle="modal" data-target="#myModal">Check Details</button>-->
+<input type="submit" id="submitform" class="btn btn-primary " onclick="return addBookingDialog()" value="Submit Booking">
                         </div>
                         </center>
                     </div>
@@ -352,6 +352,7 @@
          tags: true
     });
     $("#partner_source").select2();
+    
 
     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
 </script>
@@ -368,7 +369,7 @@
                var id = this.id || "";
                var match = id.match(regex) || [];
                //console.log(match.length);
-               if (match.length == 3) {
+               if (match.length === 3) {
                    this.id = match[1] + (cloneIndex);
                }
            })

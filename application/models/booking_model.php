@@ -71,7 +71,7 @@ class Booking_model extends CI_Model {
      */
 
     function addunitdetails($booking){
-        log_message ('info', __METHOD__ . " booking unit details data". print_r($booking, true));
+        log_message ('info', __METHOD__);
         $this->db->insert('booking_unit_details', $booking);
         log_message ('info', __METHOD__ . "=> Booking  SQL ". $this->db->last_query());
         return $this->db->insert_id();
@@ -479,7 +479,7 @@ class Booking_model extends CI_Model {
                . "services.id = booking_details.service_id  ";
 
         $query = $this->db->query($sql);
-        log_message('info', __METHOD__ . $this->db->last_query());
+       // log_message('info', __METHOD__ . $this->db->last_query());
 
         return $query->result_array();
         }
@@ -722,7 +722,7 @@ class Booking_model extends CI_Model {
         }
         
         $query = $this->db->get('booking_unit_details');
-        log_message('info', __METHOD__ . " SQL" . $this->db->last_query());
+       // log_message('info', __METHOD__ . " SQL" . $this->db->last_query());
 
         return $query->result_array();
     }
@@ -1071,7 +1071,7 @@ class Booking_model extends CI_Model {
             END, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc $add_limit";
 
         $query = $this->db->query($sql);
-        log_message('info', __METHOD__ . "=> " . $this->db->last_query());
+        //log_message('info', __METHOD__ . "=> " . $this->db->last_query());
 
         if($status == "FollowUp" && ($p_av == PINCODE_ALL_AVAILABLE) && !empty($booking_id) && $start !="All"){
             $temp = $query->result();
@@ -1523,7 +1523,7 @@ class Booking_model extends CI_Model {
         $this->db->where('price_tags', $data[0]['price_tags']);
         $this->db->like('booking_id', preg_replace("/[^0-9]/","",$booking_id));
         $query = $this->db->get('booking_unit_details');
-        log_message('info', __METHOD__ . " Get Unit Details SQl" . $this->db->last_query());
+       // log_message('info', __METHOD__ . " Get Unit Details SQl" . $this->db->last_query());
 
         if ($query->num_rows > 0) {
             //if found, update this entry
@@ -1538,7 +1538,7 @@ class Booking_model extends CI_Model {
             $unit_num = $this->get_unit_details($unit_where, TRUE);
    
             log_message('info', __METHOD__ . " count previous unit: " . count($unit_num));
-            log_message('info', __METHOD__ . " Price tags not found " . print_r($unit_num, true));
+            log_message('info', __METHOD__ . " Price tags not found ");
             if (!empty($unit_num)) {
 
                 if (count($unit_num) > 1) {

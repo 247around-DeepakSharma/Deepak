@@ -1,6 +1,6 @@
 <div id="page-wrapper" >
     <div class="panel panel-info" style="margin-top:20px;">
-        <div class="panel-heading"><center style="font-size:130%;">SERVICE CENTER PAY OUT (CALL CHARGES</center></div>
+        <div class="panel-heading"><center style="font-size:130%;">SERVICE CENTER PAY OUT (CALL CHARGES)</center></div>
         <div class="panel-body">
             <table class="table table-condensed table-bordered">
                 <thead>

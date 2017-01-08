@@ -56,6 +56,7 @@
 <?php if(isset($invoicing_summary)){ ?>
  <div class="row" style="margin-top: 20px;" id="overall_summary">
 <h2>Invoices Overall Summary</h2>
+
   <table class="table table-bordered  table-hover table-striped data"  >
    <thead>
       <tr>
@@ -64,14 +65,20 @@
          <th>Amount to be Paid</th>
          <th>Amount to be Received</th>
          <th>Pay</th>
+          <?php if(isset($service_center)){ ?>
+         <th>Download Summary</th>
+          <?php } ?>
       
       </tr>
    </thead>
+   <form action="<?php echo base_url();?>employee/invoice/download_invoice_summary" method="POST" target="_blank">
    <tbody><?php $foc= 0; $cash = 0;?>
      <?php $count = 1; foreach ($invoicing_summary as $key => $value) { ?>
-      <tr> 
+       <tr style = "<?php if(isset($value['on_off'])){ if($value['active'] == 0){ echo 'background-color:red;color:#fff;'; } 
+       else if($value['on_off'] == 0){ echo "background-color:green;color:#fff;"; }}?>"> 
         <td><?php echo $count; ?></td>
-        <td> <a href="<?php echo base_url()?>employee/invoice/invoice_summary/<?php echo $value['vendor_partner']?>/<?php echo $value['id'] ?>" target='_blank'><?php echo $value['name']?></a></td>
+        <td> <a style="<?php if(isset($value['on_off'])){ if($value['active'] == 0){ echo 'background-color:red;color:#fff;'; } 
+       else if($value['on_off'] == 0){ echo "background-color:green;color:#fff;"; }}?>" href="<?php echo base_url()?>employee/invoice/invoice_summary/<?php echo $value['vendor_partner']?>/<?php echo $value['id'] ?>" target='_blank'><?php echo $value['name']?></a></td>
         <td><?php if($value['final_amount'] <0){echo round($value['final_amount'],0); $foc +=abs(round($value['final_amount'],0));}?></td>
         <td><?php if($value['final_amount'] >0){echo round($value['final_amount'],0);  $cash +=abs(round($value['final_amount'],0));}?></td>
        
@@ -79,6 +86,9 @@
         <a href="<?php echo base_url()?>employee/invoice/invoice_summary/<?php echo $value['vendor_partner']?>/<?php echo $value['id'] ?>" target='_blank' class="btn btn-sm btn-success">Pay</a>
 
         <?php }?></td>
+        <?php if(isset($service_center)){ ?>
+        <td ><?php if($value['final_amount'] <0){ ?><input type="checkbox" name="<?php echo "amount_service_center[".$value['id']."]";?>" value ="<?php echo abs($value['final_amount']);?>" class="form-control"> <?php } ?></td>
+         <?php } ?>
       </tr>
     <?php  $count++ ;} ?>
       <tr>
@@ -87,8 +97,10 @@
           <td><?php echo -$foc; ?></td>
           <td><?php echo $cash; ?></td>
           <td></td>
+          <td class="text-center"><input type="submit" class="btn btn-md btn-primary"  value="Download"/></td>
       </tr>
    </tbody>
+   </form>
    </table>
 
 <?php } ?>

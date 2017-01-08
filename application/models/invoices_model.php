@@ -216,6 +216,8 @@ class invoices_model extends CI_Model {
 
             if (isset($value['name'])) {
                 $result[0]['name'] = $value['name'];
+                $result[0]['on_off'] = $value['on_off'];
+                $result[0]['active'] = $value['active'];
             } else if (isset($value['public_name'])) {
                 $result[0]['name'] = $value['public_name'];
             }
@@ -250,6 +252,7 @@ class invoices_model extends CI_Model {
         $custom_date = explode("-", $date_range);
         $from_date = $custom_date[0];
         $to_date = $custom_date[1];
+        $result1 = array();
 
         //for FOC invoice, around_to_vendor > 0 AND vendor_to_around = 0
         $where = " AND `booking_unit_details`.around_to_vendor > 0  AND `booking_unit_details`.vendor_to_around = 0 ";
@@ -306,7 +309,13 @@ class invoices_model extends CI_Model {
                     $condition ";
 
         $query1 = $this->db->query($sql1);
-        $result1 = $query1->result_array();
+        $result1['invoice_details'] = $query1->result_array();
+        // Calculate Upcountry booking details
+        $upcountry_data = $this->upcountry_model->upcountry_in_invoice($vendor_id, $from_date, $to_date);
+        if(!empty($upcountry_data)){
+            $result1['upcountry_details'] = $upcountry_data;
+            
+        }
 
         return $result1;
     }
@@ -405,7 +414,7 @@ class invoices_model extends CI_Model {
 
 
         $sql1 = "SELECT booking_unit_details.id AS unit_id,`booking_details`.service_id, `booking_details`.booking_id, "
-                . " `booking_details`.order_id, `booking_details`.reference_date,  "
+                . " `booking_details`.reference_date,  "
                 . " `booking_details`.partner_id, `booking_details`.source,"
                 . " `booking_details`.city, `booking_unit_details`.ud_closed_date as closed_date, "
                 . "  price_tags, `partners`.company_name, "
@@ -418,6 +427,8 @@ class invoices_model extends CI_Model {
              (case when (`booking_unit_details`.product_or_services = 'Service' ) 
                  THEN (ROUND(partner_net_payable,2) ) 
                  ELSE 0 END) as installation_charge,
+              (case when( order_id !='') THEN order_id when(booking_details.partner_id= '247010') 
+              THEN (partner_serial_number) ELSE '' END ) AS order_id,
 
              (case when (`booking_unit_details`.product_or_services = 'Service' ) 
              THEN (ROUND(partner_net_payable * 0.15,2) ) 
@@ -671,7 +682,7 @@ class invoices_model extends CI_Model {
     function generate_partner_invoice($partner_id, $from_date_tmp, $to_date) {
         $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
         // For Product
-        $sql = "SELECT DISTINCT (`partner_net_payable`) AS p_rate, '' AS s_service_charge, '' AS s_total_service_charge,
+        $sql = "SELECT DISTINCT (`partner_net_payable`) AS p_rate,'' AS upcountry_distance, '' AS s_service_charge, '' AS s_total_service_charge,
                 5.00 AS p_tax_rate, 
                 CASE 
                
@@ -801,7 +812,7 @@ class invoices_model extends CI_Model {
     function get_vendor_foc_invoice($vendor_id, $from_date, $to_date) {
 
         // $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
-        $sql = "SELECT DISTINCT (`vendor_basic_charges`) AS s_service_charge, '' AS p_rate,'' AS p_part_cost, '' AS p_tax_rate,
+        $sql = "SELECT DISTINCT (`vendor_basic_charges`) AS s_service_charge, 0 AS upcountry_distance,'' AS p_rate,'' AS p_part_cost, '' AS p_tax_rate,
                CASE 
                
                 WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) != '' THEN 
@@ -844,7 +855,7 @@ class invoices_model extends CI_Model {
         $service = $query->result_array();
 
         //FOR Parts
-        $sql1 = "SELECT DISTINCT (`vendor_basic_charges`) AS p_rate, '' AS s_service_charge, '' AS s_total_service_charge,
+        $sql1 = "SELECT DISTINCT (`vendor_basic_charges`) AS p_rate, 0 AS upcountry_distance, '' AS s_service_charge, '' AS s_total_service_charge,
                CASE 
                
                 WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) != '' THEN 
@@ -889,6 +900,24 @@ class invoices_model extends CI_Model {
         $result = array_merge($service, $product);
 
         if (!empty($result)) {
+            // Calculate Upcountry booking details
+            $upcountry_data = $this->upcountry_model->upcountry_in_invoice($vendor_id, $from_date, $to_date);
+
+            if(!empty($upcountry_data)){
+                $up_country = array();
+             
+               $up_country[0]['s_total_service_charge'] = $upcountry_data[0]['total_upcountry_price'];
+               $up_country[0]['p_rate'] = $up_country[0]['p_part_cost'] = $up_country[0]['p_tax_rate'] ='';
+               $up_country[0]['p_part_cost'] =  '';
+               $up_country[0]['s_service_charge'] = '';
+               $up_country[0]['qty'] = '';
+               $up_country[0]['description'] = 'Upcountry Charge';
+               $up_country[0]['p_rate'] =  $upcountry_data[0]['upcountry_rate'];
+               $up_country[0]['upcountry_distance'] = $upcountry_data[0]['total_distance'];
+             
+               $result = array_merge($result, $up_country);
+            }
+
             $meta['total_part_cost'] = 0;
             $meta['total_service_cost'] = 0;
 
@@ -896,6 +925,7 @@ class invoices_model extends CI_Model {
                 $meta['total_part_cost'] += $value['p_part_cost'];
                 $meta['total_service_cost'] += $value['s_total_service_charge'];
             }
+            
             if (is_null($result[0]['tin'])) {
 
                 $meta['part_cost_vat'] = 0.00;
@@ -923,6 +953,7 @@ class invoices_model extends CI_Model {
             $meta['vat_tax'] = $result[0]['p_tax_rate'];
             $meta['tin'] =  $result[0]['tin'];
             $meta['sub_part'] = $meta['total_part_cost']  + $meta['part_cost_vat'];
+            
             if(empty($result[0]['pan_no'])){
                 $meta['tds'] =  $meta['sub_service_cost'] *.20;
                 $meta['tds_tax_rate'] = "20%";
@@ -952,7 +983,7 @@ class invoices_model extends CI_Model {
 
             $data['meta'] = $meta;
             $data['booking'] = $result;
-
+            
             return $data;
         } else {
             return FALSE;
@@ -1054,6 +1085,31 @@ class invoices_model extends CI_Model {
         } else {
             return FALSE;
         }
+    }
+    /**
+     * @desc: Calculate unbilled Amount for vendor
+     * @param String $vendor_id
+     * @param String $to_date
+     * @return Array
+     */
+    function get_unbilled_amount($vendor_id, $to_date){
+        $where = "";
+        if(!empty($to_date)){
+            $where = "AND ud_closed_date >= '".$to_date."' ";
+        }
+        $sql = "SELECT SUM(`vendor_to_around` - `around_to_vendor`) AS unbilled_amount
+                FROM booking_unit_details AS ud, booking_details AS bd
+                WHERE bd.assigned_vendor_id = '$vendor_id'
+                AND pay_to_sf =  '1'
+                AND booking_status =  'Completed'
+                AND bd.booking_id = ud.booking_id 
+                $where
+                AND ud_closed_date < '".date('Y-m-d')."'
+                AND `vendor_cash_invoice_id` IS NULL
+                AND `vendor_foc_invoice_id` IS NULL";
+        
+        $query = $this->db->query($sql);
+        return $query->result_array();
     }
 
 }

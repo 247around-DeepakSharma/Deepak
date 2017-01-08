@@ -26,7 +26,7 @@
                         <strong>' . $this->session->userdata('checkbox') . '</strong>
                     </div>';
                     }
-                ?>
+                    ?>
                 <?php if(validation_errors()) {
                     echo '<div class="alert alert-danger alert-dismissible" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -35,7 +35,7 @@
                         <strong>' . validation_errors() . '</strong>
                     </div>';
                     }
-                ?>
+                    ?>
                 <form name="myForm" class="form-horizontal" id ="booking_form" novalidate="novalidate" action="<?php echo base_url() ?>employee/vendor" method="POST" enctype="multipart/form-data">
                     <div  class = "panel panel-info">
                         <div class="panel-heading"><b>Company Information</b></div>
@@ -83,7 +83,6 @@
                                         </div>
                                     </div>
                                 </div>
-                               
                             </div>
                             <div class="col-md-12">
                                 <div class="col-md-6">
@@ -103,7 +102,7 @@
                                                     <?php
                                                         if (isset($rm[0]['agent_id']) && $rm[0]['agent_id'] == $value['id']) { echo "selected";}
                                                         ?>
-                                                        >
+                                                    >
                                                     <?php echo $value['full_name']; ?>
                                                 </option>
                                                 <?php } ?>
@@ -112,7 +111,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                
                                 <div class="col-md-6">
                                     <div  class="form-group <?php
                                         if (form_error('address')) {
@@ -130,7 +128,6 @@
                                         </div>
                                     </div>
                                 </div>
-                               
                             </div>
                             <div class="col-md-12">
                                 <div class="col-md-6">
@@ -311,39 +308,33 @@
                                         ?>">
                                         <label for="company_type" class="col-md-3">Company Type</label>
                                         <div class="col-md-8">
-                                             <select name="company_type" class="form-control">
-                                                 <option disabled selected >Select Company Type</option>
-                                             <option value="Individual" <?php if(isset($query[0]['company_type'])){
-                                                if ($query[0]['company_type'] == "Individual") {
-                                                     echo "Selected";
-                                             } }
-                                                ?>>Individual</option>
-                                             
-                                             <option value="Proprietorship Firm" <?php if(isset($query[0]['company_type'])){
-                                                if ($query[0]['company_type'] == "Proprietorship Firm") {
-                                                     echo "Selected";
-                                             } }
-                                                ?>>Proprietorship Firm</option>
-                                             
-                                             <option value="Partnership Firm" <?php if(isset($query[0]['company_type'])){
-                                                if ($query[0]['company_type'] == "Partnership Firm") {
-                                                     echo "Selected";
-                                             } }
-                                                ?>>Partnership Firm</option>
-                                             
-                                             <option value="Private Ltd Company" <?php if(isset($query[0]['company_type'])){
-                                                if ($query[0]['company_type'] == "Private Ltd Company") {
-                                                     echo "Selected";
-                                             } }
-                                                ?>>Private Ltd Company</option>
-
-                                         </select>
-                                          
+                                            <select name="company_type" class="form-control">
+                                                <option disabled selected >Select Company Type</option>
+                                                <option value="Individual" <?php if(isset($query[0]['company_type'])){
+                                                    if ($query[0]['company_type'] == "Individual") {
+                                                         echo "Selected";
+                                                    } }
+                                                    ?>>Individual</option>
+                                                <option value="Proprietorship Firm" <?php if(isset($query[0]['company_type'])){
+                                                    if ($query[0]['company_type'] == "Proprietorship Firm") {
+                                                         echo "Selected";
+                                                    } }
+                                                    ?>>Proprietorship Firm</option>
+                                                <option value="Partnership Firm" <?php if(isset($query[0]['company_type'])){
+                                                    if ($query[0]['company_type'] == "Partnership Firm") {
+                                                         echo "Selected";
+                                                    } }
+                                                    ?>>Partnership Firm</option>
+                                                <option value="Private Ltd Company" <?php if(isset($query[0]['company_type'])){
+                                                    if ($query[0]['company_type'] == "Private Ltd Company") {
+                                                         echo "Selected";
+                                                    } }
+                                                    ?>>Private Ltd Company</option>
+                                            </select>
                                             <?php echo form_error('company_type'); ?>
                                         </div>
                                     </div>
                                 </div>
-                                
                                 <div class="col-md-6">
                                     <div class="form-group <?php
                                         if (form_error('contract_file')) {
@@ -374,10 +365,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                
-                                
                             </div>
-                            
                         </div>
                     </div>
                     <div  class = "panel panel-info">
@@ -594,9 +582,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
                         </div>
-                        
                     </div>
                     <div  class = "panel panel-info">
                         <div class="panel-heading"><b>Registration Details</b></div>
@@ -608,7 +594,6 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                       
                                         <label  for="name_on_pan" class="col-md-4">PAN </label>
                                         <div class="col-md-7">
                                             <input placeholder="Name on PAN CARD" type="text" class="form-control"  id="name_on_pan" name="name_on_pan" value = "<?php
@@ -618,7 +603,6 @@
                                                 ?>">
                                             <span class="err1"><?php echo form_error('name_on_pan'); ?></span>
                                         </div>
-                                        
                                     </div>
                                 </div>
                                 <div class="col-md-3" style="margin-right:14px;">
@@ -627,63 +611,49 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-<!--                                        <label  for="pan_no" class="col-md-4">PAN No.</label>-->
-                                       
-                                                 <input type="text" class="form-control"  id="pan_no" name="pan_no" placeholder="PAN Number" value = "<?php
-                                                if (isset($query[0]['pan_no'])) {
-                                                    echo $query[0]['pan_no'];
-                                                }
-                                                ?>" style="width:117%">
-                                                 <span class="err1"><?php echo form_error('pan_no'); ?></span>
-                                       
+                                        <!--                                        <label  for="pan_no" class="col-md-4">PAN No.</label>-->
+                                        <input type="text" class="form-control"  id="pan_no" name="pan_no" placeholder="PAN Number" value = "<?php
+                                            if (isset($query[0]['pan_no'])) {
+                                                echo $query[0]['pan_no'];
+                                            }
+                                            ?>" style="width:117%">
+                                        <span class="err1"><?php echo form_error('pan_no'); ?></span>
                                     </div>
                                 </div>
                                 <div class="col-md-3" style="margin-left:40px;">
                                     <div class="form-group">
-                                        
-<!--                                        <label  for="pan_file" class="col-md-4">PAN File :</label>-->
-                                        
-                                            <input type="file" class="form-control"  name="pan_file" value = "<?php
-                                                if (isset($query[0]['pan_file'])) {
-                                                    echo $query[0]['pan_file'];
-                                                }
-                                                ?>">
-                                            <?php echo form_error('pan_file'); ?>
-                                      
-                                       
-                                         </div>
-                                       
-                                    
-                                       
-                                    </div>
-                                <div class="col-md-1" style="margin-left: 20px;">
-                                            <?php
-                                                $src = base_url() . 'images/no_image.png';
-                                                if (isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])) {
-                                                    //Path to be changed
-                                                    $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['pan_file'];
-                                                }
-                                                ?>
-                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
-                                            <?php if(isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])){?>
-                                            <a href="javascript:void(0)" onclick="remove_image('pan_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['pan_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
-                                            <?php }?>
-                                            
-                                        </div>
-                                <div class="col-md-2">
-                                     <div class="checkbox">
-                                        <label>
-                                           <b style="font-size: 18px;">Not Available</b> 
-                                           
-                                        </label>
-                                            <input type="checkbox"  value="0" id="is_pan_doc" name ="is_pan_doc" <?php if(isset($query[0]['is_pan_doc'])){ if($query[0]['is_pan_doc'] == 0){ echo "checked" ;}}?> style="margin-left:16px;"> 
-                                   
+                                        <!--                                        <label  for="pan_file" class="col-md-4">PAN File :</label>-->
+                                        <input type="file" class="form-control"  name="pan_file" value = "<?php
+                                            if (isset($query[0]['pan_file'])) {
+                                                echo $query[0]['pan_file'];
+                                            }
+                                            ?>">
+                                        <?php echo form_error('pan_file'); ?>
                                     </div>
                                 </div>
-                                
-<!--                                <div class="col-md-2" style="margin-left:6px;">
-                                   
-                                </div>-->
+                                <div class="col-md-1" style="margin-left: 20px;">
+                                    <?php
+                                        $src = base_url() . 'images/no_image.png';
+                                        if (isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])) {
+                                            //Path to be changed
+                                            $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['pan_file'];
+                                        }
+                                        ?>
+                                    <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                    <?php if(isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])){?>
+                                    <a href="javascript:void(0)" onclick="remove_image('pan_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['pan_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                    <?php }?>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="checkbox">
+                                        <label>
+                                        <b style="font-size: 18px;">Not Available</b> 
+                                        </label>
+                                        <input type="checkbox"  value="0" id="is_pan_doc" name ="is_pan_doc" <?php if(isset($query[0]['is_pan_doc'])){ if($query[0]['is_pan_doc'] == 0){ echo "checked" ;}}?> style="margin-left:16px;"> 
+                                    </div>
+                                </div>
+                                <!--                                <div class="col-md-2" style="margin-left:6px;">
+                                    </div>-->
                             </div>
                             <!--                            <div class="col-md-12">
                                 <div class="col-md-6">
@@ -787,21 +757,19 @@
                                 <div class="col-md-3" style="margin-left:60px;">
                                     <div class="checkbox">
                                         <label>
-                                           <b style="font-size: 18px;">Not Available</b> 
+                                        <b style="font-size: 18px;">Not Available</b> 
                                         </label>
                                         <input type="checkbox"  value="0" id="is_cst_doc" name ="is_cst_doc" <?php if(isset($query[0]['is_cst_doc'])){ if($query[0]['is_cst_doc'] == 0){ echo "checked" ;}}?> style="margin-top:5px; margin-left:24px;"> 
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-12">
-                                
                                 <div class="col-md-4">
                                     <div class="form-group <?php
                                         if (form_error('tin_no')) {
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        
                                         <label  for="tin_no" class="col-md-4">TIN/VAT No.</label>
                                         <div class="col-md-7">
                                             <input type="text" class="form-control"  id="tin_no" name="tin_no" value = "<?php
@@ -843,10 +811,10 @@
                                         </div>
                                     </div>
                                 </div>
-                                 <div class="col-md-3" style="margin-left:60px;">
+                                <div class="col-md-3" style="margin-left:60px;">
                                     <div class="checkbox">
                                         <label>
-                                          <b style="font-size: 18px;">Not Available</b>  
+                                        <b style="font-size: 18px;">Not Available</b>  
                                         </label>
                                         <input type="checkbox"  value="0" id ="is_tin_doc" name ="is_tin_doc" <?php if(isset($query[0]['is_tin_doc'])){ if($query[0]['is_tin_doc'] == 0){ echo "checked" ;}}?> style="margin-top:5px; margin-left:24px;"> 
                                     </div>
@@ -903,18 +871,17 @@
                                 <div class="col-md-3" style="margin-left:60px;">
                                     <div class="checkbox">
                                         <label>
-                                          <b style="font-size: 18px;">Not Available</b>   
+                                        <b style="font-size: 18px;">Not Available</b>   
                                         </label>
                                         <input type="checkbox"  value="0" id="is_st_doc" name ="is_st_doc" <?php if(isset($query[0]['is_st_doc'])){ if($query[0]['is_st_doc'] == 0){ echo "checked" ;}}?> style="    margin-left: 24px;margin-top: 5px;">
                                     </div>
                                 </div>
                             </div>
-                           
                         </div>
                     </div>
                     <div  class = "panel panel-info">
                         <div class="panel-heading"><b>Bank Details</b></div>
-                        <div class="panel-body">
+                        <div class="panel-body" id="bank_details">
                             <div class="col-md-12">
                                 <div class="col-md-4">
                                     <div  class="form-group <?php
@@ -1031,6 +998,14 @@
                                             <a href="javascript:void(0)" onclick="remove_image('cancelled_cheque_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['cancelled_cheque_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                             <?php }?>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="is_bank_details_verified" class="col-md-3">Verified/Not Verified </label>
+                                    <div class="col-md-3">
+                                        <input type="checkbox" class="form-control" value="1" name="is_verified" id="is_bank_details_verified" <?php if(isset($query[0]['is_verified']) && $query[0]['is_verified'] == '1') { ?>checked<?php } ?> <?php if($this->session->userdata('user_group')!= 'admin'){ ?>disabled <?php }?> style="width:20%;">
                                     </div>
                                 </div>
                             </div>
@@ -1267,7 +1242,7 @@
     margin: 0px;
     }
     .err1{
-        color: #FB3A3A;
+    color: #FB3A3A;
     display: inline-block;;
     padding: 0;
     text-align: left;
@@ -1295,24 +1270,30 @@
         rm: "required",
         phone_1: {
             required: true,
-            minlength: 10
+            minlength: 10,
+            number: true
         },
         phone_2: {
-            minlength: 10
+            minlength: 10,
+            number: true
         },
         primary_contact_phone_1: {
             required: true,
-            minlength: 10
+            minlength: 10,
+            number: true
         },
         primary_contact_phone_2: {
-            minlength: 10
+            minlength: 10,
+            number: true
         },
         owner_phone_1: {
             required: true,
-            minlength: 10
+            minlength: 10,
+            number: true
         },
         owner_phone_2: {
-            minlength: 10
+            minlength: 10,
+            number: true
         },
         state: "required",
         primary_contact_name: "required",
@@ -1367,4 +1348,9 @@
     
     
     
+</script>
+<script>
+    <?php if((isset($query[0]['is_verified']) && !empty($query[0]['is_verified'])) && $this->session->userdata('user_group') !='admin'){?>
+        $('#bank_details').find('input').attr('disabled', 'disabled');
+    <?php } ?>
 </script>

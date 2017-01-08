@@ -156,7 +156,7 @@
                                                     name="appliance_brand[]" id="appliance_brand_1" onChange="getCategoryForService(this.id)"  required>
                                                     <option selected disabled>Select Brand</option>
                                                     <?php foreach ($brand as  $appliance_brand) { ?>
-                                                    <option <?php if(isset($unit_details[0]['brand'])) { if($appliance_brand['brand_name'] == $unit_details[0]['brand']){ echo "selected";} } ?>
+                                                    <option <?php if(isset($unit_details[0]['brand'])) {  if (strcasecmp($appliance_brand['brand_name'], $unit_details[0]['brand']) == 0){ echo "selected";} } ?>
                                                         ><?php echo $appliance_brand['brand_name']; ?></option >
                                                     <?php } ?>
                                                 </select>
@@ -207,7 +207,7 @@
 <!--                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Tag</label>
                                             <div class="col-md-6">
-                                                <input  type="text" class="form-control"  name="appliance_tags[]" id="appliance_tags_1" value = "<?php if(isset($unit_details[0]['appliance_tag'])) {  echo $unit_details[0]['appliance_tag']; } ?>" placeholder="Enter Tag"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
+                                                <input  type="text" class="form-control"  name="appliance_tags[]" id="appliance_tags_1" value = "<?php //if(isset($unit_details[0]['appliance_tag'])) {  echo $unit_details[0]['appliance_tag']; } ?>" placeholder="Enter Tag"  <?php// if(!empty($appliance_id)) { echo "readonly"; } ?> >
                                             </div>
                                         </div> -->
                                         <div class="form-group ">
@@ -352,7 +352,7 @@
                                                     <select type="text" onchange="getCategoryForService(this.id)" class="form-control appliance_brand"    name="appliance_brand[]" id="<?php echo "appliance_brand_".$number;?>" required>
                                                         <option disabled>Select Brand</option>
                                                         <?php foreach ($brand as  $appliance_brand) { ?>
-                                                        <option <?php if($appliance_brand['brand_name'] == $booking_unit_details['brand']){ echo "selected";}?> ><?php echo $appliance_brand['brand_name']; ?></option>
+                                                        <option <?php  if (strcasecmp($appliance_brand['brand_name'], $booking_unit_details['brand']) == 0){ echo "selected";} ?> ><?php echo $appliance_brand['brand_name']; ?></option>
                                                         <?php } ?>
                                                     </select>
                                                 </div>
@@ -376,7 +376,7 @@
                                                         <option  disabled>Select Appliance Capacity</option>
                                                         <?php foreach ($capacity[$key] as  $value) {  ?>
                                                         <option <?php if($value['capacity'] == $booking_unit_details['capacity']){ echo "selected";}?> ><?php echo $value['capacity'];?></option>
-                                                        <?php  $cap_no++; } ?>
+                                                        <?php   } ?>
                                                     </select>
                                                 </div>
                                             </div>
@@ -398,10 +398,10 @@
                                                     <input  type="text" class="form-control"  name="appliance_description[]" id="<?php echo "description".$number;?>"  value = "<?php if(isset($booking_unit_details['description'])) { echo $booking_unit_details['description']; } ?>"  placeholder="Enter Description"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
                                                 </div>
                                             </div>
-                                            <!--<div class="form-group <?php if( form_error('appliance_tags') ) { echo 'has-error';} ?>">
+                                            <!--<div class="form-group <?php //if( form_error('appliance_tags') ) { echo 'has-error';} ?>">
                                                 <label for="type" class="col-md-4">Appliance Tag</label>
                                                 <div class="col-md-6">
-                                                    <input  type="text" class="form-control"  name="appliance_tags[]" id="<?php echo "appliance_tags_".$number;?>" value = "<?php echo $booking_unit_details['appliance_tag']; ?>" placeholder="Enter Tag" >
+                                                    <input  type="text" class="form-control"  name="appliance_tags[]" id="<?php //echo "appliance_tags_".$number;?>" value = "<?php //echo $booking_unit_details['appliance_tag']; ?>" placeholder="Enter Tag" >
                                                 </div>
                                             </div>-->
                                             <div class="form-group ">
@@ -592,12 +592,12 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-group ">
+<!--                            <div class="form-group ">
                                 <label for="type"class="col-md-4">Potential Value</label>
                                 <div class="col-md-6">
                                     <input  type="text" class="form-control"  name="potential_value" id="potential_value" value = "<?php if(isset($booking_history[0]['potential_value'])){ echo $booking_history[0]['potential_value']; }?>" placeholder="Enter potential_value" >
                                 </div>
-                            </div>
+                            </div>-->
                             <div class="form-group ">
                                 <label for="type" class="col-md-4">Remarks</label>
                                 <div class="col-md-6">
@@ -615,8 +615,8 @@
                         </div>
                         <div class="form-group  col-md-12" >
                             <center>
-                                <button style="margin-right: 25px;" type="button" class="btn btn-info btn-md open-AddBookingDialog" data-toggle="modal" data-target="#myModal">Check Details</button>
-                                <input type="submit" id="submitform" class="btn btn-primary disabled" value="Submit Booking">
+                                
+                                <input type="submit" id="submitform" onclick="return addBookingDialog()" class="btn btn-primary" value="Submit Booking">
                         </div>
                         </center>
                     </div>
@@ -640,11 +640,7 @@
     $("#partner_source").select2();
     //$(".appliance_capacity").select2();
 
-    $(document).ready(function(){
-        $("#submitform").click(function(){
-            $(this).button('loading');
-        });
-    });
+    
      $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
 
 </script>
@@ -663,7 +659,7 @@
                var id= this.id || "";
                var match = id.match(regex) || [];
                //console.log(match.length);
-               if (match.length == 3) {
+               if (match.length === 3) {
                    this.id = match[1]+ (cloneIndex);
             }
     })

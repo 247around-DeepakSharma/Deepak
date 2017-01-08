@@ -52,7 +52,7 @@
                                     <label for="Mobile" class="col-md-4">Mobile *</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  id="mobile" name="phone" value = "<?php echo isset($data[0]['phone'])?$data[0]['phone']:set_value('phone');  ?>" placeholder="Enter Mobile Number" required>
-                                        SMS will be delivered to this Mobile
+                                        <p>SMS will be delivered to this Mobile</p>
                                     </div>
                                     <?php echo form_error('phone'); ?>
                                 </div>
@@ -296,11 +296,13 @@
                 name: "required",
                 phone: {
                         required: true,
-                        rangelength: [10, 10]
+                        minlength: 10,
+                        number: true
                     },
                 alternate_phone:{
                     
-                    rangelength: [10, 10]
+                    minlength: 10,
+                    number: true
                     },
                 
                 bank_ifsc_code: {
@@ -325,7 +327,7 @@
                 },
                 messages: {
                 name: "Please Enter Name",
-                phone: "Please Enter Mobile Number",
+                phone: "Please Enter Valid Mobile Number",
                 
                 bank_name: "Please Bank Name",
                 bank_ifsc_code:"Please Enter IFSC CODE",

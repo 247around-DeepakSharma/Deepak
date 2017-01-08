@@ -106,7 +106,7 @@
                                 <div class="form-group <?php if( form_error('order_id') ) { echo 'has-error';} ?>">
                                     <label for="order id" class="col-md-4">Order ID </label>
                                     <div class="col-md-6">
-                                        <input class="form-control" name= "order_id" value="<?php if(isset($user[0]['order_id'])){  echo $user[0]['order_id']; } else { echo set_value('order_id');} ?>" placeholder ="Please Enter Order ID" id="order_id"  />
+                                        <input class="form-control" name= "order_id" value="<?php echo set_value('order_id'); ?>" placeholder ="Please Enter Order ID" id="order_id"  />
                                     <p><span id="error_order_id" style="color:red"></span></p>
                                     </div>
                                 </div>
@@ -348,8 +348,8 @@
         if (order_id == "" && serial_number == ""  ) {
              document.getElementById('order_id').style.borderColor = "red";
              document.getElementById('serial_number').style.borderColor = "red";
-            document.getElementById('error_order_id').innerHTML = "Please enter either Order ID OR Serial Number";
-            document.getElementById('error_serial_number').innerHTML = "Please enter either Order ID OR Serial Number";
+            document.getElementById('error_order_id').innerHTML = "Please enter Order ID";
+            document.getElementById('error_serial_number').innerHTML = "Please enter Serial Number";
                
             return false;
         } else {
