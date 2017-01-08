@@ -165,7 +165,7 @@
              <th class="text-center">VAT/TIN</th>
              <th class="text-center">CST</th>
              <th class="text-center">Contract</th>
-             <th class="text-center">Count Defective Parts Not Shipped</th>
+             <th class="text-center">Defective Parts Not Shipped by SF</th>
           </tr>
        </thead>
        <tbody>
