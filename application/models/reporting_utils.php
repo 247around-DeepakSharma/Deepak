@@ -1187,6 +1187,7 @@ class Reporting_utils extends CI_Model {
         foreach ($sc as $value) {
             $un_assigned = 0;
             $not_update = 0;
+            $update = 0;
             //  Count,  booking is not assigned
             $sql1 = "SELECT count(booking_id) as unassigned_engineer FROM booking_details as BD "
                     . " WHERE BD.current_status = 'Pending' AND assigned_engineer_id IS  NULL "
@@ -1208,6 +1209,19 @@ class Reporting_utils extends CI_Model {
                       AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= 0";
             $query2 = $this->db->query($sql2);
             $result2 = $query2->result_array();
+            // Count, Booking is Updated
+            $sql3 = "SELECT count(distinct(BD.booking_id)) as updated FROM booking_details as BD, 
+                      service_center_booking_action as sc 
+                      WHERE BD.Current_status IN ('Pending', 'Rescheduled') 
+                      AND assigned_vendor_id = '" . $value['id'] . "' 
+                      AND sc.current_status = 'Pending' 
+                      AND sc.booking_id = BD.booking_id 
+                      AND EXISTS (SELECT booking_id FROM booking_state_change WHERE booking_id =BD.booking_id 
+                      AND service_center_id = '" . $value['id'] . "' 
+                      AND DATEDIFF(CURRENT_TIMESTAMP , create_date) = 0) 
+                      AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= 0";
+            $query3 = $this->db->query($sql3);
+            $result3 = $query3->result_array();
             if (!empty($result2)) {
 
                 if (!empty($result1)) {
@@ -1216,6 +1230,10 @@ class Reporting_utils extends CI_Model {
 
                 if (!empty($result2)) {
                     $not_update = $result2[0]['not_update'];
+                }
+                
+                if (!empty($result3)) {
+                    $update = $result3[0]['updated'];
                 }
 
                 $where = array('service_center_id' => $value['id']);
@@ -1251,6 +1269,7 @@ class Reporting_utils extends CI_Model {
                 $data1['un_assigned'] = $un_assigned;
                 $data1['not_update'] = $not_update;
                 $data1['total_crimes'] = ($un_assigned + $not_update );
+                $data1['total_booking'] = ($update + $not_update );
 
                 array_push($data, $data1);
                 unset($data1);
@@ -1504,8 +1523,12 @@ class Reporting_utils extends CI_Model {
             
         }
         
-        $sql = "select employee_id, id from employee where groups in ('callcenter', 'closure')";
-        $query = $this->db->query($sql);
+
+        $this->db->select('full_name , id');
+        $this->db->from('employee');
+        $this->db->where_in('groups', array('callcenter', 'closure'));
+        $this->db->order_by('full_name');
+        $query = $this->db->get();
         $employee_id = $query->result_array();
         foreach ($employee_id as $value) {
 
@@ -1574,8 +1597,9 @@ class Reporting_utils extends CI_Model {
                              JOIN employee on agent_outbound_call_log.agent_id=employee.id 
                              WHERE employee.id= '".$value['id']."'  $where2";
             //getting incomming calls data
-            $calls_recevied = "SELECT COUNT(DialWhomNumber) AS incomming FROM passthru_misscall_log
-                               JOIN employee on passthru_misscall_log.DialWhomNumber=employee.phone 
+            $calls_recevied = "SELECT COUNT(DialWhomNumber) AS incomming , full_name 
+                               FROM passthru_misscall_log JOIN employee ON passthru_misscall_log.DialWhomNumber 
+                               LIKE concat('%' , employee.phone ) 
                                WHERE employee.id='".$value['id']."' $where3";
             
             //execute the query to get data
@@ -1605,7 +1629,7 @@ class Reporting_utils extends CI_Model {
             $result11 = $query11->result_array();
             
             //storing key value from $result to $data_details  
-            $data_details['employee_id'] =  $value['employee_id'];
+            $data_details['employee_id'] =  $value['full_name'];
 //            $data_details['new_query_to_followup'] =  $result1[0]['query_insert'];
 //            $data_details['followup_to_followup'] =  $result2[0]['query_update'];
             $data_details['followup_to_cancel'] =  $result3[0]['query_cancel'];

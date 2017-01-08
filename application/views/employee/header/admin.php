@@ -138,6 +138,10 @@
                         <li >
                             <a href="<?php echo base_url() ?>employee/bookings_excel/upload_delivered_products_for_paytm_excel"><i class="fa fa-fw fa-desktop "></i> <strong> Upload Paytm Booking</strong></a>
                         </li>
+                        <li class="divider"></li>
+                        <li >
+                            <a href="<?php echo base_url() ?>employee/service_centre_charges/show_partner_service_price"><i class="fa fa-fw fa-desktop "></i> <strong>Partner Price List</strong></a>
+                        </li>
 
                     </ul>
                     <!-- /.dropdown-alerts -->

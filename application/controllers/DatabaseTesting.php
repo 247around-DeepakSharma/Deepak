@@ -415,8 +415,9 @@ class DatabaseTesting extends CI_Controller {
         $message = $table;
         $attachment = TMP_FOLDER. date('Y-m-d') . ".txt";
         $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
-        
-        exec("rm -rf " . escapeshellarg(TMP_FOLDER . date('Y-m-d') . ".txt", $out, $return));
+        $out="";
+        $return ="";
+        exec("rm -rf " . escapeshellarg(TMP_FOLDER . date('Y-m-d') . ".txt"), $out, $return);
         // Return will return non-zero upon an error
 
         if (!$return) {
@@ -424,7 +425,7 @@ class DatabaseTesting extends CI_Controller {
             // Inserting values in scheduler tasks log
             $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
             //Logging
-            log_message('info', __FUNCTION__ . ' Executed Sucessfully ' . $output_file);
+            log_message('info', __FUNCTION__ . ' Executed Sucessfully ' . TMP_FOLDER . date('Y-m-d') . ".txt");
         }
     }
     
@@ -432,12 +433,12 @@ class DatabaseTesting extends CI_Controller {
      * @desc: This is method is used to send Error file 
      */
     function send_error_file(){
-        $attachment = FCPATH."/application/logs/error_" . date('Y-m-d') . ".txt";
+        $attachment = FCPATH."application/logs/error_" . date('Y-m-d') . ".txt";
         if(file_exists($attachment)){
             $from = "booking@247around.com";
-            $to= "abhaya@247around.com";
+            $to= DEVELOPER_EMAIL;
             $bcc= "";
-            $cc = "anuj@247around.com,belal@247around.com";
+            $cc = "";
             $subject = "Error File";
             $message = "Find Attachment";
         
@@ -445,6 +446,36 @@ class DatabaseTesting extends CI_Controller {
             
             // Inserting values in scheduler tasks log
             $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__); 
+        }
+    }
+    /**
+     * @esc: This is used to send requested log file
+     * @param String $file_name
+     */
+    function get_log_file($file_name){
+        $attachment = FCPATH."application/logs/".$file_name.".php";
+        if(file_exists($attachment)){
+            $attach_zip = FCPATH."application/logs/".$file_name.'.zip';
+            system('zip '. $attach_zip."  ". $attachment );
+            system("chmod 777 ".$attach_zip);
+            
+            $from = "booking@247around.com";
+            $to= "abhaya@247around.com";
+            $bcc= "";
+            $cc = "";
+            $subject = "Log file ". $file_name.".php";
+            $message = "Find Attachment";
+            
+            $is_mail =$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message,  $attach_zip); 
+            if($is_mail){
+                exec("rm -rf " . escapeshellarg($attach_zip));
+                echo "Mail Sent....". $file_name.".php";
+               
+            } else {
+                echo "Mail Not Sent.....".$file_name.".php";
+            }
+        } else {
+            echo "File Not Found";
         }
     }
     

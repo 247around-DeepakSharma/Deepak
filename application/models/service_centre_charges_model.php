@@ -179,10 +179,66 @@ class service_centre_charges_model extends CI_Model {
      * 
      */
     function get_unique_states_from_tax_rates(){
-        $sql = 'SELECT DISTINCT state FROM tax_rates';
+        $sql = 'SELECT DISTINCT state FROM tax_rates Order By State Asc';
         $query = $this->db->query($sql);
         return $query->result_array();
     }
     
+    /**
+     * @Desc:This function is used to get partner price data
+     * @params: $data
+     * @return: array
+     * 
+     */
+    function get_partner_price_data($data){
+        
+        $this->db->select('category , capacity , service_category , customer_total , partner_payable_basic , customer_net_payable');
+        $this->db->from('service_centre_charges');
+        $this->db->where('partner_id', $data['price_mapping_id']);
+        
+        if ($data['service_id'] != NULL){
+            $this->db->where('service_id', $data['service_id']);
+        } 
+        if ($data['service_category'] != NULL){
+            $this->db->where('service_category', $data['service_category']);
+        }    
+        $this->db->where('active', 1);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
     
+    /**
+     * @Desc:This function is used to get appliance based on partner id
+     * @params: $price_mapping_id
+     * @return: array
+     * 
+     */
+    
+    function get_appliance_from_partner($price_mapping_id){
+        $this->db->distinct();
+        $this->db->select('services.id,services');
+        $this->db->from('services');
+        $this->db->join('service_centre_charges','services.id = service_centre_charges.service_id');
+        $this->db->where('service_centre_charges.partner_id ' , $price_mapping_id);
+        $this->db->order_by('services');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc:This function is used to get service category based on appliance
+     * @params: $service_id
+     * @return: array
+     * 
+     */
+    
+    function get_service_category_from_service_id($service_id){
+        $this->db->distinct();
+        $this->db->select('service_category');
+        $this->db->from('service_centre_charges');
+        $this->db->where('service_id' , $service_id);
+        $this->db->order_by('service_category');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 }

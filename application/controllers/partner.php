@@ -295,7 +295,7 @@ class Partner extends CI_Controller {
 
                         $booking['quantity'] = '1';
                         $appliance_details['tag'] = $appliance_details['brand'] . " " . $lead_details['Product'];
-                        $appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
+                        $appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('M');
                         $appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
 
                         $appliance_details['last_service_date'] = date('d-m-Y');
@@ -743,7 +743,7 @@ class Partner extends CI_Controller {
 
     //Validate new request data
     function validate_submit_request_data($request) {
-        log_message('info', "Entering: " . __METHOD__ . ", Request data: " . print_r($request, true));
+        log_message('info', "Entering: " . __METHOD__ );
 
 	//Lead will store the booking entry if it exists
         $resultArr = array("result" => FALSE, "lead" => NULL, "code" => NULL, "msg" => NULL);
@@ -1252,7 +1252,7 @@ class Partner extends CI_Controller {
     }
 
     function validate_timeslot_format($timeslot) {
-        log_message('info', "Entering: " . __METHOD__ . ", Timeslot: " . print_r($timeslot, true));
+        log_message('info', "Entering: " . __METHOD__ . ", Timeslot: ");
 	//json_decode($timeslot);
 
 	if (!(json_last_error() === JSON_ERROR_NONE)) {
@@ -1437,7 +1437,7 @@ class Partner extends CI_Controller {
             $booking['partner_id'] = $unit_details['partner_id'] = $this->partner['id'];
             $booking['order_id'] = $requestData['orderID'];
             $unit_details['appliance_brand'] = $appliance_details['brand'] =  $requestData['brand'];
-            $appliance_details['model_number'] = $unit_details['model_number'] = (isset($requestData['model']) ? $requestData['model'] : "");
+            $appliance_details['model_number'] = $unit_details['model_number'] = (!empty($requestData['model']) ? $requestData['model'] : "");
 
             log_message('info', 'Product type: ' . $requestData['product']);
             $prod = trim($requestData['product']);
@@ -1512,6 +1512,9 @@ class Partner extends CI_Controller {
             $booking['source'] = $this->partner_model->get_source_code_for_partner($this->partner['id']);
             $booking['booking_id'] = $booking['source'] . "-" . $booking['booking_id'];
             $unit_details['booking_id'] = $booking['booking_id'];
+            
+            $appliance_details['purchase_month'] = $unit_details['purchase_month'] = $requestData['purchase_month'];
+            $appliance_details['purchase_year'] = $unit_details['purchase_year'] = $requestData['purchase_year'];
 
             $booking['quantity'] = '1';
 

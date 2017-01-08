@@ -1588,3 +1588,29 @@ INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_o
 ALTER TABLE  `partners` CHANGE  `contract_file`  `contract_file` VARCHAR( 256 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
 
 -- =========================  SERVER DB UPDATED, ADD YOUR CHANGES BELOW THIS LINE  ========================= --
+
+
+-- Belal 5 Jan
+
+ALTER TABLE `partners` ADD `owner_alternate_email` VARCHAR(50) NOT NULL AFTER `owner_email`;
+
+ALTER TABLE `partners` ADD `pan_file` VARCHAR(512) NOT NULL AFTER `contract_file`, ADD `registration_no` VARCHAR(50) NOT NULL AFTER `pan_file`, ADD `registration_file` VARCHAR(512) NOT NULL AFTER `registration_no`;
+
+-- Belal 6 Jan
+
+ALTER TABLE `partners` ADD `upcountry_rate` INT(11) NOT NULL AFTER `upcountry`;
+
+ALTER TABLE `partners` ADD `pan_file` VARCHAR(512) NOT NULL AFTER `contract_file`, ADD `registration_no` VARCHAR(50) NOT NULL AFTER `pan_file`, ADD `registration_file` VARCHAR(512) NOT NULL AFTER `registration_no`;
+
+ALTER TABLE `partners` ADD `is_upcountry` INT(2) NULL DEFAULT '0' AFTER `is_active`;
+
+--Abhay
+ALTER TABLE `vendor_partner_invoices` ADD `upcountry_booking` INT(11) NOT NULL DEFAULT '0' AFTER `due_date`, ADD `upcountry_rate` DOUBLE(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_booking`, ADD `upcountry_service_tax` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_rate`, ADD `upcountry_distance` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_service_tax`;
+ALTER TABLE `vendor_partner_invoices` ADD `upcountry_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_distance`;
+
+ALTER TABLE `service_centres` CHANGE `on_off` `on_off` INT(2) NOT NULL DEFAULT '1' COMMENT '1->On,0->Off. Used to disable vendors temporarily in case of pending bookings cross a threhold';
+ALTER TABLE `service_centres` CHANGE `active` `active` INT(2) NULL DEFAULT '1';
+
+-- Sachin 4 Jan 2017
+
+ALTER TABLE  `service_centres` ADD `is_verified` int(2) NOT NULL DEFAULT '0' AFTER `is_cst_doc`;
