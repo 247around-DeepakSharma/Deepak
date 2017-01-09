@@ -1296,11 +1296,16 @@ class Service_centers extends CI_Controller {
         $booking_address = $this->input->post('download_address');
         $booking_history['details'] = array();
         $i=0;
-        foreach ($booking_address as $partner_id=> $booking_id) {
-            $booking_history['details'][$i]  = $this->partner_model->getpartner($partner_id)[0];
-            $booking_history['details'][$i]['vendor'] = $this->vendor_model->getVendor($booking_id)[0];
-            $booking_history['details'][$i]['booking_id'] = $booking_id;
-            $i++;
+        if(!empty($booking_address)){
+            foreach ($booking_address as $partner_id=> $booking_id) {
+                $booking_history['details'][$i]  = $this->partner_model->getpartner($partner_id)[0];
+                $booking_history['details'][$i]['vendor'] = $this->vendor_model->getVendor($booking_id)[0];
+                $booking_history['details'][$i]['booking_id'] = $booking_id;
+                $i++;
+            }
+        }else{
+           //Logging
+            log_message('info',__FUNCTION__.' No Download Address from POST');
         }
         $this->load->view('service_centers/print_partner_address',$booking_history);
        

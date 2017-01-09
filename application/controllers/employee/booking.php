@@ -1420,15 +1420,21 @@ class Booking extends CI_Controller {
 	$url = base_url() . "employee/do_background_process/complete_booking";
 	$agent_id = $this->session->userdata('id');
 	$agent_name = $this->session->userdata('employee_id');
-
-	foreach ($approved_booking as $booking_id) {
-	    $data = array();
-	    $data['booking_id'] = $booking_id;
-	    $data['agent_id'] = $agent_id;
-	    $data['agent_name'] = $agent_name;
-	    log_message('info', __FUNCTION__ . " Approved Booking: " . print_r($data, true));
-	    $this->asynchronous_lib->do_background_process($url, $data);
-	}
+        
+        if(!empty($approved_booking)){
+            foreach ($approved_booking as $booking_id) {
+                $data = array();
+                $data['booking_id'] = $booking_id;
+                $data['agent_id'] = $agent_id;
+                $data['agent_name'] = $agent_name;
+                log_message('info', __FUNCTION__ . " Approved Booking: " . print_r($data, true));
+                $this->asynchronous_lib->do_background_process($url, $data);
+            }
+        }else{
+            //Logging
+            log_message('info',__FUNCTION__.' Approved Booking Empty from Post');
+        }
+        
 
 	redirect(base_url() . 'employee/booking/review_bookings');
     }
