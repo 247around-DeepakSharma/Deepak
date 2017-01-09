@@ -1670,7 +1670,7 @@ class Partner extends CI_Controller {
         // send empty beacuse there is no need to display sms to partner panel
         $data['sms_sent_details'] = array();
        
-        $this->load->view('partner/header');
+        //$this->load->view('partner/header');
 
         $this->load->view('employee/show_booking_life_cycle', $data);
 
