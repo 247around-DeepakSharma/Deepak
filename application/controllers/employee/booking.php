@@ -218,12 +218,12 @@ class Booking extends CI_Controller {
                     
                     switch ($booking_id){
                         case INSERT_NEW_BOOKING:
-                            log_message('info', __METHOD__ . " Insert Booking Unit Details: " . print_r($services_details, true));
+                            log_message('info', __METHOD__ . " Insert Booking Unit Details: " );
                             $result = $this->booking_model->insert_data_in_booking_unit_details($services_details, $booking['state']);
                             break;
                         default:
                             
-                            log_message('info', __METHOD__ . " Update Booking Unit Details: " . print_r($services_details, true) . " Previous booking id: " . $booking_id);
+                            log_message('info', __METHOD__ . " Update Booking Unit Details: " . " Previous booking id: " . $booking_id);
                             $result = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state']);
 
                             array_push($price_tags, $result['price_tags']);

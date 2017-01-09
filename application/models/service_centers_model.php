@@ -293,7 +293,7 @@ class Service_centers_model extends CI_Model {
                 . " AND ( sc.internal_status = '".SPARE_PARTS_REQUIRED."' OR sc.internal_status = '".SPARE_PARTS_SHIPPED."') "
                 . " AND sc.service_center_id = '$sc_id' ";
         $query = $this->db->query($sql);
-         log_message('info', __FUNCTION__  .$this->db->last_query());
+         //log_message('info', __FUNCTION__  .$this->db->last_query());
          //echo $this->db->last_query();
         return $query->result_array();
     }
@@ -351,7 +351,7 @@ class Service_centers_model extends CI_Model {
                 . " ";
         $query = $this->db->query($sql);
         
-        log_message('info', __FUNCTION__ . '=> Update Spare Parts: ' .$this->db->last_query());
+        //log_message('info', __FUNCTION__ . '=> Update Spare Parts: ' .$this->db->last_query());
         return $query->result_array();
     }
     /**

@@ -739,7 +739,7 @@ class Partner extends CI_Controller {
 
     //Validate new request data
     function validate_submit_request_data($request) {
-        log_message('info', "Entering: " . __METHOD__ . ", Request data: " . print_r($request, true));
+        log_message('info', "Entering: " . __METHOD__ );
 
 	//Lead will store the booking entry if it exists
         $resultArr = array("result" => FALSE, "lead" => NULL, "code" => NULL, "msg" => NULL);
@@ -1248,7 +1248,7 @@ class Partner extends CI_Controller {
     }
 
     function validate_timeslot_format($timeslot) {
-        log_message('info', "Entering: " . __METHOD__ . ", Timeslot: " . print_r($timeslot, true));
+        log_message('info', "Entering: " . __METHOD__ . ", Timeslot: ");
 	//json_decode($timeslot);
 
 	if (!(json_last_error() === JSON_ERROR_NONE)) {
