@@ -294,12 +294,14 @@
                                         <div class="col-md-2">
                                             <?php
                                                 $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
                                                 if (isset($query[0]['address_proof_file']) && !empty($query[0]['address_proof_file'])) {
                                                     //Path to be changed
                                                     $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['address_proof_file'];
+                                                    $image_src = base_url().'images/view_image.png';
                                                 }
                                                 ?>
-                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-5px;" /></a>
                                             <?php if(isset($query[0]['address_proof_file']) && !empty($query[0]['address_proof_file'])){?>
                                             <a href="javascript:void(0)" onclick="remove_image('address_proof_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['address_proof_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                             <?php }?>
@@ -361,12 +363,14 @@
                                         <div class="col-md-1">
                                             <?php
                                                 $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
                                                 if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) {
                                                     //Path to be changed
                                                     $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['contract_file'];
+                                                    $image_src = base_url().'images/view_image.png';
                                                 }
                                                 ?>
-                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
                                             <?php if(isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])){?>
                                             <a href="javascript:void(0)" onclick="remove_image('contract_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['contract_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                             <?php }?>
@@ -547,12 +551,14 @@
                                         <div class="col-md-1">
                                             <?php
                                                 $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
                                                 if (isset($query[0]['id_proof_1_file']) && !empty($query[0]['id_proof_1_file'])) {
                                                     //Path to be changed
                                                     $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['id_proof_1_file'];
+                                                    $image_src = base_url().'images/view_image.png';
                                                 }
                                                 ?>
-                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
                                             <?php if(isset($query[0]['id_proof_1_file']) && !empty($query[0]['id_proof_1_file'])){?>
                                             <a href="javascript:void(0)" onclick="remove_image('id_proof_1_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['id_proof_1_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                             <?php }?>
@@ -577,12 +583,14 @@
                                         <div class="col-md-1">
                                             <?php
                                                 $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
                                                 if (isset($query[0]['id_proof_2_file']) && !empty($query[0]['id_proof_2_file'])) {
                                                     //Path to be changed
                                                     $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['id_proof_2_file'];
+                                                    $image_src = base_url().'images/view_image.png';
                                                 }
                                                 ?>
-                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
                                             <?php if(isset($query[0]['id_proof_2_file']) && !empty($query[0]['id_proof_2_file'])){?>
                                             <a href="javascript:void(0)" onclick="remove_image('id_proof_2_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['id_proof_2_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                             <?php }?>
@@ -642,12 +650,14 @@
                                 <div class="col-md-1" style="margin-left: 20px;">
                                     <?php
                                         $src = base_url() . 'images/no_image.png';
+                                        $image_src = $src;
                                         if (isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])) {
                                             //Path to be changed
                                             $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['pan_file'];
+                                            $image_src = base_url().'images/view_image.png';
                                         }
                                         ?>
-                                    <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                    <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
                                     <?php if(isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])){?>
                                     <a href="javascript:void(0)" onclick="remove_image('pan_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['pan_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                     <?php }?>
@@ -750,12 +760,14 @@
                                         <div class="col-md-1">
                                             <?php
                                                 $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
                                                 if (isset($query[0]['cst_file']) && !empty($query[0]['cst_file'])) {
                                                     //Path to be changed
                                                     $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['cst_file'];
+                                                    $image_src = base_url().'images/view_image.png';
                                                 }
                                                 ?>
-                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
                                             <?php if(isset($query[0]['cst_file']) && !empty($query[0]['cst_file'])){?>
                                             <a href="javascript:void(0)" onclick="remove_image('cst_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['cst_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                             <?php }?>
@@ -807,12 +819,14 @@
                                         <div class="col-md-1">
                                             <?php
                                                 $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
                                                 if (isset($query[0]['tin_file']) && !empty($query[0]['tin_file'])) {
                                                     //Path to be changed
                                                     $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['tin_file'];
+                                                    $image_src = base_url().'images/view_image.png';
                                                 }
                                                 ?>
-                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
                                             <?php if(isset($query[0]['tin_file']) && !empty($query[0]['tin_file'])){?>
                                             <a href="javascript:void(0)" onclick="remove_image('tin_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['tin_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                             <?php }?>
@@ -864,12 +878,14 @@
                                         <div class="col-md-1">
                                             <?php
                                                 $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
                                                 if (isset($query[0]['service_tax_file']) && !empty($query[0]['service_tax_file'])) {
                                                     //Path to be changed
                                                     $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['service_tax_file'];
+                                                    $image_src = base_url().'images/view_image.png';
                                                 }
                                                 ?>
-                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
                                             <?php if(isset($query[0]['service_tax_file']) && !empty($query[0]['service_tax_file'])){?>
                                             <a href="javascript:void(0)" onclick="remove_image('service_tax_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['service_tax_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                             <?php }?>
@@ -996,12 +1012,14 @@
                                         <div class="col-md-1">
                                             <?php
                                                 $src = base_url() . 'images/no_image.png';
+                                                $image_src = $src;
                                                 if (isset($query[0]['cancelled_cheque_file']) && !empty($query[0]['cancelled_cheque_file'])) {
                                                     //Path to be changed
                                                     $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['cancelled_cheque_file'];
+                                                    $image_src = base_url().'images/view_image.png';
                                                 }
                                                 ?>
-                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                            <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
                                             <?php if(isset($query[0]['cancelled_cheque_file']) && !empty($query[0]['cancelled_cheque_file'])){?>
                                             <a href="javascript:void(0)" onclick="remove_image('cancelled_cheque_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['cancelled_cheque_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                             <?php }?>

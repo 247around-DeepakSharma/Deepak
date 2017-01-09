@@ -1637,6 +1637,7 @@ CREATE TABLE `sub_service_center_details` (
 -- Indexes for dumped tables
 --
 
+<<<<<<< HEAD
 --
 -- Indexes for table `sub_service_center_details`
 --
@@ -1672,3 +1673,17 @@ ALTER TABLE `scheduler_tasks_status`
 
 ALTER TABLE `scheduler_tasks_status`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=0;
+
+ALTER TABLE `partners` ADD `upcountry_rate` INT(11) NOT NULL AFTER `upcountry`;
+
+--Belal 9 Jan
+
+CREATE TABLE `file_uploads` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `file_name` varchar(512) DEFAULT NULL,
+ `file_type` varchar(256) DEFAULT NULL,
+ `tag` varchar(128) DEFAULT NULL,
+ `agent_id` varchar(128) DEFAULT NULL,
+ `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
