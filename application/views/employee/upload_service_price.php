@@ -1,9 +1,8 @@
 <div id="page-wrapper">
    <div class="container-fluid">
       <div class="row">
-         <div class="col-md-12">
             <?php if(isset($error) && $error !==0) {
-               echo '<div class="alert alert-danger alert-dismissible" role="alert">
+               echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:15px;">
                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                        <span aria-hidden="true">&times;</span>
                    </button>
@@ -12,7 +11,7 @@
                }
                ?>
             <?php if(isset($sucess) && $sucess !==0) {
-               echo '<div class="alert alert-success alert-dismissible" role="alert">
+               echo '<div class="alert alert-success alert-dismissible" role="alert" style="margin-top:15px;">
                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                        <span aria-hidden="true">&times;</span>
                    </button>
@@ -21,7 +20,7 @@
                }
                ?>  
             <?php if($this->session->userdata('success')) {
-               echo '<div class="alert alert-success alert-dismissible" role="alert">
+               echo '<div class="alert alert-success alert-dismissible" role="alert" style="margin-top:15px;">
                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                        <span aria-hidden="true">&times;</span>
                    </button>
@@ -32,27 +31,38 @@
             <h1 class="page-header">
                Upload Excel File
             </h1>
-            <form class="form-inline" action="<?php echo base_url()?>employee/service_centre_charges/upload_service_price_from_excel" method="POST" enctype="multipart/form-data">
+            <form class="col-md-12" action="<?php echo base_url()?>employee/service_centre_charges/upload_service_price_from_excel" method="POST" enctype="multipart/form-data">
                <div class="form-group  <?php if( form_error('file') ) { echo 'has-error';} ?>">
-                  <label for="excel" class="col-md-6">Upload Service Price List</label>
+                  <label for="excel" class="col-md-3">Upload Service Price List:</label>
                   <div class="col-md-4">
                      <input type="file" class="form-control"  name="file" >
                      <?php echo form_error('file'); ?>
                   </div>
+                <input class="col-md-1 btn btn-danger btn-sm" type= "submit"  value ="Upload" >                           
                </div>
-               <input style="margin-left:60px;" type= "submit"  class="btn btn-danger btn-sm" value ="Upload" >                           
             </form>
-            <form style="margin-top:40px;margin-bottom: 40px;" class="form-inline" action="<?php echo base_url()?>employee/service_centre_charges/upload_tax_rate_from_excel" method="POST" enctype="multipart/form-data">
+          <div class="clear"></div>
+            <form class="col-md-12" action="<?php echo base_url()?>employee/service_centre_charges/upload_tax_rate_from_excel" method="POST" enctype="multipart/form-data">
                <div class="form-group  <?php if( form_error('file') ) { echo 'has-error';} ?>">
-                  <label for="excel" class="col-md-6">Upload Tax Rate List</label>
+                  <label for="excel" class="col-md-3">Upload Tax Rate List:</label>
                   <div class="col-md-4">
                      <input type="file" class="form-control"  name="file" >
                      <?php echo form_error('file'); ?>
                   </div>
+                <input type= "submit"  class="col-md-1 btn btn-danger btn-sm" value ="Upload" >                           
                </div>
-               <input style="margin-left:80px;" type= "submit"  class="btn btn-danger btn-sm" value ="Upload" >                           
             </form>
-         </div>
+          <div class="clear"></div>
+            <form class="col-md-12" action="<?php echo base_url()?>employee/service_centre_charges/upload_partner_appliance_details_excel" method="POST" enctype="multipart/form-data">
+               <div class="form-group  <?php if( form_error('file') ) { echo 'has-error';} ?>">
+                  <label for="excel" class="col-md-3">Upload Partner Appliance Details:</label>
+                  <div class="col-md-4">
+                     <input type="file" class="form-control"  name="file" >
+                     <?php echo form_error('file'); ?>
+                  </div>
+                <input type= "submit"  class="col-md-1 btn btn-danger btn-sm" value ="Upload" >                           
+               </div>
+            </form>
       </div>
    </div>
 </div>
