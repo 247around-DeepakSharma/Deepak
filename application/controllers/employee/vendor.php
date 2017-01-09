@@ -689,7 +689,18 @@ class vendor extends CI_Controller {
      * @return : array(of details) to view
      */
     function viewvendor($vendor_id = "") {
-        $id = $this->session->userdata('id');
+        $id = $this->session->userdata('id');   
+        $active = "1";
+        $data['active_state'] = $active;
+        
+        if(!empty($this->input->get())){
+            $data = $this->input->get();
+            if($data['active_state'] == 'all'){
+                $active = "";
+            }
+        
+        }
+
         //Getting employee relation if present for logged in user
         $sf_list = $this->vendor_model->get_employee_relation($id);
         if (!empty($sf_list)) {
@@ -697,9 +708,9 @@ class vendor extends CI_Controller {
         }
         //Getting State for SC charges
         $state = $this->service_centre_charges_model->get_unique_states_from_tax_rates();
-        $query = $this->vendor_model->viewvendor($vendor_id, "", $sf_list);
+        $query = $this->vendor_model->viewvendor($vendor_id, $active, $sf_list);
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state));
+        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state , 'selected' =>$data));
     }
 
     /**
