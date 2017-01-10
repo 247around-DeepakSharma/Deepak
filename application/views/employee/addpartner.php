@@ -184,10 +184,12 @@
             <div class="col-md-1">
                 <?php
                 $src = base_url() . 'images/no_image.png';
+                $image_src= $src;
                 if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) {
                     $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['contract_file'];
+                    $image_src = base_url().'images/view_image.png';
                 }?>
-                <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $image_src; ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
                 <?php if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) { ?>
                     <a href="javascript:void(0)" onclick="remove_image(<?php echo $query[0]['id'] ?>,'<?php echo $query[0]['contract_file'] ?>','contract_file')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                 <?php } ?>
@@ -391,10 +393,12 @@
             <div class="col-md-1">
                 <?php
                 $src = base_url() . 'images/no_image.png';
+                $image_src = $src;
                 if (isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])) {
                     $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['pan_file'];
+                    $image_src = base_url().'images/view_image.png';
                 }?>
-                <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $image_src; ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
                 <?php if (isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])) { ?>
                     <a href="javascript:void(0)" onclick="remove_image(<?php echo $query[0]['id'] ?>,'<?php echo $query[0]['pan_file'] ?>','pan_file')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                 <?php } ?>
@@ -414,10 +418,12 @@
             <div class="col-md-1">
                 <?php
                 $src = base_url() . 'images/no_image.png';
+                $image_src  = $src;
                 if (isset($query[0]['registration_file']) && !empty($query[0]['registration_file'])) {
                     $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/" . $query[0]['registration_file'];
+                    $image_src = base_url().'images/view_image.png';
                 }?>
-                <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
                 <?php if (isset($query[0]['registration_file']) && !empty($query[0]['registration_file'])) { ?>
                     <a href="javascript:void(0)" onclick="remove_image(<?php echo $query[0]['id'] ?>,'<?php echo $query[0]['registration_file'] ?>','registration_file')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                 <?php } ?>

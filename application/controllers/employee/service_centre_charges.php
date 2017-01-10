@@ -203,7 +203,16 @@ class service_centre_charges extends CI_Controller {
 			$data = $this->set_tax_rows_data($row);
 			array_push($rows, $data);
 		    }
-		}
+		} else if($type == "appliance"){
+                    log_message('info','Inside upload excel');
+                    // Get Data from top 2 rows in excel file
+		    if ($count > 2) {
+                        log_message('info','Inside count');
+			$data = $this->set_partner_appliance_rows_data($row);
+			array_push($rows, $data);
+		    }
+                    
+                }
 		$count++;
 	    }
 	    $this->insert_data_list($type, $rows);
@@ -224,8 +233,13 @@ class service_centre_charges extends CI_Controller {
 	    $return = $this->partner_model->insert_data_in_batch($table_name, $rows);
 	} else if ($type == "tax") {
 	    $table_name = 'tax_rates_by_states';
-	    $return = $return = $this->partner_model->insert_data_in_batch($table_name, $rows);
-	}
+	    $return = $this->partner_model->insert_data_in_batch($table_name, $rows);
+	} else if ($type == "appliance"){
+            log_message('info','Inside insert data list');
+            $table_name = 'partner_appliance_details';
+	    $return = $this->partner_model->insert_data_in_batch($table_name, $rows);
+            
+        }
 	if ($return == 1) {
 	    $this->redirect_upload_form();
 	} else {
@@ -433,5 +447,78 @@ class service_centre_charges extends CI_Controller {
 
             echo $option;
         }
+    }
+    
+    /**
+     *  @desc  : This is used to upload partner appliance details excel
+     *  @param : void
+     *  @return : void
+     */
+    function upload_partner_appliance_details_excel() {
+	$return = $this->partner_utilities->validate_file($_FILES);
+	if ($return == "true") {
+            //Logging
+            log_message('info',__FUNCTION__.' Processing of Partner Appliance Excel File started');
+            
+            //Adding Details in File_Uploads table as well
+            
+            //Getting Latest Tag 
+            $tag = $this->partner_model->get_latest_tag_file_uploads_by_type('appliance');
+            if(!empty($tag)){
+                $latest_tag = $tag[0]['tag'];
+            }else{
+                $latest_tag = 0;
+            }
+            
+            $data['file_name'] = "Partner-Appliance-Details".date('Y-m-d-H-i-s').'-'.($latest_tag+1).'.xlsx';
+            $data['file_type'] = "appliance";
+            $data['tag'] = ($latest_tag+1);
+            $data['agent_id'] = $this->session->userdata('employee_id');
+            $insert_id = $this->partner_model->add_file_upload_details($data);
+            if(!empty($insert_id)){
+            //Logging success
+                log_message('info',__FUNCTION__.' Added details to File Uploads '.print_r($data,TRUE));
+            }else{
+            //Loggin Error
+                log_message('info',__FUNCTION__.' Error in adding details to File Uploads '.print_r($data,TRUE));
+            }
+            
+            //Making process for file upload
+            $tmpFile = $_FILES['file']['tmp_name'];
+            $appliance_file = "Partner-Appliance-Details".date('Y-m-d-H-i-s').'-'.$data['tag'].'.xlsx';
+            move_uploaded_file($tmpFile, TMP_FOLDER . $appliance_file);
+
+            //Upload files to AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "vendor-partner-docs/" . $appliance_file;
+            $this->s3->putObjectFile(TMP_FOLDER . $appliance_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            //Logging
+            log_message('info',__FUNCTION__.' File has been uploaded in S3');
+            
+            
+            //Processing File 
+	    $this->upload_excel(TMP_FOLDER . $appliance_file, "appliance");
+            
+	} else {
+	    $this->upload_excel_form($return);
+	}
+    }
+    
+    /**
+     * @Desc:This function is used to set Rows for Partner Appliance Details
+     * @params: Array
+     * @return: Array
+     * 
+     */
+    function set_partner_appliance_rows_data($row) {
+        log_message('info',__FUNCTION__);
+	$data['partner_id'] = $row[0];
+	$data['service_id'] = $row[1];
+	$data['brand'] = $row[2];
+	$data['category'] = $row[3];
+	$data['capacity'] = $row[4];
+	$data['model'] = isset($row[5])?$row[5]:'';
+	$data['active'] = 1;
+	return $data;
     }
 }    
