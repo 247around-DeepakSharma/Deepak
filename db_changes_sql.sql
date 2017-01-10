@@ -1684,6 +1684,6 @@ CREATE TABLE `file_uploads` (
  `file_type` varchar(256) DEFAULT NULL,
  `tag` varchar(128) DEFAULT NULL,
  `agent_id` varchar(128) DEFAULT NULL,
- `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;

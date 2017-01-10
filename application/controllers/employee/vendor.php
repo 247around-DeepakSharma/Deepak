@@ -1158,17 +1158,17 @@ class vendor extends CI_Controller {
             $latest_tag = 0;
         }
 
-        $data['file_name'] = "vendor_pincode_mapping_temp.zip";
-        $data['file_type'] = _247AROUND_VENDOR_PINCODE;
-        $data['tag'] = ($latest_tag + 1);
-        $data['agent_id'] = $this->session->userdata('employee_id');
-        $insert_id = $this->partner_model->add_file_upload_details($data);
+        $data_uploads['file_name'] = "vendor_pincode_mapping_temp.zip";
+        $data_uploads['file_type'] = _247AROUND_VENDOR_PINCODE;
+        $data_uploads['tag'] = ($latest_tag + 1);
+        $data_uploads['agent_id'] = $this->session->userdata('employee_id');
+        $insert_id = $this->partner_model->add_file_upload_details($data_uploads);
         if (!empty($insert_id)) {
             //Logging success
-            log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data, TRUE));
+            log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data_uploads, TRUE));
         } else {
             //Loggin Error
-            log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data, TRUE));
+            log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data_uploads, TRUE));
         }
 
         
