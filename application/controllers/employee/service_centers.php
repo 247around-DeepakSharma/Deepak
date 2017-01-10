@@ -20,6 +20,7 @@ class Service_centers extends CI_Controller {
         $this->load->model('booking_model');
         $this->load->model('reporting_utils');
         $this->load->model('partner_model');
+        $this->load->model('upcountry_model');
         $this->load->model('vendor_model');
         $this->load->model('user_model');
         $this->load->model('employee_model');
@@ -105,6 +106,7 @@ class Service_centers extends CI_Controller {
         $data['spare_parts_data'] = $this->service_centers_model->get_updated_spare_parts_booking($service_center_id);
         
         }
+        $data['upcountry'] = $this->upcountry_model->upcountry_service_center($service_center_id);
 
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/pending_booking', $data);

@@ -30,6 +30,7 @@ class vendor extends CI_Controller {
         
         $this->load->library('form_validation');
         $this->load->model('vendor_model');
+        $this->load->model('upcountry_model');
         $this->load->model('partner_model');
         $this->load->library('booking_utilities');
         $this->load->library('partner_utilities');
@@ -974,7 +975,19 @@ class vendor extends CI_Controller {
             //$this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
 
 	     log_message('info', "Reassigned - Booking id: " . $booking_id . "  By " .
-		$this->session->userdata('employee_id') . " service center id " . $service_center_id);
+               $this->session->userdata('employee_id') . " service center id " . $service_center_id);
+            // Check & Calculate Upcountry charges.
+            $up_status = $this->upcountry_model->action_upcountry_booking($booking_id);
+                
+            if(!empty ($up_status) && $up_status != "Success"){
+                $from = "booking@247around.com";
+                $to = NITS_ANUJ_EMAIL_ID;
+                $subject = " UpCountry Calculation Failed for Booking -". $booking_id;
+                $message = " UpCountry Calculation Failed for Booking - service center id ". $service_center_id;
+                    $cc = $bcc = $attachment ="";
+
+                $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);            
+            } 
 
             redirect(base_url() . DEFAULT_SEARCH_PAGE);
 	} else {

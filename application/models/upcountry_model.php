@@ -51,9 +51,12 @@ class Upcountry_model extends CI_Model {
      * @param String $booking_id
      * @return boolean|array
      */
-    function action_upcountry_booking($partner_id, $service_center_id, $booking_pincode, $booking_id){
-        log_message('info', __FUNCTION__.' Partner Id '. $partner_id." Service_center_id".
-                $service_center_id. " Booking_pincode ". $booking_pincode. " Booking_id". $booking_id );
+    function action_upcountry_booking($booking_id){
+        log_message('info', __FUNCTION__. " Booking_id". $booking_id );
+        $getbooking_details = $this->booking_model->getbooking_history($booking_id);
+        $partner_id= $getbooking_details[0]['partner_id'];
+        $service_center_id = $getbooking_details[0]['assigned_vendor_id'];
+        $booking_pincode =$getbooking_details[0]['booking_pincode'];
         $res_partner = $this->get_partner_provide_upcountry($partner_id);
         $failed_data = array();
         $distance_data = array();
@@ -155,7 +158,7 @@ class Upcountry_model extends CI_Model {
                 $min_price['is_upcountry'] = 1;
             }
         }
-       
+        log_message('info', __FUNCTION__." Min Price ". print_r($min_price, true));
         return $min_price;
     }
     /**
@@ -178,7 +181,7 @@ class Upcountry_model extends CI_Model {
      */
     function upcountry_in_invoice($vendor_id, $from_date, $to_date){
         $sql = "SELECT CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking,"
-                . " upcountry_distance, assigned_vendor_id, round((upcountry_rate * upcountry_distance )/1.15,2) AS upcountry_price,"
+                . " round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) AS upcountry_distance, assigned_vendor_id, round((upcountry_rate * round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) )/1.15,2) AS upcountry_price,"
                 . " COUNT(DISTINCT(bd.booking_id)) AS count_booking, round((upcountry_rate)/1.15,2) AS upcountry_rate "
                 . " FROM `booking_details` AS bd, booking_unit_details AS ud "
                 . " WHERE ud.booking_id = bd.booking_id "
@@ -213,6 +216,63 @@ class Upcountry_model extends CI_Model {
         } else {
             return FALSE;
         }
+    }
+    
+    function upcountry_service_center($vendor_id){
+         for ($i = 0; $i < 3; $i++) {
+            if ($i == 0) {
+                $where = " AND `ud_closed_date` >=  '" . date('Y-m-01') . "'";
+            } else if ($i == 1) {
+                $where = "  AND  ud_closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
+			    AND ud_closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
+            } else if ($i == 2) {
+                $where = "  AND  ud_closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
+			    AND ud_closed_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')";
+            }
+
+            $sql = "SELECT CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking, ud_closed_date, "
+                 
+                    . " round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) AS upcountry_distance,"
+                    . " (CASE WHEN (service_tax_no IS NULL) THEN (round((upcountry_rate * round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) )/1.15,2)) ELSE "
+                    . " (round((upcountry_rate * round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) ),2)) END ) AS upcountry_price,"
+                    . " COUNT(DISTINCT(bd.booking_id)) AS count_booking, "
+                    . " (CASE WHEN (service_tax_no IS NULL) THEN (round((upcountry_rate)/1.15,2)) ELSE "
+                    . " (round((upcountry_rate ),2)) END ) AS upcountry_rate"
+                    . " FROM `booking_details` AS bd, booking_unit_details AS ud, service_centres AS s "
+                    . " WHERE  ud.booking_id = bd.booking_id "
+                    . " AND is_upcountry = '1' "
+                    . " AND s.id = assigned_vendor_id "
+                    . " AND bd.assigned_vendor_id = '$vendor_id' "
+                    . " AND ud.around_to_vendor >0 "
+                    . " AND ud.vendor_to_around =0 "
+                    . " AND sub_vendor_id IS NOT NULL "
+                    . " AND current_status = 'Completed' $where "
+                    . " GROUP BY bd.booking_date ";
+
+            $query = $this->db->query($sql);
+
+            if ($query->num_rows > 0) {
+                $result = $query->result_array();
+                $total_price = 0;
+                $total_booking = 0;
+                
+                foreach ($result as $value) {
+                    $total_price += $value['upcountry_price'];
+                    $total_booking += $value['count_booking'];
+                   
+                }
+                $result[0]['total_upcountry_price'] = $total_price;
+                $result[0]['total_booking'] = $total_booking;
+   
+
+                $data[$i] = $result;
+
+            } else {
+                $data[$i] = array();
+            }
+        }
+        
+        return $data;
     }
     
 }
