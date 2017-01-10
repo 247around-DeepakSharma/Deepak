@@ -1131,6 +1131,43 @@ class vendor extends CI_Controller {
      */
     function process_pincode_excel_upload_form() {
         $inputFileName = $_FILES['file']['tmp_name'];
+        
+        //Logging
+        log_message('info', __FUNCTION__ . ' Processing of Pincode Excel File started');
+
+        //Adding Details in File_Uploads table as well
+        //Getting Latest Tag 
+        $tag = $this->partner_model->get_latest_tag_file_uploads_by_type(_247AROUND_VENDOR_PINCODE);
+        if (!empty($tag)) {
+            $latest_tag = $tag[0]['tag'];
+        } else {
+            $latest_tag = 0;
+        }
+
+        $data['file_name'] = "Vendor-Pincode-" . date('Y-m-d-H-i-s') . '-' . ($latest_tag + 1) . '.xlsx';
+        $data['file_type'] = _247AROUND_VENDOR_PINCODE;
+        $data['tag'] = ($latest_tag + 1);
+        $data['agent_id'] = $this->session->userdata('employee_id');
+        $insert_id = $this->partner_model->add_file_upload_details($data);
+        if (!empty($insert_id)) {
+            //Logging success
+            log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data, TRUE));
+        } else {
+            //Loggin Error
+            log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data, TRUE));
+        }
+
+        //Making process for file upload
+        $delivered_file = "Vendor_Pincode-" . date('Y-m-d-H-i-s') . '-' . $data['tag'] . '.xlsx';
+        move_uploaded_file($inputFileName, TMP_FOLDER . $delivered_file);
+
+        //Upload files to AWS
+        $bucket = BITBUCKET_DIRECTORY;
+        $directory_xls = "vendor-partner-docs/" . $delivered_file;
+        $this->s3->putObjectFile(TMP_FOLDER . $delivered_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        //Logging
+        log_message('info', __FUNCTION__ . ' Vendor Pincode File has been uploaded in S3');
+        
         log_message('info', __FUNCTION__ . ' => Input ZIP file: ' . $inputFileName);
         
         $newZipFileName = TMP_FOLDER."vendor_pincode_mapping_temp.zip";

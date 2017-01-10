@@ -41,7 +41,7 @@
                 <input class="col-md-1 btn btn-danger btn-sm" type= "submit"  value ="Upload" >                           
                </div>
             </form>
-          <div class="clear"></div>
+<!--          <div class="clear"></div>
             <form class="col-md-12" action="<?php echo base_url()?>employee/service_centre_charges/upload_tax_rate_from_excel" method="POST" enctype="multipart/form-data">
                <div class="form-group  <?php if( form_error('file') ) { echo 'has-error';} ?>">
                   <label for="excel" class="col-md-3">Upload Tax Rate List:</label>
@@ -51,7 +51,7 @@
                   </div>
                 <input type= "submit"  class="col-md-1 btn btn-danger btn-sm" value ="Upload" >                           
                </div>
-            </form>
+            </form>-->
           <div class="clear"></div>
             <form class="col-md-12" action="<?php echo base_url()?>employee/service_centre_charges/upload_partner_appliance_details_excel" method="POST" enctype="multipart/form-data">
                <div class="form-group  <?php if( form_error('file') ) { echo 'has-error';} ?>">

@@ -172,8 +172,46 @@ class service_centre_charges extends CI_Controller {
     function upload_service_price_from_excel() {
 	$return = $this->partner_utilities->validate_file($_FILES);
 	if ($return == "true") {
-	    $inputFileName = $_FILES['file']['tmp_name'];
-	    $this->upload_excel($inputFileName, "price");
+            //Logging
+            log_message('info',__FUNCTION__.' Processing of Service Price List Excel File started');
+            
+            //Adding Details in File_Uploads table as well
+            
+            //Getting Latest Tag 
+            $tag = $this->partner_model->get_latest_tag_file_uploads_by_type('price');
+            if(!empty($tag)){
+                $latest_tag = $tag[0]['tag'];
+            }else{
+                $latest_tag = 0;
+            }
+            
+            $data['file_name'] = "Service-Price-List-".date('Y-m-d-H-i-s').'-'.($latest_tag+1).'.xlsx';
+            $data['file_type'] = "price";
+            $data['tag'] = ($latest_tag+1);
+            $data['agent_id'] = $this->session->userdata('employee_id');
+            $insert_id = $this->partner_model->add_file_upload_details($data);
+            if(!empty($insert_id)){
+            //Logging success
+                log_message('info',__FUNCTION__.' Added details to File Uploads '.print_r($data,TRUE));
+            }else{
+            //Loggin Error
+                log_message('info',__FUNCTION__.' Error in adding details to File Uploads '.print_r($data,TRUE));
+            }
+            
+            //Making process for file upload
+            $tmpFile = $_FILES['file']['tmp_name'];
+            $price_file = "Service-Price-List-".date('Y-m-d-H-i-s').'-'.$data['tag'].'.xlsx';
+            move_uploaded_file($tmpFile, TMP_FOLDER . $price_file);
+
+            //Upload files to AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "vendor-partner-docs/" . $price_file;
+            $this->s3->putObjectFile(TMP_FOLDER . $price_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            //Logging
+            log_message('info',__FUNCTION__.' File has been uploaded in S3');
+            
+	    //Processing File
+	    $this->upload_excel(TMP_FOLDER . $price_file, "price");
 	} else {
 	    $this->upload_excel_form($return);
 	}
@@ -266,30 +304,30 @@ class service_centre_charges extends CI_Controller {
      *  @return : array
      */
     function set_price_rows_data($row) {
-	$data['partner_id'] = $row[1];
-	$data['state'] = $row[2];
-	$data['service_id'] = $row[4];
-	$data['category'] = $row[5];
-	$data['capacity'] = $row[6];
-	$data['service_category'] = $row[7];
-	$data['product_or_services'] = $row[8];
-	$data['product_type'] = $row[9];
-	$data['tax_code'] = $row[10];
-	$data['active'] = $row[11];
-	$data['check_box'] = $row[12];
-	$data['vendor_basic_charges'] = $row[13];
-	$data['vendor_tax_basic_charges'] = $row[14];
-	$data['vendor_total'] = $row[15];
-	$data['around_basic_charges'] = $row[16];
-	$data['around_tax_basic_charges'] = $row[17];
-	$data['around_total'] = $row[18];
-	$data['customer_total'] = $row[20];
-	$data['partner_payable_basic'] = $row[21];
-	$data['partner_payable_tax'] = $row[22];
-	$data['partner_net_payable'] = $row[23];
-	$data['customer_net_payable'] = $row[24];
-	$data['pod'] = $row[25];
-        $data['vendor_basic_percentage'] = $row[26];
+	$data['partner_id'] = isset($row[1])?$row[1]:'';
+	$data['state'] = isset($row[2])?$row[2]:'';
+	$data['service_id'] = isset($row[4])?$row[4]:'';
+	$data['category'] = isset($row[5])?$row[5]:'';
+	$data['capacity'] = isset($row[6])?$row[6]:'';
+	$data['service_category'] = isset($row[7])?$row[7]:'';
+	$data['product_or_services'] = isset($row[8])?$row[8]:'';
+	$data['product_type'] = isset($row[9])?$row[9]:'';
+	$data['tax_code'] = isset($row[10])?$row[10]:'';
+	$data['active'] = isset($row[11])?$row[11]:'';
+	$data['check_box'] = isset($row[12])?$row[12]:'';
+	$data['vendor_basic_charges'] = isset($row[13])?$row[13]:'';
+	$data['vendor_tax_basic_charges'] = isset($row[14])?$row[14]:'';
+	$data['vendor_total'] = isset($row[15])?$row[15]:'';
+	$data['around_basic_charges'] = isset($row[16])?$row[16]:'';
+	$data['around_tax_basic_charges'] = isset($row[17])?$row[17]:'';
+	$data['around_total'] = isset($row[18])?$row[18]:'';
+	$data['customer_total'] = isset($row[20])?$row[20]:'';
+	$data['partner_payable_basic'] = isset($row[21])?$row[21]:'';
+	$data['partner_payable_tax'] = isset($row[22])?$row[22]:'';
+	$data['partner_net_payable'] = isset($row[23])?$row[23]:'';
+	$data['customer_net_payable'] = isset($row[24])?$row[24]:'';
+	$data['pod'] = isset($row[25])?$row[25]:'';
+        $data['vendor_basic_percentage'] = isset($row[26])?$row[26]:'';
 
 	return $data;
     }
@@ -305,9 +343,9 @@ class service_centre_charges extends CI_Controller {
 	if ($return == true) {
 	    $inputFileName = $_FILES['file']['tmp_name'];
 	    $this->upload_excel($inputFileName, "tax");
-	}
-    }
-
+            }
+            }
+            
     function set_tax_rows_data($row) {
 	$data['tax'] = $row[0];
 	$data['date'] = $row[1];
@@ -512,11 +550,11 @@ class service_centre_charges extends CI_Controller {
      */
     function set_partner_appliance_rows_data($row) {
         log_message('info',__FUNCTION__);
-	$data['partner_id'] = $row[0];
-	$data['service_id'] = $row[1];
-	$data['brand'] = $row[2];
-	$data['category'] = $row[3];
-	$data['capacity'] = $row[4];
+	$data['partner_id'] = isset($row[0])?$row[0]:'';
+	$data['service_id'] = isset($row[1])?$row[1]:'';
+	$data['brand'] = isset($row[2])?$row[2]:'';
+	$data['category'] = isset($row[3])?$row[3]:'';
+	$data['capacity'] = isset($row[4])?$row[4]:'';
 	$data['model'] = isset($row[5])?$row[5]:'';
 	$data['active'] = 1;
 	return $data;

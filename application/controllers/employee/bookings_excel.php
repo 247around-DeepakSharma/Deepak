@@ -653,6 +653,9 @@ class bookings_excel extends CI_Controller {
 	} catch (Exception $e) {
 	    die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
 	}
+        
+        //Updating File Uploads table and upload file to s3
+        $this->_update_paytm_file_uploads($_FILES["file"]["tmp_name"]);
 
 	//  Get worksheet dimensions
 	//$sheet = $objPHPExcel->setActiveSheetIndexbyName('Sheet1');
@@ -920,6 +923,50 @@ class bookings_excel extends CI_Controller {
             $data['source'] = 'SS';
         }
         return $data;
+    }
+    
+    /**
+     * @Desc: This function is used to upload Paytm file to s3 and update file uploads table
+     * @params: String
+     * @return: void
+     * 
+     */
+    private function _update_paytm_file_uploads($tmpFile){
+        //Logging
+        log_message('info', __FUNCTION__ . ' Processing of Paytm Delivered Product Excel File started');
+
+        //Adding Details in File_Uploads table as well
+        //Getting Latest Tag 
+        $tag = $this->partner_model->get_latest_tag_file_uploads_by_type(_247AROUND_PAYTM_DELIVERED);
+        if (!empty($tag)) {
+            $latest_tag = $tag[0]['tag'];
+        } else {
+            $latest_tag = 0;
+        }
+
+        $data['file_name'] = "Paytm-Delivered-" . date('Y-m-d-H-i-s') . '-' . ($latest_tag + 1) . '.xlsx';
+        $data['file_type'] = _247AROUND_PAYTM_DELIVERED;
+        $data['tag'] = ($latest_tag + 1);
+        $data['agent_id'] = $this->session->userdata('employee_id');
+        $insert_id = $this->partner_model->add_file_upload_details($data);
+        if (!empty($insert_id)) {
+            //Logging success
+            log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data, TRUE));
+        } else {
+            //Loggin Error
+            log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data, TRUE));
+        }
+
+        //Making process for file upload
+        $delivered_file = "Paytm-Delivered-" . date('Y-m-d-H-i-s') . '-' . $data['tag'] . '.xlsx';
+        move_uploaded_file($tmpFile, TMP_FOLDER . $delivered_file);
+
+        //Upload files to AWS
+        $bucket = BITBUCKET_DIRECTORY;
+        $directory_xls = "vendor-partner-docs/" . $delivered_file;
+        $this->s3->putObjectFile(TMP_FOLDER . $delivered_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        //Logging
+        log_message('info', __FUNCTION__ . ' Paytm Delivered File has been uploaded in S3');
     }
 
 }
