@@ -371,21 +371,6 @@ class Booking_model extends CI_Model {
     }
 
     /**
-     * @desc : This funtion is to get all booking details of particular booking.
-     *
-     * Finds all the booking details of particular booking of a particular user.
-     *
-     * @param : booking id
-     * @return : array of booking details
-     */
-    function getbooking($booking_id) {
-        $this->db->select('*');
-        $this->db->where('booking_id', $booking_id);
-        $query = $this->db->get('booking_details');
-        return $query->result_array();
-    }
-
-    /**
      * @desc : This funtion is to count number of bookings for a particular user.
      *
      * Searches and counts bookings having same user id.

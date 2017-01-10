@@ -115,7 +115,7 @@ class Booking_utilities {
         log_message('info', __FUNCTION__. " Result Var Job card creation ". print_r($result_var, true));
 
 	//Upload Excel & PDF files to AWS
-	$bucket = 'bookings-collateral';
+	$bucket = BITBUCKET_DIRECTORY;
 	$directory_xls = "jobcards-excel/" . $output_file . ".xlsx";
 	$this->My_CI->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 

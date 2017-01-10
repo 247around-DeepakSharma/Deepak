@@ -999,13 +999,13 @@ class Booking extends CI_Controller {
      *  @return : user details to view
      */
     function get_rating_form($booking_id, $status) {
-	$getbooking = $this->booking_model->getbooking($booking_id);
+	$getbooking = $this->booking_model->getbooking_history($booking_id);
 	if ($getbooking) {
 
 	    $this->session->userdata('employee_id');
-	    $data = $getbooking;
+	    
 	    $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-	    $this->load->view('employee/rating', array('data' => $data, 'status' => $status));
+	    $this->load->view('employee/rating', array('data' => $getbooking, 'status' => $status));
 	} else {
 	    echo "Id doesn't exist";
 	}
