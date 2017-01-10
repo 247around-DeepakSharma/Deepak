@@ -15,6 +15,7 @@ class Upcountry extends CI_Controller {
 	parent::__Construct();
 
 	$this->load->model('upcountry_model');
+        $this->load->model('booking_model');
         $this->load->model('vendor_model');
 
 	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
@@ -82,7 +83,9 @@ class Upcountry extends CI_Controller {
             redirect(base_url()."employee/vendor/viewvendor");
         }
     }
-    
+    /**
+     * @desc: This is used to load failed upcountry booking edittable list. 
+     */
     function get_upcountry_failed_details(){
         $upcountry_details['details'] = $this->upcountry_model->get_upcountry_failed_details();
         foreach ($upcountry_details['details'] as $key => $value) {
@@ -92,5 +95,24 @@ class Upcountry extends CI_Controller {
         }
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/upcountry_failed_details', $upcountry_details);
+    }
+    /**
+     * @desc: This method update upcountry booking .
+     * This is called by Ajax 
+     */
+    function update_failed_upcountry_booking(){
+        $data['sub_vendor_id']= $this->input->post('sc_id');
+        $data['upcountry_pincode'] = $this->input->post('pincode');
+        $data['upcountry_distance'] = $this->input->post('distance');
+        $booking_id = $this->input->post('booking_id');
+        $data['upcountry_rate'] = $this->input->post('upcountry_rate');
+        
+        $this->booking_model->update_booking($booking_id,$data);
+        $this->notify->insert_state_change($booking_id, "Upcountry modified",
+                "Assign" , "Upcountry Sub SF id ".$data['sub_vendor_id'] , 
+                $this->session->userdata('id'), 
+                $this->session->userdata('employee_id'),
+                _247AROUND);
+        
     }
 }

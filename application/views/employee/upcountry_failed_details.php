@@ -14,25 +14,29 @@
                            <th>S No.</th>
                            <th>Booking ID</th>
                            <th>Pincode</th>
+                           <th>Distance</th>
+                           <th>Action</th>
   
                          </tr>
                      </thead>
                      <tbody>
                          <?php foreach ($details as $value) { ?>
-                          <tr>
+                          <tr id="<?php echo "table_tr_". $sn_no;?>">
                               <td><?php echo $sn_no; ?></td>
-                              <td  contenteditable="true"><?php echo $value['booking_id']; ?></a>
-			    </td>
+                              <td><?php echo $value['booking_id']; ?></td>
                              
                                <td>
-                                   
-                                   <select name="pincode" onchange="getpincode()" >
-                                       <?php foreach ($value['pincode_details'] as $pincode) { ?>
-                                       <option value="<?php echo $pincode['district']." - ".$pincode['pincode'];?>"> <?php echo $pincode['district']." - ".$pincode['pincode'];?></option>;
+
+                                   <select name="sc_id_pincode" class="form-control sc_pincode" id="<?php echo "sub_service_center_id_".$sn_no; ?>" >
+                                       <option disabled selected> Please Select District & Pincode</option>
+                                       <?php foreach ($value['pincode_details'] as $sub_vendor) { ?>
+                                       <option value="<?php echo $sub_vendor['id']."-".$sub_vendor['pincode']."-".$sub_vendor['upcountry_rate'];?>"> <?php echo $sub_vendor['district']." - ".$sub_vendor['pincode'];?></option>;
                                        <?php } ?>
                                   
                                   </select>
                                </td>
+                               <td contenteditable="true" id="<?php echo "distance_".$sn_no; ?>">0</td>
+                               <td><button class="btn btn-primary" onclick="submit_button('<?php echo $value["booking_id"];?>','<?php echo $sn_no; ?>')">Submit</button></td>
                                </tr>
                              
                         <?php $sn_no++; }?>
@@ -48,58 +52,43 @@
 
 </div>
 
-  
-  <button id="export-btn" class="btn btn-primary">Export Data</button>
-  <p id="export"></p>
 </div>
 
 <style>
-
 
 table {
   word-wrap:break-word;
     table-layout:fixed;
 }
 
-
-
-
 </style>
-
-<script>
-    var $TABLE = $('#table');
-    var $BTN = $('#export-btn');
-    var $EXPORT = $('#export');
-
-
-// A few jQuery helpers for exporting only
-jQuery.fn.pop = [].pop;
-jQuery.fn.shift = [].shift;
-
-$BTN.click(function () {
-  var $rows = $TABLE.find('tr:not(:hidden)');
-  var headers = [];
-  var data = [];
-  
-  // Get the headers (add special header logic here)
-  $($rows.shift()).find('th:not(:empty)').each(function () {
-    headers.push($(this).text().toLowerCase());
-  });
-  
-  // Turn all existing rows into a loopable array
-  $rows.each(function () {
-    var $td = $(this).find('td');
-    var h = {};
-    
-    // Use the headers from earlier to name our hash keys
-    headers.forEach(function (header, i) {
-      h[header] = $td.eq(i).text();   
-    });
-    
-    data.push(h);
-  });
-  
-  // Output the result
-  $EXPORT.text(JSON.stringify(data));
-});
-</script>
+<script type="text/javascript">
+    $(".sc_pincode").select2();
+    function submit_button(booking_id, div_no){
+      
+        var sub_sc_id_pincode = $("#sub_service_center_id_"+ div_no).val();
+        if(sub_sc_id_pincode !== null){
+            var sub_sc_id_pincode_array = sub_sc_id_pincode.split('-');
+            var sc_id = sub_sc_id_pincode_array[0];
+            var pincode = sub_sc_id_pincode_array[1];
+            var upcountry_rate = sub_sc_id_pincode_array[2];
+            var distance = $("#distance_"+ div_no).text();
+            var event_taget = event.target;
+            var event_element = event.srcElement;
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/upcountry/update_failed_upcountry_booking',
+                data: {sc_id: sc_id, pincode: pincode, distance:distance, 
+                  booking_id:booking_id,upcountry_rate:upcountry_rate},
+                success: function (data) {
+                  $(event_taget || event_element).parents('tr').hide();
+                   
+                 }
+              });
+              
+              
+        } else {
+           alert("Please Select District-Pincode");
+        }
+    }
+    </script>
