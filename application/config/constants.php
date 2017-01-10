@@ -178,6 +178,14 @@ define('OLD_SF_CRM',"Old SF CRM");
 define('UPCOUNTRY_DISTANCE_THRESHOLD',100);
 //Define New Partner Lead
 define('_247AROUND_NEW_PARTNER_LEAD','New_Lead');
+//Define Constant for Snapdeal Delivered Excel File Type
+define('_247AROUND_SNAPDEAL_DELIVERED','Snapdeal-Delivered');
+//Define Constant for Snapdeal Shipped Excel File Type
+define('_247AROUND_SNAPDEAL_SHIPPED','Snapdeal-Shipped');
+//Define Constant for Paytm Shipped Excel File Type
+define('_247AROUND_PAYTM_DELIVERED','Paytm-Delivered');
+//Define Constant for Vendor Pincode Excel File Type
+define('_247AROUND_VENDOR_PINCODE','Vendor-Pincode');
 
 
 
