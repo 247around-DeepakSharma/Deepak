@@ -3070,4 +3070,166 @@ class vendor extends CI_Controller {
                 exit;
             }           
     }
+    
+    /**
+     * @desc: This function is used to show editable grid for tax rates Templates
+     * params: void
+     * return: view
+     * 
+     */
+    function get_tax_rates_template_editable_grid(){
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/tax_rates_template_editable_grid');
+        
+    }
+    
+    /**
+     * @desc: This funtion is called from AJAX to get tax rates templates
+     * params: void
+     * return: ARRAY
+     */
+    function get_active_tax_rates_template() {
+        $page = isset($_POST['page']) ? $_POST['page'] : 1;
+        $limit = isset($_POST['rows']) ? $_POST['rows'] : 10;
+        $sidx = isset($_POST['sidx']) ? $_POST['sidx'] : 'name';
+        $sord = isset($_POST['sord']) ? $_POST['sord'] : '';
+        $start = $limit * $page - $limit;
+        $start = ($start < 0) ? 0 : $start;
+
+        $where = "";
+        $searchField = isset($_POST['searchField']) ? $_POST['searchField'] : false;
+        $searchOper = isset($_POST['searchOper']) ? $_POST['searchOper'] : false;
+        $searchString = isset($_POST['searchString']) ? $_POST['searchString'] : false;
+
+        if ($_POST['_search'] == 'true') {
+            $ops = array(
+                'eq' => '=',
+                'ne' => '<>',
+                'lt' => '<',
+                'le' => '<=',
+                'gt' => '>',
+                'ge' => '>=',
+                'bw' => 'LIKE',
+                'bn' => 'NOT LIKE',
+                'in' => 'LIKE',
+                'ni' => 'NOT LIKE',
+                'ew' => 'LIKE',
+                'en' => 'NOT LIKE',
+                'cn' => 'LIKE',
+                'nc' => 'NOT LIKE'
+            );
+            foreach ($ops as $key => $value) {
+                if ($searchOper == $key) {
+                    $ops = $value;
+                }
+            }
+            if ($searchOper == 'eq')
+                $searchString = $searchString;
+            if ($searchOper == 'bw' || $searchOper == 'bn')
+                $searchString .= '%';
+            if ($searchOper == 'ew' || $searchOper == 'en')
+                $searchString = '%' . $searchString;
+            if ($searchOper == 'cn' || $searchOper == 'nc' || $searchOper == 'in' || $searchOper == 'ni')
+                $searchString = '%' . $searchString . '%';
+
+            $where = "$searchField $ops '$searchString' ";
+        }
+
+        if (!$sidx)
+            $sidx = 1;
+        $count = $this->db->count_all_results('tax_rates');
+         
+        if ($count > 0) {
+            $total_pages = ceil($count / $limit);
+        } else {
+            $total_pages = 0;
+        }
+
+        if ($page > $total_pages){
+            $page = $total_pages;
+        }
+       
+        $query = $this->vendor_model->get_all_active_tax_rates_template($start, $limit, $sidx, $sord, $where);
+        
+        $responce = new StdClass;
+        $responce->page = $page;
+        $responce->total = $total_pages;
+        $responce->records = $count;
+        $i = 0;
+                
+        foreach ($query as $row) {
+            $responce->rows[$i]['id'] = $row->id;
+            $responce->rows[$i]['cell'] = array($row->tax_code, $row->state, $row->product_type, $row->rate,$row->from_date,$row->to_date,$row->active);
+            $i++;
+        }
+ 
+        echo json_encode($responce);
+    }
+    
+    function update_tax_rate_template() {
+        $data = $this->input->post();
+        $operation = $data['oper'];
+
+        switch ($operation) {
+            case 'add':
+                //Initializing array for adding data
+                $insert_data = [];
+                //Checking active value checked
+                if ($data['active'] == 'on') {
+                    $data['active'] = 1;
+                } else {
+                    $data['active'] = 0;
+                }
+                //Setting insert array data
+                $insert_data['tax_code'] = $data['tax_code'];
+                $insert_data['state'] = $data['state'];
+                $insert_data['product_type'] = $data['product_type'];
+                $insert_data['rate'] = $data['rate'];
+                $insert_data['from_date'] = $data['from_date'];
+                $insert_data['to_date'] = $data['to_date'];
+                $insert_data['active'] = $data['active'];
+                $insert_data['create_date'] = date('Y-m-d H:i:s');
+                $insert_id = $this->vendor_model->insert_tax_rates_template($insert_data);
+                print_r($insert_id);
+                if ($insert_id) {
+                    log_message('info', __FUNCTION__ . ' New Tax Rate Template has been added with ID ' . $insert_id);
+                } else {
+                    log_message('info', __FUNCTION__ . ' Err in adding New Tax Rate Template');
+                }
+                break;
+            case 'edit':
+                //Initializing array for updating data
+                $update_data = [];
+                //Checking active value checked
+                if ($data['active'] == 'on') {
+                    $data['active'] = 1;
+                } else {
+                    $data['active'] = 0;
+                }
+                //Setting insert array data
+                $update_data['tax_code'] = $data['tax_code'];
+                $update_data['state'] = $data['state'];
+                $update_data['product_type'] = $data['product_type'];
+                $update_data['rate'] = $data['rate'];
+                $update_data['from_date'] = $data['from_date'];
+                $update_data['to_date'] = $data['to_date'];
+                $update_data['active'] = $data['active'];
+                $update_id = $this->vendor_model->update_tax_rates_template($update_data,$data['id']);
+                if ($update_id) {
+                    log_message('info', __FUNCTION__ . ' Sms Template has been updated with ID ' . $update_id);
+                } else {
+                    log_message('info', __FUNCTION__ . ' Err in updating New Sms Template');
+                }
+                break;
+
+            case 'del':
+                $delete = $this->vendor_model->delete_tax_rate_template($data['id']);
+                if ($delete) {
+                    log_message('info', __FUNCTION__ . ' Tax Rate Template has been deleted with ID'. $data['id'] );
+                } else {
+                    log_message('info', __FUNCTION__ . ' Err in deleting Tax Rate Template');
+                }
+                break;
+        }
+    }
 }   
