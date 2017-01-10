@@ -1110,17 +1110,57 @@ class Booking extends CI_Controller {
      *  @return : add new brand and load view
      */
     function process_add_new_brand_form() {
-	$new_brand = $this->input->post('new_brand');
-	$brand_name = $this->input->post('brand_name');
+	$service_details = $this->input->post('new_brand');
+	$brand_details = $this->input->post('brand_name');
+        $data = array();
+	foreach ($service_details as $key => $service_id) {
+	    if ($service_id != "Select" ) {
+                if(!empty($brand_details[$key])){
+                    
+                    $is_exits = $this->booking_model->check_brand_exit($service_id, trim($brand_details[$key]));
+                    
+                    if(!$is_exits){ 
+                        $is_insert = $this->booking_model->addNewApplianceBrand($service_id, trim($brand_details[$key]));
+                        array_push($data, array("service_id"=> $service_id, "brand_name"=>trim($brand_details[$key])));
 
-	foreach ($new_brand as $service_id => $service) {
-	    if ($service != "Select") {
-		$arr[$service] = $brand_name[$service_id];
+                    } 
+                }
+                
 	    }
 	}
-	foreach ($arr as $service_id => $brand) {
-	    $this->booking_model->addNewApplianceBrand($service_id, trim($brand));
-	}
+        if($data)
+        {
+            $to = "sachinj@247around.com";
+            $cc = "";
+            $bcc = "";
+            $subject = "New Brand Added By ".$this->session->userdata('employee_id');
+            $message = "
+        <html>
+        <head></head>
+        <body>
+            <h3>New Brands added By  ".$this->session->userdata('employee_id')."</h3>    
+            <table style='border-collapse:collapse; border: 1px solid black;'> 
+                <thead>
+                    <tr style='border-collapse:collapse; border: 1px solid black;'>
+                        <th>Service Id</th>
+                        <th>Brand Name</th>
+                    </tr>    
+                </thead>
+                <tbody>";
+                    foreach($data as $val) { 
+                        $message .="<tr>
+                            <td style='border-collapse:collapse; border: 1px solid black;'>" . $val['service_id']."</td>
+                            <td style='border-collapse:collapse; border: 1px solid black;'>".$val['brand_name']."</td>
+                        </tr>";
+                     } 
+                $message .= "</tbody>
+            </table>
+            <hr />     
+        </body>
+        </html>";
+            
+            $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
+        }
 
 	redirect(base_url() . 'employee/booking/get_add_new_brand_form', 'refresh');
     }

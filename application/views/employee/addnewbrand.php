@@ -18,7 +18,7 @@
         		<td width="200px;">
         			<select type="text" class="form-control"  id="new_brand" name="new_brand[]" 
         				value="<?php echo set_value('new_brand'); ?>" onchange="assign(this.value)">
-        				<option>Select</option>
+                                    <option selected disabled>Select</option>
         				<?php foreach($services as $key => $values) {?>
         			  	<option  value=<?=$values->id;?>>
         				<?php echo $values->services; }?>

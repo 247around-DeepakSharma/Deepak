@@ -179,6 +179,10 @@
                         </li>
                         <li class="divider"></li>
                         <li>
+                            <a href="<?php echo base_url() ?>employee/vendor/get_tax_rates_template_editable_grid"><i class="fa fa-fw fa-desktop"></i> <strong> TAX RATES Template Grid</strong></a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
                             <a href="<?php echo base_url() ?>employee/vendor/get_broadcast_mail_to_vendors_form"><i class="fa fa-fw fa-desktop"></i> <strong> Send Broadcast Email</strong></a>
                         </li>
                         <li class="divider"></li>
