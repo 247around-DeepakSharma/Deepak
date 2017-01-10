@@ -145,14 +145,14 @@ class DatabaseTesting extends CI_Controller {
             // log_message('info', " Prices becomes negative " . print_r($is_prices_negative, true));
         }
 
-        $is_emial_flag = $this->database_testing_model->check_assigned_vendor_email_flag();
-        if (!empty($is_emial_flag)) {
-            echo "..12".PHP_EOL;
-            $contents = " Mail Flag Has 0 when vendor Assigned:\n";
-            fwrite($file, $contents);
-            fwrite($file, print_r($is_emial_flag, TRUE));
-            //log_message('info', " Assigned booking has mail flag 0 " . print_r($is_emial_flag, true));
-        }
+//        $is_emial_flag = $this->database_testing_model->check_assigned_vendor_email_flag();
+//        if (!empty($is_emial_flag)) {
+//            echo "..12".PHP_EOL;
+//            $contents = " Mail Flag Has 0 when vendor Assigned:\n";
+//            fwrite($file, $contents);
+//            fwrite($file, print_r($is_emial_flag, TRUE));
+//            //log_message('info', " Assigned booking has mail flag 0 " . print_r($is_emial_flag, true));
+//        }
         
         $is_check_partner_paid_basic_charge = $this->database_testing_model->check_partner_paid_basic_charge();
         if (!empty($is_check_partner_paid_basic_charge)) {
@@ -332,14 +332,6 @@ class DatabaseTesting extends CI_Controller {
                    <td style="    border: 1px solid #ddd;    padding: 8px;
                   line-height: 1.42857143;
                   vertical-align: top;   ">' . Count($is_prices_negative) . '</td>
-                  </tr>
-                  <tr>
-                  <th  style="border-bottom-width: 2px;border: 1px solid #ddd;
-                  vertical-align: bottom;padding: 8px;
-                  line-height: 1.42857143;    "> Mail Flag Has 0 when vendor Assigned </th>
-                   <td style="    border: 1px solid #ddd;    padding: 8px;
-                  line-height: 1.42857143;
-                  vertical-align: top;   ">' . Count($is_emial_flag) . '</td>
                   </tr>
                   
                   <tr>

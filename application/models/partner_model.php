@@ -1137,5 +1137,32 @@ class Partner_model extends CI_Model {
         $query = $this->db->get('partner_missed_calls');
         return $query->result_array();
     }
+    
+    /**
+     * @Desc: This function is used to get Latest tag for particular file by its type
+     * @params: String
+     * @return: Array
+     * 
+     */
+    function get_latest_tag_file_uploads_by_type($type){
+        $this->db->select('tag');
+        $this->db->where('file_type',$type);
+        $this->db->order_by('create_date','DESC');
+        $query = $this->db->get('file_uploads');
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to add values in file uploads table
+     * @params: Array
+     * @return: Boolean
+     * 
+     */
+    function add_file_upload_details($data) {
+        $this->db->insert('file_uploads', $data);
+
+        return $this->db->insert_id();
+    }
+
 }
 

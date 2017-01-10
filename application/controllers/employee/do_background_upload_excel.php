@@ -108,6 +108,9 @@ class Do_background_upload_excel extends CI_Controller {
 	    die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
 	}
 
+        //Processing $_FILES to upload in s3 and update file_uploads table
+        $this->_update_file_uploads($_FILES["file"]["tmp_name"],$file_type);
+        
         $file_name = $_FILES["file"]["name"];
 
 	//  Get worksheet dimensions
@@ -1120,6 +1123,92 @@ class Do_background_upload_excel extends CI_Controller {
             $data['source'] = 'SS';
         }
         return $data;
+    }
+    
+    /**
+     * @Desc: This function is used to Add details in File Uploads table
+     * @params: String, String
+     * @return: Void
+     * 
+     * 
+     */
+    private function _update_file_uploads($tmpFile, $type) {
+        if($type == 'delivered'){
+            //Logging
+            log_message('info', __FUNCTION__ . ' Processing of Snapdeal Delivered Product Excel File started');
+
+            //Adding Details in File_Uploads table as well
+            //Getting Latest Tag 
+            $tag = $this->partner_model->get_latest_tag_file_uploads_by_type(_247AROUND_SNAPDEAL_DELIVERED);
+            if (!empty($tag)) {
+                $latest_tag = $tag[0]['tag'];
+            } else {
+                $latest_tag = 0;
+            }
+
+            $data['file_name'] = "Snapdeal-Delivered-" . date('Y-m-d-H-i-s') . '-' . ($latest_tag + 1) . '.xlsx';
+            $data['file_type'] = _247AROUND_SNAPDEAL_DELIVERED;
+            $data['tag'] = ($latest_tag + 1);
+            $data['agent_id'] = $this->session->userdata('employee_id');
+            $insert_id = $this->partner_model->add_file_upload_details($data);
+            if (!empty($insert_id)) {
+                //Logging success
+                log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data, TRUE));
+            } else {
+                //Loggin Error
+                log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data, TRUE));
+            }
+
+            //Making process for file upload
+            $delivered_file = "Snapdeal-Delivered-" . date('Y-m-d-H-i-s') . '-' . $data['tag'] . '.xlsx';
+            move_uploaded_file($tmpFile, TMP_FOLDER . $delivered_file);
+
+            //Upload files to AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "vendor-partner-docs/" . $delivered_file;
+            $this->s3->putObjectFile(TMP_FOLDER . $delivered_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            //Logging
+            log_message('info', __FUNCTION__ . ' Snapdeal Delivered File has been uploaded in S3');
+            
+        } else if($type == "shipped"){
+            
+            //Logging
+            log_message('info', __FUNCTION__ . ' Processing of Snapdeal Shipped Excel File started');
+
+            //Adding Details in File_Uploads table as well
+            //Getting Latest Tag 
+            $tag = $this->partner_model->get_latest_tag_file_uploads_by_type(_247AROUND_SNAPDEAL_SHIPPED);
+            if (!empty($tag)) {
+                $latest_tag = $tag[0]['tag'];
+            } else {
+                $latest_tag = 0;
+            }
+
+            $data['file_name'] = "Snapdeal-Shipped-" . date('Y-m-d-H-i-s') . '-' . ($latest_tag + 1) . '.xlsx';
+            $data['file_type'] = _247AROUND_SNAPDEAL_SHIPPED;
+            $data['tag'] = ($latest_tag + 1);
+            $data['agent_id'] = $this->session->userdata('employee_id');
+            $insert_id = $this->partner_model->add_file_upload_details($data);
+            if (!empty($insert_id)) {
+                //Logging success
+                log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data, TRUE));
+            } else {
+                //Loggin Error
+                log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data, TRUE));
+            }
+
+            //Making process for file upload
+            $shipped_file = "Snapdeal-Shipped-" . date('Y-m-d-H-i-s') . '-' . $data['tag'] . '.xlsx';
+            move_uploaded_file($tmpFile, TMP_FOLDER . $shipped_file);
+
+            //Upload files to AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "vendor-partner-docs/" . $shipped_file;
+            $this->s3->putObjectFile(TMP_FOLDER . $shipped_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            //Logging
+            log_message('info', __FUNCTION__ . ' Snapdeal Shipped File has been uploaded in S3');
+            
+        }
     }
 
 }

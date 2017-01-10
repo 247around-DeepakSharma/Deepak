@@ -1581,3 +1581,15 @@ ALTER TABLE `partners` ADD `pan_file` VARCHAR(512) NOT NULL AFTER `contract_file
 -- Belal 6 Jan
 
 ALTER TABLE `partners` ADD `upcountry_rate` INT(11) NOT NULL AFTER `upcountry`;
+
+--Belal 9 Jan
+
+CREATE TABLE `file_uploads` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `file_name` varchar(512) DEFAULT NULL,
+ `file_type` varchar(256) DEFAULT NULL,
+ `tag` varchar(128) DEFAULT NULL,
+ `agent_id` varchar(128) DEFAULT NULL,
+ `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
