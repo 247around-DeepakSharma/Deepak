@@ -178,7 +178,7 @@ class service_centre_charges extends CI_Controller {
             //Adding Details in File_Uploads table as well
             
             //Getting Latest Tag 
-            $tag = $this->partner_model->get_latest_tag_file_uploads_by_type('price');
+            $tag = $this->partner_model->get_latest_tag_file_uploads_by_type(_247AROUND_SF_PRICE_LIST);
             if(!empty($tag)){
                 $latest_tag = $tag[0]['tag'];
             }else{
@@ -186,7 +186,7 @@ class service_centre_charges extends CI_Controller {
             }
             
             $data['file_name'] = "Service-Price-List-".date('Y-m-d-H-i-s').'-'.($latest_tag+1).'.xlsx';
-            $data['file_type'] = "price";
+            $data['file_type'] = _247AROUND_SF_PRICE_LIST;
             $data['tag'] = ($latest_tag+1);
             $data['agent_id'] = $this->session->userdata('employee_id');
             $insert_id = $this->partner_model->add_file_upload_details($data);
@@ -501,15 +501,15 @@ class service_centre_charges extends CI_Controller {
             //Adding Details in File_Uploads table as well
             
             //Getting Latest Tag 
-            $tag = $this->partner_model->get_latest_tag_file_uploads_by_type('appliance');
+            $tag = $this->partner_model->get_latest_tag_file_uploads_by_type(_247AROUND_PARTNER_APPLIANCE_DETAILS);
             if(!empty($tag)){
                 $latest_tag = $tag[0]['tag'];
             }else{
                 $latest_tag = 0;
             }
             
-            $data['file_name'] = "Partner-Appliance-Details".date('Y-m-d-H-i-s').'-'.($latest_tag+1).'.xlsx';
-            $data['file_type'] = "appliance";
+            $data['file_name'] = "Partner-Appliance-Details-".date('Y-m-d-H-i-s').'-'.($latest_tag+1).'.xlsx';
+            $data['file_type'] = _247AROUND_PARTNER_APPLIANCE_DETAILS;
             $data['tag'] = ($latest_tag+1);
             $data['agent_id'] = $this->session->userdata('employee_id');
             $insert_id = $this->partner_model->add_file_upload_details($data);
@@ -523,7 +523,7 @@ class service_centre_charges extends CI_Controller {
             
             //Making process for file upload
             $tmpFile = $_FILES['file']['tmp_name'];
-            $appliance_file = "Partner-Appliance-Details".date('Y-m-d-H-i-s').'-'.$data['tag'].'.xlsx';
+            $appliance_file = "Partner-Appliance-Details-".date('Y-m-d-H-i-s').'-'.$data['tag'].'.xlsx';
             move_uploaded_file($tmpFile, TMP_FOLDER . $appliance_file);
 
             //Upload files to AWS

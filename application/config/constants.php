@@ -186,6 +186,10 @@ define('_247AROUND_SNAPDEAL_SHIPPED','Snapdeal-Shipped');
 define('_247AROUND_PAYTM_DELIVERED','Paytm-Delivered');
 //Define Constant for Vendor Pincode Excel File Type
 define('_247AROUND_VENDOR_PINCODE','Vendor-Pincode');
+//Define Constant for Vendor Pincode Excel File Type
+define('_247AROUND_SF_PRICE_LIST','SF-Price-List');
+//Define Constant for Partner Appliance Details
+define('_247AROUND_PARTNER_APPLIANCE_DETAILS','Partner-Appliance-Details');
 
 
 
