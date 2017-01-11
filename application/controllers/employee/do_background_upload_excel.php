@@ -162,7 +162,7 @@ class Do_background_upload_excel extends CI_Controller {
                     
                 } else {
                     $subject = "Delivery Date Column is not exist. SD Uploading Failed.";
-                    $message  = $file_name. " is not uploaded";
+                    $message  = $file_name. " is not uploaded Agent Name: ".  $this->session->userdata('employee_id');
                     $this->send_mail_column($subject, $message, false);
                 }
             } 
@@ -476,7 +476,26 @@ class Do_background_upload_excel extends CI_Controller {
                             $update_data['delivery_date'] = $dateObj2->format('Y-m-d H:i:s');
                             $update_data['booking_date'] = '';
                             $update_data['booking_timeslot'] = '';
-
+                            
+                            $vendors = $this->vendor_model->check_vendor_availability($partner_booking['booking_pincode'], $partner_booking['service_id']);
+                            $vendors_count = count($vendors);
+                            $sms_count = 0;
+                            $category = "";
+                            if ($vendors_count > 0) {
+                                if($partner_booking['service_id'] == '32'){
+                                    $category = "Geyser-PAID";
+                                } 
+                                $this->send_sms_to_snapdeal_customer($value['appliance'],
+                                            $partner_booking['booking_primary_contact_no'], $partner_booking['user_id'],
+                                            $partner_booking['booking_id'], $file_type, $category);
+                                $sms_count = 1;
+                                
+                            } else { //if ($vendors_count > 0) {
+                                log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $partner_booking['booking_id']);
+                            }
+                            
+                            $update_data['sms_count'] = $sms_count;
+                    
                             $this->booking_model->update_booking($partner_booking['booking_id'], $update_data);
                             $count_booking_updated++;
 
@@ -909,13 +928,13 @@ class Do_background_upload_excel extends CI_Controller {
 	$cc = "abhaya@247around.com";
 	$bcc = "";
 	$subject = "";
-
+           
 	if ($filetype == "shipped") {
 	    $subject = "Shipped File is uploaded";
-	    $message = " Please check shipped file data:<br/>";
+	    $message = " Please check shipped file data:<br/>". " Agent Name ". $this->session->userdata('employee_id');
 	} else {
 	    $subject = "Delivered File is uploaded";
-	    $message = " Please check delivered file data:<br/>";
+	    $message = " Please check delivered file data:<br/>". " Agent Name ". $this->session->userdata('employee_id');
 	}
         $invalid_data_with_reason['file_name']= $file_name;
 
