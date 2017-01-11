@@ -1147,7 +1147,7 @@ class vendor extends CI_Controller {
         log_message('info', __FUNCTION__ . ' => New CSV file: ' . $newCSVFileName);
         
         //Checking for Empty file
-        if(filesize($newCSVFileName) == 0){
+        if(filesize(TMP_FOLDER.$newCSVFileName) == 0){
             //Logging
             log_message('info',' Empty Pincode File has been Uploaded');
             $this->session->set_flashdata('file_error',' Empty File has been uploaded');
