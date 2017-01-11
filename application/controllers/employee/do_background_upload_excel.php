@@ -246,6 +246,11 @@ class Do_background_upload_excel extends CI_Controller {
 		//echo print_r("Phone number null, break from this loop", true), EOL;
 		break;
 	    }
+            
+            //Sanitizing Brand Name
+            if(!empty($value['Brand'])){
+                $value['Brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $value['Brand']);
+            }
 
 	    //Insert user if phone number doesn't exist
 	    $output = $this->user_model->search_user(trim($value['Phone']));
