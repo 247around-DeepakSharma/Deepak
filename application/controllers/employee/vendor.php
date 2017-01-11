@@ -1145,7 +1145,7 @@ class vendor extends CI_Controller {
         if(filesize($newCSVFileName) == 0){
             //Logging
             log_message('info',' Empty Pincode File has been Uploaded');
-            $this->session->set_flashdata('error_file',' Empty File has been uploaded');
+            $this->session->set_flashdata('file_error',' Empty File has been uploaded');
             redirect(base_url() . 'employee/vendor/get_pincode_excel_upload_form');
             
         }
