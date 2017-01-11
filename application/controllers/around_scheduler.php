@@ -37,26 +37,32 @@ class Around_scheduler extends CI_Controller {
 	$sms['tag'] = "sd_edd_missed_call_reminder";
         
 	foreach ($data2 as $value) {
-            $sms['phone_no'] = $value->booking_primary_contact_no;
-            $category = '';
-            if($value->services == 'Geyser'){
-                $where = array('booking_id'=> $value->booking_id);
-                $unit_details = $this->booking_model->get_unit_details($where);
-                if(!empty($unit_details)){
-                    $category = $unit_details[0]['appliance_category'];
+            if($value->sms_count < 2){
+                $sms['phone_no'] = $value->booking_primary_contact_no;
+                $category = '';
+                if($value->services == 'Geyser'){
+                    $where = array('booking_id'=> $value->booking_id);
+                    $unit_details = $this->booking_model->get_unit_details($where);
+                    if(!empty($unit_details)){
+                        $category = $unit_details[0]['appliance_category'];
+                    }
                 }
+
+                //Ordering of SMS data is important, check SMS template before changing it
+                $sms['smsData']['service'] = $value->services;
+                $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services, $category);
+
+
+                $sms['booking_id'] = $value->booking_id;
+                $sms['type'] = "user";
+                $sms['type_id'] = $value->user_id;
+
+                $this->notify->send_sms_acl($sms);   
+                // This nis used to increase sms count
+                $this->booking_model->increase_escalation_reschedule($value->booking_id, "sms_count");
+            } else {
+                 log_message ('info', __METHOD__ . '=> SMS not Sent because SMS Count greater or equal than 2');
             }
-
-            //Ordering of SMS data is important, check SMS template before changing it
-            $sms['smsData']['service'] = $value->services;
-            $sms['smsData']['message'] = $this->notify->get_product_free_not($value->services, $category);
-            
-
-            $sms['booking_id'] = $value->booking_id;
-            $sms['type'] = "user";
-            $sms['type_id'] = $value->user_id;
-
-            $this->notify->send_sms_acl($sms);                
             
 	}
         // Inserting values in scheduler tasks log
