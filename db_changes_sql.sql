@@ -1593,3 +1593,21 @@ CREATE TABLE `file_uploads` (
  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `sf_snapshot` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `sc_id` int(11) DEFAULT NULL,
+ `yesterday_booked` int(11) DEFAULT NULL,
+ `yesterday_completed` int(11) DEFAULT NULL,
+ `yesterday_cancelled` int(11) DEFAULT NULL,
+ `month_completed` int(11) DEFAULT NULL,
+ `month_cancelled` int(11) DEFAULT NULL,
+ `last_2_day` int(11) DEFAULT NULL,
+ `last_3_day` int(11) DEFAULT NULL,
+ `greater_than_5_days` int(11) DEFAULT NULL,
+ `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- Abhay 10 Jan 
+ALTER TABLE `booking_details` ADD `sms_count` INT(5) NULL DEFAULT '0' AFTER `count_reschedule`;

@@ -1651,5 +1651,17 @@ class Reporting_utils extends CI_Model {
         return $data;
 
     }
+    
+    /**
+     * @Desc: This function is used to dump data into sf_snapshot table
+     * @params: Array
+     * @return: Boolean
+     * 
+     */
+    function insert_batch_sf_snapshot($data){
+        $this->db->insert_batch('sf_snapshot', $data); 
+        $result = (bool) ($this->db->affected_rows() > 0);
+        return $result;
+    }
 
 }
