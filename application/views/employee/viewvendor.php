@@ -184,7 +184,7 @@
 </div>      
 <script type='text/javascript'>
     function login_to_vendor(vendor_id){
-        var c = confirm('Do you want to login ?');
+        var c = confirm('Login to Service Center CRM?');
         if(c){
             $.ajax({
                 url:'<?php echo base_url()."employee/vendor/allow_log_in_to_vendor/" ?>'+vendor_id,
