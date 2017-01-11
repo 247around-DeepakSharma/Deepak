@@ -121,6 +121,11 @@ class Partner extends CI_Controller {
                 //Token validated
                 $input_d = file_get_contents('php://input');
                 $requestData = json_decode($input_d, TRUE);
+                
+                if(!empty($requestData['brand'])){
+                    //Sanitizing Brands Before Adding
+                    $requestData['brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $requestData['brand']);
+                }
 
                 if (!(json_last_error() === JSON_ERROR_NONE)) {
                     log_message('info', __METHOD__ . ":: Invalid JSON");

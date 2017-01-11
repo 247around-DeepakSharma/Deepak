@@ -118,6 +118,11 @@ class bookings_excel extends CI_Controller {
 		//echo print_r("Phone number null, break from this loop", true), EOL;
 		break;
 	    }
+            
+            //Sanitizing Brand Name
+            if(!empty($rowData[0]['Brand'])){
+                $rowData[0]['Brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $rowData[0]['Brand']);
+            }
 
 	    //Insert user if phone number doesn't exist
 	    $output = $this->user_model->search_user(trim($rowData[0]['Phone']));
@@ -367,6 +372,11 @@ class bookings_excel extends CI_Controller {
 		//echo print_r("Phone number null, break from this loop", true), EOL;
 		break;
 	    }
+            
+            //Sanitizing Brand Name
+            if(!empty($rowData[0]['Brand'])){
+                $rowData[0]['Brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $rowData[0]['Brand']);
+            }
 
 	    //Insert user if phone number doesn't exist
 	    $output = $this->user_model->search_user(trim($rowData[0]['Phone']));
@@ -685,6 +695,11 @@ class bookings_excel extends CI_Controller {
 		//echo print_r("Phone number null, break from this loop", true), EOL;
 		break;
 	    }
+            
+            //Sanitizing Brand Name
+            if(!empty($rowData[0]['Brand'])){
+                $rowData[0]['Brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $rowData[0]['Brand']);
+            }
 
 	    //Insert user if phone number doesn't exist
 	    $output = $this->user_model->search_user(trim($rowData[0]['CustomerContactNo']));
