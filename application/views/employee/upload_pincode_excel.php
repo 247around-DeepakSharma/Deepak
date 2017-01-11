@@ -24,7 +24,17 @@
                             <strong>' . $sucess . '</strong>
                             </div>';
                             }
-                            ?>  
+                            
+                            ?>
+                            <?php if($this->session->flashdata('file_error')) {
+                                echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:15px;">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                    </button>
+                                <strong>' . $this->session->flashdata('file_error') . '</strong>
+                               </div>';
+                            }
+                            ?>
                         <form class="form-horizontal" action="<?php echo base_url()?>employee/vendor/process_pincode_excel_upload_form" method="POST" enctype="multipart/form-data">
                             <div class="col-md-6">
                                 <div class="form-group col-md-12 <?php if( form_error('excel') ) { echo 'has-error';} ?>">

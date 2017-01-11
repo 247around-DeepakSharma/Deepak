@@ -1141,8 +1141,17 @@ class vendor extends CI_Controller {
   
         log_message('info', __FUNCTION__ . ' => New CSV file: ' . $newCSVFileName);
         
+        //Checking for Empty file
+        if(filesize($newCSVFileName) == 0){
+            //Logging
+            log_message('info',' Empty Pincode File has been Uploaded');
+            $this->session->set_flashdata('error_file',' Empty File has been uploaded');
+            redirect(base_url() . 'employee/vendor/get_pincode_excel_upload_form');
+            
+        }
+        
         //Logging
-        log_message('info', __FUNCTION__ . ' Processing of Pincode Excel File started');
+        log_message('info', __FUNCTION__ . ' Processing of Pincode CSV File started');
 
         //Adding Details in File_Uploads table as well
         //Getting Latest Tag 
