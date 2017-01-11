@@ -381,7 +381,7 @@ class Invoice extends CI_Controller {
         log_message('info', __METHOD__ . "=> " . $invoice_type . " Partner Id " . $partner_id);
         $data = $this->invoices_model->getpartner_invoices($partner_id, $f_date, $t_date);
         $file_names = array();
-        $template = 'Partner_invoice_detail_template-v1.xlsx';
+        $template = 'Partner_invoice_detail_template-v2.xlsx';
         //set absolute path to directory with template files
         $templateDir = __DIR__ . "/../excel-templates/";
 
@@ -2063,7 +2063,7 @@ class Invoice extends CI_Controller {
         $invoices = $this->invoices_model->generate_partner_invoice($partner_id, $from_date, $to_date);
         if (!empty($invoices)) {
 
-            $template = 'partner_invoice_Main_v2.xlsx';
+            $template = 'partner_invoice_Main_v3.xlsx';
             // directory
             $templateDir = __DIR__ . "/../excel-templates/";
 
