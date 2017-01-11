@@ -175,8 +175,6 @@ class service_centre_charges extends CI_Controller {
             //Logging
             log_message('info',__FUNCTION__.' Processing of Service Price List Excel File started');
             
-            //Adding Details in File_Uploads table as well
-            
             //Getting Latest Tag 
             $tag = $this->partner_model->get_latest_tag_file_uploads_by_type(_247AROUND_SF_PRICE_LIST);
             if(!empty($tag)){
@@ -185,7 +183,17 @@ class service_centre_charges extends CI_Controller {
                 $latest_tag = 0;
             }
             
-            $data['file_name'] = "Service-Price-List-".date('Y-m-d-H-i-s').'-'.($latest_tag+1).'.xlsx';
+            //Making process for file upload
+            $tmpFile = $_FILES['file']['tmp_name'];
+            $price_file = "Service-Price-List-".date('Y-m-d-H-i-s').'-'.($latest_tag+1).'.xlsx';
+            move_uploaded_file($tmpFile, TMP_FOLDER . $price_file);
+            
+            //Processing File
+	    $this->upload_excel(TMP_FOLDER . $price_file, "price");
+            
+            //Adding Details in File_Uploads table as well
+            
+            $data['file_name'] = $price_file;
             $data['file_type'] = _247AROUND_SF_PRICE_LIST;
             $data['tag'] = ($latest_tag+1);
             $data['agent_id'] = $this->session->userdata('employee_id');
@@ -198,11 +206,6 @@ class service_centre_charges extends CI_Controller {
                 log_message('info',__FUNCTION__.' Error in adding details to File Uploads '.print_r($data,TRUE));
             }
             
-            //Making process for file upload
-            $tmpFile = $_FILES['file']['tmp_name'];
-            $price_file = "Service-Price-List-".date('Y-m-d-H-i-s').'-'.$data['tag'].'.xlsx';
-            move_uploaded_file($tmpFile, TMP_FOLDER . $price_file);
-
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
             $directory_xls = "vendor-partner-docs/" . $price_file;
@@ -210,8 +213,7 @@ class service_centre_charges extends CI_Controller {
             //Logging
             log_message('info',__FUNCTION__.' File has been uploaded in S3');
             
-	    //Processing File
-	    $this->upload_excel(TMP_FOLDER . $price_file, "price");
+	    $this->redirect_upload_form();
 	} else {
 	    $this->upload_excel_form($return);
 	}
@@ -233,8 +235,8 @@ class service_centre_charges extends CI_Controller {
 		    // Get Data from top 14 rows in excel file
 		    if ($count > 1) {
 			$data = $this->set_price_rows_data($row);
-			array_push($rows, $data);
-		    }
+                            array_push($rows, $data);
+                        }
 		} else if ($type == "tax") {
 		    // Get Data from top 2 rows in excel file
 		    if ($count > 2) {
@@ -243,17 +245,42 @@ class service_centre_charges extends CI_Controller {
 		    }
 		} else if($type == "appliance"){
                     log_message('info','Inside upload excel');
-                    // Get Data from top 2 rows in excel file
-		    if ($count > 2) {
+                    // Get Data from top 2nd rows in excel file
+		    if ($count > 1) {
                         log_message('info','Inside count');
 			$data = $this->set_partner_appliance_rows_data($row);
-			array_push($rows, $data);
+                        
+                        //Validating Data - For Array its Valid else Invalid Entry
+                        if(!is_array($data)){
+                            //Logging Error
+                            log_message('info',__FUNCTION__.' Error - Due to Empty Column values in File');
+                            //Closing Excel File
+                            $reader->close();
+                            //Redirecting  to Upload page
+                            $this->session->set_flashdata('file_error','Error in Uploading PARTNER APPLIANCE DETAILS File due to Empty Column values');
+                            redirect(base_url() . "employee/service_centre_charges/upload_excel_form");
+                            exit;
+                        }else{
+                            array_push($rows, $data);
+                        }
 		    }
                     
                 }
 		$count++;
 	    }
-	    $this->insert_data_list($type, $rows);
+            //Validation for Empty File
+            if($count == 1 || $count == 2) {
+                //Logging Error
+                log_message('info', __FUNCTION__ . ' Error - Empty File Uploaded');
+                //Closing Excel File
+                $reader->close();
+                //Redirecting  to Upload page
+                $this->session->set_flashdata('file_error', 'Empty File Uploaded - Please check.');
+                redirect(base_url() . "employee/service_centre_charges/upload_excel_form");
+                exit;
+            }
+
+            $this->insert_data_list($type, $rows);
 	}
 	$reader->close();
     }
@@ -279,7 +306,7 @@ class service_centre_charges extends CI_Controller {
             
         }
 	if ($return == 1) {
-	    $this->redirect_upload_form();
+//	    $this->redirect_upload_form();
 	} else {
 	    $output['error'] = "Error while uploading File";
 	    $this->upload_excel_form($output);
@@ -329,8 +356,8 @@ class service_centre_charges extends CI_Controller {
 	$data['pod'] = isset($row[25])?$row[25]:'';
         $data['vendor_basic_percentage'] = isset($row[26])?$row[26]:'';
 
-	return $data;
-    }
+            return $data;
+        }
 
     /**
      *  @desc  : upload tax rate excel file
@@ -498,8 +525,6 @@ class service_centre_charges extends CI_Controller {
             //Logging
             log_message('info',__FUNCTION__.' Processing of Partner Appliance Excel File started');
             
-            //Adding Details in File_Uploads table as well
-            
             //Getting Latest Tag 
             $tag = $this->partner_model->get_latest_tag_file_uploads_by_type(_247AROUND_PARTNER_APPLIANCE_DETAILS);
             if(!empty($tag)){
@@ -508,7 +533,18 @@ class service_centre_charges extends CI_Controller {
                 $latest_tag = 0;
             }
             
-            $data['file_name'] = "Partner-Appliance-Details-".date('Y-m-d-H-i-s').'-'.($latest_tag+1).'.xlsx';
+            //Making process for file upload
+            $tmpFile = $_FILES['file']['tmp_name'];
+            $appliance_file = "Partner-Appliance-Details-".date('Y-m-d-H-i-s').'-'.($latest_tag+1).'.xlsx';
+            move_uploaded_file($tmpFile, TMP_FOLDER . $appliance_file);
+
+            
+            //Processing File 
+	    $this->upload_excel(TMP_FOLDER . $appliance_file, "appliance");
+            
+            //Adding Details in File_Uploads table as well
+            
+            $data['file_name'] = $appliance_file;
             $data['file_type'] = _247AROUND_PARTNER_APPLIANCE_DETAILS;
             $data['tag'] = ($latest_tag+1);
             $data['agent_id'] = $this->session->userdata('employee_id');
@@ -521,11 +557,6 @@ class service_centre_charges extends CI_Controller {
                 log_message('info',__FUNCTION__.' Error in adding details to File Uploads '.print_r($data,TRUE));
             }
             
-            //Making process for file upload
-            $tmpFile = $_FILES['file']['tmp_name'];
-            $appliance_file = "Partner-Appliance-Details-".date('Y-m-d-H-i-s').'-'.$data['tag'].'.xlsx';
-            move_uploaded_file($tmpFile, TMP_FOLDER . $appliance_file);
-
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
             $directory_xls = "vendor-partner-docs/" . $appliance_file;
@@ -533,10 +564,7 @@ class service_centre_charges extends CI_Controller {
             //Logging
             log_message('info',__FUNCTION__.' File has been uploaded in S3');
             
-            
-            //Processing File 
-	    $this->upload_excel(TMP_FOLDER . $appliance_file, "appliance");
-            
+            $this->redirect_upload_form();
 	} else {
 	    $this->upload_excel_form($return);
 	}
@@ -550,13 +578,19 @@ class service_centre_charges extends CI_Controller {
      */
     function set_partner_appliance_rows_data($row) {
         log_message('info',__FUNCTION__);
-	$data['partner_id'] = isset($row[0])?$row[0]:'';
-	$data['service_id'] = isset($row[1])?$row[1]:'';
-	$data['brand'] = isset($row[2])?$row[2]:'';
-	$data['category'] = isset($row[3])?$row[3]:'';
-	$data['capacity'] = isset($row[4])?$row[4]:'';
-	$data['model'] = isset($row[5])?$row[5]:'';
+        //Flag for checking validation -- Only Model can be Empty
+        $empty_flag = FALSE;
+	$data['partner_id'] = isset($row[0]) && !empty($row[0])?$row[0]:$empty_flag = TRUE;
+	$data['service_id'] = isset($row[1]) && !empty($row[1])?$row[1]:$empty_flag = TRUE;
+	$data['brand'] = isset($row[2]) && !empty($row[2])?$row[2]:$empty_flag = TRUE;
+	$data['category'] = isset($row[3]) && !empty($row[3])?$row[3]:$empty_flag = TRUE;
+	$data['capacity'] = isset($row[4]) && !empty($row[4])?$row[4]:$empty_flag = TRUE;
+	$data['model'] = isset($row[5]) && !empty($row[5])?$row[5]:'';
 	$data['active'] = 1;
-	return $data;
+        if($empty_flag){
+            return $empty_flag;
+        }else{
+            return $data;
+        }
     }
 }    

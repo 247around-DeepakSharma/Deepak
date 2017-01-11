@@ -111,8 +111,6 @@ class Do_background_upload_excel extends CI_Controller {
 	    die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
 	}
 
-        //Processing $_FILES to upload in s3 and update file_uploads table
-        $this->_update_file_uploads($_FILES["file"]["tmp_name"],$file_type);
         
         $file_name = $_FILES["file"]["name"];
 
@@ -120,7 +118,22 @@ class Do_background_upload_excel extends CI_Controller {
 	$sheet = $objPHPExcel->getSheet(0);
 	$highestRow = $sheet->getHighestRow();
 	$highestColumn = $sheet->getHighestColumn();
+        
+        //Validation for Empty File
+        if($highestRow <=1){
+            //Logging
+            log_message('info',__FUNCTION__.' Empty File Uploaded for Snapdeal File Upload - Type :'.$file_type);
+            $this->session->set_flashdata('file_error','Empty file has been uploaded');
+            if($file_type == 'delivered'){
+                redirect(base_url() . "employee/booking_excel");
+            }else{
+                redirect(base_url() . "employee/booking_excel/upload_shipped_products_excel");
+            }
+        }
 
+        //Processing $_FILES to upload in s3 and update file_uploads table
+        $this->_update_file_uploads($_FILES["file"]["tmp_name"],$file_type);
+        
 	$headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
 	$headings_new = array();
 	$data = array();
@@ -1184,13 +1197,12 @@ class Do_background_upload_excel extends CI_Controller {
             }
 
             //Making process for file upload
-            $delivered_file = "Snapdeal-Delivered-" . date('Y-m-d-H-i-s') . '-' . $data['tag'] . '.xlsx';
-            move_uploaded_file($tmpFile, TMP_FOLDER . $delivered_file);
+            move_uploaded_file($tmpFile, TMP_FOLDER . $data['file_name']);
 
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "vendor-partner-docs/" . $delivered_file;
-            $this->s3->putObjectFile(TMP_FOLDER . $delivered_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            $directory_xls = "vendor-partner-docs/" . $data['file_name'];
+            $this->s3->putObjectFile(TMP_FOLDER . $data['file_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             //Logging
             log_message('info', __FUNCTION__ . ' Snapdeal Delivered File has been uploaded in S3');
             
@@ -1222,13 +1234,12 @@ class Do_background_upload_excel extends CI_Controller {
             }
 
             //Making process for file upload
-            $shipped_file = "Snapdeal-Shipped-" . date('Y-m-d-H-i-s') . '-' . $data['tag'] . '.xlsx';
-            move_uploaded_file($tmpFile, TMP_FOLDER . $shipped_file);
+            move_uploaded_file($tmpFile, TMP_FOLDER . $data['file_name']);
 
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "vendor-partner-docs/" . $shipped_file;
-            $this->s3->putObjectFile(TMP_FOLDER . $shipped_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            $directory_xls = "vendor-partner-docs/" . $data['file_name'];
+            $this->s3->putObjectFile(TMP_FOLDER . $data['file_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             //Logging
             log_message('info', __FUNCTION__ . ' Snapdeal Shipped File has been uploaded in S3');
             
