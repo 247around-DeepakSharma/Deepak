@@ -1482,6 +1482,19 @@ class Reporting_utils extends CI_Model {
         $this->db->insert('scheduler_tasks_log',$data);
     }
     
+    function insert_scheduler_tasks_status($data){
+        $this->db->insert('scheduler_tasks_status',$data);
+        $insert_id = $this->db->insert_id();
+        return  $insert_id;
+    }
+    
+    function update_scheduler_task_status($scheduler_id){
+        $data = array('end_time' => date('Y-m-d-H-i-s'));
+        $this->db->where('id',$scheduler_id);
+        $this->db->update('scheduler_tasks_status',$data);
+    }
+
+
     /**
      * @Desc: This function is used to get values from scheduler tasks log table by Date
      * @params: date

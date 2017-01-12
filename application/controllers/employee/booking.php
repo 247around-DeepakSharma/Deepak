@@ -1132,7 +1132,7 @@ class Booking extends CI_Controller {
 	}
         if($data)
         {
-            $to = "sachinj@247around.com";
+            $to = "anuj@247around.com";
             $cc = "";
             $bcc = "";
             $subject = "New Brand Added By ".$this->session->userdata('employee_id');
