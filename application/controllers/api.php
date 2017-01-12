@@ -1269,39 +1269,6 @@ class Api extends CI_Controller {
                                 $this->booking_model->update_booking_unit_details($b['booking_id'], $u);
                             }
                         }
-//                    else if( $b['current_status'] === "Cancelled" && $b['type'] === 'Booking'){
-//                        $d = array('internal_status' => 'Missed_call_confirmed',
-//                            'booking_date' => '', 'booking_timeslot' => '',
-//                            'current_status' => 'FollowUp',
-//                            'delivery_date' => date('Y-m-d H:i:s'),
-//                            'booking_id' => 'Q-'.$b['booking_id'],
-//                            'assigned_vendor_id' => NULL,
-//                            'query_remarks' => 'Missed call received, Convert to Booking NOW !!!');
-//                        
-//                        $r = $this->booking_model->update_booking($b['booking_id'], $d);
-//                        
-//                        if ($r === FALSE) {
-//                            log_message('info', __METHOD__ . '=> Booking confirmation '
-//                                . 'through missed call failed for Cancelled Booking' . $b['booking_id']);
-//
-//                            //Send email
-//                            $this->notify->sendEmail("booking@247around.com", "anuj@247around.com", "", "", "Query update Failed after Missed Call for Cancelled Booking ID: " . $b['booking_id'], "", "");
-//                        } else {
-//                            log_message('info', __METHOD__ . '=> Booking confirmation '
-//                                . 'through missed call succeeded for Cancelled ' . $b['booking_id']);
-//                            
-//                            $u = array('booking_status'=> '',
-//                            'booking_id' => 'Q-'.$b['booking_id']);
-//                            //Update unit details
-//                            $this->booking_model->update_booking_unit_details($b['booking_id'], $u);
-//                        
-//                            $this->vendor_model->delete_previous_service_center_action($b['booking_id']);
-//                        
-//                            $this->send_missed_call_confirmation_sms($b);
-//
-//                        }
-//                        
-//                    }
                     }
                 } else {
                     //Handling case when User is not being Found in DB, sending Installation and Request
@@ -1389,6 +1356,7 @@ class Api extends CI_Controller {
                 //Check whether this customer has downloaded App and then decide
                 //$this->send_missed_call_booking_not_found_sms($num);
                 
+                log_message('info', __METHOD__ . 'New App User gave missed call, mobile: ' . $num);
             }
 	}
 
