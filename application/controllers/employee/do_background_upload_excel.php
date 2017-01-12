@@ -1180,17 +1180,9 @@ class Do_background_upload_excel extends CI_Controller {
             log_message('info', __FUNCTION__ . ' Processing of Snapdeal Delivered Product Excel File started');
 
             //Adding Details in File_Uploads table as well
-            //Getting Latest Tag 
-            $tag = $this->partner_model->get_latest_tag_file_uploads_by_type(_247AROUND_SNAPDEAL_DELIVERED);
-            if (!empty($tag)) {
-                $latest_tag = $tag[0]['tag'];
-            } else {
-                $latest_tag = 0;
-            }
 
-            $data['file_name'] = "Snapdeal-Delivered-" . date('Y-m-d-H-i-s') . '-' . ($latest_tag + 1) . '.xlsx';
+            $data['file_name'] = "Snapdeal-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
             $data['file_type'] = _247AROUND_SNAPDEAL_DELIVERED;
-            $data['tag'] = ($latest_tag + 1);
             $data['agent_id'] = $this->session->userdata('employee_id');
             $insert_id = $this->partner_model->add_file_upload_details($data);
             if (!empty($insert_id)) {
@@ -1217,17 +1209,9 @@ class Do_background_upload_excel extends CI_Controller {
             log_message('info', __FUNCTION__ . ' Processing of Snapdeal Shipped Excel File started');
 
             //Adding Details in File_Uploads table as well
-            //Getting Latest Tag 
-            $tag = $this->partner_model->get_latest_tag_file_uploads_by_type(_247AROUND_SNAPDEAL_SHIPPED);
-            if (!empty($tag)) {
-                $latest_tag = $tag[0]['tag'];
-            } else {
-                $latest_tag = 0;
-            }
-
-            $data['file_name'] = "Snapdeal-Shipped-" . date('Y-m-d-H-i-s') . '-' . ($latest_tag + 1) . '.xlsx';
+           
+            $data['file_name'] = "Snapdeal-Shipped-" . date('Y-m-d-H-i-s') . '.xlsx';
             $data['file_type'] = _247AROUND_SNAPDEAL_SHIPPED;
-            $data['tag'] = ($latest_tag + 1);
             $data['agent_id'] = $this->session->userdata('employee_id');
             $insert_id = $this->partner_model->add_file_upload_details($data);
             if (!empty($insert_id)) {

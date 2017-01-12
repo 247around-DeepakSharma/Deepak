@@ -1159,17 +1159,9 @@ class vendor extends CI_Controller {
         log_message('info', __FUNCTION__ . ' Processing of Pincode CSV File started');
 
         //Adding Details in File_Uploads table as well
-        //Getting Latest Tag 
-        $tag = $this->partner_model->get_latest_tag_file_uploads_by_type(_247AROUND_VENDOR_PINCODE);
-        if (!empty($tag)) {
-            $latest_tag = $tag[0]['tag'];
-        } else {
-            $latest_tag = 0;
-        }
-
+        
         $data_uploads['file_name'] = "vendor_pincode_mapping_temp.zip";
         $data_uploads['file_type'] = _247AROUND_VENDOR_PINCODE;
-        $data_uploads['tag'] = ($latest_tag + 1);
         $data_uploads['agent_id'] = $this->session->userdata('employee_id');
         $insert_id = $this->partner_model->add_file_upload_details($data_uploads);
         if (!empty($insert_id)) {

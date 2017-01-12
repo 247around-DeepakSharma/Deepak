@@ -1702,3 +1702,13 @@ CREATE TABLE `sf_snapshot` (
  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+-- Abhay 10 Jan 
+ALTER TABLE `booking_details` ADD `sms_count` INT(5) NULL DEFAULT '0' AFTER `count_reschedule`;
+
+ALTER TABLE  `service_centres` ADD `is_verified` int(2) NOT NULL DEFAULT '0' AFTER `is_cst_doc`;
+
+--Belal 12 Jan
+
+ALTER TABLE `file_uploads` DROP `tag`;
