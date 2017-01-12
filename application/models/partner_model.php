@@ -886,13 +886,13 @@ class Partner_model extends CI_Model {
      * @return : Array
      */
     function get_active_partner_id_by_service_id_brand($brands, $service_id){
-        $sql = "Select partner_appliance_details.partner_id from partner_appliance_details, partners"
-                . " where  partner_appliance_details.partner_id = partners.id "
-                . "AND partner_appliance_details.brand = '".$brands."' "
-                . 'AND partner_appliance_details.service_id = "'.$service_id.'" '
-                . 'AND partner_appliance_details.active = 1 '
-                . 'AND partners.is_active = 1';
-        $query = $this->db->query($sql);
+        $this->db->select('partner_appliance_details.partner_id');
+        $this->db->where('partner_appliance_details.brand',$brands);
+        $this->db->where('partner_appliance_details.service_id',$service_id);
+        $this->db->where('partner_appliance_details.active',1);
+        $this->db->where('partners.is_active',1);
+        $this->db->join('partners','partner_appliance_details.partner_id = partners.id');
+        $query = $this->db->get('partner_appliance_details');
         
         return $query->result_array();
         
@@ -1137,21 +1137,7 @@ class Partner_model extends CI_Model {
         $query = $this->db->get('partner_missed_calls');
         return $query->result_array();
     }
-    
-    /**
-     * @Desc: This function is used to get Latest tag for particular file by its type
-     * @params: String
-     * @return: Array
-     * 
-     */
-    function get_latest_tag_file_uploads_by_type($type){
-        $this->db->select('tag');
-        $this->db->where('file_type',$type);
-        $this->db->order_by('create_date','DESC');
-        $query = $this->db->get('file_uploads');
-        return $query->result_array();
-    }
-    
+   
     /**
      * @Desc: This function is used to add values in file uploads table
      * @params: Array
