@@ -148,7 +148,9 @@
                                         <?php foreach($bookings[1] as $key =>$row){?>
                                         <tr  style="text-align: center;"  >
                                             <td style="vertical-align: middle;">
-                                                <?php echo $sn_no; ?>
+
+                                                <?php echo $sn_no; if($row->is_upcountry == 1) { ?>
+                                                    <i onclick="open_upcountry_model('<?php echo $row->booking_id; ?>')" style='color: red;font-size: 28px; cursor: pointer' class="fa fa-road" aria-hidden="true"></i><?php } ?>
                                             </td>
                                           
                                             <td style="vertical-align: middle;">
@@ -183,7 +185,7 @@
                                                
                                             </td>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
-                                            <td style="vertical-align: middle;"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc); ?>
+                                            <td style="vertical-align: middle;"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc + $row->upcountry_price); ?>
                                                 <br/>
                                                <?php if($row->penalty > 0){ ?><p class="incentive" style="color:#F26722;font-size: 14px;">Incentive Lost</p><?php } else { ?><div class="countdown blink" data-popover="true" style="white-space:nowrap;color:#F26722; font-size:13px; overflow:hidden;text-overflow:ellipsis;white-space: initial;" data-html=true data-content="Time Left To Update Booking & Get Incentive" ></div><?php } ?>
                                             
@@ -317,7 +319,7 @@
                                     <?php $sn_no1 = 1 ; foreach($bookings[2] as $key =>$row){?>
                                      <tr  style="text-align: center;"  >
                                             <td style="vertical-align: middle;">
-                                                <?php echo $sn_no1; ?>
+                                                <?php echo $sn_no1; if($row->is_upcountry == 1) { ?><i onclick="open_upcountry_model('<?php echo $row->booking_id; ?>')" style='color: red;font-size: 28px;cursor: pointer' class="fa fa-road" aria-hidden="true"></i><?php } ?>
                                             </td>
                                           
                                             <td style="vertical-align: middle;">
@@ -352,7 +354,7 @@
                                                
                                             </td>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
-                                            <td style="vertical-align: middle;"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc); ?>
+                                            <td style="vertical-align: middle;"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc  + $row->upcountry_price); ?>
                                                
                                             </td>
 <!--                                            <td>
@@ -487,7 +489,7 @@
                                         if($row->current_status== "Rescheduled"){?>
                                         <tr  style="text-align: center;"  >
                                             <td style="vertical-align: middle;">
-                                                <?php echo $sn_no2; ?>
+                                                <?php echo $sn_no2; if($row->is_upcountry == 1) { ?><i onclick="open_upcountry_model('<?php echo $row->booking_id; ?>')" style='color: red;font-size: 28px;cursor: pointer;' class="fa fa-road" aria-hidden="true"></i><?php } ?>
                                             </td>
                                           
                                             <td style="vertical-align: middle;">
@@ -522,7 +524,7 @@
                                                
                                             </td>
                                             <?php if($this->session->userdata('is_update') == 1){ ?>
-                                            <td style="vertical-align: middle;"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc); ?>
+                                            <td style="vertical-align: middle;"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc  + $row->upcountry_price); ?>
                                                
                                             </td>
 <!--                                            <td>
@@ -725,6 +727,28 @@
       </div>
    </div>
 </div>
+
+<!-- Modal -->
+<div id="myModal1" class="modal fade" role="dialog">
+  <div class="modal-dialog" id="open_model">
+
+    <!-- Modal content-->
+    <div class="modal-content" >
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Upcountry Call</h4>
+      </div>
+      <div class="modal-body" >
+         
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <script>
     $(document).ready(function() {
     
@@ -925,7 +949,18 @@
         console.log(date.getHours());
         timer = setInterval(showRemaining, 1000);
     }
+    
+    function open_upcountry_model(booking_id){
+        $.ajax({
+       type: 'POST',
+       url: '<?php echo base_url(); ?>service_center/pending_booking_upcountry_price/' + booking_id,
+       success: function (data) {
+        $("#open_model").html(data);   
+        $('#myModal1').modal('toggle');
 
+       }
+     });
+    }
     
 
 </script>
