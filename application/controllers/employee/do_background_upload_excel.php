@@ -37,6 +37,7 @@ class Do_background_upload_excel extends CI_Controller {
 	$this->load->model('booking_model');
 	$this->load->model('partner_model');
 	$this->load->model('vendor_model');
+        $this->load->model('reporting_utils');
 	$this->load->library('s3');
 	$this->load->library('email');
     }
@@ -84,6 +85,8 @@ class Do_background_upload_excel extends CI_Controller {
      */
     function upload_snapdeal_file($file_type) {
 	log_message('info', __FUNCTION__ . "=> File type: " . $file_type . ", Beginning processing...");
+        $status_data = array();
+        
 
 	if (!empty($_FILES['file']['name']) && $_FILES['file']['size'] > 0) {
 	    $pathinfo = pathinfo($_FILES["file"]["name"]);
@@ -186,16 +189,36 @@ class Do_background_upload_excel extends CI_Controller {
         
         // For shipped data
         if(!empty($shipped_data)){
-            $this->process_upload_sd_file($shipped_data,"shipped", $file_name);
+            
+            $status_data['job_name']= __FUNCTION__;
+            $status_data['agent_name'] = $this->session->userdata('employee_id');
+            $status_data['file_link'] = $_FILES['file']['name'];
+            $status_data['processing_type'] = $file_type;
+            $scheduler_id = $this->reporting_utils->insert_scheduler_tasks_status($status_data);
+            
+            $this->process_upload_sd_file($shipped_data,"shipped", $file_name, $scheduler_id);
             
         }
         //For delivered data
         if(!empty($delivered_data)){
-            $this->process_upload_sd_file($delivered_data,"delivered", $file_name);
+            $status_data['job_name']= __FUNCTION__;
+            $status_data['agent_name'] = $this->session->userdata('employee_id');
+            $status_data['file_link'] = $_FILES['file']['name'];
+            $status_data['processing_type'] = $file_type;
+            $scheduler_id = $this->reporting_utils->insert_scheduler_tasks_status($status_data);
+            
+            $this->process_upload_sd_file($delivered_data,"delivered", $file_name, $scheduler_id);
         }
         // for both type of file
         if(!empty($data)){
-            $this->process_upload_sd_file($data,$file_type, $file_name);
+            
+            $status_data['job_name']= __FUNCTION__;
+            $status_data['agent_name'] = $this->session->userdata('employee_id');
+            $status_data['file_link'] = $_FILES['file']['name'];
+            $status_data['processing_type'] = $file_type;
+            $scheduler_id = $this->reporting_utils->insert_scheduler_tasks_status($status_data);
+            
+            $this->process_upload_sd_file($data,$file_type, $file_name, $scheduler_id);
         }
         
     }
@@ -217,7 +240,7 @@ class Do_background_upload_excel extends CI_Controller {
         }
     }
     
-    function process_upload_sd_file($data,$file_type, $file_name){
+    function process_upload_sd_file($data,$file_type, $file_name, $scheduler_id){
        
         // Warning: Do not Change Validation Order
 	$validate_data = $this->validate_phone_number($data, $file_type, $file_name);
@@ -578,6 +601,7 @@ class Do_background_upload_excel extends CI_Controller {
             log_message('info', __FUNCTION__ . "=> File type: " . $file_type . " => Wow, no errors found !!!");
         }
  
+    $this->reporting_utils->update_scheduler_task_status($scheduler_id);
     log_message('info', __FUNCTION__ . "=> File type: " . $file_type . " => Exiting now...");
     }
 
