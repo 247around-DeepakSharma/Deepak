@@ -3285,4 +3285,11 @@ class vendor extends CI_Controller {
                 break;
         }
     }
+    
+    function get_sc_upcountry_details($service_center_id){
+        $data['data'] = $this->upcountry_model->get_sub_service_center_details(array('service_center_id' =>$service_center_id));
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/sc_upcountry_details',$data);
+        
+    }
 }   

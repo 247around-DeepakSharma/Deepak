@@ -110,7 +110,7 @@
           	<th class="jumbotron">Owner Name</th>
           	<th class="jumbotron">Owner Phone No.</th>
           	<th class="jumbotron">Owner Email</th>
-          	
+          	<th class="jumbotron">Sub District Office</th>
           	<th class="jumbotron">Temporary</th>
           	<th colspan="2" class="jumbotron">Permanent</th>
           </tr>
@@ -151,6 +151,11 @@
           	</td>
           	
           	<td><?=$row['owner_email'];?></td>
+                <td>
+                    <?php if ($row['is_upcountry'] == 1) { ?>
+                        <a class='btn btn-sm btn-primary' href="<?php echo base_url(); ?>employee/vendor/get_sc_upcountry_details/<?php echo $row['id'];  ?>"><i class='fa fa-eye' aria-hidden='true'></i></a>
+                    <?php } ?>    
+                </td>
                 
                 <td>
                         <?php
@@ -161,6 +166,7 @@
                         <?php }
                         ?>
                     </td>
+                    
           	<td><?php if($row['active']==1)
                 {
                   echo "<a id='edit' class='btn btn-small btn-danger' "
