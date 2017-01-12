@@ -1549,7 +1549,7 @@ class Invoice extends CI_Controller {
                 if ($details['vendor_partner_id'] == 'All') {
 
                     $vendor_details = $this->vendor_model->getActiveVendor('', 0);
-                    echo " Preparing FOC Invoice  Vendor: " . $details['vendor_partner_id']; . PHP_EOL;
+                    echo " Preparing FOC Invoice  Vendor: " . $details['vendor_partner_id'] . PHP_EOL;
                     foreach ($vendor_details as $value) {
                         $details['vendor_partner_id'] = $value['id'];
                         log_message('info', __FUNCTION__ . ": Preparing FOC Invoice Vendor Id: " . $details['vendor_partner_id']);
