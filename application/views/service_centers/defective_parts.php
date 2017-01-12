@@ -81,12 +81,12 @@ function check_checkbox(){
         if(d_m.length === 0){
             flag = 0;  
        }
-       
-       if(flag ===0 ){
+
+    });
+    if(flag ===0 ){
            alert("Please Select Atleast One Checkbox");
            return false;
-       }
-    });
+    }
 }
 
 $("#selectall_address").change(function(){
