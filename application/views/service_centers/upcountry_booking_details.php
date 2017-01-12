@@ -12,7 +12,7 @@
 
                         <th class="text-center">Booking Id</th>
                         <th class="text-center">Rate</th>
-                        <th class="text-center">Distance</th>
+                        <th class="text-center">Distance(Up & Down)</th>
                         <th class="text-center">Total Payout</th>
                     </tr>
                 </thead>

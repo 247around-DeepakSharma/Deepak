@@ -1611,3 +1611,8 @@ ALTER TABLE `service_centres` CHANGE `active` `active` INT(2) NULL DEFAULT '1';
 -- Sachin 4 Jan 2017
 
 ALTER TABLE  `service_centres` ADD `is_verified` int(2) NOT NULL DEFAULT '0' AFTER `is_cst_doc`;
+
+
+ALTER TABLE `service_centres` ADD `is_upcountry` INT(2) NULL DEFAULT '0' AFTER `is_penalty`;
+
+
