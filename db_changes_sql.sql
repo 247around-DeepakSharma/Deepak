@@ -1653,3 +1653,22 @@ ALTER TABLE `sub_service_center_details`
 ALTER TABLE `sub_service_center_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
+--- sachin 12 jan
+
+CREATE TABLE `scheduler_tasks_status` (
+  `id` int(11) NOT NULL,
+  `job_name` varchar(55) NOT NULL,
+  `agent_name` varchar(55) NOT NULL,
+  `file_link` varchar(200) DEFAULT NULL,
+  `processing_type` varchar(55) DEFAULT NULL,
+  `from_date` datetime DEFAULT NULL,
+  `to_date` datetime DEFAULT NULL,
+  `start_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `end_time` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `scheduler_tasks_status`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `scheduler_tasks_status`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=0;
