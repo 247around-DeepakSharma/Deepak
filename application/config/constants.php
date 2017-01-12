@@ -175,7 +175,7 @@ define('NEW_SF_CRM',"New SF CRM");
 //Define Ols CRM Contstant for SF
 define('OLD_SF_CRM',"Old SF CRM");
 //Define Upcountry threshold
-define('UPCOUNTRY_DISTANCE_THRESHOLD',100);
+define('UPCOUNTRY_DISTANCE_THRESHOLD',150);
 //Define New Partner Lead
 define('_247AROUND_NEW_PARTNER_LEAD','New_Lead');
 //Define Constant for Snapdeal Delivered Excel File Type
@@ -190,6 +190,8 @@ define('_247AROUND_VENDOR_PINCODE','Vendor-Pincode');
 define('_247AROUND_SF_PRICE_LIST','SF-Price-List');
 //Define Constant for Partner Appliance Details
 define('_247AROUND_PARTNER_APPLIANCE_DETAILS','Partner-Appliance-Details');
+//Define Upcountry distance Must be grater than 50(UP and DOWN both)
+define('UPCOUNTRY_MIN_DISTANCE',50);
 
 
 
