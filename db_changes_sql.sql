@@ -1621,5 +1621,30 @@ ALTER TABLE `booking_details` ADD `sms_count` INT(5) NULL DEFAULT '0' AFTER `cou
 
 ALTER TABLE  `service_centres` ADD `is_verified` int(2) NOT NULL DEFAULT '0' AFTER `is_cst_doc`;
 
+
 ALTER TABLE `service_centres` ADD `is_upcountry` INT(2) NULL DEFAULT '0' AFTER `is_penalty`;
+
+--Belal 12 Jan
+
+ALTER TABLE `file_uploads` DROP `tag`;
+
+--- sachin 12 jan
+
+CREATE TABLE `scheduler_tasks_status` (
+  `id` int(11) NOT NULL,
+  `job_name` varchar(55) NOT NULL,
+  `agent_name` varchar(55) NOT NULL,
+  `file_link` varchar(200) DEFAULT NULL,
+  `processing_type` varchar(55) DEFAULT NULL,
+  `from_date` datetime DEFAULT NULL,
+  `to_date` datetime DEFAULT NULL,
+  `start_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `end_time` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `scheduler_tasks_status`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `scheduler_tasks_status`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=0;
 

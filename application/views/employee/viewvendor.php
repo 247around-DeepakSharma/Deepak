@@ -67,7 +67,8 @@
         </div>
         
         <div class="pull-right" style="margin-bottom: 20px; margin-right: 50px;">
-            <form action="<?php echo base_url();?>employee/vendor/viewvendor" method="get" id="get_vender">
+            <form action="<?php echo base_url();?>employee/vendor/viewvendor" method="get" id="get_vender" class="form-inline">
+                <label for="active_state">Show Vender &nbsp; &nbsp;</label>
                 <select name="active_state" id="active_state" onchange="get_data();" class="form-control">
                     <option value="all" <?php echo isset($selected) && $selected['active_state'] == 'all'? 'selected="selected"':''?>>ALL</option>
                     <option value="1" <?php echo isset($selected) && $selected['active_state'] == '1'? 'selected="selected"':''?>>Active</option>
