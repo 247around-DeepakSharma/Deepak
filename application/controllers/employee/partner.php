@@ -630,7 +630,7 @@ class Partner extends CI_Controller {
                         $this->email->from('booking@247around.com', '247around Team');
                         $this->email->to($to);
 
-                        $this->email->subject("Partner Updated :  " . $partner_id);
+                        $this->email->subject("Partner Updated :  " . $partner_id.' - By '.$this->session->userdata('employee_id'));
                         $this->email->message($html);
                         
                         if(isset($attachment_contract)){
@@ -761,7 +761,7 @@ class Partner extends CI_Controller {
                         $this->email->from('booking@247around.com', '247around Team');
                         $this->email->to($to);
 
-                        $this->email->subject("New Partner Added " . $partner_id);
+                        $this->email->subject("New Partner Added " . $partner_id.' - By '.$this->session->userdata('employee_id'));
                         $this->email->message($html);
                         
                         if(isset($attachment_contract)){
@@ -1303,7 +1303,7 @@ class Partner extends CI_Controller {
             } else {
                 $escalation['vendor_id'] = "";
                 $to = "escalations@247around.com"; 
-                $cc = "nits@247around.com";
+                $cc = NITS_ANUJ_EMAIL_ID;
                 $message = "Booking " . $booking_id . " Escalated By Partner " . $this->session->userdata('partner_name'). " SF State ".'<br><b>Remarks : '.$remarks.' </b>';
                 $message .= "<br><br><b>Booking Details :</b><ul>";
                     foreach($bookinghistory as $key=>$value){

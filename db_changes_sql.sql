@@ -1580,9 +1580,15 @@ ALTER TABLE `partners` ADD `pan_file` VARCHAR(512) NOT NULL AFTER `contract_file
 
 -- Belal 6 Jan
 
+ALTER TABLE `partners` ADD `upcountry` INT(2) NULL DEFAULT '0' AFTER `is_active`;
 ALTER TABLE `partners` ADD `upcountry_rate` INT(11) NOT NULL AFTER `upcountry`;
 
 --Belal 9 Jan
+
+--Abhay
+ALTER TABLE `vendor_partner_invoices` ADD `upcountry_booking` INT(11) NOT NULL DEFAULT '0' AFTER `due_date`, ADD `upcountry_rate` DOUBLE(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_booking`, ADD `upcountry_service_tax` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_rate`, ADD `upcountry_distance` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_service_tax`;
+ALTER TABLE `vendor_partner_invoices` ADD `upcountry_price` DECIMAL(10,2) NOT NULL DEFAULT '0' AFTER `upcountry_distance`;
+
 
 CREATE TABLE `file_uploads` (
  `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1609,5 +1615,13 @@ CREATE TABLE `sf_snapshot` (
  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+
 -- Abhay 10 Jan 
 ALTER TABLE `booking_details` ADD `sms_count` INT(5) NULL DEFAULT '0' AFTER `count_reschedule`;
+
+ALTER TABLE  `service_centres` ADD `is_verified` int(2) NOT NULL DEFAULT '0' AFTER `is_cst_doc`;
+
+--Belal 12 Jan
+
+ALTER TABLE `file_uploads` DROP `tag`;
+

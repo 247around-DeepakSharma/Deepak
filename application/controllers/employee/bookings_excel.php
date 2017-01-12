@@ -118,6 +118,11 @@ class bookings_excel extends CI_Controller {
 		//echo print_r("Phone number null, break from this loop", true), EOL;
 		break;
 	    }
+            
+            //Sanitizing Brand Name
+            if(!empty($rowData[0]['Brand'])){
+                $rowData[0]['Brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $rowData[0]['Brand']);
+            }
 
 	    //Insert user if phone number doesn't exist
 	    $output = $this->user_model->search_user(trim($rowData[0]['Phone']));
@@ -367,6 +372,11 @@ class bookings_excel extends CI_Controller {
 		//echo print_r("Phone number null, break from this loop", true), EOL;
 		break;
 	    }
+            
+            //Sanitizing Brand Name
+            if(!empty($rowData[0]['Brand'])){
+                $rowData[0]['Brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $rowData[0]['Brand']);
+            }
 
 	    //Insert user if phone number doesn't exist
 	    $output = $this->user_model->search_user(trim($rowData[0]['Phone']));
@@ -685,6 +695,11 @@ class bookings_excel extends CI_Controller {
 		//echo print_r("Phone number null, break from this loop", true), EOL;
 		break;
 	    }
+            
+            //Sanitizing Brand Name
+            if(!empty($rowData[0]['Brand'])){
+                $rowData[0]['Brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $rowData[0]['Brand']);
+            }
 
 	    //Insert user if phone number doesn't exist
 	    $output = $this->user_model->search_user(trim($rowData[0]['CustomerContactNo']));
@@ -936,17 +951,9 @@ class bookings_excel extends CI_Controller {
         log_message('info', __FUNCTION__ . ' Processing of Paytm Delivered Product Excel File started');
 
         //Adding Details in File_Uploads table as well
-        //Getting Latest Tag 
-        $tag = $this->partner_model->get_latest_tag_file_uploads_by_type(_247AROUND_PAYTM_DELIVERED);
-        if (!empty($tag)) {
-            $latest_tag = $tag[0]['tag'];
-        } else {
-            $latest_tag = 0;
-        }
 
-        $data['file_name'] = "Paytm-Delivered-" . date('Y-m-d-H-i-s') . '-' . ($latest_tag + 1) . '.xlsx';
+        $data['file_name'] = "Paytm-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
         $data['file_type'] = _247AROUND_PAYTM_DELIVERED;
-        $data['tag'] = ($latest_tag + 1);
         $data['agent_id'] = $this->session->userdata('employee_id');
         $insert_id = $this->partner_model->add_file_upload_details($data);
         if (!empty($insert_id)) {

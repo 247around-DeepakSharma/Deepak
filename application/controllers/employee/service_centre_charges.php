@@ -175,17 +175,9 @@ class service_centre_charges extends CI_Controller {
             //Logging
             log_message('info',__FUNCTION__.' Processing of Service Price List Excel File started');
             
-            //Getting Latest Tag 
-            $tag = $this->partner_model->get_latest_tag_file_uploads_by_type(_247AROUND_SF_PRICE_LIST);
-            if(!empty($tag)){
-                $latest_tag = $tag[0]['tag'];
-            }else{
-                $latest_tag = 0;
-            }
-            
             //Making process for file upload
             $tmpFile = $_FILES['file']['tmp_name'];
-            $price_file = "Service-Price-List-".date('Y-m-d-H-i-s').'-'.($latest_tag+1).'.xlsx';
+            $price_file = "Service-Price-List-".date('Y-m-d-H-i-s').'.xlsx';
             move_uploaded_file($tmpFile, TMP_FOLDER . $price_file);
             
             //Processing File
@@ -195,7 +187,6 @@ class service_centre_charges extends CI_Controller {
             
             $data['file_name'] = $price_file;
             $data['file_type'] = _247AROUND_SF_PRICE_LIST;
-            $data['tag'] = ($latest_tag+1);
             $data['agent_id'] = $this->session->userdata('employee_id');
             $insert_id = $this->partner_model->add_file_upload_details($data);
             if(!empty($insert_id)){
@@ -525,17 +516,9 @@ class service_centre_charges extends CI_Controller {
             //Logging
             log_message('info',__FUNCTION__.' Processing of Partner Appliance Excel File started');
             
-            //Getting Latest Tag 
-            $tag = $this->partner_model->get_latest_tag_file_uploads_by_type(_247AROUND_PARTNER_APPLIANCE_DETAILS);
-            if(!empty($tag)){
-                $latest_tag = $tag[0]['tag'];
-            }else{
-                $latest_tag = 0;
-            }
-            
             //Making process for file upload
             $tmpFile = $_FILES['file']['tmp_name'];
-            $appliance_file = "Partner-Appliance-Details-".date('Y-m-d-H-i-s').'-'.($latest_tag+1).'.xlsx';
+            $appliance_file = "Partner-Appliance-Details-".date('Y-m-d-H-i-s').'.xlsx';
             move_uploaded_file($tmpFile, TMP_FOLDER . $appliance_file);
 
             
@@ -546,7 +529,6 @@ class service_centre_charges extends CI_Controller {
             
             $data['file_name'] = $appliance_file;
             $data['file_type'] = _247AROUND_PARTNER_APPLIANCE_DETAILS;
-            $data['tag'] = ($latest_tag+1);
             $data['agent_id'] = $this->session->userdata('employee_id');
             $insert_id = $this->partner_model->add_file_upload_details($data);
             if(!empty($insert_id)){
@@ -582,7 +564,8 @@ class service_centre_charges extends CI_Controller {
         $empty_flag = FALSE;
 	$data['partner_id'] = isset($row[0]) && !empty($row[0])?$row[0]:$empty_flag = TRUE;
 	$data['service_id'] = isset($row[1]) && !empty($row[1])?$row[1]:$empty_flag = TRUE;
-	$data['brand'] = isset($row[2]) && !empty($row[2])?$row[2]:$empty_flag = TRUE;
+        //Sanitizing Brand Name
+	$data['brand'] = isset($row[2]) && !empty($row[2])?preg_replace('/[^A-Za-z0-9 ]/', '', $row[2]):$empty_flag = TRUE;
 	$data['category'] = isset($row[3]) && !empty($row[3])?$row[3]:$empty_flag = TRUE;
 	$data['capacity'] = isset($row[4]) && !empty($row[4])?$row[4]:$empty_flag = TRUE;
 	$data['model'] = isset($row[5]) && !empty($row[5])?$row[5]:'';

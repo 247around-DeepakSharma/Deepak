@@ -74,19 +74,20 @@ class Do_background_process extends CI_Controller {
                 $this->booking_utilities->lib_send_mail_to_vendor($booking_id, $message);
 
                 log_message('info', "Async Process Exiting for Booking ID: " . $booking_id);
-                
-                // Check & Calculate Upcountry charges.
-                $up_status = $this->upcountry_model->action_upcountry_booking($booking_id);
-                
-                if(!empty ($up_status) && $up_status != "Success"){
-                    $from = "booking@247around.com";
-                    $to = NITS_ANUJ_EMAIL_ID;
-                    $subject = " UpCountry Calculation Failed for Booking -". $booking_id;
-                    $message = " UpCountry Calculation Failed for Booking -". "  Booking Pincode - "
-                            . $query1[0]['booking_pincode']. " service center id ". $service_center_id;
-                    $cc = $bcc = $attachment ="";
+                if($query1[0]['amount_due'] == 0){
+                    // Check & Calculate Upcountry charges.
+                    $up_status = $this->upcountry_model->action_upcountry_booking($booking_id);
 
-                    $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);            
+                    if(!empty ($up_status) && $up_status != "Success"){
+                        $from = "booking@247around.com";
+                        $to = NITS_ANUJ_EMAIL_ID;
+                        $subject = " UpCountry Calculation Failed for Booking -". $booking_id;
+                        $message = " UpCountry Calculation Failed for Booking -". "  Booking Pincode - "
+                                . $query1[0]['booking_pincode']. " service center id ". $service_center_id;
+                        $cc = $bcc = $attachment ="";
+
+                        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);            
+                    }
                 }
             }
         }

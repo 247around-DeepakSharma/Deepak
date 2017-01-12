@@ -57,6 +57,7 @@ class Service_centers_model extends CI_Model {
                 if($i ==1){
                 // Today Day
                 $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) >= 0) ";
+                
                 } else if($i==2) {
                 //Tomorrow Booking
                 $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) = -1) ";
@@ -93,14 +94,14 @@ class Service_centers_model extends CI_Model {
                     ELSE '0'
                   END AS penalty, "
                     
-                . " CASE WHEN EXISTS (
-
-                        SELECT sc1.id
-                        FROM service_centres AS sc1
-                        WHERE  (`sc1`.tin_no IS NOT NULL 
-                        OR sc1.cst_no IS NOT NULL )
-                        AND sc1.id = '$service_center_id'
-                    )
+                 . " CASE WHEN (bd.is_upcountry = 1 AND sub_vendor_id IS NOT NULL) THEN (SELECT  CASE WHEN s.service_tax_no IS NULL THEN ( round(bd.upcountry_price/(count(b.id) * 1.15),2)) ELSE ( round(bd.upcountry_price/(count(b.id)),2)) END "
+                 . " FROM booking_details AS b WHERE b.booking_pincode = bd.booking_pincode "
+                 . " AND b.booking_date = bd.booking_date AND is_upcountry =1  AND b.current_status IN ('Pending','Rescheduled') ) "
+                 . " ELSE 0 END AS upcountry_price, "
+                    
+                . " CASE WHEN (s.tin_no IS NOT NULL 
+                        OR s.cst_no IS NOT NULL )
+                       
                         THEN (
 
                         SELECT SUM(vendor_basic_charges + vendor_st_or_vat_basic_charges)
@@ -120,18 +121,19 @@ class Service_centers_model extends CI_Model {
                         END AS earn_sc,
 "
                 . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(bd.initial_booking_date, '%d-%m-%Y')) as age_of_booking "
-                . " FROM service_center_booking_action as sc, booking_details as bd, users, services, engineer_details "
+                . " FROM service_center_booking_action as sc, booking_details as bd, users, services, service_centres AS s, engineer_details "
                 . " WHERE sc.service_center_id = '$service_center_id' "
-                . " AND sc.current_status = 'Pending' "
                 . " AND bd.assigned_vendor_id = '$service_center_id' "
                 . " AND bd.booking_id =  sc.booking_id "
                 . " AND bd.user_id = users.user_id "
+                . " AND s.id = bd.assigned_vendor_id "
                 . " AND bd.service_id = services.id "
                 . $status
                 . "  ".$day . $booking
                 . " ORDER BY count_escalation desc, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc ";
-
+             
             $query1 = $this->db->query($sql);
+            
             $result[$i] = $query1->result();
            
         }

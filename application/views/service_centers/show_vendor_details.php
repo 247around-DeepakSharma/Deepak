@@ -202,7 +202,7 @@
                                     if (isset($query[0]['address_proof_file']) && !empty($query[0]['address_proof_file'])) {
                                         $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['address_proof_file'];
                                         ?>
-                                        <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                        <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png'; ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" title="Click to view" /></a>
                                         <?php
                                     } else {
                                         $src = base_url() . 'images/no_image.png';
@@ -229,7 +229,7 @@
                                     if (isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])) {
                                         $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['contract_file'];
                                         ?>
-                                        <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                        <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png' ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" title="Click to view" /></a>
                                         <?php
                                     } else {
                                         $src = base_url() . 'images/no_image.png';
@@ -370,7 +370,7 @@
                                     if (isset($query[0]['id_proof_1_file']) && !empty($query[0]['id_proof_1_file'])) {
                                         $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['id_proof_1_file'];
                                         ?>
-                                        <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                        <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png' ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" title="Click to view" /></a>
                                         <?php
                                     } else {
                                         $src = base_url() . 'images/no_image.png';
@@ -396,7 +396,7 @@
                                     if (isset($query[0]['id_proof_2_file']) && !empty($query[0]['id_proof_2_file'])) {
                                         $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['id_proof_2_file'];
                                         ?>
-                                        <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                        <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png' ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" title="Click to view" /></a>
 
                                         <?php
                                     } else {
@@ -453,7 +453,7 @@
                             if (isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])) {
                                 $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['pan_file'];
                                 ?>
-                                <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png' ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" title="Click to view" /></a>
 
                                 <?php
                             } else {
@@ -508,7 +508,7 @@
                                         if (isset($query[0]['cst_file']) && !empty($query[0]['cst_file'])) {
                                             $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['cst_file'];
                                             ?>
-                                            <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                            <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png' ?>" width="35px" height="35px" style="border:1px solid black" title="Click to view" /></a>
 
                                             <?php
                                         } else {
@@ -565,7 +565,7 @@
                                         if (isset($query[0]['tin_file']) && !empty($query[0]['tin_file'])) {
                                             $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['tin_file'];
                                             ?>
-                                            <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                            <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png' ?>" width="35px" height="35px" style="border:1px solid black" title="Click to view" /></a>
                                             <?php
                                         } else {
                                             $src = base_url() . 'images/no_image.png';
@@ -619,7 +619,7 @@
                                         if (isset($query[0]['service_tax_file']) && !empty($query[0]['service_tax_file'])) {
                                             $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['service_tax_file'];
                                             ?>
-                                            <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
+                                            <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png' ?>" width="35px" height="35px" style="border:1px solid black" title="Click to view" /></a>
 
                                             <?php
                                         } else {
@@ -730,7 +730,7 @@
                                         if (isset($query[0]['cancelled_cheque_file']) && !empty($query[0]['cancelled_cheque_file'])) {
                                             $src = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/" . $query[0]['cancelled_cheque_file'];
                                             ?>
-                                            <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo $src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
+                                            <a href="<?php echo $src ?>" target="_blank"><img src="<?php echo base_url().'images/view_image.png' ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" title="Click to view" /></a>
                                             <?php
                                         } else {
                                             $src = base_url() . 'images/no_image.png';

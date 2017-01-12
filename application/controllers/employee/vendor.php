@@ -381,7 +381,7 @@ class vendor extends CI_Controller {
                         $this->email->from('booking@247around.com', '247around Team');
                         $this->email->to($to);
 
-                        $this->email->subject("Vendor Updated : " . $_POST['id']);
+                        $this->email->subject("Vendor Updated : " . $_POST['id'].' - By '.$this->session->userdata('employee_id'));
                         $this->email->message($html);
                         
                         if(isset($attachment_pan)){
@@ -422,7 +422,7 @@ class vendor extends CI_Controller {
                 $check_update_sf_rm_relation = $this->vendor_model->update_rm_to_sf_relation($rm, $_POST['id']);
                 if($check_update_sf_rm_relation){
                     //Loggin Success
-                    log_message('info', __FUNCTION__.' SF to RM relation is updated sucessfully RM = '.print_r($rm,TRUE).' SF = '.print_r($_POST['id'],TRUE));
+                    log_message('info', __FUNCTION__.' SF to RM relation is updated successfully RM = '.print_r($rm,TRUE).' SF = '.print_r($_POST['id'],TRUE));
                 }else{
                     //Loggin Error 
                     log_message('info', __FUNCTION__.' Error in mapping SF to RM relation RM = '.print_r($rm,TRUE).' SF = '.print_r($_POST['id'],TRUE));
@@ -471,7 +471,7 @@ class vendor extends CI_Controller {
                         $this->email->from('booking@247around.com', '247around Team');
                         $this->email->to($to);
 
-                        $this->email->subject("Vendor Added : " . $sc_id);
+                        $this->email->subject("Vendor Added : " . $sc_id.' - By '.$this->session->userdata('employee_id'));
                         $this->email->message($html);
                         
                         if(isset($attachment_pan)){
@@ -952,7 +952,7 @@ class vendor extends CI_Controller {
            // $this->service_centers_model->update_service_centers_action_table($booking_id, $pre_service_center_data);
             $this->vendor_model->delete_previous_service_center_action($booking_id);
             $unit_details = $this->booking_model->getunit_details($booking_id);
-
+            $amound_due = 0;
             foreach ($unit_details[0]['quantity'] as $value ) {
                 $data = array();
                 $data['current_status'] = "Pending";
@@ -962,6 +962,7 @@ class vendor extends CI_Controller {
                 $data['create_date'] = date('Y-m-d H:i:s');
                 $data['unit_details_id'] = $value['unit_id'];
                 $this->vendor_model->insert_service_center_action($data);
+                $amound_due += $value['customer_net_payable'];
             }
 
             $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, 
@@ -976,18 +977,21 @@ class vendor extends CI_Controller {
 
 	     log_message('info', "Reassigned - Booking id: " . $booking_id . "  By " .
                $this->session->userdata('employee_id') . " service center id " . $service_center_id);
-            // Check & Calculate Upcountry charges.
-            $up_status = $this->upcountry_model->action_upcountry_booking($booking_id);
-                
-            if(!empty ($up_status) && $up_status != "Success"){
-                $from = "booking@247around.com";
-                $to = NITS_ANUJ_EMAIL_ID;
-                $subject = " UpCountry Calculation Failed for Booking -". $booking_id;
-                $message = " UpCountry Calculation Failed for Booking - service center id ". $service_center_id;
-                    $cc = $bcc = $attachment ="";
+             
+            if($amound_due == 0){
+                // Check & Calculate Upcountry charges.
+                $up_status = $this->upcountry_model->action_upcountry_booking($booking_id);
 
-                $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);            
-            } 
+                if(!empty ($up_status) && $up_status != "Success"){
+                    $from = "booking@247around.com";
+                    $to = NITS_ANUJ_EMAIL_ID;
+                    $subject = " UpCountry Calculation Failed for Booking -". $booking_id;
+                    $message = " UpCountry Calculation Failed for Booking - service center id ". $service_center_id;
+                        $cc = $bcc = $attachment ="";
+
+                    $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);            
+                } 
+            }
 
             redirect(base_url() . DEFAULT_SEARCH_PAGE);
 	} else {
@@ -1142,7 +1146,7 @@ class vendor extends CI_Controller {
         log_message('info', __FUNCTION__ . ' => New CSV file: ' . $newCSVFileName);
         
         //Checking for Empty file
-        if(filesize($newCSVFileName) == 0){
+        if(filesize(TMP_FOLDER.$newCSVFileName) == 0){
             //Logging
             log_message('info',' Empty Pincode File has been Uploaded');
             $this->session->set_flashdata('file_error',' Empty File has been uploaded');
@@ -1154,17 +1158,9 @@ class vendor extends CI_Controller {
         log_message('info', __FUNCTION__ . ' Processing of Pincode CSV File started');
 
         //Adding Details in File_Uploads table as well
-        //Getting Latest Tag 
-        $tag = $this->partner_model->get_latest_tag_file_uploads_by_type(_247AROUND_VENDOR_PINCODE);
-        if (!empty($tag)) {
-            $latest_tag = $tag[0]['tag'];
-        } else {
-            $latest_tag = 0;
-        }
-
+        
         $data_uploads['file_name'] = "vendor_pincode_mapping_temp.zip";
         $data_uploads['file_type'] = _247AROUND_VENDOR_PINCODE;
-        $data_uploads['tag'] = ($latest_tag + 1);
         $data_uploads['agent_id'] = $this->session->userdata('employee_id');
         $insert_id = $this->partner_model->add_file_upload_details($data_uploads);
         if (!empty($insert_id)) {
