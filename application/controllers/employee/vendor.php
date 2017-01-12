@@ -470,7 +470,7 @@ class vendor extends CI_Controller {
                         $this->email->from('booking@247around.com', '247around Team');
                         $this->email->to($to);
 
-                        $this->email->subject("Vendor Added : " . $sc_id);
+                        $this->email->subject("Vendor Added : " . $sc_id.' - By '.$this->session->userdata('employee_id'));
                         $this->email->message($html);
                         
                         if(isset($attachment_pan)){
