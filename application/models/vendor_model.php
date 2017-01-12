@@ -1571,11 +1571,11 @@ class vendor_model extends CI_Model {
             $this->db->set('service_centres_id',$sf_details_list);
             $this->db->update('employee_relation');
             //Now adding SF to New RM
-             $this->add_rm_to_sf_relation($agent_id, $sf_id);
+            return $this->add_rm_to_sf_relation($agent_id, $sf_id);
             
         }else{
             //No assignment has been done earlier ADD NEW
-            $this->add_rm_to_sf_relation($agent_id, $sf_id);
+            return $this->add_rm_to_sf_relation($agent_id, $sf_id);
         }
         
     }
