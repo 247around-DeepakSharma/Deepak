@@ -109,6 +109,10 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/booking/review_bookings"><i class="fa fa-fw fa-desktop"></i> <strong> Review Bookings</strong></a>
                         </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/upcountry/get_upcountry_failed_details"><i class="fa fa-fw fa-desktop"></i> <strong> Failed Upcountry</strong></a>
+                        </li>
                   
                     </ul>
                     <!-- /.dropdown-tasks -->

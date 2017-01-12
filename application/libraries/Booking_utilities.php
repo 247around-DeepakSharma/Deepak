@@ -190,8 +190,11 @@ class Booking_utilities {
                 $bookingdate = $dd . " " . $mm;
             }
 
-            $smsBody = "Booking - " . $getbooking[0]['name'] . ", " . $getbooking[0]['booking_primary_contact_no'] . ", " . $getbooking[0]['services'] . ", " . $bookingdate ."/" . $getbooking[0]['booking_timeslot'] .  ", " . $getbooking[0]['booking_address'] . ", ". $getbooking[0]['booking_pincode'] . ". 247around";
-
+            $smsBody = "Booking - " . substr($getbooking[0]['name'], 0, 20) . ", " . $getbooking[0]['booking_primary_contact_no'] 
+                    . ", " . $getbooking[0]['services'] . ", " . $bookingdate ."/" 
+                    . $getbooking[0]['booking_timeslot'] .  ", " . substr($getbooking[0]['booking_address'], 0, 60)
+                    . ", ". $getbooking[0]['booking_pincode'] . ". 247around";
+            
             //Send SMS to vendor
             $this->My_CI->notify->sendTransactionalSms($getbooking[0]['primary_contact_phone_1'], $smsBody);
             //Save email in database

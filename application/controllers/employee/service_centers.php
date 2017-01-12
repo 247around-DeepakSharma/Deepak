@@ -106,7 +106,7 @@ class Service_centers extends CI_Controller {
         $data['spare_parts_data'] = $this->service_centers_model->get_updated_spare_parts_booking($service_center_id);
         
         }
-        $data['upcountry'] = $this->upcountry_model->upcountry_service_center($service_center_id);
+        $data['upcountry'] = $this->upcountry_model->upcountry_service_center_3_month_price($service_center_id);
 
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/pending_booking', $data);
@@ -125,6 +125,7 @@ class Service_centers extends CI_Controller {
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
         $unit_where = array('booking_id'=>$booking_id);
         $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
+        $data['upcountry_details'] = $this->upcountry_model->upcountry_booking_list($this->session->userdata('service_center_id'), $booking_id);
 
 
         $this->load->view('service_centers/header');
@@ -1288,6 +1289,7 @@ class Service_centers extends CI_Controller {
      */
     function print_partner_address(){
         $this->checkUserSession();
+        log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
         $booking_address = $this->input->post('download_address');
         $booking_history['details'] = array();
         $i=0;
@@ -1304,6 +1306,18 @@ class Service_centers extends CI_Controller {
         }
         $this->load->view('service_centers/print_partner_address',$booking_history);
        
+    }
+    /**
+     * @desc: Call by Ajax to load group upcountry details
+     * @param String $booking_id
+     */
+    function pending_booking_upcountry_price($booking_id){
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
+        $service_center_id  = $this->session->userdata('service_center_id');
+        $data['data'] = $this->upcountry_model->upcountry_booking_list($service_center_id, $booking_id);
+       // $this->load->view('service_centers/header');
+        $this->load->view('service_centers/upcountry_booking_details', $data);
     }
 
 }
