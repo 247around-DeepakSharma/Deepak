@@ -25,12 +25,11 @@ class vendor extends CI_Controller {
         $this->load->model('booking_model');
         $this->load->library('PHPReport');
         $this->load->model('service_centers_model');
+        $this->load->model('upcountry_model');
+        $this->load->model('vendor_model');
         $this->load->model('service_centre_charges_model');
         $this->load->helper(array('form', 'url'));
-        
         $this->load->library('form_validation');
-        $this->load->model('vendor_model');
-        $this->load->model('upcountry_model');
         $this->load->model('partner_model');
         $this->load->library('booking_utilities');
         $this->load->library('partner_utilities');
