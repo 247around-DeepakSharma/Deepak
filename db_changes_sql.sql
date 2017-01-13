@@ -1616,3 +1616,40 @@ ALTER TABLE  `service_centres` ADD `is_verified` int(2) NOT NULL DEFAULT '0' AFT
 ALTER TABLE `service_centres` ADD `is_upcountry` INT(2) NULL DEFAULT '0' AFTER `is_penalty`;
 
 
+
+
+--
+-- Table structure for table `sub_service_center_details`
+--
+
+CREATE TABLE `sub_service_center_details` (
+  `id` int(11) NOT NULL,
+  `service_center_id` int(11) DEFAULT NULL,
+  `state` varchar(100) DEFAULT NULL,
+  `district` varchar(150) DEFAULT NULL,
+  `pincode` int(50) DEFAULT NULL,
+  `upcountry_rate` int(10) DEFAULT NULL,
+  `update_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `create_date` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `sub_service_center_details`
+--
+ALTER TABLE `sub_service_center_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `sub_service_center_details`
+--
+ALTER TABLE `sub_service_center_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
