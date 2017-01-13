@@ -25,6 +25,7 @@ class Service_centers extends CI_Controller {
         $this->load->model('user_model');
         $this->load->model('employee_model');
         $this->load->model('invoices_model');
+        $this->load->model('inventory_model');
         $this->load->library("pagination");
         $this->load->library('asynchronous_lib');
         $this->load->library("session");
@@ -34,6 +35,7 @@ class Service_centers extends CI_Controller {
         $this->load->library('PHPReport');
         $this->load->helper('download');
         $this->load->library('user_agent');
+        $this->load->library('notify');
     }
 
     /**
@@ -62,7 +64,7 @@ class Service_centers extends CI_Controller {
         if ($agent) {
         //get sc details now
         $sc_details = $this->vendor_model->getVendorContact($agent['service_center_id']);
-            $this->setSession($sc_details[0]['id'], $sc_details[0]['name'], $agent['id'], $sc_details[0]['is_update']);
+            $this->setSession($sc_details[0]['id'], $sc_details[0]['name'], $agent['id'], $sc_details[0]['is_update'],$sc_details[0]['company_name']);
 
             //Saving Login Details in Database
             $login_data['browser'] = $this->agent->browser();
@@ -338,12 +340,13 @@ class Service_centers extends CI_Controller {
      * @param: is update
      * @return: void
      */
-    function setSession($service_center_id, $service_center_name, $sc_agent_id, $update) {
+    function setSession($service_center_id, $service_center_name, $sc_agent_id, $update,$company_name) {
 	$userSession = array(
 	    'session_id' => md5(uniqid(mt_rand(), true)),
 	    'service_center_id' => $service_center_id,
 	    'service_center_name' => $service_center_name,
             'service_center_agent_id' => $sc_agent_id,
+            'company_name'=>$company_name,
             'is_update' => $update,
 	    'sess_expiration' => 30000,
 	    'loggedIn' => TRUE,
@@ -1318,6 +1321,157 @@ class Service_centers extends CI_Controller {
         $data['data'] = $this->upcountry_model->upcountry_booking_list($service_center_id, $booking_id);
        // $this->load->view('service_centers/header');
         $this->load->view('service_centers/upcountry_booking_details', $data);
+    }
+    
+    
+    /**
+     * @Desc: This function is used to show brackets details list
+     * @params: void
+     * @return: void
+     * 
+     */
+    function show_brackets_list(){
+        $this->checkUserSession();
+        $data['brackets'] = $this->inventory_model->get_unshipped_unreceived_brackets($this->session->userdata('service_center_id'));
+        //Getting name for order received from  to vendor
+        foreach($data['brackets'] as $key=>$value){
+            $data['order_received_from'][$key] = $this->vendor_model->getVendorContact($value['order_received_from'])[0];
+        
+            // Getting name for order given to vendor
+            
+            $data['order_given_to'][$key] = $this->vendor_model->getVendorContact($value['order_given_to'])[0]['name'];
+        }
+        $this->load->view('service_centers/header');
+        $this->load->view("service_centers/show_vender_brackets_list", $data);
+    }
+    
+    /**
+     * @Desc: This function is used to show brackets order history for order_id
+     * @params: Int order_id
+     * @return :View
+     * 
+     */
+    function show_brackets_order_history($order_id){
+        $data['data'] = $this->inventory_model->get_brackets_by_order_id($order_id);
+        $data['order_id'] = $order_id;
+        $data['brackets'] = $this->inventory_model->get_brackets_by_id($order_id);
+        $data['order_received_from'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_received_from'])[0]['name'];
+        $data['order_given_to'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_given_to'])[0]['name'];
+        
+        $this->load->view('service_centers/header');
+        $this->load->view("service_centers/show_vender_brackets_order_history", $data);
+
+    }
+    
+    /**
+     * @Desc: This function is used to update shipment
+     * @params: Int order id
+     * @return : view
+     */
+    function get_update_shipment_form($order_id){
+        $data['brackets'] = $this->inventory_model->get_brackets_by_id($order_id);
+        $data['shipped_flag'] = TRUE;
+        $data['order_id'] = $order_id;
+        $data['order_given_to'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_given_to'])[0]['name'];
+        $data['order_received_from'] = $this->vendor_model->getVendorContact($data['brackets'][0]['order_received_from'])[0]['name'];
+        $this->load->view('service_centers/header');
+        $this->load->view("service_centers/update_vender_brackets", $data);
+    }
+    
+    /**
+     * @Desc: This function is used to process update shipment form
+     * @params: Array
+     * @return: void
+     */
+    function process_vender_update_shipment_form(){
+        //Saving Uploading file.
+        if($_FILES['shipment_receipt']['error'] != 4 && !empty($_FILES['shipment_receipt']['tmp_name'])){
+            $tmpFile = $_FILES['shipment_receipt']['tmp_name'];
+            //Assigning File Name for uploaded shipment receipt
+            $fileName = "Shipment-Receipt-".$this->input->post('order_id').'.'.explode('.',$_FILES['shipment_receipt']['name'])[1];
+            move_uploaded_file($tmpFile, TMP_FOLDER.$fileName);
+            
+             //Uploading images to S3 
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory = "misc-images/" . $fileName;
+            $this->s3->putObjectFile(TMP_FOLDER.$fileName, $bucket, $directory, S3::ACL_PUBLIC_READ);
+            
+            $data['shipment_receipt'] = $fileName;
+        }
+        $order_id = $this->input->post('order_id');
+        $order_received_from = $this->input->post('order_received_from');
+        $data['19_24_shipped'] = $this->input->post('19_24_shipped');
+        $data['26_32_shipped'] = $this->input->post('26_32_shipped');
+        $data['36_42_shipped'] = $this->input->post('36_42_shipped');
+        $data['total_shipped'] = $this->input->post('total_shipped');
+        $data['shipment_date'] = !empty($this->input->post('shipment_date'))?$this->input->post('shipment_date'):date('Y-m-d H:i:s');
+        $data['is_shipped'] = 1;
+        
+        
+        $attachment = "";
+        if(!empty($fileName)){
+            $data['shipment_receipt'] = $fileName;
+             $attachment = TMP_FOLDER.$fileName;
+        }
+
+        //Updating value in Brackets
+        $update_brackets = $this->inventory_model->update_brackets($data, array('order_id' => $order_id));
+        if($update_brackets){
+            //Loggin success
+            log_message('info',__FUNCTION__.' Brackets Shipped has been updated '. print_r($data, TRUE));
+            
+            //Adding value in Booking State Change
+            $this->insert_details_in_state_change($order_id, "Brackets_Shipped", "Brackets Shipped");    
+            //$this->notify->insert_state_change($order_id, _247AROUND_BRACKETS_SHIPPED, _247AROUND_BRACKETS_PENDING, "Brackets Shipped", $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            //Logging Success
+            log_message('info', __FUNCTION__ . ' Brackets Pending - Shipped state have been added in Booking State Change ');
+                
+            // Sending mail to order_received_from vendor
+            $order_received_from_email = $this->vendor_model->getVendorContact($order_received_from);
+            $vendor_poc_mail = $order_received_from_email[0]['primary_contact_email'];
+            $vendor_owner_mail = $order_received_from_email[0]['owner_email'];
+            $to = $vendor_poc_mail.','.$vendor_owner_mail;
+            
+             // Sending brackets Shipped Mail to order received from vendor
+                   $email = array();
+                   //Getting template from Database
+                   $template = $this->booking_model->get_booking_email_template("brackets_shipment_mail");
+                   
+                   if(!empty($template)){
+                        $email['order_id'] = $order_id;
+                        $subject = "Brackets Shipped by ".$order_received_from_email[0]['company_name'];
+                        $emailBody = vsprintf($template[0], $email);
+                        $this->notify->sendEmail($template[2], $to , $template[3].','.$this->get_rm_email($order_received_from), '', $subject , $emailBody, $attachment);
+                   }
+            
+            //Loggin send mail success
+            log_message('info',__FUNCTION__.' Shipped mail has been sent to order_received_from vendor '. $emailBody);
+            
+            //Setting success session data 
+            $this->session->set_userdata('brackets_update_success', 'Brackets Shipped updated Successfully');
+            
+            redirect(base_url() . 'employee/service_centers/show_brackets_list');
+        }else{
+            //Loggin error
+            log_message('info',__FUNCTION__.' Brackets Shipped updated Error '. print_r($data, TRUE));
+            
+            //Setting error session data 
+            $this->session->set_userdata('brackets_update_error', 'No changes made to be updated.');
+            $this->get_update_shipment_form($order_id);
+        }
+    }
+    
+    /**
+     * @Desc: This function is used to get RM email (:POC) details for the corresponding vendor 
+     * @params: vendor 
+     * @return : string
+     */
+    private function get_rm_email($vendor_id) {
+        $employee_rm_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
+        $rm_id = $employee_rm_relation[0]['agent_id'];
+        $rm_details = $this->employee_model->getemployeefromid($rm_id);
+        $rm_poc_email = $rm_details[0]['official_email'];
+        return $rm_poc_email;
     }
 
 }
