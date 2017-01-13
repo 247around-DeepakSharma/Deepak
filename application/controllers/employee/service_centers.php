@@ -20,6 +20,7 @@ class Service_centers extends CI_Controller {
         $this->load->model('booking_model');
         $this->load->model('reporting_utils');
         $this->load->model('partner_model');
+        $this->load->model('upcountry_model');
         $this->load->model('vendor_model');
         $this->load->model('user_model');
         $this->load->model('employee_model');

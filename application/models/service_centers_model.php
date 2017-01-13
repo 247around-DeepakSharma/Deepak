@@ -81,6 +81,7 @@ class Service_centers_model extends CI_Model {
                 . " bd.amount_due, "
                 . " bd.request_type, "
                 . " bd.count_escalation, "
+                . " bd.is_upcountry, "
                 . " bd.booking_address, "
                 . " bd.booking_pincode, "
                 . " services," 
