@@ -78,7 +78,7 @@ class Partner extends CI_Controller {
                     log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['agent_id']);
                 }
 
-                redirect(base_url() . "employee/partner/partner_default_page");
+                redirect(base_url() . "partner/home");
             }else{
                 $userSession = array('error' => 'Sorry, your Login has been De-Activated');
                 $this->session->set_userdata($userSession);
@@ -94,14 +94,19 @@ class Partner extends CI_Controller {
 
      /**
      * @desc: this is used to load pending booking
-     * @param: Offset and page no.
+     * @param: Offset and page no., all flag to get all data, Booking id
      * @return: void
      */
-    function pending_booking($offset = 0,$all = 0) {
+    function pending_booking($offset = 0,$all = 0,$booking_id = '') {
        $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         $config['base_url'] = base_url() . 'partner/pending_booking';
-        $total_rows = $this->partner_model->getPending_booking($partner_id);
+        
+        if(!empty($booking_id)){
+            $total_rows = $this->partner_model->getPending_booking($partner_id,$booking_id);
+        }else{
+            $total_rows = $this->partner_model->getPending_booking($partner_id);
+        }
         $config['total_rows'] = count($total_rows);
         
         if($all == 1){
@@ -168,12 +173,16 @@ class Partner extends CI_Controller {
     /**
      * @desc: this is used to display completed booking for specific service center
      */
-    function closed_booking($state, $offset = 0){
+    function closed_booking($state, $offset = 0, $booking_id = ""){
        $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
 
         $config['base_url'] = base_url() . 'partner/closed_booking/'.$state;
-        $config['total_rows'] = $this->partner_model->getclosed_booking("count","",$partner_id, $state);
+        if(!empty($booking_id)){
+            $config['total_rows'] = $this->partner_model->getclosed_booking("count","",$partner_id, $state, $booking_id);
+        }else{
+            $config['total_rows'] = $this->partner_model->getclosed_booking("count","",$partner_id, $state);
+        }
 
         $config['per_page'] = 50;
         $config['uri_segment'] = 4;
@@ -183,7 +192,11 @@ class Partner extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state);
+        if(!empty($booking_id)){
+            $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state,$booking_id);
+        }else{
+            $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state);
+        }
 
         if ($this->session->flashdata('result') != '')
             $data['success'] = $this->session->flashdata('result');

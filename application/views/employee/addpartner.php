@@ -94,7 +94,7 @@
                     ?>" name="upcountry_rate" id="upcountry_rate" disabled="" placeholder="Enter KM's">
                 </div>
                 <div class="col-md-4">
-                    <span><i>[Tick checkbox to enter Km's]</i></span>
+                    <span><i>[Enter Rate per KM]</i></span>
                 </div>
             </div>
         </div>

@@ -76,6 +76,8 @@ $route['service_center/pending_booking_upcountry_price/(:any)'] = 'employee/serv
 $route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';
 
 $route['partner/login'] = 'employee/partner';
+$route['partner/home'] = 'employee/partner/partner_default_page';
+$route['partner/search'] = 'employee/partner/search';
 $route['partner/pending_booking'] = 'employee/partner/pending_booking';
 $route['partner/pending_booking/(:any)'] = 'employee/partner/pending_booking/$1';
 $route['partner/closed_booking/Completed'] = 'employee/partner/closed_booking/Completed';
