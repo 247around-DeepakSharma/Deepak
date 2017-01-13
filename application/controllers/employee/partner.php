@@ -78,7 +78,7 @@ class Partner extends CI_Controller {
                     log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['agent_id']);
                 }
 
-                redirect(base_url() . "partner/get_spare_parts_booking");
+                redirect(base_url() . "employee/partner/partner_default_page");
             }else{
                 $userSession = array('error' => 'Sorry, your Login has been De-Activated');
                 $this->session->set_userdata($userSession);
@@ -97,14 +97,18 @@ class Partner extends CI_Controller {
      * @param: Offset and page no.
      * @return: void
      */
-    function pending_booking($offset = 0) {
+    function pending_booking($offset = 0,$all = 0) {
        $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         $config['base_url'] = base_url() . 'partner/pending_booking';
         $total_rows = $this->partner_model->getPending_booking($partner_id);
         $config['total_rows'] = count($total_rows);
-
-        $config['per_page'] = 50;
+        
+        if($all == 1){
+            $config['per_page'] = count($total_rows);
+        }else{
+            $config['per_page'] = 50;
+        }
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
@@ -540,11 +544,11 @@ class Partner extends CI_Controller {
                 }
                 
                 //Checking for Upcountry
-                $upcountry = $this->input->post('upcountry');
+                $upcountry = $this->input->post('is_upcountry');
                 if(isset($upcountry) && $upcountry == 'on')
                 {
                     //Setting Flag as 1
-                    $_POST['upcountry'] = 1;
+                    $_POST['is_upcountry'] = 1;
                 }
                 
                 //Getting partner operation regions details from POST
@@ -719,11 +723,11 @@ class Partner extends CI_Controller {
                 }
                 
                 //Checking for Upcountry
-                $upcountry = $this->input->post('upcountry');
+                $upcountry = $this->input->post('is_upcountry');
                 if(isset($upcountry) && $upcountry == 'on')
                 {
                     //Setting Flag as 1
-                    $_POST['upcountry'] = 1;
+                    $_POST['is_upcountry'] = 1;
                 }
                 
                 //Getting partner operation regions details from POST
@@ -2163,6 +2167,18 @@ class Partner extends CI_Controller {
             redirect(base_url() . 'employee/partner/get_partner_login_details_form/'.$partner_id);
              
          }
+     }
+     
+     /**
+      * @Desc: This function is used to show default Partner Login Page
+      * @params: void
+      * @return: view
+      * 
+      */
+     function partner_default_page(){
+        $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'partner', 'active'=> '1'));
+        $this->load->view('partner/header');
+        $this->load->view('partner/partner_default_page',$data);
      }
     
 }

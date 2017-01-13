@@ -1580,8 +1580,7 @@ ALTER TABLE `partners` ADD `pan_file` VARCHAR(512) NOT NULL AFTER `contract_file
 
 -- Belal 6 Jan
 
-ALTER TABLE `partners` ADD `upcountry` INT(2) NULL DEFAULT '0' AFTER `is_active`;
-ALTER TABLE `partners` ADD `upcountry_rate` INT(11) NOT NULL AFTER `upcountry`;
+ALTER TABLE `partners` ADD `upcountry_rate` INT(11) NOT NULL AFTER `is_upcountry`;
 
 --Belal 9 Jan
 
@@ -1624,4 +1623,8 @@ ALTER TABLE  `service_centres` ADD `is_verified` int(2) NOT NULL DEFAULT '0' AFT
 --Belal 12 Jan
 
 ALTER TABLE `file_uploads` DROP `tag`;
+
+--Belal
+
+ALTER TABLE `partners` DROP `upcountry`;
 
