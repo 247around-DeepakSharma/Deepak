@@ -1638,11 +1638,15 @@ CREATE TABLE `sub_service_center_details` (
 --
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 --
 -- Indexes for table `sub_service_center_details`
 --
 ALTER TABLE `sub_service_center_details`
   ADD PRIMARY KEY (`id`);
+=======
+ALTER TABLE `partners` ADD `upcountry_rate` INT(11) NOT NULL AFTER `is_upcountry`;
+>>>>>>> d2ef9c3... BUG: Removed upcountry flag
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -1712,3 +1716,7 @@ ALTER TABLE  `service_centres` ADD `is_verified` int(2) NOT NULL DEFAULT '0' AFT
 --Belal 12 Jan
 
 ALTER TABLE `file_uploads` DROP `tag`;
+--Belal
+
+ALTER TABLE `partners` DROP `upcountry`;
+
