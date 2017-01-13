@@ -25,12 +25,11 @@ class vendor extends CI_Controller {
         $this->load->model('booking_model');
         $this->load->library('PHPReport');
         $this->load->model('service_centers_model');
+        $this->load->model('upcountry_model');
+        $this->load->model('vendor_model');
         $this->load->model('service_centre_charges_model');
         $this->load->helper(array('form', 'url'));
-        
         $this->load->library('form_validation');
-        $this->load->model('vendor_model');
-        $this->load->model('upcountry_model');
         $this->load->model('partner_model');
         $this->load->library('booking_utilities');
         $this->load->library('partner_utilities');
@@ -70,7 +69,7 @@ class vendor extends CI_Controller {
         $checkValidation = $this->checkValidation();
         if ($checkValidation) {
             //Start  Processing PAN File Upload
-            if (!empty($_FILES['pan_file']['tmp_name'])) {
+            if (($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])) {
                 //Adding file validation
                 $checkfilevalidation = $this->file_input_validation('pan_file');
                 if ($checkfilevalidation) {
@@ -106,7 +105,7 @@ class vendor extends CI_Controller {
             }
             
             //Start Processing CST File Upload
-            if (!empty($_FILES['cst_file']['tmp_name'])) {
+            if (($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])) {
                 //Adding file validation
                 $checkfilevalidation = $this->file_input_validation('cst_file');
                 if ($checkfilevalidation) {
@@ -145,7 +144,7 @@ class vendor extends CI_Controller {
             }
             
             //Start Processing TIN File Upload
-            if (!empty($_FILES['tin_file']['tmp_name'])) {
+            if (($_FILES['tin_file']['error'] != 4) && !empty($_FILES['tin_file']['tmp_name'])) {
                 //Adding file validation
                 $checkfilevalidation = $this->file_input_validation('tin_file');
                 if ($checkfilevalidation) {
@@ -180,7 +179,7 @@ class vendor extends CI_Controller {
             }
 
             //Start Processing Service Tax File Upload
-            if (!empty($_FILES['service_tax_file']['tmp_name'])) {
+            if (($_FILES['service_tax_file']['error'] != 4) && !empty($_FILES['service_tax_file']['tmp_name'])) {
                 //Adding file validation
                 $checkfilevalidation = $this->file_input_validation('service_tax_file');
                 if ($checkfilevalidation) {
@@ -215,7 +214,7 @@ class vendor extends CI_Controller {
             }
             
             //Processing Address Proof File Upload
-                if(!empty($_FILES['address_proof_file']['tmp_name'])){
+                if(($_FILES['address_proof_file']['error'] != 4) && !empty($_FILES['address_proof_file']['tmp_name'])){
                     $tmpFile = $_FILES['address_proof_file']['tmp_name'];
                     $address_proof_file = implode("",explode(" ",$this->input->post('name'))).'_addressprooffile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['address_proof_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$address_proof_file);
@@ -233,7 +232,7 @@ class vendor extends CI_Controller {
                 }
                 
                 //Processing Cancelled Cheque File Upload
-                if(!empty($_FILES['cancelled_cheque_file']['tmp_name'])){
+                if(($_FILES['cancelled_cheque_file']['error'] != 4) && !empty($_FILES['cancelled_cheque_file']['tmp_name'])){
                     $tmpFile = $_FILES['cancelled_cheque_file']['tmp_name'];
                     $cancelled_cheque_file = implode("",explode(" ",$this->input->post('name'))).'_cancelledchequefile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['cancelled_cheque_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$cancelled_cheque_file);
@@ -251,7 +250,7 @@ class vendor extends CI_Controller {
                 }
                 
                 //Processing ID Proof 1 File Upload
-                if(!empty($_FILES['id_proof_1_file']['tmp_name'])){
+                if(($_FILES['id_proof_1_file']['error'] != 4) && !empty($_FILES['id_proof_1_file']['tmp_name'])){
                     $tmpFile = $_FILES['id_proof_1_file']['tmp_name'];
                     $id_proof_1_file = implode("",explode(" ",$this->input->post('name'))).'_idproof1file_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['id_proof_1_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$id_proof_1_file);
@@ -269,7 +268,7 @@ class vendor extends CI_Controller {
                 }
                 
                 //Processing ID Proof 1 File Upload
-                if(!empty($_FILES['id_proof_2_file']['tmp_name'])){
+                if(($_FILES['id_proof_2_file']['error'] != 4) && !empty($_FILES['id_proof_2_file']['tmp_name'])){
                     $tmpFile = $_FILES['id_proof_2_file']['tmp_name'];
                     $id_proof_2_file = implode("",explode(" ",$this->input->post('name'))).'_idproof2file_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['id_proof_2_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$id_proof_2_file);
@@ -287,7 +286,7 @@ class vendor extends CI_Controller {
                 }
                 
                 //Processing Contract File Upload
-                if(!empty($_FILES['contract_file']['tmp_name'])){
+                if(($_FILES['contract_file']['error'] != 4) && !empty($_FILES['contract_file']['tmp_name'])){
                     $tmpFile = $_FILES['contract_file']['tmp_name'];
                     $contract_file = implode("",explode(" ",$this->input->post('name'))).'_contractfile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['contract_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$contract_file);
@@ -1219,7 +1218,7 @@ class vendor extends CI_Controller {
         system ("rm -rf ".$newZipFileName);
         system ("rm -rf ".TMP_FOLDER . $CSVFileName );
         system ("rm -rf ".TMP_FOLDER . $newCSVFileName );
-       log_message('info', __FUNCTION__ . ' => All queries executed: ' . print_r($sql_commands, TRUE));
+       log_message('info', __FUNCTION__ . ' => All queries executed: ');
         //log_message('info', __FUNCTION__ . ' => New pincode count: ' . $count);
         
         redirect(base_url() . DEFAULT_SEARCH_PAGE);
@@ -2291,7 +2290,7 @@ class vendor extends CI_Controller {
         $flag = TRUE;
         $attachment = "";
         //Do file upload if attachment is provided
-        if (!empty($_FILES)) {
+        if (($_FILES['attachment_'.$id]['error'] != 4) && !empty($_FILES['attachment_'.$id]['tmp_name'])) {
             $tmpFile = $_FILES['attachment_'.$id]['tmp_name'];
             $fileName = $_FILES['attachment_'.$id]['name'];
 
@@ -2387,7 +2386,7 @@ class vendor extends CI_Controller {
         $flag = TRUE;
         $attachment = "";
         //Do file upload if attachment is provided
-        if (!empty($_FILES)) {
+        if (($_FILES['attachment_'.$id]['error'] != 4) && !empty($_FILES['attachment_'.$id]['tmp_name'])) {
             $tmpFile = $_FILES['attachment_' . $id]['tmp_name'];
             $fileName = $_FILES['attachment_' . $id]['name'];
 
@@ -3284,5 +3283,12 @@ class vendor extends CI_Controller {
                 }
                 break;
         }
+    }
+    
+    function get_sc_upcountry_details($service_center_id){
+        $data['data'] = $this->upcountry_model->get_sub_service_center_details(array('service_center_id' =>$service_center_id));
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/sc_upcountry_details',$data);
+        
     }
 }   

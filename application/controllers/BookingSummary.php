@@ -1006,7 +1006,7 @@ EOD;
                     }
 
                     $data['data'] = $this->reporting_utils->get_sc_crimes($where);
-                    if (!empty($data['data'])) {
+                    if (!empty($data['data']) && $data['data'][0]['not_update'] > 0) {
                         //Loading view
                         $view = $this->load->view('employee/get_crimes', $data, TRUE);
                         $subject = "SF Crimes Report " . date("d-M-Y");
@@ -1036,7 +1036,7 @@ EOD;
                 if ($value['is_update'] == '1') {
                     $where = " AND id = '" . $value['id'] . "'";
                     $data['data'] = $this->reporting_utils->get_sc_crimes($where);
-                    if (!empty($data['data'])) {
+                    if (!empty($data['data']) && $data['data'][0]['not_update'] > 0) {
                         $view = $this->load->view('employee/get_crimes', $data, TRUE);
 
                         $to = $value['primary_contact_email'] . "," . $value['owner_email'];

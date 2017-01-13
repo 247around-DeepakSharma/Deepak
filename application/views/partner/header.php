@@ -84,7 +84,7 @@
                         <span class="icon-bar" style="border: 1px solid #fff;"></span>
                         <span class="icon-bar" style="border: 1px solid #fff;"></span>
                     </button>
-                    <a class="navbar-brand" href="#">
+                    <a class="navbar-brand" href="<?php echo base_url()?>employee/partner/partner_default_page">
                <img alt="Brand" src="<?php echo base_url()?>images/logo.jpg">
                     </a>
                 </div>

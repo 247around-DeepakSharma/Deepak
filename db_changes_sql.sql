@@ -1580,8 +1580,7 @@ ALTER TABLE `partners` ADD `pan_file` VARCHAR(512) NOT NULL AFTER `contract_file
 
 -- Belal 6 Jan
 
-ALTER TABLE `partners` ADD `upcountry` INT(2) NULL DEFAULT '0' AFTER `is_active`;
-ALTER TABLE `partners` ADD `upcountry_rate` INT(11) NOT NULL AFTER `upcountry`;
+ALTER TABLE `partners` ADD `upcountry_rate` INT(11) NOT NULL AFTER `is_upcountry`;
 
 --Belal 9 Jan
 
@@ -1628,6 +1627,7 @@ ALTER TABLE `service_centres` ADD `is_upcountry` INT(2) NULL DEFAULT '0' AFTER `
 
 ALTER TABLE `file_uploads` DROP `tag`;
 
+ALTER TABLE `partners` DROP `upcountry`;
 --- sachin 12 jan
 
 CREATE TABLE `scheduler_tasks_status` (
@@ -1647,4 +1647,41 @@ ALTER TABLE `scheduler_tasks_status`
 
 ALTER TABLE `scheduler_tasks_status`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=0;
+
+
+
+--
+-- Table structure for table `sub_service_center_details`
+--
+
+CREATE TABLE `sub_service_center_details` (
+  `id` int(11) NOT NULL,
+  `service_center_id` int(11) DEFAULT NULL,
+  `state` varchar(100) DEFAULT NULL,
+  `district` varchar(150) DEFAULT NULL,
+  `pincode` int(50) DEFAULT NULL,
+  `upcountry_rate` int(10) DEFAULT NULL,
+  `update_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `create_date` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `sub_service_center_details`
+--
+ALTER TABLE `sub_service_center_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `sub_service_center_details`
+--
+ALTER TABLE `sub_service_center_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
