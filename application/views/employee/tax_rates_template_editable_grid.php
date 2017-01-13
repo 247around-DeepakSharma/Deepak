@@ -4,7 +4,7 @@
     ui-grid{ width:100% !important; }
     #delmodlist{margin-left:30% !important;margin-top:15% !important;}
     #editmodlist{margin-left:30% !important;margin-top:2% !important;}
-    .ui-widget-header{background: #4CBA90 !important;height:40px;}
+    .ui-widget-header{background: #d9edf7 !important;height:40px; color:#31708f;}
     .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default{font-size:14px;}
 </style>
 <div class="container-fluid">
@@ -21,7 +21,7 @@
             url: '<?php echo base_url() ?>employee/vendor/get_active_tax_rates_template/', //another controller function for generating data
             mtype: "post", //Ajax request type. It also could be GET
             datatype: "json", //supported formats XML, JSON or Arrray
-            colNames: ['tax_code', 'state', 'product_type', 'rate','from_date','to_date','active'], //Grid column headings
+            colNames: ['Tax Code', 'State', 'Product Type', 'Rate','From Date','To Date','Active'], //Grid column headings
             colModel: [
                 {name: 'tax_code', index: 'tax_code',edittype: "text", width: 150, align: "left", editable: true, editrules:{required:true}},
                 {name: 'state', index: 'state',edittype: "text", width: 350, align: "left", editable: true, editrules:{required:true}},

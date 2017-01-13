@@ -855,11 +855,12 @@ class vendor_model extends CI_Model {
                 $avg
 
                 from booking_details $join where assigned_vendor_id = $value[id]  $condition  $where $group_By";
-
+            
             $data = $this->db->query($sql);
             $result = $data->result_array();
 
             if (!empty($result)) {
+                
                 $result[0]['Vendor_Name'] = $value['name'];
                 $result[0]['Vendor_ID'] = $value['id'];
 
@@ -1226,52 +1227,6 @@ class vendor_model extends CI_Model {
     }
     
     /**
-     * @desc: This is used to insert value in sms template table
-     * @param Array
-     * @return Int ID of inserted data
-     */
-    function insert_sms_template($data){
-
-        $this->db->insert('sms_template', $data);
-        
-        return $this->db->insert_id();
-    }
-    
-    /**
-     * @desc: This fucntion is used to delete sms template 
-     * params: INT 
-     *         id sms template to be deleted
-     * 
-     * return: Boolean
-     */
-    function delete_sms_template($id) {
-        $this->db->where('id', $id);
-        $this->db->delete('sms_template');
-        if($this->db->affected_rows() > 0){
-            return true;
-        }else{
-            return false;
-        }
-    }
-    
-    /**
-     * @desc: This is used to update sms_template
-     * @param ARRAY $data, INT id 
-     * return: Boolean
-     * 
-     */
-    function update_sms_template($data,$id){
-        $this->db->where('id', $id);
-        $this->db->update('sms_template', $data);
-        log_message('info', __METHOD__ . "=> Update SMS Template " . $this->db->last_query() );
-        if($this->db->affected_rows() > 0){
-            return true;
-        }else{
-            return false;
-        }
-    }
-    
-    /**
      *  @desc : To get All Active vendor tax rates templates
      *
      *  To get the active template for all tax rates template which are enabled.
@@ -1336,6 +1291,55 @@ class vendor_model extends CI_Model {
             return false;
         }
     }
+    
+    
+    
+    /**
+     * @desc: This is used to insert value in sms template table
+     * @param Array
+     * @return Int ID of inserted data
+     */
+    function insert_sms_template($data){
+
+        $this->db->insert('sms_template', $data);
+        
+        return $this->db->insert_id();
+    }
+    
+    /**
+     * @desc: This fucntion is used to delete sms template 
+     * params: INT 
+     *         id sms template to be deleted
+     * 
+     * return: Boolean
+     */
+    function delete_sms_template($id) {
+        $this->db->where('id', $id);
+        $this->db->delete('sms_template');
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    /**
+     * @desc: This is used to update sms_template
+     * @param ARRAY $data, INT id 
+     * return: Boolean
+     * 
+     */
+    function update_sms_template($data,$id){
+        $this->db->where('id', $id);
+        $this->db->update('sms_template', $data);
+        log_message('info', __METHOD__ . "=> Update SMS Template " . $this->db->last_query() );
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
 
     /**
      * @desc: This is used to insert assigned engineer data into assigned engineer table

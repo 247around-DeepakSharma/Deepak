@@ -5,8 +5,13 @@
 </style>
 <div id="page-wrapper">
     <div class="row">
-        <div  class = "panel panel-info" style="margin:20px;">
+        <div  class = "panel panel-info" style="margin:20px;" >
             <div class="panel-heading" style="font-size:130%;">
+                <form action="<?php echo base_url(); ?>employee/upcountry/assign_sc_to_upcountry" method="POST" style="margin-bottom:8px;">
+                    <input type="hidden" value="<?php echo $query[0]['id']; ?>" name="service_center_id" />
+                     <input type="hidden" value="<?php echo $query[0]['state']; ?>" name="state" />
+                     <input type="submit" value="Add Upcountry" class="btn btn-primary btn-md pull-right"/>
+                </form>
                 <b>
                     <center><?php
                         if (isset($selected_brands_list)) {
@@ -16,6 +21,9 @@
                         }
                         ?></center>
                 </b>
+                <?php  if (isset($selected_brands_list)) { ?>
+               
+               <?php }?>
             </div>
             <div class="panel-body">
                 <?php if($this->session->userdata('checkbox')) {
