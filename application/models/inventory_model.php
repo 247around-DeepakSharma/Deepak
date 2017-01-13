@@ -47,6 +47,20 @@ class Inventory_model extends CI_Model {
     }
     
     /**
+     * @desc: This function is used to get only unshipped and not recieved brackets details
+     * @params:void
+     * @return:Array
+     */
+    function get_unshipped_unreceived_brackets($sf_id){
+        
+        $this->db->select('*');
+        $this->db->where(array('is_shipped' => 0,'is_received'=> 0, 'order_given_to'=> $sf_id, 'active'=> '1'));
+        $this->db->order_by('order_id', 'desc');
+        $query = $this->db->get('brackets');
+        return $query->result_array();
+    }
+    
+    /**
      * @Desc: Get brackets details by id
      * @params: Int id
      * @return: Array
