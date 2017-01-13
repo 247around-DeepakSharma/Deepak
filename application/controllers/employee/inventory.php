@@ -233,7 +233,8 @@ class Inventory extends CI_Controller {
      */
     function process_update_shipment_form(){
         //Saving Uploading file.
-        if(!empty($_FILES)){
+        
+        if(($_FILES['shipment_receipt']['error'] != 4) && !empty($_FILES['shipment_receipt']['tmp_name'])){
             $tmpFile = $_FILES['shipment_receipt']['tmp_name'];
             //Assigning File Name for uploaded shipment receipt
             $fileName = "Shipment-Receipt-".$this->input->post('order_id').'.'.explode('.',$_FILES['shipment_receipt']['name'])[1];
@@ -785,14 +786,14 @@ class Inventory extends CI_Controller {
         $data['shipped_date'] = $this->input->post('shipment_date');
         $data['status'] = $this->input->post('status');
         
-         if(isset($_FILES["invoice_image"])){
+         if(($_FILES['invoice_image']['error'] != 4) && !empty($_FILES['invoice_image']['tmp_name'])){
             $invoice_name = $this->upload_spare_pic($_FILES["invoice_image"], "Invoice");
             if (isset($invoice_name)) {
                 $data['invoice_pic'] = $invoice_name;
             }
         }
         
-        if(isset($_FILES["serial_number_pic"])){
+        if(($_FILES['serial_number_pic']['error'] != 4) && !empty($_FILES['serial_number_pic']['tmp_name'])){
 
             $serial_number_pic = $this->upload_spare_pic($_FILES["serial_number_pic"],"Serial_NO");
             if (isset($serial_number_pic)) {
@@ -800,7 +801,7 @@ class Inventory extends CI_Controller {
             }
         }
         
-         if(isset($_FILES["defective_parts_pic"])){
+         if(($_FILES['defective_parts_pic']['error'] != 4) && !empty($_FILES['defective_parts_pic']['tmp_name'])){
 
             $defective_parts_pic = $this->upload_spare_pic($_FILES["defective_parts_pic"],"Defective_Parts");
             if (isset($defective_parts_pic)) {
