@@ -78,7 +78,7 @@ class Partner extends CI_Controller {
                     log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['agent_id']);
                 }
 
-                redirect(base_url() . "employee/partner/partner_default_page");
+                redirect(base_url() . "partner/home");
             }else{
                 $userSession = array('error' => 'Sorry, your Login has been De-Activated');
                 $this->session->set_userdata($userSession);
@@ -94,14 +94,19 @@ class Partner extends CI_Controller {
 
      /**
      * @desc: this is used to load pending booking
-     * @param: Offset and page no.
+     * @param: Offset and page no., all flag to get all data, Booking id
      * @return: void
      */
-    function pending_booking($offset = 0,$all = 0) {
+    function pending_booking($offset = 0,$all = 0,$booking_id = '') {
        $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         $config['base_url'] = base_url() . 'partner/pending_booking';
-        $total_rows = $this->partner_model->getPending_booking($partner_id);
+        
+        if(!empty($booking_id)){
+            $total_rows = $this->partner_model->getPending_booking($partner_id,$booking_id);
+        }else{
+            $total_rows = $this->partner_model->getPending_booking($partner_id);
+        }
         $config['total_rows'] = count($total_rows);
         
         if($all == 1){
@@ -168,12 +173,16 @@ class Partner extends CI_Controller {
     /**
      * @desc: this is used to display completed booking for specific service center
      */
-    function closed_booking($state, $offset = 0){
+    function closed_booking($state, $offset = 0, $booking_id = ""){
        $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
 
         $config['base_url'] = base_url() . 'partner/closed_booking/'.$state;
-        $config['total_rows'] = $this->partner_model->getclosed_booking("count","",$partner_id, $state);
+        if(!empty($booking_id)){
+            $config['total_rows'] = $this->partner_model->getclosed_booking("count","",$partner_id, $state, $booking_id);
+        }else{
+            $config['total_rows'] = $this->partner_model->getclosed_booking("count","",$partner_id, $state);
+        }
 
         $config['per_page'] = 50;
         $config['uri_segment'] = 4;
@@ -183,7 +192,11 @@ class Partner extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state);
+        if(!empty($booking_id)){
+            $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state,$booking_id);
+        }else{
+            $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state);
+        }
 
         if ($this->session->flashdata('result') != '')
             $data['success'] = $this->session->flashdata('result');
@@ -490,7 +503,7 @@ class Partner extends CI_Controller {
                 $partner_id = $this->input->post('id');
                 
                 //Processing Contract File
-                if(!empty($_FILES['contract_file']['tmp_name'])){
+                if(($_FILES['contract_file']['error'] != 4) && !empty($_FILES['contract_file']['tmp_name'])){
                     $tmpFile = $_FILES['contract_file']['tmp_name'];
                     $contract_file = "Partner-".$this->input->post('public_name').'-Contract'.".".explode(".",$_FILES['contract_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$contract_file);
@@ -508,7 +521,7 @@ class Partner extends CI_Controller {
                 }
                 
                 //Processing Pan File
-                if(!empty($_FILES['pan_file']['tmp_name'])){
+                if(($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])){
                     $tmpFile = $_FILES['pan_file']['tmp_name'];
                     $pan_file = "Partner-".$this->input->post('public_name').'-PAN'.".".explode(".",$_FILES['pan_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$pan_file);
@@ -526,7 +539,7 @@ class Partner extends CI_Controller {
                 }
                 
                 //Processing Registration File
-                if(!empty($_FILES['registration_file']['tmp_name'])){
+                if(($_FILES['registration_file']['error'] != 4) && !empty($_FILES['registration_file']['tmp_name'])){
                     $tmpFile = $_FILES['registration_file']['tmp_name'];
                     $registration_file = "Partner-".$this->input->post('public_name').'-Registration'.".".explode(".",$_FILES['registration_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$registration_file);
@@ -658,7 +671,7 @@ class Partner extends CI_Controller {
                 //If Partner not present, Partner is being added
                 
                 //Processing Contract File
-                if(!empty($_FILES['contract_file']['tmp_name'])){
+                if(($_FILES['contract_file']['error'] != 4) && !empty($_FILES['contract_file']['tmp_name'])){
                     $tmpFile = $_FILES['contract_file']['tmp_name'];
                     $contract_file = "Partner-".$this->input->post('public_name').'-Contract'.".".explode(".",$_FILES['contract_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$contract_file);
@@ -676,7 +689,7 @@ class Partner extends CI_Controller {
                 }
                 
                 //Processing Pan File
-                if(!empty($_FILES['pan_file']['tmp_name'])){
+                if(($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])){
                     $tmpFile = $_FILES['pan_file']['tmp_name'];
                     $pan_file = "Partner-".$this->input->post('public_name').'-PAN'.".".explode(".",$_FILES['pan_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$pan_file);
@@ -694,7 +707,7 @@ class Partner extends CI_Controller {
                 }
                 
                 //Processing Registration File
-                if(!empty($_FILES['registration_file']['tmp_name'])){
+                if(($_FILES['registration_file']['error'] != 4) && !empty($_FILES['registration_file']['tmp_name'])){
                     $tmpFile = $_FILES['registration_file']['tmp_name'];
                     $registration_file = "Partner-".$this->input->post('public_name').'-Registration'.".".explode(".",$_FILES['registration_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$registration_file);
@@ -2180,5 +2193,26 @@ class Partner extends CI_Controller {
         $this->load->view('partner/header');
         $this->load->view('partner/partner_default_page',$data);
      }
+     
+     /**
+     * @desc: Partner search booking by Phone number or Booking id
+     */
+    function search(){
+        log_message('info', __FUNCTION__ . "  Partner ID: " . $this->session->userdata('partner_id'));
+        $this->checkUserSession();
+        $searched_text = trim($this->input->post('searched_text'));
+        $partner_id = $this->session->userdata('partner_id');
+        $data['data'] = $this->partner_model->search_booking_history(trim($searched_text), $partner_id);
+
+        if (!empty($data['data'])) {
+            $this->load->view('partner/header');
+            $this->load->view('partner/bookinghistory', $data);
+        } else {
+            //if user not found set error session data
+            $this->session->set_flashdata('error', 'Booking Not Found');
+
+            redirect(base_url() . 'employee/partner/pending_booking');
+        }
+    }
     
 }

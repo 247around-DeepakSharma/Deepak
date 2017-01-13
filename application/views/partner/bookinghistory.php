@@ -1,7 +1,3 @@
-<?php
-$this->db_location = $this->load->database('default1', TRUE, TRUE);
-$this->db = $this->load->database('default', TRUE, TRUE);
-?>
 <script type="text/javascript" src="<?php echo base_url(); ?>js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="<?php echo base_url(); ?>js/jquery-ui-1.7.1.custom.min.js"></script>
 
@@ -47,6 +43,7 @@ $this->db = $this->load->database('default', TRUE, TRUE);
 
                             <th class="jumbotron">Status</th>
                             <th class="jumbotron">View</th>
+                            <th class="jumbotron">More Action</th>
 
                         </tr>
 
@@ -81,6 +78,33 @@ $this->db = $this->load->database('default', TRUE, TRUE);
                                     . "href=" . base_url() . "partner/booking_details/$row[booking_id]/" . $this->session->userdata('partner_id') . " target='_blank'title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
                                     ?>
                                 </td>
+                                <td>
+                                            <?php
+                                            switch ($row['current_status']) {
+                                                case 'Pending':
+                                                case 'Rescheduled':
+                                                    $view = 'partner/pending_booking/0/0/' . $row['booking_id'];
+                                                    break;
+
+                                                case 'Cancelled':
+                                                    $view = 'partner/closed_booking/Cancelled/0/' . $row['booking_id'];
+                                                    break;
+
+                                                case 'Completed':
+                                                    $view = 'partner/closed_booking/Completed/0/' . $row['booking_id'];
+                                                    break;
+
+                                                default:
+                                                    $view = 'partner/pending_booking/0/0/' . $row['booking_id'];
+                                                    break;
+                                            }
+                                            ?>
+
+
+                                            <a href="<?php echo base_url() . $view; ?>" class="btn btn-small btn-success btn-sm" title="More Action"><i class="fa fa-bars" aria-hidden="true"></i></a>
+
+
+                                        </td>
 
                             </tr>
                             <?php

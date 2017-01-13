@@ -336,7 +336,10 @@ class Service_centers_model extends CI_Model {
      * @return Array
      */
     function search_booking_history($searched_text,$service_center_id) {
-        $where_phone = "AND `booking_primary_contact_no` = '$searched_text'";
+        //Sanitizing Searched text - Getting only Numbers, Alphabets and '-'
+        $searched_text = preg_replace('/[^A-Za-z0-9-]/', '', $searched_text);
+        
+        $where_phone = "AND (`booking_primary_contact_no` = '$searched_text' OR `booking_alternate_contact_no` = '$searched_text')";
         $where_booking_id = "AND `booking_id` LIKE '%$searched_text%'";
        
         $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot`, users.name, services.services, current_status, assigned_engineer_id "
