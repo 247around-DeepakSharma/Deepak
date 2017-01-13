@@ -84,7 +84,7 @@
                         <span class="icon-bar" style="border: 1px solid #fff;"></span>
                         <span class="icon-bar" style="border: 1px solid #fff;"></span>
                     </button>
-                    <a class="navbar-brand" href="<?php echo base_url()?>employee/partner/partner_default_page">
+                    <a class="navbar-brand" href="<?php echo base_url()?>partner/home">
                <img alt="Brand" src="<?php echo base_url()?>images/logo.jpg">
                     </a>
                 </div>
@@ -146,6 +146,14 @@
                                 </li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
+                        
+                        <li>
+                            <form method="POST" class="navbar-form navbar-left" role="search" action="<?php echo base_url(); ?>partner/search">
+                                <div class="form-group">
+                                    <input style="width:118%" type="text" class="form-control pull-right" placeholder="Search Booking ID or Mobile" name="searched_text">
+                                </div> 
+                            </form>
+                        </li>
 
                         <li>
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="verifyby"><i class="fa fa-user"></i> <?php echo $this->session->userdata('partner_name'); ?> <b class="caret"></b></a>

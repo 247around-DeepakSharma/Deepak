@@ -229,9 +229,12 @@ class Partner_model extends CI_Model {
       * @param: end limit, start limit, partner id
       * @return: Pending booking
       */
-     function getPending_booking($partner_id ){
+     function getPending_booking($partner_id ,$booking_id = ''){
         $where = "";
         $where .= " AND partner_id = '" . $partner_id . "'";
+        if(!empty($booking_id)){
+            $where .= " AND `booking_details`.booking_id = '".$booking_id."'";
+        }
         //do not show bookings for future as of now
         //$where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0";
 
@@ -293,7 +296,7 @@ class Partner_model extends CI_Model {
       * @param: Booking Status(Cancelled or Completed)
       * @return: Array()
       */
-      function getclosed_booking($limit, $start, $partner_id, $status){
+      function getclosed_booking($limit, $start, $partner_id, $status, $booking_id = ""){
         if($limit!="count"){
             $this->db->limit($limit, $start);
         }
@@ -303,10 +306,13 @@ class Partner_model extends CI_Model {
         $this->db->join('services','services.id = booking_details.service_id');
         $this->db->join('users','users.user_id = booking_details.user_id');
         $this->db->where('booking_details.current_status', $status);
+        if(!empty($booking_id)){
+            $this->db->where('booking_details.booking_id', $booking_id);
+        }
         $this->db->where('partner_id',$partner_id);
         $this->db->order_by('booking_details.closed_date','desc');
         $query = $this->db->get();
-
+        
         $result = $query->result_array();
 
         if($limit == "count"){
@@ -1148,6 +1154,39 @@ class Partner_model extends CI_Model {
         $this->db->insert('file_uploads', $data);
 
         return $this->db->insert_id();
+    }
+    
+    /**
+     * @desc: This method is used to search booking by phone number or booking id
+     * this is called by Partner panel
+     * @param String $searched_text
+     * @param String $partner_id
+     * @return Array
+     */
+    function search_booking_history($searched_text,$partner_id) {
+        //Sanitizing Searched text - Getting only Numbers, Alphabets and '-'
+        $searched_text = preg_replace('/[^A-Za-z0-9-]/', '', $searched_text);
+        
+        $where_phone = "AND (`booking_primary_contact_no` = '$searched_text' OR `booking_alternate_contact_no` = '$searched_text')";
+        $where_booking_id = "AND `booking_id` LIKE '%$searched_text%'";
+       
+        $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot`, users.name, services.services, current_status, assigned_engineer_id "
+                . " FROM `booking_details`,users, services "
+                . " WHERE users.user_id = booking_details.user_id "
+                . " AND services.id = booking_details.service_id "
+                . " AND `partner_id` = '$partner_id' ". $where_phone
+
+                . " UNION "
+                . "SELECT `booking_id`,`booking_date`,`booking_timeslot`, users.name, services.services, current_status, assigned_engineer_id "
+                . " FROM `booking_details`,users, services "
+                . " WHERE users.user_id = booking_details.user_id "
+                . " AND services.id = booking_details.service_id "
+                . " AND `partner_id` = '$partner_id' ". $where_booking_id
+                . " ";
+        $query = $this->db->query($sql);
+        
+        //log_message('info', __FUNCTION__ . '=> Update Spare Parts: ' .$this->db->last_query());
+        return $query->result_array();
     }
 
 }
