@@ -1219,7 +1219,7 @@ class vendor extends CI_Controller {
         system ("rm -rf ".$newZipFileName);
         system ("rm -rf ".TMP_FOLDER . $CSVFileName );
         system ("rm -rf ".TMP_FOLDER . $newCSVFileName );
-       log_message('info', __FUNCTION__ . ' => All queries executed: ' . print_r($sql_commands, TRUE));
+       log_message('info', __FUNCTION__ . ' => All queries executed: ');
         //log_message('info', __FUNCTION__ . ' => New pincode count: ' . $count);
         
         redirect(base_url() . DEFAULT_SEARCH_PAGE);
