@@ -756,7 +756,8 @@
             "pageLength": 50
            
         } );
-       var html = '<div><p style="color:red;">Bookings have to be updated daily else you lose Incentive amount</p></div>';
+       var html = '<div><p style="color:red;">Bookings have to be updated daily else you lose Incentive amount</p></div>\n\
+                   <div><p style="color:red;"><i style="font-size:20px;" class="fa fa-road" aria-hidden="true"></i>  is the Upcountry Booking symbol.</p>';
         
         
         $("#today_datatable_filter").html(html);
