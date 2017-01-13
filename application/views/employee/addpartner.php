@@ -83,7 +83,8 @@
             <div class="form-group">
                 <label  for="upcountry_rate" class="col-md-4">Up-Country </label>
                 <div class="col-md-1">
-                    <input type="checkbox" name="upcountry" id="upcountry" style="zoom:1.5"/>
+                    
+                    <input type="checkbox" name="is_upcountry" id="upcountry" style="zoom:1.5"/>
                 </div>
                 <div class="col-md-3">
                     <input  type="number" class="form-control" value = "<?php
