@@ -78,7 +78,7 @@ class Partner extends CI_Controller {
                     log_message('info', __FUNCTION__ . ' Err in capturing logging details for partner ' . $login_data['agent_id']);
                 }
 
-                redirect(base_url() . "partner/get_spare_parts_booking");
+                redirect(base_url() . "partner/home");
             }else{
                 $userSession = array('error' => 'Sorry, your Login has been De-Activated');
                 $this->session->set_userdata($userSession);
@@ -94,17 +94,26 @@ class Partner extends CI_Controller {
 
      /**
      * @desc: this is used to load pending booking
-     * @param: Offset and page no.
+     * @param: Offset and page no., all flag to get all data, Booking id
      * @return: void
      */
-    function pending_booking($offset = 0) {
+    function pending_booking($offset = 0,$all = 0,$booking_id = '') {
        $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         $config['base_url'] = base_url() . 'partner/pending_booking';
-        $total_rows = $this->partner_model->getPending_booking($partner_id);
+        
+        if(!empty($booking_id)){
+            $total_rows = $this->partner_model->getPending_booking($partner_id,$booking_id);
+        }else{
+            $total_rows = $this->partner_model->getPending_booking($partner_id);
+        }
         $config['total_rows'] = count($total_rows);
-
-        $config['per_page'] = 50;
+        
+        if($all == 1){
+            $config['per_page'] = count($total_rows);
+        }else{
+            $config['per_page'] = 50;
+        }
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
@@ -164,12 +173,16 @@ class Partner extends CI_Controller {
     /**
      * @desc: this is used to display completed booking for specific service center
      */
-    function closed_booking($state, $offset = 0){
+    function closed_booking($state, $offset = 0, $booking_id = ""){
        $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
 
         $config['base_url'] = base_url() . 'partner/closed_booking/'.$state;
-        $config['total_rows'] = $this->partner_model->getclosed_booking("count","",$partner_id, $state);
+        if(!empty($booking_id)){
+            $config['total_rows'] = $this->partner_model->getclosed_booking("count","",$partner_id, $state, $booking_id);
+        }else{
+            $config['total_rows'] = $this->partner_model->getclosed_booking("count","",$partner_id, $state);
+        }
 
         $config['per_page'] = 50;
         $config['uri_segment'] = 4;
@@ -179,7 +192,11 @@ class Partner extends CI_Controller {
         $data['links'] = $this->pagination->create_links();
 
         $data['count'] = $config['total_rows'];
-        $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state);
+        if(!empty($booking_id)){
+            $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state,$booking_id);
+        }else{
+            $data['bookings'] = $this->partner_model->getclosed_booking($config['per_page'], $offset, $partner_id, $state);
+        }
 
         if ($this->session->flashdata('result') != '')
             $data['success'] = $this->session->flashdata('result');
@@ -486,7 +503,7 @@ class Partner extends CI_Controller {
                 $partner_id = $this->input->post('id');
                 
                 //Processing Contract File
-                if(!empty($_FILES['contract_file']['tmp_name'])){
+                if(($_FILES['contract_file']['error'] != 4) && !empty($_FILES['contract_file']['tmp_name'])){
                     $tmpFile = $_FILES['contract_file']['tmp_name'];
                     $contract_file = "Partner-".$this->input->post('public_name').'-Contract'.".".explode(".",$_FILES['contract_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$contract_file);
@@ -504,7 +521,7 @@ class Partner extends CI_Controller {
                 }
                 
                 //Processing Pan File
-                if(!empty($_FILES['pan_file']['tmp_name'])){
+                if(($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])){
                     $tmpFile = $_FILES['pan_file']['tmp_name'];
                     $pan_file = "Partner-".$this->input->post('public_name').'-PAN'.".".explode(".",$_FILES['pan_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$pan_file);
@@ -522,7 +539,7 @@ class Partner extends CI_Controller {
                 }
                 
                 //Processing Registration File
-                if(!empty($_FILES['registration_file']['tmp_name'])){
+                if(($_FILES['registration_file']['error'] != 4) && !empty($_FILES['registration_file']['tmp_name'])){
                     $tmpFile = $_FILES['registration_file']['tmp_name'];
                     $registration_file = "Partner-".$this->input->post('public_name').'-Registration'.".".explode(".",$_FILES['registration_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$registration_file);
@@ -540,11 +557,11 @@ class Partner extends CI_Controller {
                 }
                 
                 //Checking for Upcountry
-                $upcountry = $this->input->post('upcountry');
+                $upcountry = $this->input->post('is_upcountry');
                 if(isset($upcountry) && $upcountry == 'on')
                 {
                     //Setting Flag as 1
-                    $_POST['upcountry'] = 1;
+                    $_POST['is_upcountry'] = 1;
                 }
                 
                 //Getting partner operation regions details from POST
@@ -630,7 +647,7 @@ class Partner extends CI_Controller {
                         $this->email->from('booking@247around.com', '247around Team');
                         $this->email->to($to);
 
-                        $this->email->subject("Partner Updated :  " . $partner_id);
+                        $this->email->subject("Partner Updated :  " . $partner_id.' - By '.$this->session->userdata('employee_id'));
                         $this->email->message($html);
                         
                         if(isset($attachment_contract)){
@@ -654,7 +671,7 @@ class Partner extends CI_Controller {
                 //If Partner not present, Partner is being added
                 
                 //Processing Contract File
-                if(!empty($_FILES['contract_file']['tmp_name'])){
+                if(($_FILES['contract_file']['error'] != 4) && !empty($_FILES['contract_file']['tmp_name'])){
                     $tmpFile = $_FILES['contract_file']['tmp_name'];
                     $contract_file = "Partner-".$this->input->post('public_name').'-Contract'.".".explode(".",$_FILES['contract_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$contract_file);
@@ -672,7 +689,7 @@ class Partner extends CI_Controller {
                 }
                 
                 //Processing Pan File
-                if(!empty($_FILES['pan_file']['tmp_name'])){
+                if(($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])){
                     $tmpFile = $_FILES['pan_file']['tmp_name'];
                     $pan_file = "Partner-".$this->input->post('public_name').'-PAN'.".".explode(".",$_FILES['pan_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$pan_file);
@@ -690,7 +707,7 @@ class Partner extends CI_Controller {
                 }
                 
                 //Processing Registration File
-                if(!empty($_FILES['registration_file']['tmp_name'])){
+                if(($_FILES['registration_file']['error'] != 4) && !empty($_FILES['registration_file']['tmp_name'])){
                     $tmpFile = $_FILES['registration_file']['tmp_name'];
                     $registration_file = "Partner-".$this->input->post('public_name').'-Registration'.".".explode(".",$_FILES['registration_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$registration_file);
@@ -719,11 +736,11 @@ class Partner extends CI_Controller {
                 }
                 
                 //Checking for Upcountry
-                $upcountry = $this->input->post('upcountry');
+                $upcountry = $this->input->post('is_upcountry');
                 if(isset($upcountry) && $upcountry == 'on')
                 {
                     //Setting Flag as 1
-                    $_POST['upcountry'] = 1;
+                    $_POST['is_upcountry'] = 1;
                 }
                 
                 //Getting partner operation regions details from POST
@@ -761,7 +778,7 @@ class Partner extends CI_Controller {
                         $this->email->from('booking@247around.com', '247around Team');
                         $this->email->to($to);
 
-                        $this->email->subject("New Partner Added " . $partner_id);
+                        $this->email->subject("New Partner Added " . $partner_id.' - By '.$this->session->userdata('employee_id'));
                         $this->email->message($html);
                         
                         if(isset($attachment_contract)){
@@ -1670,7 +1687,7 @@ class Partner extends CI_Controller {
         // send empty beacuse there is no need to display sms to partner panel
         $data['sms_sent_details'] = array();
        
-        $this->load->view('partner/header');
+        //$this->load->view('partner/header');
 
         $this->load->view('employee/show_booking_life_cycle', $data);
 
@@ -2074,76 +2091,128 @@ class Partner extends CI_Controller {
       */
      function process_partner_login_details_form(){
          $choice = $this->input->post('choice');
-         $partner_id = $this->input->post('partner_id');
-         $login_id_array = $this->input->post('id');
-         if(!empty($choice)){
-             foreach($choice as $value){
-                 //checking for password and retype password value
-                 $password = $this->input->post('password')[0];
-                 $retype_password = $this->input->post('retype_password')[0];
-                 $username = $this->input->post('username')[0];
-                
-                 if(strcmp($password, $retype_password) == 0){
-                     if(!empty($login_id_array[$value])){
-                        //Updating values when password matches 
-                        $where = array('id'=>$login_id_array[$value]);
+        $partner_id = $this->input->post('partner_id');
+        $login_id_array = $this->input->post('id');
+        if (!empty($choice)) {
+            foreach ($choice as $value) {
+                $password = $this->input->post('password')[0];
+                $retype_password = $this->input->post('retype_password')[0];
+                $username = $this->input->post('username')[0];
+
+                //checking for password and retype password value
+                if (strcmp($password, $retype_password) == 0) {
+                    if (!empty($login_id_array[$value])) {
+                        //Checking for Already Present Username
+                        $login_data['user_name'] = $username;
+                        $login_data['partner_id'] = $partner_id;
+                        $check_username = $this->partner_model->get_partner_username($login_data);
+                        if (!isset($check_username['user_name'])) {
+
+                            //Updating values when password matches 
+                            $where = array('id' => $login_id_array[$value]);
+                            $data['user_name'] = $username;
+                            $data['password'] = md5($password);
+                            $data['clear_text'] = $password;
+
+                            if ($this->partner_model->update_partner_login_details($data, $where)) {
+                                //Log Message
+                                log_message('info', __FUNCTION__ . ' Partner Login has been updated for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
+                            } else {
+                                //Log Message
+                                log_message('info', __FUNCTION__ . ' Error in updating Partner Login for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
+                            }
+                        } else {
+                            //Redirecting with Error message
+                            //Setting error session data 
+                            $this->session->set_flashdata('login_error', ' Username Already Exists');
+
+                            redirect(base_url() . 'employee/partner/get_partner_login_details_form/' . $partner_id);
+                        }
+                    } else {
+                        //Add New Row in Partner Login Table
+                        $data['partner_id'] = $partner_id;
                         $data['user_name'] = $username;
                         $data['password'] = md5($password);
                         $data['clear_text'] = $password;
-                        
-                        if($this->partner_model->update_partner_login_details($data,$where)){
-                            //Log Message
-                            log_message('info',__FUNCTION__.' Partner Login has been updated for id : '.$partner_id.' with values ' . print_r($data,TRUE));
-                        }else{
-                            //Log Message
-                            log_message('info',__FUNCTION__.' Error in updating Partner Login for id : '.$partner_id.' with values ' . print_r($data,TRUE));
+                        $data['active'] = 1;
+
+                        //Checking for Already Present Username
+                        $login_data['user_name'] = $username;
+                        $login_data['partner_id'] = $partner_id;
+                        $check_username = $this->partner_model->get_partner_username($login_data);
+                        if (!isset($check_username['user_name'])) {
+
+                            //Getting name of Partner by Partner ID
+                            $partner_details = $this->partner_model->get_all_partner($partner_id);
+                            $data['full_name'] = $partner_details[0]['public_name'] . ' ' . $value;
+
+                            if ($this->partner_model->add_partner_login($data)) {
+                                //Log Message
+                                log_message('info', __FUNCTION__ . ' Partner Login has been Added for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
+                            } else {
+                                //Log Message
+                                log_message('info', __FUNCTION__ . ' Error in Adding Partner Login Details for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
+                            }
+                        } else {
+                            //Redirecting with Error message
+                            //Setting error session data 
+                            $this->session->set_flashdata('login_error', ' Username Already Exists');
+
+                            redirect(base_url() . 'employee/partner/get_partner_login_details_form/' . $partner_id);
                         }
+                    }
+                } else {
+                    //When password dosen't matches
+                    //Setting error session data 
+                    $this->session->set_flashdata('login_error', 'Passwords does not match for Login ' . ($value + 1));
 
-                     }else{
-                         //Add New Row in Partner Login Table
-                         $data['partner_id'] = $partner_id;
-                         $data['user_name'] = $username;
-                         $data['password'] = md5($password);
-                         $data['clear_text'] = $password;
-                         $data['active'] = 1;
-                         
-                         //Getting name of Partner by Partner ID
-                         $partner_details = $this->partner_model->get_all_partner($partner_id);
-                         $data['full_name'] = $partner_details[0]['public_name'].' '.$value ;
-                         
-                         if($this->partner_model->add_partner_login($data)){
-                             //Log Message
-                            log_message('info',__FUNCTION__.' Partner Login has been Added for id : '.$partner_id.' with values ' . print_r($data,TRUE));
-                         }else{
-                              //Log Message
-                            log_message('info',__FUNCTION__.' Error in Adding Partner Login Details for id : '.$partner_id.' with values ' . print_r($data,TRUE));
-                         }
-                         
-                         
-                     }
-                    
-                 }else{
-                     //When password dosen't matches
-                     //Setting error session data 
-                     $this->session->set_flashdata('login_error', 'Passwords does not match for Login '.($value+1));
+                    redirect(base_url() . 'employee/partner/get_partner_login_details_form/' . $partner_id);
+                }
+            }
 
-                     redirect(base_url() . 'employee/partner/get_partner_login_details_form/'.$partner_id);
-                 }
-                 
-             }
-             
-              //Setting success session data 
+            //Setting success session data 
             $this->session->set_flashdata('login_success', 'Partner Login has been Added');
 
-            redirect(base_url() . 'employee/partner/get_partner_login_details_form/'.$partner_id);
-             
-         }else{
-             //Setting error session data 
+            redirect(base_url() . 'employee/partner/get_partner_login_details_form/' . $partner_id);
+        } else {
+            //Setting error session data 
             $this->session->set_flashdata('login_error', 'No Row has been selected for Add / Edit');
 
-            redirect(base_url() . 'employee/partner/get_partner_login_details_form/'.$partner_id);
-             
-         }
+            redirect(base_url() . 'employee/partner/get_partner_login_details_form/' . $partner_id);
+        }
+    }
+     
+     /**
+      * @Desc: This function is used to show default Partner Login Page
+      * @params: void
+      * @return: view
+      * 
+      */
+     function partner_default_page(){
+        $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'partner', 'active'=> '1'));
+        $this->load->view('partner/header');
+        $this->load->view('partner/partner_default_page',$data);
      }
+     
+     /**
+     * @desc: Partner search booking by Phone number or Booking id
+     */
+    function search(){
+        log_message('info', __FUNCTION__ . "  Partner ID: " . $this->session->userdata('partner_id'));
+        $this->checkUserSession();
+        $searched_text = trim($this->input->post('searched_text'));
+        $partner_id = $this->session->userdata('partner_id');
+        $data['data'] = $this->partner_model->search_booking_history(trim($searched_text), $partner_id);
+
+        if (!empty($data['data'])) {
+            $this->load->view('partner/header');
+            $this->load->view('partner/bookinghistory', $data);
+        } else {
+            //if user not found set error session data
+            $this->session->set_flashdata('error', 'Booking Not Found');
+
+            redirect(base_url() . 'employee/partner/pending_booking');
+        }
+    }
     
 }

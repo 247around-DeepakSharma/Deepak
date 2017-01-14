@@ -4,7 +4,7 @@
     ui-grid{ width:100% !important; }
     #delmodlist{margin-left:30% !important;margin-top:15% !important;}
     #editmodlist{margin-left:30% !important;margin-top:2% !important;}
-    .ui-widget-header{background: #4CBA90 !important;height:40px;}
+    .ui-widget-header{background: #d9edf7 !important;height:40px; color:#31708f;}
     .ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default{font-size:14px;}
 </style>
 <div class="container-fluid">

@@ -25,11 +25,11 @@ class vendor extends CI_Controller {
         $this->load->model('booking_model');
         $this->load->library('PHPReport');
         $this->load->model('service_centers_model');
+        $this->load->model('upcountry_model');
+        $this->load->model('vendor_model');
         $this->load->model('service_centre_charges_model');
         $this->load->helper(array('form', 'url'));
-        
         $this->load->library('form_validation');
-        $this->load->model('vendor_model');
         $this->load->model('partner_model');
         $this->load->library('booking_utilities');
         $this->load->library('partner_utilities');
@@ -69,7 +69,7 @@ class vendor extends CI_Controller {
         $checkValidation = $this->checkValidation();
         if ($checkValidation) {
             //Start  Processing PAN File Upload
-            if (!empty($_FILES['pan_file']['tmp_name'])) {
+            if (($_FILES['pan_file']['error'] != 4) && !empty($_FILES['pan_file']['tmp_name'])) {
                 //Adding file validation
                 $checkfilevalidation = $this->file_input_validation('pan_file');
                 if ($checkfilevalidation) {
@@ -105,7 +105,7 @@ class vendor extends CI_Controller {
             }
             
             //Start Processing CST File Upload
-            if (!empty($_FILES['cst_file']['tmp_name'])) {
+            if (($_FILES['cst_file']['error'] != 4) && !empty($_FILES['cst_file']['tmp_name'])) {
                 //Adding file validation
                 $checkfilevalidation = $this->file_input_validation('cst_file');
                 if ($checkfilevalidation) {
@@ -144,7 +144,7 @@ class vendor extends CI_Controller {
             }
             
             //Start Processing TIN File Upload
-            if (!empty($_FILES['tin_file']['tmp_name'])) {
+            if (($_FILES['tin_file']['error'] != 4) && !empty($_FILES['tin_file']['tmp_name'])) {
                 //Adding file validation
                 $checkfilevalidation = $this->file_input_validation('tin_file');
                 if ($checkfilevalidation) {
@@ -179,7 +179,7 @@ class vendor extends CI_Controller {
             }
 
             //Start Processing Service Tax File Upload
-            if (!empty($_FILES['service_tax_file']['tmp_name'])) {
+            if (($_FILES['service_tax_file']['error'] != 4) && !empty($_FILES['service_tax_file']['tmp_name'])) {
                 //Adding file validation
                 $checkfilevalidation = $this->file_input_validation('service_tax_file');
                 if ($checkfilevalidation) {
@@ -214,7 +214,7 @@ class vendor extends CI_Controller {
             }
             
             //Processing Address Proof File Upload
-                if(!empty($_FILES['address_proof_file']['tmp_name'])){
+                if(($_FILES['address_proof_file']['error'] != 4) && !empty($_FILES['address_proof_file']['tmp_name'])){
                     $tmpFile = $_FILES['address_proof_file']['tmp_name'];
                     $address_proof_file = implode("",explode(" ",$this->input->post('name'))).'_addressprooffile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['address_proof_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$address_proof_file);
@@ -232,7 +232,7 @@ class vendor extends CI_Controller {
                 }
                 
                 //Processing Cancelled Cheque File Upload
-                if(!empty($_FILES['cancelled_cheque_file']['tmp_name'])){
+                if(($_FILES['cancelled_cheque_file']['error'] != 4) && !empty($_FILES['cancelled_cheque_file']['tmp_name'])){
                     $tmpFile = $_FILES['cancelled_cheque_file']['tmp_name'];
                     $cancelled_cheque_file = implode("",explode(" ",$this->input->post('name'))).'_cancelledchequefile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['cancelled_cheque_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$cancelled_cheque_file);
@@ -250,7 +250,7 @@ class vendor extends CI_Controller {
                 }
                 
                 //Processing ID Proof 1 File Upload
-                if(!empty($_FILES['id_proof_1_file']['tmp_name'])){
+                if(($_FILES['id_proof_1_file']['error'] != 4) && !empty($_FILES['id_proof_1_file']['tmp_name'])){
                     $tmpFile = $_FILES['id_proof_1_file']['tmp_name'];
                     $id_proof_1_file = implode("",explode(" ",$this->input->post('name'))).'_idproof1file_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['id_proof_1_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$id_proof_1_file);
@@ -268,7 +268,7 @@ class vendor extends CI_Controller {
                 }
                 
                 //Processing ID Proof 1 File Upload
-                if(!empty($_FILES['id_proof_2_file']['tmp_name'])){
+                if(($_FILES['id_proof_2_file']['error'] != 4) && !empty($_FILES['id_proof_2_file']['tmp_name'])){
                     $tmpFile = $_FILES['id_proof_2_file']['tmp_name'];
                     $id_proof_2_file = implode("",explode(" ",$this->input->post('name'))).'_idproof2file_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['id_proof_2_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$id_proof_2_file);
@@ -286,7 +286,7 @@ class vendor extends CI_Controller {
                 }
                 
                 //Processing Contract File Upload
-                if(!empty($_FILES['contract_file']['tmp_name'])){
+                if(($_FILES['contract_file']['error'] != 4) && !empty($_FILES['contract_file']['tmp_name'])){
                     $tmpFile = $_FILES['contract_file']['tmp_name'];
                     $contract_file = implode("",explode(" ",$this->input->post('name'))).'_contractfile_'.substr(md5(uniqid(rand(0,9))), 0, 15).".".explode(".",$_FILES['contract_file']['name'])[1];
                     move_uploaded_file($tmpFile, TMP_FOLDER.$contract_file);
@@ -380,7 +380,7 @@ class vendor extends CI_Controller {
                         $this->email->from('booking@247around.com', '247around Team');
                         $this->email->to($to);
 
-                        $this->email->subject("Vendor Updated : " . $_POST['id']);
+                        $this->email->subject("Vendor Updated : " . $_POST['id'].' - By '.$this->session->userdata('employee_id'));
                         $this->email->message($html);
                         
                         if(isset($attachment_pan)){
@@ -421,7 +421,7 @@ class vendor extends CI_Controller {
                 $check_update_sf_rm_relation = $this->vendor_model->update_rm_to_sf_relation($rm, $_POST['id']);
                 if($check_update_sf_rm_relation){
                     //Loggin Success
-                    log_message('info', __FUNCTION__.' SF to RM relation is updated sucessfully RM = '.print_r($rm,TRUE).' SF = '.print_r($_POST['id'],TRUE));
+                    log_message('info', __FUNCTION__.' SF to RM relation is updated successfully RM = '.print_r($rm,TRUE).' SF = '.print_r($_POST['id'],TRUE));
                 }else{
                     //Loggin Error 
                     log_message('info', __FUNCTION__.' Error in mapping SF to RM relation RM = '.print_r($rm,TRUE).' SF = '.print_r($_POST['id'],TRUE));
@@ -432,7 +432,7 @@ class vendor extends CI_Controller {
                 // get service center code by calling generate_service_center_code() method
                 $owner_email = $this->input->post('owner_email');
                 $primary_contact_email = $this->input->post('primary_contact_email');
-                $to = $owner_email.','.$primary_contact_email;
+                $new_vendor_mail = $owner_email.','.$primary_contact_email;
                 
                 $subject = "Welcome to 247around ".$this->input->post('owner_name')." from City : ".$this->input->post('district');
                 $message = "Dear Partner,<br><br>"
@@ -470,7 +470,7 @@ class vendor extends CI_Controller {
                         $this->email->from('booking@247around.com', '247around Team');
                         $this->email->to($to);
 
-                        $this->email->subject("Vendor Added : " . $sc_id);
+                        $this->email->subject("Vendor Added : " . $sc_id.' - By '.$this->session->userdata('employee_id'));
                         $this->email->message($html);
                         
                         if(isset($attachment_pan)){
@@ -558,7 +558,7 @@ class vendor extends CI_Controller {
                    log_message('info', " Email Body" . print_r($email, true));
                    $emailBody = vsprintf($template[0], $email);
                    
-                   $this->notify->sendEmail("booking@247around.com", $to , 'anuj@247around.com, nits@247around.com', '', $subject , $emailBody, "");
+                   $this->notify->sendEmail("booking@247around.com", $new_vendor_mail , 'anuj@247around.com, nits@247around.com', '', $subject , $emailBody, "");
                    }else{
                        log_message('info', " Login Email Send Error" . print_r($email, true));
                    }
@@ -689,7 +689,18 @@ class vendor extends CI_Controller {
      * @return : array(of details) to view
      */
     function viewvendor($vendor_id = "") {
-        $id = $this->session->userdata('id');
+        $id = $this->session->userdata('id');   
+        $active = "1";
+        $data['active_state'] = $active;
+        
+        if(!empty($this->input->get())){
+            $data = $this->input->get();
+            if($data['active_state'] == 'all'){
+                $active = "";
+            }
+        
+        }
+
         //Getting employee relation if present for logged in user
         $sf_list = $this->vendor_model->get_employee_relation($id);
         if (!empty($sf_list)) {
@@ -697,9 +708,9 @@ class vendor extends CI_Controller {
         }
         //Getting State for SC charges
         $state = $this->service_centre_charges_model->get_unique_states_from_tax_rates();
-        $query = $this->vendor_model->viewvendor($vendor_id, "", $sf_list);
+        $query = $this->vendor_model->viewvendor($vendor_id, $active, $sf_list);
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
-        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state));
+        $this->load->view('employee/viewvendor', array('query' => $query,'state' =>$state , 'selected' =>$data));
     }
 
     /**
@@ -1120,6 +1131,7 @@ class vendor extends CI_Controller {
      */
     function process_pincode_excel_upload_form() {
         $inputFileName = $_FILES['file']['tmp_name'];
+        
         log_message('info', __FUNCTION__ . ' => Input ZIP file: ' . $inputFileName);
         
         $newZipFileName = TMP_FOLDER."vendor_pincode_mapping_temp.zip";
@@ -1134,6 +1146,41 @@ class vendor extends CI_Controller {
   
         log_message('info', __FUNCTION__ . ' => New CSV file: ' . $newCSVFileName);
         
+        //Checking for Empty file
+        if(filesize(TMP_FOLDER.$newCSVFileName) == 0){
+            //Logging
+            log_message('info',' Empty Pincode File has been Uploaded');
+            $this->session->set_flashdata('file_error',' Empty File has been uploaded');
+            redirect(base_url() . 'employee/vendor/get_pincode_excel_upload_form');
+            
+        }
+        
+        //Logging
+        log_message('info', __FUNCTION__ . ' Processing of Pincode CSV File started');
+
+        //Adding Details in File_Uploads table as well
+        
+        $data_uploads['file_name'] = "vendor_pincode_mapping_temp.zip";
+        $data_uploads['file_type'] = _247AROUND_VENDOR_PINCODE;
+        $data_uploads['agent_id'] = $this->session->userdata('employee_id');
+        $insert_id = $this->partner_model->add_file_upload_details($data_uploads);
+        if (!empty($insert_id)) {
+            //Logging success
+            log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data_uploads, TRUE));
+        } else {
+            //Loggin Error
+            log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data_uploads, TRUE));
+        }
+
+        
+        //Upload files to AWS
+        $bucket = BITBUCKET_DIRECTORY;
+        $directory_xls = "vendor-partner-docs/vendor_pincode_mapping_temp.zip";
+        $this->s3->putObjectFile(TMP_FOLDER . "vendor_pincode_mapping_temp.zip", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        //Logging
+        log_message('info', __FUNCTION__ . ' Vendor Pincode File has been uploaded in S3');
+        
+        //Processing SQL Queries
         $sql_commands = array();
         array_push($sql_commands, "TRUNCATE TABLE vendor_pincode_mapping_temp;");
         
@@ -1173,7 +1220,7 @@ class vendor extends CI_Controller {
         system ("rm -rf ".$newZipFileName);
         system ("rm -rf ".TMP_FOLDER . $CSVFileName );
         system ("rm -rf ".TMP_FOLDER . $newCSVFileName );
-       log_message('info', __FUNCTION__ . ' => All queries executed: ' . print_r($sql_commands, TRUE));
+       log_message('info', __FUNCTION__ . ' => All queries executed: ');
         //log_message('info', __FUNCTION__ . ' => New pincode count: ' . $count);
         
         redirect(base_url() . DEFAULT_SEARCH_PAGE);
@@ -2245,7 +2292,7 @@ class vendor extends CI_Controller {
         $flag = TRUE;
         $attachment = "";
         //Do file upload if attachment is provided
-        if (!empty($_FILES)) {
+        if (($_FILES['attachment_'.$id]['error'] != 4) && !empty($_FILES['attachment_'.$id]['tmp_name'])) {
             $tmpFile = $_FILES['attachment_'.$id]['tmp_name'];
             $fileName = $_FILES['attachment_'.$id]['name'];
 
@@ -2341,7 +2388,7 @@ class vendor extends CI_Controller {
         $flag = TRUE;
         $attachment = "";
         //Do file upload if attachment is provided
-        if (!empty($_FILES)) {
+        if (($_FILES['attachment_'.$id]['error'] != 4) && !empty($_FILES['attachment_'.$id]['tmp_name'])) {
             $tmpFile = $_FILES['attachment_' . $id]['tmp_name'];
             $fileName = $_FILES['attachment_' . $id]['name'];
 
@@ -3076,4 +3123,174 @@ class vendor extends CI_Controller {
         }
        
     }
+    
+    function get_sc_upcountry_details($service_center_id){
+        $data['data'] = $this->upcountry_model->get_sub_service_center_details(array('service_center_id' =>$service_center_id));
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/sc_upcountry_details',$data);
+        
+    }
+    
+    function update_tax_rate_template() {
+        $data = $this->input->post();
+        $operation = $data['oper'];
+
+        switch ($operation) {
+            case 'add':
+                //Initializing array for adding data
+                $insert_data = [];
+                //Checking active value checked
+                if ($data['active'] == 'on') {
+                    $data['active'] = 1;
+                } else {
+                    $data['active'] = 0;
+                }
+                //Setting insert array data
+                $insert_data['tax_code'] = $data['tax_code'];
+                $insert_data['state'] = $data['state'];
+                $insert_data['product_type'] = $data['product_type'];
+                $insert_data['rate'] = $data['rate'];
+                $insert_data['from_date'] = $data['from_date'];
+                $insert_data['to_date'] = $data['to_date'];
+                $insert_data['active'] = $data['active'];
+                $insert_data['create_date'] = date('Y-m-d H:i:s');
+                $insert_id = $this->vendor_model->insert_tax_rates_template($insert_data);
+                print_r($insert_id);
+                if ($insert_id) {
+                    log_message('info', __FUNCTION__ . ' New Tax Rate Template has been added with ID ' . $insert_id);
+                } else {
+                    log_message('info', __FUNCTION__ . ' Err in adding New Tax Rate Template');
+                }
+                break;
+            case 'edit':
+                //Initializing array for updating data
+                $update_data = [];
+                //Checking active value checked
+                if ($data['active'] == 'on') {
+                    $data['active'] = 1;
+                } else {
+                    $data['active'] = 0;
+                }
+                //Setting insert array data
+                $update_data['tax_code'] = $data['tax_code'];
+                $update_data['state'] = $data['state'];
+                $update_data['product_type'] = $data['product_type'];
+                $update_data['rate'] = $data['rate'];
+                $update_data['from_date'] = $data['from_date'];
+                $update_data['to_date'] = $data['to_date'];
+                $update_data['active'] = $data['active'];
+                $update_id = $this->vendor_model->update_tax_rates_template($update_data,$data['id']);
+                if ($update_id) {
+                    log_message('info', __FUNCTION__ . ' Sms Template has been updated with ID ' . $update_id);
+                } else {
+                    log_message('info', __FUNCTION__ . ' Err in updating New Sms Template');
+                }
+                break;
+
+            case 'del':
+                $delete = $this->vendor_model->delete_tax_rate_template($data['id']);
+                if ($delete) {
+                    log_message('info', __FUNCTION__ . ' Tax Rate Template has been deleted with ID'. $data['id'] );
+                } else {
+                    log_message('info', __FUNCTION__ . ' Err in deleting Tax Rate Template');
+                }
+                break;
+        }
+    }
+    
+    /**
+     * @desc: This function is used to show editable grid for tax rates Templates
+     * params: void
+     * return: view
+     * 
+     */
+    function get_tax_rates_template_editable_grid(){
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/tax_rates_template_editable_grid');
+        
+    }
+    
+    /**
+     * @desc: This funtion is called from AJAX to get tax rates templates
+     * params: void
+     * return: ARRAY
+     */
+    function get_active_tax_rates_template() {
+        $page = isset($_POST['page']) ? $_POST['page'] : 1;
+        $limit = isset($_POST['rows']) ? $_POST['rows'] : 10;
+        $sidx = isset($_POST['sidx']) ? $_POST['sidx'] : 'name';
+        $sord = isset($_POST['sord']) ? $_POST['sord'] : '';
+        $start = $limit * $page - $limit;
+        $start = ($start < 0) ? 0 : $start;
+
+        $where = "";
+        $searchField = isset($_POST['searchField']) ? $_POST['searchField'] : false;
+        $searchOper = isset($_POST['searchOper']) ? $_POST['searchOper'] : false;
+        $searchString = isset($_POST['searchString']) ? $_POST['searchString'] : false;
+
+        if ($_POST['_search'] == 'true') {
+            $ops = array(
+                'eq' => '=',
+                'ne' => '<>',
+                'lt' => '<',
+                'le' => '<=',
+                'gt' => '>',
+                'ge' => '>=',
+                'bw' => 'LIKE',
+                'bn' => 'NOT LIKE',
+                'in' => 'LIKE',
+                'ni' => 'NOT LIKE',
+                'ew' => 'LIKE',
+                'en' => 'NOT LIKE',
+                'cn' => 'LIKE',
+                'nc' => 'NOT LIKE'
+            );
+            foreach ($ops as $key => $value) {
+                if ($searchOper == $key) {
+                    $ops = $value;
+                }
+            }
+            if ($searchOper == 'eq')
+                $searchString = $searchString;
+            if ($searchOper == 'bw' || $searchOper == 'bn')
+                $searchString .= '%';
+            if ($searchOper == 'ew' || $searchOper == 'en')
+                $searchString = '%' . $searchString;
+            if ($searchOper == 'cn' || $searchOper == 'nc' || $searchOper == 'in' || $searchOper == 'ni')
+                $searchString = '%' . $searchString . '%';
+
+            $where = "$searchField $ops '$searchString' ";
+        }
+
+        if (!$sidx)
+            $sidx = 1;
+        $count = $this->db->count_all_results('tax_rates');
+         
+        if ($count > 0) {
+            $total_pages = ceil($count / $limit);
+        } else {
+            $total_pages = 0;
+        }
+
+        if ($page > $total_pages){
+            $page = $total_pages;
+        }
+       
+        $query = $this->vendor_model->get_all_active_tax_rates_template($start, $limit, $sidx, $sord, $where);
+        
+        $responce = new StdClass;
+        $responce->page = $page;
+        $responce->total = $total_pages;
+        $responce->records = $count;
+        $i = 0;
+                
+        foreach ($query as $row) {
+            $responce->rows[$i]['id'] = $row->id;
+            $responce->rows[$i]['cell'] = array($row->tax_code, $row->state, $row->product_type, $row->rate,$row->from_date,$row->to_date,$row->active);
+            $i++;
+        }
+ 
+        echo json_encode($responce);
+    }
+    
 }   

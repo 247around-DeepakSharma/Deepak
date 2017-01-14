@@ -28,8 +28,12 @@
         }else{
             return true;
         }
-        
-        
+    }
+    
+    function get_data()
+    {
+        var data = $("#active_state option:selected").val();
+        $('#get_vender').submit();
     }
 </script>
 <div  id="page-wrapper">
@@ -62,6 +66,16 @@
             <a href="<?php echo base_url();?>employee/vendor/add_vendor"><input class="btn btn-primary" type="Button" value="Add Service Centre"></a>
         </div>
         
+        <div class="pull-right" style="margin-bottom: 20px; margin-right: 50px;">
+            <form action="<?php echo base_url();?>employee/vendor/viewvendor" method="get" id="get_vender" class="form-inline">
+                <label for="active_state">Show Vender &nbsp; &nbsp;</label>
+                <select name="active_state" id="active_state" onchange="get_data();" class="form-control">
+                    <option value="all" <?php echo isset($selected) && $selected['active_state'] == 'all'? 'selected="selected"':''?>>ALL</option>
+                    <option value="1" <?php echo isset($selected) && $selected['active_state'] == '1'? 'selected="selected"':''?>>Active</option>
+                </select> 
+            </form>
+        </div>
+        
         <div class="col-md-6" id="state_form">
             <div style="background-color: #EEEEEE;width:400px;height:50px;padding-bottom:20px;border-radius: 5px;" id="inner_state_div">
                 <form method="POST" action ="<?php echo base_url(); ?>employee/vendor/get_sc_charges_list" style="padding-top:8px;">
@@ -81,7 +95,7 @@
             </form>
         </div>
         
-        <table class="table table-bordered table-condensed">
+        <table class="table table-bordered table-condensed" id="vender_details">
           
           <tr>
           	<th class="jumbotron">ID</th>
@@ -96,7 +110,7 @@
           	<th class="jumbotron">Owner Name</th>
           	<th class="jumbotron">Owner Phone No.</th>
           	<th class="jumbotron">Owner Email</th>
-          	
+          	<th class="jumbotron">Sub District Office</th>
           	<th class="jumbotron">Temporary</th>
           	<th colspan="2" class="jumbotron">Permanent</th>
           </tr>
@@ -137,6 +151,11 @@
           	</td>
           	
           	<td><?=$row['owner_email'];?></td>
+                <td>
+                    <?php if ($row['is_upcountry'] == 1) { ?>
+                        <a class='btn btn-sm btn-primary' href="<?php echo base_url(); ?>employee/vendor/get_sc_upcountry_details/<?php echo $row['id'];  ?>"><i class='fa fa-eye' aria-hidden='true'></i></a>
+                    <?php } ?>    
+                </td>
                 
                 <td>
                         <?php
@@ -147,6 +166,7 @@
                         <?php }
                         ?>
                     </td>
+                    
           	<td><?php if($row['active']==1)
                 {
                   echo "<a id='edit' class='btn btn-small btn-danger' "
@@ -189,7 +209,7 @@
             $.ajax({
                 url:'<?php echo base_url()."employee/vendor/allow_log_in_to_vendor/" ?>'+vendor_id,
                 success: function (data) {
-                    window.open("<?php echo base_url().'employee/service_centers/pending_booking'?>",'_blank');
+                    window.open("<?php echo base_url().'service_center/pending_booking'?>",'_blank');
                 }
             });
             
@@ -197,6 +217,7 @@
             return false;
         }
     }
+    
     </script>
     
     <?php if ($this->session->userdata('success')) {

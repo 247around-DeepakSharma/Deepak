@@ -37,6 +37,7 @@ class Do_background_upload_excel extends CI_Controller {
 	$this->load->model('booking_model');
 	$this->load->model('partner_model');
 	$this->load->model('vendor_model');
+        $this->load->model('reporting_utils');
 	$this->load->library('s3');
 	$this->load->library('email');
     }
@@ -84,6 +85,8 @@ class Do_background_upload_excel extends CI_Controller {
      */
     function upload_snapdeal_file($file_type) {
 	log_message('info', __FUNCTION__ . "=> File type: " . $file_type . ", Beginning processing...");
+        $status_data = array();
+        
 
 	if (!empty($_FILES['file']['name']) && $_FILES['file']['size'] > 0) {
 	    $pathinfo = pathinfo($_FILES["file"]["name"]);
@@ -108,13 +111,29 @@ class Do_background_upload_excel extends CI_Controller {
 	    die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
 	}
 
+        
         $file_name = $_FILES["file"]["name"];
 
 	//  Get worksheet dimensions
 	$sheet = $objPHPExcel->getSheet(0);
 	$highestRow = $sheet->getHighestRow();
 	$highestColumn = $sheet->getHighestColumn();
+        
+        //Validation for Empty File
+        if($highestRow <=1){
+            //Logging
+            log_message('info',__FUNCTION__.' Empty File Uploaded for Snapdeal File Upload - Type :'.$file_type);
+            $this->session->set_flashdata('file_error','Empty file has been uploaded');
+            if($file_type == 'delivered'){
+                redirect(base_url() . "employee/booking_excel");
+            }else{
+                redirect(base_url() . "employee/booking_excel/upload_shipped_products_excel");
+            }
+        }
 
+        //Processing $_FILES to upload in s3 and update file_uploads table
+        $this->_update_file_uploads($_FILES["file"]["tmp_name"],$file_type);
+        
 	$headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
 	$headings_new = array();
 	$data = array();
@@ -170,16 +189,36 @@ class Do_background_upload_excel extends CI_Controller {
         
         // For shipped data
         if(!empty($shipped_data)){
-            $this->process_upload_sd_file($shipped_data,"shipped", $file_name);
+            
+            $status_data['job_name']= __FUNCTION__;
+            $status_data['agent_name'] = $this->session->userdata('employee_id');
+            $status_data['file_link'] = $_FILES['file']['name'];
+            $status_data['processing_type'] = $file_type;
+            $scheduler_id = $this->reporting_utils->insert_scheduler_tasks_status($status_data);
+            
+            $this->process_upload_sd_file($shipped_data,"shipped", $file_name, $scheduler_id);
             
         }
         //For delivered data
         if(!empty($delivered_data)){
-            $this->process_upload_sd_file($delivered_data,"delivered", $file_name);
+            $status_data['job_name']= __FUNCTION__;
+            $status_data['agent_name'] = $this->session->userdata('employee_id');
+            $status_data['file_link'] = $_FILES['file']['name'];
+            $status_data['processing_type'] = $file_type;
+            $scheduler_id = $this->reporting_utils->insert_scheduler_tasks_status($status_data);
+            
+            $this->process_upload_sd_file($delivered_data,"delivered", $file_name, $scheduler_id);
         }
         // for both type of file
         if(!empty($data)){
-            $this->process_upload_sd_file($data,$file_type, $file_name);
+            
+            $status_data['job_name']= __FUNCTION__;
+            $status_data['agent_name'] = $this->session->userdata('employee_id');
+            $status_data['file_link'] = $_FILES['file']['name'];
+            $status_data['processing_type'] = $file_type;
+            $scheduler_id = $this->reporting_utils->insert_scheduler_tasks_status($status_data);
+            
+            $this->process_upload_sd_file($data,$file_type, $file_name, $scheduler_id);
         }
         
     }
@@ -201,7 +240,7 @@ class Do_background_upload_excel extends CI_Controller {
         }
     }
     
-    function process_upload_sd_file($data,$file_type, $file_name){
+    function process_upload_sd_file($data,$file_type, $file_name, $scheduler_id){
        
         // Warning: Do not Change Validation Order
 	$validate_data = $this->validate_phone_number($data, $file_type, $file_name);
@@ -230,6 +269,11 @@ class Do_background_upload_excel extends CI_Controller {
 		//echo print_r("Phone number null, break from this loop", true), EOL;
 		break;
 	    }
+            
+            //Sanitizing Brand Name
+            if(!empty($value['Brand'])){
+                $value['Brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $value['Brand']);
+            }
 
 	    //Insert user if phone number doesn't exist
 	    $output = $this->user_model->search_user(trim($value['Phone']));
@@ -562,6 +606,7 @@ class Do_background_upload_excel extends CI_Controller {
             log_message('info', __FUNCTION__ . "=> File type: " . $file_type . " => Wow, no errors found !!!");
         }
  
+    $this->reporting_utils->update_scheduler_task_status($scheduler_id);
     log_message('info', __FUNCTION__ . "=> File type: " . $file_type . " => Exiting now...");
     }
 
@@ -1139,6 +1184,74 @@ class Do_background_upload_excel extends CI_Controller {
             $data['source'] = 'SS';
         }
         return $data;
+    }
+    
+    /**
+     * @Desc: This function is used to Add details in File Uploads table
+     * @params: String, String
+     * @return: Void
+     * 
+     * 
+     */
+    private function _update_file_uploads($tmpFile, $type) {
+        if($type == 'delivered'){
+            //Logging
+            log_message('info', __FUNCTION__ . ' Processing of Snapdeal Delivered Product Excel File started');
+
+            //Adding Details in File_Uploads table as well
+
+            $data['file_name'] = "Snapdeal-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
+            $data['file_type'] = _247AROUND_SNAPDEAL_DELIVERED;
+            $data['agent_id'] = $this->session->userdata('employee_id');
+            $insert_id = $this->partner_model->add_file_upload_details($data);
+            if (!empty($insert_id)) {
+                //Logging success
+                log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data, TRUE));
+            } else {
+                //Loggin Error
+                log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data, TRUE));
+            }
+
+            //Making process for file upload
+            move_uploaded_file($tmpFile, TMP_FOLDER . $data['file_name']);
+
+            //Upload files to AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "vendor-partner-docs/" . $data['file_name'];
+            $this->s3->putObjectFile(TMP_FOLDER . $data['file_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            //Logging
+            log_message('info', __FUNCTION__ . ' Snapdeal Delivered File has been uploaded in S3');
+            
+        } else if($type == "shipped"){
+            
+            //Logging
+            log_message('info', __FUNCTION__ . ' Processing of Snapdeal Shipped Excel File started');
+
+            //Adding Details in File_Uploads table as well
+           
+            $data['file_name'] = "Snapdeal-Shipped-" . date('Y-m-d-H-i-s') . '.xlsx';
+            $data['file_type'] = _247AROUND_SNAPDEAL_SHIPPED;
+            $data['agent_id'] = $this->session->userdata('employee_id');
+            $insert_id = $this->partner_model->add_file_upload_details($data);
+            if (!empty($insert_id)) {
+                //Logging success
+                log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data, TRUE));
+            } else {
+                //Loggin Error
+                log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data, TRUE));
+            }
+
+            //Making process for file upload
+            move_uploaded_file($tmpFile, TMP_FOLDER . $data['file_name']);
+
+            //Upload files to AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "vendor-partner-docs/" . $data['file_name'];
+            $this->s3->putObjectFile(TMP_FOLDER . $data['file_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            //Logging
+            log_message('info', __FUNCTION__ . ' Snapdeal Shipped File has been uploaded in S3');
+            
+        }
     }
 
 }

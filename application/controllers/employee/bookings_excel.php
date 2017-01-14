@@ -118,6 +118,11 @@ class bookings_excel extends CI_Controller {
 		//echo print_r("Phone number null, break from this loop", true), EOL;
 		break;
 	    }
+            
+            //Sanitizing Brand Name
+            if(!empty($rowData[0]['Brand'])){
+                $rowData[0]['Brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $rowData[0]['Brand']);
+            }
 
 	    //Insert user if phone number doesn't exist
 	    $output = $this->user_model->search_user(trim($rowData[0]['Phone']));
@@ -367,6 +372,11 @@ class bookings_excel extends CI_Controller {
 		//echo print_r("Phone number null, break from this loop", true), EOL;
 		break;
 	    }
+            
+            //Sanitizing Brand Name
+            if(!empty($rowData[0]['Brand'])){
+                $rowData[0]['Brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $rowData[0]['Brand']);
+            }
 
 	    //Insert user if phone number doesn't exist
 	    $output = $this->user_model->search_user(trim($rowData[0]['Phone']));
@@ -653,6 +663,9 @@ class bookings_excel extends CI_Controller {
 	} catch (Exception $e) {
 	    die('Error loading file "' . pathinfo($inputFileName, PATHINFO_BASENAME) . '": ' . $e->getMessage());
 	}
+        
+        //Updating File Uploads table and upload file to s3
+        $this->_update_paytm_file_uploads($_FILES["file"]["tmp_name"]);
 
 	//  Get worksheet dimensions
 	//$sheet = $objPHPExcel->setActiveSheetIndexbyName('Sheet1');
@@ -682,6 +695,11 @@ class bookings_excel extends CI_Controller {
 		//echo print_r("Phone number null, break from this loop", true), EOL;
 		break;
 	    }
+            
+            //Sanitizing Brand Name
+            if(!empty($rowData[0]['Brand'])){
+                $rowData[0]['Brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $rowData[0]['Brand']);
+            }
 
 	    //Insert user if phone number doesn't exist
 	    $output = $this->user_model->search_user(trim($rowData[0]['CustomerContactNo']));
@@ -920,6 +938,42 @@ class bookings_excel extends CI_Controller {
             $data['source'] = 'SS';
         }
         return $data;
+    }
+    
+    /**
+     * @Desc: This function is used to upload Paytm file to s3 and update file uploads table
+     * @params: String
+     * @return: void
+     * 
+     */
+    private function _update_paytm_file_uploads($tmpFile){
+        //Logging
+        log_message('info', __FUNCTION__ . ' Processing of Paytm Delivered Product Excel File started');
+
+        //Adding Details in File_Uploads table as well
+
+        $data['file_name'] = "Paytm-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
+        $data['file_type'] = _247AROUND_PAYTM_DELIVERED;
+        $data['agent_id'] = $this->session->userdata('employee_id');
+        $insert_id = $this->partner_model->add_file_upload_details($data);
+        if (!empty($insert_id)) {
+            //Logging success
+            log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data, TRUE));
+        } else {
+            //Loggin Error
+            log_message('info', __FUNCTION__ . ' Error in adding details to File Uploads ' . print_r($data, TRUE));
+        }
+
+        //Making process for file upload
+        $delivered_file = "Paytm-Delivered-" . date('Y-m-d-H-i-s') . '-' . $data['tag'] . '.xlsx';
+        move_uploaded_file($tmpFile, TMP_FOLDER . $delivered_file);
+
+        //Upload files to AWS
+        $bucket = BITBUCKET_DIRECTORY;
+        $directory_xls = "vendor-partner-docs/" . $delivered_file;
+        $this->s3->putObjectFile(TMP_FOLDER . $delivered_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        //Logging
+        log_message('info', __FUNCTION__ . ' Paytm Delivered File has been uploaded in S3');
     }
 
 }

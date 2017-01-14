@@ -229,9 +229,12 @@ class Partner_model extends CI_Model {
       * @param: end limit, start limit, partner id
       * @return: Pending booking
       */
-     function getPending_booking($partner_id ){
+     function getPending_booking($partner_id ,$booking_id = ''){
         $where = "";
         $where .= " AND partner_id = '" . $partner_id . "'";
+        if(!empty($booking_id)){
+            $where .= " AND `booking_details`.booking_id = '".$booking_id."'";
+        }
         //do not show bookings for future as of now
         //$where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0";
 
@@ -293,7 +296,7 @@ class Partner_model extends CI_Model {
       * @param: Booking Status(Cancelled or Completed)
       * @return: Array()
       */
-      function getclosed_booking($limit, $start, $partner_id, $status){
+      function getclosed_booking($limit, $start, $partner_id, $status, $booking_id = ""){
         if($limit!="count"){
             $this->db->limit($limit, $start);
         }
@@ -303,10 +306,13 @@ class Partner_model extends CI_Model {
         $this->db->join('services','services.id = booking_details.service_id');
         $this->db->join('users','users.user_id = booking_details.user_id');
         $this->db->where('booking_details.current_status', $status);
+        if(!empty($booking_id)){
+            $this->db->where('booking_details.booking_id', $booking_id);
+        }
         $this->db->where('partner_id',$partner_id);
         $this->db->order_by('booking_details.closed_date','desc');
         $query = $this->db->get();
-
+        
         $result = $query->result_array();
 
         if($limit == "count"){
@@ -886,13 +892,13 @@ class Partner_model extends CI_Model {
      * @return : Array
      */
     function get_active_partner_id_by_service_id_brand($brands, $service_id){
-        $sql = "Select partner_appliance_details.partner_id from partner_appliance_details, partners"
-                . " where  partner_appliance_details.partner_id = partners.id "
-                . "AND partner_appliance_details.brand = '".$brands."' "
-                . 'AND partner_appliance_details.service_id = "'.$service_id.'" '
-                . 'AND partner_appliance_details.active = 1 '
-                . 'AND partners.is_active = 1';
-        $query = $this->db->query($sql);
+        $this->db->select('partner_appliance_details.partner_id');
+        $this->db->where('partner_appliance_details.brand',$brands);
+        $this->db->where('partner_appliance_details.service_id',$service_id);
+        $this->db->where('partner_appliance_details.active',1);
+        $this->db->where('partners.is_active',1);
+        $this->db->join('partners','partner_appliance_details.partner_id = partners.id');
+        $query = $this->db->get('partner_appliance_details');
         
         return $query->result_array();
         
@@ -1137,5 +1143,72 @@ class Partner_model extends CI_Model {
         $query = $this->db->get('partner_missed_calls');
         return $query->result_array();
     }
+   
+    /**
+     * @Desc: This function is used to add values in file uploads table
+     * @params: Array
+     * @return: Boolean
+     * 
+     */
+    function add_file_upload_details($data) {
+        $this->db->insert('file_uploads', $data);
+
+        return $this->db->insert_id();
+    }
+    
+    /**
+     * @desc: This method is used to search booking by phone number or booking id
+     * this is called by Partner panel
+     * @param String $searched_text
+     * @param String $partner_id
+     * @return Array
+     */
+    function search_booking_history($searched_text,$partner_id) {
+        //Sanitizing Searched text - Getting only Numbers, Alphabets and '-'
+        $searched_text = preg_replace('/[^A-Za-z0-9-]/', '', $searched_text);
+        
+        $where_phone = "AND (`booking_primary_contact_no` = '$searched_text' OR `booking_alternate_contact_no` = '$searched_text')";
+        $where_booking_id = "AND `booking_id` LIKE '%$searched_text%'";
+       
+        $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot`, users.name, services.services, current_status, assigned_engineer_id "
+                . " FROM `booking_details`,users, services "
+                . " WHERE users.user_id = booking_details.user_id "
+                . " AND services.id = booking_details.service_id "
+                . " AND `partner_id` = '$partner_id' ". $where_phone
+
+                . " UNION "
+                . "SELECT `booking_id`,`booking_date`,`booking_timeslot`, users.name, services.services, current_status, assigned_engineer_id "
+                . " FROM `booking_details`,users, services "
+                . " WHERE users.user_id = booking_details.user_id "
+                . " AND services.id = booking_details.service_id "
+                . " AND `partner_id` = '$partner_id' ". $where_booking_id
+                . " ";
+        $query = $this->db->query($sql);
+        
+        //log_message('info', __FUNCTION__ . '=> Update Spare Parts: ' .$this->db->last_query());
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to get username for particular partner
+     * @params: Array
+     * @return: Mix
+     * 
+     */
+    function get_partner_username($data) {
+        $this->db->select('user_name');
+        $this->db->where('user_name', $data['user_name']);
+        $this->db->where('partner_id', $data['partner_id']);
+        $query = $this->db->get('partner_login');
+        
+        if ($query->num_rows() > 0) {
+            $result = $query->result_array();
+            return $result[0];
+        } else {
+
+            return false;
+        }
+    }
+
 }
 

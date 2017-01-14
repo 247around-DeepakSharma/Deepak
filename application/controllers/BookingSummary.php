@@ -869,6 +869,31 @@ EOD;
      */
     
     function send_service_center_report_mail() {
+        //Dumping data in sf_snapshot's table
+        $final_data = [];
+        $data = $this->reporting_utils->get_booking_by_service_center("");//Getting All SF List Details
+        foreach($data['service_center_id'] as $value){
+            $data_dump['sc_id'] = $value;
+            $data_dump['yesterday_booked'] = isset($data['data'][$value]['yesterday_booked']['booked'])?$data['data'][$value]['yesterday_booked']['booked']:'';
+            $data_dump['yesterday_completed'] = isset($data['data'][$value]['yesterday_completed']['completed'])?$data['data'][$value]['yesterday_completed']['completed']:'';
+            $data_dump['yesterday_cancelled'] = isset($data['data'][$value]['yesterday_cancelled']['cancelled'])?$data['data'][$value]['yesterday_cancelled']['cancelled']:'';
+            $data_dump['month_completed'] = isset($data['data'][$value]['month_completed']['completed'])?$data['data'][$value]['month_completed']['completed']:'';
+            $data_dump['month_cancelled'] = isset($data['data'][$value]['month_cancelled']['cancelled'])?$data['data'][$value]['month_cancelled']['cancelled']:'';
+            $data_dump['last_2_day'] = isset($data['data'][$value]['last_2_day']['booked'])?$data['data'][$value]['last_2_day']['booked']:'';
+            $data_dump['last_3_day'] = isset($data['data'][$value]['last_3_day']['booked'])?$data['data'][$value]['last_3_day']['booked']:'';
+            $data_dump['greater_than_5_days'] = isset($data['data'][$value]['greater_than_5_days']['booked'])?$data['data'][$value]['greater_than_5_days']['booked']:'';
+            $final_data[] = $data_dump;
+        }
+        
+        //Inserting batch data
+        if($this->reporting_utils->insert_batch_sf_snapshot($final_data)){
+            //Logging
+            log_message('info',__FUNCTION__.' SF Snapshot data has been Dumped into table sf_snapshot');
+        }else{
+            //Logging
+            log_message('info',__FUNCTION__.' Error in dumping data in sf_snapshot table');
+        }
+        
         //Geting Array of RM's and Admin
         $employee_for_cron_mail_list = $this->employee_model->get_employee_for_cron_mail();
         //Looping for each RM 
@@ -981,7 +1006,7 @@ EOD;
                     }
 
                     $data['data'] = $this->reporting_utils->get_sc_crimes($where);
-                    if (!empty($data['data'])) {
+                    if (!empty($data['data']) && $data['data'][0]['not_update'] > 0) {
                         //Loading view
                         $view = $this->load->view('employee/get_crimes', $data, TRUE);
                         $subject = "SF Crimes Report " . date("d-M-Y");
@@ -1011,7 +1036,7 @@ EOD;
                 if ($value['is_update'] == '1') {
                     $where = " AND id = '" . $value['id'] . "'";
                     $data['data'] = $this->reporting_utils->get_sc_crimes($where);
-                    if (!empty($data['data'])) {
+                    if (!empty($data['data']) && $data['data'][0]['not_update'] > 0) {
                         $view = $this->load->view('employee/get_crimes', $data, TRUE);
 
                         $to = $value['primary_contact_email'] . "," . $value['owner_email'];

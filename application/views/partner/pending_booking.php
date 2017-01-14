@@ -11,6 +11,15 @@
                 </div>';
                 }
                 ?>
+            <?php if($this->session->flashdata('error')) {
+                echo '<div class="alert alert-danger alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <strong>' . $this->session->flashdata('error') . '</strong>
+                </div>';
+                }
+                ?>
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h1 class="panel-title" style="font-size: 24px;"><i class="fa fa-money fa-fw"></i> Pending Bookings </h1>
@@ -92,6 +101,7 @@
             </div>
             <!-- end  col-md-12-->
         </div>
+            <div class="custom_pagination" style="margin-left: 16px;" > <?php if(isset($links)) echo $links; ?></div>
     </div>
 </div>
 <!-- Modal -->
@@ -107,7 +117,7 @@
                  <center><h4 id ="failed_validation" style="color:red;margin-top: 0px;margin-bottom: 35px;"></h4></center>
                 <div class="container">
                    
-                    <div class="row">
+                    <!--<div class="row">-->
                         <div class="col-md-8">
                             <form class="form-horizontal" action="#" method="POST" target="_blank" >
                             <div class="form-group">
@@ -143,12 +153,11 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                <!--</div>-->
             </div>
         </div>
     </div>
 </div>
-<div class="custom_pagination" style="margin-left: 16px;" > <?php if(isset($links)) echo $links; ?></div>
 <?php $this->session->unset_userdata('success'); ?>
 <script>
     $(document).on("click", ".open-AddBookDialog", function () {
@@ -159,7 +168,7 @@
     function form_submit(){
         var escalation_id = $("#escalation_reason_id").val();
         var booking_id = $("#ec_booking_id").val();
-        var remarks = $("#es_remarks").text();
+        var remarks = $("#es_remarks").val();
         
         if(escalation_id ===  null){
             $("#failed_validation").text("Please Select Any Escalation Reason");
@@ -170,7 +179,7 @@
                 url: '<?php echo base_url() ?>partner/process_escalation/'+booking_id,
                 data: {escalation_reason_id: escalation_id,escalation_remarks:remarks},
                 success: function (data) {
-                  //console.log(data);
+//                  console.log(data);
 
                 }
               });

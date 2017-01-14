@@ -10,7 +10,7 @@
                 url:'<?php echo base_url()."employee/partner/allow_log_in_to_partner/" ?>'+partner_id,
                 success: function (data) {
                     console.log(data);
-                    window.open("<?php echo base_url().'employee/partner/get_spare_parts_booking'?>",'_blank');
+                    window.open("<?php echo base_url().'partner/home'?>",'_blank');
                 }
             });
             
@@ -19,6 +19,7 @@
         }
     }
 </script>
+
 
 <div  id="page-wrapper">
     <div class="row">

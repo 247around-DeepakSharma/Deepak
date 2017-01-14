@@ -1,5 +1,3 @@
-
-
 <div id="page-wrapper">
    <div class="container-fluid">
       <div class="row">
@@ -20,6 +18,15 @@
                        <span aria-hidden="true">&times;</span>
                    </button>
                    <strong>' . $sucess . '</strong>
+               </div>';
+               }
+               ?>
+             <?php if($this->session->flashdata('file_error')) {
+               echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:15px;">
+                   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                       <span aria-hidden="true">&times;</span>
+                   </button>
+                   <strong>' . $this->session->flashdata('file_error') . '</strong>
                </div>';
                }
                ?>

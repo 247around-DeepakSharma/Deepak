@@ -1611,3 +1611,112 @@ ALTER TABLE `service_centres` CHANGE `active` `active` INT(2) NULL DEFAULT '1';
 -- Sachin 4 Jan 2017
 
 ALTER TABLE  `service_centres` ADD `is_verified` int(2) NOT NULL DEFAULT '0' AFTER `is_cst_doc`;
+
+
+ALTER TABLE `service_centres` ADD `is_upcountry` INT(2) NULL DEFAULT '0' AFTER `is_penalty`;
+
+
+
+
+--
+-- Table structure for table `sub_service_center_details`
+--
+
+CREATE TABLE `sub_service_center_details` (
+  `id` int(11) NOT NULL,
+  `service_center_id` int(11) DEFAULT NULL,
+  `state` varchar(100) DEFAULT NULL,
+  `district` varchar(150) DEFAULT NULL,
+  `pincode` int(50) DEFAULT NULL,
+  `upcountry_rate` int(10) DEFAULT NULL,
+  `update_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `create_date` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+--
+-- Indexes for table `sub_service_center_details`
+--
+ALTER TABLE `sub_service_center_details`
+  ADD PRIMARY KEY (`id`);
+=======
+ALTER TABLE `partners` ADD `upcountry_rate` INT(11) NOT NULL AFTER `is_upcountry`;
+>>>>>>> d2ef9c3... BUG: Removed upcountry flag
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `sub_service_center_details`
+--
+ALTER TABLE `sub_service_center_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--- sachin 12 jan
+
+CREATE TABLE `scheduler_tasks_status` (
+  `id` int(11) NOT NULL,
+  `job_name` varchar(55) NOT NULL,
+  `agent_name` varchar(55) NOT NULL,
+  `file_link` varchar(200) DEFAULT NULL,
+  `processing_type` varchar(55) DEFAULT NULL,
+  `from_date` datetime DEFAULT NULL,
+  `to_date` datetime DEFAULT NULL,
+  `start_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `end_time` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `scheduler_tasks_status`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `scheduler_tasks_status`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=0;
+
+ALTER TABLE `partners` ADD `upcountry_rate` INT(11) NOT NULL AFTER `upcountry`;
+
+--Belal 9 Jan
+
+CREATE TABLE `file_uploads` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `file_name` varchar(512) DEFAULT NULL,
+ `file_type` varchar(256) DEFAULT NULL,
+ `tag` varchar(128) DEFAULT NULL,
+ `agent_id` varchar(128) DEFAULT NULL,
+ `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `sf_snapshot` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `sc_id` int(11) DEFAULT NULL,
+ `yesterday_booked` int(11) DEFAULT NULL,
+ `yesterday_completed` int(11) DEFAULT NULL,
+ `yesterday_cancelled` int(11) DEFAULT NULL,
+ `month_completed` int(11) DEFAULT NULL,
+ `month_cancelled` int(11) DEFAULT NULL,
+ `last_2_day` int(11) DEFAULT NULL,
+ `last_3_day` int(11) DEFAULT NULL,
+ `greater_than_5_days` int(11) DEFAULT NULL,
+ `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+-- Abhay 10 Jan 
+ALTER TABLE `booking_details` ADD `sms_count` INT(5) NULL DEFAULT '0' AFTER `count_reschedule`;
+
+ALTER TABLE  `service_centres` ADD `is_verified` int(2) NOT NULL DEFAULT '0' AFTER `is_cst_doc`;
+
+--Belal 12 Jan
+
+ALTER TABLE `file_uploads` DROP `tag`;
+--Belal
+
+ALTER TABLE `partners` DROP `upcountry`;
+

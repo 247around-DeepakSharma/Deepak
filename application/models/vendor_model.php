@@ -855,11 +855,12 @@ class vendor_model extends CI_Model {
                 $avg
 
                 from booking_details $join where assigned_vendor_id = $value[id]  $condition  $where $group_By";
-
+            
             $data = $this->db->query($sql);
             $result = $data->result_array();
 
             if (!empty($result)) {
+                
                 $result[0]['Vendor_Name'] = $value['name'];
                 $result[0]['Vendor_ID'] = $value['id'];
 
@@ -1226,6 +1227,27 @@ class vendor_model extends CI_Model {
     }
     
     /**
+     *  @desc : To get All Active vendor tax rates templates
+     *
+     *  To get the active template for all tax rates template which are enabled.
+     *
+     *  @param : void
+     *  @return : Array
+     */
+    function get_all_active_tax_rates_template($start,$limit,$sidx,$sord,$where) {
+
+        $this->db->select('id,tax_code,state,product_type,rate,from_date,to_date,active');
+        $this->db->limit($limit);
+        if ($where != NULL){
+            $this->db->where($where, NULL, FALSE);
+        }
+        $this->db->order_by($sidx, $sord);
+        $query = $this->db->get('tax_rates', $limit, $start);
+       
+        return $query->result();
+    }
+    
+    /**
      * @desc: This is used to insert value in sms template table
      * @param Array
      * @return Int ID of inserted data
@@ -1271,6 +1293,50 @@ class vendor_model extends CI_Model {
         }
     }
     
+    /**
+     * @desc: This is used to insert value in tax rate template table
+     * @param Array
+     * @return Int ID of inserted data
+     */
+    function insert_tax_rates_template($data){
+
+        $this->db->insert('tax_rates', $data);
+        
+        return $this->db->insert_id();
+    }
+    /**
+     * @desc: This is used to update tax rate template
+     * @param ARRAY $data, INT id 
+     * return: Boolean
+     * 
+     */
+    function update_tax_rates_template($data,$id){
+        $this->db->where('id', $id);
+        $this->db->update('tax_rates', $data);
+        log_message('info', __METHOD__ . "=> Update Tax rate Template " . $this->db->last_query() );
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    /**
+     * @desc: This fucntion is used to delete tax rate template 
+     * params: INT 
+     *         id tax rate template to be deleted
+     * 
+     * return: Boolean
+     */
+    function delete_tax_rate_template($id) {
+        $this->db->where('id', $id);
+        $this->db->delete('tax_rates');
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
 
     /**
      * @desc: This is used to insert assigned engineer data into assigned engineer table
@@ -1437,11 +1503,11 @@ class vendor_model extends CI_Model {
             $this->db->set('service_centres_id',$sf_details_list);
             $this->db->update('employee_relation');
             //Now adding SF to New RM
-             $this->add_rm_to_sf_relation($agent_id, $sf_id);
+            return $this->add_rm_to_sf_relation($agent_id, $sf_id);
             
         }else{
             //No assignment has been done earlier ADD NEW
-            $this->add_rm_to_sf_relation($agent_id, $sf_id);
+            return $this->add_rm_to_sf_relation($agent_id, $sf_id);
         }
         
     }
