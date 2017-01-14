@@ -64,7 +64,7 @@ class Service_centers extends CI_Controller {
         if ($agent) {
         //get sc details now
         $sc_details = $this->vendor_model->getVendorContact($agent['service_center_id']);
-            $this->setSession($sc_details[0]['id'], $sc_details[0]['name'], $agent['id'], $sc_details[0]['is_update'],$sc_details[0]['company_name']);
+            $this->setSession($sc_details[0]['id'], $sc_details[0]['company_name'], $agent['id'], $sc_details[0]['is_update']);
 
             //Saving Login Details in Database
             $login_data['browser'] = $this->agent->browser();
@@ -340,13 +340,12 @@ class Service_centers extends CI_Controller {
      * @param: is update
      * @return: void
      */
-    function setSession($service_center_id, $service_center_name, $sc_agent_id, $update,$company_name) {
+    function setSession($service_center_id, $service_center_name, $sc_agent_id, $update) {
 	$userSession = array(
 	    'session_id' => md5(uniqid(mt_rand(), true)),
 	    'service_center_id' => $service_center_id,
 	    'service_center_name' => $service_center_name,
             'service_center_agent_id' => $sc_agent_id,
-            'company_name'=>$company_name,
             'is_update' => $update,
 	    'sess_expiration' => 30000,
 	    'loggedIn' => TRUE,
