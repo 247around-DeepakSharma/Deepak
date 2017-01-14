@@ -163,7 +163,7 @@
 
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                            <i ></i> <?php echo $this->session->userdata('company_name'); ?> <i class="fa fa-caret-down"></i>
+                            <i ></i> <?php echo $this->session->userdata('service_center_name'); ?> <i class="fa fa-caret-down"></i>
                             </a>
                             <ul class="dropdown-menu">
                                 <li class="dropdown">
