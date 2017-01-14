@@ -1,5 +1,62 @@
 <?php
-
+/**
+ * 247Around provides extra transportation charges to SF for those booking 
+ * whose distance is greater than 50 Km(Up & Down) between Customer and Vendor region.
+ * 
+ * We will not provide upcountry charges when distance is greater than 150KM(Up & Down).
+ * 
+ * ............................. For Free Booking to SF......................................
+ * 
+ * To display upcountry booking in SF or Admin Panel, We will combine those upcountry 
+ * booking whose booking date, pincode and SF Id is same and current_status of 
+ * these bookings must be Pending, Rescheduled or Completed.
+ * 
+ * While create SF invoice, We will combine those bookings whose booking date 
+ * pincode and SF id is same and current status is completed.
+ * 
+ * ........................For Free Booking to Partner............................
+ * 
+ * While create a new Invoice to get upcountry booking details, we will combine 
+ * those booking whose  booking date, pincode and Appliance Id Is same.
+ * 
+ * ..............For Cash Booking to SF OR Partner............................
+ * We will not combined upcountry booking for Cash Booking 
+ * 
+ * To calculate upcountry distance, we created a action_upcountry_booking() method.
+ * In this method we need to pass booking Id.
+ * 
+ * To assign upcountry booking, first we need to check value of 
+ * is_upcountry field of partners table must be 1. 
+ * 
+ * then we will get city of booking pincode from vendor pincode mapping table 
+ * And search SF header quater pincode of that city from sub_service_center_table
+ * 
+ * Now, we will calculate distance between booking pincode and SF district head quater pincode.
+ * If total up & down distance is less than 50 KM then we will not going to mark upcountry for this booking.
+ * 
+ * If total up & down distance is greater than 150 KM then we will mark to upcountry but not update distance.
+ * We will update distance and mark distric office manualy from Form.
+ * 
+ * Google provides free API to calculate distance between to region.
+ * We will use calculate_distance_between_pincode() method to call Google API. 
+ * 
+ * In this method, we will pass booking pincode, booking city, SF district pincode, SF booking city as parameter 
+ * before call Google API, we need to remove space with %20 in the booking city 
+ * because if we will call api with space then it return Bad url request.
+ * 
+ * Its compulsary to call Google API with city, pincode, India 
+ * because some india's pincode is same as singapore Or U.S pincode
+ * 
+ * While Assign booking to SF, if we can not calculate distance (means failed to calculate distance)
+ * then send email to Anuj@247around.com Or nits@247around.com with booking Pincode and SF id
+ * 
+ * When failed to calculate distance then we will update is_upcountry as 1
+ * but not assign sub vendor is ( means its must be NULL).
+ * 
+ * We will shown failed upcountry booking in the Editable table. 
+ * We get failed booking when is_upcountry is 1 and sub_vendor_id is NULL.  
+ *    
+ */
 class Upcountry_model extends CI_Model {
     /**
      * @desc load both db
@@ -17,9 +74,11 @@ class Upcountry_model extends CI_Model {
         return $this->db->insert_id();
     }
     /**
-     * @desc:  Calculate diatnce between two Pincodes
+     * @desc: Calculate Distance between two region
      * @param String $postcode1
+     * @param String $city1
      * @param String $postcode2
+     * @param String $city2
      * @return boolean
      */
     function calculate_distance_between_pincode($postcode1, $city1,$postcode2, $city2){

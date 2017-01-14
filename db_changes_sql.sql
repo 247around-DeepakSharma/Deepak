@@ -1685,3 +1685,7 @@ ALTER TABLE `sub_service_center_details`
 ALTER TABLE `sub_service_center_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
+
+-- Abhay 14 Dec ---
+ALTER TABLE `bookings_sources` ADD `partner_type` VARCHAR(50) NULL DEFAULT NULL AFTER `partner_id`;
+
