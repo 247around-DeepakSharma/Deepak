@@ -116,4 +116,19 @@ class Upcountry extends CI_Controller {
                 _247AROUND);
         
     }
+    /**
+     * @desc: Update previous booking  upcountry
+     */
+    function update_previous_booking(){
+        $data = $this->upcountry_model->get_upcountry_service_center();
+        foreach ($data as $value) {
+            $booking_details = $this->upcountry_model->get_booking($value['id']);
+            foreach ($booking_details as $value1) {
+                $this->upcountry_model->action_upcountry_booking($value1['booking_id']);
+                
+            }
+            
+        }
+        
+    }
 }

@@ -374,5 +374,24 @@ class Upcountry_model extends CI_Model {
        
         return $query->result_array();
     }
+    /**
+     * @desc: Return service center details who work upcountry
+     * @return type
+     */
+    function get_upcountry_service_center(){
+        $this->db->distinct();
+        $this->db->select('*');
+        $this->db->where('is_upcountry','1');
+        $query = $this->db->get('service_centres');
+        return $query->result_array();
+    }
+    
+    function get_booking($service_center_id){
+        $this->db->select('booking_id');
+        $this->db->where('create_date >=','2016-10-01');
+        $this->db->where('assigned_vendor_id',$service_center_id);
+        $query= $this->db->get('booking_details');
+        return $query->result_array();
+    }
     
 }
