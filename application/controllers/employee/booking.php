@@ -1121,16 +1121,17 @@ class Booking extends CI_Controller {
                     
                     $is_exits = $this->booking_model->check_brand_exit($service_id, trim($brand_details[$key]));
                     
-                    if(!$is_exits){ 
+                    if(!$is_exits){
+                        $service_name = $this->booking_model->selectservicebyid($service_id);
                         $is_insert = $this->booking_model->addNewApplianceBrand($service_id, trim($brand_details[$key]));
-                        array_push($data, array("service_id"=> $service_id, "brand_name"=>trim($brand_details[$key])));
+                        array_push($data, array("service_id"=> $service_name[0]['services'], "brand_name"=>trim($brand_details[$key])));
 
                     } 
                 }
                 
 	    }
 	}
-        if($data)
+        if(!empty($data))
         {
             $to = "anuj@247around.com";
             $cc = "";
@@ -1144,7 +1145,7 @@ class Booking extends CI_Controller {
             <table style='border-collapse:collapse; border: 1px solid black;'> 
                 <thead>
                     <tr style='border-collapse:collapse; border: 1px solid black;'>
-                        <th>Service Id</th>
+                        <th>Services</th>
                         <th>Brand Name</th>
                     </tr>    
                 </thead>
@@ -1160,7 +1161,6 @@ class Booking extends CI_Controller {
             <hr />     
         </body>
         </html>";
-            
             $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
         }
 
