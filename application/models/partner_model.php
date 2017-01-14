@@ -1188,6 +1188,27 @@ class Partner_model extends CI_Model {
         //log_message('info', __FUNCTION__ . '=> Update Spare Parts: ' .$this->db->last_query());
         return $query->result_array();
     }
+    
+    /**
+     * @Desc: This function is used to get username for particular partner
+     * @params: Array
+     * @return: Mix
+     * 
+     */
+    function get_partner_username($data) {
+        $this->db->select('user_name');
+        $this->db->where('user_name', $data['user_name']);
+        $this->db->where('partner_id', $data['partner_id']);
+        $query = $this->db->get('partner_login');
+        
+        if ($query->num_rows() > 0) {
+            $result = $query->result_array();
+            return $result[0];
+        } else {
+
+            return false;
+        }
+    }
 
 }
 
