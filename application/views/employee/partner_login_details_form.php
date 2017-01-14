@@ -96,7 +96,7 @@
        var password = $('#password_'+id).val();
        var retype_password = $('#retype_password_'+id).val();
        if(password != retype_password){
-           alert('Please Enter Correct Password for Login '+ parseInt(id+1));
+           alert('Please Enter Correct Password for Login '+ (parseInt(id)+1));
            return false;
        }
    }

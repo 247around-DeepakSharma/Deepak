@@ -2091,77 +2091,96 @@ class Partner extends CI_Controller {
       */
      function process_partner_login_details_form(){
          $choice = $this->input->post('choice');
-         $partner_id = $this->input->post('partner_id');
-         $login_id_array = $this->input->post('id');
-         if(!empty($choice)){
-             foreach($choice as $value){
-                 //checking for password and retype password value
-                 $password = $this->input->post('password')[0];
-                 $retype_password = $this->input->post('retype_password')[0];
-                 $username = $this->input->post('username')[0];
-                
-                 if(strcmp($password, $retype_password) == 0){
-                     if(!empty($login_id_array[$value])){
-                        //Updating values when password matches 
-                        $where = array('id'=>$login_id_array[$value]);
+        $partner_id = $this->input->post('partner_id');
+        $login_id_array = $this->input->post('id');
+        if (!empty($choice)) {
+            foreach ($choice as $value) {
+                $password = $this->input->post('password')[0];
+                $retype_password = $this->input->post('retype_password')[0];
+                $username = $this->input->post('username')[0];
+
+                //checking for password and retype password value
+                if (strcmp($password, $retype_password) == 0) {
+                    if (!empty($login_id_array[$value])) {
+                        //Checking for Already Present Username
+                        $login_data['user_name'] = $username;
+                        $login_data['partner_id'] = $partner_id;
+                        $check_username = $this->partner_model->get_partner_username($login_data);
+                        if (!isset($check_username['user_name'])) {
+
+                            //Updating values when password matches 
+                            $where = array('id' => $login_id_array[$value]);
+                            $data['user_name'] = $username;
+                            $data['password'] = md5($password);
+                            $data['clear_text'] = $password;
+
+                            if ($this->partner_model->update_partner_login_details($data, $where)) {
+                                //Log Message
+                                log_message('info', __FUNCTION__ . ' Partner Login has been updated for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
+                            } else {
+                                //Log Message
+                                log_message('info', __FUNCTION__ . ' Error in updating Partner Login for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
+                            }
+                        } else {
+                            //Redirecting with Error message
+                            //Setting error session data 
+                            $this->session->set_flashdata('login_error', ' Username Already Exists');
+
+                            redirect(base_url() . 'employee/partner/get_partner_login_details_form/' . $partner_id);
+                        }
+                    } else {
+                        //Add New Row in Partner Login Table
+                        $data['partner_id'] = $partner_id;
                         $data['user_name'] = $username;
                         $data['password'] = md5($password);
                         $data['clear_text'] = $password;
-                        
-                        if($this->partner_model->update_partner_login_details($data,$where)){
-                            //Log Message
-                            log_message('info',__FUNCTION__.' Partner Login has been updated for id : '.$partner_id.' with values ' . print_r($data,TRUE));
-                        }else{
-                            //Log Message
-                            log_message('info',__FUNCTION__.' Error in updating Partner Login for id : '.$partner_id.' with values ' . print_r($data,TRUE));
+                        $data['active'] = 1;
+
+                        //Checking for Already Present Username
+                        $login_data['user_name'] = $username;
+                        $login_data['partner_id'] = $partner_id;
+                        $check_username = $this->partner_model->get_partner_username($login_data);
+                        if (!isset($check_username['user_name'])) {
+
+                            //Getting name of Partner by Partner ID
+                            $partner_details = $this->partner_model->get_all_partner($partner_id);
+                            $data['full_name'] = $partner_details[0]['public_name'] . ' ' . $value;
+
+                            if ($this->partner_model->add_partner_login($data)) {
+                                //Log Message
+                                log_message('info', __FUNCTION__ . ' Partner Login has been Added for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
+                            } else {
+                                //Log Message
+                                log_message('info', __FUNCTION__ . ' Error in Adding Partner Login Details for id : ' . $partner_id . ' with values ' . print_r($data, TRUE));
+                            }
+                        } else {
+                            //Redirecting with Error message
+                            //Setting error session data 
+                            $this->session->set_flashdata('login_error', ' Username Already Exists');
+
+                            redirect(base_url() . 'employee/partner/get_partner_login_details_form/' . $partner_id);
                         }
+                    }
+                } else {
+                    //When password dosen't matches
+                    //Setting error session data 
+                    $this->session->set_flashdata('login_error', 'Passwords does not match for Login ' . ($value + 1));
 
-                     }else{
-                         //Add New Row in Partner Login Table
-                         $data['partner_id'] = $partner_id;
-                         $data['user_name'] = $username;
-                         $data['password'] = md5($password);
-                         $data['clear_text'] = $password;
-                         $data['active'] = 1;
-                         
-                         //Getting name of Partner by Partner ID
-                         $partner_details = $this->partner_model->get_all_partner($partner_id);
-                         $data['full_name'] = $partner_details[0]['public_name'].' '.$value ;
-                         
-                         if($this->partner_model->add_partner_login($data)){
-                             //Log Message
-                            log_message('info',__FUNCTION__.' Partner Login has been Added for id : '.$partner_id.' with values ' . print_r($data,TRUE));
-                         }else{
-                              //Log Message
-                            log_message('info',__FUNCTION__.' Error in Adding Partner Login Details for id : '.$partner_id.' with values ' . print_r($data,TRUE));
-                         }
-                         
-                         
-                     }
-                    
-                 }else{
-                     //When password dosen't matches
-                     //Setting error session data 
-                     $this->session->set_flashdata('login_error', 'Passwords does not match for Login '.($value+1));
+                    redirect(base_url() . 'employee/partner/get_partner_login_details_form/' . $partner_id);
+                }
+            }
 
-                     redirect(base_url() . 'employee/partner/get_partner_login_details_form/'.$partner_id);
-                 }
-                 
-             }
-             
-              //Setting success session data 
+            //Setting success session data 
             $this->session->set_flashdata('login_success', 'Partner Login has been Added');
 
-            redirect(base_url() . 'employee/partner/get_partner_login_details_form/'.$partner_id);
-             
-         }else{
-             //Setting error session data 
+            redirect(base_url() . 'employee/partner/get_partner_login_details_form/' . $partner_id);
+        } else {
+            //Setting error session data 
             $this->session->set_flashdata('login_error', 'No Row has been selected for Add / Edit');
 
-            redirect(base_url() . 'employee/partner/get_partner_login_details_form/'.$partner_id);
-             
-         }
-     }
+            redirect(base_url() . 'employee/partner/get_partner_login_details_form/' . $partner_id);
+        }
+    }
      
      /**
       * @Desc: This function is used to show default Partner Login Page
