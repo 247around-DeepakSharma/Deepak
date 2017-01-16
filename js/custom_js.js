@@ -5,40 +5,48 @@
  var SelectStateUrl = baseUrl + '/employee/booking/get_state_by_city';
  var pricesForCategoryCapacityUrl = baseUrl + '/employee/booking/getPricesForCategoryCapacity/';
  var count_number = 0;
+ 
 
   function getBrandForService() {
 
     var postData = {};
     postData['service_id'] = $("#service_id").val();
+    postData['source_code'] = $("#source_code").val();
 
     var service = $("#service_id option:selected").text();
     $("#services").val(service);
-
+    
     sendAjaxRequest(postData, brandServiceUrl).done(function(data) {
+      var data1 = jQuery.parseJSON(data);
+      $("#partner_type").val(data1.partner_type);
      
-      $(".appliance_brand").html(data);
-
-      
+      $(".appliance_brand").html(data1.brand);  
+       
 
     });
   }
     
   function getCategoryForService(div_id) {
     var postData = {};
+    var div_no = div_id.split('_');
     
     postData['service_id'] = $("#service_id").val();
-    postData['booking_pincode'] = $('#booking_pincode').val();
     postData['partner_code'] = $("#source_code option:selected").val();
+    postData['partner_type'] = $("#partner_type").val();
+    postData['brand'] = $("#appliance_brand_" + div_no[2]).val();
     
     sendAjaxRequest(postData, categoryForServiceUrl).done(function(data) {
 
         if(div_id === undefined){
-          $(".appliance_category").html(data);   
+          $(".appliance_category").html(data);
+          $(".appliance_capacity_"+div_no[2]).html(data2); 
 
         } else {
 
-           var div_no = div_id.split('_');
            $("#appliance_category_"+div_no[2]).html(data); 
+           var data2 = "<option disabled></option>";
+           $("#appliance_capacity_"+div_no[2]).html(data2); 
+           $("#priceList_"+div_no[2]).html("");
         }
         
     });
@@ -46,30 +54,33 @@
   }
 
     
-  function getCapacityForCategory(service_id, category, div_id) {
+  function getCapacityForCategory(category, div_id) {
     var postData = {};
-    
-    postData['service_id'] = $("#service_id").val();
-    postData['partner_code'] = $("#source_code option:selected").val();
-    postData['booking_pincode'] = $('#booking_pincode').val();
-    postData['category'] = category;
-
     var div_no = div_id.split('_');
 
+    postData['service_id'] = $("#service_id").val();
+    postData['partner_code'] = $("#source_code option:selected").val();
+    postData['category'] = category;
+    postData['partner_type'] =  $("#partner_type").val();
+    postData['brand'] = $("#appliance_brand_" + div_no[2]).val();
+
+    
     sendAjaxRequest(postData, CapacityForCategoryUrl).done(function(data) {
       
 
         $("#appliance_capacity_"+div_no[2]).html(data);
     
         if (data !== "<option></option>") {
-            var capacity= $("#appliance_capacity_"+div_no[2]).val();
-    
+            $("#priceList_"+div_no[2]).html(""); 
+            
             getPricesForCategoryCapacity(div_id);
+          
         } else {
-    
-            $("#appliance_capacity_"+div_no[2]).html(data);
-           
+            $("#priceList_"+div_no[2]).html(""); 
+            
+            
             getPricesForCategoryCapacity(div_id);
+            
         }
 
     });
@@ -77,14 +88,15 @@
     
   function getPricesForCategoryCapacity(div_id) {
     
-    var postData = {};
-    postData['service_id'] = $("#service_id").val();
-    
+    var postData = {};       
     var div_no = div_id.split('_');
+    
+    postData['service_id'] = $("#service_id").val();
     postData['brand'] = $('#appliance_brand_'+ div_no[2]).val();
     postData['category'] = $("#appliance_category_"+div_no[2]).val();
-    postData['partner_code'] = $("#source_code option:selected").val();    
-    postData['booking_pincode'] = $('#booking_pincode').val();
+    postData['partner_code'] = $("#source_code option:selected").val();  
+    postData['partner_type'] =  $("#partner_type").val();
+   
     postData['clone_number'] = div_no[2];
 
     if($("#appliance_capacity_"+div_no[2]).val()!=="") {
@@ -106,7 +118,7 @@
   }
 
   function final_price(){
-     var price = 0;
+    var price = 0;
     var price_array ;
     var around_discount = 0;
     var partner_discount = 0;
