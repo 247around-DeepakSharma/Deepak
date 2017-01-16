@@ -1689,3 +1689,7 @@ ALTER TABLE `sub_service_center_details`
 -- Abhay 14 Dec ---
 ALTER TABLE `bookings_sources` ADD `partner_type` VARCHAR(50) NULL DEFAULT NULL AFTER `partner_id`;
 
+
+-- Abhay 16 Dec 
+ALTER TABLE `service_centre_charges` ADD `brand` VARCHAR(150) NULL DEFAULT NULL AFTER `category`;
+

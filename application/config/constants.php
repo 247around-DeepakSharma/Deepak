@@ -192,6 +192,7 @@ define('_247AROUND_SF_PRICE_LIST','SF-Price-List');
 define('_247AROUND_PARTNER_APPLIANCE_DETAILS','Partner-Appliance-Details');
 //Define Upcountry distance Must be grater than 50(UP and DOWN both)
 define('UPCOUNTRY_MIN_DISTANCE',50);
+define('OEM', "OEM");
 
 
 

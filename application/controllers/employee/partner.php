@@ -501,6 +501,8 @@ class Partner extends CI_Controller {
             if (!empty($this->input->post('id'))) {
                 //if vendor exists, details are edited
                 $partner_id = $this->input->post('id');
+                $bookings_sources['partner_type'] = $this->input->post('partner_type');
+                unset($_POST['partner_type']);
                 
                 //Processing Contract File
                 if(($_FILES['contract_file']['error'] != 4) && !empty($_FILES['contract_file']['tmp_name'])){
@@ -579,6 +581,7 @@ class Partner extends CI_Controller {
                 //updating Partner code in Bookings_sources table
                     $bookings_sources['source'] = $this->input->post('public_name');
                     $bookings_sources['code'] = $this->input->post('partner_code');
+                   
                     if($this->partner_model->update_partner_code($where,$bookings_sources)){
                         log_message('info',' Parnter code has been Updated in Bookings_sources table '.print_r($bookings_sources,TRUE));
                     }else{
@@ -808,6 +811,7 @@ class Partner extends CI_Controller {
                     $bookings_sources['source'] = $this->input->post('public_name');
                     $bookings_sources['code'] = $code;
                     $bookings_sources['partner_id'] = $partner_id;
+                    
                     //Getting last price_mapping_id from bookings_sources table
                     $price_mapping_id = $this->partner_model->get_latest_price_mapping_id();
                     // Adding 1 to latest price mapping id
@@ -883,6 +887,7 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('address', 'Partner Address', 'trim|required');
         $this->form_validation->set_rules('state', 'State', 'trim|required');
         $this->form_validation->set_rules('district', 'District', 'trim|required');
+        $this->form_validation->set_rules('partner_type', 'Partner Type', 'trim|required');
         return $this->form_validation->run(); 
     }
 

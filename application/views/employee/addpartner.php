@@ -79,19 +79,33 @@
             <input  type="text" class="form-control" value = "<?php if (isset($query[0]['landmark'])){echo $query[0]['landmark'];}?>" name="landmark" >
          </div>
         </div>
+        <div  class="form-group <?php if( form_error('partner_type') ) { echo 'has-error';} ?>">
+            <label  for="partner_type" class="col-md-4">Type *</label>
+        <div class="col-md-8">
+            <select name="partner_type" class="form-control" >
+                <option selected disabled>Select Partner Type</option>
+                <option value="OEM" <?php if (isset($results['partner_code'][0])){ if($results['partner_code'][0]['partner_type']== OEM){ echo "selected";}}?>>OEM</option>
+                <option value="ECOMMERCE" 
+                    <?php if (isset($results['partner_code'][0])){ if($results['partner_code'][0]['partner_type']=="ECOMMERCE"){ echo "selected";}}?> >ECOMMERCE</option>
+                
+            </select>
+             <?php echo form_error('partner_type'); ?>
+        </div>
+        </div>
             
             <div class="form-group">
                 <label  for="upcountry_rate" class="col-md-4">Up-Country </label>
                 <div class="col-md-1">
                     
-                    <input type="checkbox" name="is_upcountry" id="upcountry" style="zoom:1.5"/>
+                    <input type="checkbox" name="is_upcountry" id="upcountry" style="zoom:1.5" 
+                        <?php if(isset($query)){ if($query[0]['is_upcountry'] ==1){ echo "checked";}} ?>/>
                 </div>
                 <div class="col-md-3">
                     <input  type="number" class="form-control" value = "<?php
                     if (isset($query[0]['upcountry_rate'])) {
                         echo $query[0]['upcountry_rate'];
                     }
-                    ?>" name="upcountry_rate" id="upcountry_rate" disabled="" placeholder="Enter KM's">
+                    ?>" name="upcountry_rate" id="upcountry_rate" <?php if(isset($query)){ if($query[0]['is_upcountry'] ==1){ } else {echo "disabled";}}else{ echo "disabled";} ?> placeholder="Enter KM's">
                 </div>
                 <div class="col-md-4">
                     <span><i>[Enter Rate per KM]</i></span>
@@ -501,7 +515,7 @@
       }else{
           $("#upcountry_rate").attr('required', false);
           $("#upcountry_rate").attr('disabled', true);
-          $("#upcountry_rate").val('');
+         // $("#upcountry_rate").val('');
       }
       
    });
@@ -583,6 +597,7 @@
                     address: "required",
                     district: "required",
                     username: "required",
+                    partner_type: "required",
                     phone_1: {
                         required: true,
                         minlength: 10,
@@ -627,6 +642,7 @@
                     public_name: "Please enter your Public Name",
                     address: "Please enter Address",
                     district: "Please Select District",
+                    partner_type: "Please Select Partner Type",
                     state: "Please Select State",
                     primary_contact_phone_1: "Please fill correct phone number",
                     primary_contact_phone_2: "Please fill correct phone number",

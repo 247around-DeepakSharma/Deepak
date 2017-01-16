@@ -133,7 +133,7 @@ class Partner_model extends CI_Model {
     }
 
     function get_all_partner_source($flag="", $source= ""){
-      $this->db->select("partner_id,source,code,price_mapping_id");
+      $this->db->select("partner_id,source,code,price_mapping_id, partner_type");
         $this->db->order_by('source','ASC');
         if($flag ==""){
         $this->db->where('partner_id !=', 'NULL');
@@ -1001,7 +1001,7 @@ class Partner_model extends CI_Model {
      * 
      */
     function get_partner_code($partner_id){
-        $this->db->select('code');
+        $this->db->select('partner_type, code');
         $this->db->where('partner_id',$partner_id);
         $query = $this->db->get('bookings_sources');
         return $query->result_array();
@@ -1208,6 +1208,22 @@ class Partner_model extends CI_Model {
 
             return false;
         }
+    }
+    
+    /**
+     * @desc: This is used to return Partner Specific Brand details
+     * @param Array $where
+     * @return Array
+     */
+    function get_partner_specific_brand($where){
+        
+        $this->db->distinct();
+        $this->db->select('brand As brand_name');
+        $this->db->where($where);
+        $query = $this->db->get('partner_appliance_details');
+ 
+        return $query->result_array();
+         
     }
 
 }
