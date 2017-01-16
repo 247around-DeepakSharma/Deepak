@@ -1817,6 +1817,17 @@ class Booking extends CI_Controller {
      */
     function get_booking_life_cycle($booking_id){
         $data['data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
+        //Checking for 247Around user
+        if($this->session->userdata('userType') == 'employee'){
+            //Getting Name of SF Agent and SF Name
+            foreach($data['data'] as $key=>$value){
+                //Checking for SF Details
+                if(!empty($value['service_center_id']) && empty($value['partner_id'])){
+                    $data['data'][$key]['full_name'] = $this->service_centers_model->get_sc_login_details_by_id($value['service_center_id'])[0]['full_name'];
+                    $data['data'][$key]['source'] = $this->vendor_model->getVendorContact($value['service_center_id'])[0]['name'];
+                }
+            }
+        }
         $data['booking_details'] = $this->booking_model->getbooking_history($booking_id);
         $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
        

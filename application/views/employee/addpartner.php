@@ -614,11 +614,11 @@
                         email: true
                     },
                     primary_contact_email: {
-
+                        required: true,
                         email: true
                     },
                     owner_email: {
-
+                        required: true,
                         email: true
                     }
                 },
