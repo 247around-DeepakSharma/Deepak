@@ -530,7 +530,7 @@ class vendor extends CI_Controller {
                 $this->sendWelcomeSms($_POST['primary_contact_phone_1'], $_POST['name'],$sc_id);
                 $this->sendWelcomeSms($_POST['owner_phone_1'], $_POST['owner_name'],$sc_id);
 
-                $this->notify->sendEmail("booking@247around.com", $to , 'anuj@247around.com, nits@247around.com', '', $subject , $message, "");
+                $this->notify->sendEmail("booking@247around.com", $new_vendor_mail , 'anuj@247around.com, nits@247around.com', '', $subject , $message, "");
 
 //		  //create vendor login details as well
 		   $sc_login_uname = strtolower($_POST['sc_code']);

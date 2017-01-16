@@ -1720,3 +1720,7 @@ ALTER TABLE `file_uploads` DROP `tag`;
 
 ALTER TABLE `partners` DROP `upcountry`;
 
+
+-- Abhay 16 Dec 
+ALTER TABLE `service_centre_charges` ADD `brand` VARCHAR(150) NULL DEFAULT NULL AFTER `category`;
+
