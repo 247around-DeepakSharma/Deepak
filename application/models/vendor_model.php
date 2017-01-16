@@ -1529,7 +1529,7 @@ class vendor_model extends CI_Model {
         if(!empty($query_array)){
             foreach($query_array as $value){
                 //Now adding SF to Admin
-                 $this->add_rm_to_sf_relation($value['agent_id'], $sf_id);
+                return $this->add_rm_to_sf_relation($value['agent_id'], $sf_id);
             }   
         }else{
             return FALSE;

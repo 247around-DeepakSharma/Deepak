@@ -631,6 +631,10 @@ class Partner extends CI_Controller {
                     }
                     
                 $this->partner_model->edit_partner($this->input->post(), $partner_id);
+                
+                //Getting Logged Employee Full Name
+                $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
+                
                 //Logging
                 log_message('info',__FUNCTION__.' Partner has been Updated : '.print_r($this->input->post(),TRUE));
                 
@@ -650,7 +654,7 @@ class Partner extends CI_Controller {
                         $this->email->from('booking@247around.com', '247around Team');
                         $this->email->to($to);
 
-                        $this->email->subject("Partner Updated :  " . $partner_id.' - By '.$this->session->userdata('employee_id'));
+                        $this->email->subject("Partner Updated :  " . $this->input->post('public_name').' - By '.$logged_user_name);
                         $this->email->message($html);
                         
                         if(isset($attachment_contract)){
@@ -760,6 +764,9 @@ class Partner extends CI_Controller {
                 //Set Flashdata on success or on Error of Data insert in table
                 if(!empty($partner_id)){
                     $this->session->set_flashdata('success','Partner added successfully.');
+                    
+                    //Getting Logged Employee Full Name
+                    $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
 
                     //Echoing inserted ID in Log file
                     log_message('info',__FUNCTION__.' New Partner has been added with ID '.  $partner_id." Done By " . $this->session->userdata('employee_id'));
@@ -781,7 +788,7 @@ class Partner extends CI_Controller {
                         $this->email->from('booking@247around.com', '247around Team');
                         $this->email->to($to);
 
-                        $this->email->subject("New Partner Added " . $partner_id.' - By '.$this->session->userdata('employee_id'));
+                        $this->email->subject("New Partner Added " . $this->input->post('public_name').' - By '.$logged_user_name);
                         $this->email->message($html);
                         
                         if(isset($attachment_contract)){
