@@ -1268,6 +1268,7 @@ class Reporting_utils extends CI_Model {
                 $data1['service_center_name'] = $value['name'];
                 $data1['un_assigned'] = $un_assigned;
                 $data1['not_update'] = $not_update;
+                $data1['update'] = $update;
                 $data1['total_crimes'] = ($un_assigned + $not_update );
                 $data1['total_booking'] = ($update + $not_update );
 
@@ -1525,14 +1526,14 @@ class Reporting_utils extends CI_Model {
                       YEAR(booking_state_change.create_date) = YEAR(CURDATE())';
             $where2 = 'and month(agent_outbound_call_log.create_date) = month(CURDATE()) and 
                       YEAR(agent_outbound_call_log.create_date) = YEAR(CURDATE())';
-            $where3 = 'and month(passthru_misscall_log.create_date) = month(CURDATE()) and 
-                      YEAR(passthru_misscall_log.create_date) = YEAR(CURDATE())';
+            $where3 = "and CallType = 'completed' and DialCallDuration >0 and month(passthru_misscall_log.create_date) = month(CURDATE()) and 
+                      YEAR(passthru_misscall_log.create_date) = YEAR(CURDATE())";
         }
         else
         {
             $where1 = 'and DATE(booking_state_change.create_date) = DATE(CURDATE())';
             $where2 = 'and DATE(agent_outbound_call_log.create_date) = DATE(CURDATE())';
-            $where3 = 'and DATE(passthru_misscall_log.create_date) = DATE(CURDATE())';
+            $where3 = "and CallType = 'completed' and DialCallDuration >0 and DATE(passthru_misscall_log.create_date) = DATE(CURDATE())";
             
         }
         

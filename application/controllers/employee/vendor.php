@@ -432,7 +432,7 @@ class vendor extends CI_Controller {
                 // get service center code by calling generate_service_center_code() method
                 $owner_email = $this->input->post('owner_email');
                 $primary_contact_email = $this->input->post('primary_contact_email');
-                $to = $owner_email.','.$primary_contact_email;
+                $new_vendor_mail = $owner_email.','.$primary_contact_email;
                 
                 $subject = "Welcome to 247around ".$this->input->post('owner_name')." from City : ".$this->input->post('district');
                 $message = "Dear Partner,<br><br>"
@@ -530,7 +530,7 @@ class vendor extends CI_Controller {
                 $this->sendWelcomeSms($_POST['primary_contact_phone_1'], $_POST['name'],$sc_id);
                 $this->sendWelcomeSms($_POST['owner_phone_1'], $_POST['owner_name'],$sc_id);
 
-                $this->notify->sendEmail("booking@247around.com", $to , 'anuj@247around.com, nits@247around.com', '', $subject , $message, "");
+                $this->notify->sendEmail("booking@247around.com", $new_vendor_mail , 'anuj@247around.com, nits@247around.com', '', $subject , $message, "");
 
 //		  //create vendor login details as well
 		   $sc_login_uname = strtolower($_POST['sc_code']);
@@ -558,7 +558,7 @@ class vendor extends CI_Controller {
                    log_message('info', " Email Body" . print_r($email, true));
                    $emailBody = vsprintf($template[0], $email);
                    
-                   $this->notify->sendEmail("booking@247around.com", $to , 'anuj@247around.com, nits@247around.com', '', $subject , $emailBody, "");
+                   $this->notify->sendEmail("booking@247around.com", $new_vendor_mail , 'anuj@247around.com, nits@247around.com', '', $subject , $emailBody, "");
                    }else{
                        log_message('info', " Login Email Send Error" . print_r($email, true));
                    }
