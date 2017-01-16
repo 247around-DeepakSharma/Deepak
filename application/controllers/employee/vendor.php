@@ -361,6 +361,10 @@ class vendor extends CI_Controller {
                 
                 //if vendor exists, details are edited
                 $this->vendor_model->edit_vendor($_POST, $_POST['id']);
+                
+                 //Getting Logged Employee Full Name
+                $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
+                
                 //Log Message
                 log_message('info', __FUNCTION__.' SF has been updated :'.print_r($_POST,TRUE));
                 
@@ -380,7 +384,7 @@ class vendor extends CI_Controller {
                         $this->email->from('booking@247around.com', '247around Team');
                         $this->email->to($to);
 
-                        $this->email->subject("Vendor Updated : " . $_POST['id'].' - By '.$this->session->userdata('employee_id'));
+                        $this->email->subject("Vendor Updated : " . $_POST['name'].' - By '.$logged_user_name);
                         $this->email->message($html);
                         
                         if(isset($attachment_pan)){
@@ -451,6 +455,11 @@ class vendor extends CI_Controller {
                 //if vendor do not exists, vendor is added
                 $sc_id = $this->vendor_model->add_vendor($_POST);
                 
+                //Getting Logged Employee Full Name
+                $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
+                //Getting RM Official Email details to send Welcome Mails to them as well
+                $rm_official_email = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['official_email'];
+                
                 //Logging
                 log_message('info', __FUNCTION__.' SF has been Added :'.print_r($_POST,TRUE));
                 
@@ -470,7 +479,7 @@ class vendor extends CI_Controller {
                         $this->email->from('booking@247around.com', '247around Team');
                         $this->email->to($to);
 
-                        $this->email->subject("Vendor Added : " . $sc_id.' - By '.$this->session->userdata('employee_id'));
+                        $this->email->subject("Vendor Added : " . $this->input->post('name').' - By '.$logged_user_name);
                         $this->email->message($html);
                         
                         if(isset($attachment_pan)){
@@ -509,7 +518,7 @@ class vendor extends CI_Controller {
 
                 //Adding values in admin groups present in employee_relation table
                 $check_admin_sf_relation = $this->vendor_model->add_sf_to_admin_relation($sc_id);
-                if($check_admin_sf_relation){
+                if($check_admin_sf_relation != FALSE){
                     //Logging success 
                     log_message('info', __FUNCTION__.' New SF and Admin Group has been related sucessfully.');
                 }else{
@@ -530,8 +539,8 @@ class vendor extends CI_Controller {
                 $this->sendWelcomeSms($_POST['primary_contact_phone_1'], $_POST['name'],$sc_id);
                 $this->sendWelcomeSms($_POST['owner_phone_1'], $_POST['owner_name'],$sc_id);
 
-                $this->notify->sendEmail("booking@247around.com", $new_vendor_mail , 'anuj@247around.com, nits@247around.com', '', $subject , $message, "");
-
+                $this->notify->sendEmail("booking@247around.com", $new_vendor_mail , 'anuj@247around.com, nits@247around.com, '.$rm_official_email, '', $subject , $message, "");
+                
 //		  //create vendor login details as well
 		   $sc_login_uname = strtolower($_POST['sc_code']);
 		   $login['service_center_id'] = $sc_id;
@@ -558,7 +567,8 @@ class vendor extends CI_Controller {
                    log_message('info', " Email Body" . print_r($email, true));
                    $emailBody = vsprintf($template[0], $email);
                    
-                   $this->notify->sendEmail("booking@247around.com", $new_vendor_mail , 'anuj@247around.com, nits@247around.com', '', $subject , $emailBody, "");
+                   $this->notify->sendEmail("booking@247around.com", $new_vendor_mail , 'anuj@247around.com, nits@247around.com, '.$rm_official_email, '', $subject , $emailBody, "");
+                   
                    }else{
                        log_message('info', " Login Email Send Error" . print_r($email, true));
                    }
