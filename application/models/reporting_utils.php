@@ -1268,6 +1268,7 @@ class Reporting_utils extends CI_Model {
                 $data1['service_center_name'] = $value['name'];
                 $data1['un_assigned'] = $un_assigned;
                 $data1['not_update'] = $not_update;
+                $data1['update'] = $update;
                 $data1['total_crimes'] = ($un_assigned + $not_update );
                 $data1['total_booking'] = ($update + $not_update );
 
