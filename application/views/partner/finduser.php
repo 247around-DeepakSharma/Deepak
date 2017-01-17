@@ -1,7 +1,7 @@
 <div id="page-wrapper">
     <div class="container-fluid">
+        <h2><strong>Advance Search</strong><hr></h2>
         <div class="row">
-
             <div class="search_panel">
                 <div class="container" style="margin-left:90px;width:90%;">
                     <?php
@@ -26,7 +26,7 @@
                 ?>
                     <form name="my_Search_Form" class="form-horizontal" action="<?php echo base_url() ?>employee/partner/finduser" method="POST" onsubmit="return phonevalidate()">
                         <div class="clear"></div>
-                        <div class="form-group <?php
+<!--                        <div class="form-group <?php
                         if (form_error('phone_number')) {
                             echo 'has-error';
                         }
@@ -39,10 +39,10 @@
 
                         </div>
                         <img src="<?php echo base_url() ?>images/or.png" height="25px" width="25px" style="margin-left:45%;margin-top: -10px;margin-bottom: -10px;"/>
-                        <div class="clear"></div>
+                        <div class="clear"></div>-->
                         <div class="form-group">
                             <label for="order id" class="col-md-4">Order ID</label>
-                            <div class="col-md-5">
+                            <div class="col-md-6">
                                 <input type="text" class="form-control fa fa-search" id="order_id" name="order_id" value="<?php echo set_value('order_id'); ?>" placeholder="Enter Order ID">
                             </div>
 
@@ -51,12 +51,12 @@
                         <div class="clear"></div>
                         <div class="form-group">
                             <label for="serial_number" class="col-md-4">Serial No</label>
-                            <div class="col-md-5">
+                            <div class="col-md-6">
                                 <input type="text" class="form-control fa fa-search" id="serial_number" name="serial_number" value="<?php echo set_value('serial_number'); ?>" placeholder="Enter Serial No">
                             </div>
 
                         </div>
-                        <img src="<?php echo base_url() ?>images/or.png" height="25px" width="25px" style="margin-left:45%;margin-top: -10px;margin-bottom: -10px;"/>
+<!--                        <img src="<?php echo base_url() ?>images/or.png" height="25px" width="25px" style="margin-left:45%;margin-top: -10px;margin-bottom: -10px;"/>
                         <div class="clear"></div>
                         <div class="form-group <?php
                         if (form_error('booking_id')) {
@@ -68,7 +68,7 @@
                                 <input type="text" class="form-control fa fa-search" id="booking_id" name="booking_id" value="<?php echo set_value('booking_id'); ?>" placeholder="Enter Booking ID">
                                 <?php echo form_error('booking_id'); ?>
                             </div>
-                        </div>
+                        </div>-->
                 </div>
             </div>
             <div class="form-group">
