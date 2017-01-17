@@ -1271,7 +1271,7 @@ class Booking extends CI_Controller {
             
                 $brand = $this->partner_model->get_partner_specific_brand($where);
                 $category = $this->booking_model->getCategoryForService($booking_history[0]['service_id'], 
-                        $$partner_id, $value['brand']);
+                        $partner_id, $value['brand']);
                 
                 $capacity = $this->booking_model->getCapacityForCategory($booking_history[0]['service_id'],
                         $value['category'], $value['brand'], $partner_id);
