@@ -47,7 +47,7 @@
                                         <?php echo $row['name']; ?>
                                     </td>
                                     <td>
-                                         <a  href="<?php echo base_url();?>partner/booking_details/<?php echo $row['booking_id'];?>"  title='View'><?php echo $row['booking_id'];?></a>
+                                         <a  style="color:black" href="<?php echo base_url();?>partner/booking_details/<?php echo $row['booking_id'];?>"  title='View'><?php echo $row['booking_id'];?></a>
                                     </td>
 <!--                                    <td>
                                         <?php //echo $row['age_of_booking']; ?>
@@ -68,7 +68,10 @@
                                     <td>
                                         <?php echo $row['remarks_defective_part_by_sf']; ?>
                                     </td>
-                                    <td><a href="<?php echo base_url();?>partner/acknowledge_received_defective_parts/<?php echo $row['booking_id'];?>" style="font-size:21px;"><i class="fa fa-check" aria-hidden="true"></i></a></td>
+                                    <td>
+                                        <?php if(!empty($row['defective_part_shipped'])){?>
+                                        <a href="<?php echo base_url();?>partner/acknowledge_received_defective_parts/<?php echo $row['booking_id'];?>" style="font-size:21px;" <?php echo empty($row['defective_part_shipped'])?'disabled="disabled"':''?>><i class="fa fa-check" aria-hidden="true"></i></a></td>
+                                        <?php }?>
                                     <td>
                                         <div class="dropdown" style="position:absolute;">
                 <a href="#" style="font-size:21px;color:red;" class="dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-times" aria-hidden="true"></i>
