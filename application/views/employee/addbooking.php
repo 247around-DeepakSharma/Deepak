@@ -66,10 +66,7 @@
                                         <input type="hidden" name="service" id="services"/>
                                         <select type="text" class="form-control"  id="service_id" name="service_id" value = "<?php echo set_value('service_id'); ?>" onChange="getBrandForService()"  required>
                                             <option selected disabled>Select Service</option>
-                                            <?php foreach ($services as $key => $values) { ?>
-                                            <option  value=<?= $values->id; ?>>
-                                                <?php echo $values->services; }    ?>
-                                            </option>
+                                           
 
                                         </select>
                                     </div>
@@ -100,7 +97,7 @@
                                 <div class="form-group ">
                                     <label for="source_name" class="col-md-4">Booking Source *</label>
                                     <div class="col-md-6">
-                                        <select type="text" onchange= "getBrandForService()" class="booking_source form-control"  id="source_code" name="source_code" required>
+                                        <select type="text" onchange= "getAppliance()" class="booking_source form-control"  id="source_code" name="source_code" required>
                                             <option selected="selected" disabled="disabled">Select Booking Source</option>
                                             <?php foreach ($sources as $key => $values) { ?>
                                             <option  value=<?php echo $values['code']; ?>>
@@ -344,11 +341,10 @@
         </div>
     </div>
 </div>
+
 <script>
     $(".booking_source").select2();
-</script>
-<script>
-    $("#service_id").select2();
+   // $("#service_id").select2();
     $("#booking_city").select2({
          tags: true
     });
