@@ -2251,7 +2251,7 @@ class Partner extends CI_Controller {
             //if user not found set error session data
             $this->session->set_flashdata('error', 'Booking Not Found');
 
-            redirect(base_url() . 'employee/partner/pending_booking');
+            redirect(base_url() . 'employee/partner/partner_default_page');
         }
     }
     /**

@@ -6,7 +6,7 @@
       
          <div class="panel panel-default">
             <div class="panel-heading">
-                <h1 class="panel-title" ><i class="fa fa-money fa-fw"></i> Received Defective Parts</h1>
+                <h1 class="panel-title" ><i class="fa fa-money fa-fw"></i> Received Spares By <?php echo $this->session->userdata('partner_name')?></h1>
             </div>
             <div class="panel-body">
                <div class="table-responsive">
