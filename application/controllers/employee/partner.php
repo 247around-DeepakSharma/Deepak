@@ -318,11 +318,12 @@ class Partner extends CI_Controller {
      */
     function process_addbooking() {
         $this->checkUserSession();
+       
         $validate = $this->set_form_validation();
         log_message('info', 'Partner initiate add booking' . $this->session->userdata('partner_name'));
 
         if ($validate) {
-
+           
             $authToken = $this->partner_model->get_authentication_code($this->session->userdata('partner_id'));
             if ($authToken) {
                 $post = $this->get_booking_form_data();
@@ -1969,7 +1970,11 @@ class Partner extends CI_Controller {
         $data = $this->partner_model->get_partner_specific_details($where, "category", "category");
         $option = "";
         foreach($data as $value){
-            $option .="<option value='".$value['category']."'>".$value['category']."</option>";
+            $option .="<option ";
+            if(count($data) ==1){
+                $option .= " selected ";
+            }
+            $option .= " value='".$value['category']."'>".$value['category']."</option>";
         }
         echo $option;
         
@@ -2021,10 +2026,8 @@ class Partner extends CI_Controller {
         if(!empty($data[0]['model'])){
             $model = "";
             foreach($data as $value){
-                $model .="<option value='".$value['model']."'>".$value['model']."</option>";
+            echo    $model .="<option value='".$value['model']."'>".$value['model']."</option>";
             }
-            $option['model'] = $model;
-            print_r(json_encode($option));
         } else {
             echo "Data Not Found";
         }

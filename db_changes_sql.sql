@@ -1637,16 +1637,15 @@ CREATE TABLE `sub_service_center_details` (
 -- Indexes for dumped tables
 --
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 --
 -- Indexes for table `sub_service_center_details`
 --
 ALTER TABLE `sub_service_center_details`
   ADD PRIMARY KEY (`id`);
-=======
+
 ALTER TABLE `partners` ADD `upcountry_rate` INT(11) NOT NULL AFTER `is_upcountry`;
->>>>>>> d2ef9c3... BUG: Removed upcountry flag
+
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -1720,7 +1719,14 @@ ALTER TABLE `file_uploads` DROP `tag`;
 
 ALTER TABLE `partners` DROP `upcountry`;
 
+-- Abhay 14 Jan ---
+ALTER TABLE `bookings_sources` ADD `partner_type` VARCHAR(50) NULL DEFAULT NULL AFTER `partner_id`;
 
--- Abhay 16 Dec 
+
+-- Abhay 16 Jan 
 ALTER TABLE `service_centre_charges` ADD `brand` VARCHAR(150) NULL DEFAULT NULL AFTER `category`;
+
+
+-- Abhay 18 Jan
+ALTER TABLE `partners` ADD `upcountry_max_distance_threshold` INT(10) NULL DEFAULT NULL AFTER `upcountry_rate`, ADD `upcountry_min_distance_threshold` INT(10) NULL DEFAULT NULL AFTER `upcountry_max_distance_threshold`;
 
