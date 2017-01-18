@@ -1749,12 +1749,11 @@ class Booking_model extends CI_Model {
      * @param : user phone no.
      * @return : array()
      */
-    function get_city_source_services(){
-        $query1['services'] = $this->selectservice();
-        $query2['city'] = $this->vendor_model->getDistrict();
-        $query3['sources'] = $this->partner_model->get_all_partner_source("0");
+    function get_city_source(){
+        $query1['city'] = $this->vendor_model->getDistrict();
+        $query2['sources'] = $this->partner_model->get_all_partner_source("0");
        
-        return $query = array_merge($query1, $query2, $query3);
+        return $query = array_merge($query1, $query2);
 
     }
     

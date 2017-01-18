@@ -303,8 +303,10 @@ class Partner extends CI_Controller {
             redirect(base_url()."partner/get_user_form");
         } else {
             $phone_number = $this->input->post('phone_number');
-            $data = $this->booking_model->get_city_booking_source_services($phone_number);
-            $data['appliances'] = $this->partner_model->get_appliances_for_partner($this->session->userdata('partner_id'));
+            $data['city'] = $this->vendor_model->getDistrict();
+            $data['user'] = $this->user_model->search_user($phone_number);
+            $data['appliances'] = $this->partner_model->get_partner_specific_services($this->session->userdata('partner_id'));
+           
             $this->load->view('partner/header');
             $this->load->view('partner/get_addbooking', $data);
         }
@@ -355,7 +357,7 @@ class Partner extends CI_Controller {
                         $this->session->set_userdata($userSession);
 
                         $data = $this->booking_model->get_city_booking_source_services($this->input->post('booking_primary_contact_no'));
-                        $data['appliances'] = $this->partner_model->get_appliances_for_partner($this->session->userdata('partner_id'));
+                        $data['appliances'] = $this->partner_model->get_partner_specific_services($this->session->userdata('partner_id'));
                         $this->load->view('partner/header');
                         $this->load->view('partner/get_addbooking', $data);
                     } else {
@@ -377,7 +379,7 @@ class Partner extends CI_Controller {
                     $this->session->set_userdata($userSession);
 
                     $data = $this->booking_model->get_city_booking_source_services($this->input->post('booking_primary_contact_no'));
-                    $data['appliances'] = $this->partner_model->get_appliances_for_partner($this->session->userdata('partner_id'));
+                    $data['appliances'] = $this->partner_model->get_partner_specific_services($this->session->userdata('partner_id'));
                     $this->load->view('partner/header');
                     $this->load->view('partner/get_addbooking', $data);
                 }
@@ -388,7 +390,7 @@ class Partner extends CI_Controller {
         } else {
             log_message('info', 'Partner add booking' . $this->session->userdata('partner_name') . " Validation failed ");
             $data = $this->booking_model->get_city_booking_source_services($this->input->post('booking_primary_contact_no'));
-            $data['appliances'] = $this->partner_model->get_appliances_for_partner($this->session->userdata('partner_id'));
+            $data['appliances'] = $this->partner_model->get_partner_specific_services($this->session->userdata('partner_id'));
             $this->load->view('partner/header');
             $this->load->view('partner/get_addbooking', $data);
         }
@@ -1948,7 +1950,7 @@ class Partner extends CI_Controller {
         $service_id = $this->input->post('service_id');
         //Getting Unique values of Brands for Particular Partner and service id
         $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id);
-        $data = $this->partner_model->get_partner_service_brands($where);
+        $data = $this->partner_model->get_partner_specific_details($where, "brand", "brand");
         $option = "";
         foreach($data as $value){
             $option .="<option value='".$value['brand']."'>".$value['brand']."</option>";
@@ -1970,7 +1972,8 @@ class Partner extends CI_Controller {
         $brand = $this->input->post('brand');
         //Getting Unique values of Category for Particular Partner ,service id and brand
         $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id,'brand'=>$brand);
-        $data = $this->partner_model->get_category_service_brands($where);
+       
+        $data = $this->partner_model->get_partner_specific_details($where, "category", "category");
         $option = "";
         foreach($data as $value){
             $option .="<option value='".$value['category']."'>".$value['category']."</option>";
@@ -1993,7 +1996,8 @@ class Partner extends CI_Controller {
         $category = $this->input->post('category');
         //Getting Unique values of Category for Particular Partner ,service id and brand
         $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id,'brand'=>$brand,'category'=>$category);
-        $data = $this->partner_model->get_partner_appliance_details($where);
+        $select = "capacity";
+        $data = $this->partner_model->get_partner_specific_details($where, $select, "capacity");
         $capacity = "";
         foreach($data as $value){
             $capacity .="<option value='".$value['capacity']."'>".$value['capacity']."</option>";
@@ -2018,14 +2022,19 @@ class Partner extends CI_Controller {
         $capacity = $this->input->post('capacity');
         //Getting Unique values of Model for Particular Partner ,service id and brand
         $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id,'brand'=>$brand,'category'=>$category,'capacity'=>$capacity);
-        $data = $this->partner_model->get_partner_model_details($where);
         
-        $model = "";
-        foreach($data as $value){
-            $model .="<option value='".$value['model']."'>".$value['model']."</option>";
+        $data = $this->partner_model->get_partner_specific_details($where, "model", "model");
+       
+        if(!empty($data[0]['model'])){
+            $model = "";
+            foreach($data as $value){
+                $model .="<option value='".$value['model']."'>".$value['model']."</option>";
+            }
+            $option['model'] = $model;
+            print_r(json_encode($option));
+        } else {
+            echo "Data Not Found";
         }
-        $option['model'] = $model;
-        print_r(json_encode($option));
     }
     
     /**
@@ -2243,6 +2252,26 @@ class Partner extends CI_Controller {
             $this->session->set_flashdata('error', 'Booking Not Found');
 
             redirect(base_url() . 'employee/partner/pending_booking');
+        }
+    }
+    /**
+     * @desc: This is used to return customer net payable, Its called by Ajax
+     */
+    function get_price_for_partner(){
+        log_message('info', __FUNCTION__ . "  Partner ID: " . $this->session->userdata('partner_id'));
+        $this->checkUserSession();
+        $service_id  = $this->input->post('service_id');
+        $brand = $this->input->post('brand');
+        $category = $this->input->post('category');
+        $capacity = $this->input->post('capacity');
+        $service_category = $this->input->post('service_category');
+        $partner_id = $this->session->userdata('partner_id');
+        $partner_mapping_id = $this->booking_model->get_price_mapping_partner_code("",$partner_id);
+        $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_mapping_id, $service_category,$brand);
+        if(!empty($result)){
+            echo $result[0]['customer_net_payable'];
+        } else {
+            echo "ERROR";
         }
     }
     
