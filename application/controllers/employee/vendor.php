@@ -368,6 +368,9 @@ class vendor extends CI_Controller {
                 //Log Message
                 log_message('info', __FUNCTION__.' SF has been updated :'.print_r($_POST,TRUE));
                 
+                //Adding details in Booking State Change
+                $this->notify->insert_state_change('', SF_UPDATED, SF_UPDATED, 'Vendor ID : '.$_POST['id'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+                
                 //Sending Mail for Updated details
                     $html = "<p>Following SF has been Updated :</p><ul>";
                     foreach($this->input->post() as $key=>$value){
@@ -438,18 +441,6 @@ class vendor extends CI_Controller {
                 $primary_contact_email = $this->input->post('primary_contact_email');
                 $new_vendor_mail = $owner_email.','.$primary_contact_email;
                 
-                $subject = "Welcome to 247around ".$this->input->post('owner_name')." from City : ".$this->input->post('district');
-                $message = "Dear Partner,<br><br>"
-                        . "247around welcomes you to its Partner Network, we hope to have a long lasting relationship with you.<br><br>"
-                        . "As informed earlier, serial number of appliance is mandatory when you close a booking. All bookings without serial numbers will be cancelled.<br><br> "
-                        . "Engineer has to note the serial number when installation is done. In case serial number is not found on the appliance, he needs to bring one of the following proofs:<br><br> "
-                        . "1st Option : Serial Number Of Appliance<br><br>"
-                        . "2nd Option : Invoice Number Of The Appliance<br><br>"
-                        . "3rd Option : Customer ID Card Number - PAN / Aadhar / Driving License etc.<br><br>"
-                        . "No completion will be allowed without any one of the above. For any confusion, write to us or call us.<br><br><br>"
-                        . "Regards,<br>"
-                        . "247around Team";
-                
                 $_POST['sc_code'] = $this->generate_service_center_code($_POST['name'], $_POST['district']);
 
                 //if vendor do not exists, vendor is added
@@ -462,6 +453,9 @@ class vendor extends CI_Controller {
                 
                 //Logging
                 log_message('info', __FUNCTION__.' SF has been Added :'.print_r($_POST,TRUE));
+                
+                //Adding details in Booking State Change
+                $this->notify->insert_state_change('', NEW_SF_ADDED, NEW_SF_ADDED, 'Vendor ID : '.$sc_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
                 
                 //Sending Mail for Added details
                     $html = "<p>Following SF has been Added :</p><ul>";
@@ -538,10 +532,23 @@ class vendor extends CI_Controller {
                 }
                 $this->sendWelcomeSms($_POST['primary_contact_phone_1'], $_POST['name'],$sc_id);
                 $this->sendWelcomeSms($_POST['owner_phone_1'], $_POST['owner_name'],$sc_id);
-
-                $this->notify->sendEmail("booking@247around.com", $new_vendor_mail , 'anuj@247around.com, nits@247around.com, '.$rm_official_email, '', $subject , $message, "");
                 
-//		  //create vendor login details as well
+                //Sending Welcome Vendor Mail
+                //Getting template from Database
+                $template = $this->booking_model->get_booking_email_template("new_vendor_creation");
+                if (!empty($template)) {
+                    $subject = "Welcome to 247around ".$this->input->post('company_name')." (".$this->input->post('district').")";
+                    $emailBody = $template[0];
+                    $this->notify->sendEmail($template[2], $new_vendor_mail, $template[3].",".$rm_official_email, '', $subject, $emailBody, "");
+                    
+                    //Logging
+                    log_message('info', " Welcome Email Send successfully" . $emailBody);
+                }else{
+                    //Logging Error Message
+                    log_message('info', " Error in Getting Email Template for New Vendor Welcome Mail");
+                }
+
+		  //create vendor login details as well
 		   $sc_login_uname = strtolower($_POST['sc_code']);
 		   $login['service_center_id'] = $sc_id;
 		   $login['user_name'] = $sc_login_uname;
@@ -555,22 +562,26 @@ class vendor extends CI_Controller {
                    $engineer['name'] = "Default Engineer";
                    $this->vendor_model->insert_engineer($engineer);
                    
-                   // Sending Login details mail to Vendor using Template
-                   $email = array();
+                // Sending Login details mail to Vendor using Template
+                   
+                   $login_email = array();
                    //Getting template from Database
-                   $template = $this->booking_model->get_booking_email_template("vendor_login_details");
-                   if(!empty($template)){
-                   $email['username'] = $sc_login_uname;
-                   $email['password'] = $sc_login_uname;
-                   $subject = "Partner ERP URL and Login - 247around";
+                   $login_template = $this->booking_model->get_booking_email_template("vendor_login_details");
+                   if(!empty($login_template)){
+                   $login_email['username'] = $sc_login_uname;
+                   $login_email['password'] = $sc_login_uname;
+                   $login_subject = "Partner ERP URL and Login - 247around";
                    
-                   log_message('info', " Email Body" . print_r($email, true));
-                   $emailBody = vsprintf($template[0], $email);
+                   $login_emailBody = vsprintf($login_template[0], $login_email);
                    
-                   $this->notify->sendEmail("booking@247around.com", $new_vendor_mail , 'anuj@247around.com, nits@247around.com, '.$rm_official_email, '', $subject , $emailBody, "");
+                   $this->notify->sendEmail($login_template[2], $new_vendor_mail ,  $login_template[3].",".$rm_official_email, '', $login_subject , $login_emailBody, "");
                    
+                   //Logging
+                   log_message('info', $login_subject." Email Send successfully" . $login_emailBody);
+                    
                    }else{
-                       log_message('info', " Login Email Send Error" . print_r($email, true));
+                       //Logging Error
+                       log_message('info', " Error in Getting Email Template for New Vendor Login credentials Mail");
                    }
 		   redirect(base_url() . 'employee/vendor/viewvendor');
             }
@@ -3303,4 +3314,4 @@ class vendor extends CI_Controller {
         echo json_encode($responce);
     }
     
-}   
+}
