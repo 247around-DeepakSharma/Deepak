@@ -1,11 +1,31 @@
 
  var brandServiceUrl = baseUrl + '/employee/booking/getBrandForService/';
+ var applianceUrl = baseUrl + '/employee/booking/get_appliances/';
  var categoryForServiceUrl = baseUrl + '/employee/booking/getCategoryForService/';
  var CapacityForCategoryUrl = baseUrl + '/employee/booking/getCapacityForCategory/';
  var SelectStateUrl = baseUrl + '/employee/booking/get_state_by_city';
  var pricesForCategoryCapacityUrl = baseUrl + '/employee/booking/getPricesForCategoryCapacity/';
  var count_number = 0;
- 
+  
+  
+  function getAppliance(service_id){
+
+    var postData = {};
+    postData['source_code'] = $("#source_code").val();
+
+    var service = $("#service_id option:selected").text();
+    $("#services").val(service);
+    
+    sendAjaxRequest(postData, applianceUrl+service_id).done(function(data) {
+      var data1 = jQuery.parseJSON(data);
+      $("#partner_type").val(data1.partner_type);
+     
+      $("#service_id").html(data1.services);  
+      
+      getBrandForService();
+
+    });
+  }
 
   function getBrandForService() {
 
@@ -39,7 +59,7 @@
 
         if(div_id === undefined){
           $(".appliance_category").html(data);
-          $(".appliance_capacity_"+div_no[2]).html(data2); 
+          $(".appliance_capacity").html(data2); 
 
         } else {
 
@@ -47,6 +67,7 @@
            var data2 = "<option disabled></option>";
            $("#appliance_capacity_"+div_no[2]).html(data2); 
            $("#priceList_"+div_no[2]).html("");
+           
         }
         
     });
@@ -166,14 +187,57 @@
      var booking_date = $("#booking_date").val();
      var timeslot = $('#booking_timeslot').val();
      var type = $('input[name=type]:checked', '#booking_form').val(); 
+     var source_code = $("#source_code option:selected").val();
+     
+     if(source_code === "Select Booking Source"){
+        
+         alert("Please Select Booking Source");
+        
+         return false;
+      }
 
+    if(service === null || service === "" || service === "Select Service"){
 
-      if ($("input[type=checkbox]:checked").length === 0) {
+        alert('Please Select Booking Appliance');
+        return false;
+
+    }
+    if ($("input[type=checkbox]:checked").length === 0) {
        
         alert('Please select at least one check box');
         return false;
       
+    }
+    
+    if(type === null || type === undefined){
+       
+        alert("Please Select Booking Type ");
+        return false;
+
+    }  else {
+          if(type === "Booking"){
+            if(address === ""){
+             
+              alert("Please fill Address "); 
+              return false;
+            } else {
+
+              if(pincode === ""){
+               
+                alert("Please fill pincode "); 
+                return false;
+              }
+         }
+      } else {
+       if ($('input[name=internal_status]:checked').length > 0) {
+        // something when checked
+        } else {
+         
+          alert("For Query, Internal Status is MANDATORY."); 
+          return false;
+        }
       }
+    }
 
      if(p_contact_no ===""){
         
@@ -186,21 +250,8 @@
         alert("Please fill city "); 
         return false;
      }
-      if(source_code === "Select Booking Source"){
-        
-         alert("Please Select Booking Source");
-        
-         return false;
-      }
       
-      if(service === null || service === "" || service === "Select Service"){
-        
-         alert('Please Select Booking Service');
-         return false;
-
-      }
-      
-    var source_code = $("#source_code option:selected").val();
+     
     if(source_code === "SS" || source_code  === 'SP' || source_code === "SZ"){
 
         var order_id = $('#order_id').val();
@@ -235,37 +286,6 @@
          alert('Please Select Booking Time Slot');
         return false; 
       }
-
-    if(type === null || type === undefined){
-       
-        alert("Please Select Booking Type ");
-        return false;
-
-    }  else {
-          if(type === "Booking"){
-            if(address === ""){
-             
-              alert("Please fill Address "); 
-              return false;
-            } else {
-
-              if(pincode === ""){
-               
-                alert("Please fill pincode "); 
-                return false;
-              }
-         }
-      } else {
-       if ($('input[name=internal_status]:checked').length > 0) {
-        // something when checked
-        } else {
-         
-          alert("For Query, Internal Status is MANDATORY."); 
-          return false;
-        }
-      }
-    }
-     
 
      if(count_number >1 ){
 
