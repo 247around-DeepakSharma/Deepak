@@ -669,7 +669,7 @@
                                         <label>
                                         <b style="font-size: 18px;">Not Available</b> 
                                         </label>
-                                        <input type="checkbox"  value="0" id="is_pan_doc" name ="is_pan_doc" <?php if(isset($query[0]['is_pan_doc'])){ if($query[0]['is_pan_doc'] == 0){ echo "checked" ;}}?> style="margin-left:16px;"> 
+                                        <input type="checkbox"  value="0" id="is_pan_doc" name ="is_pan_doc" <?php if(isset($query[0]['is_pan_doc'])){ if($query[0]['is_pan_doc'] == 0){ echo "checked" ;}}?> style="margin-left:16px;zoom:1.5"> 
                                     </div>
                                 </div>
                                 <!--                                <div class="col-md-2" style="margin-left:6px;">
@@ -781,7 +781,7 @@
                                         <label>
                                         <b style="font-size: 18px;">Not Available</b> 
                                         </label>
-                                        <input type="checkbox"  value="0" id="is_cst_doc" name ="is_cst_doc" <?php if(isset($query[0]['is_cst_doc'])){ if($query[0]['is_cst_doc'] == 0){ echo "checked" ;}}?> style="margin-top:5px; margin-left:24px;"> 
+                                        <input type="checkbox"  value="0" id="is_cst_doc" name ="is_cst_doc" <?php if(isset($query[0]['is_cst_doc'])){ if($query[0]['is_cst_doc'] == 0){ echo "checked" ;}}?> style="margin-top:5px; margin-left:24px;zoom:1.5;"> 
                                     </div>
                                 </div>
                             </div>
@@ -840,7 +840,7 @@
                                         <label>
                                         <b style="font-size: 18px;">Not Available</b>  
                                         </label>
-                                        <input type="checkbox"  value="0" id ="is_tin_doc" name ="is_tin_doc" <?php if(isset($query[0]['is_tin_doc'])){ if($query[0]['is_tin_doc'] == 0){ echo "checked" ;}}?> style="margin-top:5px; margin-left:24px;"> 
+                                        <input type="checkbox"  value="0" id ="is_tin_doc" name ="is_tin_doc" <?php if(isset($query[0]['is_tin_doc'])){ if($query[0]['is_tin_doc'] == 0){ echo "checked" ;}}?> style="margin-top:5px; margin-left:24px;zoom:1.5;"> 
                                     </div>
                                 </div>
                             </div>
@@ -899,7 +899,7 @@
                                         <label>
                                         <b style="font-size: 18px;">Not Available</b>   
                                         </label>
-                                        <input type="checkbox"  value="0" id="is_st_doc" name ="is_st_doc" <?php if(isset($query[0]['is_st_doc'])){ if($query[0]['is_st_doc'] == 0){ echo "checked" ;}}?> style="    margin-left: 24px;margin-top: 5px;">
+                                        <input type="checkbox"  value="0" id="is_st_doc" name ="is_st_doc" <?php if(isset($query[0]['is_st_doc'])){ if($query[0]['is_st_doc'] == 0){ echo "checked" ;}}?> style="    margin-left: 24px;margin-top: 5px;zoom:1.5;">
                                     </div>
                                 </div>
                             </div>
@@ -1033,7 +1033,7 @@
                                 <div class="form-group">
                                     <label for="is_bank_details_verified" class="col-md-3">Verified/Not Verified </label>
                                     <div class="col-md-3">
-                                        <input type="checkbox" class="form-control" value="1" name="is_verified" id="is_bank_details_verified" <?php if(isset($query[0]['is_verified']) && $query[0]['is_verified'] == '1') { ?>checked<?php } ?> <?php if($this->session->userdata('user_group')!= 'admin'){ ?>disabled <?php }?> style="width:20%;">
+                                        <input type="checkbox" value="1" name="is_verified" id="is_bank_details_verified" <?php if(isset($query[0]['is_verified']) && $query[0]['is_verified'] == '1') { ?>checked<?php } ?> <?php if($this->session->userdata('user_group')!= 'admin'){ ?>disabled <?php }?> style="zoom:1.5;">
                                     </div>
                                 </div>
                             </div>

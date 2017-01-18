@@ -640,6 +640,8 @@ class Partner extends CI_Controller {
                 
                 //Logging
                 log_message('info',__FUNCTION__.' Partner has been Updated : '.print_r($this->input->post(),TRUE));
+                //Adding details in Booking State Change
+                $this->notify->insert_state_change('', PARTNER_UPDATED, PARTNER_UPDATED, 'Partner ID : '.$partner_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
                 
                 //Sending Mail for Updated details
                 $html = "<p>Following Partner has been Updated :</p><ul>";
@@ -774,6 +776,9 @@ class Partner extends CI_Controller {
                     //Echoing inserted ID in Log file
                     log_message('info',__FUNCTION__.' New Partner has been added with ID '.  $partner_id." Done By " . $this->session->userdata('employee_id'));
                     log_message('info',__FUNCTION__.' Partner Added Details : '.print_r($this->input->post(),TRUE));
+                    
+                    //Adding details in Booking State Change
+                    $this->notify->insert_state_change('', NEW_PARTNER_ADDED, NEW_PARTNER_ADDED, 'Partner ID : '.$partner_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
                     
                     //Sending Mail for Updated details
                     $html = "<p>Following Partner has been Added :</p><ul>";
