@@ -1,5 +1,5 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
-<script src="<?php echo base_url()?>js/custom_js.js"></script>
+
 <style type="text/css">
     #booking_form .form-group label.error {
         margin:4px 0 5px !important;
