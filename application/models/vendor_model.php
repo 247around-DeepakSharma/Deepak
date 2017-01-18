@@ -171,8 +171,8 @@ class vendor_model extends CI_Model {
         $sql = "Update service_centres set active= 0 where id='$id'";
         $this->db->query($sql);
         //Changing Flag Active to 0 in service centres login table
-        $sql = "Update service_centers_login set active= 0 where service_center_id='$id'";
-        $this->db->query($sql);
+        $sql1 = "Update service_centers_login set active= 0 where service_center_id='$id'";
+        $this->db->query($sql1);
     }
 
     /**
@@ -432,7 +432,7 @@ class vendor_model extends CI_Model {
      *  @param : $state
      *  @return : array of districts
      */
-    function getDistrict($state = "") {
+    function getDistrict($state = "", $pincode = "") {
         $this->db->distinct();
         $this->db->select('vendor_pincode_mapping.City as district');
         $this->db->from('vendor_pincode_mapping');
@@ -442,6 +442,9 @@ class vendor_model extends CI_Model {
 
         if ($state != ""){
             $this->db->where('vendor_pincode_mapping.State', $state);
+        }
+        if($pincode !=""){
+             $this->db->where('vendor_pincode_mapping.Pincode', $pincode);
         }
 
         $query = $this->db->get();

@@ -907,6 +907,8 @@ class Booking extends CI_Controller {
             $data['services'] .= "<option ";
             if($selected_service_id == $appliance->id){
                 $data['services'] .= " selected ";
+            } else if(count($services) ==1){
+                $data['services'] .= " selected ";
             }
             $data['services']  .=" value='".$appliance->id."'>$appliance->services</option>";
 	}
