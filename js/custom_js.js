@@ -19,8 +19,8 @@
     sendAjaxRequest(postData, applianceUrl+service_id).done(function(data) {
       var data1 = jQuery.parseJSON(data);
       $("#partner_type").val(data1.partner_type);
-     
-      $("#service_id").html(data1.services);  
+    
+      $("#service_id").html(data1.services).change();  
       
       getBrandForService();
 
@@ -40,7 +40,7 @@
       var data1 = jQuery.parseJSON(data);
       $("#partner_type").val(data1.partner_type);
      
-      $(".appliance_brand").html(data1.brand);  
+      $(".appliance_brand").html(data1.brand).change();  
        
 
     });
@@ -58,14 +58,14 @@
     sendAjaxRequest(postData, categoryForServiceUrl).done(function(data) {
 
         if(div_id === undefined){
-          $(".appliance_category").html(data);
-          $(".appliance_capacity").html(data2); 
+          $(".appliance_category").html(data).change();
+         // $(".appliance_capacity").html(data2); 
 
         } else {
 
-           $("#appliance_category_"+div_no[2]).html(data); 
+           $("#appliance_category_"+div_no[2]).html(data).chnage(); 
            var data2 = "<option disabled></option>";
-           $("#appliance_capacity_"+div_no[2]).html(data2); 
+           $("#appliance_capacity_"+div_no[2]).html(data2).change(); 
            $("#priceList_"+div_no[2]).html("");
            
         }
@@ -89,7 +89,7 @@
     sendAjaxRequest(postData, CapacityForCategoryUrl).done(function(data) {
       
 
-        $("#appliance_capacity_"+div_no[2]).html(data);
+        $("#appliance_capacity_"+div_no[2]).html(data).change();
     
         if (data !== "<option></option>") {
             $("#priceList_"+div_no[2]).html(""); 

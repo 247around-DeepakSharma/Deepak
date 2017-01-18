@@ -303,10 +303,11 @@ class Partner extends CI_Controller {
             redirect(base_url()."partner/get_user_form");
         } else {
             $phone_number = $this->input->post('phone_number');
-            $data['city'] = $this->vendor_model->getDistrict();
             $data['user'] = $this->user_model->search_user($phone_number);
-            $data['appliances'] = $this->partner_model->get_partner_specific_services($this->session->userdata('partner_id'));
+           // $data['city'] = $this->vendor_model->getDistrict();
            
+            $data['appliances'] = $this->partner_model->get_partner_specific_services($this->session->userdata('partner_id'));
+            $data['phone_number'] = $phone_number;
             $this->load->view('partner/header');
             $this->load->view('partner/get_addbooking', $data);
         }
@@ -357,10 +358,8 @@ class Partner extends CI_Controller {
                         $userSession = array('success' => $output);
                         $this->session->set_userdata($userSession);
 
-                        $data = $this->booking_model->get_city_booking_source_services($this->input->post('booking_primary_contact_no'));
-                        $data['appliances'] = $this->partner_model->get_partner_specific_services($this->session->userdata('partner_id'));
-                        $this->load->view('partner/header');
-                        $this->load->view('partner/get_addbooking', $data);
+                        $phone_number = $this->input->post('booking_primary_contact_no');
+                        $this->add_booking_process($phone_number);
                     } else {
                         $output = "Booking inserted successfully.";
                         $userSession = array('success' => $output);
@@ -379,10 +378,8 @@ class Partner extends CI_Controller {
                     $userSession = array('success' => $output);
                     $this->session->set_userdata($userSession);
 
-                    $data = $this->booking_model->get_city_booking_source_services($this->input->post('booking_primary_contact_no'));
-                    $data['appliances'] = $this->partner_model->get_partner_specific_services($this->session->userdata('partner_id'));
-                    $this->load->view('partner/header');
-                    $this->load->view('partner/get_addbooking', $data);
+                    $phone_number = $this->input->post('booking_primary_contact_no');
+                    $this->add_booking_process($phone_number);
                 }
             } else {
                 log_message('info', 'Partner ' . $this->session->userdata('partner_name') . "  Authentication failed");
@@ -390,11 +387,21 @@ class Partner extends CI_Controller {
             }
         } else {
             log_message('info', 'Partner add booking' . $this->session->userdata('partner_name') . " Validation failed ");
-            $data = $this->booking_model->get_city_booking_source_services($this->input->post('booking_primary_contact_no'));
-            $data['appliances'] = $this->partner_model->get_partner_specific_services($this->session->userdata('partner_id'));
-            $this->load->view('partner/header');
-            $this->load->view('partner/get_addbooking', $data);
+            $phone_number = $this->input->post('booking_primary_contact_no');
+            $this->add_booking_process($phone_number);
+            
+            
         }
+    }
+    
+    function add_booking_process($phone_number){
+        $data['user'] = $this->user_model->search_user($phone_number);
+           
+        $data['appliances'] = $this->partner_model->get_partner_specific_services($this->session->userdata('partner_id'));
+        $data['phone_number'] = $phone_number;
+        $this->load->view('partner/header');
+        $this->load->view('partner/get_addbooking', $data);
+        
     }
     
     function get_booking_form_data(){
@@ -2280,6 +2287,20 @@ class Partner extends CI_Controller {
             echo $result[0]['customer_net_payable'];
         } else {
             echo "ERROR";
+        }
+    }
+    /**
+     * @desc: This is called by Ajax to return City
+     * @param String $pincode
+     */
+    function get_district_by_pincode($pincode){
+        $city = $this->vendor_model->getDistrict("", $pincode);
+        if(!empty($city)){
+            foreach ($city as $district){
+                 echo '<option selected>'.$district['district'].'</option>';
+            }
+        } else {
+            echo '<option disabled selected >Please Enter City</option>';
         }
     }
     

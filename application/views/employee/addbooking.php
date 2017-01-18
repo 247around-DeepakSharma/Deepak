@@ -344,12 +344,13 @@
 
 <script>
     $(".booking_source").select2();
-   // $("#service_id").select2();
+    $("#service_id").select2();
     $("#booking_city").select2({
          tags: true
     });
     $("#partner_source").select2();
-    
+    $(".appliance_brand").select2();
+    $(".appliance_capacity").select2();
 
     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
 </script>
