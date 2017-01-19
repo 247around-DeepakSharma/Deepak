@@ -1006,7 +1006,7 @@ EOD;
                     }
 
                     $data['data'] = $this->reporting_utils->get_sc_crimes($where);
-                    if (!empty($data['data']) && $data['data'][0]['not_update'] > 0) {
+                    if (!empty($data['data'])) {
                         //Loading view
                         $view = $this->load->view('employee/get_crimes', $data, TRUE);
                         $subject = "SF Crimes Report " . date("d-M-Y");
@@ -1131,6 +1131,7 @@ EOD;
             $update = 0;
             $not_update = 0;
             $total_crimes = 0;
+            $escalations = 0;
             //Getting RM to SF relation
             $where = "";
             $sf_list = $this->vendor_model->get_employee_relation($value['id']);
@@ -1142,17 +1143,19 @@ EOD;
             $data[$value['id']] = $this->reporting_utils->get_sc_crimes($where);
             //Summing up values for this RM
             foreach ($data[$value['id']] as $val) {
-                $old_crimes +=$val['old_crimes'];
+                $old_crimes +=$val['monthly_total_crimes'];
                 $update +=$val['update'];
                 $not_update +=$val['not_update'];
-                $total_crimes +=$val['total_crimes'];
+                $total_crimes +=$val['total_booking'];
+                $escalations +=$val['monthly_escalations'];
             }
 
-            $temp['old_crimes'] = $old_crimes;
+            $temp['monthly_total_crimes'] = $old_crimes;
             $temp['update'] = $update;
             $temp['not_update'] = $not_update;
-            $temp['total_crimes'] = $total_crimes;
+            $temp['total_booking'] = $total_crimes;
             $temp['rm_name'] = $this->employee_model->getemployeefromid($value['id'])[0]['full_name'];
+            $temp['monthly_escalations'] = $escalations;
             //Finalizing Array for corresponding RM's ID
             $final_array['data'][] = $temp;
         }
@@ -1172,17 +1175,20 @@ EOD;
         $not_assigned_update = 0;
         $not_assigned_not_update = 0;
         $not_assigned_total_crimes = 0;
+        $not_assigned_escalations = 0;
         foreach ($not_assigned_vendors_crime as $vals) {
-            $not_assigned_old_crimes += $vals['old_crimes'];
+            $not_assigned_old_crimes += $vals['monthly_total_crimes'];
             $not_assigned_update += $vals['update'];
             $not_assigned_not_update += $vals['not_update'];
-            $not_assigned_total_crimes += $vals['total_crimes'];
+            $not_assigned_total_crimes += $vals['total_booking'];
+            $not_assigned_escalations += $vals['monthly_escalations'];
         }
-        $temp_not_assigned['old_crimes'] = $not_assigned_old_crimes;
+        $temp_not_assigned['monthly_total_crimes'] = $not_assigned_old_crimes;
         $temp_not_assigned['update'] = $not_assigned_update;
         $temp_not_assigned['not_update'] = $not_assigned_not_update;
-        $temp_not_assigned['total_crimes'] = $not_assigned_total_crimes;
+        $temp_not_assigned['total_booking'] = $not_assigned_total_crimes;
         $temp_not_assigned['rm_name'] = 'No RM Assigned';
+        $temp_not_assigned['monthly_escalations'] = $not_assigned_escalations;
         //Finalizing Array for corresponding RM's ID
         $final_not_assigned_array[] = $temp_not_assigned;
 
