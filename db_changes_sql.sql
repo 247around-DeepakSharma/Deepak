@@ -1745,5 +1745,26 @@ Regards,<br>
 
 -- Belal 21 Jan
 
+
 UPDATE `email_template` SET `template` = 'Dear Partner brackets for your Order ID <b> %s </b> have been delivered to you sucessfully.<br><br> Thankyou for placing an order with us.<br.<br> Regards,<br> 247Around Team' WHERE `email_template`.`tag` = 'brackets_received_mail_vendor_order_requested_from
 ';
+
+--- Sachin 19 Dec --- 
+
+ALTER TABLE `booking_details` ADD `partner_status` VARCHAR(255) NULL DEFAULT NULL AFTER `internal_status`;
+
+CREATE TABLE `partner_status` (
+  `id` int(11) NOT NULL,
+  `current_status` varchar(50) DEFAULT NULL,
+  `internal_status` varchar(50) DEFAULT NULL,
+  `partner_status` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `partner_status`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `partner_status`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `partner_status` ADD `partner_id` INT(11) NULL DEFAULT NULL AFTER `id`;
+

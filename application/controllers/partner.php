@@ -319,6 +319,9 @@ class Partner extends CI_Controller {
                         $booking['amount_due'] = '';
                         $booking['booking_remarks'] = '';
                         $booking['state'] = $state['state'];
+                        
+                        $partner_status= $this->booking_model->get_partner_status($booking['partner_id'],$booking['current_status'],$booking['internal_status']);
+                        $booking['partner_status'] = $partner_status[0]['partner_status'];               
 
                         //Insert query
                         //echo print_r($booking, true) . "<br><br>";
@@ -1560,6 +1563,11 @@ class Partner extends CI_Controller {
             $booking['query_remarks'] = "";
             $booking['partner_source'] = $requestData['partner_source'];
             $booking['booking_timeslot'] = "4PM-7PM";
+            
+            
+            $partner_status= $this->booking_model->get_partner_status($booking['partner_id'],$booking['current_status'],$booking['internal_status']);
+            $booking['partner_status'] = $partner_status[0]['partner_status'];               
+            print("<pre>".print_r($booking['partner_status'],true)."</pre>");exit();
 
 
 	    if (empty($state['state'])) {

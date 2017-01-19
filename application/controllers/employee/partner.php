@@ -1159,6 +1159,11 @@ class Partner extends CI_Controller {
         $data['cancellation_reason'] = $this->input->post('cancellation_reason');
         $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
         $data['current_status'] = $data['internal_status'] = _247AROUND_CANCELLED;
+        
+        $partner_id = $this->partner_model->get_order_id_by_booking_id($booking_id);
+        $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$data['current_status'],$data['internal_status']);
+        $data['partner_status'] = $partner_status[0]['partner_status'];               
+        
         $update_status = $this->booking_model->update_booking($booking_id, $data);
         if ($update_status) {
             //Update in booking uunit details
@@ -1248,6 +1253,11 @@ class Partner extends CI_Controller {
             $data['current_status'] = 'Rescheduled';
             $data['internal_status'] = 'Rescheduled';
             $data['update_date'] = date("Y-m-d H:i:s");
+            
+            $partner_id = $this->partner_model->get_order_id_by_booking_id($booking_id);
+            $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$data['current_status'],$data['internal_status']);
+            $data['partner_status'] = $partner_status[0]['partner_status'];               
+        
             $update_status = $this->booking_model->update_booking($booking_id, $data);
             if ($update_status) {
                 $this->notify->insert_state_change($booking_id,

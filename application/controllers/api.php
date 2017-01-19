@@ -1251,6 +1251,11 @@ class Api extends CI_Controller {
                                 'delivery_date' => date('Y-m-d H:i:s'),
                                 'current_status' => 'FollowUp',
                                 'query_remarks' => 'Missed call received, Convert to Booking NOW !!!');
+                            
+                            $partner_id = $this->partner_model->get_order_id_by_booking_id($b['booking_id']);
+                            $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$d['current_status'],$d['internal_status']);
+                            $d['partner_status'] = $partner_status[0]['partner_status'];               
+                            
                             $r = $this->booking_model->update_booking($b['booking_id'], $d);
 
                             $this->send_missed_call_confirmation_sms($b);
