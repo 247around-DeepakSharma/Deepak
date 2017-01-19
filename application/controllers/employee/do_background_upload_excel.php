@@ -438,6 +438,10 @@ class Do_background_upload_excel extends CI_Controller {
 			$booking['city'] = $value['CITY'];
 			$booking['state'] = $state['state'];
 			$booking['quantity'] = '1';
+                        
+                        
+                        $partner_status= $this->booking_model->get_partner_status($booking['partner_id'],$booking['current_status'],$booking['internal_status']);
+                        $booking['partner_status'] = $partner_status[0]['partner_status'];               
 
 			$booking_details_id = $this->booking_model->addbooking($booking);
 

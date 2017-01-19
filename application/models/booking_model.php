@@ -1226,7 +1226,7 @@ class Booking_model extends CI_Model {
      *  @return : returns available service centers
      */
     function find_sc_by_pincode_and_appliance($appliance, $pincode) {
-        $query = $this->db->query("SELECT DISTINCT(`service_centres`.`id`) FROM (`vendor_pincode_mapping`)
+        $query = $this->db->query("SELECT DISTINCT(`service_centres`.`id`),service_centres.name FROM (`vendor_pincode_mapping`)
 	    JOIN `service_centres` ON `service_centres`.`id` = `vendor_pincode_mapping`.`Vendor_ID`
     		WHERE `Appliance_ID` = '$appliance' AND `vendor_pincode_mapping`.`Pincode` = '$pincode'
 	    AND `service_centres`.`active` = '1'
@@ -1234,29 +1234,27 @@ class Booking_model extends CI_Model {
 
         $service_centre_ids = $query->result_array();
 
-        $service_centres = array();
+       // $service_centres = array();
 
         if (count($service_centre_ids) > 0) {
             //Service centres exist in this pincode for this appliance
-            foreach ($service_centre_ids as $sc) {
-                $this->db->select("id, name");
-                $this->db->from("service_centres");
-                $this->db->where(array("id" => $sc['id']));
-                $query2 = $this->db->get();
-                array_push($service_centres, $query2->result_array()[0]);
-            }
+//            foreach ($service_centre_ids as $sc) {
+//                $this->db->select("id, name");
+//                $this->db->from("service_centres");
+//                $this->db->where(array("id" => $sc['id']));
+//                $query2 = $this->db->get();
+//                array_push($service_centres, $query2->result_array()[0]);
+//            }
+            return $service_centre_ids;
         } else {
             //No service centre found, return all SCs as of now
             $this->db->select("id, name");
             $this->db->from("service_centres");
             $this->db->where(array("active" => '1'));
             $query2 = $this->db->get();
-            foreach ($query2->result_array() as $r) {
-                array_push($service_centres, $r);
-            }
+            return $query2->result_array();
         }
 
-        return $service_centres;
     }
 
     /**
@@ -1270,6 +1268,12 @@ class Booking_model extends CI_Model {
             "internal_status" => "FollowUp",
             "cancellation_reason" => NULL,
             "closed_date" => NULL);
+        
+        $partner_id = $this->partner_model->get_order_id_by_booking_id($booking_id);
+        $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$status['current_status'],$status['internal_status']);
+        $data['partner_status'] = $partner_status[0]['partner_status'];    
+            
+        $status['partner_status'] = $data['partner_status'];
 
         $this->db->where("booking_id", $booking_id);
         $this->db->update("booking_details", $status);
@@ -2197,6 +2201,26 @@ class Booking_model extends CI_Model {
         $this->db->like('booking_id',$trimed_booking_id);
         $query = $this->db->get('sms_sent_details');
         return $query->result_array();
+    } 
+    
+    /**
+     * @Desc: This function is used to get the partner status from partner_status table
+     * @params: $partner_id,$current_status, $internal_status 
+     * @return: array
+     * 
+     */
+    function get_partner_status($partner_id,$current_status, $internal_status){
+        $this->db->select('partner_status');
+        $this->db->where(array('partner_id' => $partner_id, 'current_status' => $current_status, 'internal_status' => $internal_status));
+        $query = $this->db->get('partner_status');
+        if($query->num_rows()){
+            return $query->result_array();
+        }else{
+            $this->db->select('partner_status');
+            $this->db->where(array('partner_id' => '247', 'current_status' => $current_status, 'internal_status' => $internal_status));
+            $query = $this->db->get('partner_status');
+            return $query->result_array();
+        }
     }
     
 
