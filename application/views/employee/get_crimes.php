@@ -30,7 +30,10 @@
                   line-height: 1.42857143;     text-align: center;">Engineer Not Assigned </th>-->
                <th  style="border-bottom-width: 2px;border: 1px solid #ddd;
                   vertical-align: bottom;padding: 8px;
-                  line-height: 1.42857143;     text-align: center;background: #DDDDDD">Booking Not Updated / Total Booking </th>
+                  line-height: 1.42857143;     text-align: center;background: #DDDDDD">Booking Not Updated </th>
+               <th  style="border-bottom-width: 2px;border: 1px solid #ddd;
+                  vertical-align: bottom;padding: 8px;
+                  line-height: 1.42857143;     text-align: center;background: #DDDDDD"> Total Booking </th>
 <!--               <th  style="border-bottom-width: 2px;border: 1px solid #ddd;
                   vertical-align: bottom;padding: 8px;
                   line-height: 1.42857143;     text-align: center;">Total Missed Targets</th>-->
@@ -68,7 +71,10 @@
                   vertical-align: top;    text-align: center;"><?php// echo $value['un_assigned']; ?></td>-->
                <td style="    border: 1px solid #ddd;    padding: 8px;
                   line-height: 1.42857143;
-                  vertical-align: top;    text-align: center;"><?php echo $value['not_update'].' / '.$value['total_booking']; ?></td>
+                  vertical-align: top;    text-align: center;"><?php echo $value['not_update']; ?></td>
+               <td style="    border: 1px solid #ddd;    padding: 8px;
+                  line-height: 1.42857143;
+                  vertical-align: top;    text-align: center;"><?php echo $value['total_booking']; ?></td>
 <!--               <td style="    border: 1px solid #ddd;    padding: 8px;
                   line-height: 1.42857143;
                   vertical-align: top;    text-align: center;"><?php //echo $value['total_crimes']; ?></td>-->
@@ -89,7 +95,10 @@
                   vertical-align: top;    text-align: center;background: #FAC575"><b><?php echo $updated ?></b></td>
                 <td style="    border: 1px solid #ddd;    padding: 8px;
                   line-height: 1.42857143;
-                  vertical-align: top;    text-align: center;background: #FAC575"><b><?php echo ($not_update.' / '.$total_booking) ?></b></td>
+                  vertical-align: top;    text-align: center;background: #FAC575"><b><?php echo $not_update ?></b></td>
+                <td style="    border: 1px solid #ddd;    padding: 8px;
+                  line-height: 1.42857143;
+                  vertical-align: top;    text-align: center;background: #FAC575"><b><?php echo $total_booking ?></b></td>
                 <td style="    border: 1px solid #ddd;    padding: 8px;
                   line-height: 1.42857143;
                   vertical-align: top;    text-align: center;background: #FAC575"><b><?php echo $old_crimes ?></b></td>

@@ -1,44 +1,73 @@
 
  var brandServiceUrl = baseUrl + '/employee/booking/getBrandForService/';
+ var applianceUrl = baseUrl + '/employee/booking/get_appliances/';
  var categoryForServiceUrl = baseUrl + '/employee/booking/getCategoryForService/';
  var CapacityForCategoryUrl = baseUrl + '/employee/booking/getCapacityForCategory/';
  var SelectStateUrl = baseUrl + '/employee/booking/get_state_by_city';
  var pricesForCategoryCapacityUrl = baseUrl + '/employee/booking/getPricesForCategoryCapacity/';
  var count_number = 0;
+  
+  
+  function getAppliance(service_id){
+
+    var postData = {};
+    postData['source_code'] = $("#source_code").val();
+
+    var service = $("#service_id option:selected").text();
+    $("#services").val(service);
+    
+    sendAjaxRequest(postData, applianceUrl+service_id).done(function(data) {
+      var data1 = jQuery.parseJSON(data);
+      $("#partner_type").val(data1.partner_type);
+    
+      $("#service_id").html(data1.services).change();  
+      
+      getBrandForService();
+
+    });
+  }
 
   function getBrandForService() {
 
     var postData = {};
     postData['service_id'] = $("#service_id").val();
+    postData['source_code'] = $("#source_code").val();
 
     var service = $("#service_id option:selected").text();
     $("#services").val(service);
-
+    
     sendAjaxRequest(postData, brandServiceUrl).done(function(data) {
+      var data1 = jQuery.parseJSON(data);
+      $("#partner_type").val(data1.partner_type);
      
-      $(".appliance_brand").html(data);
-
-      
+      $(".appliance_brand").html(data1.brand).change();  
+       
 
     });
   }
     
   function getCategoryForService(div_id) {
     var postData = {};
+    var div_no = div_id.split('_');
     
     postData['service_id'] = $("#service_id").val();
-    postData['booking_pincode'] = $('#booking_pincode').val();
     postData['partner_code'] = $("#source_code option:selected").val();
+    postData['partner_type'] = $("#partner_type").val();
+    postData['brand'] = $("#appliance_brand_" + div_no[2]).val();
     
     sendAjaxRequest(postData, categoryForServiceUrl).done(function(data) {
 
         if(div_id === undefined){
-          $(".appliance_category").html(data);   
+          $(".appliance_category").html(data).change();
+         // $(".appliance_capacity").html(data2); 
 
         } else {
 
-           var div_no = div_id.split('_');
-           $("#appliance_category_"+div_no[2]).html(data); 
+           $("#appliance_category_"+div_no[2]).html(data).chnage(); 
+           var data2 = "<option disabled></option>";
+           $("#appliance_capacity_"+div_no[2]).html(data2).change(); 
+           $("#priceList_"+div_no[2]).html("");
+           
         }
         
     });
@@ -46,30 +75,33 @@
   }
 
     
-  function getCapacityForCategory(service_id, category, div_id) {
+  function getCapacityForCategory(category, div_id) {
     var postData = {};
-    
-    postData['service_id'] = $("#service_id").val();
-    postData['partner_code'] = $("#source_code option:selected").val();
-    postData['booking_pincode'] = $('#booking_pincode').val();
-    postData['category'] = category;
-
     var div_no = div_id.split('_');
 
+    postData['service_id'] = $("#service_id").val();
+    postData['partner_code'] = $("#source_code option:selected").val();
+    postData['category'] = category;
+    postData['partner_type'] =  $("#partner_type").val();
+    postData['brand'] = $("#appliance_brand_" + div_no[2]).val();
+
+    
     sendAjaxRequest(postData, CapacityForCategoryUrl).done(function(data) {
       
 
-        $("#appliance_capacity_"+div_no[2]).html(data);
+        $("#appliance_capacity_"+div_no[2]).html(data).change();
     
         if (data !== "<option></option>") {
-            var capacity= $("#appliance_capacity_"+div_no[2]).val();
-    
+            $("#priceList_"+div_no[2]).html(""); 
+            
             getPricesForCategoryCapacity(div_id);
+          
         } else {
-    
-            $("#appliance_capacity_"+div_no[2]).html(data);
-           
+            $("#priceList_"+div_no[2]).html(""); 
+            
+            
             getPricesForCategoryCapacity(div_id);
+            
         }
 
     });
@@ -77,14 +109,15 @@
     
   function getPricesForCategoryCapacity(div_id) {
     
-    var postData = {};
-    postData['service_id'] = $("#service_id").val();
-    
+    var postData = {};       
     var div_no = div_id.split('_');
+    
+    postData['service_id'] = $("#service_id").val();
     postData['brand'] = $('#appliance_brand_'+ div_no[2]).val();
     postData['category'] = $("#appliance_category_"+div_no[2]).val();
-    postData['partner_code'] = $("#source_code option:selected").val();    
-    postData['booking_pincode'] = $('#booking_pincode').val();
+    postData['partner_code'] = $("#source_code option:selected").val();  
+    postData['partner_type'] =  $("#partner_type").val();
+   
     postData['clone_number'] = div_no[2];
 
     if($("#appliance_capacity_"+div_no[2]).val()!=="") {
@@ -106,7 +139,7 @@
   }
 
   function final_price(){
-     var price = 0;
+    var price = 0;
     var price_array ;
     var around_discount = 0;
     var partner_discount = 0;
@@ -154,14 +187,57 @@
      var booking_date = $("#booking_date").val();
      var timeslot = $('#booking_timeslot').val();
      var type = $('input[name=type]:checked', '#booking_form').val(); 
+     var source_code = $("#source_code option:selected").val();
+     
+     if(source_code === "Select Booking Source"){
+        
+         alert("Please Select Booking Source");
+        
+         return false;
+      }
 
+    if(service === null || service === "" || service === "Select Service"){
 
-      if ($("input[type=checkbox]:checked").length === 0) {
+        alert('Please Select Booking Appliance');
+        return false;
+
+    }
+    if ($("input[type=checkbox]:checked").length === 0) {
        
         alert('Please select at least one check box');
         return false;
       
+    }
+    
+    if(type === null || type === undefined){
+       
+        alert("Please Select Booking Type ");
+        return false;
+
+    }  else {
+          if(type === "Booking"){
+            if(address === ""){
+             
+              alert("Please fill Address "); 
+              return false;
+            } else {
+
+              if(pincode === ""){
+               
+                alert("Please fill pincode "); 
+                return false;
+              }
+         }
+      } else {
+       if ($('input[name=internal_status]:checked').length > 0) {
+        // something when checked
+        } else {
+         
+          alert("For Query, Internal Status is MANDATORY."); 
+          return false;
+        }
       }
+    }
 
      if(p_contact_no ===""){
         
@@ -174,21 +250,8 @@
         alert("Please fill city "); 
         return false;
      }
-      if(source_code === "Select Booking Source"){
-        
-         alert("Please Select Booking Source");
-        
-         return false;
-      }
       
-      if(service === null || service === "" || service === "Select Service"){
-        
-         alert('Please Select Booking Service');
-         return false;
-
-      }
-      
-    var source_code = $("#source_code option:selected").val();
+     
     if(source_code === "SS" || source_code  === 'SP' || source_code === "SZ"){
 
         var order_id = $('#order_id').val();
@@ -223,37 +286,6 @@
          alert('Please Select Booking Time Slot');
         return false; 
       }
-
-    if(type === null || type === undefined){
-       
-        alert("Please Select Booking Type ");
-        return false;
-
-    }  else {
-          if(type === "Booking"){
-            if(address === ""){
-             
-              alert("Please fill Address "); 
-              return false;
-            } else {
-
-              if(pincode === ""){
-               
-                alert("Please fill pincode "); 
-                return false;
-              }
-         }
-      } else {
-       if ($('input[name=internal_status]:checked').length > 0) {
-        // something when checked
-        } else {
-         
-          alert("For Query, Internal Status is MANDATORY."); 
-          return false;
-        }
-      }
-    }
-     
 
      if(count_number >1 ){
 

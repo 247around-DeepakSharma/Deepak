@@ -516,32 +516,39 @@ class Booking_model extends CI_Model {
         return $query->result_array();
     }
 
-    function getCategoryForService($service_id, $state ="", $partner_id) {
-        //And state = '$state'
-        $where = "";
-        if($partner_id != ""){
-           $where .= " AND partner_id = '$partner_id'";
+    function getCategoryForService($service_id, $partner_id, $brand ="") {
+
+        if($brand != ""){
+          
+           $this->db->where('brand',$brand);
 
         }
-    	$sql = "Select distinct category from service_centre_charges where service_id=
-    	'$service_id' $where and active='1' AND check_box ='1' ";
-
-     	$query = $this->db->query($sql);
+        $this->db->distinct();
+        $this->db->select('category');
+        $this->db->where('service_id',$service_id);
+        $this->db->where('active','1');
+        $this->db->where('check_box','1');
+        $this->db->where('partner_id',$partner_id);
+        $query = $this->db->get('service_centre_charges');
+        
     	return $query->result_array();
     }
 
-    function getCapacityForCategory($service_id, $category, $state="", $partner_id) {
-        //And state = '$state'
-        $where = "";
-        if($partner_id !=""){
-            $where .= " AND partner_id ='$partner_id' ";
+    function getCapacityForCategory($service_id, $category, $brand, $partner_id) {
+       
+        if($brand !=""){
+            $this->db->where('brand', $brand);
         }
-
-    	$sql = "Select distinct capacity from service_centre_charges where service_id='$service_id'
-    	and category='$category' and active='1' AND check_box ='1' $where";
-
-    	$query = $this->db->query($sql);
-
+        
+        $this->db->distinct();
+        $this->db->select('capacity');
+        $this->db->where('service_id', $service_id);
+        $this->db->where('category', $category);
+        $this->db->where('active', '1');
+        $this->db->where('check_box', '1');
+        $this->db->where('partner_id', $partner_id);
+        $query = $this->db->get('service_centre_charges');
+      
     	return $query->result_array();
     }
 
@@ -556,7 +563,7 @@ class Booking_model extends CI_Model {
     /*
      * @desc: This method return Price details. It filters according to service id, category, capacity, partner id
      */
-    function getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $state) {
+    function getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand) {
 
         $this->db->distinct();
         $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod');
@@ -565,7 +572,9 @@ class Booking_model extends CI_Model {
         $this->db->where('active', 1);
         $this->db->where('check_box', 1);
         $this->db->where('partner_id', $partner_id);
-        //$this->db->where('state', $state);
+        if($brand !=""){
+            $this->db->where('brand', $brand);
+        }
 
     	if (!empty($capacity)) {
     		$this->db->where('capacity', $capacity);
@@ -816,7 +825,7 @@ class Booking_model extends CI_Model {
      *  @return : source name of the code
      */
     function get_booking_source($source_code) {
-        $query = $this->db->query("SELECT source FROM bookings_sources WHERE code='$source_code'");
+        $query = $this->db->query("SELECT source,partner_type,partner_id FROM bookings_sources WHERE code='$source_code'");
         return $query->result_array();
     }
 
@@ -1213,7 +1222,7 @@ class Booking_model extends CI_Model {
      *  @return : returns available service centers
      */
     function find_sc_by_pincode_and_appliance($appliance, $pincode) {
-        $query = $this->db->query("SELECT DISTINCT(`service_centres`.`id`) FROM (`vendor_pincode_mapping`)
+        $query = $this->db->query("SELECT DISTINCT(`service_centres`.`id`),service_centres.name FROM (`vendor_pincode_mapping`)
 	    JOIN `service_centres` ON `service_centres`.`id` = `vendor_pincode_mapping`.`Vendor_ID`
     		WHERE `Appliance_ID` = '$appliance' AND `vendor_pincode_mapping`.`Pincode` = '$pincode'
 	    AND `service_centres`.`active` = '1'
@@ -1221,29 +1230,27 @@ class Booking_model extends CI_Model {
 
         $service_centre_ids = $query->result_array();
 
-        $service_centres = array();
+       // $service_centres = array();
 
         if (count($service_centre_ids) > 0) {
             //Service centres exist in this pincode for this appliance
-            foreach ($service_centre_ids as $sc) {
-                $this->db->select("id, name");
-                $this->db->from("service_centres");
-                $this->db->where(array("id" => $sc['id']));
-                $query2 = $this->db->get();
-                array_push($service_centres, $query2->result_array()[0]);
-            }
+//            foreach ($service_centre_ids as $sc) {
+//                $this->db->select("id, name");
+//                $this->db->from("service_centres");
+//                $this->db->where(array("id" => $sc['id']));
+//                $query2 = $this->db->get();
+//                array_push($service_centres, $query2->result_array()[0]);
+//            }
+            return $service_centre_ids;
         } else {
             //No service centre found, return all SCs as of now
             $this->db->select("id, name");
             $this->db->from("service_centres");
             $this->db->where(array("active" => '1'));
             $query2 = $this->db->get();
-            foreach ($query2->result_array() as $r) {
-                array_push($service_centres, $r);
-            }
+            return $query2->result_array();
         }
 
-        return $service_centres;
     }
 
     /**
@@ -1740,6 +1747,20 @@ class Booking_model extends CI_Model {
         return $query = array_merge($query1, $query2, $query3, $query4);
 
     }
+    
+    /**
+     * @desc: this method is used to get city, services, sources details
+     * @param : user phone no.
+     * @return : array()
+     */
+    function get_city_source(){
+        $query1['city'] = $this->vendor_model->getDistrict();
+        $query2['sources'] = $this->partner_model->get_all_partner_source("0");
+       
+        return $query = array_merge($query1, $query2);
+
+    }
+    
 
      /**
      * @desc: this is used to copy price and tax rate of custom service center id and insert into booking unit details table with
@@ -2197,6 +2218,6 @@ class Booking_model extends CI_Model {
             return $query->result_array();
         }
     }
-
+    
 
 }

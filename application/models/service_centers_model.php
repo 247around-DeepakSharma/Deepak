@@ -449,6 +449,18 @@ class Service_centers_model extends CI_Model {
         log_message('info', __FUNCTION__ . '=> Update Spare Parts: ' .$this->db->last_query());
         return $query->result_array();
     }
+    
+    /**
+     * @Desc: This function is used to get service center login details by sf id
+     * @params: sf_id(INT)
+     * @return: Array
+     * 
+     */
+    function get_sc_login_details_by_id($sf_id){
+        $this->db->where('service_center_id',$sf_id);
+        $query = $this->db->get('service_centers_login');
+        return $query->result_array();
+    }
 
     
 
