@@ -1689,3 +1689,21 @@ ALTER TABLE `sub_service_center_details`
 -- Abhay 14 Dec ---
 ALTER TABLE `bookings_sources` ADD `partner_type` VARCHAR(50) NULL DEFAULT NULL AFTER `partner_id`;
 
+--- Sachin 19 Dec --- 
+
+ALTER TABLE `booking_details` ADD `partner_status` VARCHAR(255) NULL DEFAULT NULL AFTER `internal_status`;
+
+CREATE TABLE `partner_status` (
+  `id` int(11) NOT NULL,
+  `current_status` varchar(50) DEFAULT NULL,
+  `internal_status` varchar(50) DEFAULT NULL,
+  `partner_status` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `partner_status`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `partner_status`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `partner_status` ADD `partner_id` INT(11) NULL DEFAULT NULL AFTER `id`;
