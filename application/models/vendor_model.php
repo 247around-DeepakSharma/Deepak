@@ -1559,7 +1559,7 @@ class vendor_model extends CI_Model {
      */
     function get_latest_vendor_pincode_mapping_details(){
         $sql = 'SELECT Vendor_Name, Appliance, Brand, Area, Pincode, Region, City, State'
-                . ' FROM vendor_pincode_mapping ORDER BY create_date DESC LIMIT 0 , 1';
+                . ' FROM vendor_pincode_mapping ORDER BY id DESC LIMIT 0 , 1';
         $query = $this->db->query($sql);
 
         return $query->result_array();
