@@ -781,9 +781,13 @@ class Booking_model extends CI_Model {
      *  @return : void
      */
     function addNewApplianceBrand($service_id, $newbrand) {
-        $sql = "INSERT into appliance_brands(service_id,brand_name) values('$service_id','$newbrand')";
-        $query = $this->db->query($sql);
-        return ($this->db->affected_rows() != 1) ? false : true;
+        $data = array(
+            'service_id'=>$service_id,
+            'brand_name'=>$newbrand
+        );
+        
+        $this->db->insert('appliance_brands',$data);
+        return $this->db->insert_id();
     }
     
     /**
@@ -1264,6 +1268,12 @@ class Booking_model extends CI_Model {
             "internal_status" => "FollowUp",
             "cancellation_reason" => NULL,
             "closed_date" => NULL);
+        
+        $partner_id = $this->partner_model->get_order_id_by_booking_id($booking_id);
+        $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$status['current_status'],$status['internal_status']);
+        $data['partner_status'] = $partner_status[0]['partner_status'];    
+            
+        $status['partner_status'] = $data['partner_status'];
 
         $this->db->where("booking_id", $booking_id);
         $this->db->update("booking_details", $status);
@@ -2191,6 +2201,26 @@ class Booking_model extends CI_Model {
         $this->db->like('booking_id',$trimed_booking_id);
         $query = $this->db->get('sms_sent_details');
         return $query->result_array();
+    } 
+    
+    /**
+     * @Desc: This function is used to get the partner status from partner_status table
+     * @params: $partner_id,$current_status, $internal_status 
+     * @return: array
+     * 
+     */
+    function get_partner_status($partner_id,$current_status, $internal_status){
+        $this->db->select('partner_status');
+        $this->db->where(array('partner_id' => $partner_id, 'current_status' => $current_status, 'internal_status' => $internal_status));
+        $query = $this->db->get('partner_status');
+        if($query->num_rows()){
+            return $query->result_array();
+        }else{
+            $this->db->select('partner_status');
+            $this->db->where(array('partner_id' => '247', 'current_status' => $current_status, 'internal_status' => $internal_status));
+            $query = $this->db->get('partner_status');
+            return $query->result_array();
+        }
     }
     
 

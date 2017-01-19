@@ -274,7 +274,7 @@ class Do_background_upload_excel extends CI_Controller {
             if(!empty($value['Brand'])){
                 $value['Brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $value['Brand']);
             }
-
+            
 	    //Insert user if phone number doesn't exist
 	    $output = $this->user_model->search_user(trim($value['Phone']));
 	    $state = $this->vendor_model->get_state_from_pincode($value['Pincode']);
@@ -326,12 +326,17 @@ class Do_background_upload_excel extends CI_Controller {
 		$appliance_details['user_id'] = $booking['user_id'] = $user_id;
 		$appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $value['service_id'];
 		$booking['booking_pincode'] = $value['Pincode'];
-                $where  = array('service_id' => $value['service_id'],'brand_name' => trim($value['Brand']));
+                $where  = array('service_id' => $value['service_id'],'brand_name' => $value['Brand']);
                 $brand_id_array  = $this->booking_model->get_brand($where);
                 // If brand not exist then insert into table
                 if(empty($brand_id_array)){
 
-                   $this->booking_model->addNewApplianceBrand($value['service_id'], trim($value['Brand']));
+                   $inserted_brand_id = $this->booking_model->addNewApplianceBrand($value['service_id'], $value['Brand']);
+                   if(!empty($inserted_brand_id)){
+                       log_message('info',__FUNCTION__.' Brand added successfully in Appliance Brands Table '. $value['Brand']);
+                   }else{
+                       log_message('info',__FUNCTION__.' Error in adding brands in Appliance Brands '. $value['Brand']);
+                   }
 
                 }
 		$appliance_details['brand'] = $unit_details['appliance_brand'] = $value['Brand'];
@@ -433,6 +438,10 @@ class Do_background_upload_excel extends CI_Controller {
 			$booking['city'] = $value['CITY'];
 			$booking['state'] = $state['state'];
 			$booking['quantity'] = '1';
+                        
+                        
+                        $partner_status= $this->booking_model->get_partner_status($booking['partner_id'],$booking['current_status'],$booking['internal_status']);
+                        $booking['partner_status'] = $partner_status[0]['partner_status'];               
 
 			$booking_details_id = $this->booking_model->addbooking($booking);
 

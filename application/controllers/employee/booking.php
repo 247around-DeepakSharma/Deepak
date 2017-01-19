@@ -311,7 +311,7 @@ class Booking extends CI_Controller {
 
         if ($booking['type'] == 'Booking') {
             $booking['current_status'] = 'Pending';
-            $booking['internal_status'] = 'Scheduled';
+            $booking['internal_status'] = 'Scheduled'; 
             $booking['initial_booking_date'] = $booking['booking_date'];
             $booking['booking_remarks'] = $remarks;
             $new_state = $booking_id_with_flag['new_state'];
@@ -329,11 +329,15 @@ class Booking extends CI_Controller {
             if ($booking['internal_status'] == INT_STATUS_CUSTOMER_NOT_REACHABLE) {
                 $this->send_sms_email($booking_id, "Customer not reachable");
             }
+            
             $booking['query_remarks'] = $remarks;
 
             $new_state = $booking_id_with_flag['new_state'];
             $old_state = $booking_id_with_flag['old_state'];
         }
+        
+        $partner_status= $this->booking_model->get_partner_status($booking['partner_id'],$booking['current_status'],$booking['internal_status']);
+        $booking['partner_status'] = $partner_status[0]['partner_status'];    
 
         switch ($booking_id) {
 
@@ -644,7 +648,7 @@ class Booking extends CI_Controller {
 
 		$result = $this->partner_model->getPrices($data['booking_history'][0]['service_id'], $value['category'], $value['capacity'], $partner_id, $price_tag['price_tags']);
 
-        $data['booking_unit_details'][$keys]['quantity'][$key]['pod'] = $result[0]['pod'];
+            $data['booking_unit_details'][$keys]['quantity'][$key]['pod'] = $result[0]['pod'];
 
 
 		// print_r($service_center_data);
@@ -729,7 +733,11 @@ class Booking extends CI_Controller {
 	}
 	$data['current_status'] = $data['internal_status'] = _247AROUND_CANCELLED ;
 	$data_vendor['cancellation_reason'] = $data['cancellation_reason'];
-
+        
+        $partner_id = $this->partner_model->get_order_id_by_booking_id($booking_id);
+        $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$data['current_status'],$data['internal_status']);
+        $data['partner_status'] = $partner_status[0]['partner_status'];              
+        
 	log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));
 
 	$this->booking_model->update_booking($booking_id, $data);
@@ -814,6 +822,11 @@ class Booking extends CI_Controller {
 	$data['current_status'] = 'Rescheduled';
 	$data['internal_status'] = 'Rescheduled';
 	$data['update_date'] = date("Y-m-d H:i:s");
+        
+        $partner_id = $this->partner_model->get_order_id_by_booking_id($booking_id);
+        
+        $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$data['current_status'],$data['internal_status']);
+        $data['partner_status'] = $partner_status[0]['partner_status'];
 
 	if ($data['booking_timeslot'] == "Select") {
 	    echo "Please Select Booking Timeslot.";
@@ -1561,10 +1574,17 @@ class Booking extends CI_Controller {
 	    //$booking['booking_timeslot'] = $reschedule_booking_timeslot[$booking_id];
 	    $send['state'] = $booking['current_status'] = 'Rescheduled';
 	    $booking['internal_status'] = 'Rescheduled';
+            
 	    $booking['update_date'] = date("Y-m-d H:i:s");
 	    $send['booking_id']  = $booking_id;
 	    $booking['reschedule_reason'] = $reschedule_reason[$booking_id];
-	    log_message('info', __FUNCTION__ . " update booking: " . print_r($booking, true));
+            
+            $partner_id = $this->partner_model->get_order_id_by_booking_id($booking_id);
+        
+            $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$booking['current_status'],$booking['internal_status']);
+            $booking['partner_status'] = $partner_status[0]['partner_status'];
+	    
+            log_message('info', __FUNCTION__ . " update booking: " . print_r($booking, true));
 	    $this->booking_model->update_booking($booking_id, $booking);
             $this->booking_model->increase_escalation_reschedule($booking_id, "count_reschedule");
 	    $data['internal_status'] = "Pending";
@@ -1727,6 +1747,10 @@ class Booking extends CI_Controller {
 	$booking['current_status'] = $internal_status;
 	$booking['internal_status'] = $internal_status;
 	$booking['booking_id'] = $booking_id;
+        
+        $partner_id = $this->partner_model->get_order_id_by_booking_id($booking_id);
+        $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$booking['current_status'],$booking['internal_status']);
+        $booking['partner_status'] = $partner_status[0]['partner_status'];
 
 	if ($this->input->post('rating_stars') !== "") {
 	    $booking['rating_stars'] = $this->input->post('rating_stars');
@@ -1817,6 +1841,10 @@ class Booking extends CI_Controller {
 	$data['booking_jobcard_filename'] = NULL;
 	$data['mail_to_vendor'] = 0;
 	//$data['booking_remarks'] = $this->input->post('reason');
+        
+        $partner_id = $this->partner_model->get_order_id_by_booking_id($booking_id);
+        $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$data['current_status'],$data['internal_status']);
+        $data['partner_status'] = $partner_status[0]['partner_status'];    
 
 	if ($data['booking_timeslot'] == "Select") {
 	    echo "Please Select Booking Timeslot.";
