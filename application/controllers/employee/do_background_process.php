@@ -256,7 +256,8 @@ class Do_background_process extends CI_Controller {
         
         $partner_id = $this->partner_model->get_order_id_by_booking_id($booking_id);
         $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$booking['current_status'],$booking['internal_status']);
-        $booking['partner_status'] = $partner_status[0]['partner_status'];               
+        $booking['partner_status'] = $partner_status[0]['partner_status'];
+        $booking['final_partner_status'] = $partner_status[0]['final_partner_status'];
 
         //update booking_details table
         log_message('info', ": " . " update booking details data (" .$current_status .")".print_r($booking, TRUE));

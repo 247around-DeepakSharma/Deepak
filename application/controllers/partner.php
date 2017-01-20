@@ -322,7 +322,7 @@ class Partner extends CI_Controller {
                         
                         $partner_status= $this->booking_model->get_partner_status($booking['partner_id'],$booking['current_status'],$booking['internal_status']);
                         $booking['partner_status'] = $partner_status[0]['partner_status'];               
-
+                        $booking['final_partner_status'] = $partner_status[0]['final_partner_status'];
                         //Insert query
                         //echo print_r($booking, true) . "<br><br>";
                         $this->booking_model->addbooking($booking);
@@ -1194,6 +1194,11 @@ class Partner extends CI_Controller {
         $booking['internal_status'] = $request['cancellationReason'];
         $booking['cancellation_reason'] = $details['cancellation_reason'] = "Other : " . $request['cancellationReason'];
         $booking['update_date'] = $booking['closed_date'] = date("Y-m-d H:i:s");
+        
+        $partner_id = $this->partner_model->get_order_id_by_booking_id($booking_id);
+        $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$booking['current_status'],$booking['internal_status']);
+        $booking['partner_status'] = $partner_status[0]['partner_status'];    
+        $booking['final_partner_status'] = $partner_status[0]['final_partner_status'];
 
         $this->booking_model->update_booking($booking_id, $booking);
         $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
@@ -1567,7 +1572,7 @@ class Partner extends CI_Controller {
             
             $partner_status= $this->booking_model->get_partner_status($booking['partner_id'],$booking['current_status'],$booking['internal_status']);
             $booking['partner_status'] = $partner_status[0]['partner_status'];               
-            print("<pre>".print_r($booking['partner_status'],true)."</pre>");exit();
+            $booking['final_partner_status'] = $partner_status[0]['final_partner_status'];
 
 
 	    if (empty($state['state'])) {

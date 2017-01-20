@@ -1674,8 +1674,12 @@ CREATE TABLE `scheduler_tasks_status` (
 ALTER TABLE `scheduler_tasks_status`
   ADD PRIMARY KEY (`id`);
 
+
 ALTER TABLE `scheduler_tasks_status`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=0;
+
+ALTER TABLE `booking_details` ADD `partner_status` VARCHAR(255) NULL DEFAULT NULL AFTER `internal_status`; 
+ALTER TABLE `booking_details` ADD `final_partner_status` VARCHAR(50) NULL DEFAULT NULL AFTER `partner_status`;
 
 ALTER TABLE `partners` ADD `upcountry_rate` INT(11) NOT NULL AFTER `upcountry`;
 
@@ -1721,6 +1725,10 @@ ALTER TABLE `partners` DROP `upcountry`;
 
 -- Abhay 14 Jan ---
 ALTER TABLE `bookings_sources` ADD `partner_type` VARCHAR(50) NULL DEFAULT NULL AFTER `partner_id`;
+
+
+ALTER TABLE `partner_status` ADD `partner_id` INT(11) NULL DEFAULT NULL AFTER `id`;
+ALTER TABLE `partner_status` ADD `final_partner_status` VARCHAR(50) NULL DEFAULT NULL AFTER `partner_status`;
 
 
 -- Abhay 16 Jan 

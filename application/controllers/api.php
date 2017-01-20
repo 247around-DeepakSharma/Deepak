@@ -1254,7 +1254,8 @@ class Api extends CI_Controller {
                             
                             $partner_id = $this->partner_model->get_order_id_by_booking_id($b['booking_id']);
                             $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$d['current_status'],$d['internal_status']);
-                            $d['partner_status'] = $partner_status[0]['partner_status'];               
+                            $d['partner_status'] = $partner_status[0]['partner_status'];
+                            $d['final_partner_status'] = $partner_status[0]['final_partner_status'];
                             
                             $r = $this->booking_model->update_booking($b['booking_id'], $d);
 
