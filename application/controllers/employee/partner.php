@@ -397,7 +397,7 @@ class Partner extends CI_Controller {
     function get_booking_form_data(){
         $booking_date = date('d-m-Y', strtotime($this->input->post('booking_date')));
         $post['partnerName'] = $this->session->userdata('partner_name');
-        $post['agent_id'] = $this->session->userdata('partner_id');
+        $post['agent_id'] = $this->session->userdata('agent_id');
         $post['name'] = $this->input->post('user_name');
         $post['mobile'] = $this->input->post('booking_primary_contact_no');
         $post['email'] = $this->input->post('user_email');

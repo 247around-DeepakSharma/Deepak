@@ -655,7 +655,7 @@ class vendor_model extends CI_Model {
      * @return : Array
      */
     function getActiveVendor($service_center_id = "", $active = 1) {
-        $this->db->select("service_centres.name, service_centres.id,on_off,active ");
+        $this->db->select("service_centres.name, service_centres.id,on_off,active, is_verified ");
         if ($service_center_id != "") {
             $this->db->where('id', $service_center_id);
         }
@@ -1132,7 +1132,7 @@ class vendor_model extends CI_Model {
      */
     function check_vendor_availability($pincode, $service_id) {
         $this->db->distinct();
-        $this->db->select('Vendor_ID, Vendor_Name');
+        $this->db->select('Vendor_ID, Vendor_Name,service_centres.pincode, service_centres.district, is_upcountry');
         $this->db->where('vendor_pincode_mapping.Appliance_ID', $service_id);
         $this->db->where('vendor_pincode_mapping.Pincode', $pincode);
         $this->db->from('vendor_pincode_mapping');
@@ -1141,7 +1141,6 @@ class vendor_model extends CI_Model {
         $this->db->where('service_centres.on_off', "1");
         
         $data = $this->db->get();
-        
         return $data->result_array();
     }
 

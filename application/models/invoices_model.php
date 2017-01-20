@@ -218,6 +218,7 @@ class invoices_model extends CI_Model {
                 $result[0]['name'] = $value['name'];
                 $result[0]['on_off'] = $value['on_off'];
                 $result[0]['active'] = $value['active'];
+                $result[0]['is_verified'] = $value['is_verified'];
             } else if (isset($value['public_name'])) {
                 $result[0]['name'] = $value['public_name'];
             }

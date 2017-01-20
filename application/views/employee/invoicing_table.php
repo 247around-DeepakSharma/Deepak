@@ -166,6 +166,7 @@
              <th class="text-center">Bank Details Verification</th>
              <th class="text-center">Contract</th>
              <th class="text-center">Defective Parts Not Shipped by SF</th>
+             <th class="text-center">Go to vendor Details</th>
           </tr>
        </thead>
        <tbody>
@@ -198,6 +199,10 @@
                <td class="text-center">
                  
                   <?php  if(isset($count_spare_parts)){ echo $count_spare_parts;}?>
+               </td>
+               <td class="text-center">
+                 
+                   <a href="<?php echo base_url()?>/employee/vendor/editvendor/<?php echo $vendor_details[0]['id'] ?>" target="_blank" class="btn btn-sm btn-primary" >Click here</a>
                </td>
 
            </tr>
