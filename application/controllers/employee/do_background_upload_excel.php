@@ -436,7 +436,9 @@ class Do_background_upload_excel extends CI_Controller {
                         
                         
                         $partner_status= $this->booking_model->get_partner_status($booking['partner_id'],$booking['current_status'],$booking['internal_status']);
-                        $booking['partner_status'] = $partner_status[0]['partner_status'];               
+                        $booking['partner_status'] = $partner_status[0]['partner_status'];  
+                        $booking['final_partner_status'] = $partner_status[0]['final_partner_status'];  
+                        
 
 			$booking_details_id = $this->booking_model->addbooking($booking);
 
@@ -1217,12 +1219,12 @@ class Do_background_upload_excel extends CI_Controller {
             }
 
             //Making process for file upload
-            move_uploaded_file($tmpFile, TMP_FOLDER . $data['file_name']);
+            //move_uploaded_file($tmpFile, TMP_FOLDER . $data['file_name']);
 
             //Upload files to AWS
-            $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "vendor-partner-docs/" . $data['file_name'];
-            $this->s3->putObjectFile(TMP_FOLDER . $data['file_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+//            $bucket = BITBUCKET_DIRECTORY;
+//            $directory_xls = "vendor-partner-docs/" . $data['file_name'];
+//            $this->s3->putObjectFile(TMP_FOLDER . $data['file_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             //Logging
             log_message('info', __FUNCTION__ . ' Snapdeal Delivered File has been uploaded in S3');
             
@@ -1246,12 +1248,12 @@ class Do_background_upload_excel extends CI_Controller {
             }
 
             //Making process for file upload
-            move_uploaded_file($tmpFile, TMP_FOLDER . $data['file_name']);
+            //move_uploaded_file($tmpFile, TMP_FOLDER . $data['file_name']);
 
             //Upload files to AWS
-            $bucket = BITBUCKET_DIRECTORY;
-            $directory_xls = "vendor-partner-docs/" . $data['file_name'];
-            $this->s3->putObjectFile(TMP_FOLDER . $data['file_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+//            $bucket = BITBUCKET_DIRECTORY;
+//            $directory_xls = "vendor-partner-docs/" . $data['file_name'];
+//            $this->s3->putObjectFile(TMP_FOLDER . $data['file_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
             //Logging
             log_message('info', __FUNCTION__ . ' Snapdeal Shipped File has been uploaded in S3');
             
