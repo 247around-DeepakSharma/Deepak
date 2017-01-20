@@ -2897,68 +2897,42 @@ class Invoice extends CI_Controller {
     /**
      * @desc: This method is used to download payment summary invoice for selected service center
      */
-    function download_invoice_summary(){
+    function download_invoice_summary() {
         log_message('info', __FUNCTION__ . " Entering....");
         $data = $this->input->post('amount_service_center');
         $payment_data = array();
+
         if (!empty($data)) {
             foreach ($data as $service_center_id => $amount) {
-                $sc_details = $this->vendor_model->viewvendor($service_center_id)[0];
-                $sc_details['final_amoont'] = round($amount, 0);
-                $sc_details['payment_date'] = date("d-M-Y");
-                $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc_details['name']);
-                ;
+                $sc = $this->vendor_model->viewvendor($service_center_id)[0];
 
-                if (stristr($sc_details['ifsc_code'], 'ICIC') !== FALSE) {
+                $sc_details['debit_acc_no'] = '102405500277';
+                $sc_details['bank_account'] = $sc['bank_account'];
+                $sc_details['beneficiary_name'] = $sc['beneficiary_name'];
+                $sc_details['final_amount'] = $amount;
+
+                if (stristr($sc['ifsc_code'], 'ICIC') !== FALSE) {
                     $sc_details['payment_mode'] = "I";
                 } else {
                     $sc_details['payment_mode'] = "N";
                 }
 
+                $sc_details['payment_date'] = date("d-M-Y");
+                $sc_details['ifsc_code'] = $sc['ifsc_code'];
+
                 array_push($payment_data, $sc_details);
             }
 
-            $template = 'bulk-payments.xls';
-            // directory
-            $templateDir = __DIR__ . "/../excel-templates/";
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename=data.csv');
 
-            $config = array(
-                'template' => $template,
-                'templateDir' => $templateDir
-            );
+            // create a file pointer connected to the output stream
+            $output = fopen('php://output', 'w');
 
-            //load template
-            $R = new PHPReport($config);
-
-            $R->load(array(
-                array(
-                    'id' => 'invoice',
-                    'repeat' => TRUE,
-                    'data' => $payment_data,
-                    'format' => array(
-                        'date' => array('datetime' => 'd/M/Y')
-                    )
-                )
-                    )
-            );
-
-            $output_file_excel = "payment_summary_file" . date("d-m-Y") . ".xlsx";
-
-            $R->render('excel', TMP_FOLDER . $output_file_excel);
-
-            if (file_exists(TMP_FOLDER . $output_file_excel)) {
-
-                header('Content-Description: File Transfer');
-                header('Content-Type: application/octet-stream');
-                header("Content-Disposition: attachment; filename=\"$output_file_excel\"");
-                readfile(TMP_FOLDER . $output_file_excel);
-                exec("rm -rf " . escapeshellarg(TMP_FOLDER . $output_file_excel));
-                unset($payment_data);
-            } else {
-                echo "There is somthing Problem. File is not generated";
+            foreach ($payment_data as $line) {
+              fputcsv($output, $line);
             }
-        } else {
-            echo "Please Select Any Checkbox";
+
         }
     }
     
