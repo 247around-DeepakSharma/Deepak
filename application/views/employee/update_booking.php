@@ -98,7 +98,7 @@
                                 <div class="form-group ">
                                     <label for="source_name" class="col-md-4">Booking Source *</label>
                                     <div class="col-md-6">
-                                        <select type="text" onchange= "getBrandForService()" class="booking_source form-control"  id="source_code" name="source_code" required>
+                                        <select type="text" onchange= "getAppliance('<?php echo $booking_history[0]['service_id'];?>')" class="booking_source form-control"  id="source_code" name="source_code" required>
                                             <option selected="selected" disabled="disabled">Select Booking Source</option>
                                             <?php foreach ($sources as $key => $values) { ?>
                                             <option <?php if($values['code'] == $booking_history[0]['source']){ echo "selected"; } ?> value=<?php echo $values['code']; ?>>
@@ -639,7 +639,8 @@
          tags: true
     });
     $("#partner_source").select2();
-    //$(".appliance_capacity").select2();
+    $(".appliance_brand").select2();
+    $(".appliance_capacity").select2();
 
     
      $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});

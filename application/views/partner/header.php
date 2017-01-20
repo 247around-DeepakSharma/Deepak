@@ -27,6 +27,12 @@
         </style>
     </head>
     <body>
+        <?php
+            $CI =& get_instance();
+            $CI->load->library('email');
+            $userdata = $CI->session->all_userdata();
+            $partner_name = $this->session->userdata('partner_name');
+        ?>
         <div id="contactussfmodal" class="modal fade" role="dialog">
                 <div class="modal-dialog">
 
@@ -92,14 +98,14 @@
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <ul class="nav navbar-nav">
                         <li>
-                            <a href="<?php echo base_url(); ?>partner/get_user_form">Search User</a>
+                            <a href="<?php echo base_url(); ?>partner/get_user_form">Advance Search</a>
                         </li>
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Bookings <span class="caret"></span></a>
                             <ul class="dropdown-menu">
                          <!-- <li><a href="<?php echo base_url();?>partner/pending_queries">Pending Queries</a></li>
                                 <li role="separator" class="divider"></li> -->
-                        <li><a href="<?php echo base_url();?>partner/pending_booking">Pending Bookings</a></li>
+                        <li><a href="<?php echo base_url();?>partner/home">Pending Bookings</a></li>
                                 <li role="separator" class="divider"></li>
                         <li><a href="<?php echo base_url();?>partner/closed_booking/Completed">Completed Bookings</a></li>
                                 <li role="separator" class="divider"></li>
@@ -113,13 +119,13 @@
                             <ul class="dropdown-menu">
 
                                 
-                        <li><a href="<?php echo base_url();?>partner/get_spare_parts_booking">Pending Spare Parts</a></li>
+                        <li><a href="<?php echo base_url();?>partner/get_spare_parts_booking">Pending Spares On <?php echo $partner_name?></a></li>
                          <li role="separator" class="divider"></li>
-                         <li><a href="<?php echo base_url();?>partner/get_shipped_parts_list">Shipped Spare Parts</a></li>
+                         <li><a href="<?php echo base_url();?>partner/get_shipped_parts_list">Shipped Spares by <?php echo $partner_name?></a></li>
                           <li role="separator" class="divider"></li>
-                         <li><a href="<?php echo base_url();?>partner/get_waiting_defective_parts">Shipped Defective Spare Parts</a></li>
+                         <li><a href="<?php echo base_url();?>partner/get_waiting_defective_parts">Shipped Spares by SF</a></li>
                          <li role="separator" class="divider"></li>
-                          <li><a href="<?php echo base_url();?>partner/get_approved_defective_parts_booking">Received Defective Spare Parts</a></li>
+                          <li><a href="<?php echo base_url();?>partner/get_approved_defective_parts_booking">Received Spares by <?php echo $partner_name?></a></li>
                          </ul>
                         </li>
 
@@ -150,7 +156,7 @@
                         <li>
                             <form method="POST" class="navbar-form navbar-left" role="search" action="<?php echo base_url(); ?>partner/search">
                                 <div class="form-group">
-                                    <input style="width:118%" type="text" class="form-control pull-right" placeholder="Search Booking ID or Mobile" name="searched_text">
+                                    <input style="width:125%" type="text" class="form-control pull-right" placeholder="Search Booking ID or Mobile" name="searched_text">
                                 </div> 
                             </form>
                         </li>

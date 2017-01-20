@@ -521,7 +521,8 @@ class Booking extends CI_Controller {
      * @return : void
      */
     function addbooking($phone_number) {
-	$data = $this->booking_model->get_city_booking_source_services($phone_number);
+	$data = $this->booking_model->get_city_source();
+        $data['user'] =  $this->user_model->search_user($phone_number);
         $where_internal_status = array("page" => "FollowUp", "active" => '1');
 	$data['follow_up_internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
@@ -634,7 +635,9 @@ class Booking extends CI_Controller {
 	log_message('info', __FUNCTION__ . " data " . print_r($data, true));
 	foreach ($data['booking_unit_details'] as $keys => $value) {
 
-	    $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], $data['booking_unit_details'][$keys]['category'], $data['booking_unit_details'][$keys]['capacity'], $partner_id, $data['booking_history'][0]['state']);
+	    $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], 
+                    $data['booking_unit_details'][$keys]['category'],
+                    $data['booking_unit_details'][$keys]['capacity'], $partner_id,$value['brand']);
 	    log_message('info', __FUNCTION__ . " Prices " . print_r($prices, true));
 	    foreach ($value['quantity'] as $key => $price_tag) {
 		$service_center_data = $this->service_centers_model->get_prices_filled_by_service_center($price_tag['unit_id'], $booking_id);
@@ -867,8 +870,9 @@ class Booking extends CI_Controller {
         if($booking_source[0]['partner_type'] == OEM){
             $where = array("partner_appliance_details.service_id" =>$service_id,
             'partner_id'=> $booking_source[0]['partner_id']);
-            
-            $result = $this->partner_model->get_partner_specific_brand($where);
+            $select = 'brand As brand_name';
+
+            $result = $this->partner_model->get_partner_specific_details($where, $select,"brand");
         } else {
             $result = $this->booking_model->getBrandForService($service_id);
         } 
@@ -881,6 +885,36 @@ class Booking extends CI_Controller {
 	}
         
         print_r(json_encode($data, true));
+    }
+    
+    /**
+     * @desc: This is used to get appliabce list its called by Ajax
+     */
+    function get_appliances($selected_service_id){
+        $source_code = $this->input->post('source_code');
+       
+        $booking_source = $this->booking_model->get_booking_source($source_code);
+          if($booking_source[0]['partner_type'] == OEM){
+               $services = $this->partner_model->get_partner_specific_services($booking_source[0]['partner_id']);
+              
+          } else {
+              $services = $this->booking_model->selectservice();
+              
+          }
+          $data['partner_type'] =  $booking_source[0]['partner_type'];
+          $data['services'] = "<option selected disabled>Select Service</option>";
+          foreach ($services as $appliance) {
+            $data['services'] .= "<option ";
+            if($selected_service_id == $appliance->id){
+                $data['services'] .= " selected ";
+            } else if(count($services) ==1){
+                $data['services'] .= " selected ";
+            }
+            $data['services']  .=" value='".$appliance->id."'>$appliance->services</option>";
+	}
+        
+        print_r(json_encode($data, true));
+        
     }
 
     /**
@@ -1244,7 +1278,7 @@ class Booking extends CI_Controller {
 	    $booking_history = $this->booking_model->getbooking_history_by_appliance_id($appliance_id);
 	}
         if(!empty($booking_history)){
-	$booking = $this->booking_model->get_city_source_services();
+	$booking = $this->booking_model->get_city_source();
 	$booking['booking_history'] = $booking_history;
 	$booking['unit_details'] = $this->booking_model->getunit_details($booking_id, $appliance_id);
 	$partner_id = $this->booking_model->get_price_mapping_partner_code($booking_history[0]['source']);
@@ -1255,11 +1289,15 @@ class Booking extends CI_Controller {
                 $booking['partner_type'] = $value['partner_type'];
             }
         }
-
+        if($booking['partner_type'] == OEM){
+             $booking['services'] = $this->partner_model->get_partner_specific_services($booking_history[0]['partner_id']);
+        } else {
+            $booking['services'] =  $this->booking_model->selectservice();
+        }
 	$booking['capacity'] = array();
         $booking['category'] = array();
         $booking['brand'] = array();
-	$booking['prices'] = array();
+        $booking['prices'] = array();
 	$booking['appliance_id'] = $appliance_id;
         $where_internal_status = array("page" => "FollowUp", "active" => '1');
 	$booking['follow_up_internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
@@ -1268,23 +1306,29 @@ class Booking extends CI_Controller {
             if( $booking['partner_type'] == OEM){
                 $where = array("partner_appliance_details.service_id" =>$booking_history[0]['service_id'],
             'partner_id'=> $booking_history[0]['partner_id']);
+                $select = 'brand As brand_name';
             
-                $brand = $this->partner_model->get_partner_specific_brand($where);
+                $brand = $this->partner_model->get_partner_specific_details($where, $select, "brand");
                 $category = $this->booking_model->getCategoryForService($booking_history[0]['service_id'], 
                         $partner_id, $value['brand']);
                 
                 $capacity = $this->booking_model->getCapacityForCategory($booking_history[0]['service_id'],
                         $value['category'], $value['brand'], $partner_id);
                 
+                $prices = $this->booking_model->getPricesForCategoryCapacity($booking_history[0]['service_id'], 
+                        $value['category'], $value['capacity'], $partner_id, $value['brand']);
+                
             } else {
                 $brand = $this->booking_model->getBrandForService($booking_history[0]['service_id']);
                 $category = $this->booking_model->getCategoryForService($booking_history[0]['service_id'],$partner_id,"");
                 $capacity = $this->booking_model->getCapacityForCategory($booking_history[0]['service_id'], $value['category'],"", $partner_id);
+                $prices = $this->booking_model->getPricesForCategoryCapacity($booking_history[0]['service_id'], 
+                        $value['category'], $value['capacity'], $partner_id, $value['brand']);
+
             }
 	    
 
-	    $prices = $this->booking_model->getPricesForCategoryCapacity($booking_history[0]['service_id'], $booking['unit_details'][$key]['category'], $booking['unit_details'][$key]['capacity'], $partner_id, $booking_history[0]['state']);
-
+	   
         $where  = array('service_id' => $booking_history[0]['service_id'],'brand_name' => $value['brand']);
         $brand_id_array  = $this->booking_model->get_brand($where);
         if(!empty($brand_id_array)){
@@ -1862,6 +1906,17 @@ class Booking extends CI_Controller {
      */
     function get_booking_life_cycle($booking_id){
         $data['data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
+        //Checking for 247Around user
+        if($this->session->userdata('userType') == 'employee'){
+            //Getting Name of SF Agent and SF Name
+            foreach($data['data'] as $key=>$value){
+                //Checking for SF Details
+                if(!empty($value['service_center_id']) && empty($value['partner_id'])){
+                    $data['data'][$key]['full_name'] = $this->service_centers_model->get_sc_login_details_by_id($value['service_center_id'])[0]['full_name'];
+                    $data['data'][$key]['source'] = $this->vendor_model->getVendorContact($value['service_center_id'])[0]['name'];
+                }
+            }
+        }
         $data['booking_details'] = $this->booking_model->getbooking_history($booking_id);
         $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
        

@@ -1637,16 +1637,15 @@ CREATE TABLE `sub_service_center_details` (
 -- Indexes for dumped tables
 --
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 --
 -- Indexes for table `sub_service_center_details`
 --
 ALTER TABLE `sub_service_center_details`
   ADD PRIMARY KEY (`id`);
-=======
+
 ALTER TABLE `partners` ADD `upcountry_rate` INT(11) NOT NULL AFTER `is_upcountry`;
->>>>>>> d2ef9c3... BUG: Removed upcountry flag
+
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -1720,7 +1719,27 @@ ALTER TABLE `file_uploads` DROP `tag`;
 
 ALTER TABLE `partners` DROP `upcountry`;
 
+-- Abhay 14 Jan ---
+ALTER TABLE `bookings_sources` ADD `partner_type` VARCHAR(50) NULL DEFAULT NULL AFTER `partner_id`;
 
--- Abhay 16 Dec 
+
+-- Abhay 16 Jan 
 ALTER TABLE `service_centre_charges` ADD `brand` VARCHAR(150) NULL DEFAULT NULL AFTER `category`;
+
+
+-- Abhay 18 Jan
+ALTER TABLE `partners` ADD `upcountry_max_distance_threshold` INT(10) NULL DEFAULT NULL AFTER `upcountry_rate`, ADD `upcountry_min_distance_threshold` INT(10) NULL DEFAULT NULL AFTER `upcountry_max_distance_threshold`;
+
+--Belal 18 Jan
+
+INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'new_vendor_creation', 'Dear Partner,<br><br>
+247around welcomes you to its Partner Network, we hope to have a long lasting relationship with you.<br><br>
+As informed earlier, serial number of appliance is mandatory when you close a booking. All bookings without serial numbers will be cancelled.<br><br> 
+Engineer has to note the serial number when installation is done. In case serial number is not found on the appliance, he needs to bring one of the following proofs:<br><br> 
+1st Option : Serial Number Of Appliance<br><br>
+2nd Option : Invoice Number Of The Appliance<br><br>
+3rd Option : Customer ID Card Number - PAN / Aadhar / Driving License etc.<br><br>
+No completion will be allowed without any one of the above. For any confusion, write to us or call us.<br><br><br>
+Regards,<br>
+247around Team', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com', '', '1', '2016-09-26 18:30:00');
 

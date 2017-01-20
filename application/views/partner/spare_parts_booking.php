@@ -15,7 +15,7 @@
                     ?>
          <div class="panel panel-default">
             <div class="panel-heading">
-                <h1 class="panel-title" style="font-size:24px;"><i class="fa fa-money fa-fw"></i> Pending Spare Parts </h1>
+                <h1 class="panel-title" style="font-size:24px;"><i class="fa fa-money fa-fw"></i> Pending Spares On <?php echo $this->session->userdata('partner_name')?></h1>
             </div>
             <div class="panel-body">
                <div class="table-responsive">
@@ -48,7 +48,7 @@
                                         <?php echo $row['name']; ?>
                                     </td>
                                     <td>
-                                         <a  href="<?php echo base_url();?>partner/booking_details/<?php echo $row['booking_id'];?>"  title='View'><?php echo $row['booking_id'];?></a>
+                                         <a  style="color:black" href="<?php echo base_url();?>partner/booking_details/<?php echo $row['booking_id'];?>"  title='View'><?php echo $row['booking_id'];?></a>
                                     </td>
 <!--                                    <td>
                                         <?php //echo $row['age_of_booking']; ?>

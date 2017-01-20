@@ -4,6 +4,7 @@
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
   
 <script>
+
   $(function() {
      partner_vendor1(<?php echo $id; ?>);
      $( "#datepicker" ).datepicker({  maxDate: new Date });
@@ -21,7 +22,7 @@ function partner_vendor1(vendor_partner_id){
                 data: {vendor_partner_id: vendor_partner_id,invoice_flag:0},
                 success: function (data) {
                     console.log(data);
-                    $("#name").html(data);
+                    $("#name").html(data).change();
                     $('#loader_gif').attr('src',  "");
                     $('#loader_gif').css("display", "none");
 
@@ -205,6 +206,8 @@ color: red;
 </div>
 
 <script type="text/javascript">
+      $("#name").select2();
+   
 //   $(document).ready(function () {
 //  //called when key is pressed in textbox
 //  $("#amount").keypress(function (e) {

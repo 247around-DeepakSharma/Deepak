@@ -50,7 +50,7 @@
                                         <?php echo $sn_no; ?>
                                     </td>
                                     <td >
-                                        <a href="<?php echo base_url();?>partner/booking_details/<?=$row->booking_id?>" target='_blank' title='View'> <?php
+                                        <a style="color:black" href="<?php echo base_url();?>partner/booking_details/<?=$row->booking_id?>" target='_blank' title='View'> <?php
                                             echo  $row->booking_id;
                                             
                                             ?></a>
@@ -83,14 +83,14 @@
                                     <td>
                                         <?= $row->booking_date; ?>
                                     </td>
-                                    <td><a class='btn btn-sm btn-primary' href="<?php echo base_url();?>partner/update_booking/<?=$row->booking_id?>"  title='View' style="background-color:#2C9D9C; border-color: #2C9D9C;"><i class='fa fa-pencil-square-o' aria-hidden='true' ></i></a></td>
-                                    <td>
+                                    <td style="text-align: center"><a class='btn btn-sm btn-primary' href="<?php echo base_url();?>partner/update_booking/<?=$row->booking_id?>"  title='View' style="background-color:#2C9D9C; border-color: #2C9D9C;"><i class='fa fa-pencil-square-o' aria-hidden='true' ></i></a></td>
+                                    <td style="text-align: center">
                                         <a href="<?php echo base_url(); ?>partner/get_reschedule_booking_form/<?php echo $row->booking_id; ?>" id="reschedule" class="btn btn-sm btn-success" title ="Reschedule"><i class='fa fa-calendar' aria-hidden='true' ></i></a>
                                     </td>
-                                    <td><a href="<?php echo base_url(); ?>partner/get_cancel_form/Pending/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a></td>
-                                    <td><a href="javascript: w=window.open('https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?>'); w.print()" class='btn btn-sm btn-warning btn-sm' target="_blank" ><i class="fa fa-download" aria-hidden="true"></i></a></td>
-                                    <td>
-                                        <a href="#" class='btn btn-sm btn-danger open-AddBookDialog' data-id= "<?php echo $row->booking_id;?>" data-toggle="modal" data-target="#myModal" title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
+                                    <td style="text-align: center"><a href="<?php echo base_url(); ?>partner/get_cancel_form/Pending/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a></td>
+                                    <td style="text-align: center"><a href="javascript: w=window.open('https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?>'); w.print()" class='btn btn-sm btn-primary btn-sm' target="_blank" ><i class="fa fa-download" aria-hidden="true"></i></a></td>
+                                    <td style="text-align: center">
+                                        <a href="#" class='btn btn-sm btn-warning open-AddBookDialog' data-id= "<?php echo $row->booking_id;?>" data-toggle="modal" data-target="#myModal" title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
                                     </td>
                                 </tr>
                                 <?php $sn_no++; } ?>
