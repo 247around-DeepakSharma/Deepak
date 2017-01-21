@@ -633,7 +633,7 @@ class vendor_model extends CI_Model {
      */
     function getVendorFromVendorMapping($data) {
         $this->db->distinct();
-        $this->db->select('Vendor_Name, Brand, Area, Region, vendor_pincode_mapping.Pincode');
+        $this->db->select('service_centres.name As Vendor_Name, Brand, Area, Region, vendor_pincode_mapping.Pincode');
         $this->db->from('vendor_pincode_mapping');
         $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
 
