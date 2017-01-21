@@ -390,7 +390,7 @@ class Inventory extends CI_Controller {
                    if(!empty($template)){
                         $email['order_recieved_from'] = $order_received_from_email[0]['company_name'];
                         $email['order_id'] = $order_id;
-                        $subject = "Brackets Received by ".$order_given_to_email[0]['company_name'];
+                        $subject = "Brackets Received by ".$order_received_from_email[0]['company_name'];
                         $emailBody = vsprintf($template[0], $email);
                         
                         $this->notify->sendEmail($template[2], $order_given_to_email_to , $template[3].','.$this->get_rm_email($order_given_to), '', $subject , $emailBody, '');
