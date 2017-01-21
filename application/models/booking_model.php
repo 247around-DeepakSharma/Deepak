@@ -1080,7 +1080,7 @@ class Booking_model extends CI_Model {
                 WHEN  `bd`.booking_date = '' THEN 'b'
                 ELSE 'c'
             END, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc $add_limit";
-
+        
         $query = $this->db->query($sql);
         //log_message('info', __METHOD__ . "=> " . $this->db->last_query());
 
@@ -1272,8 +1272,10 @@ class Booking_model extends CI_Model {
         $partner_id = $this->partner_model->get_order_id_by_booking_id($booking_id);
         $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$status['current_status'],$status['internal_status']);
         $data['partner_status'] = $partner_status[0]['partner_status'];    
-            
+        $data['final_partner_status'] = $partner_status[0]['final_partner_status'];
+        
         $status['partner_status'] = $data['partner_status'];
+        $status['final_partner_status'] = $data['final_partner_status'];
 
         $this->db->where("booking_id", $booking_id);
         $this->db->update("booking_details", $status);
@@ -2210,13 +2212,13 @@ class Booking_model extends CI_Model {
      * 
      */
     function get_partner_status($partner_id,$current_status, $internal_status){
-        $this->db->select('partner_status');
+        $this->db->select('partner_status,final_partner_status');
         $this->db->where(array('partner_id' => $partner_id, 'current_status' => $current_status, 'internal_status' => $internal_status));
         $query = $this->db->get('partner_status');
         if($query->num_rows()){
             return $query->result_array();
         }else{
-            $this->db->select('partner_status');
+            $this->db->select('partner_status,final_partner_status');
             $this->db->where(array('partner_id' => '247', 'current_status' => $current_status, 'internal_status' => $internal_status));
             $query = $this->db->get('partner_status');
             return $query->result_array();

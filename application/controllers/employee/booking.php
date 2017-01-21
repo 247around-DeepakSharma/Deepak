@@ -337,7 +337,8 @@ class Booking extends CI_Controller {
         }
         
         $partner_status= $this->booking_model->get_partner_status($booking['partner_id'],$booking['current_status'],$booking['internal_status']);
-        $booking['partner_status'] = $partner_status[0]['partner_status'];    
+        $booking['partner_status'] = $partner_status[0]['partner_status'];
+        $booking['final_partner_status'] = $partner_status[0]['final_partner_status'];
 
         switch ($booking_id) {
 
@@ -736,7 +737,8 @@ class Booking extends CI_Controller {
         
         $partner_id = $this->partner_model->get_order_id_by_booking_id($booking_id);
         $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$data['current_status'],$data['internal_status']);
-        $data['partner_status'] = $partner_status[0]['partner_status'];              
+        $data['partner_status'] = $partner_status[0]['partner_status'];
+        $data['final_partner_status'] = $partner_status[0]['final_partner_status'];
         
 	log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));
 
@@ -827,6 +829,7 @@ class Booking extends CI_Controller {
         
         $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$data['current_status'],$data['internal_status']);
         $data['partner_status'] = $partner_status[0]['partner_status'];
+        $data['final_partner_status'] = $partner_status[0]['final_partner_status'];
 
 	if ($data['booking_timeslot'] == "Select") {
 	    echo "Please Select Booking Timeslot.";
@@ -1252,7 +1255,7 @@ class Booking extends CI_Controller {
         
         //Get count of all pending queries
 	$total_queries = $this->booking_model->get_queries(0, "All", $status, $p_av, $booking_id);
-
+        
 	$config['total_rows'] = $total_queries[0]->count;
 	if($offset == "All"){
 		$config['per_page'] = $config['total_rows'];
@@ -1583,7 +1586,8 @@ class Booking extends CI_Controller {
         
             $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$booking['current_status'],$booking['internal_status']);
             $booking['partner_status'] = $partner_status[0]['partner_status'];
-	    
+	    $booking['final_partner_status'] = $partner_status[0]['final_partner_status'];
+            
             log_message('info', __FUNCTION__ . " update booking: " . print_r($booking, true));
 	    $this->booking_model->update_booking($booking_id, $booking);
             $this->booking_model->increase_escalation_reschedule($booking_id, "count_reschedule");
@@ -1751,6 +1755,7 @@ class Booking extends CI_Controller {
         $partner_id = $this->partner_model->get_order_id_by_booking_id($booking_id);
         $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$booking['current_status'],$booking['internal_status']);
         $booking['partner_status'] = $partner_status[0]['partner_status'];
+        $booking['final_partner_status'] = $partner_status[0]['final_partner_status'];
 
 	if ($this->input->post('rating_stars') !== "") {
 	    $booking['rating_stars'] = $this->input->post('rating_stars');
@@ -1844,7 +1849,8 @@ class Booking extends CI_Controller {
         
         $partner_id = $this->partner_model->get_order_id_by_booking_id($booking_id);
         $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$data['current_status'],$data['internal_status']);
-        $data['partner_status'] = $partner_status[0]['partner_status'];    
+        $data['partner_status'] = $partner_status[0]['partner_status'];
+        $data['final_partner_status'] = $partner_status[0]['final_partner_status'];
 
 	if ($data['booking_timeslot'] == "Select") {
 	    echo "Please Select Booking Timeslot.";

@@ -1691,7 +1691,8 @@ ALTER TABLE `bookings_sources` ADD `partner_type` VARCHAR(50) NULL DEFAULT NULL 
 
 --- Sachin 19 Dec --- 
 
-ALTER TABLE `booking_details` ADD `partner_status` VARCHAR(255) NULL DEFAULT NULL AFTER `internal_status`;
+ALTER TABLE `booking_details` ADD `partner_status` VARCHAR(255) NULL DEFAULT NULL AFTER `internal_status`; 
+ALTER TABLE `booking_details` ADD `final_partner_status` VARCHAR(50) NULL DEFAULT NULL AFTER `partner_status`;
 
 CREATE TABLE `partner_status` (
   `id` int(11) NOT NULL,
@@ -1707,6 +1708,7 @@ ALTER TABLE `partner_status`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `partner_status` ADD `partner_id` INT(11) NULL DEFAULT NULL AFTER `id`;
+ALTER TABLE `partner_status` ADD `final_partner_status` VARCHAR(50) NULL DEFAULT NULL AFTER `partner_status`;
 
 -- Abhay 16 Jan 
 ALTER TABLE `service_centre_charges` ADD `brand` VARCHAR(150) NULL DEFAULT NULL AFTER `category`;
@@ -1729,3 +1731,7 @@ No completion will be allowed without any one of the above. For any confusion, w
 Regards,<br>
 247around Team', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com', '', '1', '2016-09-26 18:30:00');
 
+-- Belal 21 Jan
+
+UPDATE `email_template` SET `template` = 'Dear Partner brackets for your Order ID <b> %s </b> have been delivered to you sucessfully.<br><br> Thankyou for placing an order with us.<br.<br> Regards,<br> 247Around Team' WHERE `email_template`.`tag` = 'brackets_received_mail_vendor_order_requested_from
+';
