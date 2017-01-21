@@ -139,35 +139,35 @@ class invoices_model extends CI_Model {
         switch ($type) {
             case 'vendor':
                 $sql = "SELECT service_centres.name, bank_transactions . *
-			FROM service_centres, bank_transactions
-			WHERE bank_transactions.partner_vendor =  'vendor'
-			AND bank_transactions.partner_vendor_id = service_centres.id
-			ORDER BY bank_transactions.transaction_date DESC";
+            FROM service_centres, bank_transactions
+            WHERE bank_transactions.partner_vendor =  'vendor'
+            AND bank_transactions.partner_vendor_id = service_centres.id
+            ORDER BY bank_transactions.transaction_date DESC";
                 $query = $this->db->query($sql);
                 break;
 
             case 'partner':
                 $sql = "SELECT partners.public_name as name, bank_transactions . *
-			FROM partners, bank_transactions
-			WHERE bank_transactions.partner_vendor =  'partner'
-			AND bank_transactions.partner_vendor_id = partners.id
-			ORDER BY bank_transactions.transaction_date DESC";
+            FROM partners, bank_transactions
+            WHERE bank_transactions.partner_vendor =  'partner'
+            AND bank_transactions.partner_vendor_id = partners.id
+            ORDER BY bank_transactions.transaction_date DESC";
                 $query = $this->db->query($sql);
                 break;
 
             case 'all':
                 //TODO: This is not sorted on transaction date
                 $sql = "SELECT partners.public_name, bank_transactions. *
-			FROM partners, bank_transactions
-			WHERE bank_transactions.partner_vendor =  'partner'
-			AND bank_transactions.partner_vendor_id = partners.id
+            FROM partners, bank_transactions
+            WHERE bank_transactions.partner_vendor =  'partner'
+            AND bank_transactions.partner_vendor_id = partners.id
 
-			UNION
+            UNION
 
-			SELECT service_centres.name, bank_transactions. *
-			FROM service_centres, bank_transactions
-			WHERE bank_transactions.partner_vendor =  'vendor'
-			AND bank_transactions.partner_vendor_id = service_centres.id";
+            SELECT service_centres.name, bank_transactions. *
+            FROM service_centres, bank_transactions
+            WHERE bank_transactions.partner_vendor =  'vendor'
+            AND bank_transactions.partner_vendor_id = service_centres.id";
                 $query = $this->db->query($sql);
                 break;
         }
@@ -218,6 +218,7 @@ class invoices_model extends CI_Model {
                 $result[0]['name'] = $value['name'];
                 $result[0]['on_off'] = $value['on_off'];
                 $result[0]['active'] = $value['active'];
+                $result[0]['is_verified'] = $value['is_verified'];
             } else if (isset($value['public_name'])) {
                 $result[0]['name'] = $value['public_name'];
             }
@@ -266,18 +267,18 @@ class invoices_model extends CI_Model {
 
         $sql1 = "SELECT  booking_unit_details.id AS unit_id,service_centres.state, `booking_details`.booking_id, 
                     `booking_details`.city, `booking_details`.internal_status,
-		     date_format(`booking_unit_details`.`ud_closed_date`,'%d/%m/%Y') as closed_date, 
+             date_format(`booking_unit_details`.`ud_closed_date`,'%d/%m/%Y') as closed_date, 
                      `booking_unit_details`.ud_closed_date as closed_booking_date, 
                       rating_stars, `booking_unit_details`.price_tags,
-		     `booking_unit_details`.appliance_category, 
+             `booking_unit_details`.appliance_category, 
                      `booking_unit_details`.appliance_capacity,
                      `services`.services,
-		      customer_net_payable, partner_net_payable,
-		     `service_centres`.company_name, `service_centres`.id, `service_centres`.sc_code, `service_centres`.address,
-		     `service_centres`.beneficiary_name, `service_centres`.bank_account, `service_centres`.bank_name,
-		     `service_centres`.ifsc_code,  `service_centres`.owner_email,  `service_centres`.primary_contact_email, `service_centres`.owner_phone_1,
-		     `service_centres`.primary_contact_phone_1, `booking_unit_details`.  product_or_services, `booking_unit_details`.around_paid_basic_charges as around_net_payable,
-		     (customer_net_payable + partner_net_payable + around_net_payable) as total_booking_charge, service_tax_no,
+              customer_net_payable, partner_net_payable,
+             `service_centres`.company_name, `service_centres`.id, `service_centres`.sc_code, `service_centres`.address,
+             `service_centres`.beneficiary_name, `service_centres`.bank_account, `service_centres`.bank_name,
+             `service_centres`.ifsc_code,  `service_centres`.owner_email,  `service_centres`.primary_contact_email, `service_centres`.owner_phone_1,
+             `service_centres`.primary_contact_phone_1, `booking_unit_details`.  product_or_services, `booking_unit_details`.around_paid_basic_charges as around_net_payable,
+             (customer_net_payable + partner_net_payable + around_net_payable) as total_booking_charge, service_tax_no,
                      (case when (service_centres.tin_no IS NOT NULL )  THEN tin_no ELSE cst_no END) as tin, pan_no, contract_file, company_type
 
                      ,$date
@@ -303,7 +304,7 @@ class invoices_model extends CI_Model {
 
                      (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (vendor_basic_charges) ELSE 0 END) as vendor_stand,
 
-		        (SELECT ROUND(AVG(case when rating_stars > 0  then rating_stars else null
+                (SELECT ROUND(AVG(case when rating_stars > 0  then rating_stars else null
                                 end),1) $condition ) AS avg_rating
 
                     $condition ";
@@ -348,10 +349,10 @@ class invoices_model extends CI_Model {
                     services,`service_centres`.company_name, 
                     `service_centres`.id, `service_centres`
                     .sc_code, `service_centres`.address,
-		     `service_centres`.beneficiary_name,
+             `service_centres`.beneficiary_name,
                      `service_centres`.bank_account, 
                      `service_centres`.bank_name,
-		     `service_centres`.ifsc_code,  
+             `service_centres`.ifsc_code,  
                      `service_centres`.owner_email,  
                      `service_centres`.primary_contact_email, 
                      `service_centres`.owner_phone_1,

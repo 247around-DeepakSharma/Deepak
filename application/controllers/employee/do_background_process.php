@@ -75,21 +75,22 @@ class Do_background_process extends CI_Controller {
 
                 log_message('info', "Async Process Exiting for Booking ID: " . $booking_id);
 
-                if($query1[0]['amount_due'] == 0){
-                    // Check & Calculate Upcountry charges.
-                    $up_status = $this->upcountry_model->action_upcountry_booking($booking_id);
+//                if($query1[0]['amount_due'] == 0){
+//                    // Check & Calculate Upcountry charges.
+//                    $up_status = $this->upcountry_model->action_upcountry_booking($booking_id);
+//
+//                    if(!empty ($up_status) && $up_status != "Success"){
+//                        $from = "booking@247around.com";
+//                        $to = NITS_ANUJ_EMAIL_ID;
+//                        $subject = " UpCountry Calculation Failed for Booking -". $booking_id;
+//                        $message = " UpCountry Calculation Failed for Booking -". "  Booking Pincode - "
+//                                . $query1[0]['booking_pincode']. " service center id ". $service_center_id;
+//                        $cc = $bcc = $attachment ="";
+//
+//                        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);            
+//                    }
+//                }
 
-                    if(!empty ($up_status) && $up_status != "Success"){
-                        $from = "booking@247around.com";
-                        $to = NITS_ANUJ_EMAIL_ID;
-                        $subject = " UpCountry Calculation Failed for Booking -". $booking_id;
-                        $message = " UpCountry Calculation Failed for Booking -". "  Booking Pincode - "
-                                . $query1[0]['booking_pincode']. " service center id ". $service_center_id;
-                        $cc = $bcc = $attachment ="";
-
-                        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);            
-                    }
-                }
             }
         }
        
@@ -204,9 +205,18 @@ class Do_background_process extends CI_Controller {
                 $current_status1 = _247AROUND_COMPLETED;
                 $current_status = _247AROUND_COMPLETED;
             }
-
-            $service_center['closing_remarks'] = "Service Center Remarks:- " . $value['service_center_remarks'] .
-                    " <br/> Admin:-  " . $value['admin_remarks'];
+            if(!empty($value['admin_remarks']) && !empty($value['service_center_remarks'])){
+                $service_center['closing_remarks'] = "Service Center Remarks:- " . $value['service_center_remarks'] .
+                        "   Admin:-  " . $value['admin_remarks'];
+                
+            } else if(!empty ($value['service_center_remarks']) && empty ($value['admin_remarks'])) {
+                $service_center['closing_remarks'] = "Service Center Remarks:- " . $value['service_center_remarks'];
+                
+            } else if(empty ($value['service_center_remarks']) && !empty ($value['admin_remarks'])){
+                $service_center['closing_remarks'] = "Admin:-  " . $value['admin_remarks'];
+            } else{
+                $service_center['closing_remarks'] = "";
+            }
             $service_center['current_status'] = $current_status1;
             $unit_details['booking_status'] = $service_center['internal_status'] = $value['internal_status'];
             $unit_details['id'] = $service_center['unit_details_id'] = $value['unit_details_id'];

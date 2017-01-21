@@ -74,11 +74,11 @@
    <form action="<?php echo base_url();?>employee/invoice/download_invoice_summary" method="POST" target="_blank">
    <tbody><?php $foc= 0; $cash = 0;?>
      <?php $count = 1; foreach ($invoicing_summary as $key => $value) { ?>
-       <tr style = "<?php if(isset($value['on_off'])){ if($value['active'] == 0){ echo 'background-color:red;color:#fff;'; } 
-       else if($value['on_off'] == 0){ echo "background-color:green;color:#fff;"; }}?>"> 
+       <tr style = "<?php if(isset($value['on_off'])){ if($value['active'] == 0){ echo 'background-color:#FF8041;color:#fff;'; } 
+       else if($value['on_off'] == 0){ echo "background-color:#FFEC8B;color:black;"; }}?>"> 
         <td><?php echo $count; ?></td>
-        <td> <a style="<?php if(isset($value['on_off'])){ if($value['active'] == 0){ echo 'background-color:red;color:#fff;'; } 
-       else if($value['on_off'] == 0){ echo "background-color:green;color:#fff;"; }}?>" href="<?php echo base_url()?>employee/invoice/invoice_summary/<?php echo $value['vendor_partner']?>/<?php echo $value['id'] ?>" target='_blank'><?php echo $value['name']?></a></td>
+        <td> <a style="<?php if(isset($value['on_off'])){ if($value['active'] == 0){ echo 'background-color:#FF8041;color:#fff;'; } 
+       else if($value['on_off'] == 0){ echo "background-color:#FFEC8B;color:black;"; }}?>" href="<?php echo base_url()?>employee/invoice/invoice_summary/<?php echo $value['vendor_partner']?>/<?php echo $value['id'] ?>" target='_blank'><?php echo $value['name']?></a></td>
         <td><?php if($value['final_amount'] <0){echo round($value['final_amount'],0); $foc +=abs(round($value['final_amount'],0));}?></td>
         <td><?php if($value['final_amount'] >0){echo round($value['final_amount'],0);  $cash +=abs(round($value['final_amount'],0));}?></td>
        
@@ -87,7 +87,7 @@
 
         <?php }?></td>
         <?php if(isset($service_center)){ ?>
-        <td ><?php if($value['final_amount'] <0){ ?><input type="checkbox" name="<?php echo "amount_service_center[".$value['id']."]";?>" value ="<?php echo abs($value['final_amount']);?>" class="form-control"> <?php } ?></td>
+        <td ><?php if($value['final_amount'] <0){ ?><input type="checkbox" name="<?php echo "amount_service_center[".$value['id']."]";?>" value ="<?php echo abs($value['final_amount']);?>" class="form-control" <?php if($value['is_verified'] ==0){ echo "disabled";}?>> <?php } ?></td>
          <?php } ?>
       </tr>
     <?php  $count++ ;} ?>
