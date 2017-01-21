@@ -171,8 +171,8 @@ class vendor_model extends CI_Model {
         $sql = "Update service_centres set active= 0 where id='$id'";
         $this->db->query($sql);
         //Changing Flag Active to 0 in service centres login table
-        $sql = "Update service_centers_login set active= 0 where service_center_id='$id'";
-        $this->db->query($sql);
+        $sql1 = "Update service_centers_login set active= 0 where service_center_id='$id'";
+        $this->db->query($sql1);
     }
 
     /**
@@ -432,7 +432,7 @@ class vendor_model extends CI_Model {
      *  @param : $state
      *  @return : array of districts
      */
-    function getDistrict($state = "") {
+    function getDistrict($state = "", $pincode = "") {
         $this->db->distinct();
         $this->db->select('vendor_pincode_mapping.City as district');
         $this->db->from('vendor_pincode_mapping');
@@ -442,6 +442,9 @@ class vendor_model extends CI_Model {
 
         if ($state != ""){
             $this->db->where('vendor_pincode_mapping.State', $state);
+        }
+        if($pincode !=""){
+             $this->db->where('vendor_pincode_mapping.Pincode', $pincode);
         }
 
         $query = $this->db->get();
@@ -1525,7 +1528,7 @@ class vendor_model extends CI_Model {
         if(!empty($query_array)){
             foreach($query_array as $value){
                 //Now adding SF to Admin
-                 $this->add_rm_to_sf_relation($value['agent_id'], $sf_id);
+                return $this->add_rm_to_sf_relation($value['agent_id'], $sf_id);
             }   
         }else{
             return FALSE;
@@ -1555,7 +1558,7 @@ class vendor_model extends CI_Model {
      */
     function get_latest_vendor_pincode_mapping_details(){
         $sql = 'SELECT Vendor_Name, Appliance, Brand, Area, Pincode, Region, City, State'
-                . ' FROM vendor_pincode_mapping ORDER BY create_date DESC LIMIT 0 , 1';
+                . ' FROM vendor_pincode_mapping ORDER BY id DESC LIMIT 0 , 1';
         $query = $this->db->query($sql);
 
         return $query->result_array();

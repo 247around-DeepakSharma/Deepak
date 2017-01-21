@@ -1006,7 +1006,7 @@ EOD;
                     }
 
                     $data['data'] = $this->reporting_utils->get_sc_crimes($where);
-                    if (!empty($data['data']) && $data['data'][0]['not_update'] > 0) {
+                    if (!empty($data['data'])) {
                         //Loading view
                         $view = $this->load->view('employee/get_crimes', $data, TRUE);
                         $subject = "SF Crimes Report " . date("d-M-Y");
@@ -1115,4 +1115,103 @@ EOD;
             //echo json_encode($data);
             
     }
+    
+    /**
+     * @Desc: This function is used to get RM's specific crime reports
+     * @params: void
+     * @return: void
+     * 
+     */
+    function get_rm_crimes(){
+        //Getting RM Array
+        $final_array = [];
+        $rm_array = $this->employee_model->get_rm_details();
+        foreach ($rm_array as $value) {
+            $old_crimes = 0;
+            $update = 0;
+            $not_update = 0;
+            $total_crimes = 0;
+            $escalations = 0;
+            //Getting RM to SF relation
+            $where = "";
+            $sf_list = $this->vendor_model->get_employee_relation($value['id']);
+            if (!empty($sf_list)) {
+                $sf_list = $sf_list[0]['service_centres_id'];
+                $where = "AND service_centres.id IN (" . $sf_list . ")";
+            }
+            //Getting Crimes for particular RM for its corresponding SF
+            $data[$value['id']] = $this->reporting_utils->get_sc_crimes($where);
+            //Summing up values for this RM
+            foreach ($data[$value['id']] as $val) {
+                $old_crimes +=$val['monthly_total_crimes'];
+                $update +=$val['update'];
+                $not_update +=$val['not_update'];
+                $total_crimes +=$val['total_booking'];
+                $escalations +=$val['monthly_escalations'];
+            }
+
+            $temp['monthly_total_crimes'] = $old_crimes;
+            $temp['update'] = $update;
+            $temp['not_update'] = $not_update;
+            $temp['total_booking'] = $total_crimes;
+            $temp['rm_name'] = $this->employee_model->getemployeefromid($value['id'])[0]['full_name'];
+            $temp['monthly_escalations'] = $escalations;
+            //Finalizing Array for corresponding RM's ID
+            $final_array['data'][] = $temp;
+        }
+        //Processing for SF's who have not yet being assigned to RM
+        
+        //Getting List of All vendors
+        $all_vendors = $this->vendor_model->getAllVendor();
+        $not_assigned_vendors = '';
+        foreach ($all_vendors as $val) {
+            if (empty($this->vendor_model->get_rm_sf_relation_by_sf_id($val['id']))) {
+                $not_assigned_vendors .= $val['id'] . ',';
+            }
+        }
+        $not_assigned_vendors_crime = $this->reporting_utils->get_sc_crimes("AND service_centres.id IN (" . rtrim($not_assigned_vendors, ',') . ")");
+
+        $not_assigned_old_crimes = 0;
+        $not_assigned_update = 0;
+        $not_assigned_not_update = 0;
+        $not_assigned_total_crimes = 0;
+        $not_assigned_escalations = 0;
+        foreach ($not_assigned_vendors_crime as $vals) {
+            $not_assigned_old_crimes += $vals['monthly_total_crimes'];
+            $not_assigned_update += $vals['update'];
+            $not_assigned_not_update += $vals['not_update'];
+            $not_assigned_total_crimes += $vals['total_booking'];
+            $not_assigned_escalations += $vals['monthly_escalations'];
+        }
+        $temp_not_assigned['monthly_total_crimes'] = $not_assigned_old_crimes;
+        $temp_not_assigned['update'] = $not_assigned_update;
+        $temp_not_assigned['not_update'] = $not_assigned_not_update;
+        $temp_not_assigned['total_booking'] = $not_assigned_total_crimes;
+        $temp_not_assigned['rm_name'] = 'No RM Assigned';
+        $temp_not_assigned['monthly_escalations'] = $not_assigned_escalations;
+        //Finalizing Array for corresponding RM's ID
+        $final_not_assigned_array[] = $temp_not_assigned;
+
+        //Adding Value to Final Array for View
+        $final_array['data'][] = $final_not_assigned_array[0];
+
+
+        //Creating view for this Report
+        $report_view = $this->load->view('employee/get_rm_crimes', $final_array, TRUE);
+        //Sending Mail to ALL RM's and ADMIN employee
+        $mail_list = $this->employee_model->get_employee_for_cron_mail();
+        $to = "";
+        foreach ($mail_list as $value) {
+            $to .= $value['official_email'];
+            $to .=", ";
+        }
+        $to = rtrim($to, ', ');
+
+        $subject = " RM Crimes Report " . date("d-M-Y");
+        $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $report_view, "");
+
+        //Logging
+        log_message('info', __FUNCTION__ . ' RM Crime Report has been sent successfully');
+    }
+
 }

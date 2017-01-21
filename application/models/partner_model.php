@@ -133,7 +133,7 @@ class Partner_model extends CI_Model {
     }
 
     function get_all_partner_source($flag="", $source= ""){
-      $this->db->select("partner_id,source,code,price_mapping_id");
+      $this->db->select("partner_id,source,code,price_mapping_id, partner_type");
         $this->db->order_by('source','ASC');
         if($flag ==""){
         $this->db->where('partner_id !=', 'NULL');
@@ -344,7 +344,7 @@ class Partner_model extends CI_Model {
     /**
      * @desc: This method gets price details for partner
      */
-    function getPrices($service_id, $category, $capacity, $partner_id, $service_category) {
+    function getPrices($service_id, $category, $capacity, $partner_id, $service_category,$brand ="") {
 	$this->db->distinct();
 	$this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod');
 	$this->db->where('service_id', $service_id);
@@ -357,6 +357,9 @@ class Partner_model extends CI_Model {
 	if (!empty($capacity)) {
 	    $this->db->where('capacity', $capacity);
 	}
+        if(!empty($brand)){
+            $this->db->where('brand', $brand);
+        }
 
 	$query = $this->db->get('service_centre_charges');
 
@@ -790,37 +793,6 @@ class Partner_model extends CI_Model {
         return $query->result_array();
     }
     
-    
-    /**
-     * @Desc: This function is used to get Partner Brands Details for Particular service
-     * @params: Array
-     * @return: Array
-     * 
-     * 
-     */
-    function get_partner_appliance_details($where){
-        $this->db->distinct();
-        $this->db->select('capacity');
-        $this->db->where($where);
-        $query = $this->db->get('partner_appliance_details');
-        return $query->result_array();
-    }
-    
-    /**
-     * @Desc: This function is used to get Distinct Partner Model Details for Particular service
-     * @params: Array
-     * @return: Array
-     * 
-     * 
-     */
-    function get_partner_model_details($where){
-        $this->db->distinct();
-        $this->db->select('model');
-        $this->db->where($where);
-        $query = $this->db->get('partner_appliance_details');
-        return $query->result_array();
-    }
-    
     /**
      * @Desc: This function is used to Update Partner Login Details
      * @params: Array
@@ -939,37 +911,7 @@ class Partner_model extends CI_Model {
                 . "AND partner_appliance_details.partner_id = '".$partner_id."'";
         $query = $this->db->query($sql);
         return $query->result_array();
-    }
-    
-    /**
-     * @Desc: This fucntion is used to get Distinct values of Brands for Particular Partner and service id
-     * @params: Where string
-     * @return: Array
-     */
-    function get_partner_service_brands($where){
-        $this->db->distinct();
-        $this->db->select('brand');
-        $this->db->where($where);
-        $this->db->where('active',1);
-        $this->db->order_by('brand', 'asc');
-        $query = $this->db->get('partner_appliance_details');
-        return $query->result_array();
-    }
-    
-    /**
-     * @Desc: This fucntion is used to get Distinct values of Brands for Particular Partner and service id
-     * @params: Where string
-     * @return: Array
-     */
-    function get_category_service_brands($where){
-        $this->db->distinct();
-        $this->db->select('category');
-        $this->db->where($where);
-        $this->db->where('active',1);
-        $this->db->order_by('category', 'asc');
-        $query = $this->db->get('partner_appliance_details');
-        return $query->result_array();
-    }
+    }    
     
     /**
      * @Desc: This function is used to get Patner codes from bookings_sources
@@ -1001,7 +943,7 @@ class Partner_model extends CI_Model {
      * 
      */
     function get_partner_code($partner_id){
-        $this->db->select('code');
+        $this->db->select('partner_type, code');
         $this->db->where('partner_id',$partner_id);
         $query = $this->db->get('bookings_sources');
         return $query->result_array();
@@ -1208,6 +1150,40 @@ class Partner_model extends CI_Model {
 
             return false;
         }
+    }
+    
+    /**
+     * @desc: This is used to return Partner Specific Brand details
+     * @param Array $where
+     * @return Array
+     */
+    function get_partner_specific_details($where, $select, $order_by){
+        
+        $this->db->distinct();
+        $this->db->select($select);
+        $this->db->where($where);
+        $this->db->order_by($order_by, 'asc');
+        $this->db->where('partner_appliance_details.active',1);
+        $query = $this->db->get('partner_appliance_details');
+ 
+        return $query->result_array();
+         
+    }
+    /**
+     * @desc: This is used to return partner sepcific  services
+     * @param String $partner_id
+     * @return Array
+     */
+    function get_partner_specific_services($partner_id){
+        $this->db->distinct();
+        $this->db->select("services.id, services");
+        $this->db->where('partner_id', $partner_id);
+        $this->db->from('partner_appliance_details');
+        $this->db->join("services","services.id = partner_appliance_details.service_id");
+        $this->db->where('partner_appliance_details.active',1);
+        $this->db->order_by('services', 'asc');
+        $query = $this->db->get();
+        return $query->result();
     }
 
 }

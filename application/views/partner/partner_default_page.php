@@ -24,18 +24,33 @@
 <div class="container-fluid">
     <div class="row" style="margin-top: 10px;">
         <div class="col-md-12">
+            <?php if($this->session->flashdata('error')) {
+                echo '<div class="alert alert-danger alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <strong>' . $this->session->flashdata('error') . '</strong>
+                </div>';
+                }
+                ?>
             <div class="panel panel-default">
                 <div id="tabs"> 
                     <ul>
-                        <li><a href="#tabs-1" onclick="load_view('employee/partner/pending_booking/0/1', 'tabs-1')"><span class="panel-title"><i class="fa fa-money fa-fw"></i>Pending Bookings</span></a></li>
-                        <li><a href="#tabs-2" onclick="load_view('employee/partner/get_spare_parts_booking', 'tabs-2')"><span class="panel-title"><i class="fa fa-money fa-fw"></i>Pending Spare Parts</span></a></li>
-                        <li><a href="#tabs-3" onclick="load_view('employee/partner/get_waiting_defective_parts', 'tabs-3')"><span class="panel-title"><i class="fa fa-money fa-fw"></i>Shipped Defective Spare Parts</span></a></li>
+                        <li><a href="#tabs-1" onclick="load_view('employee/partner/pending_booking/0/1', 'tabs-1')"><span class="panel-title">Pending Bookings</span></a></li>
+                        <li><a href="#tabs-2" onclick="load_view('employee/partner/get_spare_parts_booking', 'tabs-2')"><span class="panel-title">Pending Spares</span></a></li>
+                        <li><a href="#tabs-3" onclick="load_view('employee/partner/get_waiting_defective_parts', 'tabs-3')"><span class="panel-title">Shipped Spares by SF</span></a></li>
                     </ul>
 
                     <div class="panel-body">
-                        <div id="tabs-1"><div id="#loading-image"><img src="<?php echo base_url() ?>images/loader.gif" style="margin-left:1%;height:150px;"></div></div>
-                        <div id="tabs-2"><div id="#loading-image"><img src="<?php echo base_url() ?>images/loader.gif" style="margin-left:1%;height:150px;"></div></div>
-                        <div id="tabs-3"><div id="#loading-image"><img src="<?php echo base_url() ?>images/loader.gif" style="margin-left:1%;height:150px;"></div></div>
+                        <style type="text/css">
+
+                            .ui-widget-content a{
+                                color:#ffffff ;
+                            }
+                        </style>
+                        <div id="tabs-1" style="margin-left:-2%;font-size:90%"><div id="#loading-image"><img src="<?php echo base_url() ?>images/loader.gif" style="margin-left:1%;height:150px;"></div></div>
+                        <div id="tabs-2" style="margin-left:-2%"><div id="#loading-image"><img src="<?php echo base_url() ?>images/loader.gif" style="margin-left:1%;height:150px;"></div></div>
+                        <div id="tabs-3" style="margin-left:-2%"><div id="#loading-image"><img src="<?php echo base_url() ?>images/loader.gif" style="margin-left:1%;height:150px;"></div></div>
                     </div>
                 </div>
             </div>
@@ -101,7 +116,29 @@
     $(document).on("click", ".open-AddBookDialog", function () {
         var myBookId = $(this).data('id');
         $(".modal-body #ec_booking_id").val( myBookId );
+        
     });
+    
+    window.onload = function(){
+     //Adding Validation   
+        $("#selectall_address").change(function(){
+            var d_m = $('input[name="download_courier_manifest[]"]:checked');
+            if(d_m.length > 0){
+                $('.checkbox_manifest').prop('checked', false); 
+                $('#selectall_manifest').prop('checked', false); 
+            }
+        $(".checkbox_address").prop('checked', $(this).prop("checked"));
+        });
+    
+        $("#selectall_manifest").change(function(){
+            var d_m = $('input[name="download_address[]"]:checked');
+            if(d_m.length > 0){
+                $('.checkbox_address').prop('checked', false); 
+                $('#selectall_address').prop('checked', false); 
+            }
+        $(".checkbox_manifest").prop('checked', $(this).prop("checked"));
+        }); 
+    }
     
     function load_view(url, tab) {
         //Enabling loader
@@ -114,6 +151,27 @@
                 data_to_append = $(data).find('div.row');
                 $('div.row').css('margin-top','-40px !important');
                 $('#' + tab).html(data_to_append);
+                
+                if(tab === 'tabs-2'){
+                    //Adding Validation   
+                    $("#selectall_address").change(function(){
+                        var d_m = $('input[name="download_courier_manifest[]"]:checked');
+                        if(d_m.length > 0){
+                            $('.checkbox_manifest').prop('checked', false); 
+                            $('#selectall_manifest').prop('checked', false); 
+                        }
+                    $(".checkbox_address").prop('checked', $(this).prop("checked"));
+                    });
+    
+                    $("#selectall_manifest").change(function(){
+                        var d_m = $('input[name="download_address[]"]:checked');
+                        if(d_m.length > 0){
+                            $('.checkbox_address').prop('checked', false); 
+                            $('#selectall_address').prop('checked', false); 
+                        }
+                    $(".checkbox_manifest").prop('checked', $(this).prop("checked"));
+                    }); 
+                }
                 console.log('Data appended to Tab - ' + tab);
             },
             complete: function () {
@@ -145,5 +203,24 @@
         $('#myModal').modal('toggle');
         return false;
     }
+    
+  function check_checkbox(number){
+      
+      if(number === 1){
+        var d_m = $('input[name="download_courier_manifest[]"]:checked');
+        if(d_m.length > 0){
+            $('.checkbox_manifest').prop('checked', false); 
+            $('#selectall_manifest').prop('checked', false); 
+        }
+          
+      } else if(number === 0){
+         var d_m = $('input[name="download_address[]"]:checked');
+        if(d_m.length > 0){
+             $('.checkbox_address').prop('checked', false); 
+             $('#selectall_address').prop('checked', false); 
+         }
+      }
+      
+  }
 
 </script>

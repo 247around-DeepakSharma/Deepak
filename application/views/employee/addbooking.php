@@ -19,6 +19,7 @@
                                 <div class="form-group">
                                     <label for="name" class="col-md-4">Name</label>
                                     <div class="col-md-6">
+                                         <input type="hidden" name="partner_type" value="" id="partner_type" />
                                         <input type="text" class="form-control" id="name" name="user_name" value = "<?php echo $user[0]['name'] ?>" readonly="readonly">
                                     </div>
                                 </div>
@@ -41,7 +42,7 @@
                                 <div class="form-group ">
                                     <label for="booking_city" class="col-md-4">City *</label>
                                     <div class="col-md-6">
-                                        <select type="text" onchange= "getCategoryForService()" class="form-control"  id="booking_city" name="city" required>
+                                        <select type="text"  class="form-control"  id="booking_city" name="city" required>
                                             <option selected="selected" disabled="disabled">Select City</option>
                                             <?php
 
@@ -63,12 +64,9 @@
                                     <label for="service_name" class="col-md-4">Appliance *</label>
                                     <div class="col-md-6">
                                         <input type="hidden" name="service" id="services"/>
-                                        <select type="text" class="form-control"  id="service_id" name="service_id" value = "<?php echo set_value('service_id'); ?>" onChange="getBrandForService(), getCategoryForService();"  required>
+                                        <select type="text" class="form-control"  id="service_id" name="service_id" value = "<?php echo set_value('service_id'); ?>" onChange="getBrandForService()"  required>
                                             <option selected disabled>Select Service</option>
-                                            <?php foreach ($services as $key => $values) { ?>
-                                            <option  value=<?= $values->id; ?>>
-                                                <?php echo $values->services; }    ?>
-                                            </option>
+                                           
 
                                         </select>
                                     </div>
@@ -99,7 +97,7 @@
                                 <div class="form-group ">
                                     <label for="source_name" class="col-md-4">Booking Source *</label>
                                     <div class="col-md-6">
-                                        <select type="text" onchange= "getCategoryForService()" class="booking_source form-control"  id="source_code" name="source_code" required>
+                                        <select type="text" onchange= "getAppliance()" class="booking_source form-control"  id="source_code" name="source_code" required>
                                             <option selected="selected" disabled="disabled">Select Booking Source</option>
                                             <?php foreach ($sources as $key => $values) { ?>
                                             <option  value=<?php echo $values['code']; ?>>
@@ -160,7 +158,7 @@
                                         <div class="form-group">
                                             <label for="service_name" class="col-md-4">Category *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(service_id,this.value, this.id);" required>
+                                                <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(this.value, this.id);" required>
                                                     <option selected disabled>Select Appliance Category</option>
                                                 </select>
                                             </div>
@@ -343,16 +341,16 @@
         </div>
     </div>
 </div>
+
 <script>
     $(".booking_source").select2();
-</script>
-<script>
     $("#service_id").select2();
     $("#booking_city").select2({
          tags: true
     });
     $("#partner_source").select2();
-    
+    $(".appliance_brand").select2();
+    $(".appliance_capacity").select2();
 
     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
 </script>

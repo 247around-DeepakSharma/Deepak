@@ -12,7 +12,7 @@
         <div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">Update Booking</div>
             <div class="panel-body">
-                <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php if(isset($booking_history[0]['booking_id'])){ echo base_url()?>employee/booking/update_booking/<?php echo $booking_history[0]['user_id'];?>/<?php echo $booking_history[0]['booking_id']; } else { echo base_url()?>employee/booking/index/<?php echo $user[0]['user_id'];} ?> "  method="POST" enctype="multipart/form-data">
+                <form name="myForm" class="form-horizontal" id ="booking_form" action="<?php if(isset($booking_history[0]['booking_id'])){ echo base_url()?>employee/booking/update_booking/<?php echo $booking_history[0]['user_id'];?>/<?php echo $booking_history[0]['booking_id']; }  ?> "  method="POST" enctype="multipart/form-data">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="col-md-6">
@@ -25,6 +25,7 @@
                                 <div class="form-group ">
                                     <label for="booking_primary_contact_no" class="col-md-4">Mobile *</label>
                                     <div class="col-md-6">
+                                        <input type="hidden" name="partner_type" value="<?php echo $partner_type; ?>" id="partner_type" />
                                         <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php echo $booking_history[0]['booking_primary_contact_no']?>" required/>
                                     </div>
                                     <div class="col-md-2">
@@ -43,7 +44,7 @@
                                 <div class="form-group ">
                                     <label for="booking_city" class="col-md-4">City *</label>
                                     <div class="col-md-6">
-                                        <select type="text" onchange= "getCategoryForService()" class="form-control"  id="booking_city" name="city" required>
+                                        <select type="text" class="form-control"  id="booking_city" name="city" required>
                                             <option selected="selected" disabled="disabled">Select City</option>
                                             <?php
                                                 $flag = 0;
@@ -62,7 +63,7 @@
                                     <label for="service_name" class="col-md-4">Appliance *</label>
                                     <div class="col-md-6">
                                         <input type="hidden" name="service" id="services"/>
-                                        <select type="text" class="form-control"  id="service_id" name="service_id" value = "<?php echo set_value('service_id'); ?>" onChange="getBrandForService(), getCategoryForService();"  required>
+                                        <select type="text" class="form-control"  id="service_id" name="service_id" value = "<?php echo set_value('service_id'); ?>" onChange="getBrandForService();"  required>
                                             <option disabled>Select Service</option>
                                             <?php foreach ($services as $key => $values) { ?>
                                             <option <?php if($booking_history[0]['service_id'] == $values->id ){ echo "selected"; } ?> value=<?= $values->id; ?>>
@@ -97,7 +98,7 @@
                                 <div class="form-group ">
                                     <label for="source_name" class="col-md-4">Booking Source *</label>
                                     <div class="col-md-6">
-                                        <select type="text" onchange= "getCategoryForService()" class="booking_source form-control"  id="source_code" name="source_code" required>
+                                        <select type="text" onchange= "getAppliance('<?php echo $booking_history[0]['service_id'];?>')" class="booking_source form-control"  id="source_code" name="source_code" required>
                                             <option selected="selected" disabled="disabled">Select Booking Source</option>
                                             <?php foreach ($sources as $key => $values) { ?>
                                             <option <?php if($values['code'] == $booking_history[0]['source']){ echo "selected"; } ?> value=<?php echo $values['code']; ?>>
@@ -155,7 +156,7 @@
                                                 <select type="text" class="form-control appliance_brand"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>
                                                     name="appliance_brand[]" id="appliance_brand_1" onChange="getCategoryForService(this.id)"  required>
                                                     <option selected disabled>Select Brand</option>
-                                                    <?php foreach ($brand as  $appliance_brand) { ?>
+                                                    <?php foreach ($brand[0] as  $appliance_brand) { ?>
                                                     <option <?php if(isset($unit_details[0]['brand'])) {  if (strcasecmp($appliance_brand['brand_name'], $unit_details[0]['brand']) == 0){ echo "selected";} } ?>
                                                         ><?php echo $appliance_brand['brand_name']; ?></option >
                                                     <?php } ?>
@@ -165,9 +166,9 @@
                                         <div class="form-group">
                                             <label for="service_name" class="col-md-4">Category *</label>
                                             <div class="col-md-6">
-                                                <select type="text" class="form-control appliance_category"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(service_id,this.value, this.id);" required>
+                                                <select type="text" class="form-control appliance_category"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(this.value, this.id);" required>
                                                     <option selected disabled>Select Appliance Category</option>
-                                                    <?php foreach ($category as $key => $appliance_category) { ?>
+                                                    <?php foreach ($category[0] as $key => $appliance_category) { ?>
                                                     <option <?php if(isset($unit_details[0]['category'])) { if( $appliance_category['category'] == $unit_details[0]['category']) { echo "selected"; } } ?>
                                                         ><?php echo $appliance_category['category']; ?></option>
                                                     <?php } ?>
@@ -361,7 +362,7 @@
                                             <div class="form-group">
                                                 <label for="service_name" class="col-md-4">Category *</label>
                                                 <div class="col-md-6">
-                                                    <select type="text" class="form-control appliance_category"   id="<?php echo "appliance_category_".$number;?>" name="appliance_category[]"  onChange="getCapacityForCategory(service_id,this.value, this.id);" required>
+                                                    <select type="text" class="form-control appliance_category"   id="<?php echo "appliance_category_".$number;?>" name="appliance_category[]"  onChange="getCapacityForCategory(this.value,this.id);" required>
                                                         <option disabled>Select Appliance Category</option>
                                                         <?php foreach ($category as  $appliance_category) { ?>
                                                         <option <?php if( $appliance_category['category'] == $booking_unit_details['category']) { echo "selected"; } ?>><?php echo $appliance_category['category']; ?></option>
@@ -638,7 +639,8 @@
          tags: true
     });
     $("#partner_source").select2();
-    //$(".appliance_capacity").select2();
+    $(".appliance_brand").select2();
+    $(".appliance_capacity").select2();
 
     
      $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
