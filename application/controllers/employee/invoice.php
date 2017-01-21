@@ -1256,7 +1256,7 @@ class Invoice extends CI_Controller {
                 $sms['tag'] = "vendor_invoice_mailed";
                 $sms['smsData']['type'] = 'FOC';
                 $sms['smsData']['month'] = date('M Y', strtotime($start_date));
-                $sms['smsData']['amount'] = $excel_data['t_total'];
+                $sms['smsData']['amount'] = round($excel_data['t_total'],0);
                 $sms['phone_no'] = $invoices[0]['owner_phone_1'];
                 $sms['booking_id'] = "";
                 $sms['type'] = "vendor";
