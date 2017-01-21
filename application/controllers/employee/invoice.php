@@ -2910,6 +2910,7 @@ class Invoice extends CI_Controller {
                 $sc_details['bank_account'] = $sc['bank_account'];
                 $sc_details['beneficiary_name'] = $sc['beneficiary_name'];
                 $sc_details['final_amount'] = $amount;
+                
 
                 if (stristr($sc['ifsc_code'], 'ICIC') !== FALSE) {
                     $sc_details['payment_mode'] = "I";
@@ -2919,6 +2920,7 @@ class Invoice extends CI_Controller {
 
                 $sc_details['payment_date'] = date("d-M-Y");
                 $sc_details['ifsc_code'] = $sc['ifsc_code'];
+                $sc_details['remarks'] = preg_replace("/[^A-Za-z0-9]/", "", $sc['company_name']);
 
                 array_push($payment_data, $sc_details);
             }
