@@ -69,9 +69,10 @@
                                         <?php echo $row['remarks_defective_part_by_sf']; ?>
                                     </td>
                                     <td>
-                                        <?php if(!empty($row['defective_part_shipped'])){?>
-                                        <a href="<?php echo base_url();?>partner/acknowledge_received_defective_parts/<?php echo $row['booking_id'];?>" style="font-size:21px;" <?php echo empty($row['defective_part_shipped'])?'disabled="disabled"':''?>><i class="fa fa-check" aria-hidden="true"></i></a></td>
-                                        <?php }?>
+                                        <?php //if(!empty($row['defective_part_shipped'])){?>
+                                        <div >
+                                            <a onclick="return confirm_received()" id="defective_parts"href="<?php echo base_url();?>partner/acknowledge_received_defective_parts/<?php echo $row['booking_id'];?>" style="font-size:21px;color:black;" <?php echo empty($row['defective_part_shipped'])?'disabled="disabled"':''?>><i class="fa fa-check" aria-hidden="true"></i></a></td></div>
+                                        <?php //}?>
                                     <td>
                                         <div class="dropdown" style="position:absolute;">
                 <a href="#" style="font-size:21px;color:red;" class="dropdown-toggle" type="button" data-toggle="dropdown"><i class="fa fa-times" aria-hidden="true"></i>
@@ -108,3 +109,12 @@
 
 
  <?php if($this->session->userdata('success')) { $this->session->unset_userdata('success'); } ?>
+<script type="text/javascript">
+function confirm_received(){
+    var c = confirm("Continue?");
+    if(!c){
+        return false;
+    }
+}
+
+</script>
