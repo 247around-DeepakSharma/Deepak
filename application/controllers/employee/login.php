@@ -162,10 +162,10 @@ class Login extends CI_Controller {
 
         $data['browser'] = $this->agent->browser();
         $data['agent_string'] = $this->agent->agent_string();
-        $data['ip'] = $this->session->all_userdata()['ip_address'];
+        $data['ip'] = $this->session->userdata('ip_address');
         $data['action'] = _247AROUND_LOGOUT;
-        $data['entity_type'] = $this->session->all_userdata('userType');
-        $data['agent_id'] = $this->session->all_userdata('id');
+        $data['entity_type'] = $this->session->userdata('userType');
+        $data['agent_id'] = $this->session->userdata('id');
         $data['entity_id'] = _247AROUND;
         
         $logout_id = $this->employee_model->add_login_logout_details($data);

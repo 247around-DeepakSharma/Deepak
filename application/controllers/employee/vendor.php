@@ -449,7 +449,8 @@ class vendor extends CI_Controller {
                 //Getting Logged Employee Full Name
                 $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
                 //Getting RM Official Email details to send Welcome Mails to them as well
-                $rm_official_email = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['official_email'];
+                $rm_id = $this->vendor_model->get_rm_sf_relation_by_sf_id($this->session->userdata('id'))[0]['agent_id'];
+                $rm_official_email = $this->employee_model->getemployeefromid($rm_id)[0]['official_email'];
                 
                 //Logging
                 log_message('info', __FUNCTION__.' SF has been Added :'.print_r($_POST,TRUE));
