@@ -273,11 +273,11 @@ class Partner extends CI_Controller {
         //Saving Logout Details in Database
         $login_data['browser'] = $this->agent->browser();
         $login_data['agent_string'] = $this->agent->agent_string();
-        $login_data['ip'] = $this->session->all_userdata()['ip_address'];
+        $login_data['ip'] = $this->session->userdata('ip_address');
         $login_data['action'] = _247AROUND_LOGOUT;
-        $login_data['entity_type'] = $this->session->all_userdata()['userType'];
-        $login_data['agent_id'] = $this->session->all_userdata()['agent_id'];
-        $login_data['entity_id'] = $this->session->all_userdata()['partner_id'];
+        $login_data['entity_type'] = $this->session->userdata('userType');
+        $login_data['agent_id'] = $this->session->userdata('agent_id');
+        $login_data['entity_id'] = $this->session->userdata('partner_id');
 
         $logout_id = $this->employee_model->add_login_logout_details($login_data);
         //Adding Log Details

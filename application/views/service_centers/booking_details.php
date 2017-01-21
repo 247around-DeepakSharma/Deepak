@@ -212,11 +212,11 @@
                             </tr>
                             <tr>
                                 <th >Invoice Image: </th>
-                                <td><?php if(!is_null($booking_history['spare_parts']['invoice_pic'])) { ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $booking_history['spare_parts']['invoice_pic']; ?> " target="_blank">Click Here to view Invoice Image</a><?php } ?></td>
+                                <td><?php if(!is_null($booking_history['spare_parts']['invoice_pic'])) { if($booking_history['spare_parts']['invoice_pic'] != '0'){  ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $booking_history['spare_parts']['invoice_pic']; ?> " target="_blank">Click Here to view Invoice Image</a><?php } } ?></td>
                             </tr>
                             <tr>
                                 <th >Serial Number Image: </th>
-                                <td><?php if(!is_null($booking_history['spare_parts']['serial_number_pic'])) { ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $booking_history['spare_parts']['serial_number_pic'];  ?> " target="_blank">Click Here to view Serial Number Image</a><?php } ?></td>
+                                <td><?php if(!is_null($booking_history['spare_parts']['serial_number_pic'])) { if($booking_history['spare_parts']['serial_number_pic'] != '0'){  ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $booking_history['spare_parts']['serial_number_pic'];  ?> " target="_blank">Click Here to view Serial Number Image</a><?php } } ?></td>
                             </tr>
                         </table>
                     </div>
@@ -224,7 +224,7 @@
                         <table class="table  table-striped table-bordered" >
                             <tr>
                                 <th >Defective Part Image: </th>
-                                <td><?php if(!is_null($booking_history['spare_parts']['defective_parts_pic'])) { ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $booking_history['spare_parts']['defective_parts_pic'];  ?> " target="_blank">Click Here to view Defective Part Image</a><?php } ?></td>
+                                <td><?php if(!is_null($booking_history['spare_parts']['defective_parts_pic'])) { if($booking_history['spare_parts']['defective_parts_pic'] != '0'){ ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $booking_history['spare_parts']['defective_parts_pic'];  ?> " target="_blank">Click Here to view Defective Part Image</a><?php } } ?></td>
                             </tr>
                             
                             <tr>

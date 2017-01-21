@@ -1822,17 +1822,22 @@ class Booking extends CI_Controller {
 		$this->booking_model->update_unit_details($data);
 
                 $service_center['closing_remarks'] = "";
-                if(!empty($service_center_details) && !empty($admin_remarks) ){
-                    
-                    $service_center['closing_remarks'] = "Service Center Remarks:- " . $service_center_details[0]['service_center_remarks'] .
-			" <br/> Admin:-  " . $admin_remarks;
-                } else if(!empty($service_center_details) && empty ($admin_remarks)){
+               
+                if(!empty($service_center_details)){
+                    if(!empty($service_center_details[0]['service_center_remarks'] ) && !empty($admin_remarks)){
+                         $service_center['closing_remarks'] = "Service Center Remarks:- " . $service_center_details[0]['service_center_remarks'] .
+			"  Admin:-  " . $admin_remarks;
+                    } else if(!empty($service_center_details[0]['service_center_remarks']) && empty ($admin_remarks)){
                     
                      $service_center['closing_remarks'] = "Service Center Remarks:- " . $service_center_details[0]['service_center_remarks'];
-                } else if(empty($service_center_details) && !empty ($admin_remarks)){
-                    
+                    } else if(empty($service_center_details[0]['service_center_remarks']) && !empty ($admin_remarks)){
+
+                        $service_center['closing_remarks'] = "Admin:-  " . $admin_remarks;
+                    }
+
+                } else if(!empty ($admin_remarks)){
                     $service_center['closing_remarks'] = "Admin:-  " . $admin_remarks;
-                } 
+                }
 
 		$service_center['internal_status'] = $service_center['current_status'] = $data['booking_status'];
 		$service_center['unit_details_id'] = $unit_id;

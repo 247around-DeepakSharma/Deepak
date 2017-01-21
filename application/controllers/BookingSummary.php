@@ -1123,7 +1123,7 @@ EOD;
      * @return: void
      * 
      */
-    function get_rm_crimes(){
+    function get_rm_crimes($flag = 0){
         //Getting RM Array
         $final_array = [];
         $rm_array = $this->employee_model->get_rm_details();
@@ -1197,22 +1197,33 @@ EOD;
         $final_array['data'][] = $final_not_assigned_array[0];
 
 
-        //Creating view for this Report
-        $report_view = $this->load->view('employee/get_rm_crimes', $final_array, TRUE);
-        //Sending Mail to ALL RM's and ADMIN employee
-        $mail_list = $this->employee_model->get_employee_for_cron_mail();
-        $to = "";
-        foreach ($mail_list as $value) {
-            $to .= $value['official_email'];
-            $to .=", ";
+        
+        //Checking flag to display in CRM
+        if($flag == 0){
+            
+            $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+            $this->load->view('employee/get_rm_crimes', $final_array);
+            
+        }else{
+            
+            //Creating view for this Report
+
+            $report_view = $this->load->view('employee/get_rm_crimes', $final_array, TRUE);
+            //Sending Mail to ALL RM's and ADMIN employee
+            $mail_list = $this->employee_model->get_employee_for_cron_mail();
+            $to = "";
+            foreach ($mail_list as $value) {
+                $to .= $value['official_email'];
+                $to .=", ";
+            }
+            $to = rtrim($to, ', ');
+
+            $subject = " RM Crimes Report " . date("d-M-Y");
+            $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $report_view, "");
+
+            //Logging
+            log_message('info', __FUNCTION__ . ' RM Crime Report has been sent successfully');
         }
-        $to = rtrim($to, ', ');
-
-        $subject = " RM Crimes Report " . date("d-M-Y");
-        $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $report_view, "");
-
-        //Logging
-        log_message('info', __FUNCTION__ . ' RM Crime Report has been sent successfully');
     }
 
 }

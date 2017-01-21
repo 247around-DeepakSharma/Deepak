@@ -449,7 +449,8 @@ class vendor extends CI_Controller {
                 //Getting Logged Employee Full Name
                 $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
                 //Getting RM Official Email details to send Welcome Mails to them as well
-                $rm_official_email = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['official_email'];
+                $rm_id = $this->vendor_model->get_rm_sf_relation_by_sf_id($this->session->userdata('id'))[0]['agent_id'];
+                $rm_official_email = $this->employee_model->getemployeefromid($rm_id)[0]['official_email'];
                 
                 //Logging
                 log_message('info', __FUNCTION__.' SF has been Added :'.print_r($_POST,TRUE));
@@ -972,7 +973,7 @@ class vendor extends CI_Controller {
            // $this->service_centers_model->update_service_centers_action_table($booking_id, $pre_service_center_data);
             $this->vendor_model->delete_previous_service_center_action($booking_id);
             $unit_details = $this->booking_model->getunit_details($booking_id);
-            $amound_due = 0;
+           // $amound_due = 0;
             foreach ($unit_details[0]['quantity'] as $value ) {
                 $data = array();
                 $data['current_status'] = "Pending";
@@ -982,7 +983,7 @@ class vendor extends CI_Controller {
                 $data['create_date'] = date('Y-m-d H:i:s');
                 $data['unit_details_id'] = $value['unit_id'];
                 $this->vendor_model->insert_service_center_action($data);
-                $amound_due += $value['customer_net_payable'];
+                //$amound_due += $value['customer_net_payable'];
             }
 
             $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, 
@@ -998,20 +999,20 @@ class vendor extends CI_Controller {
 	     log_message('info', "Reassigned - Booking id: " . $booking_id . "  By " .
                $this->session->userdata('employee_id') . " service center id " . $service_center_id);
              
-            if($amound_due == 0){
-                // Check & Calculate Upcountry charges.
-                $up_status = $this->upcountry_model->action_upcountry_booking($booking_id);
-
-                if(!empty ($up_status) && $up_status != "Success"){
-                    $from = "booking@247around.com";
-                    $to = NITS_ANUJ_EMAIL_ID;
-                    $subject = " UpCountry Calculation Failed for Booking -". $booking_id;
-                    $message = " UpCountry Calculation Failed for Booking - service center id ". $service_center_id;
-                        $cc = $bcc = $attachment ="";
-
-                    $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);            
-                } 
-            }
+//            if($amound_due == 0){
+//                // Check & Calculate Upcountry charges.
+//                $up_status = $this->upcountry_model->action_upcountry_booking($booking_id);
+//
+//                if(!empty ($up_status) && $up_status != "Success"){
+//                    $from = "booking@247around.com";
+//                    $to = NITS_ANUJ_EMAIL_ID;
+//                    $subject = " UpCountry Calculation Failed for Booking -". $booking_id;
+//                    $message = " UpCountry Calculation Failed for Booking - service center id ". $service_center_id;
+//                        $cc = $bcc = $attachment ="";
+//
+//                    $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);            
+//                } 
+//            }
 
             redirect(base_url() . DEFAULT_SEARCH_PAGE);
 	} else {
