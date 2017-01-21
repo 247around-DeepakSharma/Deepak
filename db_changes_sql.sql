@@ -1691,24 +1691,22 @@ ALTER TABLE `bookings_sources` ADD `partner_type` VARCHAR(50) NULL DEFAULT NULL 
 
 --- Sachin 19 Dec --- 
 
-ALTER TABLE `booking_details` ADD `partner_status` VARCHAR(255) NULL DEFAULT NULL AFTER `internal_status`; 
-ALTER TABLE `booking_details` ADD `final_partner_status` VARCHAR(50) NULL DEFAULT NULL AFTER `partner_status`;
+ALTER TABLE `booking_details` ADD `partner_current_status` VARCHAR(128) NULL AFTER `internal_status`;
 
-CREATE TABLE `partner_status` (
+ALTER TABLE `booking_details` ADD `partner_internal_status` VARCHAR(128) NULL AFTER `partner_current_status`;
+
+
+CREATE TABLE `partner_booking_status_mapping` (
   `id` int(11) NOT NULL,
-  `current_status` varchar(50) DEFAULT NULL,
-  `internal_status` varchar(50) DEFAULT NULL,
-  `partner_status` varchar(50) DEFAULT NULL
+  `partner_id` int(11) NOT NULL,
+  `247around_current_status` varchar(128) DEFAULT NULL,
+  `247around_internal_status` varchar(128) DEFAULT NULL,
+  `partner_current_status` varchar(128) DEFAULT NULL,
+  `partner_internal_status` varchar(128) DEFAULT NULL,
+   PRIMARY KEY(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-ALTER TABLE `partner_status`
-  ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `partner_status`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-ALTER TABLE `partner_status` ADD `partner_id` INT(11) NULL DEFAULT NULL AFTER `id`;
-ALTER TABLE `partner_status` ADD `final_partner_status` VARCHAR(50) NULL DEFAULT NULL AFTER `partner_status`;
+ALTER TABLE `partner_booking_status_mapping` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
 
 -- Abhay 16 Jan 
 ALTER TABLE `service_centre_charges` ADD `brand` VARCHAR(150) NULL DEFAULT NULL AFTER `category`;
