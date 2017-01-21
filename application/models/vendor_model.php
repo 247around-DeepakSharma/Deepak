@@ -48,6 +48,9 @@ class vendor_model extends CI_Model {
         if($sf_list != "" && $active != ""){
             $where_final = 'where '.$where_sf." AND ".$where_active;
         }
+        if($vendor_id != "" && $active != ""){
+            $where_final = 'where '.$where_id." AND ".$where_active;
+        }
         
         $sql = "Select * from service_centres $where_final";
 

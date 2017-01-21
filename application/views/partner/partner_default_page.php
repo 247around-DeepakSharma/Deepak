@@ -222,5 +222,12 @@
       }
       
   }
+  
+  function confirm_received(){
+    var c = confirm("Continue?");
+    if(!c){
+        return false;
+    }
+}
 
 </script>
