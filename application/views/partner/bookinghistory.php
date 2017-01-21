@@ -24,7 +24,7 @@
         <div class="row">
             <div id="for_user" style="width:90%;margin:50px;">
                 <div class="panel" style="width:90%;margin:50px 0px 10px  50px;background-color: #2C9D9C; border-color: #2C9D9C;color:#fff">
-                    <div class="panel-heading"><center><span style="font-size: 120%;"><b><?php echo ucfirst($data[0]['name']); ?></b></span></center></div>
+                    <div class="panel-heading"><center><span style="font-size: 120%;"><b>Booking History</b></span></center></div>
                 </div>
 
 
