@@ -1278,20 +1278,9 @@ class Booking_model extends CI_Model {
      *  @return : true
      */
     //TODO: can be removed
-    function change_booking_status($booking_id) {
-        $status = array("current_status" => "FollowUp",
-            "internal_status" => "FollowUp",
-            "cancellation_reason" => NULL,
-            "closed_date" => NULL);
+    function change_booking_status($booking_id, $status) {
         
-        $partner_id = $this->partner_model->get_order_id_by_booking_id($booking_id);
-        $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$status['current_status'],$status['internal_status']);
-        $data['partner_status'] = $partner_status[0]['partner_status'];    
-        $data['final_partner_status'] = $partner_status[0]['final_partner_status'];
-        
-        $status['partner_status'] = $data['partner_status'];
-        $status['final_partner_status'] = $data['final_partner_status'];
-
+       
         $this->db->where("booking_id", $booking_id);
         $this->db->update("booking_details", $status);
 
@@ -2227,17 +2216,13 @@ class Booking_model extends CI_Model {
      * 
      */
     function get_partner_status($partner_id,$current_status, $internal_status){
-        $this->db->select('partner_status,final_partner_status');
-        $this->db->where(array('partner_id' => $partner_id, 'current_status' => $current_status, 'internal_status' => $internal_status));
-        $query = $this->db->get('partner_status');
-        if($query->num_rows()){
-            return $query->result_array();
-        }else{
-            $this->db->select('partner_status,final_partner_status');
-            $this->db->where(array('partner_id' => '247', 'current_status' => $current_status, 'internal_status' => $internal_status));
-            $query = $this->db->get('partner_status');
-            return $query->result_array();
-        }
+        $this->db->select('partner_current_status, partner_internal_status');
+        $this->db->where(array('partner_id' => $partner_id,'247around_current_status' => $current_status, '247around_internal_status' => $internal_status));
+        $this->db->or_where('partner_id','247');
+        $this->db->where(array('247around_current_status' => $current_status, '247around_internal_status' => $internal_status));
+        $query = $this->db->get('partner_booking_status_mapping');
+        return $query->result_array();
+        
     }
     
 

@@ -523,17 +523,17 @@ EOD;
             log_message('info', __FUNCTION__ . ' => Fetched partner bookings');
             // Check Other string exist in the Cancellation reason. 
             // If exist then replace cancellation_reason with other
-            foreach ($leads as $key => $value) {
-                if($value['current_status'] != "Cancelled"){
-                    
-                    $leads[$key]['cancellation_reason'] = $value['current_status'];
-                             
-                } else if (stristr($value['cancellation_reason'], "Other :")){
-                  
-                    $leads[$key]['cancellation_reason'] = "Other";
-                    
-                }
-            }
+//            foreach ($leads as $key => $value) {
+//                if($value['current_status'] != "Cancelled"){
+//                    
+//                    $leads[$key]['cancellation_reason'] = $value['current_status'];
+//                             
+//                } else if (stristr($value['cancellation_reason'], "Other :")){
+//                  
+//                    $leads[$key]['cancellation_reason'] = "Other";
+//                    
+//                }
+//            }
             
         $R->load(array(
         array(
@@ -547,6 +547,7 @@ EOD;
         $output_file = TMP_FOLDER."247around-Services-Consolidated-Data - " . date('d-M-Y') . ".xlsx";
         //for xlsx: excel, for xls: excel2003
         $R->render('excel', $output_file);
+        
         log_message('info', __FUNCTION__ . ' => Rendered excel');
             
         $this->email->clear(TRUE);

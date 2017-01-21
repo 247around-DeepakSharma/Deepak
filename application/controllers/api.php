@@ -1252,10 +1252,39 @@ class Api extends CI_Controller {
                                 'current_status' => 'FollowUp',
                                 'query_remarks' => 'Missed call received, Convert to Booking NOW !!!');
                             
-                            $partner_id = $this->partner_model->get_order_id_by_booking_id($b['booking_id']);
-                            $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$d['current_status'],$d['internal_status']);
-                            $d['partner_status'] = $partner_status[0]['partner_status'];
-                            $d['final_partner_status'] = $partner_status[0]['final_partner_status'];
+                            //check partner status from partner_booking_status_mapping table  
+                            $partner_id_data = $this->partner_model->get_order_id_by_booking_id($b['booking_id']);
+
+                            if(!empty($partner_id_data['partner_id'])){
+                                $partner_id = $partner_id_data['partner_id'];
+                            }
+                            else{
+                                $to = "anuj@247around.com";
+                                $cc = "";
+                                $bcc = "";
+                                $subject = " No Partner ID Exists For Booking ID =  '".$b['booking_id']."'";
+                                $message = "No Partner ID Exists For Booking ID =  '".$b['booking_id']."'";
+                                $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
+                            }
+
+                            if($partner_id){
+                                $partner_status= $this->booking_model->get_partner_status($partner_id,$d['current_status'],$d['internal_status']);
+                                if(!empty($partner_status)){
+                                    $d['partner_current_status'] = $partner_status[0]['partner_current_status'];
+                                    $d['partner_internal_status'] = $partner_status[0]['partner_internal_status'];
+                                }else{
+                                    if(strpos($b['booking_id'], 'Q-') !== false){
+                                        $d['partner_current_status'] = 'PENDING';
+                                        $d['partner_internal_status'] = 'Customer_Not_Available';
+                                        $this->send_mail_When_no_data_found($d['current_status'],$d['internal_status'],$b['booking_id'], $partner_id);
+
+                                    }else{
+                                        $d['partner_current_status'] = 'SCHEDULED';
+                                        $d['partner_internal_status'] = 'SCHEDULED';
+                                        $this->send_mail_When_no_data_found($d['current_status'],$d['internal_status'],$b['booking_id'], $partner_id);
+                                    }
+                                }
+                            }
                             
                             $r = $this->booking_model->update_booking($b['booking_id'], $d);
 
@@ -3996,5 +4025,30 @@ class Api extends CI_Controller {
 
         $this->sendBookingMailToUser($user_email, $subject, $message, "", FALSE);
     }
-
+    
+    /**
+     * @Desc: This function is used to Send The Email When No Data found from partner_booking_status_mapping_table
+     * @params: array()
+     * @return: void
+     * 
+     */
+    function send_mail_When_no_data_found($current_status,$internal_status,$booking_id,$partner_id){
+        $to = "anuj@247around.com";
+        $cc = "";
+        $bcc = "";
+        $subject = " No Data found for '".$current_status."' and '".$internal_status."' in partner_booking_status_mapping Table";
+        $message = "
+                    <html>
+                    <head></head>
+                        <body>
+                            <h3> No Data Found in partner_booking_status_mapping Table For Below Data</h3>
+                            <p><b>Booking ID </b> '".$booking_id."'</p>
+                            <p><b>Partner ID </b> '".$partner_id."' </p>
+                            <p><b>Current Status</b> '".$current_status."'</p>
+                            <p><b>Internal Status</b> '".$internal_status."'</p>
+                                
+                        </body>
+                    </html>";
+        $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
+    }
 }
