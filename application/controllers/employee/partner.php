@@ -1162,7 +1162,8 @@ class Partner extends CI_Controller {
         
         $partner_id = $this->partner_model->get_order_id_by_booking_id($booking_id);
         $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$data['current_status'],$data['internal_status']);
-        $data['partner_status'] = $partner_status[0]['partner_status'];               
+        $data['partner_status'] = $partner_status[0]['partner_status'];    
+        $data['final_partner_status'] = $partner_status[0]['final_partner_status'];
         
         $update_status = $this->booking_model->update_booking($booking_id, $data);
         if ($update_status) {
@@ -1257,7 +1258,8 @@ class Partner extends CI_Controller {
             $partner_id = $this->partner_model->get_order_id_by_booking_id($booking_id);
             $partner_status= $this->booking_model->get_partner_status($partner_id['partner_id'],$data['current_status'],$data['internal_status']);
             $data['partner_status'] = $partner_status[0]['partner_status'];               
-        
+            $data['final_partner_status'] = $partner_status[0]['final_partner_status'];
+            
             $update_status = $this->booking_model->update_booking($booking_id, $data);
             if ($update_status) {
                 $this->notify->insert_state_change($booking_id,

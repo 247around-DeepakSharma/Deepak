@@ -1691,7 +1691,8 @@ ALTER TABLE `bookings_sources` ADD `partner_type` VARCHAR(50) NULL DEFAULT NULL 
 
 --- Sachin 19 Dec --- 
 
-ALTER TABLE `booking_details` ADD `partner_status` VARCHAR(255) NULL DEFAULT NULL AFTER `internal_status`;
+ALTER TABLE `booking_details` ADD `partner_status` VARCHAR(255) NULL DEFAULT NULL AFTER `internal_status`; 
+ALTER TABLE `booking_details` ADD `final_partner_status` VARCHAR(50) NULL DEFAULT NULL AFTER `partner_status`;
 
 CREATE TABLE `partner_status` (
   `id` int(11) NOT NULL,
@@ -1707,6 +1708,7 @@ ALTER TABLE `partner_status`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `partner_status` ADD `partner_id` INT(11) NULL DEFAULT NULL AFTER `id`;
+ALTER TABLE `partner_status` ADD `final_partner_status` VARCHAR(50) NULL DEFAULT NULL AFTER `partner_status`;
 
 -- Abhay 16 Jan 
 ALTER TABLE `service_centre_charges` ADD `brand` VARCHAR(150) NULL DEFAULT NULL AFTER `category`;
