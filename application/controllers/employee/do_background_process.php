@@ -204,9 +204,18 @@ class Do_background_process extends CI_Controller {
                 $current_status1 = _247AROUND_COMPLETED;
                 $current_status = _247AROUND_COMPLETED;
             }
-
-            $service_center['closing_remarks'] = "Service Center Remarks:- " . $value['service_center_remarks'] .
-                    " <br/> Admin:-  " . $value['admin_remarks'];
+            if(!empty($value['admin_remarks']) && !empty($value['service_center_remarks'])){
+                $service_center['closing_remarks'] = "Service Center Remarks:- " . $value['service_center_remarks'] .
+                        "   Admin:-  " . $value['admin_remarks'];
+                
+            } else if(!empty ($value['service_center_remarks']) && empty ($value['admin_remarks'])) {
+                $service_center['closing_remarks'] = "Service Center Remarks:- " . $value['service_center_remarks'];
+                
+            } else if(empty ($value['service_center_remarks']) && !empty ($value['admin_remarks'])){
+                $service_center['closing_remarks'] = "Admin:-  " . $value['admin_remarks'];
+            } else{
+                $service_center['closing_remarks'] = "";
+            }
             $service_center['current_status'] = $current_status1;
             $unit_details['booking_status'] = $service_center['internal_status'] = $value['internal_status'];
             $unit_details['id'] = $service_center['unit_details_id'] = $value['unit_details_id'];
