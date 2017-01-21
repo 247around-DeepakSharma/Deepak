@@ -212,6 +212,10 @@
                         </li>
                         <li class="divider"></li>
                         <li>
+                            <a href="<?php echo base_url()?>BookingSummary/get_rm_crimes/0"><i class="fa fa-fw fa-desktop "></i> <strong>RM Crimes Report</strong></a>
+                        </li>
+                        </li><li class="divider"></li>
+                        <li>
                             <a href="<?php echo base_url()?>employee/vendor/vendor_performance_view"><i class="fa fa-fw fa-desktop "></i> <strong>Vendor Performance</strong></a>
                         </li>
                         <li class="divider"></li>
