@@ -167,7 +167,7 @@ color: red;
         <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Transfer"
                <?php if(isset($bank_txn_details)){ if($bank_txn_details[0]['transaction_mode'] == "Transfer"){ echo "checked";}} else { echo "checked";} ?>>    Transfer &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <input type="radio" onclick="cre_deb_validation1()" name="transaction_mode" value = "Other"
-               <?php if(isset($bank_txn_details)){ if($bank_txn_details[0]['transaction_mode'] == "Other"){ echo "checked";}} else { echo "checked";} ?>>    Other
+               <?php if(isset($bank_txn_details)){ if($bank_txn_details[0]['transaction_mode'] == "Other"){ echo "checked";}}  ?>>    Other
                 </div>
 
               </div>
@@ -183,7 +183,7 @@ color: red;
               <label for="name" class="col-md-2">Transaction Date <span class="red">*</span></label>
                 <div class="col-md-2">
                 <div class="input-group input-append date" >
-                    <input type="text" id="datepicker" class="form-control" name="tdate" readonly='true' value="<?php if(isset($bank_txn_details)){ echo $bank_txn_details[0]['transaction_date'];}?>">
+                    <input type="text" id="datepicker" class="form-control" name="tdate" readonly='true' value="<?php if(isset($bank_txn_details)){ echo $bank_txn_details[0]['transaction_date'];} else { echo date('Y-m-d');}?>">
                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                 </div>
                 </div>
