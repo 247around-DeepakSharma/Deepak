@@ -379,12 +379,12 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
        //Saving Login Details in Database
         $login_data['browser'] = $this->agent->browser();
-        $login_data['ip'] = $this->session->all_userdata()['ip_address'];
+        $login_data['ip'] = $this->session->userdata('ip_address');
         $login_data['action'] = _247AROUND_LOGOUT;
         $login_data['agent_string'] = $this->agent->agent_string();
-        $login_data['entity_type'] = $this->session->all_userdata()['userType'];
-        $login_data['entity_id'] = $this->session->all_userdata()['service_center_id'];
-        $login_data['agent_id'] = $this->session->all_userdata()['service_center_agent_id'];
+        $login_data['entity_type'] = $this->session->userdata('userType');
+        $login_data['entity_id'] = $this->session->userdata('service_center_id');
+        $login_data['agent_id'] = $this->session->userdata('service_center_agent_id');
 
         $logout_id = $this->employee_model->add_login_logout_details($login_data);
         //Adding Log Details
@@ -1101,10 +1101,10 @@ class Service_centers extends CI_Controller {
                 $array_final['category'] = $value['category'];
                 $array_final['capacity'] = $value['capacity'];
                 $array_final['service_category'] = $value['service_category'];
-                $array_final['vendor_basic_charges'] = round($vendor_base_charge,2);
-                $array_final['vendor_tax_basic_charges'] = round($vendor_tax,2);
-                $array_final['vendor_total'] = $value['vendor_total'];
-                $array_final['customer_net_payable'] = $value['customer_net_payable'];
+                $array_final['vendor_basic_charges'] = round($vendor_base_charge,0);
+                $array_final['vendor_tax_basic_charges'] = round($vendor_tax,0);
+                $array_final['vendor_total'] = round($value['vendor_total'],0);
+                $array_final['customer_net_payable'] = round($value['customer_net_payable'],0);
                 $array_final['pod'] = $value['pod'];
                 
                 $final_array[] = $array_final;

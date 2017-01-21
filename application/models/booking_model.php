@@ -134,7 +134,7 @@ class Booking_model extends CI_Model {
      */
     function selectservice() {
         $query = $this->db->query("Select id,services from services where isBookingActive='1' order by services");
-	return $query->result_array();
+	return $query->result();
     }
 
     /**
@@ -796,9 +796,13 @@ class Booking_model extends CI_Model {
      *  @return : void
      */
     function addNewApplianceBrand($service_id, $newbrand) {
-        $sql = "INSERT into appliance_brands(service_id,brand_name) values('$service_id','$newbrand')";
-        $query = $this->db->query($sql);
-        return ($this->db->affected_rows() != 1) ? false : true;
+        $data = array(
+            'service_id'=>$service_id,
+            'brand_name'=>$newbrand
+        );
+        
+        $this->db->insert('appliance_brands',$data);
+        return $this->db->insert_id();
     }
     
     /**

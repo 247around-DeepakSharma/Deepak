@@ -101,9 +101,6 @@
           	<th class="jumbotron">ID</th>
           	<th class="jumbotron">Name</th>
                 <th class="jumbotron">CRM Login / Password</th>
-          	<th class="jumbotron">Phone No.</th>
-          	<th class="jumbotron">Email</th>
-          	<th width="250px;" class="jumbotron">Address</th>
           	<th class="jumbotron">PoC Name</th>
           	<th class="jumbotron">PoC Number</th>
           	<th class="jumbotron">PoC Email</th>
@@ -123,15 +120,6 @@
             <td class="text-center">
                     <a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_vendor(<?php echo $row['id']?>)'  <?php echo ($row['active'] == 0)?'disabled=""':'' ?> title="<?php echo strtolower($row['sc_code']) . " / " . strtolower($row['sc_code']);  ?>">Login</a>
             </td>
-            <td>
-                <?=$row['phone_1'];?>
-                <button type="button" onclick="outbound_call(<?php echo $row['phone_1']; ?>)" 
-                    class="btn btn-sm btn-info">
-                        <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
-                </button>
-            </td>
-          	<td><?=$row['email'];?></td>
-          	<td><?=$row['address'];?></td>
           	<td><?=$row['primary_contact_name'];?></td>
           	<td>
           	    <?=$row['primary_contact_phone_1'];?>

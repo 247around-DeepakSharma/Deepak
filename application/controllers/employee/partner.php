@@ -273,11 +273,11 @@ class Partner extends CI_Controller {
         //Saving Logout Details in Database
         $login_data['browser'] = $this->agent->browser();
         $login_data['agent_string'] = $this->agent->agent_string();
-        $login_data['ip'] = $this->session->all_userdata()['ip_address'];
+        $login_data['ip'] = $this->session->userdata('ip_address');
         $login_data['action'] = _247AROUND_LOGOUT;
-        $login_data['entity_type'] = $this->session->all_userdata()['userType'];
-        $login_data['agent_id'] = $this->session->all_userdata()['agent_id'];
-        $login_data['entity_id'] = $this->session->all_userdata()['partner_id'];
+        $login_data['entity_type'] = $this->session->userdata('userType');
+        $login_data['agent_id'] = $this->session->userdata('agent_id');
+        $login_data['entity_id'] = $this->session->userdata('partner_id');
 
         $logout_id = $this->employee_model->add_login_logout_details($login_data);
         //Adding Log Details
@@ -641,8 +641,14 @@ class Partner extends CI_Controller {
                     }
                     
                 $this->partner_model->edit_partner($this->input->post(), $partner_id);
+                
+                //Getting Logged Employee Full Name
+                $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
+                
                 //Logging
                 log_message('info',__FUNCTION__.' Partner has been Updated : '.print_r($this->input->post(),TRUE));
+                //Adding details in Booking State Change
+                $this->notify->insert_state_change('', PARTNER_UPDATED, PARTNER_UPDATED, 'Partner ID : '.$partner_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
                 
                 //Sending Mail for Updated details
                 $html = "<p>Following Partner has been Updated :</p><ul>";
@@ -660,7 +666,7 @@ class Partner extends CI_Controller {
                         $this->email->from('booking@247around.com', '247around Team');
                         $this->email->to($to);
 
-                        $this->email->subject("Partner Updated :  " . $partner_id.' - By '.$this->session->userdata('employee_id'));
+                        $this->email->subject("Partner Updated :  " . $this->input->post('public_name').' - By '.$logged_user_name);
                         $this->email->message($html);
                         
                         if(isset($attachment_contract)){
@@ -770,10 +776,16 @@ class Partner extends CI_Controller {
                 //Set Flashdata on success or on Error of Data insert in table
                 if(!empty($partner_id)){
                     $this->session->set_flashdata('success','Partner added successfully.');
+                    
+                    //Getting Logged Employee Full Name
+                    $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
 
                     //Echoing inserted ID in Log file
                     log_message('info',__FUNCTION__.' New Partner has been added with ID '.  $partner_id." Done By " . $this->session->userdata('employee_id'));
                     log_message('info',__FUNCTION__.' Partner Added Details : '.print_r($this->input->post(),TRUE));
+                    
+                    //Adding details in Booking State Change
+                    $this->notify->insert_state_change('', NEW_PARTNER_ADDED, NEW_PARTNER_ADDED, 'Partner ID : '.$partner_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
                     
                     //Sending Mail for Updated details
                     $html = "<p>Following Partner has been Added :</p><ul>";
@@ -791,7 +803,7 @@ class Partner extends CI_Controller {
                         $this->email->from('booking@247around.com', '247around Team');
                         $this->email->to($to);
 
-                        $this->email->subject("New Partner Added " . $partner_id.' - By '.$this->session->userdata('employee_id'));
+                        $this->email->subject("New Partner Added " . $this->input->post('public_name').' - By '.$logged_user_name);
                         $this->email->message($html);
                         
                         if(isset($attachment_contract)){
@@ -2235,7 +2247,7 @@ class Partner extends CI_Controller {
             //if user not found set error session data
             $this->session->set_flashdata('error', 'Booking Not Found');
 
-            redirect(base_url() . 'employee/partner/pending_booking');
+            redirect(base_url() . 'employee/partner/partner_default_page');
         }
     }
     /**

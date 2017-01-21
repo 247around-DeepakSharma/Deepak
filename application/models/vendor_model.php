@@ -1528,7 +1528,7 @@ class vendor_model extends CI_Model {
         if(!empty($query_array)){
             foreach($query_array as $value){
                 //Now adding SF to Admin
-                 $this->add_rm_to_sf_relation($value['agent_id'], $sf_id);
+                return $this->add_rm_to_sf_relation($value['agent_id'], $sf_id);
             }   
         }else{
             return FALSE;
@@ -1558,7 +1558,7 @@ class vendor_model extends CI_Model {
      */
     function get_latest_vendor_pincode_mapping_details(){
         $sql = 'SELECT Vendor_Name, Appliance, Brand, Area, Pincode, Region, City, State'
-                . ' FROM vendor_pincode_mapping ORDER BY create_date DESC LIMIT 0 , 1';
+                . ' FROM vendor_pincode_mapping ORDER BY id DESC LIMIT 0 , 1';
         $query = $this->db->query($sql);
 
         return $query->result_array();
