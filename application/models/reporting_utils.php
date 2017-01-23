@@ -1541,6 +1541,11 @@ class Reporting_utils extends CI_Model {
                       YEAR(agent_outbound_call_log.create_date) = YEAR(CURDATE())';
             $where3 = "and CallType = 'completed' and DialCallDuration >0 and month(passthru_misscall_log.create_date) = month(CURDATE()) and 
                       YEAR(passthru_misscall_log.create_date) = YEAR(CURDATE())";
+        }else if($flag == 'yesterday'){
+            $where1 = 'and DATE(booking_state_change.create_date) = DATE(CURDATE())-1';
+            $where2 = 'and DATE(agent_outbound_call_log.create_date) = DATE(CURDATE())-1';
+            $where3 = "and CallType = 'completed' and DialCallDuration >0 and DATE(passthru_misscall_log.create_date) = DATE(CURDATE())-1";
+            
         }
         else
         {
