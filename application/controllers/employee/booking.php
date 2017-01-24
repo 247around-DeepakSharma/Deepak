@@ -2306,4 +2306,45 @@ class Booking extends CI_Controller {
         redirect(base_url() . "employee/booking/get_missed_calls_view");
     }
     
+    /**
+     * @Desc: This function is used to update the pay to sf flag in booking details table
+     * @parmas: void
+     * @return: view
+     * 
+     */
+    function update_not_pay_to_sf_booking(){
+        log_message('info', __FUNCTION__);
+        
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/update_pay_to_sf_booking');
+    }
+    
+    /**
+     * @Desc: This function is used to update the pay to sf flag in booking details table
+     * @parmas: void
+     * @return: view
+     * 
+     */
+    function  process_update_not_pay_to_sf_booking(){
+        log_message('info', __FUNCTION__);
+        
+        $booking_id = $this->input->post('booking_id');
+        if(!empty($booking_id)){
+            foreach ($booking_id as $value) {
+                if(!empty($value)){
+                    $is_wall_mount_exist = $this->booking_model->get_unit_details(array('booking_id'=>$value,'price_tags'=>'Wall Mount Stand'));
+                    if(!empty($is_wall_mount_exist)){
+                        $this->booking_model->update_booking_unit_details($value,array('pay_to_sf' =>'0','price_tags'=>'Wall Mount Stand'));
+                        log_message('info',__FUNCTION__.' Pay To SF update in booking_unit_details for Booking ID = '.$value);
+                    }
+                }
+                
+            }
+            $this->session->set_flashdata('msg', 'Booking Updated Successfully');
+            redirect(base_url() . "employee/booking/update_not_pay_to_sf_booking");
+        }else{
+            redirect(base_url() . "employee/booking/update_not_pay_to_sf_booking");
+        }
+        
+    }
 }
