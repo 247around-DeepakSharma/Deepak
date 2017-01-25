@@ -1109,11 +1109,36 @@ EOD;
             
             $data['data'] = $this->reporting_utils->get_agent_daily_reports($flag);
             
+            print("<pre>".  print_r($data,true)."</pre>");exit();
+            
             //print_r($data);
             $this->load->view('employee/header/admin');
             $this->load->view('employee/agent_working_details', $data);  
             
             //echo json_encode($data);
+            
+    }
+    
+    /**
+     * @desc: This function is used to insert agent daily calls report into table
+     * params: void
+     * retun :void
+     *
+     */
+
+    function agent_working_details_cron($flag = "")
+    {
+            log_message('info', __FUNCTION__ . ": Fetched Agent Daily Working Report");
+            
+            $data = $this->reporting_utils->get_agent_daily_reports($flag);
+            if(!empty($data)){
+                $insert = $this->reporting_utils->insert_agent_daily_reports($data);
+            }
+            
+            if($insert){
+                log_message('info', __FUNCTION__ . ": Agent Daily Working Report Inserted Successfully");
+            }
+
             
     }
     

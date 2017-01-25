@@ -1689,6 +1689,12 @@ class Reporting_utils extends CI_Model {
 
     }
     
+    function insert_agent_daily_reports($data){
+        $this->db->insert_batch('agent_daily_report_stats', $data);
+        $result = (bool) ($this->db->affected_rows() > 0);
+        return $result;
+    }
+    
     /**
      * @Desc: This function is used to dump data into sf_snapshot table
      * @params: Array
