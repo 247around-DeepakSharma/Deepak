@@ -11,7 +11,7 @@
         <select  onchange="get_data()" class="form-control"  id="period" name="period" >
             <option  disabled>Select Period</option>
             <option  value = "today" <?php if($last_url_parm == 'date'){?> selected <?php }?> >Today</option>
-            <option value="yesterday" <?php if($last_url_parm == 'month'){?> selected <?php }?>>Yesterday</option>
+            <option value="yesterday" <?php if($last_url_parm == 'yesterday'){?> selected <?php }?>>Yesterday</option>
             <option value="week" <?php if($last_url_parm == 'week'){?> selected <?php }?>>Weekly</option>
             <option value="month" <?php if($last_url_parm == 'month'){?> selected <?php }?>>Current Month</option>
         </select>
