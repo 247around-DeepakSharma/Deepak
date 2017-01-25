@@ -1109,8 +1109,6 @@ EOD;
             
             $data['data'] = $this->reporting_utils->get_agent_daily_reports($flag);
             
-            print("<pre>".  print_r($data,true)."</pre>");exit();
-            
             //print_r($data);
             $this->load->view('employee/header/admin');
             $this->load->view('employee/agent_working_details', $data);  
