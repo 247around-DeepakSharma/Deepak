@@ -1118,6 +1118,29 @@ EOD;
     }
     
     /**
+     * @desc: This function is used to insert agent daily calls report into table
+     * params: void
+     * retun :void
+     *
+     */
+
+    function agent_working_details_cron($flag = "")
+    {
+            log_message('info', __FUNCTION__ . ": Fetched Agent Daily Working Report");
+            
+            $data = $this->reporting_utils->get_agent_daily_reports($flag);
+            if(!empty($data)){
+                $insert = $this->reporting_utils->insert_agent_daily_reports($data);
+            }
+            
+            if($insert){
+                log_message('info', __FUNCTION__ . ": Agent Daily Working Report Inserted Successfully");
+            }
+
+            
+    }
+    
+    /**
      * @Desc: This function is used to get RM's specific crime reports
      * @params: void
      * @return: void

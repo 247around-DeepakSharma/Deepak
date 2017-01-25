@@ -450,6 +450,36 @@ class Booking_utilities {
        return $html;
 
    }
+   
+   /*
+     * @desc: This function is used to get the partner current status and partner internal status
+     * from partner_status_booking_mapping table
+     * params: string
+     * return :array
+     *
+     */
+    function get_partner_status_mapping_data($current_status, $internal_status,$partner_id="", $booking_id=""){
+
+        $partner_status= $this->My_CI->booking_model->get_partner_status($partner_id,$current_status,$internal_status);
+        
+        if(!empty($partner_status) ){
+            $booking['partner_current_status'] = $partner_status[0]['partner_current_status'];
+            $booking['partner_internal_status'] = $partner_status[0]['partner_internal_status'];
+        }else{
+            if(substr($booking_id,0,2) == 'Q-'){
+                $booking['partner_current_status'] = _247AROUND_PENDING;
+                $booking['partner_internal_status'] = _247AROUND__Customer_Not_Available;
+                $this->send_mail_When_no_data_found($internal_status,$internal_status,$booking_id, $partner_id);
+                
+            }else{
+                $booking['partner_current_status'] = _247AROUND__SCHEDULED;
+                $booking['partner_internal_status'] = _247AROUND__SCHEDULED;
+                $this->send_mail_When_no_data_found($current_status,$internal_status,$booking_id, $partner_id);
+            }
+            
+        }
+        return array($booking['partner_current_status'],$booking['partner_internal_status']);
+    }
 
    
    /*
@@ -559,6 +589,32 @@ class Booking_utilities {
         $html .= '</body>
                    </html>';
         return $html;
+    }
+    
+    /**
+     * @Desc: This function is used to Send The Email When No Data found from partner_booking_status_mapping_table
+     * @params: array()
+     * @return: void
+     * 
+     */
+    function send_mail_When_no_data_found($current_status,$internal_status,$booking_id,$partner_id){
+        $to = "ANUJ_EMAIL_ID";
+        $cc = "";
+        $bcc = "";
+        $subject = " No Data found for '".$current_status."' and '".$internal_status."' in partner_booking_status_mapping Table";
+        $message = "
+                    <html>
+                    <head></head>
+                        <body>
+                            <h3> No Data Found in partner_booking_status_mapping Table For Below Data</h3>
+                            <p><b>Booking ID </b> '".$booking_id."'</p>
+                            <p><b>Partner ID </b> '".$partner_id."' </p>
+                            <p><b>Current Status</b> '".$current_status."'</p>
+                            <p><b>Internal Status</b> '".$internal_status."'</p>
+                                
+                        </body>
+                    </html>";
+        $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
     }
 
 }

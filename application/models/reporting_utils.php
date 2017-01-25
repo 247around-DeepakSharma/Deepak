@@ -1541,6 +1541,16 @@ class Reporting_utils extends CI_Model {
                       YEAR(agent_outbound_call_log.create_date) = YEAR(CURDATE())';
             $where3 = "and CallType = 'completed' and DialCallDuration >0 and month(passthru_misscall_log.create_date) = month(CURDATE()) and 
                       YEAR(passthru_misscall_log.create_date) = YEAR(CURDATE())";
+        }else if($flag == 'yesterday'){
+            $where1 = 'and DATE(booking_state_change.create_date) = DATE(CURDATE())-1';
+            $where2 = 'and DATE(agent_outbound_call_log.create_date) = DATE(CURDATE())-1';
+            $where3 = "and CallType = 'completed' and DialCallDuration >0 and DATE(passthru_misscall_log.create_date) = DATE(CURDATE())-1";
+            
+        }else if($flag == 'week'){
+            $where1 = 'and DATE(booking_state_change.create_date) > DATE_SUB(NOW(), INTERVAL 1 WEEK)';
+            $where2 = 'and DATE(agent_outbound_call_log.create_date) > DATE_SUB(NOW(), INTERVAL 1 WEEK)';
+            $where3 = "and CallType = 'completed' and DialCallDuration >0 and DATE(passthru_misscall_log.create_date) > DATE_SUB(NOW(), INTERVAL 1 WEEK)";
+            
         }
         else
         {
@@ -1677,6 +1687,12 @@ class Reporting_utils extends CI_Model {
 
         return $data;
 
+    }
+    
+    function insert_agent_daily_reports($data){
+        $this->db->insert_batch('agent_daily_report_stats', $data);
+        $result = (bool) ($this->db->affected_rows() > 0);
+        return $result;
     }
     
     /**

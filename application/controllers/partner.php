@@ -32,6 +32,7 @@ define('ERR_INVALID_TIMESLOT_FORMAT_CODE', -1013);
 define('ERR_INVALID_INSTALLATION_TIMESLOT_CODE', -1014);
 define('ERR_INVALID_PARTNER_NAME_CODE', -1015);
 define('ERR_INVALID_JSON_INPUT_CODE', -1016);
+define('ERR_INVALID_PRODUCT_TYPE_CODE', -1017);
 
 
 define('ERR_GENERIC_ERROR_MSG', 'Unknown Error');
@@ -51,6 +52,7 @@ define('ERR_INVALID_TIMESLOT_FORMAT_MSG', 'Invalid Timeslot Format');
 define('ERR_INVALID_INSTALLATION_TIMESLOT_MSG', 'Invalid Installation Timeslot');
 define('ERR_INVALID_PARTNER_NAME_MSG', 'Invalid Partner Name');
 define('ERR_INVALID_JSON_INPUT_MSG', 'Invalid JSON Input');
+define('ERR_INVALID_PRODUCT_TYPE', 'Installation not required');
 
 class Partner extends CI_Controller {
 
@@ -76,6 +78,7 @@ class Partner extends CI_Controller {
         $this->load->library('email');
         $this->load->library('notify');
         $this->load->library('partner_utilities');
+        $this->load->library('booking_utilities');
         $this->load->helper(array('form', 'url'));
     }
 
@@ -115,13 +118,16 @@ class Partner extends CI_Controller {
             
             //Validate token
             $this->partner = $this->partner_model->validate_partner($this->token);
+           
             if ($this->partner !== FALSE) {
                 log_message('info', __METHOD__ . ":: Token validated (Partner ID: " . $this->partner['id'] . ")");
 
                 //Token validated
                 $input_d = file_get_contents('php://input');
                 $requestData = json_decode($input_d, TRUE);
-                
+
+                $requestData = json_decode($input_d, TRUE);
+                                 
                 if(!empty($requestData['brand'])){
                     //Sanitizing Brands Before Adding
                     $requestData['brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $requestData['brand']);
@@ -140,7 +146,7 @@ class Partner extends CI_Controller {
                     $is_valid = $this->validate_submit_request_data($requestData);
                     if ($is_valid['result'] == TRUE) {
                         log_message('info', __METHOD__ . ":: Request validated");
-
+                        
                         //Search for user
                         //Insert user if phone number doesn't exist
                         $output = $this->user_model->search_user($requestData['mobile']);
@@ -183,7 +189,10 @@ class Partner extends CI_Controller {
                             $user_id = $output[0]['user_id'];
                         }
                         
+                        //if productType is valid then proceed else send invalid json response 
+                        $is_productType_valid = $this->validate_product_type($requestData);
                         
+                        if($is_productType_valid['error'] !== TRUE){                         
                         log_message('info', 'Product type: ' . $requestData['product']);
                         $prod = trim($requestData['product']);
 
@@ -318,24 +327,11 @@ class Partner extends CI_Controller {
                         
                         
                         //check partner status from partner_booking_status_mapping table 
-                        if($booking['partner_id']){
-                            $partner_status= $this->booking_model->get_partner_status($booking['partner_id'],$booking['current_status'],$booking['internal_status']);
+                            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$booking['partner_id'], $booking['booking_id']);
                             if(!empty($partner_status)){
-                                $booking['partner_current_status'] = $partner_status[0]['partner_current_status'];
-                                $booking['partner_internal_status'] = $partner_status[0]['partner_internal_status'];
-                            }else{
-                                if(strpos($booking['booking_id'], 'Q-') !== false){
-                                    $booking['partner_current_status'] = 'PENDING';
-                                    $booking['partner_internal_status'] = 'Customer_Not_Available';
-                                    $this->send_mail_When_no_data_found($booking['current_status'],$booking['internal_status'],$booking['booking_id'], $booking['partner_id']);
-
-                                }else{
-                                    $booking['partner_current_status'] = 'SCHEDULED';
-                                    $booking['partner_internal_status'] = 'SCHEDULED';
-                                    $this->send_mail_When_no_data_found($booking['current_status'],$booking['internal_status'],$booking['booking_id'], $booking['partner_id']);
-                                }
+                                $booking['partner_current_status'] = $partner_status[0];
+                                $booking['partner_internal_status'] = $partner_status[1];
                             }
-                        }
                         
                         //Insert query
                         //echo print_r($booking, true) . "<br><br>";
@@ -367,6 +363,13 @@ class Partner extends CI_Controller {
                             "247aroundBookingID" => $booking['booking_id'],
                             "247aroundBookingStatus" => $booking['current_status']);
                         $this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
+                        }else{
+                            log_message('info', __METHOD__ . ":: Request validation fails for product type. " . print_r($requestData['productType'], true));
+                        
+                            $this->jsonResponseString['response'] = NULL;
+                            $this->sendJsonResponse(array(ERR_INVALID_PRODUCT_TYPE_CODE,ERR_INVALID_PRODUCT_TYPE));
+                        }
+
                     } else {
                         log_message('info', __METHOD__ . ":: Request validation fails. " . print_r($is_valid, true));
 
@@ -872,7 +875,7 @@ class Partner extends CI_Controller {
         if ($resultArr['code'] == "") {
             $resultArr['result'] = TRUE;
         }
-
+  
         return $resultArr;
     }
 
@@ -1211,12 +1214,12 @@ class Partner extends CI_Controller {
         
         //check partner status from partner_booking_status_mapping table  
         $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);
-        
+        $partner_id = '';
         if(!empty($partner_id_data['partner_id'])){
             $partner_id = $partner_id_data['partner_id'];
         }
         else{
-            $to = "anuj@247around.com";
+            $to = "ANUJ_EMAIL_ID";
             $cc = "";
             $bcc = "";
             $subject = " No Partner ID Exists For Booking ID =  '".$booking_id."'";
@@ -1225,22 +1228,11 @@ class Partner extends CI_Controller {
         }
         
         if($partner_id){
-            $partner_status= $this->booking_model->get_partner_status($partner_id,$booking['current_status'],$booking['internal_status']);
-            if(!empty($partner_status)){
-                $booking['partner_current_status'] = $partner_status[0]['partner_current_status'];
-                $booking['partner_internal_status'] = $partner_status[0]['partner_internal_status'];
-            }else{
-                if(strpos($booking_id, 'Q-') !== false){
-                    $booking['partner_current_status'] = 'PENDING';
-                    $booking['partner_internal_status'] = 'Customer_Not_Available';
-                    $this->send_mail_When_no_data_found($booking['current_status'],$booking['internal_status'],$booking_id, $partner_id);
-
-                }else{
-                    $booking['partner_current_status'] = 'SCHEDULED';
-                    $booking['partner_internal_status'] = 'SCHEDULED';
-                    $this->send_mail_When_no_data_found($booking['current_status'],$booking['internal_status'],$booking_id, $partner_id);
+             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$partner_id, $booking_id);
+                if(!empty($partner_status)){
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
                 }
-            }
         }
 
         $this->booking_model->update_booking($booking_id, $booking);
@@ -1613,24 +1605,11 @@ class Partner extends CI_Controller {
             $booking['booking_timeslot'] = "4PM-7PM";
             
             //check partner status from partner_booking_status_mapping table  
-            if($booking['partner_id']){
-                $partner_status= $this->booking_model->get_partner_status($booking['partner_id'],$booking['current_status'],$booking['internal_status']);
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$booking['partner_id'], $booking['booking_id']);
                 if(!empty($partner_status)){
-                    $booking['partner_current_status'] = $partner_status[0]['partner_current_status'];
-                    $booking['partner_internal_status'] = $partner_status[0]['partner_internal_status'];
-                }else{
-                    if(strpos($booking['booking_id'], 'Q-') !== false){
-                        $booking['partner_current_status'] = 'PENDING';
-                        $booking['partner_internal_status'] = 'Customer_Not_Available';
-                        $this->send_mail_When_no_data_found($booking['current_status'],$booking['internal_status'],$booking['booking_id'], $booking['partner_id']);
-
-                    }else{
-                        $booking['partner_current_status'] = 'SCHEDULED';
-                        $booking['partner_internal_status'] = 'SCHEDULED';
-                        $this->send_mail_When_no_data_found($booking['current_status'],$booking['internal_status'],$booking['booking_id'], $booking['partner_id']);
-                    }
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
                 }
-            }
 
 
 	    if (empty($state['state'])) {
@@ -1867,29 +1846,76 @@ class Partner extends CI_Controller {
         return $data;
     }
     
+    
     /**
-     * @Desc: This function is used to Send The Email When No Data found from partner_booking_status_mapping_table
-     * @params: array()
-     * @return: void
-     * 
+     * @desc: This function is used to validate the product type
+     * @param array $data
+     * @return array
      */
-    function send_mail_When_no_data_found($current_status,$internal_status,$booking_id,$partner_id){
-        $to = "anuj@247around.com";
-        $cc = "";
-        $bcc = "";
-        $subject = " No Data found for '".$current_status."' and '".$internal_status."' in partner_booking_status_mapping Table";
-        $message = "
-                    <html>
-                    <head></head>
-                        <body>
-                            <h3> No Data Found in partner_booking_status_mapping Table For Below Data</h3>
-                            <p><b>Booking ID </b> '".$booking_id."'</p>
-                            <p><b>Partner ID </b> '".$partner_id."' </p>
-                            <p><b>Current Status</b> '".$current_status."'</p>
-                            <p><b>Internal Status</b> '".$internal_status."'</p>
-                                
-                        </body>
-                    </html>";
-        $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
-        }
+    function validate_product_type($data) {
+        log_message('info', __FUNCTION__ . "=> Entering validation routine...");
+	$invalid_data = array();
+        $prod = trim($data['productType']);
+	// get unproductive description array
+	$unproductive_description = $this->unproductive_product();
+        foreach($unproductive_description as $un_description) {
+            if (stristr($prod, $un_description)) {
+		    array_push($invalid_data, $prod);
+		}
+	}
+	if (!empty($invalid_data)) {
+	    log_message('info', __FUNCTION__ . ' =>  Product description is not valid in JSON Request Data: ' .
+		print_r($invalid_data, true));
+
+	    $data['error'] = true;
+            $data['invalid_product'] = $invalid_data;
+           // $data['error']['invalid_title'][] =  "Product description is not valid in Excel data:";
+	    // Add Only user
+	   // $this->add_user_for_invalid($data);
+	}
+        log_message('info', __FUNCTION__ . "=> Exiting validation routine: Under Control");
+
+	return $data;
+    }
+    
+    /**
+     * @desc: This is used to store key. If this key exists in the JSON Request then we will remove them.
+     * @return array
+     */
+    function unproductive_product() {
+	$unproductive_description = array(
+	    'Tds Meter',
+	    'Water Purifier Accessories',
+	    'Room Heater',
+	    'Immersion Rod',
+            '(PNG /LPG) Geyser',
+            'Gas Geyser',
+            'Set of 2',
+            'Drinking Water Pump',
+            'Set of 24 pcs',
+            'Casseroles',
+            'Spun Filter Cartridge',
+            'Oil Filled Radiator',
+            'Immersion Water Heater Rod',
+            '10" Filter Housing Transparent',
+            'Blow Hot Element Heater',
+            'Bajaj Fan Heater',
+            'Gas Geyser',
+            'Ro Body Cover',
+            'Pack Of 24 Pcs',
+            'Mineral Water Pot Offline Non Electric Water Purifer Filter',
+            'Membrane Ro Water Purifier',
+            '15 Filter',
+            'Hevy Duty 5000 Cartridge',
+            'Cleanwell Filter',
+            'CSM MEMBRANE 80 GPD',
+            'Spun Filter pack of ',
+            'Zero B Filter',
+            'Tower Heater',
+            'Oil Filled Heater'
+	);
+
+	return $unproductive_description;
+    }
+
 }

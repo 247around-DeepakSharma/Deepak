@@ -1733,3 +1733,27 @@ Regards,<br>
 
 UPDATE `email_template` SET `template` = 'Dear Partner brackets for your Order ID <b> %s </b> have been delivered to you sucessfully.<br><br> Thankyou for placing an order with us.<br.<br> Regards,<br> 247Around Team' WHERE `email_template`.`tag` = 'brackets_received_mail_vendor_order_requested_from
 ';
+
+--- Sachin 24JAN
+
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES
+(1, 1, 'Cancelled', 'Cancelled', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(2, 1, 'FollowUp', 'Callback Scheduled', 'DEFERRED_BY_CUSTOMER', 'Pending'),
+(3, 1, 'FollowUp', 'Customer Not Reachable', 'CUSTOMER_NOT_AVAILABLE', 'Pending'),
+(4, 1, 'Completed', 'Completed', 'SERVICE_DELIVERED', 'Completed'),
+(5, 1, 'Rescheduled', 'Rescheduled', 'SERVICE_RESCHEDULED', 'RESCHEDULED'),
+(6, 1, 'FollowUp', 'Missed_call_not_confirmed', 'PENDING', 'Pending'),
+(7, 1, 'Pending', 'Scheduled', 'SERVICE_SCHEDULED', 'Pending'),
+(8, 1, 'FollowUp', 'FollowUp', 'PENDING', 'Pending'),
+(9, 1, 'FollowUp', 'Missed_call_confirmed', 'SERVICE_SCHEDULED', 'Pending'),
+(10, 1, 'Cancelled', 'Cancelled by Snapdeal', NULL, NULL),
+(11, 247001, 'Cancelled', 'Cancelled', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(12, 247001, 'FollowUp', 'Callback Scheduled', 'DEFERRED_BY_CUSTOMER', 'Pending'),
+(13, 247001, 'FollowUp', 'Customer Not Reachable', 'CUSTOMER_NOT_AVAILABLE', 'Pending'),
+(14, 247001, 'Completed', 'Completed', 'SERVICE_DELIVERED', 'Completed'),
+(15, 247001, 'Rescheduled', 'Rescheduled', 'SERVICE_RESCHEDULED', 'RESCHEDULED'),
+(16, 247001, 'FollowUp', 'Missed_call_not_confirmed', 'PENDING', 'Pending'),
+(17, 247001, 'Pending', 'Scheduled', 'SERVICE_SCHEDULED', 'Pending'),
+(18, 247001, 'FollowUp', 'FollowUp', 'PENDING', 'Pending'),
+(19, 247001, 'FollowUp', 'Missed_call_confirmed', 'SERVICE_SCHEDULED', 'Pending'),
+(20, 247001, 'Cancelled', 'Cancelled by Snapdeal', NULL, NULL);
