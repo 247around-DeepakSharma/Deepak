@@ -206,6 +206,11 @@ define('NEW_PARTNER_ADDED','New Partner Added');
 //Define Edit SF State
 define('PARTNER_UPDATED','Partner Updated');
 
+//Define error code for order id not found for partner_sd_sb.php file
+define('ERR_ORDER_ID_NOT_FOUND_CODE', -1007);
+//Define error code for order id not found for partner_sd_sb.php file
+define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Not Found');
+
 
 
 /* End of file constants.php */
