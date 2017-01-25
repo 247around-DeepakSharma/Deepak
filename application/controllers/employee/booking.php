@@ -1246,7 +1246,7 @@ class Booking extends CI_Controller {
 	}
         if(!empty($data))
         {
-            $to = "anuj@247around.com";
+            $to = "ANUJ_EMAIL_ID";
             $cc = "";
             $bcc = "";
             $subject = "New Brand Added By ".$this->session->userdata('employee_id');
@@ -2035,7 +2035,7 @@ class Booking extends CI_Controller {
             $partner_id = $partner_id_data['partner_id'];
         }
         else{
-            $to = "anuj@247around.com";
+            $to = "ANUJ_EMAIL_ID";
             $cc = "";
             $bcc = "";
             $subject = " No Partner ID Exists For Booking ID =  '".$booking_id."'";

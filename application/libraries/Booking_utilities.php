@@ -466,14 +466,14 @@ class Booking_utilities {
             $booking['partner_current_status'] = $partner_status[0]['partner_current_status'];
             $booking['partner_internal_status'] = $partner_status[0]['partner_internal_status'];
         }else{
-            if(strpos($booking_id, 'Q-') !== false){
-                $booking['partner_current_status'] = 'PENDING';
-                $booking['partner_internal_status'] = 'Customer_Not_Available';
+            if(substr($booking_id,0,2) == 'Q-'){
+                $booking['partner_current_status'] = _247AROUND_PENDING;
+                $booking['partner_internal_status'] = _247AROUND__Customer_Not_Available;
                 $this->send_mail_When_no_data_found($internal_status,$internal_status,$booking_id, $partner_id);
                 
             }else{
-                $booking['partner_current_status'] = 'SCHEDULED';
-                $booking['partner_internal_status'] = 'SCHEDULED';
+                $booking['partner_current_status'] = _247AROUND__SCHEDULED;
+                $booking['partner_internal_status'] = _247AROUND__SCHEDULED;
                 $this->send_mail_When_no_data_found($current_status,$internal_status,$booking_id, $partner_id);
             }
             
