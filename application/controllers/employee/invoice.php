@@ -1256,7 +1256,7 @@ class Invoice extends CI_Controller {
                 $sms['tag'] = "vendor_invoice_mailed";
                 $sms['smsData']['type'] = 'FOC';
                 $sms['smsData']['month'] = date('M Y', strtotime($start_date));
-                $sms['smsData']['amount'] = round($excel_data['t_total'],0);
+                $sms['smsData']['amount'] = $excel_data['t_total'];
                 $sms['phone_no'] = $invoices[0]['owner_phone_1'];
                 $sms['booking_id'] = "";
                 $sms['type'] = "vendor";
@@ -2894,6 +2894,7 @@ class Invoice extends CI_Controller {
         log_message('info', __FUNCTION__ . " EXIT....");
         return true;
     }
+    
     /**
      * @desc: This method is used to download payment summary invoice for selected service center
      */
@@ -2910,7 +2911,6 @@ class Invoice extends CI_Controller {
                 $sc_details['bank_account'] = $sc['bank_account'];
                 $sc_details['beneficiary_name'] = $sc['beneficiary_name'];
                 $sc_details['final_amount'] = $amount;
-                
 
                 if (stristr($sc['ifsc_code'], 'ICIC') !== FALSE) {
                     $sc_details['payment_mode'] = "I";
@@ -2926,7 +2926,7 @@ class Invoice extends CI_Controller {
             }
 
             header('Content-Type: text/csv; charset=utf-8');
-            header('Content-Disposition: attachment; filename=data.csv');
+            header('Content-Disposition: attachment; filename=payment_upload_summary.csv');
 
             // create a file pointer connected to the output stream
             $output = fopen('php://output', 'w');

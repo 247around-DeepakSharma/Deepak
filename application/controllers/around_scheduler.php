@@ -37,7 +37,7 @@ class Around_scheduler extends CI_Controller {
 	$sms['tag'] = "sd_edd_missed_call_reminder";
         
 	foreach ($data2 as $value) {
-            if($value->sms_count < 2){
+            if($value->sms_count < 3){
                 $sms['phone_no'] = $value->booking_primary_contact_no;
                 $category = '';
                 if($value->services == 'Geyser'){

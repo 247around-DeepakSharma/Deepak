@@ -1587,8 +1587,6 @@ INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_o
 
 ALTER TABLE  `partners` CHANGE  `contract_file`  `contract_file` VARCHAR( 256 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
 
--- =========================  SERVER DB UPDATED, ADD YOUR CHANGES BELOW THIS LINE  ========================= --
-
 
 -- Belal 5 Jan
 
@@ -1752,7 +1750,8 @@ ALTER TABLE `partners` ADD `upcountry_max_distance_threshold` INT(10) NULL DEFAU
 
 --Belal 18 Jan
 
-INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'new_vendor_creation', 'Dear Partner,<br><br>
+INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 
+'new_vendor_creation', 'Dear Partner,<br><br>
 247around welcomes you to its Partner Network, we hope to have a long lasting relationship with you.<br><br>
 As informed earlier, serial number of appliance is mandatory when you close a booking. All bookings without serial numbers will be cancelled.<br><br> 
 Engineer has to note the serial number when installation is done. In case serial number is not found on the appliance, he needs to bring one of the following proofs:<br><br> 
@@ -1769,22 +1768,5 @@ Regards,<br>
 UPDATE `email_template` SET `template` = 'Dear Partner brackets for your Order ID <b> %s </b> have been delivered to you sucessfully.<br><br> Thankyou for placing an order with us.<br.<br> Regards,<br> 247Around Team' WHERE `email_template`.`tag` = 'brackets_received_mail_vendor_order_requested_from
 ';
 
---- Sachin 19 Dec --- 
-
-ALTER TABLE `booking_details` ADD `partner_status` VARCHAR(255) NULL DEFAULT NULL AFTER `internal_status`;
-
-CREATE TABLE `partner_status` (
-  `id` int(11) NOT NULL,
-  `current_status` varchar(50) DEFAULT NULL,
-  `internal_status` varchar(50) DEFAULT NULL,
-  `partner_status` varchar(50) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-ALTER TABLE `partner_status`
-  ADD PRIMARY KEY (`id`);
-
-ALTER TABLE `partner_status`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
-ALTER TABLE `partner_status` ADD `partner_id` INT(11) NULL DEFAULT NULL AFTER `id`;
+-- =========================  SERVER DB UPDATED, ADD YOUR CHANGES BELOW THIS LINE  ========================= --
 

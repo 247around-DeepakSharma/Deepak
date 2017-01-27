@@ -725,7 +725,7 @@ class invoices_model extends CI_Model {
                 AND ud.service_id = services.id
                 AND partners.id = ud.partner_id
                 AND partner_invoice_id IS NULL
-                GROUP BY  `partner_net_payable`, ud.service_id   ";
+                GROUP BY  `partner_net_payable`, ud.service_id,price_tags   ";
 
         $query = $this->db->query($sql);
         $product = $query->result_array();
@@ -770,7 +770,7 @@ class invoices_model extends CI_Model {
                 AND ud.service_id = services.id
                 AND partners.id = ud.partner_id
                 AND partner_invoice_id IS NULL
-                GROUP BY  `partner_net_payable`,ud.service_id  ";
+                GROUP BY  `partner_net_payable`,ud.service_id,price_tags  ";
 
         $query1 = $this->db->query($sql1);
         $service = $query1->result_array();
@@ -850,7 +850,7 @@ class invoices_model extends CI_Model {
                 AND sc.id = bd.assigned_vendor_id
                 AND  ud.around_to_vendor > 0  AND ud.vendor_to_around = 0
                 AND pay_to_sf = '1'
-                GROUP BY  `vendor_basic_charges`,ud.service_id";
+                GROUP BY  `vendor_basic_charges`,ud.service_id, price_tags";
 
         $query = $this->db->query($sql);
         $service = $query->result_array();
@@ -893,7 +893,7 @@ class invoices_model extends CI_Model {
                 AND sc.id = bd.assigned_vendor_id
                 AND  ud.around_to_vendor > 0  AND ud.vendor_to_around = 0 
                 AND pay_to_sf = '1'
-                GROUP BY  `vendor_basic_charges`,ud.service_id";
+                GROUP BY  `vendor_basic_charges`,ud.service_id,price_tags";
 
         $query1 = $this->db->query($sql1);
         $product = $query1->result_array();
@@ -1052,7 +1052,7 @@ class invoices_model extends CI_Model {
                 AND ud.service_id = services.id
                 AND sc.id = bd.assigned_vendor_id
                 $where
-                GROUP BY  (`around_comm_basic_charges` + `around_st_or_vat_basic_charges`),ud.service_id ";
+                GROUP BY  (`around_comm_basic_charges` + `around_st_or_vat_basic_charges`),ud.service_id,price_tags ";
 
             $query = $this->db->query($sql);
             $result[$i] = $query->result_array();
