@@ -58,7 +58,7 @@
                             </tbody>
                         </table>
                       
-                       <input type= "submit"  class="btn btn-danger btn-md col-md-offset-4" onclick='return check_checkbox()' style="margin-top:40px; background-color:#2C9D9C; border-color: #2C9D9C;"  value ="Print Shippment Address" >
+                       <input type= "submit"  class="btn btn-danger btn-md col-md-offset-4" onclick='return check_checkbox()' style="margin-top:40px; background-color:#2C9D9C; border-color: #2C9D9C;"  value ="Print Shipment Address" >
                   </form>
 
                         </div>
