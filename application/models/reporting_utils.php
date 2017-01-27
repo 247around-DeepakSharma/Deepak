@@ -1226,7 +1226,7 @@ class Reporting_utils extends CI_Model {
             $query4 = $this->db->query($sql_total_crimes);
             $result4 = $query4->result_array();
             
-            //Getting Monthly Esvcalations for each SF
+            //Getting Monthly Escalations for each SF
             $escalations_monthly = "SELECT COUNT(id) as monthly_escalations "
                     . "from vendor_escalation_log "
                     . "WHERE MONTH(`create_date`) = MONTH(CURRENT_DATE) AND"
@@ -1541,6 +1541,22 @@ class Reporting_utils extends CI_Model {
                       YEAR(agent_outbound_call_log.create_date) = YEAR(CURDATE())';
             $where3 = "and CallType = 'completed' and DialCallDuration >0 and month(passthru_misscall_log.create_date) = month(CURDATE()) and 
                       YEAR(passthru_misscall_log.create_date) = YEAR(CURDATE())";
+        }else if($flag == 'yesterday'){
+            $where1 = 'and DATE(booking_state_change.create_date) = DATE(CURDATE())-1';
+            $where2 = 'and DATE(agent_outbound_call_log.create_date) = DATE(CURDATE())-1';
+            $where3 = "and CallType = 'completed' and DialCallDuration >0 and DATE(passthru_misscall_log.create_date) = DATE(CURDATE())-1";
+            
+        }else if($flag == 'week'){
+            $where1 = 'and DATE(booking_state_change.create_date) > DATE_SUB(NOW(), INTERVAL 1 WEEK)';
+            $where2 = 'and DATE(agent_outbound_call_log.create_date) > DATE_SUB(NOW(), INTERVAL 1 WEEK)';
+            $where3 = "and CallType = 'completed' and DialCallDuration >0 and DATE(passthru_misscall_log.create_date) > DATE_SUB(NOW(), INTERVAL 1 WEEK)";
+            
+        }
+        else if($flag == 'week'){
+            $where1 = 'and DATE(booking_state_change.create_date) > DATE_SUB(NOW(), INTERVAL 1 WEEK)';
+            $where2 = 'and DATE(agent_outbound_call_log.create_date) > DATE_SUB(NOW(), INTERVAL 1 WEEK)';
+            $where3 = "and CallType = 'completed' and DialCallDuration >0 and DATE(passthru_misscall_log.create_date) > DATE_SUB(NOW(), INTERVAL 1 WEEK)";
+            
         }
         else
         {

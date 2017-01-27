@@ -369,7 +369,7 @@ class Partner_model extends CI_Model {
     //Return all leads shared by Partner in the last 30 days
     function get_partner_leads_for_summary_email($partner_id) {
 	$query = $this->db->query("SELECT DISTINCT BD.booking_id, order_id, booking_date, booking_timeslot,
-			BD.current_status, BD.cancellation_reason, rating_stars,
+			BD.current_status, BD.cancellation_reason, rating_stars,BD.partner_current_status,BD.partner_internal_status,
 			DATE_FORMAT(BD.create_date, '%d/%M') as create_date,
 			services,
 			UD.appliance_brand as brand, UD.model_number, UD.appliance_description as description,
@@ -705,7 +705,8 @@ class Partner_model extends CI_Model {
             $select = "SELECT spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, "
                 . " booking_details.booking_address,booking_details.initial_booking_date,"
                 . " service_centres.name as vendor_name, service_centres.address, service_centres.state, "
-                . " service_centres.pincode, service_centres.district";
+                . " service_centres.pincode, service_centres.district,"
+                . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request ";
             $limit = "LIMIT $start, $end";
         } else {
             $select = "SELECT count(spare_parts_details.id) as total_rows ";

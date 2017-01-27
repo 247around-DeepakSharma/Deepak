@@ -296,9 +296,14 @@
                         </li>
                         </li><li class="divider"></li>
                         <li>
+                            <a href="<?php echo base_url()?>BookingSummary/get_rm_crimes/0"><i class="fa fa-fw fa-desktop "></i> <strong>RM Crimes Report</strong></a>
+                        </li>
+                        </li><li class="divider"></li>
+                        <li>
                             <a href="<?php echo base_url()?>BookingSummary/agent_working_details/month" ><i class="fa fa-fw fa-desktop"></i> <strong> Agents Booking Stats</strong></a>
                         </li>
-                        <li class="divider"></li>
+                        
+<!--                        <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>employee/vendor/vendor_performance_view"><i class="fa fa-fw fa-desktop "></i> <strong>Vendor Performance</strong></a>
                         </li>
@@ -309,6 +314,7 @@
                         <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>employee/user/user_count" ><i class="fa fa-fw fa-desktop"></i> <strong> Users</strong></a>
+                        </li>-->
                         
                     </ul>
                     <!-- /.dropdown-user -->

@@ -75,21 +75,22 @@ class Do_background_process extends CI_Controller {
 
                 log_message('info', "Async Process Exiting for Booking ID: " . $booking_id);
 
-                if($query1[0]['amount_due'] == 0){
-                    // Check & Calculate Upcountry charges.
-                    $up_status = $this->upcountry_model->action_upcountry_booking($booking_id);
+//                if($query1[0]['amount_due'] == 0){
+//                    // Check & Calculate Upcountry charges.
+//                    $up_status = $this->upcountry_model->action_upcountry_booking($booking_id);
+//
+//                    if(!empty ($up_status) && $up_status != "Success"){
+//                        $from = "booking@247around.com";
+//                        $to = NITS_ANUJ_EMAIL_ID;
+//                        $subject = " UpCountry Calculation Failed for Booking -". $booking_id;
+//                        $message = " UpCountry Calculation Failed for Booking -". "  Booking Pincode - "
+//                                . $query1[0]['booking_pincode']. " service center id ". $service_center_id;
+//                        $cc = $bcc = $attachment ="";
+//
+//                        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);            
+//                    }
+//                }
 
-                    if(!empty ($up_status) && $up_status != "Success"){
-                        $from = "booking@247around.com";
-                        $to = NITS_ANUJ_EMAIL_ID;
-                        $subject = " UpCountry Calculation Failed for Booking -". $booking_id;
-                        $message = " UpCountry Calculation Failed for Booking -". "  Booking Pincode - "
-                                . $query1[0]['booking_pincode']. " service center id ". $service_center_id;
-                        $cc = $bcc = $attachment ="";
-
-                        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);            
-                    }
-                }
             }
         }
        
@@ -196,9 +197,9 @@ class Do_background_process extends CI_Controller {
 
         $data = $this->booking_model->getbooking_charges($booking_id);
         $current_status = _247AROUND_CANCELLED ;
-        log_message('info', ": " . " service center data " . print_r($data, TRUE));
-
-        foreach ($data as $key => $value) {
+        //log_message('info', ": " . " service center data " . print_r($data, TRUE));
+       
+        foreach ($data as  $value) {
             $current_status1 = _247AROUND_CANCELLED ;
             if($value['internal_status'] == _247AROUND_COMPLETED){
                 $current_status1 = _247AROUND_COMPLETED;
@@ -252,6 +253,29 @@ class Do_background_process extends CI_Controller {
         $booking['internal_status'] = $current_status;
         $booking['amount_paid'] = $data[0]['amount_paid'];
         $booking['closing_remarks'] = $service_center['closing_remarks'];
+        
+        //check partner status from partner_booking_status_mapping table  
+        $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);
+        $partner_id = '';
+        if(!empty($partner_id_data['partner_id'])){
+            $partner_id = $partner_id_data['partner_id'];
+        }
+        else{
+            $to = "ANUJ_EMAIL_ID";
+            $cc = "";
+            $bcc = "";
+            $subject = " No Partner ID Exists For Booking ID = '".$booking_id."' ";
+            $message = "No Partner ID Exists For Booking ID = '".$booking_id."' ";
+            $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
+        }
+        
+        if($partner_id){
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$partner_id, $booking_id);
+            if(!empty($partner_status)){
+                $booking['partner_current_status'] = $partner_status[0];
+                $booking['partner_internal_status'] = $partner_status[1];
+            }
+        }
 
         //update booking_details table
         log_message('info', ": " . " update booking details data (" .$current_status .")".print_r($booking, TRUE));
@@ -259,6 +283,7 @@ class Do_background_process extends CI_Controller {
         if($current_status == _247AROUND_CANCELLED){
 
             $booking['cancellation_reason'] = $data[0]['cancellation_reason'];
+            $booking['internal_status'] =  $booking['cancellation_reason'];
 
         } else {
 
@@ -297,7 +322,8 @@ class Do_background_process extends CI_Controller {
         log_message('info', ":  Send sms and email request for booking_id" .print_r($booking_id, TRUE). " and state ". print_r($state, TRUE));
 
     }
-
+    
+  
     /* end controller */
 
 }

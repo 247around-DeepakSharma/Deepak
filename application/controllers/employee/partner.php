@@ -273,11 +273,11 @@ class Partner extends CI_Controller {
         //Saving Logout Details in Database
         $login_data['browser'] = $this->agent->browser();
         $login_data['agent_string'] = $this->agent->agent_string();
-        $login_data['ip'] = $this->session->all_userdata()['ip_address'];
+        $login_data['ip'] = $this->session->userdata('ip_address');
         $login_data['action'] = _247AROUND_LOGOUT;
-        $login_data['entity_type'] = $this->session->all_userdata()['userType'];
-        $login_data['agent_id'] = $this->session->all_userdata()['agent_id'];
-        $login_data['entity_id'] = $this->session->all_userdata()['partner_id'];
+        $login_data['entity_type'] = $this->session->userdata('userType');
+        $login_data['agent_id'] = $this->session->userdata('agent_id');
+        $login_data['entity_id'] = $this->session->userdata('partner_id');
 
         $logout_id = $this->employee_model->add_login_logout_details($login_data);
         //Adding Log Details
@@ -1159,6 +1159,30 @@ class Partner extends CI_Controller {
         $data['cancellation_reason'] = $this->input->post('cancellation_reason');
         $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
         $data['current_status'] = $data['internal_status'] = _247AROUND_CANCELLED;
+        
+        //check partner status from partner_booking_status_mapping table  
+        $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);
+        $partner_id = '';
+        if(!empty($partner_id_data['partner_id'])){
+            $partner_id = $partner_id_data['partner_id'];
+        }
+        else{
+            $to = "ANUJ_EMAIL_ID";
+            $cc = "";
+            $bcc = "";
+            $subject = "No Partner ID Exists For Booking ID = '".$booking_id."'";
+            $message = "No Partner ID Exists For Booking ID = '".$booking_id."'";
+            $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
+        }
+        
+        if($partner_id){
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'],$partner_id, $booking_id);
+            if(!empty($partner_status)){
+                $data['partner_current_status'] = $partner_status[0];
+                $data['partner_internal_status'] = $partner_status[1];
+            }
+        }
+        
         $update_status = $this->booking_model->update_booking($booking_id, $data);
         if ($update_status) {
             //Update in booking uunit details
@@ -1247,7 +1271,31 @@ class Partner extends CI_Controller {
             $data['booking_date'] = date('d-m-Y', strtotime($booking_date));
             $data['current_status'] = 'Rescheduled';
             $data['internal_status'] = 'Rescheduled';
-            $data['update_date'] = date("Y-m-d H:i:s");
+            $data['update_date'] = date("Y-m-d H:i:s"); 
+            
+            //check partner status from partner_booking_status_mapping table  
+            $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);
+            $partner_id = '';
+            if(!empty($partner_id_data['partner_id'])){
+                $partner_id = $partner_id_data['partner_id'];
+            }
+            else{
+                $to = "ANUJ_EMAIL_ID";
+                $cc = "";
+                $bcc = "";
+                $subject = " No Partner ID Exists For Booking ID = '".$booking_id."'";
+                $message = "No Partner ID Exists For Booking ID = '".$booking_id."' ";
+                $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
+            }
+        
+            if($partner_id){
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'],$partner_id, $booking_id);
+                if(!empty($partner_status)){
+                    $data['partner_current_status'] = $partner_status[0];
+                    $data['partner_internal_status'] = $partner_status[1];
+                }
+            }
+            
             $update_status = $this->booking_model->update_booking($booking_id, $data);
             if ($update_status) {
                 $this->notify->insert_state_change($booking_id,
@@ -1328,35 +1376,6 @@ class Partner extends CI_Controller {
             }
             
             $escalation['booking_id'] = $booking_id;
-            if(!is_null($bookinghistory[0]['assigned_vendor_id'])){
-                $escalation['vendor_id'] = $bookinghistory[0]['assigned_vendor_id'];
-                $vendorContact = $this->vendor_model->getVendorContact($escalation['vendor_id']);
-                $to = $vendorContact[0]['primary_contact_email'];
-                $cc = $vendorContact[0]['owner_email'].",nits@247around.com,escalations@247around.com";
-                
-                $message = "Booking " . $booking_id . " Escalated By Partner " . $this->session->userdata('partner_name'). " SF State ". 
-                        $vendorContact[0]['state']. " SF City ". $vendorContact[0]['city'].'<br><b>Remarks : '.$remarks.' </b>';
-                
-                $message .= "<br><br><b>Booking Details :</b><ul>";
-                    foreach($bookinghistory[0] as $key=>$value){
-                        $message .= "<li><b>".$key.'</b> =>';
-                        $message .= " ".$value.'</li>';
-                    }
-                    $message .="</ul>";
-                
-            } else {
-                $escalation['vendor_id'] = "";
-                $to = "escalations@247around.com"; 
-                $cc = NITS_ANUJ_EMAIL_ID;
-                $message = "Booking " . $booking_id . " Escalated By Partner " . $this->session->userdata('partner_name'). " SF State ".'<br><b>Remarks : '.$remarks.' </b>';
-                $message .= "<br><br><b>Booking Details :</b><ul>";
-                    foreach($bookinghistory as $key=>$value){
-                        $message .= "<li><b>".$key.'</b> =>';
-                        $message .= " ".$value.'</li>';
-                    }
-                    $message .="</ul>";
-            }
-            
             $escalation['booking_date'] = date('Y-m-d', strtotime($bookinghistory[0]['booking_date']));
             $escalation['booking_time'] = $bookinghistory[0]['booking_timeslot'];
             
@@ -1372,34 +1391,25 @@ class Partner extends CI_Controller {
             if($escalation_id){
                 log_message('info', __FUNCTION__ . " Escalation Inserted ");
                 $this->booking_model->increase_escalation_reschedule($booking_id, "count_escalation");
-                $from = "escalations@247around.com";
-                $bcc=""; $attachment = "";
-                
-                $subject = "Booking " . $booking_id . " Escalated By Partner " . $this->session->userdata('partner_name');
+                $bcc = "";
+                $attachment = "";
 
-                $is_mail = $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
-                $partner_details = $this->partner_model->getpartner($this->session->userdata('partner_id'))[0];
-                $partner_mail_to = $partner_details['primary_contact_email'];
-                $partner_mail_cc = "nits@247around.com,escalations@247around.com";
+                $partner_details = $this->partner_model->get_partner_login_details($this->session->userdata('partner_id'))[0];
+                $partner_mail_to = $partner_details['email'];
+                $partner_mail_cc = NITS_ANUJ_EMAIL_ID . ",escalations@247around.com";
                 $partner_subject = "Booking " . $booking_id . " Escalated ";
-                $partner_message = "<p>This booking is ESCALATED to 247around, we will look into this very soon.</p><br>Booking " . $booking_id . " Escalated <br><br><strong>Remarks : </strong>".$remarks ;
-                $this->notify->sendEmail($from, $partner_mail_to, $partner_mail_cc, $bcc, $partner_subject, $partner_message, $attachment);
-                
-                if($is_mail){
-                    log_message('info', __FUNCTION__ . " Escalation Mail Sent ");
-                    
-                    $reason_flag['escalation_policy_flag'] = json_encode(array('mail_to_escalation_team'=>1), true);
+                $partner_message = "<p>This booking is ESCALATED to 247around, we will look into this very soon.</p><br><b>Booking ID : </b>" . $booking_id . " Escalated <br><br><strong>Remarks : </strong>" . $remarks;
+                $this->notify->sendEmail('booking@247around.com', $partner_mail_to, $partner_mail_cc, $bcc, $partner_subject, $partner_message, $attachment);
 
-                    $this->vendor_model->update_esclation_policy_flag($escalation_id, $reason_flag, $booking_id);
-                    
-                }
+                log_message('info', __FUNCTION__ . " Escalation Mail Sent ");
+
+                $reason_flag['escalation_policy_flag'] = json_encode(array('mail_to_escalation_team' => 1), true);
+
+                $this->vendor_model->update_esclation_policy_flag($escalation_id, $reason_flag, $booking_id);
             }
             
             log_message('info', __FUNCTION__ . " Exiting");
             
-            $this->session->set_flashdata('success', 'Booking '. $booking_id. " has been escalated, our team will look into this immediately.");
-
-          //  redirect(base_url() . "partner/escalation_form/".$booking_id);
        }
         
     }
@@ -2284,5 +2294,5 @@ class Partner extends CI_Controller {
             echo '<option disabled selected >Please Enter City</option>';
         }
     }
-    
+     
 }

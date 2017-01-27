@@ -1251,6 +1251,18 @@ class Api extends CI_Controller {
                                 'delivery_date' => date('Y-m-d H:i:s'),
                                 'current_status' => 'FollowUp',
                                 'query_remarks' => 'Missed call received, Convert to Booking NOW !!!');
+                            
+                            //check partner status from partner_booking_status_mapping table  
+                            $partner_status= $this->booking_model->get_partner_status($b['partner_id'],$d['current_status'],$d['internal_status']);
+                            if(!empty($partner_status)){
+                                $d['partner_current_status'] = $partner_status[0]['partner_current_status'];
+                                $d['partner_internal_status'] = $partner_status[0]['partner_internal_status'];
+                            }else{
+                                $d['partner_current_status'] = 'PENDING';
+                                $d['partner_internal_status'] = 'Customer_Not_Available';
+                                $this->send_mail_When_no_data_found($d['current_status'],$d['internal_status'],$b['booking_id'], $b['partner_id']);
+                            }
+                            
                             $r = $this->booking_model->update_booking($b['booking_id'], $d);
 
                             $this->send_missed_call_confirmation_sms($b);
@@ -3990,5 +4002,5 @@ class Api extends CI_Controller {
 
         $this->sendBookingMailToUser($user_email, $subject, $message, "", FALSE);
     }
-
+    
 }

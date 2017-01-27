@@ -1587,8 +1587,6 @@ INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_o
 
 ALTER TABLE  `partners` CHANGE  `contract_file`  `contract_file` VARCHAR( 256 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ;
 
--- =========================  SERVER DB UPDATED, ADD YOUR CHANGES BELOW THIS LINE  ========================= --
-
 
 -- Belal 5 Jan
 
@@ -1674,8 +1672,11 @@ CREATE TABLE `scheduler_tasks_status` (
 ALTER TABLE `scheduler_tasks_status`
   ADD PRIMARY KEY (`id`);
 
+
 ALTER TABLE `scheduler_tasks_status`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=0;
+
+ALTER TABLE `booking_details` ADD `partner_current_status` VARCHAR(128) NULL AFTER `internal_status`;
 
 ALTER TABLE `partners` ADD `upcountry_rate` INT(11) NOT NULL AFTER `upcountry`;
 
@@ -1723,6 +1724,23 @@ ALTER TABLE `partners` DROP `upcountry`;
 ALTER TABLE `bookings_sources` ADD `partner_type` VARCHAR(50) NULL DEFAULT NULL AFTER `partner_id`;
 
 
+ALTER TABLE `booking_details` ADD `partner_internal_status` VARCHAR(128) NULL AFTER `partner_current_status`;
+
+
+CREATE TABLE `partner_booking_status_mapping` (
+  `id` int(11) NOT NULL,
+  `partner_id` int(11) NOT NULL,
+  `247around_current_status` varchar(128) DEFAULT NULL,
+  `247around_internal_status` varchar(128) DEFAULT NULL,
+  `partner_current_status` varchar(128) DEFAULT NULL,
+  `partner_internal_status` varchar(128) DEFAULT NULL,
+   PRIMARY KEY(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+ALTER TABLE `partner_booking_status_mapping` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
+
+
 -- Abhay 16 Jan 
 ALTER TABLE `service_centre_charges` ADD `brand` VARCHAR(150) NULL DEFAULT NULL AFTER `category`;
 
@@ -1732,7 +1750,8 @@ ALTER TABLE `partners` ADD `upcountry_max_distance_threshold` INT(10) NULL DEFAU
 
 --Belal 18 Jan
 
-INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'new_vendor_creation', 'Dear Partner,<br><br>
+INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 
+'new_vendor_creation', 'Dear Partner,<br><br>
 247around welcomes you to its Partner Network, we hope to have a long lasting relationship with you.<br><br>
 As informed earlier, serial number of appliance is mandatory when you close a booking. All bookings without serial numbers will be cancelled.<br><br> 
 Engineer has to note the serial number when installation is done. In case serial number is not found on the appliance, he needs to bring one of the following proofs:<br><br> 
@@ -1742,4 +1761,12 @@ Engineer has to note the serial number when installation is done. In case serial
 No completion will be allowed without any one of the above. For any confusion, write to us or call us.<br><br><br>
 Regards,<br>
 247around Team', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com', '', '1', '2016-09-26 18:30:00');
+
+-- Belal 21 Jan
+
+
+UPDATE `email_template` SET `template` = 'Dear Partner brackets for your Order ID <b> %s </b> have been delivered to you sucessfully.<br><br> Thankyou for placing an order with us.<br.<br> Regards,<br> 247Around Team' WHERE `email_template`.`tag` = 'brackets_received_mail_vendor_order_requested_from
+';
+
+-- =========================  SERVER DB UPDATED, ADD YOUR CHANGES BELOW THIS LINE  ========================= --
 

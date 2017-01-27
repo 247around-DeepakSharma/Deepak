@@ -76,6 +76,7 @@ class Partner extends CI_Controller {
         $this->load->library('email');
         $this->load->library('notify');
         $this->load->library('partner_utilities');
+        $this->load->library('booking_utilities');
         $this->load->helper(array('form', 'url'));
     }
 
@@ -303,7 +304,7 @@ class Partner extends CI_Controller {
                         $appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('M');
                         $appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
 
-                        $appliance_details['last_service_date'] = date('d-m-Y');
+                        $appliance_details['last_service_date'] = date('Y-m-d');
                         $booking['potential_value'] = '';
 
                         //echo print_r($booking, true) . "<br><br>";
@@ -319,7 +320,15 @@ class Partner extends CI_Controller {
                         $booking['amount_due'] = '';
                         $booking['booking_remarks'] = '';
                         $booking['state'] = $state['state'];
-
+                        
+                        
+                        //check partner status from partner_booking_status_mapping table 
+                            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$booking['partner_id'], $booking['booking_id']);
+                            if(!empty($partner_status)){
+                                $booking['partner_current_status'] = $partner_status[0];
+                                $booking['partner_internal_status'] = $partner_status[1];
+                            }
+                        
                         //Insert query
                         //echo print_r($booking, true) . "<br><br>";
                         $this->booking_model->addbooking($booking);
@@ -1191,6 +1200,29 @@ class Partner extends CI_Controller {
         $booking['internal_status'] = $request['cancellationReason'];
         $booking['cancellation_reason'] = $details['cancellation_reason'] = "Other : " . $request['cancellationReason'];
         $booking['update_date'] = $booking['closed_date'] = date("Y-m-d H:i:s");
+        
+        //check partner status from partner_booking_status_mapping table  
+        $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);
+        $partner_id = '';
+        if(!empty($partner_id_data['partner_id'])){
+            $partner_id = $partner_id_data['partner_id'];
+        }
+        else{
+            $to = "ANUJ_EMAIL_ID";
+            $cc = "";
+            $bcc = "";
+            $subject = " No Partner ID Exists For Booking ID =  '".$booking_id."'";
+            $message = "No Partner ID Exists For Booking ID = '".$booking_id."' ";
+            $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
+        }
+        
+        if($partner_id){
+             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$partner_id, $booking_id);
+                if(!empty($partner_status)){
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
+                }
+        }
 
         $this->booking_model->update_booking($booking_id, $booking);
         $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
@@ -1560,6 +1592,13 @@ class Partner extends CI_Controller {
             $booking['query_remarks'] = "";
             $booking['partner_source'] = $requestData['partner_source'];
             $booking['booking_timeslot'] = "4PM-7PM";
+            
+            //check partner status from partner_booking_status_mapping table  
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$booking['partner_id'], $booking['booking_id']);
+                if(!empty($partner_status)){
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
+                }
 
 
 	    if (empty($state['state'])) {

@@ -134,7 +134,7 @@ class Booking_model extends CI_Model {
      */
     function selectservice() {
         $query = $this->db->query("Select id,services from services where isBookingActive='1' order by services");
-	return $query->result_array();
+	return $query->result();
     }
 
     /**
@@ -383,6 +383,13 @@ class Booking_model extends CI_Model {
         $this->db->where('booking_id', $booking_id);
         $query = $this->db->get('booking_details');
         return $query->result_array();
+    }
+
+    function get_booking_status($booking_id) {
+        $this->db->select('current_status, internal_status');
+        $this->db->like('booking_id', end(explode("-", $booking_id)));
+        $query = $this->db->get('booking_details');
+        return $query->result_array()[0];
     }
 
     /**
@@ -1095,7 +1102,7 @@ class Booking_model extends CI_Model {
                 WHEN  `bd`.booking_date = '' THEN 'b'
                 ELSE 'c'
             END, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc $add_limit";
-
+        
         $query = $this->db->query($sql);
         //log_message('info', __METHOD__ . "=> " . $this->db->last_query());
 
@@ -1278,12 +1285,9 @@ class Booking_model extends CI_Model {
      *  @return : true
      */
     //TODO: can be removed
-    function change_booking_status($booking_id) {
-        $status = array("current_status" => "FollowUp",
-            "internal_status" => "FollowUp",
-            "cancellation_reason" => NULL,
-            "closed_date" => NULL);
-
+    function change_booking_status($booking_id, $status) {
+        
+       
         $this->db->where("booking_id", $booking_id);
         $this->db->update("booking_details", $status);
 
@@ -1761,11 +1765,6 @@ class Booking_model extends CI_Model {
 
     }
     
-    /**
-     * @desc: this method is used to get city, services, sources details
-     * @param : user phone no.
-     * @return : array()
-     */
     function get_city_source(){
         $query1['city'] = $this->vendor_model->getDistrict();
         $query2['sources'] = $this->partner_model->get_all_partner_source("0");
@@ -2210,6 +2209,24 @@ class Booking_model extends CI_Model {
         $this->db->like('booking_id',$trimed_booking_id);
         $query = $this->db->get('sms_sent_details');
         return $query->result_array();
+    } 
+    
+    /**
+     * @Desc: This function is used to get the partner status from partner_status table
+     * @params: $partner_id,$current_status, $internal_status 
+     * @return: array
+     * 
+     */
+    function get_partner_status($partner_id,$current_status, $internal_status){
+        $this->db->select('partner_current_status, partner_internal_status');
+        $this->db->where(array('partner_id' => $partner_id,
+            '247around_current_status' => $current_status, 
+            '247around_internal_status' => $internal_status));
+        $this->db->or_where('partner_id','247001');
+        $this->db->where(array('247around_current_status' => $current_status, '247around_internal_status' => $internal_status));
+        $query = $this->db->get('partner_booking_status_mapping');
+        return $query->result_array();
+        
     }
     
 
