@@ -728,72 +728,59 @@ class Booking extends CI_Controller {
      */
     function process_cancel_form($booking_id, $status) {
 	log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id." Done By " . $this->session->userdata('employee_id'));
-        
-	$data['cancellation_reason'] = $this->input->post('cancellation_reason');
-	$data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
-        
-	if ($data['cancellation_reason'] == 'Other') {
-	    $data['cancellation_reason'] = "Other : " . $this->input->post("cancellation_reason_text");
-	}
-	$data['current_status'] = $data['internal_status'] = _247AROUND_CANCELLED ;
-	$data_vendor['cancellation_reason'] = $data['cancellation_reason'];
-        
-        //check partner status from partner_booking_status_mapping table  
-        $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);
-        
-        $partner_id='';
-        if(!empty($partner_id_data['partner_id'])){
-            $partner_id = $partner_id_data['partner_id'];
-        }
-        else{
-            $to = "ANUJ_EMAIL_ID";
-            $cc = "";
-            $bcc = "";
-            $subject = " No Partner ID Exists For Booking ID = '".$booking_id."'";
-            $message = "No Partner ID Exists For Booking ID = '".$booking_id."' ";
-            $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
-        }
-        
-        if($partner_id){
-            
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'],$partner_id, $booking_id);
-            if(!empty($partner_status)){
+        $this->form_validation->set_rules('cancellation_reason', 'Cancellation Reason', 'required|xss_clean');
+        $this->form_validation->set_rules('partner_id', 'Partner Id', 'required|xss_clean');
+        $validation = $this->form_validation->run();
+        if($validation){
+            $data['internal_status'] = $data['cancellation_reason'] = $this->input->post('cancellation_reason');
+            $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
+            $remarks = $this->input->post("cancellation_reason_text");
+            if (!empty($remarks)) {
+                $data['closing_remarks'] =  $data['cancellation_reason']." - ".$remarks;
+            }
+            $data['current_status'] = _247AROUND_CANCELLED;
+            $data_vendor['cancellation_reason'] = $data['cancellation_reason'];
+            $partner_id = $this->input->post("partner_id");
+
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
+            if (!empty($partner_status)) {
                 $data['partner_current_status'] = $partner_status[0];
                 $data['partner_internal_status'] = $partner_status[1];
             }
+
+            log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));
+
+            $this->booking_model->update_booking($booking_id, $data);
+
+            //Update this booking in vendor action table
+            $data_vendor['update_date'] = date("Y-m-d H:i:s");
+            $data_vendor['current_status'] = $data_vendor['internal_status'] = _247AROUND_CANCELLED;
+            log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($data_vendor, true));
+            $this->vendor_model->update_service_center_action($booking_id, $data_vendor);
+
+            $this->update_price_while_cancel_booking($booking_id);
+
+            //Update Spare parts details table
+            $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), array('status' => _247AROUND_CANCELLED));
+
+            //Log this state change as well for this booking
+            //param:-- booking id, new state, old state, employee id, employee name
+            $this->notify->insert_state_change($booking_id, $data['current_status'], $status, $data['cancellation_reason'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+            // Not send Cancallation sms to customer for Query booking
+            // this is used to send email or sms while booking cancelled
+            $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+            $send['booking_id'] = $booking_id;
+            $send['state'] = $data['current_status'];
+            $this->asynchronous_lib->do_background_process($url, $send);
+
+            // call partner callback
+            $this->partner_cb->partner_callback($booking_id);
+
+            redirect(base_url() . DEFAULT_SEARCH_PAGE);
+        } else {
+            log_message('info', __FUNCTION__ . " Validation Failed Booking ID: " . $booking_id." Done By " . $this->session->userdata('employee_id'));
+            $this->get_cancel_form($booking_id, $status);
         }
-        
-	log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));
-
-	$this->booking_model->update_booking($booking_id, $data);
-
-	//Update this booking in vendor action table
-	$data_vendor['update_date'] = date("Y-m-d H:i:s");
-	$data_vendor['current_status'] = $data_vendor['internal_status'] = _247AROUND_CANCELLED ;
-	log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($data_vendor, true));
-	$this->vendor_model->update_service_center_action($booking_id, $data_vendor);
-
-	$this->update_price_while_cancel_booking($booking_id);
-        
-        //Update Spare parts details table
-        $this->service_centers_model->update_spare_parts(array('booking_id'=> $booking_id), 
-                 array('status'=> _247AROUND_CANCELLED));
-
-	//Log this state change as well for this booking
-	//param:-- booking id, new state, old state, employee id, employee name
-	$this->notify->insert_state_change($booking_id, $data['current_status'], $status , $data['cancellation_reason'] , $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
-	// Not send Cancallation sms to customer for Query booking
-
-	// this is used to send email or sms while booking cancelled
-	$url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-	$send['booking_id'] = $booking_id;
-	$send['state'] = $data['current_status'];
-	$this->asynchronous_lib->do_background_process($url, $send);
-
-	// call partner callback
-	$this->partner_cb->partner_callback($booking_id);
-
-	redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
     function update_price_while_cancel_booking($booking_id) {

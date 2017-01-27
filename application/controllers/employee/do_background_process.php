@@ -196,9 +196,9 @@ class Do_background_process extends CI_Controller {
 
         $data = $this->booking_model->getbooking_charges($booking_id);
         $current_status = _247AROUND_CANCELLED ;
-        log_message('info', ": " . " service center data " . print_r($data, TRUE));
-
-        foreach ($data as $key => $value) {
+        //log_message('info', ": " . " service center data " . print_r($data, TRUE));
+       
+        foreach ($data as  $value) {
             $current_status1 = _247AROUND_CANCELLED ;
             if($value['internal_status'] == _247AROUND_COMPLETED){
                 $current_status1 = _247AROUND_COMPLETED;
@@ -282,6 +282,7 @@ class Do_background_process extends CI_Controller {
         if($current_status == _247AROUND_CANCELLED){
 
             $booking['cancellation_reason'] = $data[0]['cancellation_reason'];
+            $booking['internal_status'] =  $booking['cancellation_reason'];
 
         } else {
 
