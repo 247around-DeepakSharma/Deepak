@@ -190,36 +190,16 @@ class Do_background_upload_excel extends CI_Controller {
         
         // For shipped data
         if(!empty($shipped_data)){
-            
-            $status_data['job_name']= __FUNCTION__;
-            $status_data['agent_name'] = $this->session->userdata('employee_id');
-            $status_data['file_link'] = $_FILES['file']['name'];
-            $status_data['processing_type'] = $file_type;
-            $scheduler_id = $this->reporting_utils->insert_scheduler_tasks_status($status_data);
-            
-            $this->process_upload_sd_file($shipped_data,"shipped", $file_name, $scheduler_id);
+            $this->process_upload_sd_file($shipped_data,"shipped", $file_name);
             
         }
         //For delivered data
         if(!empty($delivered_data)){
-            $status_data['job_name']= __FUNCTION__;
-            $status_data['agent_name'] = $this->session->userdata('employee_id');
-            $status_data['file_link'] = $_FILES['file']['name'];
-            $status_data['processing_type'] = $file_type;
-            $scheduler_id = $this->reporting_utils->insert_scheduler_tasks_status($status_data);
-            
-            $this->process_upload_sd_file($delivered_data,"delivered", $file_name, $scheduler_id);
+            $this->process_upload_sd_file($delivered_data,"delivered", $file_name);
         }
         // for both type of file
         if(!empty($data)){
-            
-            $status_data['job_name']= __FUNCTION__;
-            $status_data['agent_name'] = $this->session->userdata('employee_id');
-            $status_data['file_link'] = $_FILES['file']['name'];
-            $status_data['processing_type'] = $file_type;
-            $scheduler_id = $this->reporting_utils->insert_scheduler_tasks_status($status_data);
-            
-            $this->process_upload_sd_file($data,$file_type, $file_name, $scheduler_id);
+            $this->process_upload_sd_file($data,$file_type, $file_name);
         }
         
     }
@@ -241,7 +221,7 @@ class Do_background_upload_excel extends CI_Controller {
         }
     }
     
-    function process_upload_sd_file($data,$file_type, $file_name, $scheduler_id){
+    function process_upload_sd_file($data,$file_type, $file_name){
        
         // Warning: Do not Change Validation Order
 	$validate_data = $this->validate_phone_number($data, $file_type, $file_name);
@@ -310,11 +290,11 @@ class Do_background_upload_excel extends CI_Controller {
 	    //Assigning Booking Source and Partner ID for Brand Requested
             // First we send Service id and Brand and get Partner_id from it
             // Now we send state, partner_id and service_id 
+            $value['Brand'] = trim(str_replace("'", "", $value['Brand']));
             $data = $this->_allot_source_partner_id_for_pincode($value['service_id'], $state['state'], $value['Brand']);
 
             $booking['partner_id'] = $data['partner_id'];
             $booking['source'] = $data['source'];
-
 
             $partner_booking = $this->partner_model->get_order_id_for_partner($booking['partner_id'], $value['Sub_Order_ID']);
 	    //log_message('info', print_r($partner_booking, TRUE));
@@ -327,12 +307,12 @@ class Do_background_upload_excel extends CI_Controller {
 		$appliance_details['user_id'] = $booking['user_id'] = $user_id;
 		$appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $value['service_id'];
 		$booking['booking_pincode'] = $value['Pincode'];
-                $where  = array('service_id' => $value['service_id'],'brand_name' => $value['Brand']);
+                $where  = array('service_id' => $value['service_id'],'brand_name' => trim($value['Brand']));
                 $brand_id_array  = $this->booking_model->get_brand($where);
                 // If brand not exist then insert into table
                 if(empty($brand_id_array)){
 
-                   $inserted_brand_id = $this->booking_model->addNewApplianceBrand($value['service_id'], $value['Brand']);
+                   $inserted_brand_id = $this->booking_model->addNewApplianceBrand($value['service_id'], trim($value['Brand']));
                    if(!empty($inserted_brand_id)){
                        log_message('info',__FUNCTION__.' Brand added successfully in Appliance Brands Table '. $value['Brand']);
                    }else{
@@ -360,9 +340,13 @@ class Do_background_upload_excel extends CI_Controller {
 			$dd = $dateObj2->format('d');
 			$booking['partner_source'] = "Snapdeal-shipped-excel";
 			$booking['booking_date'] = $dateObj2->format('d-m-Y');
-			//Set EDD only
+			
+                        // Set EDD only
 			$booking['estimated_delivery_date'] = $dateObj2->format('Y-m-d H:i:s');
 			$booking['delivery_date'] = '';
+                        $booking['backup_estimated_delivery_date'] = $value['Delivery_Date'];
+                        $booking['backup_delivery_date'] = '';
+                        
 			//Tag internal status for missed call
 			$booking['internal_status'] = "Missed_call_not_confirmed";
                         $booking['query_remarks'] = 'Product Shipped';
@@ -384,9 +368,13 @@ class Do_background_upload_excel extends CI_Controller {
 			$dd = date("d");
 			$booking['partner_source'] = "Snapdeal-delivered-excel";
 			$booking['booking_date'] = '';
+                        
 			//Set delivered date only
 			$booking['delivery_date'] = $dateObj2->format('Y-m-d H:i:s');
 			$booking['estimated_delivery_date'] = '';
+                        $booking['backup_delivery_date'] = $value['Delivery_Date'];
+                        $booking['backup_estimated_delivery_date'] = '';
+                        
 			$booking['internal_status'] = "Missed_call_not_confirmed";
 			$booking['query_remarks'] = 'Product Delivered, Call Customer For Booking';
 			$booking['booking_remarks'] = 'Installation and Demo';
@@ -532,8 +520,10 @@ class Do_background_upload_excel extends CI_Controller {
                             
                             $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($delivery_date);
                             $update_data['delivery_date'] = $dateObj2->format('Y-m-d H:i:s');
+                            $update_data['backup_delivery_date'] = $value['Delivery_Date'];
                             $update_data['booking_date'] = '';
                             $update_data['booking_timeslot'] = '';
+                            $update_data['update_date'] = date("Y-m-d H:i:s");
                             
                             $vendors = $this->vendor_model->check_vendor_availability($partner_booking['booking_pincode'], $partner_booking['service_id']);
                             $vendors_count = count($vendors);
@@ -578,9 +568,12 @@ class Do_background_upload_excel extends CI_Controller {
                         //$dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($value['Expected_Delivery_Date']);
                         $new_estimated_delivery_date = $dateObj2->format('Y-m-d H:i:s');
                         
-                        if ($new_estimated_delivery_date !=  $partner_booking['estimated_delivery_date']) {
-                            
+                       // if ($new_estimated_delivery_date !=  $partner_booking['estimated_delivery_date']) {
+                        if (1) {   
                             $update_data['estimated_delivery_date'] = $new_estimated_delivery_date;
+                            $update_data['backup_estimated_delivery_date'] = $value['Delivery_Date'];
+
+                            $update_data['update_date'] = date("Y-m-d H:i:s");
                             $this->booking_model->update_booking($partner_booking['booking_id'], $update_data);
                             
                             $count_booking_updated++;
@@ -620,7 +613,6 @@ class Do_background_upload_excel extends CI_Controller {
             log_message('info', __FUNCTION__ . "=> File type: " . $file_type . " => Wow, no errors found !!!");
         }
  
-    $this->reporting_utils->update_scheduler_task_status($scheduler_id);
     log_message('info', __FUNCTION__ . "=> File type: " . $file_type . " => Exiting now...");
     }
 
@@ -1227,12 +1219,13 @@ class Do_background_upload_excel extends CI_Controller {
             }
 
             //Making process for file upload
-            //move_uploaded_file($tmpFile, TMP_FOLDER . $data['file_name']);
+            move_uploaded_file($tmpFile, TMP_FOLDER . $data['file_name']);
 
             //Upload files to AWS
-//            $bucket = BITBUCKET_DIRECTORY;
-//            $directory_xls = "vendor-partner-docs/" . $data['file_name'];
-//            $this->s3->putObjectFile(TMP_FOLDER . $data['file_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "vendor-partner-docs/" . $data['file_name'];
+            $this->s3->putObjectFile(TMP_FOLDER . $data['file_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            
             //Logging
             log_message('info', __FUNCTION__ . ' Snapdeal Delivered File has been uploaded in S3');
             
@@ -1242,11 +1235,11 @@ class Do_background_upload_excel extends CI_Controller {
             log_message('info', __FUNCTION__ . ' Processing of Snapdeal Shipped Excel File started');
 
             //Adding Details in File_Uploads table as well
-           
             $data['file_name'] = "Snapdeal-Shipped-" . date('Y-m-d-H-i-s') . '.xlsx';
             $data['file_type'] = _247AROUND_SNAPDEAL_SHIPPED;
             $data['agent_id'] = $this->session->userdata('employee_id');
             $insert_id = $this->partner_model->add_file_upload_details($data);
+            
             if (!empty($insert_id)) {
                 //Logging success
                 log_message('info', __FUNCTION__ . ' Added details to File Uploads ' . print_r($data, TRUE));
@@ -1256,12 +1249,13 @@ class Do_background_upload_excel extends CI_Controller {
             }
 
             //Making process for file upload
-            //move_uploaded_file($tmpFile, TMP_FOLDER . $data['file_name']);
+            move_uploaded_file($tmpFile, TMP_FOLDER . $data['file_name']);
 
             //Upload files to AWS
-//            $bucket = BITBUCKET_DIRECTORY;
-//            $directory_xls = "vendor-partner-docs/" . $data['file_name'];
-//            $this->s3->putObjectFile(TMP_FOLDER . $data['file_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "vendor-partner-docs/" . $data['file_name'];
+            $this->s3->putObjectFile(TMP_FOLDER . $data['file_name'], $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+            
             //Logging
             log_message('info', __FUNCTION__ . ' Snapdeal Shipped File has been uploaded in S3');
             
