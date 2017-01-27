@@ -11,8 +11,8 @@
          <th>Invoice Detailed File</th>
          <th>Number of Bookings</th>
          <th>TDS</th>
-         <th>Amount to be Pay By 247Around</th>
-         <th>Amount to be Pay By Partner</th>
+         <th>Amount Paid By 247Around</th>
+         <th>Amount Paid By Partner</th>
 
       </tr>
    </thead>
