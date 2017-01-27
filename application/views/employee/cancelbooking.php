@@ -1,20 +1,22 @@
 <script type="text/javascript">
-function check(){
-    var reason = document.myForm.cancellation_reason.value;
-    if(reason =='Other'){
-      document.getElementById("cancellation_reason_text").disabled = false;            
-    }else{
-    document.getElementById("cancellation_reason_text").disabled = true;
-    }
-}
+//function check(){
+//    var reason = document.myForm.cancellation_reason.value;
+//    if(reason =='Other'){
+//      document.getElementById("cancellation_reason_text").disabled = false;            
+//    }else{
+//    document.getElementById("cancellation_reason_text").disabled = true;
+//    }
+//}
 
 function check_text(){
   var reason = document.myForm.cancellation_reason.value;
-  var cancel_text = document.myForm.cancellation_reason_text.value;  
-    if(reason == 'Other' && cancel_text == ""){
-      alert("Please enter cancellation reason in other's option");
+  //var cancel_text = document.myForm.cancellation_reason_text.value;  
+
+    if(reason === '' ){
+      alert("Please select checkbox to select cancellation reason");
       return false;
     }
+
 }
 </script>
 
@@ -33,6 +35,7 @@ function check_text(){
                       <label for="name" class="col-md-4">Name</label>
                         <div class="col-md-6">
                           <input type="text" class="form-control" id="name" name="user_name" value = "<?php if (isset($user_and_booking_details[0]['name'])) {echo $user_and_booking_details[0]['name']; } ?>" readonly="readonly">
+                         
                         </div>
                   </div>
 
@@ -83,7 +86,7 @@ function check_text(){
               <!-- </div> -->
 
               <form class="form-horizontal" name="myForm" action="<?php echo base_url()?>employee/booking/process_cancel_form/<?php echo $user_and_booking_details[0]['booking_id']; ?>/<?php echo $user_and_booking_details[0]['current_status']; ?>" method="POST" >
-
+                    <input type="hidden" class="form-control" id="partner_id" name="partner_id" value = "<?php if (isset($user_and_booking_details[0]['partner_id'])) {echo $user_and_booking_details[0]['partner_id']; } ?>" >
                     <input type="hidden" class="form-control"  name="name" value = "<?php if (isset($user_and_booking_details[0]['name'])) {echo $user_and_booking_details[0]['name']; }?>">
              
                  <div class="form-group <?php if( form_error('cancellation_reason') ) { echo 'has-error';} ?>">
@@ -111,7 +114,7 @@ function check_text(){
                         foreach($reason as $key =>$data1){?>
                      <div class="radio">
                         <label>
-                        <input type="radio"onclick="check()" name="cancellation_reason" id="<?php echo " cancellation_reason ".$count; $count++;?>" value="<?php  echo $data1->reason;?>" required>
+                        <input type="radio" name="cancellation_reason" id="<?php echo " cancellation_reason ".$count; $count++;?>" value="<?php  echo $data1->reason;?>" required>
                         <?php  echo $data1->reason;?>
                         </label>
                      </div>
@@ -121,22 +124,23 @@ function check_text(){
                     
                      <div class="radio">
                         <label>
-                        <input type="radio" onclick="check()" name="cancellation_reason" id="<?php echo " cancellation_reason ".$count; $count++;?>" value="<?php  echo $data1->status;?>" required>
+                        <input type="radio"  name="cancellation_reason" id="<?php echo " cancellation_reason ".$count; $count++;?>" value="<?php  echo $data1->status;?>" required>
                         <?php  echo $data1->status;?>
                         </label>
                      </div>
 
                     <?php  } } ?>
+                    <?php echo form_error('cancellation_reason'); ?>
                   </div>
                </div>
-                <?php if($flag == 0){?>
-                <div class="form-group <?php if( form_error('cancellation_reason') ) { echo 'has-error';} ?>">                
-                  <label for="cancellation_reason" class="col-md-2"> </label>
+                <?php //if($flag == 0){?>
+                <div class="form-group <?php if( form_error('cancellation_reason_text') ) { echo 'has-error';} ?>">                
+                  <label for="cancellation_reason" class="col-md-2">Remarks </label>
                   <div class="col-md-6">
-                    <textarea class="form-control"  id="cancellation_reason_text" name="cancellation_reason_text" value = "<?php echo set_value('cancellation_reason'); ?>" rows="8" disabled></textarea>                            
+                    <textarea class="form-control"  id="cancellation_reason_text" name="cancellation_reason_text" placeholder="Please Enter Remarks" value = "<?php echo set_value('cancellation_reason'); ?>" rows="8" ></textarea>                            
                   </div>
                 </div>
-                <?php } ?>
+                <?php  //}?>
  
                  <div class="col-md-6 col-md-offset-4">
                   
@@ -145,6 +149,7 @@ function check_text(){
                   
                 </div>
               </form>
+              
             </div>
         </div>
     </div>
