@@ -2272,8 +2272,16 @@ class Partner extends CI_Controller {
         $capacity = $this->input->post('capacity');
         $service_category = $this->input->post('service_category');
         $partner_id = $this->session->userdata('partner_id');
-        $partner_mapping_id = $this->booking_model->get_price_mapping_partner_code("",$partner_id);
-        $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_mapping_id, $service_category,$brand);
+        $partner_data = $this->partner_model->get_partner_code($partner_id);
+        
+        $partner_mapping_id = $partner_data[0]['price_mapping_id']; 
+        $partner_type = $partner_data[0]['partner_type']; 
+        $result = array();
+        if($partner_type == OEM){
+            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_mapping_id, $service_category,$brand);
+        } else {
+            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_mapping_id, $service_category,""); 
+        }
         if(!empty($result)){
             echo $result[0]['customer_net_payable'];
         } else {
