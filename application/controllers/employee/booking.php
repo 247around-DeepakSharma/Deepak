@@ -1450,7 +1450,11 @@ class Booking extends CI_Controller {
      *  @return : refirect user controller
      */
     function cancelled_booking_re_book($booking_id, $phone) {
-	$this->booking_model->change_booking_status($booking_id);
+         $status = array("current_status" => "FollowUp",
+            "internal_status" => "FollowUp",
+            "cancellation_reason" => NULL,
+            "closed_date" => NULL);
+	$this->booking_model->change_booking_status($booking_id,$status);
 	redirect(base_url() . 'employee/user/finduser/0/0/' . $phone, 'refresh');
     }
 
