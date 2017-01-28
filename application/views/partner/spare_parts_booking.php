@@ -26,7 +26,7 @@
                             <th class="text-center">No</th>
                             <th class="text-center">Customer Name</th>
                             <th class="text-center">Booking Id</th>
-<!--                            <th class="text-center">Age</th>-->
+                            <th class="text-center">Age of Requested</th>
                             <th class="text-center">Parts Required</th>
                             <th class="text-center">Model Number</th>
                             <th class="text-center">Serial Number</th>
@@ -50,9 +50,9 @@
                                     <td>
                                          <a  style="color:black" href="<?php echo base_url();?>partner/booking_details/<?php echo $row['booking_id'];?>"  title='View'><?php echo $row['booking_id'];?></a>
                                     </td>
-<!--                                    <td>
-                                        <?php //echo $row['age_of_booking']; ?>
-                                    </td>-->
+                                    <td>
+                                        <?php echo $row['age_of_request']. " days"; ?>
+                                    </td>
                                     <td>
                                         <?php echo $row['parts_requested']; ?>
                                     </td>

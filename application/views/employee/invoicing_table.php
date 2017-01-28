@@ -275,7 +275,7 @@
     <p><h4>247around has to pay to vendor = Rs. <?php if($final_settlement < 0){ echo abs(round($final_settlement,2));} else {echo 0;} ?></h4></p>
     <hr/>
     <?php if(isset($unbilled_amount)){ ?> 
-     <h2><u>Unbilled Amount(Invoice is not generated)</u></h2>
+     <h2><u>Un-billed Amount (Invoice is not generated)</u></h2>
      <p><h4>Vendor has to pay to 247around = Rs. <?php if($unbilled_amount[0]['unbilled_amount'] >= 0){ echo round($unbilled_amount[0]['unbilled_amount'],2);} else { echo 0;} ?></h4></p>
     <p><h4>247around has to pay to vendor = Rs. <?php if($unbilled_amount[0]['unbilled_amount'] < 0){ echo abs(round($unbilled_amount[0]['unbilled_amount'],2));} else { echo 0;} ?></h4></p>
     

@@ -124,6 +124,7 @@ class Service_centers_model extends CI_Model {
                 . " FROM service_center_booking_action as sc, booking_details as bd, users, services, service_centres AS s, engineer_details "
                 . " WHERE sc.service_center_id = '$service_center_id' "
                 . " AND bd.assigned_vendor_id = '$service_center_id' "
+                . " AND sc.current_status = 'Pending' "
                 . " AND bd.booking_id =  sc.booking_id "
                 . " AND bd.user_id = users.user_id "
                 . " AND s.id = bd.assigned_vendor_id "

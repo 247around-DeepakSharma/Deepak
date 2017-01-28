@@ -37,7 +37,7 @@ class Around_scheduler extends CI_Controller {
 	$sms['tag'] = "sd_edd_missed_call_reminder";
         
 	foreach ($data2 as $value) {
-            if($value->sms_count < 2){
+            if($value->sms_count < 3){
                 $sms['phone_no'] = $value->booking_primary_contact_no;
                 $category = '';
                 if($value->services == 'Geyser'){
@@ -224,34 +224,40 @@ class Around_scheduler extends CI_Controller {
     function cancel_pending_query($booking_id) {
 	log_message('info', __METHOD__ . " => Booking ID: " . $booking_id);
         
-        $data['cancellation_reason'] = 'Customer Not Responded to 247around Communication';
-	$data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");        
-	$data['current_status'] = $data['internal_status'] = _247AROUND_CANCELLED ;
-	$data_vendor['cancellation_reason'] = $data['cancellation_reason'];
-
-	log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));
-
-	$this->booking_model->update_booking($booking_id, $data);
-
-	//Update this booking in vendor action table
-	$data_vendor['update_date'] = date("Y-m-d H:i:s");
-	$data_vendor['current_status'] = $data_vendor['internal_status'] = _247AROUND_CANCELLED ;
-
-	log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($data_vendor, true));
-	$this->vendor_model->update_service_center_action($booking_id, $data_vendor);
-
-	$unit_details['booking_status'] = _247AROUND_CANCELLED;
-	$unit_details['vendor_to_around'] = $unit_details['around_to_vendor'] = 0;
-
-	log_message('info', __FUNCTION__ . " Update unit details  " . print_r($unit_details, true));
-	
-        $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
-
-	//Log this state change as well for this booking
-	$this->notify->insert_state_change($booking_id, $data['current_status'], _247AROUND_FOLLOWUP, 
-                $data['cancellation_reason'] , '1', '247around', _247AROUND);
+        $status = $this->booking_model->get_booking_status(trim($booking_id));
         
-        echo 'Cancelled ................' . PHP_EOL;
+        if ($status['current_status'] == "FollowUp") {
+            $data['cancellation_reason'] = 'Customer Not Responded to 247around Communication';
+            $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");        
+            $data['current_status'] = $data['internal_status'] = _247AROUND_CANCELLED ;
+            $data_vendor['cancellation_reason'] = $data['cancellation_reason'];
+
+            log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));
+
+            $this->booking_model->update_booking($booking_id, $data);
+
+            //Update this booking in vendor action table
+            $data_vendor['update_date'] = date("Y-m-d H:i:s");
+            $data_vendor['current_status'] = $data_vendor['internal_status'] = _247AROUND_CANCELLED ;
+
+            log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($data_vendor, true));
+            $this->vendor_model->update_service_center_action($booking_id, $data_vendor);
+
+            $unit_details['booking_status'] = _247AROUND_CANCELLED;
+            $unit_details['vendor_to_around'] = $unit_details['around_to_vendor'] = 0;
+
+            log_message('info', __FUNCTION__ . " Update unit details  " . print_r($unit_details, true));
+
+            $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
+
+            //Log this state change as well for this booking
+            $this->notify->insert_state_change($booking_id, $data['current_status'], _247AROUND_FOLLOWUP, 
+                    $data['cancellation_reason'] , '1', '247around', _247AROUND);
+
+            echo 'Cancelled ................' . PHP_EOL;
+        } else {
+            echo $booking_id. ' Query State Changed to => ' . $status['current_status'] . PHP_EOL;
+        }
     }
     
     

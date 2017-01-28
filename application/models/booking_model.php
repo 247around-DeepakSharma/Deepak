@@ -385,6 +385,13 @@ class Booking_model extends CI_Model {
         return $query->result_array();
     }
 
+    function get_booking_status($booking_id) {
+        $this->db->select('current_status, internal_status');
+        $this->db->like('booking_id', end(explode("-", $booking_id)));
+        $query = $this->db->get('booking_details');
+        return $query->result_array()[0];
+    }
+
     /**
      * @desc : This funtion is to count number of bookings for a particular user.
      *
@@ -1758,11 +1765,6 @@ class Booking_model extends CI_Model {
 
     }
     
-    /**
-     * @desc: this method is used to get city, services, sources details
-     * @param : user phone no.
-     * @return : array()
-     */
     function get_city_source(){
         $query1['city'] = $this->vendor_model->getDistrict();
         $query2['sources'] = $this->partner_model->get_all_partner_source("0");
@@ -2217,8 +2219,10 @@ class Booking_model extends CI_Model {
      */
     function get_partner_status($partner_id,$current_status, $internal_status){
         $this->db->select('partner_current_status, partner_internal_status');
-        $this->db->where(array('partner_id' => $partner_id,'247around_current_status' => $current_status, '247around_internal_status' => $internal_status));
-        $this->db->or_where('partner_id','247');
+        $this->db->where(array('partner_id' => $partner_id,
+            '247around_current_status' => $current_status, 
+            '247around_internal_status' => $internal_status));
+        $this->db->or_where('partner_id','247001');
         $this->db->where(array('247around_current_status' => $current_status, '247around_internal_status' => $internal_status));
         $query = $this->db->get('partner_booking_status_mapping');
         return $query->result_array();
