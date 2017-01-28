@@ -1454,6 +1454,28 @@ class Booking extends CI_Controller {
             "internal_status" => "FollowUp",
             "cancellation_reason" => NULL,
             "closed_date" => NULL);
+         
+        $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);
+        $partner_id='';
+        if(!empty($partner_id_data['partner_id'])){
+            $partner_id = $partner_id_data['partner_id'];
+        }
+        else{
+            $to = "ANUJ_EMAIL_ID";
+            $cc = "";
+            $bcc = "";
+            $subject = " No Partner ID Exists For Booking ID =  '".$booking_id."'";
+            $message = "No Partner ID Exists For Booking ID =  '".$booking_id."'";
+            $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
+        }
+        
+        if($partner_id){
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($status['current_status'], $status['internal_status'],$partner_id, $booking_id);
+            if(!empty($partner_status)){
+                $status['partner_current_status'] = $partner_status[0];
+                $status['partner_internal_status'] = $partner_status[1];
+            }
+        }
 	$this->booking_model->change_booking_status($booking_id,$status);
 	redirect(base_url() . 'employee/user/finduser/0/0/' . $phone, 'refresh');
     }
