@@ -57,7 +57,7 @@
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 <?php if( form_error('service_name') ) { echo 'has-error';} ?>">
                                     <label for="Appliance">Appliance * <span id="error_appliance" style="color: red;"></span></label>
-                                    <select type="text" class="form-control"  id="service_name" name="service_name"   required onchange="return get_brands(this.data-id)">
+                                    <select type="text" class="form-control"  id="service_name" name="service_name"   required onchange="return get_brands(),get_category()">
                                         <option selected disabled>Select Appliance</option>
                                         <?php foreach ($appliances as $values) { ?>
                                         <option <?php if(count($appliances) ==1){echo "selected";} ?> data-id="<?php echo $values->id;?>" value=<?= $values->services; ?>>
@@ -72,7 +72,7 @@
                                 <div class="form-group col-md-12 <?php if( form_error('appliance_brand') ) { echo 'has-error';} ?>">
                                     <label for="appliance_brand">Brand *  <span id="error_brand" style="color: red;"></label>
                                     <p style="color:grey;display:none" id="brand_loading">Loading ...</p>
-                                    <select type="text" class="form-control appliance_brand"    name="appliance_brand" id="appliance_brand_1" required onchange="return get_category(this.value)">
+                                    <select type="text" class="form-control appliance_brand"    name="appliance_brand" id="appliance_brand_1" required onchange="return get_category()">
                                         <option selected disabled value="option1">Select Brand</option>
                                     </select>
                                     <?php echo form_error('appliance_brand'); ?>
@@ -420,8 +420,9 @@
     
     //This function is used to get Category for partner id , service , brands specified
     
-    function get_category(brand){
+    function get_category(){
         service_id =  $("#service_name").find(':selected').attr('data-id');
+        brand = $("#appliance_brand_1").val();
         $.ajax({
                         type: 'POST',
                         beforeSend: function(){
@@ -519,7 +520,7 @@
                 url: '<?php echo base_url(); ?>employee/partner/get_price_for_partner',
                 data: postData,
                 success: function (data) {
-
+console.log(data);
                      if(data === "ERROR"){
                           $("#total_price").text("Price is not defined" );
 

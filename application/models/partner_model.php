@@ -944,7 +944,7 @@ class Partner_model extends CI_Model {
      * 
      */
     function get_partner_code($partner_id){
-        $this->db->select('partner_type, code');
+        $this->db->select('partner_type, code, price_mapping_id');
         $this->db->where('partner_id',$partner_id);
         $query = $this->db->get('bookings_sources');
         return $query->result_array();
