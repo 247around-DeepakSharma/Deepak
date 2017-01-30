@@ -1733,6 +1733,7 @@ Regards,<br>
 
 UPDATE `email_template` SET `template` = 'Dear Partner brackets for your Order ID <b> %s </b> have been delivered to you sucessfully.<br><br> Thankyou for placing an order with us.<br.<br> Regards,<br> 247Around Team' WHERE `email_template`.`tag` = 'brackets_received_mail_vendor_order_requested_from
 ';
+<<<<<<< Updated upstream
 --- Sachin 24JAN
 
 INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES
@@ -1762,6 +1763,7 @@ INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_cur
 INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'penalty_on_booking', '<br>Booking Report has been created for the following booking id : <strong> %s </strong> <br><br> For any confusion, write to us or call us.<br><br> Regards,<br> 247around Team', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com', '', '1', '2016-09-26 18:30:00');
 
 UPDATE `email_template` SET `template` = '<br>Booking Report has been created for the following booking id : <strong> %s </strong> <br> Reason : <strong> %s </strong> <br><br> For any confusion, write to us or call us.<br><br> Regards,<br> 247around Team' WHERE `email_template`.`tag` = 'penalty_on_booking';
+=======
 
 INSERT INTO `vendor_escalation_policy` (`id`, `escalation_reason`, `entity`, `mail_to_owner`, `mail_to_poc`, `sms_to_owner`, `sms_to_poc`, `sms_body`, `mail_subject`, `mail_body`, `active`, `create_date`) VALUES (NULL, 'Incentive Cut - Reschedule without reason', '247around', '0', '0', '0', '0', NULL, NULL, NULL, '1', '2016-04-11 07:58:00');
 INSERT INTO `vendor_escalation_policy` (`id`, `escalation_reason`, `entity`, `mail_to_owner`, `mail_to_poc`, `sms_to_owner`, `sms_to_poc`, `sms_body`, `mail_subject`, `mail_body`, `active`, `create_date`) VALUES (NULL, 'Penalty - Fake Cancel', '247around', '0', '0', '0', '0', NULL, NULL, NULL, '1', '2016-04-11 07:58:00');
