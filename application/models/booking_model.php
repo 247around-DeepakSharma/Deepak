@@ -157,9 +157,9 @@ class Booking_model extends CI_Model {
              $add_limit = " LIMIT $start, $limit ";
         }
         if($booking_id != ""){
-            $where =  "  booking_id = '$booking_id' AND ";
+            $where =  "  `booking_details.booking_id` = '$booking_id' AND ";
         }
-        $query = $this->db->query("Select services.services,users.name as customername,
+        $query = $this->db->query("Select services.services,users.name as customername,penalty_on_booking.penalty_amount,
             users.phone_number, booking_details.*, service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,
             service_centres.primary_contact_phone_1
@@ -167,7 +167,8 @@ class Booking_model extends CI_Model {
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-            WHERE `booking_id` NOT LIKE '%Q-%' AND $where
+            LEFT JOIN `penalty_on_booking` ON `booking_details`.`booking_id` = `penalty_on_booking`.`booking_id`
+            WHERE `booking_details`.booking_id NOT LIKE '%Q-%' AND $where
             (booking_details.current_status = '$status')
 	    ORDER BY closed_date DESC $add_limit "
         );
@@ -1392,13 +1393,13 @@ class Booking_model extends CI_Model {
      * @return: Array of email template
      */
     function get_booking_email_template($email_tag) {
-        $this->db->select("template, to, from,cc");
+        $this->db->select("template, to, from,cc, subject");
         $this->db->where('tag', $email_tag);
         $this->db->where('active', 1);
         $query = $this->db->get('email_template');
         if ($query->num_rows > 0) {
             $template = $query->result_array();
-            return array($template[0]['template'], $template[0]['to'], $template[0]['from'],$template[0]['cc']);
+            return array($template[0]['template'], $template[0]['to'], $template[0]['from'],$template[0]['cc'],$template[0]['subject']);
         } else {
             return "";
         }

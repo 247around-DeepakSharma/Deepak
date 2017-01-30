@@ -31,6 +31,7 @@ class vendor extends CI_Controller {
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
         $this->load->model('partner_model');
+        $this->load->model('penalty_model');
         $this->load->library('booking_utilities');
         $this->load->library('partner_utilities');
         $this->load->library('notify');
@@ -1182,7 +1183,7 @@ class vendor extends CI_Controller {
         
         $data_uploads['file_name'] = "vendor_pincode_mapping_temp.zip";
         $data_uploads['file_type'] = _247AROUND_VENDOR_PINCODE;
-        $data_uploads['agent_id'] = $this->session->userdata('employee_id');
+        $data_uploads['agent_id'] = $this->session->userdata('id');
         $insert_id = $this->partner_model->add_file_upload_details($data_uploads);
         if (!empty($insert_id)) {
             //Logging success
@@ -1258,7 +1259,7 @@ class vendor extends CI_Controller {
      */
     function get_vendor_escalation_form($booking_id) {
         //get escalation reasons for 247around
-        $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'247around','active'=> '1'));
+        $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'247around','active'=> '1','process_type'=>'escalation'));
         $data['vendor_details'] = $this->vendor_model->getVendor($booking_id);
         $data['booking_id'] = $booking_id;
 
@@ -1293,17 +1294,19 @@ class vendor extends CI_Controller {
         $checkValidation = $this->checkValidationOnReason();
         if ($checkValidation) {
             $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
-            $booking_date_timeslot = $this->vendor_model->getBookingDateFromBookingID($escalation['booking_id']);
             
             $this->booking_model->increase_escalation_reschedule($escalation['booking_id'], "count_escalation");
+            
+            $booking_date_timeslot = $this->vendor_model->getBookingDateFromBookingID($escalation['booking_id']);
 
             $booking_date = strtotime($booking_date_timeslot[0]['booking_date']);
 
             $escalation['booking_date'] = date('Y-m-d', $booking_date);
             $escalation['booking_time'] = $booking_date_timeslot[0]['booking_timeslot'];
+            
             //inserts vendor escalation details
             $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
-
+            
             if ($escalation_id) {
                 $escalation_policy_details = $this->vendor_model->getEscalationPolicyDetails($escalation['escalation_reason']);
                 // Update escalation flag and return userDeatils
@@ -1314,23 +1317,60 @@ class vendor extends CI_Controller {
 
                 $vendorContact = $this->vendor_model->getVendorContact($escalation['vendor_id']);
 
-                $return_mail_to = $this->getMailTo($escalation_policy_details, $vendorContact);
+                $return_mail_to = $vendorContact[0]['owner_email'].','.$vendorContact[0]['primary_contact_email'];
 
-                if ($return_mail_to != "") {
+                //Getting template from Database
+                $template = $this->booking_model->get_booking_email_template("escalation_on_booking");
+                if (!empty($template)) {
+                    
+                    //From will be currently logged in user
+                    $from = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['official_email'];
+                    
+                    //Sending Mail
+                    $email['booking_id'] = $escalation['booking_id'];
+                    $email['count_escalation'] = $booking_date_timeslot[0]['count_escalation'];
+                    $email['reason'] = $escalation_policy_details[0]['escalation_reason'];
+                    $emailBody = vsprintf($template[0], $email);
 
-                    $this->notify->sendEmail('booking@247around.com', $return_mail_to, $cc, '', $escalation_policy_details[0]['mail_subject'], $escalation_policy_details[0]['mail_body'], '');
+                    $subject['booking_id'] = $escalation['booking_id'];
+                    $subjectBody = vsprintf($template[4], $subject);
+                    $this->notify->sendEmail($from, $return_mail_to, $template[3] . "," . $cc, '', $subjectBody, $emailBody, "");
+
+                    //Logging
+                    log_message('info', " Escalation Mail Send successfully" . $emailBody);
+                } else {
+                    //Logging Error Message
+                    log_message('info', " Error in Getting Email Template for Escalation Mail");
                 }
-
+                
                 $this->sendSmsToVendor($escalation,$escalation_policy_details, $vendorContact, $escalation['booking_id'], $userDetails);
                 $escalation_reason  = $this->vendor_model->getEscalationReason(array('id'=>$escalation['escalation_reason']));
+                $remarks = $this->input->post('remarks');
+                if(!empty($remarks)){
+                    $escalation_reason_final = $escalation_reason[0]['escalation_reason'].' - '.$remarks;
+                }else{
+                    $escalation_reason_final = $escalation_reason[0]['escalation_reason'];
+                }
+                
                 $this->notify->insert_state_change($escalation['booking_id'], 
-                    "Escalation" , "Pending" , $escalation_reason[0]['escalation_reason'], 
+                    "Escalation" , "Pending" , $escalation_reason_final, 
                     $this->session->userdata('id'), $this->session->userdata('employee_id'),
                     _247AROUND);
+                
+                //Processing Penalty on Escalations
+                
+                $value['booking_id'] = $escalation['booking_id'];
+                $value['assigned_vendor_id'] = $escalation['vendor_id'];
+                $value['current_state'] = "Escalation";
+                $value['agent_id'] = $this->session->userdata('id');
+                $value['remarks'] = $escalation_reason_final;
+                $where = array('escalation_id' => ESCALATION_PENALTY, 'active' => '1');
+                //Adding values in penalty on booking table
+                $this->penalty_model->get_data_penalty_on_booking($value, $where);
 
-                //$output = "Vendor Escalation Process Completed.";
-                //$userSession = array('success' => $output);
-                //$this->session->set_userdata($userSession);
+                log_message('info', 'Penalty added for Escalations - Booking : ' . $escalation['booking_id']);
+                
+
                 redirect(base_url() . DEFAULT_SEARCH_PAGE);
 	    }
         } else {
@@ -1407,29 +1447,6 @@ class vendor extends CI_Controller {
         return $smsBody;
     }
 
-    /**
-     * @desc: Get Email id of owner and vendor when flag is 1.
-     *
-     * @param : escalation policy details(mail to owner, mail to poc, etc)
-     * @param : email details(primary contact email, owner email, etc)
-     * @return : mailto(to whome the mail is to be sent)
-     */
-    function getMailTo($escalation_policy, $mailDetails) {
-        $to = "";
-
-        if ($escalation_policy[0]['mail_to_owner'] == 1 && $escalation_policy[0]['mail_to_poc'] == 1) {
-
-            $to .= $mailDetails[0]['primary_contact_email'] . "," . $mailDetails[0]['owner_email'];
-        } else if ($escalation_policy[0]['mail_to_owner'] == 0 && $escalation_policy[0]['mail_to_poc'] == 1) {
-
-            $to .= $mailDetails[0]['primary_contact_email'];
-        } else if ($escalation_policy[0]['mail_to_owner'] == 1 && $escalation_policy[0]['mail_to_poc'] == 0) {
-
-            $to .= $mailDetails[0]['owner_email'];
-        }
-
-        return $to;
-    }
 
     /**
      * @desc: This function is to check validation on escalation reason
@@ -1439,12 +1456,7 @@ class vendor extends CI_Controller {
      */
     function checkValidationOnReason() {
         $this->form_validation->set_rules('escalation_reason_id', 'Escalation Reason', 'required');
-
-        if ($this->form_validation->run() == FALSE) {
-            return FALSE;
-        } else {
-            return true;
-        }
+        return $this->form_validation->run();
     }
 
     /**
@@ -3029,7 +3041,7 @@ class vendor extends CI_Controller {
         $vendor_details = $this->vendor_model->getVendorContact($vendor_id);
         $data['user_name'] = strtolower($vendor_details[0]['sc_code']);
         $data['password'] = md5(strtolower($vendor_details[0]['sc_code']));
-        
+    
          //Loggin to SF Panel with username and password
          
         $agent = $this->service_centers_model->service_center_login($data);
@@ -3313,4 +3325,181 @@ class vendor extends CI_Controller {
         $this->load->view('employee/sc_upcountry_details',$data);
         
     }
+    
+    /**
+     * @Desc: This function is used to show escalate(report) booking form
+     * @params: String (Booking ID)
+     * @return:void
+     */
+    function get_escalate_booking_form($booking_id,$status) {
+        //get escalation reasons for 247around
+        if($status == 'Completed')
+            $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'247around','active'=> '1','process_type'=>'report_complete'));
+        else if($status == 'Cancelled')
+            $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'247around','active'=> '1','process_type'=>'report_cancel'));
+
+        $data['vendor_details'] = $this->vendor_model->getVendor($booking_id);
+        $data['booking_id'] = $booking_id;
+        $data['status'] = $status;
+
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/get_escalate_booking_form', $data);
     }
+    
+    /**
+     * @Desc: This function is used to process escalate form
+     * @params: POST
+     * @return : view
+     * 
+     */
+    function process_get_vendor_escalation_form() {
+        $escalation['booking_id'] = $this->input->post('booking_id');
+        $escalation['vendor_id'] = $this->input->post('vendor_id');
+        $status = $this->input->post('status');
+
+        $checkValidation = $this->checkValidationOnReason();
+        if ($checkValidation) {
+            $escalation['escalation_reason'] = $this->input->post('escalation_reason_id');
+            //Getting date time slot of this booking
+            $booking_date_timeslot = $this->vendor_model->getBookingDateFromBookingID($escalation['booking_id']);
+
+            $booking_date = strtotime($booking_date_timeslot[0]['booking_date']);
+
+            $escalation['booking_date'] = date('Y-m-d', $booking_date);
+            $escalation['booking_time'] = $booking_date_timeslot[0]['booking_timeslot'];
+            //inserts vendor escalation details
+            $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
+
+            if ($escalation_id) {
+                //Getting escalation reason
+                $escalation_policy_details = $this->vendor_model->getEscalationPolicyDetails($escalation['escalation_reason']);
+
+                log_message('info', "Vendor_ID " . $escalation['vendor_id']);
+
+                $escalation_reason = $this->vendor_model->getEscalationReason(array('id' => $escalation['escalation_reason']));
+                $remarks = $this->input->post('remarks');
+                if (!empty($remarks)) {
+                    $escalation_reason_final = $escalation_reason[0]['escalation_reason'] . ' - ' . $remarks;
+                } else {
+                    $escalation_reason_final = $escalation_reason[0]['escalation_reason'];
+                }
+
+                //Now processing Penalty Operation on basic reason selection
+                //We are making selection on basis of Escalation id choosen for Reason
+
+                switch ($escalation['escalation_reason']) {
+                    case INCENTIVE_CUT:
+                        //Incentive Cut Option selected
+                        log_message('info', 'Inside case of - ' . $escalation_reason[0]['escalation_reason']);
+                        $value['booking_id'] = $escalation['booking_id'];
+                        $value['assigned_vendor_id'] = $escalation['vendor_id'];
+                        $value['current_state'] = $status;
+                        $value['agent_id'] = $this->session->userdata('id');
+                        $value['remarks'] = $escalation_reason_final;
+                        $where = array('escalation_id' => INCENTIVE_CUT, 'active' => '1');
+                        //Adding values in penalty on booking table
+                        $penalty = $this->penalty_model->get_data_penalty_on_booking($value, $where);
+
+                        log_message('info', 'Penalty added for Booking' . $escalation['booking_id'] . ' in penalty_on_booking');
+                        //Setting validation success message
+                        $this->session->set_userdata('success', 'Penalty added for Rescheduled without Reason - Booking id : '.$escalation['booking_id']);
+                        
+                        break;
+                    case PENALTY_FAKE_CANCEL:
+                        //Penalty - Fake Cancel Option
+                        log_message('info', 'Inside case of - ' . $escalation_reason[0]['escalation_reason']);
+                        $value['booking_id'] = $escalation['booking_id'];
+                        $value['assigned_vendor_id'] = $escalation['vendor_id'];
+                        $value['current_state'] = $status;
+                        $value['agent_id'] = $this->session->userdata('id');
+                        $value['remarks'] = $escalation_reason_final;
+                        $where = array('escalation_id' => PENALTY_FAKE_CANCEL, 'active' => '1');
+                        //Adding values in penalty on booking table
+                        $penalty = $this->penalty_model->get_data_penalty_on_booking($value, $where);
+
+                        log_message('info', 'Penalty added for Booking' . $escalation['booking_id'] . ' in penalty_on_booking');
+                        //Setting validation success message
+                        $this->session->set_userdata('success', 'Penalty added for Fake Cancellation - Booking id : '. $escalation['booking_id']);
+                        
+                        break;
+
+                    case PENALTY_FAKE_COMPLETE_CUSTOMER_WANT_INSTALLATION:
+                        //Penalty - Fake Cancel Option
+                        log_message('info', 'Inside case of - ' . $escalation_reason[0]['escalation_reason']);
+                        $value['booking_id'] = $escalation['booking_id'];
+                        $value['assigned_vendor_id'] = $escalation['vendor_id'];
+                        $value['current_state'] = $status;
+                        $value['agent_id'] = $this->session->userdata('id');
+                        $value['remarks'] = $escalation_reason_final;
+                        $where = array('escalation_id' => PENALTY_FAKE_COMPLETE_CUSTOMER_WANT_INSTALLATION, 'active' => '1');
+                        //Adding values in penalty on booking table
+                        $penalty = $this->penalty_model->get_data_penalty_on_booking($value, $where);
+
+                        log_message('info', 'Penalty added for Booking' . $escalation['booking_id'] . ' in penalty_on_booking');
+                        //Setting validation success message
+                        $this->session->set_userdata('success', 'Penalty added for Fake Completion - Customer want Installation - Booking id : '.$escalation['booking_id']);
+                        
+                        break;
+                    
+                    case PENALTY_FAKE_COMPLETE_CUSTOMER_NOT_WANT_INSTALLATION:
+                        //Penalty - Fake Cancel Option
+                        log_message('info', 'Inside case of - ' . $escalation_reason[0]['escalation_reason']);
+                        $value['booking_id'] = $escalation['booking_id'];
+                        $value['assigned_vendor_id'] = $escalation['vendor_id'];
+                        $value['current_state'] = $status;
+                        $value['agent_id'] = $this->session->userdata('id');
+                        $value['remarks'] = $escalation_reason_final;
+                        $where = array('escalation_id' => PENALTY_FAKE_COMPLETE_CUSTOMER_NOT_WANT_INSTALLATION, 'active' => '1');
+                        //Adding values in penalty on booking table
+                        $penalty = $this->penalty_model->get_data_penalty_on_booking($value, $where);
+
+                        log_message('info', 'Penalty added for Booking' . $escalation['booking_id'] . ' in penalty_on_booking');
+                        //Setting validation success message
+                        $this->session->set_userdata('success', 'Penalty added for Fake Completion - Customer Not want Installation - Booking id : '.$escalation['booking_id']);
+                        
+                        break;
+                    default:
+                        $penalty = [];
+                        //Setting validation success message
+                        $this->session->set_userdata('success', 'Report Submitted - Booking id : '.$escalation['booking_id']);
+                        break;
+                }
+                
+                //Getting template from Database
+                $template = $this->booking_model->get_booking_email_template("penalty_on_booking");
+                if (!empty($template)) {
+                    $vendorContact = $this->vendor_model->getVendorContact($escalation['vendor_id']);
+                    $to = $vendorContact[0]['primary_contact_email'] . ',' . $vendorContact[0]['owner_email'];
+                    //From will be currently logged in user
+                    $from = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['official_email'];
+
+                    //Getting RM Official Email details to send Welcome Mails to them as well
+                    $rm_id = $this->vendor_model->get_rm_sf_relation_by_sf_id($escalation['vendor_id'])[0]['agent_id'];
+                    $rm_official_email = $this->employee_model->getemployeefromid($rm_id)[0]['official_email'];
+
+                    //Sending Mail
+                    $email['penalty_amount'] = isset($penalty['penalty_amount']) ? $penalty['penalty_amount'] : 0;
+                    $email['booking_id'] = $escalation['booking_id'];
+                    $email['reason'] = $escalation_reason_final;
+                    $emailBody = vsprintf($template[0], $email);
+
+                    $subject['penalty_amount'] = isset($penalty['penalty_amount']) ? $penalty['penalty_amount'] : 0;
+                    $subject['booking_id'] = $escalation['booking_id'];
+                    $subjectBody = vsprintf($template[4], $subject);
+                    $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email, '', $subjectBody, $emailBody, "");
+
+                    //Logging
+                    log_message('info', " Booking Report Mail Send successfully" . $emailBody);
+                } else {
+                    //Logging Error Message
+                    log_message('info', " Error in Getting Email Template for Booking Report Mail");
+                }
+
+                redirect(base_url().'employee/booking/viewclosedbooking/'.$status);
+            }
+        } else {
+            $this->get_escalate_booking_form($escalation['booking_id'], $status);
+        }
+    }
+    
+}

@@ -208,6 +208,13 @@
                     <td><?php echo $offset; if($row->is_upcountry == 1) { ?>.<i style="color:red; font-size:20px;" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
 
                             <td>
+                                <div class="blink">
+                                        <?php if ($row->count_escalation > 0) { ?> <div class="esclate">Escalated</div>
+                                        <?php } ?>
+                                    </div>
+                                    <?php if ($row->count_escalation > 0) { ?>
+                                        <?php echo '<b>'.$row->count_escalation . " times</b><br>";
+                                    } ?>
                             <?php
                             if (is_null($row->booking_jobcard_filename)) {
                                 echo $row->booking_id;
@@ -352,7 +359,7 @@
                         <a target='_blank' href="<?php echo base_url();?>employee/vendor/get_reassign_vendor_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-success <?php if(is_null($row->assigned_vendor_id)){ echo 'disabled';} ?>' title="Re- assign"><i class="fa fa-repeat" aria-hidden="true"></i></a>
                     </td>
                     <td>
-                                <a target='_blank' href="<?php echo base_url(); ?>employee/vendor/get_vendor_escalation_form/<?php echo $row->booking_id; ?>" <?php if($row->assigned_vendor_id == null){ echo "disabled"; }?> class='btn btn-sm btn-danger' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
+                        <a target='_blank' href="<?php echo base_url(); ?>employee/vendor/get_vendor_escalation_form/<?php echo $row->booking_id; ?>" <?php if($row->assigned_vendor_id == null){ echo "disabled"; }?> class='btn btn-sm btn-danger' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
                         </td>
                     
 
@@ -389,5 +396,28 @@
   position: relative;
   bottom: 1ex; 
   font-size: 100%;
+}
+
+@keyframes blink {
+      50% { opacity: 0.0; }
+    }
+    @-webkit-keyframes blink {
+      50% { opacity: 0.0; }
+    }
+    .blink {
+      animation: blink 1s step-start 0s infinite;
+      -webkit-animation: blink 1s step-start 0s infinite;
+    }
+    
+    .esclate {
+    width: auto;
+    height: 17px;
+    background-color: #F73006;
+    color: #fff;
+    /* transform: rotate(-26deg); */
+    margin-left: 0px;
+    font-weight: bold;
+    margin-right: 0px;
+    font-size: 12px;
 }
 </style>

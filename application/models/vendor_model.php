@@ -511,7 +511,7 @@ class vendor_model extends CI_Model {
      *  @return : array of booking date and timeslot
      */
     function getBookingDateFromBookingID($booking_id) {
-        $this->db->select('booking_date, booking_timeslot');
+        $this->db->select('booking_date, booking_timeslot,count_escalation');
         $this->db->where('booking_id', $booking_id);
         $query = $this->db->get('booking_details');
         if ($query->num_rows() > 0) {

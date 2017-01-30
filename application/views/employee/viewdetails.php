@@ -408,7 +408,44 @@
                 </div>
                 <?php } ?>
             </div>
-            <div class="col-md-12"id="booking_history"></div>
+
+            <div class="col-md-12" id="penalty_on_booking">
+                <?php if (!empty($penalty)) { ?>
+                    <h1 style='font-size:24px;'>Penalty History</h1>
+
+                    <table  class="table table-striped table-bordered">
+                        <tr>
+                            <th class="jumbotron" style="text-align: center">S.N</th>
+                            <th class="jumbotron" style="text-align: center">Booking ID</th>
+                            <th class="jumbotron" style="text-align: center">Current State</th>
+                            <th class="jumbotron" style="text-align: center">Penalty Amount</th>
+                            <th class="jumbotron" style="text-align: center">Remarks</th>
+                            <th class="jumbotron" style="text-align: center">Agent</th>
+                            <th class="jumbotron" style="text-align: center">Date</th>
+                        </tr>
+                        <?php foreach ($penalty as $key => $row) { ?>
+                            <tr>
+                                <td><?php echo ($key + 1) . '.'; ?></td>
+                                <td><?php echo $row['booking_id']; ?></td>
+                                <td><?php echo $row['current_state']; ?></td>
+                                <td><?php echo $row['penalty_amount']; ?></td>
+                                <td><?php echo $row['remarks']; ?></td>
+                                <td><?php echo $row['agent_name']; ?></td>
+                                <td><?php
+                                    $old_date = $row['create_date'];
+                                    $old_date_timestamp = strtotime($old_date);
+                                    $new_date = date('j F, Y g:i A', $old_date_timestamp);
+                                    echo $new_date;
+                                    ?>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                    </table>
+
+
+                <?php } ?>
+            </div>
+            <div class="col-md-12"id="booking_history" style="margin-top:20px;"></div>
         </div>
     </div>
 </div>

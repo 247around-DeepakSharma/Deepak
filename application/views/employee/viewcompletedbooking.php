@@ -76,6 +76,18 @@
                  <input type="search" class="form-control pull-right"  id="search" placeholder="search">
             </div>
             <div style="margin-left:10px;margine-right:5px;">
+                 <?php
+                if ($this->session->userdata('success')) {
+                    echo '<div class="alert alert-success alert-dismissible" role="alert" style="width: 60%;margin-left: 20%;margin-top: -49px;">
+
+                   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                       <span aria-hidden="true">&times;</span>
+                   </button>
+                   <strong>' . $this->session->userdata('success') . '</strong>
+               </div>';
+                }
+                ?>  
+
                 <h1 align="left"><?php  if(isset($status)){ echo $status." Bookings";} else { echo $Bookings[0]->current_status." Bookings"; $status =  $Bookings[0]->current_status; } ?></h1>
                 <table >
 
@@ -104,6 +116,7 @@
                     <?php if($status != "Cancelled" ){?>
                     <th width="60px;">Rate</th>
                     <?php } ?>
+                    <th width="60px;">Penalty</th>
                     </tr>
 
                     </thead>
@@ -183,6 +196,17 @@
                         ?>
                     </td>
                     <?php } ?>
+                    <td>
+                        <?php
+                        if (empty($row->penalty_amount) ){
+                            echo "<a  id='edit' class='btn btn-sm' style='background:#A9A9A9' "
+                            . "href=" . base_url() . "employee/vendor/get_escalate_booking_form/$row->booking_id/$status title='Report'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
+                        }else{
+                            echo "<a style='background:#A9A9A9' id='edit' class='btn btn-sm disabled' "
+                            . "href=" . base_url() . "employee/vendor/get_escalate_booking_form/$row->booking_id/$status title='Report'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
+                        }
+                        ?>
+                    </td>
 
                     </tr>
                     <?php
@@ -226,3 +250,4 @@
     /* special filter field styling for this example */
     .input-filter-container { position: absolute; top: 7em; right: 1em; border: 2px solid #66f; background-color: #eef; padding: 0.5em; }
 </style>
+<?php $this->session->unset_userdata('success'); ?>

@@ -194,7 +194,7 @@
                 url: '<?php echo base_url() ?>partner/process_escalation/'+booking_id,
                 data: {escalation_reason_id: escalation_id,escalation_remarks:remarks},
                 success: function (data) {
-                  //console.log(data);
+                  console.log(data);
 
                 }
               });

@@ -205,6 +205,14 @@ define('SF_UPDATED','SF Updated');
 define('NEW_PARTNER_ADDED','New Partner Added');
 //Define Edit SF State
 define('PARTNER_UPDATED','Partner Updated');
+//Define Incentive Cut
+define('INCENTIVE_CUT',12);
+//Define Penalty - Fake Complete customer want installation
+define('PENALTY_FAKE_COMPLETE_CUSTOMER_WANT_INSTALLATION',14);
+//Define Penalty - Fake Complete customer not want installation
+define('PENALTY_FAKE_COMPLETE_CUSTOMER_NOT_WANT_INSTALLATION',15);
+//Define Escalation Panalty id
+define('ESCALATION_PENALTY',1);
 
 
 

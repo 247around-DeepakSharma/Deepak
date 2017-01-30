@@ -1733,7 +1733,6 @@ Regards,<br>
 
 UPDATE `email_template` SET `template` = 'Dear Partner brackets for your Order ID <b> %s </b> have been delivered to you sucessfully.<br><br> Thankyou for placing an order with us.<br.<br> Regards,<br> 247Around Team' WHERE `email_template`.`tag` = 'brackets_received_mail_vendor_order_requested_from
 ';
-
 --- Sachin 24JAN
 
 INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES
@@ -1757,3 +1756,50 @@ INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_cur
 (18, 247001, 'FollowUp', 'FollowUp', 'PENDING', 'Pending'),
 (19, 247001, 'FollowUp', 'Missed_call_confirmed', 'SERVICE_SCHEDULED', 'Pending'),
 (20, 247001, 'Cancelled', 'Cancelled by Snapdeal', NULL, NULL);
+
+--Belal 24 Jan
+
+INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'penalty_on_booking', '<br>Booking Report has been created for the following booking id : <strong> %s </strong> <br><br> For any confusion, write to us or call us.<br><br> Regards,<br> 247around Team', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com', '', '1', '2016-09-26 18:30:00');
+
+UPDATE `email_template` SET `template` = '<br>Booking Report has been created for the following booking id : <strong> %s </strong> <br> Reason : <strong> %s </strong> <br><br> For any confusion, write to us or call us.<br><br> Regards,<br> 247around Team' WHERE `email_template`.`tag` = 'penalty_on_booking';
+
+INSERT INTO `vendor_escalation_policy` (`id`, `escalation_reason`, `entity`, `mail_to_owner`, `mail_to_poc`, `sms_to_owner`, `sms_to_poc`, `sms_body`, `mail_subject`, `mail_body`, `active`, `create_date`) VALUES (NULL, 'Incentive Cut - Reschedule without reason', '247around', '0', '0', '0', '0', NULL, NULL, NULL, '1', '2016-04-11 07:58:00');
+INSERT INTO `vendor_escalation_policy` (`id`, `escalation_reason`, `entity`, `mail_to_owner`, `mail_to_poc`, `sms_to_owner`, `sms_to_poc`, `sms_body`, `mail_subject`, `mail_body`, `active`, `create_date`) VALUES (NULL, 'Penalty - Fake Cancel', '247around', '0', '0', '0', '0', NULL, NULL, NULL, '1', '2016-04-11 07:58:00');
+INSERT INTO `vendor_escalation_policy` (`id`, `escalation_reason`, `entity`, `mail_to_owner`, `mail_to_poc`, `sms_to_owner`, `sms_to_poc`, `sms_body`, `mail_subject`, `mail_body`, `active`, `create_date`) VALUES (NULL, 'Penalty - Fake Complete', '247around', '0', '0', '0', '0', NULL, NULL, NULL, '1', '2016-04-11 07:58:00');
+
+INSERT INTO `penalty_details` (`id`, `partner_id`, `escalation_id`, `criteria`, `penalty_amount`, `unit_%_rate`, `active`) VALUES (NULL, NULL, '12', NULL, '50', NULL, '1');
+INSERT INTO `penalty_details` (`id`, `partner_id`, `escalation_id`, `criteria`, `penalty_amount`, `unit_%_rate`, `active`) VALUES (NULL, NULL, '13', NULL, '300', NULL, '1');
+INSERT INTO `penalty_details` (`id`, `partner_id`, `escalation_id`, `criteria`, `penalty_amount`, `unit_%_rate`, `active`) VALUES (NULL, NULL, '14', NULL, '100', NULL, '1');
+
+ALTER TABLE `vendor_escalation_policy` ADD `process_type` VARCHAR(32) NULL DEFAULT NULL AFTER `entity`;
+ALTER TABLE `vendor_escalation_policy` CHANGE `process_type` `process_type` VARCHAR(32) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL COMMENT 'escalations, report types';
+UPDATE `vendor_escalation_policy` SET `process_type`= 'report' WHERE id IN(12,13,14);
+UPDATE `vendor_escalation_policy` SET `process_type` = 'escalation' WHERE `entity` = '247around' AND `process_type` IS NULL
+
+UPDATE `penalty_details` SET `penalty_amount` = '10' WHERE `penalty_details`.`id` = 3;
+
+ALTER TABLE `partner_login` ADD `email` VARCHAR(32) NULL DEFAULT NULL AFTER `partner_id`;
+
+UPDATE `vendor_escalation_policy` SET `process_type` = 'report_complete' WHERE `vendor_escalation_policy`.`id` = 14;
+UPDATE `vendor_escalation_policy` SET `process_type` = 'report_cancel' WHERE `vendor_escalation_policy`.`id` = 13;
+UPDATE `vendor_escalation_policy` SET `process_type` = 'report_cancel' WHERE `vendor_escalation_policy`.`id` = 12;
+
+UPDATE `vendor_escalation_policy` SET `escalation_reason` = 'Penalty - Fake Complete - Customer want Installation' WHERE `vendor_escalation_policy`.`id` = 14;
+
+INSERT INTO `vendor_escalation_policy` (`id`, `escalation_reason`, `entity`, `process_type`, `mail_to_owner`, `mail_to_poc`, `sms_to_owner`, `sms_to_poc`, `sms_body`, `mail_subject`, `mail_body`, `active`, `create_date`) VALUES (NULL, 'Penalty - Fake Complete - Customer NOT want Installation', '247around', 'report_complete', '0', '0', '0', '0', NULL, NULL, NULL, '1', '2016-04-11 07:58:00');
+INSERT INTO `penalty_details` (`id`, `partner_id`, `escalation_id`, `criteria`, `penalty_amount`, `unit_%_rate`, `active`) VALUES (NULL, NULL, '15', NULL, '300', NULL, '1');
+
+ALTER TABLE `vendor_escalation_policy`
+  DROP `mail_to_owner`,
+  DROP `mail_to_poc`,
+  DROP `mail_subject`,
+  DROP `mail_body`;
+
+ALTER TABLE `penalty_on_booking` ADD `agent_id` INT NULL AFTER `penalty_amount`, ADD `remarks` VARCHAR(512) NULL AFTER `agent_id`, ADD `current_state` VARCHAR(128) NULL AFTER `remarks`;
+ALTER TABLE `email_template` ADD `subject` VARCHAR(512) NULL AFTER `tag`;
+
+UPDATE `email_template` SET `subject` = 'Penalty of Rs : %s on Booking ID : %s' WHERE `email_template`.`tag` = 'penalty_on_booking';
+
+UPDATE `email_template` SET `template` = '<br>Dear SF,<br> Penalty of Rs: <b>%s</b> is leived on Booking ID : <strong>%s</strong> <br> Reason : %s <br> Try to avoid such cases in future. <br><br> Regards,<br> 247around Team' WHERE `email_template`.`tag` = 'penalty_on_booking';
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'escalation_on_booking', 'Booking ID : %s Escalated', '<br>Dear SF,<br> Booking ID : <strong>%s</strong> is escalated <b>%s</b> times. <br> Reason : %s <br> Attend this booking immediately. <br><br> Regards,<br> 247around Team', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com', '', '1', '2016-09-26 18:30:00');

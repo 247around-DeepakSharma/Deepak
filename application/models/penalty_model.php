@@ -135,10 +135,18 @@ class Penalty_model extends CI_Model {
 	if ($penalty_details) {
 	    $data['booking_id'] = $value['booking_id'];
 	    $data['service_center_id'] = $value['assigned_vendor_id'];
+	    $data['agent_id'] = isset($value['agent_id']) && !empty($value['agent_id'])?$value['agent_id']:NULL;
+	    $data['remarks'] = isset($value['remarks']) && !empty($value['remarks'])?$value['remarks']:NULL;
+	    $data['current_state'] = isset($value['current_state']) && !empty($value['current_state'])?$value['current_state']:NULL;
 	    $data['criteria_id'] = $penalty_details['id'];
 	    $data['penalty_amount'] = $penalty_details['penalty_amount'];
 	    $this->insert_penalty_on_booking($data);
-	}
+            return $data;
+	}else{
+            log_message('info',__FUNCTION__.'Unable to get Penalty Details for provided values of where '.print_r($where,TRUE));
+            return FALSE;
+
+        }
     }
     /**
      *
@@ -230,6 +238,22 @@ class Penalty_model extends CI_Model {
                 . " AND create_date >= date('Y-m-d') ";
         $query = $this->db->query($sql);
         return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function is used to get Penalty on Booking details by Booking ID
+     * @params: Booking ID
+     * @return: Array
+     * 
+     * 
+     */
+    function get_penalty_on_booking_by_booking_id($booking_id){
+        $this->db->select('penalty_on_booking.*,employee.full_name as agent_name');
+        $this->db->where('booking_id',$booking_id);
+        $this->db->join('employee','penalty_on_booking.agent_id = employee.id');
+        $query = $this->db->get('penalty_on_booking');
+        return $query->result_array();
+        
     }
 
 

@@ -28,6 +28,7 @@ class Booking extends CI_Controller {
 	$this->load->model('partner_model');
 	$this->load->model('inventory_model');
         $this->load->model('upcountry_model');
+        $this->load->model('penalty_model');
 	$this->load->library('partner_sd_cb');
 	$this->load->library('partner_cb');
 	$this->load->library('notify');
@@ -1185,6 +1186,7 @@ class Booking extends CI_Controller {
 
 	$data['service_center'] = $this->booking_model->selectservicecentre($booking_id);
         $data['upcountry_details'] = $this->upcountry_model->upcountry_booking_list($data['booking_history'][0]['assigned_vendor_id'], $booking_id);
+        $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id);
 
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/viewdetails', $data);
