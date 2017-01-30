@@ -1248,5 +1248,84 @@ EOD;
             log_message('info', __FUNCTION__ . ' RM Crime Report has been sent successfully');
         }
     }
+    
+    /**
+     * @Desc: This function is to show Pictorial Representation of Reports Table
+     * @params: void
+     * #return: void
+     * 
+     */
+    function show_reports_chart(){
+        //Getting RM Array
+        $final_array = [];
+        $rm_array = $this->employee_model->get_rm_details();
+        foreach ($rm_array as $value) {
+            $old_crimes = 0;
+            $update = 0;
+            $not_update = 0;
+            $total_crimes = 0;
+            $escalations = 0;
+            //Getting RM to SF relation
+            $where = "";
+            $sf_list = $this->vendor_model->get_employee_relation($value['id']);
+            if (!empty($sf_list)) {
+                $sf_list = $sf_list[0]['service_centres_id'];
+                $where = "AND service_centres.id IN (" . $sf_list . ")";
+            }
+            //Getting Crimes for particular RM for its corresponding SF
+            $data[$value['id']] = $this->reporting_utils->get_sc_crimes($where);
+            //Summing up values for this RM
+            foreach ($data[$value['id']] as $val) {
+                $old_crimes +=$val['monthly_total_crimes'];
+                $update +=$val['update'];
+                $not_update +=$val['not_update'];
+                $total_crimes +=$val['total_booking'];
+                $escalations +=$val['monthly_escalations'];
+            }
+
+            $temp['monthly_total_crimes'] = $old_crimes;
+            $temp['update'] = $update;
+            $temp['not_update'] = $not_update;
+            $temp['total_booking'] = $total_crimes;
+            $temp['rm_name'] = $this->employee_model->getemployeefromid($value['id'])[0]['full_name'];
+            $temp['monthly_escalations'] = $escalations;
+            //Finalizing Array for corresponding RM's ID
+            $final_array['data'][] = $temp;
+        }
+        //Making Final Array
+        $data = [];
+        $rm_name_st = "";
+        $monthly_total_crimes_st = "";
+        $update_st = "";
+        $not_update_st = "";
+        $total_booking_st = "";
+        $monthly_escalations_st = "";
+        foreach($final_array['data'] as $value){
+            $rm_name_st .= "'".$value['rm_name']."'".',';
+            $monthly_total_crimes_st .= $value['monthly_total_crimes'].',';
+            $update_st .= $value['update'].',';
+            $not_update_st .= $value['not_update'].',';
+            $total_booking_st .= $value['total_booking'].',';
+            $monthly_escalations_st .= $value['monthly_escalations'].',';
+        }
+        $rm_name_st_trimmed = rtrim($rm_name_st, ',');
+        $monthly_total_crimes_st_trimmed = rtrim($monthly_total_crimes_st, ',');
+        $update_st_trimmed = rtrim($update_st, ',');
+        $not_update_st_trimmed = rtrim($not_update_st, ',');
+        $total_booking_st_trimmed = rtrim($total_booking_st, ',');
+        $monthly_escalations_st_trimmed = rtrim($monthly_escalations_st, ',');
+        
+        //Final Data to be passed to View
+        $data['rm'] = $rm_name_st_trimmed;
+        $data['monthly_total_crimes'] = $monthly_total_crimes_st_trimmed;
+        $data['updated'] = $update_st_trimmed;
+        $data['not_updated'] = $not_update_st_trimmed;
+        $data['total_booking'] = $total_booking_st_trimmed;
+        $data['monthly_escalations'] = $monthly_escalations_st_trimmed;
+        
+        
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/show_reports_chart',$data);
+    }
 
 }
