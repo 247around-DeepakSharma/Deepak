@@ -1735,6 +1735,7 @@ UPDATE `email_template` SET `template` = 'Dear Partner brackets for your Order I
 ';
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 --- Sachin 24JAN
 
 INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES
@@ -1764,17 +1765,7 @@ INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_cur
 INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'penalty_on_booking', '<br>Booking Report has been created for the following booking id : <strong> %s </strong> <br><br> For any confusion, write to us or call us.<br><br> Regards,<br> 247around Team', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com', '', '1', '2016-09-26 18:30:00');
 
 UPDATE `email_template` SET `template` = '<br>Booking Report has been created for the following booking id : <strong> %s </strong> <br> Reason : <strong> %s </strong> <br><br> For any confusion, write to us or call us.<br><br> Regards,<br> 247around Team' WHERE `email_template`.`tag` = 'penalty_on_booking';
-=======
-=======
 
-
---Belal 24 Jan
-
-INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'booking_report', '<br>Booking Report has been created for the following booking id : <strong> %s </strong> <br><br> For any confusion, write to us or call us.<br><br> Regards,<br> 247around Team', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com', '', '1', '2016-09-26 18:30:00');
-
-UPDATE `email_template` SET `template` = '<br>Booking Report has been created for the following booking id : <strong> %s </strong> <br> Reason : <strong> %s </strong> <br><br> For any confusion, write to us or call us.<br><br> Regards,<br> 247around Team' WHERE `email_template`.`tag` = 'booking_report';
-
->>>>>>> Stashed changes
 
 INSERT INTO `vendor_escalation_policy` (`id`, `escalation_reason`, `entity`, `mail_to_owner`, `mail_to_poc`, `sms_to_owner`, `sms_to_poc`, `sms_body`, `mail_subject`, `mail_body`, `active`, `create_date`) VALUES (NULL, 'Incentive Cut - Reschedule without reason', '247around', '0', '0', '0', '0', NULL, NULL, NULL, '1', '2016-04-11 07:58:00');
 INSERT INTO `vendor_escalation_policy` (`id`, `escalation_reason`, `entity`, `mail_to_owner`, `mail_to_poc`, `sms_to_owner`, `sms_to_poc`, `sms_body`, `mail_subject`, `mail_body`, `active`, `create_date`) VALUES (NULL, 'Penalty - Fake Cancel', '247around', '0', '0', '0', '0', NULL, NULL, NULL, '1', '2016-04-11 07:58:00');
@@ -1792,7 +1783,6 @@ UPDATE `vendor_escalation_policy` SET `process_type` = 'escalation' WHERE `entit
 UPDATE `penalty_details` SET `penalty_amount` = '10' WHERE `penalty_details`.`id` = 3;
 
 ALTER TABLE `partner_login` ADD `email` VARCHAR(32) NULL DEFAULT NULL AFTER `partner_id`;
-<<<<<<< Updated upstream
 
 UPDATE `vendor_escalation_policy` SET `process_type` = 'report_complete' WHERE `vendor_escalation_policy`.`id` = 14;
 UPDATE `vendor_escalation_policy` SET `process_type` = 'report_cancel' WHERE `vendor_escalation_policy`.`id` = 13;
@@ -1817,5 +1807,3 @@ UPDATE `email_template` SET `subject` = 'Penalty of Rs : %s on Booking ID : %s' 
 UPDATE `email_template` SET `template` = '<br>Dear SF,<br> Penalty of Rs: <b>%s</b> is leived on Booking ID : <strong>%s</strong> <br> Reason : %s <br> Try to avoid such cases in future. <br><br> Regards,<br> 247around Team' WHERE `email_template`.`tag` = 'penalty_on_booking';
 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'escalation_on_booking', 'Booking ID : %s Escalated', '<br>Dear SF,<br> Booking ID : <strong>%s</strong> is escalated <b>%s</b> times. <br> Reason : %s <br> Attend this booking immediately. <br><br> Regards,<br> 247around Team', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com', '', '1', '2016-09-26 18:30:00');
-=======
->>>>>>> Stashed changes

@@ -116,11 +116,7 @@
                     <?php if($status != "Cancelled" ){?>
                     <th width="60px;">Rate</th>
                     <?php } ?>
-<<<<<<< Updated upstream
                     <th width="60px;">Penalty</th>
-=======
-                    <th width="60px;">Report</th>
->>>>>>> Stashed changes
                     </tr>
 
                     </thead>
