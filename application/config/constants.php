@@ -213,6 +213,7 @@ define('PENALTY_FAKE_COMPLETE_CUSTOMER_WANT_INSTALLATION',14);
 define('PENALTY_FAKE_COMPLETE_CUSTOMER_NOT_WANT_INSTALLATION',15);
 //Define Escalation Panalty id
 define('ESCALATION_PENALTY',1);
+define('PENALTY_FAKE_CANCEL',13);
 
 //Define error code for order id not found for partner_sd_sb.php file
 define('ERR_ORDER_ID_NOT_FOUND_CODE', -1007);

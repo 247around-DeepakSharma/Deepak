@@ -1804,3 +1804,7 @@ UPDATE `email_template` SET `subject` = 'Penalty of Rs : %s on Booking ID : %s' 
 UPDATE `email_template` SET `template` = '<br>Dear SF,<br> Penalty of Rs: <b>%s</b> is leived on Booking ID : <strong>%s</strong> <br> Reason : %s <br> Try to avoid such cases in future. <br><br> Regards,<br> 247around Team' WHERE `email_template`.`tag` = 'penalty_on_booking';
 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'escalation_on_booking', 'Booking ID : %s Escalated', '<br>Dear SF,<br> Booking ID : <strong>%s</strong> is escalated <b>%s</b> times. <br> Reason : %s <br> Attend this booking immediately. <br><br> Regards,<br> 247around Team', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com', '', '1', '2016-09-26 18:30:00');
+
+ALTER TABLE `penalty_on_booking` ADD `active` INT(2) NOT NULL DEFAULT '1' COMMENT '1->Penalty to be Taken, 0->Penalty Not Taken' AFTER `current_state`;
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'remove_penalty_on_booking', 'Penalty Removed on Booking ID : %s', '<br>Dear SF,<br> Penalty has been <b>Removed</b> from Booking ID : <strong>%s</strong> <br> <br><br> Regards,<br> 247around Team', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com', '', '1', '2016-09-26 18:30:00');

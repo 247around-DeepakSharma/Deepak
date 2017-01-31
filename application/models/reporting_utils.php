@@ -1206,7 +1206,7 @@ class Reporting_utils extends CI_Model {
                       AND sc.booking_id = BD.booking_id 
                       AND NOT EXISTS (SELECT booking_id FROM booking_state_change WHERE booking_id =BD.booking_id 
                       AND service_center_id = '" . $value['id'] . "' 
-                      AND DATEDIFF(CURRENT_TIMESTAMP , create_date) = 0) 
+                      AND DATEDIFF(CURRENT_TIMESTAMP , create_date) = 1) 
                       AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= 0";
             $query2 = $this->db->query($sql2);
             $result2 = $query2->result_array();

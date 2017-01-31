@@ -255,6 +255,26 @@ class Penalty_model extends CI_Model {
         return $query->result_array();
         
     }
+    
+    /**
+     * @Desc: This function is used to Updated Penalty on Bookings Table for particular Booking ID
+     *         Only those bookings are updated whose current state is Cancelled or Completed
+     *         Bookings which are Escalted are not Updated
+     * @params: Booking ID ,data Array
+     * @return: Boolean
+     */
+    function update_penalty_on_booking($booking_id,$data){
+        $this->db->where('booking_id',$booking_id);
+        $this->db->where('current_state','Completed');
+        $this->db->or_where('current_state','Cancelled');
+        $this->db->update('penalty_on_booking',$data);
+        if($this->db->affected_rows() > 0){
+            return TRUE;
+        }else{
+            return FALSE;
+        }
+        
+    }
 
 
 }

@@ -364,9 +364,10 @@
                                                 <div class="col-md-6">
                                                     <select type="text" class="form-control appliance_category"   id="<?php echo "appliance_category_".$number;?>" name="appliance_category[]"  onChange="getCapacityForCategory(this.value,this.id);" required>
                                                         <option disabled>Select Appliance Category</option>
-                                                        <?php foreach ($category as  $appliance_category) { ?>
+                                                        <?php if(!empty($category)){ 
+                                                        foreach ($category as  $appliance_category) { ?>
                                                         <option <?php if( $appliance_category['category'] == $booking_unit_details['category']) { echo "selected"; } ?>><?php echo $appliance_category['category']; ?></option>
-                                                        <?php } ?>
+                                                        <?php } }?>
                                                     </select>
                                                 </div>
                                             </div>

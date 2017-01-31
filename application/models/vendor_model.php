@@ -583,7 +583,7 @@ class vendor_model extends CI_Model {
         unset($flag[0]['mail_body']);
         unset($flag[0]['active']);
         unset($flag[0]['create_date']);
-
+        
         $reason_flag['escalation_policy_flag'] = json_encode($flag);
         return $this->update_esclation_policy_flag($id, $reason_flag, $booking_id);
     }

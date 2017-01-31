@@ -29,7 +29,7 @@ class Notify {
      */
     function sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment) {
 	switch (ENVIRONMENT) {
-	    case 'testing_abhay':
+	    case 'production':
 		//Clear previous email
                 if(!empty($to)){
                     $this->My_CI->email->clear(TRUE);

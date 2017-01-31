@@ -3327,7 +3327,7 @@ class vendor extends CI_Controller {
     }
     
     /**
-     * @Desc: This function is used to show escalate(report) booking form
+     * @Desc: This function is used to show Penalty booking form
      * @params: String (Booking ID)
      * @return:void
      */
@@ -3347,7 +3347,7 @@ class vendor extends CI_Controller {
     }
     
     /**
-     * @Desc: This function is used to process escalate form
+     * @Desc: This function is used to process Penalty form
      * @params: POST
      * @return : view
      * 
@@ -3367,10 +3367,7 @@ class vendor extends CI_Controller {
 
             $escalation['booking_date'] = date('Y-m-d', $booking_date);
             $escalation['booking_time'] = $booking_date_timeslot[0]['booking_timeslot'];
-            //inserts vendor escalation details
-            $escalation_id = $this->vendor_model->insertVendorEscalationDetails($escalation);
-
-            if ($escalation_id) {
+            
                 //Getting escalation reason
                 $escalation_policy_details = $this->vendor_model->getEscalationPolicyDetails($escalation['escalation_reason']);
 
@@ -3489,17 +3486,73 @@ class vendor extends CI_Controller {
                     $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email, '', $subjectBody, $emailBody, "");
 
                     //Logging
-                    log_message('info', " Booking Report Mail Send successfully" . $emailBody);
+                    log_message('info', " Penalty Report Mail Send successfully" . $emailBody);
                 } else {
                     //Logging Error Message
-                    log_message('info', " Error in Getting Email Template for Booking Report Mail");
+                    log_message('info', " Error in Getting Email Template for Penalty Report Mail");
                 }
 
                 redirect(base_url().'employee/booking/viewclosedbooking/'.$status);
-            }
+           
         } else {
             $this->get_escalate_booking_form($escalation['booking_id'], $status);
         }
     }
     
+    /**
+     * @Desc: This function is used to remove Penalty on Booking
+     * @params: Booking ID, Status
+     * @return : View
+     * 
+     */
+    function process_remove_penalty($booking_id, $status) {
+        $data = array('active' => 0);
+
+
+        $update = $this->penalty_model->update_penalty_on_booking($booking_id, $data);
+        if ($update) {
+            //Logging
+            log_message('info', __FUNCTION__ . ' Penalty has been Removed from Booking ID :' . $booking_id);
+            
+            //Getting Booking Details 
+            $booking_details = $this->booking_model->getbooking_history($booking_id, 'service_centres');
+            
+            //Sending Mails
+
+            $template = $this->booking_model->get_booking_email_template("remove_penalty_on_booking");
+            if (!empty($template)) {
+                $to = $booking_details[0]['primary_contact_email'] . ',' . $booking_details[0]['owner_email'];
+                //From will be currently logged in user's official Email
+                $from = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['official_email'];
+
+                //Getting RM Official Email details to send Welcome Mails to them as well
+                $rm_id = $this->vendor_model->get_rm_sf_relation_by_sf_id($booking_details[0]['assigned_vendor_id'])[0]['agent_id'];
+                $rm_official_email = $this->employee_model->getemployeefromid($rm_id)[0]['official_email'];
+
+                //Sending Mail
+                $email['booking_id'] = $booking_id;
+                $emailBody = vsprintf($template[0], $email);
+
+                $subject['booking_id'] = $booking_id;
+                $subjectBody = vsprintf($template[4], $subject);
+                $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email, '', $subjectBody, $emailBody, "");
+
+                //Logging
+                log_message('info', " Remove Penalty Report Mail Send successfully" . $emailBody);
+            } else {
+                //Logging
+                log_message('info', __FUNCTION__ . ' Error in getting Email Template for remove_penalty_on_booking');
+            }
+
+            //Session success
+            $this->session->set_userdata('success', 'Penalty removed - Booking id : ' . $booking_id);
+        } else {
+            //Logging
+            log_message('info', __FUNCTION__ . ' Error in removing Penalty from Booking ID :' . $booking_id);
+            $this->session->set_userdata('error', 'Error in removing Penalty  - Booking id : ' . $booking_id);
+        }
+
+        redirect(base_url() . 'employee/booking/viewclosedbooking/' . $status);
     }
+
+}
