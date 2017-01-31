@@ -3307,10 +3307,196 @@ class vendor extends CI_Controller {
         }
     }
     
+     /**
+     * @desc: This function is used to show editable grid for vendor escalation policy
+     * params: void
+     * return: view
+     * 
+     */
+    function get_vandor_escalation_policy_editable_grid(){
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/vandor_escalation_policy_template_editable_grid');
+        
+    }
+    
+    /**
+     * @desc: This funtion is called from AJAX to get vendor escalation policy
+     * params: void
+     * return: ARRAY
+     */
+    function get_vandor_escalation_policy_rates_template() {
+        $page = isset($_POST['page']) ? $_POST['page'] : 1;
+        $limit = isset($_POST['rows']) ? $_POST['rows'] : 10;
+        $sidx = isset($_POST['sidx']) ? $_POST['sidx'] : 'name';
+        $sord = isset($_POST['sord']) ? $_POST['sord'] : '';
+        $start = $limit * $page - $limit;
+        $start = ($start < 0) ? 0 : $start;
+
+        $where = "";
+        $searchField = isset($_POST['searchField']) ? $_POST['searchField'] : false;
+        $searchOper = isset($_POST['searchOper']) ? $_POST['searchOper'] : false;
+        $searchString = isset($_POST['searchString']) ? $_POST['searchString'] : false;
+
+        if ($_POST['_search'] == 'true') {
+            $ops = array(
+                'eq' => '=',
+                'ne' => '<>',
+                'lt' => '<',
+                'le' => '<=',
+                'gt' => '>',
+                'ge' => '>=',
+                'bw' => 'LIKE',
+                'bn' => 'NOT LIKE',
+                'in' => 'LIKE',
+                'ni' => 'NOT LIKE',
+                'ew' => 'LIKE',
+                'en' => 'NOT LIKE',
+                'cn' => 'LIKE',
+                'nc' => 'NOT LIKE'
+            );
+            foreach ($ops as $key => $value) {
+                if ($searchOper == $key) {
+                    $ops = $value;
+                }
+            }
+            if ($searchOper == 'eq')
+                $searchString = $searchString;
+            if ($searchOper == 'bw' || $searchOper == 'bn')
+                $searchString .= '%';
+            if ($searchOper == 'ew' || $searchOper == 'en')
+                $searchString = '%' . $searchString;
+            if ($searchOper == 'cn' || $searchOper == 'nc' || $searchOper == 'in' || $searchOper == 'ni')
+                $searchString = '%' . $searchString . '%';
+
+            $where = "$searchField $ops '$searchString' ";
+        }
+
+        if (!$sidx)
+            $sidx = 1;
+        $count = $this->db->count_all_results('vendor_escalation_policy');
+         
+        if ($count > 0) {
+            $total_pages = ceil($count / $limit);
+        } else {
+            $total_pages = 0;
+        }
+
+        if ($page > $total_pages){
+            $page = $total_pages;
+        }
+       
+        $query = $this->vendor_model->get_vandor_escalation_policy_template($start, $limit, $sidx, $sord, $where);
+        
+        $responce = new StdClass;
+        $responce->page = $page;
+        $responce->total = $total_pages;
+        $responce->records = $count;
+        $i = 0;
+                
+        foreach ($query as $row) {
+            $responce->rows[$i]['id'] = $row->id;
+            $responce->rows[$i]['cell'] = array($row->escalation_reason, $row->entity, $row->process_type, $row->sms_to_owner,$row->sms_to_poc,$row->sms_body,$row->active);
+            $i++;
+        }
+ 
+        echo json_encode($responce);
+    }
+    /**
+     * @desc: This funtion is called from AJAX to update vendor escalation policy
+     * params: void
+     * return: ARRAY
+     */
+    function update_vandor_escalation_policy_template() {
+        $data = $this->input->post();
+        $operation = $data['oper'];
+
+        switch ($operation) {
+            case 'add':
+                //Initializing array for adding data
+                $insert_data = [];
+                //Checking active value checked
+                if ($data['active'] == 'on') {
+                    $data['active'] = 1;
+                } else {
+                    $data['active'] = 0;
+                }
+                if ($data['sms_to_owner'] == 'on') {
+                    $data['sms_to_owner'] = 1;
+                } else {
+                    $data['sms_to_owner'] = 0;
+                }
+                if ($data['sms_to_poc'] == 'on') {
+                    $data['sms_to_poc'] = 1;
+                } else {
+                    $data['sms_to_poc'] = 0;
+                }
+                //Setting insert array data
+                $insert_data['escalation_reason'] = $data['escalation_reason'];
+                $insert_data['entity'] = $data['entity'];
+                $insert_data['process_type'] = $data['process_type'];
+                $insert_data['sms_to_owner'] = $data['sms_to_owner'];
+                $insert_data['sms_to_poc'] = $data['sms_to_poc'];
+                $insert_data['sms_body'] = $data['sms_body'];
+                $insert_data['active'] = $data['active'];
+                $insert_data['create_date'] = date('Y-m-d H:i:s');
+                $insert_id = $this->vendor_model->insert_vandor_escalation_policy_template($insert_data);
+                print_r($insert_id);
+                if ($insert_id) {
+                    log_message('info', __FUNCTION__ . ' New Vendor Escalation Policy has been added with ID ' . $insert_id);
+                } else {
+                    log_message('info', __FUNCTION__ . ' Err in adding New Vendor Escalation Policy Template');
+                }
+                break;
+            case 'edit':
+                //Initializing array for updating data
+                $update_data = [];
+                //Checking active value checked
+                if ($data['active'] == 'on') {
+                    $data['active'] = 1;
+                } else {
+                    $data['active'] = 0;
+                }
+                 if ($data['sms_to_owner'] == 'on') {
+                    $data['sms_to_owner'] = 1;
+                } else {
+                    $data['sms_to_owner'] = 0;
+                }
+                if ($data['sms_to_poc'] == 'on') {
+                    $data['sms_to_poc'] = 1;
+                } else {
+                    $data['sms_to_poc'] = 0;
+                }
+                //Setting insert array data
+                $update_data['escalation_reason'] = $data['escalation_reason'];
+                $update_data['entity'] = $data['entity'];
+                $update_data['process_type'] = $data['process_type'];
+                $update_data['sms_to_owner'] = $data['sms_to_owner'];
+                $update_data['sms_to_poc'] = $data['sms_to_poc'];
+                $update_data['sms_body'] = $data['sms_body'];
+                $update_data['active'] = $data['active'];
+                $update_id = $this->vendor_model->update_vandor_escalation_policy_template($update_data,$data['id']);
+                if ($update_id) {
+                    log_message('info', __FUNCTION__ . ' Vendor Escalation Policy Template has been updated with ID ' . $update_id);
+                } else {
+                    log_message('info', __FUNCTION__ . ' Err in updating New Vendor Escalation Policy');
+                }
+                break;
+
+            case 'del':
+                $delete = $this->vendor_model->delete_vandor_escalation_policy_template($data['id']);
+                if ($delete) {
+                    log_message('info', __FUNCTION__ . ' Vendor Escalation Policy Template has been deleted with ID'. $data['id'] );
+                } else {
+                    log_message('info', __FUNCTION__ . ' Err in deleting Vendor Escalation Policy');
+                }
+                break;
+        }
+    }
+    
     function get_sc_upcountry_details($service_center_id){
         $data['data'] = $this->upcountry_model->get_sub_service_center_details(array('service_center_id' =>$service_center_id));
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/sc_upcountry_details',$data);
         
     }
-    }
+}

@@ -1345,6 +1345,73 @@ class vendor_model extends CI_Model {
         }
     }
     
+    /**
+     *  @desc : To get All Active vendor Vendor Escalation Policy templates
+     *
+     *  To get the active template for all Vendor Escalation Policy template which are enabled.
+     *
+     *  @param : void
+     *  @return : Array
+     */
+    function get_vandor_escalation_policy_template($start,$limit,$sidx,$sord,$where) {
+
+        $this->db->select('id,escalation_reason,entity,process_type,sms_to_owner,sms_to_poc,sms_body,active');
+        $this->db->limit($limit);
+        if ($where != NULL){
+            $this->db->where($where, NULL, FALSE);
+        }
+        $this->db->order_by($sidx, $sord);
+        $query = $this->db->get('vendor_escalation_policy', $limit, $start);
+       
+        return $query->result();
+    }
+    
+    /**
+     * @desc: This is used to insert value in Vendor Escalation Policy table
+     * @param Array
+     * @return Int ID of inserted data
+     */
+    function insert_vandor_escalation_policy_template($data){
+
+        $this->db->insert('vendor_escalation_policy', $data);
+        
+        return $this->db->insert_id();
+    }
+    /**
+     * @desc: This is used to update Vendor Escalation Policy template
+     * @param ARRAY $data, INT id 
+     * return: Boolean
+     * 
+     */
+    function update_vandor_escalation_policy_template($data,$id){
+        $this->db->where('id', $id);
+        $this->db->update('vendor_escalation_policy', $data);
+        log_message('info', __METHOD__ . "=> Update Vendor Escalation Policy Template " . $this->db->last_query() );
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    /**
+     * @desc: This fucntion is used to delete Vendor Escalation Policy template 
+     * params: INT 
+     *         id tax rate template to be deleted
+     * 
+     * return: Boolean
+     */
+    function delete_vandor_escalation_policy_template($id) {
+        $this->db->where('id', $id);
+        $this->db->delete('vendor_escalation_policy');
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    
 
     /**
      * @desc: This is used to insert assigned engineer data into assigned engineer table
