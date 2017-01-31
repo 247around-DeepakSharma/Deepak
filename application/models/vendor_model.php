@@ -1403,7 +1403,7 @@ class vendor_model extends CI_Model {
         }else{
             $where = "";
         }
-        $new_vendor = "SELECT id,name, district, state ,
+        $new_vendor = "SELECT id,name, district, state , active, on_off, 
                                             DATEDIFF(CURRENT_TIMESTAMP , create_date) AS age
                                             FROM  service_centres
                                             WHERE 

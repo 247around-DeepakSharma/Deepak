@@ -904,12 +904,12 @@ EOD;
             if (!empty($sf_list)) {
                 $sf_list = $sf_list[0]['service_centres_id'];
             }
-            $html = $this->booking_utilities->booking_report_by_service_center($sf_list);
+            $html = $this->booking_utilities->booking_report_by_service_center($sf_list,1);
             $to = $value['official_email'];
 
             $this->notify->sendEmail("booking@247around.com", $to, "", "", "Service Center Report " . date('d-M,Y'), $html, "");
             log_message('info', __FUNCTION__ . ' Service Center Report mail sent to ' . $to);
-
+          
             // Inserting values in scheduler tasks log
             $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
         }
@@ -989,7 +989,7 @@ EOD;
                 $where = "AND service_centres.id IN (" . $sf_list . ")";
             }
             $data['data'] = $this->reporting_utils->get_sc_crimes($where);
-
+            
             $this->load->view('employee/header/' . $this->session->userdata('user_group'));
             $this->load->view('employee/get_crimes', $data);
         } else {

@@ -220,7 +220,7 @@ class Booking_utilities {
     *
     */
 
-   function booking_report_by_service_center($sf_list) {
+   function booking_report_by_service_center($sf_list,$cron_flag) {
 
        $data = $this->My_CI->reporting_utils->get_booking_by_service_center($sf_list);
        
@@ -233,6 +233,7 @@ class Booking_utilities {
                $service_center_name = $data['data'][$val]['yesterday_booked']['service_center_name'];
                $service_center_id = $data['data'][$val]['yesterday_booked']['service_center_id'];
                $active = $data['data'][$val]['yesterday_booked']['active'];
+               $temporary_on_off = $data['data'][$val]['yesterday_booked']['temporary_on_off'];
            }
            if (isset($data['data'][$val]['yesterday_completed']['state'])) {
                $state = $data['data'][$val]['yesterday_completed']['state'];
@@ -240,6 +241,7 @@ class Booking_utilities {
                $service_center_name = $data['data'][$val]['yesterday_completed']['service_center_name'];
                $service_center_id = $data['data'][$val]['yesterday_completed']['service_center_id'];
                $active = $data['data'][$val]['yesterday_completed']['active'];
+               $temporary_on_off = $data['data'][$val]['yesterday_completed']['temporary_on_off'];
            }
            if (isset($data['data'][$val]['yesterday_cancelled']['state'])) {
                $state = $data['data'][$val]['yesterday_cancelled']['state'];
@@ -247,6 +249,7 @@ class Booking_utilities {
                $service_center_name = $data['data'][$val]['yesterday_cancelled']['service_center_name'];
                $service_center_id = $data['data'][$val]['yesterday_cancelled']['service_center_id'];
                $active = $data['data'][$val]['yesterday_cancelled']['active'];
+               $temporary_on_off = $data['data'][$val]['yesterday_cancelled']['temporary_on_off'];
            }
            if (isset($data['data'][$val]['month_completed']['state'])) {
                $state = $data['data'][$val]['month_completed']['state'];
@@ -254,6 +257,7 @@ class Booking_utilities {
                $service_center_name = $data['data'][$val]['month_completed']['service_center_name'];
                $service_center_id = $data['data'][$val]['month_completed']['service_center_id'];
                $active = $data['data'][$val]['month_completed']['active'];
+               $temporary_on_off = $data['data'][$val]['month_completed']['temporary_on_off'];
            }
            if (isset($data['data'][$val]['month_cancelled']['state'])) {
                $state = $data['data'][$val]['month_cancelled']['state'];
@@ -261,6 +265,7 @@ class Booking_utilities {
                $service_center_name = $data['data'][$val]['month_cancelled']['service_center_name'];
                $service_center_id = $data['data'][$val]['month_cancelled']['service_center_id'];
                $active = $data['data'][$val]['month_cancelled']['active'];
+               $temporary_on_off = $data['data'][$val]['month_cancelled']['temporary_on_off'];
            }
 
            if (isset($data['data'][$val]['last_2_day']['state'])) {
@@ -269,6 +274,7 @@ class Booking_utilities {
                $service_center_name = $data['data'][$val]['last_2_day']['service_center_name'];
                $service_center_id = $data['data'][$val]['last_2_day']['service_center_id'];
                $active = $data['data'][$val]['last_2_day']['active'];
+               $temporary_on_off = $data['data'][$val]['last_2_day']['temporary_on_off'];
            }
            
            if (isset($data['data'][$val]['last_3_day']['state'])) {
@@ -277,6 +283,7 @@ class Booking_utilities {
                $service_center_name = $data['data'][$val]['last_3_day']['service_center_name'];
                $service_center_id = $data['data'][$val]['last_3_day']['service_center_id'];
                $active = $data['data'][$val]['last_3_day']['active'];
+               $temporary_on_off = $data['data'][$val]['last_3_day']['temporary_on_off'];
            }
            if (isset($data['data'][$val]['greater_than_5_days']['state'])) {
                $state = $data['data'][$val]['greater_than_5_days']['state'];
@@ -284,12 +291,14 @@ class Booking_utilities {
                $service_center_name = $data['data'][$val]['greater_than_5_days']['service_center_name'];
                $service_center_id = $data['data'][$val]['greater_than_5_days']['service_center_id'];
                $active = $data['data'][$val]['greater_than_5_days']['active'];
+               $temporary_on_off = $data['data'][$val]['greater_than_5_days']['temporary_on_off'];
            }
 
            $state_final[] = $state;
            $way_final['state'] = $state;
            $way_final['city'] = $city;
            $way_final['active'] = $active;
+           $way_final['temporary_on_off'] = $temporary_on_off;
            $way_final['service_center_name'] = $service_center_name;
            $way_final['service_center_id'] = $service_center_id;
            $way_final['yesterday_booked'] = (isset($data['data'][$val]['yesterday_booked']['booked']) ? $data['data'][$val]['yesterday_booked']['booked'] : '  ');
@@ -341,12 +350,18 @@ class Booking_utilities {
            $rm_option .= "<option value='".$value['full_name']."'>".$value['full_name'].'</option>';
        }
        
+       //Add Bootstrap CSS for CRON calls
+       $css = '';
+       if($cron_flag == 1){
+           $css = '<link href="http://localhost/247around-dev/css/bootstrap.min.css" rel="stylesheet">';
+       }
+       
        //Generating HTML for the email
        $html = '
                    <html xmlns="http://www.w3.org/1999/xhtml">
                      <head>
                        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-                     </head><body>
+                     </head><body>'.$css.'
                      <div style="margin-top: 30px;font-family:Helvetica;" class="container-fluid table-responsive">
                          <table style="margin-bottom: 20px;border: 1px solid #ddd; border-collapse: collapse;" class="js-dynamitable">
                            <thead>
@@ -435,9 +450,10 @@ class Booking_utilities {
                 $style = '';
                if($value['active'] == 0 ){
                    $style = "background:#f25788";
-               }
-               if($value['active'] == NULL){
+               }else if($value['active'] == NULL){
                    $style = "background:#f4f44b";
+               }else if($value['temporary_on_off'] == 0){
+                   $style = "background:#7986CB";
                }
                
                if ($value['state'] == $val) {
@@ -617,7 +633,15 @@ class Booking_utilities {
             } else {
                 $pending_bookings_greater_than_5_days = "";
             }
-            $html.="<tr>" .
+            
+            $style = '';
+            if ($value['active'] == 0) {
+                $style = "background:#f25788";
+            } else if ($value['on_off'] == 0) {
+                $style = "background:#7986CB";
+            }
+
+            $html.="<tr  style=".$style.">" .
                     "<td style='text-align: center;border: 1px solid #001D48;padding:10px;'>" . $value['state'] .
                     "</td><td style='text-align: center;border: 1px solid #001D48;'>" . $value['district'] .
                     "</td><td style='text-align: center;border: 1px solid #001D48;font-size:90%;'>" . $value['name'] .
@@ -644,6 +668,8 @@ class Booking_utilities {
                 . "<li><b>0-2 Days:</b> Total count of Bookings that are Pending, Rescheduled between 0-2 Days. </li>"
                 . "<li><b>3-5 Days:</b> Total count of Bookings that are Pending, Rescheduled bewteen 3-5 Days. </li>"
                 . "<li><b> >5 Days:</b> Total count of Bookings that are Pending, Rescheduled greater than 5 Days. </li>"
+                . "<li><b> <span style='width:20px;background:#f25788;border-radius:5px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>:</b> Permanent Deactivated SF's </li>"
+                . "<li><b> <span style='width:20px;background:#7986CB;border-radius:5px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>:</b> Temporary Off SF's </li>"
                 . "</ul>";
         $html .= '</body>
                    </html>';

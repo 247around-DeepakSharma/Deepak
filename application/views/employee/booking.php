@@ -208,13 +208,6 @@
                     <td><?php echo $offset; if($row->is_upcountry == 1) { ?>.<i style="color:red; font-size:20px;" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
 
                             <td>
-                                <div class="blink">
-                                        <?php if ($row->count_escalation > 0) { ?> <div class="esclate">Escalated</div>
-                                        <?php } ?>
-                                    </div>
-                                    <?php if ($row->count_escalation > 0) { ?>
-                                        <?php echo '<b>'.$row->count_escalation . " times</b><br>";
-                                    } ?>
                             <?php
                             if (is_null($row->booking_jobcard_filename)) {
                                 echo $row->booking_id;
@@ -227,7 +220,17 @@
                     <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?=$row->phone_number;?>"><?= $row->booking_primary_contact_no; ?></a></td>
                     <td><?= $row->services; ?></td>
                     <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
-                    <td id="status_<?php echo $row->booking_id; ?>"><?php echo $row->current_status; ?></td>
+                    <td id="status_<?php echo $row->booking_id; ?>">
+                            <div class="blink">
+                                <?php if ($row->count_escalation > 0) { ?> <div class="esclate">Escalated</div>
+                                <?php } ?>
+                            </div>
+                            <?php if ($row->count_escalation > 0) { ?>
+                                <?php echo '<b>' . $row->count_escalation . " times</b><br>";
+                            }
+                            ?>
+                        <?php echo $row->current_status; ?>
+                        </td>
                     <td><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?=$row->assigned_vendor_id;?>" target="_blank"><?php if(!empty($row->service_centre_name)){ echo $row->service_centre_name." / ".$row->primary_contact_name." / ".$row->primary_contact_phone_1 ; } ?></a></td>
 
                      <td><button type="button" onclick="outbound_call(<?php echo $row->phone_number; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button></td>

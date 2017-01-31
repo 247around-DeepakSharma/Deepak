@@ -2681,7 +2681,7 @@ class vendor extends CI_Controller {
         if(!empty($sf_list)){
             $sf_list = $sf_list[0]['service_centres_id'];
         }
-        $data['html'] = $this->booking_utilities->booking_report_by_service_center($sf_list);
+        $data['html'] = $this->booking_utilities->booking_report_by_service_center($sf_list,'');
         
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/show_service_center_report',$data);
@@ -2701,7 +2701,7 @@ class vendor extends CI_Controller {
             if(!empty($sf_list)){
                 $sf_list = $sf_list[0]['service_centres_id'];
             }
-            $html = $this->booking_utilities->booking_report_by_service_center($sf_list);
+            $html = $this->booking_utilities->booking_report_by_service_center($sf_list,'');
             $to = $employee_details[0]['official_email'];
             
             $this->notify->sendEmail("booking@247around.com", $to, "", "", "Service Center Report", $html, "");
