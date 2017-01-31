@@ -22,7 +22,7 @@ define('ERR_ORDER_ID_EXISTS_CODE', -1003);
 define('ERR_MANDATORY_PARAMETER_MISSING_CODE', -1004);
 define('ERR_INVALID_PRODUCT_CODE', -1005);
 define('ERR_INVALID_REQUEST_TYPE_CODE', -1006);
-define('ERR_ORDER_ID_NOT_FOUND_CODE', -1007);
+//define('ERR_ORDER_ID_NOT_FOUND_CODE', -1007);
 define('ERR_INVALID_BOOKING_ID_CODE', -1008);
 define('ERR_REQUEST_ALREADY_COMPLETED_CODE', -1009);
 define('ERR_REQUEST_ALREADY_CANCELLED_CODE', -1010);
@@ -42,7 +42,7 @@ define('ERR_ORDER_ID_EXISTS_MSG', 'Order ID Exists');
 define('ERR_MANDATORY_PARAMETER_MISSING_MSG', 'Mandatory Parameter is Missing');
 define('ERR_INVALID_PRODUCT_MSG', 'Invalid Product');
 define('ERR_INVALID_REQUEST_TYPE_MSG', 'Invalid Request Type');
-define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Not Found');
+//define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Not Found');
 define('ERR_INVALID_BOOKING_ID_MSG', 'Invalid Booking ID');
 define('ERR_REQUEST_ALREADY_COMPLETED_MSG', 'Request is Already Completed');
 define('ERR_REQUEST_ALREADY_CANCELLED_MSG', 'Request is Already Cancelled');
@@ -1213,28 +1213,12 @@ class Partner extends CI_Controller {
         $booking['update_date'] = $booking['closed_date'] = date("Y-m-d H:i:s");
         
         //check partner status from partner_booking_status_mapping table  
-        $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);
-        $partner_id = '';
-        if(!empty($partner_id_data['partner_id'])){
-            $partner_id = $partner_id_data['partner_id'];
-        }
-        else{
-            $to = "ANUJ_EMAIL_ID";
-            $cc = "";
-            $bcc = "";
-            $subject = " No Partner ID Exists For Booking ID =  '".$booking_id."'";
-            $message = "No Partner ID Exists For Booking ID = '".$booking_id."' ";
-            $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
-        }
-        
-        if($partner_id){
+        $partner_id=$request['id'];
              $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$partner_id, $booking_id);
                 if(!empty($partner_status)){
                     $booking['partner_current_status'] = $partner_status[0];
                     $booking['partner_internal_status'] = $partner_status[1];
                 }
-        }
-
         $this->booking_model->update_booking($booking_id, $booking);
         $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
 

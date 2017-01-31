@@ -1156,32 +1156,17 @@ class Partner extends CI_Controller {
     function process_cancel_form($booking_id, $status) {
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
-        $data['cancellation_reason'] = $this->input->post('cancellation_reason');
         $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
-        $data['current_status'] = $data['internal_status'] = _247AROUND_CANCELLED;
+        $data['current_status'] = _247AROUND_CANCELLED;
+        $data['internal_status'] = $data['cancellation_reason'] = $this->input->post('cancellation_reason');
         
         //check partner status from partner_booking_status_mapping table  
-        $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);
-        $partner_id = '';
-        if(!empty($partner_id_data['partner_id'])){
-            $partner_id = $partner_id_data['partner_id'];
-        }
-        else{
-            $to = "ANUJ_EMAIL_ID";
-            $cc = "";
-            $bcc = "";
-            $subject = "No Partner ID Exists For Booking ID = '".$booking_id."'";
-            $message = "No Partner ID Exists For Booking ID = '".$booking_id."'";
-            $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
-        }
-        
-        if($partner_id){
+        $partner_id = $this->input->post("partner_id");
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'],$partner_id, $booking_id);
             if(!empty($partner_status)){
                 $data['partner_current_status'] = $partner_status[0];
                 $data['partner_internal_status'] = $partner_status[1];
             }
-        }
         
         $update_status = $this->booking_model->update_booking($booking_id, $data);
         if ($update_status) {
@@ -1274,26 +1259,11 @@ class Partner extends CI_Controller {
             $data['update_date'] = date("Y-m-d H:i:s"); 
             
             //check partner status from partner_booking_status_mapping table  
-            $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);
-            $partner_id = '';
-            if(!empty($partner_id_data['partner_id'])){
-                $partner_id = $partner_id_data['partner_id'];
-            }
-            else{
-                $to = "ANUJ_EMAIL_ID";
-                $cc = "";
-                $bcc = "";
-                $subject = " No Partner ID Exists For Booking ID = '".$booking_id."'";
-                $message = "No Partner ID Exists For Booking ID = '".$booking_id."' ";
-                $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
-            }
-        
-            if($partner_id){
-                $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'],$partner_id, $booking_id);
-                if(!empty($partner_status)){
-                    $data['partner_current_status'] = $partner_status[0];
-                    $data['partner_internal_status'] = $partner_status[1];
-                }
+            $partner_id=$this->input->post('partner_id');
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'],$partner_id, $booking_id);
+            if(!empty($partner_status)){
+                $data['partner_current_status'] = $partner_status[0];
+                $data['partner_internal_status'] = $partner_status[1];
             }
             
             $update_status = $this->booking_model->update_booking($booking_id, $data);

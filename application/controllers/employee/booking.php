@@ -671,6 +671,7 @@ class Booking extends CI_Controller {
 
 	    array_push($data['prices'], $prices);
 	}
+        
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/completebooking', $data);
     }
@@ -728,6 +729,7 @@ class Booking extends CI_Controller {
      */
     function process_cancel_form($booking_id, $status) {
 	log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id." Done By " . $this->session->userdata('employee_id'));
+
         $this->form_validation->set_rules('cancellation_reason', 'Cancellation Reason', 'required|xss_clean');
         $this->form_validation->set_rules('partner_id', 'Partner Id', 'required|xss_clean');
         $validation = $this->form_validation->run();
@@ -744,6 +746,7 @@ class Booking extends CI_Controller {
 
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
             if (!empty($partner_status)) {
+
                 $data['partner_current_status'] = $partner_status[0];
                 $data['partner_internal_status'] = $partner_status[1];
             }
@@ -835,28 +838,13 @@ class Booking extends CI_Controller {
 	$data['internal_status'] = 'Rescheduled';
 	$data['update_date'] = date("Y-m-d H:i:s");
         
-        $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);
-        
-        $partner_id='';
-        if(!empty($partner_id_data['partner_id'])){
-            $partner_id = $partner_id_data['partner_id'];
-        }
-        else{
-            $to = "ANUJ_EMAIL_ID";
-            $cc = "";
-            $bcc = "";
-            $subject = " No Partner ID Exists For Booking ID = '".$booking_id."'";
-            $message = "No Partner ID Exists For Booking ID = '".$booking_id."'";
-            $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
-        }
-        
-        if($partner_id){
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'],$partner_id, $booking_id);
+        //check partner status
+        $partner_id=$this->input->post('partner_id');
+        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'],$partner_id, $booking_id);
             if(!empty($partner_status)){
                 $data['partner_current_status'] = $partner_status[0];
                 $data['partner_internal_status'] = $partner_status[1];
             }
-        }
 
 	if ($data['booking_timeslot'] == "Select") {
 	    echo "Please Select Booking Timeslot.";
@@ -1219,8 +1207,7 @@ class Booking extends CI_Controller {
 	    if ($service_id != "Select" ) {
                 if(!empty($brand_details[$key])){
                     
-                    $is_exits = $this->booking_model->check_brand_exit($service_id, trim($brand_details[$key]));
-                    
+                    $is_exits = $this->booking_model->check_brand_exists($service_id, trim($brand_details[$key]));
                     if(!$is_exits){
                         $service_name = $this->booking_model->selectservicebyid($service_id);
                         $is_insert = $this->booking_model->addNewApplianceBrand($service_id, trim($brand_details[$key]));
@@ -1233,7 +1220,7 @@ class Booking extends CI_Controller {
 	}
         if(!empty($data))
         {
-            $to = "ANUJ_EMAIL_ID";
+            $to = ANUJ_EMAIL_ID;
             $cc = "";
             $bcc = "";
             $subject = "New Brand Added By ".$this->session->userdata('employee_id');
@@ -1443,19 +1430,7 @@ class Booking extends CI_Controller {
             "closed_date" => NULL);
          
         $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);
-        $partner_id='';
-        if(!empty($partner_id_data['partner_id'])){
-            $partner_id = $partner_id_data['partner_id'];
-        }
-        else{
-            $to = "ANUJ_EMAIL_ID";
-            $cc = "";
-            $bcc = "";
-            $subject = " No Partner ID Exists For Booking ID =  '".$booking_id."'";
-            $message = "No Partner ID Exists For Booking ID =  '".$booking_id."'";
-            $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
-        }
-        
+        $partner_id=$partner_id_data['partner_id'];
         if($partner_id){
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($status['current_status'], $status['internal_status'],$partner_id, $booking_id);
             if(!empty($partner_status)){
@@ -1578,13 +1553,14 @@ class Booking extends CI_Controller {
 	$url = base_url() . "employee/do_background_process/complete_booking";
 	$agent_id = $this->session->userdata('id');
 	$agent_name = $this->session->userdata('employee_id');
-        
+        $partner_id = $this->input->post('partner_id');
         if(!empty($approved_booking)){
             foreach ($approved_booking as $booking_id) {
                 $data = array();
                 $data['booking_id'] = $booking_id;
                 $data['agent_id'] = $agent_id;
                 $data['agent_name'] = $agent_name;
+                $data['partner_id'] = $partner_id;
                 log_message('info', __FUNCTION__ . " Approved Booking: " . print_r($data, true));
                 $this->asynchronous_lib->do_background_process($url, $data);
             }
@@ -1608,6 +1584,10 @@ class Booking extends CI_Controller {
 	log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
 	$data['charges'] = $this->booking_model->get_booking_for_review($booking_id);
 	$data['data'] = $this->booking_model->review_reschedule_bookings_request();
+        if(!empty($data['charges'])){
+            $data['partner_id'] = $data['charges'][0]['booking'][0]['partner_id'];
+        }
+        
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/review_booking', $data);
     }
@@ -1636,28 +1616,12 @@ class Booking extends CI_Controller {
 	    $booking['reschedule_reason'] = $reschedule_reason[$booking_id];
             
             //check partner status from partner_booking_status_mapping table  
-            $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);
-            $partner_id='';
-            if(!empty($partner_id_data['partner_id'])){
-                $partner_id = $partner_id_data['partner_id'];
-            }
-            else{
-                $to = "ANUJ_EMAIL_ID";
-                $cc = "";
-                $bcc = "";
-                $subject = "No Partner ID Exists For Booking ID = '".$booking_id."' ";
-                $message = "No Partner ID Exists For Booking ID = '".$booking_id."' ";
-                $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
-            }
-
-            if($partner_id){
+            $partner_id=$this->input->post('partner_id');
                 $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$partner_id, $booking_id);
                 if(!empty($partner_status)){
                     $booking['partner_current_status'] = $partner_status[0];
                     $booking['partner_internal_status'] = $partner_status[1];
                 }
-            }
-            
             log_message('info', __FUNCTION__ . " update booking: " . print_r($booking, true));
 	    $this->booking_model->update_booking($booking_id, $booking);
             $this->booking_model->increase_escalation_reschedule($booking_id, "count_reschedule");
@@ -1827,30 +1791,15 @@ class Booking extends CI_Controller {
 	$booking['internal_status'] = $internal_status;
 	$booking['booking_id'] = $booking_id;
         
-        //check partner status from partner_booking_status_mapping table  
-        $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);
-        $partner_id='';
-        if(!empty($partner_id_data['partner_id'])){
-            $partner_id = $partner_id_data['partner_id'];
+        // check partner status
+        $partner_id=$this->input->post('partner_id');
+        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$partner_id, $booking_id);
+        if(!empty($partner_status)){
+            $booking['partner_current_status'] = $partner_status[0];
+            $booking['partner_internal_status'] = $partner_status[1];
         }
-        else{
-            $to = "ANUJ_EMAIL_ID";
-            $cc = "";
-            $bcc = "";
-            $subject = " No Partner ID Exists For Booking ID = '".$booking_id."' ";
-            $message = "No Partner ID Exists For Booking ID = '".$booking_id."' ";
-            $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
-        }
-        
-        if($partner_id){
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$partner_id, $booking_id);
-            if(!empty($partner_status)){
-                $booking['partner_current_status'] = $partner_status[0];
-                $booking['partner_internal_status'] = $partner_status[1];
-            }
-        }
-
-	if ($this->input->post('rating_stars') !== "") {
+	
+        if ($this->input->post('rating_stars') !== "") {
 	    $booking['rating_stars'] = $this->input->post('rating_stars');
 	    $booking['rating_comments'] = $this->input->post('rating_comments');
 	}
@@ -1906,7 +1855,6 @@ class Booking extends CI_Controller {
     function get_convert_booking_to_pending_form($booking_id, $status) {
 	$bookings = $this->booking_model->getbooking_history($booking_id);
 	$bookings[0]['status'] = $status;
-     
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/complete_to_pending', $bookings[0]);
     }
@@ -1941,29 +1889,14 @@ class Booking extends CI_Controller {
 	//$data['booking_remarks'] = $this->input->post('reason');
         
         //check partner status from partner_booking_status_mapping table  
-        $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);
-        $partner_id='';
-        if(!empty($partner_id_data['partner_id'])){
-            $partner_id = $partner_id_data['partner_id'];
+        $partner_id=$this->input->post('partner_id');
+        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'],$partner_id, $booking_id);
+        if(!empty($partner_status)){
+            $data['partner_current_status'] = $partner_status[0];
+            $data['partner_internal_status'] = $partner_status[1];
         }
-        else{
-            $to = "ANUJ_EMAIL_ID";
-            $cc = "";
-            $bcc = "";
-            $subject = " No Partner ID Exists For Booking ID =  '".$booking_id."'";
-            $message = "No Partner ID Exists For Booking ID =  '".$booking_id."'";
-            $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
-        }
-        
-        if($partner_id){
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'],$partner_id, $booking_id);
-            if(!empty($partner_status)){
-                $data['partner_current_status'] = $partner_status[0];
-                $data['partner_internal_status'] = $partner_status[1];
-            }
-        }
-
-	if ($data['booking_timeslot'] == "Select") {
+	
+        if ($data['booking_timeslot'] == "Select") {
 	    echo "Please Select Booking Timeslot.";
 	} else {
 	    log_message('info', __FUNCTION__ . " Convert booking, data : " . print_r($data, true));
@@ -2043,19 +1976,7 @@ class Booking extends CI_Controller {
         
         //check partner status from partner_booking_status_mapping table  
         $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);
-        $partner_id='';
-        if(!empty($partner_id_data['partner_id'])){
-            $partner_id = $partner_id_data['partner_id'];
-        }
-        else{
-            $to = "ANUJ_EMAIL_ID";
-            $cc = "";
-            $bcc = "";
-            $subject = " No Partner ID Exists For Booking ID =  '".$booking_id."'";
-            $message = "No Partner ID Exists For Booking ID =  '".$booking_id."'";
-            $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
-        }
-        
+        $partner_id=$partner_id_data['partner_id'];
         if($partner_id){
             $partner_status = $this->booking_utilities->get_partner_status_mapping_data($status['current_status'], $status['internal_status'],$partner_id, $booking_id);
             if(!empty($partner_status)){

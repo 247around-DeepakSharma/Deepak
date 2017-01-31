@@ -796,7 +796,7 @@ class Booking_model extends CI_Model {
      *  @param : service id , brand name
      *  @return : array (service)
      */
-    function check_brand_exit($service_id, $newbrand){
+    function check_brand_exists($service_id, $newbrand){
         $this->db->select('*');
         $this->db->where(array('service_id'=>$service_id,'brand_name'=>$newbrand));
         $query=$this->db->get('appliance_brands');

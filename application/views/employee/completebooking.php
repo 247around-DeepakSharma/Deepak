@@ -387,7 +387,7 @@
 				    <textarea class="form-control"  rows="5" name="admin_remarks"></textarea>
 				</div>
 			    </div>
-
+                           <input type="hidden" class="form-control" id="partner_id" name="partner_id" value = "<?php if (isset($booking_history[0]['partner_id'])) {echo $booking_history[0]['partner_id']; } ?>" >
 			</div>
 		    </div>
 		    <br>

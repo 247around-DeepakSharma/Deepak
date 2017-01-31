@@ -190,8 +190,8 @@ class Do_background_process extends CI_Controller {
         $booking_id = $this->input->post('booking_id');
         $agent_id = $this->input->post('agent_id');
         $agent_name = $this->input->post('agent_name');
+        $partner_id = $this->input->post('partner_id');
         //$remarks = $this->input->post('admin_remarks');
-
         log_message('info', "Booking Id " . print_r($booking_id, TRUE));
 
         $data = $this->booking_model->getbooking_charges($booking_id);
@@ -253,28 +253,7 @@ class Do_background_process extends CI_Controller {
         $booking['amount_paid'] = $data[0]['amount_paid'];
         $booking['closing_remarks'] = $service_center['closing_remarks'];
         
-        //check partner status from partner_booking_status_mapping table  
-        $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);
-        $partner_id = '';
-        if(!empty($partner_id_data['partner_id'])){
-            $partner_id = $partner_id_data['partner_id'];
-        }
-        else{
-            $to = "ANUJ_EMAIL_ID";
-            $cc = "";
-            $bcc = "";
-            $subject = " No Partner ID Exists For Booking ID = '".$booking_id."' ";
-            $message = "No Partner ID Exists For Booking ID = '".$booking_id."' ";
-            $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
-        }
         
-        if($partner_id){
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$partner_id, $booking_id);
-            if(!empty($partner_status)){
-                $booking['partner_current_status'] = $partner_status[0];
-                $booking['partner_internal_status'] = $partner_status[1];
-            }
-        }
 
         //update booking_details table
         log_message('info', ": " . " update booking details data (" .$current_status .")".print_r($booking, TRUE));
@@ -289,6 +268,12 @@ class Do_background_process extends CI_Controller {
             //Save this booking id in booking_invoices_mapping table as well now
             $this->invoices_model->insert_booking_invoice_mapping(array('booking_id' => $data[0]['booking_id']));
         }
+        //check partner status from partner_booking_status_mapping table  
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$partner_id, $booking_id);
+            if(!empty($partner_status)){
+                $booking['partner_current_status'] = $partner_status[0];
+                $booking['partner_internal_status'] = $partner_status[1];
+            }
 
         $this->booking_model->update_booking($booking_id, $booking);
         //Update Spare parts details table

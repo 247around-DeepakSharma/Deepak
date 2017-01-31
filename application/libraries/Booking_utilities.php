@@ -462,7 +462,7 @@ class Booking_utilities {
 
         $partner_status= $this->My_CI->booking_model->get_partner_status($partner_id,$current_status,$internal_status);
         
-        if(!empty($partner_status['partner_current_status']) && !empty($partner_status['partner_internal_status'])){
+        if(!empty($partner_status[0]['partner_current_status']) && !empty($partner_status[0]['partner_internal_status'])){
             $booking['partner_current_status'] = $partner_status[0]['partner_current_status'];
             $booking['partner_internal_status'] = $partner_status[0]['partner_internal_status'];
         }else{
@@ -598,7 +598,7 @@ class Booking_utilities {
      * 
      */
     function send_mail_When_no_data_found($current_status,$internal_status,$booking_id,$partner_id){
-        $to = "ANUJ_EMAIL_ID";
+        $to = ANUJ_EMAIL_ID;
         $cc = "";
         $bcc = "";
         $subject = " No Data found for '".$current_status."' and '".$internal_status."' in partner_booking_status_mapping Table";
@@ -606,7 +606,7 @@ class Booking_utilities {
                     <html>
                     <head></head>
                         <body>
-                            <h3> No Data Found in partner_booking_status_mapping Table For Below Data</h3>
+                            <h3> No Data Found in partner_booking_status_mapping Table For Following Data</h3>
                             <p><b>Booking ID </b> '".$booking_id."'</p>
                             <p><b>Partner ID </b> '".$partner_id."' </p>
                             <p><b>Current Status</b> '".$current_status."'</p>

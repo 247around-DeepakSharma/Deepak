@@ -30,6 +30,7 @@ class Api extends CI_Controller {
         $this->load->model('user_model');
         $this->load->model('partner_model');
         $this->load->library('notify');
+        $this->load->library('booking_utilities');
 	$this->load->library('s3');
         $this->load->library('email');
         $this->load->helper(array('form', 'url'));
@@ -1234,7 +1235,7 @@ class Api extends CI_Controller {
             
             //Check if call has been made from APP
             $check_app = $this->user_model->get_user_device_id_by_phone($num);
-            if(empty($check_app[0])){
+            if(empty($check_app[0]['device_id'])){
             
                 //find all pending queries for this user now
                 $bookings = $this->user_model->booking_history($num, 100, 0);
@@ -1254,13 +1255,13 @@ class Api extends CI_Controller {
                             
                             //check partner status from partner_booking_status_mapping table  
                             $partner_status= $this->booking_model->get_partner_status($b['partner_id'],$d['current_status'],$d['internal_status']);
-                            if(!empty($partner_status)){
+                            if(!empty($partner_status[0]['partner_current_status']) && !empty($partner_status[0]['partner_internal_status'])){
                                 $d['partner_current_status'] = $partner_status[0]['partner_current_status'];
                                 $d['partner_internal_status'] = $partner_status[0]['partner_internal_status'];
                             }else{
                                 $d['partner_current_status'] = 'PENDING';
                                 $d['partner_internal_status'] = 'Customer_Not_Available';
-                                $this->send_mail_When_no_data_found($d['current_status'],$d['internal_status'],$b['booking_id'], $b['partner_id']);
+                                $this->booking_utilities->send_mail_When_no_data_found($d['current_status'],$d['internal_status'],$b['booking_id'], $b['partner_id']);
                             }
                             
                             $r = $this->booking_model->update_booking($b['booking_id'], $d);

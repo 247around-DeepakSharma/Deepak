@@ -39,6 +39,8 @@
                                     <?php echo form_error('booking_date'); ?>
                                 </div>
                             </div>
+                            
+                            <input type="hidden" class="form-control" id="partner_id" name="partner_id" value = "<?php if (isset($data[0]['partner_id'])) {echo $data[0]['partner_id']; } ?>" >
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
