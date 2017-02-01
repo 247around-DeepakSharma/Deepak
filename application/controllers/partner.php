@@ -79,6 +79,7 @@ class Partner extends CI_Controller {
         $this->load->library('notify');
         $this->load->library('partner_utilities');
         $this->load->library('booking_utilities');
+        $this->load->library('asynchronous_lib');
         $this->load->helper(array('form', 'url'));
     }
 
@@ -1659,17 +1660,10 @@ class Partner extends CI_Controller {
          */
         
             //-------Sending SMS on booking--------//
-            $smsBody = "Got it! Request for " . trim($lead_details['Product']) . " Repair is confirmed for " .
-                    $booking['booking_date'] . ", " . $booking['booking_timeslot'] .
-                    ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 9555000247";
-
-
-            $this->notify->sendTransactionalSmsAcl($booking['booking_primary_contact_no'], $smsBody);
-            //For saving SMS to the database on sucess
-            
-            $this->notify->add_sms_sent_details($user_id, 'partner' , $booking['booking_primary_contact_no'],
-                    $smsBody, $booking['booking_id'], "partner_added_new_booking");
-            
+            $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+            $send['booking_id'] = $booking['booking_id'];
+            $send['state'] = "Newbooking";
+            $this->asynchronous_lib->do_background_process($url, $send);
 
             $this->notify->insert_state_change($booking['booking_id'], _247AROUND_PENDING , _247AROUND_NEW_BOOKING , 
                     $booking['booking_remarks'], $agent_id, $requestData['partnerName'], $booking['partner_id']);

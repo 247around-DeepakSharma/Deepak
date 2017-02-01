@@ -28,6 +28,7 @@ class BookingSummary extends CI_Controller {
         $this->load->library('PHPReport');
         $this->load->library('notify');
         $this->load->library('email');
+        $this->load->library('session');
         $this->load->library('s3');
         $this->load->library('booking_utilities');
         
@@ -1256,6 +1257,7 @@ EOD;
      * 
      */
     function show_reports_chart(){
+        //1. RM crimes report
         //Getting RM Array
         $final_array = [];
         $rm_array = $this->employee_model->get_rm_details();
@@ -1323,9 +1325,90 @@ EOD;
         $data['total_booking'] = $total_booking_st_trimmed;
         $data['monthly_escalations'] = $monthly_escalations_st_trimmed;
         
+        //2. Processing for sf snapshot to RM
+        foreach ($rm_array as $val) {
+            //Getting RM to SF relation
+            $sf_list = $this->vendor_model->get_employee_relation($val['id']);
+            if (!empty($sf_list)) {
+                $sf_list = $sf_list[0]['service_centres_id'];
+            }
+            $sf_snapshot_data = $this->reporting_utils->get_booking_by_service_center($sf_list);
+            
+            $month_completed = 0;
+            $month_cancelled = 0;
+            $last_2_day = 0;
+            $last_3_day = 0;
+            $greater_than_5_days = 0;
+            foreach($sf_snapshot_data['data'] as $key=>$value){
+                $month_completed += isset($value['month_completed']['completed'])?$value['month_completed']['completed']:0; 
+                $month_cancelled += isset($value['month_cancelled']['cancelled'])?$value['month_cancelled']['cancelled']:0; 
+                $last_2_day += isset($value['last_2_day']['booked'])?$value['last_2_day']['booked']:0; 
+                $last_3_day += isset($value['last_3_day']['booked'])?$value['last_3_day']['booked']:0; 
+                $greater_than_5_days += isset($value['greater_than_5_days']['booked'])?$value['greater_than_5_days']['booked']:0; 
+            }
+            
+            $temp['month_completed'] = $month_completed;
+            $temp['month_cancelled'] = $month_cancelled;
+            $temp['last_2_day'] = $last_2_day;
+            $temp['last_3_day'] = $last_3_day;
+            $temp['greater_than_5_days'] = $greater_than_5_days;
+            $final[] = $temp;
+          
+        }
+        //Making Final Array
+        $month_completed_st = "";
+        $month_cancelled_st = "";
+        $last_2_day_st = "";
+        $last_3_day_st = "";
+        $greater_than_5_days_st = "";
+        foreach($final as $value){
+            $month_completed_st .= $value['month_completed'].',';
+            $month_cancelled_st .= $value['month_cancelled'].',';
+            $last_2_day_st .= $value['last_2_day'].',';
+            $last_3_day_st .= $value['last_3_day'].',';
+            $greater_than_5_days_st .= $value['greater_than_5_days'].',';
+        }
+        $month_completed_st_trimmed = rtrim($month_completed_st, ',');
+        $month_cancelled_st_trimmed = rtrim($month_cancelled_st, ',');
+        $last_2_day_st_trimmed = rtrim($last_2_day_st, ',');
+        $last_3_day_st_trimmed = rtrim($last_3_day_st, ',');
+        $greater_than_5_days_st_trimmed = rtrim($greater_than_5_days_st, ',');
+        
+        //Final Data to be passed to View
+        $data['month_completed'] = $month_completed_st_trimmed;
+        $data['month_cancelled'] = $month_cancelled_st_trimmed;
+        $data['last_2_day'] = $last_2_day_st_trimmed;
+        $data['last_3_day'] = $last_3_day_st_trimmed;
+        $data['greater_than_5_days'] = $greater_than_5_days_st_trimmed;
+        $data['user_group'] = $this->session->userdata('user_group');
+        
         
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/show_reports_chart',$data);
     }
+    
+    /**
+     * @Desc: This function is used to show RM specific Snapshot Report
+     *          It is being called from RM Charts View page
+     * @params: RM Full_name
+     * @return: view
+     * 
+     */
+    function show_rm_specific_snapshot($rm_fullname){
+        $rm_fullname = urldecode($rm_fullname);
 
+        //Getting RM id from Employee table
+        $rm_details = $this->employee_model->get_employee_by_full_name($rm_fullname);
+        //Getting RM to SF relation
+        $sf_list = $this->vendor_model->get_employee_relation($rm_details[0]['id']);
+        if (!empty($sf_list)) {
+            $sf_list = $sf_list[0]['service_centres_id'];
+        }
+        $data['html'] = $this->booking_utilities->booking_report_by_service_center($sf_list,'');
+        
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/show_service_center_report',$data);
+        
+    }
+    
 }

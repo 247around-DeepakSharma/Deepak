@@ -479,7 +479,7 @@ class Notify {
 		case 'Newbooking':
 		    $sms['smsData']['service'] = $query1[0]['services'];
 		    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
-		    $sms['smsData']['booking_timeslot'] = $query1[0]['booking_timeslot'];
+		    $sms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
 
 		    if ($is_sd == FALSE) {
 			$sms['tag'] = "add_new_booking";
