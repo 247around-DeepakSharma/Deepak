@@ -2254,7 +2254,17 @@ class Partner extends CI_Controller {
       * 
       */
      function partner_default_page(){
+        $this->checkUserSession();
+        //Getting Spare Parts Details
+        $partner_id = $this->session->userdata('partner_id');
         $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'partner', 'active'=> '1'));
+        $where = "spare_parts_details.partner_id = '".$partner_id."' AND status = '".SPARE_PARTS_REQUESTED."' "
+                . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
+        
+        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
+        
+        $data['spare_parts'] = $total_rows[0]['total_rows'];
+        
         $this->load->view('partner/header');
         $this->load->view('partner/partner_default_page',$data);
      }

@@ -1,9 +1,16 @@
 <script type="text/javascript">
+    var spare_parts = '<?php echo $spare_parts?>';
     $(function () {
         $("#tabs").tabs();
-        $("#tabs").tabs("option", "active", 1);
-        //Loading Pending Spare Parts By Default
-        load_view('employee/partner/get_spare_parts_booking', 'tabs-2');
+        
+        if(parseInt(spare_parts) > 0 ){
+            $("#tabs").tabs("option", "active", 1);
+            //Loading Pending Spare Parts if Spare Parts Present
+            load_view('employee/partner/get_spare_parts_booking', 'tabs-2');
+        }else{
+            //Loading Pending Bookings in Else case
+            load_view('employee/partner/pending_booking/0/1', 'tabs-1');
+        }
 
     });
 </script>
