@@ -116,7 +116,7 @@
                     <?php if($status != "Cancelled" ){?>
                     <th width="60px;">Rate</th>
                     <?php } ?>
-                    <th width="120px;">Penalty</th>
+                    <th width="160px;">Penalty</th>
                     </tr>
 
                     </thead>
