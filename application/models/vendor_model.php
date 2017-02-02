@@ -511,7 +511,7 @@ class vendor_model extends CI_Model {
      *  @return : array of booking date and timeslot
      */
     function getBookingDateFromBookingID($booking_id) {
-        $this->db->select('booking_date, booking_timeslot');
+        $this->db->select('booking_date, booking_timeslot,count_escalation');
         $this->db->where('booking_id', $booking_id);
         $query = $this->db->get('booking_details');
         if ($query->num_rows() > 0) {
@@ -583,7 +583,7 @@ class vendor_model extends CI_Model {
         unset($flag[0]['mail_body']);
         unset($flag[0]['active']);
         unset($flag[0]['create_date']);
-
+        
         $reason_flag['escalation_policy_flag'] = json_encode($flag);
         return $this->update_esclation_policy_flag($id, $reason_flag, $booking_id);
     }
@@ -1470,7 +1470,7 @@ class vendor_model extends CI_Model {
         }else{
             $where = "";
         }
-        $new_vendor = "SELECT id,name, district, state ,
+        $new_vendor = "SELECT id,name, district, state , active, on_off, 
                                             DATEDIFF(CURRENT_TIMESTAMP , create_date) AS age
                                             FROM  service_centres
                                             WHERE 

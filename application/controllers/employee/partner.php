@@ -24,6 +24,8 @@ class Partner extends CI_Controller {
         $this->load->library('notify');
         $this->load->library('asynchronous_lib');
         $this->load->library('booking_utilities');
+        $this->load->library('miscelleneous');
+        $this->load->library('booking_utilities');
         $this->load->library('user_agent');
 
         $this->load->helper(array('form', 'url'));
@@ -314,7 +316,7 @@ class Partner extends CI_Controller {
         
     }
 
- /**
+    /**
      * @desc: This method is used to process to add booking by partner
      */
     function process_addbooking() {
@@ -344,6 +346,7 @@ class Partner extends CI_Controller {
 
                 // Send the request
                 $response = curl_exec($ch);
+                
                 log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted error mgs" . print_r($response, true));
                 // Decode the response
                 $responseData = json_decode($response, TRUE);
@@ -416,7 +419,7 @@ class Partner extends CI_Controller {
         $post['city'] = $this->input->post('city');
         $post['requestType'] = $this->input->post('price_tag');
         $post['landmark'] = $this->input->post('landmark');
-        $post['product'] = $this->input->post('service_name');
+        $post['service_id'] = $this->input->post('service_id');
         $post['brand'] = $this->input->post('appliance_brand');
         $post['productType'] = '';
         $post['category'] = $this->input->post('appliance_category');
@@ -428,6 +431,8 @@ class Partner extends CI_Controller {
         $post['partner_source'] = $this->input->post('partner_source');
         $post['remarks'] = $this->input->post('query_remarks');
         $post['orderID'] = $this->input->post('order_id');
+        $post['vendor_id'] = $this->input->post('vendor_id');
+        $post['upcountry_data'] = $this->input->post('upcountry_data');
         $post['alternate_phone_number'] = $this->input->post('alternate_phone_number');
         $post['booking_date'] = $booking_date;
         
@@ -451,7 +456,7 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('city', 'City', 'trim|required|xss_clean');
         $this->form_validation->set_rules('booking_address', 'Booking Address', 'required');
         $this->form_validation->set_rules('landmark', 'LandMark', 'trim');
-        $this->form_validation->set_rules('appliance_capacity', 'Appliance Capacity', 'trim|required|xss_clean');
+        $this->form_validation->set_rules('appliance_capacity', 'Appliance Capacity', 'trim|xss_clean');
         $this->form_validation->set_rules('alternate_phone_number', 'Alternate Number', 'trim|xss_clean');
         $this->form_validation->set_rules('purchase_year', 'Purchase Year', 'trim|xss_clean');
         $this->form_validation->set_rules('purchase_month', 'Purchase Month', 'trim|xss_clean');
@@ -460,7 +465,7 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('serial_number', 'Serial Number', 'trim|xss_clean');
         $this->form_validation->set_rules('appliance_category', 'Appliance Category', 'required');
         $this->form_validation->set_rules('partner_source', 'Booking Source', 'required');
-        $this->form_validation->set_rules('service_name', 'Service Name', 'required');
+        $this->form_validation->set_rules('service_id', 'Service Name', 'required');
         $this->form_validation->set_rules('booking_date', 'Booking Date', 'required');
         $this->form_validation->set_rules('query_remarks', 'Problem Description', 'required');
         $this->form_validation->set_rules('booking_pincode', 'Booking Pincode', 'trim|required|exact_length[6]');
@@ -1512,7 +1517,7 @@ class Partner extends CI_Controller {
     /**
      * @desc: This is used to get those booking who has requested to spare parts by SF
      */
-    function get_spare_parts_booking($offset = 0){
+    function get_spare_parts_booking($offset = 0,$all = 0){
         log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
@@ -1522,8 +1527,12 @@ class Partner extends CI_Controller {
         $config['base_url'] = base_url() . 'partner/get_spare_parts_booking';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
         $config['total_rows'] = $total_rows[0]['total_rows'];
-
-        $config['per_page'] = 50;
+        
+        if($all == 1){
+            $config['per_page'] = count($total_rows);
+        }else{
+            $config['per_page'] = 50;
+        }
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
@@ -1833,7 +1842,7 @@ class Partner extends CI_Controller {
     /**
      * @desc: Pending Defective Parts list 
      */
-    function get_waiting_defective_parts($offset = 0){
+    function get_waiting_defective_parts($offset = 0,$all = 0){
         log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
@@ -1843,8 +1852,12 @@ class Partner extends CI_Controller {
         $config['base_url'] = base_url() . 'partner/get_waiting_defective_parts';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
         $config['total_rows'] = $total_rows[0]['total_rows'];
-
-        $config['per_page'] = 50;
+        
+        if($all == 1){
+            $config['per_page'] = count($total_rows);
+        }else{
+            $config['per_page'] = 50;
+        }
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
@@ -2224,7 +2237,17 @@ class Partner extends CI_Controller {
       * 
       */
      function partner_default_page(){
+        $this->checkUserSession();
+        //Getting Spare Parts Details
+        $partner_id = $this->session->userdata('partner_id');
         $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'partner', 'active'=> '1'));
+        $where = "spare_parts_details.partner_id = '".$partner_id."' AND status = '".SPARE_PARTS_REQUESTED."' "
+                . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
+        
+        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
+        
+        $data['spare_parts'] = $total_rows[0]['total_rows'];
+        
         $this->load->view('partner/header');
         $this->load->view('partner/partner_default_page',$data);
      }
@@ -2249,6 +2272,37 @@ class Partner extends CI_Controller {
             redirect(base_url() . 'employee/partner/partner_default_page');
         }
     }
+    
+    function get_service_category(){
+        log_message('info', __FUNCTION__ . "  Partner ID: " . $this->session->userdata('partner_id'));
+        $this->checkUserSession();
+        $service_id  = $this->input->post('service_id');
+        $brand = $this->input->post('brand');
+        $category = $this->input->post('category');
+        $capacity = $this->input->post('capacity');
+        $partner_id = $this->session->userdata('partner_id');
+        $partner_data = $this->partner_model->get_partner_code($partner_id);
+        $partner_mapping_id = $partner_data[0]['price_mapping_id']; 
+        $partner_type = $partner_data[0]['partner_type']; 
+        $result = array();
+        if($partner_type == OEM){
+            $result = $this->partner_model->get_service_category($service_id, $category, $capacity, $partner_mapping_id,"",$brand);
+        } else {
+            $result = $this->partner_model->get_service_category($service_id, $category, $capacity, $partner_mapping_id,"",""); 
+        }
+        
+        if(!empty($result)){
+            $service_category = "";
+            foreach($result as $value){
+                $service_category .="<option selected value='".$value['service_category']."'  >".$value['service_category']."</option>";
+            }
+            echo $service_category;
+            
+        } else {
+            echo "ERROR";
+        }
+        
+    }
     /**
      * @desc: This is used to return customer net payable, Its called by Ajax
      */
@@ -2259,16 +2313,118 @@ class Partner extends CI_Controller {
         $brand = $this->input->post('brand');
         $category = $this->input->post('category');
         $capacity = $this->input->post('capacity');
+        $city = $this->input->post('city');
+        $pincode = $this->input->post('pincode');
         $service_category = $this->input->post('service_category');
         $partner_id = $this->session->userdata('partner_id');
-        $partner_mapping_id = $this->booking_model->get_price_mapping_partner_code("",$partner_id);
-        $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_mapping_id, $service_category,$brand);
-        if(!empty($result)){
-            echo $result[0]['customer_net_payable'];
+        $partner_data = $this->partner_model->get_partner_code($partner_id);
+        $partner_mapping_id = $partner_data[0]['price_mapping_id']; 
+        $partner_type = $partner_data[0]['partner_type']; 
+        $result = array();
+        if($partner_type == OEM){
+            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_mapping_id, $service_category,$brand);
         } else {
-            echo "ERROR";
+            $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_mapping_id, $service_category,""); 
         }
+        if(!empty($result)){
+          
+            $data = $this->miscelleneous->check_upcountry_vendor_availability($city, $pincode,$service_id);
+            switch ($data['message']){
+                case NOT_UPCOUNTRY_BOOKING:
+                    $form_data['vendor_id'] = $data['vendor_id'];
+                    $form_data['upcountry_data'] = json_encode("") ;
+                    $data['upcountry_paid_by_customer'] = 0;
+                    
+                    if($result[0]['customer_net_payable']>.0){
+                       $form_data['price'] = "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:red'> to be pay by Customer </span>";
+                    } else {
+                        $form_data['price'] =  "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:green'> Free to Customer </span>";
+                    }
+                    print_r(json_encode($form_data,true));
+                    break;
+                    
+                case SF_NOT_EXIT:
+                case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
+                    $data['upcountry_paid_by_customer'] = 0;
+                    $form_data['vendor_id'] = "";
+                    $form_data['upcountry_data'] = json_encode("") ;
+                    if($result[0]['customer_net_payable']>.0){
+                        $form_data['price'] = "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:red'> to be pay by Customer </span>";
+                    } else {
+                        $form_data['price'] =  "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:green'> Free to Customer </span>";
+                    }
+                    print_r(json_encode($form_data,true));
+                    break;
+                case UPCOUNTRY_BOOKING:
+                case UPCOUNTRY_LIMIT_EXCEED:
+                    $form_data['vendor_id'] = $data['vendor_id'];
+                    
+                    $partner_details = $this->partner_model->get_all_partner($partner_id);
+                    if ($partner_details[0]['is_upcountry'] == 1) {
+                        if($partner_details[0]['upcountry_mid_distance_threshold'] > $data['upcountry_distance']){
+                            $upcountry_price = $partner_details[0]['upcountry_rate'] * $data['upcountry_distance'];
+                            $data['partner_upcountry_rate']  = $partner_details[0]['upcountry_rate'] ;
+
+                        } else {
+
+                            $data['partner_upcountry_rate']  = $partner_details[0]['upcountry_rate1'];
+                            $upcountry_price = $partner_details[0]['upcountry_rate1'] * $data['upcountry_distance'];
+                        }
+                        $partner_approval = $partner_details[0]['upcountry_approval'];
+                    } else {
+                        $data['partner_upcountry_rate'] = DEFAULT_UPCOUNTRY_RATE;
+                        $upcountry_price = DEFAULT_UPCOUNTRY_RATE * $data['upcountry_distance'];
+                        $partner_approval = 0;
+                    }
+                    if($result[0]['is_upcountry'] == 0 ){
+                        // For paid Service
+                        $data['partner_approval'] = 0;
+                        $data['upcountry_paid_by_customer'] = 1;
+                        if($result[0]['customer_net_payable']>.0){
+                            
+                            $form_data['price'] = "<br/><br/> Rs. ". $result[0]['customer_net_payable'].
+                                "       <span style='color:red'> to be pay by Customer </span><br/>".
+                                "Rs. ".round($upcountry_price,2) . "       <span style='color:red'> to be pay Upcountry price by Customer </span>";
+                        } else {
+                             
+                             $form_data['price'] = "<br/><br/> Rs. ". $result[0]['customer_net_payable'].
+                                "       <span style='color:green'> Free to Customer </span><br/>".
+                                "Rs. ".round($upcountry_price,2) . "       <span style='color:red'> to be pay Upcountry price by Customer </span>";
+                        }
+                        $form_data['upcountry_data'] = json_encode($data) ;
+                        print_r(json_encode($form_data,true));
+                    } else {
+                        // Partner Provide Upcountry for this Price tags
+                        if($data['message'] != UPCOUNTRY_LIMIT_EXCEED  ){
+                            //Free service with in upcountry limit
+                           $data['partner_approval'] = 0;
+                           $data['upcountry_paid_by_customer'] = 0;
+                           $form_data['price'] =  "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:green'> Free to Customer </span>";
+                           $form_data['upcountry_data'] = json_encode($data) ;
+                           print_r(json_encode($form_data,true));
+                            
+                        } else if($partner_approval == 1 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED){
+                            //Upcountry Limit exceed and Partner provide uproval
+                            $data['partner_approval'] = 1;
+                            $data['upcountry_paid_by_customer'] = 0;
+                            $form_data['price'] =  "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:green'> Free to Customer </span><br/>"
+                                 ."<span style='color:red'>This is out station call need to approval on Email/Panel</span>";  
+                            $form_data['upcountry_data'] = json_encode($data) ;
+                            print_r(json_encode($form_data,true));
+                            
+                        } else{
+                            // Do not Allow to add booking
+                            echo "ERROR";
+                        }
+                    }
+                    break;
+
+            }
+         } else {
+             echo "ERROR";
+         }
     }
+    
     /**
      * @desc: This is called by Ajax to return City
      * @param String $pincode
@@ -2283,5 +2439,173 @@ class Partner extends CI_Controller {
             echo '<option disabled selected >Please Enter City</option>';
         }
     }
-     
+    /**
+     * @desc Approve Upcountry charges by Partner. $status o means call from mail 
+     * @param String $booking_id
+     * @param Integer $status (0 & 1)
+     */
+    function upcountry_charges_approval($booking_id, $status) {
+        log_message('info', __FUNCTION__ . " => Booking Id" . $booking_id);
+
+        $data = $this->upcountry_model->get_upcountry_service_center_id_by_booking($booking_id);
+        if (!empty($data)) {
+            $this->booking_model->update_booking($booking_id, array('upcountry_partner_approved' => '1'));
+
+            if ($status == 0) {// means request from mail
+                $agent_id = _247AROUND_DEFAULT_AGENT;
+                $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
+                $partner_id = _247AROUND;
+                $type = " Email";
+            } else {
+                $agent_id = $this->session->userdata('agent_id');
+                $agent_name = $this->session->userdata('partner_name');
+                $partner_id = $this->session->userdata('partner_id');
+                $type = " Panel";
+            }
+            // Insert log into booking state change
+            $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_APPROVED, _247AROUND_PENDING, "Upcountry Charges Approved From " . $type, $agent_id, $agent_name, $partner_id);
+
+            $assigned = $this->miscelleneous->assign_vendor_process($data[0]['service_center_id'], $booking_id);
+            if ($assigned) {
+
+                log_message('info', __FUNCTION__ . " => Continue Process" . $booking_id);
+                //Send SMS to customer
+                $sms['tag'] = "service_centre_assigned";
+                $sms['phone_no'] = $data[0]['booking_primary_contact_no'];
+                $sms['booking_id'] = $booking_id;
+                $sms['type'] = "user";
+                $sms['type_id'] = $data[0]['user_id'];
+                $sms['smsData'] = "";
+
+                $this->notify->send_sms_acl($sms);
+                log_message('info', "Send SMS to customer: " . $booking_id);
+
+                //Prepare job card
+                $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+                log_message('info', "Async Process to create Job card: " . $booking_id);
+
+                //Send mail to vendor, no Note to vendor as of now
+                $message = "";
+                $this->booking_utilities->lib_send_mail_to_vendor($booking_id, $message);
+                $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, UPCOUNTRY_CHARGES_APPROVED, "Service Center Id: " . $data[0]['service_center_id'], $agent_id, $agent_name, $partner_id);
+                if ($status == 0) {
+                    echo "<script>alert('Thanks to Approve Upcountry Charges');</script>";
+                } else {
+                    $userSession = array('error' => 'Approved Successfully.');
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
+                }
+            } else {
+                if ($status == 0) {
+                    echo "<script>alert('Sorry, There is issues to Approve Upcountry Charges');</script>";
+                } else {
+                    $userSession = array('error' => 'Already Approved this booking');
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
+                }
+            }
+        } else {
+            if ($status == 0) {
+                echo "<script>alert('Sorry, There is issues to Approve Upcountry Charges');</script>";
+            } else {
+                $userSession = array('error' => 'Booking is not exist');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
+            }
+        }
+    }
+    /**
+     * @desc This is uesd to reject Upcountry charges. $status o means reject from EMail
+     * @param String $booking_id
+     * @param String $status
+     */        
+    function reject_upcountry_charges($booking_id, $status){
+        log_message('info', __FUNCTION__ . " => Booking Id" . $booking_id);
+        $data = $this->booking_model->getbooking_history($booking_id);
+        if (is_null($data[0]['assigned_vendor_id']) && $data[0]['current_status'] != _247AROUND_CANCELLED) {
+            $partner_current_status = "";
+            $partner_internal_status = "";
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data("Cancelled", UPCOUNTRY_CHARGES_NOT_APPROVED, $data[0]['partner_id'], $booking_id);
+            if (!empty($partner_status)) {
+                $partner_current_status = $partner_status[0];
+                $partner_internal_status = $partner_status[1];
+            }
+            if($status == 0){// means request from mail
+                $agent_id  = _247AROUND_DEFAULT_AGENT;
+                $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
+                $partner_id = _247AROUND;
+                $type= " Email";
+            } else {
+                $agent_id  = $this->session->userdata('agent_id');
+                $agent_name = $this->session->userdata('partner_name');
+                $partner_id = $this->session->userdata('partner_id');
+                $type = "Panel";
+                
+            }
+            $this->booking_model->update_booking($booking_id, array("current_status" => "Cancelled", "internal_status" => UPCOUNTRY_CHARGES_NOT_APPROVED,
+                'cancellation_reason' => UPCOUNTRY_CHARGES_NOT_APPROVED, "partner_current_status" => $partner_current_status,
+                'partner_internal_status' => $partner_internal_status));
+            
+            $this->booking_model->update_booking_unit_details($booking_id, array('booking_status'=> 'Cancelled'));
+            $this->notify->insert_state_change($booking_id, UPCOUNTRY_CHARGES_NOT_APPROVED, _247AROUND_PENDING, 
+                        "Upcountry Charges Rejected By Partner From ". $type, 
+                        $agent_id, $agent_name, $partner_id);
+            if ($status == 0) {
+                echo "<script>alert('Upcountry Charges rejected successfully');</script>";
+            } else {
+                $userSession = array('success' => 'Upcountry Charges rejected Successfully');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
+            }
+            
+        } else {
+            log_message('info', __FUNCTION__ . " => Booking is not rejected. Booking Id" . $booking_id);
+            if ($status == 0) {
+                echo "<script>alert('Upcountry Charges already rejected');</script>";
+            } else {
+                $userSession = array('error' => 'Upcountry Charges alredy rejected');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
+            }
+        }
+    }
+    /**
+     * @desc: used to display list of waiting to approve upcountry charges
+     */
+    function get_waiting_for_approval_upcountry_charges(){
+        log_message('info', __FUNCTION__ );
+        $partner_id = $this->session->userdata('partner_id');
+        $data['booking_details'] = $this->upcountry_model->get_waiting_for_approval_upcountry_charges($partner_id);
+        $this->load->view('partner/header');
+        $this->load->view('partner/get_waiting_to_approval_upcountry', $data);
+    }
+    /**
+     * @desc: This method Cancelled those upcountry booking(2 days old) who has not approved by partner
+     */
+    function auto_reject_upcountry_charges(){
+        log_message('info', __FUNCTION__);
+        $data = $this->booking_model->get_booking_to_cancel_not_approved_upcountry();
+        if (!empty($data)) {
+            foreach ($data as $value) {
+                log_message('info', __FUNCTION__ . " => Cancel Booking Id" . $value['booking_id']);
+                $agent_id = _247AROUND_DEFAULT_AGENT;
+                $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
+                $partner_id = _247AROUND;
+                $partner_current_status = "";
+                $partner_internal_status = "";
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data("Cancelled", UPCOUNTRY_CHARGES_NOT_APPROVED, $value['partner_id'], $value['booking_id']);
+                if (!empty($partner_status)) {
+                    $partner_current_status = $partner_status[0];
+                    $partner_internal_status = $partner_status[1];
+                }
+                $this->booking_model->update_booking($value['booking_id'], array("current_status" => "Cancelled", "internal_status" => UPCOUNTRY_CHARGES_NOT_APPROVED,
+                    'cancellation_reason' => UPCOUNTRY_CHARGES_NOT_APPROVED, "partner_current_status" => $partner_current_status,
+                    'partner_internal_status' => $partner_internal_status));
+
+                $this->booking_model->update_booking_unit_details($value['bookng_id'], array('booking_status' => 'Cancelled'));
+                $this->notify->insert_state_change($value['booking_id'], UPCOUNTRY_CHARGES_NOT_APPROVED, _247AROUND_PENDING, "Upcountry Charges Rejected From " . "AUTO ", $agent_id, $agent_name, $partner_id);
+            }
+        }
+    }
+   
 }

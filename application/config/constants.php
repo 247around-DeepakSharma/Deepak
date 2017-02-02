@@ -54,6 +54,8 @@ define('_247AROUND',247001);
 define('_247AROUND2',247002);
 define('_247AROUND3',247003);
 define('_247AROUND99',247999);
+define('_247AROUND_DEFAULT_AGENT',1);
+define('_247AROUND_DEFAULT_AGENT_NAME',"247Around");
 
 //constant to define Pending state
 define('_247AROUND_PENDING','Pending');
@@ -207,13 +209,36 @@ define('SF_UPDATED','SF Updated');
 define('NEW_PARTNER_ADDED','New Partner Added');
 //Define Edit SF State
 define('PARTNER_UPDATED','Partner Updated');
-
+//Define NOT UPCOUNTRY BOOKING
+define('NOT_UPCOUNTRY_BOOKING','NOT UPCOUNTRY BOOKING');
+//Define SF NOT EXIST IN Pincode Table
+define('SF_NOT_EXIT','SF NOT EXIT');
+//Define UPCOUNTRY BOOKING
+define('UPCOUNTRY_BOOKING','UPCOUNTRY BOOKING');
+//Define UPCOUNTRY Disatnce Limit Exceed
+define('UPCOUNTRY_LIMIT_EXCEED','UPCOUNTRY LIMIT EXCEED');
+//Define UPCOUNTRY BOOKING
+define('UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE','UPCOUNTRY DISTANCE CAN NOT CALCULATE');
+//Define  UPCOUNTRY_BOOKING_NEED_TO_APPROVAL
+define('UPCOUNTRY_BOOKING_NEED_TO_APPROVAL','UPCOUNTRY BOOKING NEED TO APPROVAL');
+define('IS_DEFAULT_ENGINEER', TRUE);
+define('DEFAULT_ENGINEER', 24700001);
+define("UPCOUNTRY_CHARGES_APPROVED", "Upcountry Charges Approved");
+define("UPCOUNTRY_CHARGES_NOT_APPROVED", "Upcountry Charges Not Approved");
+define("DEFAULT_UPCOUNTRY_RATE", 3);
+//Define Incentive Cut
+define('INCENTIVE_CUT',12);
+//Define Penalty - Fake Complete customer want installation
+define('PENALTY_FAKE_COMPLETE_CUSTOMER_WANT_INSTALLATION',14);
+//Define Penalty - Fake Complete customer not want installation
+define('PENALTY_FAKE_COMPLETE_CUSTOMER_NOT_WANT_INSTALLATION',15);
+//Define Escalation Panalty id
+define('ESCALATION_PENALTY',1);
+define('PENALTY_FAKE_CANCEL',13);
 //Define error code for order id not found for partner_sd_sb.php file
 define('ERR_ORDER_ID_NOT_FOUND_CODE', -1007);
 //Define error code for order id not found for partner_sd_sb.php file
 define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Not Found');
-
-
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

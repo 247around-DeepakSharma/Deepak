@@ -868,7 +868,7 @@ class Reporting_utils extends CI_Model {
             $where = "";
         }
 
-        $sql_yesterday_booked = "SELECT count(distinct(`booking_state_change`.booking_id)) as booked, service_centres.name as service_center_name, service_centres.state, service_centres.district as city ,service_centres.id as service_center_id , service_centres.active as active 
+        $sql_yesterday_booked = "SELECT count(distinct(`booking_state_change`.booking_id)) as booked, service_centres.name as service_center_name, service_centres.state, service_centres.district as city ,service_centres.id as service_center_id , service_centres.active as active, service_centres.on_off as temporary_on_off   
                                 FROM  `booking_state_change`, `booking_details` , service_centres
                                 WHERE  `new_state`
                                 IN (
@@ -883,7 +883,7 @@ class Reporting_utils extends CI_Model {
         
         $sql_yesterday_completed = "SELECT COUNT( DISTINCT (
                                     `booking_details`.booking_id
-                                    ) ) AS completed, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city ,service_centres.id as service_center_id , service_centres.active as active
+                                    ) ) AS completed, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city ,service_centres.id as service_center_id , service_centres.active as active, service_centres.on_off as temporary_on_off 
                                     FROM `booking_details` , service_centres
                                     WHERE `current_status` = 'Completed'
                                     ".$where."
@@ -895,7 +895,7 @@ class Reporting_utils extends CI_Model {
         
         $sql_yesterday_cancelled = "SELECT COUNT( DISTINCT (
                                     `booking_details`.booking_id
-                                    ) ) AS cancelled, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city, service_centres.id as service_center_id , service_centres.active as active
+                                    ) ) AS cancelled, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city, service_centres.id as service_center_id , service_centres.active as active, service_centres.on_off as temporary_on_off 
                                     FROM `booking_details` , service_centres
                                     WHERE `current_status` = 'Cancelled'
                                     ".$where."
@@ -907,7 +907,7 @@ class Reporting_utils extends CI_Model {
         
         $sql_month_completed = "SELECT COUNT( DISTINCT (
                                             `booking_details`.booking_id
-                                            ) ) AS completed, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city , service_centres.id as service_center_id , service_centres.active as active
+                                            ) ) AS completed, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city , service_centres.id as service_center_id , service_centres.active as active, service_centres.on_off as temporary_on_off 
                                             FROM `booking_details` , service_centres
                                             WHERE `current_status` = 'Completed'
                                             ".$where."
@@ -917,7 +917,7 @@ class Reporting_utils extends CI_Model {
                                             GROUP BY service_centres.state, service_centres.name";
         $sql_month_cancelled = "SELECT COUNT( DISTINCT (
                                             `booking_details`.booking_id
-                                            ) ) AS cancelled, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city , service_centres.id as service_center_id , service_centres.active as active
+                                            ) ) AS cancelled, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city , service_centres.id as service_center_id , service_centres.active as active, service_centres.on_off as temporary_on_off 
                                             FROM `booking_details` , service_centres
                                             WHERE `current_status` = 'Cancelled'
                                             ".$where."
@@ -926,7 +926,7 @@ class Reporting_utils extends CI_Model {
                                             AND `service_centres`.id = `booking_details`.assigned_vendor_id
                                             GROUP BY service_centres.state, service_centres.name";
         
-        $sql_last_2_day = "SELECT service_centres.state, service_centres.district as city, service_centres.id AS service_center_id, service_centres.name AS service_center_name, COUNT(booking_id ) AS booked , service_centres.active as active
+        $sql_last_2_day = "SELECT service_centres.state, service_centres.district as city, service_centres.id AS service_center_id, service_centres.name AS service_center_name, COUNT(booking_id ) AS booked , service_centres.active as active, service_centres.on_off as temporary_on_off  
                             FROM booking_details
                             JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id
                             WHERE 
@@ -940,7 +940,7 @@ class Reporting_utils extends CI_Model {
                             )
                             GROUP BY service_centres.state, service_centres.name";
         
-        $sql_last_3_day = "SELECT service_centres.state, service_centres.district as city, service_centres.id AS service_center_id, service_centres.name AS service_center_name, COUNT(booking_id ) AS booked , service_centres.active as active
+        $sql_last_3_day = "SELECT service_centres.state, service_centres.district as city, service_centres.id AS service_center_id, service_centres.name AS service_center_name, COUNT(booking_id ) AS booked , service_centres.active as active, service_centres.on_off as temporary_on_off 
                             FROM booking_details
                             JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id
                             WHERE 
@@ -954,7 +954,7 @@ class Reporting_utils extends CI_Model {
                             )
                             GROUP BY service_centres.state, service_centres.name";
         
-        $sql_greater_than_5_days = "SELECT service_centres.state, service_centres.district as city, service_centres.id AS service_center_id, service_centres.name AS service_center_name, COUNT(booking_id ) AS booked , service_centres.active as active
+        $sql_greater_than_5_days = "SELECT service_centres.state, service_centres.district as city, service_centres.id AS service_center_id, service_centres.name AS service_center_name, COUNT(booking_id ) AS booked , service_centres.active as active, service_centres.on_off as temporary_on_off 
                             FROM booking_details
                             JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id
                             WHERE 
@@ -1137,6 +1137,7 @@ class Reporting_utils extends CI_Model {
                     $array_final['city'] = $v['city'];
                     $array_final['service_center_id'] = $v['service_center_id'];
                     $array_final['active'] = $v['active'];
+                    $array_final['temporary_on_off'] = $v['temporary_on_off'];
                 }
             }
             if ($flag == 1)
@@ -1178,7 +1179,7 @@ class Reporting_utils extends CI_Model {
         log_message('info', __FUNCTION__);
 
         // Get All Service center who has is_update filed is 1.
-        $sql = "SELECT id, name FROM service_centres WHERE "
+        $sql = "SELECT id, name,active, on_off FROM service_centres WHERE "
                 . " active = '1' AND is_update = '1' $where ORDER BY name ";
         $query = $this->db->query($sql);
         $sc = $query->result_array();
@@ -1206,7 +1207,7 @@ class Reporting_utils extends CI_Model {
                       AND sc.booking_id = BD.booking_id 
                       AND NOT EXISTS (SELECT booking_id FROM booking_state_change WHERE booking_id =BD.booking_id 
                       AND service_center_id = '" . $value['id'] . "' 
-                      AND DATEDIFF(CURRENT_TIMESTAMP , create_date) = 0) 
+                      AND DATEDIFF(CURRENT_TIMESTAMP , create_date) = 1) 
                       AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= 0";
             $query2 = $this->db->query($sql2);
             $result2 = $query2->result_array();
@@ -1278,6 +1279,8 @@ class Reporting_utils extends CI_Model {
 
                 $data1['service_center_id'] = $value['id'];
                 $data1['service_center_name'] = $value['name'];
+                $data1['active'] = $value['active'];
+                $data1['on_off'] = $value['on_off'];
                 $data1['un_assigned'] = $un_assigned;
                 $data1['not_update'] = $not_update;
                 $data1['update'] = $total_bookings - $not_update;
@@ -1395,7 +1398,7 @@ class Reporting_utils extends CI_Model {
         
         $bookings_cancelled = "SELECT COUNT( DISTINCT (
                                             `booking_details`.booking_id
-                                            ) ) AS cancelled, service_centres.id as service_center_id 
+                                            ) ) AS cancelled, service_centres.id as service_center_id
                                             FROM `booking_details` , service_centres
                                             WHERE `current_status` = 'Cancelled'
                                             ".$where."

@@ -118,6 +118,7 @@
                                        <th class="jumbotron" >Service Charge</th>
                                        <th class="jumbotron" >Additional Service Charge</th>
                                        <th class="jumbotron" >Parts Cost</th>
+                                       <th class="jumbotron" >Upcountry Charges</th>
                                        <th class="jumbotron" >Vendor Status</th>
                                     </thead>
                                     <tbody>
@@ -149,6 +150,9 @@
                                           </td>
                                           <td>
                                              <span id="<?php echo "parts_cost".$count;?>"><?php echo $value1['parts_cost']; ?></span>
+                                          </td>
+                                          <td>
+                                             <span id="<?php echo "upcountry".$count;?>"><?php if($key1 ==0){ echo $value1['upcountry_charges'];} ?></span>
                                           </td>
                                           <td>
                                              <span id="<?php echo "internal_status".$count; ?>"><?php echo $value1['internal_status']; ?></span>

@@ -98,7 +98,7 @@ class Upcountry_model extends CI_Model {
 
                 } else {
                     log_message('info', __FUNCTION__.' Distance Not Found pincode1 '. $postcode1. " ". $postcode2);
-
+                    echo ' Distance Not Found pincode1 '. $postcode1. " ". $postcode2.PHP_EOL;
                     return FALSE;
                 }
             }
@@ -108,73 +108,156 @@ class Upcountry_model extends CI_Model {
             return FALSE;
         }
     }
-    /**
-     * @desc: Take a action to fill upcountry details in the booking details 
-     * @param String $booking_id
-     * @return boolean|string
-     */
-    function action_upcountry_booking($booking_id){
-        log_message('info', __FUNCTION__ . " Booking_id" . $booking_id);
-        $booking_details = $this->booking_model->getbooking_history($booking_id);
-        // Check partner provide upcountry
-        $res_partner = $this->get_partner_provide_upcountry($booking_details[0]['partner_id']);
-        if ($res_partner) {
-            // check work upcountry
-            $vendor_pincode_city = $this->get_vendor_upcountry_city($booking_details[0]['assigned_vendor_id'],$booking_details[0]['booking_pincode'] );
-            if(!empty($vendor_pincode_city)){
-               $where1 = array('service_center_id' => $booking_details[0]['assigned_vendor_id'], 'district'=> $vendor_pincode_city[0]['City']);
-               $res_sb = $this->get_sub_service_center_details($where1);
-               if(!empty($res_sb)){
-                   // Calculate distance 
-                    $is_distance = $this->calculate_distance_between_pincode($booking_details[0]['booking_pincode'], $booking_details[0]['city'], 
-                            $res_sb[0]['pincode'], $vendor_pincode_city[0]['City']);
-                    if ($is_distance) { 
-                        $distance = round($is_distance['distance']['value'] / 1000, 2) * 2;
-                        if(UPCOUNTRY_MIN_DISTANCE >= $distance){
-                            log_message('info', __FUNCTION__ . ' Booking id '.$booking_id ." Distance less than thresold  distnace". $distance );
-                            return "Success";
-                            
-                        } else if($distance > UPCOUNTRY_MIN_DISTANCE && $distance < UPCOUNTRY_DISTANCE_THRESHOLD){
-                            $up_data = array('upcountry_pincode' =>  $res_sb[0]['pincode'],
-                            'upcountry_distance' => $distance - UPCOUNTRY_MIN_DISTANCE,
-                            'upcountry_rate' => $res_sb[0]['upcountry_rate'],
-                            'sub_vendor_id' => $res_sb[0]['id'],
-                            'upcountry_price' => $res_sb['upcountry_rate'] * ($distance - UPCOUNTRY_MIN_DISTANCE));
-                            
-                            $this->booking_model->update_booking($booking_id, $up_data);
-                            return "Success";
-                        } else if($distance > UPCOUNTRY_DISTANCE_THRESHOLD){
-                            $this->booking_model->update_booking($booking_id, array('is_upcountry' => '1'));
-                            $failed = array("booking_id" => $booking_id, "booking_pincode" => $booking_details[0]['booking_pincode'], 
-                            " service center pincode" => $res_sb[0]['pincode']); 
-                            return $failed;
-                            
-                        }
+    
+    function action_upcountry_booking($booking_city,$booking_pincode, $vendor_details){
+        log_message('info', __METHOD__ );
+        $error = array();
+        $same_pincode_vendor = array();
+        $upcountry_vendor_details = array();
+        $distance = false;
+        foreach ($vendor_details as $value) {
+            $where1 = array('service_center_id' => $value['vendor_id'], 
+                'district'=> $value['city']);
+            $res_sb = $this->get_sub_service_center_details($where1);
+           
+            if($res_sb){
+                if($res_sb[0]['pincode'] != $booking_pincode){
+                    log_message('info', __METHOD__ ." Continue process....");
+                    // Calculate distance 
+                    $is_distance = $this->get_distance_between_pincodes($booking_pincode,$res_sb[0]['pincode']);
+                    if(empty($is_distance)){
+                        log_message('info', __FUNCTION__ ." Distance not exist in table. Call to Google API");
+                        $is_distance1 = $this->calculate_distance_between_pincode($booking_pincode, 
+                            $booking_city, 
+                            $res_sb[0]['pincode'], $res_sb[0]['district']);
                         
+                        if($is_distance1){
+                            $distance = (round($is_distance1['distance']['value'] / 1000, 2));
+                            $this->insert_distance($booking_pincode, $res_sb[0]['pincode'], $distance);
+                             log_message('info', __FUNCTION__ ." Insert distance & pincode " . $booking_pincode.
+                                     $res_sb[0]['pincode']. $distance);
+                        }
                     } else {
-                        $failed = array("booking_id" => $booking_id, "booking_pincode" => $booking_details[0]['booking_pincode'], 
-                            " service center pincode" => $res_sb[0]['pincode']);
-                        $this->booking_model->update_booking($booking_id, array('is_upcountry' => '1'));
-                        return $failed;
+                        log_message('info', __FUNCTION__ ." Distance exist in table." . $distance);
+                        $distance = $is_distance[0]['distance'] *2;
                     }
                    
-               } else {
-                log_message('info', __FUNCTION__ . ' Service Center doest not have district for upcountry service center id ' 
-                        . $booking_details[0]['assigned_vendor_id']." ". " District ".$vendor_pincode_city[0]['City']);
-                return false;
-               }
-                
+                    if($distance){
+                        $upcountry_vendor['pincode'] = $res_sb[0]['pincode'];
+                        $upcountry_vendor['vendor_id'] = $value['vendor_id'];
+                        $upcountry_vendor['sub_vendor_id'] = $res_sb[0]['id'];
+                        $upcountry_vendor['upcountry_distance'] = $distance;
+                        $upcountry_vendor['sf_upcountry_rate'] = $res_sb[0]['upcountry_rate'];
+                       
+                        array_push($upcountry_vendor_details,$upcountry_vendor);
+                    } else {
+                        // Distance not calculated 
+                         log_message('info', __FUNCTION__ ." Distance not calculated ". $value['vendor_id']
+                            ." booking_pincode ". $booking_pincode);
+                        $error['message'] = UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE; 
+                        $error['vendor_id'] = "";
+                       
+                    }
+                } else {
+                    log_message('info', __FUNCTION__ ." Not Upcountry Booking ". $value['vendor_id']
+                            ." booking_pincode ". $booking_pincode);
+                    $same_pincode_vendor['vendor_id'] = $value['vendor_id'];
+                    $same_pincode_vendor['message'] = NOT_UPCOUNTRY_BOOKING;
+                    break;
+                }
             } else {
-                log_message('info', __FUNCTION__ . ' Service Center doest not work upcountry service center id ' . $booking_details[0]['assigned_vendor_id']);
-                return false;
+                log_message('info', __FUNCTION__ ." Not Upcountry Booking ". $value['vendor_id']
+                            ." booking_pincode ". $booking_pincode);
+                $same_pincode_vendor['vendor_id'] = $value['vendor_id'];
+                $same_pincode_vendor['message'] = NOT_UPCOUNTRY_BOOKING;
+                break;
             }
-            
-        } else {
-            log_message('info', __FUNCTION__ . ' Partner doest not provide upcountry Partner id ' . $booking_details[0]['partner_id']);
-            return false;
         }
         
+        if(!empty($same_pincode_vendor)){
+            log_message('info', __FUNCTION__ ." Not upcountry booking" );
+            return $same_pincode_vendor;
+            
+        } else if(!empty($upcountry_vendor_details)){
+           
+            if(count($upcountry_vendor_details) == 1){
+                log_message('info', __FUNCTION__ ." mark Upcountry" );
+                return $this->mark_upcountry_vendor($upcountry_vendor_details[0]);
+
+            } else {
+                log_message('info', __FUNCTION__ ." Got to calculate min disatance" );
+                $get_data = $this->get_minimum_upcountry_price($upcountry_vendor_details);
+                return $this->mark_upcountry_vendor($get_data);
+            }
+        } else if(!empty($error)){
+            log_message('info', __FUNCTION__ ." upcountry error ".print_r($error) );
+            return $error;
+        }
     }
+    
+    function mark_upcountry_vendor($upcountry_vendor_details) {
+         log_message('info', __FUNCTION__ );
+       
+        $up_data = array();
+        if ($upcountry_vendor_details['upcountry_distance'] < (UPCOUNTRY_MIN_DISTANCE + UPCOUNTRY_MIN_DISTANCE*0.1)) {
+            echo "1";
+            log_message('info', __FUNCTION__ ." Not Upcountry Booking ". print_r($upcountry_vendor_details, true) );
+            $up_data['vendor_id'] = $upcountry_vendor_details['vendor_id'];
+            $up_data['message'] = NOT_UPCOUNTRY_BOOKING;
+
+            
+        } else if ($upcountry_vendor_details['upcountry_distance'] > (UPCOUNTRY_MIN_DISTANCE + UPCOUNTRY_MIN_DISTANCE*0.1)
+                && $upcountry_vendor_details['upcountry_distance'] < UPCOUNTRY_DISTANCE_THRESHOLD) {
+
+            $up_data = array('upcountry_pincode' => $upcountry_vendor_details['pincode'],
+                'upcountry_distance' => ($upcountry_vendor_details['upcountry_distance'] - UPCOUNTRY_MIN_DISTANCE),
+                'sf_upcountry_rate' => $upcountry_vendor_details['sf_upcountry_rate'],
+                'sub_vendor_id' => $upcountry_vendor_details['sub_vendor_id'],
+                'vendor_id' => $upcountry_vendor_details['vendor_id'],
+                'is_upcountry' => 1);
+
+            $up_data['message'] = UPCOUNTRY_BOOKING;
+            log_message('info', __FUNCTION__ ." Upcountry Booking ". print_r($up_data, true) );
+           
+        } else if($upcountry_vendor_details['upcountry_distance'] > UPCOUNTRY_DISTANCE_THRESHOLD) {
+           
+            $up_data = array('upcountry_pincode' => $upcountry_vendor_details['pincode'],
+                'upcountry_distance' => ($upcountry_vendor_details['upcountry_distance'] - UPCOUNTRY_MIN_DISTANCE),
+                'sf_upcountry_rate' => $upcountry_vendor_details['sf_upcountry_rate'],
+                'sub_vendor_id' => $upcountry_vendor_details['sub_vendor_id'],
+                 'vendor_id' => $upcountry_vendor_details['vendor_id'],
+                'is_upcountry' => 1);
+           $up_data['message'] = UPCOUNTRY_LIMIT_EXCEED; 
+           log_message('info', __FUNCTION__ ." Upcountry Limit Exceed ". print_r($up_data, true) );
+            
+        }
+       
+        return $up_data;
+    }
+
+    /**
+     * @desc: Return Minimum Upcountry Price
+     * @param Array $data
+     */
+    function get_minimum_upcountry_price($data){
+        log_message('info', __FUNCTION__);
+        $min_price['upcountry_distance'] = $data[0]['upcountry_distance'];
+        foreach ($data as $value) {
+          
+            if($min_price['upcountry_distance'] >= $value['upcountry_distance']){
+                
+                $min_price['upcountry_price'] = $value['upcountry_price'];
+                $min_price['upcountry_pincode'] = $value['upcountry_pincode'];
+                $min_price['sf_upcountry_rate'] = $value['sf_upcountry_rate'];
+                $min_price['sub_vendor_id'] = $value['sub_vendor_id'];
+                $min_price['upcountry_distance'] = $value['upcountry_distance'];
+                $min_price['is_upcountry'] = 1;
+            }
+        }
+        log_message('info', __FUNCTION__." Min Price ". print_r($min_price, true));
+        return $min_price;
+    }
+
     /**
      * @desc: get partner detais who has provide upcountry booking
      * @param String $partner_id
@@ -199,6 +282,7 @@ class Upcountry_model extends CI_Model {
         $this->db->select('*');
         $this->db->where($where);
         $query = $this->db->get('sub_service_center_details');
+        
         return $query->result_array();
     }
     
@@ -208,7 +292,7 @@ class Upcountry_model extends CI_Model {
      */
     function get_upcountry_failed_details(){
         $this->db->select("booking_id, is_upcountry,upcountry_pincode,sub_vendor_id,"
-                . "upcountry_rate,upcountry_distance,upcountry_price, assigned_vendor_id");
+                . "sf_upcountry_rate,upcountry_distance,upcountry_price, assigned_vendor_id");
         $this->db->where("booking_details.is_upcountry", '1');
         $this->db->where("sub_vendor_id IS NULL", NULL, false);
         $query = $this->db->get("booking_details");
@@ -216,24 +300,28 @@ class Upcountry_model extends CI_Model {
     }
     /**
      * @desc: This is used to combined booking id on the basis of booking date and booking Pincode while create FOC invoice
+     * And Also upcountry_paid_by_customer must be 0 means Cutomer did not pay upcountry charges
      * @param String $vendor_id
      * @param String $from_date
      * @param String $to_date
+     * @return boolean
      */
-    function upcountry_in_invoice($vendor_id, $from_date, $to_date){
+    function upcountry_foc_invoice($vendor_id, $from_date, $to_date){
         $sql = "SELECT CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking,"
-                . " round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) AS upcountry_distance, assigned_vendor_id, round((upcountry_rate * round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) )/1.15,2) AS upcountry_price,"
-                . " COUNT(DISTINCT(bd.booking_id)) AS count_booking, round((upcountry_rate)/1.15,2) AS upcountry_rate "
+                . " round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) AS upcountry_distance, "
+                . " assigned_vendor_id, "
+                . " round((sf_upcountry_rate * round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) ),2) AS upcountry_price,"
+                . " COUNT(DISTINCT(bd.booking_id)) AS count_booking, sf_upcountry_rate"
                 . " FROM `booking_details` AS bd, booking_unit_details AS ud "
                 . " WHERE ud.booking_id = bd.booking_id "
                 . " AND bd.assigned_vendor_id = '$vendor_id' "
                 . " AND ud.ud_closed_date >= '$from_date' "
                 . " AND ud.ud_closed_date < '$to_date' "
-                . " AND ud.around_to_vendor >0 "
-                . " AND ud.vendor_to_around =0 "
                 . " AND pay_to_sf = '1' "
                 . " AND sub_vendor_id IS NOT NULL "
                 . " AND bd.is_upcountry = '1' "
+                . " AND bd.current_status = 'Completed' "
+                . " AND bd.upcountry_paid_by_customer = 0 "
                 . " GROUP BY bd.booking_date, bd.booking_pincode ";
         
         $query = $this->db->query($sql);
@@ -258,37 +346,69 @@ class Upcountry_model extends CI_Model {
             return FALSE;
         }
     }
-    
+    /**
+     * @desc: This is used to return upcountry booking which is paid by customer. 
+     * For the Cash Invoice, We do not group booking on the basis of booking date and Pincode
+     * 
+     * @param String $vendor_id
+     * @param String $from_date
+     * @param String $to_date
+     * @return Array
+     */
+    function upcountry_cash_invoice($vendor_id, $from_date, $to_date){
+        $sql = "SELECT DISTINCT ( bd.booking_id)"
+                . " upcountry_distance, "
+                . " assigned_vendor_id, "
+                . " round((customer_paid_upcountry_charges * ".basic_percentage." ),2) AS upcountry_price,"
+                . " COUNT(DISTINCT(bd.booking_id)) AS count_booking "
+                . " FROM `booking_details` AS bd, booking_unit_details AS ud "
+                . " WHERE ud.booking_id = bd.booking_id "
+                . " AND bd.assigned_vendor_id = '$vendor_id' "
+                . " AND ud.ud_closed_date >= '$from_date' "
+                . " AND ud.ud_closed_date < '$to_date' "
+                . " AND pay_to_sf = '1' "
+                . " AND sub_vendor_id IS NOT NULL "
+                . " AND bd.is_upcountry = '1' "
+                . " AND current_status = 'Completed' "
+                . " AND bd.upcountry_paid_by_customer = 1 ";
+        
+        $query = $this->db->query($sql);
+        return $query->result_array();
+        
+    }
+            
     function upcountry_service_center_3_month_price($vendor_id){
          for ($i = 0; $i < 3; $i++) {
             if ($i == 0) {
                 $where = " AND `ud_closed_date` >=  '" . date('Y-m-01') . "'";
+                $select = " date('Y-m-01')  as month, ";
             } else if ($i == 1) {
                 $where = "  AND  ud_closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
 			    AND ud_closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
+                $select =" DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') as month, ";
             } else if ($i == 2) {
                 $where = "  AND  ud_closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
 			    AND ud_closed_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')";
+                $select = "DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01') as month, ";
             }
 
-            $sql = "SELECT CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking, ud_closed_date, "
+            $sql = "SELECT CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking, ud_closed_date, $select "
                  
                     . " round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) AS upcountry_distance,"
-                    . " (CASE WHEN (service_tax_no IS NULL) THEN (round((upcountry_rate * round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) )/1.15,2)) ELSE "
-                    . " (round((upcountry_rate * round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) ),2)) END ) AS upcountry_price,"
+                    . " CASE WHEN (upcountry_paid_by_customer = 0 OR upcountry_paid_by_customer IS NULL) "
+                    . " THEN ((round((sf_upcountry_rate * round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) ),2)) ) "
+                    . " ELSE (customer_paid_upcountry_charges * 0.7) END As upcountry_price,"
                     . " COUNT(DISTINCT(bd.booking_id)) AS count_booking, "
-                    . " (CASE WHEN (service_tax_no IS NULL) THEN (round((upcountry_rate)/1.15,2)) ELSE "
-                    . " (round((upcountry_rate ),2)) END ) AS upcountry_rate"
-                    . " FROM `booking_details` AS bd, booking_unit_details AS ud, service_centres AS s "
+                    . " round((sf_upcountry_rate ),2) AS sf_upcountry_rate"
+                    . " FROM `booking_details` AS bd, booking_unit_details AS ud "
                     . " WHERE  ud.booking_id = bd.booking_id "
                     . " AND bd.is_upcountry = '1' "
-                    . " AND s.id = assigned_vendor_id "
                     . " AND bd.assigned_vendor_id = '$vendor_id' "
-                    . " AND ud.around_to_vendor >0 "
-                    . " AND ud.vendor_to_around =0  "
                     . " AND sub_vendor_id IS NOT NULL "
-                    . " AND current_status = 'Completed' $where "
-                    . " GROUP BY bd.booking_date, bd.booking_pincode ";
+                    . " AND bd.current_status IN ('Completed', 'Pending', 'Rescheduled') $where "
+                    . " GROUP BY "
+                    . " CASE WHEN (upcountry_paid_by_customer = 0 OR upcountry_paid_by_customer IS NULL) THEN ( bd.booking_date AND bd.booking_pincode ) "
+                    . " ELSE (bd.booking_id) END ";
 
             $query = $this->db->query($sql);
 
@@ -321,7 +441,7 @@ class Upcountry_model extends CI_Model {
      * @param String $booking_id
      * @return boolean
      */
-    function upcountry_booking_list($service_center_id, $booking_id){
+    function upcountry_booking_list($service_center_id, $booking_id, $sf_upcountry_rate, $is_paid){
         $where = "";
         $having ="";
         if(!empty($service_center_id)){
@@ -331,20 +451,29 @@ class Upcountry_model extends CI_Model {
         if(!empty($booking_id)){
             $having = " HAVING booking LIKE '%$booking_id%' ";
         }
+        if($sf_upcountry_rate){
+            $upcountry_rate = " sf_upcountry_rate ";
+        } else {
+            $upcountry_rate = " partner_upcountry_rate ";
+        }
+        if($is_paid == 1){
+            $group = "AND booking_id = '$booking_id'";
+            
+        } else {
+            $group = "AND upcountry_paid_by_customer = 0 GROUP BY bd.booking_date, bd.booking_pincode $having";
+        }
          $sql = "SELECT CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking, "
                  
                 . " round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) AS upcountry_distance,"
-                . " (CASE WHEN (service_tax_no IS NULL) THEN (round((upcountry_rate * round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) )/1.15,2)) ELSE "
-                . " (round((upcountry_rate * round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) ),2)) END ) AS upcountry_price,"
+                . " (round(($upcountry_rate * round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) ),2)) AS upcountry_price,"
                 . " COUNT(DISTINCT(bd.booking_id)) AS count_booking, "
-                . " (CASE WHEN (service_tax_no IS NULL) THEN (round((upcountry_rate)/1.15,2)) ELSE "
-                . " (round((upcountry_rate ),2)) END ) AS upcountry_rate"
+                . " $upcountry_rate"
                 . " FROM `booking_details` AS bd, service_centres AS s "
                 . " WHERE  bd.is_upcountry = '1' "
                 . " AND current_status IN ('Pending', 'Rescheduled','Completed') "
                 . " AND s.id = assigned_vendor_id  $where"
                 . " AND sub_vendor_id IS NOT NULL "
-                . " GROUP BY bd.booking_date, bd.booking_pincode $having ";
+                . " $group ";
 
         $query = $this->db->query($sql);
         if($query->num_rows > 0){
@@ -361,15 +490,19 @@ class Upcountry_model extends CI_Model {
      * @param String $pincode
      * @return Array
      */
-    function get_vendor_upcountry_city($sf_id, $pincode){
+    function get_vendor_upcountry($pincode, $service_id, $sf_id = false){
         $this->db->distinct();
-        $this->db->select('City');
+        $this->db->select('Vendor_ID,City,service_centres.is_upcountry');
         $this->db->from('vendor_pincode_mapping');
         $this->db->order_by('vendor_pincode_mapping.Pincode');
         $this->db->where('vendor_pincode_mapping.Pincode', $pincode);
-        $this->db->where('vendor_pincode_mapping.Vendor_ID', $sf_id);
-        $this->db->where('service_centres.is_upcountry', '1');
-         $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
+        if($sf_id){
+            $this->db->where('vendor_pincode_mapping.Vendor_ID', $sf_id);
+        }
+        $this->db->where('vendor_pincode_mapping.Appliance_ID', $service_id);
+        $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
+        $this->db->where('service_centres.active', "1");
+        $this->db->where('service_centres.on_off', "1");
         $query = $this->db->get();
        
         return $query->result_array();
@@ -393,5 +526,82 @@ class Upcountry_model extends CI_Model {
         $query= $this->db->get('booking_details');
         return $query->result_array();
     }
+    /**
+     * @desc Get distnace between pincodes from table
+     * @param type $pincode1
+     * @param type $pincode2
+     * @return type
+     */
+    function get_distance_between_pincodes($pincode1,$pincode2){
+        if($pincode1 >$pincode2){ $dp1 = $pincode1;$dp2 = $pincode2;} 
+        else { $dp1 = $pincode2;  $dp2 = $pincode1; }
+        $this->db->distinct();
+        $this->db->select('distance');
+        $this->db->where('pincode1', $dp1);
+        $this->db->where('pincode2', $dp2);
+        $query= $this->db->get('distance_between_pincode');
+        return $query->result_array();
+    }
+    function insert_distance($pincode1, $pincode2, $distance){
+       
+        if($pincode1 >$pincode2){ $dp1 = $pincode1;$dp2 = $pincode2;} 
+        else { $dp1 = $pincode2;  $dp2 = $pincode1; }
+        $this->db->insert('distance_between_pincode', array('pincode1'=> $dp1,'pincode2'=> $dp2,
+            'distance'=> $distance));
+    }
+    /**
+     * @desc: This method is used to know that partner provides upcountry for price tags of this booking
+     * @param String $booking_id
+     * @return Array|boolean
+     */
+    function is_upcountry_booking($booking_id){
+        $this->db->select('booking_id, is_upcountry');
+        $this->db->from('booking_unit_details AS ud');
+        $this->db->join('bookings_sources AS bs','ud.partner_id = bs.partner_id');
+        $this->db->join('service_centre_charges AS sc','bs.price_mapping_id = sc.partner_id '
+                . ' AND ud.price_tags = sc.service_category '
+                . ' AND ud.`appliance_category` = sc.category '
+                . ' AND ud.`appliance_capacity` = sc.capacity');
+        $this->db->where('booking_id', $booking_id);
+        $this->db->where('sc.is_upcountry', '1');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    /**
+     * @desc
+     * @param String $booking_id
+     * @return ARray
+     */
+    function get_upcountry_service_center_id_by_booking($booking_id){
+        $this->db->select('service_center_id, booking_primary_contact_no,user_id');
+        $this->db->from('booking_details');
+        $this->db->where('booking_id',$booking_id);
+        $this->db->join('sub_service_center_details','sub_service_center_details.id = booking_details.sub_vendor_id');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    /**
+     * @desc This method is used to return those upcountry bookings which are waiting to approve upcountry charges by Partner
+     * @param type $partner_id
+     * @return Array
+     */
+    function get_waiting_for_approval_upcountry_charges($partner_id){
+        
+        $this->db->select('bd.booking_id,request_type,name,booking_primary_contact_no,services,'
+                . ' appliance_brand,appliance_category, appliance_capacity, '
+                . ' booking_address,bd.city, bd.booking_pincode, bd.state, bd.upcountry_distance');
+        $this->db->from('booking_details As bd');
+        $this->db->where_in('current_status',array(_247AROUND_PENDING,_247AROUND_RESCHEDULED));
+        $this->db->where('upcountry_partner_approved','0');
+        $this->db->where('is_upcountry','1');
+        $this->db->where('bd.partner_id',$partner_id);
+        $this->db->join('booking_unit_details','bd.booking_id = booking_unit_details.booking_id');
+        $this->db->join('users','bd.user_id = users.user_id');
+        $this->db->join('services','bd.service_id = services.id');
+        $query = $this->db->get();
+        
+        return $query->result_array();
+    }
+    
     
 }

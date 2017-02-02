@@ -179,7 +179,7 @@
                         <tbody>
                             <tr class="text-center">
                                 <td><?php echo $upcountry_details[0]['booking'];?></td>
-                                <td><?php echo $upcountry_details[0]['upcountry_rate']." PER KM";?></td>
+                                <td><?php echo $upcountry_details[0]['partner_upcountry_rate']." PER KM";?></td>
                                  <td><?php echo $upcountry_details[0]['upcountry_distance']." KM";?></td>
                                 <td><i class="fa fa-inr" aria-hidden="true"></i> <?php echo $upcountry_details[0]['upcountry_price'];?></td>
                             </tr>
@@ -208,6 +208,7 @@
                             <th>Charges</th>
                             <th>Partner Offer</th>
                             <th>247Around Offer</th>
+                            <th>Upcountry Charges</th>
                             <th>Total Charges</th>
                             <?php } else { ?>
                             <th>Charges</th>
@@ -216,9 +217,11 @@
                             <th>Paid Service Charges</th>
                             <th>Paid Additional Charges</th>
                             <th>Paid Parts Cost</th>
+                            <th>Upcountry Charges</th>
                             <th>Total Amount Paid</th>
                            
                             <?php } ?>
+                            
                              <th>Booking Status</th>
                             
                         </tr>
@@ -238,7 +241,9 @@
                                 <td><?php  print_r($unit_detail['customer_total']); ?></td>
                                 <td><?php print_r($unit_detail['partner_net_payable']);  ?></td>
                                 <td><?php print_r($unit_detail['around_net_payable']);  ?></td>
-                                <td><?php print_r($unit_detail['customer_net_payable']);  ?></td>
+                                <td><?php if($booking_history[0]['upcountry_paid_by_customer'] == 0){ echo "0";} else { echo ($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate']);} ?></td>
+                                <td><?php if($booking_history[0]['upcountry_paid_by_customer'] == 0){ print_r($unit_detail['customer_net_payable']);
+                                } else { print_r($unit_detail['customer_net_payable'] + ($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate']));  } ?></td>
                                 <?php } else {   ?>
                                 <td><?php  print_r($unit_detail['price_tags']); ?></td>
                                  <td><?php  print_r($unit_detail['customer_total']); ?></td>
@@ -247,7 +252,16 @@
                                 <td><?php  print_r($unit_detail['customer_paid_basic_charges']); ?></td>
                                 <td><?php print_r($unit_detail['customer_paid_extra_charges']);  ?></td>
                                 <td><?php print_r($unit_detail['customer_paid_parts']);  ?></td>
-                                <td><?php print_r($unit_detail['customer_paid_basic_charges'] + $unit_detail['customer_paid_extra_charges'] + $unit_detail['customer_paid_parts'] );  ?></td>
+                                <td><?php if($booking_history[0]['upcountry_paid_by_customer'] == 0){ echo "0";} else { echo $booking_history[0]['customer_paid_upcountry_charges'];} ?></td>
+                                <td><?php if($booking_history[0]['upcountry_paid_by_customer'] == 0){ 
+                                    echo print_r($unit_detail['customer_paid_basic_charges'] 
+                                            + $unit_detail['customer_paid_extra_charges'] 
+                                            + $unit_detail['customer_paid_parts']);}
+                                            else { 
+                                                print_r($unit_detail['customer_paid_basic_charges'] + $unit_detail['customer_paid_extra_charges'] + $unit_detail['customer_paid_parts']+$booking_history[0]['customer_paid_upcountry_charges']);
+                                               
+                                                
+                                            }   ?></td>
                                 
                                 <?php }?>
                                 <td><?php print_r($unit_detail['booking_status']); ?></td>
@@ -408,7 +422,44 @@
                 </div>
                 <?php } ?>
             </div>
-            <div class="col-md-12"id="booking_history"></div>
+
+            <div class="col-md-12" id="penalty_on_booking">
+                <?php if (!empty($penalty)) { ?>
+                    <h1 style='font-size:24px;'>Penalty History</h1>
+
+                    <table  class="table table-striped table-bordered">
+                        <tr>
+                            <th class="jumbotron" style="text-align: center">S.N</th>
+                            <th class="jumbotron" style="text-align: center">Booking ID</th>
+                            <th class="jumbotron" style="text-align: center">Current State</th>
+                            <th class="jumbotron" style="text-align: center">Penalty Amount</th>
+                            <th class="jumbotron" style="text-align: center">Remarks</th>
+                            <th class="jumbotron" style="text-align: center">Agent</th>
+                            <th class="jumbotron" style="text-align: center">Date</th>
+                        </tr>
+                        <?php foreach ($penalty as $key => $row) { ?>
+                            <tr>
+                                <td><?php echo ($key + 1) . '.'; ?></td>
+                                <td><?php echo $row['booking_id']; ?></td>
+                                <td><?php echo $row['current_state']; ?></td>
+                                <td><?php echo $row['penalty_amount']; ?></td>
+                                <td><?php echo $row['remarks']; ?></td>
+                                <td><?php echo $row['agent_name']; ?></td>
+                                <td><?php
+                                    $old_date = $row['create_date'];
+                                    $old_date_timestamp = strtotime($old_date);
+                                    $new_date = date('j F, Y g:i A', $old_date_timestamp);
+                                    echo $new_date;
+                                    ?>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                    </table>
+
+
+                <?php } ?>
+            </div>
+            <div class="col-md-12"id="booking_history" style="margin-top:20px;"></div>
         </div>
     </div>
 </div>

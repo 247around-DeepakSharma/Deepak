@@ -1,6 +1,6 @@
 <div id="page-wrapper">
     <div class="container-fluid">
-        <h2><strong>Advance Search</strong><hr></h2>
+        <h2><strong>Advanced Search</strong><hr></h2>
         <div class="row">
             <div class="search_panel">
                 <div class="container" style="margin-left:90px;width:90%;">

@@ -93,8 +93,11 @@
                             </tr>
                             <?php $count++; }?>
                             <input type="hidden" name="count" id="count" value="<?php echo $count; ?>">
+                           
                         </table>
                         <center>
+                            <input type="hidden" name="agent_id" value="<?php echo  $this->session->userdata('id'); ?>" />
+                            <input type="hidden" name="agent_name" value="<?php echo  $this->session->userdata('employee_id'); ?>" />
                             <div id="loading">
                                 <input type="Submit" id="submit_button" value="Save" class="btn btn-primary btn-lg">
 <!--                                <input type="Reset" value="Cancel" class="btn btn-danger btn-lg">-->
@@ -107,30 +110,45 @@
     </div>
 <script>
    $(".js-example").select2();
-   $('#myForm').one('submit', function() {
-    $(this).find('input[type="submit"]').attr('disabled','disabled');
-});
+//   $('#myForm').one('submit', function() {
+//   
+//});
 </script>
 
 <script>
 function submitForm() {
-  var html = "<img src='<?php echo base_url(); ?>images/loader.gif' />";
-  $('#submit_button').hide();
-  $('#loading').append(html);
-           
-  var fd = new FormData(document.getElementById("myForm"));
-  fd.append("label", "WEBUPLOAD");
-  $.ajax({
-      url: "<?php echo base_url() ?>employee/vendor/process_assign_booking_form",
-      type: "POST",
-      data: fd,
-      processData: false,  // tell jQuery not to process the data
-      contentType: false   // tell jQuery not to set contentType
-  }).done(function( data ) {
-      alert(data);
-     location.reload();
-      
-  });
+   
+  var no_item =0;
+  $("select.js-example").each(function (i) {
+     if($(this).val() === null || $(this).val() ===""){
+         
+     }  else{
+         no_item = no_item+1;
+     }
+    });
+    if(no_item < 30){
+        $(this).find('input[type="submit"]').attr('disabled','disabled');
+        
+        var html = "<img src='<?php echo base_url(); ?>images/loader.gif' />";
+        $('#submit_button').hide();
+        $('#loading').append(html);
+        var fd = new FormData(document.getElementById("myForm"));
+        fd.append("label", "WEBUPLOAD");
+        $.ajax({
+            url: "<?php echo base_url() ?>employee/vendor/process_assign_booking_form",
+            type: "POST",
+            data: fd,
+            processData: false,  // tell jQuery not to process the data
+            contentType: false   // tell jQuery not to set contentType
+        }).done(function( data ) {
+            alert(data);
+           location.reload();
+
+        });
+  } else{
+     alert("Please Assign 30 Bookings");
+     return false;
+  }
 
   return false;
    

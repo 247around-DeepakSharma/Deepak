@@ -902,7 +902,7 @@ class invoices_model extends CI_Model {
 
         if (!empty($result)) {
             // Calculate Upcountry booking details
-            $upcountry_data = $this->upcountry_model->upcountry_in_invoice($vendor_id, $from_date, $to_date);
+            $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date);
 
             if(!empty($upcountry_data)){
                 $up_country = array();
@@ -912,7 +912,7 @@ class invoices_model extends CI_Model {
                $up_country[0]['p_part_cost'] =  '';
                $up_country[0]['s_service_charge'] = '';
                $up_country[0]['qty'] = '';
-               $up_country[0]['description'] = 'Upcountry Charge';
+               $up_country[0]['description'] = 'Transpotaion Charge';
                $up_country[0]['p_rate'] =  $upcountry_data[0]['upcountry_rate'];
                $up_country[0]['upcountry_distance'] = $upcountry_data[0]['total_distance'];
              

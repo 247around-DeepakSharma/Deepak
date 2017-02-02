@@ -76,6 +76,18 @@
                  <input type="search" class="form-control pull-right"  id="search" placeholder="search">
             </div>
             <div style="margin-left:10px;margine-right:5px;">
+                 <?php
+                if ($this->session->userdata('success')) {
+                    echo '<div class="alert alert-success alert-dismissible" role="alert" style="width: 60%;margin-left: 20%;margin-top: -49px;">
+
+                   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                       <span aria-hidden="true">&times;</span>
+                   </button>
+                   <strong>' . $this->session->userdata('success') . '</strong>
+               </div>';
+                }
+                ?>  
+
                 <h1 align="left"><?php  if(isset($status)){ echo $status." Bookings";} else { echo $Bookings[0]->current_status." Bookings"; $status =  $Bookings[0]->current_status; } ?></h1>
                 <table >
 
@@ -104,6 +116,7 @@
                     <?php if($status != "Cancelled" ){?>
                     <th width="60px;">Rate</th>
                     <?php } ?>
+                    <th width="160px;">Penalty</th>
                     </tr>
 
                     </thead>
@@ -134,7 +147,7 @@
 
                     <?php
                         echo "<a id='edit' class='btn btn-sm btn-success' "
-                            . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Cancel'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
+                            . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Edit'> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>";
                         ?>
                         
                     </td>
@@ -183,6 +196,41 @@
                         ?>
                     </td>
                     <?php } ?>
+                    <td>
+                        <?php
+                            // Case 0: When No Penalty has been Added for this Booking - Penalty can be Added in this case
+                        if ($row->penalty_active == '' ){
+                            echo "<a class='btn btn-sm col-md-4' style='background:#D81B60' "
+                            . "href=" . base_url() . "employee/vendor/get_escalate_booking_form/$row->booking_id/$status title='Add Penalty'> <i class='fa fa-plus-square' aria-hidden='true'></i></a>";
+                            
+                             echo "<a class='btn btn-sm  col-md-4' style='background:#FFEB3B;margin-left:10px;cursor:not-allowed;opacity:0.5;' "
+                            . "href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>";
+                            
+                        }else{
+                            
+                            // Case 1:Penalty to be Deducted - Penalty can be Removed Allowed in this case
+                            if($row->penalty_active == 1){
+                                echo "<a style='background:#D81B60;cursor:not-allowed;opacity:0.5;' class='btn btn-sm  col-md-4' "
+                            . "href='javascript:void(0)' title='Add Penalty'> <i class='fa fa-plus-square' aria-hidden='true'></i></a>";
+                            
+                             echo "<a  class='btn btn-sm col-md-4' style='background:#FFEB3B;margin-left:10px' onclick='return confirm_remove_penalty()' "
+                            . "href=" . base_url() . "employee/vendor/process_remove_penalty/$row->booking_id/$status title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>";
+                                
+                            }
+                            
+                            //Case 2: Penalty has been Removed - No Action Permitted 
+                            else if ($row->penalty_active == 0) {
+                                echo "<a style='background:#D81B60;cursor:not-allowed;opacity:0.5;'  class='btn btn-sm  col-md-4' "
+                            . "href='javascript:void(0)' title='Add Penalty'> <i class='fa fa-plus-square' aria-hidden='true'></i></a>";
+                            
+                             echo "<a  class='btn btn-sm col-md-4' style='background:#FFEB3B;margin-left:10px;cursor:not-allowed;opacity:0.5;' "
+                            . "href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>";
+                                
+                            }
+            
+                        }
+                        ?>
+                    </td>
 
                     </tr>
                     <?php
@@ -213,7 +261,15 @@
         $('table').filterTable({ // apply filterTable to all tables on this page
             inputSelector: '#input-filter' // use the existing input instead of creating a new one
         });
-    });
+        });
+    
+    function confirm_remove_penalty(){
+        var c = confirm('Confirm?');
+        if(!c){
+            return false;
+        }
+    }
+        
 </script>
 <style>
     /* generic table styling */
@@ -226,3 +282,4 @@
     /* special filter field styling for this example */
     .input-filter-container { position: absolute; top: 7em; right: 1em; border: 2px solid #66f; background-color: #eef; padding: 0.5em; }
 </style>
+<?php $this->session->unset_userdata('success'); ?>

@@ -119,16 +119,13 @@ class Upcountry extends CI_Controller {
     /**
      * @desc: Update previous booking  upcountry
      */
-    function update_previous_booking(){
-        $data = $this->upcountry_model->get_upcountry_service_center();
-        foreach ($data as $value) {
-            $booking_details = $this->upcountry_model->get_booking($value['id']);
+    function update_previous_booking($service_center_id){
+            echo ".....Entering........".PHP_EOL;
+            $booking_details = $this->upcountry_model->get_booking($service_center_id);
             foreach ($booking_details as $value1) {
+                echo $value1['booking_id'].PHP_EOL;
                 $this->upcountry_model->action_upcountry_booking($value1['booking_id']);
                 
             }
-            
-        }
-        
     }
 }

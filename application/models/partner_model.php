@@ -133,7 +133,7 @@ class Partner_model extends CI_Model {
     }
 
     function get_all_partner_source($flag="", $source= ""){
-      $this->db->select("partner_id,source,code,price_mapping_id, partner_type");
+      $this->db->select("bookings_sources.partner_id,source,code,price_mapping_id, partner_type");
         $this->db->order_by('source','ASC');
         if($flag ==""){
         $this->db->where('partner_id !=', 'NULL');
@@ -248,7 +248,8 @@ class Partner_model extends CI_Model {
 
             WHERE
             `booking_details`.booking_id NOT LIKE 'Q-%' $where AND
-            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled')"
+            (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled') 
+            AND booking_details.upcountry_partner_approved ='1'"
         );
           
           $temp = $query->result();
@@ -346,13 +347,15 @@ class Partner_model extends CI_Model {
      */
     function getPrices($service_id, $category, $capacity, $partner_id, $service_category,$brand ="") {
 	$this->db->distinct();
-	$this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod');
+	$this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry');
 	$this->db->where('service_id', $service_id);
 	$this->db->where('category', $category);
 	$this->db->where('active', 1);
 	$this->db->where('check_box', 1);
 	$this->db->where('partner_id', $partner_id);
-	$this->db->where('service_category', $service_category);
+        if($service_category !=""){
+	   $this->db->where('service_category', $service_category);
+        }
 
 	if (!empty($capacity)) {
 	    $this->db->where('capacity', $capacity);
@@ -365,7 +368,31 @@ class Partner_model extends CI_Model {
 
 	return $query->result_array();
     }
+    
+    function get_service_category($service_id, $category, $capacity, $partner_id, $service_category,$brand ="") {
+	$this->db->distinct();
+	$this->db->select('service_category');
+	$this->db->where('service_id', $service_id);
+	$this->db->where('category', $category);
+	$this->db->where('active', 1);
+	$this->db->where('check_box', 1);
+	$this->db->where('partner_id', $partner_id);
+        if($service_category !=""){
+	   $this->db->where('service_category', $service_category);
+        }
 
+	if (!empty($capacity)) {
+	    $this->db->where('capacity', $capacity);
+	}
+        if(!empty($brand)){
+            $this->db->where('brand', $brand);
+        }
+
+	$query = $this->db->get('service_centre_charges');
+
+	return $query->result_array();
+    }
+    
     //Return all leads shared by Partner in the last 30 days
     function get_partner_leads_for_summary_email($partner_id) {
 	$query = $this->db->query("SELECT DISTINCT BD.booking_id, order_id, booking_date, booking_timeslot,
@@ -660,14 +687,16 @@ class Partner_model extends CI_Model {
      * @param String $is_reporting_mail (O or 1)
      * @return Array
      */
-    function getpartner_details($where, $is_reporting_mail) {
+    function getpartner_details($select, $where, $is_reporting_mail="") {
 
-	$this->db->select('*');
+	$this->db->select($select);
 	$this->db->where($where);
+        $this->db->from('partners');
 	if ($is_reporting_mail != "") {
 	    $this->db->where_in('is_reporting_mail', $is_reporting_mail);
 	}
-	$query = $this->db->get('partners');
+        $this->db->join('bookings_sources','bookings_sources.partner_id = partners.id','right');
+	$query = $this->db->get();
 
 	return $query->result_array();
     }
@@ -727,7 +756,7 @@ class Partner_model extends CI_Model {
      * @return: Array
      */
     function get_partner_login_details($partner_id){
-        $this->db->select('id,user_name,password,clear_text');
+        $this->db->select('id,user_name,password,clear_text,email');
         $this->db->where('partner_id', $partner_id);
         $query = $this->db->get('partner_login');
         return $query->result_array();
@@ -943,7 +972,7 @@ class Partner_model extends CI_Model {
      * 
      */
     function get_partner_code($partner_id){
-        $this->db->select('partner_type, code');
+        $this->db->select('partner_type, code, price_mapping_id');
         $this->db->where('partner_id',$partner_id);
         $query = $this->db->get('bookings_sources');
         return $query->result_array();
@@ -1185,6 +1214,5 @@ class Partner_model extends CI_Model {
         $query = $this->db->get();
         return $query->result();
     }
-
 }
 

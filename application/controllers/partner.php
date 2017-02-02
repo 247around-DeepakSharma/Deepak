@@ -14,7 +14,7 @@ if (!defined('BASEPATH')){
  */
 define('SUCCESS_CODE', 247);
 define('SUCCESS_MSG', 'Success');
-
+define('ERR_BOOKING_NOT_INSERTED', -24700);
 define('ERR_GENERIC_ERROR_CODE', -1000);
 define('ERR_INVALID_AUTH_TOKEN_CODE', -1001);
 define('ERR_MOBILE_NUM_MISSING_CODE', -1002);
@@ -34,7 +34,7 @@ define('ERR_INVALID_PARTNER_NAME_CODE', -1015);
 define('ERR_INVALID_JSON_INPUT_CODE', -1016);
 define('ERR_INVALID_PRODUCT_TYPE_CODE', -1017);
 
-
+define('ERR_BOOKING_NOT_INSERTED_MSG', 'Booking insertion failed');
 define('ERR_GENERIC_ERROR_MSG', 'Unknown Error');
 define('ERR_INVALID_AUTH_TOKEN_MSG', 'Invalid Auth Token');
 define('ERR_MOBILE_NUM_MISSING_MSG', 'Mobile Number Missing');
@@ -73,12 +73,13 @@ class Partner extends CI_Controller {
         $this->load->model('booking_model');
         $this->load->model('vendor_model');
         $this->load->model('service_centers_model');
-
-
+        $this->load->library("miscelleneous");
         $this->load->library('email');
         $this->load->library('notify');
         $this->load->library('partner_utilities');
+        $this->load->library("asynchronous_lib");
         $this->load->library('booking_utilities');
+        $this->load->library('asynchronous_lib');
         $this->load->helper(array('form', 'url'));
     }
 
@@ -279,7 +280,7 @@ class Partner extends CI_Controller {
 
                         $booking['city'] = $requestData['city'];
 
-                        $state = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
+                       // $state = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
                         $booking['booking_pincode'] = $requestData['pincode'];
 			
                         $booking['booking_address'] = $requestData['address'] . ", " . (isset($requestData['landmark']) ? $requestData['landmark'] : "");
@@ -311,11 +312,13 @@ class Partner extends CI_Controller {
                         $appliance_details['last_service_date'] = date('Y-m-d');
                         $booking['potential_value'] = '';
 
-                        //echo print_r($booking, true) . "<br><br>";
-                        $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
-
-                        $this->booking_model->addunitdetails($unit_details);
-
+                        //check partner status from partner_booking_status_mapping table 
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$booking['partner_id'], $booking['booking_id']);
+                        if(!empty($partner_status)){
+                            $booking['partner_current_status'] = $partner_status[0];
+                            $booking['partner_internal_status'] = $partner_status[1];
+                        }
+                            
                         $booking['current_status'] = "FollowUp";
                         $booking['type'] = "Query";
                         $booking['booking_date'] = '';
@@ -324,20 +327,17 @@ class Partner extends CI_Controller {
                         $booking['amount_due'] = '';
                         $booking['booking_remarks'] = '';
                         $booking['state'] = $state['state'];
-                        
-                        
-                        //check partner status from partner_booking_status_mapping table 
-                            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$booking['partner_id'], $booking['booking_id']);
-                            if(!empty($partner_status)){
-                                $booking['partner_current_status'] = $partner_status[0];
-                                $booking['partner_internal_status'] = $partner_status[1];
-                            }
+                        $unit_details['booking_status'] = "FollowUp";
                         
                         //Insert query
                         //echo print_r($booking, true) . "<br><br>";
                         $this->booking_model->addbooking($booking);
                         
-                        
+                        //echo print_r($booking, true) . "<br><br>";
+                        $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
+
+                        $this->booking_model->addunitdetails($unit_details);
+
                         $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , $booking['query_remarks'], DEFAULT_PARTNER_AGENT, $requestData['partnerName'], $booking['partner_id']);
                            
                         
@@ -1432,12 +1432,12 @@ class Partner extends CI_Controller {
             $user['phone_number'] = $requestData['mobile'];
             $user['alternate_phone_number'] = (isset($requestData['alternate_phone_number']) ? $requestData['alternate_phone_number'] : "");
             $user['user_email'] = (isset($requestData['email']) ? $requestData['email'] : "");
-
-            isset($requestData['landmark']) ?
-                    ($address = $requestData['address'] . ", " . $requestData['landmark']) :
-                    ($address = $requestData['address']);
-
-            $user['home_address'] = $address;
+            if(isset($requestData['landmark']) && (!empty($requestData['landmark']))){
+                $user['home_address'] = $requestData['address'].", " . $requestData['landmark'];
+            } else {
+                 $user['home_address'] = $requestData['address'];
+            }
+           
             $user['pincode'] = $requestData['pincode'];
             $user['city'] = $requestData['city'];
                 
@@ -1471,36 +1471,7 @@ class Partner extends CI_Controller {
             $unit_details['appliance_brand'] = $appliance_details['brand'] =  $requestData['brand'];
             $appliance_details['model_number'] = $unit_details['model_number'] = (!empty($requestData['model']) ? $requestData['model'] : "");
 
-            log_message('info', 'Product type: ' . $requestData['product']);
-            $prod = trim($requestData['product']);
-
-            if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
-                $lead_details['Product'] = 'Washing Machine';
-            }
-            if (stristr($prod, "Television") || stristr($prod, "Monitor")) {
-                $lead_details['Product'] = 'Television';
-            }
-            if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
-                $lead_details['Product'] = 'Air Conditioner';
-            }
-            if (stristr($prod, "Refrigerator")) {
-                $lead_details['Product'] = 'Refrigerator';
-            }
-            if (stristr($prod, "Microwave")) {
-                $lead_details['Product'] = 'Microwave';
-            }
-            if (stristr($prod, "Purifier")) {
-                $lead_details['Product'] = 'Water Purifier';
-            }
-            if (stristr($prod, "Chimney")) {
-                $lead_details['Product'] = 'Chimney';
-            }
-            if (stristr($prod, "Geyser")) {
-                $lead_details['Product'] = 'Geyser';
-            }
-            log_message('info', 'Product type matched: ' . $lead_details['Product']);
-            
-            $booking['service_id'] = $this->booking_model->getServiceId($lead_details['Product']);
+            $booking['service_id'] = $requestData['service_id'];
 
             //Product description
             $unit_details['appliance_description'] = $appliance_details['description'] = $requestData['productType'];
@@ -1512,13 +1483,9 @@ class Partner extends CI_Controller {
 
             $booking['booking_primary_contact_no'] = $requestData['mobile'];
             $lead_details['booking_alternate_contact_no'] = (isset($requestData['alternate_phone_number']) ? $requestData['alternate_phone_number'] : "");
-
-           // $booking['booking_address'] = $requestData['address'];
             $booking['booking_landmark'] = $requestData['landmark'];
             $booking['booking_pincode'] = $requestData['pincode'];
             $booking['city'] = $requestData['city'];
-
-           // $booking['delivery_date'] = $this->getDateTime($requestData['deliveryDate']);
 
             $booking['request_type'] = $requestData['requestType'];
             $unit_details['price_tags'] = $requestData['requestType'];
@@ -1541,7 +1508,8 @@ class Partner extends CI_Controller {
 
             //Add partner code from sources table
             //All partners should have a valid partner code in the bookings_sources table
-            $booking['source'] = $this->partner_model->get_source_code_for_partner($this->partner['id']);
+            $partner_data = $this->partner_model->get_partner_code($this->partner['id']);
+            $booking['source'] = $partner_data[0]['code'];
             $booking['booking_id'] = $booking['source'] . "-" . $booking['booking_id'];
             $unit_details['booking_id'] = $booking['booking_id'];
             
@@ -1554,117 +1522,156 @@ class Partner extends CI_Controller {
 
             $booking['potential_value'] = '';
             $appliance_details['last_service_date'] = date('d-m-Y');
-
-
-            $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
-           
-            $booking['state'] = $state['state'];
-            //echo print_r($appliance_id, true) . "<br><br>";
-            //$return_unit_id = $this->booking_model->addunitdetails($unit_details);
-
-            $partner_id = $this->booking_model->get_price_mapping_partner_code("", $booking['partner_id']);
-
-            $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_id, $unit_details['price_tags']);
-
-            $unit_details['id'] =  $prices[0]['id'];
-            $unit_details['around_paid_basic_charges'] =  $unit_details['around_net_payable'] = "0.00";
-            $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
-            $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
-            $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state']);
-            // if (!$return_unit_id) {
-            //     log_message('info', __FUNCTION__ . ' Error Partner booking unit not inserted: ' . print_r($unit_details, true));
-            // }
-
             $booking['current_status'] = "Pending";
             $booking['internal_status'] = "Scheduled";
             $booking['type'] = "Booking";
             $booking['booking_date'] = $requestData['booking_date'];
             $booking['initial_booking_date'] = $requestData['booking_date'];
             $booking['booking_timeslot'] = '';
-            $booking['booking_address'] =$requestData['address'] . ", " . $requestData['landmark'] ;
-            $booking['amount_due'] = '';
+            $booking['booking_address'] = $user['home_address'];
+            
             $booking['booking_remarks'] = $requestData['remarks'];
             $booking['query_remarks'] = "";
             $booking['partner_source'] = $requestData['partner_source'];
             $booking['booking_timeslot'] = "4PM-7PM";
-            
-            //check partner status from partner_booking_status_mapping table  
-                $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$booking['partner_id'], $booking['booking_id']);
-                if(!empty($partner_status)){
-                    $booking['partner_current_status'] = $partner_status[0];
-                    $booking['partner_internal_status'] = $partner_status[1];
-                }
+            $booking['state'] = $state['state'];
 
-
-	    if (empty($state['state'])) {
-			    $to = "anuj@247around.com, nits@247around.com";
-			    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
-			    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
-			}
-
-			//Insert query
-            //echo print_r($booking, true) . "<br><br>";
-            $return_id = $this->booking_model->addbooking($booking);
-
-            if (!$return_id) {
-                log_message('info', __FUNCTION__ . ' Error Partner booking details not inserted: ' . print_r($booking, true));
+            $partner_mapping_id = $partner_data[0]['price_mapping_id'];
+            if($partner_data[0]['partner_type'] == OEM){
+                $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id, $unit_details['price_tags'], $unit_details['appliance_brand']);
+            } else {
+                $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id, $unit_details['price_tags']);
             }
-            $user_name = $requestData['name'];
-            $user_email =   $requestData['email'];
 
-            // Send mail
+            $unit_details['id'] =  $prices[0]['id'];
+            $unit_details['around_paid_basic_charges'] =  $unit_details['around_net_payable'] = "0.00";
+            $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
+            $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
+            $booking['amount_due'] = $prices[0]['customer_net_payable'];
+            $unit_details['booking_status'] = "Pending";
+            //check partner status from partner_booking_status_mapping table  
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$booking['partner_id'], $booking['booking_id']);
+            if(!empty($partner_status)){
+                $booking['partner_current_status'] = $partner_status[0];
+                $booking['partner_internal_status'] = $partner_status[1];
+            }
 
+            $partner_approval = 0;
+            $mail = 0;
+            $upcountry_data = array();
+            $up_mail_data = array();
+            $message1 = "";
+            if(isset($requestData['upcountry_data'])){
+                if(!empty($requestData['upcountry_data'])){
+                    $upcountry_data = json_decode($requestData['upcountry_data'], TRUE);
+                    if(!empty($upcountry_data)){
+                        $booking['is_upcountry'] = 1;
+                        $booking['upcountry_pincode'] = $upcountry_data['upcountry_pincode'];
+                        $booking['sub_vendor_id'] = $upcountry_data['sub_vendor_id'];
+                        $booking['upcountry_distance'] = $upcountry_data['upcountry_distance'];
+                        $booking['sf_upcountry_rate'] = $upcountry_data['sf_upcountry_rate'];
+                        $booking['partner_upcountry_rate'] = $upcountry_data['partner_upcountry_rate'];
+                        $partner_approval = $upcountry_data['partner_approval'];
+                        $booking['upcountry_paid_by_customer'] = $upcountry_data['upcountry_paid_by_customer'];
+                        if($booking['upcountry_paid_by_customer'] == 1){
+                            $booking['amount_due'] += ($booking['partner_upcountry_rate'] *$booking['upcountry_distance'] );
+                        }
+                        if($upcountry_data['partner_approval'] == '1'){
+                           
+                            $booking['internal_status'] = UPCOUNTRY_BOOKING_NEED_TO_APPROVAL;
+                        }
+                        if($upcountry_data['message'] == UPCOUNTRY_LIMIT_EXCEED){
+                            $mail = 1;
+                            $up_mail_data['name'] = $user['name'];
+                            $up_mail_data['appliance'] = $lead_details['Product'];
+                            $up_mail_data['booking_address'] = $booking['booking_address'];
+                            $up_mail_data['city'] = $booking['city'];
+                            $up_mail_data['state'] = $booking['state'];
+                            $up_mail_data['booking_pincode'] = $booking['booking_pincode'];
+                            $up_mail_data['booking_id'] = $booking['booking_id'];
+                            $up_mail_data['booking_primary_contact_no'] = $booking['booking_primary_contact_no'];
+                            $up_mail_data['price_tags'] = $unit_details['price_tags'];
+                            $up_mail_data['appliance_brand'] = $unit_details['appliance_brand'];
+                            $up_mail_data['appliance_category'] = $unit_details['appliance_category'];
+                            $up_mail_data['appliance_capacity'] = $unit_details['appliance_capacity'];
+                            $up_mail_data['upcountry_distance'] = $booking['upcountry_distance'];
+                            $booking['upcountry_partner_approved']= '0';
+                        }
+                    }
+                }
+            }
+            $return_id = $this->booking_model->addbooking($booking);
             if(!empty($return_id)){
-
-            $message = "Congratulations You have received new booking, details are mentioned below:
-      <br>Customer Name: " .  $user_name . "<br>Customer Phone Number: " . $booking['booking_primary_contact_no'] .
-                    "<br>Customer email address: " .  $user_email . "<br>Booking Id: " .
-                    $booking['booking_id'] . "<br>Service name:" . $lead_details['Product'] .
-                    "<br>Number of appliance: " . "1 " . "<br>Booking Date: " .
-                    $booking['booking_date'] . "<br>Booking Timeslot: " . $booking['booking_timeslot'] .
-                    "<br>Amount Due: " . $booking['amount_due'] . "<br>Your Booking Remark is: " .
-                    $booking['booking_remarks'] . "<br> Booking address: " . $booking['booking_address'] .
-                    " " . $booking['city'] . ", " . $booking['state'] . ", " .
-                    "<br>Booking pincode: " . $booking['booking_pincode'] . "<br><br>
-        Appliance Details:<br>";
-
-        $message .= "<br>Brand : " . $unit_details['appliance_brand'] . "<br>Category : " .
-                                $unit_details['appliance_category'] . "<br>Capacity : " . $unit_details['appliance_capacity'] .
-                                "<br>Selected service is: " . $unit_details['price_tags'] . "<br>";
-
-        /*
-            $to = "anuj@247around.com";
-            $from = "booking@247around.com";
-            $cc = "";
-            $bcc = "";
-            $subject = 'Booking Confirmation-AROUND';
-            $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, "");
-         * 
-         */
+            $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
+            $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state']);
+            
         
             //-------Sending SMS on booking--------//
-            $smsBody = "Got it! Request for " . trim($lead_details['Product']) . " Repair is confirmed for " .
-                    $booking['booking_date'] . ", " . $booking['booking_timeslot'] .
-                    ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 9555000247";
+            $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+            $send['booking_id'] = $booking['booking_id'];
+            $send['state'] = "Newbooking";
+            $this->asynchronous_lib->do_background_process($url, $send);
 
-
-            $this->notify->sendTransactionalSmsAcl($booking['booking_primary_contact_no'], $smsBody);
-            //For saving SMS to the database on sucess
-            
-            $this->notify->add_sms_sent_details($user_id, 'partner' , $booking['booking_primary_contact_no'],
-                    $smsBody, $booking['booking_id'], "partner_added_new_booking");
-            
 
             $this->notify->insert_state_change($booking['booking_id'], _247AROUND_PENDING , _247AROUND_NEW_BOOKING , 
                     $booking['booking_remarks'], $agent_id, $requestData['partnerName'], $booking['partner_id']);
+            
+            if (empty($state['state'])) {
+                    $to = NITS_ANUJ_EMAIL_ID;
+                    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
+                    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
+	    }
+            
+            if($partner_approval ==0 && isset($requestData['vendor_id'])){
+                
+                if(!empty($requestData['vendor_id'])){
+                     $assigned = $this->miscelleneous->assign_vendor_process($requestData['vendor_id'],$booking['booking_id']);
+                     if($assigned){
+                        $url = base_url() . "employee/do_background_process/assign_booking";
+                        $this->notify->insert_state_change($booking['booking_id'], ASSIGNED_VENDOR , _247AROUND_PENDING , 
+                            "Auto Assign vendor", $agent_id, $requestData['partnerName'], $booking['partner_id']);
+                        $async_data['booking_id'] = array($booking['booking_id']=> $requestData['vendor_id']);
+                        $this->asynchronous_lib->do_background_process($url, $async_data);
+                     } 
+                }
+  
             }
-
+            
+            if(isset($requestData['vendor_id'])){
+                if(empty($requestData['vendor_id']) && empty($upcountry_data) ){
+                   
+                    $message1 = "Upcountry did not calculate for ".$booking['booking_id'];
+                    $to = NITS_ANUJ_EMAIL_ID;
+                    $cc = "abhaya@247around.com";
+                    $this->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Failed Booking', $message1, "");
+                }
+            }
+            
+            if($mail ==1 && !empty($up_mail_data)){
+                
+                $subject = "Upcountry charges approval required - Booking ID ".$booking['booking_id'];
+                $to = $this->partner['upcountry_approval_email'];
+                $cc= NITS_ANUJ_EMAIL_ID;
+                $message = $this->load->view('employee/upcountry_approval_template', $up_mail_data, TRUE);
+                $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message, "");
+            }
+           
             //Send response
             $this->jsonResponseString['response'] = array(
-                "orderID" => $booking['order_id'],
-                "247aroundBookingID" => $booking['booking_id'],
-                "247aroundBookingStatus" => $booking['current_status']);
+                    "orderID" => $booking['order_id'],
+                    "247aroundBookingID" => $booking['booking_id'],
+                    "247aroundBookingStatus" => $booking['current_status']);
             $this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
+            } else {
+                log_message('info', __FUNCTION__ . ' Error Partner booking details not inserted: ' . print_r($booking, true));
+                 //Send response
+                $this->jsonResponseString['response'] = array(
+                    "orderID" => $booking['order_id'],
+                    "247aroundBookingID" => $booking['booking_id'],
+                    "247aroundBookingStatus" => $booking['current_status']);
+                $this->sendJsonResponse(array(ERR_BOOKING_NOT_INSERTED, ERR_BOOKING_NOT_INSERTED_MSG));
+            }
+
             } else {
             log_message('info', __METHOD__ . ":: Request validation fails. " . print_r($is_valid, true));
 
@@ -1714,7 +1721,7 @@ class Partner extends CI_Controller {
 
     //Mandatory Parameter Missing
     if (($flag === TRUE) &&
-        (($request['product'] == "") ||
+        (($request['service_id'] == "") ||
         ($request['brand'] == "") ||
         //($request['model'] == "") ||
         //($request['productType'] == "") ||
@@ -1745,18 +1752,6 @@ class Partner extends CI_Controller {
      */
 
     //Invalid Product
-    $valid_products = array("Washing Machines & Dryers", "Televisions", "Air Conditioner",
-        "Refrigerator", "Microwave Ovens & OTGs", "Water Purifiers", "Chimney & Hoods",
-        "Geyser");
-    if (($flag === TRUE) &&
-        (in_array($request['product'], $valid_products) == FALSE)) {
-        //Do not return error as of now, just log this.
-        log_message('info', $request['product'] . ': Invalid product type');
-
-        //$resultArr['code'] = ERR_INVALID_PRODUCT_CODE;
-        //$resultArr['msg'] = ERR_INVALID_PRODUCT_MSG;
-        //$flag = FALSE;
-    }
 
     //Check for Request type
     $valid_request_types = array("Installation", "Demo", "Installation and Demo", "Installation & Demo", "Repair - Out Of Warranty", "Repair - In Warranty");

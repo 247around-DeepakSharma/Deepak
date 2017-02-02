@@ -331,12 +331,21 @@
 		    <?php } ?>
 		    <div class="row">
 			<div class ="col-md-12">
+                             <div class="form-group col-md-offset-1">
+				<label for="type" class="col-sm-2">Paid Upcountry Charges</label>
+				<div class="col-md-4">
+				    <div class="input-group">
+					<div class="input-group-addon">Rs.</div>
+					<input  type="text" class="form-control cost"  name="upcountry_charges" id="upcountry_charges" value="<?php echo $upcountry_charges; ?>" placeholder="Total Price">
+				    </div>
+				</div>
+			    </div>
 			    <div class="form-group col-md-offset-1">
 				<label for="type" class="col-sm-2">Total Customer Paid</label>
 				<div class="col-md-4">
 				    <div class="input-group">
 					<div class="input-group-addon">Rs.</div>
-					<input  type="text" class="form-control"  name="grand_total_price" id="grand_total_price" value="<?php echo $paid_basic_charges + $paid_additional_charges + $paid_parts_cost; ?>" placeholder="Total Price" readonly>
+					<input  type="text" class="form-control"  name="grand_total_price" id="grand_total_price" value="<?php echo $paid_basic_charges + $paid_additional_charges + $paid_parts_cost +$upcountry_charges;; ?>" placeholder="Total Price" readonly>
 				    </div>
 				</div>
 			    </div>

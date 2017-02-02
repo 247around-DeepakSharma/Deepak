@@ -157,9 +157,9 @@ class Booking_model extends CI_Model {
              $add_limit = " LIMIT $start, $limit ";
         }
         if($booking_id != ""){
-            $where =  "  booking_id = '$booking_id' AND ";
+            $where =  "  `booking_details.booking_id` = '$booking_id' AND ";
         }
-        $query = $this->db->query("Select services.services,users.name as customername,
+        $query = $this->db->query("Select services.services,users.name as customername,penalty_on_booking.active as penalty_active,
             users.phone_number, booking_details.*, service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,
             service_centres.primary_contact_phone_1
@@ -167,12 +167,13 @@ class Booking_model extends CI_Model {
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-            WHERE `booking_id` NOT LIKE '%Q-%' AND $where
+            LEFT JOIN `penalty_on_booking` ON `booking_details`.`booking_id` = `penalty_on_booking`.`booking_id`
+            WHERE `booking_details`.booking_id NOT LIKE '%Q-%' AND $where
             (booking_details.current_status = '$status')
 	    ORDER BY closed_date DESC $add_limit "
         );
        $temp = $query->result();
-       usort($temp, array($this, 'date_compare_bookings'));
+       usort($temp, array($this, 'date_compare_bookings')); 
        return $temp;
     }
 
@@ -566,7 +567,7 @@ class Booking_model extends CI_Model {
     function getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand) {
 
         $this->db->distinct();
-        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod');
+        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry');
         $this->db->where('service_id',$service_id);
         $this->db->where('category', $category);
         $this->db->where('active', 1);
@@ -618,7 +619,7 @@ class Booking_model extends CI_Model {
                 . "where booking_details.user_id = users.user_id and "
                 . "services.id = booking_details.service_id and "
                 . "current_status IN ('Pending', 'Rescheduled') and "
-                . "assigned_vendor_id is NULL";
+                . "assigned_vendor_id is NULL AND upcountry_partner_approved = '1'";
         $query = $this->db->query($sql);
 
         $temp = $query->result_array();
@@ -637,7 +638,7 @@ class Booking_model extends CI_Model {
      */
     function set_mail_to_vendor($booking_id) {
         $this->db->query("UPDATE booking_details set mail_to_vendor= 1 where booking_id ='$booking_id'");
-        echo $this->db->last_query();
+        //echo $this->db->last_query();
     }
 
     /**
@@ -1392,13 +1393,13 @@ class Booking_model extends CI_Model {
      * @return: Array of email template
      */
     function get_booking_email_template($email_tag) {
-        $this->db->select("template, to, from,cc");
+        $this->db->select("template, to, from,cc, subject");
         $this->db->where('tag', $email_tag);
         $this->db->where('active', 1);
         $query = $this->db->get('email_template');
         if ($query->num_rows > 0) {
             $template = $query->result_array();
-            return array($template[0]['template'], $template[0]['to'], $template[0]['from'],$template[0]['cc']);
+            return array($template[0]['template'], $template[0]['to'], $template[0]['from'],$template[0]['cc'],$template[0]['subject']);
         } else {
             return "";
         }
@@ -1746,7 +1747,7 @@ class Booking_model extends CI_Model {
      */
     function get_city_booking_source_services($phone_number){
         $query1['services'] = $this->selectservice();
-        $query2['city'] = $this->vendor_model->getDistrict();
+        $query2['city'] = $this->vendor_model->getDistrict_from_india_pincode();
         $query3['sources'] = $this->partner_model->get_all_partner_source("0");
         $query4['user'] = $this->user_model->search_user($phone_number);
 
@@ -1760,7 +1761,7 @@ class Booking_model extends CI_Model {
      * @return : array()
      */
     function get_city_source(){
-        $query1['city'] = $this->vendor_model->getDistrict();
+        $query1['city'] = $this->vendor_model->getDistrict_from_india_pincode();
         $query2['sources'] = $this->partner_model->get_all_partner_source("0");
        
         return $query = array_merge($query1, $query2);
@@ -2219,6 +2220,17 @@ class Booking_model extends CI_Model {
         $query = $this->db->get('partner_booking_status_mapping');
         return $query->result_array();
         
+    }
+    /**
+     * @desc TThis is used to get those upcountry bookings who have waiting to approval (Two days old booking)
+     * @return type
+     */
+    function get_booking_to_cancel_not_approved_upcountry(){
+        $sql =" SELECT booking_id,partner_id FROM booking_details where "
+                . " DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > -2 "
+                . " AND current_status IN ('Pending', 'Rescheduled') AND is_upcountry = '1' AND upcountry_partner_approved = '0' ";
+        $query = $this->db->query($sql);
+        return $query->result_array();      
     }
     
 

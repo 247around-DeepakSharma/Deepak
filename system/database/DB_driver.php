@@ -1200,6 +1200,7 @@ class CI_DB_driver {
                   
         $CI =& get_instance();
         $CI->load->library('email');
+        $CI->load->library('session');
         $load_view = $error->show_error($heading, $message, 'error_db');
         $userdata = $CI->session->all_userdata();
         foreach($userdata as $key=>$value){

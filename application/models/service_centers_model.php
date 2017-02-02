@@ -40,31 +40,38 @@ class Service_centers_model extends CI_Model {
         if($booking_id !=""){
             $booking = " AND bd.booking_id = '".$booking_id."' ";
         } 
-        $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled')";
+        
         for($i =1; $i < 4;$i++ ){
             if($booking_id !=""){
                 if($i==2){
                 //Future Booking
                     $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) <=- -1) ";
                     $booking = " ";
+                    $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled') AND sc.current_status = 'Pending'";
                 } else if($i == 3){
                     // Rescheduled Booking
                     $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) < -1) ";
-                    $status = " AND bd.current_status='Rescheduled' ";
+                     $status = " AND (bd.current_status='Rescheduled' AND sc.current_status = 'Pending') OR "
+                            . " (bd.current_status IN ('Pending', 'Rescheduled') AND sc.current_status = 'InProcess' "
+                            . " AND sc.internal_status IN ('Engineer on route','".CUSTOMER_NOT_REACHABLE."') )";
                 } 
                 
             } else {
                 if($i ==1){
                 // Today Day
                 $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) >= 0) ";
+                $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled') AND sc.current_status = 'Pending'";
                 
                 } else if($i==2) {
                 //Tomorrow Booking
                 $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) = -1) ";
+                $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled') AND sc.current_status = 'Pending'";
                 } else if($i == 3){
                     // Rescheduled Booking
                     $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) < -1) ";
-                    $status = " AND bd.current_status='Rescheduled' ";
+                    $status = " AND (bd.current_status='Rescheduled' AND sc.current_status = 'Pending') OR "
+                            . " (bd.current_status IN ('Pending', 'Rescheduled') AND sc.current_status = 'InProcess' "
+                            . " AND sc.internal_status IN ('Engineer on route','".CUSTOMER_NOT_REACHABLE."') )";
                 }
                 
             }
@@ -82,6 +89,7 @@ class Service_centers_model extends CI_Model {
                 . " bd.request_type, "
                 . " bd.count_escalation, "
                 . " bd.is_upcountry, "
+                . " bd.upcountry_paid_by_customer, "
                 . " bd.booking_address, "
                 . " bd.booking_pincode, "
                 . " services," 
@@ -94,9 +102,16 @@ class Service_centers_model extends CI_Model {
                     ELSE '0'
                   END AS penalty, "
                     
-                 . " CASE WHEN (bd.is_upcountry = 1 AND sub_vendor_id IS NOT NULL) THEN (SELECT  CASE WHEN s.service_tax_no IS NULL THEN ( round(bd.upcountry_price/(count(b.id) * 1.15),2)) ELSE ( round(bd.upcountry_price/(count(b.id)),2)) END "
+                 . " CASE WHEN (bd.is_upcountry = 1 AND upcountry_paid_by_customer =0 AND bd.sub_vendor_id IS NOT NULL)  "
+                 . " THEN (SELECT  ( round((bd.upcountry_distance * bd.sf_upcountry_rate)/(count(b.id)),2)) "
                  . " FROM booking_details AS b WHERE b.booking_pincode = bd.booking_pincode "
-                 . " AND b.booking_date = bd.booking_date AND is_upcountry =1  AND b.current_status IN ('Pending','Rescheduled') ) "
+                 . " AND b.booking_date = bd.booking_date AND is_upcountry =1 "
+                 . " AND b.sub_vendor_id IS NOT NULL "
+                 . " AND b.upcountry_paid_by_customer = 0 "
+                 . " AND bd.current_status IN ('Pending','Rescheduled', 'Completed')  "
+                 . " AND b.assigned_vendor_id = '$service_center_id' ) "
+                 . " WHEN (bd.is_upcountry = 1 AND upcountry_paid_by_customer = 1 AND bd.sub_vendor_id IS NOT NULL ) "
+                 . " THEN (bd.upcountry_distance * bd.sf_upcountry_rate) "
                  . " ELSE 0 END AS upcountry_price, "
                     
                 . " CASE WHEN (s.tin_no IS NOT NULL 
@@ -124,6 +139,7 @@ class Service_centers_model extends CI_Model {
                 . " FROM service_center_booking_action as sc, booking_details as bd, users, services, service_centres AS s, engineer_details "
                 . " WHERE sc.service_center_id = '$service_center_id' "
                 . " AND bd.assigned_vendor_id = '$service_center_id' "
+               
                 . " AND bd.booking_id =  sc.booking_id "
                 . " AND bd.user_id = users.user_id "
                 . " AND s.id = bd.assigned_vendor_id "
@@ -204,7 +220,7 @@ class Service_centers_model extends CI_Model {
 
         foreach ($booking as $key => $value) {
             // get data from booking unit details table on the basis of appliance id
-            $this->db->select('unit_details_id, service_charge, additional_service_charge,  parts_cost, '
+            $this->db->select('unit_details_id, service_charge, additional_service_charge,  parts_cost, upcountry_charges,'
                     . ' amount_paid, price_tags,appliance_brand, appliance_category,'
                     . ' appliance_capacity, service_center_booking_action.internal_status, '
                     . ' service_center_booking_action.serial_number, customer_net_payable');
@@ -225,13 +241,13 @@ class Service_centers_model extends CI_Model {
     function update_service_centers_action_table($booking_id, $data) {
         $this->db->where('booking_id', $booking_id);
         $this->db->update('service_center_booking_action', $data);
-        log_message('info', __FUNCTION__ . '=> Update Spare Parts: ' .$this->db->last_query());
+        log_message('info', __FUNCTION__ . '=> Update sc table: ' .$this->db->last_query());
     }
 
     function delete_booking_id($booking_id) {
         $this->db->where('booking_id', $booking_id);
         $this->db->delete('service_center_booking_action');
-        log_message('info', __FUNCTION__ . '=> Update Spare Parts: ' .$this->db->last_query());
+        log_message('info', __FUNCTION__ . '=> Delete booking id in sc table: ' .$this->db->last_query());
         return TRUE;
     }
 
@@ -369,16 +385,19 @@ class Service_centers_model extends CI_Model {
         for($i =0; $i<3; $i++){
             if($i ==0){
                 $where = " AND `ud_closed_date` >=  '".date('Y-m-01')."'";
+                $select = "date('Y-m-01') As month,";
             } else if($i==1) {
                 $where = "  AND  ud_closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
-			    AND ud_closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";         
+			    AND ud_closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  "; 
+                 $select = "DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') as month,";
             } else if($i ==2){
                 $where = "  AND  ud_closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
 			    AND ud_closed_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')";
+                 $select = "DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01') as month,";
             }
         $sql = "SELECT COUNT( DISTINCT (
                 bd.`id`
-                ) ) AS total_booking, 
+                ) ) AS total_booking, $select
                 SUM( vendor_basic_charges + vendor_st_or_vat_basic_charges 
                  + vendor_extra_charges + vendor_st_extra_charges 
                  + vendor_parts + vendor_st_parts ) AS earned
@@ -406,18 +425,21 @@ class Service_centers_model extends CI_Model {
         for($i =0; $i<3; $i++){
             if($i ==0){
                 $where = " AND `ud_closed_date` >=  '".date('Y-m-01')."'";
+                $select = " date('Y-m-01') As month,";
             } else if($i==1) {
                 $where = "  AND  ud_closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
 			    AND ud_closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
+                $select = " DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') as month,";
                 
             } else if($i==2){
                  $where = "  AND  ud_closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
 			    AND ud_closed_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')";
+                 $select = "DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01') as month,";
                 
             }
         $sql  = " SELECT COUNT( DISTINCT (
                 bd.`id`
-                ) ) AS cancel_booking, 
+                ) ) AS cancel_booking, $select
                 SUM( vendor_basic_charges + vendor_st_or_vat_basic_charges  ) AS lose_amount
                 FROM booking_unit_details AS ud, booking_details AS bd
                 WHERE bd.assigned_vendor_id = '$service_center_id'
@@ -461,7 +483,19 @@ class Service_centers_model extends CI_Model {
         $query = $this->db->get('service_centers_login');
         return $query->result_array();
     }
-
     
+    function get_service_center_action_details($select, $where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get('service_center_booking_action');
+        return $query->result_array();
+    }
+    
+    function delete_sc_unit_details($where){
+        $this->db->where($where);
+        $this->db->delete('service_center_booking_action');
+        log_message('info', __FUNCTION__ . '=> Delete sc unit details: ' .$this->db->last_query());
+    }
+
 
 }
