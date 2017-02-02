@@ -1252,6 +1252,7 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('courier_name_by_sf', 'Courier Name', 'trim|required');
         $this->form_validation->set_rules('awb_by_sf', 'AWB', 'trim|required');
         $this->form_validation->set_rules('defective_part_shipped_date', 'AWB', 'trim|required');
+        $this->form_validation->set_rules('courier_charges_by_sf', 'Courier Charges', 'trim|required');
 
         if ($this->form_validation->run() == FALSE) {
              log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Service center '. $this->session->userdata('service_center_name').
@@ -1264,9 +1265,9 @@ class Service_centers extends CI_Controller {
             $data['courier_name_by_sf'] = $this->input->post('courier_name_by_sf');
             $data['defective_part_shipped_date'] = $this->input->post('defective_part_shipped_date');
             $data['awb_by_sf'] = $this->input->post('awb_by_sf');
+            $data['courier_charges_by_sf'] = $this->input->post('courier_charges_by_sf');
             $data['status'] = DEFECTIVE_PARTS_SHIPPED;
             $where  = array('booking_id'=> $booking_id, 'service_center_id'=> $service_center_id);
-            
             $response = $this->service_centers_model->update_spare_parts($where, $data);
             if($response){
                 
@@ -1408,6 +1409,7 @@ class Service_centers extends CI_Controller {
         $data['19_24_shipped'] = $this->input->post('19_24_shipped');
         $data['26_32_shipped'] = $this->input->post('26_32_shipped');
         $data['36_42_shipped'] = $this->input->post('36_42_shipped');
+        $data['43_shipped'] = $this->input->post('43_shipped');
         $data['total_shipped'] = $this->input->post('total_shipped');
         $data['shipment_date'] = !empty($this->input->post('shipment_date'))?$this->input->post('shipment_date'):date('Y-m-d H:i:s');
         $data['is_shipped'] = 1;

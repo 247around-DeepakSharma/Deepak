@@ -123,6 +123,8 @@ define('_247AROUND_BRACKETS_19_24_UNIT_PRICE',120);
 define('_247AROUND_BRACKETS_26_32_UNIT_PRICE',170);
 //constant to define 247around brackets charge for 36-42 inch
 define('_247AROUND_BRACKETS_36_42_UNIT_PRICE',280);
+//constant to define 247around brackets charge for greater than 43 inch
+define('_247AROUND_BRACKETS_43_UNIT_PRICE',200);
 //constant to define State for making Vendor Activate
 define('_247AROUND_VENDOR_ACTIVATED','Vendor_Activated');
 //constant to define State for making Vendor De-activate

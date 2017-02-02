@@ -1235,7 +1235,7 @@ class Api extends CI_Controller {
             
             //Check if call has been made from APP
             $check_app = $this->user_model->get_user_device_id_by_phone($num);
-            if(empty($check_app[0]['device_id'])){
+            if(empty($check_app[0])){
             
                 //find all pending queries for this user now
                 $bookings = $this->user_model->booking_history($num, 100, 0);

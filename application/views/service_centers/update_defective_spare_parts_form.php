@@ -88,18 +88,27 @@
                                 </div>  
                             </div>
                             
-                        </div>
-                        <div class="col-md-6">
-                             <div class="form-group ">
+                            <div class="form-group ">
                                <label for="awb" class="col-md-4">AWB</label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control" id="awb_by_sf" name="awb_by_sf" value = "" placeholder="Please Enter AWB"  required>
                                 </div>  
                             </div>
+                            
+                        </div>
+                        <div class="col-md-6">
+                            
+                            <div class="form-group ">
+                               <label for="courier_charges_by_sf" class="col-md-4">Courier Charges</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" id="courier_charges_by_sf" name="courier_charges_by_sf" value = "" placeholder="Please Enter Courier Charges"  required>
+                                </div>  
+                            </div>
+                            
                              <div class="form-group ">
                                <label for="courier" class="col-md-4">Courier Name</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" id="courier_name_by_sf" name="courier_name_by_sf" value = "" placeholder="Please Enter courier Name"  required>
+                                    <input type="text" class="form-control" id="courier_name_by_sf" name="courier_name_by_sf" value = "" placeholder="Please Enter Courier Name"  required>
                                 </div>  
                             </div>
                              <div class="form-group ">
@@ -162,14 +171,16 @@
                 remarks_defective_part: "required",
                 courier_name_by_sf:"required",
                 awb_by_sf: "required",
-                defective_part_shipped_date: "required"
+                defective_part_shipped_date: "required",
+                courier_charges_by_sf: "customNumber"
                 },
                 messages: {
                 defective_part_shipped: "Please Enter Shipped Parts",
                 remarks_defective_part: "Please Enter Remarks",
                 courier_name_by_sf: "Please Courier Name",
                 awb_by_sf: "Please Enter Valid AWB",
-                defective_part_shipped_date:"Please Select Shipped Date"
+                defective_part_shipped_date:"Please Select Shipped Date",
+                courier_charges_by_sf: "Please Enter Valid Courier Charges"
               
                 },
                 submitHandler: function (form) {
@@ -178,6 +189,10 @@
             });
             }
         };
+        $.validator.addMethod('customNumber', function (value, element) {
+        return this.optional(element) || /^[\d.]+$/.test(value);
+    }, "Please Enter Valid Courier Charges");
+
 
     //when the dom has loaded setup form validation rules
     $(D).ready(function ($) {

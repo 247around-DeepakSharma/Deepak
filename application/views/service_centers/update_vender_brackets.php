@@ -53,6 +53,7 @@
                             <th>19 to 24 inch</th>
                             <th>26 to 32 inch</th>
                             <th>36 to 42 inch</th>
+                            <th>&gt; 43 inch</th>
                             <th>Total</th>
                             <th>Shipment Date</th>
                             <th>File Uploads*</th>
@@ -75,6 +76,9 @@
                                     <input type='text' name='36_42_requested' id ="36_42_requested" value="<?php echo $value['36_42_requested'] ?>" class = "form-control" onchange="return add_requested_value()" <?php echo isset($requested_flag) ? '' : 'disabled="true"'; ?>/>
                                 </td>
                                 <td>
+                                    <input type='text' name='43_requested' id ="43_requested" value="<?php echo $value['43_requested'] ?>" class = "form-control" onchange="return add_requested_value()" <?php echo isset($requested_flag) ? '' : 'disabled="true"'; ?>/>
+                                </td>
+                                <td>
                                     <input type='text' name='total_requested' id ="total_requested" value="<?php echo $value['total_requested'] ?>" class = "form-control" onchange="return add_requested_value()" <?php echo isset($requested_flag) ? '' : 'disabled="true"'; ?>/>
                                 </td>
                             </tr>
@@ -88,6 +92,9 @@
                                 </td>
                                 <td>
                                     <input type='text' name='36_42_shipped' id ="36_42_shipped" value="<?php echo $value['36_42_shipped'] ?>" class = "form-control" onchange="return add_value()" <?php echo isset($shipped_flag) ? '' : 'disabled="true"'; ?>/>
+                                </td>
+                                <td>
+                                    <input type='text' name='43_shipped' id ="43_shipped" value="<?php echo $value['43_shipped'] ?>" class = "form-control" onchange="return add_value()" <?php echo isset($shipped_flag) ? '' : 'disabled="true"'; ?>/>
                                 </td>
                                 <td>
                                     <input type='text' name='total_shipped' id ="total_shipped" value="<?php echo $value['total_shipped'] ?>" class = "form-control" onchange="return add_value()" readonly="" <?php echo isset($shipped_flag) ? '' : 'disabled="true"'; ?>/>
@@ -112,6 +119,9 @@
                                 </td>
                                 <td>
                                     <input type='text' name='36_42_received' id ="36_42_received" value="<?php echo $value['36_42_received'] ?>" class = "form-control" onchange="return add_received_value()" <?php echo isset($receiving_flag) ? '' : 'disabled="true"'; ?>/>
+                                </td>
+                                <td>
+                                    <input type='text' name='43_received' id ="43_received" value="<?php echo $value['43_received'] ?>" class = "form-control" onchange="return add_received_value()" <?php echo isset($receiving_flag) ? '' : 'disabled="true"'; ?>/>
                                 </td>
                                 <td>
                                     <input type='text' name='total_received' id ="total_received" value="<?php echo $value['total_received'] ?>" class = "form-control" readonly="" <?php echo isset($receiving_flag) ? '' : 'disabled="true"'; ?>/>
@@ -180,6 +190,7 @@ $this->session->unset_userdata('brackets_update_error');
         var _19_24 = 0;
         var _26_32 = 0;
         var _36_42 = 0;
+        var _43 = 0;
         var numbers = /^[0-9]+$/;
         
         $('#total_shipped').val('0');
@@ -213,8 +224,18 @@ $this->session->unset_userdata('brackets_update_error');
             }
 
         }
+        if ($('#43_shipped').val() == '') {
+            _43 = 0;
+        } else {
+            if ($('#43_shipped').val().match(numbers)) {
+                _43 = parseInt($('#43_shipped').val());
+            } else {
+                alert('Please add number in Greater than 43 inch');
+            }
 
-        $('#total_shipped').val(_19_24 + _26_32 + _36_42);
+        }
+
+        $('#total_shipped').val(_19_24 + _26_32 + _36_42 + _43);
     }
     
     function add_received_value(){
@@ -224,6 +245,7 @@ $this->session->unset_userdata('brackets_update_error');
         var _19_24_received = 0;
         var _26_32_shipped = 0;
         var _36_42_received = 0;
+        var _43_received = 0;
         var numbers = /^[0-9]+$/;
         $('#total_received').val('0');
         if ($('#19_24_received').val() == '') {
@@ -257,7 +279,18 @@ $this->session->unset_userdata('brackets_update_error');
 
         }
 
-        $('#total_received').val(_19_24_received + _26_32_shipped + _36_42_received);
+        if ($('#43_received').val() == '') {
+            _43_received = 0;
+        } else {
+            if ($('#43_received').val().match(numbers)) {
+                _43_received = parseInt($('#43_received').val());
+            } else {
+                alert('Please add number in Greater than 43 inch');
+            }
+
+        }
+
+        $('#total_received').val(_19_24_received + _26_32_shipped + _36_42_received+_43_received);
     }
     
     function validate_shipped(){
@@ -274,6 +307,11 @@ $this->session->unset_userdata('brackets_update_error');
             return false;
         }
         
+        if(parseInt($('#43_shipped').val()) > parseInt($('#43_requested').val())){
+            alert('Greater than 43 inch Shipped quantity must not be greater than Requested quantity');
+            return false;
+        }
+        
     }
     
     function validate_received(){
@@ -287,6 +325,10 @@ $this->session->unset_userdata('brackets_update_error');
         }
         if(parseInt($('#26_32_received').val()) > parseInt($('#26_32_shipped').val())){
             alert('26 to 32 inch Received quantity must not be greater than Shipped quantity');
+            return false;
+        }
+        if(parseInt($('#43_received').val()) > parseInt($('#43_shipped').val())){
+            alert('Greater than 43 inch Shipped quantity must not be greater than Requested quantity');
             return false;
         }
     }
@@ -327,6 +369,7 @@ $this->session->unset_userdata('brackets_update_error');
         var _19_24 = 0;
         var _26_32 = 0;
         var _36_42 = 0;
+        var _43 =0;
         var numbers = /^[0-9]+$/;
         
         $('#total_requested').val('0');
@@ -361,7 +404,18 @@ $this->session->unset_userdata('brackets_update_error');
 
         }
 
-        $('#total_requested').val(_19_24 + _26_32 + _36_42);
+        if ($('#43_requested').val() == '') {
+            _43 = 0;
+        } else {
+            if ($('#43_requested').val().match(numbers)) {
+                _43 = parseInt($('#43_requested').val());
+            } else {
+                alert('Please add number in Greater than 43 inch');
+            }
+
+        }
+
+        $('#total_requested').val(_19_24 + _26_32 + _36_42 + _43);
     }
     
 

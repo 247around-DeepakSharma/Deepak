@@ -11,6 +11,7 @@
                         <th>19 to 24 inch</th>
                         <th>26 to 32 inch</th>
                         <th>36 to 42 inch</th>
+                        <th>&gt;43 inch</th>
                         <th>Total</th>
                         <!--<th>Order Given To</th>-->
                     </tr>
@@ -71,6 +72,9 @@
                                 <input typt='text' name='_36_42[]' id = "_36_42_<?php echo $i ?>" disabled="" class = "form-control" onchange="return add_value(this.id)"/>
                             </td>
                             <td>
+                                <input typt='text' name='_43[]' id = "_43__<?php echo $i ?>" disabled="" class = "form-control" onchange="return add_value(this.id)"/>
+                            </td>
+                            <td>
                                 <input type='text' id = 'total_<?php echo $i ?>' name='total' value='0' disabled="" class = "form-control"/>
                             </td>
 <!--                            <td style="width:30%;">
@@ -111,6 +115,8 @@ $this->session->unset_userdata('brackets_error');
         var _19_24 = 0;
         var _26_32 = 0;
         var _36_42 = 0;
+        var _43 = 0;
+        
         var numbers = /^[0-9]+$/;
         if ($('#_19_24_' + id[3]).val() == '') {
             _19_24 = 0;
@@ -142,8 +148,18 @@ $this->session->unset_userdata('brackets_error');
             }
 
         }
+        if ($('#_43__' + id[3]).val() == '') {
+            _43 = 0;
+        } else {
+            if ($('#_43__' + id[3]).val().match(numbers)) {
+                _43 = parseInt($('#_43__' + id[3]).val());
+            } else {
+                alert('Please add number in 43 inch');
+            }
 
-        $('#total_' + id[3]).val(_19_24 + _26_32 + _36_42);
+        }
+
+        $('#total_' + id[3]).val(_19_24 + _26_32 + _36_42 + _43);
     }
 
     function validate(id) {
@@ -156,6 +172,8 @@ $this->session->unset_userdata('brackets_error');
             $("#_26_32_" + id).attr('disabled', false);
             $("#_36_42_" + id).attr('required', true);
             $("#_36_42_" + id).attr('disabled', false);
+            $("#_43__" + id).attr('required', true);
+            $("#_43__" + id).attr('disabled', false);
             $("#order_received_from_" + id).attr('required', true);
         } else {
             $("#order_received_from_" + id).attr('disabled', true);
@@ -166,6 +184,8 @@ $this->session->unset_userdata('brackets_error');
             $("#_26_32_" + id).attr('disabled', true);
             $("#_36_42_" + id).removeAttr('required');
             $("#_36_42_" + id).attr('disabled', true);
+            $("#_43__" + id).removeAttr('required');
+            $("#_43__" + id).attr('disabled', true);
         }
     }
 

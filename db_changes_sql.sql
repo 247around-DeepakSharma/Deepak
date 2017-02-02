@@ -1757,3 +1757,18 @@ INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_cur
 (18, 247001, 'FollowUp', 'FollowUp', 'PENDING', 'Pending'),
 (19, 247001, 'FollowUp', 'Missed_call_confirmed', 'SERVICE_SCHEDULED', 'Pending'),
 (20, 247001, 'Cancelled', 'Cancelled by Snapdeal', NULL, NULL);
+
+
+
+-- Sachin 1 Feb
+
+ALTER TABLE `spare_parts_details` ADD `courier_charges_by_sf` DECIMAL(10,2) NULL DEFAULT '0' AFTER `awb_by_sf`;
+
+ALTER TABLE `inventory` ADD `43_current_count` VARCHAR(256)  NOT NULL DEFAULT '0' AFTER `36_42_current_count`;
+
+ALTER TABLE `brackets` ADD `43_requested` INT(32) NOT NULL AFTER `36_42_requested`;
+
+ALTER TABLE `brackets` ADD `43_shipped` INT(32) NOT NULL AFTER `36_42_shipped`;
+
+ALTER TABLE `brackets` ADD `43_received` INT(32) NOT NULL AFTER `36_42_received`;
+
