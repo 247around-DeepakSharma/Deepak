@@ -272,19 +272,24 @@
                     </td>
                     <td>
                         <?php
-                        if ($row->current_status == 'Pending' || $row->current_status == 'Rescheduled')
-                        {
-                            echo "<a target='_blank' class='btn btn-sm btn-danger btn-sm' "
-                            . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
-                        } else if ($row->current_status == 'Review')
-                        {
-                            echo "<a target='_blank' class='btn btn-sm btn-danger btn-sm' "
-                            . "href=" . base_url() . "employee/booking/review_bookings/$row->booking_id title='Complete'><i class='fa fa-eye-slash' aria-hidden='true' ></i></a>";
-                        }
-                        else
-                        {
+                        if($row->assigned_vendor_id == ""){
                             echo "<a target='_blank' class='btn btn-sm btn-danger btn-sm disabled' "
+                                    . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
+                        }else{
+                            if ($row->current_status == 'Pending' || $row->current_status == 'Rescheduled')
+                            {
+                                echo "<a target='_blank' class='btn btn-sm btn-danger btn-sm' "
                                 . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
+                            } else if ($row->current_status == 'Review')
+                            {
+                                echo "<a target='_blank' class='btn btn-sm btn-danger btn-sm' "
+                                . "href=" . base_url() . "employee/booking/review_bookings/$row->booking_id title='Complete'><i class='fa fa-eye-slash' aria-hidden='true' ></i></a>";
+                            }
+                            else
+                            {
+                                echo "<a target='_blank' class='btn btn-sm btn-danger btn-sm disabled' "
+                                    . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
+                            }
                         }
                         ?>
                     </td>
