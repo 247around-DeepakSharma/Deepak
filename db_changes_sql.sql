@@ -1838,4 +1838,10 @@ ALTER TABLE `penalty_on_booking` ADD `active` INT(2) NOT NULL DEFAULT '1' COMMEN
 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'remove_penalty_on_booking', 'Penalty Removed on Booking ID : %s', '<br>Dear SF,<br> Penalty has been <b>Removed</b> from Booking ID : <strong>%s</strong> <br> <br><br> Regards,<br> 247around Team', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com', '', '1', '2016-09-26 18:30:00');
 
+--Belal 2 Feb
+
+UPDATE `sms_template` SET `template` = 'Give missed call after delivery for %s Installation %s. Installation Charges %s. Installation by 247around, Snapdeal Partner' WHERE `sms_template`.`tag` = 'sd_delivered_missed_call_initial';
+
+UPDATE `sms_template` SET `template` = 'Give missed call after delivery for %s Installation %s. Installation Charges %s. Installation by 247around, Snapdeal Partner' WHERE `sms_template`.`tag` = 'sd_shipped_missed_call_initial';
+
 

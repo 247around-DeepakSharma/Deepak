@@ -1235,88 +1235,8 @@ class Api extends CI_Controller {
             
             //Check if call has been made from APP
             $check_app = $this->user_model->get_user_device_id_by_phone($num);
-            if(empty($check_app[0])){
+            if(empty($check_app[0]['device_id'])){
             
-                //find all pending queries for this user now
-                $bookings = $this->user_model->booking_history($num, 100, 0);
-
-                //change internal status to show missed call activity if it is
-                //a pending query waiting for confirmation and user has given missed
-                //call to confirm the installation
-                if (count($bookings) > 0) {
-                    foreach ($bookings as $b) {
-                        if (($b['type'] === 'Query' && $b['current_status'] === 'FollowUp') ||
-                                $b['current_status'] === "Cancelled" && $b['type'] === 'Query') {
-                            $d = array('internal_status' => 'Missed_call_confirmed',
-                                'booking_date' => '', 'booking_timeslot' => '',
-                                'delivery_date' => date('Y-m-d H:i:s'),
-                                'current_status' => 'FollowUp',
-                                'query_remarks' => 'Missed call received, Convert to Booking NOW !!!');
-                            
-                            //check partner status from partner_booking_status_mapping table  
-                            $partner_status= $this->booking_model->get_partner_status($b['partner_id'],$d['current_status'],$d['internal_status']);
-                            if(!empty($partner_status[0]['partner_current_status']) && !empty($partner_status[0]['partner_internal_status'])){
-                                $d['partner_current_status'] = $partner_status[0]['partner_current_status'];
-                                $d['partner_internal_status'] = $partner_status[0]['partner_internal_status'];
-                            }else{
-                                $d['partner_current_status'] = 'PENDING';
-                                $d['partner_internal_status'] = 'Customer_Not_Available';
-                                $this->booking_utilities->send_mail_When_no_data_found($d['current_status'],$d['internal_status'],$b['booking_id'], $b['partner_id']);
-                            }
-                            
-                            $r = $this->booking_model->update_booking($b['booking_id'], $d);
-
-                            $this->send_missed_call_confirmation_sms($b);
-
-                            if ($r === FALSE) {
-                                log_message('info', __METHOD__ . '=> Booking confirmation '
-                                        . 'through missed call failed for ' . $b['booking_id']);
-
-                                //Send email
-                                $this->notify->sendEmail("booking@247around.com", "anuj@247around.com", "", "", "Query update Failed after Missed Call for Booking ID: " . $b['booking_id'], "", "");
-                            } else {
-                                log_message('info', __METHOD__ . '=> Booking confirmation '
-                                        . 'through missed call succeeded for ' . $b['booking_id']);
-                                $u = array('booking_status' => '');
-                                //Update unit details
-                                $this->booking_model->update_booking_unit_details($b['booking_id'], $u);
-                            }
-                        }
-//                    else if( $b['current_status'] === "Cancelled" && $b['type'] === 'Booking'){
-//                        $d = array('internal_status' => 'Missed_call_confirmed',
-//                            'booking_date' => '', 'booking_timeslot' => '',
-//                            'current_status' => 'FollowUp',
-//                            'delivery_date' => date('Y-m-d H:i:s'),
-//                            'booking_id' => 'Q-'.$b['booking_id'],
-//                            'assigned_vendor_id' => NULL,
-//                            'query_remarks' => 'Missed call received, Convert to Booking NOW !!!');
-//                        
-//                        $r = $this->booking_model->update_booking($b['booking_id'], $d);
-//                        
-//                        if ($r === FALSE) {
-//                            log_message('info', __METHOD__ . '=> Booking confirmation '
-//                                . 'through missed call failed for Cancelled Booking' . $b['booking_id']);
-//
-//                            //Send email
-//                            $this->notify->sendEmail("booking@247around.com", "anuj@247around.com", "", "", "Query update Failed after Missed Call for Cancelled Booking ID: " . $b['booking_id'], "", "");
-//                        } else {
-//                            log_message('info', __METHOD__ . '=> Booking confirmation '
-//                                . 'through missed call succeeded for Cancelled ' . $b['booking_id']);
-//                            
-//                            $u = array('booking_status'=> '',
-//                            'booking_id' => 'Q-'.$b['booking_id']);
-//                            //Update unit details
-//                            $this->booking_model->update_booking_unit_details($b['booking_id'], $u);
-//                        
-//                            $this->vendor_model->delete_previous_service_center_action($b['booking_id']);
-//                        
-//                            $this->send_missed_call_confirmation_sms($b);
-//
-//                        }
-//                        
-//                    }
-                    }
-                } else {
                     //Handling case when User is not being Found in DB, sending Installation and Request
                     // welcome SMS to the corresponding user and adding the details in Partner Missed Calls table as well
                     //1. Sending SMS to the user
@@ -1395,17 +1315,110 @@ class Api extends CI_Controller {
                             log_message('info', __FUNCTION__ . ' Error in adding Phone to partner_missed_calls details ' . $num);
                         }
                     }
-                }
             }else{
                 //No bookings found, send sms asking him to call from his registered mobile no.
                 //Do not send this SMS now as it will also go to customer downloading our APP
                 //Check whether this customer has downloaded App and then decide
                 //$this->send_missed_call_booking_not_found_sms($num);
                 
+                //Adding details in Log File
+                log_message('info', __FUNCTION__ . ' Missed call given by customer from 247AROUND App - Number: ' . $num);
+                
             }
+         
+        //Considering the case for Snapdeal Missed Calls
 	}
+        else if($callDetails['To'] == SNAPDEAL_MISSED_CALLED_NUMBER){
+            //Logging
+            log_message('info', __FUNCTION__ . ' Missed call given by Snapdeal customer - Number: ' . $num);
+            
+            //verify user phone no first
+	    $this->apis->verifyUserNumber($num);
+            
+            //find all pending queries for this user now
+            $bookings = $this->user_model->booking_history($num, 100, 0);
 
-	$this->output->set_header("HTTP/1.1 200 OK");
+            //change internal status to show missed call activity if it is
+            //a pending query waiting for confirmation and user has given missed
+            //call to confirm the installation
+            if (count($bookings) > 0) {
+                foreach ($bookings as $b) {
+                    if (($b['type'] === 'Query' && $b['current_status'] === 'FollowUp') ||
+                            $b['current_status'] === "Cancelled" && $b['type'] === 'Query') {
+                        $d = array('internal_status' => 'Missed_call_confirmed',
+                            'booking_date' => '', 'booking_timeslot' => '',
+                            'delivery_date' => date('Y-m-d H:i:s'),
+                            'current_status' => 'FollowUp',
+                            'query_remarks' => 'Missed call received, Convert to Booking NOW !!!');
+
+                        //check partner status from partner_booking_status_mapping table  
+                        $partner_status = $this->booking_model->get_partner_status($b['partner_id'], $d['current_status'], $d['internal_status']);
+                        if (!empty($partner_status[0]['partner_current_status']) && !empty($partner_status[0]['partner_internal_status'])) {
+                            $d['partner_current_status'] = $partner_status[0]['partner_current_status'];
+                            $d['partner_internal_status'] = $partner_status[0]['partner_internal_status'];
+                        } else {
+                            $d['partner_current_status'] = 'PENDING';
+                            $d['partner_internal_status'] = 'Customer_Not_Available';
+                            $this->booking_utilities->send_mail_When_no_data_found($d['current_status'], $d['internal_status'], $b['booking_id'], $b['partner_id']);
+                        }
+
+                        $r = $this->booking_model->update_booking($b['booking_id'], $d);
+
+                        $this->send_missed_call_confirmation_sms($b);
+
+                        if ($r === FALSE) {
+                            log_message('info', __METHOD__ . '=> Booking confirmation '
+                                    . 'through missed call failed for ' . $b['booking_id']);
+
+                            //Send email
+                            $this->notify->sendEmail("booking@247around.com", "anuj@247around.com", "", "", "Query update Failed after Missed Call for Booking ID: " . $b['booking_id'], "", "");
+                        } else {
+                            log_message('info', __METHOD__ . '=> Booking confirmation '
+                                    . 'through missed call succeeded for ' . $b['booking_id']);
+                            $u = array('booking_status' => '');
+                            //Update unit details
+                            $this->booking_model->update_booking_unit_details($b['booking_id'], $u);
+                        }
+                    }
+
+//                    else if( $b['current_status'] === "Cancelled" && $b['type'] === 'Booking'){
+//                        $d = array('internal_status' => 'Missed_call_confirmed',
+//                            'booking_date' => '', 'booking_timeslot' => '',
+//                            'current_status' => 'FollowUp',
+//                            'delivery_date' => date('Y-m-d H:i:s'),
+//                            'booking_id' => 'Q-'.$b['booking_id'],
+//                            'assigned_vendor_id' => NULL,
+//                            'query_remarks' => 'Missed call received, Convert to Booking NOW !!!');
+//                        
+//                        $r = $this->booking_model->update_booking($b['booking_id'], $d);
+//                        
+//                        if ($r === FALSE) {
+//                            log_message('info', __METHOD__ . '=> Booking confirmation '
+//                                . 'through missed call failed for Cancelled Booking' . $b['booking_id']);
+//
+//                            //Send email
+//                            $this->notify->sendEmail("booking@247around.com", "anuj@247around.com", "", "", "Query update Failed after Missed Call for Cancelled Booking ID: " . $b['booking_id'], "", "");
+//                        } else {
+//                            log_message('info', __METHOD__ . '=> Booking confirmation '
+//                                . 'through missed call succeeded for Cancelled ' . $b['booking_id']);
+//                            
+//                            $u = array('booking_status'=> '',
+//                            'booking_id' => 'Q-'.$b['booking_id']);
+//                            //Update unit details
+//                            $this->booking_model->update_booking_unit_details($b['booking_id'], $u);
+//                        
+//                            $this->vendor_model->delete_previous_service_center_action($b['booking_id']);
+//                        
+//                            $this->send_missed_call_confirmation_sms($b);
+//
+//                        }
+//                        
+//                    }
+                }
+            }
+        }
+
+        $this->output->set_header("HTTP/1.1 200 OK");
     }
 
     /**

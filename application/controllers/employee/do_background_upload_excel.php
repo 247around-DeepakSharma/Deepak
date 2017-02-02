@@ -1010,6 +1010,7 @@ class Do_background_upload_excel extends CI_Controller {
 
                 //ordering of smsData is important, it should be as per the %s in the SMS
                 $sms['smsData']['service'] = $appliance;
+                $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
                 $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
                 
                 break;
@@ -1019,6 +1020,7 @@ class Do_background_upload_excel extends CI_Controller {
 
                 //ordering of smsData is important, it should be as per the %s in the SMS
                 $sms['smsData']['service'] = $appliance;
+                $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
                 $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
 
                 break;
