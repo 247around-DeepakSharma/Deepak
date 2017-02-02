@@ -1542,7 +1542,7 @@ class Partner extends CI_Controller {
     /**
      * @desc: This is used to get those booking who has requested to spare parts by SF
      */
-    function get_spare_parts_booking($offset = 0){
+    function get_spare_parts_booking($offset = 0,$all = 0){
         log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
@@ -1552,8 +1552,12 @@ class Partner extends CI_Controller {
         $config['base_url'] = base_url() . 'partner/get_spare_parts_booking';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
         $config['total_rows'] = $total_rows[0]['total_rows'];
-
-        $config['per_page'] = 50;
+        
+        if($all == 1){
+            $config['per_page'] = count($total_rows);
+        }else{
+            $config['per_page'] = 50;
+        }
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
@@ -1863,7 +1867,7 @@ class Partner extends CI_Controller {
     /**
      * @desc: Pending Defective Parts list 
      */
-    function get_waiting_defective_parts($offset = 0){
+    function get_waiting_defective_parts($offset = 0,$all = 0){
         log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
@@ -1873,8 +1877,12 @@ class Partner extends CI_Controller {
         $config['base_url'] = base_url() . 'partner/get_waiting_defective_parts';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
         $config['total_rows'] = $total_rows[0]['total_rows'];
-
-        $config['per_page'] = 50;
+        
+        if($all == 1){
+            $config['per_page'] = count($total_rows);
+        }else{
+            $config['per_page'] = 50;
+        }
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
