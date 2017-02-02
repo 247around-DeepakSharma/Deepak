@@ -517,8 +517,8 @@ class Booking_utilities {
 
        $html .= '</tbody>
                          </table></div>
-                <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script> 
-                     <script src="'.  base_url().'js/dynamitable.jquery.min.js"></script>';
+                 <script src="'.  base_url().'js/dynamitable.jquery.min.js"></script>'
+               . '<script type="text/javascript">$("select").select2();</script>';
        $html .= '</body>
                    </html>';
 
