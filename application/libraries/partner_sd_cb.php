@@ -18,8 +18,8 @@ define('X_SELLER_AUTHZ_TOKEN', '2ed5c582-eaef-4e2e-9a2c-f2459271c8db');
 define('VENDOR_CODE', 'S9f330');
 
 
-define('ERR_ORDER_ID_NOT_FOUND_CODE', -1007);
-define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Not Found');
+//define('ERR_ORDER_ID_NOT_FOUND_CODE', -1007);
+//define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Not Found');
 
 /**
  * Partner Snapdeal Callback APIs for Status Updates

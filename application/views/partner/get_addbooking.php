@@ -28,6 +28,8 @@
                             <div class="col-md-4" >
                                 <div class="form-group col-md-12 <?php if( form_error('user_name') ) { echo 'has-error';} ?>">
                                     <label for="booking_primary_contact_no">Name *</label>
+                                    <input type="hidden" name="vendor_id" id="service_center_id" value="" />
+                                    <input type="hidden" name="upcountry_data" id="upcountry_data" value="" />
                                     <input type="text" class="form-control" id="name" name="user_name" value = "<?php if(isset($user[0]['name'])){ echo $user[0]['name']; } else { echo set_value('user_name'); }  ?>" <?php if(isset($user[0]['name'])){ echo "readonly"; }  ?> placeholder="Please Enter User Name">
                                     <?php echo form_error('user_name'); ?>
                                 </div>
@@ -55,16 +57,16 @@
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <div class="form-group col-md-12 <?php if( form_error('service_name') ) { echo 'has-error';} ?>">
+                                <div class="form-group col-md-12 <?php if( form_error('service_id') ) { echo 'has-error';} ?>">
                                     <label for="Appliance">Appliance * <span id="error_appliance" style="color: red;"></span></label>
-                                    <select type="text" class="form-control"  id="service_name" name="service_name"   required onchange="return get_brands(this.data-id)">
+                                    <select type="text" class="form-control"  id="service_name" name="service_id"   required onchange="return get_brands(), get_category(), get_capacity(), getservice_category()">
                                         <option selected disabled>Select Appliance</option>
                                         <?php foreach ($appliances as $values) { ?>
-                                        <option <?php if(count($appliances) ==1){echo "selected";} ?> data-id="<?php echo $values->id;?>" value=<?= $values->services; ?>>
+                                        <option <?php if(count($appliances) ==1){echo "selected";} ?> data-id="<?php echo $values->id;?>" value=<?= $values->id; ?>>
                                             <?php echo $values->services; }    ?>
                                         </option>
                                     </select>
-                                    <?php echo form_error('service_name'); ?>
+                                    <?php echo form_error('service_id'); ?>
                                     <span id="error_pincode" style="color: red;"></span>
                                 </div>
                             </div>
@@ -72,7 +74,7 @@
                                 <div class="form-group col-md-12 <?php if( form_error('appliance_brand') ) { echo 'has-error';} ?>">
                                     <label for="appliance_brand">Brand *  <span id="error_brand" style="color: red;"></label>
                                     <p style="color:grey;display:none" id="brand_loading">Loading ...</p>
-                                    <select type="text" class="form-control appliance_brand"    name="appliance_brand" id="appliance_brand_1" required onchange="return get_category(this.value)">
+                                    <select type="text" class="form-control appliance_brand"    name="appliance_brand" id="appliance_brand_1" required onchange="return get_category(), getservice_category()">
                                         <option selected disabled value="option1">Select Brand</option>
                                     </select>
                                     <?php echo form_error('appliance_brand'); ?>
@@ -82,7 +84,7 @@
                                 <div class="form-group col-md-12 <?php if( form_error('appliance_category') ) { echo 'has-error';} ?>">
                                     <label for="appliance_category">Category * <span id="error_category" style="color: red;"></label>
                                     <p style="color:grey;display:none" id="category_loading">Loading ...</p>
-                                    <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category"   required onchange="return get_capacity()">
+                                    <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category"   required onchange="return get_capacity(), getservice_category()">
                                         <option selected disabled value="option1">Select Appliance Category</option>
                                     </select>
                                     <?php echo form_error('appliance_category'); ?>
@@ -90,9 +92,9 @@
                             </div>
                             <div class="col-md-4 col-md-12">
                                 <div class="form-group col-md-12 <?php if( form_error('appliance_capacity') ) { echo 'has-error';} ?>">
-                                    <label for="appliance_capacity">Capacity *  <span id="error_capacity" style="color: red;"></label>
+                                    <label for="appliance_capacity">Capacity  <span id="error_capacity" style="color: red;"></label>
                                     <p style="color:grey;display:none" id="capacity_loading">Loading ...</p>
-                                    <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" onchange="return get_models(this.value)">
+                                    <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" onchange="return get_models(), getservice_category()">
                                         <option selected disabled value="option1">Select Appliance Capacity</option>
                                     </select>
                                     <?php echo form_error('appliance_capacity'); ?>
@@ -112,11 +114,12 @@
                             <div class="col-md-4 col-md-12">
                                 <div class="form-group col-md-12 <?php if( form_error('price_tag') ) { echo 'has-error';} ?>">
                                     <label for="price tag">Call Type *  <span id="error_call_type" style="color: red;"></label>
+                                     
                                     <select type="text" class="form-control price_tags" onchange="getPrice()"  id="price_tag" name="price_tag" required>
                                         <option selected disabled>Select Call Type</option>
-                                        <option <?php if(set_value('price_tag') == "Installation & Demo"){ echo "selected";} ?>>Installation & Demo</option>
-                                        <option <?php if(set_value('price_tag') == "Repair - In Warranty"){ echo "selected";} ?>>Repair - In Warranty</option>
-                                        <option <?php if(set_value('price_tag') == "Repair - Out Of Warranty"){ echo "selected";} ?>>Repair - Out Of Warranty</option>
+<!--                                        <option <?php //if(set_value('price_tag') == "Installation & Demo"){ echo "selected";} ?>>Installation & Demo</option>
+                                        <option <?php //if(set_value('price_tag') == "Repair - In Warranty"){ echo "selected";} ?>>Repair - In Warranty</option>
+                                        <option <?php// if(set_value('price_tag') == "Repair - Out Of Warranty"){ echo "selected";} ?>>Repair - Out Of Warranty</option>-->
                                     </select>
                                     <?php echo form_error('price_tag'); ?>
                                 </div>
@@ -130,7 +133,7 @@
                                 </div>
                             </div>
                             <div class="col-md-12" style="margin-top:15px;">
-                                <span style="font-size:20px;"><b>Customer Net Payable: </b> <b style="font-size:20px;" id="total_price">Rs.</b></span>
+                                <span style="font-size:20px;"><b>Customer Payable: </b><span style="margin-top:15px;"> <b style="font-size:20px;" id="total_price"><br/>Rs.</b></span></span>
                             </div>
                             <!-- end col-md-6 -->
                         </div>
@@ -158,7 +161,7 @@
                                     <input  type="text" class="form-control"  name="serial_number" id="serial_number" value = "<?php echo set_value('serial_number'); ?>" placeholder="Enter Serial Number" >
                                     <span id="error_serial_number" style="color:red"></span>
                                 </div>
-                            </div>
+                            </div> 
                             <div class="col-md-4 ">
                                 <div class="form-group col-md-12  <?php if( form_error('purchase_month') ) { echo 'has-error';} ?>">
                                     <label for="Date of Purchase">Date of Purchase</label>
@@ -166,26 +169,27 @@
                                         <div class="col-md-6">
                                             <select  type="text" class=" form-control "   name="purchase_month" id="purchase_month_1" >
                                                 <option selected="selected" value="">Month</option>
-                                                <option <?php if(set_value('purchase_month') == "Jan"){ echo "selected";} ?> >Jan</option>
-                                                <option <?php if(set_value('purchase_month') == "Feb"){ echo "selected";} ?>>Feb</option>
-                                                <option <?php if(set_value('purchase_month') == "Mar"){ echo "selected";} ?>>Mar</option>
-                                                <option <?php if(set_value('purchase_month') == "Apr"){ echo "selected";} ?>>Apr</option>
-                                                <option <?php if(set_value('purchase_month') == "May"){ echo "selected";} ?>>May</option>
-                                                <option <?php if(set_value('purchase_month') == "Jun"){ echo "selected";} ?>>Jun</option>
-                                                <option <?php if(set_value('purchase_month') == "July"){ echo "selected";} ?> >July</option>
-                                                <option <?php if(set_value('purchase_month') == "Aug"){ echo "selected";} ?>>Aug</option>
-                                                <option <?php if(set_value('purchase_month') == "Sept"){ echo "selected";} ?>>Sept</option>
-                                                <option <?php if(set_value('purchase_month') == "Oct"){ echo "selected";} ?>>Oct</option>
-                                                <option <?php if(set_value('purchase_month') == "Nov"){ echo "selected";} ?>>Nov</option>
-                                                <option <?php if(set_value('purchase_month') == "Dec"){ echo "selected";} ?>>Dec</option>
+                                                <option <?php if(set_value('purchase_month') == "Jan"){ echo "selected";} else if(date("M") == "Jan"){ echo "selected";} ?> >Jan</option>
+                                                <option <?php if(set_value('purchase_month') == "Feb"){ echo "selected";} else if(date("M") == "Feb"){ echo "selected";} ?>>Feb</option>
+                                                <option <?php if(set_value('purchase_month') == "Mar"){ echo "selected";} else if(date("M") == "Mar"){ echo "selected";} ?>>Mar</option>
+                                                <option <?php if(set_value('purchase_month') == "Apr"){ echo "selected";} else if(date("M") == "Apr"){ echo "selected";} ?>>Apr</option>
+                                                <option <?php if(set_value('purchase_month') == "May"){ echo "selected";} else if(date("M") == "May"){ echo "selected";} ?>>May</option>
+                                                <option <?php if(set_value('purchase_month') == "Jun"){ echo "selected";} else if(date("M") == "Jun"){ echo "selected";} ?>>Jun</option>
+                                                <option <?php if(set_value('purchase_month') == "July"){ echo "selected";} else if(date("M") == "July"){ echo "selected";} ?> >July</option>
+                                                <option <?php if(set_value('purchase_month') == "Aug"){ echo "selected";} else if(date("M") == "Aug"){ echo "selected";} ?>>Aug</option>
+                                                <option <?php if(set_value('purchase_month') == "Sept"){ echo "selected";} else if(date("M") == "Sept"){ echo "selected";} ?>>Sept</option>
+                                                <option <?php if(set_value('purchase_month') == "Oct"){ echo "selected";} else if(date("M") == "Oct"){ echo "selected";} ?>>Oct</option>
+                                                <option <?php if(set_value('purchase_month') == "Nov"){ echo "selected";} else if(date("M") == "Nov"){ echo "selected";} ?>>Nov</option>
+                                                <option <?php if(set_value('purchase_month') == "Dec"){ echo "selected";} else if(date("M") == "Dec"){ echo "selected";}?>>Dec</option>
                                             </select>
                                             <p><?php echo form_error('purchase_month'); ?></p>
-                                        </div>
+                                        </div> 
                                         <div class="col-md-6">
                                             <select  type="text" class="form-control "   name="purchase_year" id="purchase_year_1" >
                                                 <option selected="selected" value="" >Year</option>
                                                 <?php for($i = 0; $i> -26; $i--){ ?>
-                                                <option  <?php if(set_value('purchase_year') == date("Y",strtotime($i." year"))){ echo "selected";} ?> >
+                                                <option  <?php if(set_value('purchase_year') == date("Y",strtotime($i." year"))){ echo "selected";} 
+                                                  ?> >
                                                     <?php echo date("Y",strtotime($i." year")); ?>
                                                 </option>
                                                 <?php }  ?>
@@ -196,7 +200,7 @@
                             </div>
                             <div class="col-md-12">
                                  <div class="form-group col-md-12  <?php if( form_error('query_remarks') ) { echo 'has-error';} ?>">
-                                    <label for="landmark ">Problem Description </label>
+                                     <label for="landmark ">Remarks  <span id="error_remarks" style="color: red;"></label>
                                     <textarea class="form-control" rows="2" id="remarks" name="query_remarks"  placeholder="Enter Problem Description" ><?php echo set_value('query_remarks'); ?></textarea>
                                     <?php echo form_error('query_remarks'); ?>
                                 </div>
@@ -235,7 +239,7 @@
                             </div>
                             <div class="col-md-12 ">
                                 <div class="form-group col-md-12  <?php if( form_error('booking_address') ) { echo 'has-error';} ?>">
-                                    <label for="landmark ">Booking Address *  <span id="error_booking_address" style="color: red;"></label>
+                                    <label for="landmark ">Booking Address *  <span id="error_address" style="color: red;"></label>
                                     <textarea class="form-control" rows="2" id="booking_address" name="booking_address" placeholder="Please Enter Address"  required ><?php if(isset($user[0]['home_address'])){  echo $user[0]['home_address']; } else { echo set_value('booking_address'); } ?></textarea>
                                     <?php echo form_error('booking_address'); ?>
                                 </div>
@@ -265,11 +269,11 @@
         var pincode = $('#booking_pincode').val();
         var serial_number = $('#serial_number').val();
         var category = $('#appliance_category_1').val();
-        var capacity = $('#appliance_capacity_1').val();
         var remarks = $('#remarks').val();
         var call_type  =  $('#price_tag').val();
         var appliance = $("#service_name").val();
         var brand = $("#appliance_brand_1").val();
+        
          if(mobile_number === ""){
             display_message("booking_primary_contact_no","error_mobile_number","red","Please Enter Mobile");
              return false;
@@ -311,14 +315,7 @@
         } else {
               display_message("appliance_category_1","error_category","green","");
         }
-        
-        if(capacity === null){
-            display_message("appliance_capacity_1","error_capacity","red","Please Select Capacity");
-             return false;
-        } else {
-            display_message("appliance_capacity_1","error_capacity","green","");
-        }
-    
+
         if(call_type === null){
             display_message("price_tag","error_call_type","red","Please Select Call Type");
              return false;
@@ -347,7 +344,7 @@
         } else {
           display_message("booking_address","error_address","green","");
         }
-       
+      
         if(remarks === ""){
              document.getElementById('remarks').style.borderColor = "red";
               document.getElementById('error_remarks').innerHTML = "Please Enter Problem Description";
@@ -356,10 +353,7 @@
             document.getElementById('remarks').style.borderColor = "green";
             document.getElementById('error_remarks').innerHTML = "";  
         }
-        
-    
-        if( !confirm('Confirm Booking?') ) 
-            event.preventDefault();
+       
     }
     
     
@@ -399,6 +393,8 @@
     //This funciton is used to get Distinct Brands for selected service for Logged Partner
     function get_brands(){
         service_id =  $("#service_name").find(':selected').attr('data-id');
+        $("#total_price").html("<br/>Rs.");
+        
          $.ajax({
                         type: 'POST',
                         beforeSend: function(){
@@ -422,6 +418,8 @@
     
     function get_category(brand){
         service_id =  $("#service_name").find(':selected').attr('data-id');
+        brand =  $("#appliance_brand_1").val();
+        $("#total_price").html("<br/>Rs.");
         $.ajax({
                         type: 'POST',
                         beforeSend: function(){
@@ -448,7 +446,7 @@
         service_id =  $("#service_name").find(':selected').attr('data-id');
         brand = $("#appliance_brand_1").find(':selected').val();
         category = $("#appliance_category_1").find(':selected').val();
-       
+        $("#total_price").html("<br/>Rs.");
         $.ajax({
             type: 'POST',
             beforeSend: function(){
@@ -463,6 +461,7 @@
                     //First Resetting Options values present if any
                     $("#appliance_capacity_1 option[value !='option1']").remove();
                     $('#appliance_capacity_1').append(data['capacity']);
+                    get_models();
                 },
             complete: function(){
                 $('#capacity_loading').css("display", "none");
@@ -471,10 +470,15 @@
     }
     
     //This function is used to get Model for corresponding previous data's
-    function get_models(capacity){
+    function get_models(){
         service_id =  $("#service_name").find(':selected').attr('data-id');
         brand = $("#appliance_brand_1").find(':selected').val();
         category = $("#appliance_category_1").find(':selected').val();
+        capacity = $("#appliance_capacity_1").val();
+        if(capacity === null && capacity === ""){
+            capacity = '';
+        }
+        $("#total_price").html("<br/>Rs.");
         $.ajax({
                         type: 'POST',
                         url: '<?php echo base_url(); ?>employee/partner/get_model_for_partner',
@@ -502,34 +506,43 @@
         postData['service_id'] = $("#service_name").find(':selected').attr('data-id');
         postData['brand'] = $('#appliance_brand_1').val();
         postData['category'] = $("#appliance_category_1").val();
-        postData['capacity'] = $("#appliance_capacity_1").val();
+        capacity = $("#appliance_capacity_1").val();
+        if(capacity === null && capacity === ""){
+            postData['capacity'] = "";
+            
+        } else {
+            postData['capacity'] = capacity;
+        }
         postData['service_category'] = $("#price_tag").val();
-
+        postData['pincode'] = $("#booking_pincode").val();
+        postData['city'] = $("#booking_city").val();
+        $("#total_price").html("<br/>Rs.");
         if( postData['service_category'] !== null && postData['brand'] !== null 
-                && postData['category'] !== null && postData['capacity'] !== null){
+                && postData['category'] !== null && postData['pincode'].length === 6 && postData['city'] !== null){
            
-
             $.ajax({
                 type: 'POST',
                 beforeSend: function(){
                   $("#total_price").html("Loading......");
-                //  $('#submitform').attr('disabled',true);
-                 // $("#submitform").css("display","");
+                  $('#submitform').attr('disabled',true);
+                  
                 },
                 url: '<?php echo base_url(); ?>employee/partner/get_price_for_partner',
                 data: postData,
                 success: function (data) {
-
+                    
                      if(data === "ERROR"){
-                          $("#total_price").text("Price is not defined" );
+                         // $("#total_price").text("Price is not defined" );
+                          alert("This is out station booking, Do not allow to add this booking");
 
                      } else {
-                         var price = Number(data);
-                         if(price > 0){
-                            $("#total_price").html("Rs. "+ price+ "       <span style='color:red'> Paid for the Customer </span>");
-                         } else {
-                            $("#total_price").html("Rs. "+ price+ "       <span style='color:green'> Free for the Customer </span>");
-                         }
+                         
+                          var data1 = jQuery.parseJSON(data);
+                         
+                          $("#total_price").html(data1.price);
+                          $("#service_center_id").val(data1.vendor_id);
+                          $("#upcountry_data").val(data1.upcountry_data);
+                          $('#submitform').attr('disabled',false);
                      }
                 }
             });
@@ -537,6 +550,51 @@
        // $("#total_price").html("Please Enter Above Field");
          //  return false;
         }
+    
+    }
+    
+    function getservice_category() {
+    
+        var postData = {};       
+       
+        postData['service_id'] = $("#service_name").find(':selected').attr('data-id');
+        postData['brand'] = $('#appliance_brand_1').val();
+        postData['category'] = $("#appliance_category_1").val();
+        capacity = $("#appliance_capacity_1").val();
+        $("#total_price").html("<br/>Rs.");
+        if(capacity === null && capacity === ""){
+            postData['capacity'] = "";
+            
+        } else {
+            postData['capacity'] = capacity;
+        }
+
+        $.ajax({
+            type: 'POST',
+            beforeSend: function(){
+              $("#error_call_type").html("Loading......");
+              $('#submitform').attr('disabled',true);
+
+            },
+            url: '<?php echo base_url(); ?>employee/partner/get_service_category',
+            data: postData,
+            success: function (data) {
+console.log(data);
+                 if(data === "ERROR"){
+                     
+                   // alert("Price is not defined");
+
+                 } else {
+ 
+                    $("#price_tag option[value !='option1']").remove();
+                    $('#price_tag').append(data).change();
+                    getPrice();
+                    $('#submitform').attr('disabled',false);
+                    $("#error_call_type").css("display","none");
+                 }
+            }
+        });
+        
     
     }
     

@@ -114,7 +114,7 @@ class Invoice extends CI_Controller {
         log_message('info', "vendor partner type" . print_r($vendor_partner));
         log_message('info', "vendor partner id" . print_r($vendor_partnerId));
 
-        $cc = "billing@247around.com, nits@247around.com, anuj@247around.com";
+        $cc = "billing@247around.com, ".NITS_ANUJ_EMAIL_ID;
         $subject = "247around - Invoice for period: " . $start_date . " To " . $end_date;
         $attachment = 'https://s3.amazonaws.com/bookings-collateral/invoices-pdf/' . $invoiceId . '.pdf';
 
@@ -469,7 +469,7 @@ class Invoice extends CI_Controller {
             //Send report via email
             $this->email->clear(TRUE);
             $this->email->from('billing@247around.com', '247around Team');
-            $to = "anuj@247around.com";
+            $to = ANUJ_EMAIL_ID;
             $subject = "DRAFT Partner INVOICE Detailed- 247around - " . $data[0]['company_name'] .
                     " Invoice for period: " . $start_date . " to " . $end_date;
 
@@ -1941,7 +1941,7 @@ class Invoice extends CI_Controller {
 
         $to = $vendor_data[0]['primary_contact_email'] . ',' . $vendor_data[0]['owner_email'];
         $from = 'billing@247around.com';
-        $cc = 'anuj@247around.com, nits@247around.com';
+        $cc = NITS_ANUJ_EMAIL_ID;
 
         $message = "Dear Partner,<br/><br/>";
         $message .= "Please find attached invoice for Brackets delivered in " . $invoice_month . ". ";
@@ -1976,7 +1976,7 @@ class Invoice extends CI_Controller {
 
         $vendor_details = $this->vendor_model->getVendorContact($vendor_id);
 
-        $to = 'anuj@247around.com';
+        $to = ANUJ_EMAIL_ID;
         $from = 'billing@247around.com';
 
         $message = "Dear Partner,<br/><br/>";
@@ -2046,7 +2046,9 @@ class Invoice extends CI_Controller {
             }
             exec("rm -rf " . escapeshellarg($output_file_excel));
         } else {
+           
             log_message('info', __FUNCTION__ . " Excel file Not exist ");
+            return false;
         }
     }
 
@@ -2134,7 +2136,7 @@ class Invoice extends CI_Controller {
             
             $this->email->clear(TRUE);
             $this->email->from('billing@247around.com', '247around Team');
-            $to = "anuj@247around.com";
+            $to = ANUJ_EMAIL_ID;
             $subject = "DRAFT INVOICE (SUMMARY) - 247around - " . $invoices['meta']['company_name'];
 
             $this->email->to($to);
@@ -2213,6 +2215,7 @@ class Invoice extends CI_Controller {
         } else {
             log_message('info', __FUNCTION__ . ' Data Not Found');
             echo "Data Not found";
+            return FALSE;
         }
     }
 
@@ -2871,7 +2874,7 @@ class Invoice extends CI_Controller {
         $to = $vendor_detail[0]['owner_email'] . ", " . $vendor_detail[0]['primary_contact_email'];
 
         $subject = "247around - " . $vendor_detail[0]['company_name'] . " - " . $type . "  Invoice for period: " . $start_date . " to " . $end_date;
-        $cc = "anuj@247around.com, nits@247around.com";
+        $cc = NITS_ANUJ_EMAIL_ID;
 
         $this->email->from('billing@247around.com', '247around Team');
         $this->email->to($to);
@@ -2937,5 +2940,4 @@ class Invoice extends CI_Controller {
 
         }
     }
-    
 }

@@ -19,6 +19,7 @@
                                 <div class="form-group">
                                     <label for="name" class="col-md-4">Name</label>
                                     <div class="col-md-6">
+                                         <input type="hidden" name="upcountry_data" value="" id="upcountry_data" /> 
                                         <input type="text" class="form-control" id="name" name="user_name" value = "<?php echo $booking_history[0]['name'] ?>" readonly="readonly"/>
                                     </div>
                                 </div>
@@ -321,7 +322,7 @@
                                                                     }
                                                                     
                                                                     ?>
-                                                                    type='checkbox' id="<?php echo "checkbox_" . $div . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand_id']; ?>][]'  onclick='final_price(), enable_discount(this.id)' value = "<?php echo $price['id']. "_" .intval($price['customer_total'])."_".$div."_1" ?>">
+                                                                    type='checkbox' id="<?php echo "checkbox_" . $div . "_1" ; ?>" name='prices[<?php echo $unit_details[0]['brand_id']; ?>][]'  onclick='final_price(), enable_discount(this.id), set_upcountry()' value = "<?php echo $price['id']. "_" .intval($price['customer_total'])."_".$div."_1" ?>">
                                                             </td>
                                                         </tr>
                                                         <?php  $i++; $div++; if(count($unit_details[0]['quantity']) > $k){  $k++;} }} ?>
@@ -334,6 +335,7 @@
                             </div>
                         </div>
                     </div>
+                   
                     <div class="cloned">
                         <?php if(count($unit_details) > 1) { ?>
                         <?php $number = 1; foreach ($unit_details as $key => $booking_unit_details) { ?>
@@ -515,7 +517,7 @@
                                                                         }
                                                                         
                                                                         ?>
-                                                                        type='checkbox' id="<?php echo "checkbox_" . $div . "_".$number ; ?>" name='prices[<?php echo $booking_unit_details['brand_id']; ?>][]'  onclick='final_price(), enable_discount(this.id)' value = "<?php echo $price['id']. "_" .intval($price['customer_total'])."_".$div."_".$number ?>">
+                                                                        type='checkbox' id="<?php echo "checkbox_" . $div . "_".$number ; ?>" name='prices[<?php echo $booking_unit_details['brand_id']; ?>][]'  onclick='final_price(), enable_discount(this.id), set_upcountry()' value = "<?php echo $price['id']. "_" .intval($price['customer_total'])."_".$div."_".$number ?>">
                                                                 </td>
                                                             </tr>
                                                             <?php  $i++; $div++; if(count($booking_unit_details['quantity']) > $k){ $k++;} }} ?>
@@ -548,6 +550,15 @@
                                     <textarea class="form-control" rows="4" id="booking_address" name="home_address"   ><?php echo $booking_history[0]['booking_address']; ?></textarea>
                                 </div>
                             </div>
+                             <div class="form-group ">
+                                <label for="type" class="col-sm-4">Upcountry Charges</label>
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <div class="input-group-addon">Rs.</div>
+                                        <input  type="text" class="form-control"  name="upcountry_charges" id="upcountry_charges" value="0" placeholder="upcountry_charges" readonly>
+                                    </div>&nbsp;<span id="errmsg1"></span>
+                                </div>
+                            </div>
                             <div class="form-group ">
                                 <label for="type" class="col-sm-4">Price To be Paid</label>
                                 <div class="col-md-6">
@@ -558,22 +569,7 @@
                                     &nbsp;<span id="errmsg1"></span>
                                 </div>
                             </div>
-                            <div class="form-group ">
-                                <label for="Internal Status" class="col-sm-4">Internal Status</label>
-                                <div class="col-md-6">
-                                    <?php
-                                        foreach($follow_up_internal_status as $status){?>
-                                    <div class="radio">
-                                        <label>
-                                       <!--  <input type="radio" name="internal_status"  class="internal_status"  value="<?php  echo $status->status;?>" <?php if(isset($booking_history[0]['internal_status'])){ if( $status->status == $booking_history[0]['internal_status']){ echo "checked";}} ?>> -->
-
-                                        <input type="radio" name="internal_status"  class="internal_status"  value="<?php  echo $status->status;?>">
-                                        <?php echo $status->status;?>
-                                        </label>
-                                    </div>
-                                    <?php } ?>
-                                </div>
-                            </div>
+                            
                         </div>
                         <div class="col-md-6">
                             <div class="form-group ">
@@ -593,12 +589,7 @@
                                     </select>
                                 </div>
                             </div>
-<!--                            <div class="form-group ">
-                                <label for="type"class="col-md-4">Potential Value</label>
-                                <div class="col-md-6">
-                                    <input  type="text" class="form-control"  name="potential_value" id="potential_value" value = "<?php if(isset($booking_history[0]['potential_value'])){ echo $booking_history[0]['potential_value']; }?>" placeholder="Enter potential_value" >
-                                </div>
-                            </div>-->
+
                             <div class="form-group ">
                                 <label for="type" class="col-md-4">Remarks</label>
                                 <div class="col-md-6">
@@ -609,6 +600,22 @@
                                         echo $booking_history[0]['query_remarks'];
                                         }
                                         } ?></textarea>
+                                </div>
+                            </div>
+                              <div class="form-group ">
+                                <label for="Internal Status" class="col-sm-4">Internal Status</label>
+                                <div class="col-md-6">
+                                    <?php
+                                        foreach($follow_up_internal_status as $status){?>
+                                    <div class="radio">
+                                        <label>
+                                       <!--  <input type="radio" name="internal_status"  class="internal_status"  value="<?php  echo $status->status;?>" <?php if(isset($booking_history[0]['internal_status'])){ if( $status->status == $booking_history[0]['internal_status']){ echo "checked";}} ?>> -->
+
+                                        <input type="radio" name="internal_status"  class="internal_status"  value="<?php  echo $status->status;?>">
+                                        <?php echo $status->status;?>
+                                        </label>
+                                    </div>
+                                    <?php } ?>
                                 </div>
                             </div>
                             <div>
@@ -639,10 +646,7 @@
          tags: true
     });
     $("#partner_source").select2();
-    $(".appliance_brand").select2();
-    $(".appliance_capacity").select2();
 
-    
      $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
 
 </script>
@@ -689,7 +693,7 @@
     function outbound_call(phone_number){
         var confirm_call = confirm("Call Customer ?");
 
-        if (confirm_call == true) {
+        if (confirm_call === true) {
 
              $.ajax({
                 type: 'POST',

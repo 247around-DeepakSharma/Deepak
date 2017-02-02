@@ -1733,3 +1733,17 @@ Regards,<br>
 
 UPDATE `email_template` SET `template` = 'Dear Partner brackets for your Order ID <b> %s </b> have been delivered to you sucessfully.<br><br> Thankyou for placing an order with us.<br.<br> Regards,<br> 247Around Team' WHERE `email_template`.`tag` = 'brackets_received_mail_vendor_order_requested_from
 ';
+
+--Abhay 23 Jan
+ALTER TABLE `partners` CHANGE `upcountry_max_distance_threshold` `upcountry_max_distance_threshold` DECIMAL(10,2) NULL DEFAULT NULL, CHANGE `upcountry_min_distance_threshold` `upcountry_min_distance_threshold` DECIMAL(10,2) NULL DEFAULT NULL;
+ALTER TABLE `partners` ADD `upcountry_mid_distance_threshold` DECIMAL(10,2) NULL DEFAULT NULL AFTER `upcountry_min_distance_threshold`;
+ALTER TABLE `partners` ADD `upcountry_rate1` INT(10) NULL DEFAULT NULL AFTER `upcountry_rate`;
+
+ALTER TABLE `booking_details` ADD `partner_upcountry_rate` INT(10) NULL DEFAULT NULL AFTER `upcountry_rate`;
+ALTER TABLE `booking_details` CHANGE `upcountry_rate` `sf_upcountry_rate` INT(11) NULL DEFAULT NULL;
+ALTER TABLE `partners` ADD `upcountry_approval` INT(2) NULL DEFAULT '1' AFTER `upcountry_mid_distance_threshold`;
+ALTER TABLE `partners` ADD `upcountry_approval_email` VARCHAR(256) NULL DEFAULT NULL AFTER `upcountry_approval`;
+ALTER TABLE `booking_details` ADD `upcountry_partner_approved` INT(2) NULL DEFAULT '1' AFTER `upcountry_distance`;
+ALTER TABLE `booking_details` ADD `upcountry_paid_by_customer` INT(2) NULL DEFAULT '0' AFTER `upcountry_partner_approved`;
+ALTER TABLE `booking_details` ADD `customer_paid_upcountry_charges` DECIMAL(10,2) NULL DEFAULT '0' AFTER `upcountry_paid_by_customer`;
+ALTER TABLE `service_center_booking_action` ADD `upcountry_charges` DECIMAL(10,2) NULL DEFAULT '0' AFTER `parts_cost`;

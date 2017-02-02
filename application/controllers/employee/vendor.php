@@ -9,9 +9,6 @@ ini_set('display_errors', '1');
 ini_set('memory_limit', '-1');
 ini_set('max_execution_time', 360000); //3600 seconds = 60 minutes
 
-define('IS_DEFAULT_ENGINEER', TRUE);
-define('DEFAULT_ENGINEER', 24700001);
-
 use Box\Spout\Reader\ReaderFactory;
 use Box\Spout\Common\Type;
 
@@ -36,6 +33,7 @@ class vendor extends CI_Controller {
         $this->load->library('notify');
         $this->load->library("pagination");
         $this->load->library("asynchronous_lib");
+        $this->load->library("miscelleneous");
         $this->load->library("session");
         $this->load->library('s3');
         $this->load->library('email');
@@ -866,64 +864,37 @@ class vendor extends CI_Controller {
      *  @return : load pending booking view
      */
     function process_assign_booking_form() {
+        log_message('info', __METHOD__ );
         $service_center = $this->input->post('service_center');
+        $agent_id =  $this->input->post('agent_id');
+        $agent_name =  $this->input->post('agent_name');
         $url = base_url() . "employee/do_background_process/assign_booking";
         $count = 0;
+       
         foreach ($service_center as $booking_id => $service_center_id) {
             if ($service_center_id != "") {
-
-                $b['assigned_vendor_id'] = $service_center_id;
-                // Set Default Engineer 
-                if (IS_DEFAULT_ENGINEER == TRUE) {
-                    $b['assigned_engineer_id'] = DEFAULT_ENGINEER;
-                } else {
-                    $engineer = $this->vendor_model->get_engineers($service_center_id);
-                    if (!empty($engineer)) {
-                        $b['assigned_engineer_id'] = $engineer[0]['id'];
-                    }
-                }
-                //Assign service centre and engineer
-                $assigned = $this->vendor_model->assign_service_center_for_booking($booking_id, $b);
-                if ($assigned) {
-
-                    // Data to be insert in service center
-                    $sc_data['current_status'] = "Pending";
-                    $sc_data['internal_status'] = "Pending";
-                    $sc_data['service_center_id'] = $service_center_id;
-                    $sc_data['booking_id'] = $booking_id;
-
-                    // Unit Details Data
-                    $where = array('booking_id' => $booking_id);
-                    $unit_details = $this->booking_model->get_unit_details($where);
-                    foreach ($unit_details as $value) {
-                        $sc_data['unit_details_id'] = $value['id'];
-                        $sc_id = $this->vendor_model->insert_service_center_action($sc_data);
-
-                        if (!$sc_id) {
-                            log_message('info', __METHOD__ . "=> Data is not inserted into service center "
-                                    . "action table booking_id: " . $booking_id . ", data: " . print_r($sc_data, true));
-                        }
-                    }
-
+                $assigned = $this->miscelleneous->assign_vendor_process($service_center_id,$booking_id, $agent_id,$agent_name);
+                if($assigned){
                     // Insert log into booking state change
-                    $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                    $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING,
+                            "Service Center Id: " . $service_center_id,$agent_id, $agent_name, _247AROUND);
 
                     $count++;
-                } else {
-                    log_message('info', __METHOD__ . "=> Not Assign for Sc "
-                                    . $service_center_id);
                 }
             }
         }
 
         //Send mail and SMS to SF in background
         $async_data['booking_id'] = $service_center;
+        $async_data['agent_id'] =  $agent_id;
+        $async_data['agent_name'] = $agent_name;
         $this->asynchronous_lib->do_background_process($url, $async_data);
 
         echo " Request to Assign Bookings: " . count($service_center) . ", Actual Assigned Bookings: " . $count;
 
         //redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
+   
 
     /**
      * @desc: This function is to get the reassign vendor page
@@ -963,17 +934,20 @@ class vendor extends CI_Controller {
 //                }
 //            }
             //Assign service centre and engineer
-            $this->booking_model->update_booking($booking_id, array('assigned_vendor_id'=>$service_center_id, 
-                'assigned_engineer_id' =>DEFAULT_ENGINEER));
-            //$this->booking_model->assign_booking($booking_id, $service_center_id);
+            $assigned_data = array('assigned_vendor_id'=>$service_center_id, 
+                'assigned_engineer_id' =>DEFAULT_ENGINEER,
+                'is_upcountry'=>0,
+                'upcountry_pincode' =>NULL,
+                'sub_vendor_id'=> NULL,
+                'sf_upcountry_rate'=> NULL,
+                'partner_upcountry_rate'=> NULL,
+                'upcountry_distance'=> NULL);
+            
+            $this->booking_model->update_booking($booking_id, $assigned_data);
 
-           // $pre_service_center_data['current_status'] = "Cancelled";
-            //$pre_service_center_data['internal_status'] = "Cancelled";
-
-           // $this->service_centers_model->update_service_centers_action_table($booking_id, $pre_service_center_data);
             $this->vendor_model->delete_previous_service_center_action($booking_id);
             $unit_details = $this->booking_model->getunit_details($booking_id);
-           // $amound_due = 0;
+           
             foreach ($unit_details[0]['quantity'] as $value ) {
                 $data = array();
                 $data['current_status'] = "Pending";
@@ -981,9 +955,10 @@ class vendor extends CI_Controller {
                 $data['service_center_id'] = $service_center_id;
                 $data['booking_id'] = $booking_id;
                 $data['create_date'] = date('Y-m-d H:i:s');
+                $data['update_date'] = date('Y-m-d H:i:s');
                 $data['unit_details_id'] = $value['unit_id'];
                 $this->vendor_model->insert_service_center_action($data);
-                //$amound_due += $value['customer_net_payable'];
+                
             }
 
             $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, 
@@ -992,27 +967,15 @@ class vendor extends CI_Controller {
             
             //Prepare job card (For Reassigned Vendor)
             $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+            $url = base_url() . "employee/vendor/mark_upcountry_booking/".$booking_id."/".$this->session->userdata('id')
+                    ."/".$this->session->userdata('employee_id');
+            $async_data['data'] = array();
+            $this->asynchronous_lib->do_background_process($url, $async_data);
 
-            //Setting mail to vendor flag to 0, once booking is re-assigned
-            //$this->booking_model->set_mail_to_vendor_flag_to_zero($booking_id);
-
-	     log_message('info', "Reassigned - Booking id: " . $booking_id . "  By " .
-               $this->session->userdata('employee_id') . " service center id " . $service_center_id);
+	    log_message('info', "Reassigned - Booking id: " . $booking_id . "  By " .
+            $this->session->userdata('employee_id') . " service center id " . $service_center_id);
              
-//            if($amound_due == 0){
-//                // Check & Calculate Upcountry charges.
-//                $up_status = $this->upcountry_model->action_upcountry_booking($booking_id);
-//
-//                if(!empty ($up_status) && $up_status != "Success"){
-//                    $from = "booking@247around.com";
-//                    $to = NITS_ANUJ_EMAIL_ID;
-//                    $subject = " UpCountry Calculation Failed for Booking -". $booking_id;
-//                    $message = " UpCountry Calculation Failed for Booking - service center id ". $service_center_id;
-//                        $cc = $bcc = $attachment ="";
-//
-//                    $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);            
-//                } 
-//            }
+
 
             redirect(base_url() . DEFAULT_SEARCH_PAGE);
 	} else {
@@ -1021,6 +984,13 @@ class vendor extends CI_Controller {
             $this->session->set_userdata($userSession);
             redirect(base_url() . 'employee/vendor/get_reassign_vendor_form/' . $booking_id, 'refresh');
         }
+    }
+    
+    function mark_upcountry_booking($booking_id, $agent_id,$agent_name){
+        log_message('info', __METHOD__ ." Booking_id " . $booking_id . "  By agent id " .
+            $agent_id . $agent_name);
+        $this->miscelleneous->assign_upcountry_booking($booking_id, $agent_id, $agent_name);
+        $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
     }
 
     /**
@@ -2865,25 +2835,21 @@ class vendor extends CI_Controller {
              case 'pan_file': 
                     $this->form_validation->set_rules('name_on_pan', 'Name on Pan', 'trim|required|xss_clean');
                     $this->form_validation->set_rules('pan_no', 'Pan Number', 'trim|required|xss_clean');
-                    return $this->form_validation->run();
-                   
                     break;
+                
              case 'cst_file': 
                     $this->form_validation->set_rules('cst_no', 'CST Number', 'trim|required|xss_clean');
-                    return $this->form_validation->run();
-                   
                     break;
+                
              case 'tin_file': 
                     $this->form_validation->set_rules('tin_no', 'TIN/VAT Number', 'trim|required|xss_clean');
-                    return $this->form_validation->run();
-                   
                     break;
+                
              case 'service_tax_file': 
                     $this->form_validation->set_rules('service_tax_no', 'Service Tax Number', 'trim|required|xss_clean');
-                    return $this->form_validation->run();
-                   
                     break;
          }
+         return $this->form_validation->run();
      }
 
      /**
@@ -3313,4 +3279,8 @@ class vendor extends CI_Controller {
         $this->load->view('employee/sc_upcountry_details',$data);
         
     }
+    
+    function check_unit_exist_in_sc($booking_id){
+        $this->miscelleneous->check_unit_in_sc($booking_id);
     }
+}

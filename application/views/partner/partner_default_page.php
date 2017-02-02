@@ -39,6 +39,7 @@
                         <li><a href="#tabs-1" onclick="load_view('employee/partner/pending_booking/0/1', 'tabs-1')"><span class="panel-title">Pending Bookings</span></a></li>
                         <li><a href="#tabs-2" onclick="load_view('employee/partner/get_spare_parts_booking', 'tabs-2')"><span class="panel-title">Pending Spares</span></a></li>
                         <li><a href="#tabs-3" onclick="load_view('employee/partner/get_waiting_defective_parts', 'tabs-3')"><span class="panel-title">Shipped Spares by SF</span></a></li>
+                        <li><a href="#tabs-4" onclick="load_view('employee/partner/get_waiting_for_approval_upcountry_charges', 'tabs-4')"><span class="panel-title">Waiting Approval Upcountry Charges</span></a></li>
                     </ul>
 
                     <div class="panel-body">
@@ -51,6 +52,7 @@
                         <div id="tabs-1" style="margin-left:-2%;font-size:90%"><div id="#loading-image"><img src="<?php echo base_url() ?>images/loader.gif" style="margin-left:1%;height:150px;"></div></div>
                         <div id="tabs-2" style="margin-left:-2%"><div id="#loading-image"><img src="<?php echo base_url() ?>images/loader.gif" style="margin-left:1%;height:150px;"></div></div>
                         <div id="tabs-3" style="margin-left:-2%"><div id="#loading-image"><img src="<?php echo base_url() ?>images/loader.gif" style="margin-left:1%;height:150px;"></div></div>
+                        <div id="tabs-4" style="margin-left:-2%"><div id="#loading-image"><img src="<?php echo base_url() ?>images/loader.gif" style="margin-left:1%;height:150px;"></div></div>
                     </div>
                 </div>
             </div>

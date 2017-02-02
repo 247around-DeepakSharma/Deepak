@@ -32,7 +32,7 @@ class Booking extends CI_Controller {
 	$this->load->library('partner_cb');
 	$this->load->library('notify');
 	$this->load->helper(array('form', 'url'));
-
+        $this->load->library("miscelleneous");
 	$this->load->library('form_validation');
 	$this->load->library("pagination");
 	$this->load->library("session");
@@ -256,6 +256,29 @@ class Booking extends CI_Controller {
                     $send['booking_id'] = $booking['booking_id'];
                     $send['state'] = "Newbooking";
                     $this->asynchronous_lib->do_background_process($url, $send);
+                    //Assign Vendor
+                    $upcountry_data_json = $this->input->post('upcountry_data');
+                    $upcountry_data = json_decode($upcountry_data_json, TRUE);
+                    //log_message("info"," upcountry_data", print_r($upcountry_data). " Booking id ". $booking['booking_id']);
+                    switch ($upcountry_data['message']){
+                        case UPCOUNTRY_BOOKING:
+                        case UPCOUNTRY_LIMIT_EXCEED:
+                        case NOT_UPCOUNTRY_BOOKING:
+                            $url = base_url() . "employee/vendor/process_assign_booking_form/";
+                            $async_data['service_center'] = array($booking['booking_id'] => $upcountry_data['vendor_id']);
+                            $async_data['agent_id'] = $this->session->userdata('id');
+                            $async_data['agent_name'] = $this->session->userdata('employee_id');
+                            $this->asynchronous_lib->do_background_process($url, $async_data);
+                            
+                            break;
+                        case SF_NOT_EXIT:
+                            break;
+                    }
+                } else if($booking['is_send_sms'] == 2){
+                    $url = base_url() . "employee/vendor/check_unit_exist_in_sc/".$booking['booking_id'];
+                    $async_data['booking'] = array();
+                    $this->asynchronous_lib->do_background_process($url, $async_data);
+                    
                 }
             }
             
@@ -268,6 +291,7 @@ class Booking extends CI_Controller {
             exit();
         }
     }
+
     /**
      * @desc: This method get input file dand insert booking details
      * @param String $booking_id
@@ -457,6 +481,7 @@ class Booking extends CI_Controller {
                     
                     $data['old_state'] = _247AROUND_PENDING;
                     $data['new_state'] = _247AROUND_PENDING;
+                    $data['query_to_booking'] = '2';
                     
 		    log_message('info', __FUNCTION__ . " Booking Updateded to Booking Booking ID" . print_r($data['booking_id'], true));
 		   
@@ -640,13 +665,19 @@ class Booking extends CI_Controller {
 
 	$partner_id = $this->booking_model->get_price_mapping_partner_code($data['booking_history'][0]['source']);
 	$data['prices'] = array();
-	log_message('info', __FUNCTION__ . " data " . print_r($data, true));
+	//log_message('info', __FUNCTION__ . " data " . print_r($data, true));
 	foreach ($data['booking_unit_details'] as $keys => $value) {
-
-	    $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], 
+            if($source[0]['partner_type'] == OEM){
+	        $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], 
                     $data['booking_unit_details'][$keys]['category'],
                     $data['booking_unit_details'][$keys]['capacity'], $partner_id,$value['brand']);
-	    log_message('info', __FUNCTION__ . " Prices " . print_r($prices, true));
+            } else {
+                $prices = $this->booking_model->getPricesForCategoryCapacity($data['booking_history'][0]['service_id'], 
+                    $data['booking_unit_details'][$keys]['category'],
+                    $data['booking_unit_details'][$keys]['capacity'], $partner_id, "");
+            }
+            $upcountry_price = 0;
+	    //log_message('info', __FUNCTION__ . " Prices " . print_r($prices, true));
 	    foreach ($value['quantity'] as $key => $price_tag) {
 		$service_center_data = $this->service_centers_model->get_prices_filled_by_service_center($price_tag['unit_id'], $booking_id);
 
@@ -667,10 +698,14 @@ class Booking extends CI_Controller {
 		$id = $this->search_for_key($price_tag['price_tags'], $prices);
 		// remove array key, if price tag exist into price array
 		unset($prices[$id]);
+                if($keys == 0){
+                    $upcountry_price = $service_center_data[0]['upcountry_charges'];
+                }
 	    }
 
 	    array_push($data['prices'], $prices);
 	}
+        $data['upcountry_charges'] = $upcountry_price;
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/completebooking', $data);
     }
@@ -726,85 +761,32 @@ class Booking extends CI_Controller {
      *  @param : booking id
      *  @return : cancels the booking and load view
      */
-    function process_cancel_form($booking_id, $status) {
+    function process_cancel_form($booking_id, $status, $agent_id= false, $agent_name= false) {
 	log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id." Done By " . $this->session->userdata('employee_id'));
         
-	$data['cancellation_reason'] = $this->input->post('cancellation_reason');
-	$data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
-        
-	if ($data['cancellation_reason'] == 'Other') {
-	    $data['cancellation_reason'] = "Other : " . $this->input->post("cancellation_reason_text");
-	}
-	$data['current_status'] = $data['internal_status'] = _247AROUND_CANCELLED ;
-	$data_vendor['cancellation_reason'] = $data['cancellation_reason'];
-        
-        //check partner status from partner_booking_status_mapping table  
-        $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);
-        
-        $partner_id='';
-        if(!empty($partner_id_data['partner_id'])){
-            $partner_id = $partner_id_data['partner_id'];
-        }
-        else{
-            $to = "ANUJ_EMAIL_ID";
-            $cc = "";
-            $bcc = "";
-            $subject = " No Partner ID Exists For Booking ID = '".$booking_id."'";
-            $message = "No Partner ID Exists For Booking ID = '".$booking_id."' ";
-            $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
-        }
-        
-        if($partner_id){
-            
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'],$partner_id, $booking_id);
-            if(!empty($partner_status)){
-                $data['partner_current_status'] = $partner_status[0];
-                $data['partner_internal_status'] = $partner_status[1];
+        $this->form_validation->set_rules('cancellation_reason', 'Cancellation Reason', 'required|xss_clean');
+        $this->form_validation->set_rules('partner_id', 'Partner Id', 'required|xss_clean');
+        $validation = $this->form_validation->run();
+        if($validation){
+            if(!$agent_id){
+                $agent_id = $this->session->userdata('id');
+                $agent_name = $this->session->userdata('employee_id');
             }
+
+            $cancellation_reason = $this->input->post('cancellation_reason');
+            $cancellation_text = $this->input->post("cancellation_reason_text");
+            
+            $this->miscelleneous->process_cancel_form($booking_id, $status,$cancellation_reason, 
+                    $cancellation_text,$agent_id, $agent_name);
+
+            redirect(base_url() . DEFAULT_SEARCH_PAGE);
+        } else {
+            log_message('info', __FUNCTION__ . " Validation Failed Booking ID: " . $booking_id." Done By " . $this->session->userdata('employee_id'));
+            $this->get_cancel_form($booking_id, $status);
+            
         }
-        
-	log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));
-
-	$this->booking_model->update_booking($booking_id, $data);
-
-	//Update this booking in vendor action table
-	$data_vendor['update_date'] = date("Y-m-d H:i:s");
-	$data_vendor['current_status'] = $data_vendor['internal_status'] = _247AROUND_CANCELLED ;
-	log_message('info', __FUNCTION__ . " Update Service center action table  " . print_r($data_vendor, true));
-	$this->vendor_model->update_service_center_action($booking_id, $data_vendor);
-
-	$this->update_price_while_cancel_booking($booking_id);
-        
-        //Update Spare parts details table
-        $this->service_centers_model->update_spare_parts(array('booking_id'=> $booking_id), 
-                 array('status'=> _247AROUND_CANCELLED));
-
-	//Log this state change as well for this booking
-	//param:-- booking id, new state, old state, employee id, employee name
-	$this->notify->insert_state_change($booking_id, $data['current_status'], $status , $data['cancellation_reason'] , $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
-	// Not send Cancallation sms to customer for Query booking
-
-	// this is used to send email or sms while booking cancelled
-	$url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-	$send['booking_id'] = $booking_id;
-	$send['state'] = $data['current_status'];
-	$this->asynchronous_lib->do_background_process($url, $send);
-
-	// call partner callback
-	$this->partner_cb->partner_callback($booking_id);
-
-	redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
-    function update_price_while_cancel_booking($booking_id) {
-	log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
-	$unit_details['booking_status'] = "Cancelled";
-	$unit_details['vendor_to_around'] = $unit_details['around_to_vendor'] = 0;
-        $unit_details['ud_closed_date'] = date("Y-m-d H:i:s");
-
-	log_message('info', __FUNCTION__ . " Update unit details  " . print_r($unit_details, true));
-	$this->booking_model->update_booking_unit_details($booking_id, $unit_details);
-    }
 
     /**
      *  @desc : This function is to select booking to be rescheduled
@@ -1036,59 +1018,90 @@ class Booking extends CI_Controller {
 	$service_id = $this->input->post('service_id');
 	$category = $this->input->post('category');
 	$capacity = $this->input->post('capacity');
+        $booking_city = $this->input->post('booking_city');
+        $booking_pincode = $this->input->post('booking_pincode');
 	$brand = $this->input->post('brand');
 	$partner_code = $this->input->post('partner_code');
         $partner_type = $this->input->post('partner_type');
 	$clone_number = $this->input->post('clone_number');
-	$partner_id = $this->booking_model->get_price_mapping_partner_code($partner_code);
+	
+        $where_get_partner = array('bookings_sources.code'=>$partner_code);
+        $select = "bookings_sources.partner_id,bookings_sources.price_mapping_id, "
+                . " partners.upcountry_approval, upcountry_mid_distance_threshold, upcountry_rate1, upcountry_rate";
+        $partner_data = $this->partner_model->getpartner_details($select,$where_get_partner);
+        $partner_mapping_id = $partner_data[0]['price_mapping_id'];
+      
         if($partner_type == OEM){
-	   $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand);
+	   $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_mapping_id, $brand);
         } else {
-             $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, "");
+             $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_mapping_id, "");
         }
 	
-    $where  = array('service_id' => $service_id,'brand_name' => $brand);
-    $brand_id_array  = $this->booking_model->get_brand($where);
+        $where  = array('service_id' => $service_id,'brand_name' => $brand);
+        $brand_id_array  = $this->booking_model->get_brand($where);
 
-    if(!empty($brand_id_array)){
-    	$brand_id = $brand_id_array[0]['id'];
+        if(!empty($brand_id_array)){
+            $brand_id = $brand_id_array[0]['id'];
 
-    } else {
-    	$brand_id = "";
-    }
+        } else {
+            $brand_id = "";
+        }
 
 	if (!empty($result)) {
-
-	    echo "<thead><tr><th>Service Category</th><th>Std. Charges</th><th>Partner Discount</th><th>Final Charges</th><th>247around Discount</th><th>Selected Services</th></tr></thead>";
-	    $html = "";
-
+     
+	    $html = "<thead><tr><th>Service Category</th><th>Std. Charges</th><th>Partner Discount</th><th>Final Charges</th><th>247around Discount</th><th>Selected Services</th></tr></thead>";
 	    $i = 0;
-
+           
 	    foreach ($result as $prices) {
-		$service_category = $prices['service_category'];
-
+                
 		$html .="<tr><td>" . $prices['service_category'] . "</td>";
 		$html .= "<td>" . $prices['customer_total'] . "</td>";
 		$html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly/></td>";
 		$html .= "<td>" . $prices['customer_net_payable'] . "</td>";
 		$html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '0' placeholder='Enter discount' readonly></td>";
-		$html .= "<td><input class='price_checkbox'";
+		$html .= "<td><input type='hidden'name ='is_up_val' id='is_up_val_" . $i . "_" . $clone_number . "' value ='".$prices['is_upcountry']."' /><input class='price_checkbox'";
 		if ($prices['service_category'] == 'Repair') {
 		    $html .= "checked";
 		}
 
 		$html .=" type='checkbox' id='checkbox_" . $i . "_" . $clone_number . "'";
 		$html .= "name='prices[$brand_id][]'";
-		$html .= "  onclick='final_price(), enable_discount(this.id)'" .
+		$html .= "  onclick='final_price(), enable_discount(this.id), set_upcountry()'" .
 		    "value=" . $prices['id'] . "_" . intval($prices['customer_total'])."_".$i ."_".$clone_number. " ></td><tr>";
 
 		$i++;
 	    }
-	    echo $html;
+	    $data['price_table'] = $html;
+            $upcountry_data = $this->miscelleneous->check_upcountry_vendor_availability($booking_city, $booking_pincode, $service_id);
+            switch ($upcountry_data['message']){
+                case UPCOUNTRY_BOOKING:
+                case UPCOUNTRY_LIMIT_EXCEED:
+                if(!empty($partner_data[0]['upcountry_mid_distance_threshold'])){
+                    if($partner_data[0]['upcountry_mid_distance_threshold'] > $upcountry_data['upcountry_distance']){
+
+                        $upcountry_data['partner_upcountry_rate']  = $partner_data[0]['upcountry_rate'];
+
+                    } else {
+                    $upcountry_data['partner_upcountry_rate']  = $partner_data[0]['upcountry_rate1'];
+
+                   }
+                   $upcountry_data['partner_upcountry_approval'] = $partner_data[0]['upcountry_approval'];
+
+                } else {
+                    $upcountry_data['partner_upcountry_approval'] = 0;
+                    $upcountry_data['partner_upcountry_rate'] = DEFAULT_UPCOUNTRY_RATE;
+                }
+                break;
+            }
+            
+            $data['upcountry_data'] = json_encode($upcountry_data,true);
+            print_r(json_encode($data,true));
 	} else {
-	    echo "Price Table Not Found";
+            $data['html']= "Price Table Not Found";
+	    print_r(json_encode($data)); 
 	}
     }
+   
 
     /**
      *  @desc : Ajax call(This function is to get non working days for particular vendor)
@@ -1184,7 +1197,8 @@ class Booking extends CI_Controller {
 	$data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
 
 	$data['service_center'] = $this->booking_model->selectservicecentre($booking_id);
-        $data['upcountry_details'] = $this->upcountry_model->upcountry_booking_list($data['booking_history'][0]['assigned_vendor_id'], $booking_id);
+        $data['upcountry_details'] = $this->upcountry_model->upcountry_booking_list($data['booking_history'][0]['assigned_vendor_id'], 
+                $booking_id, false,$data['booking_history'][0]['upcountry_paid_by_customer']);
 
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/viewdetails', $data);
@@ -1379,7 +1393,7 @@ class Booking extends CI_Controller {
                 $category = $this->booking_model->getCategoryForService($booking_history[0]['service_id'],$partner_id,"");
                 $capacity = $this->booking_model->getCapacityForCategory($booking_history[0]['service_id'], $value['category'],"", $partner_id);
                 $prices = $this->booking_model->getPricesForCategoryCapacity($booking_history[0]['service_id'], 
-                        $value['category'], $value['capacity'], $partner_id, $value['brand']);
+                        $value['category'], $value['capacity'], $partner_id, "");
 
             }
 	    
@@ -1695,10 +1709,12 @@ class Booking extends CI_Controller {
 	$total_amount_paid = $this->input->post('grand_total_price');
 	$admin_remarks = $this->input->post('admin_remarks');
 	$serial_number = $this->input->post('serial_number');
+        $upcountry_charges = $this->input->post("upcountry_charges");
 	$internal_status = "Cancelled";
 	$pincode = $this->input->post('booking_pincode');
 	$state = $this->vendor_model->get_state_from_pincode($pincode);
 	$service_center_details = $this->booking_model->getbooking_charges($booking_id);
+        $k = 0;
 	foreach ($customer_basic_charge as $unit_id => $value) {
 	    // variable $unit_id  is existing id in booking unit details table of given booking id
 	    $data = array();
@@ -1748,6 +1764,9 @@ class Booking extends CI_Controller {
 			$data_service_center['serial_number'] = $data['serial_number'];
 			$data_service_center['current_status'] = $data_service_center['internal_status'] = "Completed";
 			$data_service_center['amount_paid'] = $total_amount_paid;
+                        if($k == 0){
+                            $data_service_center['upcountry_charges'] = $upcountry_charges;
+                        }
                         
                        
 			log_message('info', __FUNCTION__ . " New unit selected, service center action data " . print_r($data_service_center, true));
@@ -1780,7 +1799,7 @@ class Booking extends CI_Controller {
 
                 $service_center['closing_remarks'] = "";
                
-                if(!empty($service_center_details)){
+                if(!empty($service_center_details) ){
                     if(!empty($service_center_details[0]['service_center_remarks'] ) && !empty($admin_remarks)){
                          $service_center['closing_remarks'] = "Service Center Remarks:- " . $service_center_details[0]['service_center_remarks'] .
 			"  Admin:-  " . $admin_remarks;
@@ -1804,15 +1823,20 @@ class Booking extends CI_Controller {
 		$service_center['parts_cost'] = $data['customer_paid_parts'];
 		$service_center['serial_number'] = $data['serial_number'];
 		$service_center['amount_paid'] = $total_amount_paid;
+                if($k == 0){
+                    $service_center['upcountry_charges'] = $upcountry_charges;
+                }
                 
 		log_message('info', ": " . " update Service center data " . print_r($service_center, TRUE));
 		$this->vendor_model->update_service_center_action($booking_id, $service_center);
 	    }
+            $k = $k+1;
 	}
 
 	$booking['current_status'] = $internal_status;
 	$booking['internal_status'] = $internal_status;
 	$booking['booking_id'] = $booking_id;
+        $booking['upcountry_paid_by_customer'] = $upcountry_charges;
         
         //check partner status from partner_booking_status_mapping table  
         $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);

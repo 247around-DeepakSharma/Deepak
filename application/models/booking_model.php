@@ -566,7 +566,7 @@ class Booking_model extends CI_Model {
     function getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_id, $brand) {
 
         $this->db->distinct();
-        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod');
+        $this->db->select('id,service_category,customer_total, partner_net_payable, customer_net_payable, pod, is_upcountry');
         $this->db->where('service_id',$service_id);
         $this->db->where('category', $category);
         $this->db->where('active', 1);
@@ -618,7 +618,7 @@ class Booking_model extends CI_Model {
                 . "where booking_details.user_id = users.user_id and "
                 . "services.id = booking_details.service_id and "
                 . "current_status IN ('Pending', 'Rescheduled') and "
-                . "assigned_vendor_id is NULL";
+                . "assigned_vendor_id is NULL AND upcountry_partner_approved = '1'";
         $query = $this->db->query($sql);
 
         $temp = $query->result_array();
@@ -637,7 +637,7 @@ class Booking_model extends CI_Model {
      */
     function set_mail_to_vendor($booking_id) {
         $this->db->query("UPDATE booking_details set mail_to_vendor= 1 where booking_id ='$booking_id'");
-        echo $this->db->last_query();
+        //echo $this->db->last_query();
     }
 
     /**
@@ -1735,7 +1735,7 @@ class Booking_model extends CI_Model {
      */
     function get_city_booking_source_services($phone_number){
         $query1['services'] = $this->selectservice();
-        $query2['city'] = $this->vendor_model->getDistrict();
+        $query2['city'] = $this->vendor_model->getDistrict_from_india_pincode();
         $query3['sources'] = $this->partner_model->get_all_partner_source("0");
         $query4['user'] = $this->user_model->search_user($phone_number);
 
@@ -1749,7 +1749,7 @@ class Booking_model extends CI_Model {
      * @return : array()
      */
     function get_city_source(){
-        $query1['city'] = $this->vendor_model->getDistrict();
+        $query1['city'] = $this->vendor_model->getDistrict_from_india_pincode();
         $query2['sources'] = $this->partner_model->get_all_partner_source("0");
        
         return $query = array_merge($query1, $query2);
@@ -2208,6 +2208,17 @@ class Booking_model extends CI_Model {
         $query = $this->db->get('partner_booking_status_mapping');
         return $query->result_array();
         
+    }
+    /**
+     * @desc TThis is used to get those upcountry bookings who have waiting to approval (Two days old booking)
+     * @return type
+     */
+    function get_booking_to_cancel_not_approved_upcountry(){
+        $sql =" SELECT booking_id,partner_id FROM booking_details where "
+                . " DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > -2 "
+                . " AND current_status IN ('Pending', 'Rescheduled') AND is_upcountry = '1' AND upcountry_partner_approved = '0' ";
+        $query = $this->db->query($sql);
+        return $query->result_array();      
     }
     
 

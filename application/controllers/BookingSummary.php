@@ -508,10 +508,11 @@ EOD;
         'templateDir' => $templateDir
     );
 
-    $where_get_partner = array('is_active' => '1');
-
+    $where_get_partner = array('partners.is_active' => '1');
+    $select = "partners.id, partners.summary_email_to, partners.summary_email_cc, "
+            . " partners.summary_email_bcc, partners.public_name";
     //Get all Active partners who has "is_reporting_mail" column 1
-    $partners = $this->partner_model->getpartner_details($where_get_partner, '1');
+    $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
         log_message('info', __FUNCTION__ . ' => Fetched active partners');
 
     foreach ($partners as $p) {
@@ -521,19 +522,6 @@ EOD;
         //Fetch partners' bookings
         $leads = $this->partner_model->get_partner_leads_for_summary_email($p['id']);
             log_message('info', __FUNCTION__ . ' => Fetched partner bookings');
-            // Check Other string exist in the Cancellation reason. 
-            // If exist then replace cancellation_reason with other
-//            foreach ($leads as $key => $value) {
-//                if($value['current_status'] != "Cancelled"){
-//                    
-//                    $leads[$key]['cancellation_reason'] = $value['current_status'];
-//                             
-//                } else if (stristr($value['cancellation_reason'], "Other :")){
-//                  
-//                    $leads[$key]['cancellation_reason'] = "Other";
-//                    
-//                }
-//            }
             
         $R->load(array(
         array(
@@ -583,7 +571,7 @@ EOD;
         $bucket = 'bookings-collateral';
         $directory_xls = "summary-excels/" . $output_file;
         $this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
-            
+      
         //Delete this file
         exec("rm -rf " . escapeshellarg($output_file), $out, $return);
             // Return will return non-zero upon an error

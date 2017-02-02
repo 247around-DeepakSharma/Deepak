@@ -107,8 +107,8 @@
                        
                     </table>
                 </div>
-                <?php if(!empty($upcountry_details)){ ?>
-                <div class="col-md-12" style="margin-top:20px;" >
+                <?php //if(!empty($upcountry_details)){ ?>
+<!--                <div class="col-md-12" style="margin-top:20px;" >
                     <h1 >Upcountry Details:-</h1>
                     <table class="table  table-striped table-bordered">
                         <thead
@@ -123,9 +123,9 @@
                         </thead>
                         <tbody>
                             <tr class="text-center">
-                                <td><?php echo $upcountry_details[0]['booking'];?></td>
-                                <td><?php echo $upcountry_details[0]['upcountry_rate']." PER KM";?></td>
-                                 <td><?php echo $upcountry_details[0]['upcountry_distance']." KM";?></td>
+                                <td><?php //echo $upcountry_details[0]['booking'];?></td>
+                                <td><?php //echo $upcountry_details[0]['sf_upcountry_rate']." PER KM";?></td>
+                                 <td><?php //echo $upcountry_details[0]['upcountry_distance']." KM";?></td>
                                 <td><i class="fa fa-inr" aria-hidden="true"></i> <?php echo $upcountry_details[0]['upcountry_price'];?></td>
                             </tr>
                         </tbody>
@@ -133,9 +133,9 @@
                         
                     </table>
                     
-                </div>
+                </div>-->
                     
-               <?php  } ?>
+               <?php /// } ?>
                 <?php if(!empty($unit_details)) { ?>
                 <div class="col-md-12" style="margin-top:20px;" >
                     <h1 >Appliance Details:-</h1>
@@ -149,13 +149,14 @@
                             <th>Description</th>
                             <th>Call Type</th>
                             <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
-                           
+                            <th>Upcountry Charges</th>
                             <th>Total Charges</th>
                             <?php } else { ?>
                            
                             <th>Paid Service Charges</th>
                             <th>Paid Additional Charges</th>
                             <th>Paid Parts Cost</th>
+                            <th>Paid Upcountry Charges</th>
                             <th>Total Amount Paid</th>
                             
                             <?php } ?>
@@ -174,15 +175,19 @@
                                 <td><?php echo $unit_detail['appliance_description']?></td>
                                 <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
                                 <td><?php  print_r($unit_detail['price_tags']); ?></td>
-                               
-                                <td><?php print_r($unit_detail['customer_net_payable']);  ?></td>
+                                <td><?php if($booking_history[0]['upcountry_paid_by_customer'] == 0){ echo "0";} 
+                                else {echo $booking_history[0]['upcountry_distance'] *$booking_history[0]['partner_upcountry_rate']; } ?></td>
+                                <td><?php if($booking_history[0]['upcountry_paid_by_customer'] == 0){ echo $unit_detail['customer_net_payable'];} 
+                                else {echo ($booking_history[0]['upcountry_distance'] *$booking_history[0]['partner_upcountry_rate']) + $unit_detail['customer_net_payable']; } ?></td>
                                 <?php } else {   ?>
                                 <td><?php  print_r($unit_detail['price_tags']); ?></td>
                                 
                                 <td><?php  print_r($unit_detail['customer_paid_basic_charges']); ?></td>
                                 <td><?php print_r($unit_detail['customer_paid_extra_charges']);  ?></td>
                                 <td><?php print_r($unit_detail['customer_paid_parts']);  ?></td>
-                                <td><?php print_r($unit_detail['customer_paid_basic_charges'] + $unit_detail['customer_paid_extra_charges'] + $unit_detail['customer_paid_parts'] );  ?></td>
+                                <td><?php if($booking_history[0]['upcountry_paid_by_customer'] == 0){ echo print_r($unit_detail['customer_paid_basic_charges'] + $unit_detail['customer_paid_extra_charges'] + $unit_detail['customer_paid_parts'] ); } else{
+                                    print_r($unit_detail['customer_paid_basic_charges'] + $unit_detail['customer_paid_extra_charges'] + $unit_detail['customer_paid_parts'] + $booking_history[0]['customer_paid_upcountry_charges']  );
+                                }   ?></td>
                                 
                                 <?php }?>
                                 <td><?php print_r($unit_detail['booking_status']);  ?></td>
@@ -331,15 +336,3 @@
   border-radius: 5px;
 }
    </style>
-   
-<!--   <script type="text/javascript">
-       $(document).ready(function (){
-            <?php if(isset($booking_history[0]['invoice_pic'])){ ?>
-           $('#invoice_pic').attr('src',"https://s3.amazonaws.com/bookings-collateral/engineer-bank-proofs/<?php echo $booking_history[0]['invoice_pic'];?>");
-            <?php } if(isset($booking_history[0]['serial_number_pic'])){ ?>
-           $('#panel_pic').attr('src',"https://s3.amazonaws.com/bookings-collateral/engineer-bank-proofs/<?php echo $booking_history[0]['serial_number_pic'];?>");
-          <?php  } ?>
-          
-    });
-     
-   </script>-->
