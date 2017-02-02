@@ -220,94 +220,87 @@ class Booking_utilities {
     *
     */
 
-   function booking_report_by_service_center($sf_list) {
+   function booking_report_by_service_center($sf_list,$cron_flag) {
 
-       $CI = get_instance();
-       $CI->load->model('reporting_utils');
-       $data = $CI->reporting_utils->get_booking_by_service_center($sf_list);
-       //Generating HTML for the email
-       $html = '
-                   <html xmlns="http://www.w3.org/1999/xhtml">
-                     <head>
-                       <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-                     </head>
-                     <body><div style="margin-top: 30px;font-family:Helvetica;" class="container-fluid">
-                         <table style="width: 90%;margin-bottom: 20px;border: 1px solid #ddd; border-collapse: collapse;">
-                           <thead>
-                             <tr style="padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd">
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">State</th>
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE"></th>
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">Yesterday Booked</th>
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">Yesterday Completed</th>
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">Yesterday Cancelled</th>
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">' . date('M') . ' Booking Completed</th>
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">' . date('M') . ' Booking Cancelled</th>
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">0-2 Days</th>
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">3-5 Days</th>
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE"> > 5 Days</th>
-
-                             </tr>
-                           </thead>
-                           <tbody >';
+       $data = $this->My_CI->reporting_utils->get_booking_by_service_center($sf_list);
+       
        foreach ($data['service_center_id'] as $key => $val) {
-
+           
            //Setting State and City value
            if (isset($data['data'][$val]['yesterday_booked']['state'])) {
                $state = $data['data'][$val]['yesterday_booked']['state'];
                $city = $data['data'][$val]['yesterday_booked']['city'];
                $service_center_name = $data['data'][$val]['yesterday_booked']['service_center_name'];
+               $service_center_id = $data['data'][$val]['yesterday_booked']['service_center_id'];
                $active = $data['data'][$val]['yesterday_booked']['active'];
+               $temporary_on_off = $data['data'][$val]['yesterday_booked']['temporary_on_off'];
            }
            if (isset($data['data'][$val]['yesterday_completed']['state'])) {
                $state = $data['data'][$val]['yesterday_completed']['state'];
                $city = $data['data'][$val]['yesterday_completed']['city'];
                $service_center_name = $data['data'][$val]['yesterday_completed']['service_center_name'];
+               $service_center_id = $data['data'][$val]['yesterday_completed']['service_center_id'];
                $active = $data['data'][$val]['yesterday_completed']['active'];
+               $temporary_on_off = $data['data'][$val]['yesterday_completed']['temporary_on_off'];
            }
            if (isset($data['data'][$val]['yesterday_cancelled']['state'])) {
                $state = $data['data'][$val]['yesterday_cancelled']['state'];
                $city = $data['data'][$val]['yesterday_cancelled']['city'];
                $service_center_name = $data['data'][$val]['yesterday_cancelled']['service_center_name'];
+               $service_center_id = $data['data'][$val]['yesterday_cancelled']['service_center_id'];
                $active = $data['data'][$val]['yesterday_cancelled']['active'];
+               $temporary_on_off = $data['data'][$val]['yesterday_cancelled']['temporary_on_off'];
            }
            if (isset($data['data'][$val]['month_completed']['state'])) {
                $state = $data['data'][$val]['month_completed']['state'];
                $city = $data['data'][$val]['month_completed']['city'];
                $service_center_name = $data['data'][$val]['month_completed']['service_center_name'];
+               $service_center_id = $data['data'][$val]['month_completed']['service_center_id'];
                $active = $data['data'][$val]['month_completed']['active'];
+               $temporary_on_off = $data['data'][$val]['month_completed']['temporary_on_off'];
            }
            if (isset($data['data'][$val]['month_cancelled']['state'])) {
                $state = $data['data'][$val]['month_cancelled']['state'];
                $city = $data['data'][$val]['month_cancelled']['city'];
                $service_center_name = $data['data'][$val]['month_cancelled']['service_center_name'];
+               $service_center_id = $data['data'][$val]['month_cancelled']['service_center_id'];
                $active = $data['data'][$val]['month_cancelled']['active'];
+               $temporary_on_off = $data['data'][$val]['month_cancelled']['temporary_on_off'];
            }
 
            if (isset($data['data'][$val]['last_2_day']['state'])) {
                $state = $data['data'][$val]['last_2_day']['state'];
                $city = $data['data'][$val]['last_2_day']['city'];
                $service_center_name = $data['data'][$val]['last_2_day']['service_center_name'];
+               $service_center_id = $data['data'][$val]['last_2_day']['service_center_id'];
                $active = $data['data'][$val]['last_2_day']['active'];
+               $temporary_on_off = $data['data'][$val]['last_2_day']['temporary_on_off'];
            }
            
            if (isset($data['data'][$val]['last_3_day']['state'])) {
                $state = $data['data'][$val]['last_3_day']['state'];
                $city = $data['data'][$val]['last_3_day']['city'];
                $service_center_name = $data['data'][$val]['last_3_day']['service_center_name'];
+               $service_center_id = $data['data'][$val]['last_3_day']['service_center_id'];
                $active = $data['data'][$val]['last_3_day']['active'];
+               $temporary_on_off = $data['data'][$val]['last_3_day']['temporary_on_off'];
            }
            if (isset($data['data'][$val]['greater_than_5_days']['state'])) {
                $state = $data['data'][$val]['greater_than_5_days']['state'];
                $city = $data['data'][$val]['greater_than_5_days']['city'];
                $service_center_name = $data['data'][$val]['greater_than_5_days']['service_center_name'];
+               $service_center_id = $data['data'][$val]['greater_than_5_days']['service_center_id'];
                $active = $data['data'][$val]['greater_than_5_days']['active'];
+               $temporary_on_off = $data['data'][$val]['greater_than_5_days']['temporary_on_off'];
            }
 
            $state_final[] = $state;
            $way_final['state'] = $state;
            $way_final['city'] = $city;
            $way_final['active'] = $active;
+           $way_final['temporary_on_off'] = $temporary_on_off;
            $way_final['service_center_name'] = $service_center_name;
+           $way_final['service_center_id'] = $service_center_id;
            $way_final['yesterday_booked'] = (isset($data['data'][$val]['yesterday_booked']['booked']) ? $data['data'][$val]['yesterday_booked']['booked'] : '  ');
            $way_final['yesterday_completed'] = (isset($data['data'][$val]['yesterday_completed']['completed']) ? $data['data'][$val]['yesterday_completed']['completed'] : ' ');
            $way_final['yesterday_cancelled'] = (isset($data['data'][$val]['yesterday_cancelled']['cancelled']) ? $data['data'][$val]['yesterday_cancelled']['cancelled'] : '  ');
@@ -319,6 +312,110 @@ class Booking_utilities {
 
            $final_way[] = $way_final;
        }
+       
+       //Getting States and City List
+       foreach($final_way as $value){
+           $state_array[] = $value['state'];
+           $city_array[] = $value['city'];
+           $sf_array[] = $value['service_center_name'];
+       }
+       $state_array = array_unique($state_array);
+       $city_array = array_unique($city_array);
+       $sf_array = array_unique($sf_array);
+       
+       //Making State Option
+       $state_option = "";
+       sort($state_array);
+       foreach($state_array as $value){
+            $state_option .= "<option value='".$value."'>".$value.'</option>';
+       }
+       //Making City Option
+       $city_option = "";
+       sort($city_array);
+       foreach($city_array as $value){
+            $city_option .= "<option value='".$value."'>".$value.'</option>';
+       }
+       
+       //Making SF Name Option
+       $sf_option = "";
+       sort($sf_array);
+       foreach($sf_array as $value){
+            $sf_option .= "<option value='".$value."'>".$value.'</option>';
+       }
+       
+       //Getting RM List for Dropdown
+       $rm_details = $this->My_CI->employee_model->get_rm_details();
+       $rm_option = "";
+       foreach($rm_details as $value){
+           $rm_option .= "<option value='".$value['full_name']."'>".$value['full_name'].'</option>';
+       }
+       
+       //Add Bootstrap CSS for CRON calls
+       $css = '';
+       if($cron_flag == 1){
+           $css = '<link href="http://localhost/247around-dev/css/bootstrap.min.css" rel="stylesheet">';
+       }
+       
+       //Generating HTML for the email
+       $html = '
+                   <html xmlns="http://www.w3.org/1999/xhtml">
+                     <head>
+                       <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+                     </head><body>'.$css.'
+                     <div style="margin-top: 30px;font-family:Helvetica;" class="container-fluid table-responsive">
+                         <table style="margin-bottom: 20px;border: 1px solid #ddd; border-collapse: collapse;" class="js-dynamitable">
+                           <thead>
+                             <tr style="padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd">
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:9%">Regional Manager</th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:10%">State</th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:9%">City</th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">Name</th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">Yesterday Booked<p><span class="js-sorter-desc  glyphicon glyphicon-chevron-down pull-right"></span> <span class="js-sorter-asc     glyphicon glyphicon-chevron-up pull-right"></span></th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">Yesterday Completed<p><span class="js-sorter-desc     glyphicon glyphicon-chevron-down pull-right"></span> <span class="js-sorter-asc     glyphicon glyphicon-chevron-up pull-right"></span></th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">Yesterday Cancelled<p><span class="js-sorter-desc     glyphicon glyphicon-chevron-down pull-right"></span> <span class="js-sorter-asc     glyphicon glyphicon-chevron-up pull-right"></span></th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">' . date('M') . ' Booking Completed <p><span class="js-sorter-desc     glyphicon glyphicon-chevron-down pull-right"></span> <span class="js-sorter-asc     glyphicon glyphicon-chevron-up pull-right"></span></th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">' . date('M') . ' Booking Cancelled <p><span class="js-sorter-desc     glyphicon glyphicon-chevron-down pull-right"></span> <span class="js-sorter-asc     glyphicon glyphicon-chevron-up pull-right"></span></th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">0-2 Days <p><span class="js-sorter-desc     glyphicon glyphicon-chevron-down pull-right"></span> <span class="js-sorter-asc     glyphicon glyphicon-chevron-up pull-right"></span></th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">3-5 Days <p><span class="js-sorter-desc     glyphicon glyphicon-chevron-down pull-right"></span> <span class="js-sorter-asc     glyphicon glyphicon-chevron-up pull-right"></span></th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE"> > 5 Days <p><span class="js-sorter-desc     glyphicon glyphicon-chevron-down pull-right"></span> <span class="js-sorter-asc     glyphicon glyphicon-chevron-up pull-right"></span></th>
+
+                             </tr>
+                             <tr><td>&nbsp;</td></tr>
+                             <tr>
+                                <th>
+                                <select class="js-filter  form-control">
+                                    <option value="">Filter RM</option>'.$rm_option.'
+                                </select>
+
+                                </th>
+                                <th>
+                                <select class="js-filter  form-control">
+                                    <option value="">Filter State</option>'.$state_option.'
+                                </select>
+                                </th>
+                                <th>
+                                <select class="js-filter  form-control">
+                                    <option value="">Filter City</option>'.$city_option.'
+                                </select>
+                                </th>
+                                <th>
+                                <select class="js-filter  form-control">
+                                    <option value="">Filter Name</option>'.$sf_option.'
+                                </select>
+                                </th>
+                                <th><input class="js-filter  form-control" type="text" value=""></th>
+                                <th><input class="js-filter  form-control" type="text" value=""></th>
+                                <th><input class="js-filter  form-control" type="text" value=""></th>
+                                <th><input class="js-filter  form-control" type="text" value=""></th>
+                                <th><input class="js-filter  form-control" type="text" value=""></th>
+                                <th><input class="js-filter  form-control" type="text" value=""></th>
+                                <th><input class="js-filter  form-control" type="text" value=""></th>
+                                <th><input class="js-filter  form-control" type="text" value=""></th>
+                              </tr>
+                              <tr><td>&nbsp;</td></tr>
+                           </thead>
+                           <tbody >';
+       
 
        $show_state = [];
        $greater_than_5_days = 0;
@@ -342,33 +439,25 @@ class Booking_utilities {
 
            foreach ($final_way as $key => $value) {
                
-               $style = '';
+               //Getting  RM Details
+                $employee_relation = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($value['service_center_id']);
+                if (!empty($employee_relation)) {
+                    $rm = $this->My_CI->employee_model->getemployeefromid($employee_relation[0]['agent_id'])[0]['full_name'];
+                } else {
+                    $rm = "";
+                }
+
+                $style = '';
                if($value['active'] == 0 ){
                    $style = "background:#f25788";
-               }
-               if($value['active'] == NULL){
+               }else if($value['active'] == NULL){
                    $style = "background:#f4f44b";
+               }else if($value['temporary_on_off'] == 0){
+                   $style = "background:#7986CB";
                }
                
                if ($value['state'] == $val) {
-
-                   $show_state[$key] = (in_array($val, $show_state)) ? '' : $val;
-
-                   if ($show_state[$key] != '') {
-                       if ($key >= 1) {
-                           $html.="<tr>" .
-                                   "<td style='text-align: center;border: 1px solid #001D48;'>" . '' .
-                                   "</td><td style='text-align: center;border: 1px solid #001D48;font-size:80%;'>" . '' .
-                                   " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $yesterday_booked .
-                                   " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $yesterday_completed .
-                                   " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $yesterday_cancelled .
-                                   " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $month_completed .
-                                   " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $month_cancelled .
-                                   " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $last_2_day .
-                                   " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $last_3_day .
-                                   " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $greater_than_5_days .
-                                   " </td></tr>";
-                           $yesterday_booked = 0;
+                       $yesterday_booked = 0;
                            $yesterday_completed = 0;
                            $yesterday_cancelled = 0;
                            $month_completed = 0;
@@ -376,23 +465,20 @@ class Booking_utilities {
                            $last_2_day = 0;
                            $last_3_day = 0;
                            $greater_than_5_days = 0;
-                       }
-                       $html.= "<tr style='padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd;border: 1px solid #ddd;'>"
-                               . "<td colspan='2'><span style='color:#FF9900;'>" .
-                               $value['state'] . "</span></td></tr>";
-                   }
 
                    $html.="<tr style='".$style."'>" .
-                           "<td style='text-align: center;border: 1px solid #001D48;'>" . $value['city'] .
-                           "</td><td style='text-align: center;border: 1px solid #001D48;font-size:80%;'>" . $value['service_center_name'] .
-                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1'>" . $value['yesterday_booked'] .
-                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1'>" . $value['yesterday_completed'] .
-                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1'>" . $value['yesterday_cancelled'] .
-                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1'>" . $value['month_completed'] .
-                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1'>" . $value['month_cancelled'] .
-                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1'>" . $value['last_2_day'] .
-                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1'>" . $value['last_3_day'] .
-                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1'>" . $value['greater_than_5_days'] .
+                           "<td style='text-align: center;border: 1px solid #001D48;padding:5px;font-size:80%' class='text-right'>" . $rm .
+                           "<td style='text-align: center;border: 1px solid #001D48;padding:5px;font-size:80%' class='text-right'>" . $value['state'] .
+                           "<td style='text-align: center;border: 1px solid #001D48;padding:5px;font-size:80%;' class='text-right'>" . $value['city'] .
+                           "</td><td style='text-align: center;border: 1px solid #001D48;font-size:80%;padding:5px;' class='text-right'>" . $value['service_center_name'] .
+                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right'>" . $value['yesterday_booked'] .
+                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right'>" . $value['yesterday_completed'] .
+                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right'>" . $value['yesterday_cancelled'] .
+                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right'>" . $value['month_completed'] .
+                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right'>" . $value['month_cancelled'] .
+                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right'>" . $value['last_2_day'] .
+                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right'>" . $value['last_3_day'] .
+                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right'>" . $value['greater_than_5_days'] .
                            " </td></tr>";
 
                    $yesterday_booked += $value['yesterday_booked'];
@@ -414,36 +500,25 @@ class Booking_utilities {
                }
            }
        }
-       $html.="<tr>" .
-               "<td style='text-align: center;border: 1px solid #001D48;'>" . '' .
-               "</td><td style='text-align: center;border: 1px solid #001D48;font-size:80%;'>" . '' .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $yesterday_booked .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $yesterday_completed .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $yesterday_cancelled .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $month_completed .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $month_cancelled .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $last_2_day .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $last_3_day .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#D3DCE3'>" . $greater_than_5_days .
-               " </td></tr>";
 
-       $html.="<tr><td>&nbsp;</td></tr>";
-       $html.="<tr>" .
-               "<td style='text-align: center;border: 1px solid #001D48;'>" . '' .
-               "</td><td style='text-align: center;border: 1px solid #001D48;font-size:80%;background:#FF9900'>" . 'TOTAL' .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900'><strong>" . $overall_yesterday_booked . '<strong>' .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900'><strong>" . $overall_yesterday_completed . '<strong>' .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900'><strong>" . $overall_yesterday_cancelled . '<strong>' .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900'><strong>" . $overall_month_completed . '<strong>' .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900'><strong>" . $overall_month_cancelled . '<strong>' .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900'><strong>" . $overall_last_2_day . '<strong>' .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900'><strong>" . $overall_last_3_day . '<strong>' .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900'><strong>" . $overall_greater_than_5_days . '<strong>' .
+       $html .="</tbody>
+                         </table>";
+       $html.="<table style='margin-bottom: 20px;border: 1px solid #ddd; border-collapse: collapse;'><tbody><tr>" .
+               "</td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:570px'>" . 'TOTAL' .
+               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong>" . $overall_yesterday_booked . '<strong>' .
+               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong>" . $overall_yesterday_completed . '<strong>' .
+               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong>" . $overall_yesterday_cancelled . '<strong>' .
+               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong>" . $overall_month_completed . '<strong>' .
+               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong>" . $overall_month_cancelled . '<strong>' .
+               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong>" . $overall_last_2_day . '<strong>' .
+               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong>" . $overall_last_3_day . '<strong>' .
+               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong>" . $overall_greater_than_5_days . '<strong>' .
                " </td></tr>";
 
        $html .= '</tbody>
-                         </table>
-                       </div>';
+                         </table></div>
+                 <script src="'.  base_url().'js/dynamitable.jquery.min.js"></script>'
+               . '<script type="text/javascript">$("select").select2();</script>';
        $html .= '</body>
                    </html>';
 
@@ -462,18 +537,18 @@ class Booking_utilities {
 
         $partner_status= $this->My_CI->booking_model->get_partner_status($partner_id,$current_status,$internal_status);
         
-        if(!empty($partner_status) ){
+        if(!empty($partner_status['partner_current_status']) && !empty($partner_status['partner_internal_status'])){
             $booking['partner_current_status'] = $partner_status[0]['partner_current_status'];
             $booking['partner_internal_status'] = $partner_status[0]['partner_internal_status'];
         }else{
-            if(strpos($booking_id, 'Q-') !== false){
-                $booking['partner_current_status'] = 'PENDING';
-                $booking['partner_internal_status'] = 'Customer_Not_Available';
+            if(substr($booking_id,0,2) == 'Q-'){
+                $booking['partner_current_status'] = _247AROUND_PENDING;
+                $booking['partner_internal_status'] = _247AROUND__Customer_Not_Available;
                 $this->send_mail_When_no_data_found($internal_status,$internal_status,$booking_id, $partner_id);
                 
             }else{
-                $booking['partner_current_status'] = 'SCHEDULED';
-                $booking['partner_internal_status'] = 'SCHEDULED';
+                $booking['partner_current_status'] = _247AROUND__SCHEDULED;
+                $booking['partner_internal_status'] = _247AROUND__SCHEDULED;
                 $this->send_mail_When_no_data_found($current_status,$internal_status,$booking_id, $partner_id);
             }
             
@@ -558,7 +633,15 @@ class Booking_utilities {
             } else {
                 $pending_bookings_greater_than_5_days = "";
             }
-            $html.="<tr>" .
+            
+            $style = '';
+            if ($value['active'] == 0) {
+                $style = "background:#f25788";
+            } else if ($value['on_off'] == 0) {
+                $style = "background:#7986CB";
+            }
+
+            $html.="<tr  style=".$style.">" .
                     "<td style='text-align: center;border: 1px solid #001D48;padding:10px;'>" . $value['state'] .
                     "</td><td style='text-align: center;border: 1px solid #001D48;'>" . $value['district'] .
                     "</td><td style='text-align: center;border: 1px solid #001D48;font-size:90%;'>" . $value['name'] .
@@ -585,12 +668,14 @@ class Booking_utilities {
                 . "<li><b>0-2 Days:</b> Total count of Bookings that are Pending, Rescheduled between 0-2 Days. </li>"
                 . "<li><b>3-5 Days:</b> Total count of Bookings that are Pending, Rescheduled bewteen 3-5 Days. </li>"
                 . "<li><b> >5 Days:</b> Total count of Bookings that are Pending, Rescheduled greater than 5 Days. </li>"
+                . "<li><b> <span style='width:20px;background:#f25788;border-radius:5px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>:</b> Permanent Deactivated SF's </li>"
+                . "<li><b> <span style='width:20px;background:#7986CB;border-radius:5px;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>:</b> Temporary Off SF's </li>"
                 . "</ul>";
         $html .= '</body>
                    </html>';
         return $html;
     }
-    
+
     /**
      * @Desc: This function is used to Send The Email When No Data found from partner_booking_status_mapping_table
      * @params: array()
@@ -598,7 +683,7 @@ class Booking_utilities {
      * 
      */
     function send_mail_When_no_data_found($current_status,$internal_status,$booking_id,$partner_id){
-        $to = "ANUJ_EMAIL_ID";
+        $to = ANUJ_EMAIL_ID;
         $cc = "";
         $bcc = "";
         $subject = " No Data found for '".$current_status."' and '".$internal_status."' in partner_booking_status_mapping Table";

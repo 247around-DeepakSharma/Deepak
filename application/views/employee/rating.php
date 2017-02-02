@@ -77,6 +77,7 @@
                                 <div class="col-md-6">
                                     <Select type="text" class="form-control"  name="rating_star" value="<?php echo set_value('rating_star'); ?>" style="width:47%;">
                                     <option>Select</option>
+                                    <option>-1</option>
                                     <option>1</option>
                                     <option>2</option>
                                     <option>3</option>

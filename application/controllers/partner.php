@@ -32,6 +32,7 @@ define('ERR_INVALID_TIMESLOT_FORMAT_CODE', -1013);
 define('ERR_INVALID_INSTALLATION_TIMESLOT_CODE', -1014);
 define('ERR_INVALID_PARTNER_NAME_CODE', -1015);
 define('ERR_INVALID_JSON_INPUT_CODE', -1016);
+define('ERR_INVALID_PRODUCT_TYPE_CODE', -1017);
 
 define('ERR_BOOKING_NOT_INSERTED_MSG', 'Booking insertion failed');
 define('ERR_GENERIC_ERROR_MSG', 'Unknown Error');
@@ -51,6 +52,7 @@ define('ERR_INVALID_TIMESLOT_FORMAT_MSG', 'Invalid Timeslot Format');
 define('ERR_INVALID_INSTALLATION_TIMESLOT_MSG', 'Invalid Installation Timeslot');
 define('ERR_INVALID_PARTNER_NAME_MSG', 'Invalid Partner Name');
 define('ERR_INVALID_JSON_INPUT_MSG', 'Invalid JSON Input');
+define('ERR_INVALID_PRODUCT_TYPE', 'Installation not required');
 
 class Partner extends CI_Controller {
 
@@ -77,6 +79,7 @@ class Partner extends CI_Controller {
         $this->load->library('partner_utilities');
         $this->load->library("asynchronous_lib");
         $this->load->library('booking_utilities');
+        $this->load->library('asynchronous_lib');
         $this->load->helper(array('form', 'url'));
     }
 
@@ -116,13 +119,16 @@ class Partner extends CI_Controller {
             
             //Validate token
             $this->partner = $this->partner_model->validate_partner($this->token);
+           
             if ($this->partner !== FALSE) {
                 log_message('info', __METHOD__ . ":: Token validated (Partner ID: " . $this->partner['id'] . ")");
 
                 //Token validated
                 $input_d = file_get_contents('php://input');
                 $requestData = json_decode($input_d, TRUE);
-                
+
+                $requestData = json_decode($input_d, TRUE);
+                                 
                 if(!empty($requestData['brand'])){
                     //Sanitizing Brands Before Adding
                     $requestData['brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $requestData['brand']);
@@ -141,7 +147,7 @@ class Partner extends CI_Controller {
                     $is_valid = $this->validate_submit_request_data($requestData);
                     if ($is_valid['result'] == TRUE) {
                         log_message('info', __METHOD__ . ":: Request validated");
-
+                        
                         //Search for user
                         //Insert user if phone number doesn't exist
                         $output = $this->user_model->search_user($requestData['mobile']);
@@ -184,7 +190,10 @@ class Partner extends CI_Controller {
                             $user_id = $output[0]['user_id'];
                         }
                         
+                        //if productType is valid then proceed else send invalid json response 
+                        $is_productType_valid = $this->validate_product_type($requestData);
                         
+                        if($is_productType_valid['error'] !== TRUE){                         
                         log_message('info', 'Product type: ' . $requestData['product']);
                         $prod = trim($requestData['product']);
 
@@ -354,6 +363,13 @@ class Partner extends CI_Controller {
                             "247aroundBookingID" => $booking['booking_id'],
                             "247aroundBookingStatus" => $booking['current_status']);
                         $this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
+                        }else{
+                            log_message('info', __METHOD__ . ":: Request validation fails for product type. " . print_r($requestData['productType'], true));
+                        
+                            $this->jsonResponseString['response'] = NULL;
+                            $this->sendJsonResponse(array(ERR_INVALID_PRODUCT_TYPE_CODE,ERR_INVALID_PRODUCT_TYPE));
+                        }
+
                     } else {
                         log_message('info', __METHOD__ . ":: Request validation fails. " . print_r($is_valid, true));
 
@@ -859,7 +875,7 @@ class Partner extends CI_Controller {
         if ($resultArr['code'] == "") {
             $resultArr['result'] = TRUE;
         }
-
+  
         return $resultArr;
     }
 
@@ -1607,17 +1623,11 @@ class Partner extends CI_Controller {
             
         
             //-------Sending SMS on booking--------//
-//            $smsBody = "Got it! Request for " . trim($lead_details['Product']) . " Repair is confirmed for " .
-//                    $booking['booking_date'] . ", " . $booking['booking_timeslot'] .
-//                    ". 247Around Indias 1st Multibrand Appliance repair App goo.gl/m0iAcS. 9555000247";
+            $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+            $send['booking_id'] = $booking['booking_id'];
+            $send['state'] = "Newbooking";
+            $this->asynchronous_lib->do_background_process($url, $send);
 
-
-            //$this->notify->sendTransactionalSmsAcl($booking['booking_primary_contact_no'], $smsBody);
-            //For saving SMS to the database on sucess
-//            
-//            $this->notify->add_sms_sent_details($user_id, 'partner' , $booking['booking_primary_contact_no'],
-//                 $smsBody, $booking['booking_id'], "partner_added_new_booking");
-            
 
             $this->notify->insert_state_change($booking['booking_id'], _247AROUND_PENDING , _247AROUND_NEW_BOOKING , 
                     $booking['booking_remarks'], $agent_id, $requestData['partnerName'], $booking['partner_id']);
@@ -1829,6 +1839,78 @@ class Partner extends CI_Controller {
             $data['source'] = 'SS';
         }
         return $data;
+    }
+    
+    
+    /**
+     * @desc: This function is used to validate the product type
+     * @param array $data
+     * @return array
+     */
+    function validate_product_type($data) {
+        log_message('info', __FUNCTION__ . "=> Entering validation routine...");
+	$invalid_data = array();
+        $prod = trim($data['productType']);
+	// get unproductive description array
+	$unproductive_description = $this->unproductive_product();
+        foreach($unproductive_description as $un_description) {
+            if (stristr($prod, $un_description)) {
+		    array_push($invalid_data, $prod);
+		}
+	}
+	if (!empty($invalid_data)) {
+	    log_message('info', __FUNCTION__ . ' =>  Product description is not valid in JSON Request Data: ' .
+		print_r($invalid_data, true));
+
+	    $data['error'] = true;
+            $data['invalid_product'] = $invalid_data;
+           // $data['error']['invalid_title'][] =  "Product description is not valid in Excel data:";
+	    // Add Only user
+	   // $this->add_user_for_invalid($data);
+	}
+        log_message('info', __FUNCTION__ . "=> Exiting validation routine: Under Control");
+
+	return $data;
+    }
+    
+    /**
+     * @desc: This is used to store key. If this key exists in the JSON Request then we will remove them.
+     * @return array
+     */
+    function unproductive_product() {
+	$unproductive_description = array(
+	    'Tds Meter',
+	    'Water Purifier Accessories',
+	    'Room Heater',
+	    'Immersion Rod',
+            '(PNG /LPG) Geyser',
+            'Gas Geyser',
+            'Set of 2',
+            'Drinking Water Pump',
+            'Set of 24 pcs',
+            'Casseroles',
+            'Spun Filter Cartridge',
+            'Oil Filled Radiator',
+            'Immersion Water Heater Rod',
+            '10" Filter Housing Transparent',
+            'Blow Hot Element Heater',
+            'Bajaj Fan Heater',
+            'Gas Geyser',
+            'Ro Body Cover',
+            'Pack Of 24 Pcs',
+            'Mineral Water Pot Offline Non Electric Water Purifer Filter',
+            'Membrane Ro Water Purifier',
+            '15 Filter',
+            'Hevy Duty 5000 Cartridge',
+            'Cleanwell Filter',
+            'CSM MEMBRANE 80 GPD',
+            'Spun Filter pack of ',
+            'Zero B Filter',
+            'Tower Heater',
+            'Oil Filled Heater'
+	);
+
+	return $unproductive_description;
     }
 
 }

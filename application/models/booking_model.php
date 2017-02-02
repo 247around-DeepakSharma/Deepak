@@ -157,9 +157,9 @@ class Booking_model extends CI_Model {
              $add_limit = " LIMIT $start, $limit ";
         }
         if($booking_id != ""){
-            $where =  "  booking_id = '$booking_id' AND ";
+            $where =  "  `booking_details.booking_id` = '$booking_id' AND ";
         }
-        $query = $this->db->query("Select services.services,users.name as customername,
+        $query = $this->db->query("Select services.services,users.name as customername,penalty_on_booking.active as penalty_active,
             users.phone_number, booking_details.*, service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,
             service_centres.primary_contact_phone_1
@@ -167,12 +167,13 @@ class Booking_model extends CI_Model {
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-            WHERE `booking_id` NOT LIKE '%Q-%' AND $where
+            LEFT JOIN `penalty_on_booking` ON `booking_details`.`booking_id` = `penalty_on_booking`.`booking_id`
+            WHERE `booking_details`.booking_id NOT LIKE '%Q-%' AND $where
             (booking_details.current_status = '$status')
 	    ORDER BY closed_date DESC $add_limit "
         );
        $temp = $query->result();
-       usort($temp, array($this, 'date_compare_bookings'));
+       usort($temp, array($this, 'date_compare_bookings')); 
        return $temp;
     }
 
@@ -797,8 +798,10 @@ class Booking_model extends CI_Model {
      *  @return : array (service)
      */
     function check_brand_exit($service_id, $newbrand){
-        $sql = "select * from appliance_brands where service_id='".$service_id."' and brand_name = '".$newbrand."'";
-        $query = $this->db->query($sql);
+        $this->db->select('*');
+        $this->db->where(array('service_id'=>$service_id,'brand_name'=>$newbrand));
+        $query=$this->db->get('appliance_brands');
+        //$sql = "select * from appliance_brands where service_id='".$service_id."' and brand_name = '".$newbrand."'";
         return $query->result_array();
     }
 
@@ -810,8 +813,9 @@ class Booking_model extends CI_Model {
      *  @return : array (service)
      */
     function getServiceId($service_name) {
-        $sql = "SELECT * FROM services WHERE services='$service_name'";
-        $query = $this->db->query($sql);
+        $this->db->select('*');
+        $this->db->where('services', $service_name);
+        $query = $this->db->get('services');
 
         if($query->num_rows > 0){
             $services = $query->result_array();
@@ -829,7 +833,9 @@ class Booking_model extends CI_Model {
      *  @return : source name of the code
      */
     function get_booking_source($source_code) {
-        $query = $this->db->query("SELECT source,partner_type,partner_id FROM bookings_sources WHERE code='$source_code'");
+        $this->db->select('source,partner_type,partner_id ');
+        $this->db->where('code',$source_code);
+        $query = $this->db->get('bookings_sources');
         return $query->result_array();
     }
 
@@ -854,7 +860,9 @@ class Booking_model extends CI_Model {
      */
     //TODO: can be removed
     function get_sd_lead($id) {
-        $query = $this->db->query("SELECT * FROM snapdeal_leads WHERE id='$id'");
+        $this->db->select('*');
+        $this->db->where('id',$id);
+        $query = $this->db->get('snapdeal_leads');
         $results = $query->result_array();
 
         return $results[0];
@@ -868,7 +876,9 @@ class Booking_model extends CI_Model {
     //TODO: can be removed
 
     function get_sd_unassigned_bookings() {
-        $query = $this->db->query("SELECT * FROM snapdeal_leads WHERE Status_by_247around='NewLead'");
+        $this->db->select('*');
+        $this->db->where('Status_by_247around', 'NewLead');
+        $query= $this->db->get('snapdeal_leads');
         return $query->result_array();
     }
 
@@ -881,7 +891,9 @@ class Booking_model extends CI_Model {
      *  @return : array of snapdeal booking details
      */
     function get_all_sd_bookings() {
-        $query = $this->db->query("SELECT * FROM snapdeal_leads ORDER BY create_date DESC");
+        $this->db->select('*');
+        $this->db->order_by('create_date', 'DESC');
+        $query = $this->db->get('snapdeal_leads');
         return $query->result_array();
     }
 
@@ -1381,13 +1393,13 @@ class Booking_model extends CI_Model {
      * @return: Array of email template
      */
     function get_booking_email_template($email_tag) {
-        $this->db->select("template, to, from,cc");
+        $this->db->select("template, to, from,cc, subject");
         $this->db->where('tag', $email_tag);
         $this->db->where('active', 1);
         $query = $this->db->get('email_template');
         if ($query->num_rows > 0) {
             $template = $query->result_array();
-            return array($template[0]['template'], $template[0]['to'], $template[0]['from'],$template[0]['cc']);
+            return array($template[0]['template'], $template[0]['to'], $template[0]['from'],$template[0]['cc'],$template[0]['subject']);
         } else {
             return "";
         }
@@ -2203,7 +2215,7 @@ class Booking_model extends CI_Model {
     function get_partner_status($partner_id,$current_status, $internal_status){
         $this->db->select('partner_current_status, partner_internal_status');
         $this->db->where(array('partner_id' => $partner_id,'247around_current_status' => $current_status, '247around_internal_status' => $internal_status));
-        $this->db->or_where('partner_id','247');
+        $this->db->or_where('partner_id',_247AROUND);
         $this->db->where(array('247around_current_status' => $current_status, '247around_internal_status' => $internal_status));
         $query = $this->db->get('partner_booking_status_mapping');
         return $query->result_array();

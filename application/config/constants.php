@@ -71,6 +71,10 @@ define('_247AROUND_CANCELLED','Cancelled');
 define('_247AROUND_RESCHEDULED','Rescheduled');
 //constant to define Completed state
 define('_247AROUND_COMPLETED','Completed');
+//constant to define Customer Not Available
+define('_247AROUND__Customer_Not_Available','Customer_Not_Available');
+//constant to define SCHEDULED
+define('_247AROUND__SCHEDULED','SCHEDULED');
 //Only Pincode available Queries
 define('PINCODE_AVAILABLE','p_av');
 //Only Pincode not available Queies
@@ -220,5 +224,19 @@ define('DEFAULT_ENGINEER', 24700001);
 define("UPCOUNTRY_CHARGES_APPROVED", "Upcountry Charges Approved");
 define("UPCOUNTRY_CHARGES_NOT_APPROVED", "Upcountry Charges Not Approved");
 define("DEFAULT_UPCOUNTRY_RATE", 3);
+//Define Incentive Cut
+define('INCENTIVE_CUT',12);
+//Define Penalty - Fake Complete customer want installation
+define('PENALTY_FAKE_COMPLETE_CUSTOMER_WANT_INSTALLATION',14);
+//Define Penalty - Fake Complete customer not want installation
+define('PENALTY_FAKE_COMPLETE_CUSTOMER_NOT_WANT_INSTALLATION',15);
+//Define Escalation Panalty id
+define('ESCALATION_PENALTY',1);
+define('PENALTY_FAKE_CANCEL',13);
+//Define error code for order id not found for partner_sd_sb.php file
+define('ERR_ORDER_ID_NOT_FOUND_CODE', -1007);
+//Define error code for order id not found for partner_sd_sb.php file
+define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Not Found');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

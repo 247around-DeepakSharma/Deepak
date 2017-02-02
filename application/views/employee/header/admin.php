@@ -113,6 +113,10 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/upcountry/get_upcountry_failed_details"><i class="fa fa-fw fa-desktop"></i> <strong> Failed Upcountry</strong></a>
                         </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/booking/update_not_pay_to_sf_booking"><i class="fa fa-fw fa-desktop"></i> <strong>Wall Mount Not Given</strong></a>
+                        </li>
                   
                     </ul>
                     <!-- /.dropdown-tasks -->
@@ -299,6 +303,10 @@
                             <a href="<?php echo base_url()?>BookingSummary/get_rm_crimes/0"><i class="fa fa-fw fa-desktop "></i> <strong>RM Crimes Report</strong></a>
                         </li>
                         </li><li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>BookingSummary/show_reports_chart" ><i class="fa fa-fw fa-desktop"></i> <strong> RM Performance Stats</strong></a>
+                        </li>
+                        <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>BookingSummary/agent_working_details/month" ><i class="fa fa-fw fa-desktop"></i> <strong> Agents Booking Stats</strong></a>
                         </li>

@@ -158,5 +158,17 @@ class Employee_model extends CI_Model{
           $query = $this->db->get('employee');
           return $query->result_array();
       }
+      
+      /**
+       * @Desc: This function is used to get Employee details from Full Name
+       * @params: Full Name
+       * @return: Array
+       * 
+       */
+      function get_employee_by_full_name($fullname){
+          $this->db->where('full_name',$fullname);
+          $query = $this->db->get('employee');
+          return $query->result_array();
+      }
 
 }

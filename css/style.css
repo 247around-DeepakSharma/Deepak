@@ -68,3 +68,6 @@
 #booking_date{
     cursor:pointer;
 }
+.ui-widget-header {
+	color: #000!important;
+}

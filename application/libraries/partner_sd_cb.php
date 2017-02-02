@@ -12,11 +12,18 @@ if (!defined('BASEPATH'))
 //define('X_SELLER_AUTHZ_TOKEN', '9d002821-b47d-4763-9375-50c78ea0bcd5');
 //define('VENDOR_CODE', '0a247b');
 //Actual Data - pull them from DB later
-define('SD_CB_URL', 'https://apigateway.snapdeal.com:443/sts/api/sts/updateServiceStatus');
-define('X_AUTH_TOKEN', '869fcb5e31ce4a94b96b372a2fbc583c');
-define('X_SELLER_AUTHZ_TOKEN', '2ed5c582-eaef-4e2e-9a2c-f2459271c8db');
-define('VENDOR_CODE', 'S9f330');
 
+//define('SD_CB_URL', 'https://apigateway.snapdeal.com:443/sts/api/sts/updateServiceStatus');
+//define('X_AUTH_TOKEN', '869fcb5e31ce4a94b96b372a2fbc583c');
+//define('X_SELLER_AUTHZ_TOKEN', '2ed5c582-eaef-4e2e-9a2c-f2459271c8db');
+//define('VENDOR_CODE', 'S9f330');
+
+//define('SD_CB_URL', 'https://apigateway.snapdeal.com:443/sts/api/sts/updateServiceStatus');
+//define('X_AUTH_TOKEN', '869fcb5e31ce4a94b96b372a2fbc583c');
+//define('X_SELLER_AUTHZ_TOKEN', '2ed5c582-eaef-4e2e-9a2c-f2459271c8db');
+//define('VENDOR_CODE', 'S9f330');
+//
+//
 
 //define('ERR_ORDER_ID_NOT_FOUND_CODE', -1007);
 //define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Not Found');
@@ -40,328 +47,287 @@ class partner_sd_cb {
     private $jsonResponseString;
 
     function __Construct() {
-	$this->My_CI = & get_instance();
+        $this->My_CI = & get_instance();
 
-	$this->My_CI->load->model('partner_model');
+        $this->My_CI->load->model('partner_model');
     }
 
     //Call SD status update API when booking is scheduled
     public function update_status_schedule_booking($data) {
-	log_message('info', __METHOD__ . "=> Booking ID: " . $data['booking_id']);
-	$this->requestUrl = __METHOD__;
-   
-	if ($data['order_id'] != NULL) {
-	    $this->partner = $data['partner_id'];
+        log_message('info', __METHOD__ . "=> Booking ID: " . $data['booking_id']);
+        $this->requestUrl = __METHOD__;
 
-	    //Update status, remarks, start & end date
-	    //Get start and end dates
-	    $postData = array(
-		"vendorCode" => VENDOR_CODE,
-		"caseId" => $data['booking_id'],
-		"orderId" => $data['order_id'],
-		"vendorStatus" => $data['current_status'],
-		"remarks" => $data['internal_status']
-	    );
+        if ($data['order_id'] != NULL) {
+            $this->partner = $data['partner_id'];
 
-	    switch ($data['current_status']) {
-		case "Pending":
-		    $delDate = $this->getStartEndDate(date('Y-m-d H:i:s', strtotime($data['booking_date'])), $data['booking_timeslot']);
-		    $postData['startDate'] = $delDate['tsStart'];
-		    $postData['endDate'] = $delDate['tsEnd'];
+            //Update status, remarks, start & end date
+            //Get start and end dates
+            
+            
+            if($data['current_status'] == 'pending'){
+                $delDate = $this->getStartEndDate(date('Y-m-d H:i:s', strtotime($data['booking_date'])), $data['booking_timeslot']);
+                $postData['startDate'] = $delDate['tsStart'];
+                $postData['endDate'] = $delDate['tsEnd'];
+            }
+            
+            $postData = array(
+                "vendorCode" => VENDOR_CODE,
+                "caseId" => $data['booking_id'],
+                "orderId" => $data['order_id'],
+                "vendorStatus" => $data['current_status'],
+                "remarks" => $data['internal_status'],
+                "caseStatus" =>$data['partner_current_status']
+            );
 
-		    $postData['caseStatus'] = "SERVICE_SCHEDULED";
+            return $this->post_data($postData);
+        } else {
+            log_message('info', __METHOD__ . "=> Order ID Not Found");
 
-		    break;
+            $this->jsonRequestData = json_encode($data);
+            $this->jsonResponseString['response'] = ERR_ORDER_ID_NOT_FOUND_MSG;
+            $this->jsonResponseString['error'] = ERR_ORDER_ID_NOT_FOUND_CODE;
 
-		case "FollowUp":
-		    $postData['caseStatus'] = "DEFERRED_BY_CUSTOMER";
+            $responseData = array("data" => $this->jsonResponseString);
 
-		    break;
+            $activity = array(
+                'activity' => $this->requestUrl,
+                'json_request_data' => $this->jsonRequestData,
+                'json_response_string' => json_encode($responseData, JSON_UNESCAPED_SLASHES));
 
-		default:
-		    $postData['caseStatus'] = "DEFERRED_BY_CUSTOMER";
+            $this->My_CI->partner_model->log_partner_activity($activity);
 
-		    break;
-	    }
-
-	    return $this->post_data($postData);
-	} else {
-	    log_message('info', __METHOD__ . "=> Order ID Not Found");
-
-	    $this->jsonRequestData = json_encode($data);
-	    $this->jsonResponseString['response'] = ERR_ORDER_ID_NOT_FOUND_MSG;
-	    $this->jsonResponseString['error'] = ERR_ORDER_ID_NOT_FOUND_CODE;
-
-	    $responseData = array("data" => $this->jsonResponseString);
-
-	    $activity = array(
-		'activity' => $this->requestUrl,
-		'json_request_data' => $this->jsonRequestData,
-		'json_response_string' => json_encode($responseData, JSON_UNESCAPED_SLASHES));
-
-	    $this->My_CI->partner_model->log_partner_activity($activity);
-
-	    return FALSE;
-	}
+            return FALSE;
+        }
     }
 
     //Call SD status update API when query/booking is cancelled
     public function update_status_cancel_booking($data) {
-	log_message('info', __METHOD__ . "=> Booking ID: " . $data['booking_id']);
-	$this->requestUrl = __METHOD__;
+        log_message('info', __METHOD__ . "=> Booking ID: " . $data['booking_id']);
+        $this->requestUrl = __METHOD__;
 
-	if ($data['order_id'] != NULL) {
-	    $this->partner = $data['partner_id'];
+        if ($data['order_id'] != NULL) {
+            $this->partner = $data['partner_id'];
+            
+            
+            //Update status, remarks
+            $postData = array(
+                "vendorCode" => VENDOR_CODE,
+                "caseId" => $data['booking_id'],
+                "orderId" => $data['order_id'],
+                "vendorStatus" => $data['current_status'],
+                "caseStatus" =>$data['partner_current_status'],
+                'remarks' => $data['cancellation_reason']
+            );
+            
+            return $this->post_data($postData);
+        } else {
+            log_message('info', __METHOD__ . "=> Order ID Not Found");
 
-	    //Update status, remarks
-	    $postData = array(
-		"vendorCode" => VENDOR_CODE,
-		"caseId" => $data['booking_id'],
-		"orderId" => $data['order_id'],
-		"vendorStatus" => $data['current_status']
-	    );
+            $this->jsonRequestData = json_encode($data);
+            $this->jsonResponseString['response'] = ERR_ORDER_ID_NOT_FOUND_MSG;
+            $this->jsonResponseString['error'] = ERR_ORDER_ID_NOT_FOUND_CODE;
 
-	    switch ($data['cancellation_reason']) {
-		case "Already Installed":
-		    $postData['caseStatus'] = "REFUSED_BY_CUSTOMER";
-		    $postData['remarks'] = $data['cancellation_reason'];
-		    break;
+            $responseData = array("data" => $this->jsonResponseString);
 
-		case "Installation Not Required":
-		    $postData['caseStatus'] = "REFUSED_BY_CUSTOMER";
-		    $postData['remarks'] = $data['cancellation_reason'];
-		    break;
+            $activity = array(
+                'activity' => $this->requestUrl,
+                'json_request_data' => $this->jsonRequestData,
+                'json_response_string' => json_encode($responseData, JSON_UNESCAPED_SLASHES));
 
-		case "Product To Be Returned":
-		    $postData['caseStatus'] = "PARENT_PRODUCT_FAULTY";
-		    $postData['remarks'] = $data['cancellation_reason'];
-		    break;
+            $this->My_CI->partner_model->log_partner_activity($activity);
 
-		case "Customer Not Reachable":
-		    $postData['caseStatus'] = "CUSTOMER_NOT_AVAILABLE";
-		    $postData['remarks'] = $data['cancellation_reason'];
-		    break;
-
-		case "Denied By Vendor":
-		    $postData['caseStatus'] = "DENIED_BY_VENDOR";
-		    $postData['remarks'] = $data['cancellation_reason'];
-		    break;
-
-		default:
-		    $postData['caseStatus'] = "REFUSED_BY_CUSTOMER";
-		    $postData['remarks'] = "SERVICE_CANCELLED";
-		    break;
-	    }
-
-	    return $this->post_data($postData);
-	} else {
-	    log_message('info', __METHOD__ . "=> Order ID Not Found");
-
-	    $this->jsonRequestData = json_encode($data);
-	    $this->jsonResponseString['response'] = ERR_ORDER_ID_NOT_FOUND_MSG;
-	    $this->jsonResponseString['error'] = ERR_ORDER_ID_NOT_FOUND_CODE;
-
-	    $responseData = array("data" => $this->jsonResponseString);
-
-	    $activity = array(
-		'activity' => $this->requestUrl,
-		'json_request_data' => $this->jsonRequestData,
-		'json_response_string' => json_encode($responseData, JSON_UNESCAPED_SLASHES));
-
-	    $this->My_CI->partner_model->log_partner_activity($activity);
-
-	    return FALSE;
-	}
+            return FALSE;
+        }
     }
 
     //Call SD status update API when booking is completed
     public function update_status_complete_booking($data) {
-	log_message('info', __METHOD__ . "=> Booking ID: " . $data['booking_id']);
-	$this->requestUrl = __METHOD__;
+        log_message('info', __METHOD__ . "=> Booking ID: " . $data['booking_id']);
+        $this->requestUrl = __METHOD__;
 
-	if ($data['order_id'] != NULL) {
-	    $this->partner = $data['order_id'];
+        if ($data['order_id'] != NULL) {
+            $this->partner = $data['order_id'];
 
-	    //Find completion date
-	    $delDate = $this->getServiceCompletionDate(date('Y-m-d H:i:s', strtotime($data['booking_date'])));
+            //Find completion date
+            $delDate = $this->getServiceCompletionDate(date('Y-m-d H:i:s', strtotime($data['booking_date'])));
 
-	    //Update status, remarks
-	    $postData = array(
-		"vendorCode" => VENDOR_CODE,
-		"caseId" => $data['booking_id'],
-		"orderId" => $data['order_id'],
-		"caseStatus" => "SERVICE_DELIVERED",
-		"vendorStatus" => $data['current_status'],
-		"callType" => $data['internal_status'],
-		"startDate" => $delDate
-	    );
+            //Update status, remarks
+            $postData = array(
+                "vendorCode" => VENDOR_CODE,
+                "caseId" => $data['booking_id'],
+                "orderId" => $data['order_id'],
+                "caseStatus" =>$data['partner_current_status'],
+                "vendorStatus" => $data['current_status'],
+                "callType" => $data['internal_status'],
+                "startDate" => $delDate
+            );
         
-	    return $this->post_data($postData);
-	} else {
-	    log_message('info', __METHOD__ . "=> Order ID Not Found");
+            return $this->post_data($postData);
+        } else {
+            log_message('info', __METHOD__ . "=> Order ID Not Found");
 
-	    $this->jsonRequestData = json_encode($data);
-	    $this->jsonResponseString['response'] = ERR_ORDER_ID_NOT_FOUND_MSG;
-	    $this->jsonResponseString['error'] = ERR_ORDER_ID_NOT_FOUND_CODE;
+            $this->jsonRequestData = json_encode($data);
+            $this->jsonResponseString['response'] = ERR_ORDER_ID_NOT_FOUND_MSG;
+            $this->jsonResponseString['error'] = ERR_ORDER_ID_NOT_FOUND_CODE;
 
-	    $responseData = array("data" => $this->jsonResponseString);
+            $responseData = array("data" => $this->jsonResponseString);
 
-	    $activity = array(
-		'activity' => $this->requestUrl,
-		'json_request_data' => $this->jsonRequestData,
-		'json_response_string' => json_encode($responseData, JSON_UNESCAPED_SLASHES));
+            $activity = array(
+                'activity' => $this->requestUrl,
+                'json_request_data' => $this->jsonRequestData,
+                'json_response_string' => json_encode($responseData, JSON_UNESCAPED_SLASHES));
 
-	    $this->My_CI->partner_model->log_partner_activity($activity);
+            $this->My_CI->partner_model->log_partner_activity($activity);
 
-	    return FALSE;
-	}
+            return FALSE;
+        }
     }
 
     //Call SD status update API when booking is rescheduled
     public function update_status_reschedule_booking($data) {
-	log_message('info', __METHOD__ . "=> Booking ID: " . $data['booking_id']);
-	$this->requestUrl = __METHOD__;
+        log_message('info', __METHOD__ . "=> Booking ID: " . $data['booking_id']);
+        $this->requestUrl = __METHOD__;
 
-	if ($data['order_id'] != NULL) {
-	    $this->partner = $data['partner_id'];
+        if ($data['order_id'] != NULL) {
+            $this->partner = $data['partner_id'];
 
-	    //Update status, remarks, start & end date
-	    //Get start and end dates
-	    $delDate = $this->getStartEndDate(date('Y-m-d H:i:s', strtotime($data['booking_date'])), $data['booking_timeslot']);
+            //Update status, remarks, start & end date
+            //Get start and end dates
+            $delDate = $this->getStartEndDate(date('Y-m-d H:i:s', strtotime($data['booking_date'])), $data['booking_timeslot']);
 
-	    $postData = array(
-		"vendorCode" => VENDOR_CODE,
-		"caseId" => $data['booking_id'],
-		"orderId" => $data['order_id'],
-		"caseStatus" => "SERVICE_RESCHEDULED",
-		"vendorStatus" => $data['current_status'],
-		"remarks" => $data['internal_status'],
-		"startDate" => $delDate['tsStart'],
-		"endDate" => $delDate['tsEnd']
-	    );
+            $postData = array(
+                "vendorCode" => VENDOR_CODE,
+                "caseId" => $data['booking_id'],
+                "orderId" => $data['order_id'],
+                "caseStatus" =>$data['partner_current_status'],
+                "vendorStatus" => $data['current_status'],
+                "remarks" => $data['internal_status'],
+                "startDate" => $delDate['tsStart'],
+                "endDate" => $delDate['tsEnd']
+            );
           
-	    return $this->post_data($postData);
-	} else {
-	    log_message('info', __METHOD__ . "=> Order ID Not Found");
+            return $this->post_data($postData);
+        } else {
+            log_message('info', __METHOD__ . "=> Order ID Not Found");
 
-	    $this->jsonRequestData = json_encode($data);
-	    $this->jsonResponseString['response'] = ERR_ORDER_ID_NOT_FOUND_MSG;
-	    $this->jsonResponseString['error'] = ERR_ORDER_ID_NOT_FOUND_CODE;
+            $this->jsonRequestData = json_encode($data);
+            $this->jsonResponseString['response'] = ERR_ORDER_ID_NOT_FOUND_MSG;
+            $this->jsonResponseString['error'] = ERR_ORDER_ID_NOT_FOUND_CODE;
 
-	    $responseData = array("data" => $this->jsonResponseString);
+            $responseData = array("data" => $this->jsonResponseString);
 
-	    $activity = array(
-		'activity' => $this->requestUrl,
-		'json_request_data' => $this->jsonRequestData,
-		'json_response_string' => json_encode($responseData, JSON_UNESCAPED_SLASHES));
+            $activity = array(
+                'activity' => $this->requestUrl,
+                'json_request_data' => $this->jsonRequestData,
+                'json_response_string' => json_encode($responseData, JSON_UNESCAPED_SLASHES));
 
-	    $this->My_CI->partner_model->log_partner_activity($activity);
+            $this->My_CI->partner_model->log_partner_activity($activity);
 
-	    return FALSE;
-	}
+            return FALSE;
+        }
     }
 
     function post_data($postData) {
-	$curl = curl_init();
+        $curl = curl_init();
 
-	$this->header = array(
-	    "x-auth-token: " . X_AUTH_TOKEN,
-	    "x-seller-authz-token: " . X_SELLER_AUTHZ_TOKEN,
-	    "content-type: application/json"
-	);
+        $this->header = array(
+            "x-auth-token: " . X_AUTH_TOKEN,
+            "x-seller-authz-token: " . X_SELLER_AUTHZ_TOKEN,
+            "content-type: application/json"
+        );
 
-	$this->jsonRequestData = json_encode($postData);
+        $this->jsonRequestData = json_encode($postData);
 
-	curl_setopt_array($curl, array(
-	    CURLOPT_URL => SD_CB_URL,
-	    CURLOPT_RETURNTRANSFER => true,
-	    CURLOPT_ENCODING => "",
-	    CURLOPT_MAXREDIRS => 10,
-	    CURLOPT_TIMEOUT => 60,
-	    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-	    CURLOPT_CUSTOMREQUEST => "POST",
-	    CURLOPT_POSTFIELDS => $this->jsonRequestData,
-	    CURLOPT_HTTPHEADER => $this->header,
-	));
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => SD_CB_URL,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 60,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_POSTFIELDS => $this->jsonRequestData,
+            CURLOPT_HTTPHEADER => $this->header,
+        ));
 
-	$response = curl_exec($curl);
-	$err = curl_error($curl);
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
 
-	curl_close($curl);
+        curl_close($curl);
 
-	//Capture both response as well as error messages
-	$this->jsonResponseString['response'] = $response;
-	$this->jsonResponseString['error'] = $err;
+        //Capture both response as well as error messages
+        $this->jsonResponseString['response'] = $response;
+        $this->jsonResponseString['error'] = $err;
 
-	$responseData = array("data" => $this->jsonResponseString);
+        $responseData = array("data" => $this->jsonResponseString);
 
-	$activity = array(
-	    'partner_id' => $this->partner,
-	    'activity' => $this->requestUrl,
-	    'header' => json_encode($this->header),
-	    'json_request_data' => $this->jsonRequestData,
-	    'json_response_string' => json_encode($responseData, JSON_UNESCAPED_SLASHES));
+        $activity = array(
+            'partner_id' => $this->partner,
+            'activity' => $this->requestUrl,
+            'header' => json_encode($this->header),
+            'json_request_data' => $this->jsonRequestData,
+            'json_response_string' => json_encode($responseData, JSON_UNESCAPED_SLASHES));
 
-	$this->My_CI->partner_model->log_partner_activity($activity);
+        $this->My_CI->partner_model->log_partner_activity($activity);
 
-	if ($err) {
-	    log_message('info', "cURL Error #:" . $err);
-	    return "cURL Error #:" . $err;
-	} else {
-	    log_message('info', "cURL Response #:" . $response);
-	    return $response;
-	}
+        if ($err) {
+            log_message('info', "cURL Error #:" . $err);
+            return "cURL Error #:" . $err;
+        } else {
+            log_message('info', "cURL Response #:" . $response);
+            return $response;
+        }
 
-	//TODO: Parse return codes and take appropriate actions
+        //TODO: Parse return codes and take appropriate actions
     }
 
     function getStartEndDate($date, $time) {
-	$dt = date_create($date);
-	//Extract year
-	$start['year'] = $end['year'] = intval(date_format($dt, "Y"));
-	//Extract month
-	$start['month'] = $end['month'] = intval(date_format($dt, "m"));
-	//Extract day
-	$start['day'] = $end['day'] = intval(date_format($dt, "d"));
+        $dt = date_create($date);
+        //Extract year
+        $start['year'] = $end['year'] = intval(date_format($dt, "Y"));
+        //Extract month
+        $start['month'] = $end['month'] = intval(date_format($dt, "m"));
+        //Extract day
+        $start['day'] = $end['day'] = intval(date_format($dt, "d"));
 
-	switch ($time) {
-	    case "10AM-1PM":
-		$start['hour'] = 10;
-		$end['hour'] = 13;
-		$start['minute'] = $end['minute'] = 0;
-		break;
+        switch ($time) {
+            case "10AM-1PM":
+                $start['hour'] = 10;
+                $end['hour'] = 13;
+                $start['minute'] = $end['minute'] = 0;
+                break;
 
-	    case "1PM-4PM":
-		$start['hour'] = 13;
-		$end['hour'] = 16;
-		$start['minute'] = $end['minute'] = 0;
-		break;
+            case "1PM-4PM":
+                $start['hour'] = 13;
+                $end['hour'] = 16;
+                $start['minute'] = $end['minute'] = 0;
+                break;
 
-	    case "4PM-7PM":
-		$start['hour'] = 16;
-		$end['hour'] = 19;
-		$start['minute'] = $end['minute'] = 0;
-		break;
+            case "4PM-7PM":
+                $start['hour'] = 16;
+                $end['hour'] = 19;
+                $start['minute'] = $end['minute'] = 0;
+                break;
 
-	    default:
-		break;
-	}
+            default:
+                break;
+        }
 
-	return array("tsStart" => $start, "tsEnd" => $end);
+        return array("tsStart" => $start, "tsEnd" => $end);
     }
 
     function getServiceCompletionDate($date) {
-	$dt = date_create($date);
-	//Extract year
-	$start['year'] = date_format($dt, "Y");
-	//Extract month
-	$start['month'] = date_format($dt, "m");
-	//Extract day
-	$start['day'] = date_format($dt, "d");
-	//Set other fields
-	$start['hour'] = $start['minute'] = $end['minute'] = 0;
+        $dt = date_create($date);
+        //Extract year
+        $start['year'] = date_format($dt, "Y");
+        //Extract month
+        $start['month'] = date_format($dt, "m");
+        //Extract day
+        $start['day'] = date_format($dt, "d");
+        //Set other fields
+        $start['hour'] = $start['minute'] = $end['minute'] = 0;
 
-	return $start;
+        return $start;
     }
 
 }

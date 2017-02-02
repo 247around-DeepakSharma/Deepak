@@ -1,3 +1,8 @@
+<style type="text/css">
+    .has-error{
+        color:red;
+    }
+</style>
 <div id="page-wrapper">
    <div class="container-fluid">
       <div class="row">
@@ -49,6 +54,12 @@
                                  <?php echo form_error('escalation_reason_id'); ?>
                               </div>
                            </div>
+                                <div class="form-group ">
+                                    <label for="remarks" class="col-md-2">Remarks</label>
+                                    <div class="col-md-6">
+                                        <textarea class="form-control"  name="remarks" placeholder="Enter Remarks" rows="3"></textarea>
+                                    </div>
+                                </div>    
                            
                            <div class="form-group ">
                               

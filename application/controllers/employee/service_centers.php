@@ -1508,5 +1508,5 @@ class Service_centers extends CI_Controller {
         $rm_poc_email = $rm_details[0]['official_email'];
         return $rm_poc_email;
     }
-
-}
+    
+            }

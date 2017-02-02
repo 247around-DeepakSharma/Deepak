@@ -28,6 +28,7 @@ class Booking extends CI_Controller {
 	$this->load->model('partner_model');
 	$this->load->model('inventory_model');
         $this->load->model('upcountry_model');
+        $this->load->model('penalty_model');
 	$this->load->library('partner_sd_cb');
 	$this->load->library('partner_cb');
 	$this->load->library('notify');
@@ -1197,8 +1198,12 @@ class Booking extends CI_Controller {
 	$data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
 
 	$data['service_center'] = $this->booking_model->selectservicecentre($booking_id);
+
         $data['upcountry_details'] = $this->upcountry_model->upcountry_booking_list($data['booking_history'][0]['assigned_vendor_id'], 
                 $booking_id, false,$data['booking_history'][0]['upcountry_paid_by_customer']);
+
+        $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id);
+
 
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/viewdetails', $data);
@@ -1260,7 +1265,7 @@ class Booking extends CI_Controller {
 	}
         if(!empty($data))
         {
-            $to = "anuj@247around.com";
+            $to = "ANUJ_EMAIL_ID";
             $cc = "";
             $bcc = "";
             $subject = "New Brand Added By ".$this->session->userdata('employee_id');
@@ -1464,7 +1469,33 @@ class Booking extends CI_Controller {
      *  @return : refirect user controller
      */
     function cancelled_booking_re_book($booking_id, $phone) {
-	$this->booking_model->change_booking_status($booking_id);
+         $status = array("current_status" => "FollowUp",
+            "internal_status" => "FollowUp",
+            "cancellation_reason" => NULL,
+            "closed_date" => NULL);
+         
+        $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);
+        $partner_id='';
+        if(!empty($partner_id_data['partner_id'])){
+            $partner_id = $partner_id_data['partner_id'];
+        }
+        else{
+            $to = "ANUJ_EMAIL_ID";
+            $cc = "";
+            $bcc = "";
+            $subject = " No Partner ID Exists For Booking ID =  '".$booking_id."'";
+            $message = "No Partner ID Exists For Booking ID =  '".$booking_id."'";
+            $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
+        }
+        
+        if($partner_id){
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($status['current_status'], $status['internal_status'],$partner_id, $booking_id);
+            if(!empty($partner_status)){
+                $status['partner_current_status'] = $partner_status[0];
+                $status['partner_internal_status'] = $partner_status[1];
+            }
+        }
+	$this->booking_model->change_booking_status($booking_id,$status);
 	redirect(base_url() . 'employee/user/finduser/0/0/' . $phone, 'refresh');
     }
 
@@ -2059,7 +2090,7 @@ class Booking extends CI_Controller {
             $partner_id = $partner_id_data['partner_id'];
         }
         else{
-            $to = "anuj@247around.com";
+            $to = "ANUJ_EMAIL_ID";
             $cc = "";
             $bcc = "";
             $subject = " No Partner ID Exists For Booking ID =  '".$booking_id."'";
@@ -2330,4 +2361,45 @@ class Booking extends CI_Controller {
         redirect(base_url() . "employee/booking/get_missed_calls_view");
     }
     
+    /**
+     * @Desc: This function is used to update the pay to sf flag in booking details table
+     * @parmas: void
+     * @return: view
+     * 
+     */
+    function update_not_pay_to_sf_booking(){
+        log_message('info', __FUNCTION__);
+        
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/update_pay_to_sf_booking');
+    }
+    
+    /**
+     * @Desc: This function is used to update the pay to sf flag in booking details table
+     * @parmas: void
+     * @return: view
+     * 
+     */
+    function  process_update_not_pay_to_sf_booking(){
+        log_message('info', __FUNCTION__);
+        
+        $booking_id = $this->input->post('booking_id');
+        if(!empty($booking_id)){
+            foreach ($booking_id as $value) {
+                if(!empty($value)){
+                    $is_wall_mount_exist = $this->booking_model->get_unit_details(array('booking_id'=>$value,'price_tags'=>'Wall Mount Stand'));
+                    if(!empty($is_wall_mount_exist)){
+                        $this->booking_model->update_booking_unit_details($value,array('pay_to_sf' =>'0','price_tags'=>'Wall Mount Stand'));
+                        log_message('info',__FUNCTION__.' Pay To SF update in booking_unit_details for Booking ID = '.$value);
+                    }
+                }
+                
+            }
+            $this->session->set_flashdata('msg', 'Booking Updated Successfully');
+            redirect(base_url() . "employee/booking/update_not_pay_to_sf_booking");
+        }else{
+            redirect(base_url() . "employee/booking/update_not_pay_to_sf_booking");
+        }
+        
+    }
 }

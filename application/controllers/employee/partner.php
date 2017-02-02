@@ -1381,35 +1381,6 @@ class Partner extends CI_Controller {
             }
             
             $escalation['booking_id'] = $booking_id;
-            if(!is_null($bookinghistory[0]['assigned_vendor_id'])){
-                $escalation['vendor_id'] = $bookinghistory[0]['assigned_vendor_id'];
-                $vendorContact = $this->vendor_model->getVendorContact($escalation['vendor_id']);
-                $to = $vendorContact[0]['primary_contact_email'];
-                $cc = $vendorContact[0]['owner_email'].",nits@247around.com,escalations@247around.com";
-                
-                $message = "Booking " . $booking_id . " Escalated By Partner " . $this->session->userdata('partner_name'). " SF State ". 
-                        $vendorContact[0]['state']. " SF City ". $vendorContact[0]['city'].'<br><b>Remarks : '.$remarks.' </b>';
-                
-                $message .= "<br><br><b>Booking Details :</b><ul>";
-                    foreach($bookinghistory[0] as $key=>$value){
-                        $message .= "<li><b>".$key.'</b> =>';
-                        $message .= " ".$value.'</li>';
-                    }
-                    $message .="</ul>";
-                
-            } else {
-                $escalation['vendor_id'] = "";
-                $to = "escalations@247around.com"; 
-                $cc = NITS_ANUJ_EMAIL_ID;
-                $message = "Booking " . $booking_id . " Escalated By Partner " . $this->session->userdata('partner_name'). " SF State ".'<br><b>Remarks : '.$remarks.' </b>';
-                $message .= "<br><br><b>Booking Details :</b><ul>";
-                    foreach($bookinghistory as $key=>$value){
-                        $message .= "<li><b>".$key.'</b> =>';
-                        $message .= " ".$value.'</li>';
-                    }
-                    $message .="</ul>";
-            }
-            
             $escalation['booking_date'] = date('Y-m-d', strtotime($bookinghistory[0]['booking_date']));
             $escalation['booking_time'] = $bookinghistory[0]['booking_timeslot'];
             
@@ -1425,34 +1396,25 @@ class Partner extends CI_Controller {
             if($escalation_id){
                 log_message('info', __FUNCTION__ . " Escalation Inserted ");
                 $this->booking_model->increase_escalation_reschedule($booking_id, "count_escalation");
-                $from = "escalations@247around.com";
-                $bcc=""; $attachment = "";
-                
-                $subject = "Booking " . $booking_id . " Escalated By Partner " . $this->session->userdata('partner_name');
+                $bcc = "";
+                $attachment = "";
 
-                $is_mail = $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);
-                $partner_details = $this->partner_model->getpartner($this->session->userdata('partner_id'))[0];
-                $partner_mail_to = $partner_details['primary_contact_email'];
-                $partner_mail_cc = "nits@247around.com,escalations@247around.com";
+                $partner_details = $this->partner_model->get_partner_login_details($this->session->userdata('partner_id'))[0];
+                $partner_mail_to = $partner_details['email'];
+                $partner_mail_cc = NITS_ANUJ_EMAIL_ID . ",escalations@247around.com";
                 $partner_subject = "Booking " . $booking_id . " Escalated ";
-                $partner_message = "<p>This booking is ESCALATED to 247around, we will look into this very soon.</p><br>Booking " . $booking_id . " Escalated <br><br><strong>Remarks : </strong>".$remarks ;
-                $this->notify->sendEmail($from, $partner_mail_to, $partner_mail_cc, $bcc, $partner_subject, $partner_message, $attachment);
-                
-                if($is_mail){
-                    log_message('info', __FUNCTION__ . " Escalation Mail Sent ");
-                    
-                    $reason_flag['escalation_policy_flag'] = json_encode(array('mail_to_escalation_team'=>1), true);
+                $partner_message = "<p>This booking is ESCALATED to 247around, we will look into this very soon.</p><br><b>Booking ID : </b>" . $booking_id . " Escalated <br><br><strong>Remarks : </strong>" . $remarks;
+                $this->notify->sendEmail('booking@247around.com', $partner_mail_to, $partner_mail_cc, $bcc, $partner_subject, $partner_message, $attachment);
 
-                    $this->vendor_model->update_esclation_policy_flag($escalation_id, $reason_flag, $booking_id);
-                    
-                }
+                log_message('info', __FUNCTION__ . " Escalation Mail Sent ");
+
+                $reason_flag['escalation_policy_flag'] = json_encode(array('mail_to_escalation_team' => 1), true);
+
+                $this->vendor_model->update_esclation_policy_flag($escalation_id, $reason_flag, $booking_id);
             }
             
             log_message('info', __FUNCTION__ . " Exiting");
             
-            $this->session->set_flashdata('success', 'Booking '. $booking_id. " has been escalated, our team will look into this immediately.");
-
-          //  redirect(base_url() . "partner/escalation_form/".$booking_id);
        }
         
     }
@@ -1585,7 +1547,7 @@ class Partner extends CI_Controller {
     /**
      * @desc: This is used to get those booking who has requested to spare parts by SF
      */
-    function get_spare_parts_booking($offset = 0){
+    function get_spare_parts_booking($offset = 0,$all = 0){
         log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
@@ -1595,8 +1557,12 @@ class Partner extends CI_Controller {
         $config['base_url'] = base_url() . 'partner/get_spare_parts_booking';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
         $config['total_rows'] = $total_rows[0]['total_rows'];
-
-        $config['per_page'] = 50;
+        
+        if($all == 1){
+            $config['per_page'] = count($total_rows);
+        }else{
+            $config['per_page'] = 50;
+        }
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
@@ -1906,7 +1872,7 @@ class Partner extends CI_Controller {
     /**
      * @desc: Pending Defective Parts list 
      */
-    function get_waiting_defective_parts($offset = 0){
+    function get_waiting_defective_parts($offset = 0,$all = 0){
         log_message('info', __FUNCTION__ ." Pratner ID: ".  $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
@@ -1916,8 +1882,12 @@ class Partner extends CI_Controller {
         $config['base_url'] = base_url() . 'partner/get_waiting_defective_parts';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
         $config['total_rows'] = $total_rows[0]['total_rows'];
-
-        $config['per_page'] = 50;
+        
+        if($all == 1){
+            $config['per_page'] = count($total_rows);
+        }else{
+            $config['per_page'] = 50;
+        }
         $config['uri_segment'] = 3;
         $config['first_link'] = 'First';
         $config['last_link'] = 'Last';
@@ -2297,7 +2267,17 @@ class Partner extends CI_Controller {
       * 
       */
      function partner_default_page(){
+        $this->checkUserSession();
+        //Getting Spare Parts Details
+        $partner_id = $this->session->userdata('partner_id');
         $data['escalation_reason'] = $this->vendor_model->getEscalationReason(array('entity'=>'partner', 'active'=> '1'));
+        $where = "spare_parts_details.partner_id = '".$partner_id."' AND status = '".SPARE_PARTS_REQUESTED."' "
+                . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
+        
+        $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
+        
+        $data['spare_parts'] = $total_rows[0]['total_rows'];
+        
         $this->load->view('partner/header');
         $this->load->view('partner/partner_default_page',$data);
      }
