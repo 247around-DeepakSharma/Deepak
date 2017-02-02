@@ -127,7 +127,7 @@
                              <div class="col-md-4 ">
                                 <div class="form-group col-md-12  <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
                                     <label for="Booking Date ">Booking Date *</label>
-                                    <input type="date" min="<?php echo date("Y-m-d", strtotime("+1 day")) ?>" class="form-control"  id="booking_date" name="booking_date"   value = "<?php echo  date("Y-m-d", strtotime("+1 day")); ?>"  >
+                                    <input type="date" min="<?php echo date("Y-m-d"); ?>" class="form-control"  id="booking_date" name="booking_date"   value = "<?php echo  date("Y-m-d"); ?>"  >
                                     <!--   -->
                                     <?php echo form_error('booking_date'); ?>
                                 </div>
