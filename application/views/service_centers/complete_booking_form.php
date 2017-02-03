@@ -226,6 +226,8 @@
                     <?php } ?>
                     <div class="row">
                         <div class ="col-md-12">
+                             <?php if($booking_history[0]['is_upcountry'] == '1' 
+                            && $booking_history[0]['upcountry_paid_by_customer']== '1' ){ ?>
                             <div class="form-group col-md-6" style=" margin-left:-29px;">
                                 <label for="type" class="col-md-12">Upcountry Charges Paid By Customer</label>
                                 <div class="col-md-12">
@@ -235,6 +237,9 @@
                                     </div>
                                 </div>
                             </div>
+                            <?php } else { ?>
+                            <input  type="text" class="form-control cost" name="upcountry_charges" id="upcountry_charges" value="<?php echo "0";?>" placeholder="Enter Upcountry Charges Paid By Customer">
+                            <?php } ?>
                             <div class="form-group col-md-6">
                                 <label for="type" class="col-md-12">Total Customer Paid</label>
                                 <div class="col-md-12">
@@ -387,7 +392,7 @@
             document.getElementById('upcountry_charges').style.borderColor = "green";
         }
     }   
-    var closing_renmarks =$("#closing_remarks").val();        
+    var closing_remarks =$("#closing_remarks").val();        
     if(closing_remarks === ""){
         alert("Please Enter Remarks");
         document.getElementById('closing_remarks').style.borderColor = "red";

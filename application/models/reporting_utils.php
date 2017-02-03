@@ -1227,7 +1227,7 @@ class Reporting_utils extends CI_Model {
             $query4 = $this->db->query($sql_total_crimes);
             $result4 = $query4->result_array();
             
-            //Getting Monthly Esvcalations for each SF
+            //Getting Monthly Escalations for each SF
             $escalations_monthly = "SELECT COUNT(id) as monthly_escalations "
                     . "from vendor_escalation_log "
                     . "WHERE MONTH(`create_date`) = MONTH(CURRENT_DATE) AND"

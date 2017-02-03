@@ -477,7 +477,7 @@ class Notify {
 		    break;
 
 		case 'Newbooking':
-		    $sms['smsData']['service'] = $query1[0]['services'];
+		    $sms['smsData']['service'] = $query1[0]['services']. " ".$query1[0]['request_type'] ;
 		    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
 		    $sms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
 

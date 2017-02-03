@@ -512,12 +512,12 @@ class Partner extends CI_Controller {
         //Check form validation
         $checkValidation = $this->check_partner_Validation();
         if ($checkValidation) {
+            $bookings_sources['partner_type'] = $this->input->post('partner_type');
+            unset($_POST['partner_type']);
             // Used when we edit a particular Partner
             if (!empty($this->input->post('id'))) {
                 //if vendor exists, details are edited
                 $partner_id = $this->input->post('id');
-                $bookings_sources['partner_type'] = $this->input->post('partner_type');
-                unset($_POST['partner_type']);
                 
                 //Processing Contract File
                 if(($_FILES['contract_file']['error'] != 4) && !empty($_FILES['contract_file']['tmp_name'])){
@@ -1936,7 +1936,7 @@ class Partner extends CI_Controller {
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/get_waiting_defective_parts");
         } else { //if($response){
-            log_message('info', __FUNCTION__ . '=> Defective Spare Parts not udated  by Partner ' . $this->session->userdata('partner_id') .
+            log_message('info', __FUNCTION__ . '=> Defective Spare Parts Not Updated by Partner' . $this->session->userdata('partner_id') .
                     " booking id " . $booking_id);
             $userSession = array('success' => 'There is some error. Please try again.');
             $this->session->set_userdata($userSession);

@@ -240,5 +240,7 @@ define('ERR_ORDER_ID_NOT_FOUND_CODE', -1007);
 //Define error code for order id not found for partner_sd_sb.php file
 define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Not Found');
 
+define('HOME_THEATER_REPAIR_SERVICE_TAG', 'Repair - In Warranty (Home Visit)');
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

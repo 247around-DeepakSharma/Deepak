@@ -1505,7 +1505,7 @@ class Invoice extends CI_Controller {
 //                    print_r($details['date_range'], true) . ", Invoice status" . print_r($details['invoice_type'], true));
 //            }
 //            //Generate Invoice Id     
-//	    $this->generate_partner_invoices($details['vendor_partner_id'], $details['date_range'], $details['invoice_type']);
+//      $this->generate_partner_invoices($details['vendor_partner_id'], $details['date_range'], $details['invoice_type']);
             } else if ($invoice_details[0]['vendor_partner'] == 'vendor' && $invoice_details[0]['type'] != "Stand") {
                 $exist_invoice_type = "";
                 if ($invoice_details[0]['type'] == "FOC") {
@@ -2900,6 +2900,7 @@ class Invoice extends CI_Controller {
         log_message('info', __FUNCTION__ . " EXIT....");
         return true;
     }
+    
     /**
      * @desc: This method is used to download payment summary invoice for selected service center
      */
@@ -2932,7 +2933,7 @@ class Invoice extends CI_Controller {
             }
 
             header('Content-Type: text/csv; charset=utf-8');
-            header('Content-Disposition: attachment; filename=data.csv');
+            header('Content-Disposition: attachment; filename=payment_upload_summary.csv');
 
             // create a file pointer connected to the output stream
             $output = fopen('php://output', 'w');
@@ -2943,4 +2944,5 @@ class Invoice extends CI_Controller {
 
         }
     }
+    
 }

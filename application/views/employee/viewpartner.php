@@ -4,7 +4,7 @@
 <script type="text/javascript">
     
      function login_to_partner(partner_id){
-        var c = confirm('Do you want to login ?');
+        var c = confirm(Login to Partner CRM');
         if(c){
             $.ajax({
                 url:'<?php echo base_url()."employee/partner/allow_log_in_to_partner/" ?>'+partner_id,

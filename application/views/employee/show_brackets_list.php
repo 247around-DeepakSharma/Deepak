@@ -146,6 +146,8 @@
                                 <a href="<?php base_url()?>uncancel_brackets_request/<?php echo $value['order_id']?>" class="btn btn-sm btn-primary" style="margin-bottom: 3px;" title="Un-Cancel Request" <?php if($value['active'] == 1){echo 'disabled=TRUE';}?> > <i class="fa fa-undo" aria-hidden="true"></i></a>&nbsp;
                             </td>
                                 
+
+
                         </tr>
                     <?php } ?>
                     </tbody>

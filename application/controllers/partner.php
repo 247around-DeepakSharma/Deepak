@@ -79,7 +79,6 @@ class Partner extends CI_Controller {
         $this->load->library('partner_utilities');
         $this->load->library("asynchronous_lib");
         $this->load->library('booking_utilities');
-        $this->load->library('asynchronous_lib');
         $this->load->helper(array('form', 'url'));
     }
 
@@ -126,9 +125,7 @@ class Partner extends CI_Controller {
                 //Token validated
                 $input_d = file_get_contents('php://input');
                 $requestData = json_decode($input_d, TRUE);
-
-                $requestData = json_decode($input_d, TRUE);
-                                 
+                
                 if(!empty($requestData['brand'])){
                     //Sanitizing Brands Before Adding
                     $requestData['brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $requestData['brand']);
@@ -147,7 +144,7 @@ class Partner extends CI_Controller {
                     $is_valid = $this->validate_submit_request_data($requestData);
                     if ($is_valid['result'] == TRUE) {
                         log_message('info', __METHOD__ . ":: Request validated");
-                        
+
                         //Search for user
                         //Insert user if phone number doesn't exist
                         $output = $this->user_model->search_user($requestData['mobile']);
@@ -240,6 +237,7 @@ class Partner extends CI_Controller {
                         $booking['partner_id'] = $data['partner_id'];
                         $booking['source'] = $data['source'];
                         
+                        /*
                         if($booking['partner_id'] == "1"){
                            
                             $cancelled_follow_up = $this->booking_model->cancel_duplicate_booking_for_sts($requestData, $service_id);
@@ -247,12 +245,15 @@ class Partner extends CI_Controller {
                             if($cancelled_follow_up){
                                 $booking['internal_status'] = $cancelled_follow_up;
                             } else {
-                               $booking['internal_status'] = "FollowUp"; 
+                               $booking['internal_status'] = "Missed_call_not_confirmed"; 
                             }
                             
                         } else {
-                            $booking['internal_status'] = "FollowUp"; 
+                            $booking['internal_status'] = "Missed_call_not_confirmed"; 
                         }
+                        */
+                        
+                        $booking['internal_status'] = "Missed_call_not_confirmed";
 
                         $unit_details['partner_id'] = $booking['partner_id'];
                         $booking['order_id'] = $requestData['orderID'];
@@ -875,7 +876,7 @@ class Partner extends CI_Controller {
         if ($resultArr['code'] == "") {
             $resultArr['result'] = TRUE;
         }
-  
+
         return $resultArr;
     }
 

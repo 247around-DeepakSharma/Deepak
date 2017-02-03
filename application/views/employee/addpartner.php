@@ -84,9 +84,9 @@
         <div class="col-md-8">
             <select name="partner_type" class="form-control" >
                 <option selected disabled>Select Partner Type</option>
-                <option value="OEM" <?php if (isset($results['partner_code'][0])){ if($results['partner_code'][0]['partner_type']== OEM){ echo "selected";}}?>>OEM</option>
+                <option value="OEM" <?php if (isset($results['partner_code'][0]['partner_type'])){ if($results['partner_code'][0]['partner_type']== OEM){ echo "selected";}}?>>OEM</option>
                 <option value="ECOMMERCE" 
-                    <?php if (isset($results['partner_code'][0])){ if($results['partner_code'][0]['partner_type']=="ECOMMERCE"){ echo "selected";}}?> >ECOMMERCE</option>
+                    <?php if (isset($results['partner_code'][0]['partner_type'])){  if($results['partner_code'][0]['partner_type']=="ECOMMERCE"){ echo "selected";}}?> >ECOMMERCE</option>
                 
             </select>
              <?php echo form_error('partner_type'); ?>
