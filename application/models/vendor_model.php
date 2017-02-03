@@ -511,7 +511,7 @@ class vendor_model extends CI_Model {
      *  @return : array of booking date and timeslot
      */
     function getBookingDateFromBookingID($booking_id) {
-        $this->db->select('booking_date, booking_timeslot');
+        $this->db->select('booking_date, booking_timeslot,count_escalation');
         $this->db->where('booking_id', $booking_id);
         $query = $this->db->get('booking_details');
         if ($query->num_rows() > 0) {
@@ -583,7 +583,7 @@ class vendor_model extends CI_Model {
         unset($flag[0]['mail_body']);
         unset($flag[0]['active']);
         unset($flag[0]['create_date']);
-
+        
         $reason_flag['escalation_policy_flag'] = json_encode($flag);
         return $this->update_esclation_policy_flag($id, $reason_flag, $booking_id);
     }
@@ -1253,6 +1253,53 @@ class vendor_model extends CI_Model {
     }
     
     /**
+     * @desc: This is used to insert value in tax rate template table
+     * @param Array
+     * @return Int ID of inserted data
+     */
+    function insert_tax_rates_template($data){
+
+        $this->db->insert('tax_rates', $data);
+        
+        return $this->db->insert_id();
+    }
+    /**
+     * @desc: This is used to update tax rate template
+     * @param ARRAY $data, INT id 
+     * return: Boolean
+     * 
+     */
+    function update_tax_rates_template($data,$id){
+        $this->db->where('id', $id);
+        $this->db->update('tax_rates', $data);
+        log_message('info', __METHOD__ . "=> Update Tax rate Template " . $this->db->last_query() );
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    /**
+     * @desc: This fucntion is used to delete tax rate template 
+     * params: INT 
+     *         id tax rate template to be deleted
+     * 
+     * return: Boolean
+     */
+    function delete_tax_rate_template($id) {
+        $this->db->where('id', $id);
+        $this->db->delete('tax_rates');
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    
+    
+    /**
      * @desc: This is used to insert value in sms template table
      * @param Array
      * @return Int ID of inserted data
@@ -1299,26 +1346,47 @@ class vendor_model extends CI_Model {
     }
     
     /**
-     * @desc: This is used to insert value in tax rate template table
+     *  @desc : To get All Active vendor Vendor Escalation Policy templates
+     *
+     *  To get the active template for all Vendor Escalation Policy template which are enabled.
+     *
+     *  @param : void
+     *  @return : Array
+     */
+    function get_vandor_escalation_policy_template($start,$limit,$sidx,$sord,$where) {
+
+        $this->db->select('id,escalation_reason,entity,process_type,sms_to_owner,sms_to_poc,sms_body,active');
+        $this->db->limit($limit);
+        if ($where != NULL){
+            $this->db->where($where, NULL, FALSE);
+        }
+        $this->db->order_by($sidx, $sord);
+        $query = $this->db->get('vendor_escalation_policy', $limit, $start);
+       
+        return $query->result();
+    }
+    
+    /**
+     * @desc: This is used to insert value in Vendor Escalation Policy table
      * @param Array
      * @return Int ID of inserted data
      */
-    function insert_tax_rates_template($data){
+    function insert_vandor_escalation_policy_template($data){
 
-        $this->db->insert('tax_rates', $data);
+        $this->db->insert('vendor_escalation_policy', $data);
         
         return $this->db->insert_id();
     }
     /**
-     * @desc: This is used to update tax rate template
+     * @desc: This is used to update Vendor Escalation Policy template
      * @param ARRAY $data, INT id 
      * return: Boolean
      * 
      */
-    function update_tax_rates_template($data,$id){
+    function update_vandor_escalation_policy_template($data,$id){
         $this->db->where('id', $id);
-        $this->db->update('tax_rates', $data);
-        log_message('info', __METHOD__ . "=> Update Tax rate Template " . $this->db->last_query() );
+        $this->db->update('vendor_escalation_policy', $data);
+        log_message('info', __METHOD__ . "=> Update Vendor Escalation Policy Template " . $this->db->last_query() );
         if($this->db->affected_rows() > 0){
             return true;
         }else{
@@ -1327,21 +1395,23 @@ class vendor_model extends CI_Model {
     }
     
     /**
-     * @desc: This fucntion is used to delete tax rate template 
+     * @desc: This fucntion is used to delete Vendor Escalation Policy template 
      * params: INT 
      *         id tax rate template to be deleted
      * 
      * return: Boolean
      */
-    function delete_tax_rate_template($id) {
+    function delete_vandor_escalation_policy_template($id) {
         $this->db->where('id', $id);
-        $this->db->delete('tax_rates');
+        $this->db->delete('vendor_escalation_policy');
         if($this->db->affected_rows() > 0){
             return true;
         }else{
             return false;
         }
     }
+    
+    
 
     /**
      * @desc: This is used to insert assigned engineer data into assigned engineer table
@@ -1400,7 +1470,7 @@ class vendor_model extends CI_Model {
         }else{
             $where = "";
         }
-        $new_vendor = "SELECT id,name, district, state ,
+        $new_vendor = "SELECT id,name, district, state , active, on_off, 
                                             DATEDIFF(CURRENT_TIMESTAMP , create_date) AS age
                                             FROM  service_centres
                                             WHERE 

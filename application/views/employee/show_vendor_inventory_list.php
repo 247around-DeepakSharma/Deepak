@@ -11,6 +11,7 @@
                         <th>19 to 24 inch</th>
                         <th>26 to 32 inch</th>
                         <th>36 to 42 inch</th>
+                        <th>&gt;43 inch</th>
                         <th>Remarks</th>
                         <th>Increment/Decrement</th>
                     </tr>
@@ -24,6 +25,7 @@
                             <td><?php echo $value['19_24_current_count']?></td>
                             <td><?php echo $value['26_32_current_count']?></td>
                             <td><?php echo $value['36_42_current_count']?></td>
+                            <td><?php echo $value['43_current_count']?></td>
                             <td><?php echo $value['remarks']?></td>
                             <td><?php echo $value['increment/decrement']?></td>
 

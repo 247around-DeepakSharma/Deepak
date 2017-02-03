@@ -104,19 +104,34 @@ class Service_centers extends CI_Controller {
      */
     function pending_booking($booking_id="") {
         $this->checkUserSession();
-        $service_center_id = $this->session->userdata('service_center_id');
-        $data['bookings'] = $this->service_centers_model->pending_booking($service_center_id, $booking_id);
-        $data['eraned_details'] =  $this->service_centers_model->get_sc_earned($service_center_id);
-        $data['cancel_booking'] = $this->service_centers_model->count_cancel_booking_sc($service_center_id);
-        $data['booking_id'] = $booking_id;
-        if($this->session->userdata('is_update') == 1){
-        //$data['engineer_details'] = $this->vendor_model->get_engineers($service_center_id);
-        $data['spare_parts_data'] = $this->service_centers_model->get_updated_spare_parts_booking($service_center_id);
         
-        }
-        $data['upcountry'] = $this->upcountry_model->upcountry_service_center_3_month_price($service_center_id);
+       
+        $data['booking_id'] = $booking_id;
+        
+
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/pending_booking', $data);
+        
+    }
+    
+    function get_header_summary(){
+        $service_center_id = $this->session->userdata('service_center_id');
+        $data['eraned_details'] =  $this->service_centers_model->get_sc_earned($service_center_id);
+        $data['cancel_booking'] = $this->service_centers_model->count_cancel_booking_sc($service_center_id);
+        $data['upcountry'] = $this->upcountry_model->upcountry_service_center_3_month_price($service_center_id);
+        $this->load->view("service_centers/header_summary", $data);
+        
+    }
+    
+    function pending_booking_on_tab($booking_id = ""){
+        $service_center_id = $this->session->userdata('service_center_id');
+        $data['bookings'] = $this->service_centers_model->pending_booking($service_center_id, $booking_id);
+        if($this->session->userdata('is_update') == 1){
+            //$data['engineer_details'] = $this->vendor_model->get_engineers($service_center_id);
+            $data['spare_parts_data'] = $this->service_centers_model->get_updated_spare_parts_booking($service_center_id);
+
+        }
+        $this->load->view('service_centers/pending_on_tab', $data);
     }
 
 
@@ -132,7 +147,10 @@ class Service_centers extends CI_Controller {
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
         $unit_where = array('booking_id'=>$booking_id);
         $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
-        $data['upcountry_details'] = $this->upcountry_model->upcountry_booking_list($this->session->userdata('service_center_id'), $booking_id);
+        // This is commented because we are not showing in booking details
+//        $data['upcountry_details'] = $this->upcountry_model->upcountry_booking_list(
+//                $this->session->userdata('service_center_id'), $booking_id,true, 
+//                $data['booking_history'][0]['upcountry_paid_by_customer']);
 
 
         $this->load->view('service_centers/header');
@@ -172,6 +190,7 @@ class Service_centers extends CI_Controller {
      * @return: void
      */
     function process_complete_booking($booking_id) {
+        
         $this->checkUserSession();
         
         $this->form_validation->set_rules('customer_basic_charge', 'Basic Charge', 'required');
@@ -194,6 +213,7 @@ class Service_centers extends CI_Controller {
             $closing_remarks = $this->input->post('closing_remarks');
             $serial_number = $this->input->post('serial_number');
             $spare_parts_required = $this->input->post('spare_parts_required');
+            $upcountry_charges = $this->input->post("upcountry_charges");
             $is_update_spare_parts = FALSE;
             //$internal_status = "Cancelled";
             $getremarks = $this->booking_model->getbooking_charges($booking_id);
@@ -217,6 +237,9 @@ class Service_centers extends CI_Controller {
                  $data['booking_id'] =  $booking_id;
                  $data['amount_paid'] = $total_amount_paid;
                  $data['update_date'] = date("Y-m-d H:i:s");
+                 if( $i == 0){
+                    $data['upcountry_charges'] = $upcountry_charges;
+                 }
                  if(isset($serial_number[$unit_id])){
                     $data['serial_number'] =  $serial_number[$unit_id];
                  }
@@ -246,7 +269,6 @@ class Service_centers extends CI_Controller {
             } else {
                 redirect(base_url() . "service_center/pending_booking");
             } 
-
         }
     }
 
@@ -284,6 +306,11 @@ class Service_centers extends CI_Controller {
            
             $cancellation_reason = $this->input->post('cancellation_reason');
             $cancellation_text = $this->input->post('cancellation_reason_text');
+            $can_state_change = $cancellation_reason;
+            if(!empty($cancellation_text)){
+                $can_state_change = $cancellation_reason." - ".$cancellation_text;
+            }
+            
             
             switch ($cancellation_reason){
                 case PRODUCT_NOT_DELIVERED_TO_CUSTOMER :
@@ -304,7 +331,7 @@ class Service_centers extends CI_Controller {
 
                     $this->vendor_model->update_service_center_action($booking_id, $data);
 
-                    $this->insert_details_in_state_change($booking_id, 'InProcess_Cancelled', $data['cancellation_reason']);
+                    $this->insert_details_in_state_change($booking_id, 'InProcess_Cancelled', $can_state_change);
                     redirect(base_url() . "service_center/pending_booking");
                     break;
             }
@@ -1252,6 +1279,7 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('courier_name_by_sf', 'Courier Name', 'trim|required');
         $this->form_validation->set_rules('awb_by_sf', 'AWB', 'trim|required');
         $this->form_validation->set_rules('defective_part_shipped_date', 'AWB', 'trim|required');
+        $this->form_validation->set_rules('courier_charges_by_sf', 'Courier Charges', 'trim|required');
 
         if ($this->form_validation->run() == FALSE) {
              log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Service center '. $this->session->userdata('service_center_name').
@@ -1264,9 +1292,9 @@ class Service_centers extends CI_Controller {
             $data['courier_name_by_sf'] = $this->input->post('courier_name_by_sf');
             $data['defective_part_shipped_date'] = $this->input->post('defective_part_shipped_date');
             $data['awb_by_sf'] = $this->input->post('awb_by_sf');
+            $data['courier_charges_by_sf'] = $this->input->post('courier_charges_by_sf');
             $data['status'] = DEFECTIVE_PARTS_SHIPPED;
             $where  = array('booking_id'=> $booking_id, 'service_center_id'=> $service_center_id);
-            
             $response = $this->service_centers_model->update_spare_parts($where, $data);
             if($response){
                 
@@ -1319,11 +1347,14 @@ class Service_centers extends CI_Controller {
      * @desc: Call by Ajax to load group upcountry details
      * @param String $booking_id
      */
-    function pending_booking_upcountry_price($booking_id){
+    function pending_booking_upcountry_price($booking_id, $is_customer_paid){
         $this->checkUserSession();
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
         $service_center_id  = $this->session->userdata('service_center_id');
-        $data['data'] = $this->upcountry_model->upcountry_booking_list($service_center_id, $booking_id);
+        if(empty($is_customer_paid)){
+            $is_customer_paid = 0;
+        }
+        $data['data'] = $this->upcountry_model->upcountry_booking_list($service_center_id, $booking_id, true, $is_customer_paid);
        // $this->load->view('service_centers/header');
         $this->load->view('service_centers/upcountry_booking_details', $data);
     }
@@ -1408,6 +1439,7 @@ class Service_centers extends CI_Controller {
         $data['19_24_shipped'] = $this->input->post('19_24_shipped');
         $data['26_32_shipped'] = $this->input->post('26_32_shipped');
         $data['36_42_shipped'] = $this->input->post('36_42_shipped');
+        $data['43_shipped'] = $this->input->post('43_shipped');
         $data['total_shipped'] = $this->input->post('total_shipped');
         $data['shipment_date'] = !empty($this->input->post('shipment_date'))?$this->input->post('shipment_date'):date('Y-m-d H:i:s');
         $data['is_shipped'] = 1;
@@ -1478,5 +1510,5 @@ class Service_centers extends CI_Controller {
         $rm_poc_email = $rm_details[0]['official_email'];
         return $rm_poc_email;
     }
-
-}
+    
+            }

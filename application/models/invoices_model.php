@@ -267,18 +267,18 @@ class invoices_model extends CI_Model {
 
         $sql1 = "SELECT  booking_unit_details.id AS unit_id,service_centres.state, `booking_details`.booking_id, 
                     `booking_details`.city, `booking_details`.internal_status,
-             date_format(`booking_unit_details`.`ud_closed_date`,'%d/%m/%Y') as closed_date, 
+		     date_format(`booking_unit_details`.`ud_closed_date`,'%d/%m/%Y') as closed_date, 
                      `booking_unit_details`.ud_closed_date as closed_booking_date, 
                       rating_stars, `booking_unit_details`.price_tags,
-             `booking_unit_details`.appliance_category, 
+		     `booking_unit_details`.appliance_category, 
                      `booking_unit_details`.appliance_capacity,
                      `services`.services,
-              customer_net_payable, partner_net_payable,
-             `service_centres`.company_name, `service_centres`.id, `service_centres`.sc_code, `service_centres`.address,
-             `service_centres`.beneficiary_name, `service_centres`.bank_account, `service_centres`.bank_name,
-             `service_centres`.ifsc_code,  `service_centres`.owner_email,  `service_centres`.primary_contact_email, `service_centres`.owner_phone_1,
-             `service_centres`.primary_contact_phone_1, `booking_unit_details`.  product_or_services, `booking_unit_details`.around_paid_basic_charges as around_net_payable,
-             (customer_net_payable + partner_net_payable + around_net_payable) as total_booking_charge, service_tax_no,
+		      customer_net_payable, partner_net_payable,
+		     `service_centres`.company_name, `service_centres`.id, `service_centres`.sc_code, `service_centres`.address,
+		     `service_centres`.beneficiary_name, `service_centres`.bank_account, `service_centres`.bank_name,
+		     `service_centres`.ifsc_code,  `service_centres`.owner_email,  `service_centres`.primary_contact_email, `service_centres`.owner_phone_1,
+		     `service_centres`.primary_contact_phone_1, `booking_unit_details`.  product_or_services, `booking_unit_details`.around_paid_basic_charges as around_net_payable,
+		     (customer_net_payable + partner_net_payable + around_net_payable) as total_booking_charge, service_tax_no,
                      (case when (service_centres.tin_no IS NOT NULL )  THEN tin_no ELSE cst_no END) as tin, pan_no, contract_file, company_type
 
                      ,$date
@@ -304,7 +304,7 @@ class invoices_model extends CI_Model {
 
                      (case when (`booking_unit_details`.product_or_services = 'Product' )  THEN (vendor_basic_charges) ELSE 0 END) as vendor_stand,
 
-                (SELECT ROUND(AVG(case when rating_stars > 0  then rating_stars else null
+		        (SELECT ROUND(AVG(case when rating_stars > 0  then rating_stars else null
                                 end),1) $condition ) AS avg_rating
 
                     $condition ";
@@ -349,10 +349,10 @@ class invoices_model extends CI_Model {
                     services,`service_centres`.company_name, 
                     `service_centres`.id, `service_centres`
                     .sc_code, `service_centres`.address,
-             `service_centres`.beneficiary_name,
+		     `service_centres`.beneficiary_name,
                      `service_centres`.bank_account, 
                      `service_centres`.bank_name,
-             `service_centres`.ifsc_code,  
+		     `service_centres`.ifsc_code,  
                      `service_centres`.owner_email,  
                      `service_centres`.primary_contact_email, 
                      `service_centres`.owner_phone_1,
@@ -902,7 +902,7 @@ class invoices_model extends CI_Model {
 
         if (!empty($result)) {
             // Calculate Upcountry booking details
-            $upcountry_data = $this->upcountry_model->upcountry_in_invoice($vendor_id, $from_date, $to_date);
+            $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date);
 
             if(!empty($upcountry_data)){
                 $up_country = array();

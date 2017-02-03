@@ -58,7 +58,7 @@
                             </tbody>
                         </table>
                       
-                       <input type= "submit"  class="btn btn-danger btn-md col-md-offset-4" onclick='return check_checkbox()' style="margin-top:40px; background-color:#2C9D9C; border-color: #2C9D9C;"  value ="Print Shipment Address" >
+                       <input type= "submit"  class="btn btn-danger btn-md col-md-offset-4" onclick='return check_checkbox()' style="margin-top:40px; background-color:#2C9D9C; border-color: #2C9D9C;"  value ="Print Shippment Address" >
                   </form>
 
                         </div>
@@ -81,12 +81,12 @@ function check_checkbox(){
         if(d_m.length === 0){
             flag = 0;  
        }
-
-    });
-    if(flag ===0 ){
+       
+       if(flag ===0 ){
            alert("Please Select Atleast One Checkbox");
            return false;
-    }
+       }
+    });
 }
 
 $("#selectall_address").change(function(){

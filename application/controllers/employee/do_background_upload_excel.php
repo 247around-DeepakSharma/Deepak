@@ -296,6 +296,7 @@ class Do_background_upload_excel extends CI_Controller {
             $booking['partner_id'] = $data['partner_id'];
             $booking['source'] = $data['source'];
 
+
             $partner_booking = $this->partner_model->get_order_id_for_partner($booking['partner_id'], $value['Sub_Order_ID']);
 	    //log_message('info', print_r($partner_booking, TRUE));
 
@@ -320,7 +321,7 @@ class Do_background_upload_excel extends CI_Controller {
                    }
 
                 }
-		$appliance_details['brand'] = $unit_details['appliance_brand'] = $value['Brand'];
+		$appliance_details['brand'] = $unit_details['appliance_brand'] = trim($value['Brand']);
 
 		switch ($file_type) {
 		    case 'shipped':
@@ -394,58 +395,61 @@ class Do_background_upload_excel extends CI_Controller {
                 } else{
                     $appliance_details['category'] = $unit_details['appliance_category'] = '';
                 }
-		
-		$appliance_details['capacity'] = $unit_details['appliance_capacity'] = '';
-		$appliance_details['model_number'] = $unit_details['model_number'] = $value['Model'];
-		$appliance_details['tag']  = $value['Brand'] . " " . $value['Product'];
-		$booking['booking_remarks'] = '';
-		$booking['booking_alternate_contact_no'] = '';
-		$appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
-		$appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
-		$appliance_details['last_service_date'] = date('d-m-Y');
 
-		$unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
+                $appliance_details['capacity'] = $unit_details['appliance_capacity'] = '';
+                $appliance_details['model_number'] = $unit_details['model_number'] = $value['Model'];
+                $appliance_details['tag'] = $value['Brand'] . " " . $value['Product'];
+                $booking['booking_remarks'] = '';
+                $booking['booking_alternate_contact_no'] = '';
+                $appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
+                $appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
+                $appliance_details['last_service_date'] = date('d-m-Y');
 
-		if ($unit_details['appliance_id']) {
-		    log_message('info', __METHOD__ . "=> Appliance added: " . $unit_details['appliance_id']);
 
-		    $unit_id = $this->booking_model->addunitdetails($unit_details);
-		    if ($unit_id) {
-			log_message('info', __METHOD__ . "=> Unit details added: " . $unit_id);
 
-			$booking['order_id'] = $value['Sub_Order_ID'];
 
-			$ref_date = PHPExcel_Shared_Date::ExcelToPHPObject($value['Referred_Date_and_Time']);
-			$booking['reference_date'] = $ref_date->format('Y-m-d H:i:s');
-			$booking['booking_timeslot'] = '';
-			$booking['request_type'] = 'Installation & Demo';
-			$booking['booking_primary_contact_no'] = $value['Phone'];
-			$booking['create_date'] = date('Y-m-d H:i:s');
-			$booking['current_status'] = "FollowUp";
-			$booking['type'] = "Query";
-			$booking['booking_address'] = $value['Customer_Address'];
-			$booking['city'] = $value['CITY'];
-			$booking['state'] = $state['state'];
-			$booking['quantity'] = '1';
-                        
-                        //check partner status from partner_booking_status_mapping table  
-                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$booking['partner_id'], $booking['booking_id']);
-                        if(!empty($partner_status)){
-                            $booking['partner_current_status'] = $partner_status[0];
-                            $booking['partner_internal_status'] = $partner_status[1];
-                        }
-                        
+                $booking['order_id'] = $value['Sub_Order_ID'];
 
-			$booking_details_id = $this->booking_model->addbooking($booking);
+                $ref_date = PHPExcel_Shared_Date::ExcelToPHPObject($value['Referred_Date_and_Time']);
+                $booking['reference_date'] = $ref_date->format('Y-m-d H:i:s');
+                $booking['booking_timeslot'] = '';
+                $booking['request_type'] = 'Installation & Demo';
+                $booking['booking_primary_contact_no'] = $value['Phone'];
+                $booking['create_date'] = date('Y-m-d H:i:s');
+                $booking['current_status'] = "FollowUp";
+                $booking['type'] = "Query";
+                $booking['booking_address'] = $value['Customer_Address'];
+                $booking['city'] = $value['CITY'];
+                $booking['state'] = $state['state'];
+                $booking['quantity'] = '1';
+                
 
-			if ($booking_details_id) {
-			    log_message('info', __FUNCTION__ . ' =>  Booking is inserted in booking details: ' . $booking['booking_id']);
+                //check partner status from partner_booking_status_mapping table  
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking['booking_id']);
+                if (!empty($partner_status)) {
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
+                }
 
-			    $count_booking_inserted++;
 
-			    $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , $booking['query_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+                $booking_details_id = $this->booking_model->addbooking($booking);
 
-			    //Send SMS to customers regarding delivery confirmation through missed call for delivered file only
+                if ($booking_details_id) {
+                    log_message('info', __FUNCTION__ . ' =>  Booking is inserted in booking details: ' . $booking['booking_id']);
+                    $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
+
+                    if ($unit_details['appliance_id']) {
+                        log_message('info', __METHOD__ . "=> Appliance added: " . $unit_details['appliance_id']);
+
+                        $unit_id = $this->booking_model->addunitdetails($unit_details);
+                        if ($unit_id) {
+                            log_message('info', __METHOD__ . "=> Unit details added: " . $unit_id);
+
+                            $count_booking_inserted++;
+
+                            $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['query_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+
+                            //Send SMS to customers regarding delivery confirmation through missed call for delivered file only
                             //Check whether vendor is available or not
                             // if ($file_type == "delivered") {
                                 $vendors = $this->vendor_model->check_vendor_availability($booking['booking_pincode'], $booking['service_id']);
@@ -463,45 +467,45 @@ class Do_background_upload_excel extends CI_Controller {
 			    log_message('info', __FUNCTION__ . ' => ERROR: Booking is not inserted in booking details: ' 
                                     . print_r($value, true));
 
-			    $row_data['error'][$key]['booking_details'] = " Booking Unit Id is not inserted";
-			    $row_data['error'][$key]['invalid_data'] = $value;
-			}
+                            $row_data['error'][$key]['appliance'] = "Appliance is not inserted";
+                            $row_data['error'][$key]['invalid_data'] = $value;
+                        }
+                    } else {
+                        log_message('info', __FUNCTION__ . ' => ERROR: UNIT is not inserted: ' .
+                                print_r($value, true));
 
-			if (empty($booking['state'])) {
-			    log_message('info', __FUNCTION__ . " => Pincode is not found for booking id: " . 
-                                    $booking['booking_id']);
-                            /*
-			    $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-			    $send['booking_id'] = $booking['booking_id'];
-			    $send['state'] = "Pincode_not_found";
-			    $this->asynchronous_lib->do_background_process($url, $send);
-                             *
-                             */
-			}
+                        $row_data['error'][$key]['unit_details'] = " Booking Unit Id is not inserted";
+                        $row_data['error'][$key]['invalid_data'] = $value;
+                    }
+                } else {
+                    log_message('info', __FUNCTION__ . ' => ERROR: Booking is not inserted in booking details: '
+                            . print_r($value, true));
 
-			$this->insert_booking_in_partner_leads($booking, $unit_details, $user, $value['Product']);
+                    $row_data['error'][$key]['booking_details'] = " Booking Unit Id is not inserted";
+                    $row_data['error'][$key]['invalid_data'] = $value;
+                }
 
-			//Reset
-			unset($appliance_details);
-			unset($booking);
-			unset($unit_details);
-		    } else {
-			log_message('info', __FUNCTION__ . ' => ERROR: UNIT is not inserted: ' .
-			    print_r($value, true));
+                if (empty($booking['state'])) {
+                    log_message('info', __FUNCTION__ . " => Pincode is not found for booking id: " .
+                            $booking['booking_id']);
+                    /*
+                      $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+                      $send['booking_id'] = $booking['booking_id'];
+                      $send['state'] = "Pincode_not_found";
+                      $this->asynchronous_lib->do_background_process($url, $send);
+                     *
+                     */
+                }
 
-			$row_data['error'][$key]['unit_details'] = " Booking Unit Id is not inserted";
-			$row_data['error'][$key]['invalid_data'] = $value;
-		    }
-		} else {
-		    log_message('info', __FUNCTION__ . ' => ERROR: Appliance is not inserted: ' .
-			print_r($value, true));
+                $this->insert_booking_in_partner_leads($booking, $unit_details, $user, $value['Product']);
 
-		    $row_data['error'][$key]['appliance'] = "Appliance is not inserted";
-		    $row_data['error'][$key]['invalid_data'] = $value;
-		}
-	    } else {
+                //Reset
+                unset($appliance_details);
+                unset($booking);
+                unset($unit_details);
+            } else {
                 //Order ID found
-	    	log_message('info', __FUNCTION__ . "=> File type: " . $file_type . 
+                log_message('info', __FUNCTION__ . "=> File type: " . $file_type .
                         ", Order ID found: " . $value['Sub_Order_ID']);
                 $status = $partner_booking['current_status'];
                 $int_status = $partner_booking['internal_status'];
@@ -1012,6 +1016,7 @@ class Do_background_upload_excel extends CI_Controller {
 
                 //ordering of smsData is important, it should be as per the %s in the SMS
                 $sms['smsData']['service'] = $appliance;
+                $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
                 $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
                 
                 break;
@@ -1021,6 +1026,7 @@ class Do_background_upload_excel extends CI_Controller {
 
                 //ordering of smsData is important, it should be as per the %s in the SMS
                 $sms['smsData']['service'] = $appliance;
+                $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
                 $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
 
                 break;
@@ -1208,7 +1214,7 @@ class Do_background_upload_excel extends CI_Controller {
 
             $data['file_name'] = "Snapdeal-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
             $data['file_type'] = _247AROUND_SNAPDEAL_DELIVERED;
-            $data['agent_id'] = $this->session->userdata('employee_id');
+            $data['agent_id'] = $this->session->userdata('id');
             $insert_id = $this->partner_model->add_file_upload_details($data);
             if (!empty($insert_id)) {
                 //Logging success
@@ -1235,9 +1241,10 @@ class Do_background_upload_excel extends CI_Controller {
             log_message('info', __FUNCTION__ . ' Processing of Snapdeal Shipped Excel File started');
 
             //Adding Details in File_Uploads table as well
+           
             $data['file_name'] = "Snapdeal-Shipped-" . date('Y-m-d-H-i-s') . '.xlsx';
             $data['file_type'] = _247AROUND_SNAPDEAL_SHIPPED;
-            $data['agent_id'] = $this->session->userdata('employee_id');
+            $data['agent_id'] = $this->session->userdata('id');
             $insert_id = $this->partner_model->add_file_upload_details($data);
             
             if (!empty($insert_id)) {

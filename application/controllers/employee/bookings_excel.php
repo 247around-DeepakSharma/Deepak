@@ -954,7 +954,7 @@ class bookings_excel extends CI_Controller {
 
         $data['file_name'] = "Paytm-Delivered-" . date('Y-m-d-H-i-s') . '.xlsx';
         $data['file_type'] = _247AROUND_PAYTM_DELIVERED;
-        $data['agent_id'] = $this->session->userdata('employee_id');
+        $data['agent_id'] = $this->session->userdata('id');
         $insert_id = $this->partner_model->add_file_upload_details($data);
         if (!empty($insert_id)) {
             //Logging success

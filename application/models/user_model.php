@@ -464,8 +464,8 @@ class User_model extends CI_Model {
      * 
      */
     function get_user_device_id_by_phone($phone){
-        $where = array('phone_number' => $phone, 'device_id != ' => '');
-        $this->db->where($where);
+        $this->db->select('device_id');
+        $this->db->where('phone_number',$phone);
         $query = $this->db->get('users');
         return $query->result_array();
     }

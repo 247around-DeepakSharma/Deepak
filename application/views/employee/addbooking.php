@@ -19,6 +19,7 @@
                                 <div class="form-group">
                                     <label for="name" class="col-md-4">Name</label>
                                     <div class="col-md-6">
+                                        <input type="hidden" name="upcountry_data" value="" id="upcountry_data" /> 
                                          <input type="hidden" name="partner_type" value="" id="partner_type" />
                                         <input type="text" class="form-control" id="name" name="user_name" value = "<?php echo $user[0]['name'] ?>" readonly="readonly">
                                     </div>
@@ -273,7 +274,15 @@
                                     <textarea class="form-control" rows="4" id="booking_address" name="home_address"   ><?php echo $user[0]['home_address']; ?></textarea>
                                 </div>
                             </div>
-
+                             <div class="form-group ">
+                                <label for="type" class="col-sm-4">Upcountry Charges</label>
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <div class="input-group-addon">Rs.</div>
+                                        <input  type="text" class="form-control"  name="upcountry_charges" id="upcountry_charges" value="0" placeholder="upcountry_charges" readonly>
+                                    </div>&nbsp;<span id="errmsg1"></span>
+                                </div>
+                            </div>
                             <div class="form-group ">
                                 <label for="type" class="col-sm-4">Price To be Paid</label>
                                 <div class="col-md-6">
@@ -283,21 +292,7 @@
                                     </div>&nbsp;<span id="errmsg1"></span>
                                 </div>
                             </div>
-                            <div class="form-group ">
-                  <label for="Internal Status" class="col-sm-4">Internal Status</label>
-                  <div class="col-md-6">
-                     <?php
-                        
-                        foreach($follow_up_internal_status as $status){?>
-                     <div class="radio">
-                        <label>
-                        <input type="radio" name="internal_status"  class="internal_status"  value="<?php  echo $status->status;?>" <?php if(isset($booking_history[0]['internal_status'])){ if( $status->status == $booking_history[0]['internal_status']){ echo "checked";}} ?> >
-                         <?php  echo $status->status;?>
-                        </label>
-                     </div>
-                     <?php } ?>
-                  </div>
-               </div>
+                           
                         </div>
                         <div class="col-md-6">
                             <div class="form-group ">
@@ -324,6 +319,21 @@
                                     <textarea class="form-control" rows="4" name="query_remarks" id="query_remarks" placeholder="Enter Query Remarks" ></textarea>
                                 </div>
                             </div>
+                  <div class="form-group ">
+                  <label for="Internal Status" class="col-sm-4">Internal Status</label>
+                  <div class="col-md-6">
+                     <?php
+                        
+                        foreach($follow_up_internal_status as $status){?>
+                     <div class="radio">
+                        <label>
+                        <input type="radio" name="internal_status"  class="internal_status"  value="<?php  echo $status->status;?>" <?php if(isset($booking_history[0]['internal_status'])){ if( $status->status == $booking_history[0]['internal_status']){ echo "checked";}} ?> >
+                         <?php  echo $status->status;?>
+                        </label>
+                     </div>
+                     <?php } ?>
+                  </div>
+               </div>
                             <div>
                             </div>
                         </div>
@@ -349,8 +359,6 @@
          tags: true
     });
     $("#partner_source").select2();
-    $(".appliance_brand").select2();
-    $(".appliance_capacity").select2();
 
     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
 </script>
@@ -375,6 +383,7 @@
            .on('click', 'button.remove', remove);
 
            $('#priceList_'+cloneIndex).html("");
+           
        cloneIndex++;
        return false;
     }

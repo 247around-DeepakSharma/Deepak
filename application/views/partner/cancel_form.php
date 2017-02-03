@@ -87,7 +87,7 @@ function check_text(){
               <form class="form-horizontal" name="myForm" action="<?php echo base_url()?>employee/partner/process_cancel_form/<?php echo $user_and_booking_details[0]['booking_id']; ?>/<?php echo $user_and_booking_details[0]['current_status']; ?>" method="POST" >
 
                     <input type="hidden" class="form-control"  name="name" value = "<?php if (isset($user_and_booking_details[0]['name'])) {echo $user_and_booking_details[0]['name']; }?>">
-             
+                    <input type="hidden" class="form-control" id="partner_id" name="partner_id" value = "<?php if (isset($user_and_booking_details[0]['partner_id'])) {echo $user_and_booking_details[0]['partner_id']; } ?>" >
                  <div class="form-group <?php if( form_error('cancellation_reason') ) { echo 'has-error';} ?>">
                   <label for="cancellation_reason" class="col-md-2">Cancellation Reason</label>
                   <div class="col-md-6">
