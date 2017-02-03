@@ -1,0 +1,42 @@
+
+Generate job Card and Check unit details in SC table while update booking
+Auto assign booking while convert booking
+Modified code for partner status
+Edit Process cancel code
+Upcountry changes
+update booking pay to sf
+add input box upcounty charges in complete booking form 
+add rm in cc for reminder in reminder mail to vendor
+do_background_process.php
+upcountry changes in assign booking
+upcountry changes in complete_boking
+modified code for partner status
+change agent id instead of employee id
+insert appliance and unit details after booking details 
+inventory.php
+add brackets greater than 43 in service center and admin panel
+invoice.php
+bracket invoice changes
+service_center.php
+upcountry changes
+pending booking view loading asynchronously
+add brackets greater than 43 in service center 
+assign vendor process changes
+reassign process change
+penality on escalation
+tax rate template editable grid
+download_latest_pincode_file
+vendor policy editable grid
+send home theatre sms
+Partner add booking form 
+upcountry changes
+approve and reject upcountry charges
+partner type in add booking form
+when spare part booking array has empty then redirect to pending booking tab
+show RM Crime report
+agent working details from cron
+booking_snapshot- added field for yesterday booked, completed , cancelled, month completed, cancelled and change color in tempoaray on off sc and add filter
+insert appliance and unit details after booking_details
+send last booking timeslot in new booking sms
+booking can't completed until vendor is not assign
+new snapdeal missed call number
