@@ -1500,7 +1500,7 @@ class Booking_model extends CI_Model {
         $query = $this->db->query($sql);
         $result =  $query->result_array();
 
-        $sql1 = " SELECT rate as tax_rate from tax_rates where `tax_rates`.state = '$state'
+        $sql1 = " SELECT rate as tax_rate from tax_rates where LOWER(`tax_rates`.state) LIKE LOWER('%$state%')
                   AND `tax_rates`.tax_code = '".$result[0]['tax_code']."' AND  `tax_rates`.product_type = '".$result[0]['product_type']."' AND (to_date is NULL or to_date >= CURDATE() ) AND `tax_rates`.active = 1 ";
 
         $query1 = $this->db->query($sql1);

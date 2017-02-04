@@ -275,7 +275,7 @@ class Booking extends CI_Controller {
                         case SF_NOT_EXIT:
                             break;
                     }
-                } else if($booking['is_send_sms'] == 2){
+                } else if($booking['is_send_sms'] == 2 || $booking_id = INSERT_NEW_BOOKING){
                     $url = base_url() . "employee/vendor/check_unit_exist_in_sc/".$booking['booking_id'];
                     $async_data['booking'] = array();
                     $this->asynchronous_lib->do_background_process($url, $async_data);
