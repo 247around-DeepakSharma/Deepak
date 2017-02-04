@@ -40,3 +40,4 @@ insert appliance and unit details after booking_details
 send last booking timeslot in new booking sms
 booking can't completed until vendor is not assign
 new snapdeal missed call number
+Add random number in Booking id while create booking from STS
