@@ -79,7 +79,6 @@ class Partner extends CI_Controller {
         $this->load->library('partner_utilities');
         $this->load->library("asynchronous_lib");
         $this->load->library('booking_utilities');
-        $this->load->library('asynchronous_lib');
         $this->load->helper(array('form', 'url'));
     }
 
@@ -126,9 +125,7 @@ class Partner extends CI_Controller {
                 //Token validated
                 $input_d = file_get_contents('php://input');
                 $requestData = json_decode($input_d, TRUE);
-
-                $requestData = json_decode($input_d, TRUE);
-                                 
+                
                 if(!empty($requestData['brand'])){
                     //Sanitizing Brands Before Adding
                     $requestData['brand'] = preg_replace('/[^A-Za-z0-9 ]/', '', $requestData['brand']);
@@ -147,7 +144,7 @@ class Partner extends CI_Controller {
                     $is_valid = $this->validate_submit_request_data($requestData);
                     if ($is_valid['result'] == TRUE) {
                         log_message('info', __METHOD__ . ":: Request validated");
-                        
+
                         //Search for user
                         //Insert user if phone number doesn't exist
                         $output = $this->user_model->search_user($requestData['mobile']);
@@ -240,6 +237,7 @@ class Partner extends CI_Controller {
                         $booking['partner_id'] = $data['partner_id'];
                         $booking['source'] = $data['source'];
                         
+                        /*
                         if($booking['partner_id'] == "1"){
                            
                             $cancelled_follow_up = $this->booking_model->cancel_duplicate_booking_for_sts($requestData, $service_id);
@@ -247,12 +245,15 @@ class Partner extends CI_Controller {
                             if($cancelled_follow_up){
                                 $booking['internal_status'] = $cancelled_follow_up;
                             } else {
-                               $booking['internal_status'] = "FollowUp"; 
+                               $booking['internal_status'] = "Missed_call_not_confirmed"; 
                             }
                             
                         } else {
-                            $booking['internal_status'] = "FollowUp"; 
+                            $booking['internal_status'] = "Missed_call_not_confirmed"; 
                         }
+                        */
+                        
+                        $booking['internal_status'] = "Missed_call_not_confirmed";
 
                         $unit_details['partner_id'] = $booking['partner_id'];
                         $booking['order_id'] = $requestData['orderID'];
@@ -295,16 +296,18 @@ class Partner extends CI_Controller {
                         $appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $service_id;
                         log_message('info', __METHOD__ . ":: Service ID: " . $booking['service_id']);
                         //echo "Service ID: " . $booking['service_id'] . PHP_EOL;
-
+                        $len = 3;
+                        $random_code=sprintf("%0".$len."d", mt_rand(1, str_pad("", $len,"9")));
                         $yy = date("y");
                         $mm = date("m");
                         $dd = date("d");
                         $booking['booking_id'] = str_pad($booking['user_id'], 4, "0", STR_PAD_LEFT) . $yy . $mm . $dd;
                         $booking['booking_id'] .= (intval($this->booking_model->getBookingCountByUser($booking['user_id'])) + 1);
 
-                        $unit_details['booking_id'] = $booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'];
+                        $unit_details['booking_id'] = $booking['booking_id'] = "Q-" . $booking['source'] . "-" . $booking['booking_id'].$random_code;
 
                         $booking['quantity'] = '1';
+                        
                         $appliance_details['tag'] = $appliance_details['brand'] . " " . $lead_details['Product'];
                         $appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('M');
                         $appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
@@ -875,7 +878,7 @@ class Partner extends CI_Controller {
         if ($resultArr['code'] == "") {
             $resultArr['result'] = TRUE;
         }
-  
+
         return $resultArr;
     }
 

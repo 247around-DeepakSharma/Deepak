@@ -329,8 +329,11 @@
     			</div>
     		    </div>
 		    <?php } ?>
+                   
 		    <div class="row">
 			<div class ="col-md-12">
+                             <?php if($booking_history[0]['is_upcountry'] == '1' 
+                            && $booking_history[0]['upcountry_paid_by_customer']== '1' ){ ?>
                              <div class="form-group col-md-offset-1">
 				<label for="type" class="col-sm-2">Paid Upcountry Charges</label>
 				<div class="col-md-4">
@@ -340,6 +343,10 @@
 				    </div>
 				</div>
 			    </div>
+                            <?php } else { ?>
+                            <input  type="hidden" class="form-control cost"  name="upcountry_charges" id="upcountry_charges" value="0" placeholder="Total Price">
+                                
+                            <?php } ?>
 			    <div class="form-group col-md-offset-1">
 				<label for="type" class="col-sm-2">Total Customer Paid</label>
 				<div class="col-md-4">
@@ -350,6 +357,7 @@
 				</div>
 			    </div>
 			</div>
+                    
 		    </div>
 		    <div class="row">
 			<div class="col-md-12">

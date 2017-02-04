@@ -372,6 +372,28 @@ class Booking_model extends CI_Model {
     }
 
     /**
+     * @desc : This funtion is to get all booking details of particular booking.
+     *
+     * Finds all the booking details of particular booking of a particular user.
+     *
+     * @param : booking id
+     * @return : array of booking details
+     */
+    function getbooking($booking_id) {
+        $this->db->select('*');
+        $this->db->where('booking_id', $booking_id);
+        $query = $this->db->get('booking_details');
+        return $query->result_array();
+    }
+
+    function get_booking_status($booking_id) {
+        $this->db->select('current_status, internal_status');
+        $this->db->like('booking_id', end(explode("-", $booking_id)));
+        $query = $this->db->get('booking_details');
+        return $query->result_array()[0];
+    }
+
+    /**
      * @desc : This funtion is to count number of bookings for a particular user.
      *
      * Searches and counts bookings having same user id.
@@ -414,9 +436,9 @@ class Booking_model extends CI_Model {
         $condition ="";
         $service_center_name ="";
         if($join !=""){
-            $service_center_name = ",service_centres.name as vendor_name, service_centres.district,service_centres.address, service_centres.state, service_centres.pincode, "
+            $service_center_name = ",service_centres.name as vendor_name, service_centres.district,service_centres.address, service_centres.state as sf_state, service_centres.pincode, "
 		. "service_centres.primary_contact_name, service_centres.owner_email,service_centres.owner_name, "
-		. "service_centres.primary_contact_phone_1,service_centres.primary_contact_phone_2, service_centres.primary_contact_email ";
+		. "service_centres.primary_contact_phone_1,service_centres.primary_contact_phone_2, service_centres.primary_contact_email,owner_phone_1, phone_1 ";
 	    $service_centre = ", service_centres ";
             $condition = " and booking_details.assigned_vendor_id =  service_centres.id";
         }

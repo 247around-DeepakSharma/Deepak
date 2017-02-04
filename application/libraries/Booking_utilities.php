@@ -450,7 +450,7 @@ class Booking_utilities {
                 $style = '';
                if($value['active'] == 0 ){
                    $style = "background:#f25788";
-               }else if($value['active'] == NULL){
+               }else if(is_null($value['active'])){
                    $style = "background:#f4f44b";
                }else if($value['temporary_on_off'] == 0){
                    $style = "background:#7986CB";

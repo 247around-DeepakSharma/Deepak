@@ -139,35 +139,35 @@ class invoices_model extends CI_Model {
         switch ($type) {
             case 'vendor':
                 $sql = "SELECT service_centres.name, bank_transactions . *
-			FROM service_centres, bank_transactions
-			WHERE bank_transactions.partner_vendor =  'vendor'
-			AND bank_transactions.partner_vendor_id = service_centres.id
-			ORDER BY bank_transactions.transaction_date DESC";
+            FROM service_centres, bank_transactions
+            WHERE bank_transactions.partner_vendor =  'vendor'
+            AND bank_transactions.partner_vendor_id = service_centres.id
+            ORDER BY bank_transactions.transaction_date DESC";
                 $query = $this->db->query($sql);
                 break;
 
             case 'partner':
                 $sql = "SELECT partners.public_name as name, bank_transactions . *
-			FROM partners, bank_transactions
-			WHERE bank_transactions.partner_vendor =  'partner'
-			AND bank_transactions.partner_vendor_id = partners.id
-			ORDER BY bank_transactions.transaction_date DESC";
+            FROM partners, bank_transactions
+            WHERE bank_transactions.partner_vendor =  'partner'
+            AND bank_transactions.partner_vendor_id = partners.id
+            ORDER BY bank_transactions.transaction_date DESC";
                 $query = $this->db->query($sql);
                 break;
 
             case 'all':
                 //TODO: This is not sorted on transaction date
                 $sql = "SELECT partners.public_name, bank_transactions. *
-			FROM partners, bank_transactions
-			WHERE bank_transactions.partner_vendor =  'partner'
-			AND bank_transactions.partner_vendor_id = partners.id
+            FROM partners, bank_transactions
+            WHERE bank_transactions.partner_vendor =  'partner'
+            AND bank_transactions.partner_vendor_id = partners.id
 
-			UNION
+            UNION
 
-			SELECT service_centres.name, bank_transactions. *
-			FROM service_centres, bank_transactions
-			WHERE bank_transactions.partner_vendor =  'vendor'
-			AND bank_transactions.partner_vendor_id = service_centres.id";
+            SELECT service_centres.name, bank_transactions. *
+            FROM service_centres, bank_transactions
+            WHERE bank_transactions.partner_vendor =  'vendor'
+            AND bank_transactions.partner_vendor_id = service_centres.id";
                 $query = $this->db->query($sql);
                 break;
         }
@@ -912,7 +912,7 @@ class invoices_model extends CI_Model {
                $up_country[0]['p_part_cost'] =  '';
                $up_country[0]['s_service_charge'] = '';
                $up_country[0]['qty'] = '';
-               $up_country[0]['description'] = 'Transpotaion Charge';
+               $up_country[0]['description'] = 'Upcountry Charge';
                $up_country[0]['p_rate'] =  $upcountry_data[0]['upcountry_rate'];
                $up_country[0]['upcountry_distance'] = $upcountry_data[0]['total_distance'];
              

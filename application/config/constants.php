@@ -239,6 +239,10 @@ define('PENALTY_FAKE_CANCEL',13);
 define('ERR_ORDER_ID_NOT_FOUND_CODE', -1007);
 //Define error code for order id not found for partner_sd_sb.php file
 define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Not Found');
+//Define snapdeal new missed call number
+define('SNAPDEAL_MISSED_CALLED_NUMBER','1234567890');
+
+define('HOME_THEATER_REPAIR_SERVICE_TAG', 'Repair - In Warranty (Home Visit)');
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

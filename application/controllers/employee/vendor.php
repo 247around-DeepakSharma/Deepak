@@ -881,6 +881,9 @@ class vendor extends CI_Controller {
                             "Service Center Id: " . $service_center_id,$agent_id, $agent_name, _247AROUND);
 
                     $count++;
+                } else {
+                    log_message('info', __METHOD__ . "=> Not Assign for Sc "
+                                    . $service_center_id);
                 }
             }
         }

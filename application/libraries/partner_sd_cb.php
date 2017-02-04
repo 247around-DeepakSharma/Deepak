@@ -12,19 +12,12 @@ if (!defined('BASEPATH'))
 //define('X_SELLER_AUTHZ_TOKEN', '9d002821-b47d-4763-9375-50c78ea0bcd5');
 //define('VENDOR_CODE', '0a247b');
 //Actual Data - pull them from DB later
-
-//define('SD_CB_URL', 'https://apigateway.snapdeal.com:443/sts/api/sts/updateServiceStatus');
-//define('X_AUTH_TOKEN', '869fcb5e31ce4a94b96b372a2fbc583c');
-//define('X_SELLER_AUTHZ_TOKEN', '2ed5c582-eaef-4e2e-9a2c-f2459271c8db');
-//define('VENDOR_CODE', 'S9f330');
-
 //define('SD_CB_URL', 'https://apigateway.snapdeal.com:443/sts/api/sts/updateServiceStatus');
 //define('X_AUTH_TOKEN', '869fcb5e31ce4a94b96b372a2fbc583c');
 //define('X_SELLER_AUTHZ_TOKEN', '2ed5c582-eaef-4e2e-9a2c-f2459271c8db');
 //define('VENDOR_CODE', 'S9f330');
 //
 //
-
 //define('ERR_ORDER_ID_NOT_FOUND_CODE', -1007);
 //define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Not Found');
 
