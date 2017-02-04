@@ -2,7 +2,7 @@
     <div class="container-fluid" >
         <div class="panel panel-info" style="margin-top:30px;">
             <div class="panel-heading">
-                <h1 class="panel-title"><i class="fa fa-money fa-fw"></i>Wall Mount Not Given</h1>
+                <h1 class="panel-title"><i class="fa fa-money fa-fw"></i>Only Wall Mount Given By Service Center</h1>
             </div>
             <?php if($this->session->flashdata('msg')){ ?>
                 <div class="col-sm-12 alert alert-success" style="margin-top: 10px;">
@@ -33,7 +33,7 @@
                     <div class="cloned"></div>
                     <div class="col-md-12">
                         <center><img id="loader_gif" src="" style="display: none;width:40px;"></center>
-                        <center><input type="submit" value="Wall Mount Not Given" onclick="return check_validation()" class="btn btn-md btn-primary" /></center>
+                        <center><input type="submit" value="Wall Mount Given" onclick="return check_validation()" class="btn btn-md btn-primary" /></center>
                     </div>
                 </div>
             </form>
