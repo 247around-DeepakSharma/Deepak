@@ -777,6 +777,7 @@ class Partner extends CI_Controller {
                 unset($_POST['partner_code']);
                 
                 //Sending POST array to Model
+                print("<pre>".  print_r($this->input->post(),true)."</pre>");exit();
                 $partner_id = $this->partner_model->add_partner($this->input->post());
                 //Set Flashdata on success or on Error of Data insert in table
                 if(!empty($partner_id)){

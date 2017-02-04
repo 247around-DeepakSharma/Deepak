@@ -949,8 +949,11 @@ class Partner_model extends CI_Model {
      * 
      */
     function get_availiable_partner_code(){
-        $sql = "Select Distinct code from bookings_sources";
-        $query = $this->db->query($sql);
+        //$sql = "Select Distinct code from bookings_sources";
+        $this->db->distinct();
+        $this->db->select('code');
+        $query = $this->db->get('bookings_sources');
+        //$query = $this->db->query($sql);
         return $query->result_array();
     }
     

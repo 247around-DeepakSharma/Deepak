@@ -1771,7 +1771,38 @@ INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_cur
 (17, 247001, 'Pending', 'Scheduled', 'SERVICE_SCHEDULED', 'Pending'),
 (18, 247001, 'FollowUp', 'FollowUp', 'PENDING', 'Pending'),
 (19, 247001, 'FollowUp', 'Missed_call_confirmed', 'SERVICE_SCHEDULED', 'Pending'),
-(20, 247001, 'Cancelled', 'Cancelled by Snapdeal', NULL, NULL);
+(20, 247001, 'Cancelled', 'Cancelled by Snapdeal', NULL, NULL),
+(21, 1, 'Cancelled', 'Already Installed', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(22, 1, 'Cancelled', 'Product To Be Returned', 'PARENT_PRODUCT_FAULTY', 'Cancelled'),
+(23, 1, 'Cancelled', 'Customer Not Reachable', 'CUSTOMER_NOT_AVAILABLE', 'Cancelled'),
+(24, 247001, 'Cancelled', 'Customer Not Reachable', 'CUSTOMER_NOT_AVAILABLE', 'Cancelled'),
+(25, 1, 'Cancelled', 'Installation Not Required', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(26, 247001, 'Cancelled', 'Installation Not Required', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(27, 1, 'Cancelled', 'Denied By Vendor', 'DENIED_BY_VENDOR', 'Cancelled'),
+(28, 247001, 'Cancelled', 'Denied By Vendor', 'DENIED_BY_VENDOR', 'Cancelled'),
+(29, 1, 'Cancelled', 'Duplicate Booking (STS)', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(30, 247001, 'Cancelled', 'Duplicate Booking (STS)', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(31, 1, 'Cancelled', 'Order Cancelled', 'PARENT_PRODUCT_FAULTY', 'Cancelled'),
+(32, 247001, 'Cancelled', 'Order Cancelled', 'PARENT_PRODUCT_FAULTY', 'Cancelled'),
+(33, 1, 'Cancelled', 'Product to be Gifted', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(34, 247001, 'Cancelled', 'Product to be Gifted', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(35, 1, 'Cancelled', 'Your problem is resolved.', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(36, 247001, 'Cancelled', 'Your problem is resolved.', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(37, 1, 'Cancelled', 'You entered a wrong booking.', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(38, 247001, 'Cancelled', 'You entered a wrong booking.', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(39, 1, 'Cancelled', 'You found a better option for this job. ', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(40, 247001, 'Cancelled', 'You found a better option for this job. ', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(41, 1, 'Cancelled', 'You will not be available at this time.', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(42, 247001, 'Cancelled', 'You will not be available at this time.', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(43, 1, 'Cancelled', 'You believe someone else did this booking.', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(44, 247001, 'Cancelled', 'You believe someone else did this booking.', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(45, 1, 'Cancelled', 'Customer is not reachable.', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(46, 247001, 'Cancelled', 'Customer is not reachable.', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(47, 247001, 'Cancelled', 'Already Installed', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(48, 247001, 'Cancelled', 'Product To Be Returned', 'PARENT_PRODUCT_FAULTY', 'Cancelled');
+
+
+
 
 
 

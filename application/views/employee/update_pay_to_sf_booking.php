@@ -2,7 +2,7 @@
     <div class="container-fluid" >
         <div class="panel panel-info" style="margin-top:30px;">
             <div class="panel-heading">
-                <h1 class="panel-title"><i class="fa fa-money fa-fw"></i>Wall Mount Not Given</h1>
+                <h1 class="panel-title"><i class="fa fa-money fa-fw"></i>Only Wall Mount Given By Service Center</h1>
             </div>
             <?php if($this->session->flashdata('msg')){ ?>
                 <div class="col-sm-12 alert alert-success" style="margin-top: 10px;">

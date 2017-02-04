@@ -192,33 +192,33 @@ class Do_background_upload_excel extends CI_Controller {
         // For shipped data
         if(!empty($shipped_data)){
             
-            $status_data['job_name']= __FUNCTION__;
-            $status_data['agent_name'] = $this->session->userdata('employee_id');
-            $status_data['file_link'] = $_FILES['file']['name'];
-            $status_data['processing_type'] = $file_type;
-            $scheduler_id = $this->reporting_utils->insert_scheduler_tasks_status($status_data);
-            
+//            $status_data['job_name']= __FUNCTION__;
+//            $status_data['agent_name'] = $this->session->userdata('employee_id');
+//            $status_data['file_link'] = $_FILES['file']['name'];
+//            $status_data['processing_type'] = $file_type;
+//            $scheduler_id = $this->reporting_utils->insert_scheduler_tasks_status($status_data);
+//            
             $this->process_upload_sd_file($shipped_data,"shipped", $file_name, $scheduler_id);
             
         }
         //For delivered data
         if(!empty($delivered_data)){
-            $status_data['job_name']= __FUNCTION__;
-            $status_data['agent_name'] = $this->session->userdata('employee_id');
-            $status_data['file_link'] = $_FILES['file']['name'];
-            $status_data['processing_type'] = $file_type;
-            $scheduler_id = $this->reporting_utils->insert_scheduler_tasks_status($status_data);
+//            $status_data['job_name']= __FUNCTION__;
+//            $status_data['agent_name'] = $this->session->userdata('employee_id');
+//            $status_data['file_link'] = $_FILES['file']['name'];
+//            $status_data['processing_type'] = $file_type;
+//            $scheduler_id = $this->reporting_utils->insert_scheduler_tasks_status($status_data);
             
             $this->process_upload_sd_file($delivered_data,"delivered", $file_name, $scheduler_id);
         }
         // for both type of file
         if(!empty($data)){
             
-            $status_data['job_name']= __FUNCTION__;
-            $status_data['agent_name'] = $this->session->userdata('employee_id');
-            $status_data['file_link'] = $_FILES['file']['name'];
-            $status_data['processing_type'] = $file_type;
-            $scheduler_id = $this->reporting_utils->insert_scheduler_tasks_status($status_data);
+//            $status_data['job_name']= __FUNCTION__;
+//            $status_data['agent_name'] = $this->session->userdata('employee_id');
+//            $status_data['file_link'] = $_FILES['file']['name'];
+//            $status_data['processing_type'] = $file_type;
+//            $scheduler_id = $this->reporting_utils->insert_scheduler_tasks_status($status_data);
             
             $this->process_upload_sd_file($data,$file_type, $file_name, $scheduler_id);
         }

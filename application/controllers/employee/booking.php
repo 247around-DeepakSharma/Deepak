@@ -1616,10 +1616,7 @@ class Booking extends CI_Controller {
 	log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
 	$data['charges'] = $this->booking_model->get_booking_for_review($booking_id);
 	$data['data'] = $this->booking_model->review_reschedule_bookings_request();
-        if(!empty($data['charges'])){
-            $data['partner_id'] = $data['charges'][0]['booking'][0]['partner_id'];
-        }
-        
+
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/review_booking', $data);
     }
@@ -2096,6 +2093,7 @@ class Booking extends CI_Controller {
         $_19_24_current_count = 0;
         $_26_32_current_count = 0;
         $_36_42_current_count = 0;
+        $_43_current_count = 0;
 
         $booking_details = $this->booking_model->get_unit_details($booking_id);
         $service_center_details = $this->booking_model->getbooking_charges($booking_id);
@@ -2110,6 +2108,9 @@ class Booking extends CI_Controller {
                     $_26_32_current_count = 1;
                 } elseif ($stand_inch >= 36 && $stand_inch <= 42) {
                     $_36_42_current_count = 1;
+                }
+                  elseif($stand_inch >=43){
+                    $_43_current_count = 1;
                 }
             }
         }
@@ -2127,6 +2128,7 @@ class Booking extends CI_Controller {
                 '19_24_current_count' => $last_updated_array['19_24_current_count'] - $_19_24_current_count,
                 '26_32_current_count' => $last_updated_array['26_32_current_count'] - $_26_32_current_count,
                 '36_42_current_count' => $last_updated_array['36_42_current_count'] - $_36_42_current_count,
+                '43_current_count' => $last_updated_array['43_current_count'] - $_43_current_count,
                 'increment/decrement' => 0,
                 'remarks' => 'Booking ID'
             );
