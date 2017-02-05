@@ -119,13 +119,7 @@ class Booking extends CI_Controller {
 
         $booking = $this->insert_data_in_booking_details($booking_id, $user_id, count($appliance_brand));
         if ($booking) {
-            switch ($upcountry_data['message']){
-                        case UPCOUNTRY_BOOKING:
-                        case UPCOUNTRY_LIMIT_EXCEED:
-                            $booking['is_upcountry'] = 1;
-                            break;
-            }
-
+           
             // All category comming in array eg-- array([0]=> TV-LCD, [1]=> TV-LED)
             $appliance_category = $this->input->post('appliance_category');
             // All capacity comming in array eg-- array([0]=> 19-30, [1]=> 31-42)
@@ -447,6 +441,15 @@ class Booking extends CI_Controller {
 	$booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
 	$booking['booking_timeslot'] = $this->input->post('booking_timeslot');
 	$booking['update_date'] = date("Y-m-d H:i:s");
+        $upcountry_data_json = $this->input->post('upcountry_data');
+        $upcountry_data = json_decode($upcountry_data_json, TRUE);
+
+        switch ($upcountry_data['message']){
+            case UPCOUNTRY_BOOKING:
+            case UPCOUNTRY_LIMIT_EXCEED:
+                $booking['is_upcountry'] = 1;
+                break;
+        }
 
 
 	return $booking;
