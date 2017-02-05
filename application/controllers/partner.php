@@ -1714,8 +1714,8 @@ class Partner extends CI_Controller {
     $resultArr = array("result" => FALSE, "lead" => NULL, "code" => NULL, "msg" => NULL);
     $flag = TRUE;
 
-    //Validate Partner Name
-    if ($request['partnerName'] != $this->partner['public_name']) {
+    //Validate Partner id
+    if ($request['partner_id'] != $this->partner['id']) {
         $resultArr['code'] = ERR_INVALID_PARTNER_NAME_CODE;
         $resultArr['msg'] = ERR_INVALID_PARTNER_NAME_MSG;
 
@@ -1757,14 +1757,14 @@ class Partner extends CI_Controller {
     //Invalid Product
 
     //Check for Request type
-    $valid_request_types = array("Installation", "Demo", "Installation and Demo", "Installation & Demo", "Repair - Out Of Warranty", "Repair - In Warranty");
-    if (($flag === TRUE) &&
-        (in_array($request['requestType'], $valid_request_types) == FALSE)) {
-        $resultArr['code'] = ERR_INVALID_REQUEST_TYPE_CODE;
-        $resultArr['msg'] = ERR_INVALID_REQUEST_TYPE_MSG;
-
-        $flag = FALSE;
-    }
+//    $valid_request_types = array("Installation", "Demo", "Installation and Demo", "Installation & Demo", "Repair - Out Of Warranty", "Repair - In Warranty");
+//    if (($flag === TRUE) &&
+//        (in_array($request['requestType'], $valid_request_types) == FALSE)) {
+//        $resultArr['code'] = ERR_INVALID_REQUEST_TYPE_CODE;
+//        $resultArr['msg'] = ERR_INVALID_REQUEST_TYPE_MSG;
+//
+//        $flag = FALSE;
+//    }
 
     //Check timeslot format validity
     /*if (($flag === TRUE) &&

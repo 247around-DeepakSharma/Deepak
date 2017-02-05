@@ -410,6 +410,7 @@ class Partner extends CI_Controller {
     function get_booking_form_data(){
         $booking_date = date('d-m-Y', strtotime($this->input->post('booking_date')));
         $post['partnerName'] = $this->session->userdata('partner_name');
+        $post['partner_id'] = $this->session->userdata('partner_id');
         $post['agent_id'] = $this->session->userdata('agent_id');
         $post['name'] = $this->input->post('user_name');
         $post['mobile'] = $this->input->post('booking_primary_contact_no');
@@ -2292,9 +2293,13 @@ class Partner extends CI_Controller {
         }
         
         if(!empty($result)){
-            $service_category = "";
+            $service_category = "<option disabled selected>Please Select Call Type</option>";
             foreach($result as $value){
-                $service_category .="<option selected value='".$value['service_category']."'  >".$value['service_category']."</option>";
+                $service_category .="<option ";
+                if(count($result) ==1){
+                    $service_category .= " selected ";
+                }
+                $service_category .= " value='".$value['service_category']."'  >".$value['service_category']."</option>";
             }
             echo $service_category;
             

@@ -1141,10 +1141,10 @@ class vendor_model extends CI_Model {
      */
 
     function get_all_pincode_mapping(){
-        $sql = "SELECT vendor_pincode_mapping.Pincode, "
+        $sql = "SELECT vendor_pincode_mapping.Pincode,vendor_pincode_mapping.State,vendor_pincode_mapping.City, "
                 . "CONCAT('',GROUP_CONCAT(DISTINCT(services.services)),'') as Appliance "
                 . "FROM vendor_pincode_mapping, service_centres, services "
-                . "WHERE Vendor_ID != '0' "
+                . "WHERE Vendor_ID != '0' AND vendor_pincode_mapping.Pincode !=0 "
                 . "AND `Vendor_ID` = `service_centres`.`id` "
                 . "AND `service_centres`.`active` = 1 "
                 . "AND services.id = `Appliance_ID` "
