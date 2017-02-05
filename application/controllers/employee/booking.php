@@ -266,8 +266,7 @@ class Booking extends CI_Controller {
                     $send['state'] = "Newbooking";
                     $this->asynchronous_lib->do_background_process($url, $send);
                     //Assign Vendor
-                    $upcountry_data_json = $this->input->post('upcountry_data');
-                    $upcountry_data = json_decode($upcountry_data_json, TRUE);
+                    
                     //log_message("info"," upcountry_data", print_r($upcountry_data). " Booking id ". $booking['booking_id']);
                     switch ($upcountry_data['message']){
                         case UPCOUNTRY_BOOKING:
@@ -275,8 +274,8 @@ class Booking extends CI_Controller {
                         case NOT_UPCOUNTRY_BOOKING:
                             $url = base_url() . "employee/vendor/process_assign_booking_form/";
                             $async_data['service_center'] = array($booking['booking_id'] => $upcountry_data['vendor_id']);
-                            $async_data['agent_id'] = $this->session->userdata('id');
-                            $async_data['agent_name'] = $this->session->userdata('employee_id');
+                            $async_data['agent_id'] = _247AROUND_DEFAULT_AGENT;
+                            $async_data['agent_name'] = _247AROUND_DEFAULT_AGENT_NAME;
                             $this->asynchronous_lib->do_background_process($url, $async_data);
                             
                             break;

@@ -1632,7 +1632,7 @@ class Partner extends CI_Controller {
                      if($assigned){
                         $url = base_url() . "employee/do_background_process/assign_booking";
                         $this->notify->insert_state_change($booking['booking_id'], ASSIGNED_VENDOR , _247AROUND_PENDING , 
-                            "Auto Assign vendor", $agent_id, $requestData['partnerName'], $booking['partner_id']);
+                            "Auto Assign vendor", _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
                         $async_data['booking_id'] = array($booking['booking_id']=> $requestData['vendor_id']);
                         $this->asynchronous_lib->do_background_process($url, $async_data);
                      } 
