@@ -1586,7 +1586,8 @@ class Partner extends CI_Controller {
                         if($upcountry_data['message'] == UPCOUNTRY_LIMIT_EXCEED){
                             $mail = 1;
                             $up_mail_data['name'] = $user['name'];
-                            $up_mail_data['appliance'] = $lead_details['Product'];
+                            $up_mail_data['appliance'] = $this->booking_model->selectservicebyid($booking
+                                    ['service_id'])[0]['services'];
                             $up_mail_data['booking_address'] = $booking['booking_address'];
                             $up_mail_data['city'] = $booking['city'];
                             $up_mail_data['state'] = $booking['state'];
