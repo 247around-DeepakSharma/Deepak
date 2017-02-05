@@ -519,7 +519,7 @@ function set_upcountry(){
             if (data1.message === "UPCOUNTRY BOOKING" || data1.message === "UPCOUNTRY LIMIT EXCEED") {
 
 
-                var upcountry_charges = Number(data1.partner_upcountry_rate) * Number(data1.upcountry_distance);
+                var upcountry_charges = (Number(data1.partner_upcountry_rate) * Number(data1.upcountry_distance)).toFixed(2);
                 total_price = $("#grand_total_price").val();
                 $("#upcountry_charges").val(upcountry_charges);
                 $("#grand_total_price").val(Number(total_price) + Number(upcountry_charges));
