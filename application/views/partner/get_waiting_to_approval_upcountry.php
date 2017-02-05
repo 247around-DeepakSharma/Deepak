@@ -3,14 +3,7 @@
 
    <div class="row" style="margin-top: 40px;">
       <div class="col-md-12">
-         
-      
-         <div class="panel panel-default">
-            <div class="panel-heading">
-                <h1 class="panel-title" ><i class="fa fa-money fa-fw"></i> Approve/Reject Upcountry Charges</h1>
-            </div>
-            <div class="panel-body">
-                 <?php if($this->session->userdata('success')) {
+         <?php if($this->session->userdata('success')) {
                                 echo '<div class="alert alert-success alert-dismissible" role="alert">
                                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
@@ -29,6 +22,13 @@
                    </div>';
                 }
                 ?>
+      
+         <div class="panel panel-default">
+            <div class="panel-heading">
+                <h1 class="panel-title" ><i class="fa fa-money fa-fw"></i> Approve/Reject Upcountry Charges</h1>
+            </div>
+            <div class="panel-body">
+                 
                <div class="table-responsive">
                   
                    <table class="table table-bordered table-hover table-striped">

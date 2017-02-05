@@ -133,7 +133,7 @@
     }
     $("#priceList_"+div_no[2]).html("Loading......"); 
     sendAjaxRequest(postData, pricesForCategoryCapacityUrl).done(function(data) {
-       //  console.log(data);
+         console.log(data);
         var data1 = jQuery.parseJSON(data);
        
         $("#priceList_"+div_no[2]).html(data1.price_table);
@@ -438,41 +438,6 @@ function enable_discount(div_id){
   //final_price();
 }
 
- $(document).ready(function () {
-  
-  //called when key is pressed in textbox
-  $("#grand_total_price").keypress(function (e) {
-     //if the letter is not digit then display error and don't type anything
-     if (e.which !== 8 && e.which !== 0 && (e.which < 48 || e.which > 57)) {
-        //display error message
-        $("#errmsg1").html("Digits Only").show().fadeOut("slow");
-               return false;
-    }
-   });
-   var postData = {};
-    postData['service_id'] = $("#service_id").val();
-    postData['brand'] = $('#appliance_brand_1').val();
-    postData['category'] = $("#appliance_category_1").val();
-    postData['partner_code'] = $("#source_code option:selected").val();  
-    postData['partner_type'] =  $("#partner_type").val();
-    postData['booking_city'] =  $("#booking_city").val();
-    postData['booking_pincode'] =  $("#booking_pincode").val();
-    postData['clone_number'] = 1;
-    postData['capacity'] = $("#appliance_capacity_1").val();
-    $('#submitform').attr('disabled',true);
-
-    sendAjaxRequest(postData, pricesForCategoryCapacityUrl).done(function(data) {
-        var data1 = jQuery.parseJSON(data);
-        
-        $("#upcountry_data").val(data1.upcountry_data);
-        final_price();
-        set_upcountry();
-        $('#submitform').attr('disabled',false);
-       
-    });
-   
-});
-
 function outbound_call(phone_number){
         var confirm_call = confirm("Call Customer ?");
        
@@ -554,7 +519,7 @@ function set_upcountry(){
             if (data1.message === "UPCOUNTRY BOOKING" || data1.message === "UPCOUNTRY LIMIT EXCEED") {
 
 
-                var upcountry_charges = Number(data1.partner_upcountry_rate) * Number(data1.upcountry_distance);
+                var upcountry_charges = (Number(data1.partner_upcountry_rate) * Number(data1.upcountry_distance)).toFixed(2);
                 total_price = $("#grand_total_price").val();
                 $("#upcountry_charges").val(upcountry_charges);
                 $("#grand_total_price").val(Number(total_price) + Number(upcountry_charges));

@@ -114,10 +114,12 @@ class Booking extends CI_Controller {
 
         // All brand comming in array eg-- array([0]=> LG, [1]=> BPL)
         $appliance_brand = $this->input->post('appliance_brand');
+        $upcountry_data_json = $this->input->post('upcountry_data');
+        $upcountry_data = json_decode($upcountry_data_json, TRUE);
 
         $booking = $this->insert_data_in_booking_details($booking_id, $user_id, count($appliance_brand));
         if ($booking) {
-
+           
             // All category comming in array eg-- array([0]=> TV-LCD, [1]=> TV-LED)
             $appliance_category = $this->input->post('appliance_category');
             // All capacity comming in array eg-- array([0]=> 19-30, [1]=> 31-42)
@@ -258,8 +260,7 @@ class Booking extends CI_Controller {
                     $send['state'] = "Newbooking";
                     $this->asynchronous_lib->do_background_process($url, $send);
                     //Assign Vendor
-                    $upcountry_data_json = $this->input->post('upcountry_data');
-                    $upcountry_data = json_decode($upcountry_data_json, TRUE);
+                    
                     //log_message("info"," upcountry_data", print_r($upcountry_data). " Booking id ". $booking['booking_id']);
                     switch ($upcountry_data['message']){
                         case UPCOUNTRY_BOOKING:
@@ -267,15 +268,15 @@ class Booking extends CI_Controller {
                         case NOT_UPCOUNTRY_BOOKING:
                             $url = base_url() . "employee/vendor/process_assign_booking_form/";
                             $async_data['service_center'] = array($booking['booking_id'] => $upcountry_data['vendor_id']);
-                            $async_data['agent_id'] = $this->session->userdata('id');
-                            $async_data['agent_name'] = $this->session->userdata('employee_id');
+                            $async_data['agent_id'] = _247AROUND_DEFAULT_AGENT;
+                            $async_data['agent_name'] = _247AROUND_DEFAULT_AGENT_NAME;
                             $this->asynchronous_lib->do_background_process($url, $async_data);
                             
                             break;
                         case SF_NOT_EXIT:
                             break;
                     }
-                } else if($booking['is_send_sms'] == 2){
+                } else if($booking['is_send_sms'] == 2 || $booking_id = INSERT_NEW_BOOKING){
                     $url = base_url() . "employee/vendor/check_unit_exist_in_sc/".$booking['booking_id'];
                     $async_data['booking'] = array();
                     $this->asynchronous_lib->do_background_process($url, $async_data);
@@ -440,6 +441,15 @@ class Booking extends CI_Controller {
 	$booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
 	$booking['booking_timeslot'] = $this->input->post('booking_timeslot');
 	$booking['update_date'] = date("Y-m-d H:i:s");
+        $upcountry_data_json = $this->input->post('upcountry_data');
+        $upcountry_data = json_decode($upcountry_data_json, TRUE);
+
+        switch ($upcountry_data['message']){
+            case UPCOUNTRY_BOOKING:
+            case UPCOUNTRY_LIMIT_EXCEED:
+                $booking['is_upcountry'] = 1;
+                break;
+        }
 
 
 	return $booking;

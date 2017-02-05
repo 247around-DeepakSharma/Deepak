@@ -1586,7 +1586,8 @@ class Partner extends CI_Controller {
                         if($upcountry_data['message'] == UPCOUNTRY_LIMIT_EXCEED){
                             $mail = 1;
                             $up_mail_data['name'] = $user['name'];
-                            $up_mail_data['appliance'] = $lead_details['Product'];
+                            $up_mail_data['appliance'] = $this->booking_model->selectservicebyid($booking
+                                    ['service_id'])[0]['services'];
                             $up_mail_data['booking_address'] = $booking['booking_address'];
                             $up_mail_data['city'] = $booking['city'];
                             $up_mail_data['state'] = $booking['state'];
@@ -1632,7 +1633,7 @@ class Partner extends CI_Controller {
                      if($assigned){
                         $url = base_url() . "employee/do_background_process/assign_booking";
                         $this->notify->insert_state_change($booking['booking_id'], ASSIGNED_VENDOR , _247AROUND_PENDING , 
-                            "Auto Assign vendor", $agent_id, $requestData['partnerName'], $booking['partner_id']);
+                            "Auto Assign vendor", _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT_NAME, _247AROUND);
                         $async_data['booking_id'] = array($booking['booking_id']=> $requestData['vendor_id']);
                         $this->asynchronous_lib->do_background_process($url, $async_data);
                      } 
@@ -1714,8 +1715,8 @@ class Partner extends CI_Controller {
     $resultArr = array("result" => FALSE, "lead" => NULL, "code" => NULL, "msg" => NULL);
     $flag = TRUE;
 
-    //Validate Partner Name
-    if ($request['partnerName'] != $this->partner['public_name']) {
+    //Validate Partner id
+    if ($request['partner_i'] != $this->partner['id']) {
         $resultArr['code'] = ERR_INVALID_PARTNER_NAME_CODE;
         $resultArr['msg'] = ERR_INVALID_PARTNER_NAME_MSG;
 
@@ -1757,14 +1758,14 @@ class Partner extends CI_Controller {
     //Invalid Product
 
     //Check for Request type
-    $valid_request_types = array("Installation", "Demo", "Installation and Demo", "Installation & Demo", "Repair - Out Of Warranty", "Repair - In Warranty");
-    if (($flag === TRUE) &&
-        (in_array($request['requestType'], $valid_request_types) == FALSE)) {
-        $resultArr['code'] = ERR_INVALID_REQUEST_TYPE_CODE;
-        $resultArr['msg'] = ERR_INVALID_REQUEST_TYPE_MSG;
-
-        $flag = FALSE;
-    }
+//    $valid_request_types = array("Installation", "Demo", "Installation and Demo", "Installation & Demo", "Repair - Out Of Warranty", "Repair - In Warranty");
+//    if (($flag === TRUE) &&
+//        (in_array($request['requestType'], $valid_request_types) == FALSE)) {
+//        $resultArr['code'] = ERR_INVALID_REQUEST_TYPE_CODE;
+//        $resultArr['msg'] = ERR_INVALID_REQUEST_TYPE_MSG;
+//
+//        $flag = FALSE;
+//    }
 
     //Check timeslot format validity
     /*if (($flag === TRUE) &&
