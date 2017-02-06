@@ -528,7 +528,7 @@ EOD;
         array(
             'id' => 'bd',
             'repeat' => true,
-            'data' => $new_array,
+            'data' => $leads,
         ),
         ));
 
