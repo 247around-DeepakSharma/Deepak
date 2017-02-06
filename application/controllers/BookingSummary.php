@@ -523,7 +523,7 @@ EOD;
         //Fetch partners' bookings
         $leads = $this->partner_model->get_partner_leads_for_summary_email($p['id']);
             log_message('info', __FUNCTION__ . ' => Fetched partner bookings');
-            
+            log_message('info', __FUNCTION__ . ' => Fetched partner bookings'.  print_r($new_array));
         $R->load(array(
         array(
             'id' => 'bd',

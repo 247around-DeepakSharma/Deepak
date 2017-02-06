@@ -184,7 +184,7 @@
                            
                             </tr>
                            <?php $count++; } ?>
-                            <input type="hidden" class="form-control" id="partner_id" name="partner_id" value = "<?php if (isset($partner_id)) {echo $partner_id; } ?>" >
+                            <input type="hidden" class="form-control" id="partner_id" name="partner_id" value = "<?php if (isset($data['charges'][0]['booking'][0]['partner_id'])) {echo $data['charges'][0]['booking'][0]['partner_id']; } ?>" >
                         </tbody>
                      </table>
                      <?php if(!empty($charges)){?>
