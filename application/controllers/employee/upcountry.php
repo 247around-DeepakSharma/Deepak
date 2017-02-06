@@ -106,7 +106,7 @@ class Upcountry extends CI_Controller {
         $data['upcountry_pincode'] = $this->input->post('pincode');
         $data['upcountry_distance'] = $this->input->post('distance');
         $booking_id = $this->input->post('booking_id');
-        $data['upcountry_rate'] = $this->input->post('upcountry_rate');
+        $data['sf_upcountry_rate'] = $this->input->post('upcountry_rate');
         
         $this->booking_model->update_booking($booking_id,$data);
         $this->notify->insert_state_change($booking_id, "Upcountry modified",
@@ -117,15 +117,11 @@ class Upcountry extends CI_Controller {
         
     }
     /**
-     * @desc: Update previous booking  upcountry
+     * @desc Waiting to Approval upcountry booking, load in Admin Panel
      */
-    function update_previous_booking($service_center_id){
-            echo ".....Entering........".PHP_EOL;
-            $booking_details = $this->upcountry_model->get_booking($service_center_id);
-            foreach ($booking_details as $value1) {
-                echo $value1['booking_id'].PHP_EOL;
-                $this->upcountry_model->action_upcountry_booking($value1['booking_id']);
-                
-            }
+    function get_waiting_for_approval_upcountry_charges(){
+       $data['booking_details'] =  $this->upcountry_model->get_waiting_for_approval_upcountry_charges("");
+       $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+       $this->load->view('employee/get_waiting_to_approval_upcountry',$data);
     }
 }

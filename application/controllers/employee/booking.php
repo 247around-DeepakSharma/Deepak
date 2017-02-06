@@ -2335,4 +2335,10 @@ class Booking extends CI_Controller {
         }
         
     }
+    
+    function auto_assigned_booking(){
+       $data['data'] =  $this->vendor_model->auto_assigned_booking();
+       $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+       $this->load->view('employee/auto_assigned_booking',$data);
+    }
 }

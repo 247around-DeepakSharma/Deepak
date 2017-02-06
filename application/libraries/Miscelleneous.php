@@ -235,7 +235,7 @@ class Miscelleneous {
                 break;
             case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
                 log_message('info', __METHOD__ . " => Upcountry distance cannot calculate" . $booking_id);
-                $to = NITS_ANUJ_EMAIL_ID;
+                $to = NITS_ANUJ_EMAIL_ID.", sales@247around.com";
                 $message1 = "Upcountry did not calculate for " . $booking_id;
                 $this->My_CI->notify->sendEmail("booking@247around.com", $to, "", "", 'Upcountry Failed', $message1, "");
                 $return_status = FALSE;
