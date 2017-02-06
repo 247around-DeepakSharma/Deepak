@@ -586,7 +586,7 @@
                 url:"<?php echo base_url()?>employee/vendor/get_vendor_availability/"+pincode+"/"+service_id,
                 
                 success: function(data){
-                    console.log(data);
+                    //console.log(data);
                     if(data ===""){
                         
                         $("#av_pincode"+index).css("display",'inherit');
