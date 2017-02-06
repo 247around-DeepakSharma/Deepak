@@ -60,6 +60,8 @@
                     <?php echo form_error('booking_timeslot'); ?>
                   </div>
                 </div>
+                  
+                  <input type="hidden" class="form-control" id="partner_id" name="partner_id" value = "<?php if (isset($partner_id)) {echo $partner_id; } ?>" >
 <!--
                   
                 <?php if(!empty($updation_reason)){?>  

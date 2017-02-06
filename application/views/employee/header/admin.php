@@ -109,9 +109,22 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/booking/review_bookings"><i class="fa fa-fw fa-desktop"></i> <strong> Review Bookings</strong></a>
                         </li>
+                        
                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url()?>employee/upcountry/get_upcountry_failed_details"><i class="fa fa-fw fa-desktop"></i> <strong> Failed Upcountry</strong></a>
+                            <a href="<?php echo base_url()?>employee/booking/update_not_pay_to_sf_booking"><i class="fa fa-fw fa-desktop"></i> <strong>Wall Mount Given</strong></a>
+                        </li>
+                         <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/booking/auto_assigned_booking"><i class="fa fa-fw fa-desktop"></i> <strong>Auto Assigned Booking</strong></a>
+                        </li>
+                          <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/booking/auto_assigned_booking"><i class="fa fa-fw fa-desktop"></i> <strong>Auto Assigned Booking</strong></a>
+                        </li>
+                         <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/upcountry/get_waiting_for_approval_upcountry_charges"><i class="fa fa-fw fa-desktop"></i> <strong>Waiting to Approve Upcountry Booking</strong></a>
                         </li>
                   
                     </ul>
@@ -178,12 +191,21 @@
                         </li>
 
                         <li class="divider"></li>
-                        <li>
-                            <a href="<?php echo base_url() ?>employee/vendor/get_sms_template_editable_grid"><i class="fa fa-fw fa-desktop"></i> <strong> SMS Template Grid</strong></a>
-                        </li>
-                        <li class="divider"></li>
-                        <li>
-                            <a href="<?php echo base_url() ?>employee/vendor/get_tax_rates_template_editable_grid"><i class="fa fa-fw fa-desktop"></i> <strong> TAX RATES Template Grid</strong></a>
+                        <li class="dropdown dropdown-submenu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-fw fa-desktop "></i> <strong>Edit Template</strong></a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="<?php echo base_url() ?>employee/vendor/get_sms_template_editable_grid"><i class="fa fa-fw fa-desktop"></i> <strong> SMS Template Grid</strong></a>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="<?php echo base_url() ?>employee/vendor/get_tax_rates_template_editable_grid"><i class="fa fa-fw fa-desktop"></i> <strong> TAX RATES Template Grid</strong></a>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="<?php echo base_url() ?>employee/vendor/get_vandor_escalation_policy_editable_grid"><i class="fa fa-fw fa-desktop"></i> <strong> Vendor Escalation Policy Template Grid</strong></a>
+                                </li>
+                            </ul>
                         </li>
                         <li class="divider"></li>
                         <li>
@@ -299,6 +321,10 @@
                             <a href="<?php echo base_url()?>BookingSummary/get_rm_crimes/0"><i class="fa fa-fw fa-desktop "></i> <strong>RM Crimes Report</strong></a>
                         </li>
                         </li><li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>BookingSummary/show_reports_chart" ><i class="fa fa-fw fa-desktop"></i> <strong> RM Performance Stats</strong></a>
+                        </li>
+                        <li class="divider"></li>
                         <li>
                             <a href="<?php echo base_url()?>BookingSummary/agent_working_details/month" ><i class="fa fa-fw fa-desktop"></i> <strong> Agents Booking Stats</strong></a>
                         </li>

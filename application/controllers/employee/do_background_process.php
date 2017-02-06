@@ -28,6 +28,7 @@ class Do_background_process extends CI_Controller {
         $this->load->model('upcountry_model');
         $this->load->model('partner_model');
         $this->load->model('database_testing_model');
+        $this->load->library("miscelleneous");
         $this->load->library('booking_utilities');
         $this->load->library('partner_sd_cb');
 	$this->load->library('partner_cb');
@@ -46,66 +47,70 @@ class Do_background_process extends CI_Controller {
         log_message('info', __METHOD__ . " => Entering");
 
         $data = $this->input->post('booking_id');
-        
+        $agent_id = $this->input->post('agent_id');
+        $agent_name = $this->input->post('agent_name');
+
         foreach ($data as $booking_id => $service_center_id) {
             if ($service_center_id != "") {
 
-                log_message('info', "Async Process to Assign booking - Booking ID: " . 
+                log_message('info', "Async Process to Assign booking - Booking ID: " .
                         $booking_id . ", SF ID: " . $service_center_id);
 
-                //Send SMS to customer
-                $query1 = $this->booking_model->getbooking_history($booking_id);
-                $sms['tag'] = "service_centre_assigned";
-                $sms['phone_no'] = $query1[0]['booking_primary_contact_no'];
-                $sms['booking_id'] = $booking_id;
-                $sms['type'] = "user";
-                $sms['type_id'] = $query1[0]['user_id'];
-                $sms['smsData'] = "";
+                $upcountry_status = $this->miscelleneous->assign_upcountry_booking($booking_id, $agent_id, $agent_name);
+                if ($upcountry_status) {
+                    log_message('info', __FUNCTION__ . " => Continue Process".$booking_id);
+                    if($upcountry_status[0]['request_type'] == HOME_THEATER_REPAIR_SERVICE_TAG){
+                        $unit_details = $this->booking_model->get_unit_details(array('booking_id'=> $booking_id));
+                        $sms['smsData']['brand_service'] = $unit_details[0]['appliance_brand']." ". $upcountry_status[0]['services'];
+                        $sms['smsData']['sf_phone'] = $upcountry_status[0]['phone_1'].", "
+                                .$upcountry_status[0]['primary_contact_phone_1'].", ".$upcountry_status[0]['owner_phone_1'];
+                        $sms['smsData']['sf_address'] = $upcountry_status[0]['address'];
+                        $sms['tag'] = "home_theater_repair";
+                        $sms['booking_id'] = $booking_id;
+                        $sms['type'] = "user";
+                        $sms['type_id'] = $upcountry_status[0]['user_id'];
+                        $sms['phone_no'] = $upcountry_status[0]['booking_primary_contact_no'];
+                        $this->notify->send_sms_acl($sms);
 
-                $this->notify->send_sms_acl($sms);
-                log_message('info', "Send SMS to customer: " . $booking_id);
+                    } else {
+                        //Send SMS to customer
+                        $sms['tag'] = "service_centre_assigned";
+                        $sms['phone_no'] = $upcountry_status[0]['booking_primary_contact_no'];
+                        $sms['booking_id'] = $booking_id;
+                        $sms['type'] = "user";
+                        $sms['type_id'] = $upcountry_status[0]['user_id'];
+                        $sms['smsData'] = "";
 
-                //Prepare job card
-                $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
-                log_message('info', "Async Process to create Job card: " . $booking_id);
+                        $this->notify->send_sms_acl($sms);
+                    }
+                    
+                    
+                    log_message('info', "Send SMS to customer: " . $booking_id);
 
-                //Send mail to vendor, no Note to vendor as of now
-                $message = "";
-                $this->booking_utilities->lib_send_mail_to_vendor($booking_id, $message);
+                    //Prepare job card
+                    $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+                    log_message('info', "Async Process to create Job card: " . $booking_id);
+
+                    //Send mail to vendor, no Note to vendor as of now
+                    $message = "";
+                    $this->booking_utilities->lib_send_mail_to_vendor($booking_id, $message);
+                }
 
                 log_message('info', "Async Process Exiting for Booking ID: " . $booking_id);
-
-//                if($query1[0]['amount_due'] == 0){
-//                    // Check & Calculate Upcountry charges.
-//                    $up_status = $this->upcountry_model->action_upcountry_booking($booking_id);
-//
-//                    if(!empty ($up_status) && $up_status != "Success"){
-//                        $from = "booking@247around.com";
-//                        $to = NITS_ANUJ_EMAIL_ID;
-//                        $subject = " UpCountry Calculation Failed for Booking -". $booking_id;
-//                        $message = " UpCountry Calculation Failed for Booking -". "  Booking Pincode - "
-//                                . $query1[0]['booking_pincode']. " service center id ". $service_center_id;
-//                        $cc = $bcc = $attachment ="";
-//
-//                        $this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment);            
-//                    }
-//                }
-
             }
         }
-       
+
         //Checking again for Pending Job cards
         $pending_booking_job_card = $this->database_testing_model->count_pending_bookings_without_job_card();
-	 if (!empty($pending_booking_job_card)) {
+        if (!empty($pending_booking_job_card)) {
             //Creating Job cards for Bookings 
-            foreach($pending_booking_job_card as $value){
+            foreach ($pending_booking_job_card as $value) {
                 //Prepare job card
                 $this->booking_utilities->lib_prepare_job_card_using_booking_id($value['booking_id']);
             }
-             
         }
-        
-        
+
+
         log_message('info', __METHOD__ . " => Exiting");
     }
 
@@ -191,19 +196,25 @@ class Do_background_process extends CI_Controller {
         $booking_id = $this->input->post('booking_id');
         $agent_id = $this->input->post('agent_id');
         $agent_name = $this->input->post('agent_name');
+        $partner_id = $this->input->post('partner_id');
         //$remarks = $this->input->post('admin_remarks');
-
         log_message('info', "Booking Id " . print_r($booking_id, TRUE));
 
         $data = $this->booking_model->getbooking_charges($booking_id);
         $current_status = _247AROUND_CANCELLED ;
-        //log_message('info', ": " . " service center data " . print_r($data, TRUE));
+
+        $upcountry_charges = 0;
+        log_message('info', ": " . " service center data " . print_r($data, TRUE));
        
-        foreach ($data as  $value) {
+        foreach ($data as $key => $value) {
             $current_status1 = _247AROUND_CANCELLED ;
             if($value['internal_status'] == _247AROUND_COMPLETED){
                 $current_status1 = _247AROUND_COMPLETED;
                 $current_status = _247AROUND_COMPLETED;
+            }
+            
+            if($key ==0){
+                $upcountry_charges = $value['upcountry_charges'];
             }
             if(!empty($value['admin_remarks']) && !empty($value['service_center_remarks'])){
                 $service_center['closing_remarks'] = "Service Center Remarks:- " . $value['service_center_remarks'] .
@@ -253,29 +264,9 @@ class Do_background_process extends CI_Controller {
         $booking['internal_status'] = $current_status;
         $booking['amount_paid'] = $data[0]['amount_paid'];
         $booking['closing_remarks'] = $service_center['closing_remarks'];
+        $booking['customer_paid_upcountry_charges'] = $upcountry_charges;
         
-        //check partner status from partner_booking_status_mapping table  
-        $partner_id_data = $this->partner_model->get_order_id_by_booking_id($booking_id);
-        $partner_id = '';
-        if(!empty($partner_id_data['partner_id'])){
-            $partner_id = $partner_id_data['partner_id'];
-        }
-        else{
-            $to = "ANUJ_EMAIL_ID";
-            $cc = "";
-            $bcc = "";
-            $subject = " No Partner ID Exists For Booking ID = '".$booking_id."' ";
-            $message = "No Partner ID Exists For Booking ID = '".$booking_id."' ";
-            $this->notify->sendEmail("booking@247around.com", $to, $cc, $bcc, $subject, $message, "");
-        }
         
-        if($partner_id){
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$partner_id, $booking_id);
-            if(!empty($partner_status)){
-                $booking['partner_current_status'] = $partner_status[0];
-                $booking['partner_internal_status'] = $partner_status[1];
-            }
-        }
 
         //update booking_details table
         log_message('info', ": " . " update booking details data (" .$current_status .")".print_r($booking, TRUE));
@@ -290,6 +281,12 @@ class Do_background_process extends CI_Controller {
             //Save this booking id in booking_invoices_mapping table as well now
             $this->invoices_model->insert_booking_invoice_mapping(array('booking_id' => $data[0]['booking_id']));
         }
+        //check partner status from partner_booking_status_mapping table  
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$partner_id, $booking_id);
+            if(!empty($partner_status)){
+                $booking['partner_current_status'] = $partner_status[0];
+                $booking['partner_internal_status'] = $partner_status[1];
+            }
 
         $this->booking_model->update_booking($booking_id, $booking);
         //Update Spare parts details table
@@ -308,6 +305,7 @@ class Do_background_process extends CI_Controller {
         $this->partner_cb->partner_callback($booking_id);
     }
 
+
     /**
      * @desc : this method send request to send sms and email for completed, cancelled, Rescheduled, open completed/cancelled booking
      */
@@ -322,6 +320,7 @@ class Do_background_process extends CI_Controller {
         log_message('info', ":  Send sms and email request for booking_id" .print_r($booking_id, TRUE). " and state ". print_r($state, TRUE));
 
     }
+    
     
   
     /* end controller */

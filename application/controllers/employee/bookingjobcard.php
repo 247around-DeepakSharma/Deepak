@@ -134,7 +134,7 @@ class bookingjobcard extends CI_Controller {
         system(" chmod 777 ".$output_file_pdf, $res2);
 
         //Upload Excel & PDF files to AWS
-        $bucket = 'bookings-collateral';
+        $bucket = BITBUCKET_DIRECTORY;
         $directory_xls = "jobcards-excel/" . $output_file . ".xlsx";
         $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 
@@ -232,7 +232,7 @@ class bookingjobcard extends CI_Controller {
         system(" chmod 777 ".$output_file_pdf, $res2);
 
         //Upload Excel & PDF files to AWS
-        $bucket = 'bookings-collateral';
+        $bucket = BITBUCKET_DIRECTORY;
         $directory_xls = "jobcards-excel/" . $output_file . ".xlsx";
         $this->s3->putObjectFile($output_file_excel, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
 
@@ -376,7 +376,7 @@ class bookingjobcard extends CI_Controller {
 
     function send_reminder_mail_to_vendor($booking_id, $additional_note) {
 	log_message('info', __FUNCTION__ . " Booking ID  " . print_r($booking_id, true));
-	$getbooking = $this->booking_model->getbooking($booking_id);
+	$getbooking = $this->booking_model->getbooking_history($booking_id);
 
         if ($getbooking) {
             $servicecentredetails = $this->booking_model->selectservicecentre($booking_id);
@@ -426,7 +426,7 @@ class bookingjobcard extends CI_Controller {
 
             $to = $servicecentredetails[0]['primary_contact_email'];
             $owner = $servicecentredetails[0]['owner_email'];
-            $cc = ($owner . ', anuj@247around.com, nits@247around.com');
+            $cc .= ($owner . ', anuj@247around.com, nits@247around.com');
             $from = "booking@247around.com";
             $bcc = "";
             $attachment = "";

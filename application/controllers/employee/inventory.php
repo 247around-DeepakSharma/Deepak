@@ -90,8 +90,9 @@ class Inventory extends CI_Controller {
                     '19_24_requested' => $data['_19_24'][$key],
                     '26_32_requested' => $data['_26_32'][$key],
                     '36_42_requested' => $data['_36_42'][$key],
+                    '43_requested' => $data['_43'][$key],
                     'order_date' => date('Y-m-d h:i:s'),
-                    'total_requested' => ($data['_19_24'][$key] + $data['_26_32'][$key] + $data['_36_42'][$key]),
+                    'total_requested' => ($data['_19_24'][$key] + $data['_26_32'][$key] + $data['_36_42'][$key] + $data['_43'][$key]),
                 );
 
                 //Inserting data in Brackets Database
@@ -122,6 +123,7 @@ class Inventory extends CI_Controller {
                         $email_order_received_from['19_24_requested'] = $data_post['19_24_requested'];
                         $email_order_received_from['26_32_requested'] = $data_post['26_32_requested'];
                         $email_order_received_from['36_42_requested'] = $data_post['36_42_requested'];
+                        $email_order_received_from['43_requested'] = $data_post['43_requested'];
                         $email_order_received_from['total_requested'] = $data_post['total_requested'];
                         $subject = "Brackets Requested by " . $vendor_requested[0]['company_name'];
                         $emailBody = vsprintf($template[0], $email_order_received_from);
@@ -147,6 +149,7 @@ class Inventory extends CI_Controller {
                         $email['19_24_requested'] = $data_post['19_24_requested'];
                         $email['26_32_requested'] = $data_post['26_32_requested'];
                         $email['36_42_requested'] = $data_post['36_42_requested'];
+                        $email['43_requested'] = $data_post['43_requested'];
                         $email['total_requested'] = $data_post['total_requested'];
                         $email['owner_name'] = $vendor_requested[0]['owner_name'];
                         $email['company_name'] = $vendor_requested[0]['company_name'];
@@ -252,6 +255,7 @@ class Inventory extends CI_Controller {
         $data['19_24_shipped'] = $this->input->post('19_24_shipped');
         $data['26_32_shipped'] = $this->input->post('26_32_shipped');
         $data['36_42_shipped'] = $this->input->post('36_42_shipped');
+        $data['43_shipped'] = $this->input->post('43_shipped');
         $data['total_shipped'] = $this->input->post('total_shipped');
         $data['shipment_date'] = !empty($this->input->post('shipment_date'))?$this->input->post('shipment_date'):date('Y-m-d H:i:s');
         $data['is_shipped'] = 1;
@@ -337,6 +341,7 @@ class Inventory extends CI_Controller {
         $data['19_24_received'] = $this->input->post('19_24_received');
         $data['26_32_received'] = $this->input->post('26_32_received');
         $data['36_42_received'] = $this->input->post('36_42_received');
+        $data['43_received'] = $this->input->post('43_received');
         $data['total_received'] = $this->input->post('total_received');
         $data['received_date'] = date('Y-m-d H:i:s');
         $data['is_received'] = 1;
@@ -417,6 +422,7 @@ class Inventory extends CI_Controller {
             '19_24_current_count' => $this->input->post('19_24_received'),
             '26_32_current_count' => $this->input->post('26_32_received'),
             '36_42_current_count' => $this->input->post('36_42_received'),
+            '43_current_count' => $this->input->post('43_received'),
             'increment/decrement' => 1,
             'remarks' => 'Order ID'
         );
@@ -435,6 +441,7 @@ class Inventory extends CI_Controller {
             '19_24_current_count' => $this->input->post('19_24_received') + $last_updated_array['19_24_current_count'],
             '26_32_current_count' => $this->input->post('26_32_received') + $last_updated_array['26_32_current_count'],
             '36_42_current_count' => $this->input->post('36_42_received') + $last_updated_array['36_42_current_count'],
+            '43_current_count' => $this->input->post('43_received') + $last_updated_array['43_current_count'],
             'increment/decrement' => 1,
             'remarks' => 'Order ID'
             );
@@ -537,6 +544,7 @@ class Inventory extends CI_Controller {
         $data['19_24_requested'] = $this->input->post('19_24_requested');
         $data['26_32_requested'] = $this->input->post('26_32_requested');
         $data['36_42_requested'] = $this->input->post('36_42_requested');
+        $data['43_requested'] = $this->input->post('43_requested');
         $data['total_requested'] = $this->input->post('total_requested');
         
         //Updating value in Brackets
@@ -565,6 +573,7 @@ class Inventory extends CI_Controller {
                         $email['19_24_requested'] = $data['19_24_requested'];
                         $email['26_32_requested'] = $data['26_32_requested'];
                         $email['36_42_requested'] = $data['36_42_requested'];
+                        $email['43_requested'] = $data['43_requested'];
                         $email['total_requested'] = $data['total_requested'];
                         $subject = "Updated Brackets Requested by ".$order_received_from_email[0]['company_name'];
                         $emailBody = vsprintf($template[0], $email);
@@ -589,6 +598,7 @@ class Inventory extends CI_Controller {
                         $email['19_24_requested'] = $data['19_24_requested'];
                         $email['26_32_requested'] = $data['26_32_requested'];
                         $email['36_42_requested'] = $data['36_42_requested'];
+                        $email['43_requested'] = $data['43_requested'];
                         $email['total_requested'] = $data['total_requested'];
                         $email['owner_name'] = $order_received_from_email[0]['owner_name'];
                         $email['company_name'] = $order_received_from_email[0]['company_name'];
@@ -655,6 +665,7 @@ class Inventory extends CI_Controller {
                         $email['19_24_requested'] = $brackets_details[0]['19_24_requested'];
                         $email['26_32_requested'] = $brackets_details[0]['26_32_requested'];
                         $email['36_42_requested'] = $brackets_details[0]['36_42_requested'];
+                        $email['43_requested'] = $brackets_details[0]['43_requested'];
                         $email['total_requested'] = $brackets_details[0]['total_requested'];
                         $subject = "Brackets Request Cancelled";
                         $emailBody = vsprintf($template[0], $email);
@@ -680,6 +691,7 @@ class Inventory extends CI_Controller {
                         $email['19_24_requested'] = $brackets_details[0]['19_24_requested'];
                         $email['26_32_requested'] = $brackets_details[0]['26_32_requested'];
                         $email['36_42_requested'] = $brackets_details[0]['36_42_requested'];
+                        $email['43_requested'] = $brackets_details[0]['43_requested'];
                         $email['total_requested'] = $brackets_details[0]['total_requested'];
                         $email['owner_name'] = $order_received_from_email[0]['owner_name'];
                         $email['company_name'] = $order_received_from_email[0]['company_name'];
@@ -783,6 +795,7 @@ class Inventory extends CI_Controller {
         $data['remarks_by_partner'] = $this->input->post('remarks_by_partner');
         $data['courier_name_by_partner'] = $this->input->post('courier_name');
         $data['awb_by_partner'] = $this->input->post('awb');
+        $data['courier_charges_by_sf'] = $this->input->post('courier_charges_by_sf');
         $data['shipped_date'] = $this->input->post('shipment_date');
         $data['status'] = $this->input->post('status');
         
@@ -913,6 +926,7 @@ class Inventory extends CI_Controller {
                 $email_to['19_24_requested'] = $brackets_details[0]['19_24_requested'];
                 $email_to['26_32_requested'] = $brackets_details[0]['26_32_requested'];
                 $email_to['36_42_requested'] = $brackets_details[0]['36_42_requested'];
+                $email_to['43_requested'] = $brackets_details[0]['43_requested'];
                 $email_to['total_requested'] = $brackets_details[0]['total_requested'];
                 $subject = "Brackets Request Un-Cancelled";
                 $emailBody = vsprintf($template_to[0], $email_to);
@@ -936,6 +950,7 @@ class Inventory extends CI_Controller {
                 $email_from['19_24_requested'] = $brackets_details[0]['19_24_requested'];
                 $email_from['26_32_requested'] = $brackets_details[0]['26_32_requested'];
                 $email_from['36_42_requested'] = $brackets_details[0]['36_42_requested'];
+                $email_from['43_requested'] = $brackets_details[0]['43_requested'];
                 $email_from['total_requested'] = $brackets_details[0]['total_requested'];
                 $email_from['owner_name'] = $order_received_from_email[0]['owner_name'];
                 $email_from['company_name'] = $order_received_from_email[0]['company_name'];

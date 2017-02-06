@@ -114,6 +114,11 @@ $route['partner/acknowledge_received_defective_parts/(:any)'] = 'employee/partne
 $route['partner/reject_defective_part/(:any)/(:any)'] = 'employee/partner/reject_defective_part/$1/$2';
 $route['partner/get_approved_defective_parts_booking'] = 'employee/partner/get_approved_defective_parts_booking';
 $route['partner/get_approved_defective_parts_booking/(:any)'] = 'employee/partner/get_approved_defective_parts_booking/$1';
+$route['partner/get_waiting_for_approval_upcountry_charges'] = 'employee/partner/get_waiting_for_approval_upcountry_charges';
+$route['partner/upcountry_charges_approval/(:any)/(:any)'] = 'employee/partner/upcountry_charges_approval/$1/$2';
+$route['partner/reject_upcountry_charges/(:any)/(:any)'] = 'employee/partner/reject_upcountry_charges/$1/$2';
+
+
 
 //$route['api/(:any)'] = 'partner/$2';
 

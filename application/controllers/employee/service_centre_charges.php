@@ -187,7 +187,7 @@ class service_centre_charges extends CI_Controller {
             
             $data['file_name'] = $price_file;
             $data['file_type'] = _247AROUND_SF_PRICE_LIST;
-            $data['agent_id'] = $this->session->userdata('employee_id');
+            $data['agent_id'] = $this->session->userdata('id');
             $insert_id = $this->partner_model->add_file_upload_details($data);
             if(!empty($insert_id)){
             //Logging success
@@ -529,7 +529,7 @@ class service_centre_charges extends CI_Controller {
             
             $data['file_name'] = $appliance_file;
             $data['file_type'] = _247AROUND_PARTNER_APPLIANCE_DETAILS;
-            $data['agent_id'] = $this->session->userdata('employee_id');
+            $data['agent_id'] = $this->session->userdata('id');
             $insert_id = $this->partner_model->add_file_upload_details($data);
             if(!empty($insert_id)){
             //Logging success

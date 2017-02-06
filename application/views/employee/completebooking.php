@@ -329,18 +329,35 @@
     			</div>
     		    </div>
 		    <?php } ?>
+                   
 		    <div class="row">
 			<div class ="col-md-12">
+                             <?php if($booking_history[0]['is_upcountry'] == '1' 
+                            && $booking_history[0]['upcountry_paid_by_customer']== '1' ){ ?>
+                             <div class="form-group col-md-offset-1">
+				<label for="type" class="col-sm-2">Paid Upcountry Charges</label>
+				<div class="col-md-4">
+				    <div class="input-group">
+					<div class="input-group-addon">Rs.</div>
+					<input  type="text" class="form-control cost"  name="upcountry_charges" id="upcountry_charges" value="<?php echo $upcountry_charges; ?>" placeholder="Total Price">
+				    </div>
+				</div>
+			    </div>
+                            <?php } else { ?>
+                            <input  type="hidden" class="form-control cost"  name="upcountry_charges" id="upcountry_charges" value="0" placeholder="Total Price">
+                                
+                            <?php } ?>
 			    <div class="form-group col-md-offset-1">
 				<label for="type" class="col-sm-2">Total Customer Paid</label>
 				<div class="col-md-4">
 				    <div class="input-group">
 					<div class="input-group-addon">Rs.</div>
-					<input  type="text" class="form-control"  name="grand_total_price" id="grand_total_price" value="<?php echo $paid_basic_charges + $paid_additional_charges + $paid_parts_cost; ?>" placeholder="Total Price" readonly>
+					<input  type="text" class="form-control"  name="grand_total_price" id="grand_total_price" value="<?php echo $paid_basic_charges + $paid_additional_charges + $paid_parts_cost +$upcountry_charges;; ?>" placeholder="Total Price" readonly>
 				    </div>
 				</div>
 			    </div>
 			</div>
+                    
 		    </div>
 		    <div class="row">
 			<div class="col-md-12">
@@ -387,7 +404,7 @@
 				    <textarea class="form-control"  rows="5" name="admin_remarks"></textarea>
 				</div>
 			    </div>
-
+                           <input type="hidden" class="form-control" id="partner_id" name="partner_id" value = "<?php if (isset($booking_history[0]['partner_id'])) {echo $booking_history[0]['partner_id']; } ?>" >
 			</div>
 		    </div>
 		    <br>

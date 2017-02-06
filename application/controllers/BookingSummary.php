@@ -28,6 +28,7 @@ class BookingSummary extends CI_Controller {
         $this->load->library('PHPReport');
         $this->load->library('notify');
         $this->load->library('email');
+        $this->load->library('session');
         $this->load->library('s3');
         $this->load->library('booking_utilities');
         
@@ -508,10 +509,11 @@ EOD;
         'templateDir' => $templateDir
     );
 
-    $where_get_partner = array('is_active' => '1');
-
+    $where_get_partner = array('partners.is_active' => '1');
+    $select = "partners.id, partners.summary_email_to, partners.summary_email_cc, "
+            . " partners.summary_email_bcc, partners.public_name";
     //Get all Active partners who has "is_reporting_mail" column 1
-    $partners = $this->partner_model->getpartner_details($where_get_partner, '1');
+    $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
         log_message('info', __FUNCTION__ . ' => Fetched active partners');
 
     foreach ($partners as $p) {
@@ -521,7 +523,7 @@ EOD;
         //Fetch partners' bookings
         $leads = $this->partner_model->get_partner_leads_for_summary_email($p['id']);
         log_message('info', __FUNCTION__ . ' => Fetched partner bookings');
-            
+        
         $R->load(array(
         array(
             'id' => 'bd',
@@ -570,7 +572,7 @@ EOD;
         $bucket = 'bookings-collateral';
         $directory_xls = "summary-excels/" . $output_file;
         $this->s3->putObjectFile(realpath($output_file), $bucket, $directory_xls, S3::ACL_PRIVATE);
-            
+      
         //Delete this file
         exec("rm -rf " . escapeshellarg($output_file), $out, $return);
             // Return will return non-zero upon an error
@@ -891,12 +893,12 @@ EOD;
             if (!empty($sf_list)) {
                 $sf_list = $sf_list[0]['service_centres_id'];
             }
-            $html = $this->booking_utilities->booking_report_by_service_center($sf_list);
+            $html = $this->booking_utilities->booking_report_by_service_center($sf_list,1);
             $to = $value['official_email'];
 
             $this->notify->sendEmail("booking@247around.com", $to, "", "", "Service Center Report " . date('d-M,Y'), $html, "");
             log_message('info', __FUNCTION__ . ' Service Center Report mail sent to ' . $to);
-
+          
             // Inserting values in scheduler tasks log
             $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
         }
@@ -976,7 +978,7 @@ EOD;
                 $where = "AND service_centres.id IN (" . $sf_list . ")";
             }
             $data['data'] = $this->reporting_utils->get_sc_crimes($where);
-
+            
             $this->load->view('employee/header/' . $this->session->userdata('user_group'));
             $this->load->view('employee/get_crimes', $data);
         } else {
@@ -1105,6 +1107,29 @@ EOD;
     }
     
     /**
+     * @desc: This function is used to insert agent daily calls report into table
+     * params: void
+     * retun :void
+     *
+     */
+
+    function agent_working_details_cron($flag = "")
+    {
+            log_message('info', __FUNCTION__ . ": Fetched Agent Daily Working Report");
+            
+            $data = $this->reporting_utils->get_agent_daily_reports($flag);
+            if(!empty($data)){
+                $insert = $this->reporting_utils->insert_agent_daily_reports($data);
+            }
+            
+            if($insert){
+                log_message('info', __FUNCTION__ . ": Agent Daily Working Report Inserted Successfully");
+            }
+
+            
+    }
+    
+    /**
      * @Desc: This function is used to get RM's specific crime reports
      * @params: void
      * @return: void
@@ -1212,5 +1237,166 @@ EOD;
             log_message('info', __FUNCTION__ . ' RM Crime Report has been sent successfully');
         }
     }
+    
+    /**
+     * @Desc: This function is to show Pictorial Representation of Reports Table
+     * @params: void
+     * #return: void
+     * 
+     */
+    function show_reports_chart(){
+        //1. RM crimes report
+        //Getting RM Array
+        $final_array = [];
+        $rm_array = $this->employee_model->get_rm_details();
+        foreach ($rm_array as $value) {
+            $old_crimes = 0;
+            $update = 0;
+            $not_update = 0;
+            $total_crimes = 0;
+            $escalations = 0;
+            //Getting RM to SF relation
+            $where = "";
+            $sf_list = $this->vendor_model->get_employee_relation($value['id']);
+            if (!empty($sf_list)) {
+                $sf_list = $sf_list[0]['service_centres_id'];
+                $where = "AND service_centres.id IN (" . $sf_list . ")";
+            }
+            //Getting Crimes for particular RM for its corresponding SF
+            $data[$value['id']] = $this->reporting_utils->get_sc_crimes($where);
+            //Summing up values for this RM
+            foreach ($data[$value['id']] as $val) {
+                $old_crimes +=$val['monthly_total_crimes'];
+                $update +=$val['update'];
+                $not_update +=$val['not_update'];
+                $total_crimes +=$val['total_booking'];
+                $escalations +=$val['monthly_escalations'];
+            }
 
+            $temp['monthly_total_crimes'] = $old_crimes;
+            $temp['update'] = $update;
+            $temp['not_update'] = $not_update;
+            $temp['total_booking'] = $total_crimes;
+            $temp['rm_name'] = $this->employee_model->getemployeefromid($value['id'])[0]['full_name'];
+            $temp['monthly_escalations'] = $escalations;
+            //Finalizing Array for corresponding RM's ID
+            $final_array['data'][] = $temp;
+        }
+        //Making Final Array
+        $data = [];
+        $rm_name_st = "";
+        $monthly_total_crimes_st = "";
+        $update_st = "";
+        $not_update_st = "";
+        $total_booking_st = "";
+        $monthly_escalations_st = "";
+        foreach($final_array['data'] as $value){
+            $rm_name_st .= "'".$value['rm_name']."'".',';
+            $monthly_total_crimes_st .= $value['monthly_total_crimes'].',';
+            $update_st .= $value['update'].',';
+            $not_update_st .= $value['not_update'].',';
+            $total_booking_st .= $value['total_booking'].',';
+            $monthly_escalations_st .= $value['monthly_escalations'].',';
+        }
+        $rm_name_st_trimmed = rtrim($rm_name_st, ',');
+        $monthly_total_crimes_st_trimmed = rtrim($monthly_total_crimes_st, ',');
+        $update_st_trimmed = rtrim($update_st, ',');
+        $not_update_st_trimmed = rtrim($not_update_st, ',');
+        $total_booking_st_trimmed = rtrim($total_booking_st, ',');
+        $monthly_escalations_st_trimmed = rtrim($monthly_escalations_st, ',');
+        
+        //Final Data to be passed to View
+        $data['rm'] = $rm_name_st_trimmed;
+        $data['monthly_total_crimes'] = $monthly_total_crimes_st_trimmed;
+        $data['updated'] = $update_st_trimmed;
+        $data['not_updated'] = $not_update_st_trimmed;
+        $data['total_booking'] = $total_booking_st_trimmed;
+        $data['monthly_escalations'] = $monthly_escalations_st_trimmed;
+        
+        //2. Processing for sf snapshot to RM
+        foreach ($rm_array as $val) {
+            //Getting RM to SF relation
+            $sf_list = $this->vendor_model->get_employee_relation($val['id']);
+            if (!empty($sf_list)) {
+                $sf_list = $sf_list[0]['service_centres_id'];
+            }
+            $sf_snapshot_data = $this->reporting_utils->get_booking_by_service_center($sf_list);
+            
+            $month_completed = 0;
+            $month_cancelled = 0;
+            $last_2_day = 0;
+            $last_3_day = 0;
+            $greater_than_5_days = 0;
+            foreach($sf_snapshot_data['data'] as $key=>$value){
+                $month_completed += isset($value['month_completed']['completed'])?$value['month_completed']['completed']:0; 
+                $month_cancelled += isset($value['month_cancelled']['cancelled'])?$value['month_cancelled']['cancelled']:0; 
+                $last_2_day += isset($value['last_2_day']['booked'])?$value['last_2_day']['booked']:0; 
+                $last_3_day += isset($value['last_3_day']['booked'])?$value['last_3_day']['booked']:0; 
+                $greater_than_5_days += isset($value['greater_than_5_days']['booked'])?$value['greater_than_5_days']['booked']:0; 
+            }
+            
+            $temp['month_completed'] = $month_completed;
+            $temp['month_cancelled'] = $month_cancelled;
+            $temp['last_2_day'] = $last_2_day;
+            $temp['last_3_day'] = $last_3_day;
+            $temp['greater_than_5_days'] = $greater_than_5_days;
+            $final[] = $temp;
+          
+        }
+        //Making Final Array
+        $month_completed_st = "";
+        $month_cancelled_st = "";
+        $last_2_day_st = "";
+        $last_3_day_st = "";
+        $greater_than_5_days_st = "";
+        foreach($final as $value){
+            $month_completed_st .= $value['month_completed'].',';
+            $month_cancelled_st .= $value['month_cancelled'].',';
+            $last_2_day_st .= $value['last_2_day'].',';
+            $last_3_day_st .= $value['last_3_day'].',';
+            $greater_than_5_days_st .= $value['greater_than_5_days'].',';
+        }
+        $month_completed_st_trimmed = rtrim($month_completed_st, ',');
+        $month_cancelled_st_trimmed = rtrim($month_cancelled_st, ',');
+        $last_2_day_st_trimmed = rtrim($last_2_day_st, ',');
+        $last_3_day_st_trimmed = rtrim($last_3_day_st, ',');
+        $greater_than_5_days_st_trimmed = rtrim($greater_than_5_days_st, ',');
+        
+        //Final Data to be passed to View
+        $data['month_completed'] = $month_completed_st_trimmed;
+        $data['month_cancelled'] = $month_cancelled_st_trimmed;
+        $data['last_2_day'] = $last_2_day_st_trimmed;
+        $data['last_3_day'] = $last_3_day_st_trimmed;
+        $data['greater_than_5_days'] = $greater_than_5_days_st_trimmed;
+        $data['user_group'] = $this->session->userdata('user_group');
+        
+        
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/show_reports_chart',$data);
+    }
+    
+    /**
+     * @Desc: This function is used to show RM specific Snapshot Report
+     *          It is being called from RM Charts View page
+     * @params: RM Full_name
+     * @return: view
+     * 
+     */
+    function show_rm_specific_snapshot($rm_fullname){
+        $rm_fullname = urldecode($rm_fullname);
+
+        //Getting RM id from Employee table
+        $rm_details = $this->employee_model->get_employee_by_full_name($rm_fullname);
+        //Getting RM to SF relation
+        $sf_list = $this->vendor_model->get_employee_relation($rm_details[0]['id']);
+        if (!empty($sf_list)) {
+            $sf_list = $sf_list[0]['service_centres_id'];
+        }
+        $data['html'] = $this->booking_utilities->booking_report_by_service_center($sf_list,'');
+        
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/show_service_center_report',$data);
+        
+    }
+    
 }

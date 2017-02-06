@@ -110,6 +110,14 @@
                                 <li>
                                     <a href="<?php echo base_url() ?>employee/booking/viewclosedbooking/Cancelled"><i class="fa fa-fw fa-desktop"></i> <strong>View Cancelled Booking</strong></a>
                                 </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="<?php echo base_url()?>employee/booking/update_not_pay_to_sf_booking"><i class="fa fa-fw fa-desktop"></i> <strong>Wall Mount Not Given</strong></a>
+                                </li>
+                                 <li class="divider"></li>
+                                <li>
+                                    <a href="<?php echo base_url()?>employee/booking/auto_assigned_booking"><i class="fa fa-fw fa-desktop"></i> <strong>Auto Assigned Booking</strong></a>
+                                </li>
                                 
                             </ul>
                             <!-- /.dropdown-tasks -->

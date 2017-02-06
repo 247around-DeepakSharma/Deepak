@@ -1713,16 +1713,79 @@ ALTER TABLE `booking_details` ADD `sms_count` INT(5) NULL DEFAULT '0' AFTER `cou
 
 ALTER TABLE  `service_centres` ADD `is_verified` int(2) NOT NULL DEFAULT '0' AFTER `is_cst_doc`;
 
+
+ALTER TABLE `service_centres` ADD `is_upcountry` INT(2) NULL DEFAULT '0' AFTER `is_penalty`;
+
 --Belal 12 Jan
 
 ALTER TABLE `file_uploads` DROP `tag`;
 --Belal
 
 ALTER TABLE `partners` DROP `upcountry`;
+--- sachin 12 jan
+
+CREATE TABLE `scheduler_tasks_status` (
+  `id` int(11) NOT NULL,
+  `job_name` varchar(55) NOT NULL,
+  `agent_name` varchar(55) NOT NULL,
+  `file_link` varchar(200) DEFAULT NULL,
+  `processing_type` varchar(55) DEFAULT NULL,
+  `from_date` datetime DEFAULT NULL,
+  `to_date` datetime DEFAULT NULL,
+  `start_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `end_time` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `scheduler_tasks_status`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `scheduler_tasks_status`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=0;
+
+
+
+--
+-- Table structure for table `sub_service_center_details`
+--
+
+CREATE TABLE `sub_service_center_details` (
+  `id` int(11) NOT NULL,
+  `service_center_id` int(11) DEFAULT NULL,
+  `state` varchar(100) DEFAULT NULL,
+  `district` varchar(150) DEFAULT NULL,
+  `pincode` int(50) DEFAULT NULL,
+  `upcountry_rate` int(10) DEFAULT NULL,
+  `update_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `create_date` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `sub_service_center_details`
+--
+ALTER TABLE `sub_service_center_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `sub_service_center_details`
+--
+ALTER TABLE `sub_service_center_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
 
 -- Abhay 14 Jan ---
 ALTER TABLE `bookings_sources` ADD `partner_type` VARCHAR(50) NULL DEFAULT NULL AFTER `partner_id`;
 
+--- Sachin 19 Dec --- 
+
+ALTER TABLE `booking_details` ADD `partner_current_status` VARCHAR(128) NULL AFTER `internal_status`;
 
 ALTER TABLE `booking_details` ADD `partner_internal_status` VARCHAR(128) NULL AFTER `partner_current_status`;
 
@@ -1750,8 +1813,7 @@ ALTER TABLE `partners` ADD `upcountry_max_distance_threshold` INT(10) NULL DEFAU
 
 --Belal 18 Jan
 
-INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 
-'new_vendor_creation', 'Dear Partner,<br><br>
+INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'new_vendor_creation', 'Dear Partner,<br><br>
 247around welcomes you to its Partner Network, we hope to have a long lasting relationship with you.<br><br>
 As informed earlier, serial number of appliance is mandatory when you close a booking. All bookings without serial numbers will be cancelled.<br><br> 
 Engineer has to note the serial number when installation is done. In case serial number is not found on the appliance, he needs to bring one of the following proofs:<br><br> 
@@ -1768,5 +1830,144 @@ Regards,<br>
 UPDATE `email_template` SET `template` = 'Dear Partner brackets for your Order ID <b> %s </b> have been delivered to you sucessfully.<br><br> Thankyou for placing an order with us.<br.<br> Regards,<br> 247Around Team' WHERE `email_template`.`tag` = 'brackets_received_mail_vendor_order_requested_from
 ';
 
--- =========================  SERVER DB UPDATED, ADD YOUR CHANGES BELOW THIS LINE  ========================= --
 
+--Abhay 23 Jan
+ALTER TABLE `partners` CHANGE `upcountry_max_distance_threshold` `upcountry_max_distance_threshold` DECIMAL(10,2) NULL DEFAULT NULL, CHANGE `upcountry_min_distance_threshold` `upcountry_min_distance_threshold` DECIMAL(10,2) NULL DEFAULT NULL;
+ALTER TABLE `partners` ADD `upcountry_mid_distance_threshold` DECIMAL(10,2) NULL DEFAULT NULL AFTER `upcountry_min_distance_threshold`;
+ALTER TABLE `partners` ADD `upcountry_rate1` INT(10) NULL DEFAULT NULL AFTER `upcountry_rate`;
+
+ALTER TABLE `booking_details` ADD `partner_upcountry_rate` INT(10) NULL DEFAULT NULL AFTER `upcountry_rate`;
+ALTER TABLE `booking_details` CHANGE `upcountry_rate` `sf_upcountry_rate` INT(11) NULL DEFAULT NULL;
+ALTER TABLE `partners` ADD `upcountry_approval` INT(2) NULL DEFAULT '1' AFTER `upcountry_mid_distance_threshold`;
+ALTER TABLE `partners` ADD `upcountry_approval_email` VARCHAR(256) NULL DEFAULT NULL AFTER `upcountry_approval`;
+ALTER TABLE `booking_details` ADD `upcountry_partner_approved` INT(2) NULL DEFAULT '1' AFTER `upcountry_distance`;
+ALTER TABLE `booking_details` ADD `upcountry_paid_by_customer` INT(2) NULL DEFAULT '0' AFTER `upcountry_partner_approved`;
+ALTER TABLE `booking_details` ADD `customer_paid_upcountry_charges` DECIMAL(10,2) NULL DEFAULT '0' AFTER `upcountry_paid_by_customer`;
+ALTER TABLE `service_center_booking_action` ADD `upcountry_charges` DECIMAL(10,2) NULL DEFAULT '0' AFTER `parts_cost`;
+
+--- Sachin 24JAN
+
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`) VALUES
+(1, 1, 'Cancelled', 'Cancelled', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(2, 1, 'FollowUp', 'Callback Scheduled', 'DEFERRED_BY_CUSTOMER', 'Pending'),
+(3, 1, 'FollowUp', 'Customer Not Reachable', 'CUSTOMER_NOT_AVAILABLE', 'Pending'),
+(4, 1, 'Completed', 'Completed', 'SERVICE_DELIVERED', 'Completed'),
+(5, 1, 'Rescheduled', 'Rescheduled', 'SERVICE_RESCHEDULED', 'RESCHEDULED'),
+(6, 1, 'FollowUp', 'Missed_call_not_confirmed', 'PENDING', 'Pending'),
+(7, 1, 'Pending', 'Scheduled', 'SERVICE_SCHEDULED', 'Pending'),
+(8, 1, 'FollowUp', 'FollowUp', 'PENDING', 'Pending'),
+(9, 1, 'FollowUp', 'Missed_call_confirmed', 'SERVICE_SCHEDULED', 'Pending'),
+(10, 1, 'Cancelled', 'Cancelled by Snapdeal', NULL, NULL),
+(11, 247001, 'Cancelled', 'Cancelled', 'REFUSED_BY_CUSTOMER', 'Cancelled'),
+(12, 247001, 'FollowUp', 'Callback Scheduled', 'DEFERRED_BY_CUSTOMER', 'Pending'),
+(13, 247001, 'FollowUp', 'Customer Not Reachable', 'CUSTOMER_NOT_AVAILABLE', 'Pending'),
+(14, 247001, 'Completed', 'Completed', 'SERVICE_DELIVERED', 'Completed'),
+(15, 247001, 'Rescheduled', 'Rescheduled', 'SERVICE_RESCHEDULED', 'RESCHEDULED'),
+(16, 247001, 'FollowUp', 'Missed_call_not_confirmed', 'PENDING', 'Pending'),
+(17, 247001, 'Pending', 'Scheduled', 'SERVICE_SCHEDULED', 'Pending'),
+(18, 247001, 'FollowUp', 'FollowUp', 'PENDING', 'Pending'),
+(19, 247001, 'FollowUp', 'Missed_call_confirmed', 'SERVICE_SCHEDULED', 'Pending'),
+(20, 247001, 'Cancelled', 'Cancelled by Snapdeal', NULL, NULL);
+
+
+
+-- Sachin 1 Feb
+
+ALTER TABLE `spare_parts_details` ADD `courier_charges_by_sf` DECIMAL(10,2) NULL DEFAULT '0' AFTER `awb_by_sf`;
+
+ALTER TABLE `inventory` ADD `43_current_count` VARCHAR(256)  NOT NULL DEFAULT '0' AFTER `36_42_current_count`;
+
+ALTER TABLE `brackets` ADD `43_requested` INT(32) NOT NULL AFTER `36_42_requested`;
+
+ALTER TABLE `brackets` ADD `43_shipped` INT(32) NOT NULL AFTER `36_42_shipped`;
+
+ALTER TABLE `brackets` ADD `43_received` INT(32) NOT NULL AFTER `36_42_received`;
+--Belal 24 Jan
+
+INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'penalty_on_booking', '<br>Booking Report has been created for the following booking id : <strong> %s </strong> <br><br> For any confusion, write to us or call us.<br><br> Regards,<br> 247around Team', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com', '', '1', '2016-09-26 18:30:00');
+
+UPDATE `email_template` SET `template` = '<br>Booking Report has been created for the following booking id : <strong> %s </strong> <br> Reason : <strong> %s </strong> <br><br> For any confusion, write to us or call us.<br><br> Regards,<br> 247around Team' WHERE `email_template`.`tag` = 'penalty_on_booking';
+
+
+INSERT INTO `vendor_escalation_policy` (`id`, `escalation_reason`, `entity`, `mail_to_owner`, `mail_to_poc`, `sms_to_owner`, `sms_to_poc`, `sms_body`, `mail_subject`, `mail_body`, `active`, `create_date`) VALUES (NULL, 'Incentive Cut - Reschedule without reason', '247around', '0', '0', '0', '0', NULL, NULL, NULL, '1', '2016-04-11 07:58:00');
+INSERT INTO `vendor_escalation_policy` (`id`, `escalation_reason`, `entity`, `mail_to_owner`, `mail_to_poc`, `sms_to_owner`, `sms_to_poc`, `sms_body`, `mail_subject`, `mail_body`, `active`, `create_date`) VALUES (NULL, 'Penalty - Fake Cancel', '247around', '0', '0', '0', '0', NULL, NULL, NULL, '1', '2016-04-11 07:58:00');
+INSERT INTO `vendor_escalation_policy` (`id`, `escalation_reason`, `entity`, `mail_to_owner`, `mail_to_poc`, `sms_to_owner`, `sms_to_poc`, `sms_body`, `mail_subject`, `mail_body`, `active`, `create_date`) VALUES (NULL, 'Penalty - Fake Complete', '247around', '0', '0', '0', '0', NULL, NULL, NULL, '1', '2016-04-11 07:58:00');
+
+INSERT INTO `penalty_details` (`id`, `partner_id`, `escalation_id`, `criteria`, `penalty_amount`, `unit_%_rate`, `active`) VALUES (NULL, NULL, '12', NULL, '50', NULL, '1');
+INSERT INTO `penalty_details` (`id`, `partner_id`, `escalation_id`, `criteria`, `penalty_amount`, `unit_%_rate`, `active`) VALUES (NULL, NULL, '13', NULL, '300', NULL, '1');
+INSERT INTO `penalty_details` (`id`, `partner_id`, `escalation_id`, `criteria`, `penalty_amount`, `unit_%_rate`, `active`) VALUES (NULL, NULL, '14', NULL, '100', NULL, '1');
+
+ALTER TABLE `vendor_escalation_policy` ADD `process_type` VARCHAR(32) NULL DEFAULT NULL AFTER `entity`;
+ALTER TABLE `vendor_escalation_policy` CHANGE `process_type` `process_type` VARCHAR(32) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL COMMENT 'escalations, report types';
+UPDATE `vendor_escalation_policy` SET `process_type`= 'report' WHERE id IN(12,13,14);
+UPDATE `vendor_escalation_policy` SET `process_type` = 'escalation' WHERE `entity` = '247around' AND `process_type` IS NULL
+
+UPDATE `penalty_details` SET `penalty_amount` = '10' WHERE `penalty_details`.`id` = 3;
+
+ALTER TABLE `partner_login` ADD `email` VARCHAR(32) NULL DEFAULT NULL AFTER `partner_id`;
+
+UPDATE `vendor_escalation_policy` SET `process_type` = 'report_complete' WHERE `vendor_escalation_policy`.`id` = 14;
+UPDATE `vendor_escalation_policy` SET `process_type` = 'report_cancel' WHERE `vendor_escalation_policy`.`id` = 13;
+UPDATE `vendor_escalation_policy` SET `process_type` = 'report_cancel' WHERE `vendor_escalation_policy`.`id` = 12;
+
+UPDATE `vendor_escalation_policy` SET `escalation_reason` = 'Penalty - Fake Complete - Customer want Installation' WHERE `vendor_escalation_policy`.`id` = 14;
+
+INSERT INTO `vendor_escalation_policy` (`id`, `escalation_reason`, `entity`, `process_type`, `mail_to_owner`, `mail_to_poc`, `sms_to_owner`, `sms_to_poc`, `sms_body`, `mail_subject`, `mail_body`, `active`, `create_date`) VALUES (NULL, 'Penalty - Fake Complete - Customer NOT want Installation', '247around', 'report_complete', '0', '0', '0', '0', NULL, NULL, NULL, '1', '2016-04-11 07:58:00');
+INSERT INTO `penalty_details` (`id`, `partner_id`, `escalation_id`, `criteria`, `penalty_amount`, `unit_%_rate`, `active`) VALUES (NULL, NULL, '15', NULL, '300', NULL, '1');
+
+ALTER TABLE `vendor_escalation_policy`
+  DROP `mail_to_owner`,
+  DROP `mail_to_poc`,
+  DROP `mail_subject`,
+  DROP `mail_body`;
+
+ALTER TABLE `penalty_on_booking` ADD `agent_id` INT NULL AFTER `penalty_amount`, ADD `remarks` VARCHAR(512) NULL AFTER `agent_id`, ADD `current_state` VARCHAR(128) NULL AFTER `remarks`;
+ALTER TABLE `email_template` ADD `subject` VARCHAR(512) NULL AFTER `tag`;
+
+UPDATE `email_template` SET `subject` = 'Penalty of Rs : %s on Booking ID : %s' WHERE `email_template`.`tag` = 'penalty_on_booking';
+
+UPDATE `email_template` SET `template` = '<br>Dear SF,<br> Penalty of Rs: <b>%s</b> is leived on Booking ID : <strong>%s</strong> <br> Reason : %s <br> Try to avoid such cases in future. <br><br> Regards,<br> 247around Team' WHERE `email_template`.`tag` = 'penalty_on_booking';
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'escalation_on_booking', 'Booking ID : %s Escalated', '<br>Dear SF,<br> Booking ID : <strong>%s</strong> is escalated <b>%s</b> times. <br> Reason : %s <br> Attend this booking immediately. <br><br> Regards,<br> 247around Team', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com', '', '1', '2016-09-26 18:30:00');
+
+ALTER TABLE `penalty_on_booking` ADD `active` INT(2) NOT NULL DEFAULT '1' COMMENT '1->Penalty to be Taken, 0->Penalty Not Taken' AFTER `current_state`;
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'remove_penalty_on_booking', 'Penalty Removed on Booking ID : %s', '<br>Dear SF,<br> Penalty has been <b>Removed</b> from Booking ID : <strong>%s</strong> <br> <br><br> Regards,<br> 247around Team', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com', '', '1', '2016-09-26 18:30:00');
+
+--Belal 2 Feb
+
+UPDATE `sms_template` SET `template` = 'Give missed call after delivery for %s Installation %s. Installation Charges %s. Installation by 247around, Snapdeal Partner' WHERE `sms_template`.`tag` = 'sd_delivered_missed_call_initial';
+
+UPDATE `sms_template` SET `template` = 'Give missed call after delivery for %s Installation %s. Installation Charges %s. Installation by 247around, Snapdeal Partner' WHERE `sms_template`.`tag` = 'sd_shipped_missed_call_initial';
+
+
+--- Abhay --
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `create_date`) VALUES (NULL, 'home_theater_repair', 'Thank you, your %s Service is confirmed. Please contact %s for your service center visit. Address %s. 9555000247, 247around', '', '1', CURRENT_TIMESTAMP);
+-
+
+CREATE TABLE `distance_between_pincode` (
+  `id` int(11) NOT NULL,
+  `pincode1` int(15) NOT NULL,
+  `pincode2` int(15) NOT NULL,
+  `distance` decimal(10,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `distance_between_pincode`
+--
+ALTER TABLE `distance_between_pincode`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `distance_between_pincode`
+--
+ALTER TABLE `distance_between_pincode`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

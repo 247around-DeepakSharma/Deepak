@@ -57,6 +57,8 @@
                         <td><?php echo $value['reschedule_reason'];  ?></td>
                         <td><input id="reschedule_checkbox" type="checkbox"  class="checkbox_reschedule" name="reschedule[]" value="<?php echo $value['booking_id']; ?>"></input>
                         </td>
+                        
+                        <input type="hidden" class="form-control" id="partner_id" name="partner_id" value = "<?php if (isset($data['charges'][0]['booking'][0]['partner_id'])) {echo $data['charges'][0]['booking'][0]['partner_id']; } ?>" >
                      </tr>
                      <?php $sno++;  } ?>
                   </tbody>
@@ -116,6 +118,7 @@
                                        <th class="jumbotron" >Service Charge</th>
                                        <th class="jumbotron" >Additional Service Charge</th>
                                        <th class="jumbotron" >Parts Cost</th>
+                                       <th class="jumbotron" >Upcountry Charges</th>
                                        <th class="jumbotron" >Vendor Status</th>
                                     </thead>
                                     <tbody>
@@ -149,6 +152,9 @@
                                              <span id="<?php echo "parts_cost".$count;?>"><?php echo $value1['parts_cost']; ?></span>
                                           </td>
                                           <td>
+                                             <span id="<?php echo "upcountry".$count;?>"><?php if($key1 ==0){ echo $value1['upcountry_charges'];} ?></span>
+                                          </td>
+                                          <td>
                                              <span id="<?php echo "internal_status".$count; ?>"><?php echo $value1['internal_status']; ?></span>
                                           </td>
                                        </tr>
@@ -175,8 +181,10 @@
                                     ?>
                               <a style="margin-top:5px;" target='_blank'  href="<?php echo base_url(); ?>employee/booking/get_complete_booking_form/<?php echo $value['booking_id']; ?>" class="btn btn-info btn-sm"><i class="fa fa-pencil" aria-hidden="true" title="Edit"></i></a>
                               <button style="margin-top:5px;" type="button" id="<?php echo "remarks_".$count;?>" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2"><i class="fa fa-times" aria-hidden="true" title="Reject"></i></button></td>
-                           </tr>
+                           
+                            </tr>
                            <?php $count++; } ?>
+                            <input type="hidden" class="form-control" id="partner_id" name="partner_id" value = "<?php if (isset($data['charges'][0]['booking'][0]['partner_id'])) {echo $data['charges'][0]['booking'][0]['partner_id']; } ?>" >
                         </tbody>
                      </table>
                      <?php if(!empty($charges)){?>

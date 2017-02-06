@@ -129,7 +129,7 @@ class Inventory_model extends CI_Model {
     function get_vendor_inventory_details($vendor_id){
         
         $this->db->select('inventory.id,sc.id as sc_id,sc.name as sc_name,'
-                . 'inventory.19_24_current_count,inventory.26_32_current_count,inventory.36_42_current_count,'
+                . 'inventory.19_24_current_count,inventory.26_32_current_count,inventory.36_42_current_count,inventory.43_current_count,'
                 . 'inventory.remarks,inventory.increment/decrement');
         $this->db->where('inventory.vendor_id',$vendor_id);
         $this->db->order_by("inventory.id",'asc');
@@ -166,9 +166,9 @@ class Inventory_model extends CI_Model {
      */
     function get_brackets_by_order_id($order_id){
         $this->db->select('brackets.id,brackets.order_id,brackets.invoice_id,brackets.purchase_invoice_id,brackets.order_received_from,brackets.order_given_to,brackets.order_date,brackets.shipment_date,'
-                . 'brackets.received_date,brackets.19_24_requested,brackets.26_32_requested,brackets.36_42_requested,'
-                . 'brackets.total_requested,brackets.19_24_shipped,brackets.26_32_shipped,brackets.36_42_shipped,brackets.total_shipped,'
-                . 'brackets.19_24_received,brackets.26_32_received,brackets.36_42_received,brackets.total_received,brackets.is_shipped,brackets.is_received,'
+                . 'brackets.received_date,brackets.19_24_requested,brackets.26_32_requested,brackets.36_42_requested,brackets.43_requested,'
+                . 'brackets.total_requested,brackets.19_24_shipped,brackets.26_32_shipped,brackets.36_42_shipped,brackets.43_shipped,brackets.total_shipped,'
+                . 'brackets.19_24_received,brackets.26_32_received,brackets.36_42_received,brackets.43_received,brackets.total_received,brackets.is_shipped,brackets.is_received,'
                 . 'b.old_state,b.new_state,employee.employee_id as agent_name,bookings_sources.source as partner_name');
         $this->db->where('order_id',$order_id);
         $this->db->join('booking_state_change b','b.booking_id = brackets.order_id');
@@ -192,7 +192,7 @@ class Inventory_model extends CI_Model {
        //Getting date range
      
         $sql = 'SELECT SUM(brackets.19_24_received) as _19_24_total, SUM(brackets.26_32_received) as _26_32_total,
-                    SUM(brackets.36_42_received) as _36_42_total,
+                    SUM(brackets.36_42_received) as _36_42_total,SUM(brackets.43_received) as _43_total,
                     SUM(brackets.total_received) as total_received,
                     sc.name as vendor_name,sc.state,sc.sc_code,
                     CONCAT(  "", GROUP_CONCAT( DISTINCT (brackets.order_id) ) ,  "" ) AS order_id,

@@ -93,7 +93,7 @@
                         <?php echo form_error('services'); ?>
                       </div>
                     </div>
-                      
+                    <input type="hidden" class="form-control" id="partner_id" name="partner_id" value = "<?php if (isset($data[0]['partner_id'])) {echo $data[0]['partner_id']; } ?>" >
 <!--
                     <?php if(isset($reason)){?>  
                 <div class="form-group <?php if( form_error('reason') ) { echo 'has-error';} ?>" style="margin-top:50px;">

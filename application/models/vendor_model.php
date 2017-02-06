@@ -69,9 +69,10 @@ class vendor_model extends CI_Model {
      * @return: array of vendor details
      */
     function editvendor($id) {
-        $sql = "Select * from service_centres where id='$id'";
 
-        $query = $this->db->query($sql);
+        $this->db->select('*');
+        $this->db->where('id',$id);
+        $query = $this->db->get('service_centres');
 
         return $query->result_array();
     }
@@ -407,6 +408,29 @@ class vendor_model extends CI_Model {
 
 
     }
+    
+    /**
+     *  @desc : This function is to get State specific to a india Pincode table
+     *  
+     *  @param : $pincode
+     *  @return : State
+     */
+    function get_state_from_india_pincode($pincode) {
+	$this->db->distinct();
+    // Do not make state capital. It should be 'state'.
+	$this->db->select('state');
+	$this->db->where('pincode', $pincode);
+
+	$query = $this->db->get('india_pincode');
+    if($query->num_rows > 0){
+        return $query->result_array()[0];
+    } else {
+        $state['state'] = "";
+        return $state;
+    }
+
+
+    }
 
     /**
      *  @desc : This function is to select district from India pincode
@@ -511,7 +535,7 @@ class vendor_model extends CI_Model {
      *  @return : array of booking date and timeslot
      */
     function getBookingDateFromBookingID($booking_id) {
-        $this->db->select('booking_date, booking_timeslot');
+        $this->db->select('booking_date, booking_timeslot,count_escalation');
         $this->db->where('booking_id', $booking_id);
         $query = $this->db->get('booking_details');
         if ($query->num_rows() > 0) {
@@ -583,7 +607,7 @@ class vendor_model extends CI_Model {
         unset($flag[0]['mail_body']);
         unset($flag[0]['active']);
         unset($flag[0]['create_date']);
-
+        
         $reason_flag['escalation_policy_flag'] = json_encode($flag);
         return $this->update_esclation_policy_flag($id, $reason_flag, $booking_id);
     }
@@ -1117,10 +1141,10 @@ class vendor_model extends CI_Model {
      */
 
     function get_all_pincode_mapping(){
-        $sql = "SELECT vendor_pincode_mapping.Pincode, "
+        $sql = "SELECT vendor_pincode_mapping.Pincode,vendor_pincode_mapping.State,vendor_pincode_mapping.City, "
                 . "CONCAT('',GROUP_CONCAT(DISTINCT(services.services)),'') as Appliance "
                 . "FROM vendor_pincode_mapping, service_centres, services "
-                . "WHERE Vendor_ID != '0' "
+                . "WHERE Vendor_ID != '0' AND vendor_pincode_mapping.Pincode !=0 "
                 . "AND `Vendor_ID` = `service_centres`.`id` "
                 . "AND `service_centres`.`active` = 1 "
                 . "AND services.id = `Appliance_ID` "
@@ -1253,6 +1277,53 @@ class vendor_model extends CI_Model {
     }
     
     /**
+     * @desc: This is used to insert value in tax rate template table
+     * @param Array
+     * @return Int ID of inserted data
+     */
+    function insert_tax_rates_template($data){
+
+        $this->db->insert('tax_rates', $data);
+        
+        return $this->db->insert_id();
+    }
+    /**
+     * @desc: This is used to update tax rate template
+     * @param ARRAY $data, INT id 
+     * return: Boolean
+     * 
+     */
+    function update_tax_rates_template($data,$id){
+        $this->db->where('id', $id);
+        $this->db->update('tax_rates', $data);
+        log_message('info', __METHOD__ . "=> Update Tax rate Template " . $this->db->last_query() );
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    /**
+     * @desc: This fucntion is used to delete tax rate template 
+     * params: INT 
+     *         id tax rate template to be deleted
+     * 
+     * return: Boolean
+     */
+    function delete_tax_rate_template($id) {
+        $this->db->where('id', $id);
+        $this->db->delete('tax_rates');
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    
+    
+    /**
      * @desc: This is used to insert value in sms template table
      * @param Array
      * @return Int ID of inserted data
@@ -1299,26 +1370,47 @@ class vendor_model extends CI_Model {
     }
     
     /**
-     * @desc: This is used to insert value in tax rate template table
+     *  @desc : To get All Active vendor Vendor Escalation Policy templates
+     *
+     *  To get the active template for all Vendor Escalation Policy template which are enabled.
+     *
+     *  @param : void
+     *  @return : Array
+     */
+    function get_vandor_escalation_policy_template($start,$limit,$sidx,$sord,$where) {
+
+        $this->db->select('id,escalation_reason,entity,process_type,sms_to_owner,sms_to_poc,sms_body,active');
+        $this->db->limit($limit);
+        if ($where != NULL){
+            $this->db->where($where, NULL, FALSE);
+        }
+        $this->db->order_by($sidx, $sord);
+        $query = $this->db->get('vendor_escalation_policy', $limit, $start);
+       
+        return $query->result();
+    }
+    
+    /**
+     * @desc: This is used to insert value in Vendor Escalation Policy table
      * @param Array
      * @return Int ID of inserted data
      */
-    function insert_tax_rates_template($data){
+    function insert_vandor_escalation_policy_template($data){
 
-        $this->db->insert('tax_rates', $data);
+        $this->db->insert('vendor_escalation_policy', $data);
         
         return $this->db->insert_id();
     }
     /**
-     * @desc: This is used to update tax rate template
+     * @desc: This is used to update Vendor Escalation Policy template
      * @param ARRAY $data, INT id 
      * return: Boolean
      * 
      */
-    function update_tax_rates_template($data,$id){
+    function update_vandor_escalation_policy_template($data,$id){
         $this->db->where('id', $id);
-        $this->db->update('tax_rates', $data);
-        log_message('info', __METHOD__ . "=> Update Tax rate Template " . $this->db->last_query() );
+        $this->db->update('vendor_escalation_policy', $data);
+        log_message('info', __METHOD__ . "=> Update Vendor Escalation Policy Template " . $this->db->last_query() );
         if($this->db->affected_rows() > 0){
             return true;
         }else{
@@ -1327,21 +1419,23 @@ class vendor_model extends CI_Model {
     }
     
     /**
-     * @desc: This fucntion is used to delete tax rate template 
+     * @desc: This fucntion is used to delete Vendor Escalation Policy template 
      * params: INT 
      *         id tax rate template to be deleted
      * 
      * return: Boolean
      */
-    function delete_tax_rate_template($id) {
+    function delete_vandor_escalation_policy_template($id) {
         $this->db->where('id', $id);
-        $this->db->delete('tax_rates');
+        $this->db->delete('vendor_escalation_policy');
         if($this->db->affected_rows() > 0){
             return true;
         }else{
             return false;
         }
     }
+    
+    
 
     /**
      * @desc: This is used to insert assigned engineer data into assigned engineer table
@@ -1400,7 +1494,7 @@ class vendor_model extends CI_Model {
         }else{
             $where = "";
         }
-        $new_vendor = "SELECT id,name, district, state ,
+        $new_vendor = "SELECT id,name, district, state , active, on_off, 
                                             DATEDIFF(CURRENT_TIMESTAMP , create_date) AS age
                                             FROM  service_centres
                                             WHERE 
@@ -1578,6 +1672,28 @@ class vendor_model extends CI_Model {
         $this->db->where('assigned_vendor_id is NULL', NULL, FALSE);
         $this->db->update('booking_details',$data);
         return $this->db->affected_rows();
+    }
+    /**
+     * @desc This is used to retuen auto assigned booking
+     * @return Array
+     */
+    function auto_assigned_booking(){
+        $sql = "SELECT distinct bd.booking_id, bd.assigned_vendor_id,name, bs.create_date "
+                . " FROM `booking_state_change` as bs, "
+                . " booking_details as bd, service_centres as sc "
+                . " WHERE agent_id = '"._247AROUND_DEFAULT_AGENT."' "
+                . " AND bs.partner_id = '"._247AROUND."' "
+                . " AND new_state = '".ASSIGNED_VENDOR."' "
+                . " AND bd.booking_id = bs.booking_id "
+                . " AND bd.current_status IN ('Pending','Rescheduled') "
+                . " AND bs.booking_id NOT IN (SELECT bs1.booking_id "
+                . " FROM booking_state_change as bs1 "
+                . " WHERE new_state = 'Re-Assigned_vendor' "
+                . " AND bs1.booking_id = bs.booking_id )"
+                . " AND bd.assigned_vendor_id = sc.id"
+                . " ORDER BY bs.create_date DESC";
+       $query = $this->db->query($sql);
+       return $query->result_array();
     }
     
 }

@@ -205,9 +205,7 @@
 
                     <tr id="row_color<?php echo $count;?>">
                     <td><input type="hidden" class="mail_to_vendor<?php echo $count;?>" id="mail_to_vendor<?php echo $count;?>" value="<?php echo $row->mail_to_vendor;?>"></td>
-
                     <td><?php echo $offset; if($row->is_upcountry == 1) { ?>.<i style="color:red; font-size:20px;" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
-
 
                             <td>
                             <?php
@@ -222,7 +220,17 @@
                     <td><a href="<?php echo base_url();?>employee/user/finduser/0/0/<?=$row->phone_number;?>"><?= $row->booking_primary_contact_no; ?></a></td>
                     <td><?= $row->services; ?></td>
                     <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
-                    <td id="status_<?php echo $row->booking_id; ?>"><?php echo $row->current_status; ?></td>
+                    <td id="status_<?php echo $row->booking_id; ?>">
+                            <div class="blink">
+                                <?php if ($row->count_escalation > 0) { ?> <div class="esclate">Escalated</div>
+                                <?php } ?>
+                            </div>
+                            <?php if ($row->count_escalation > 0) { ?>
+                                <?php echo '<b>' . $row->count_escalation . " times</b><br>";
+                            }
+                            ?>
+                        <?php echo $row->current_status; ?>
+                        </td>
                     <td><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?=$row->assigned_vendor_id;?>" target="_blank"><?php if(!empty($row->service_centre_name)){ echo $row->service_centre_name." / ".$row->primary_contact_name." / ".$row->primary_contact_phone_1 ; } ?></a></td>
 
                      <td><button type="button" onclick="outbound_call(<?php echo $row->phone_number; ?>)" class="btn btn-sm btn-info"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button></td>
@@ -264,19 +272,24 @@
                     </td>
                     <td>
                         <?php
-                        if ($row->current_status == 'Pending' || $row->current_status == 'Rescheduled')
-                        {
-                            echo "<a target='_blank' class='btn btn-sm btn-danger btn-sm' "
-                            . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
-                        } else if ($row->current_status == 'Review')
-                        {
-                            echo "<a target='_blank' class='btn btn-sm btn-danger btn-sm' "
-                            . "href=" . base_url() . "employee/booking/review_bookings/$row->booking_id title='Complete'><i class='fa fa-eye-slash' aria-hidden='true' ></i></a>";
-                        }
-                        else
-                        {
+                        if($row->assigned_vendor_id == ""){
                             echo "<a target='_blank' class='btn btn-sm btn-danger btn-sm disabled' "
+                                    . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
+                        }else{
+                            if ($row->current_status == 'Pending' || $row->current_status == 'Rescheduled')
+                            {
+                                echo "<a target='_blank' class='btn btn-sm btn-danger btn-sm' "
                                 . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
+                            } else if ($row->current_status == 'Review')
+                            {
+                                echo "<a target='_blank' class='btn btn-sm btn-danger btn-sm' "
+                                . "href=" . base_url() . "employee/booking/review_bookings/$row->booking_id title='Complete'><i class='fa fa-eye-slash' aria-hidden='true' ></i></a>";
+                            }
+                            else
+                            {
+                                echo "<a target='_blank' class='btn btn-sm btn-danger btn-sm disabled' "
+                                    . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
+                            }
                         }
                         ?>
                     </td>
@@ -354,7 +367,7 @@
                         <a target='_blank' href="<?php echo base_url();?>employee/vendor/get_reassign_vendor_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-success <?php if(is_null($row->assigned_vendor_id)){ echo 'disabled';} ?>' title="Re- assign"><i class="fa fa-repeat" aria-hidden="true"></i></a>
                     </td>
                     <td>
-                                <a target='_blank' href="<?php echo base_url(); ?>employee/vendor/get_vendor_escalation_form/<?php echo $row->booking_id; ?>" <?php if($row->assigned_vendor_id == null){ echo "disabled"; }?> class='btn btn-sm btn-danger' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
+                        <a target='_blank' href="<?php echo base_url(); ?>employee/vendor/get_vendor_escalation_form/<?php echo $row->booking_id; ?>" <?php if($row->assigned_vendor_id == null){ echo "disabled"; }?> class='btn btn-sm btn-danger' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
                         </td>
                     
 
@@ -391,5 +404,28 @@
   position: relative;
   bottom: 1ex; 
   font-size: 100%;
+}
+
+@keyframes blink {
+      50% { opacity: 0.0; }
+    }
+    @-webkit-keyframes blink {
+      50% { opacity: 0.0; }
+    }
+    .blink {
+      animation: blink 1s step-start 0s infinite;
+      -webkit-animation: blink 1s step-start 0s infinite;
+    }
+    
+    .esclate {
+    width: auto;
+    height: 17px;
+    background-color: #F73006;
+    color: #fff;
+    /* transform: rotate(-26deg); */
+    margin-left: 0px;
+    font-weight: bold;
+    margin-right: 0px;
+    font-size: 12px;
 }
 </style>
