@@ -155,8 +155,7 @@
                                                 } ?></textarea>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-md-6">
+                                    
                                     <div class="form-group ">
                                         <label for="awb" class="col-md-4">AWB</label>
                                         <div class="col-md-6">
@@ -165,6 +164,18 @@
                                                 } ?>" placeholder="Please Enter AWB"  >
                                         </div>
                                     </div>
+                                </div>
+                                <div class="col-md-6">
+                                    
+                                    <div class="form-group ">
+                                        <label for="courier_charges_by_sf" class="col-md-4">Courier Charges</label>
+                                         <div class="col-md-6">
+                                             <input type="text" class="form-control" id="courier_charges_by_sf" name="courier_charges_by_sf" value = "<?php if (isset($bookinghistory[0]['courier_charges_by_sf'])) {
+                                                echo $bookinghistory[0]['courier_charges_by_sf'];
+                                                } ?>" placeholder="Please Enter Courier Charges"  required>
+                                         </div>  
+                                     </div>
+                                    
                                     <div class="form-group ">
                                         <label for="courier" class="col-md-4">Courier Name</label>
                                         <div class="col-md-6">
