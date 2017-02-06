@@ -33,7 +33,7 @@
                                     <select class="form-control charges get_required" id="charges_1" name="charges[]" required>
                                         <option selected disabled >Select Charges</option>
                                         <option value="2">2 Per KM</option>
-                                        <option value="4">4 Per KM</option>
+                                        <option value="3">3 Per KM</option>
                                     </select>
                                 </th>
                                 <th>
@@ -83,7 +83,7 @@
     
      $.ajax({
        type: 'POST',
-       url: '<?php echo base_url(); ?>employee/vendor/getDistrict',
+       url: '<?php echo base_url(); ?>employee/vendor/getDistrict/1',
        data: {state: state},
        success: function (data) {
         
@@ -110,7 +110,7 @@
       
       $.ajax({
         type: 'POST',
-        url: '<?php echo base_url(); ?>employee/vendor/getPincode',
+        url: '<?php echo base_url(); ?>employee/vendor/getPincode/1',
         data: {district: city},
         success: function (data) {
          
@@ -128,7 +128,7 @@
        $('#loader_gif').attr('src',  "<?php echo base_url(); ?>images/loader.gif");
             $.ajax({
           type: 'POST',
-          url: '<?php echo base_url(); ?>employee/vendor/getDistrict',
+          url: '<?php echo base_url(); ?>employee/vendor/getDistrict/1',
           data: {state: state},
           success: function (data) {
     
