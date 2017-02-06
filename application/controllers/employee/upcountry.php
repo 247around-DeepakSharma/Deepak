@@ -17,6 +17,7 @@ class Upcountry extends CI_Controller {
 	$this->load->model('upcountry_model');
         $this->load->model('booking_model');
         $this->load->model('vendor_model');
+        $this->load->library("miscelleneous");
 
 	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
 	    return TRUE;
@@ -123,5 +124,19 @@ class Upcountry extends CI_Controller {
        $data['booking_details'] =  $this->upcountry_model->get_waiting_for_approval_upcountry_charges("");
        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
        $this->load->view('employee/get_waiting_to_approval_upcountry',$data);
+    }
+    
+    /**
+     * @desc: Update previous booking  upcountry
+     */
+    function update_previous_booking(){
+            echo ".....Entering........".PHP_EOL;
+            $booking_details = $this->upcountry_model->get_booking();
+            foreach ($booking_details as $value1) {
+                echo $value1['booking_id'].PHP_EOL;
+                $this->upcountry_model->action_upcountry_booking($value1['booking_id']);
+                $upcountry_status = $this->miscelleneous->assign_upcountry_booking($value1['booking_id'], "1", "247Around");
+                
+            }
     }
 }

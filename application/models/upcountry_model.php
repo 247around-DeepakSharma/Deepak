@@ -519,13 +519,6 @@ class Upcountry_model extends CI_Model {
         return $query->result_array();
     }
     
-    function get_booking($service_center_id){
-        $this->db->select('booking_id');
-        $this->db->where('create_date >=','2016-10-01');
-        $this->db->where('assigned_vendor_id',$service_center_id);
-        $query= $this->db->get('booking_details');
-        return $query->result_array();
-    }
     /**
      * @desc Get distnace between pincodes from table
      * @param type $pincode1
@@ -533,7 +526,7 @@ class Upcountry_model extends CI_Model {
      * @return type
      */
     function get_distance_between_pincodes($pincode1,$pincode2){
-        if($pincode1 >$pincode2){ $dp1 = $pincode1;$dp2 = $pincode2;} 
+        if($pincode1 < $pincode2){ $dp1 = $pincode1;$dp2 = $pincode2;} 
         else { $dp1 = $pincode2;  $dp2 = $pincode1; }
         $this->db->distinct();
         $this->db->select('distance');
@@ -603,6 +596,14 @@ class Upcountry_model extends CI_Model {
         $this->db->join('services','bd.service_id = services.id');
         $query = $this->db->get();
         
+        return $query->result_array();
+    }
+    
+    function get_booking($partner_id){
+        $this->db->select('booking_id');
+        $this->db->where('create_date >=','2017-01-01');
+        $this->db->where('partner_id',$partner_id);
+        $query= $this->db->get('booking_details');
         return $query->result_array();
     }
     
