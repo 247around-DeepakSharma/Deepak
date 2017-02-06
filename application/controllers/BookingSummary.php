@@ -520,20 +520,7 @@ EOD;
 
         //Fetch partners' bookings
         $leads = $this->partner_model->get_partner_leads_for_summary_email($p['id']);
-            log_message('info', __FUNCTION__ . ' => Fetched partner bookings');
-            // Check Other string exist in the Cancellation reason. 
-            // If exist then replace cancellation_reason with other
-//            foreach ($leads as $key => $value) {
-//                if($value['current_status'] != "Cancelled"){
-//                    
-//                    $leads[$key]['cancellation_reason'] = $value['current_status'];
-//                             
-//                } else if (stristr($value['cancellation_reason'], "Other :")){
-//                  
-//                    $leads[$key]['cancellation_reason'] = "Other";
-//                    
-//                }
-//            }
+        log_message('info', __FUNCTION__ . ' => Fetched partner bookings');
             
         $R->load(array(
         array(

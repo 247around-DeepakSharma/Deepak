@@ -527,7 +527,7 @@ console.log(data);
                      } else {
                          var price = Number(data);
                          if(price > 0){
-                            $("#total_price").html("Rs. "+ price+ "       <span style='color:red'> Paid for the Customer </span>");
+                            $("#total_price").html("Rs. "+ price+ "       <span style='color:red'> TO BE PAID BY CUSTOMER </span>");
                          } else {
                             $("#total_price").html("Rs. "+ price+ "       <span style='color:green'> Free for the Customer </span>");
                          }
