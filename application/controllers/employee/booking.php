@@ -2310,9 +2310,9 @@ class Booking extends CI_Controller {
         if(!empty($booking_id)){
             foreach ($booking_id as $value) {
                 if(!empty($value)){
-                    $is_wall_mount_exist = $this->booking_model->get_unit_details(array('booking_id'=>$value,'price_tags'=>'Wall Mount Stand'));
+                    $is_wall_mount_exist = $this->booking_model->get_unit_details(array('booking_id'=>$value,'price_tags'=>'Installation & Demo'));
                     if(!empty($is_wall_mount_exist)){
-                        $this->booking_model->update_booking_unit_details($value,array('pay_to_sf' =>'0','price_tags'=>'Wall Mount Stand'));
+                        $this->booking_model->update_booking_unit_details_by_any(array('booking_id'=> $value,'price_tags'=>'Installation & Demo'),array('pay_to_sf' =>'0'));
                         log_message('info',__FUNCTION__.' Pay To SF update in booking_unit_details for Booking ID = '.$value);
                     }
                 }

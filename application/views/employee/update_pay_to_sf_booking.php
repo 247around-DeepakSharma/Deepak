@@ -33,7 +33,7 @@
                     <div class="cloned"></div>
                     <div class="col-md-12">
                         <center><img id="loader_gif" src="" style="display: none;width:40px;"></center>
-                        <center><input type="submit" value="Wall Mount Not Given" onclick="return check_validation()" class="btn btn-md btn-primary" /></center>
+                        <center><input type="submit" value="Wall Mount Given" onclick="return check_validation()" class="btn btn-md btn-primary" /></center>
                     </div>
                 </div>
             </form>
