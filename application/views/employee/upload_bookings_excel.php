@@ -65,7 +65,7 @@ function submitForm() {
       processData: false,  // tell jQuery not to process the data
       contentType: false   // tell jQuery not to set contentType
   }).done(function( data ) {
-     console.log(data);
+     //console.log(data);
     alert(data);
     //location.reload();
 

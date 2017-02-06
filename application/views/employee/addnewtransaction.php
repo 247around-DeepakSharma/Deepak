@@ -21,7 +21,7 @@ function partner_vendor1(vendor_partner_id){
                 url: '<?php echo base_url(); ?>employee/invoice/getPartnerOrVendor/' + par_ven,
                 data: {vendor_partner_id: vendor_partner_id,invoice_flag:0},
                 success: function (data) {
-                    console.log(data);
+                    //console.log(data);
                     $("#name").html(data).change();
                     $('#loader_gif').attr('src',  "");
                     $('#loader_gif').css("display", "none");

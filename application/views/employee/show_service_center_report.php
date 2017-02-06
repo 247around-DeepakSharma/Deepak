@@ -25,7 +25,7 @@
                         $.ajax({
                             url: '<?php echo base_url() ?>employee/vendor/send_report_to_mail',
                             success: function (data) {
-                                console.log(data);
+                                //console.log(data);
                                 if (data == '1') {
                                     noty({
                                         text: 'Mail Sent',
