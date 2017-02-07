@@ -1906,3 +1906,10 @@ ALTER TABLE `distance_between_pincode`
 --
 ALTER TABLE `distance_between_pincode`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+-- Belal 6 Feb
+
+ALTER TABLE `penalty_on_booking` ADD `penalty_remove_reason` VARCHAR(500) NULL AFTER `active`;
+
+ALTER TABLE `penalty_on_booking` ADD `penalty_remove_agent_id` INT NULL AFTER `penalty_remove_reason`, ADD `penalty_remove_date` TIMESTAMP NULL AFTER `penalty_remove_agent_id`;

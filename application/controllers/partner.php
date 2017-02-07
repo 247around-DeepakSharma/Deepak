@@ -1716,7 +1716,7 @@ class Partner extends CI_Controller {
     $flag = TRUE;
 
     //Validate Partner id
-    if ($request['partner_i'] != $this->partner['id']) {
+    if ($request['partner_id'] != $this->partner['id']) {
         $resultArr['code'] = ERR_INVALID_PARTNER_NAME_CODE;
         $resultArr['msg'] = ERR_INVALID_PARTNER_NAME_MSG;
 

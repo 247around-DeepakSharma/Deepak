@@ -292,7 +292,7 @@ class Upcountry_model extends CI_Model {
      */
     function get_upcountry_failed_details(){
         $this->db->select("booking_id, is_upcountry,upcountry_pincode,sub_vendor_id,"
-                . "sf_upcountry_rate,upcountry_distance,upcountry_price, assigned_vendor_id");
+                . "sf_upcountry_rate,upcountry_distance, assigned_vendor_id");
         $this->db->where("booking_details.is_upcountry", '1');
         $this->db->where("sub_vendor_id IS NULL", NULL, false);
         $query = $this->db->get("booking_details");
@@ -593,8 +593,11 @@ class Upcountry_model extends CI_Model {
         $this->db->from('booking_details As bd');
         $this->db->where_in('current_status',array(_247AROUND_PENDING,_247AROUND_RESCHEDULED));
         $this->db->where('upcountry_partner_approved','0');
+        $this->db->where('upcountry_paid_by_customer','0');
         $this->db->where('is_upcountry','1');
-        $this->db->where('bd.partner_id',$partner_id);
+        if(!empty($partner_id)){
+            $this->db->where('bd.partner_id',$partner_id);
+        }
         $this->db->join('booking_unit_details','bd.booking_id = booking_unit_details.booking_id');
         $this->db->join('users','bd.user_id = users.user_id');
         $this->db->join('services','bd.service_id = services.id');

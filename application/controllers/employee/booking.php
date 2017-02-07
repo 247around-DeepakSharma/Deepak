@@ -1200,9 +1200,22 @@ class Booking extends CI_Controller {
         $data['upcountry_details'] = $this->upcountry_model->upcountry_booking_list($data['booking_history'][0]['assigned_vendor_id'], 
                 $booking_id, false,$data['booking_history'][0]['upcountry_paid_by_customer']);
 
-        $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id);
-
-
+        $penalty = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id);
+        
+        foreach($penalty as $value){
+            $temp['booking_id'] = $value['booking_id'];
+            $temp['penalty_amount'] = $value['penalty_amount'];
+            $temp['penalty_added_agent'] = $this->employee_model->getemployeefromid($value['agent_id'])[0]['full_name'];
+            $temp['remarks'] = $value['remarks'];
+            $temp['current_state'] = $value['current_state'];
+            $temp['active'] = $value['active'];
+            $temp['penalty_remove_reason'] = $value['penalty_remove_reason'];
+            $temp['penalty_remove_agent'] = $this->employee_model->getemployeefromid($value['penalty_remove_agent_id'])[0]['full_name'];
+            $temp['penalty_remove_date'] = $value['penalty_remove_date'];
+            $temp['create_date'] = $value['create_date'];
+            $data['penalty'] = $temp;
+        }
+        
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
 	$this->load->view('employee/viewdetails', $data);
     }
@@ -2334,5 +2347,11 @@ class Booking extends CI_Controller {
             redirect(base_url() . "employee/booking/update_not_pay_to_sf_booking");
         }
         
+    }
+    
+    function auto_assigned_booking(){
+       $data['data'] =  $this->vendor_model->auto_assigned_booking();
+       $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+       $this->load->view('employee/auto_assigned_booking',$data);
     }
 }
