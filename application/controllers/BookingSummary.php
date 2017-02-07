@@ -33,6 +33,10 @@ class BookingSummary extends CI_Controller {
         $this->load->library('booking_utilities');
         
         $this->load->helper('url');
+                
+        $this->load->dbutil();
+        $this->load->helper('file');
+        
     }
 
     public function test($a = "a", $b = "b") {
@@ -497,6 +501,79 @@ EOD;
     return $message;
     }
 
+    function send_leads_summary_mail_to_partners()
+    {
+        log_message('info', __FUNCTION__);
+        
+        $where_get_partner = array('partners.is_active' => '1');
+        $select = "partners.id, partners.summary_email_to, partners.summary_email_cc, "
+                . " partners.summary_email_bcc, partners.public_name";
+        //Get all Active partners who has "is_reporting_mail" column 1
+        $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
+        log_message('info', __FUNCTION__ . ' => Fetched active partners');
+        $newCSVFileName = "Booking_summary_".date('j-M-Y').".csv";
+        $csv = TMP_FOLDER.$newCSVFileName;
+        
+        foreach ($partners as $p){
+            $report = $this->partner_model->get_partner_leads_csv_for_summary_email($p['id']);
+            $delimiter = ",";
+            $newline = "\r\n";
+            $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+            write_file( $csv, $new_report);
+            
+            log_message('info', __FUNCTION__ . ' => Rendered CSV');
+            
+        $this->email->clear(TRUE);
+        $this->email->from('booking@247around.com', '247around Team');
+        $this->email->to($p['summary_email_to']);
+        $this->email->cc($p['summary_email_cc']);
+        $this->email->bcc($p['summary_email_bcc']);
+
+        $this->email->subject("247around Services Report - " . $p['public_name'] . " - " . date('d-M-Y'));
+        $summary_table = $this->get_partner_summary_table($p['id']);
+            log_message('info', __FUNCTION__ . ' => Prepared summary report');
+
+        $message = "Dear Partner,<br/><br/>";
+        $message .= "Please find updated summary table below.<br/><br/>";
+        $message .= $summary_table;
+        $message .= "<br><br>Best Regards,
+                <br>247around Team
+                <br><br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
+                <br>Follow us on Facebook: www.facebook.com/247around | Website: www.247around.com
+                <br>Playstore - 247around -
+                <br>https://play.google.com/store/apps/details?id=com.handymanapp";
+
+        $this->email->message($message);
+        $this->email->attach($csv, 'attachment');
+
+        if ($this->email->send()) {
+        log_message('info', __METHOD__ . ": Mail sent successfully for Partner: " . $p['public_name']);
+        } else {
+        log_message('info', __METHOD__ . ": Mail could not be sent for Partner: " . $p['public_name']);
+        }
+            
+        //Upload Excel to AWS/FTP
+        $bucket = 'bookings-collateral';
+        $directory_xls = "summary-excels/" . $csv;
+        $this->s3->putObjectFile(realpath($csv), $bucket, $directory_xls, S3::ACL_PRIVATE);
+      
+        //Delete this file
+        $out=''; $return=0;
+        exec("rm -rf " . escapeshellarg($csv), $out, $return);
+            // Return will return non-zero upon an error
+            
+            if(!$return){
+                // exec() has been executed sucessfully
+                // Inserting values in scheduler tasks log
+                $this->reporting_utils->insert_scheduler_tasks_log(__FUNCTION__);
+                //Logging
+                log_message('info',__FUNCTION__.' Executed Sucessfully '.$csv);
+                
+            }
+        }
+        
+    }
+    
     public function send_summary_mail_to_partners() {
     log_message('info', __FUNCTION__);
 
@@ -589,7 +666,7 @@ EOD;
 
     exit(0);
     }
-
+    
     function booking_report() {
         $data = $this->reporting_utils->get_report_data();
         $today_ratings = $this->booking_model->get_completed_booking_details();
