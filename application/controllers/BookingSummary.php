@@ -33,7 +33,7 @@ class BookingSummary extends CI_Controller {
         $this->load->library('booking_utilities');
         
         $this->load->helper('url');
-                
+        
         $this->load->dbutil();
         $this->load->helper('file');
         
@@ -501,7 +501,7 @@ EOD;
     return $message;
     }
 
-    function send_leads_summary_mail_to_partners()
+        function send_leads_summary_mail_to_partners()
     {
         log_message('info', __FUNCTION__);
         
@@ -599,13 +599,13 @@ EOD;
 
         //Fetch partners' bookings
         $leads = $this->partner_model->get_partner_leads_for_summary_email($p['id']);
-            log_message('info', __FUNCTION__ . ' => Fetched partner bookings');
-            log_message('info', __FUNCTION__ . ' => Fetched partner bookings'.  print_r($new_array));
+        log_message('info', __FUNCTION__ . ' => Fetched partner bookings');
+        
         $R->load(array(
         array(
             'id' => 'bd',
             'repeat' => true,
-            'data' => $new_array,
+            'data' => $leads,
         ),
         ));
 
