@@ -2366,7 +2366,7 @@ class vendor extends CI_Controller {
                     if (isset($temp)) {
                         $emailBody = vsprintf($email_template[0]['body'], $temp);
                         //Sending Mail
-                        $this->notify->sendEmail($email_template[0]['from'], $to, 'belal@247around.com', '', $email_template[0]['subject'], $emailBody, $attachment);
+                        $this->notify->sendEmail($email_template[0]['from'], $to, '', '', $email_template[0]['subject'], $emailBody, $attachment);
                         //Loggin send mail details
                         log_message('info', __FUNCTION__ . ' Mail send to the following vendor ID ' . $vendor_details[0]['id']);
                         //Set Flag to check success or error of AJAX call
@@ -2459,7 +2459,7 @@ class vendor extends CI_Controller {
                     if (isset($temp)) {
                         $emailBody = vsprintf($email_template[0]['body'], $temp);
                         //Sending Mail
-                        $this->notify->sendEmail($email_template[0]['from'], $to, 'belal@247around.com', '', $email_template[0]['subject'], $emailBody, $attachment);
+                        $this->notify->sendEmail($email_template[0]['from'], $to, '', '', $email_template[0]['subject'], $emailBody, $attachment);
                         //Loggin send mail details
                         log_message('info', __FUNCTION__ . ' Mail send to the following vendor ID ' . $partner_details[0]['id']);
                         //Set Flag to check success or error of AJAX call

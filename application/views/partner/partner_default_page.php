@@ -182,7 +182,7 @@
                     $(".checkbox_manifest").prop('checked', $(this).prop("checked"));
                     }); 
                 }
-                console.log('Data appended to Tab - ' + tab);
+                //console.log('Data appended to Tab - ' + tab);
             },
             complete: function () {
                 $('#loading-image').hide();

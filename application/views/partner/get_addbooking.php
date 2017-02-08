@@ -533,10 +533,9 @@
                     
                      if(data === "ERROR"){
                          // $("#total_price").text("Price is not defined" );
-                          alert("This is out station booking, Do not allow to add this booking");
+                          alert("Outstation Bookings Are Not Allowed, Please Contact 247around Team.");
 
-                     } else {
-                         
+                     } else {                         
                           var data1 = jQuery.parseJSON(data);
                          
                           $("#total_price").html(data1.price);
@@ -579,7 +578,7 @@
             url: '<?php echo base_url(); ?>employee/partner/get_service_category',
             data: postData,
             success: function (data) {
-console.log(data);
+            //console.log(data);
                  if(data === "ERROR"){
                      
                    // alert("Price is not defined");

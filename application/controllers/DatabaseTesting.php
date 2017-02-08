@@ -402,7 +402,7 @@ class DatabaseTesting extends CI_Controller {
         $from = "booking@247around.com";
         $to= "anuj@247around.com";
         $bcc= "";
-        $cc = "abhaya@247around.com,belal@247around.com";
+        $cc = DEVELOPER_EMAIL;
         $subject = "Inconsistent Data";
         $message = $table;
         $attachment = TMP_FOLDER. date('Y-m-d') . ".txt";
