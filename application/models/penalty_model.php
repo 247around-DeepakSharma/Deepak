@@ -273,7 +273,40 @@ class Penalty_model extends CI_Model {
         }else{
             return FALSE;
         }
-        
+    }
+    /**
+     * @desc: This is used to return penalty amount and booking id
+     * @param String $vendor_id
+     * @param String $from_date
+     * @param String $to_date
+     * @return boolean
+     */
+    function add_penalty_in_invoice($vendor_id, $from_date, $to_date){
+        $where = "";
+        if (PENALTY_ON_COMPLETED_BOOKING == TRUE && PENALTY_ON_CANCELLED_BOOKING == TRUE) {
+            $where = " AND booking_details.current_status IN ('Completed', 'Cancelled') ";
+        } else if (PENALTY_ON_COMPLETED_BOOKING == TRUE && PENALTY_ON_CANCELLED_BOOKING == FALSE) {
+            $where = " AND booking_details.current_status IN ('Completed') ";
+        } else if (PENALTY_ON_COMPLETED_BOOKING == FALSE && PENALTY_ON_CANCELLED_BOOKING == TRUE) {
+            $where = " AND booking_details.current_status IN ('Cancelled') ";
+        }
+        if (PENALTY_ON_COMPLETED_BOOKING != FALSE && PENALTY_ON_CANCELLED_BOOKING != FALSE) {
+            $sql = "SELECT COUNT( p.booking_id ) as penalty_times,CASE WHEN (COUNT( p.booking_id ) * penalty_amount) < '" . CAP_ON_PENALTY_AMOUNT . "' 
+            THEN (COUNT( p.booking_id ) * penalty_amount) ELSE ( ".CAP_ON_PENALTY_AMOUNT." ) END AS p_amount, 
+            p.booking_id, penalty_amount FROM  
+           `penalty_on_booking` AS p, booking_details 
+            WHERE  `criteria_id` = 2 AND  `closed_date` >=  '".$from_date."' 
+            AND closed_date <  '".$to_date."'
+            AND service_center_id = '".$vendor_id."'
+            AND booking_details.booking_id = p.booking_id
+            GROUP BY p.booking_id";
+            
+            $query = $this->db->query($sql);
+            return $query->result_array();
+            
+        } else {
+            return FALSE;
+        }
     }
 
 

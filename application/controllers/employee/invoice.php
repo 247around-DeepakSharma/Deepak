@@ -27,6 +27,7 @@ class Invoice extends CI_Controller {
         $this->load->model("booking_model");
         $this->load->model("partner_model");
         $this->load->model("upcountry_model");
+        $this->load->model('penalty_model');
         $this->load->library("notify");
         $this->load->library('PHPReport');
         $this->load->library('form_validation');
@@ -1008,11 +1009,12 @@ class Invoice extends CI_Controller {
         if(isset($invoices_data['upcountry_details'])){
             $template = 'Vendor_Settlement_Template-FoC-upcountry-v4.xlsx';
             $total_upcountry_booking = $invoices_data['upcountry_details'][0]['total_booking'];
-            $upcountry_rate =  $invoices_data['upcountry_details'][0]['upcountry_rate'];
+            $upcountry_rate =  $invoices_data['upcountry_details'][0]['sf_upcountry_rate'];
             $upcountry_distance = $invoices_data['upcountry_details'][0]['total_distance'];
             $is_upcountry = TRUE;
 
-        } 
+        }
+        $penalty_data = $this->penalty_model->add_penalty_in_invoice($details['vendor_partner_id'], $from_date, $to_date);
         // directory
         $templateDir = __DIR__ . "/../excel-templates/";
         $invoices = $invoices_data['invoice_details'];
@@ -1136,22 +1138,19 @@ class Invoice extends CI_Controller {
                 'tds_tax_rate' => $tds_tax_rate,
                 't_vp_w_tds' => round($t_total - $tds, 0) // vendor payment with TDS
             );
-            $upcountry_st = 0;
+         
             $total_upcountry_price = 0;
             if($is_upcountry){
-                
-                if(!is_null($invoices[0]['service_tax_no'])){
-                    $upcountry_st = ($invoices_data['upcountry_details'][0]['total_upcountry_price'] * 1.15 - 
-                            $invoices_data['upcountry_details'][0]['total_upcountry_price']);
-                }
+
                 $total_upcountry_price = $invoices_data['upcountry_details'][0]['total_upcountry_price'];
                
             } else {
                 $invoices_data['upcountry_details'] = array();
             }
-            $excel_data['upcountry_st'] = round($upcountry_st,2);
+            $penalty_amount = (array_sum(array_column($penalty_data,'p_amount')));
+            $excel_data['total_penalty_amount'] = -$penalty_amount;
             $excel_data['total_upcountry_price'] = round($total_upcountry_price,2);
-            $excel_data['t_vp_w_tds'] = $excel_data['t_vp_w_tds'] + $excel_data['total_upcountry_price'] + $excel_data['upcountry_st'];
+            $excel_data['t_vp_w_tds'] = $excel_data['t_vp_w_tds'] + $excel_data['total_upcountry_price'] - $penalty_amount;
             $excel_data['invoice_id'] = $invoice_id;
             $excel_data['vendor_name'] = $invoices[0]['company_name'];
             $excel_data['vendor_address'] = $invoices[0]['address'];
@@ -1198,6 +1197,11 @@ class Invoice extends CI_Controller {
                     'repeat' => true,
                     'data' => $invoices_data['upcountry_details']                    
                 ),
+                array(
+                    'id' => 'penalty',
+                    'repeat' => true,
+                    'data' => $penalty_data                   
+                ),
               )
             );
 
@@ -1214,6 +1218,7 @@ class Invoice extends CI_Controller {
 
             //for xlsx: excel, for xls: excel2003
             $R->render('excel', $output_file_excel);
+         
             $res2 = 0;
             system(" chmod 777 " . $output_file_excel, $res2);
             log_message('info', __FUNCTION__ . " Excel File Created " . $output_file_excel);
@@ -1317,7 +1322,6 @@ class Invoice extends CI_Controller {
                     'sms_sent' => 1,
                     'upcountry_booking' => $total_upcountry_booking,
                     'upcountry_rate' =>$upcountry_rate,
-                    'upcountry_service_tax' =>$excel_data['upcountry_st'],
                     'upcountry_price' =>$excel_data['total_upcountry_price'],
                     'upcountry_distance' => $upcountry_distance,
                     //Add 1 month to end date to calculate due date
@@ -2314,6 +2318,7 @@ class Invoice extends CI_Controller {
             );
 
             $output_file_excel = TMP_FOLDER . $invoices['meta']['invoice_id'] . ".xlsx";
+            
             $res1 = 0;
             if (file_exists($output_file_excel)) {
 
@@ -2321,6 +2326,7 @@ class Invoice extends CI_Controller {
                 unlink($output_file_excel);
             }
             $R->render('excel', $output_file_excel);
+            
             log_message('info', __METHOD__ . ": Excel FIle generated " . $output_file_excel);
             $res2 = 0;
             system(" chmod 777 " . $output_file_excel, $res2);
