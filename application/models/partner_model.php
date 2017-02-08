@@ -393,6 +393,24 @@ class Partner_model extends CI_Model {
 	return $query->result_array();
     }
     
+    //Return all leads shared by Partner in the last 30 days in CSV
+    function get_partner_leads_csv_for_summary_email($partner_id)
+    {
+        return $query = $this->db->query("SELECT DISTINCT booking_date as 'Scheduled Appointment Date(DD/MM/YYYY)','Installation & Demo' AS 'Call Type (Installation /Table Top Installation/Demo/ Service)', 
+                        order_id as 'Order ID',UD.appliance_brand as 'Brand',UD.model_number as 'Model',services as 'Product',UD.appliance_description as Description,
+                        users.city,BD.booking_id as '247around Booking ID', booking_timeslot as 'Scheduled Appointment Time(HH:MM:SS)',
+			BD.partner_current_status as 'Status By Brand',BD.partner_internal_status as 'Final Status'
+			FROM booking_details as BD, users, services, booking_unit_details as UD
+			WHERE BD.booking_id NOT REGEXP '^Q-' AND
+			BD.booking_id = UD.booking_id AND
+			BD.service_id = services.id AND
+			BD.user_id = users.user_id AND
+			BD.partner_id = $partner_id  AND
+			BD.create_date > (CURDATE() - INTERVAL 1 MONTH) AND
+			DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= 0");
+
+    } 
+    
     //Return all leads shared by Partner in the last 30 days
     function get_partner_leads_for_summary_email($partner_id) {
 	$query = $this->db->query("SELECT DISTINCT BD.booking_id, order_id, booking_date, booking_timeslot,
