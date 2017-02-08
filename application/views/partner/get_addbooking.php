@@ -24,7 +24,7 @@
                                     <span id="error_mobile_number" style="color:red"></span>
                                 </div>
                             </div>
-                            <input type="hidden" name="partner_source" value="CallCenter" id="partner_source"/>
+                            
                             <div class="col-md-4" >
                                 <div class="form-group col-md-12 <?php if( form_error('user_name') ) { echo 'has-error';} ?>">
                                     <label for="booking_primary_contact_no">Name *</label>
@@ -127,11 +127,32 @@
                              <div class="col-md-4 ">
                                 <div class="form-group col-md-12  <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
                                     <label for="Booking Date ">Booking Date *</label>
-                                    <input type="date" min="<?php echo date("Y-m-d"); ?>" class="form-control"  id="booking_date" name="booking_date"   value = "<?php echo  date("Y-m-d"); ?>"  >
+                                    <input type="date" min="<?php echo date("Y-m-d"); ?>" class="form-control"  id="booking_date" name="booking_date"  value = "<?php if(date('H') < '12'){echo  date("Y-m-d");}else{ echo date("Y-m-d", strtotime("+1 day"));} ?>"  >
                                     <!--   -->
                                     <?php echo form_error('booking_date'); ?>
                                 </div>
                             </div>
+                            <div class="col-md-4 ">
+                                <div class="form-group col-md-12  <?php if( form_error('partner_source') ) { echo 'has-error';} ?>">
+                                    <label for="Partner source ">Seller Channel </label>
+                                     
+                                    <select type="text" class="form-control"  id="partner_source" name="partner_source" required>
+                                        <option value="">Please select seller channel</option>
+                                        <option <?php if(set_value('partner_source') == "Amazon"){ echo "selected";} ?>>Amazon</option>
+                                        <option <?php if(set_value('partner_source') == "CallCenter"){ echo "selected";} ?>>CallCenter</option>
+                                        <option <?php if(set_value('partner_source') == "Ebay"){ echo "selected";} ?>>Ebay</option>
+                                        <option <?php if(set_value('partner_source') == "Flipkart"){ echo "selected";} ?>>Flipkart</option>
+                                        <option <?php if(set_value('partner_source') == "Offline"){ echo "selected";} ?>>Offline</option>
+                                        <option <?php if(set_value('partner_source') == "Paytm"){ echo "selected";} ?>>Paytm</option>
+                                        <option <?php if(set_value('partner_source') == "Shopclues"){ echo "selected";} ?>>Shopclues</option>
+                                        <option <?php if(set_value('partner_source') == "Snapdeal"){ echo "selected";} ?>>Snapdeal</option>
+                                        
+                                    </select>
+                                    <!--   -->
+                                    <?php echo form_error('booking_date'); ?>
+                                </div>
+                            </div>
+                            
                             <div class="col-md-12" style="margin-top:15px;">
                                 <span style="font-size:20px;"><b>Customer Payable: </b><span style="margin-top:15px;"> <b style="font-size:20px;" id="total_price"><br/>Rs.</b></span></span>
                             </div>
@@ -387,6 +408,8 @@
     $("#appliance_brand_1").select2();
     $("#appliance_capacity_1").select2();
     $("#appliance_category_1").select2();
+    $("#partner_source").select2();
+    $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
     
     get_brands();
     
