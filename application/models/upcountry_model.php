@@ -338,7 +338,7 @@ class Upcountry_model extends CI_Model {
             }
             $result[0]['total_upcountry_price'] = $total_price;
             $result[0]['total_booking'] = $total_booking;
-            $result[0]['total_distance'] = $total_distance;
+            $result[0]['total_distance'] = round($total_distance, 0);
             
             return $result;
             

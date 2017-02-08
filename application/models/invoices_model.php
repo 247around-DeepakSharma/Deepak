@@ -312,7 +312,7 @@ class invoices_model extends CI_Model {
         $query1 = $this->db->query($sql1);
         $result1['invoice_details'] = $query1->result_array();
         // Calculate Upcountry booking details
-        $upcountry_data = $this->upcountry_model->upcountry_in_invoice($vendor_id, $from_date, $to_date);
+        $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date);
         if(!empty($upcountry_data)){
             $result1['upcountry_details'] = $upcountry_data;
             
@@ -813,7 +813,7 @@ class invoices_model extends CI_Model {
     function get_vendor_foc_invoice($vendor_id, $from_date, $to_date) {
 
         // $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
-        $sql = "SELECT DISTINCT (`vendor_basic_charges`) AS s_service_charge, 0 AS upcountry_distance,'' AS p_rate,'' AS p_part_cost, '' AS p_tax_rate,
+        $sql = "SELECT DISTINCT (`vendor_basic_charges`) AS s_service_charge, '' AS misc_price,'' AS p_rate,'' AS p_part_cost, '' AS p_tax_rate,
                CASE 
                
                 WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) != '' THEN 
@@ -856,7 +856,7 @@ class invoices_model extends CI_Model {
         $service = $query->result_array();
 
         //FOR Parts
-        $sql1 = "SELECT DISTINCT (`vendor_basic_charges`) AS p_rate, 0 AS upcountry_distance, '' AS s_service_charge, '' AS s_total_service_charge,
+        $sql1 = "SELECT DISTINCT (`vendor_basic_charges`) AS p_rate, '' AS misc_price, '' AS s_service_charge, '' AS s_total_service_charge,
                CASE 
                
                 WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) != '' THEN 
@@ -903,22 +903,42 @@ class invoices_model extends CI_Model {
         if (!empty($result)) {
             // Calculate Upcountry booking details
             $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date);
-
+            $meta['total_misc_price'] = 0;
+            
             if(!empty($upcountry_data)){
                 $up_country = array();
              
-               $up_country[0]['s_total_service_charge'] = $upcountry_data[0]['total_upcountry_price'];
-               $up_country[0]['p_rate'] = $up_country[0]['p_part_cost'] = $up_country[0]['p_tax_rate'] ='';
+               $up_country[0]['s_total_service_charge'] = '';
+               $up_country[0]['p_tax_rate'] ='';
                $up_country[0]['p_part_cost'] =  '';
                $up_country[0]['s_service_charge'] = '';
-               $up_country[0]['qty'] = '';
-               $up_country[0]['description'] = 'Upcountry Charge';
-               $up_country[0]['p_rate'] =  $upcountry_data[0]['upcountry_rate'];
-               $up_country[0]['upcountry_distance'] = $upcountry_data[0]['total_distance'];
+               $up_country[0]['qty'] = round($upcountry_data[0]['total_distance'],0)." KM";
+               $up_country[0]['description'] = 'Upcountry Services';
+               $up_country[0]['p_rate'] =  $upcountry_data[0]['sf_upcountry_rate'];
+               $up_country[0]['misc_price'] =  $upcountry_data[0]['total_upcountry_price'];
+               $meta['total_misc_price'] = $upcountry_data[0]['total_upcountry_price'];
              
                $result = array_merge($result, $up_country);
+               
             }
-
+            
+            $penalty_data = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date);
+            if(!empty($penalty_data)){
+                $penalty = array();
+                $penalty[0]['s_total_service_charge'] = '';
+                $penalty[0]['p_tax_rate'] ='';
+                $penalty[0]['p_part_cost'] =  '';
+                $penalty[0]['s_service_charge'] = '';
+                $penalty[0]['qty'] = array_sum(array_column($penalty_data,'penalty_times'));
+                $penalty[0]['description'] = "Deduction- Bookings Not Updated";
+                $penalty[0]['p_rate'] = $penalty_data[0]['penalty_amount'];
+                $penalty_amount = (array_sum(array_column($penalty_data,'p_amount')));
+                $penalty[0]['misc_price'] =  -$penalty_amount;
+                $meta['total_misc_price'] = $meta['total_misc_price'] - $penalty_amount;
+                
+                $result = array_merge($result, $penalty);
+            }
+            
             $meta['total_part_cost'] = 0;
             $meta['total_service_cost'] = 0;
 
@@ -926,12 +946,16 @@ class invoices_model extends CI_Model {
                 $meta['total_part_cost'] += $value['p_part_cost'];
                 $meta['total_service_cost'] += $value['s_total_service_charge'];
             }
-            
-            if (is_null($result[0]['tin'])) {
+
+            if (is_null($result[0]['tin']) ) {
 
                 $meta['part_cost_vat'] = 0.00;
             } else {
-                $meta['part_cost_vat'] = ($meta['total_part_cost'] * $product[0]['p_tax_rate']) / 100;
+                if(!empty($product)){
+                    $meta['part_cost_vat'] = ($meta['total_part_cost'] * $product[0]['p_tax_rate']) / 100;
+                } else {
+                    $meta['part_cost_vat'] = 0.00;
+                }
             }
 
 
@@ -979,7 +1003,8 @@ class invoices_model extends CI_Model {
                         break;
                 }
             }
-            $meta['grand_total_price']=  round( $meta['sub_part']+ $meta['sub_service_cost'], 0);
+            $meta['grand_total_price']=  round( $meta['sub_part']+ $meta['sub_service_cost'] 
+                    + $meta['total_misc_price'], 0);
             $meta['price_inword'] = convert_number_to_words($meta['grand_total_price']);
 
             $data['meta'] = $meta;

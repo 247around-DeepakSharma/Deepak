@@ -50,7 +50,7 @@
                                         <?php echo $sn_no; ?>
                                     </td>
                                     <td >
-                                        <a style="color:black" href="<?php echo base_url();?>partner/booking_details/<?=$row->booking_id?>" target='_blank' title='View'> <?php
+                                        <a style="color:blue;" href="<?php echo base_url();?>partner/booking_details/<?=$row->booking_id?>" target='_blank' title='View'> <?php
                                             echo  $row->booking_id;
                                             
                                             ?></a>

@@ -131,7 +131,10 @@ class Miscelleneous {
         $vendor_data = array();
 
         $vendor_data[0]['vendor_id'] = $query1[0]['assigned_vendor_id'];
-        $vendor_data[0]['city'] = $query1[0]['city'];
+        
+        //$vendor_data[0]['city'] = $query1[0]['city'];
+        $vendor_data[0]['city'] = $this->My_CI->vendor_model->get_city_from_india_pincode($query1[0]['booking_pincode'])['district'];
+        
         $return_status = 0;
         $data = $this->My_CI->upcountry_model->action_upcountry_booking($query1[0]['city'], 
                 $query1[0]['booking_pincode'], $vendor_data);

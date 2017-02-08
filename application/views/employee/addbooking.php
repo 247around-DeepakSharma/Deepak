@@ -114,14 +114,21 @@
                                 <div class="col-md-6">
                                     <select class="form-control"  id="partner_source" name="partner_source"  >
                                     <option value="">Please select seller channel</option>
+                                    <option>Amazon</option>
                                     <option>CallCenter</option>
+                                    <option>Ebay</option>
                                     <option>Flipkart</option>
                                     <option>Ebay</option>
                                     <option>Offline</option>
+                                    <option>Shopclues</option>
                                     <option>STS</option>
                                     <option>Snapdeal-delivered-excel</option>
                                     <option>Snapdeal-shipped-excel</option>
+                                    <option>Snapdeal</option
                                     <option>Paytm-delivered-excel</option>
+                                    <option>Paytm</option>
+                                    
+                                    
                                 </select>
                                 </div>
                                 </div>
