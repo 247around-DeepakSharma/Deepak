@@ -691,7 +691,7 @@ class vendor extends CI_Controller {
 
         $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
         
-        $days = ['Sunday', 'Monday', 'Tuseday', 'Wednesday', 'Thursday', 'Friday', 'Satarday'];
+        $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         $non_working_days = $query[0]['non_working_days'];
         $selected_non_working_days = explode(",", $non_working_days);
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));

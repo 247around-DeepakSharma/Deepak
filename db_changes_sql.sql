@@ -1836,12 +1836,12 @@ ALTER TABLE `partners` CHANGE `upcountry_max_distance_threshold` `upcountry_max_
 ALTER TABLE `partners` ADD `upcountry_mid_distance_threshold` DECIMAL(10,2) NULL DEFAULT NULL AFTER `upcountry_min_distance_threshold`;
 ALTER TABLE `partners` ADD `upcountry_rate1` INT(10) NULL DEFAULT NULL AFTER `upcountry_rate`;
 
-ALTER TABLE `booking_details` ADD `partner_upcountry_rate` INT(10) NULL DEFAULT NULL AFTER `upcountry_rate`;
+ALTER TABLE `booking_details` ADD `partner_upcountry_rate` INT(11) NULL DEFAULT NULL AFTER `upcountry_rate`;
 ALTER TABLE `booking_details` CHANGE `upcountry_rate` `sf_upcountry_rate` INT(11) NULL DEFAULT NULL;
-ALTER TABLE `partners` ADD `upcountry_approval` INT(2) NULL DEFAULT '1' AFTER `upcountry_mid_distance_threshold`;
-ALTER TABLE `partners` ADD `upcountry_approval_email` VARCHAR(256) NULL DEFAULT NULL AFTER `upcountry_approval`;
-ALTER TABLE `booking_details` ADD `upcountry_partner_approved` INT(2) NULL DEFAULT '1' AFTER `upcountry_distance`;
-ALTER TABLE `booking_details` ADD `upcountry_paid_by_customer` INT(2) NULL DEFAULT '0' AFTER `upcountry_partner_approved`;
+ALTER TABLE `partners` ADD `upcountry_approval` INT(1) NULL DEFAULT '1' AFTER `upcountry_mid_distance_threshold`;
+ALTER TABLE `partners` ADD `upcountry_approval_email` VARCHAR(64) NULL DEFAULT NULL AFTER `upcountry_approval`;
+ALTER TABLE `booking_details` ADD `upcountry_partner_approved` INT(1) NULL DEFAULT '1' AFTER `upcountry_distance`;
+ALTER TABLE `booking_details` ADD `upcountry_paid_by_customer` INT(1) NULL DEFAULT '0' AFTER `upcountry_partner_approved`;
 ALTER TABLE `booking_details` ADD `customer_paid_upcountry_charges` DECIMAL(10,2) NULL DEFAULT '0' AFTER `upcountry_paid_by_customer`;
 ALTER TABLE `service_center_booking_action` ADD `upcountry_charges` DECIMAL(10,2) NULL DEFAULT '0' AFTER `parts_cost`;
 
@@ -1971,3 +1971,9 @@ ALTER TABLE `distance_between_pincode`
 --
 ALTER TABLE `distance_between_pincode`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+--- ANUJ 6 FEB
+ALTER TABLE  `partners` CHANGE  `upcountry_rate1`  `upcountry_rate1` DECIMAL( 10, 2 ) NULL DEFAULT NULL COMMENT 'Rate from mid distance to max distance booking';
+ALTER TABLE  `service_centre_charges` ADD  `is_upcountry` INT( 1 ) NOT NULL DEFAULT  '1' AFTER  `pod` ;
+
