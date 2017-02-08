@@ -133,7 +133,8 @@ class Miscelleneous {
         $vendor_data[0]['vendor_id'] = $query1[0]['assigned_vendor_id'];
         $vendor_data[0]['city'] = $query1[0]['city'];
         $return_status = 0;
-        $data = $this->My_CI->upcountry_model->action_upcountry_booking($query1[0]['city'], $query1[0]['booking_pincode'], $vendor_data);
+        $data = $this->My_CI->upcountry_model->action_upcountry_booking($query1[0]['city'], 
+                $query1[0]['booking_pincode'], $vendor_data);
 
         switch ($data['message']) {
             case UPCOUNTRY_BOOKING:
@@ -178,8 +179,10 @@ class Miscelleneous {
 
                         $this->My_CI->booking_model->update_booking($booking_id, $booking);
                         $this->My_CI->service_centers_model->delete_booking_id($booking_id);
-                        $this->My_CI->notify->insert_state_change($booking_id, "Waiting Partner Approval", _247AROUND_PENDING, "Waiting Upcountry to Approval", $agent_id, $agent_name, _247AROUND);
-                        $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id', $booking_id));
+                        $this->My_CI->notify->insert_state_change($booking_id, "Waiting Partner Approval", 
+                                _247AROUND_PENDING, "Waiting Upcountry to Approval", 
+                                $agent_id, $agent_name, _247AROUND);
+                        $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id'=> $booking_id));
                         $up_mail_data['name'] = $query1[0]['name'];
                         $up_mail_data['appliance'] = $query1[0]['services'];
                         $up_mail_data['booking_address'] = $query1[0]['booking_address'];
@@ -194,7 +197,7 @@ class Miscelleneous {
                         $up_mail_data['appliance_capacity'] = $unit_details[0]['appliance_capacity'];
                         $up_mail_data['upcountry_distance'] = $booking[0]['upcountry_distance'];
 
-                        $message1 = $this->load->view('employee/upcountry_approval_template', $up_mail_data, true);
+                        $message1 = $this->My_CI->load->view('employee/upcountry_approval_template', $up_mail_data, true);
                         $cc = NITS_ANUJ_EMAIL_ID;
                         $subject = "Upcountry charges approval required - Booking ID " . $query1[0]['booking_id'];
                         $to = $partner_details[0]['upcountry_approval_email'];

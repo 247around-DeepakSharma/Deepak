@@ -115,8 +115,12 @@
         success: function (data) {
          
           $("#pincode_"+ split_id[1]).html(data);
+          
           $('#loader_gif').attr('src',  "");
           $('#loader_gif').css("display", "none");
+          $(".pincode").select2({
+              tags: true
+          });
        }
      });
     }
