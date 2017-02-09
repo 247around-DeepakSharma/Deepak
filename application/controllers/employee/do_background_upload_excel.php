@@ -258,7 +258,7 @@ class Do_background_upload_excel extends CI_Controller {
             
 	    //Insert user if phone number doesn't exist
 	    $output = $this->user_model->search_user(trim($value['Phone']));
-	    $state = $this->vendor_model->get_state_from_pincode($value['Pincode']);
+	    $state = $this->vendor_model->get_state_from_india_pincode($value['Pincode']);
 
 	    if (empty($output)) {
 		//User doesn't exist

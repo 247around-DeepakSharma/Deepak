@@ -127,7 +127,7 @@
                              <div class="col-md-4 ">
                                 <div class="form-group col-md-12  <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
                                     <label for="Booking Date ">Booking Date *</label>
-                                    <input type="date" min="<?php echo date("Y-m-d"); ?>" class="form-control"  id="booking_date" name="booking_date"  value = "<?php if(date('H') < '12'){echo  date("Y-m-d");}else{ echo date("Y-m-d", strtotime("+1 day"));} ?>"  >
+                                    <input type="date" class="form-control"  id="booking_date" name="booking_date"  value = "<?php if(date('H') < '12'){echo  date("Y-m-d");}else{ echo date("Y-m-d", strtotime("+1 day"));} ?>"  >
                                     <!--   -->
                                     <?php echo form_error('booking_date'); ?>
                                 </div>
@@ -409,7 +409,7 @@
     $("#appliance_capacity_1").select2();
     $("#appliance_category_1").select2();
     $("#partner_source").select2();
-    $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0});
+    $("#booking_date").datepicker({dateFormat: 'yy-mm-dd'});
     
     get_brands();
     
@@ -424,12 +424,12 @@
                             $('#brand_loading').css("display", "block");
                         },
                         url: '<?php echo base_url(); ?>employee/partner/get_brands_from_service',
-                        data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>},
+                        data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, brand:'<?php echo set_value('appliance_brand');?>'},
                         success: function (data) {
                                
                                 //First Resetting Options values present if any
                                 $("#appliance_brand_1 option[value !='option1']").remove();
-                                $('#appliance_brand_1').append(data);
+                                $('#appliance_brand_1').append(data).change();
                             },
                         complete: function(){
                             $('#brand_loading').css("display", "none");
@@ -439,7 +439,7 @@
     
     //This function is used to get Category for partner id , service , brands specified
     
-    function get_category(brand){
+    function get_category(){
         service_id =  $("#service_name").find(':selected').attr('data-id');
         brand =  $("#appliance_brand_1").val();
         $("#total_price").html("<br/>Rs.");
@@ -477,13 +477,13 @@
             },
             url: '<?php echo base_url(); ?>employee/partner/get_capacity_for_partner',
             data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, brand: brand,category:category},
-            dataType:"json",
+            
             success: function (data) {
 
 
                     //First Resetting Options values present if any
                     $("#appliance_capacity_1 option[value !='option1']").remove();
-                    $('#appliance_capacity_1').append(data['capacity']);
+                    $('#appliance_capacity_1').append(data).change();
                     get_models();
                 },
             complete: function(){
@@ -508,14 +508,15 @@
                         data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, brand: brand,category:category,capacity:capacity},
                        
                         success: function (data) {
-                         
                                 if(data === "Data Not Found"){
                                   
                                     var input = '<input type="text" name="model_number" id="model_number_1" class="form-control" placeholder="Please Enter Model">';
                                     $("#model_number_2").html(input).change();
                                 } else {
                                     //First Resetting Options values present if any
-                                    $("#model_number_1").html(data).change();
+                                     var input_text = '<span id="model_number_2"><select class="form-control"  name="model_number" id="model_number_1" ><option selected disabled>Select Model</option></select></span>';
+                                    $("#model_number_2").html(input_text).change();
+                                    $("#model_number_1").append(data).change();
                                     getPrice();
                                 }
                             }
@@ -634,6 +635,9 @@
                 success: function (data) {
                  
                     $('#booking_city').select2().html(data).change();
+                    $("#booking_city").select2({
+                       tags: true
+                    });
                     
                 },
                 complete: function(){

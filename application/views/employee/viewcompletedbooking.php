@@ -56,6 +56,32 @@
 
 </style>
 
+<!--Cancel Modal-->
+<div id="penaltycancelmodal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+      <form name="cancellation_form" id="cancellation_form" class="form-horizontal" action="<?php echo base_url() ?>employee/vendor/process_remove_penalty" method="POST">
+          
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" style="text-align: center"><b>Penalty Removal Reason</b></h4>
+          </div>
+          <div class="modal-body">
+              <span id="error_message" style="display:none;color: red;margin-bottom:10px;"><b>Please enter Reason</b></span>
+              <textarea rows="3" cols="40" name="penalty_remove_reason" value="" placeholder="Enter Penalty removal reason" id="penalty_remove_reason"></textarea>
+              <input type="hidden" name="booking_id" id="booking_id" value="" >
+              <input type="hidden" name="status" id="status" value="" >
+          </div>
+          <div class="modal-footer">
+             <input type="button" onclick="form_submit()" value="Submit" class="btn btn-info " form="modal-form">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+          
+      </form>
+  </div>
+</div>
+
+
 <div id="page-wrapper" >
     <div class="">
         <div class="row">
@@ -212,10 +238,10 @@
                             if($row->penalty_active == 1){
                                 echo "<a style='background:#D81B60;cursor:not-allowed;opacity:0.5;' class='btn btn-sm  col-md-4' "
                             . "href='javascript:void(0)' title='Add Penalty'> <i class='fa fa-plus-square' aria-hidden='true'></i></a>";
-                            
-                             echo "<a  class='btn btn-sm col-md-4' style='background:#FFEB3B;margin-left:10px' onclick='return confirm_remove_penalty()' "
-                            . "href=" . base_url() . "employee/vendor/process_remove_penalty/$row->booking_id/$status title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>";
-                                
+                             
+                            ?>  
+                            <a class='btn btn-sm col-md-4' style='background:#FFEB3B;margin-left:10px' onclick='return assign_id("<?php echo $row->booking_id?>","<?php echo $status?>")' data-toggle='modal' data-target='#penaltycancelmodal' href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>
+                            <?php     
                             }
                             
                             //Case 2: Penalty has been Removed - No Action Permitted 
@@ -263,12 +289,22 @@
         });
         });
     
-    function confirm_remove_penalty(){
-        var c = confirm('Confirm?');
-        if(!c){
-            return false;
-        }
+    function assign_id(id,status){
+        $('#booking_id').val(id);
+        $('#status').val(status);
     }
+    
+     function form_submit() {
+        
+        check = $('textarea#penalty_remove_reason').val();
+        if(!check){
+            $('#error_message').css('display','block');
+            return false;
+        }else{
+            $("#cancellation_form").submit();
+        }
+    }  
+        
         
 </script>
 <style>

@@ -148,7 +148,7 @@ class Partner extends CI_Controller {
                         //Search for user
                         //Insert user if phone number doesn't exist
                         $output = $this->user_model->search_user($requestData['mobile']);
-                        $state = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
+                        $state = $this->vendor_model->get_state_from_india_pincode($requestData['pincode']);
                         
                         if (empty($output)) {
                             log_message('info', $requestData['mobile'] . ' does not exist');
@@ -1430,7 +1430,7 @@ class Partner extends CI_Controller {
             //Search for user
             //Insert user if phone number doesn't exist
             $output = $this->user_model->search_user($requestData['mobile']);
-            $state = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
+            $state = $this->vendor_model->get_state_from_india_pincode($requestData['pincode']);
             $user['name'] = $requestData['name'];
             $user['phone_number'] = $requestData['mobile'];
             $user['alternate_phone_number'] = (isset($requestData['alternate_phone_number']) ? $requestData['alternate_phone_number'] : "");

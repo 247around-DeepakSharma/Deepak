@@ -23,11 +23,12 @@ class Miscelleneous {
      * @param String $service_id
      * @return Array
      */
-    function check_upcountry_vendor_availability($booking_city, $booking_pincode, $service_id){
+    function check_upcountry_vendor_availability($booking_city, $booking_pincode, $service_id, $assigned_vendor_id= false){
          log_message('info', __FUNCTION__ . ' => booking city' . $booking_city." booking pincode ". $booking_pincode
                  ." service id ".$service_id );
         //Get Available Vendor in this pincode who work this service
-        $check_vendor = $this->My_CI->upcountry_model->get_vendor_upcountry($booking_pincode, $service_id);
+        $check_vendor = $this->My_CI->upcountry_model->get_vendor_upcountry($booking_pincode, $service_id, $assigned_vendor_id);
+        $sf_city = $this->My_CI->vendor_model->get_city_from_india_pincode($booking_pincode)['district'];
         $data1 = array();
         $is_return = 0;
         
@@ -37,7 +38,7 @@ class Miscelleneous {
             if(count($check_vendor) ==1){
                 if($check_vendor[0]['is_upcountry'] ==1){
                     $data['vendor_id'] = $check_vendor[0]['Vendor_ID'];
-                    $data['city'] = $booking_city;
+                    $data['city'] = $sf_city;
                     array_push($data1, $data);
                 } else {
                     $msg['vendor_id'] = $check_vendor[0]['Vendor_ID'];
@@ -48,7 +49,7 @@ class Miscelleneous {
                 foreach($check_vendor as $vendor){
                     if($vendor['is_upcountry'] ==1){
                         $data['vendor_id'] = $vendor['Vendor_ID'];
-                        $data['city'] = $booking_city;
+                        $data['city'] = $sf_city;
                         
                         array_push($data1, $data);
                     } else {
@@ -211,7 +212,7 @@ class Miscelleneous {
                         $to = $partner_details[0]['upcountry_approval_email'];
 
                         $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message1, "");
-       
+
                         $return_status = FALSE;
                         
                     } else if ($partner_approval == 0 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED) {

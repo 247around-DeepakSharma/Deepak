@@ -237,7 +237,7 @@ class vendor extends CI_Controller {
                     move_uploaded_file($tmpFile, TMP_FOLDER.$cancelled_cheque_file);
                     
                     //Upload files to AWS
-                    $bucket = 'bookings-collateral';
+                    $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "vendor-partner-docs/".$cancelled_cheque_file;
                     $this->s3->putObjectFile(TMP_FOLDER.$cancelled_cheque_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                     $_POST['cancelled_cheque_file'] = $cancelled_cheque_file;
@@ -332,47 +332,95 @@ class vendor extends CI_Controller {
                 $_POST['is_cst_doc'] = 1;
             }
             
-            unset($_POST['day']);
-            
-            //Checking if  pan_no, cst_no,service_tax_no
-            if(empty($this->input->post('pan_no'))){
-                $_POST['pan_no'] = NULL;
-            }
-            if(empty($this->input->post('cst_no'))){
-                $_POST['cst_no'] = NULL;
-            }
-            if(empty($this->input->post('service_tax_no'))){
-                $_POST['service_tax_no'] = NULL;
-            }
-            if(empty($this->input->post('tin_no'))){
-                $_POST['tin_no'] = NULL;
-            }
-             
             if(isset($_POST['is_verified'])){
                $_POST['is_verified'] = '1';
-            }
-            else if(!isset($_POST['is_verified']) && $this->session->userdata('user_group') == 'admin')
+            }else if(!isset($_POST['is_verified']) && $this->session->userdata('user_group') == 'admin')
             {
                 $_POST['is_verified'] = '0';
             }
             
-            if (!empty($_POST['id'])) {
+            if (!empty($this->input->post('id'))) {
                 
                 //if vendor exists, details are edited
-                $this->vendor_model->edit_vendor($_POST, $_POST['id']);
+                
+                $vendor_data['id'] = $this->input->post('id');
+                $vendor_data['company_name'] = $this->input->post('company_name');
+                $vendor_data['name'] = $this->input->post('name');
+                $vendor_data['address'] = $this->input->post('address');
+                $vendor_data['landmark'] = $this->input->post('landmark');
+                $vendor_data['district'] = $this->input->post('district');
+                $vendor_data['state'] = $this->input->post('state');
+                $vendor_data['pincode'] = $this->input->post('pincode');
+                $vendor_data['phone_1'] = $this->input->post('phone_1');
+                $vendor_data['phone_2'] = $this->input->post('phone_2');
+                $vendor_data['email'] = $this->input->post('email');
+                $vendor_data['company_type'] = $this->input->post('company_type');
+                $vendor_data['primary_contact_name'] = $this->input->post('primary_contact_name');
+                $vendor_data['primary_contact_email'] = $this->input->post('primary_contact_email');
+                $vendor_data['primary_contact_phone_1'] = $this->input->post('primary_contact_phone_1');
+                $vendor_data['primary_contact_phone_2'] = $this->input->post('primary_contact_phone_2');
+                $vendor_data['owner_name'] = $this->input->post('owner_name');
+                $vendor_data['owner_email'] = $this->input->post('owner_email');
+                $vendor_data['owner_phone_1'] = $this->input->post('owner_phone_1');
+                $vendor_data['owner_phone_2'] = $this->input->post('owner_phone_2');
+                $vendor_data['name_on_pan'] = $this->input->post('name_on_pan');
+                if(!empty($this->input->post('pan_no')))
+                    $vendor_data['pan_no'] = $this->input->post('pan_no');
+                $vendor_data['is_pan_doc'] = $this->input->post('is_pan_doc');
+                if(!empty($this->input->post('cst_no')))
+                    $vendor_data['cst_no'] = $this->input->post('cst_no');
+                $vendor_data['is_cst_doc'] = $this->input->post('is_cst_doc');
+                if(!empty($this->input->post('tin_no')))
+                    $vendor_data['tin_no'] = $this->input->post('tin_no');
+                $vendor_data['is_tin_doc'] = $this->input->post('is_tin_doc');
+                if(!empty($this->input->post('service_tax_no')))
+                    $vendor_data['service_tax_no'] = $this->input->post('service_tax_no');
+                $vendor_data['is_st_doc'] = $this->input->post('is_st_doc');
+                $vendor_data['bank_name'] = $this->input->post('bank_name');
+                $vendor_data['account_type'] = $this->input->post('account_type');
+                $vendor_data['bank_account'] = $this->input->post('bank_account');
+                $vendor_data['ifsc_code'] = $this->input->post('ifsc_code');
+                $vendor_data['beneficiary_name'] = $this->input->post('beneficiary_name');
+                $vendor_data['is_verified'] = $this->input->post('is_verified');
+                if(!empty($this->input->post('contract_file')))
+                    $vendor_data['contract_file'] = $this->input->post('contract_file');
+                if(!empty($this->input->post('id_proof_2_file')))
+                    $vendor_data['id_proof_2_file'] = $this->input->post('id_proof_2_file');
+                if(!empty($this->input->post('id_proof_1_file')))
+                    $vendor_data['id_proof_1_file'] = $this->input->post('id_proof_1_file');
+                if(!empty($this->input->post('cancelled_cheque_file')))
+                    $vendor_data['cancelled_cheque_file'] = $this->input->post('cancelled_cheque_file');
+                if(!empty($this->input->post('address_proof_file')))
+                    $vendor_data['address_proof_file'] = $this->input->post('address_proof_file');
+                if(!empty($this->input->post('service_tax_file')))
+                    $vendor_data['service_tax_file'] = $this->input->post('service_tax_file');
+                if(!empty($this->input->post('tin_file')))
+                    $vendor_data['tin_file'] = $this->input->post('tin_file');
+                if(!empty($this->input->post('cst_file')))
+                    $vendor_data['cst_file'] = $this->input->post('cst_file');
+                if(!empty($this->input->post('pan_file')))
+                    $vendor_data['pan_file'] = $this->input->post('pan_file');
+                if(!empty($this->input->post('non_working_days')))
+                    $vendor_data['non_working_days'] = $this->input->post('non_working_days');
+                if(!empty($this->input->post('appliances')))
+                    $vendor_data['appliances'] = $this->input->post('appliances');
+                if(!empty($this->input->post('brands')))
+                    $vendor_data['brands'] = $this->input->post('brands');
+                
+                $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
                 
                  //Getting Logged Employee Full Name
                 $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
                 
                 //Log Message
-                log_message('info', __FUNCTION__.' SF has been updated :'.print_r($_POST,TRUE));
+                log_message('info', __FUNCTION__.' SF has been updated :'.print_r($vendor_data,TRUE));
                 
                 //Adding details in Booking State Change
                 $this->notify->insert_state_change('', SF_UPDATED, SF_UPDATED, 'Vendor ID : '.$_POST['id'], $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
                 
                 //Sending Mail for Updated details
                     $html = "<p>Following SF has been Updated :</p><ul>";
-                    foreach($this->input->post() as $key=>$value){
+                    foreach($vendor_data as $key=>$value){
                         $html .= "<li><b>".$key.'</b> =>';
                         $html .= " ".$value.'</li>';
                     }
@@ -433,7 +481,7 @@ class vendor extends CI_Controller {
                     log_message('info', __FUNCTION__.' Error in mapping SF to RM relation RM = '.print_r($rm,TRUE).' SF = '.print_r($_POST['id'],TRUE));
                 }
 
-                redirect(base_url() . 'employee/vendor/viewvendor', 'refresh');
+                redirect(base_url() . 'employee/vendor/viewvendor');
             } else {
                 // get service center code by calling generate_service_center_code() method
                 $owner_email = $this->input->post('owner_email');
@@ -441,25 +489,89 @@ class vendor extends CI_Controller {
                 $new_vendor_mail = $owner_email.','.$primary_contact_email;
                 
                 $_POST['sc_code'] = $this->generate_service_center_code($_POST['name'], $_POST['district']);
-
+                
+                //Making Array to add Vendor
+                $vendor_data['company_name'] = $this->input->post('company_name');
+                $vendor_data['name'] = $this->input->post('name');
+                $vendor_data['address'] = $this->input->post('address');
+                $vendor_data['landmark'] = $this->input->post('landmark');
+                $vendor_data['district'] = $this->input->post('district');
+                $vendor_data['state'] = $this->input->post('state');
+                $vendor_data['pincode'] = $this->input->post('pincode');
+                $vendor_data['phone_1'] = $this->input->post('phone_1');
+                $vendor_data['phone_2'] = $this->input->post('phone_2');
+                $vendor_data['email'] = $this->input->post('email');
+                $vendor_data['company_type'] = $this->input->post('company_type');
+                $vendor_data['primary_contact_name'] = $this->input->post('primary_contact_name');
+                $vendor_data['primary_contact_email'] = $this->input->post('primary_contact_email');
+                $vendor_data['primary_contact_phone_1'] = $this->input->post('primary_contact_phone_1');
+                $vendor_data['primary_contact_phone_2'] = $this->input->post('primary_contact_phone_2');
+                $vendor_data['owner_name'] = $this->input->post('owner_name');
+                $vendor_data['owner_email'] = $this->input->post('owner_email');
+                $vendor_data['owner_phone_1'] = $this->input->post('owner_phone_1');
+                $vendor_data['owner_phone_2'] = $this->input->post('owner_phone_2');
+                $vendor_data['name_on_pan'] = $this->input->post('name_on_pan');
+                if(!empty($this->input->post('pan_no')))
+                    $vendor_data['pan_no'] = $this->input->post('pan_no');
+                $vendor_data['is_pan_doc'] = $this->input->post('is_pan_doc');
+                if(!empty($this->input->post('cst_no')))
+                    $vendor_data['cst_no'] = $this->input->post('cst_no');
+                $vendor_data['is_cst_doc'] = $this->input->post('is_cst_doc');
+                if(!empty($this->input->post('tin_no')))
+                    $vendor_data['tin_no'] = $this->input->post('tin_no');
+                $vendor_data['is_tin_doc'] = $this->input->post('is_tin_doc');
+                if(!empty($this->input->post('service_tax_no')))
+                    $vendor_data['service_tax_no'] = $this->input->post('service_tax_no');
+                $vendor_data['is_st_doc'] = $this->input->post('is_st_doc');
+                $vendor_data['bank_name'] = $this->input->post('bank_name');
+                $vendor_data['account_type'] = $this->input->post('account_type');
+                $vendor_data['bank_account'] = $this->input->post('bank_account');
+                $vendor_data['ifsc_code'] = $this->input->post('ifsc_code');
+                $vendor_data['beneficiary_name'] = $this->input->post('beneficiary_name');
+                $vendor_data['is_verified'] = $this->input->post('is_verified');
+                $vendor_data['sc_code'] = $this->input->post('sc_code');
+                if(!empty($this->input->post('contract_file')))
+                    $vendor_data['contract_file'] = $this->input->post('contract_file');
+                if(!empty($this->input->post('id_proof_2_file')))
+                    $vendor_data['id_proof_2_file'] = $this->input->post('id_proof_2_file');
+                if(!empty($this->input->post('id_proof_1_file')))
+                    $vendor_data['id_proof_1_file'] = $this->input->post('id_proof_1_file');
+                if(!empty($this->input->post('cancelled_cheque_file')))
+                    $vendor_data['cancelled_cheque_file'] = $this->input->post('cancelled_cheque_file');
+                if(!empty($this->input->post('address_proof_file')))
+                    $vendor_data['address_proof_file'] = $this->input->post('address_proof_file');
+                if(!empty($this->input->post('service_tax_file')))
+                    $vendor_data['service_tax_file'] = $this->input->post('service_tax_file');
+                if(!empty($this->input->post('tin_file')))
+                    $vendor_data['tin_file'] = $this->input->post('tin_file');
+                if(!empty($this->input->post('cst_file')))
+                    $vendor_data['cst_file'] = $this->input->post('cst_file');
+                if(!empty($this->input->post('pan_file')))
+                    $vendor_data['pan_file'] = $this->input->post('pan_file');
+                if(!empty($this->input->post('non_working_days')))
+                    $vendor_data['non_working_days'] = $this->input->post('non_working_days');
+                if(!empty($this->input->post('appliances')))
+                    $vendor_data['appliances'] = $this->input->post('appliances');
+                if(!empty($this->input->post('brands')))
+                    $vendor_data['brands'] = $this->input->post('brands');
+                
                 //if vendor do not exists, vendor is added
-                $sc_id = $this->vendor_model->add_vendor($_POST);
+                $sc_id = $this->vendor_model->add_vendor($vendor_data);
                 
                 //Getting Logged Employee Full Name
                 $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
                 //Getting RM Official Email details to send Welcome Mails to them as well
-                $rm_id = $this->vendor_model->get_rm_sf_relation_by_sf_id($this->session->userdata('id'))[0]['agent_id'];
-                $rm_official_email = $this->employee_model->getemployeefromid($rm_id)[0]['official_email'];
+                $rm_official_email = $this->employee_model->getemployeefromid($rm)[0]['official_email'];
                 
                 //Logging
-                log_message('info', __FUNCTION__.' SF has been Added :'.print_r($_POST,TRUE));
+                log_message('info', __FUNCTION__.' SF has been Added :'.print_r($vendor_data,TRUE));
                 
                 //Adding details in Booking State Change
                 $this->notify->insert_state_change('', NEW_SF_ADDED, NEW_SF_ADDED, 'Vendor ID : '.$sc_id, $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
                 
                 //Sending Mail for Added details
                     $html = "<p>Following SF has been Added :</p><ul>";
-                    foreach($this->input->post() as $key=>$value){
+                    foreach($vendor_data as $key=>$value){
                         $html .= "<li><b>".$key.'</b> =>';
                         $html .= " ".$value.'</li>';
                     }
@@ -3665,9 +3777,18 @@ class vendor extends CI_Controller {
      * @return : View
      * 
      */
-    function process_remove_penalty($booking_id, $status) {
-        $data = array('active' => 0);
-
+    function process_remove_penalty(){
+        $status = $this->input->post('status');
+        $booking_id = $this->input->post('booking_id');
+        $penalty_remove_reason = $this->input->post('penalty_remove_reason');
+        $penalty_remove_agent_id = $this->session->userdata('id');
+        $penalty_remove_date = date("Y-m-d H:i:s");
+        $data = array(
+            'active' => 0,
+            'penalty_remove_reason'=>$penalty_remove_reason,
+            'penalty_remove_agent_id'=>$penalty_remove_agent_id,
+            'penalty_remove_date'=>$penalty_remove_date
+                );
 
         $update = $this->penalty_model->update_penalty_on_booking($booking_id, $data);
         if ($update) {

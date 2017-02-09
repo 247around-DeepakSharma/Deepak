@@ -32,6 +32,7 @@
                                     <th>S No.</th>
                                     <th>Booking ID</th>
                                     <th>Call Type</th>
+                                    <th>Status</th>
                                     <th>User</th>
                                     <th>Mobile</th>
                                     <th>City</th>
@@ -71,7 +72,21 @@
                                             
                                             }  ?>
                                     </td>
-                                    <td>
+                                    <td><?php if(!empty($row->status)){
+                                        switch ($row->status){
+                                            case "Delivered":
+                                                echo 'Spare Parts Received By SF';
+                                                break;
+                                            case "Shipped":
+                                                echo 'Spare Parts Shipped By '. $this->session->userdata('partner_name');
+                                                break;
+                                            default :
+                                                echo $row->status;
+                                                break;
+                                            
+                                        }
+                                    } else { echo $row->current_status;}?></td>
+                                    <td> 
                                         <?=$row->customername;?>
                                     </td>
                                     <td>

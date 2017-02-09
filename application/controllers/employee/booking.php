@@ -433,7 +433,7 @@ class Booking extends CI_Controller {
 	$booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
 	$booking['booking_pincode'] = $this->input->post('booking_pincode');
 	// select state by pincode
-	$state = $this->vendor_model->get_state_from_pincode(trim($booking['booking_pincode']));
+	$state = $this->vendor_model->get_state_from_india_pincode(trim($booking['booking_pincode']));
 	$booking['state'] = $state['state'];
 	$booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
 	$booking['order_id'] = $this->input->post('order_id');
