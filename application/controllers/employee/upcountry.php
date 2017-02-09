@@ -134,7 +134,6 @@ class Upcountry extends CI_Controller {
             $booking_details = $this->upcountry_model->get_booking($partner_id);
             foreach ($booking_details as $value1) {
                 echo $value1['booking_id'].PHP_EOL;
-                $this->upcountry_model->action_upcountry_booking($value1['booking_id']);
                 $upcountry_status = $this->miscelleneous->assign_upcountry_booking($value1['booking_id'], "1", "247Around");
                 
             }

@@ -23,11 +23,12 @@ class Miscelleneous {
      * @param String $service_id
      * @return Array
      */
-    function check_upcountry_vendor_availability($booking_city, $booking_pincode, $service_id){
+    function check_upcountry_vendor_availability($booking_city, $booking_pincode, $service_id, $assigned_vendor_id= false){
          log_message('info', __FUNCTION__ . ' => booking city' . $booking_city." booking pincode ". $booking_pincode
                  ." service id ".$service_id );
         //Get Available Vendor in this pincode who work this service
-        $check_vendor = $this->My_CI->upcountry_model->get_vendor_upcountry($booking_pincode, $service_id);
+        $check_vendor = $this->My_CI->upcountry_model->get_vendor_upcountry($booking_pincode, $service_id, $assigned_vendor_id);
+        $sf_city = $this->My_CI->vendor_model->get_city_from_india_pincode($booking_pincode)['district'];
         $data1 = array();
         $is_return = 0;
         
@@ -37,7 +38,7 @@ class Miscelleneous {
             if(count($check_vendor) ==1){
                 if($check_vendor[0]['is_upcountry'] ==1){
                     $data['vendor_id'] = $check_vendor[0]['Vendor_ID'];
-                    $data['city'] = $booking_city;
+                    $data['city'] = $sf_city;
                     array_push($data1, $data);
                 } else {
                     $msg['vendor_id'] = $check_vendor[0]['Vendor_ID'];
@@ -48,7 +49,7 @@ class Miscelleneous {
                 foreach($check_vendor as $vendor){
                     if($vendor['is_upcountry'] ==1){
                         $data['vendor_id'] = $vendor['Vendor_ID'];
-                        $data['city'] = $booking_city;
+                        $data['city'] = $sf_city;
                         
                         array_push($data1, $data);
                     } else {
@@ -168,12 +169,15 @@ class Miscelleneous {
                 $booking['partner_upcountry_rate'] = $data['partner_upcountry_rate'];
                 $is_upcountry = $this->My_CI->upcountry_model->is_upcountry_booking($booking_id);
                 if(!empty($is_upcountry)){
+                    
                     if($data['message'] !== UPCOUNTRY_LIMIT_EXCEED){
+                        
                         log_message('info', __METHOD__ . " => Upcountry Booking Free Booking " . $booking_id);
                         $booking['upcountry_paid_by_customer'] = 0;
                         $this->My_CI->booking_model->update_booking($booking_id, $booking);
                         $return_status = TRUE;
                     } else if($partner_approval == 1 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED){
+                       
                         log_message('info', __METHOD__ . " => Upcountry Waiting for Approval " . $booking_id);
                         $booking['assigned_vendor_id'] = NULL;
                         $booking['internal_status'] = UPCOUNTRY_BOOKING_NEED_TO_APPROVAL;
@@ -182,10 +186,12 @@ class Miscelleneous {
 
                         $this->My_CI->booking_model->update_booking($booking_id, $booking);
                         $this->My_CI->service_centers_model->delete_booking_id($booking_id);
+
                         $this->My_CI->notify->insert_state_change($booking_id, "Waiting Partner Approval", 
                                 _247AROUND_PENDING, "Waiting Upcountry to Approval", 
                                 $agent_id, $agent_name, _247AROUND);
                         $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id'=> $booking_id));
+
                         $up_mail_data['name'] = $query1[0]['name'];
                         $up_mail_data['appliance'] = $query1[0]['services'];
                         $up_mail_data['booking_address'] = $query1[0]['booking_address'];
@@ -219,6 +225,7 @@ class Miscelleneous {
                     }
                     
                 } else {
+              
                     log_message('info', __METHOD__ . " => Partner does not provide Upcountry charges " . $booking_id);
                     $booking['upcountry_paid_by_customer'] = 1;
                     if($query1[0]['is_upcountry'] == 0){
@@ -236,10 +243,12 @@ class Miscelleneous {
                 break;
 
             case NOT_UPCOUNTRY_BOOKING:
+                
                 log_message('info', __METHOD__ . " => Not Upcountry Booking" . $booking_id);
                 $return_status = TRUE;
                 break;
             case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
+                
                 log_message('info', __METHOD__ . " => Upcountry distance cannot calculate" . $booking_id);
                 $to = NITS_ANUJ_EMAIL_ID.", sales@247around.com";
                 $message1 = "Upcountry did not calculate for " . $booking_id;

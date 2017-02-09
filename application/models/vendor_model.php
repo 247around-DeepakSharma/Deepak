@@ -393,21 +393,20 @@ class vendor_model extends CI_Model {
      *  @return : State
      */
     function get_state_from_pincode($pincode) {
-	$this->db->distinct();
-    // Do not make state capital. It should be 'state'.
-	$this->db->select('State as state');
-	$this->db->where('Pincode', $pincode);
+        $this->db->distinct();
+        // Do not make state capital. It should be 'state'.
+        $this->db->select('State as state');
+        $this->db->where('Pincode', $pincode);
 
-	$query = $this->db->get('vendor_pincode_mapping');
-    if($query->num_rows > 0){
-        return $query->result_array()[0];
-    } else {
-        $state['state'] = "";
-        return $state;
+        $query = $this->db->get('vendor_pincode_mapping');
+        if ($query->num_rows > 0) {
+            return $query->result_array()[0];
+        } else {
+            $state['state'] = "";
+            return $state;
+        }
     }
 
-
-    }
     
     /**
      *  @desc : This function is to get State specific to a india Pincode table
@@ -430,6 +429,22 @@ class vendor_model extends CI_Model {
     }
 
 
+    }
+
+
+    function get_city_from_india_pincode($pincode) {
+        $this->db->distinct();
+        // Do not make state capital. It should be 'state'.
+        $this->db->select('district');
+        $this->db->where('pincode', $pincode);
+
+        $query = $this->db->get('india_pincode');
+        if ($query->num_rows > 0) {
+            return $query->result_array()[0];
+        } else {
+            $district['district'] = "";
+            return $district;
+        }
     }
 
     /**

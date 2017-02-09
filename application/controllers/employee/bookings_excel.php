@@ -194,7 +194,7 @@ class bookings_excel extends CI_Controller {
 		//echo "Service ID: " . $booking['service_id'] . PHP_EOL;
                 
                 //Asigning Bookings Source for the booking
-                $data = $this->_allot_source_partner_id_for_pincode($booking['service_id'], $state['state'], $rowData[0]['Brand']);
+                $data = $this->_allot_source_partner_id_for_pincode($booking['service_id'], $state['state'], $rowData[0]['Brand'], "SP");
 
                 $booking['partner_id'] = $data['partner_id'];
                 $booking['source'] = $data['source'];
@@ -463,7 +463,7 @@ class bookings_excel extends CI_Controller {
                 $unit_details['service_id'] = $appliance_details['service_id'] = $booking['service_id'] = $this->booking_model->getServiceId($lead_details['Product']);
                 
                 //Asigning Bookings Source for the booking
-                $data = $this->_allot_source_partner_id_for_pincode($booking['service_id'], $state['state'], $rowData[0]['Brand']);
+                $data = $this->_allot_source_partner_id_for_pincode($booking['service_id'], $state['state'], $rowData[0]['Brand'], "SS");
 
                 $booking['partner_id'] = $data['partner_id'];
                 $booking['source'] = $data['source'];
@@ -808,7 +808,7 @@ class bookings_excel extends CI_Controller {
 		//Assigning Booking Source and Partner ID for Brand Requested
                 // First we send Service id and Brand and get Partner_id from it
                 // Now we send state, partner_id and service_id 
-                $data = $this->_allot_source_partner_id_for_pincode($booking['service_id'], $booking['state'], $appliance_details['brand']);
+                $data = $this->_allot_source_partner_id_for_pincode($booking['service_id'], $booking['state'], $appliance_details['brand'], "SP");
 
                 $booking['partner_id'] = $data['partner_id'];
                 $booking['source'] = $data['source'];
@@ -910,7 +910,7 @@ class bookings_excel extends CI_Controller {
      * @return : Array
      * 
      */
-    private function _allot_source_partner_id_for_pincode($service_id, $state, $brand) {
+    private function _allot_source_partner_id_for_pincode($service_id, $state, $brand, $default_source) {
         log_message('info', __FUNCTION__ . ' ' . $service_id, $state, $brand);
         $data = [];
 
@@ -926,9 +926,14 @@ class bookings_excel extends CI_Controller {
                     $data['partner_id'] = $value['partner_id'];
                     $data['source'] = $this->partner_model->get_source_code_for_partner($value['partner_id']);
                 } else {
-                    //Now assigning this case to SS
-                    $data['partner_id'] = SNAPDEAL_ID;
-                    $data['source'] = 'SS';
+                    if($default_source == "SS"){
+                       //Now assigning this case to SS
+                       $data['partner_id'] = SNAPDEAL_ID;
+                       $data['source'] = $default_source;
+                    } else if($default_source == "SP"){
+                       $data['partner_id'] = PAYTM;
+                       $data['source'] = $default_source;
+                    }
                 }
             }
         } else {
