@@ -11,16 +11,17 @@
             <div class="panel-body">
                 <form class="form-horizontal" action="<?php echo base_url() ?>employee/vendor/process_get_vendor_escalation_form" method="POST" >
                     <div class="form-group">
-                        <label for="Booking Id" class="col-md-2">Booking ID</label>
+                        <label for="BookingId" class="col-md-2">Booking ID</label>
                         <div class="col-md-6">
                             <input type="text" class="form-control"  name="booking_id"  value = "<?php echo $booking_id; ?>" placeholder = "Booking Id"  readonly>
                         </div>
                     </div>
                     <div class="form-group ">
-                        <label for="Vendor Id" class="col-md-2">Vendor Name</label>
+                        <label for="VendorId" class="col-md-2">Vendor Name</label>
                         <div class="col-md-6">
-                            <input type="text" class="form-control"  name="vendor_name"  value = "<?php echo $vendor_details[0]['name']; ?>"  disabled>
-                            <input type="hidden" class="form-control"  name="vendor_id"  value = "<?php echo $vendor_details[0]['id']; ?>" >
+                            <input type="text" class="form-control"  name="vendor_name"  value = "<?php if(isset($vendor_details[0]['name'])){echo $vendor_details[0]['name']; }?>"  disabled>
+                            <input type="hidden" class="form-control"  name="vendor_id"  value = "<?php if(isset($vendor_details[0]['id'])){echo $vendor_details[0]['id'];} ?>" >
+                            <input type="hidden" class="form-control"  name="penalty_active"  value = "<?php if(isset($penalty_active)){echo $penalty_active;} ?>" >
                             <input type="hidden" class="form-control"  name="status"  value = "<?php echo $status; ?>" >
                         </div>
                     </div>

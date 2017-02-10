@@ -140,7 +140,13 @@ class Penalty_model extends CI_Model {
 	    $data['current_state'] = isset($value['current_state']) && !empty($value['current_state'])?$value['current_state']:NULL;
 	    $data['criteria_id'] = $penalty_details['id'];
 	    $data['penalty_amount'] = $penalty_details['penalty_amount'];
-	    $this->insert_penalty_on_booking($data);
+            if(isset($value['penalty_active'])){
+                $data['active'] = 1;
+                $this->update_penalty_on_booking($data['booking_id'],$data);
+            }else{
+                $this->insert_penalty_on_booking($data);
+            }
+	    
             return $data;
 	}else{
             log_message('info',__FUNCTION__.'Unable to get Penalty Details for provided values of where '.print_r($where,TRUE));

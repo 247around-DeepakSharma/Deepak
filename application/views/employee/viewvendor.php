@@ -109,7 +109,7 @@
           	<th class="jumbotron">Owner Email</th>
           	<th class="jumbotron">Sub District Office</th>
           	<th class="jumbotron">Temporary</th>
-          	<th colspan="2" class="jumbotron">Permanent</th>
+          	<th class="jumbotron">Permanent</th>
           </tr>
 
           
@@ -141,7 +141,7 @@
           	<td><?=$row['owner_email'];?></td>
                 <td>
                     <?php if ($row['is_upcountry'] == 1) { ?>
-                        <a class='btn btn-sm btn-primary' href="<?php echo base_url(); ?>employee/vendor/get_sc_upcountry_details/<?php echo $row['id'];  ?>"><i class='fa fa-eye' aria-hidden='true'></i></a>
+                        <a class='btn btn-sm btn-primary' target="_blank" href="<?php echo base_url(); ?>employee/vendor/get_sc_upcountry_details/<?php echo $row['id'];  ?>"><i class='fa fa-eye' aria-hidden='true'></i></a>
                     <?php } ?>    
                 </td>
                 
@@ -169,18 +169,18 @@
             </td>
 <!--            <td><?php  echo "<a onClick=\"javascript: return confirm('Please confirm, want to delete vendor');\" id='edit' class='btn btn-small btn-danger' "
                                     . "href=" . base_url() . "employee/vendor/delete/$row[id]>Delete</a>";                ?></td>-->
-            <td><?php if($row['is_update']==1)
-                {
-                  echo "<a id='edit' class='btn btn-small btn-warning' "
-                                    . "href=" . base_url() . "employee/vendor/control_update_process/$row[id]/0>Disable New CRM</a>";                
-                }
-                else
-                {
-                  echo "<a id='edit' class='btn btn-small btn-info' "
-                                    . "href=" . base_url() . "employee/vendor/control_update_process/$row[id]/1>Enable New CRM</a>";                
-                }
+<!--            <td><?php //if($row['is_update']==1)
+               // {
+                  //echo "<a id='edit' class='btn btn-small btn-warning' "
+                                   // . "href=" . base_url() . "employee/vendor/control_update_process/$row[id]/0>Disable New CRM</a>";                
+                //}
+                //else
+                //{
+                  //echo "<a id='edit' class='btn btn-small btn-info' "
+                                   // . "href=" . base_url() . "employee/vendor/control_update_process/$row[id]/1>Enable New CRM</a>";                
+                //}
               ?>
-            </td>
+            </td>-->
           </tr>
           <?php } ?>
         </table>

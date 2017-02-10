@@ -112,7 +112,26 @@
                    <strong>' . $this->session->userdata('success') . '</strong>
                </div>';
                 }
+                if ($this->session->userdata('error')) {
+                    echo '<div class="alert alert-danger alert-dismissible" role="alert" style="width: 60%;margin-left: 20%;margin-top: -49px;">
+
+                   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                       <span aria-hidden="true">&times;</span>
+                   </button>
+                   <strong>' . $this->session->userdata('error') . '</strong>
+               </div>';
+                }
+                if ($this->session->userdata('failed')) {
+                    echo '<div class="alert alert-danger alert-dismissible" role="alert" style="width: 60%;margin-left: 20%;margin-top: -49px;">
+
+                   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                       <span aria-hidden="true">&times;</span>
+                   </button>
+                   <strong>' . $this->session->userdata('failed') . '</strong>
+               </div>';
+                }
                 ?>  
+                
 
                 <h1 align="left"><?php  if(isset($status)){ echo $status." Bookings";} else { echo $Bookings[0]->current_status." Bookings"; $status =  $Bookings[0]->current_status; } ?></h1>
                 <table >
@@ -246,8 +265,8 @@
                             
                             //Case 2: Penalty has been Removed - No Action Permitted 
                             else if ($row->penalty_active == 0) {
-                                echo "<a style='background:#D81B60;cursor:not-allowed;opacity:0.5;'  class='btn btn-sm  col-md-4' "
-                            . "href='javascript:void(0)' title='Add Penalty'> <i class='fa fa-plus-square' aria-hidden='true'></i></a>";
+                                echo "<a class='btn btn-sm col-md-4' style='background:#F44336' "
+                            . "href=" . base_url() . "employee/vendor/get_escalate_booking_form/$row->booking_id/$status/$row->penalty_active title='Add Penalty Again'> <i class='fa fa-plus-square' aria-hidden='true'></i></a>";
                             
                              echo "<a  class='btn btn-sm col-md-4' style='background:#FFEB3B;margin-left:10px;cursor:not-allowed;opacity:0.5;' "
                             . "href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>";
@@ -319,3 +338,5 @@
     .input-filter-container { position: absolute; top: 7em; right: 1em; border: 2px solid #66f; background-color: #eef; padding: 0.5em; }
 </style>
 <?php $this->session->unset_userdata('success'); ?>
+<?php $this->session->unset_userdata('error'); ?>
+<?php $this->session->unset_userdata('failed'); ?>
