@@ -87,7 +87,7 @@
 
         <?php }?></td>
         <?php if(isset($service_center)){ ?>
-        <td ><?php if($value['final_amount'] <0){ ?><input type="checkbox" name="<?php echo "amount_service_center[".$value['id']."]";?>" value ="<?php echo abs($value['final_amount']);?>" class="form-control" <?php if($value['is_verified'] ==0){ echo "disabled";}?>> <?php } ?></td>
+        <td ><input type="checkbox" name="<?php echo "amount_service_center[".$value['id']."]";?>" value ="<?php echo abs($value['final_amount']);?>" class="form-control" <?php if($value['is_verified'] ==0){ echo "disabled";}?>> </td>
          <?php } ?>
       </tr>
     <?php  $count++ ;} ?>
