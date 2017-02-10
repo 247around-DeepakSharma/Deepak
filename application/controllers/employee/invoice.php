@@ -1242,8 +1242,8 @@ class Invoice extends CI_Controller {
                 $this->email->subject($subject);
                 $this->email->attach($output_file_excel, 'attachment');
                 $this->email->attach($output_file_dir . $output_file . ".xlsx", 'attachment');
-                $message = "Dear Partner,"."<br/>Please find attached FOC invoice. Please do <strong>Reply</strong> All for raising any query or concern regarding the invoice.";
-                $message .= "<br/>Thanks,<br/>247around Team";
+                $message = "Dear Partner,"."<br/><br/>Please find attached FOC invoice. Please do <strong>Reply All</strong> for raising any query or concern regarding the invoice.";
+                $message .= "<br/><br/>Thanks,<br/>247around Team";
                 $this->email->message($message);
                 $mail_ret = $this->email->send();
                
@@ -1303,6 +1303,7 @@ class Invoice extends CI_Controller {
                     'invoice_file_excel' => $invoice_id . '.xlsx',
                     'invoice_detailed_excel' => $invoice_id . '-detailed.xlsx',
                     //'invoice_file_pdf' => $output_file . '.pdf',
+                    'invoice_date' => date("Y-m-d"),
                     'from_date' => date("Y-m-d", strtotime($from_date)),
                     'to_date' => date("Y-m-d", strtotime($to_date)),
                     'num_bookings' => $count,

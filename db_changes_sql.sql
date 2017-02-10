@@ -1980,3 +1980,6 @@ ALTER TABLE  `service_centre_charges` ADD  `is_upcountry` INT( 1 ) NOT NULL DEFA
 --Abhay 10 Feb
 ALTER TABLE `vendor_partner_invoices` ADD `penalty_amount` DECIMAL(10,2) NULL DEFAULT NULL AFTER `upcountry_price`;
 ALTER TABLE `penalty_on_booking` ADD `foc_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `create_date`;
+
+-- ANUJ 10 Feb
+ALTER TABLE  `vendor_partner_invoices` ADD  `penalty_bookings_count` INT NOT NULL COMMENT  'On how many bookings penalty is imposed?' AFTER `upcountry_price` ;
