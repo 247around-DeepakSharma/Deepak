@@ -532,8 +532,7 @@ class Invoice extends CI_Controller {
                 $this->invoices_model->insert_new_invoice($invoice_details);
                 log_message('info', __METHOD__ . "=> Insert Invoices in partner invoice table");
             }
-            
-            
+
             //Delete XLS files now
             foreach ($file_names as $file_name) {
                 exec("rm -rf " . escapeshellarg($file_name));
@@ -1327,12 +1326,17 @@ class Invoice extends CI_Controller {
                     'upcountry_rate' =>$upcountry_rate,
                     'upcountry_price' =>$excel_data['total_upcountry_price'],
                     'upcountry_distance' => $upcountry_distance,
+                    'penalty_amount' => $penalty_amount,
                     //Add 1 month to end date to calculate due date
                     'due_date' => date("Y-m-d", strtotime($end_date . "+1 month"))
                 );
 
                 // insert invoice details into vendor partner invoices table
                 $this->invoices_model->action_partner_invoice($invoice_details);
+                //Update Penalty Amount
+                foreach($penalty_data as $value){
+                    $this->penalty_model->update_penalty_any(array('booking_id'=> $value['booking_id']), array('foc_invoice_id' => $invoice_id));
+                }
 
                 log_message('info', __METHOD__ . ': Invoice ' . $invoice_id . ' details  entered into invoices table');
 
@@ -1341,6 +1345,7 @@ class Invoice extends CI_Controller {
                  * Since this is a type B invoice, it would be stored as a vendor-credit invoice.
                  */
                 $this->update_booking_invoice_mappings_installations($invoices, $invoice_id);
+                
             }
             
 
