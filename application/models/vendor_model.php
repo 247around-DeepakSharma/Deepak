@@ -678,13 +678,13 @@ class vendor_model extends CI_Model {
         $this->db->select('service_centres.name As Vendor_Name, Brand, Area, Region, vendor_pincode_mapping.Pincode');
         $this->db->from('vendor_pincode_mapping');
         $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
+        $this->db->where('vendor_pincode_mapping.Pincode', $data['pincode']);
+//        $this->db->where('Appliance_ID', $data['service_id']);
+//        if ($data['city'] != 'Select City')
+//            $this->db->where('vendor_pincode_mapping.City', $data['city']);
 
-        $this->db->where('Appliance_ID', $data['service_id']);
-        if ($data['city'] != 'Select City')
-            $this->db->where('vendor_pincode_mapping.City', $data['city']);
-
-        if ($data['pincode'] != "Select Pincode")
-            $this->db->where('vendor_pincode_mapping.Pincode', $data['pincode']);
+        if (!empty($data['service_id']))
+            $this->db->where('Appliance_ID', $data['service_id']);
 
         $this->db->where('service_centres.active', 1);
         //Checking Temporary On/Off values

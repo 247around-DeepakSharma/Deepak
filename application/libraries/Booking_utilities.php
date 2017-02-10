@@ -417,7 +417,7 @@ class Booking_utilities {
                            <tbody >';
        
 
-       $show_state = [];
+       //$show_state = [];
        $greater_than_5_days = 0;
        $overall_greater_than_5_days = 0;
        $yesterday_booked = 0;
