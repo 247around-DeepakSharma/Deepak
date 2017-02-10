@@ -847,8 +847,8 @@ class Invoice extends CI_Controller {
                     'vendor_partner_id' => $invoices['booking'][0]['id'],
                     'invoice_file_excel' => $invoice_id . '.xlsx',
                     'invoice_detailed_excel' => $invoice_id . '-detailed.xlsx',
-                    'from_date' => date("Y-m-d", strtotime($start_date)),
-                    'to_date' => date("Y-m-d", strtotime($end_date)),
+                    'from_date' => date("Y-m-d", strtotime($from_date)),
+                    'to_date' => date("Y-m-d", strtotime($to_date)),
                     'num_bookings' => $count,
                     'total_service_charge' => $excel_data['r_sc'],
                     'total_additional_service_charge' => $excel_data['r_asc'],
@@ -866,7 +866,7 @@ class Invoice extends CI_Controller {
                     //SMS has been sent or not
                     'sms_sent' => 1,
                     //Add 1 month to end date to calculate due date
-                    'due_date' => date("Y-m-d", strtotime($end_date . "+1 month"))
+                    'due_date' => date("Y-m-d", strtotime($to_date . "+1 month"))
                 );
 
                 $this->invoices_model->action_partner_invoice($invoice_details);
@@ -1303,8 +1303,8 @@ class Invoice extends CI_Controller {
                     'invoice_file_excel' => $invoice_id . '.xlsx',
                     'invoice_detailed_excel' => $invoice_id . '-detailed.xlsx',
                     //'invoice_file_pdf' => $output_file . '.pdf',
-                    'from_date' => date("Y-m-d", strtotime($start_date)),
-                    'to_date' => date("Y-m-d", strtotime($end_date)),
+                    'from_date' => date("Y-m-d", strtotime($from_date)),
+                    'to_date' => date("Y-m-d", strtotime($to_date)),
                     'num_bookings' => $count,
                     'total_service_charge' => $total_inst_charge,
                     'total_additional_service_charge' => 0,
@@ -1328,7 +1328,7 @@ class Invoice extends CI_Controller {
                     'upcountry_distance' => $upcountry_distance,
                     'penalty_amount' => $penalty_amount,
                     //Add 1 month to end date to calculate due date
-                    'due_date' => date("Y-m-d", strtotime($end_date . "+1 month"))
+                    'due_date' => date("Y-m-d", strtotime($to_date . "+1 month"))
                 );
 
                 // insert invoice details into vendor partner invoices table
