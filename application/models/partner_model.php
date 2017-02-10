@@ -402,8 +402,7 @@ class Partner_model extends CI_Model {
                         users.city,BD.booking_id as '247around Booking ID', booking_timeslot as 'Scheduled Appointment Time(HH:MM:SS)',
 			BD.partner_current_status as 'Status By Brand',BD.partner_internal_status as 'Final Status'
 			FROM booking_details as BD, users, services, booking_unit_details as UD
-			WHERE BD.booking_id NOT REGEXP '^Q-' AND
-			BD.booking_id = UD.booking_id AND
+			WHERE BD.booking_id = UD.booking_id AND
 			BD.service_id = services.id AND
 			BD.user_id = users.user_id AND
 			BD.partner_id = $partner_id  AND
