@@ -397,18 +397,10 @@ class Partner_model extends CI_Model {
     //Return all leads shared by Partner in the last 30 days in CSV
     function get_partner_leads_csv_for_summary_email($partner_id)
     {
-        return $query = $this->db->query("SELECT DISTINCT booking_date as 'Scheduled Appointment Date(DD/MM/YYYY)','Installation & Demo' AS 'Call Type (Installation /Table Top Installation/Demo/ Service)', 
-                        order_id as 'Order ID',UD.appliance_brand as 'Brand',UD.model_number as 'Model',services as 'Product',UD.appliance_description as Description,
-                        users.city,BD.booking_id as '247around Booking ID', booking_timeslot as 'Scheduled Appointment Time(HH:MM:SS)',
-			BD.partner_current_status as 'Status By Brand',BD.partner_internal_status as 'Final Status'
-			FROM booking_details as BD, users, services, booking_unit_details as UD
-			WHERE BD.booking_id = UD.booking_id AND
-			BD.service_id = services.id AND
-			BD.user_id = users.user_id AND
-			BD.partner_id = $partner_id  AND
-			BD.create_date > (CURDATE() - INTERVAL 1 MONTH) AND
-			DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= 0");
-
+        return $query = $this->db->query("SELECT distinct '' AS 'Unique id',order_id AS 'Sub Order ID',booking_details.create_date AS 'Referred Date and Time', ud.appliance_brand AS 'Brand', IFNULL(model_number,'') AS 'Model', services AS 'Product', ud.appliance_description As 'Description',name As 'Customer', home_address AS 'Customer Address', booking_pincode AS 'Pincode', booking_details.city As 'City', booking_primary_contact_no AS Phone, user_email As 'Email ID', request_type AS 'Call Type (Installation /Table Top Installation/Demo/ Service)', partner_current_status AS 'Status By Brand', '' AS 'Remarks by Brand','Service sent to vendor' AS 'Status by Snapdeal', booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', partner_internal_status AS 'Final Status'
+                                FROM  booking_details , booking_unit_details AS ud, services, users
+                                WHERE booking_details.booking_id = ud.booking_id AND booking_details.service_id = services.id AND booking_details.user_id = users.user_id
+                                AND booking_details.partner_id = $partner_id AND booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)");
     } 
     
     //Return all leads shared by Partner in the last 30 days
