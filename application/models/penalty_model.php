@@ -308,6 +308,15 @@ class Penalty_model extends CI_Model {
             return FALSE;
         }
     }
+    /**
+     * @desc This is used to update penalty table
+     * @param Array $where
+     * @param Array $data
+     */
+    function update_penalty_any($where, $data){
+        $this->db->where($where);
+        $this->db->update("penalty_on_booking", $data);
+    }
 
 
 }
