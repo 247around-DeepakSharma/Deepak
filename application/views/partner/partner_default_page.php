@@ -57,16 +57,18 @@
                                 color:#ffffff ;
                             }
                         </style>
-                        <div id="tabs-1" style="margin-left:-2%;font-size:90%"><div id="#loading-image"><img src="<?php echo base_url() ?>images/loader.gif" style="margin-left:1%;height:150px;"></div></div>
-                        <div id="tabs-2" style="margin-left:-2%"><div id="#loading-image"><img src="<?php echo base_url() ?>images/loader.gif" style="margin-left:1%;height:150px;"></div></div>
-                        <div id="tabs-3" style="margin-left:-2%"><div id="#loading-image"><img src="<?php echo base_url() ?>images/loader.gif" style="margin-left:1%;height:150px;"></div></div>
-                        <div id="tabs-4" style="margin-left:-2%"><div id="#loading-image"><img src="<?php echo base_url() ?>images/loader.gif" style="margin-left:1%;height:150px;"></div></div>
+                        <div id="tabs-1" style="margin-left:-2%;font-size:90%"></div>
+                        <div id="tabs-2" style="margin-left:-2%"></div>
+                        <div id="tabs-3" style="margin-left:-2%"></div>
+                        <div id="tabs-4" style="margin-left:-2%"></div>
+                        <center><div id="loading-image"><img src="<?php echo base_url() ?>images/loader.gif" style="margin-left:1%;height:150px;"></center></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 <!-- Modal -->
 <div id="myModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -182,7 +184,7 @@
                     $(".checkbox_manifest").prop('checked', $(this).prop("checked"));
                     }); 
                 }
-                console.log('Data appended to Tab - ' + tab);
+                //console.log('Data appended to Tab - ' + tab);
             },
             complete: function () {
                 $('#loading-image').hide();

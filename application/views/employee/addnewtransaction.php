@@ -21,7 +21,7 @@ function partner_vendor1(vendor_partner_id){
                 url: '<?php echo base_url(); ?>employee/invoice/getPartnerOrVendor/' + par_ven,
                 data: {vendor_partner_id: vendor_partner_id,invoice_flag:0},
                 success: function (data) {
-                    console.log(data);
+                    //console.log(data);
                     $("#name").html(data).change();
                     $('#loader_gif').attr('src',  "");
                     $('#loader_gif').css("display", "none");
@@ -152,7 +152,7 @@ color: red;
                <div class="form-group">
                 <label for="name" class="col-md-2">TDS <span class="red">*</span></label>
                 <div class="col-md-6">
-                    <input type="text" class="form-control" id="tds_amount" name="tds_amount" value="<?php if(isset($selected_tds)){ echo $selected_tds; }?>" required>
+                    <input type="text" class="form-control" id="tds_amount" name="tds_amount" value="<?php if(isset($selected_tds)){ echo $selected_tds; }?>" required readonly>
                 </div>
                 <span id="errmsg4"></span>
               </div>

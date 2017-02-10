@@ -753,7 +753,11 @@ class vendor extends CI_Controller {
         $this->form_validation->set_rules('address', 'Vendor Address', 'trim|required');
         $this->form_validation->set_rules('state', 'State', 'trim|required');
         $this->form_validation->set_rules('district', 'District', 'trim|required');
-        return $this->form_validation->run();
+        if ($this->form_validation->run() == FALSE) {
+            return FALSE;
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -799,7 +803,7 @@ class vendor extends CI_Controller {
 
         $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
         
-        $days = ['Sunday', 'Monday', 'Tuseday', 'Wednesday', 'Thursday', 'Friday', 'Satarday'];
+        $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         $non_working_days = $query[0]['non_working_days'];
         $selected_non_working_days = explode(",", $non_working_days);
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
@@ -2475,7 +2479,7 @@ class vendor extends CI_Controller {
                     if (isset($temp)) {
                         $emailBody = vsprintf($email_template[0]['body'], $temp);
                         //Sending Mail
-                        $this->notify->sendEmail($email_template[0]['from'], $to, 'belal@247around.com', '', $email_template[0]['subject'], $emailBody, $attachment);
+                        $this->notify->sendEmail($email_template[0]['from'], $to, '', '', $email_template[0]['subject'], $emailBody, $attachment);
                         //Loggin send mail details
                         log_message('info', __FUNCTION__ . ' Mail send to the following vendor ID ' . $vendor_details[0]['id']);
                         //Set Flag to check success or error of AJAX call

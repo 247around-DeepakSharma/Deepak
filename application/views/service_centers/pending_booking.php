@@ -310,7 +310,7 @@
     }
     
     if(date.getHours() >=9){ // Check the time
-       console.log(date.getHours());
+       //console.log(date.getHours());
        timer = setInterval(showRemaining, 1000);
     }
     

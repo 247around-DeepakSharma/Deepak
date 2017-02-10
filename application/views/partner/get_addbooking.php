@@ -24,7 +24,7 @@
                                     <span id="error_mobile_number" style="color:red"></span>
                                 </div>
                             </div>
-                            <input type="hidden" name="partner_source" value="CallCenter" id="partner_source"/>
+                            
                             <div class="col-md-4" >
                                 <div class="form-group col-md-12 <?php if( form_error('user_name') ) { echo 'has-error';} ?>">
                                     <label for="booking_primary_contact_no">Name *</label>
@@ -127,11 +127,32 @@
                              <div class="col-md-4 ">
                                 <div class="form-group col-md-12  <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
                                     <label for="Booking Date ">Booking Date *</label>
-                                    <input type="date" min="<?php echo date("Y-m-d"); ?>" class="form-control"  id="booking_date" name="booking_date"   value = "<?php echo  date("Y-m-d"); ?>"  >
+                                    <input type="date" class="form-control"  id="booking_date" name="booking_date"  value = "<?php if(date('H') < '12'){echo  date("Y-m-d");}else{ echo date("Y-m-d", strtotime("+1 day"));} ?>"  >
                                     <!--   -->
                                     <?php echo form_error('booking_date'); ?>
                                 </div>
                             </div>
+                            <div class="col-md-4 ">
+                                <div class="form-group col-md-12  <?php if( form_error('partner_source') ) { echo 'has-error';} ?>">
+                                    <label for="Partner source ">Seller Channel </label>
+                                     
+                                    <select type="text" class="form-control"  id="partner_source" name="partner_source" required>
+                                        <option value="">Please select seller channel</option>
+                                        <option <?php if(set_value('partner_source') == "Amazon"){ echo "selected";} ?>>Amazon</option>
+                                        <option <?php if(set_value('partner_source') == "CallCenter"){ echo "selected";} ?>>CallCenter</option>
+                                        <option <?php if(set_value('partner_source') == "Ebay"){ echo "selected";} ?>>Ebay</option>
+                                        <option <?php if(set_value('partner_source') == "Flipkart"){ echo "selected";} ?>>Flipkart</option>
+                                        <option <?php if(set_value('partner_source') == "Offline"){ echo "selected";} ?>>Offline</option>
+                                        <option <?php if(set_value('partner_source') == "Paytm"){ echo "selected";} ?>>Paytm</option>
+                                        <option <?php if(set_value('partner_source') == "Shopclues"){ echo "selected";} ?>>Shopclues</option>
+                                        <option <?php if(set_value('partner_source') == "Snapdeal"){ echo "selected";} ?>>Snapdeal</option>
+                                        
+                                    </select>
+                                    <!--   -->
+                                    <?php echo form_error('booking_date'); ?>
+                                </div>
+                            </div>
+                            
                             <div class="col-md-12" style="margin-top:15px;">
                                 <span style="font-size:20px;"><b>Customer Payable: </b><span style="margin-top:15px;"> <b style="font-size:20px;" id="total_price"><br/>Rs.</b></span></span>
                             </div>
@@ -387,6 +408,8 @@
     $("#appliance_brand_1").select2();
     $("#appliance_capacity_1").select2();
     $("#appliance_category_1").select2();
+    $("#partner_source").select2();
+    $("#booking_date").datepicker({dateFormat: 'yy-mm-dd'});
     
     get_brands();
     
@@ -401,12 +424,12 @@
                             $('#brand_loading').css("display", "block");
                         },
                         url: '<?php echo base_url(); ?>employee/partner/get_brands_from_service',
-                        data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>},
+                        data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, brand:'<?php echo set_value('appliance_brand');?>'},
                         success: function (data) {
                                
                                 //First Resetting Options values present if any
                                 $("#appliance_brand_1 option[value !='option1']").remove();
-                                $('#appliance_brand_1').append(data);
+                                $('#appliance_brand_1').append(data).change();
                             },
                         complete: function(){
                             $('#brand_loading').css("display", "none");
@@ -416,7 +439,7 @@
     
     //This function is used to get Category for partner id , service , brands specified
     
-    function get_category(brand){
+    function get_category(){
         service_id =  $("#service_name").find(':selected').attr('data-id');
         brand =  $("#appliance_brand_1").val();
         $("#total_price").html("<br/>Rs.");
@@ -454,13 +477,13 @@
             },
             url: '<?php echo base_url(); ?>employee/partner/get_capacity_for_partner',
             data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, brand: brand,category:category},
-            dataType:"json",
+            
             success: function (data) {
 
 
                     //First Resetting Options values present if any
                     $("#appliance_capacity_1 option[value !='option1']").remove();
-                    $('#appliance_capacity_1').append(data['capacity']);
+                    $('#appliance_capacity_1').append(data).change();
                     get_models();
                 },
             complete: function(){
@@ -485,14 +508,15 @@
                         data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, brand: brand,category:category,capacity:capacity},
                        
                         success: function (data) {
-                         
                                 if(data === "Data Not Found"){
                                   
                                     var input = '<input type="text" name="model_number" id="model_number_1" class="form-control" placeholder="Please Enter Model">';
                                     $("#model_number_2").html(input).change();
                                 } else {
                                     //First Resetting Options values present if any
-                                    $("#model_number_1").html(data).change();
+                                     var input_text = '<span id="model_number_2"><select class="form-control"  name="model_number" id="model_number_1" ><option selected disabled>Select Model</option></select></span>';
+                                    $("#model_number_2").html(input_text).change();
+                                    $("#model_number_1").append(data).change();
                                     getPrice();
                                 }
                             }
@@ -533,10 +557,9 @@
                     
                      if(data === "ERROR"){
                          // $("#total_price").text("Price is not defined" );
-                          alert("This is out station booking, Do not allow to add this booking");
+                          alert("Outstation Bookings Are Not Allowed, Please Contact 247around Team.");
 
-                     } else {
-                         
+                     } else {                         
                           var data1 = jQuery.parseJSON(data);
                          
                           $("#total_price").html(data1.price);
@@ -579,7 +602,7 @@
             url: '<?php echo base_url(); ?>employee/partner/get_service_category',
             data: postData,
             success: function (data) {
-console.log(data);
+            //console.log(data);
                  if(data === "ERROR"){
                      
                    // alert("Price is not defined");
@@ -612,6 +635,9 @@ console.log(data);
                 success: function (data) {
                  
                     $('#booking_city').select2().html(data).change();
+                    $("#booking_city").select2({
+                       tags: true
+                    });
                     
                 },
                 complete: function(){

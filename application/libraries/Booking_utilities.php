@@ -542,17 +542,20 @@ class Booking_utilities {
             $booking['partner_internal_status'] = $partner_status[0]['partner_internal_status'];
         }else{
             if(substr($booking_id,0,2) == 'Q-'){
-                $booking['partner_current_status'] = _247AROUND_PENDING;
-                $booking['partner_internal_status'] = _247AROUND__Customer_Not_Available;
+                $booking['partner_current_status'] = $current_status;
+                $booking['partner_internal_status'] = $current_status;
+                
                 $this->send_mail_When_no_data_found($current_status,$internal_status,$booking_id, $partner_id);
                 
             }else{
-                $booking['partner_current_status'] = _247AROUND__SCHEDULED;
-                $booking['partner_internal_status'] = _247AROUND__SCHEDULED;
+                $booking['partner_current_status'] = $current_status;
+                $booking['partner_internal_status'] = $current_status;
+                
                 $this->send_mail_When_no_data_found($current_status,$internal_status,$booking_id, $partner_id);
             }
             
         }
+        
         return array($booking['partner_current_status'],$booking['partner_internal_status']);
     }
 

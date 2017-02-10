@@ -1220,7 +1220,7 @@ class Partner extends CI_Controller {
     function update_price_while_cancel_booking($booking_id) {
         log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
         $unit_details['booking_status'] = "Cancelled";
-        $unit_details['vendor_to_around'] = $unit_details['around_to_vendor'] = 0;
+        
         log_message('info', __FUNCTION__ . " Update unit details  " . print_r($unit_details, true));
         $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
     }
@@ -1400,8 +1400,9 @@ class Partner extends CI_Controller {
 
         $booking_history = $this->booking_model->getbooking_history($booking_id);
         if(!empty($booking_history)){
-            $data = $this->booking_model->get_city_booking_source_services($booking_history[0]['booking_primary_contact_no']);
+        
             $data['booking_history'] = $booking_history;
+            $data['appliances'] = $this->partner_model->get_partner_specific_services($this->session->userdata('partner_id'));
             $unit_where = array('booking_id'=>$booking_id);
             $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
             $this->load->view('partner/header');
@@ -1416,13 +1417,13 @@ class Partner extends CI_Controller {
      * @desc: This method is used to upade booking by Partner Panel
      * @param String $booking_id
      */
-    function process_editbooking($booking_id){
+    function process_editbooking($booking_id) {
         log_message('info', __FUNCTION__ . " Booking Id: " . $booking_id);
         $this->checkUserSession();
         $validate = $this->set_form_validation();
         log_message('info', 'Partner initiate Edit booking' . $this->session->userdata('partner_name'));
-       // $authToken = $this->partner_model->get_authentication_code($this->session->userdata('partner_id'));
-      
+        // $authToken = $this->partner_model->get_authentication_code($this->session->userdata('partner_id'));
+
         if ($validate == true && !empty($booking_id)) {
             log_message('info', 'Edit booking validation true' . $this->session->userdata('partner_name'));
             $post = $this->get_booking_form_data();
@@ -1433,7 +1434,7 @@ class Partner extends CI_Controller {
             $user['pincode'] = $post['pincode'];
             $user['home_address'] = $post['address'];
             $user['alternate_phone_number'] = $post['alternate_phone_number'];
-            $state = $this->vendor_model->get_state_from_pincode($post['pincode']);
+            $state = $this->vendor_model->get_state_from_india_pincode($post['pincode']);
 
             $user['state'] = $state['state'];
             $booking_details['booking_date'] = $post['booking_date'];
@@ -1447,75 +1448,109 @@ class Partner extends CI_Controller {
             $booking_details['booking_landmark'] = $post['landmark'];
             $booking_details['partner_source'] = $post['partner_source'];
             $booking_details['order_id'] = $post['orderID'];
-            $booking_details['service_id'] =  $this->booking_model->getServiceId($post['product']);
-            $booking_details['booking_remarks'] =  $post['remarks'];
+            $booking_details['service_id'] = $post['service_id'];
+            $booking_details['booking_remarks'] = $post['remarks'];
+            $upcountry_data = json_decode($post['upcountry_data'], TRUE);
 
             $unit_details['price_tags'] = $post['requestType'];
             $unit_details['service_id'] = $appliance_details['service_id'] = $booking_details['service_id'];
             $unit_details['appliance_brand'] = $appliance_details['brand'] = $post['brand'];
             $unit_details['appliance_description'] = $appliance_details['description'] = $post['productType'];
-            $unit_details['appliance_category'] =  $appliance_details['category'] = $post['category'];
+            $unit_details['appliance_category'] = $appliance_details['category'] = $post['category'];
             $unit_details['appliance_capacity'] = $appliance_details['capacity'] = $post['capacity'];
-            $unit_details['model_number'] = $appliance_details['model_number'] =  $post['model'];
-            $unit_details['partner_serial_number'] = $appliance_details['serial_number'] =  $post['serial_number'];
+            $unit_details['model_number'] = $appliance_details['model_number'] = $post['model'];
+            $unit_details['partner_serial_number'] = $appliance_details['serial_number'] = $post['serial_number'];
             $unit_details['purchase_month'] = $appliance_details['purchase_month'] = $post['purchase_month'];
             $unit_details['purchase_year'] = $appliance_details['purchase_year'] = $post['purchase_year'];
+            $unit_details['booking_id'] = $booking_id;
             // Update booking details table
-            $update_status = $this->booking_model->update_booking($booking_id, $booking_details);
-            if($update_status){
-                $user['user_id'] = $this->input->post('user_id');
-                // Update users Table
-                $user_status = $this->user_model->edit_user($user);
-                if($user_status){} else {
-                    log_message('info', 'User table is not updated booking Id: '. $booking_id . " User Id". print_r($user, true) );
-                    
-                }
-                $unit_details['appliance_id'] = $this->input->post('appliance_id');
-                //Update appliance_details table
-                $appliance_status = $this->booking_model->update_appliances($unit_details['appliance_id'],$appliance_details );
-                if($appliance_status){} else {
-                    log_message('info', 'Appliance is not update in Appliance details: '. $booking_id . " Appliance data". print_r($appliance_details, true). "Appliamce id ". $unit_details['appliance_id'] );
-                }
-                //Update Booking unit details table
-                $unit_details_status = $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
-                if($unit_details_status){
-                    $partner_id = $this->session->userdata('partner_id');
-                    //Get Partner Price Mapping Id
-                    $partner_mapping_id = $this->booking_model->get_price_mapping_partner_code("", $partner_id);
-                    // Get Price details Array
-                    $prices = $this->partner_model->getPrices($booking_details['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id, $unit_details['price_tags']);
 
-                    $unit_details['id'] =  $prices[0]['id'];
-                    $unit_details['around_paid_basic_charges'] =  $unit_details['around_net_payable'] = "0.00";
-                    $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
-                    $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
-                    //Update price in unit details table
-                    $unit_status = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state']);
-                    if($unit_status) {} else {
-                        log_message('info', 'Booking unit details data is not update in : '. $booking_id . " Appliance data". print_r($unit_details, true) );
-                    }
-                    
-                    $this->notify->insert_state_change($booking_id, 
-                    _247AROUND_PENDING , _247AROUND_PENDING ,  $booking_details['booking_remarks'], 
-                    $this->session->userdata('agent_id'), $this->session->userdata('partner_name'),
-                    $this->session->userdata('partner_id'));
-                    
-                    $this->session->set_flashdata('success', $booking_id . ' Booking  is updated.');
-                    redirect(base_url() . "partner/get_user_form");
+
+            $user['user_id'] = $this->input->post('user_id');
+            // Update users Table
+            $user_status = $this->user_model->edit_user($user);
+            if ($user_status) {
+                
+            } else {
+                log_message('info', 'User table is not updated booking Id: ' . $booking_id . " User Id" . print_r($user, true));
+            }
+            $unit_details['appliance_id'] = $this->input->post('appliance_id');
+            //Update appliance_details table
+            $appliance_status = $this->booking_model->update_appliances($unit_details['appliance_id'], $appliance_details);
+            if ($appliance_status) {
+                
+            } else {
+                log_message('info', 'Appliance is not update in Appliance details: ' . $booking_id . " Appliance data" . print_r($appliance_details, true) . "Appliamce id " . $unit_details['appliance_id']);
+            }
+            $unit_details_status = $this->booking_model->update_booking_unit_details($booking_id, $unit_details);
+
+            $partner_id = $this->session->userdata('partner_id');
+            $partner_data = $this->partner_model->get_partner_code($partner_id);
+
+            //Get Partner Price Mapping Id
+            $partner_mapping_id = $partner_data[0]['price_mapping_id'];
+            if ($partner_data[0]['partner_type'] == OEM) {
+                $prices = $this->partner_model->getPrices($booking_details['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id, $unit_details['price_tags'], $unit_details['appliance_brand']);
+            } else {
+                $prices = $this->partner_model->getPrices($booking_details['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id, $unit_details['price_tags']);
+            }
+            $unit_details['id'] = $prices[0]['id'];
+            $unit_details['around_paid_basic_charges'] = $unit_details['around_net_payable'] = "0.00";
+            $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
+            $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
+            $booking_details['amount_due'] = $prices[0]['customer_net_payable'];
+            $partner_approval = 0;
+           
+            if (!empty($upcountry_data)) {
+                $booking_details['is_upcountry'] = 1;
+                $booking_details['upcountry_pincode'] = $upcountry_data['upcountry_pincode'];
+                $booking_details['sub_vendor_id'] = $upcountry_data['sub_vendor_id'];
+                $booking_details['upcountry_distance'] = $upcountry_data['upcountry_distance'];
+                $booking_details['sf_upcountry_rate'] = $upcountry_data['sf_upcountry_rate'];
+                $booking_details['partner_upcountry_rate'] = $upcountry_data['partner_upcountry_rate'];
+                $partner_approval = $upcountry_data['partner_approval'];
+                $booking_details['upcountry_paid_by_customer'] = $upcountry_data['upcountry_paid_by_customer'];
+                if ($booking_details['upcountry_paid_by_customer'] == 1) {
+                    $booking_details['amount_due'] += ($booking_details['partner_upcountry_rate'] * $booking_details['upcountry_distance'] );
                 }
-                $this->session->set_flashdata('error', $booking_id . ' Booking  is not updated.');
-                $this->get_editbooking_form($booking_id); 
+                if ($upcountry_data['partner_approval'] == '1') {
+
+                    $booking_details['internal_status'] = UPCOUNTRY_BOOKING_NEED_TO_APPROVAL;
+                }
+                if ($upcountry_data['message'] == UPCOUNTRY_LIMIT_EXCEED) {
+                    //One times Mail Sent
+                }
+            }
+
+            if ($unit_details_status) {
+                $this->booking_model->update_booking($booking_id, $booking_details);
+
+                // Get Price details Array
+                //Update price in unit details table
+                $unit_status = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state']);
+                if ($unit_status) {
+                    
+                } else {
+                    log_message('info', 'Booking unit details data is not update in : ' . $booking_id . " Appliance data" . print_r($unit_details, true));
+                }
+
+                $this->notify->insert_state_change($booking_id, _247AROUND_PENDING, _247AROUND_PENDING, 
+                        $booking_details['booking_remarks'], 
+                        $this->session->userdata('agent_id'), 
+                        $this->session->userdata('partner_name'), 
+                        $this->session->userdata('partner_id'));
+
+                $this->session->set_flashdata('success', $booking_id . ' Booking  is updated.');
+                redirect(base_url() . "partner/home");
             }
             $this->session->set_flashdata('error', $booking_id . ' Booking  is not updated.');
-            $this->get_editbooking_form($booking_id); 
-            
+            $this->get_editbooking_form($booking_id);
             
         } else {
-            $this->get_editbooking_form($booking_id); 
+            $this->get_editbooking_form($booking_id);
         }
-        
     }
-    
+
     /**
      * @desc: This is used to get those booking who has requested to spare parts by SF
      */
@@ -1956,12 +1991,18 @@ class Partner extends CI_Controller {
     function get_brands_from_service(){
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('service_id');
+        $appliace_brand = $this->input->post('brand');
+
         //Getting Unique values of Brands for Particular Partner and service id
         $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id);
         $data = $this->partner_model->get_partner_specific_details($where, "brand", "brand");
         $option = "";
         foreach($data as $value){
-            $option .="<option value='".$value['brand']."'>".$value['brand']."</option>";
+            $option .="<option ";
+            if($appliace_brand == $value['brand']){
+                $option .= " selected ";
+            }
+            $option .=" value='".$value['brand']."'>".$value['brand']."</option>";
         }
         echo $option;
         
@@ -1977,6 +2018,7 @@ class Partner extends CI_Controller {
     function get_category_from_service(){
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('service_id');
+        $category = $this->input->post('category');
         $brand = $this->input->post('brand');
         //Getting Unique values of Category for Particular Partner ,service id and brand
         $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id,'brand'=>$brand);
@@ -1985,7 +2027,9 @@ class Partner extends CI_Controller {
         $option = "";
         foreach($data as $value){
             $option .="<option ";
-            if(count($data) ==1){
+            if($category === $value['category'] ){
+                $option .= " selected ";
+            } else if(count($data) ==1){
                 $option .= " selected ";
             }
             $option .= " value='".$value['category']."'>".$value['category']."</option>";
@@ -2006,17 +2050,24 @@ class Partner extends CI_Controller {
         $service_id = $this->input->post('service_id');
         $brand = $this->input->post('brand');
         $category = $this->input->post('category');
+        $appliance_capacity = $this->input->post('capacity');
         //Getting Unique values of Category for Particular Partner ,service id and brand
         $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id,'brand'=>$brand,'category'=>$category);
         $select = "capacity";
         $data = $this->partner_model->get_partner_specific_details($where, $select, "capacity");
         $capacity = "";
         foreach($data as $value){
-            $capacity .="<option value='".$value['capacity']."'>".$value['capacity']."</option>";
+            
+            $capacity .="<option ";
+            if($appliance_capacity === $value['capacity'] ){
+                $capacity .= " selected ";
+            } else if(count($data) ==1){
+                $capacity .= " selected ";
+            }
+            $capacity .= " value='".$value['capacity']."'>".$value['capacity']."</option>";
         }
-        $option['capacity'] = $capacity;
-        
-        print_r(json_encode($option));
+
+        echo $capacity;
     }
     
     /**
@@ -2032,6 +2083,7 @@ class Partner extends CI_Controller {
         $brand = $this->input->post('brand');
         $category = $this->input->post('category');
         $capacity = $this->input->post('capacity');
+        $model_number = $this->input->post('model');
         //Getting Unique values of Model for Particular Partner ,service id and brand
         $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id,'brand'=>$brand,'category'=>$category,'capacity'=>$capacity);
         
@@ -2040,8 +2092,15 @@ class Partner extends CI_Controller {
         if(!empty($data[0]['model'])){
             $model = "";
             foreach($data as $value){
-            echo    $model .="<option value='".$value['model']."'>".$value['model']."</option>";
+                $model .="<option ";
+                if(trim($model_number) === trim($value['model']) ){
+                   $model .= " selected ";
+                } else if(count($data) ==1){
+                   $model .= " selected ";
+                }
+                $model .=" value='".$value['model']."'>".$value['model']."</option>";
             }
+            echo $model;
         } else {
             echo "Data Not Found";
         }
@@ -2281,6 +2340,7 @@ class Partner extends CI_Controller {
         $service_id  = $this->input->post('service_id');
         $brand = $this->input->post('brand');
         $category = $this->input->post('category');
+        $price_tags = $this->input->post('price_tags');
         $capacity = $this->input->post('capacity');
         $partner_id = $this->session->userdata('partner_id');
         $partner_data = $this->partner_model->get_partner_code($partner_id);
@@ -2297,6 +2357,9 @@ class Partner extends CI_Controller {
             $service_category = "<option disabled selected>Please Select Call Type</option>";
             foreach($result as $value){
                 $service_category .="<option ";
+                if($price_tags === $value['service_category']){
+                    $service_category .= " selected ";
+                } else
                 if(count($result) ==1){
                     $service_category .= " selected ";
                 }
@@ -2326,6 +2389,7 @@ class Partner extends CI_Controller {
         $partner_data = $this->partner_model->get_partner_code($partner_id);
         $partner_mapping_id = $partner_data[0]['price_mapping_id']; 
         $partner_type = $partner_data[0]['partner_type']; 
+        $assigned_vendor_id = $this->input->post("assigned_vendor_id");
         $result = array();
         if($partner_type == OEM){
             $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_mapping_id, $service_category,$brand);
@@ -2334,7 +2398,7 @@ class Partner extends CI_Controller {
         }
         if(!empty($result)){
           
-            $data = $this->miscelleneous->check_upcountry_vendor_availability($city, $pincode,$service_id);
+            $data = $this->miscelleneous->check_upcountry_vendor_availability($city, $pincode,$service_id, $assigned_vendor_id);
             switch ($data['message']){
                 case NOT_UPCOUNTRY_BOOKING:
                     $form_data['vendor_id'] = $data['vendor_id'];

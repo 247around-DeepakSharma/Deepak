@@ -131,9 +131,16 @@
               var total_amount_paid = 0;
               $("input[type=checkbox]:checked").each(function(i) {
               div = this.id .split('_');
-            
+              var amount_paid = $('#amount_paid_'+ div[1]).text();
               var tds_amount = $('#tds_'+ div[1]).text();
-              var pay = Number($('#pay_247'+ div[1]).text()) + Number($('#pay_partner'+ div[1]).text()) + Number($('#amount_paid_'+ div[1]).text());
+              if(amount_paid > 0){
+                  tds_amount = 0;
+              } 
+              var amount_partner_to_be_pay = $('#pay_partner'+ div[1]).text();
+              if(amount_partner_to_be_pay > 0){
+                  amount_paid = -Math.abs(amount_paid);
+              }
+              var pay = Number($('#pay_247'+ div[1]).text()) + Number(amount_partner_to_be_pay) + Number(amount_paid);
             
               
               total_amount_collected += Number(pay);

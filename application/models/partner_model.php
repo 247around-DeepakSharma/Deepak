@@ -231,7 +231,7 @@ class Partner_model extends CI_Model {
       */
      function getPending_booking($partner_id ,$booking_id = ''){
         $where = "";
-        $where .= " AND partner_id = '" . $partner_id . "'";
+        $where .= " AND booking_details.partner_id = '" . $partner_id . "'";
         if(!empty($booking_id)){
             $where .= " AND `booking_details`.booking_id = '".$booking_id."'";
         }
@@ -240,11 +240,12 @@ class Partner_model extends CI_Model {
 
           $query = $this->db->query("Select services.services,
             users.name as customername, users.phone_number,
-            booking_details.*
+            booking_details.*, status
 
             from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
+            LEFT JOIN spare_parts_details ON spare_parts_details.booking_id = booking_details.booking_id
 
             WHERE
             `booking_details`.booking_id NOT LIKE 'Q-%' $where AND
@@ -969,11 +970,9 @@ class Partner_model extends CI_Model {
      * 
      */
     function get_availiable_partner_code(){
-        //$sql = "Select Distinct code from bookings_sources";
         $this->db->distinct();
         $this->db->select('code');
         $query = $this->db->get('bookings_sources');
-        //$query = $this->db->query($sql);
         return $query->result_array();
     }
     

@@ -391,7 +391,7 @@ class Around_scheduler extends CI_Controller {
                 $html .= "</ol></body></html>";
                 
                 //Sending Details in Mail
-                $to = "belal@247around.com, anuj@247around.com, abhaya@247around.com";
+                $to = DEVELOPER_EMAIL;
                 $subject = " ERROR IN CRON TASK EXECUTION " . date("d-M-Y");
                 $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $html, "");
         }

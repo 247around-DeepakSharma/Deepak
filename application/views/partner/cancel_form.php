@@ -108,7 +108,7 @@ function check_text(){
                </div>
                
  
-                 <div class="col-md-6 col-md-offset-4">
+                 <div class="col-md-6 col-md-offset-2">
                   
                      <input type="submit" value="<?php if($status =="FollowUp"){ echo "Cancel Query "; } else { echo "Cancel Booking"; } ?>" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return(check_text())" class="btn btn-danger btn-large">
                     

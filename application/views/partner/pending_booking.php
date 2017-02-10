@@ -32,6 +32,7 @@
                                     <th>S No.</th>
                                     <th>Booking ID</th>
                                     <th>Call Type</th>
+                                    <th>Status</th>
                                     <th>User</th>
                                     <th>Mobile</th>
                                     <th>City</th>
@@ -50,7 +51,7 @@
                                         <?php echo $sn_no; ?>
                                     </td>
                                     <td >
-                                        <a style="color:black" href="<?php echo base_url();?>partner/booking_details/<?=$row->booking_id?>" target='_blank' title='View'> <?php
+                                        <a style="color:blue;" href="<?php echo base_url();?>partner/booking_details/<?=$row->booking_id?>" target='_blank' title='View'> <?php
                                             echo  $row->booking_id;
                                             
                                             ?></a>
@@ -71,7 +72,21 @@
                                             
                                             }  ?>
                                     </td>
-                                    <td>
+                                    <td><?php if(!empty($row->status)){
+                                        switch ($row->status){
+                                            case "Delivered":
+                                                echo 'Spare Parts Received By SF';
+                                                break;
+                                            case "Shipped":
+                                                echo 'Spare Parts Shipped By '. $this->session->userdata('partner_name');
+                                                break;
+                                            default :
+                                                echo $row->status;
+                                                break;
+                                            
+                                        }
+                                    } else { echo $row->current_status;}?></td>
+                                    <td> 
                                         <?=$row->customername;?>
                                     </td>
                                     <td>
