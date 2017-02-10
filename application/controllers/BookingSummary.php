@@ -530,12 +530,11 @@ EOD;
         $this->email->bcc($p['summary_email_bcc']);
 
         $this->email->subject("247around Services Report - " . $p['public_name'] . " - " . date('d-M-Y'));
-        $summary_table = $this->get_partner_summary_table($p['id']);
-            log_message('info', __FUNCTION__ . ' => Prepared summary report');
+        //$summary_table = $this->get_partner_summary_table($p['id']);
+        //log_message('info', __FUNCTION__ . ' => Prepared summary report');
 
         $message = "Dear Partner,<br/><br/>";
-        $message .= "Please find updated summary table below.<br/><br/>";
-        $message .= $summary_table;
+        $message .= "Please find Service Status Sheet attached for leads shared in last One Month, thanks.<br/><br/>";
         $message .= "<br><br>Best Regards,
                 <br>247around Team
                 <br><br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
