@@ -501,7 +501,8 @@ class Invoice extends CI_Controller {
 
                 $this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                 $this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
-
+                $tds = ($excel_data['total_installation_charge'] *.02);
+              
                 $invoice_details = array(
                     'invoice_id' => $invoice_id,
                     'type_code' => 'A',
@@ -514,16 +515,18 @@ class Invoice extends CI_Controller {
                     'from_date' => date("Y-m-d", strtotime($start_date)), //??? Check this next time, format should be YYYY-MM-DD
                     'to_date' => date("Y-m-d", strtotime($end_date)),
                     'num_bookings' => $count,
-                    'total_service_charge' => $excel_data['total_installation_charge'],
+                    'total_service_charge' => ($excel_data['total_installation_charge'] - $tds),
                     'total_additional_service_charge' => 0.00,
                     'service_tax' => $excel_data['total_service_tax'],
                     'parts_cost' => $excel_data['total_stand_charge'],
                     'vat' => $excel_data['total_charges'],
-                    'total_amount_collected' => $excel_data['total_charges'],
+                    'total_amount_collected' => ($excel_data['total_charges']- $tds),
+                    'tds_amount' =>$tds,
+                    'tds_rate' =>'2',
                     'rating' => 5,
                     'around_royalty' => $excel_data['total_charges'],
                     //Amount needs to be collected from Vendor
-                    'amount_collected_paid' => $excel_data['total_charges'],
+                    'amount_collected_paid' => ($excel_data['total_charges'] -$tds),
                 );
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
