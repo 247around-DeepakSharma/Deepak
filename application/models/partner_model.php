@@ -397,6 +397,7 @@ class Partner_model extends CI_Model {
     //Return all leads shared by Partner in the last 30 days in CSV
     function get_partner_leads_csv_for_summary_email($partner_id)
     {
+
         return $this->db->query(" SELECT DISTINCT '' as 'Unique id' , order_id AS 'Sub Order ID', BD.create_date AS 'Referred Date and Time',
                                          ud.appliance_brand AS 'Brand', IFNULL(model_number,'') AS 'Model', services AS 'Product',
                                         ud.appliance_description As 'Description',name As 'Customer', home_address AS 'Customer Address',
@@ -410,6 +411,8 @@ class Partner_model extends CI_Model {
                                         AND BD.partner_id = $partner_id AND
                                         BD.create_date > (CURDATE() - INTERVAL 1 MONTH) AND
                                         DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= 0"); 
+
+
 
     } 
     
