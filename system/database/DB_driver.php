@@ -1208,7 +1208,7 @@ class CI_DB_driver {
         }
         
         $CI->email->from('booking@247around.com', '247Around Team');
-        $CI->email->to('abhaya@247around.com, anuj@247around.com, belal@247around.com');
+        $CI->email->to(DEVELOPER_EMAIL);
         $CI->email->subject('Database Error');
         $CI->email->message($load_view);
 

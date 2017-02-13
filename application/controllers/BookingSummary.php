@@ -530,12 +530,11 @@ EOD;
         $this->email->bcc($p['summary_email_bcc']);
 
         $this->email->subject("247around Services Report - " . $p['public_name'] . " - " . date('d-M-Y'));
-        $summary_table = $this->get_partner_summary_table($p['id']);
-            log_message('info', __FUNCTION__ . ' => Prepared summary report');
+        //$summary_table = $this->get_partner_summary_table($p['id']);
+        //log_message('info', __FUNCTION__ . ' => Prepared summary report');
 
         $message = "Dear Partner,<br/><br/>";
-        $message .= "Please find updated summary table below.<br/><br/>";
-        $message .= $summary_table;
+        $message .= "Please find Service Status Sheet attached for leads shared in last One Month, thanks.<br/><br/>";
         $message .= "<br><br>Best Regards,
                 <br>247around Team
                 <br><br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
@@ -823,7 +822,7 @@ EOD;
         $html .= '</body>
                     </html>'; 
         
-        $to = "anuj@247around.com, nits@247around.com";
+        $to = NITS_ANUJ_EMAIL_ID;
         $this->notify->sendEmail("booking@247around.com", $to, "", "", "Booking Summary", $html, "");
          log_message('info',__FUNCTION__.'Booking Report mail sent.');
     }
@@ -1107,7 +1106,7 @@ EOD;
                         $view = $this->load->view('employee/get_crimes', $data, TRUE);
 
                         $to = $value['primary_contact_email'] . "," . $value['owner_email'];
-                        //$cc = "anuj@247around.com, nits@247around.com";
+                        //$cc = NITS_ANUJ_EMAIL_ID;
                         $cc = "";
                         $subject = $value['name'] . " - Bookings Not Updated Report - " . date("d-M-Y");
                         $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $view, "");
@@ -1141,7 +1140,7 @@ EOD;
         } else if($is_mail == 1){
             
             $view =  $this->load->view('employee/unassigned_table', $data, TRUE); 
-            $to = "anuj@247around.com, nits@247around.com";
+            $to = NITS_ANUJ_EMAIL_ID;
             $subject = "SF Engineer Assigned Report " . date("d-M-Y");
             $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $view, "");
         }

@@ -425,7 +425,7 @@ class vendor extends CI_Controller {
                         $html .= " ".$value.'</li>';
                     }
                     $html .="</ul>";
-                    $to = "anuj@247around.com";
+                    $to = ANUJ_EMAIL_ID;
                     
                     //Cleaning Email Variables
                         $this->email->clear(TRUE);
@@ -576,7 +576,7 @@ class vendor extends CI_Controller {
                         $html .= " ".$value.'</li>';
                     }
                     $html .="</ul>";
-                    $to = "anuj@247around.com";
+                    $to = ANUJ_EMAIL_ID;
                     
                     //Cleaning Email Variables
                         $this->email->clear(TRUE);
@@ -1133,7 +1133,7 @@ class vendor extends CI_Controller {
         $bcc_poc = $this->input->post('bcc_poc');
         $bcc_owner = $this->input->post('bcc_owner');
         $mail_to = $this->input->post('mail_to');
-        $to = 'anuj@247around.com, nits@247around.com, sales@247around.com,' . $mail_to;
+        $to = NITS_ANUJ_EMAIL_ID.', sales@247around.com,' . $mail_to;
 	$cc = $this->input->post('mail_cc');
 
 	$subject = $this->input->post('subject');
@@ -1745,7 +1745,7 @@ class vendor extends CI_Controller {
         $vendor_info = $this->vendor_model->viewvendor($id);
         $to = $vendor_info[0]['owner_email'] . ', ';
         $to .= $vendor_info[0]['primary_contact_email'];
-        $cc = 'anuj@247around.com, nits@247around.com';
+        $cc = NITS_ANUJ_EMAIL_ID;
         $subject = $this->input->post('subject');
         $raw_message = $this->input->post('mail_body');
 
@@ -2572,7 +2572,7 @@ class vendor extends CI_Controller {
                     if (isset($temp)) {
                         $emailBody = vsprintf($email_template[0]['body'], $temp);
                         //Sending Mail
-                        $this->notify->sendEmail($email_template[0]['from'], $to, 'belal@247around.com', '', $email_template[0]['subject'], $emailBody, $attachment);
+                        $this->notify->sendEmail($email_template[0]['from'], $to, '', '', $email_template[0]['subject'], $emailBody, $attachment);
                         //Loggin send mail details
                         log_message('info', __FUNCTION__ . ' Mail send to the following vendor ID ' . $partner_details[0]['id']);
                         //Set Flag to check success or error of AJAX call

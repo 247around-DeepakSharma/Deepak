@@ -1490,7 +1490,6 @@ INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`
 
 INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'un-cancel_brackets_requested_from_vendor', 'An order has been <b>Un-Cancelled</b> for Brackets of <strong>Order ID : %s </strong><br><br> <strong>Order Details:</strong><br><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Total Requested : %s<br><br> <strong>Requested From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br> Phone Number: %s, %s<br><br> Please <b>ship</b> the following orders.', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com,vijaya@247around.com', '', '1', '2016-09-26 18:30:00');
 
-HEAD
 ----Abhay 27 Dec
 ALTER TABLE  `agent_outbound_call_log` ADD  `call_duration` INT( 50 ) NULL DEFAULT NULL ;
 
@@ -1960,3 +1959,6 @@ ALTER TABLE `partners` CHANGE `registration_no` `registration_no` VARCHAR(50) CH
 ALTER TABLE `partners` CHANGE `upcountry_rate` `upcountry_rate` INT(11) NULL DEFAULT NULL;
 ALTER TABLE `bookings_sources` CHANGE `partner_email_for_to` `partner_email_for_to` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
 ALTER TABLE `bookings_sources` CHANGE `partner_email_for_cc` `partner_email_for_cc` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+=======
+-- ANUJ 10 Feb
+ALTER TABLE  `vendor_partner_invoices` ADD  `penalty_bookings_count` INT NOT NULL COMMENT  'On how many bookings penalty is imposed?' AFTER `upcountry_price` ;

@@ -1344,7 +1344,8 @@ class Api extends CI_Controller {
             if (count($bookings) > 0) {
                 foreach ($bookings as $b) {
                     if (($b['type'] === 'Query' && $b['current_status'] === 'FollowUp') ||
-                            $b['current_status'] === "Cancelled" && $b['type'] === 'Query') {
+                            $b['current_status'] === "Cancelled" && $b['type'] === 'Query' &&
+                            (date('Y-m-d', strtotime($b['create_date'])) > date('Y-m-d',strtotime('-30 days')))) {
                         $d = array('internal_status' => 'Missed_call_confirmed',
                             'booking_date' => '', 'booking_timeslot' => '',
                             'delivery_date' => date('Y-m-d H:i:s'),
@@ -1598,7 +1599,7 @@ class Api extends CI_Controller {
 	if ($isTesting) {
             $this->email->to("anuj.aggarwal@gmail.com");
         } else {
-            $this->email->to("nits@247around.com, anuj@247around.com");
+            $this->email->to(NITS_ANUJ_EMAIL_ID);
             //$this->email->cc("anuj.aggarwal@gmail.com");
 	}
 
@@ -1630,10 +1631,10 @@ class Api extends CI_Controller {
 
 	if ($isTesting) {
             $this->email->to($user);
-            $this->email->bcc("anuj@247around.com");
+            $this->email->bcc(ANUJ_EMAIL_ID);
         } else {
             $this->email->to($user);
-            $this->email->bcc("nits@247around.com, anuj@247around.com");
+            $this->email->bcc(NITS_ANUJ_EMAIL_ID);
 	}
 
         $this->email->subject($subject);
