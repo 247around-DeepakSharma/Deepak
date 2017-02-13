@@ -663,7 +663,7 @@ class Partner extends CI_Controller {
                     $html .= " ".$value.'</li>';
                 }
                 $html .="</ul>";
-                $to = "anuj@247around.com";
+                $to = ANUJ_EMAIL_ID;
                 $attachment = "";
                 //Cleaning Email Variables
                         $this->email->clear(TRUE);
@@ -801,7 +801,7 @@ class Partner extends CI_Controller {
                         $html .= " ".$value.'</li>';
                     }
                     $html .="</ul>";
-                    $to = "anuj@247around.com";
+                    $to = ANUJ_EMAIL_ID;
                     
                     //Cleaning Email Variables
                         $this->email->clear(TRUE);

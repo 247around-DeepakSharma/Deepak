@@ -174,7 +174,7 @@ class vendor_partner_invoice extends CI_Controller {
 		//$to = 'anuj.aggarwal@gmail.com';
 		$this->email->to($to);
 
-		$cc = "billing@247around.com, nits@247around.com, anuj@247around.com";
+		$cc = "billing@247around.com, ".NITS_ANUJ_EMAIL_ID;
 		$this->email->cc($cc);
 
 		$subject = "247around - " . $sc['name'] . " - Invoice for period: " . $start_date . " To " . $end_date;
@@ -416,7 +416,7 @@ class vendor_partner_invoice extends CI_Controller {
 		$to = $sc['owner_email'] . ", " . $sc['primary_contact_email'];
 		$this->email->to($to);
 
-		$cc = "billing@247around.com, nits@247around.com, anuj@247around.com";
+		$cc = "billing@247around.com, ".NITS_ANUJ_EMAIL_ID;
 		$this->email->cc($cc);
 
 		$subject = "247around - " . $sc['name'] . " - Invoice for period: " . $start_date . " To " . $end_date;
@@ -650,7 +650,7 @@ class vendor_partner_invoice extends CI_Controller {
 		//$to = 'anuj.aggarwal@gmail.com';
 		$this->email->to($to);
 
-		$cc = "billing@247around.com, nits@247around.com, anuj@247around.com";
+		$cc = "billing@247around.com, ".NITS_ANUJ_EMAIL_ID;
 		$this->email->cc($cc);
 
 		$subject = "247around - " . $sc['name'] . " - Invoice for period: " . $start_date . " To " . $end_date;
