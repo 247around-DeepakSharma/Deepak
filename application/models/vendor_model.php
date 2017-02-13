@@ -986,19 +986,20 @@ class vendor_model extends CI_Model {
      *  @return : void
      */
     function delete_previous_service_center_action($booking_id) {
-        $this->db->select('*');
-        $this->db->where('booking_id', $booking_id);
-        $query = $this->db->get('service_center_booking_action');
-        if ($query->num_rows() > 0) {
-            $result = $query->result_array();
-	    log_message('info', __METHOD__ . "=> Booking ID: " . $booking_id . "=> Old vendor data " .
-		print_r($result, TRUE));
+        if (!empty($booking_id) || $booking_id != "0") {
+            $this->db->select('*');
+            $this->db->where('booking_id', $booking_id);
+            $query = $this->db->get('service_center_booking_action');
+            if ($query->num_rows() > 0) {
+                $result = $query->result_array();
+                log_message('info', __METHOD__ . "=> Booking ID: " . $booking_id . "=> Old vendor data " .
+                        print_r($result, TRUE));
 
-	    $this->db->where('booking_id', $booking_id);
-        $this->db->delete("service_center_booking_action");
-        log_message('info', __METHOD__ . "=> Delete SQL: " . $this->db->last_query() );
-
-       }
+                $this->db->where('booking_id', $booking_id);
+                $this->db->delete("service_center_booking_action");
+                log_message('info', __METHOD__ . "=> Delete SQL: " . $this->db->last_query());
+            }
+        }
     }
 
     /**
@@ -1136,18 +1137,22 @@ class vendor_model extends CI_Model {
         return $this->db->insert_id();
     }
 
-    function delete_vendor($data){
-        $this->db->where('Appliance_ID', $data['Appliance_ID']);
-        $this->db->where('Pincode', $data['Pincode']);
-        $this->db->where('Vendor_ID', $data['Vendor_ID']);
-        $this->db->delete('vendor_pincode_mapping'); 
-        if($this->db->affected_rows() > 0){
-            return true;
-        }else{
+    function delete_vendor($data) {
+        if (!empty($data)) {
+            $this->db->where('Appliance_ID', $data['Appliance_ID']);
+            $this->db->where('Pincode', $data['Pincode']);
+            $this->db->where('Vendor_ID', $data['Vendor_ID']);
+            $this->db->delete('vendor_pincode_mapping');
+            if ($this->db->affected_rows() > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
             return false;
         }
-    }  
-    
+    }
+
     /**
      *  @desc: get all data from vendor_pincode_mapping
      *
