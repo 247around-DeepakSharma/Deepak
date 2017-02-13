@@ -67,9 +67,9 @@ class partner_sd_cb {
                 "vendorCode" => VENDOR_CODE,
                 "caseId" => $data['booking_id'],
                 "orderId" => $data['order_id'],
-                "vendorStatus" => $data['current_status'],
+                "vendorStatus" => $data['partner_current_status'],
                 "remarks" => $data['internal_status'],
-                "caseStatus" =>$data['partner_current_status']
+                "caseStatus" =>$data['partner_internal_status']
             );
 
             return $this->post_data($postData);
@@ -107,8 +107,8 @@ class partner_sd_cb {
                 "vendorCode" => VENDOR_CODE,
                 "caseId" => $data['booking_id'],
                 "orderId" => $data['order_id'],
-                "vendorStatus" => $data['current_status'],
-                "caseStatus" =>$data['partner_current_status'],
+                "vendorStatus" => $data['partner_current_status'],
+                "caseStatus" =>$data['partner_internal_status'],
                 'remarks' => $data['cancellation_reason']
             );
             
@@ -149,8 +149,8 @@ class partner_sd_cb {
                 "vendorCode" => VENDOR_CODE,
                 "caseId" => $data['booking_id'],
                 "orderId" => $data['order_id'],
-                "caseStatus" =>$data['partner_current_status'],
-                "vendorStatus" => $data['current_status'],
+                "caseStatus" =>$data['partner_internal_status'],
+                "vendorStatus" => $data['partner_current_status'],
                 "callType" => $data['internal_status'],
                 "startDate" => $delDate
             );
@@ -192,8 +192,8 @@ class partner_sd_cb {
                 "vendorCode" => VENDOR_CODE,
                 "caseId" => $data['booking_id'],
                 "orderId" => $data['order_id'],
-                "caseStatus" =>$data['partner_current_status'],
-                "vendorStatus" => $data['current_status'],
+                "caseStatus" =>$data['partner_internal_status'],
+                "vendorStatus" => $data['partner_current_status'],
                 "remarks" => $data['internal_status'],
                 "startDate" => $delDate['tsStart'],
                 "endDate" => $delDate['tsEnd']

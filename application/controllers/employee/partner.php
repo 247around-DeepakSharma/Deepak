@@ -514,11 +514,11 @@ class Partner extends CI_Controller {
         $checkValidation = $this->check_partner_Validation();
         if ($checkValidation) {
             $bookings_sources['partner_type'] = $this->input->post('partner_type');
-            unset($_POST['partner_type']);
             // Used when we edit a particular Partner
             if (!empty($this->input->post('id'))) {
                 //if vendor exists, details are edited
                 $partner_id = $this->input->post('id');
+                $edit_partner_data['partner'] = $this->get_partner_form_data($this->input->post());
                 
                 //Processing Contract File
                 if(($_FILES['contract_file']['error'] != 4) && !empty($_FILES['contract_file']['tmp_name'])){
@@ -530,7 +530,7 @@ class Partner extends CI_Controller {
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "vendor-partner-docs/".$contract_file;
                     $this->s3->putObjectFile(TMP_FOLDER.$contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $_POST['contract_file'] = $contract_file;
+                    $edit_partner_data['partner']['contract_file'] = $contract_file;
                     
                     $attachment_contract = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$contract_file;
                     
@@ -548,7 +548,7 @@ class Partner extends CI_Controller {
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "vendor-partner-docs/".$pan_file;
                     $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $_POST['pan_file'] = $pan_file;
+                    $edit_partner_data['partner']['pan_file'] = $pan_file;
                     
                     $attachment_pan = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$pan_file;
                     
@@ -566,7 +566,7 @@ class Partner extends CI_Controller {
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "vendor-partner-docs/".$registration_file;
                     $this->s3->putObjectFile(TMP_FOLDER.$registration_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $_POST['registration_file'] = $registration_file;
+                    $edit_partner_data['partner']['registration_file'] = $registration_file;
                     
                     $attachment_registration_file = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$registration_file;
                     
@@ -579,16 +579,15 @@ class Partner extends CI_Controller {
                 if(isset($upcountry) && $upcountry == 'on')
                 {
                     //Setting Flag as 1
-                    $_POST['is_upcountry'] = 1;
+                    $edit_partner_data['partner']['is_upcountry'] = 1;
                 }
                 
                 //Getting partner operation regions details from POST
                 $partner_operation_state = $this->input->post('select_state');
-                unset($_POST['select_state']);
                 
-                //Agreement End Date - Checking (If Not Present unset from POST)
-                if(empty($this->input->post('agreement_end_date'))){
-                    unset($_POST['agreement_end_date']);
+                //Agreement End Date - Checking (If  Present or not)
+                if(!empty($this->input->post('agreement_end_date'))){
+                    $edit_partner_data['partner']['agreement_end_date'] = $this->input->post('agreement_end_date');
                 }
                
                 //Where Clause
@@ -603,8 +602,6 @@ class Partner extends CI_Controller {
                     }else{
                         log_message('info',' Error in Updating Parnter code has been added in Bookings_sources table '.print_r($bookings_sources,TRUE));
                     }
-                //Unsetting partner code
-                unset($_POST['partner_code']);
                 
                 //Updating Partner Operation Region
                 //Processing Partner Operation Region
@@ -646,7 +643,7 @@ class Partner extends CI_Controller {
                         log_message('error', __FUNCTION__ . ' No Input provided for Partner Operation Region Relation  ');
                     }
                     
-                $this->partner_model->edit_partner($this->input->post(), $partner_id);
+                $this->partner_model->edit_partner($edit_partner_data['partner'], $partner_id);
                 
                 //Getting Logged Employee Full Name
                 $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
@@ -663,7 +660,7 @@ class Partner extends CI_Controller {
                     $html .= " ".$value.'</li>';
                 }
                 $html .="</ul>";
-                $to = "anuj@247around.com";
+                $to = ANUJ_EMAIL_ID;
                 $attachment = "";
                 //Cleaning Email Variables
                         $this->email->clear(TRUE);
@@ -693,7 +690,33 @@ class Partner extends CI_Controller {
 
                 redirect(base_url() . 'employee/partner/viewpartner', 'refresh');
             }else{
+                
                 //If Partner not present, Partner is being added
+                $return_data['partner'] = $this->get_partner_form_data($this->input->post());
+                $return_data['partner']['is_active'] = '1';
+                $return_data['partner']['is_verified'] = '1';
+                
+                //Temporary value
+                $return_data['partner']['auth_token'] = substr(md5(rand(1,100)), 0, 16);
+                
+                //Agreement End Date - Checking (If Not Present don't insert)
+                if(!empty($this->input->post('agreement_end_date'))){
+                    $return_data['partner']['agreement_end_date']= $this->input->post('agreement_end_date');
+                }
+                
+                //Checking for Upcountry
+                $upcountry = $this->input->post('is_upcountry');
+                if(isset($upcountry) && $upcountry == 'on')
+                {
+                    //Setting Flag as 1
+                    $return_data['partner']['is_upcountry'] = 1;
+                }
+                
+                //Getting partner operation regions details from POST
+                $partner_operation_state = $this->input->post('select_state');
+               
+                //Getting Partner code
+                $code = $this->input->post('partner_code');
                 
                 //Processing Contract File
                 if(($_FILES['contract_file']['error'] != 4) && !empty($_FILES['contract_file']['tmp_name'])){
@@ -705,7 +728,7 @@ class Partner extends CI_Controller {
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "vendor-partner-docs/".$contract_file;
                     $this->s3->putObjectFile(TMP_FOLDER.$contract_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $_POST['contract_file'] = $contract_file;
+                    $return_data['partner']['contract_file'] = $contract_file;
                     
                     $attachment_contract = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$contract_file;
                     
@@ -723,7 +746,7 @@ class Partner extends CI_Controller {
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "vendor-partner-docs/".$pan_file;
                     $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $_POST['pan_file'] = $pan_file;
+                    $return_data['partner']['pan_file'] = $pan_file;
                     
                     $attachment_pan = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$pan_file;
                     
@@ -741,45 +764,17 @@ class Partner extends CI_Controller {
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "vendor-partner-docs/".$registration_file;
                     $this->s3->putObjectFile(TMP_FOLDER.$registration_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $_POST['registration_file'] = $registration_file;
+                    $return_data['partner']['registration_file'] = $registration_file;
                     
                     $attachment_registration_file = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$registration_file;
                     
                     //Logging success for file uppload
                     log_message('info',__FUNCTION__.' Registration FILE is being uploaded sucessfully.');
                 }
-                
-                
-                $_POST['is_active'] = '1';
-                $_POST['is_verified'] = '1';
-                //Temporary value
-                $_POST['auth_token'] = substr(md5(rand(1,100)), 0, 16);
-                
-                //Agreement End Date - Checking (If Not Present unset from POST)
-                if(empty($this->input->post('agreement_end_date'))){
-                    unset($_POST['agreement_end_date']);
-                }
-                
-                //Checking for Upcountry
-                $upcountry = $this->input->post('is_upcountry');
-                if(isset($upcountry) && $upcountry == 'on')
-                {
-                    //Setting Flag as 1
-                    $_POST['is_upcountry'] = 1;
-                }
-                
-                //Getting partner operation regions details from POST
-                $partner_operation_state = $this->input->post('select_state');
-                unset($_POST['select_state']);
                
-                //Getting Partner code
-                $code = $this->input->post('partner_code');
-                //unsetting Partner code
-                unset($_POST['partner_code']);
                 
-                //Sending POST array to Model
-                print("<pre>".  print_r($this->input->post(),true)."</pre>");exit();
-                $partner_id = $this->partner_model->add_partner($this->input->post());
+                //Sending data array to Model
+                $partner_id = $this->partner_model->add_partner($return_data['partner']);
                 //Set Flashdata on success or on Error of Data insert in table
                 if(!empty($partner_id)){
                     $this->session->set_flashdata('success','Partner added successfully.');
@@ -801,7 +796,7 @@ class Partner extends CI_Controller {
                         $html .= " ".$value.'</li>';
                     }
                     $html .="</ul>";
-                    $to = "anuj@247around.com";
+                    $to = ANUJ_EMAIL_ID;
                     
                     //Cleaning Email Variables
                         $this->email->clear(TRUE);
@@ -894,6 +889,36 @@ class Partner extends CI_Controller {
         } else {
             $this->get_add_partner_form();
         }
+
+    }
+    
+    function get_partner_form_data($data){
+        $return_data['company_name']=$this->input->post('company_name');
+        $return_data['company_type']=$this->input->post('company_type');
+        $return_data['public_name']=$this->input->post('public_name');
+        $return_data['address']=$this->input->post('address');
+        $return_data['landmark']=$this->input->post('landmark');
+        $return_data['state']=$this->input->post('state');
+        $return_data['district']=$this->input->post('district');
+        $return_data['pincode']=$this->input->post('pincode');
+        $return_data['primary_contact_name']=$this->input->post('primary_contact_name');
+        $return_data['primary_contact_email']=$this->input->post('primary_contact_email');
+        $return_data['primary_contact_phone_1']=$this->input->post('primary_contact_phone_1');
+        $return_data['primary_contact_phone_2']=$this->input->post('primary_contact_phone_2');
+        $return_data['owner_name']=$this->input->post('owner_name');
+        $return_data['owner_email']=$this->input->post('owner_email');
+        $return_data['owner_alternate_email']=$this->input->post('owner_alternate_email');
+        $return_data['owner_phone_1']=$this->input->post('owner_phone_1');
+        $return_data['owner_phone_2']=$this->input->post('owner_phone_2');
+        $return_data['summary_email_to']=$this->input->post('summary_email_to');
+        $return_data['summary_email_cc']=$this->input->post('summary_email_cc');
+        $return_data['invoice_email_to']=$this->input->post('invoice_email_to');
+        $return_data['invoice_email_cc']=$this->input->post('invoice_email_cc');
+        $return_data['pan']=$this->input->post('pan');
+        $return_data['registration_no']=$this->input->post('registration_no');
+//        $partner_data_final['partner'] = $return_data;
+        
+        return $return_data;
 
     }
 
@@ -2675,6 +2700,68 @@ class Partner extends CI_Controller {
                 $this->booking_model->update_booking_unit_details($value['bookng_id'], array('booking_status' => 'Cancelled'));
                 $this->notify->insert_state_change($value['booking_id'], UPCOUNTRY_CHARGES_NOT_APPROVED, _247AROUND_PENDING, "Upcountry Charges Rejected From " . "AUTO ", $agent_id, $agent_name, $partner_id);
             }
+        }
+    }
+    
+    /**
+     * @desc: This method is used to show the partner brand logo upload from
+     * @param: void
+     * @return:void
+     */
+    function upload_partner_brand_logo(){
+        $data['partner'] = $this->partner_model->get_all_partner_source("0");
+        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
+        $this->load->view('employee/upload_partner_brand_logo',$data);
+    }
+    
+     /**
+     * @desc: This method is used to insert the partner brand logo into database
+     * @param: void
+     * @return:void
+     */
+    function process_upload_partner_brand_logo(){
+        if($_FILES['partner_brand_logo']['error'] != 4 && !empty($_FILES['partner_brand_logo']['tmp_name'])){
+            //check if partner name is select or not
+            if($this->input->post('partner_name')){
+                $tmpFile = $_FILES['partner_brand_logo']['tmp_name'];
+                $ext = pathinfo($_FILES['partner_brand_logo']['name'], PATHINFO_EXTENSION);
+                $partner_name = trim($this->input->post('partner_name'));
+                $fileName = $partner_name.'.'.$ext;
+                move_uploaded_file($tmpFile, TMP_FOLDER.$fileName);
+
+                //Uploading images to S3 
+                $bucket = BITBUCKET_DIRECTORY;
+                $directory = "misc-images/" . $fileName;
+                $this->s3->putObjectFile(TMP_FOLDER.$fileName, $bucket, $directory, S3::ACL_PUBLIC_READ);
+
+                $data['partner_id']=$this->input->post('partner');
+                $data['partner_logo'] = 'images/'.$fileName;
+                $data['alt_text'] = $partner_name;
+                
+                //insert partner brand logo path into database
+                $res = $this->partner_model->upload_partner_brand_logo($data);
+                if($res){
+                    $userSession = array('success' => 'Partner Logo has been inserted successfully');
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "employee/partner/upload_partner_brand_logo");
+                }
+                else{
+                    $userSession = array('failed' => 'Error in Inerting Partner Logo. Please Try Again...');
+                    $this->session->set_userdata($userSession);
+                    redirect(base_url() . "employee/partner/upload_partner_brand_logo");
+                }
+            }
+            else{
+                $userSession = array('failed' => 'Please Select Partner Name');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "employee/partner/upload_partner_brand_logo");
+                
+            }
+        }
+        else{
+            $userSession = array('failed' => 'Please Enter Valid Image');
+            $this->session->set_userdata($userSession);
+            redirect(base_url() . "employee/partner/upload_partner_brand_logo");
         }
     }
    
