@@ -69,7 +69,7 @@ class Miscelleneous {
                     $booking_pincode, $data1);
             
         } else {
-            $msg['message'] = SF_NOT_EXIT;
+            $msg['message'] = SF_DOES_NOT_EXIST;
             return $msg;
         }
         

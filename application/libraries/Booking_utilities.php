@@ -533,34 +533,23 @@ class Booking_utilities {
      * return :array
      *
      */
-    function get_partner_status_mapping_data($current_status, $internal_status,$partner_id="", $booking_id=""){
+    function get_partner_status_mapping_data($current_status, $internal_status, $partner_id = "", $booking_id = "") {
+        $partner_status = $this->My_CI->booking_model->get_partner_status($partner_id, $current_status, $internal_status);
 
-        $partner_status= $this->My_CI->booking_model->get_partner_status($partner_id,$current_status,$internal_status);
-        
-        if(!empty($partner_status[0]['partner_current_status']) && !empty($partner_status[0]['partner_internal_status'])){
+        if (!empty($partner_status[0]['partner_current_status']) && !empty($partner_status[0]['partner_internal_status'])) {
             $booking['partner_current_status'] = $partner_status[0]['partner_current_status'];
             $booking['partner_internal_status'] = $partner_status[0]['partner_internal_status'];
-        }else{
-            if(substr($booking_id,0,2) == 'Q-'){
-                $booking['partner_current_status'] = $current_status;
-                $booking['partner_internal_status'] = $current_status;
-                
-                $this->send_mail_When_no_data_found($current_status,$internal_status,$booking_id, $partner_id);
-                
-            }else{
-                $booking['partner_current_status'] = $current_status;
-                $booking['partner_internal_status'] = $current_status;
-                
-                $this->send_mail_When_no_data_found($current_status,$internal_status,$booking_id, $partner_id);
-            }
-            
+        } else {
+            $booking['partner_current_status'] = $current_status;
+            $booking['partner_internal_status'] = $current_status;
+
+            $this->send_mail_When_no_data_found($current_status, $internal_status, $booking_id, $partner_id);
         }
-        
-        return array($booking['partner_current_status'],$booking['partner_internal_status']);
+
+        return array($booking['partner_current_status'], $booking['partner_internal_status']);
     }
 
-   
-   /*
+    /*
      * @desc: This function is used to create report for service centers who is new (withins 2 months old)
      * params: String sf list
      * return :void
