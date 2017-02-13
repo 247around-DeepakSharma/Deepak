@@ -663,7 +663,7 @@ class Partner extends CI_Controller {
                     $html .= " ".$value.'</li>';
                 }
                 $html .="</ul>";
-                $to = "anuj@247around.com";
+                $to = ANUJ_EMAIL_ID;
                 $attachment = "";
                 //Cleaning Email Variables
                         $this->email->clear(TRUE);
@@ -800,7 +800,7 @@ class Partner extends CI_Controller {
                         $html .= " ".$value.'</li>';
                     }
                     $html .="</ul>";
-                    $to = "anuj@247around.com";
+                    $to = ANUJ_EMAIL_ID;
                     
                     //Cleaning Email Variables
                         $this->email->clear(TRUE);
@@ -1165,6 +1165,7 @@ class Partner extends CI_Controller {
         $data['closed_date'] = $data['update_date'] = date("Y-m-d H:i:s");
         $data['current_status'] = _247AROUND_CANCELLED;
         $data['internal_status'] = $data['cancellation_reason'] = $this->input->post('cancellation_reason');
+        $data['closing_remarks'] = $this->input->post('remarks');
         
         //check partner status from partner_booking_status_mapping table  
         $partner_id = $this->input->post("partner_id");
@@ -1186,7 +1187,7 @@ class Partner extends CI_Controller {
                 //Update this booking in vendor action table
                 $data_vendor['update_date'] = date("Y-m-d H:i:s");
                 $data_vendor['current_status'] = $data_vendor['internal_status'] = _247AROUND_CANCELLED;
-               
+
                 $this->vendor_model->update_service_center_action($booking_id, $data_vendor);
             }
 

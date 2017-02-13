@@ -345,7 +345,7 @@ class Partner extends CI_Controller {
                            
                         
                         if (empty($state['state'])) {
-			    $to = "anuj@247around.com, nits@247around.com";
+			    $to = NITS_ANUJ_EMAIL_ID;
 			    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
 			    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
 			}

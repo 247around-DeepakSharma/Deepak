@@ -405,7 +405,7 @@ class Around_scheduler extends CI_Controller {
         $subject = "ACL Balance Credits - " . date("d-M-Y");
         $message = system('elinks -dump "https://push3.maccesssmspush.com/servlet/com.aclwireless.pushconnectivity.listeners.ConfigurationListener?action=prepaid&userid=blackmalt&pass=blackmalt67&appid=blackmalt&subappid=blackmalt"');
         
-        $to = "anuj@247around.com";
+        $to = ANUJ_EMAIL_ID;
         $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
     }
 
