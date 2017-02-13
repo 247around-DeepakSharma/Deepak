@@ -243,8 +243,10 @@ class Service_centers_model extends CI_Model {
     }
 
     function delete_booking_id($booking_id) {
-        $this->db->where('booking_id', $booking_id);
-        $this->db->delete('service_center_booking_action');
+        if(!empty($booking_id) || $booking_id !="0"){
+            $this->db->where('booking_id', $booking_id);
+            $this->db->delete('service_center_booking_action');
+        }
         log_message('info', __FUNCTION__ . '=> Delete booking id in sc table: ' .$this->db->last_query());
         return TRUE;
     }
@@ -490,8 +492,10 @@ class Service_centers_model extends CI_Model {
     }
     
     function delete_sc_unit_details($where){
-        $this->db->where($where);
-        $this->db->delete('service_center_booking_action');
+        if(!empty($where)){
+            $this->db->where($where);
+            $this->db->delete('service_center_booking_action');
+        }
         log_message('info', __FUNCTION__ . '=> Delete sc unit details: ' .$this->db->last_query());
     }
 
