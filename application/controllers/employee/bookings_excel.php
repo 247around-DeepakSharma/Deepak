@@ -253,7 +253,7 @@ class bookings_excel extends CI_Controller {
 		$state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
 		$booking['state'] = $state['state'];
 		if (empty($booking['state'])) {
-		    $to = "anuj@247around.com, nits@247around.com";
+		    $to = NITS_ANUJ_EMAIL_ID;
 		    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
 		    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
 		}
@@ -535,7 +535,7 @@ class bookings_excel extends CI_Controller {
 		$state = $this->vendor_model->get_state_from_pincode($rowData[0]['Pincode']);
 		$booking['state'] = $state['state'];
 		if (empty($booking['state'])) {
-		    $to = "anuj@247around.com, nits@247around.com";
+		    $to = NITS_ANUJ_EMAIL_ID;
 		    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
 		    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
 		}
@@ -778,7 +778,7 @@ class bookings_excel extends CI_Controller {
 		$booking['state'] = $rowData[0]['CustomerState'];
 
 		if (empty($booking['state'])) {
-		    $to = "anuj@247around.com, nits@247around.com";
+		    $to = NITS_ANUJ_EMAIL_ID;
 		    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
 		    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
 		}

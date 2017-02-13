@@ -1598,7 +1598,7 @@ class Api extends CI_Controller {
 	if ($isTesting) {
             $this->email->to("anuj.aggarwal@gmail.com");
         } else {
-            $this->email->to("nits@247around.com, anuj@247around.com");
+            $this->email->to(NITS_ANUJ_EMAIL_ID);
             //$this->email->cc("anuj.aggarwal@gmail.com");
 	}
 
@@ -1630,10 +1630,10 @@ class Api extends CI_Controller {
 
 	if ($isTesting) {
             $this->email->to($user);
-            $this->email->bcc("anuj@247around.com");
+            $this->email->bcc(ANUJ_EMAIL_ID);
         } else {
             $this->email->to($user);
-            $this->email->bcc("nits@247around.com, anuj@247around.com");
+            $this->email->bcc(NITS_ANUJ_EMAIL_ID);
 	}
 
         $this->email->subject($subject);

@@ -426,7 +426,7 @@ class bookingjobcard extends CI_Controller {
 
             $to = $servicecentredetails[0]['primary_contact_email'];
             $owner = $servicecentredetails[0]['owner_email'];
-            $cc .= ($owner . ', anuj@247around.com, nits@247around.com');
+            $cc .= ($owner . ', '. NITS_ANUJ_EMAIL_ID);
             $from = "booking@247around.com";
             $bcc = "";
             $attachment = "";

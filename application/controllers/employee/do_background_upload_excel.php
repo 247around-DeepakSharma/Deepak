@@ -210,7 +210,7 @@ class Do_background_upload_excel extends CI_Controller {
      * @param boolean $validation
      */
     function send_mail_column($subject, $message, $validation){
-        $to = "anuj@247around.com, nits@247around.com, sales@247around.com";
+        $to = NITS_ANUJ_EMAIL_ID.", sales@247around.com";
         $from = "booking@247around.com";
         $cc = "abhaya@247around.com";
         $bcc = "";
@@ -978,7 +978,7 @@ class Do_background_upload_excel extends CI_Controller {
      */
     function get_invalid_data($invalid_data_with_reason, $filetype, $file_name) {
         
-	$to = "anuj@247around.com, nits@247around.com, sales@247around.com";
+	$to = NITS_ANUJ_EMAIL_ID.", sales@247around.com";
 	$from = "booking@247around.com";
 	$cc = "abhaya@247around.com";
 	$bcc = "";
