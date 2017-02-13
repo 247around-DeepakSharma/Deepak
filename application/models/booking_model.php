@@ -2244,12 +2244,12 @@ class Booking_model extends CI_Model {
         
     }
     /**
-     * @desc TThis is used to get those upcountry bookings who have waiting to approval (Two days old booking)
+     * @desc TThis is used to get those upcountry bookings who have waiting to approval (Three days old booking)
      * @return type
      */
     function get_booking_to_cancel_not_approved_upcountry(){
         $sql =" SELECT booking_id,partner_id FROM booking_details where "
-                . " DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > -2 "
+                . " DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > -3 "
                 . " AND current_status IN ('Pending', 'Rescheduled') AND is_upcountry = '1' AND upcountry_partner_approved = '0' ";
         $query = $this->db->query($sql);
         return $query->result_array();      

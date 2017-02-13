@@ -451,18 +451,21 @@ class Do_background_upload_excel extends CI_Controller {
 
                             //Send SMS to customers regarding delivery confirmation through missed call for delivered file only
                             //Check whether vendor is available or not
-                            // if ($file_type == "delivered") {
-                                $vendors = $this->vendor_model->check_vendor_availability($booking['booking_pincode'], $booking['service_id']);
-                                $vendors_count = count($vendors);
+                            $vendors = $this->vendor_model->check_vendor_availability($booking['booking_pincode'], $booking['service_id']);
+                            $vendors_count = count($vendors);
 
-                                if ($vendors_count > 0) {
-                                    $this->send_sms_to_snapdeal_customer($value['appliance'],
-                                            $booking['booking_primary_contact_no'], $user_id,
-                                            $booking['booking_id'], $file_type, $unit_details['appliance_category']);
-                                } else { //if ($vendors_count > 0) {
-                                    log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
-                                }
-                            // }   //if ($file_type == "delivered") {
+                            if ($vendors_count > 0) {
+                                $this->send_sms_to_snapdeal_customer($value['appliance'],
+                                        $booking['booking_primary_contact_no'], $user_id,
+                                        $booking['booking_id'], $file_type, $unit_details['appliance_category']);
+                            } else { //if ($vendors_count > 0) {
+                                //update booking
+                                $booking_data['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
+                                $this->booking_model->update_booking($booking['booking_id'], $booking_data);
+
+                                log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
+                            }
+                            
 			} else {
 			    log_message('info', __FUNCTION__ . ' => ERROR: Booking is not inserted in booking details: ' 
                                     . print_r($value, true));
@@ -543,6 +546,8 @@ class Do_background_upload_excel extends CI_Controller {
                                 $sms_count = 1;
                                 
                             } else { //if ($vendors_count > 0) {
+                                $update_data['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
+                                
                                 log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $partner_booking['booking_id']);
                             }
                             

@@ -34,7 +34,7 @@ define('ERR_INVALID_PARTNER_NAME_CODE', -1015);
 define('ERR_INVALID_JSON_INPUT_CODE', -1016);
 define('ERR_INVALID_PRODUCT_TYPE_CODE', -1017);
 
-define('ERR_BOOKING_NOT_INSERTED_MSG', 'Booking insertion failed');
+define('ERR_BOOKING_NOT_INSERTED_MSG', 'Booking Insertion Failed');
 define('ERR_GENERIC_ERROR_MSG', 'Unknown Error');
 define('ERR_INVALID_AUTH_TOKEN_MSG', 'Invalid Auth Token');
 define('ERR_MOBILE_NUM_MISSING_MSG', 'Mobile Number Missing');
@@ -52,7 +52,7 @@ define('ERR_INVALID_TIMESLOT_FORMAT_MSG', 'Invalid Timeslot Format');
 define('ERR_INVALID_INSTALLATION_TIMESLOT_MSG', 'Invalid Installation Timeslot');
 define('ERR_INVALID_PARTNER_NAME_MSG', 'Invalid Partner Name');
 define('ERR_INVALID_JSON_INPUT_MSG', 'Invalid JSON Input');
-define('ERR_INVALID_PRODUCT_TYPE', 'Installation not required');
+define('ERR_INVALID_PRODUCT_TYPE', 'Installation Not Required');
 
 class Partner extends CI_Controller {
 
@@ -237,24 +237,23 @@ class Partner extends CI_Controller {
                         $booking['partner_id'] = $data['partner_id'];
                         $booking['source'] = $data['source'];
                         
-                        /*
-                        if($booking['partner_id'] == "1"){
-                           
-                            $cancelled_follow_up = $this->booking_model->cancel_duplicate_booking_for_sts($requestData, $service_id);
-                            
-                            if($cancelled_follow_up){
-                                $booking['internal_status'] = $cancelled_follow_up;
-                            } else {
-                               $booking['internal_status'] = "Missed_call_not_confirmed"; 
-                            }
-                            
-                        } else {
-                            $booking['internal_status'] = "Missed_call_not_confirmed"; 
-                        }
-                        */
-                        
-                        $booking['internal_status'] = "Missed_call_not_confirmed";
+                        //Check vendor Availabilty for pincode and service id
+                        $vendors = $this->vendor_model->check_vendor_availability($requestData['pincode'], $service_id);
+                        $vendors_count = count($vendors);
 
+                        if ($vendors_count > 0) {
+                            $this->send_sms_to_snapdeal_customer($lead_details['Product'],
+                            $booking['booking_primary_contact_no'], $user_id,
+                            $booking['booking_id'], $unit_details['appliance_category']);
+                            
+                            $booking['internal_status'] = "Missed_call_not_confirmed";
+                        } else { //if ($vendors_count > 0) {
+                            //mark this booking as sms not sent
+                            $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
+                            
+                            log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
+                        }
+                        
                         $unit_details['partner_id'] = $booking['partner_id'];
                         $booking['order_id'] = $requestData['orderID'];
                         $appliance_details['brand'] = $unit_details['appliance_brand'] = $requestData['brand'];
@@ -296,8 +295,7 @@ class Partner extends CI_Controller {
                         $appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $service_id;
                         log_message('info', __METHOD__ . ":: Service ID: " . $booking['service_id']);
                         //echo "Service ID: " . $booking['service_id'] . PHP_EOL;
-                        $len = 3;
-                        $random_code=sprintf("%0".$len."d", mt_rand(1, str_pad("", $len,"9")));
+                        $random_code=  mt_rand(100, 999);   //return 3 digit random code to make booking id unique
                         $yy = date("y");
                         $mm = date("m");
                         $dd = date("d");
@@ -342,24 +340,25 @@ class Partner extends CI_Controller {
                         $this->booking_model->addunitdetails($unit_details);
 
                         $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , $booking['query_remarks'], DEFAULT_PARTNER_AGENT, $requestData['partnerName'], $booking['partner_id']);
-                           
                         
                         if (empty($state['state'])) {
 			    $to = NITS_ANUJ_EMAIL_ID;
 			    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
 			    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
 			}
-                        //Check vendor Availabilty for pincode and service id
-                        $vendors = $this->vendor_model->check_vendor_availability($booking['booking_pincode'], $booking['service_id']);
-                        $vendors_count = count($vendors);
-
-                        if ($vendors_count > 0) {
-                            $this->send_sms_to_snapdeal_customer($lead_details['Product'],
-                            $booking['booking_primary_contact_no'], $user_id,
-                            $booking['booking_id'], $unit_details['appliance_category']);
-                        } else { //if ($vendors_count > 0) {
-                            log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
-                        }
+                        
+//                        //Check vendor Availabilty for pincode and service id
+//                        $vendors = $this->vendor_model->check_vendor_availability($booking['booking_pincode'], $booking['service_id']);
+//                        $vendors_count = count($vendors);
+//
+//                        if ($vendors_count > 0) {
+//                            $this->send_sms_to_snapdeal_customer($lead_details['Product'],
+//                            $booking['booking_primary_contact_no'], $user_id,
+//                            $booking['booking_id'], $unit_details['appliance_category']);
+//                        } else { //if ($vendors_count > 0) {
+//                            log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
+//                        }
+//                        
                         //Send response
                         $this->jsonResponseString['response'] = array(
                             "orderID" => $booking['order_id'],
@@ -1626,8 +1625,9 @@ class Partner extends CI_Controller {
                     $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
 	    }
             
+            //Partner does not approve upcountry bookings and we have the SF ID so auto-assign
+            //In case partner approves upcountry bookings, then we cant assign till we have the approval
             if($partner_approval ==0 && isset($requestData['vendor_id'])){
-                
                 if(!empty($requestData['vendor_id'])){
                      $assigned = $this->miscelleneous->assign_vendor_process($requestData['vendor_id'],$booking['booking_id']);
                      if($assigned){
@@ -1641,9 +1641,9 @@ class Partner extends CI_Controller {
   
             }
             
+            //SF could not be found for this upcountry booking so email to admin
             if(isset($requestData['vendor_id'])){
                 if(empty($requestData['vendor_id']) && empty($upcountry_data) ){
-                   
                     $message1 = "Upcountry did not calculate for ".$booking['booking_id'];
                     $to = NITS_ANUJ_EMAIL_ID;
                     $cc = "abhaya@247around.com";
@@ -1651,9 +1651,9 @@ class Partner extends CI_Controller {
                 }
             }
             
+            //Send booking to partner for upcountry approval
             if($mail ==1 && !empty($up_mail_data)){
-                
-                $subject = "Upcountry charges approval required - Booking ID ".$booking['booking_id'];
+                $subject = "Upcountry Charges Approval Required - Booking ID ".$booking['booking_id'];
                 $to = $this->partner['upcountry_approval_email'];
                 $cc= NITS_ANUJ_EMAIL_ID;
                 $message = $this->load->view('employee/upcountry_approval_template', $up_mail_data, TRUE);

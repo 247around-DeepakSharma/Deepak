@@ -1229,7 +1229,7 @@ class Api extends CI_Controller {
 	//verify the user no in the database.
 	//Also, If user has given a missed call on 011-30017601 to confirm installation,
 	//tag the booking accordingly.
-	if ($callDetails['To'] == '01130017601') {
+	if ($callDetails['To'] == PARTNERS_MISSED_CALLED_NUMBER) {
 	    //verify user phone no first
 	    $this->apis->verifyUserNumber($num);
             
@@ -3822,7 +3822,7 @@ class Api extends CI_Controller {
         $post_data = array(
             // 'From' doesn't matter; For transactional, this will be replaced with your SenderId;
             // For promotional, this will be ignored by the SMS gateway
-            'From' => '01130017601',
+            'From' => PARTNERS_MISSED_CALLED_NUMBER,
             'To' => $phone_number,
             'Body' => $body,
         );

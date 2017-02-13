@@ -520,7 +520,10 @@ class Upcountry_model extends CI_Model {
     }
     
     /**
-     * @desc Get distnace between pincodes from table
+     * @desc Get distance between pincodes from table
+     * 
+     * Pincode 1 should be less than Pincode 2
+     * 
      * @param type $pincode1
      * @param type $pincode2
      * @return type
@@ -535,12 +538,26 @@ class Upcountry_model extends CI_Model {
         $query= $this->db->get('distance_between_pincode');
         return $query->result_array();
     }
-    function insert_distance($pincode1, $pincode2, $distance){
-       
-        if($pincode1 >$pincode2){ $dp1 = $pincode1;$dp2 = $pincode2;} 
-        else { $dp1 = $pincode2;  $dp2 = $pincode1; }
-        $this->db->insert('distance_between_pincode', array('pincode1'=> $dp1,'pincode2'=> $dp2,
-            'distance'=> $distance));
+    
+    /**
+     * @desc Insert distance between pincodes
+     * 
+     * Pincode 1 should be less than Pincode 2
+     * 
+     * @param type $pincode1
+     * @param type $pincode2
+     * @param type $distance
+     */
+    function insert_distance($pincode1, $pincode2, $distance){       
+        if ($pincode1 < $pincode2) {
+            $dp1 = $pincode1;
+            $dp2 = $pincode2;
+        } else {
+            $dp1 = $pincode2;
+            $dp2 = $pincode1;
+        }
+        $this->db->insert('distance_between_pincode', array('pincode1' => $dp1, 'pincode2' => $dp2,
+            'distance' => $distance));
     }
     /**
      * @desc: This method is used to know that partner provides upcountry for price tags of this booking
