@@ -255,12 +255,13 @@ class Booking extends CI_Controller {
                 }
                 
                 if ($booking['is_send_sms'] == 1) {
+                    //Query converted to Booking OR New Booking Inserted
                     $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
                     $send['booking_id'] = $booking['booking_id'];
                     $send['state'] = "Newbooking";
                     $this->asynchronous_lib->do_background_process($url, $send);
-                    //Assign Vendor
                     
+                    //Assign Vendor
                     //log_message("info"," upcountry_data", print_r($upcountry_data). " Booking id ". $booking['booking_id']);
                     switch ($upcountry_data['message']){
                         case UPCOUNTRY_BOOKING:
@@ -273,23 +274,24 @@ class Booking extends CI_Controller {
                             $this->asynchronous_lib->do_background_process($url, $async_data);
                             
                             break;
-                        case SF_NOT_EXIT:
+                        case SF_DOES_NOT_EXIST:
                             break;
                     }
-                } else if($booking['is_send_sms'] == 2 || $booking_id = INSERT_NEW_BOOKING){
+                } else if($booking['is_send_sms'] == 2 || $booking_id != INSERT_NEW_BOOKING) {
+                    //Pending booking getting updated
                     $url = base_url() . "employee/vendor/check_unit_exist_in_sc/".$booking['booking_id'];
                     $async_data['booking'] = array();
                     $this->asynchronous_lib->do_background_process($url, $async_data);
                     
                 }
-            }
-            
+            }  
 
             return $booking;
-            
         } else {
             echo "Booking Insert/Update Failed";
+            
             log_message('info', __FUNCTION__. " Booking Failed!");
+            
             exit();
         }
     }

@@ -1945,7 +1945,7 @@ class Partner extends CI_Controller {
         $partner_id = $this->session->userdata('partner_id');
         $where = array('booking_id' => $booking_id, 'partner_id' => $partner_id);
         $response = $this->service_centers_model->update_spare_parts($where, array('status' => DEFECTIVE_PARTS_RECEIVED,
-            'approved_defective_parts_by_partner'=> '1', 'remarks_defective_part_by_partner'=> NULL,
+            'approved_defective_parts_by_partner'=> '1', 'remarks_defective_part_by_partner'=> DEFECTIVE_PARTS_RECEIVED,
             'received_defective_part_date' => date("Y-m-d H:i:s")));
         if ($response) {
             log_message('info', __FUNCTION__ . " Received Defective Spare Parts ".$booking_id
@@ -2439,7 +2439,7 @@ class Partner extends CI_Controller {
                     print_r(json_encode($form_data,true));
                     break;
                     
-                case SF_NOT_EXIT:
+                case SF_DOES_NOT_EXIST:
                 case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
                     $data['upcountry_paid_by_customer'] = 0;
                     $form_data['vendor_id'] = "";
@@ -2580,31 +2580,29 @@ class Partner extends CI_Controller {
                 $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
                 log_message('info', "Async Process to create Job card: " . $booking_id);
 
-                //Send mail to vendor, no Note to vendor as of now
-                $message = "";
-                $this->booking_utilities->lib_send_mail_to_vendor($booking_id, $message);
                 $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, UPCOUNTRY_CHARGES_APPROVED, "Service Center Id: " . $data[0]['service_center_id'], $agent_id, $agent_name, $partner_id);
+                
                 if ($status == 0) {
-                    echo "<script>alert('Thanks to Approve Upcountry Charges');</script>";
+                    echo "<script>alert('Thanks For Approving Upcountry Charges');</script>";
                 } else {
-                    $userSession = array('error' => 'Approved Successfully.');
+                    $userSession = array('error' => 'Booking Approved Successfully.');
                     $this->session->set_userdata($userSession);
                     redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
                 }
             } else {
                 if ($status == 0) {
-                    echo "<script>alert('Sorry, There is issues to Approve Upcountry Charges');</script>";
+                    echo "<script>alert('Thanks, Booking Has Been Already Approved.');</script>";
                 } else {
-                    $userSession = array('error' => 'Already Approved this booking');
+                    $userSession = array('error' => 'Booking Has Been Already Approved');
                     $this->session->set_userdata($userSession);
                     redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
                 }
             }
         } else {
             if ($status == 0) {
-                echo "<script>alert('Sorry, There is issues to Approve Upcountry Charges');</script>";
+                echo "<script>alert('Sorry, There is an issue in Approving Upcountry Charges. Please contact 247around.');</script>";
             } else {
-                $userSession = array('error' => 'Booking is not exist');
+                $userSession = array('error' => 'Booking Not Found');
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
             }
@@ -2647,9 +2645,9 @@ class Partner extends CI_Controller {
                         "Upcountry Charges Rejected By Partner From ". $type, 
                         $agent_id, $agent_name, $partner_id);
             if ($status == 0) {
-                echo "<script>alert('Upcountry Charges rejected successfully');</script>";
+                echo "<script>alert('Upcountry Charges Rejected Successfully');</script>";
             } else {
-                $userSession = array('success' => 'Upcountry Charges rejected Successfully');
+                $userSession = array('success' => 'Upcountry Charges Rejected Successfully');
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
             }
@@ -2657,9 +2655,9 @@ class Partner extends CI_Controller {
         } else {
             log_message('info', __FUNCTION__ . " => Booking is not rejected. Booking Id" . $booking_id);
             if ($status == 0) {
-                echo "<script>alert('Upcountry Charges already rejected');</script>";
+                echo "<script>alert('Upcountry Charges Already Rejected');</script>";
             } else {
-                $userSession = array('error' => 'Upcountry Charges alredy rejected');
+                $userSession = array('error' => 'Upcountry Charges Already Rejected');
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "partner/get_waiting_for_approval_upcountry_charges");
             }
@@ -2675,8 +2673,9 @@ class Partner extends CI_Controller {
         $this->load->view('partner/header');
         $this->load->view('partner/get_waiting_to_approval_upcountry', $data);
     }
+    
     /**
-     * @desc: This method Cancelled those upcountry booking(2 days old) who has not approved by partner
+     * @desc: This method Cancelled those upcountry booking(3 days old) who has not approved by partner
      */
     function auto_reject_upcountry_charges(){
         log_message('info', __FUNCTION__);
@@ -2699,8 +2698,12 @@ class Partner extends CI_Controller {
                     'partner_internal_status' => $partner_internal_status));
 
                 $this->booking_model->update_booking_unit_details($value['bookng_id'], array('booking_status' => 'Cancelled'));
-                $this->notify->insert_state_change($value['booking_id'], UPCOUNTRY_CHARGES_NOT_APPROVED, _247AROUND_PENDING, "Upcountry Charges Rejected From " . "AUTO ", $agent_id, $agent_name, $partner_id);
+                $this->notify->insert_state_change($value['booking_id'], UPCOUNTRY_CHARGES_NOT_APPROVED, _247AROUND_PENDING, "Upcountry Charges Rejected From " . "AUTO ", $agent_id, $agent_name, $partner_id);                
             }
+            
+            //Notify
+            $this->notify->sendEmail('booking@247around.com', ANUJ_EMAIL_ID, '', '',
+                'Upcountry Bookings Cancelled', print_r($data, TRUE), '');
         }
     }
     

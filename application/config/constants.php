@@ -212,7 +212,7 @@ define('PARTNER_UPDATED','Partner Updated');
 //Define NOT UPCOUNTRY BOOKING
 define('NOT_UPCOUNTRY_BOOKING','NOT UPCOUNTRY BOOKING');
 //Define SF NOT EXIST IN Pincode Table
-define('SF_NOT_EXIT','SF NOT EXIT');
+define('SF_DOES_NOT_EXIST','SF DOES NOT EXIST');
 //Define UPCOUNTRY BOOKING
 define('UPCOUNTRY_BOOKING','UPCOUNTRY BOOKING');
 //Define UPCOUNTRY Disatnce Limit Exceed
@@ -240,7 +240,9 @@ define('ERR_ORDER_ID_NOT_FOUND_CODE', -1007);
 //Define error code for order id not found for partner_sd_sb.php file
 define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Not Found');
 //Define snapdeal new missed call number
-define('SNAPDEAL_MISSED_CALLED_NUMBER','1234567890');
+define('PARTNERS_MISSED_CALLED_NUMBER','01130017601');
+//Define snapdeal new missed call number
+define('SNAPDEAL_MISSED_CALLED_NUMBER','01139595247');
 
 define('HOME_THEATER_REPAIR_SERVICE_TAG', 'Repair - In Warranty (Home Visit)');
 
@@ -248,6 +250,8 @@ define("CAP_ON_PENALTY_AMOUNT", "50");
 define("PAYTM", "3");
 define("PENALTY_ON_COMPLETED_BOOKING", TRUE);
 define("PENALTY_ON_CANCELLED_BOOKING", TRUE);
+
+define ('SF_UNAVAILABLE_SMS_NOT_SENT', 'SMS Not Sent To Customer For Installation');
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
