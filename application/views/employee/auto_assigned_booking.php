@@ -12,7 +12,10 @@
                          <tr>
                            <th class="text-center">S No.</th>
                            <th class="text-center">Booking ID</th>
+                           <th class="text-center">Booking City</th>
+                           <th class="text-center">Appliance</th>
                            <th class="text-center">Service Center</th>
+                           <th class="text-center">Booking Date</th>
                            <th class="text-center">Assigned Date</th>
                          </tr>
                      </thead>
@@ -21,7 +24,10 @@
                      <tr >
                         <td class="text-center"><?php echo $key +1; ?></td>
                         <td class="text-center"><?php echo $value['booking_id']; ?></td>
+                        <td class="text-center"><?php echo $value['city']; ?></td>
+                        <td class="text-center"><?php echo $value['services']; ?></td>
                         <td class="text-center"><?php echo $value['name']; ?></td>
+                        <td class="text-center"><?php echo $value['booking_date']; ?></td>
                         <td class="text-center"><?php echo date('d-m-Y',  strtotime($value['create_date'])); ?></td>
                      </tr>
                              
