@@ -510,7 +510,7 @@ function set_upcountry(){
                 $('#submitform').attr('disabled', false);
             } else {
                 // $("#upcountry_charges").val("0");
-                // $('#submitform').attr('disabled', false); 
+                $('#submitform').attr('disabled', false); 
             }
 
 

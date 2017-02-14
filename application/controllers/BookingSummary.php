@@ -501,7 +501,7 @@ EOD;
     return $message;
     }
 
-        function send_leads_summary_mail_to_partners()
+    function send_leads_summary_mail_to_partners()
     {
         log_message('info', __FUNCTION__);
         
@@ -534,7 +534,7 @@ EOD;
         //log_message('info', __FUNCTION__ . ' => Prepared summary report');
 
         $message = "Dear Partner,<br/><br/>";
-        $message .= "Please find Service Status Sheet attached for leads shared in last One Month, thanks.";
+        $message .= "Please find Service Status Sheet attached for leads shared in last One Month, thanks.<br/><br/>";
         $message .= "<br><br>Best Regards,
                 <br>247around Team
                 <br><br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
@@ -551,7 +551,7 @@ EOD;
         log_message('info', __METHOD__ . ": Mail could not be sent for Partner: " . $p['public_name']);
         }
             
-        //Upload Excel to AWS/FTP
+//        //Upload Excel to AWS/FTP
         $bucket = 'bookings-collateral';
         $directory_xls = "summary-excels/" . $csv;
         $this->s3->putObjectFile(realpath($csv), $bucket, $directory_xls, S3::ACL_PRIVATE);
@@ -559,7 +559,7 @@ EOD;
         //Delete this file
         $out=''; $return=0;
         exec("rm -rf " . escapeshellarg($csv), $out, $return);
-            // Return will return non-zero upon an error
+//            // Return will return non-zero upon an error
             
             if(!$return){
                 // exec() has been executed sucessfully
@@ -1459,10 +1459,10 @@ EOD;
      * 
      */
     function show_rm_specific_snapshot($rm_fullname){
-        $rm_fullname = urldecode($rm_fullname);
+        $decode_rm_fullname = urldecode($rm_fullname);
 
         //Getting RM id from Employee table
-        $rm_details = $this->employee_model->get_employee_by_full_name($rm_fullname);
+        $rm_details = $this->employee_model->get_employee_by_full_name($decode_rm_fullname);
         //Getting RM to SF relation
         $sf_list = $this->vendor_model->get_employee_relation($rm_details[0]['id']);
         if (!empty($sf_list)) {

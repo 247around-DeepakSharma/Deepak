@@ -566,9 +566,9 @@ class service_centre_charges extends CI_Controller {
 	$data['service_id'] = isset($row[1]) && !empty($row[1])?$row[1]:$empty_flag = TRUE;
         //Sanitizing Brand Name
 	$data['brand'] = isset($row[2]) && !empty($row[2])?preg_replace('/[^A-Za-z0-9 ]/', '', $row[2]):$empty_flag = TRUE;
-	$data['category']   = isset($row[3]) && !empty($row[3])?$row[3]:$empty_flag = TRUE;
-	$data['capacity']   = isset($row[4]) && !empty($row[4])?$row[4]:'';
-	$data['model']      = isset($row[5]) && !empty($row[5])?$row[5]:'';
+	$data['category'] = isset($row[3]) && !empty($row[3])?$row[3]:$empty_flag = TRUE;
+	$data['capacity'] = isset($row[4]) && !empty($row[4])?$row[4]:$empty_flag = TRUE;
+	$data['model'] = isset($row[5]) && !empty($row[5])?$row[5]:'';
 	$data['active'] = 1;
         if($empty_flag){
             return $empty_flag;

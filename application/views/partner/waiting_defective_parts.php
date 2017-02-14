@@ -71,7 +71,7 @@
                                     <td>
                                         <?php if(!empty($row['defective_part_shipped'])){?>
                                         <div >
-                                            <a onclick="return confirm_received()" id="defective_parts"href="<?php echo base_url();?>partner/acknowledge_received_defective_parts/<?php echo $row['booking_id'];?>" style="font-size:21px;color:black;" <?php echo empty($row['defective_part_shipped'])?'disabled="disabled"':''?>><i class="fa fa-check" aria-hidden="true"></i></a></td></div>
+                                            <a onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"href="<?php echo base_url();?>partner/acknowledge_received_defective_parts/<?php echo $row['booking_id'];?>" <?php echo empty($row['defective_part_shipped'])?'disabled="disabled"':''?>>Received</a></td></div>
                                         <?php }?>
                                     <td>
                                         <div class="dropdown" style="position:absolute;">
