@@ -52,7 +52,7 @@ define('ERR_INVALID_TIMESLOT_FORMAT_MSG', 'Invalid Timeslot Format');
 define('ERR_INVALID_INSTALLATION_TIMESLOT_MSG', 'Invalid Installation Timeslot');
 define('ERR_INVALID_PARTNER_NAME_MSG', 'Invalid Partner Name');
 define('ERR_INVALID_JSON_INPUT_MSG', 'Invalid JSON Input');
-define('ERR_INVALID_PRODUCT_TYPE', 'Installation not required');
+define('ERR_INVALID_PRODUCT_TYPE_MSG', 'DENIED BY VENDOR');
 
 class Partner extends CI_Controller {
 
@@ -370,7 +370,7 @@ class Partner extends CI_Controller {
                             log_message('info', __METHOD__ . ":: Request validation fails for product type. " . print_r($requestData['productType'], true));
                         
                             $this->jsonResponseString['response'] = NULL;
-                            $this->sendJsonResponse(array(ERR_INVALID_PRODUCT_TYPE_CODE,ERR_INVALID_PRODUCT_TYPE));
+                            $this->sendJsonResponse(array(ERR_INVALID_PRODUCT_TYPE_CODE,ERR_INVALID_PRODUCT_TYPE_MSG));
                         }
 
                     } else {

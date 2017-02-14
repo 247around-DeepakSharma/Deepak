@@ -1252,5 +1252,10 @@ class Partner_model extends CI_Model {
         $query = $this->db->get();
         return $query->result();
     }
+    
+    function upload_partner_brand_logo($data){
+        $this->db->insert('partner_brand_logo',$data);
+        return $this->db->insert_id();
+    }
 }
 

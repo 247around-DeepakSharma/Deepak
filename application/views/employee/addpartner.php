@@ -7,7 +7,7 @@
 </style>
 <div id="page-wrapper">
     <div class="row">
-        <div class="clear">
+        <div class="clear"></div>
             <div class="panel panel-info">
                 <div class="panel-heading">
                     <b><?php if(isset($query[0]['id'])){echo "EDIT PARTNER";}else{echo "ADD PARTNER";}?></b>
@@ -122,7 +122,7 @@
                             <div class="form-group <?php if( form_error('state') ) { echo 'has-error';} ?>">
                                 <label for="state" class="col-md-4">State *</label>
                                 <div class="col-md-8">
-                                    <select class=" form-control" name ="state" id="state" onChange="getDistrict()" placeholder="Select State">
+                                    <select class=" form-control" name ="state" id="state" onChange="getDistrict()" >
                                         <option disabled="disabled" selected="selected"> Select State</option>
                                         <?php
                                             foreach ($results['select_state'] as $state) {
@@ -469,84 +469,10 @@
                         </center>
                     </div>
                 </form>
-           <form name="myForm" class="form-horizontal" id ="booking_form" novalidate="novalidate" action="<?php echo base_url()?>employee/partner/process_add_edit_partner_form" method="POST" enctype="multipart/form-data">
-
-          <div>
-              <input style="width:200px;" type="hidden" class="form-control"  name="id" value = "<?php if (isset($query[0]['id'])){echo $query[0]['id'];}?>">
-              <?php echo form_error('id'); ?>
-          </div>
-        
-    <div class="col-md-12">
-        
-            <div class="panel panel-default">
-                <div class="panel-heading"><b>Company Information</b></div>
-            </div>
-        <div class="col-md-6">
-        <div  class="form-group <?php if( form_error('company_name') ) { echo 'has-error';} ?>">
-            <label  for="company_name" class="col-md-4">Company Name *</label>
-        <div class="col-md-8">
-            <input  type="text" class="form-control" id="company_name" name="company_name" value = "<?php if (isset($query[0]['company_name'])){echo $query[0]['company_name'];}?>" >
-              <?php echo form_error('company_name'); ?>
-        </div>
-        </div>
-            
-        <div  class="form-group <?php if( form_error('public_name') ) { echo 'has-error';} ?>">
-            <label  for="public_name" class="col-md-4">Public Name *</label>
-        <div class="col-md-8">
-            <input  type="text" class="form-control" id="public_name" name="public_name" value = "<?php if (isset($query[0]['public_name'])){echo $query[0]['public_name'];}?>" >
-                <?php echo form_error('public_name'); ?>
-        </div>
-        </div>
-
-        <div  class="form-group <?php if( form_error('address') ) { echo 'has-error';} ?>">
-            <label  for="address" class="col-md-4">Address *</label>
-        <div class="col-md-8">
-            <input  type="text" class="form-control"  name="address" value = "<?php if (isset($query[0]['address'])){echo $query[0]['address'];}?>" >
-              <?php echo form_error('address'); ?>
-        </div>
-        </div>
-        
-        <div class="form-group">
-         <label  for="address" class="col-md-4">Landmark </label>
-         <div class="col-md-8">
-            <input  type="text" class="form-control" value = "<?php if (isset($query[0]['landmark'])){echo $query[0]['landmark'];}?>" name="landmark" >
-         </div>
-        </div>
-        <div  class="form-group <?php if( form_error('partner_type') ) { echo 'has-error';} ?>">
-            <label  for="partner_type" class="col-md-4">Type *</label>
-        <div class="col-md-8">
-            <select name="partner_type" class="form-control" >
-                <option selected disabled>Select Partner Type</option>
-                <option value="OEM" <?php if (isset($results['partner_code'][0]['partner_type'])){ if($results['partner_code'][0]['partner_type']== OEM){ echo "selected";}}?>>OEM</option>
-                <option value="ECOMMERCE" 
-                    <?php if (isset($results['partner_code'][0]['partner_type'])){  if($results['partner_code'][0]['partner_type']=="ECOMMERCE"){ echo "selected";}}?> >ECOMMERCE</option>
-                
-            </select>
-             <?php echo form_error('partner_type'); ?>
-        </div>
-        </div>
-            
-            <div class="form-group">
-                <label  for="upcountry_rate" class="col-md-4">Up-Country </label>
-                <div class="col-md-1">
-                    
-                    <input type="checkbox" name="is_upcountry" id="upcountry" style="zoom:1.5" 
-                        <?php if(isset($query)){ if($query[0]['is_upcountry'] ==1){ echo "checked";}} ?>/>
-                </div>
-                <div class="col-md-3">
-                    <input  type="number" class="form-control" value = "<?php
-                    if (isset($query[0]['upcountry_rate'])) {
-                        echo $query[0]['upcountry_rate'];
-                    }
-                    ?>" name="upcountry_rate" id="upcountry_rate" <?php if(isset($query)){ if($query[0]['is_upcountry'] ==1){ } else {echo "disabled";}}else{ echo "disabled";} ?> placeholder="Enter KM's">
-                </div>
-                <div class="col-md-4">
-                    <span><i>[Enter Rate per KM]</i></span>
-                </div>
-            </div>
         </div>
     </div>
 </div>
+    
 <script type="text/javascript">
     $('.select_state').select2({
       placeholder: "Select State",
