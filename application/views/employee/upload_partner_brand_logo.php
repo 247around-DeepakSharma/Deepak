@@ -5,61 +5,147 @@
                 <h4>Upload Partner Brand Logo</h4>
             </div>
             <div class="panel-body">
-                <?php if($this->session->userdata('success')) {
+                <?php if($this->session->flashdata('success')) {
                     echo '<div class="alert alert-success alert-dismissible" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <strong>' . $this->session->userdata('success') . '</strong>
+                        <strong>' . $this->session->flashdata('success') . '</strong>
                     </div>';
                     }
                     ?>
-                <?php if($this->session->userdata('failed')) {
+                <?php if($this->session->flashdata('failed')) {
                     echo '<div class="alert alert-danger alert-dismissible" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <strong>' . $this->session->userdata('failed') . '</strong>
+                        <strong>' . $this->session->flashdata('failed') . '</strong>
                     </div>';
                     }
                     ?>
                 <form enctype="multipart/form-data" action="<?php echo base_url(); ?>employee/partner/process_upload_partner_brand_logo" method="post" class="form-inline">
-                    <div class="col-lg-4 col-md-4 col-sm-12">
-                        <div class="form-group">
-                            <label>Choose Files</label>
-                            <input type="file" class="form-control" name="partner_brand_logo" multiple/>
-                        </div>
+                <div class="panel-body">
+                    <div class="clonedInput" id="clonedInput">
+                        <table class="table  table-striped table-bordered">
+                            <tr>
+                                <th style="width: 40%;">
+                                     <div class="form-group">
+                                        <label>Choose Files</label>
+                                        <input type="file" class="form-control" name="partner_brand_logo[]" id ="partner_brand_logo_1" required=""/>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="form-group">
+                                        <select  class="booking_source form-control"  id="partner_1" name="partner[]" required>
+                                            <option selected="selected" disabled="disabled">Select Partner</option>
+                                            <?php foreach ($partner as $key => $values) { ?>
+                                            <option  value="<?php echo $values['partner_id']."-". $values['source']; ?>">
+                                            <?php echo $values['source']; }    ?>
+                                            </option>
+                                        </select>
+                                    </div>
+                                </th>
+                               
+                                <th class="text-center">
+                                    <button class="clone btn btn-sm btn-success" id="add_1">Add New Row</button>
+                                </th>
+                                <th class="text-center">
+                                    <button class="remove btn btn-sm btn-danger" id="delete_1">Delete Row</button>
+                                </th>
+                            </tr>
+                        </table>
                     </div>
-                    <div class="col-lg-4 col-md-4 col-sm-12">
-                        <div class="form-group">
-                            <select  class="booking_source form-control"  id="partner" name="partner" required>
-                                <option selected="selected" disabled="disabled">Select Partner</option>
-                                <?php foreach ($partner as $key => $values) { ?>
-                                <option  value="<?php echo $values['partner_id']; ?>">
-                                <?php echo $values['source']; }    ?>
-                                </option>
-                            </select>
-                            <input type="hidden" name="partner_name" id="partner_name">
-                        </div>
+                    <div class="cloned"></div>
+                    <div class="col-md-12">
+                        <center><img id="loader_gif" src="" style="display: none;width:40px;"></center>
+                        <center><input type="submit" value="Upload" onclick="return check_validation()" class="btn btn-md btn-primary" /></center>
                     </div>
-                    <div class="col-lg-4 col-md-4 col-sm-12">
-                        <div class="form-group">
-                            <input class="form-control btn btn-md btn-success" type="submit" value="UPLOAD"/>
-                        </div>
-                    </div>
-                </form>
+                </div>
+            </form>
             </div>
         </div>
     </div>
 </div> 
-<script>
-  $(document).ready(function() {
-    $("#partner").change(function(){
-        var partner_name = $("#partner option:selected").text();
-      $("#partner_name").val(partner_name);
-    });
-  });
+<script type="text/javascript">
+    var regex = /^(.+?)(\d+)$/i;
+    var cloneIndex = $(".clonedInput").length +1;
+    
+    function clone(){
+       $(this).parents(".clonedInput").clone()
+           .appendTo(".cloned")
+           .attr("id", "cat" +  cloneIndex)
+           .find("*")
+           .each(function() {
+               var id = this.id || "";
+               var match = id.match(regex) || [];
+               //console.log(match.length);
+               if (match.length === 3) {
+                   this.id = match[1] + (cloneIndex);
+               }
+               $('#partner_brand_logo_' + cloneIndex).val('');
+               $('#partner_' + cloneIndex).val('');
+               $('#partner_name_' + cloneIndex).val('');
+           })
+           .on('click', 'button.clone', clone)
+           .on('click', 'button.remove', remove);
+    
+           
+       cloneIndex++;
+       return false;
+    }
+    function remove(){
+        var length =  $(".clonedInput").length;
+        
+        if(length === 1){
+            alert("Atleast one row being added");
+            return false;
+        } else {
+            $(this).parents(".clonedInput").remove();
+        }
+       
+       
+       return false;
+    }
+    $("button.clone").on("click", clone);
+    
+    $("button.remove").on("click", remove);
+    
+    function check_validation(){
+        var validation = 1;
+        $('.get_required').each(function (i) {
+            var input_field = $("#" + this.id).val();
+            
+            switch(input_field){
+                case null:
+                    validation = 0;
+                    alert("Please Enter " + this.id.split('_')[0]);
+                    break;
+                case typeof this === "undefined":
+                    validation = 0;
+                    alert("Please Enter " + this.id.split('_')[0]);
+                    break;
+                case "":
+                    validation = 0;
+                    alert("Please Enter " + this.id.split('_')[0]);
+                    break;
+                case false:
+                    validation = 0;
+                    alert("Please Enter " + this.id.split('_')[0]);
+            }
+        });
+        
+        
+        if(validation ===0){
+            return false;
+            
+        } else if(validation === 1){
+            return true;
+        }
+        
+        
+    }
 </script>
+
 
 
 
