@@ -3089,6 +3089,7 @@ class vendor extends CI_Controller {
 	    'service_center_name' => $sc_details[0]['name'],
             'service_center_agent_id' => $agent['id'],
             'is_update' => $sc_details[0]['is_update'],
+            'is_upcountry' => $sc_details[0]['is_upcountry'],
 	    'sess_expiration' => 30000,
 	    'loggedIn' => TRUE,
 	    'userType' => 'service_center'
