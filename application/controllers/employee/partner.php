@@ -2722,14 +2722,19 @@ class Partner extends CI_Controller {
      * @param: void
      * @return:void
      */
+    
     function process_upload_partner_brand_logo(){
-        if($_FILES['partner_brand_logo']['error'] != 4 && !empty($_FILES['partner_brand_logo']['tmp_name'])){
-            //check if partner name is select or not
-            if($this->input->post('partner_name')){
-                $tmpFile = $_FILES['partner_brand_logo']['tmp_name'];
-                $ext = pathinfo($_FILES['partner_brand_logo']['name'], PATHINFO_EXTENSION);
-                $partner_name = trim($this->input->post('partner_name'));
+        $partner_name_id = $this->input->post('partner');
+        if(!empty($partner_name_id)){
+            foreach($partner_name_id as $key=>$value){
+                $partners = explode('-', $value);
+                $partner_id = $partners[0];
+                $partner_name= $partners[1];
+                
+                $tmpFile = $_FILES['partner_brand_logo']['tmp_name'][$key];
+                $ext = pathinfo($_FILES['partner_brand_logo']['name'][$key], PATHINFO_EXTENSION);
                 $fileName = $partner_name.'.'.$ext;
+                
                 move_uploaded_file($tmpFile, TMP_FOLDER.$fileName);
 
                 //Uploading images to S3 
@@ -2737,33 +2742,24 @@ class Partner extends CI_Controller {
                 $directory = "misc-images/" . $fileName;
                 $this->s3->putObjectFile(TMP_FOLDER.$fileName, $bucket, $directory, S3::ACL_PUBLIC_READ);
 
-                $data['partner_id']=$this->input->post('partner');
+                $data['partner_id']=$partner_id;
                 $data['partner_logo'] = 'images/'.$fileName;
                 $data['alt_text'] = $partner_name;
-                
+
                 //insert partner brand logo path into database
                 $res = $this->partner_model->upload_partner_brand_logo($data);
-                if($res){
-                    $userSession = array('success' => 'Partner Logo has been inserted successfully');
-                    $this->session->set_userdata($userSession);
+            }
+            if($res){
+                    $this->session->set_flashdata('success','Partner Logo has been inserted successfully');
                     redirect(base_url() . "employee/partner/upload_partner_brand_logo");
                 }
                 else{
-                    $userSession = array('failed' => 'Error in Inerting Partner Logo. Please Try Again...');
-                    $this->session->set_userdata($userSession);
+                    $this->session->set_flashdata('failed','Error in Inerting Partner Logo. Please Try Again...');
                     redirect(base_url() . "employee/partner/upload_partner_brand_logo");
                 }
-            }
-            else{
-                $userSession = array('failed' => 'Please Select Partner Name');
-                $this->session->set_userdata($userSession);
-                redirect(base_url() . "employee/partner/upload_partner_brand_logo");
-                
-            }
         }
         else{
-            $userSession = array('failed' => 'Please Enter Valid Image');
-            $this->session->set_userdata($userSession);
+            $this->session->set_flashdata('failed','Please Select Partner Name');
             redirect(base_url() . "employee/partner/upload_partner_brand_logo");
         }
     }
