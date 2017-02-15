@@ -342,70 +342,7 @@ class vendor extends CI_Controller {
             if (!empty($this->input->post('id'))) {
                 
                 //if vendor exists, details are edited
-                
-                $vendor_data['id'] = $this->input->post('id');
-                $vendor_data['company_name'] = $this->input->post('company_name');
-                $vendor_data['name'] = $this->input->post('name');
-                $vendor_data['address'] = $this->input->post('address');
-                $vendor_data['landmark'] = $this->input->post('landmark');
-                $vendor_data['district'] = $this->input->post('district');
-                $vendor_data['state'] = $this->input->post('state');
-                $vendor_data['pincode'] = $this->input->post('pincode');
-                $vendor_data['phone_1'] = $this->input->post('phone_1');
-                $vendor_data['phone_2'] = $this->input->post('phone_2');
-                $vendor_data['email'] = $this->input->post('email');
-                $vendor_data['company_type'] = $this->input->post('company_type');
-                $vendor_data['primary_contact_name'] = $this->input->post('primary_contact_name');
-                $vendor_data['primary_contact_email'] = $this->input->post('primary_contact_email');
-                $vendor_data['primary_contact_phone_1'] = $this->input->post('primary_contact_phone_1');
-                $vendor_data['primary_contact_phone_2'] = $this->input->post('primary_contact_phone_2');
-                $vendor_data['owner_name'] = $this->input->post('owner_name');
-                $vendor_data['owner_email'] = $this->input->post('owner_email');
-                $vendor_data['owner_phone_1'] = $this->input->post('owner_phone_1');
-                $vendor_data['owner_phone_2'] = $this->input->post('owner_phone_2');
-                $vendor_data['name_on_pan'] = $this->input->post('name_on_pan');
-                if(!empty($this->input->post('pan_no')))
-                    $vendor_data['pan_no'] = $this->input->post('pan_no');
-                $vendor_data['is_pan_doc'] = $this->input->post('is_pan_doc');
-                if(!empty($this->input->post('cst_no')))
-                    $vendor_data['cst_no'] = $this->input->post('cst_no');
-                $vendor_data['is_cst_doc'] = $this->input->post('is_cst_doc');
-                if(!empty($this->input->post('tin_no')))
-                    $vendor_data['tin_no'] = $this->input->post('tin_no');
-                $vendor_data['is_tin_doc'] = $this->input->post('is_tin_doc');
-                if(!empty($this->input->post('service_tax_no')))
-                    $vendor_data['service_tax_no'] = $this->input->post('service_tax_no');
-                $vendor_data['is_st_doc'] = $this->input->post('is_st_doc');
-                $vendor_data['bank_name'] = $this->input->post('bank_name');
-                $vendor_data['account_type'] = $this->input->post('account_type');
-                $vendor_data['bank_account'] = $this->input->post('bank_account');
-                $vendor_data['ifsc_code'] = $this->input->post('ifsc_code');
-                $vendor_data['beneficiary_name'] = $this->input->post('beneficiary_name');
-                $vendor_data['is_verified'] = $this->input->post('is_verified');
-                if(!empty($this->input->post('contract_file')))
-                    $vendor_data['contract_file'] = $this->input->post('contract_file');
-                if(!empty($this->input->post('id_proof_2_file')))
-                    $vendor_data['id_proof_2_file'] = $this->input->post('id_proof_2_file');
-                if(!empty($this->input->post('id_proof_1_file')))
-                    $vendor_data['id_proof_1_file'] = $this->input->post('id_proof_1_file');
-                if(!empty($this->input->post('cancelled_cheque_file')))
-                    $vendor_data['cancelled_cheque_file'] = $this->input->post('cancelled_cheque_file');
-                if(!empty($this->input->post('address_proof_file')))
-                    $vendor_data['address_proof_file'] = $this->input->post('address_proof_file');
-                if(!empty($this->input->post('service_tax_file')))
-                    $vendor_data['service_tax_file'] = $this->input->post('service_tax_file');
-                if(!empty($this->input->post('tin_file')))
-                    $vendor_data['tin_file'] = $this->input->post('tin_file');
-                if(!empty($this->input->post('cst_file')))
-                    $vendor_data['cst_file'] = $this->input->post('cst_file');
-                if(!empty($this->input->post('pan_file')))
-                    $vendor_data['pan_file'] = $this->input->post('pan_file');
-                if(!empty($this->input->post('non_working_days')))
-                    $vendor_data['non_working_days'] = $this->input->post('non_working_days');
-                if(!empty($this->input->post('appliances')))
-                    $vendor_data['appliances'] = $this->input->post('appliances');
-                if(!empty($this->input->post('brands')))
-                    $vendor_data['brands'] = $this->input->post('brands');
+                $vendor_data = $this->get_vendor_form_data();
                 
                 $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
                 
@@ -487,74 +424,12 @@ class vendor extends CI_Controller {
                 $owner_email = $this->input->post('owner_email');
                 $primary_contact_email = $this->input->post('primary_contact_email');
                 $new_vendor_mail = $owner_email.','.$primary_contact_email;
-                
-                $_POST['sc_code'] = $this->generate_service_center_code($_POST['name'], $_POST['district']);
+                $vendor_data['sc_code'] = $this->generate_service_center_code($_POST['name'], $_POST['district']);
                 
                 //Making Array to add Vendor
-                $vendor_data['company_name'] = $this->input->post('company_name');
-                $vendor_data['name'] = $this->input->post('name');
-                $vendor_data['address'] = $this->input->post('address');
-                $vendor_data['landmark'] = $this->input->post('landmark');
-                $vendor_data['district'] = $this->input->post('district');
-                $vendor_data['state'] = $this->input->post('state');
-                $vendor_data['pincode'] = $this->input->post('pincode');
-                $vendor_data['phone_1'] = $this->input->post('phone_1');
-                $vendor_data['phone_2'] = $this->input->post('phone_2');
-                $vendor_data['email'] = $this->input->post('email');
-                $vendor_data['company_type'] = $this->input->post('company_type');
-                $vendor_data['primary_contact_name'] = $this->input->post('primary_contact_name');
-                $vendor_data['primary_contact_email'] = $this->input->post('primary_contact_email');
-                $vendor_data['primary_contact_phone_1'] = $this->input->post('primary_contact_phone_1');
-                $vendor_data['primary_contact_phone_2'] = $this->input->post('primary_contact_phone_2');
-                $vendor_data['owner_name'] = $this->input->post('owner_name');
-                $vendor_data['owner_email'] = $this->input->post('owner_email');
-                $vendor_data['owner_phone_1'] = $this->input->post('owner_phone_1');
-                $vendor_data['owner_phone_2'] = $this->input->post('owner_phone_2');
-                $vendor_data['name_on_pan'] = $this->input->post('name_on_pan');
-                if(!empty($this->input->post('pan_no')))
-                    $vendor_data['pan_no'] = $this->input->post('pan_no');
-                $vendor_data['is_pan_doc'] = $this->input->post('is_pan_doc');
-                if(!empty($this->input->post('cst_no')))
-                    $vendor_data['cst_no'] = $this->input->post('cst_no');
-                $vendor_data['is_cst_doc'] = $this->input->post('is_cst_doc');
-                if(!empty($this->input->post('tin_no')))
-                    $vendor_data['tin_no'] = $this->input->post('tin_no');
-                $vendor_data['is_tin_doc'] = $this->input->post('is_tin_doc');
-                if(!empty($this->input->post('service_tax_no')))
-                    $vendor_data['service_tax_no'] = $this->input->post('service_tax_no');
-                $vendor_data['is_st_doc'] = $this->input->post('is_st_doc');
-                $vendor_data['bank_name'] = $this->input->post('bank_name');
-                $vendor_data['account_type'] = $this->input->post('account_type');
-                $vendor_data['bank_account'] = $this->input->post('bank_account');
-                $vendor_data['ifsc_code'] = $this->input->post('ifsc_code');
-                $vendor_data['beneficiary_name'] = $this->input->post('beneficiary_name');
-                $vendor_data['is_verified'] = $this->input->post('is_verified');
-                $vendor_data['sc_code'] = $this->input->post('sc_code');
-                if(!empty($this->input->post('contract_file')))
-                    $vendor_data['contract_file'] = $this->input->post('contract_file');
-                if(!empty($this->input->post('id_proof_2_file')))
-                    $vendor_data['id_proof_2_file'] = $this->input->post('id_proof_2_file');
-                if(!empty($this->input->post('id_proof_1_file')))
-                    $vendor_data['id_proof_1_file'] = $this->input->post('id_proof_1_file');
-                if(!empty($this->input->post('cancelled_cheque_file')))
-                    $vendor_data['cancelled_cheque_file'] = $this->input->post('cancelled_cheque_file');
-                if(!empty($this->input->post('address_proof_file')))
-                    $vendor_data['address_proof_file'] = $this->input->post('address_proof_file');
-                if(!empty($this->input->post('service_tax_file')))
-                    $vendor_data['service_tax_file'] = $this->input->post('service_tax_file');
-                if(!empty($this->input->post('tin_file')))
-                    $vendor_data['tin_file'] = $this->input->post('tin_file');
-                if(!empty($this->input->post('cst_file')))
-                    $vendor_data['cst_file'] = $this->input->post('cst_file');
-                if(!empty($this->input->post('pan_file')))
-                    $vendor_data['pan_file'] = $this->input->post('pan_file');
-                if(!empty($this->input->post('non_working_days')))
-                    $vendor_data['non_working_days'] = $this->input->post('non_working_days');
-                if(!empty($this->input->post('appliances')))
-                    $vendor_data['appliances'] = $this->input->post('appliances');
-                if(!empty($this->input->post('brands')))
-                    $vendor_data['brands'] = $this->input->post('brands');
                 
+                $vendor_data = $this->get_vendor_form_data();
+
                 //if vendor do not exists, vendor is added
                 $sc_id = $this->vendor_model->add_vendor($vendor_data);
                 
@@ -700,6 +575,81 @@ class vendor extends CI_Controller {
         } else {
             $this->add_vendor();
         }
+    }
+    
+    /**
+     * @desc : This function is used to get the form data of vendor
+     *
+     * @param : void
+     * @return : array()
+     */
+    
+    function get_vendor_form_data(){
+
+                $vendor_data['company_name'] = $this->input->post('company_name');
+                $vendor_data['name'] = $this->input->post('name');
+                $vendor_data['address'] = $this->input->post('address');
+                $vendor_data['landmark'] = $this->input->post('landmark');
+                $vendor_data['district'] = $this->input->post('district');
+                $vendor_data['state'] = $this->input->post('state');
+                $vendor_data['pincode'] = $this->input->post('pincode');
+                $vendor_data['phone_1'] = $this->input->post('phone_1');
+                $vendor_data['phone_2'] = $this->input->post('phone_2');
+                $vendor_data['email'] = $this->input->post('email');
+                $vendor_data['company_type'] = $this->input->post('company_type');
+                $vendor_data['primary_contact_name'] = $this->input->post('primary_contact_name');
+                $vendor_data['primary_contact_email'] = $this->input->post('primary_contact_email');
+                $vendor_data['primary_contact_phone_1'] = $this->input->post('primary_contact_phone_1');
+                $vendor_data['primary_contact_phone_2'] = $this->input->post('primary_contact_phone_2');
+                $vendor_data['owner_name'] = $this->input->post('owner_name');
+                $vendor_data['owner_email'] = $this->input->post('owner_email');
+                $vendor_data['owner_phone_1'] = $this->input->post('owner_phone_1');
+                $vendor_data['owner_phone_2'] = $this->input->post('owner_phone_2');
+                $vendor_data['name_on_pan'] = $this->input->post('name_on_pan');
+                if(!empty($this->input->post('pan_no')))
+                    $vendor_data['pan_no'] = $this->input->post('pan_no');
+                $vendor_data['is_pan_doc'] = $this->input->post('is_pan_doc');
+                if(!empty($this->input->post('cst_no')))
+                    $vendor_data['cst_no'] = $this->input->post('cst_no');
+                $vendor_data['is_cst_doc'] = $this->input->post('is_cst_doc');
+                if(!empty($this->input->post('tin_no')))
+                    $vendor_data['tin_no'] = $this->input->post('tin_no');
+                $vendor_data['is_tin_doc'] = $this->input->post('is_tin_doc');
+                if(!empty($this->input->post('service_tax_no')))
+                    $vendor_data['service_tax_no'] = $this->input->post('service_tax_no');
+                $vendor_data['is_st_doc'] = $this->input->post('is_st_doc');
+                $vendor_data['bank_name'] = $this->input->post('bank_name');
+                $vendor_data['account_type'] = $this->input->post('account_type');
+                $vendor_data['bank_account'] = $this->input->post('bank_account');
+                $vendor_data['ifsc_code'] = $this->input->post('ifsc_code');
+                $vendor_data['beneficiary_name'] = $this->input->post('beneficiary_name');
+                $vendor_data['is_verified'] = $this->input->post('is_verified');
+                if(!empty($this->input->post('contract_file')))
+                    $vendor_data['contract_file'] = $this->input->post('contract_file');
+                if(!empty($this->input->post('id_proof_2_file')))
+                    $vendor_data['id_proof_2_file'] = $this->input->post('id_proof_2_file');
+                if(!empty($this->input->post('id_proof_1_file')))
+                    $vendor_data['id_proof_1_file'] = $this->input->post('id_proof_1_file');
+                if(!empty($this->input->post('cancelled_cheque_file')))
+                    $vendor_data['cancelled_cheque_file'] = $this->input->post('cancelled_cheque_file');
+                if(!empty($this->input->post('address_proof_file')))
+                    $vendor_data['address_proof_file'] = $this->input->post('address_proof_file');
+                if(!empty($this->input->post('service_tax_file')))
+                    $vendor_data['service_tax_file'] = $this->input->post('service_tax_file');
+                if(!empty($this->input->post('tin_file')))
+                    $vendor_data['tin_file'] = $this->input->post('tin_file');
+                if(!empty($this->input->post('cst_file')))
+                    $vendor_data['cst_file'] = $this->input->post('cst_file');
+                if(!empty($this->input->post('pan_file')))
+                    $vendor_data['pan_file'] = $this->input->post('pan_file');
+                if(!empty($this->input->post('non_working_days')))
+                    $vendor_data['non_working_days'] = $this->input->post('non_working_days');
+                if(!empty($this->input->post('appliances')))
+                    $vendor_data['appliances'] = $this->input->post('appliances');
+                if(!empty($this->input->post('brands')))
+                    $vendor_data['brands'] = $this->input->post('brands');    
+            
+            return $vendor_data;
     }
 
     /**
