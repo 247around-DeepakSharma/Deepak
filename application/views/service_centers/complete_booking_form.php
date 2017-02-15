@@ -238,7 +238,7 @@
                                 </div>
                             </div>
                             <?php } else { ?>
-                            <input  type="text" class="form-control cost" name="upcountry_charges" id="upcountry_charges" value="<?php echo "0";?>" placeholder="Enter Upcountry Charges Paid By Customer">
+                            <input  type="hidden" class="form-control cost" name="upcountry_charges" id="upcountry_charges" value="<?php echo "0";?>" placeholder="Enter Upcountry Charges Paid By Customer">
                             <?php } ?>
                             <div class="form-group col-md-6">
                                 <label for="type" class="col-md-12">Total Customer Paid</label>
