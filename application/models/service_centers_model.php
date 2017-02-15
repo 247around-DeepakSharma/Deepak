@@ -89,17 +89,18 @@ class Service_centers_model extends CI_Model {
                 . " bd.count_escalation, "
                 . " bd.is_upcountry, "
                 . " bd.upcountry_paid_by_customer, "
+                . " bd.is_penalty, "
                 . " bd.booking_address, "
                 . " bd.booking_pincode, "
                 . " services," 
-                . " CASE
-                    WHEN EXISTS (SELECT pb.booking_id
-                                 FROM   penalty_on_booking as pb
-                                 WHERE  pb.booking_id = bd.booking_id AND pb.service_center_id = bd.assigned_vendor_id) 
-                                 THEN (SELECT SUM(penalty_amount) as penalty_amount FROM penalty_on_booking as pob
-                                 WHERE pob.booking_id = bd.booking_id AND pob.service_center_id = bd.assigned_vendor_id)
-                    ELSE '0'
-                  END AS penalty, "
+//                . " CASE
+//                    WHEN EXISTS (SELECT pb.booking_id
+//                                 FROM   penalty_on_booking as pb
+//                                 WHERE  pb.booking_id = bd.booking_id AND pb.service_center_id = bd.assigned_vendor_id) 
+//                                 THEN (SELECT SUM(penalty_amount) as penalty_amount FROM penalty_on_booking as pob
+//                                 WHERE pob.booking_id = bd.booking_id AND pob.service_center_id = bd.assigned_vendor_id)
+//                    ELSE '0'
+//                  END AS penalty, "
                     
 //                 . " CASE WHEN (bd.is_upcountry = 1 AND upcountry_paid_by_customer =0 AND bd.sub_vendor_id IS NOT NULL)  "
 //                 . " THEN (SELECT  ( round((bd.upcountry_distance * bd.sf_upcountry_rate)/(count(b.id)),2)) "
@@ -126,7 +127,7 @@ class Service_centers_model extends CI_Model {
                         ELSE  
 
                         (
-                        SELECT CASE WHEN partner_paid_basic_charges > 0 THEN SUM(vendor_basic_charges) 
+                        SELECT CASE WHEN partner_net_payable > 0 THEN SUM(vendor_basic_charges) 
                         ELSE SUM(vendor_basic_charges + vendor_st_or_vat_basic_charges) END
                         FROM booking_unit_details AS u1
                         WHERE u1.booking_id = bd.booking_id

@@ -140,11 +140,15 @@ class Penalty_model extends CI_Model {
 	    $data['current_state'] = isset($value['current_state']) && !empty($value['current_state'])?$value['current_state']:NULL;
 	    $data['criteria_id'] = $penalty_details['id'];
 	    $data['penalty_amount'] = $penalty_details['penalty_amount'];
+            $data['active'] = 1;
             if(isset($value['penalty_active'])){
-                $data['active'] = 1;
+                
                 $this->update_penalty_on_booking($data['booking_id'],$data);
             }else{
                 $this->insert_penalty_on_booking($data);
+                if($data['criteria_id']  == '2'){
+                    $this->booking_model->update_booking($data['booking_id'],array('is_penalty'=> '1'));
+                }
             }
 	    
             return $data;
@@ -304,7 +308,8 @@ class Penalty_model extends CI_Model {
             WHERE  `criteria_id` = 2 AND  `closed_date` >=  '".$from_date."' 
             AND closed_date <  '".$to_date."'
             AND service_center_id = '".$vendor_id."'
-            AND booking_details.booking_id = p.booking_id
+            AND p.active = 1
+            AND booking_details.booking_id = p.booking_id $where
             GROUP BY p.booking_id";
             
             $query = $this->db->query($sql);
