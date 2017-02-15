@@ -494,9 +494,7 @@ function set_upcountry(){
         }
     });
     if (count > 0) {
-        
         if (is_upcountry === 1) {
-            console.log(upcountry_data);
             var total_price = $("#grand_total_price").val();
             var data1 = jQuery.parseJSON(upcountry_data);
             var partner_approval = Number(data1.partner_upcountry_approval);
