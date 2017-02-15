@@ -76,6 +76,12 @@ class bookingjobcard extends CI_Controller {
         $booking_details = $this->booking_model->getbooking_history($booking_id);
         $unit_where = array('booking_id'=>$booking_id);
         $unit_details = $this->booking_model->get_unit_details($unit_where);
+        $meta =  array();
+        $meta['upcountry_charges'] = 0;
+        if($booking_details[0]['upcountry_paid_by_customer'] == 1){
+            $meta['upcountry_charges'] = $booking_details[0]['upcountry_distance'] * $booking_details[0]['partner_upcountry_rate'];
+        }
+        $meta['appliance_description'] = $unit_details[0]['appliance_description'];
         $R->load(array(
             array(
                 'id' => 'booking',
@@ -96,6 +102,11 @@ class bookingjobcard extends CI_Controller {
                     //'create_date' => array('datetime' => 'd/M/Y'),
                     'total_price' => array('number' => array('prefix' => 'Rs. ')),
                 )
+             ),
+            array(
+                'id' => 'meta',
+                'repeat' => false,
+                'data' => $meta,
              ),
             )
         );
@@ -174,6 +185,12 @@ class bookingjobcard extends CI_Controller {
         $booking_details = $this->booking_model->getbooking_history($booking_id);
         $unit_where = array('booking_id'=>$booking_id);
         $unit_details = $this->booking_model->get_unit_details($unit_where);
+        $meta =  array();
+        $meta['upcountry_charges'] = 0;
+        if($booking_details[0]['upcountry_paid_by_customer'] == 1){
+            $meta['upcountry_charges'] = $booking_details[0]['upcountry_distance'] * $booking_details[0]['partner_upcountry_rate'];
+        }
+        $meta['appliance_description'] = $unit_details[0]['appliance_description'];
         $R->load(array(
             array(
                 'id' => 'booking',
@@ -194,6 +211,11 @@ class bookingjobcard extends CI_Controller {
                     //'create_date' => array('datetime' => 'd/M/Y'),
                     'total_price' => array('number' => array('prefix' => 'Rs. ')),
                 )
+             ),
+            array(
+                'id' => 'meta',
+                'repeat' => false,
+                'data' => $meta,
              ),
             )
         );
