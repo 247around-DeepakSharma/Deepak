@@ -1,6 +1,3 @@
-<script type="text/javascript" src="<?php echo base_url();?>js/jquery-1.3.2.min.js"></script>
-<script type="text/javascript" src="<?php echo base_url();?>js/jquery-ui-1.7.1.custom.min.js"></script>
-
 <script>
     function outbound_call(phone_number){
         var confirm_call = confirm("Call Vendor ?");
@@ -36,6 +33,11 @@
         $('#get_vender').submit();
     }
 </script>
+<script>
+    $(document).ready(function(){
+        $('[data-toggle="popover"]').popover();   
+    });
+</script>
 <div  id="page-wrapper">
     <div class="row">
         <?php
@@ -61,22 +63,20 @@
       <div >
        
         <h1>Service Center</h1>
-       
-        <div class="pull-right" style="margin-bottom: 20px;">
-            <a href="<?php echo base_url();?>employee/vendor/add_vendor"><input class="btn btn-primary" type="Button" value="Add Service Centre"></a>
-        </div>
-        
-        <div class="pull-right" style="margin-bottom: 20px; margin-right: 50px;">
-            <form action="<?php echo base_url();?>employee/vendor/viewvendor" method="get" id="get_vender" class="form-inline">
-                <label for="active_state">Show Vender &nbsp; &nbsp;</label>
-                <select name="active_state" id="active_state" onchange="get_data();" class="form-control">
-                    <option value="all" <?php echo isset($selected) && $selected['active_state'] == 'all'? 'selected="selected"':''?>>ALL</option>
-                    <option value="1" <?php echo isset($selected) && $selected['active_state'] == '1'? 'selected="selected"':''?>>Active</option>
-                </select> 
-            </form>
-        </div>
-        
-        <div class="col-md-6" id="state_form">
+            <div class="col-md-12" id="state_form">
+                <div class="pull-right" style="margin-bottom: 20px;">
+                <a href="<?php echo base_url();?>employee/vendor/add_vendor"><input class="btn btn-primary" type="Button" value="Add Service Centre"></a>
+            </div>
+
+            <div class="pull-right" style="margin-bottom: 20px; margin-right: 50px;">
+                <form action="<?php echo base_url();?>employee/vendor/viewvendor" method="get" id="get_vender" class="form-inline">
+                    <label for="active_state">Show Vender &nbsp; &nbsp;</label>
+                    <select name="active_state" id="active_state" onchange="get_data();" class="form-control">
+                        <option value="all" <?php echo isset($selected) && $selected['active_state'] == 'all'? 'selected="selected"':''?>>ALL</option>
+                        <option value="1" <?php echo isset($selected) && $selected['active_state'] == '1'? 'selected="selected"':''?>>Active</option>
+                    </select> 
+                </form>
+            </div>
             <div style="background-color: #EEEEEE;width:400px;height:50px;padding-bottom:20px;border-radius: 5px;" id="inner_state_div">
                 <form method="POST" action ="<?php echo base_url(); ?>employee/vendor/get_sc_charges_list" style="padding-top:8px;">
                     <span id="state_error" style="display:none;color:red;margin-left:20px;">Please enter State</span>
@@ -102,10 +102,8 @@
                 <th class="jumbotron">CRM Login / Password</th>
           	<th class="jumbotron">PoC Name</th>
           	<th class="jumbotron">PoC Number</th>
-          	<th class="jumbotron">PoC Email</th>
           	<th class="jumbotron">Owner Name</th>
           	<th class="jumbotron">Owner Phone No.</th>
-          	<th class="jumbotron">Owner Email</th>
           	<th class="jumbotron">Sub District Office</th>
           	<th class="jumbotron">Temporary</th>
           	<th class="jumbotron">Permanent</th>
@@ -119,7 +117,7 @@
             <td class="text-center">
                     <a href="javascript:void(0)" class="btn btn-md btn-success" onclick='return login_to_vendor(<?php echo $row['id']?>)'  <?php echo ($row['active'] == 0)?'disabled=""':'' ?> title="<?php echo strtolower($row['sc_code']) . " / " . strtolower($row['sc_code']);  ?>">Login</a>
             </td>
-          	<td><?=$row['primary_contact_name'];?></td>
+            <td><a href="mailto:<?php echo $row['primary_contact_email'];?>" data-toggle="popover" data-trigger="hover" data-content="Send Mail To POC"><?=$row['primary_contact_name'];?></a></td>
           	<td>
           	    <?=$row['primary_contact_phone_1'];?>
                 <button type="button" onclick="outbound_call(<?php echo $row['primary_contact_phone_1']; ?>)" 
@@ -127,8 +125,7 @@
                         <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
                 </button>
           	</td>
-          	<td><?=$row['primary_contact_email'];?></td>
-          	<td><?=$row['owner_name'];?></td>
+                <td><a href="mailto:<?php echo $row['owner_email'];?>" data-toggle="popover" data-trigger="hover" data-content="Send Mail to Owner"><?=$row['owner_name'];?></a></td>
           	<td>
           	    <?=$row['owner_phone_1'];?>
                 <button type="button" onclick="outbound_call(<?php echo $row['owner_phone_1']; ?>)" 
@@ -136,8 +133,6 @@
                         <i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i>
                 </button>
           	</td>
-          	
-          	<td><?=$row['owner_email'];?></td>
                 <td>
                     <?php if ($row['is_upcountry'] == 1) { ?>
                         <a style= "background-color: #fff;" target="_blank" class='btn btn-sm btn-primary' href="<?php echo base_url(); ?>employee/vendor/get_sc_upcountry_details/<?php echo $row['id'];  ?>"><i style="color:red; font-size:20px;" class="fa fa-road" aria-hidden="true"></i></a>
@@ -192,6 +187,7 @@
     }
     
     </script>
+
     
     <?php if ($this->session->userdata('success')) {
         $this->session->unset_userdata('success'); 
