@@ -2031,11 +2031,14 @@ ALTER TABLE `partners` CHANGE `contract_file` `contract_file` VARCHAR(256) CHARA
 
 ------------------------- ALL CHANGES TAKEN TILL THIS POINT 14 FEB 2017 ------------------------------------
 
-=======
 ALTER TABLE `partners` CHANGE `upcountry_rate` `upcountry_rate` INT(11) NULL DEFAULT NULL;
 ALTER TABLE `bookings_sources` CHANGE `partner_email_for_to` `partner_email_for_to` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
 ALTER TABLE `bookings_sources` CHANGE `partner_email_for_cc` `partner_email_for_cc` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
-=======
+
 -- ANUJ 10 Feb
 ALTER TABLE  `vendor_partner_invoices` ADD  `penalty_bookings_count` INT NOT NULL COMMENT  'On how many bookings penalty is imposed?' AFTER `upcountry_price` ;
+
+------------------------- ALL CHANGES TAKEN TILL THIS POINT 14 FEB 2017 ------------------------------------
+
+ALTER TABLE `booking_details` ADD `is_penalty` INT(2) NULL DEFAULT '0' AFTER `customer_paid_upcountry_charges`;
 

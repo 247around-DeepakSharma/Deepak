@@ -71,7 +71,7 @@
                                         <td style="vertical-align: middle;">
                                             <i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc + $row->upcountry_price); ?>
                                             <br/>
-                                            <?php if($row->penalty > 0){ ?>
+                                            <?php if($row->is_penalty == 1 ){ ?>
                                             <p class="incentive" style="color:#F26722;font-size: 14px;">Incentive Lost</p>
                                             <?php } else { ?>
                                             <div class="countdown blink" data-popover="true" style="white-space:nowrap;color:#F26722; font-size:13px; overflow:hidden;text-overflow:ellipsis;white-space: initial;" data-html=true data-content="Time Left To Update Booking & Get Incentive" ></div>
