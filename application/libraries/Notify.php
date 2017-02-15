@@ -479,7 +479,7 @@ class Notify {
 		case 'Newbooking':
 		    $call_type = explode(" ", $query1[0]['request_type']);
 		    $sms['smsData']['service'] = $query1[0]['services']. " ".$call_type[0];
-		    $sms['smsData']['booking_date'] = $query1[0]['booking_date'];
+		    $sms['smsData']['booking_date'] = date("d/M", strtotime($query1[0]['booking_date']));
 		    $sms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
 
 		    if ($is_sd == FALSE) {
