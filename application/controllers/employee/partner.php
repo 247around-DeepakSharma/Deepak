@@ -1426,7 +1426,6 @@ class Partner extends CI_Controller {
 
         $booking_history = $this->booking_model->getbooking_history($booking_id);
         if(!empty($booking_history)){
-        
             $data['booking_history'] = $booking_history;
             $data['appliances'] = $this->partner_model->get_partner_specific_services($this->session->userdata('partner_id'));
             $unit_where = array('booking_id'=>$booking_id);
@@ -2432,9 +2431,9 @@ class Partner extends CI_Controller {
                     $data['upcountry_paid_by_customer'] = 0;
                     
                     if($result[0]['customer_net_payable']>.0){
-                       $form_data['price'] = "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:red'> to be pay by Customer </span>";
+                       $form_data['price'] = "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:red'> To be PAID By Customer </span>";
                     } else {
-                        $form_data['price'] =  "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:green'> Free to Customer </span>";
+                        $form_data['price'] =  "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:green'> Free for Customer </span>";
                     }
                     print_r(json_encode($form_data,true));
                     break;
@@ -2445,9 +2444,9 @@ class Partner extends CI_Controller {
                     $form_data['vendor_id'] = "";
                     $form_data['upcountry_data'] = json_encode("") ;
                     if($result[0]['customer_net_payable']>.0){
-                        $form_data['price'] = "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:red'> to be pay by Customer </span>";
+                        $form_data['price'] = "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:red'> To be PAID By Customer </span>";
                     } else {
-                        $form_data['price'] =  "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:green'> Free to Customer </span>";
+                        $form_data['price'] =  "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:green'> Free for Customer </span>";
                     }
                     print_r(json_encode($form_data,true));
                     break;
@@ -2479,13 +2478,13 @@ class Partner extends CI_Controller {
                         if($result[0]['customer_net_payable']>.0){
                             
                             $form_data['price'] = "<br/><br/> Rs. ". $result[0]['customer_net_payable'].
-                                "       <span style='color:red'> to be pay by Customer </span><br/>".
-                                "Rs. ".round($upcountry_price,2) . "       <span style='color:red'> to be pay Upcountry price by Customer </span>";
+                                "       <span style='color:red'> To be PAID By Customer </span><br/>".
+                                "Rs. ".round($upcountry_price,2) . "       <span style='color:red'> Upcountry Charges To be PAID By Customer </span>";
                         } else {
                              
                              $form_data['price'] = "<br/><br/> Rs. ". $result[0]['customer_net_payable'].
-                                "       <span style='color:green'> Free to Customer </span><br/>".
-                                "Rs. ".round($upcountry_price,2) . "       <span style='color:red'> to be pay Upcountry price by Customer </span>";
+                                "       <span style='color:green'> Free for Customer </span><br/>".
+                                "Rs. ".round($upcountry_price,2) . "       <span style='color:red'> Upcountry Charges To be PAID By Customer </span>";
                         }
                         $form_data['upcountry_data'] = json_encode($data) ;
                         print_r(json_encode($form_data,true));
@@ -2495,7 +2494,7 @@ class Partner extends CI_Controller {
                             //Free service with in upcountry limit
                            $data['partner_approval'] = 0;
                            $data['upcountry_paid_by_customer'] = 0;
-                           $form_data['price'] =  "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:green'> Free to Customer </span>";
+                           $form_data['price'] =  "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:green'> Free for Customer </span>";
                            $form_data['upcountry_data'] = json_encode($data) ;
                            print_r(json_encode($form_data,true));
                             
@@ -2503,8 +2502,8 @@ class Partner extends CI_Controller {
                             //Upcountry Limit exceed and Partner provide uproval
                             $data['partner_approval'] = 1;
                             $data['upcountry_paid_by_customer'] = 0;
-                            $form_data['price'] =  "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:green'> Free to Customer </span><br/>"
-                                 ."<span style='color:red'>This is out station call need to approval on Email/Panel</span>";  
+                            $form_data['price'] =  "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:green'> Free for Customer </span><br/>"
+                                 ."<span style='color:red'>This is Out Station Call, needs additional approval on Email or CRM.</span>";  
                             $form_data['upcountry_data'] = json_encode($data) ;
                             print_r(json_encode($form_data,true));
                             

@@ -101,17 +101,17 @@ class Service_centers_model extends CI_Model {
                     ELSE '0'
                   END AS penalty, "
                     
-                 . " CASE WHEN (bd.is_upcountry = 1 AND upcountry_paid_by_customer =0 AND bd.sub_vendor_id IS NOT NULL)  "
-                 . " THEN (SELECT  ( round((bd.upcountry_distance * bd.sf_upcountry_rate)/(count(b.id)),2)) "
-                 . " FROM booking_details AS b WHERE b.booking_pincode = bd.booking_pincode "
-                 . " AND b.booking_date = bd.booking_date AND is_upcountry =1 "
-                 . " AND b.sub_vendor_id IS NOT NULL "
-                 . " AND b.upcountry_paid_by_customer = 0 "
-                 . " AND bd.current_status IN ('Pending','Rescheduled', 'Completed')  "
-                 . " AND b.assigned_vendor_id = '$service_center_id' ) "
-                 . " WHEN (bd.is_upcountry = 1 AND upcountry_paid_by_customer = 1 AND bd.sub_vendor_id IS NOT NULL ) "
-                 . " THEN (bd.upcountry_distance * bd.sf_upcountry_rate) "
-                 . " ELSE 0 END AS upcountry_price, "
+//                 . " CASE WHEN (bd.is_upcountry = 1 AND upcountry_paid_by_customer =0 AND bd.sub_vendor_id IS NOT NULL)  "
+//                 . " THEN (SELECT  ( round((bd.upcountry_distance * bd.sf_upcountry_rate)/(count(b.id)),2)) "
+//                 . " FROM booking_details AS b WHERE b.booking_pincode = bd.booking_pincode "
+//                 . " AND b.booking_date = bd.booking_date AND is_upcountry =1 "
+//                 . " AND b.sub_vendor_id IS NOT NULL "
+//                 . " AND b.upcountry_paid_by_customer = 0 "
+//                 . " AND bd.current_status IN ('Pending','Rescheduled', 'Completed')  "
+//                 . " AND b.assigned_vendor_id = '$service_center_id' ) "
+//                 . " WHEN (bd.is_upcountry = 1 AND upcountry_paid_by_customer = 1 AND bd.sub_vendor_id IS NOT NULL ) "
+//                 . " THEN (bd.upcountry_distance * bd.sf_upcountry_rate) "
+//                 . " ELSE 0 END AS upcountry_price, "
                     
                 . " CASE WHEN (s.tin_no IS NOT NULL 
                         OR s.cst_no IS NOT NULL )
@@ -135,7 +135,7 @@ class Service_centers_model extends CI_Model {
                         END AS earn_sc,
 "
                 . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(bd.initial_booking_date, '%d-%m-%Y')) as age_of_booking "
-                . " FROM service_center_booking_action as sc, booking_details as bd, users, services, service_centres AS s, engineer_details "
+                . " FROM service_center_booking_action as sc, booking_details as bd, users, services, service_centres AS s "
                 . " WHERE sc.service_center_id = '$service_center_id' "
                 . " AND bd.assigned_vendor_id = '$service_center_id' "
                 . " AND bd.booking_id =  sc.booking_id "

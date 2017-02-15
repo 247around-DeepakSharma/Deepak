@@ -1960,3 +1960,6 @@ ALTER TABLE `bookings_sources` CHANGE `partner_email_for_cc` `partner_email_for_
 =======
 -- ANUJ 10 Feb
 ALTER TABLE  `vendor_partner_invoices` ADD  `penalty_bookings_count` INT NOT NULL COMMENT  'On how many bookings penalty is imposed?' AFTER `upcountry_price` ;
+
+
+------------------------- ALL CHANGES TAKEN TILL THIS POINT 14 FEB 2017 ------------------------------------
