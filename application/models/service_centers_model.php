@@ -50,9 +50,7 @@ class Service_centers_model extends CI_Model {
                 } else if($i == 3){
                     // Rescheduled Booking
                     $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) < -1) ";
-                     $status = " AND (bd.current_status='Rescheduled' AND sc.current_status = 'Pending') OR "
-                            . " (bd.current_status IN ('Pending', 'Rescheduled') AND sc.current_status = 'InProcess' "
-                            . " AND sc.internal_status IN ('Engineer on route','".CUSTOMER_NOT_REACHABLE."') )";
+                    $status = " AND (bd.current_status='Rescheduled' AND sc.current_status = 'Pending')  ";
                 } 
                 
             } else {
@@ -68,9 +66,7 @@ class Service_centers_model extends CI_Model {
                 } else if($i == 3){
                     // Rescheduled Booking
                     $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) < -1) ";
-                    $status = " AND (bd.current_status='Rescheduled' AND sc.current_status = 'Pending') OR "
-                            . " (bd.current_status IN ('Pending', 'Rescheduled') AND sc.current_status = 'InProcess' "
-                            . " AND sc.internal_status IN ('Engineer on route','".CUSTOMER_NOT_REACHABLE."') )";
+                    $status = " AND (bd.current_status='Rescheduled' AND sc.current_status = 'Pending')  ";
                 }
                 
             }
@@ -93,26 +89,18 @@ class Service_centers_model extends CI_Model {
                 . " bd.booking_address, "
                 . " bd.booking_pincode, "
                 . " services," 
-//                . " CASE
-//                    WHEN EXISTS (SELECT pb.booking_id
-//                                 FROM   penalty_on_booking as pb
-//                                 WHERE  pb.booking_id = bd.booking_id AND pb.service_center_id = bd.assigned_vendor_id) 
-//                                 THEN (SELECT SUM(penalty_amount) as penalty_amount FROM penalty_on_booking as pob
-//                                 WHERE pob.booking_id = bd.booking_id AND pob.service_center_id = bd.assigned_vendor_id)
-//                    ELSE '0'
-//                  END AS penalty, "
                     
-//                 . " CASE WHEN (bd.is_upcountry = 1 AND upcountry_paid_by_customer =0 AND bd.sub_vendor_id IS NOT NULL)  "
-//                 . " THEN (SELECT  ( round((bd.upcountry_distance * bd.sf_upcountry_rate)/(count(b.id)),2)) "
-//                 . " FROM booking_details AS b WHERE b.booking_pincode = bd.booking_pincode "
-//                 . " AND b.booking_date = bd.booking_date AND is_upcountry =1 "
-//                 . " AND b.sub_vendor_id IS NOT NULL "
-//                 . " AND b.upcountry_paid_by_customer = 0 "
-//                 . " AND bd.current_status IN ('Pending','Rescheduled', 'Completed')  "
-//                 . " AND b.assigned_vendor_id = '$service_center_id' ) "
-//                 . " WHEN (bd.is_upcountry = 1 AND upcountry_paid_by_customer = 1 AND bd.sub_vendor_id IS NOT NULL ) "
-//                 . " THEN (bd.upcountry_distance * bd.sf_upcountry_rate) "
-//                 . " ELSE 0 END AS upcountry_price, "
+                 . " CASE WHEN (bd.is_upcountry = 1 AND upcountry_paid_by_customer =0 AND bd.sub_vendor_id IS NOT NULL)  "
+                 . " THEN (SELECT  ( round((bd.upcountry_distance * bd.sf_upcountry_rate)/(count(b.id)),2)) "
+                 . " FROM booking_details AS b WHERE b.booking_pincode = bd.booking_pincode "
+                 . " AND b.booking_date = bd.booking_date AND is_upcountry =1 "
+                 . " AND b.sub_vendor_id IS NOT NULL "
+                 . " AND b.upcountry_paid_by_customer = 0 "
+                 . " AND bd.current_status IN ('Pending','Rescheduled', 'Completed')  "
+                 . " AND b.assigned_vendor_id = '$service_center_id' ) "
+                 . " WHEN (bd.is_upcountry = 1 AND upcountry_paid_by_customer = 1 AND bd.sub_vendor_id IS NOT NULL ) "
+                 . " THEN (bd.upcountry_distance * bd.sf_upcountry_rate) "
+                 . " ELSE 0 END AS upcountry_price, "
                     
                 . " CASE WHEN (s.tin_no IS NOT NULL 
                         OR s.cst_no IS NOT NULL )
@@ -426,7 +414,7 @@ class Service_centers_model extends CI_Model {
         for($i =0; $i<3; $i++){
             if($i ==0){
                 $where = " AND `ud_closed_date` >=  '".date('Y-m-01')."'";
-                $select = " date('Y-m-01') As month,";
+                $select = "  DATE_FORMAT(NOW() - INTERVAL 0 MONTH, '%Y-%m-01') As month,";
             } else if($i==1) {
                 $where = "  AND  ud_closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
 			    AND ud_closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
@@ -441,7 +429,7 @@ class Service_centers_model extends CI_Model {
         $sql  = " SELECT COUNT( DISTINCT (
                 bd.`id`
                 ) ) AS cancel_booking, $select
-                SUM( vendor_basic_charges + vendor_st_or_vat_basic_charges  ) AS lose_amount
+                SUM( vendor_basic_charges + vendor_st_or_vat_basic_charges  )  AS lose_amount
                 FROM booking_unit_details AS ud, booking_details AS bd
                 WHERE bd.assigned_vendor_id = '$service_center_id'
                 AND booking_status =  'Cancelled'

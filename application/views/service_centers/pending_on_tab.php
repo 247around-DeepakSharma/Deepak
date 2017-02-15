@@ -69,7 +69,7 @@
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
-                                            <i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc ); ?>
+                                            <i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc + $row->upcountry_price ); ?>
                                             <br/>
                                             <?php if($row->is_penalty == 1 ){ ?>
                                             <p class="incentive" style="color:#F26722;font-size: 14px;">Incentive Lost</p>
@@ -220,7 +220,7 @@
                                             <?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
-                                        <td style="vertical-align: middle;"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc); ?>
+                                        <td style="vertical-align: middle;"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc + $row->upcountry_price); ?>
                                         </td>
                                         <!--                                            <td>
                                             <div  id= "<?php// echo 'assign_engineer_div' . $sn_no; ?>" class="form-group " <?php //if (!is_null($row->assigned_engineer_id)) { ?> style="display: none;" <?php //} ?>>
@@ -366,7 +366,7 @@
                                             <?php if(isset($row->admin_remarks)){ echo $row->admin_remarks;}?>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
-                                        <td style="vertical-align: middle;"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc); ?>
+                                        <td style="vertical-align: middle;"><i class="fa fa-inr" aria-hidden="true"></i> <?php echo sprintf ("%.2f",$row->earn_sc + $row->upcountry_price); ?>
                                         </td>
                                         <!--                                            <td>
                                             <div  id= "<?php //echo 'assign_engineer_div' . $sn_no; ?>" class="form-group " <?php //if (!is_null($row->assigned_engineer_id)) { ?> style="display: none;" <?php// } ?>>

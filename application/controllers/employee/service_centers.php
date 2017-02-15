@@ -65,7 +65,7 @@ class Service_centers extends CI_Controller {
             //get sc details now
             $sc_details = $this->vendor_model->getVendorContact($agent['service_center_id']);
             if (!empty($sc_details)) {
-                $this->setSession($sc_details[0]['id'], $sc_details[0]['company_name'], $agent['id'], $sc_details[0]['is_update']);
+                $this->setSession($sc_details[0]['id'], $sc_details[0]['company_name'], $agent['id'], $sc_details[0]['is_update'], $sc_details[0]['is_upcountry']);
 
                 //Saving Login Details in Database
                 $login_data['browser'] = $this->agent->browser();
@@ -118,7 +118,9 @@ class Service_centers extends CI_Controller {
         $service_center_id = $this->session->userdata('service_center_id');
         $data['eraned_details'] =  $this->service_centers_model->get_sc_earned($service_center_id);
         $data['cancel_booking'] = $this->service_centers_model->count_cancel_booking_sc($service_center_id);
-        $data['upcountry'] = $this->upcountry_model->upcountry_service_center_3_month_price($service_center_id);
+        if($this->session->userdata('is_upcountry') == 1){
+            $data['upcountry'] = $this->upcountry_model->upcountry_service_center_3_month_price($service_center_id);
+        }
         $this->load->view("service_centers/header_summary", $data);
         
     }
@@ -373,12 +375,13 @@ class Service_centers extends CI_Controller {
      * @param: is update
      * @return: void
      */
-    function setSession($service_center_id, $service_center_name, $sc_agent_id, $update) {
+    function setSession($service_center_id, $service_center_name, $sc_agent_id, $update, $is_upcountry) {
 	$userSession = array(
 	    'session_id' => md5(uniqid(mt_rand(), true)),
 	    'service_center_id' => $service_center_id,
 	    'service_center_name' => $service_center_name,
             'service_center_agent_id' => $sc_agent_id,
+            'is_upcountry' => $is_upcountry,
             'is_update' => $update,
 	    'sess_expiration' => 30000,
 	    'loggedIn' => TRUE,
