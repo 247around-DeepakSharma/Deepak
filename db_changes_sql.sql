@@ -1424,6 +1424,11 @@ ALTER TABLE `brackets` ADD UNIQUE(`order_id`);
 ALTER TABLE `employee` ADD `exotel_phone` VARCHAR(15) NULL DEFAULT NULL AFTER `phone`;
 
 
+
+INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'sf_temporary_on_off', 'Dear %s,<br><br> <b> %s </b> Service Franchise has been made Temporarily <b> %s </b> <br><br> Thanks<br> 247Around Team', 'booking@247around.com', '', 'anuj@247around.com', '', '1', '2016-09-26 18:30:00');
+
+INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'sf_permanent_on_off', 'Dear %s,<br><br> <b> %s </b> Service Franchise has been made Permanent <b> %s </b> <br><br> Thanks<br> 247Around Team', 'booking@247around.com', '', 'anuj@247around.com', '', '1', '2016-09-26 18:30:00');
+
 --Abhay 19 DEC
 ALTER TABLE `spare_parts_details` ADD `defective_part_shipped` VARCHAR(100) NULL DEFAULT NULL AFTER `awb_by_partner`, 
 ADD `defective_part_shipped_date` DATE NULL DEFAULT NULL AFTER `defective_part_shipped`, 
@@ -1490,7 +1495,7 @@ INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`
 
 INSERT INTO `email_template` (`id`, `tag`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'un-cancel_brackets_requested_from_vendor', 'An order has been <b>Un-Cancelled</b> for Brackets of <strong>Order ID : %s </strong><br><br> <strong>Order Details:</strong><br><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Total Requested : %s<br><br> <strong>Requested From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br> Phone Number: %s, %s<br><br> Please <b>ship</b> the following orders.', 'booking@247around.com', '', 'anuj@247around.com, nits@247around.com,vijaya@247around.com', '', '1', '2016-09-26 18:30:00');
 
-HEA
+
 ----Abhay 27 Dec
 ALTER TABLE  `agent_outbound_call_log` ADD  `call_duration` INT( 50 ) NULL DEFAULT NULL ;
 
@@ -1917,7 +1922,7 @@ ALTER TABLE `penalty_on_booking` ADD `penalty_remove_agent_id` INT NULL AFTER `p
 ALTER TABLE `vendor_partner_invoices` ADD `penalty_amount` DECIMAL(10,2) NULL DEFAULT NULL AFTER `upcountry_price`;
 ALTER TABLE `penalty_on_booking` ADD `foc_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `create_date`;
 
-<<<<<<< HEAD
+
 -- Sachin 13 Feb
 
 CREATE TABLE `agent_daily_report_stats` (
@@ -1959,7 +1964,9 @@ ALTER TABLE `partners` CHANGE `registration_no` `registration_no` VARCHAR(50) CH
 ALTER TABLE `partners` CHANGE `upcountry_rate` `upcountry_rate` INT(11) NULL DEFAULT NULL;
 ALTER TABLE `bookings_sources` CHANGE `partner_email_for_to` `partner_email_for_to` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
 ALTER TABLE `bookings_sources` CHANGE `partner_email_for_cc` `partner_email_for_cc` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
-=======
+
 -- ANUJ 10 Feb
 ALTER TABLE  `vendor_partner_invoices` ADD  `penalty_bookings_count` INT NOT NULL COMMENT  'On how many bookings penalty is imposed?' AFTER `upcountry_price` ;
->>>>>>> 51b16bf67cae86ebb8fb03a6b6e20e16ccfb71da
+
+------------------------- ALL CHANGES TAKEN TILL THIS POINT 14 FEB 2017 ------------------------------------
+

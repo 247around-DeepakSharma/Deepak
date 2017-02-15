@@ -49,6 +49,12 @@ class Booking_utilities {
 	$booking_details = $this->My_CI->booking_model->getbooking_history($booking_id);
         $unit_where = array('booking_id'=>$booking_id);
 	$unit_details = $this->My_CI->booking_model->get_unit_details($unit_where);
+        $meta =  array();
+        $meta['upcountry_charges'] = 0;
+        if($booking_details[0]['upcountry_paid_by_customer'] == 1){
+            $meta['upcountry_charges'] = $booking_details[0]['upcountry_distance'] * $booking_details[0]['partner_upcountry_rate'];
+        }
+        $meta['appliance_description'] = $unit_details[0]['appliance_description'];
 	$R->load(array(
 	    array(
 		'id' => 'booking',
@@ -70,6 +76,11 @@ class Booking_utilities {
 		    'total_price' => array('number' => array('prefix' => 'Rs. ')),
 		)
 	    ),
+            array(
+                'id' => 'meta',
+                'repeat' => false,
+                'data' => $meta,
+             ),
 	    )
 	);
 
@@ -417,7 +428,7 @@ class Booking_utilities {
                            <tbody >';
        
 
-       //$show_state = [];
+       $show_state = [];
        $greater_than_5_days = 0;
        $overall_greater_than_5_days = 0;
        $yesterday_booked = 0;
