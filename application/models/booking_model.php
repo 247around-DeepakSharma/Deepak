@@ -159,7 +159,7 @@ class Booking_model extends CI_Model {
         if($booking_id != ""){
             $where =  "  `booking_details`.booking_id = '$booking_id' AND ";
         }
-        $query = $this->db->query("Select services.services,users.name as customername,penalty_on_booking.active as penalty_active,
+        $query = $this->db->query("Select distinct services.services,users.name as customername,penalty_on_booking.active as penalty_active,
             users.phone_number, booking_details.*, service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,
             service_centres.primary_contact_phone_1
