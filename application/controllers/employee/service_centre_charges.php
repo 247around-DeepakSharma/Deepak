@@ -226,7 +226,6 @@ class service_centre_charges extends CI_Controller {
 		    // Get Data from top 14 rows in excel file
 		    if ($count > 1) {
 			$data = $this->set_price_rows_data($row);
-                        print_r($data);
                             array_push($rows, $data);
                         }
 		} else if ($type == "tax") {
@@ -325,28 +324,29 @@ class service_centre_charges extends CI_Controller {
     function set_price_rows_data($row) {
 	$data['partner_id'] = isset($row[1])?$row[1]:'';
 	$data['state'] = isset($row[2])?$row[2]:'';
-	$data['service_id'] = isset($row[4])?$row[4]:'';
-	$data['category'] = isset($row[5])?$row[5]:'';
-	$data['capacity'] = isset($row[6])?$row[6]:'';
-	$data['service_category'] = isset($row[7])?$row[7]:'';
-	$data['product_or_services'] = isset($row[8])?$row[8]:'';
-	$data['product_type'] = isset($row[9])?$row[9]:'';
-	$data['tax_code'] = isset($row[10])?$row[10]:'';
-	$data['active'] = isset($row[11])?$row[11]:'';
-	$data['check_box'] = isset($row[12])?$row[12]:'';
-	$data['vendor_basic_charges'] = isset($row[13])?$row[13]:'';
-	$data['vendor_tax_basic_charges'] = isset($row[14])?$row[14]:'';
-	$data['vendor_total'] = isset($row[15])?$row[15]:'';
-	$data['around_basic_charges'] = isset($row[16])?$row[16]:'';
-	$data['around_tax_basic_charges'] = isset($row[17])?$row[17]:'';
-	$data['around_total'] = isset($row[18])?$row[18]:'';
-	$data['customer_total'] = isset($row[20])?$row[20]:'';
-	$data['partner_payable_basic'] = isset($row[21])?$row[21]:'';
-	$data['partner_payable_tax'] = isset($row[22])?$row[22]:'';
-	$data['partner_net_payable'] = isset($row[23])?$row[23]:'';
-	$data['customer_net_payable'] = isset($row[24])?$row[24]:'';
-	$data['pod'] = isset($row[25])?$row[25]:'';
-        $data['vendor_basic_percentage'] = isset($row[26])?$row[26]:'';
+        $data['brand'] = isset($row[3])?$row[3]:'';
+	$data['service_id'] = isset($row[5])?$row[5]:'';
+	$data['category'] = isset($row[6])?$row[ 6]:'';
+	$data['capacity'] = isset($row[7])?$row[7]:'';
+	$data['service_category'] = isset($row[8])?$row[8]:'';
+	$data['product_or_services'] = isset($row[9])?$row[9]:'';
+	$data['product_type'] = isset($row[10])?$row[10]:'';
+	$data['tax_code'] = isset($row[11])?$row[11]:'';
+	$data['active'] = isset($row[12])?$row[12]:'';
+	$data['check_box'] = isset($row[13])?$row[13]:'';
+	$data['vendor_basic_charges'] = isset($row[14])?$row[14]:'';
+	$data['vendor_tax_basic_charges'] = isset($row[15])?$row[15]:'';
+	$data['vendor_total'] = isset($row[16])?$row[16]:'';
+	$data['around_basic_charges'] = isset($row[17])?$row[17]:'';
+	$data['around_tax_basic_charges'] = isset($row[18])?$row[18]:'';
+	$data['around_total'] = isset($row[19])?$row[19]:'';
+	$data['customer_total'] = isset($row[21])?$row[21]:'';
+	$data['partner_payable_basic'] = isset($row[22])?$row[22]:'';
+	$data['partner_payable_tax'] = isset($row[23])?$row[23]:'';
+	$data['partner_net_payable'] = isset($row[24])?$row[24]:'';
+	$data['customer_net_payable'] = isset($row[25])?$row[25]:'';
+	$data['pod'] = isset($row[26])?$row[26]:'';
+        $data['vendor_basic_percentage'] = isset($row[28])?$row[28]:'';
 
             return $data;
         }
