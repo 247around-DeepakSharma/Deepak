@@ -209,7 +209,7 @@ class Upcountry_model extends CI_Model {
         } else if ($upcountry_vendor_details['upcountry_distance'] > (UPCOUNTRY_MIN_DISTANCE + UPCOUNTRY_MIN_DISTANCE*0.1)
                 && $upcountry_vendor_details['upcountry_distance'] < UPCOUNTRY_DISTANCE_THRESHOLD) {
 
-            $up_data = array('upcountry_pincode' => $upcountry_vendor_details['pincode'],
+            $up_data = array('upcountry_pincode' => $upcountry_vendor_details['upcountry_pincode'],
                 'upcountry_distance' => ($upcountry_vendor_details['upcountry_distance'] - UPCOUNTRY_MIN_DISTANCE),
                 'sf_upcountry_rate' => $upcountry_vendor_details['sf_upcountry_rate'],
                 'sub_vendor_id' => $upcountry_vendor_details['sub_vendor_id'],
@@ -221,7 +221,7 @@ class Upcountry_model extends CI_Model {
            
         } else if($upcountry_vendor_details['upcountry_distance'] > UPCOUNTRY_DISTANCE_THRESHOLD) {
            
-            $up_data = array('upcountry_pincode' => $upcountry_vendor_details['pincode'],
+            $up_data = array('upcountry_pincode' => $upcountry_vendor_details['upcountry_pincode'],
                 'upcountry_distance' => ($upcountry_vendor_details['upcountry_distance'] - UPCOUNTRY_MIN_DISTANCE),
                 'sf_upcountry_rate' => $upcountry_vendor_details['sf_upcountry_rate'],
                 'sub_vendor_id' => $upcountry_vendor_details['sub_vendor_id'],
