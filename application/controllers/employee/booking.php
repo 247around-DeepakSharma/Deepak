@@ -1093,13 +1093,16 @@ class Booking extends CI_Controller {
                     $upcountry_data['partner_upcountry_rate'] = DEFAULT_UPCOUNTRY_RATE;
                 }
                 break;
+                
             }
             
             $data['upcountry_data'] = json_encode($upcountry_data,true);
             print_r(json_encode($data,true));
+            
+            
 	} else {
             $data['html']= "Price Table Not Found";
-	    print_r(json_encode($data)); 
+	    print_r(json_encode($data, true)); 
 	}
     }
    

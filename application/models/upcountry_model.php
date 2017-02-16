@@ -190,7 +190,7 @@ class Upcountry_model extends CI_Model {
                 return $this->mark_upcountry_vendor($get_data);
             }
         } else if(!empty($error)){
-            log_message('info', __FUNCTION__ ." upcountry error ".print_r($error) );
+            log_message('info', __FUNCTION__ ." upcountry error ".print_r($error, TRUE) );
             return $error;
         }
     }
