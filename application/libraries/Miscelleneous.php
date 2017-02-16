@@ -141,7 +141,7 @@ class Miscelleneous {
     
     function assign_upcountry_booking($booking_id, $agent_id, $agent_name){
         log_message('info', __METHOD__ . " => Entering " . $booking_id);
-        $query1 = $this->My_CI->booking_model->getbooking_history($booking_id);
+        $query1 = $this->My_CI->booking_model->getbooking_history($booking_id, "1");
         $vendor_data = array();
 
         $vendor_data[0]['vendor_id'] = $query1[0]['assigned_vendor_id'];
