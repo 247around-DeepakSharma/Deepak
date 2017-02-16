@@ -192,7 +192,7 @@ class Partner extends CI_Controller {
                         //if productType is valid then proceed else send invalid json response 
                         $is_productType_valid = $this->validate_product_type($requestData);
                         
-                        if($is_productType_valid['error'] !== TRUE){                         
+                        if(!isset($is_productType_valid['error'])){                         
                         log_message('info', 'Product type: ' . $requestData['product']);
                         $prod = trim($requestData['product']);
 
