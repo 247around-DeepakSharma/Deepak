@@ -503,6 +503,7 @@ function set_upcountry(){
 
             if (data1.message === "UPCOUNTRY BOOKING") {
                 $("#upcountry_charges").val("0");
+                $('#submitform').attr('disabled', false); 
 
             } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 0) {
                 $('#submitform').attr('disabled', true);
