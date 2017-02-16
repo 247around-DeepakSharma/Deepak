@@ -2424,6 +2424,7 @@ class Partner extends CI_Controller {
         if(!empty($result)){
           
             $data = $this->miscelleneous->check_upcountry_vendor_availability($city, $pincode,$service_id, $assigned_vendor_id);
+            
             switch ($data['message']){
                 case NOT_UPCOUNTRY_BOOKING:
                     $form_data['vendor_id'] = $data['vendor_id'];
@@ -2494,7 +2495,7 @@ class Partner extends CI_Controller {
                             //Free service with in upcountry limit
                            $data['partner_approval'] = 0;
                            $data['upcountry_paid_by_customer'] = 0;
-                           $form_data['price'] =  "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:green'> Free for Customer </span>";
+                           $form_data['price'] =  "<br/><br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:green'> Free for Customer </span>";
                            $form_data['upcountry_data'] = json_encode($data) ;
                            print_r(json_encode($form_data,true));
                             
@@ -2502,7 +2503,7 @@ class Partner extends CI_Controller {
                             //Upcountry Limit exceed and Partner provide uproval
                             $data['partner_approval'] = 1;
                             $data['upcountry_paid_by_customer'] = 0;
-                            $form_data['price'] =  "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:green'> Free for Customer </span><br/>"
+                            $form_data['price'] =  "<br/><br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:green'> Free for Customer </span><br/>"
                                  ."<span style='color:red'>This is Out Station Call, needs additional approval on Email or CRM.</span>";  
                             $form_data['upcountry_data'] = json_encode($data) ;
                             print_r(json_encode($form_data,true));
