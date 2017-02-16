@@ -44,6 +44,7 @@ class Miscelleneous {
                 } else {
                     $msg['vendor_id'] = $check_vendor[0]['Vendor_ID'];
                     $msg['message'] = NOT_UPCOUNTRY_BOOKING;
+                   
                     return $msg;
                 }
             } else if(count($check_vendor > 1)){
@@ -62,10 +63,13 @@ class Miscelleneous {
                 }
                 
                 if($is_return ==1){
+                   
                     if(count($mesg1) > 1){
                         $msg['message'] = SF_DOES_NOT_EXIST;
+                        return $msg;
                         
                     } else {
+                        
                         return $mesg1[0];
                     }
                 }
@@ -73,6 +77,9 @@ class Miscelleneous {
            
             return $this->My_CI->upcountry_model->action_upcountry_booking($booking_city,
                     $booking_pincode, $data1);
+           
+            
+        
             
         } else {
             $msg['message'] = SF_DOES_NOT_EXIST;

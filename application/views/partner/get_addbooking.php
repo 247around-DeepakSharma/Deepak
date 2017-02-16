@@ -72,8 +72,8 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 <?php if( form_error('appliance_brand') ) { echo 'has-error';} ?>">
-                                    <label for="appliance_brand">Brand *  <span id="error_brand" style="color: red;"></label>
-                                    <p style="color:grey;display:none" id="brand_loading">Loading ...</p>
+                                    <label for="appliance_brand">Brand *   <span style="color:grey;display:none" id="brand_loading">Loading ...</span> <span id="error_brand" style="color: red;"></label>
+                                   
                                     <select type="text" class="form-control appliance_brand"    name="appliance_brand" id="appliance_brand_1" required onchange="return get_category(), getservice_category()">
                                         <option selected disabled value="option1">Select Brand</option>
                                     </select>
@@ -82,8 +82,8 @@
                             </div>
                             <div class="col-md-4 col-md-12">
                                 <div class="form-group col-md-12 <?php if( form_error('appliance_category') ) { echo 'has-error';} ?>">
-                                    <label for="appliance_category">Category * <span id="error_category" style="color: red;"></label>
-                                    <p style="color:grey;display:none" id="category_loading">Loading ...</p>
+                                    <label for="appliance_category">Category *<span style="color:grey;display:none" id="category_loading">Loading ...</span> <span id="error_category" style="color: red;"></label>
+                                    
                                     <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category"   required onchange="return get_capacity(), getservice_category()">
                                         <option selected disabled value="option1">Select Appliance Category</option>
                                     </select>
@@ -92,8 +92,8 @@
                             </div>
                             <div class="col-md-4 col-md-12">
                                 <div class="form-group col-md-12 <?php if( form_error('appliance_capacity') ) { echo 'has-error';} ?>">
-                                    <label for="appliance_capacity">Capacity  <span id="error_capacity" style="color: red;"></label>
-                                    <p style="color:grey;display:none" id="capacity_loading">Loading ...</p>
+                                    <label for="appliance_capacity">Capacity   <span style="color:grey;display:none" id="capacity_loading">Loading ...</span> <span id="error_capacity" style="color: red;"></label>
+                                   
                                     <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" onchange="return get_models(), getservice_category()">
                                         <option selected disabled value="option1">Select Appliance Capacity</option>
                                     </select>
@@ -421,7 +421,7 @@
          $.ajax({
                         type: 'POST',
                         beforeSend: function(){
-                            $('#brand_loading').css("display", "block");
+                            $('#brand_loading').css("display", "inherit");
                         },
                         url: '<?php echo base_url(); ?>employee/partner/get_brands_from_service',
                         data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, brand:'<?php echo set_value('appliance_brand');?>'},
@@ -446,7 +446,7 @@
         $.ajax({
                         type: 'POST',
                         beforeSend: function(){
-                            $('#category_loading').css("display", "block");
+                            $('#category_loading').css("display", "inherit");
                         },
                         url: '<?php echo base_url(); ?>employee/partner/get_category_from_service',
                         data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, brand: brand},
@@ -473,7 +473,7 @@
         $.ajax({
             type: 'POST',
             beforeSend: function(){
-                $('#capacity_loading').css("display", "block");
+                $('#capacity_loading').css("display", "inherit");
             },
             url: '<?php echo base_url(); ?>employee/partner/get_capacity_for_partner',
             data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, brand: brand,category:category},
@@ -554,12 +554,13 @@
                 url: '<?php echo base_url(); ?>employee/partner/get_price_for_partner',
                 data: postData,
                 success: function (data) {
-                    
+                    console.log(data);
                      if(data === "ERROR"){
                          // $("#total_price").text("Price is not defined" );
                           alert("Outstation Bookings Are Not Allowed, Please Contact 247around Team.");
 
-                     } else {                         
+                     } else { 
+                         
                           var data1 = jQuery.parseJSON(data);
                          
                           $("#total_price").html(data1.price);
@@ -602,7 +603,7 @@
             url: '<?php echo base_url(); ?>employee/partner/get_service_category',
             data: postData,
             success: function (data) {
-            //console.log(data);
+            console.log(data);
                  if(data === "ERROR"){
                      
                    // alert("Price is not defined");
