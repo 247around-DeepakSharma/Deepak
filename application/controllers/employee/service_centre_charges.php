@@ -226,6 +226,7 @@ class service_centre_charges extends CI_Controller {
 		    // Get Data from top 14 rows in excel file
 		    if ($count > 1) {
 			$data = $this->set_price_rows_data($row);
+                        print_r($data);
                             array_push($rows, $data);
                         }
 		} else if ($type == "tax") {
