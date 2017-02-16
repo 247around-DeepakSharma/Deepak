@@ -192,7 +192,7 @@ class Partner extends CI_Controller {
                         //if productType is valid then proceed else send invalid json response 
                         $is_productType_valid = $this->validate_product_type($requestData);
                         
-                        if($is_productType_valid['error'] !== TRUE){                         
+                        if(!isset($is_productType_valid['error'])){                         
                         log_message('info', 'Product type: ' . $requestData['product']);
                         $prod = trim($requestData['product']);
 
@@ -238,23 +238,6 @@ class Partner extends CI_Controller {
                         
                         $booking['partner_id'] = $data['partner_id'];
                         $booking['source'] = $data['source'];
-                        
-                        //Check vendor Availabilty for pincode and service id
-                        $vendors = $this->vendor_model->check_vendor_availability($requestData['pincode'], $service_id);
-                        $vendors_count = count($vendors);
-
-                        if ($vendors_count > 0) {
-                            $this->send_sms_to_snapdeal_customer($lead_details['Product'],
-                            $booking['booking_primary_contact_no'], $user_id,
-                            $booking['booking_id'], $unit_details['appliance_category']);
-                            
-                            $booking['internal_status'] = "Missed_call_not_confirmed";
-                        } else { //if ($vendors_count > 0) {
-                            //mark this booking as sms not sent
-                            $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
-                            
-                            log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
-                        }
                         
                         $unit_details['partner_id'] = $booking['partner_id'];
                         $booking['order_id'] = $requestData['orderID'];
@@ -314,13 +297,23 @@ class Partner extends CI_Controller {
 
                         $appliance_details['last_service_date'] = date('Y-m-d');
                         $booking['potential_value'] = '';
+                        //Check vendor Availabilty for pincode and service id
+                        $vendors = $this->vendor_model->check_vendor_availability($requestData['pincode'], $service_id);
+                        $vendors_count = count($vendors);
 
-                        //check partner status from partner_booking_status_mapping table 
-                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$booking['partner_id'], $booking['booking_id']);
-                        if(!empty($partner_status)){
-                            $booking['partner_current_status'] = $partner_status[0];
-                            $booking['partner_internal_status'] = $partner_status[1];
+                        if ($vendors_count > 0) {
+                            $this->send_sms_to_snapdeal_customer($lead_details['Product'],
+                            $booking['booking_primary_contact_no'], $user_id,
+                            $booking['booking_id'], $unit_details['appliance_category']);
+                            
+                            $booking['internal_status'] = "Missed_call_not_confirmed";
+                        } else { //if ($vendors_count > 0) {
+                            //mark this booking as sms not sent
+                            $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
+                            
+                            log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
                         }
+
                             
                         $booking['current_status'] = "FollowUp";
                         $booking['type'] = "Query";
@@ -331,6 +324,13 @@ class Partner extends CI_Controller {
                         $booking['booking_remarks'] = '';
                         $booking['state'] = $state['state'];
                         $unit_details['booking_status'] = "FollowUp";
+                        
+                        //check partner status from partner_booking_status_mapping table 
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$booking['partner_id'], $booking['booking_id']);
+                        if(!empty($partner_status)){
+                            $booking['partner_current_status'] = $partner_status[0];
+                            $booking['partner_internal_status'] = $partner_status[1];
+                        }
                         
                         //Insert query
                         //echo print_r($booking, true) . "<br><br>";
