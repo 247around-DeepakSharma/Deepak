@@ -142,8 +142,9 @@ class Penalty_model extends CI_Model {
 	    $data['penalty_amount'] = $penalty_details['penalty_amount'];
             $data['active'] = 1;
             if(isset($value['penalty_active'])){
-                
-                $this->update_penalty_on_booking($data['booking_id'],$data);
+                $data['active']=1;
+                $where = array('booking_id'=>$data['booking_id'],'current_state' =>$data['current_state'],'service_center_id'=>$data['service_center_id']);
+                $this->update_penalty_any($where,$data);
             }else{
                 $this->insert_penalty_on_booking($data);
                 if($data['criteria_id']  == '2'){
@@ -270,13 +271,13 @@ class Penalty_model extends CI_Model {
      * @Desc: This function is used to Updated Penalty on Bookings Table for particular Booking ID
      *         Only those bookings are updated whose current state is Cancelled or Completed
      *         Bookings which are Escalted are not Updated
-     * @params: Booking ID ,data Array
+     * @params: ID ,data Array
      * @return: Boolean
      */
-    function update_penalty_on_booking($booking_id,$data){
-        $this->db->where('booking_id',$booking_id);
-        $this->db->where('current_state','Completed');
-        $this->db->or_where('current_state','Cancelled');
+    function update_penalty_on_booking($id,$data){
+        $this->db->where('id',$id);
+//        $this->db->where('current_state','Completed');
+//        $this->db->or_where('current_state','Cancelled');
         $this->db->update('penalty_on_booking',$data);
         if($this->db->affected_rows() > 0){
             return TRUE;
@@ -327,6 +328,21 @@ class Penalty_model extends CI_Model {
     function update_penalty_any($where, $data){
         $this->db->where($where);
         $this->db->update("penalty_on_booking", $data);
+        
+    }
+    
+    /**
+     * @desc This is used to get penalty on booking table for booking id on selected condition
+     * @param Array $where
+     * @return Array $data
+     */
+    function get_penalty_on_booking_any($where){
+        $this->db->select('*');
+        $this->db->where($where);
+        $this->db->from('penalty_on_booking');
+        $query = $this->db->get();
+        return $query->result_array();
+        
     }
 
 
