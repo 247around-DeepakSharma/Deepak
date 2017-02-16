@@ -347,7 +347,7 @@ class Partner extends CI_Controller {
                 // Send the request
                 $response = curl_exec($ch);
                 
-                log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted error mgs" . print_r($response, true));
+                log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  Booking Inserted Message: " . print_r($response, true));
                 // Decode the response
                 $responseData = json_decode($response, TRUE);
                 
