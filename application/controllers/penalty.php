@@ -19,6 +19,7 @@ class Penalty extends CI_Controller {
 	parent::__Construct();
 
 	$this->load->model('penalty_model');
+        $this->load->model('booking_model');
 	$this->load->model('reporting_utils');
 	$this->load->helper(array('form', 'url'));
     }

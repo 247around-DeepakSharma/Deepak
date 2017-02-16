@@ -98,7 +98,7 @@ class Upcountry_model extends CI_Model {
 
                 } else {
                     log_message('info', __FUNCTION__.' Distance Not Found pincode1 '. $postcode1. " ". $postcode2);
-                    echo ' Distance Not Found pincode1 '. $postcode1. " ". $postcode2.PHP_EOL;
+                    
                     return FALSE;
                 }
             }
@@ -143,7 +143,7 @@ class Upcountry_model extends CI_Model {
                     }
                    
                     if($distance){
-                        $upcountry_vendor['pincode'] = $res_sb[0]['pincode'];
+                        $upcountry_vendor['upcountry_pincode'] = $res_sb[0]['pincode'];
                         $upcountry_vendor['vendor_id'] = $value['vendor_id'];
                         $upcountry_vendor['sub_vendor_id'] = $res_sb[0]['id'];
                         $upcountry_vendor['upcountry_distance'] = $distance;
@@ -200,7 +200,7 @@ class Upcountry_model extends CI_Model {
        
         $up_data = array();
         if ($upcountry_vendor_details['upcountry_distance'] < (UPCOUNTRY_MIN_DISTANCE + UPCOUNTRY_MIN_DISTANCE*0.1)) {
-            echo "1";
+           
             log_message('info', __FUNCTION__ ." Not Upcountry Booking ". print_r($upcountry_vendor_details, true) );
             $up_data['vendor_id'] = $upcountry_vendor_details['vendor_id'];
             $up_data['message'] = NOT_UPCOUNTRY_BOOKING;
@@ -209,7 +209,7 @@ class Upcountry_model extends CI_Model {
         } else if ($upcountry_vendor_details['upcountry_distance'] > (UPCOUNTRY_MIN_DISTANCE + UPCOUNTRY_MIN_DISTANCE*0.1)
                 && $upcountry_vendor_details['upcountry_distance'] < UPCOUNTRY_DISTANCE_THRESHOLD) {
 
-            $up_data = array('upcountry_pincode' => $upcountry_vendor_details['pincode'],
+            $up_data = array('upcountry_pincode' => $upcountry_vendor_details['upcountry_pincode'],
                 'upcountry_distance' => ($upcountry_vendor_details['upcountry_distance'] - UPCOUNTRY_MIN_DISTANCE),
                 'sf_upcountry_rate' => $upcountry_vendor_details['sf_upcountry_rate'],
                 'sub_vendor_id' => $upcountry_vendor_details['sub_vendor_id'],
@@ -221,7 +221,7 @@ class Upcountry_model extends CI_Model {
            
         } else if($upcountry_vendor_details['upcountry_distance'] > UPCOUNTRY_DISTANCE_THRESHOLD) {
            
-            $up_data = array('upcountry_pincode' => $upcountry_vendor_details['pincode'],
+            $up_data = array('upcountry_pincode' => $upcountry_vendor_details['upcountry_pincode'],
                 'upcountry_distance' => ($upcountry_vendor_details['upcountry_distance'] - UPCOUNTRY_MIN_DISTANCE),
                 'sf_upcountry_rate' => $upcountry_vendor_details['sf_upcountry_rate'],
                 'sub_vendor_id' => $upcountry_vendor_details['sub_vendor_id'],
@@ -245,8 +245,7 @@ class Upcountry_model extends CI_Model {
         foreach ($data as $value) {
           
             if($min_price['upcountry_distance'] >= $value['upcountry_distance']){
-                
-                $min_price['upcountry_price'] = $value['upcountry_price'];
+                $min_price['vendor_id'] = $value['vendor_id'];
                 $min_price['upcountry_pincode'] = $value['upcountry_pincode'];
                 $min_price['sf_upcountry_rate'] = $value['sf_upcountry_rate'];
                 $min_price['sub_vendor_id'] = $value['sub_vendor_id'];

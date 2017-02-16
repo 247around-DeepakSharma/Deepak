@@ -315,7 +315,7 @@ class Do_background_upload_excel extends CI_Controller {
             // First we send Service id and Brand and get Partner_id from it
             // Now we send state, partner_id and service_id 
             $value['Brand'] = trim(str_replace("'", "", $value['Brand']));
-            $data = $this->_allot_source_partner_id_for_pincode($value['service_id'], $state['state'], $value['Brand'], "SS");
+            $data = $this->_allot_source_partner_id_for_pincode($value['service_id'], $state['state'], $value['Brand']);
 
             $booking['partner_id'] = $data['partner_id'];
             $booking['source'] = $data['source'];
@@ -1197,7 +1197,7 @@ class Do_background_upload_excel extends CI_Controller {
      * @return : Array
      * 
      */
-    private function _allot_source_partner_id_for_pincode($service_id, $state, $brand, $default_partner_source) {
+    private function _allot_source_partner_id_for_pincode($service_id, $state, $brand) {
         log_message('info', __FUNCTION__ . ' ' . $service_id, $state, $brand);
         $data = [];
 
@@ -1213,15 +1213,9 @@ class Do_background_upload_excel extends CI_Controller {
                     $data['partner_id'] = $value['partner_id'];
                     $data['source'] = $this->partner_model->get_source_code_for_partner($value['partner_id']);
                 } else {
-                    if($default_partner_source == "SS"){
                     //Now assigning this case to SS
                     $data['partner_id'] = SNAPDEAL_ID;
-                    $data['source'] = $default_partner_source;
-                    } else if($default_partner_source == "SP"){
-                        //Now assigning this case to SS
-                        $data['partner_id'] = PAYTM;
-                        $data['source'] = $default_partner_source;
-                    }
+                    $data['source'] = 'SS';
                 }
             }
         } else {

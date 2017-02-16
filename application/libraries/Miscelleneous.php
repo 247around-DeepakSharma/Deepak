@@ -31,6 +31,7 @@ class Miscelleneous {
         $sf_city = $this->My_CI->vendor_model->get_city_from_india_pincode($booking_pincode)['district'];
         $data1 = array();
         $is_return = 0;
+        $mesg1 = array();
         
         // if $check_vendor is empty then return because we are are providing service in this pincode
         if(!empty($check_vendor)){
@@ -56,12 +57,17 @@ class Miscelleneous {
                         $msg['vendor_id'] = $vendor['Vendor_ID'];
                         $msg['message'] = NOT_UPCOUNTRY_BOOKING;
                         $is_return = 1;
-                        break; 
+                        array_push($mesg1, $msg);
                     }
                 }
                 
                 if($is_return ==1){
-                    return $msg;
+                    if(count($mesg1) > 1){
+                        $msg['message'] = SF_DOES_NOT_EXIST;
+                        
+                    } else {
+                        return $mesg1[0];
+                    }
                 }
             }
            
