@@ -19,7 +19,7 @@
                                 <div class="form-group">
                                     <label for="name" class="col-md-4">Name</label>
                                     <div class="col-md-6">
-                                         <input type="hidden" name="upcountry_data" value="" id="upcountry_data" /> 
+                                        <input type="hidden" name="upcountry_data" value="<?php echo json_decode(""); ?>" id="upcountry_data" /> 
                                         <input type="text" class="form-control" id="name" name="user_name" value = "<?php echo $booking_history[0]['name'] ?>" readonly="readonly"/>
                                     </div>
                                 </div>
@@ -316,6 +316,7 @@
                                                                 placeholder='Enter discount' readonly />
                                                             </td>
                                                             <td>
+                                                                <input type='hidden'name ='is_up_val' id="<?php echo "is_up_val_".$div."_1" ?>" value="<?php echo $price['is_upcountry']; ?>" />
                                                                 <input class='price_checkbox' <?php if(isset($unit_details[0]['quantity'])){
                                                                     foreach ($unit_details[0]['quantity'] as  $tags) {
                                                                         if($tags['price_tags'] == $price['service_category'] ){
@@ -741,6 +742,7 @@
         
         $("#upcountry_data").val(data1.upcountry_data);
         final_price();
+    
         set_upcountry();
         $('#submitform').attr('disabled',false);
        

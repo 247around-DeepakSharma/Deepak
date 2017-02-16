@@ -480,6 +480,7 @@ function formatDate(date) {
 
 function set_upcountry(){
     var upcountry_data = $("#upcountry_data").val();
+    console.log(upcountry_data);
     is_upcountry = 0;
     count = 0;
     $("input[type=checkbox]:checked").each(function (i) {
@@ -497,6 +498,7 @@ function set_upcountry(){
         if (is_upcountry === 1) {
             var total_price = $("#grand_total_price").val();
             var data1 = jQuery.parseJSON(upcountry_data);
+            console.log(data1);
             var partner_approval = Number(data1.partner_upcountry_approval);
 
             if (data1.message === "UPCOUNTRY BOOKING") {
