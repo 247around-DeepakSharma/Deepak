@@ -133,7 +133,7 @@
     }
     $("#priceList_"+div_no[2]).html("Loading......"); 
     sendAjaxRequest(postData, pricesForCategoryCapacityUrl).done(function(data) {
-         //console.log(data);
+         console.log(data);
         var data1 = jQuery.parseJSON(data);
        
         $("#priceList_"+div_no[2]).html(data1.price_table);

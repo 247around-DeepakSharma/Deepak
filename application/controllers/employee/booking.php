@@ -1061,9 +1061,9 @@ class Booking extends CI_Controller {
 		$html .= "<td>" . $prices['customer_net_payable'] . "</td>";
 		$html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '0' placeholder='Enter discount' readonly></td>";
 		$html .= "<td><input type='hidden'name ='is_up_val' id='is_up_val_" . $i . "_" . $clone_number . "' value ='".$prices['is_upcountry']."' /><input class='price_checkbox'";
-		if ($prices['service_category'] == 'Repair') {
-		    $html .= "checked";
-		}
+//		if ($prices['service_category'] == 'Repair') {
+//		    $html .= "checked";
+//		}
 
 		$html .=" type='checkbox' id='checkbox_" . $i . "_" . $clone_number . "'";
 		$html .= "name='prices[$brand_id][]'";
