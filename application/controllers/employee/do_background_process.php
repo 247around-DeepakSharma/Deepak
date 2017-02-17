@@ -59,7 +59,8 @@ class Do_background_process extends CI_Controller {
                 $upcountry_status = $this->miscelleneous->assign_upcountry_booking($booking_id, $agent_id, $agent_name);
                 if ($upcountry_status) {
                     log_message('info', __FUNCTION__ . " => Continue Process".$booking_id);
-                    if($upcountry_status[0]['request_type'] == HOME_THEATER_REPAIR_SERVICE_TAG){
+                    if($upcountry_status[0]['request_type'] == HOME_THEATER_REPAIR_SERVICE_TAG 
+                            || $upcountry_status[0]['request_type'] == HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY){
                         $unit_details = $this->booking_model->get_unit_details(array('booking_id'=> $booking_id));
                         $sms['smsData']['brand_service'] = $unit_details[0]['appliance_brand']." ". $upcountry_status[0]['services'];
                         $sms['smsData']['sf_phone'] = $upcountry_status[0]['phone_1'].", "
@@ -70,7 +71,7 @@ class Do_background_process extends CI_Controller {
                         $sms['type'] = "user";
                         $sms['type_id'] = $upcountry_status[0]['user_id'];
                         $sms['phone_no'] = $upcountry_status[0]['booking_primary_contact_no'];
-                        $this->notify->send_sms_acl($sms);
+                        $this->notify->send_sms($sms);
 
                     } else {
                         //Send SMS to customer
