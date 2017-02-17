@@ -424,11 +424,10 @@ class vendor extends CI_Controller {
                 $owner_email = $this->input->post('owner_email');
                 $primary_contact_email = $this->input->post('primary_contact_email');
                 $new_vendor_mail = $owner_email.','.$primary_contact_email;
-                $vendor_data['sc_code'] = $this->generate_service_center_code($_POST['name'], $_POST['district']);
-                
                 //Making Array to add Vendor
-                
                 $vendor_data = $this->get_vendor_form_data();
+                
+                $vendor_data['sc_code'] = $this->generate_service_center_code($_POST['name'], $_POST['district']);
 
                 //if vendor do not exists, vendor is added
                 $sc_id = $this->vendor_model->add_vendor($vendor_data);
@@ -536,7 +535,7 @@ class vendor extends CI_Controller {
                 }
 
 		  //create vendor login details as well
-		   $sc_login_uname = strtolower($_POST['sc_code']);
+		   $sc_login_uname = strtolower($vendor_data['sc_code']);
 		   $login['service_center_id'] = $sc_id;
 		   $login['user_name'] = $sc_login_uname;
 		   $login['password'] = md5($sc_login_uname);
