@@ -1971,3 +1971,7 @@ ALTER TABLE  `vendor_partner_invoices` ADD  `penalty_bookings_count` INT NOT NUL
 ------------------------- ALL CHANGES TAKEN TILL THIS POINT 14 FEB 2017 ------------------------------------
 
 ALTER TABLE `booking_details` ADD `is_penalty` INT(2) NULL DEFAULT '0' AFTER `customer_paid_upcountry_charges`;
+
+--sachin 17 feb
+
+ALTER TABLE `partners` ADD `partner_type` VARCHAR(50) NULL DEFAULT NULL AFTER `type`;
