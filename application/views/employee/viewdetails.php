@@ -434,40 +434,40 @@
                             <th class="jumbotron" style="text-align: center">Current State</th>
                             <th class="jumbotron" style="text-align: center">Penalty Amount</th>
                             <th class="jumbotron" style="text-align: center">Remarks</th>
-                            <th class="jumbotron" style="text-align: center">Agent</th>
+<!--                            <th class="jumbotron" style="text-align: center">Agent</th>-->
                             <th class="jumbotron" style="text-align: center">Date</th>
                         </tr>
+                            <?php foreach ($penalty as $key => $value){?>
                             <tr>
                                 <td><?php echo 'Penalty Added' ?></td>
-                                <td><?php echo $penalty['booking_id']; ?></td>
-                                <td><?php echo $penalty['current_state']; ?></td>
-                                <td><?php echo $penalty['penalty_amount']; ?></td>
-                                <td><?php echo $penalty['remarks']; ?></td>
-                                <td><?php echo $penalty['penalty_added_agent']; ?></td>
+                                <td><?php echo $penalty[$key]['booking_id']; ?></td>
+                                <td><?php echo $penalty[$key]['current_state']; ?></td>
+                                <td><?php echo $penalty[$key]['penalty_amount']; ?></td>
+                                <td><?php echo $penalty[$key]['remarks']; ?></td>
                                 <td><?php
-                                    $old_date = $penalty['create_date'];
+                                    $old_date = $penalty[$key]['create_date'];
                                     $old_date_timestamp = strtotime($old_date);
                                     $new_date = date('j F, Y g:i A', $old_date_timestamp);
                                     echo $new_date;
                                     ?>
                                 </td>
                             </tr>
-                            <?php if($penalty['active'] == 0){?>
+                            <?php if($penalty[$key]['active'] == 0){?>
                             <tr>
                                 <td><?php echo 'Penalty Removed' ?></td>
-                                <td><?php echo $penalty['booking_id']; ?></td>
-                                <td><?php echo $penalty['current_state']; ?></td>
-                                <td><?php echo $penalty['penalty_amount']; ?></td>
-                                <td><?php echo $penalty['penalty_remove_reason']; ?></td>
-                                <td><?php echo $penalty['penalty_remove_agent']; ?></td>
+                                <td><?php echo $penalty[$key]['booking_id']; ?></td>
+                                <td><?php echo $penalty[$key]['current_state']; ?></td>
+                                <td><?php echo $penalty[$key]['penalty_amount']; ?></td>
+                                <td><?php echo $penalty[$key]['penalty_remove_reason']; ?></td>
                                 <td><?php
-                                    $old_date = $penalty['penalty_remove_date'];
+                                    $old_date = $penalty[$key]['penalty_remove_date'];
                                     $old_date_timestamp = strtotime($old_date);
                                     $new_date = date('j F, Y g:i A', $old_date_timestamp);
                                     echo $new_date;
                                     ?>
                                 </td>
                             </tr>
+                            <?php }?>
                             <?php }?>
                     </table>
 

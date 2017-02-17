@@ -2042,3 +2042,6 @@ ALTER TABLE  `vendor_partner_invoices` ADD  `penalty_bookings_count` INT NOT NUL
 
 ALTER TABLE `booking_details` ADD `is_penalty` INT(2) NULL DEFAULT '0' AFTER `customer_paid_upcountry_charges`;
 
+--sachin 17 feb
+
+ALTER TABLE `partners` ADD `company_type` VARCHAR(50) NULL DEFAULT NULL AFTER `type`;
