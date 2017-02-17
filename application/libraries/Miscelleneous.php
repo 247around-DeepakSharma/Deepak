@@ -183,7 +183,7 @@ class Miscelleneous {
                 $is_upcountry = $this->My_CI->upcountry_model->is_upcountry_booking($booking_id);
                 if(!empty($is_upcountry)){
                     
-                    if($data['message'] !== UPCOUNTRY_LIMIT_EXCEED){
+                if($data['message'] !== UPCOUNTRY_LIMIT_EXCEED ){
                         
                         log_message('info', __METHOD__ . " => Upcountry Booking Free Booking " . $booking_id);
                         $booking['upcountry_paid_by_customer'] = 0;
@@ -244,13 +244,10 @@ class Miscelleneous {
                     if($query1[0]['is_upcountry'] == 0){
                         log_message('info', __METHOD__ . " => Amount due added " . $booking_id);
                         $booking['amount_due'] = $query1[0]['amount_due'] + ($booking['partner_upcountry_rate'] * $booking['upcountry_distance']);
-                    } else {
-                        log_message('info', __METHOD__ . " => Amount due nt added" . $booking_id);
-                        $booking['amount_due'] = ($booking['partner_upcountry_rate'] * $booking['upcountry_distance']);
                     }
                     
                     $this->My_CI->booking_model->update_booking($booking_id, $booking);
-                     $return_status = TRUE;
+                    $return_status = TRUE;
                 }
 
                 break;
@@ -266,7 +263,8 @@ class Miscelleneous {
                 $to = NITS_ANUJ_EMAIL_ID.", sales@247around.com";
                 $message1 = "Upcountry did not calculate for " . $booking_id;
                 $this->My_CI->notify->sendEmail("booking@247around.com", $to, "", "", 'Upcountry Failed', $message1, "");
-                $return_status = FALSE;
+                $this->My_CI->booking_model->update_booking($booking_id, $booking);
+                $return_status = TRUE;
                 break;
         }
 
