@@ -29,16 +29,16 @@ class Reporting_utils extends CI_Model {
         DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 2
                 AND booking_details.assigned_vendor_id IS NOT NULL";
         }
-        $query = $this->db->query("SELECT booking_details.booking_id,
+        $query = $this->db->query("SELECT DISTINCT booking_details.booking_id,
                 booking_details.booking_address,
                 booking_details.booking_pincode,
                 booking_details.booking_date,
                 booking_details.booking_timeslot,
                 booking_details.booking_remarks,
-                booking_details.appliance_brand,
-                booking_details.appliance_category,
-                booking_details.appliance_capacity,
-                booking_details.items_selected,
+                booking_details.request_type,
+                booking_unit_details.appliance_brand,
+                booking_unit_details.appliance_category,
+                booking_unit_details.appliance_capacity,
                 booking_details.amount_due,
                 booking_details.current_status,
                 DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) AS booking_age,
@@ -53,6 +53,7 @@ class Reporting_utils extends CI_Model {
                 JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
                 JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
                 LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
+                LEFT JOIN  `booking_unit_details` ON  `booking_unit_details`.`service_id` = `booking_details`.`service_id`
                 WHERE ".$where."
         ORDER BY booking_age DESC"
     );
