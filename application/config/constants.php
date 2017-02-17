@@ -183,7 +183,7 @@ define('NEW_SF_CRM',"New SF CRM");
 //Define Ols CRM Contstant for SF
 define('OLD_SF_CRM',"Old SF CRM");
 //Define Upcountry threshold
-define('UPCOUNTRY_DISTANCE_THRESHOLD',150);
+define('UPCOUNTRY_DISTANCE_THRESHOLD',200);
 //Define New Partner Lead
 define('_247AROUND_NEW_PARTNER_LEAD','New_Lead');
 //Define Constant for Snapdeal Delivered Excel File Type
@@ -244,7 +244,8 @@ define('PARTNERS_MISSED_CALLED_NUMBER','01130017601');
 //Define snapdeal new missed call number
 define('SNAPDEAL_MISSED_CALLED_NUMBER','01139595247');
 
-define('HOME_THEATER_REPAIR_SERVICE_TAG', 'Repair - In Warranty (Home Visit)');
+define('HOME_THEATER_REPAIR_SERVICE_TAG', 'Repair - In Warranty (Service Center Visit)');
+define('HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY', 'Repair - Out Of Warranty (Service Center Visit)');
 
 define("CAP_ON_PENALTY_AMOUNT", "50");
 define("PAYTM", "3");
