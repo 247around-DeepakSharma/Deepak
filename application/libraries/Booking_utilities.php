@@ -210,6 +210,7 @@ class Booking_utilities {
                     . ", ". $getbooking[0]['booking_pincode'] . ". 247around";
             
             //Send SMS to vendor
+            //Send it through Exotel ONLY
             $this->My_CI->notify->sendTransactionalSms($getbooking[0]['primary_contact_phone_1'], $smsBody);
             //Save email in database
             $details = array("booking_id" => $booking_id, "subject" => $subject,

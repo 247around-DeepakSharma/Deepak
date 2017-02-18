@@ -415,7 +415,7 @@ class Partner_model extends CI_Model {
             request_type AS 'Call Type (Installation /Table Top Installation/Demo/ Service)', 
             partner_current_status AS 'Status By Brand', 
             '' AS 'Remarks by Brand',
-            'Service sent to vendor' AS 'Status by Snapdeal', 
+            'Service sent to vendor' AS 'Status by Partner', 
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
             partner_internal_status AS 'Final Status'

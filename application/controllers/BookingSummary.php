@@ -534,7 +534,7 @@ EOD;
         //log_message('info', __FUNCTION__ . ' => Prepared summary report');
 
         $message = "Dear Partner,<br/><br/>";
-        $message .= "Please find Service Status Sheet attached for leads shared in last One Month, thanks.<br/><br/>";
+        $message .= "Please find Service Status Sheet attached for leads shared in last One Month, thanks.";
         $message .= "<br><br>Best Regards,
                 <br>247around Team
                 <br><br>247around is part of Businessworld Startup Accelerator & Google Bootcamp 2015
