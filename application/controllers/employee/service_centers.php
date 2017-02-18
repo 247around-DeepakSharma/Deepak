@@ -28,6 +28,7 @@ class Service_centers extends CI_Controller {
         $this->load->model('inventory_model');
         $this->load->library("pagination");
         $this->load->library('asynchronous_lib');
+        $this->load->library('booking_utilities');
         $this->load->library("session");
         $this->load->library('s3');
         $this->load->helper(array('form', 'url'));
@@ -309,6 +310,7 @@ class Service_centers extends CI_Controller {
             $cancellation_reason = $this->input->post('cancellation_reason');
             $cancellation_text = $this->input->post('cancellation_reason_text');
             $can_state_change = $cancellation_reason;
+            $partner_id = $this->input->post('partner_id');
             if(!empty($cancellation_text)){
                 $can_state_change = $cancellation_reason." - ".$cancellation_text;
             }
@@ -317,7 +319,7 @@ class Service_centers extends CI_Controller {
             switch ($cancellation_reason){
                 case PRODUCT_NOT_DELIVERED_TO_CUSTOMER :
                     //Called when sc choose Product not delivered to customer 
-                    $this->convert_booking_to_query($booking_id);
+                    $this->convert_booking_to_query($booking_id,$partner_id);
                     
                     break;
                 default :
@@ -343,7 +345,7 @@ class Service_centers extends CI_Controller {
      * @desc: This is used to convert booking into Query.
      * @param String $booking_id
      */
-    function convert_booking_to_query($booking_id){
+    function convert_booking_to_query($booking_id,$partner_id){
         log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id);
         $booking['booking_id'] = "Q-".$booking_id;
         $booking['current_status'] = "FollowUp";
@@ -353,6 +355,13 @@ class Service_centers extends CI_Controller {
         $booking['assigned_engineer_id'] = NULL;
         $booking['mail_to_vendor'] = '0';
         $booking['booking_date'] = date('d-m-Y');
+        
+        //Get Partner 
+        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'],$partner_id, $booking['booking_id']);
+        if(!empty($partner_status)){
+            $booking['partner_current_status'] = $partner_status[0];
+            $booking['partner_internal_status'] = $partner_status[1];
+        }                
         //Update Booking unit details
         $this->booking_model->update_booking($booking_id, $booking);
         
