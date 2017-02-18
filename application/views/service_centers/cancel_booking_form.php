@@ -49,6 +49,7 @@
                      <textarea class="form-control" id="cancellation_reason_text" name="cancellation_reason_text" value="<?php echo set_value('cancellation_reason'); ?>" rows="8" ></textarea>
                   </div>
                </div>
+                <input type="hidden" name="partner_id" value="<?php if (isset($user_and_booking_details[0]['partner_id'])) {echo $user_and_booking_details[0]['partner_id']; } ?>">
                <div>
                 <div class="col-md-6 col-md-offset-4">
                   
