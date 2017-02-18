@@ -226,7 +226,7 @@
                             
                         </tr>
                         <tbody>
-                            <?php  foreach ( $unit_details as  $unit_detail) { ?>
+                            <?php  foreach ( $unit_details as $key =>  $unit_detail) { ?>
                             
                             <tr>
                                 <td><?php echo $unit_detail['appliance_brand']?></td>
@@ -253,13 +253,20 @@
                                 <td><?php print_r($unit_detail['customer_paid_extra_charges']);  ?></td>
                                 <td><?php print_r($unit_detail['customer_paid_parts']);  ?></td>
                                 <td><?php if($booking_history[0]['upcountry_paid_by_customer'] == 0){ echo "0";} else { echo $booking_history[0]['customer_paid_upcountry_charges'];} ?></td>
+                                
                                 <td><?php if($booking_history[0]['upcountry_paid_by_customer'] == 0){ 
-                                    echo print_r($unit_detail['customer_paid_basic_charges'] 
+                                   
+                                     print_r($unit_detail['customer_paid_basic_charges'] 
                                             + $unit_detail['customer_paid_extra_charges'] 
                                             + $unit_detail['customer_paid_parts']);}
                                             else { 
-                                                print_r($unit_detail['customer_paid_basic_charges'] + $unit_detail['customer_paid_extra_charges'] + $unit_detail['customer_paid_parts']+$booking_history[0]['customer_paid_upcountry_charges']);
-                                               
+                                               if($key == 0){
+                                                print_r($unit_detail['customer_paid_basic_charges'] + $unit_detail['customer_paid_extra_charges'] + $unit_detail['customer_paid_parts']);
+                                               } else {
+                                                   print_r($unit_detail['customer_paid_basic_charges'] 
+                                            + $unit_detail['customer_paid_extra_charges'] 
+                                            + $unit_detail['customer_paid_parts']);
+                                               }
                                                 
                                             }   ?></td>
                                 
