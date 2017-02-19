@@ -31,7 +31,7 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="total service charges" class="col-md-4">Baisc Service Charge*</label>
+                                <label for="total service charges" class="col-md-4">Basic Service Charge*</label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control"  name="total_service_charge" value = "<?php if (isset($invoice_details[0]['total_service_charge'])) {
                                         echo $invoice_details[0]['total_service_charge'];
