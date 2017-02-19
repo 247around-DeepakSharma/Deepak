@@ -1205,12 +1205,12 @@
             //Check for PAN
             if($('#is_pan_doc').is(":checked")){
                if($('#pan_no').val() != '' && $('#name_on_pan').val() != ''){
-                   alert('Please enter either N/A or PAN Details');
+                   alert('Please Enter PAN Details or Tick "Not Available" checkbox');
                    return false;
                }
             }else{
                 if($('#pan_no').val() == '' && $('#name_on_pan').val() == ''){
-                   alert('Please enter either N/A or PAN Details');
+                   alert('Please Enter PAN Details or Tick "Not Available" checkbox');
                    return false;
                }
                 //checking case when pan number is empty and pan name is enterd
@@ -1222,12 +1222,12 @@
             //Check for CST
             if($('#is_cst_doc').is(":checked")){
                if($('#cst_no').val() != ''){
-                   alert('Please enter either N/A or CST Number');
+                   alert('Please Enter CST Number or Tick "Not Available" checkbox');
                    return false;
                }
             }else{
                 if($('#cst_no').val() == ''){
-                   alert('Please enter either N/A or CST Number');
+                   alert('Please Enter CST Number or Tick "Not Available" checkbox');
                    return false;
                }
             }
@@ -1235,12 +1235,12 @@
             //Check for TIN
             if($('#is_tin_doc').is(":checked")){
                if($('#tin_no').val() != ''){
-                   alert('Please enter either N/A or TIN Number');
+                   alert('Please Enter TIN Number or Tick "Not Available" checkbox');
                    return false;
                }
             }else{
                 if($('#tin_no').val() == ''){
-                   alert('Please enter either N/A or TIN Number');
+                   alert('Please Enter TIN Number or Tick "Not Available" checkbox');
                    return false;
                }
             }
@@ -1248,12 +1248,12 @@
             //Check for Service Tax no.
             if($('#is_st_doc').is(":checked")){
                if($('#service_tax_no').val() != ''){
-                   alert('Please enter either N/A or Service Tax Number');
+                   alert('Please Enter Service Tax Number or Tick "Not Available" checkbox');
                    return false;
                }
             }else{
                 if($('#service_tax_no').val() == ''){
-                   alert('Please enter either N/A or Service Tax Number');
+                   alert('Please Enter Service Tax Number or Tick "Not Available" checkbox');
                    return false;
                }
             }
