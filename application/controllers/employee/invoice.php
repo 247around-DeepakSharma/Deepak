@@ -2853,7 +2853,6 @@ class Invoice extends CI_Controller {
     function create_invoice_id_to_insert($entity_details, $from_date, $start_name){
         log_message('info', __FUNCTION__ . " Entering....");
         if ($entity_details[0]['state'] == "DELHI") {
-
             $invoice_version = "T";
             $invoices['meta']['invoice_type'] = "TAX INVOICE";
             
@@ -2871,7 +2870,7 @@ class Invoice extends CI_Controller {
         }
 
         //Make sure it is unique
-        $invoice_id_tmp = $start_name . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
+        $invoice_id_tmp = $start_name . "-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
         $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
         $invoice_no = $this->invoices_model->get_invoices_details($where);
         log_message('info', __FUNCTION__ . " Exit....");
