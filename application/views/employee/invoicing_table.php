@@ -105,12 +105,12 @@
          <td></td>
          <td></td>
          <td></td>
-         <td><?php echo $sum_of_total_service_charges; ?></td>
-         <td><?php echo $sum_total_additional_service_charge; ?></td>
-         <td><?php echo $sum_total_parts_cost; ?></td>
-         <td><?php echo $sum_tds; ?></td>
-         <td><?php echo $pay_by_247; ?></td>
-         <td><?php echo $pay_by_partner; ?></td>
+         <td><?php echo round($sum_of_total_service_charges,0); ?></td>
+         <td><?php echo round($sum_total_additional_service_charge,0); ?></td>
+         <td><?php echo round($sum_total_parts_cost,0); ?></td>
+         <td><?php echo round($sum_tds,0); ?></td>
+         <td><?php echo round($pay_by_247,0); ?></td>
+         <td><?php echo round($pay_by_partner,0); ?></td>
          <td id="final_amount_selected"></td>
          <td><input type="submit" class="form-control btn btn-sm btn-primary" value="Pay"></td>
         
@@ -278,13 +278,13 @@
        
         $final_settlement = $pay_by_247 + $pay_by_partner + $debit_amount - $credit_amount;
     ?>
-    <p><h4>Vendor has to pay to 247around = Rs. <?php if($final_settlement >= 0){ echo round($final_settlement,2);} else { echo 0;} ?></h4></p>
-    <p><h4>247around has to pay to vendor = Rs. <?php if($final_settlement < 0){ echo abs(round($final_settlement,2));} else {echo 0;} ?></h4></p>
+    <p><h4>Vendor has to pay to 247around = Rs. <?php if($final_settlement >= 0){ echo round($final_settlement,0);} else { echo 0;} ?></h4></p>
+    <p><h4>247around has to pay to vendor = Rs. <?php if($final_settlement < 0){ echo abs(round($final_settlement,0));} else {echo 0;} ?></h4></p>
     <hr/>
     <?php if(isset($unbilled_amount)){ ?> 
      <h2><u>Un-billed Amount (Invoice is not generated)</u></h2>
-     <p><h4>Vendor has to pay to 247around = Rs. <?php if($unbilled_amount[0]['unbilled_amount'] >= 0){ echo round($unbilled_amount[0]['unbilled_amount'],2);} else { echo 0;} ?></h4></p>
-    <p><h4>247around has to pay to vendor = Rs. <?php if($unbilled_amount[0]['unbilled_amount'] < 0){ echo abs(round($unbilled_amount[0]['unbilled_amount'],2));} else { echo 0;} ?></h4></p>
+     <p><h4>Vendor has to pay to 247around = Rs. <?php if($unbilled_amount[0]['unbilled_amount'] >= 0){ echo round($unbilled_amount[0]['unbilled_amount'],0);} else { echo 0;} ?></h4></p>
+    <p><h4>247around has to pay to vendor = Rs. <?php if($unbilled_amount[0]['unbilled_amount'] < 0){ echo abs(round($unbilled_amount[0]['unbilled_amount'],0));} else { echo 0;} ?></h4></p>
     
     <?php } } ?>
 
