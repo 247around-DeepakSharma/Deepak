@@ -1591,7 +1591,7 @@ class Partner extends CI_Controller {
         $config['total_rows'] = $total_rows[0]['total_rows'];
         
         if($all == 1){
-            $config['per_page'] = count($total_rows);
+            $config['per_page'] = $total_rows[0]['total_rows'];
         }else{
             $config['per_page'] = 50;
         }
@@ -1916,7 +1916,7 @@ class Partner extends CI_Controller {
         $config['total_rows'] = $total_rows[0]['total_rows'];
         
         if($all == 1){
-            $config['per_page'] = count($total_rows);
+            $config['per_page'] = $total_rows[0]['total_rows'];
         }else{
             $config['per_page'] = 50;
         }
