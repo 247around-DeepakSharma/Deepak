@@ -112,7 +112,6 @@
         $("#reminderMailForm"+i).toggle(500);
     }
 
-
 </script>
 <style type="text/css">
     table{
@@ -146,6 +145,17 @@
                     <option value="<?php echo base_url().'employee/booking/view/200/0'?>" <?php if($this->uri->segment(4) == 200){ echo 'selected';}?>>200</option>
                     <option value="<?php echo base_url().'employee/booking/view/500/0'?>" <?php if($this->uri->segment(4) == 500){ echo 'selected';}?>>500</option>
                     <!--<option value="<?php echo base_url().'employee/booking/view/0/All'?>"<?php if($this->uri->segment(5) == "All"){ echo 'selected';}?> >All</option>-->
+
+                </select>
+            </div>
+            <?php } if($this->uri->segment(3) == 'get_pending_booking_by_partner_id'){?>
+            <div class="pagination">
+                <select id="dynamic_select">
+                    <option value="<?php echo base_url().'employee/booking/get_pending_booking_by_partner_id'?>" <?php if($this->uri->segment(4) == 50){ echo 'selected';}?>>50</option>
+                    <option value="<?php echo base_url().'employee/booking/get_pending_booking_by_partner_id/100/0'?>" <?php if($this->uri->segment(4) == 100){ echo 'selected';}?>>100</option>
+                    <option value="<?php echo base_url().'employee/booking/get_pending_booking_by_partner_id/200/0'?>" <?php if($this->uri->segment(4) == 200){ echo 'selected';}?>>200</option>
+                    <option value="<?php echo base_url().'employee/booking/get_pending_booking_by_partner_id/500/0'?>" <?php if($this->uri->segment(4) == 500){ echo 'selected';}?>>500</option>
+                    <!--<option value="<?php //echo base_url().'employee/booking/get_pending_booking_by_partner_id/0/All'?>"<?php if($this->uri->segment(5) == "All"){ echo 'selected';}?> >All</option>-->
 
                 </select>
             </div>
