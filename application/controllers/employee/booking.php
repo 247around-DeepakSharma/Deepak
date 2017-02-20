@@ -696,7 +696,7 @@ class Booking extends CI_Controller {
 
 		$result = $this->partner_model->getPrices($data['booking_history'][0]['service_id'], $value['category'], $value['capacity'], $partner_id, $price_tag['price_tags']);
 
-            $data['booking_unit_details'][$keys]['quantity'][$key]['pod'] = $result[0]['pod'];
+            $data['booking_unit_details'][$keys]['quantity'][$key]['pod'] = isset($result[0]['pod'])?$result[0]['pod']:"";
 
 
 		// print_r($service_center_data);
@@ -712,7 +712,7 @@ class Booking extends CI_Controller {
 		// remove array key, if price tag exist into price array
 		unset($prices[$id]);
                 if($keys == 0){
-                    $upcountry_price = $service_center_data[0]['upcountry_charges'];
+                    $upcountry_price = isset($service_center_data[0]['upcountry_charges'])?$service_center_data[0]['upcountry_charges']:"";
                 }
 	    }
 
@@ -2345,5 +2345,46 @@ class Booking extends CI_Controller {
        $data['data'] =  $this->vendor_model->auto_assigned_booking();
        $this->load->view('employee/header/'.$this->session->userdata('user_group'));
        $this->load->view('employee/auto_assigned_booking',$data);
+    }
+    
+    /**
+     *  @desc : This function displays list of pending bookings according to pagination and partner_id also show all booking if $page is All.
+     *  @param : Starting page & number of results per page
+     *  @return : pending bookings according to pagination
+     */
+    function get_pending_booking_by_partner_id($page = 0, $offset = '0') {
+
+	if ($page == 0) {
+	    $page = 50;
+	}
+	// $offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
+        $partner_id= true;
+   
+	$config['base_url'] = base_url() . 'employee/booking/get_pending_booking_by_partner_id/'.$page;
+	$config['total_rows'] = $this->booking_model->total_pending_booking("","",$partner_id);
+	
+	if($offset != "All"){
+		$config['per_page'] = $page;
+	} else {
+		$config['per_page'] = $config['total_rows'];
+	}	
+	
+	$config['uri_segment'] = 5;
+	$config['first_link'] = 'First';
+	$config['last_link'] = 'Last';
+
+	$this->pagination->initialize($config);
+	$data['links'] = $this->pagination->create_links();
+
+	$data['Count'] = $config['total_rows'];
+	$data['Bookings'] = $this->booking_model->date_sorted_booking($config['per_page'], $offset, "", "", $partner_id);
+        
+        
+	if ($this->session->flashdata('result') != ''){
+	    $data['success'] = $this->session->flashdata('result');
+        }
+
+	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
+	$this->load->view('employee/booking', $data);
     }
 }
