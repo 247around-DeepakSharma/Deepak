@@ -1176,7 +1176,7 @@ class Reporting_utils extends CI_Model {
      * Count thpose bookings who have not any entry in booking state change, means not updated( except Assigned Engineer)
      * It stores crime when this script excute after 8 PM
      */
-    function get_sc_crimes($where){
+    function get_sc_crimes($where, $is_insert = false){
         log_message('info', __FUNCTION__);
 
         // Get All Service center who has is_update filed is 1.
@@ -1264,7 +1264,7 @@ class Reporting_utils extends CI_Model {
 
                 // insert or update crimes after 10:15 PM
 
-                if (date('H:i') > '6:15' && date('H:i') < '7:00') {
+                if ($is_insert) {
 
                     $sc_crimes['service_center_id'] = $value['id'];
                     $sc_crimes['engineer_not_assigned'] = $un_assigned;
