@@ -43,10 +43,10 @@
             <div class="panel panel-default">
                 <div id="tabs"> 
                     <ul>
-                        <li><a href="#tabs-1" onclick="load_view('employee/partner/pending_booking/0/1', 'tabs-1')"><span class="panel-title">Pending Bookings</span></a></li>
-                        <li><a href="#tabs-2" onclick="load_view('employee/partner/get_spare_parts_booking0/1', 'tabs-2')"><span class="panel-title">Pending Spares</span></a></li>
-                        <li><a href="#tabs-3" onclick="load_view('employee/partner/get_waiting_defective_parts/0/1', 'tabs-3')"><span class="panel-title">Shipped Spares by SF</span></a></li>
-                        <li><a href="#tabs-4" onclick="load_view('employee/partner/get_waiting_for_approval_upcountry_charges', 'tabs-4')"><span class="panel-title">Waiting Approval Upcountry Charges</span></a></li>
+                        <li><a href="#tabs-1" onclick="load_view('partner/pending_booking/0/1', 'tabs-1')"><span class="panel-title">Pending Bookings</span></a></li>
+                        <li><a href="#tabs-2" onclick="load_view('partner/get_spare_parts_booking/0/1', 'tabs-2')"><span class="panel-title">Pending Spares</span></a></li>
+                        <li><a href="#tabs-3" onclick="load_view('partner/get_waiting_defective_parts/0/1', 'tabs-3')"><span class="panel-title">Shipped Spares by SF</span></a></li>
+                        <li><a href="#tabs-4" onclick="load_view('partner/get_waiting_for_approval_upcountry_charges', 'tabs-4')"><span class="panel-title">Waiting Approval Upcountry Charges</span></a></li>
 
                     </ul>
 

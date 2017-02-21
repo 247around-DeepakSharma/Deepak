@@ -1,62 +1,5 @@
 <?php
-/**
- * 247Around provides extra transportation charges to SF for those booking 
- * whose distance is greater than 50 Km(Up & Down) between Customer and Vendor region.
- * 
- * We will not provide upcountry charges when distance is greater than 150KM(Up & Down).
- * 
- * ............................. For Free Booking to SF......................................
- * 
- * To display upcountry booking in SF or Admin Panel, We will combine those upcountry 
- * booking whose booking date, pincode and SF Id is same and current_status of 
- * these bookings must be Pending, Rescheduled or Completed.
- * 
- * While create SF invoice, We will combine those bookings whose booking date 
- * pincode and SF id is same and current status is completed.
- * 
- * ........................For Free Booking to Partner............................
- * 
- * While create a new Invoice to get upcountry booking details, we will combine 
- * those booking whose  booking date, pincode and Appliance Id Is same.
- * 
- * ..............For Cash Booking to SF OR Partner............................
- * We will not combined upcountry booking for Cash Booking 
- * 
- * To calculate upcountry distance, we created a action_upcountry_booking() method.
- * In this method we need to pass booking Id.
- * 
- * To assign upcountry booking, first we need to check value of 
- * is_upcountry field of partners table must be 1. 
- * 
- * then we will get city of booking pincode from vendor pincode mapping table 
- * And search SF header quater pincode of that city from sub_service_center_table
- * 
- * Now, we will calculate distance between booking pincode and SF district head quater pincode.
- * If total up & down distance is less than 50 KM then we will not going to mark upcountry for this booking.
- * 
- * If total up & down distance is greater than 150 KM then we will mark to upcountry but not update distance.
- * We will update distance and mark distric office manualy from Form.
- * 
- * Google provides free API to calculate distance between to region.
- * We will use calculate_distance_between_pincode() method to call Google API. 
- * 
- * In this method, we will pass booking pincode, booking city, SF district pincode, SF booking city as parameter 
- * before call Google API, we need to remove space with %20 in the booking city 
- * because if we will call api with space then it return Bad url request.
- * 
- * Its compulsary to call Google API with city, pincode, India 
- * because some india's pincode is same as singapore Or U.S pincode
- * 
- * While Assign booking to SF, if we can not calculate distance (means failed to calculate distance)
- * then send email to Anuj@247around.com Or nits@247around.com with booking Pincode and SF id
- * 
- * When failed to calculate distance then we will update is_upcountry as 1
- * but not assign sub vendor is ( means its must be NULL).
- * 
- * We will shown failed upcountry booking in the Editable table. 
- * We get failed booking when is_upcountry is 1 and sub_vendor_id is NULL.  
- *    
- */
+
 class Upcountry_model extends CI_Model {
     /**
      * @desc load both db
@@ -109,7 +52,7 @@ class Upcountry_model extends CI_Model {
         }
     }
     
-    function action_upcountry_booking($booking_city,$booking_pincode, $vendor_details){
+    function action_upcountry_booking($booking_city,$booking_pincode, $vendor_details, $partner_data){
         log_message('info', __METHOD__ );
         $error = array();
         $same_pincode_vendor = array();
@@ -155,7 +98,10 @@ class Upcountry_model extends CI_Model {
                          log_message('info', __FUNCTION__ ." Distance not calculated ". $value['vendor_id']
                             ." booking_pincode ". $booking_pincode);
                         $error['message'] = UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE; 
-                        $error['vendor_id'] = "";
+                        $error['vendor_id'] = $value['vendor_id'];
+                        $error['sub_vendor_id'] = $res_sb[0]['id'];
+                        $error['upcountry_distance'] = 0;
+                        $error['sf_upcountry_rate'] = $res_sb[0]['upcountry_rate'];
                        
                     }
                 } else {
@@ -182,11 +128,11 @@ class Upcountry_model extends CI_Model {
            
             if(count($upcountry_vendor_details) == 1){
                 log_message('info', __FUNCTION__ ." mark Upcountry" );
-                return $this->mark_upcountry_vendor($upcountry_vendor_details[0]);
+                return $this->mark_upcountry_vendor($upcountry_vendor_details[0], $partner_data);
 
             } else {
                 log_message('info', __FUNCTION__ ." Got to calculate min disatance" );
-                $get_data = $this->get_minimum_upcountry_price($upcountry_vendor_details);
+                $get_data = $this->get_minimum_upcountry_price($upcountry_vendor_details, $partner_data);
                 return $this->mark_upcountry_vendor($get_data);
             }
         } else if(!empty($error)){
@@ -195,37 +141,59 @@ class Upcountry_model extends CI_Model {
         }
     }
     
-    function mark_upcountry_vendor($upcountry_vendor_details) {
+    function mark_upcountry_vendor($upcountry_vendor_details, $partner_data) {
          log_message('info', __FUNCTION__ );
        
         $up_data = array();
-        if ($upcountry_vendor_details['upcountry_distance'] < (UPCOUNTRY_MIN_DISTANCE + UPCOUNTRY_MIN_DISTANCE*0.1)) {
+        
+        if ($partner_data[0]['is_upcountry'] == 1) {
+            if ($partner_data[0]['upcountry_mid_distance_threshold'] > $upcountry_vendor_details['upcountry_distance']) {
+
+                $partner_upcountry_rate = $partner_data[0]['upcountry_rate'];
+            } else {
+                $partner_upcountry_rate = $partner_data[0]['upcountry_rate1'];
+            }
+            $partner_upcountry_approval = $partner_data[0]['upcountry_approval'];
+            $min_threshold_distance = $partner_data[0]['upcountry_min_distance_threshold'];
+            $max_threshold_distance = $partner_data[0]['upcountry_max_distance_threshold'];
+        } else {
+            $partner_upcountry_approval = 0;
+            $partner_upcountry_rate = DEFAULT_UPCOUNTRY_RATE;
+            $min_threshold_distance = UPCOUNTRY_MIN_DISTANCE;
+            $max_threshold_distance = UPCOUNTRY_DISTANCE_THRESHOLD;
+        }
+
+        if ($upcountry_vendor_details['upcountry_distance'] < ($min_threshold_distance)) {
            
             log_message('info', __FUNCTION__ ." Not Upcountry Booking ". print_r($upcountry_vendor_details, true) );
             $up_data['vendor_id'] = $upcountry_vendor_details['vendor_id'];
             $up_data['message'] = NOT_UPCOUNTRY_BOOKING;
 
             
-        } else if ($upcountry_vendor_details['upcountry_distance'] > (UPCOUNTRY_MIN_DISTANCE + UPCOUNTRY_MIN_DISTANCE*0.1)
-                && $upcountry_vendor_details['upcountry_distance'] < UPCOUNTRY_DISTANCE_THRESHOLD) {
+        } else if ($upcountry_vendor_details['upcountry_distance'] > ($min_threshold_distance)
+                && $upcountry_vendor_details['upcountry_distance'] < $max_threshold_distance) {
 
             $up_data = array('upcountry_pincode' => $upcountry_vendor_details['upcountry_pincode'],
-                'upcountry_distance' => ($upcountry_vendor_details['upcountry_distance'] - UPCOUNTRY_MIN_DISTANCE),
+                'upcountry_distance' => ($upcountry_vendor_details['upcountry_distance'] - $min_threshold_distance),
                 'sf_upcountry_rate' => $upcountry_vendor_details['sf_upcountry_rate'],
                 'sub_vendor_id' => $upcountry_vendor_details['sub_vendor_id'],
                 'vendor_id' => $upcountry_vendor_details['vendor_id'],
+                'partner_upcountry_rate' => $partner_upcountry_rate,
+                'partner_upcountry_approval' =>$partner_upcountry_approval,
                 'is_upcountry' => 1);
 
             $up_data['message'] = UPCOUNTRY_BOOKING;
             log_message('info', __FUNCTION__ ." Upcountry Booking ". print_r($up_data, true) );
            
-        } else if($upcountry_vendor_details['upcountry_distance'] > UPCOUNTRY_DISTANCE_THRESHOLD) {
+        } else if($upcountry_vendor_details['upcountry_distance'] > $max_threshold_distance) {
            
             $up_data = array('upcountry_pincode' => $upcountry_vendor_details['upcountry_pincode'],
-                'upcountry_distance' => ($upcountry_vendor_details['upcountry_distance'] - UPCOUNTRY_MIN_DISTANCE),
+                'upcountry_distance' => ($upcountry_vendor_details['upcountry_distance'] - $min_threshold_distance),
                 'sf_upcountry_rate' => $upcountry_vendor_details['sf_upcountry_rate'],
                 'sub_vendor_id' => $upcountry_vendor_details['sub_vendor_id'],
-                 'vendor_id' => $upcountry_vendor_details['vendor_id'],
+                'vendor_id' => $upcountry_vendor_details['vendor_id'],
+                'partner_upcountry_rate' => $partner_upcountry_rate,
+                'partner_upcountry_approval' =>$partner_upcountry_approval,
                 'is_upcountry' => 1);
            $up_data['message'] = UPCOUNTRY_LIMIT_EXCEED; 
            log_message('info', __FUNCTION__ ." Upcountry Limit Exceed ". print_r($up_data, true) );
@@ -290,10 +258,14 @@ class Upcountry_model extends CI_Model {
      * @return boolean
      */
     function get_upcountry_failed_details(){
-        $this->db->select("booking_id, is_upcountry,upcountry_pincode,sub_vendor_id,"
-                . "sf_upcountry_rate,upcountry_distance, assigned_vendor_id");
-        $this->db->where("booking_details.is_upcountry", '1');
-        $this->db->where("sub_vendor_id IS NULL", NULL, false);
+        $this->db->select("booking_id,upcountry_pincode,city, sub_vendor_id, assigned_vendor_id, partner_id, amount_due,"
+                . "sf_upcountry_rate,booking_pincode");
+        $this->db->where("booking_details.is_upcountry", '0');
+        $this->db->where("assigned_vendor_id IS NOT NULL", NULL, false);
+        $this->db->where_not_in("sub_vendor_id IS NOT NULL", NULL, false);
+        $this->db->where("upcountry_pincode IS NOT NULL", NULL, false);
+        $this->db->where("upcountry_distance IS NULL", NULL, FALSE);
+        $this->db->where_in("current_status", array('Pending', 'Rescheduled'));
         $query = $this->db->get("booking_details");
         return $query->result_array();
     }
@@ -603,6 +575,7 @@ class Upcountry_model extends CI_Model {
         $this->db->where_in('current_status',array(_247AROUND_PENDING,_247AROUND_RESCHEDULED));
         $this->db->where('upcountry_partner_approved','0');
         $this->db->where('upcountry_paid_by_customer','0');
+        $this->db->where('sub_vendor_id IS NOT','NULL', FALSE);
         $this->db->where('is_upcountry','1');
         if(!empty($partner_id)){
             $this->db->where('bd.partner_id',$partner_id);
@@ -621,6 +594,45 @@ class Upcountry_model extends CI_Model {
         $this->db->where('partner_id',$partner_id);
         $query= $this->db->get('booking_details');
         return $query->result_array();
+    }
+    
+    function upcountry_partner_invoice($partner_id, $from_date, $to_date){
+        $sql = "SELECT CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking,"
+                . " round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) AS upcountry_distance, "
+                . " round((partner_upcountry_rate * round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) ),2) AS upcountry_price,"
+                . " COUNT(DISTINCT(bd.booking_id)) AS count_booking, partner_upcountry_rate"
+                . " FROM `booking_details` AS bd, booking_unit_details AS ud "
+                . " WHERE ud.booking_id = bd.booking_id "
+                . " AND bd.partner_id = '$partner_id' "
+                . " AND ud.ud_closed_date >= '$from_date' "
+                . " AND ud.ud_closed_date < '$to_date' "
+                . " AND sub_vendor_id IS NOT NULL "
+                . " AND bd.is_upcountry = '1' "
+                . " AND bd.current_status = 'Completed' "
+                . " AND bd.upcountry_paid_by_customer = 0 "
+                . " GROUP BY bd.booking_date, bd.booking_pincode, bd.service_id ";
+        
+        $query = $this->db->query($sql);
+        
+        if($query->num_rows > 0){
+            $result = $query->result_array();
+            $total_price = 0;
+            $total_booking = 0;
+            $total_distance = 0;
+            foreach ($result as $value) {
+                $total_price += $value['upcountry_price'];
+                $total_booking += $value['count_booking'];
+                $total_distance += $value['upcountry_distance'];
+            }
+            $result[0]['total_upcountry_price'] = $total_price;
+            $result[0]['total_booking'] = $total_booking;
+            $result[0]['total_distance'] = round($total_distance, 0);
+            
+            return $result;
+            
+        } else {
+            return FALSE;
+        }
     }
     
     

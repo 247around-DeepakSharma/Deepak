@@ -641,7 +641,7 @@ class Booking_model extends CI_Model {
                 . "where booking_details.user_id = users.user_id and "
                 . "services.id = booking_details.service_id and "
                 . "current_status IN ('Pending', 'Rescheduled') and "
-                . "assigned_vendor_id is NULL AND upcountry_partner_approved = '1'";
+                . "assigned_vendor_id is NULL AND upcountry_partner_approved = '1' ";
         $query = $this->db->query($sql);
 
         $temp = $query->result_array();
