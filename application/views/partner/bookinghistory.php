@@ -22,9 +22,9 @@
 <div id="page-wrapper" style="width:100%;"> 
     <div class="">
         <div class="row">
-            <div id="for_user" style="width:90%;margin:50px;">
-                <div class="panel" style="width:90%;margin:50px 0px 10px  50px;background-color: #2C9D9C; border-color: #2C9D9C;color:#fff">
-                    <div class="panel-heading"><center><span style="font-size: 120%;"><b>Booking History</b></span></center></div>
+            <div id="for_user">
+                <div class="panel">
+                    <div class="panel-heading"><h3><b>Booking History</b></h3></div>
                 </div>
 
 
@@ -32,6 +32,8 @@
                     <thead>
                         <tr>
                             <th class="jumbotron">No.</th>
+                            
+                            <th class="jumbotron">Order Id</th>
 
                             <th class="jumbotron">Booking ID</th>
 
@@ -61,10 +63,12 @@
                                     echo $count;
                                     $count++;
                                     ?>.</td>
-
+                                
+                                <td><?= $row['order_id']; ?></td>
+                                
                                 <td><?= $row['booking_id']; ?></td>
 
-                                <td><?= $row['name']; ?></td>
+                                <td><?= $row['customername']; ?></td>
 
                                 <td><?= $row['services']; ?></td>
 

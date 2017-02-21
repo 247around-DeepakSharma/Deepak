@@ -2044,9 +2044,21 @@ ALTER TABLE `booking_details` ADD `is_penalty` INT(2) NULL DEFAULT '0' AFTER `cu
 
 --sachin 17 feb
 
+
 ALTER TABLE `partners` ADD `company_type` VARCHAR(50) NULL DEFAULT NULL AFTER `type`;
 
 -- ANUJ 21 FEB
 ALTER TABLE  `booking_details` CHANGE  `booking_id`  `booking_id` VARCHAR( 64 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
 ALTER TABLE  `booking_unit_details` CHANGE  `booking_id`  `booking_id` VARCHAR( 64 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
 ALTER TABLE  `partner_leads` CHANGE  `OrderID`  `OrderID` VARCHAR( 64 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ;
+
+UPDATE  `email_template` SET  `template` =  'Dear Partner,<br>You have received a new order for brackets.<br><br>Your Order ID is : <b>%s</b> <br> <strong>Order Details:</strong><br><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> 43 Inch & Above Brackets : %s <br> Total Requested : %s<br><br> <strong>Requested From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br> City: %s <br> State: %s <br> Pincode: %s <br> Phone Number: %s, %s<br><br> Please notify when you ship the above order.<br><br> Regards,<br> 247Around Team' WHERE  `email_template`.`tag`='brackets_requested_from_vendor';
+
+UPDATE  `email_template` SET  `template` =  'Dear Partner,<br>Your brackets order has been placed sucessfully.<br><br>Your Order ID is: <b>%s</b> <br> <strong>Order Details:</strong><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br>43 Inch & Above Brackets : %s <br> Total Requested : %s<br><br> We will update you as soon as the brackets are shipped.<br><br>Regards,<br>247Around Team' WHERE `email_template`.`tag` ='brackets_order_received_from_vendor';
+
+UPDATE  `email_template` SET  `template` =  '%s order has been Cancelled sucessfully for the <strong>Order ID : %s </strong><br><br><strong>Reason : </strong> %s <br><br> <strong>Order Details are:</strong><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br>43 Inch & Above Brackets : %s <br> Total Requested : %s<br><br> Thanks Team 247Around' WHERE `email_template`.`tag` ='cancel_brackets_order_received_from_vendor';
+
+UPDATE  `email_template` SET  `template` = 'Brackets order <strong>%s</strong> has been Cancelled. <br><br><strong>Reason : </strong> %s <br><br> <strong>Order Details:</strong><br><br> 19 to 24 Inch Brackets : %s <br>26to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br>43 Inch & Above Brackets : %s <br> Total Requested : %s<br><br> <strong>Requested From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br>City: %s <br> State: %s <br> Pincode: %s <br> Phone Number: %s, %s<br><br> Please <b>don''''t</b> ship this order.' WHERE  `email_template`.`tag` ='cancel_brackets_requested_from_vendor';
+
+-- Abhay 21 FEB
+ALTER TABLE `sc_crimes` ADD `total_pending_booking` INT(10) NULL DEFAULT NULL AFTER `total_missed_target`;
