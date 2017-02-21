@@ -223,7 +223,7 @@ class service_centre_charges extends CI_Controller {
 	foreach ($reader->getSheetIterator() as $sheet) {
 	    foreach ($sheet->getRowIterator() as $row) {
 		if ($type == "price") {
-		    // Get Data from top 14 rows in excel file
+		    // Get Data from 2nd row onwards in excel file
 		    if ($count > 1) {
 			$data = $this->set_price_rows_data($row);
                             array_push($rows, $data);
@@ -346,6 +346,7 @@ class service_centre_charges extends CI_Controller {
 	$data['partner_net_payable'] = isset($row[24])?$row[24]:'';
 	$data['customer_net_payable'] = isset($row[25])?$row[25]:'';
 	$data['pod'] = isset($row[26])?$row[26]:'';
+        $data['is_upcountry'] = isset($row[27])?$row[27]:'';
         $data['vendor_basic_percentage'] = isset($row[28])?$row[28]:'';
 
             return $data;
