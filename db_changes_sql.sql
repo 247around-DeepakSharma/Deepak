@@ -2045,3 +2045,8 @@ ALTER TABLE `booking_details` ADD `is_penalty` INT(2) NULL DEFAULT '0' AFTER `cu
 --sachin 17 feb
 
 ALTER TABLE `partners` ADD `company_type` VARCHAR(50) NULL DEFAULT NULL AFTER `type`;
+
+-- ANUJ 21 FEB
+ALTER TABLE  `booking_details` CHANGE  `booking_id`  `booking_id` VARCHAR( 64 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
+ALTER TABLE  `booking_unit_details` CHANGE  `booking_id`  `booking_id` VARCHAR( 64 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL ;
+ALTER TABLE  `partner_leads` CHANGE  `OrderID`  `OrderID` VARCHAR( 64 ) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ;
