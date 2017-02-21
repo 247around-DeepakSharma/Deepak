@@ -2044,4 +2044,10 @@ ALTER TABLE `booking_details` ADD `is_penalty` INT(2) NULL DEFAULT '0' AFTER `cu
 
 --sachin 17 feb
 
+
 ALTER TABLE `partners` ADD `company_type` VARCHAR(50) NULL DEFAULT NULL AFTER `type`;
+
+ALTER TABLE `partners` ADD `partner_type` VARCHAR(50) NULL DEFAULT NULL AFTER `type`;
+
+-- Abhay 21 FEB
+ALTER TABLE `sc_crimes` ADD `total_pending_booking` INT(10) NULL DEFAULT NULL AFTER `total_missed_target`;
