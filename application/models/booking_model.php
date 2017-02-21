@@ -213,7 +213,7 @@ class Booking_model extends CI_Model {
      * @param : booking id and service center id
      * @return : total number of pending or rescheduled bookings
      */
-    public function total_pending_booking($booking_id = "", $service_center_id = "") {
+    public function total_pending_booking($booking_id = "", $service_center_id = "",$partner_id = False) {
         $where = "";
 
         if ($booking_id != "") {
@@ -226,6 +226,11 @@ class Booking_model extends CI_Model {
             $where .= " AND assigned_vendor_id = '" . $service_center_id . "'";
             $where .= "AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
         }
+        
+        if($partner_id === true){
+            $where .= " AND partner_id IN ('"._247AROUND."', '"._247AROUND2."','"._247AROUND3."') ";
+            $where .=" AND request_type IN ('Repair','Repair - In Warranty','Repair - Out of Warranty')";
+        }
 
         $query = $this->db->query("Select count(*) as count from booking_details
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
@@ -234,7 +239,7 @@ class Booking_model extends CI_Model {
             `booking_id` NOT LIKE 'Q-%' $where AND
             (booking_details.current_status='Pending' OR booking_details. current_status='Rescheduled')"
         );
-
+        
         $count = $query->result_array();
 
         return $count[0]['count'];
@@ -249,7 +254,7 @@ class Booking_model extends CI_Model {
      * @return : date sorted booking for pending or rescheduled bookings, booking details,
      *          basic user's and service center details.
      */
-    function date_sorted_booking($limit, $start, $booking_id = "", $service_center_id = "") {
+    function date_sorted_booking($limit, $start, $booking_id = "", $service_center_id = "", $partner_id = false) {
         $where = "";
 
         if ($booking_id != "") {
@@ -262,6 +267,11 @@ class Booking_model extends CI_Model {
         if ($service_center_id != "") {
             $where .= " AND assigned_vendor_id = '" . $service_center_id . "'";
             $where .= " AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= -1";
+        }
+        
+        if($partner_id === true){
+            $where .= " AND partner_id IN ('"._247AROUND."', '"._247AROUND2."','"._247AROUND3."') ";
+            $where .=" AND request_type IN ('Repair','Repair - In Warranty','Repair - Out of Warranty')";
         }
 
         $add_limit = "";

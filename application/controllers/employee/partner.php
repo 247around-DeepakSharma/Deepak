@@ -1103,26 +1103,26 @@ class Partner extends CI_Controller {
 
         } else if ($booking_id != "") {  //if booking id given and matched, will be displayed
             $where = array('booking_details.booking_id' => $booking_id);
-            $data['Bookings'] = $this->booking_model->search_bookings($where,$partner_id);
-          
+            $Bookings = $this->booking_model->search_bookings($where,$partner_id);
+            $data['data'] = json_decode(json_encode($Bookings), True);
             $this->load->view('partner/header');
-            $this->load->view('partner/search_result',$data);
+            $this->load->view('partner/bookinghistory',$data);
             
         } else if(!empty($order_id)) {
 
             $where = array('order_id' => $order_id);
-            $data['Bookings'] = $this->booking_model->search_bookings($where, $partner_id);
-            
+            $Bookings = $this->booking_model->search_bookings($where, $partner_id);
+            $data['data'] = json_decode(json_encode($Bookings), True);
             $this->load->view('partner/header');
-            $this->load->view('partner/search_result',$data);
+            $this->load->view('partner/bookinghistory',$data);
         } else if (!empty($serial_no)) {
 
             $where = array('partner_serial_number' => $serial_no);
-            $data['Bookings'] = $this->booking_model->search_bookings($where, $partner_id);
-           
+            $Bookings = $this->booking_model->search_bookings($where, $partner_id);
+            $data['data'] = json_decode(json_encode($Bookings), True);
             $data['search'] = "Search";
             $this->load->view('partner/header');
-            $this->load->view('partner/search_result',$data);
+            $this->load->view('partner/bookinghistory',$data);
         } else {
             $this->session->set_flashdata('error', 'User Not Exist');
             redirect(base_url() . 'employee/partner/get_user_form');

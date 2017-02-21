@@ -112,6 +112,10 @@
                                 </li>
                                 <li class="divider"></li>
                                 <li>
+                                    <a href="<?php echo base_url() ?>employee/booking/get_pending_booking_by_partner_id"><i class="fa fa-fw fa-desktop"></i> <strong>View 247around Pending Booking</strong></a>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
                                     <a href="<?php echo base_url()?>employee/booking/update_not_pay_to_sf_booking"><i class="fa fa-fw fa-desktop"></i> <strong>Wall Mount Not Given</strong></a>
                                 </li>
                                  <li class="divider"></li>
