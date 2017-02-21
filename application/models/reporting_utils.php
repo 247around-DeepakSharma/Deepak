@@ -1189,7 +1189,7 @@ class Reporting_utils extends CI_Model {
         foreach ($sc as $value) {
             $un_assigned = 0;
             $not_update = 0;
-            $update = 0;
+            
             $total_bookings = 0;
             //  Count,  booking is not assigned
             $sql1 = "SELECT count(booking_id) as unassigned_engineer FROM booking_details as BD "
@@ -1214,9 +1214,12 @@ class Reporting_utils extends CI_Model {
             $result2 = $query2->result_array();
             
             //Count Total Bookings Present
-            $sql3 = "SELECT count(distinct(BD.booking_id)) as total_bookings FROM booking_details as BD
+            $sql3 = "SELECT count(distinct(BD.booking_id)) as total_bookings FROM booking_details as BD,
+                      service_center_booking_action AS sb
                       WHERE BD.Current_status IN ('Pending', 'Rescheduled') 
-                      AND assigned_vendor_id = " . $value['id'];
+                      AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= 0
+                      AND assigned_vendor_id = '" . $value['id']."' "
+                    . " AND BD.booking_id = sb.booking_id AND sb.current_status = 'Pending' ";
                           
             $query3 = $this->db->query($sql3);
             $result3 = $query3->result_array();
@@ -1261,17 +1264,12 @@ class Reporting_utils extends CI_Model {
 
                 // insert or update crimes after 10:15 PM
 
-                if (date('H:i') > '22:15') {
+                if (date('H:i') > '6:15' && date('H:i') < '7:00') {
 
                     $sc_crimes['service_center_id'] = $value['id'];
-                    if (!empty($result1)) {
-                        $sc_crimes['engineer_not_assigned'] = $un_assigned;
-                    }
-
-                    if (!empty($result2)) {
-                        $sc_crimes['booking_not_updated'] = $not_update;
-                    }
-
+                    $sc_crimes['engineer_not_assigned'] = $un_assigned;
+                    $sc_crimes['booking_not_updated'] = $not_update;
+                    $sc_crimes['total_pending_booking'] = $total_bookings;
                     $sc_crimes['total_missed_target'] = ($un_assigned + $not_update );
                     $sc_crimes['update_date'] = date('Y-m-d H:i:s');
 
