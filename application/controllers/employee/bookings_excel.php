@@ -153,6 +153,7 @@ class bookings_excel extends CI_Controller {
 
 	    //Insert user if phone number doesn't exist
 	    $output = $this->user_model->search_user(trim($rowData[0]['CustomerContactNo']));
+            $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($rowData[0]['CustomerPincode']));
 
 	    if (empty($output)) {
 		//User doesn't exist
@@ -162,7 +163,7 @@ class bookings_excel extends CI_Controller {
 		$user['home_address'] = $rowData[0]['CustomerAddress1'] . " ," . $rowData[0]['CustomerAddress2'];
 		$user['pincode'] = $rowData[0]['CustomerPincode'];
 		$user['city'] = $rowData[0]['CustomerCity'];
-		$user['state'] = $rowData[0]['CustomerState'];
+		$user['state'] = $distict_details['state'];
 		$user['is_verified'] = 1;
 
 		$user_id = $this->user_model->add_user($user);
@@ -225,7 +226,9 @@ class bookings_excel extends CI_Controller {
 		$booking['booking_address'] = $rowData[0]['CustomerAddress1'] . " ," . $rowData[0]['CustomerAddress2'];
 		$booking['booking_pincode'] = $rowData[0]['CustomerPincode'];
 		$booking['city'] = $rowData[0]['CustomerCity'];
-		$booking['state'] = $rowData[0]['CustomerState'];
+                $booking['state'] = $distict_details['state'];
+                $booking['district'] = $distict_details['district'];
+                $booking['taluk'] = $distict_details['taluk'];
 
 		if (empty($booking['state'])) {
 		    $to = NITS_ANUJ_EMAIL_ID;

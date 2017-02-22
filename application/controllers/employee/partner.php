@@ -1459,15 +1459,17 @@ class Partner extends CI_Controller {
             $user['pincode'] = $post['pincode'];
             $user['home_address'] = $post['address'];
             $user['alternate_phone_number'] = $post['alternate_phone_number'];
-            $state = $this->vendor_model->get_state_from_india_pincode($post['pincode']);
+            $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($post['pincode']));
 
-            $user['state'] = $state['state'];
+            $user['state'] = $distict_details['state'];
             $booking_details['booking_date'] = $post['booking_date'];
             $booking_details['booking_primary_contact_no'] = $post['mobile'];
             $booking_details['booking_alternate_contact_no'] = $post['alternate_phone_number'];
             $booking_details['booking_address'] = $post['address'];
             $booking_details['booking_pincode'] = $post['pincode'];
-            $booking_details['state'] = $state['state'];
+            $booking_details['state'] = $distict_details['state'];
+            $booking_details['district'] = $distict_details['district'];
+            $booking_details['taluk'] = $distict_details['taluk'];
             $booking_details['city'] = $post['city'];
             $booking_details['request_type'] = $post['requestType'];
             $booking_details['booking_landmark'] = $post['landmark'];
