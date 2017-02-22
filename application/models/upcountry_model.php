@@ -262,7 +262,7 @@ class Upcountry_model extends CI_Model {
                 . "sf_upcountry_rate,booking_pincode");
         $this->db->where("booking_details.is_upcountry", '0');
         $this->db->where("assigned_vendor_id IS NOT NULL", NULL, false);
-        $this->db->where_not_in("sub_vendor_id IS NOT NULL", NULL, false);
+        $this->db->where("sub_vendor_id IS NOT NULL", NULL, false);
         $this->db->where("upcountry_pincode IS NOT NULL", NULL, false);
         $this->db->where("upcountry_distance IS NULL", NULL, FALSE);
         $this->db->where_in("current_status", array('Pending', 'Rescheduled'));
@@ -287,13 +287,13 @@ class Upcountry_model extends CI_Model {
                 . " WHERE ud.booking_id = bd.booking_id "
                 . " AND bd.assigned_vendor_id = '$vendor_id' "
                 . " AND ud.ud_closed_date >= '$from_date' "
-                . " AND ud.ud_closed_date < '$to_date' "
+                . " AND ud.ud_closed_date <= '$to_date' "
                 . " AND pay_to_sf = '1' "
                 . " AND sub_vendor_id IS NOT NULL "
                 . " AND bd.is_upcountry = '1' "
                 . " AND bd.current_status = 'Completed' "
                 . " AND bd.upcountry_paid_by_customer = 0 "
-                . " GROUP BY bd.booking_date, bd.booking_pincode ";
+                . " GROUP BY bd.booking_date, bd.booking_pincode, bd.sf_upcountry_rate ";
         
         $query = $this->db->query($sql);
         
@@ -378,7 +378,7 @@ class Upcountry_model extends CI_Model {
                     . " AND sub_vendor_id IS NOT NULL "
                     . " AND bd.current_status IN ('Completed', 'Pending', 'Rescheduled') $where "
                     . " GROUP BY "
-                    . " CASE WHEN (upcountry_paid_by_customer = 0 OR upcountry_paid_by_customer IS NULL) THEN ( bd.booking_date AND bd.booking_pincode ) "
+                    . " CASE WHEN (upcountry_paid_by_customer = 0 OR upcountry_paid_by_customer IS NULL) THEN ( bd.booking_date AND bd.booking_pincode AND bd.sf_upcountry_rate ) "
                     . " ELSE (bd.booking_id) END ";
 
             $query = $this->db->query($sql);
@@ -431,7 +431,7 @@ class Upcountry_model extends CI_Model {
             $group = "AND booking_id = '$booking_id'";
             
         } else {
-            $group = "AND upcountry_paid_by_customer = 0 GROUP BY bd.booking_date, bd.booking_pincode $having";
+            $group = "AND upcountry_paid_by_customer = 0 GROUP BY bd.booking_date, bd.booking_pincode, $upcountry_rate $having";
         }
          $sql = "SELECT CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking, "
                  
@@ -575,7 +575,7 @@ class Upcountry_model extends CI_Model {
         $this->db->where_in('current_status',array(_247AROUND_PENDING,_247AROUND_RESCHEDULED));
         $this->db->where('upcountry_partner_approved','0');
         $this->db->where('upcountry_paid_by_customer','0');
-        $this->db->where('sub_vendor_id IS NOT','NULL', FALSE);
+        $this->db->where('sub_vendor_id IS NOT NULL',NULL, FALSE);
         $this->db->where('is_upcountry','1');
         if(!empty($partner_id)){
             $this->db->where('bd.partner_id',$partner_id);
@@ -597,19 +597,22 @@ class Upcountry_model extends CI_Model {
     }
     
     function upcountry_partner_invoice($partner_id, $from_date, $to_date){
-        $sql = "SELECT CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking,"
+        $sql = "SELECT CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.order_id ) ) , '' ) AS order_id, "
+                . " CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking_id, "
                 . " round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) AS upcountry_distance, "
                 . " round((partner_upcountry_rate * round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) ),2) AS upcountry_price,"
-                . " COUNT(DISTINCT(bd.booking_id)) AS count_booking, partner_upcountry_rate"
-                . " FROM `booking_details` AS bd, booking_unit_details AS ud "
+                . " COUNT(DISTINCT(bd.booking_id)) AS count_booking, partner_upcountry_rate, upcountry_pincode, services, city, booking_pincode"
+                . " FROM `booking_details` AS bd, booking_unit_details AS ud, services "
                 . " WHERE ud.booking_id = bd.booking_id "
                 . " AND bd.partner_id = '$partner_id' "
                 . " AND ud.ud_closed_date >= '$from_date' "
-                . " AND ud.ud_closed_date < '$to_date' "
+                . " AND ud.ud_closed_date <= '$to_date' "
                 . " AND sub_vendor_id IS NOT NULL "
                 . " AND bd.is_upcountry = '1' "
+                . " AND bd.service_id = services.id"
                 . " AND bd.current_status = 'Completed' "
                 . " AND bd.upcountry_paid_by_customer = 0 "
+                . " AND ud.partner_invoice_id IS NULL "
                 . " GROUP BY bd.booking_date, bd.booking_pincode, bd.service_id ";
         
         $query = $this->db->query($sql);

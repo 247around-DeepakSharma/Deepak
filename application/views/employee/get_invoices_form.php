@@ -85,6 +85,25 @@ function partner_vendor1(vendor_partner_id){
 
 
 </script>
+ <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+
+    <script type="text/javascript">
+    $(function() {
+        $('input[name="daterange"]').daterangepicker({
+            locale: {
+               format: 'YYYY/MM/DD'
+            },
+            startDate: '<?php echo date("Y/m/01", strtotime("-1 month")) ?>',
+            endDate: '<?php echo date("Y/m/01") ?>'
+        });
+//        $('input[name="daterange"]').on('apply.daterangepicker', function(ev, picker) {
+//          $(this).val(picker.startDate.format('YYYY/MM/DD') + '-' + picker.endDate.format('YYYY/MM/DD'));
+//        });
+
+        });
+</script>
 
 <style type="text/css">
 #myForm1 .form-group label.error {
@@ -164,27 +183,15 @@ color: red;
               <div class="form-group">
             	<label for="name" class="col-md-2">Month<span class="red">*</span></label>
                 <div class="col-md-2">
-                    <select name="invoice_month" id="invoice_month">
-                        <option value="01">Jan</option>
-                        <option value="02">Feb</option>
-                        <option value="03">March</option>
-                        <option value="04">April</option>
-                        <option value="05">May</option>
-                        <option value="06">June</option>
-                        <option value="07">July</option>
-                        <option value="08">Aug</option>
-                        <option value="09">Sept</option>
-                        <option value="10">Oct</option>
-                        <option value="11">Nov</option>
-                        <option value="12">Dec</option>
-                    </select>
+                   <input type="text" class="form-control" name="daterange"  />
+
                 </div>
 
               </div>
               <span id="errms5"></span>
 
               <div class="col-md-12 col-md-offset-1" style="margin-top:20px;" >
-            <input type= "submit"  class="btn btn-danger btn-lg"  value ="Generate Invoice" >
+                  <input type= "submit"  class="btn btn-danger btn-lg"  value ="Generate Invoice" value="2017-01-01-2017-01-31" >
         </div>
           </form>
 
@@ -194,7 +201,8 @@ color: red;
 <?php if($this->session->userdata('success')) { $this->session->unset_userdata('success'); } ?>
     <script type="text/javascript">
      $("#name").select2();
-     $("#invoice_month").select2();
+     
     </script>
+   
 
 

@@ -96,6 +96,7 @@ class Service_centers_model extends CI_Model {
                  . " AND b.booking_date = bd.booking_date AND is_upcountry =1 "
                  . " AND b.sub_vendor_id IS NOT NULL "
                  . " AND b.upcountry_paid_by_customer = 0 "
+                 . " AND b.sf_upcountry_rate = bd.sf_upcountry_rate"
                  . " AND bd.current_status IN ('Pending','Rescheduled', 'Completed')  "
                  . " AND b.assigned_vendor_id = '$service_center_id' ) "
                  . " WHEN (bd.is_upcountry = 1 AND upcountry_paid_by_customer = 1 AND bd.sub_vendor_id IS NOT NULL ) "

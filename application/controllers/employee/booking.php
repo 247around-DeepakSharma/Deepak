@@ -435,9 +435,11 @@ class Booking extends CI_Controller {
 	$booking['partner_source'] = $this->input->post('partner_source');
 	$booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
 	$booking['booking_pincode'] = $this->input->post('booking_pincode');
-	// select state by pincode
-	$state = $this->vendor_model->get_state_from_india_pincode(trim($booking['booking_pincode']));
-	$booking['state'] = $state['state'];
+	// select state, taluk, district by pincode
+        $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($booking['booking_pincode']));
+	$booking['state'] = $distict_details['state'];
+        $booking['district'] = $distict_details['district'];
+        $booking['taluk'] = $distict_details['taluk'];
 	$booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
 	$booking['order_id'] = $this->input->post('order_id');
 //	$booking['potential_value'] = $this->input->post('potential_value');
@@ -1029,10 +1031,12 @@ class Booking extends CI_Controller {
 	
         $where_get_partner = array('bookings_sources.code'=>$partner_code);
         $select = "bookings_sources.partner_id,bookings_sources.price_mapping_id, "
-                . " partners.upcountry_approval, upcountry_mid_distance_threshold, upcountry_rate1, upcountry_rate, partners.is_upcountry";
+                . " partners.upcountry_approval, upcountry_mid_distance_threshold,"
+                . " upcountry_min_distance_threshold, upcountry_max_distance_threshold, "
+                . " upcountry_rate1, upcountry_rate, partners.is_upcountry";
         $partner_data = $this->partner_model->getpartner_details($select,$where_get_partner);
         $partner_mapping_id = $partner_data[0]['price_mapping_id'];
-      
+       
         if($partner_type == OEM){
 	   $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_mapping_id, $brand);
         } else {

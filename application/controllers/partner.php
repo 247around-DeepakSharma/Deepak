@@ -1645,14 +1645,14 @@ class Partner extends CI_Controller {
             }
             
             //SF could not be found for this upcountry booking so email to admin
-            if(isset($requestData['vendor_id'])){
-                if(empty($requestData['vendor_id']) && empty($upcountry_data) ){
-                    $message1 = "Upcountry did not calculate for ".$booking['booking_id'];
-                    $to = NITS_ANUJ_EMAIL_ID;
-                    $cc = "abhaya@247around.com";
-                    $this->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Failed Booking', $message1, "");
-                }
-            }
+//            if(isset($requestData['vendor_id'])){
+//                if(empty($requestData['vendor_id']) && empty($upcountry_data) ){
+//                    $message1 = "Upcountry did not calculate for ".$booking['booking_id'];
+//                    $to = NITS_ANUJ_EMAIL_ID;
+//                    $cc = "abhaya@247around.com";
+//                    $this->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Failed Booking', $message1, "");
+//                }
+//            }
             
             //Send booking to partner for upcountry approval
             if($mail ==1 && !empty($up_mail_data)){

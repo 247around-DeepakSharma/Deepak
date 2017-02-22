@@ -1163,7 +1163,7 @@ class Do_background_upload_excel extends CI_Controller {
 	foreach ($row_data as $value) {
 
             $output = $this->user_model->search_user(trim($value['Phone']));
-            $state = $this->vendor_model->get_state_from_pincode($value['Pincode']);
+            $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($value['Pincode']));
 
             if (empty($output)) {
                 //User doesn't exist
@@ -1174,7 +1174,7 @@ class Do_background_upload_excel extends CI_Controller {
                     $user['home_address'] = $value['Customer_Address'];
                     $user['pincode'] = $value['Pincode'];
                     $user['city'] = $value['CITY'];
-                    $user['state'] = $state['state'];
+                    $user['state'] = $distict_details['state'];
 
                     $user_id = $this->user_model->add_user($user);
                     //echo print_r($user, true), EOL;

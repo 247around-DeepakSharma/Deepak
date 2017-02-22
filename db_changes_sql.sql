@@ -1978,3 +1978,5 @@ ALTER TABLE `partners` ADD `partner_type` VARCHAR(50) NULL DEFAULT NULL AFTER `t
 
 -- Abhay 21 FEB
 ALTER TABLE `sc_crimes` ADD `total_pending_booking` INT(10) NULL DEFAULT NULL AFTER `total_missed_target`;
+ALTER TABLE `partners` ADD `seller_code` VARCHAR(56) NULL DEFAULT NULL AFTER `public_name`;
+ALTER TABLE `booking_details` ADD `district` VARCHAR(128) NULL DEFAULT NULL AFTER `city`, ADD `taluk` VARCHAR(128) NULL DEFAULT NULL AFTER `district`;

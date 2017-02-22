@@ -432,10 +432,11 @@ class vendor_model extends CI_Model {
     }
 
 
-    function get_city_from_india_pincode($pincode) {
+    function get_distict_details_from_india_pincode($pincode) {
+        $this->db->cache_on();
         $this->db->distinct();
         // Do not make state capital. It should be 'state'.
-        $this->db->select('district');
+        $this->db->select('district, state, taluk');
         $this->db->where('pincode', $pincode);
 
         $query = $this->db->get('india_pincode');
@@ -443,6 +444,8 @@ class vendor_model extends CI_Model {
             return $query->result_array()[0];
         } else {
             $district['district'] = "";
+            $district['state'] = "";
+            $district['taluk'] = "";
             return $district;
         }
     }

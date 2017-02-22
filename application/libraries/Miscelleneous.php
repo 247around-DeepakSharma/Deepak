@@ -28,7 +28,7 @@ class Miscelleneous {
                  ." service id ".$service_id );
         //Get Available Vendor in this pincode who work this service
         $check_vendor = $this->My_CI->upcountry_model->get_vendor_upcountry($booking_pincode, $service_id, $assigned_vendor_id);
-        $sf_city = $this->My_CI->vendor_model->get_city_from_india_pincode($booking_pincode)['district'];
+        $sf_city = $this->My_CI->vendor_model->get_distict_details_from_india_pincode($booking_pincode)['district'];
         $data1 = array();
         $is_return = 0;
         $mesg1 = array();
@@ -146,9 +146,12 @@ class Miscelleneous {
 
         $vendor_data[0]['vendor_id'] = $query1[0]['assigned_vendor_id'];
         
-        //$vendor_data[0]['city'] = $query1[0]['city'];
-        $vendor_data[0]['city'] = $this->My_CI->vendor_model->get_city_from_india_pincode($query1[0]['booking_pincode'])['district'];
-        
+        if(!empty($query1[0]['district'])){
+            $vendor_data[0]['city'] = $query1[0]['district'];
+        } else {
+            $vendor_data[0]['city'] = $this->My_CI->vendor_model->get_distict_details_from_india_pincode($query1[0]['booking_pincode'])['district'];
+        }
+
         $return_status = 0;
         $partner_details = $this->My_CI->partner_model->get_all_partner($query1[0]['partner_id']);
         $data = $this->My_CI->upcountry_model->action_upcountry_booking($query1[0]['city'], 
