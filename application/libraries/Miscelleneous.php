@@ -23,7 +23,7 @@ class Miscelleneous {
      * @param String $service_id
      * @return Array
      */
-    function check_upcountry_vendor_availability($booking_city, $booking_pincode, $service_id, $assigned_vendor_id= false){
+    function check_upcountry_vendor_availability($booking_city, $booking_pincode, $service_id, $partner_data, $assigned_vendor_id= false){
          log_message('info', __FUNCTION__ . ' => booking city' . $booking_city." booking pincode ". $booking_pincode
                  ." service id ".$service_id );
         //Get Available Vendor in this pincode who work this service
@@ -76,7 +76,7 @@ class Miscelleneous {
             }
            
             return $this->My_CI->upcountry_model->action_upcountry_booking($booking_city,
-                    $booking_pincode, $data1);
+                    $booking_pincode, $data1, $partner_data);
            
             
         
@@ -150,30 +150,15 @@ class Miscelleneous {
         $vendor_data[0]['city'] = $this->My_CI->vendor_model->get_city_from_india_pincode($query1[0]['booking_pincode'])['district'];
         
         $return_status = 0;
+        $partner_details = $this->My_CI->partner_model->get_all_partner($query1[0]['partner_id']);
         $data = $this->My_CI->upcountry_model->action_upcountry_booking($query1[0]['city'], 
-                $query1[0]['booking_pincode'], $vendor_data);
+                $query1[0]['booking_pincode'], $vendor_data, $partner_details);
 
         switch ($data['message']) {
             case UPCOUNTRY_BOOKING:
             case UPCOUNTRY_LIMIT_EXCEED:
                 log_message('info', __METHOD__ . " => " . $data['message'] . " booking_id " . $booking_id);
-                $partner_details = $this->My_CI->partner_model->get_all_partner($query1[0]['partner_id']);
-                if ($partner_details[0]['is_upcountry'] == 1) {
-                    if ($partner_details[0]['upcountry_mid_distance_threshold'] > $data['upcountry_distance']) {
-                        $upcountry_price = $partner_details[0]['upcountry_rate'] * $data['upcountry_distance'];
-                        $data['partner_upcountry_rate'] = $partner_details[0]['upcountry_rate'];
-                    } else {
-
-                        $data['partner_upcountry_rate'] = $partner_details[0]['upcountry_rate1'];
-                        $upcountry_price = $partner_details[0]['upcountry_rate1'] * $data['upcountry_distance'];
-                    }
-                    $partner_approval = $partner_details[0]['upcountry_approval'];
-                } else{
-                    $data['partner_upcountry_rate'] = DEFAULT_UPCOUNTRY_RATE;
-                    $upcountry_price = DEFAULT_UPCOUNTRY_RATE * $data['upcountry_distance'];
-                    $partner_approval = 0;
-                }
-
+               
                 $booking['is_upcountry'] = 1;
                 $booking['upcountry_pincode'] = $data['upcountry_pincode'];
                 $booking['sub_vendor_id'] = $data['sub_vendor_id'];
@@ -189,7 +174,7 @@ class Miscelleneous {
                         $booking['upcountry_paid_by_customer'] = 0;
                         $this->My_CI->booking_model->update_booking($booking_id, $booking);
                         $return_status = TRUE;
-                    } else if($partner_approval == 1 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED){
+                    } else if($data['partner_upcountry_approval'] == 1 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED){
                        
                         log_message('info', __METHOD__ . " => Upcountry Waiting for Approval " . $booking_id);
                         $booking['assigned_vendor_id'] = NULL;
@@ -220,20 +205,35 @@ class Miscelleneous {
                         $up_mail_data['upcountry_distance'] = $booking[0]['upcountry_distance'];
 
                         $message1 = $this->My_CI->load->view('employee/upcountry_approval_template', $up_mail_data, true);
-                        $cc = NITS_ANUJ_EMAIL_ID;
-                        $subject = "Upcountry charges approval required - Booking ID " . $query1[0]['booking_id'];
-                        $to = $partner_details[0]['upcountry_approval_email'];
+                        
+                        
+                        if($booking['upcountry_distance'] > 300){
+                            $subject = "Upcountry Distance More Than 300 - Booking ID " . $query1[0]['booking_id'];
+                            $to = NITS_ANUJ_EMAIL_ID;
+                            $cc = "abhaya@247around.com";
+                            
+                        } else {
+                            $subject = "Upcountry Charges Approval Required - Booking ID " . $query1[0]['booking_id'];
+                            $to = $partner_details[0]['upcountry_approval_email'];
+                            $cc = NITS_ANUJ_EMAIL_ID;
+                        }
 
                         $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message1, "");
 
                         $return_status = FALSE;
                         
-                    } else if ($partner_approval == 0 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED) {
+                    } else if ($data['partner_upcountry_approval'] == 0 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED) {
 
-                        log_message('info', __METHOD__ . " => Upcountry, partner not provide approval" . $booking_id);
+                        log_message('info', __METHOD__ . " => Upcountry, partner does not provide approval" . $booking_id);
                         $this->My_CI->booking_model->update_booking($booking_id, $booking);
-                        $this->process_cancel_form($booking_id, "Pending", UPCOUNTRY_CHARGES_NOT_APPROVED, "", $agent_id, $agent_name,$query1[0]['partner_id']);
-
+                        $this->process_cancel_form($booking_id, "Pending", UPCOUNTRY_CHARGES_NOT_APPROVED, " Upcountry  Distance ". $data['upcountry_distance'], $agent_id, $agent_name,$query1[0]['partner_id']);
+            
+                       $to = NITS_ANUJ_EMAIL_ID;
+                       $cc = "abhaya@247around.com";
+                       $message1 = $booking_id ." has auto cancelled because upcountry limit exceed "
+                               . "and partner does not provide upcountry charges approval. Upcountry Distance ".$data['upcountry_distance'];
+                       $this->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Auto Cancel Booking', $message1, "");
+                       
                         $return_status = FALSE;
                     }
                     
@@ -260,11 +260,20 @@ class Miscelleneous {
             case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
                 
                 log_message('info', __METHOD__ . " => Upcountry distance cannot calculate" . $booking_id);
-                $to = NITS_ANUJ_EMAIL_ID.", sales@247around.com";
-                $message1 = "Upcountry did not calculate for " . $booking_id;
-                $this->My_CI->notify->sendEmail("booking@247around.com", $to, "", "", 'Upcountry Failed', $message1, "");
+                // Assigned Vendor Id is Not NULL or sub vendor id is NULl
+                $booking['is_upcountry'] = 0;
+                $booking['upcountry_pincode'] = $data['upcountry_pincode'];
+                $booking['sub_vendor_id'] = $data['sub_vendor_id'];
+                $booking['sf_upcountry_rate'] = $data['sf_upcountry_rate'];
+               
                 $this->My_CI->booking_model->update_booking($booking_id, $booking);
-                $return_status = TRUE;
+                
+                $to = NITS_ANUJ_EMAIL_ID.", sales@247around.com";
+                $cc = "abhaya@247around.com";
+                $message1 = "Upcountry did not calculate for " . $booking_id;
+                $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Failed', $message1, "");
+                
+                $return_status = FALSE;
                 break;
         }
 
@@ -396,4 +405,38 @@ class Miscelleneous {
     }    
     
     
+    function send_sms_create_job_card($query) {
+        if ($query[0]['request_type'] == HOME_THEATER_REPAIR_SERVICE_TAG || $query[0]['request_type'] == HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) {
+            $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id' => $query[0]['booking_id']));
+            $sms['smsData']['brand_service'] = $unit_details[0]['appliance_brand'] . " " . $query[0]['services'];
+            $sms['smsData']['sf_phone'] = $query[0]['phone_1'] . ", "
+                    . $query[0]['primary_contact_phone_1'] . ", " . $query[0]['owner_phone_1'];
+            $sms['smsData']['sf_address'] = $query[0]['address'];
+            $sms['tag'] = "home_theater_repair";
+            $sms['booking_id'] = $query[0]['booking_id'];
+            $sms['type'] = "user";
+            $sms['type_id'] = $query[0]['user_id'];
+            $sms['phone_no'] = $query[0]['booking_primary_contact_no'];
+            $this->My_CI->notify->send_sms($sms);
+        } else {
+            //Send SMS to customer
+            $sms['tag'] = "service_centre_assigned";
+            $sms['phone_no'] = $query[0]['booking_primary_contact_no'];
+            $sms['booking_id'] = $query[0]['booking_id'];
+            $sms['type'] = "user";
+            $sms['type_id'] = $query[0]['user_id'];
+            $sms['smsData'] = "";
+
+            $this->My_CI->notify->send_sms_acl($sms);
+        }
+
+
+        log_message('info', "Send SMS to customer: " . $query[0]['booking_id']);
+
+        //Prepare job card
+        $this->My_CI->booking_utilities->lib_prepare_job_card_using_booking_id($query[0]['booking_id']);
+        log_message('info', "Async Process to create Job card: " . $query[0]['booking_id']);
+
+    }
+
 }

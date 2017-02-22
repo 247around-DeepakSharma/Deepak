@@ -98,23 +98,29 @@
                             <th>Purchase Date</th>
                             <th>Description</th>
                             <th>Call Type</th>
-                            <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
                             <th>Charges</th>
+                            <th>Upcountry Charges</th>
+                            
+                            <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
+                            
                             <th>Partner Offer</th>
                             <th>247Around Offer</th>
+                            <th>Partner Upcountry Offer</th>
                             <th>Total Charges</th>
                             <?php } else { ?>
                             <th>Partner Offer</th>
                             <th>247Around Offer</th>
+                            <th>Partner Upcountry Offer</th>
                             <th>Paid Service Charges</th>
                             <th>Paid Additional Charges</th>
                             <th>Paid Parts Cost</th>
+                            <th>Paid Upcountry Charges</th>
                             <th>Total Amount Paid</th>
                             <?php } ?>
                             <th>Booking Status</th>
                         </tr>
                         <tbody>
-                            <?php  foreach ( $unit_details as  $unit_detail) { ?>
+                            <?php  foreach ( $unit_details as $key => $unit_detail) { ?>
                             <tr>
                                 <td><?php echo $unit_detail['appliance_brand']?></td>
                                 <td><?php echo $unit_detail['appliance_category']?></td>
@@ -123,21 +129,39 @@
                                 <td><?php echo $unit_detail['serial_number']?></td>
                                 <td><?php if(!empty($unit_detail['purchase_month'])) {echo $unit_detail['purchase_month']."-". $unit_detail['purchase_year'];} else { echo $unit_detail['purchase_year'];}?></td>
                                 <td><?php echo $unit_detail['appliance_description']?></td>
-                                <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
                                 <td><?php  print_r($unit_detail['price_tags']); ?></td>
                                 <td><?php  print_r($unit_detail['customer_total']); ?></td>
+                                <td><?php  if($key ==0){ if($booking_history[0]['is_upcountry'] == 1) { echo 
+                                    $booking_history[0]['partner_upcountry_rate'] * $booking_history[0]['upcountry_distance'];} else { echo "0.00";}} else { echo "0.00";} ?></td>
+                                <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
+                                
                                 <td><?php print_r($unit_detail['partner_net_payable']);  ?></td>
                                 <td><?php print_r($unit_detail['around_net_payable']);  ?></td>
-                                <td><?php print_r($unit_detail['customer_net_payable']);  ?></td>
+                                <td><?php if($key ==0){ if($booking_history[0]['upcountry_paid_by_customer'] == 0){ 
+                                    echo $booking_history[0]['partner_upcountry_rate'] * $booking_history[0]['upcountry_distance']; } 
+                                    else { echo "0.00";}} else { echo "0.00";} ?></td>
+                                
+                                <td><?php if($key ==0){ if($booking_history[0]['upcountry_paid_by_customer'] == 1){ 
+                                    echo ($booking_history[0]['partner_upcountry_rate'] * $booking_history[0]['upcountry_distance'] ) +
+                                    $unit_detail['customer_net_payable'] ; } 
+                                    else { echo $unit_detail['customer_net_payable'];}} else { echo $unit_detail['customer_net_payable'];}
+                                      ?></td>
+                                
                                 <?php } else {   ?>
-                                <td><?php  print_r($unit_detail['price_tags']); ?></td>
+                                
                                 <td><?php print_r($unit_detail['partner_net_payable']);  ?></td>
                                 <td><?php print_r($unit_detail['around_net_payable']);  ?></td>
+                                <td><?php if($key ==0){ if($booking_history[0]['upcountry_paid_by_customer'] == 0){ 
+                                    echo $booking_history[0]['partner_upcountry_rate'] * $booking_history[0]['upcountry_distance']; } 
+                                    else { echo "0.00";}} else { echo "0.00";} ?></td>
                                 <td><?php  print_r($unit_detail['customer_paid_basic_charges']); ?></td>
                                 <td><?php print_r($unit_detail['customer_paid_extra_charges']);  ?></td>
                                 <td><?php print_r($unit_detail['customer_paid_parts']);  ?></td>
-                                <td><?php print_r($unit_detail['customer_paid_basic_charges'] + $unit_detail['customer_paid_extra_charges'] + $unit_detail['customer_paid_parts'] );  ?></td>
-                                <?php }?>
+                                <td><?php if($key ==0){ print_r($booking_history[0]['customer_paid_upcountry_charges']); } ?></td>
+                                <td><?php $paid = $unit_detail['customer_paid_basic_charges'] + $unit_detail['customer_paid_extra_charges'] + $unit_detail['customer_paid_parts'];
+                                   if($key ==0){ 
+                                   print_r($paid + $booking_history[0]['customer_paid_upcountry_charges'] );} else { echo $paid;} ?></td>
+                                <?php }?> 
                                 <td><?php print_r($unit_detail['booking_status']);  ?></td>
                             </tr>
                             <?php } ?>

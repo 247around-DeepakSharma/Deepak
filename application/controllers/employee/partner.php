@@ -1591,7 +1591,7 @@ class Partner extends CI_Controller {
         $config['total_rows'] = $total_rows[0]['total_rows'];
         
         if($all == 1){
-            $config['per_page'] = count($total_rows);
+            $config['per_page'] = $total_rows[0]['total_rows'];
         }else{
             $config['per_page'] = 50;
         }
@@ -1916,7 +1916,7 @@ class Partner extends CI_Controller {
         $config['total_rows'] = $total_rows[0]['total_rows'];
         
         if($all == 1){
-            $config['per_page'] = count($total_rows);
+            $config['per_page'] = $total_rows[0]['total_rows'];
         }else{
             $config['per_page'] = 50;
         }
@@ -2422,8 +2422,8 @@ class Partner extends CI_Controller {
             $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_mapping_id, $service_category,""); 
         }
         if(!empty($result)){
-          
-            $data = $this->miscelleneous->check_upcountry_vendor_availability($city, $pincode,$service_id, $assigned_vendor_id);
+            $partner_details = $this->partner_model->get_all_partner($partner_id);
+            $data = $this->miscelleneous->check_upcountry_vendor_availability($city, $pincode,$service_id, $partner_details, $assigned_vendor_id);
             
             switch ($data['message']){
                 case NOT_UPCOUNTRY_BOOKING:
@@ -2439,8 +2439,20 @@ class Partner extends CI_Controller {
                     print_r(json_encode($form_data,true));
                     break;
                     
-                case SF_DOES_NOT_EXIST:
                 case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
+                    $data['upcountry_paid_by_customer'] = 0;
+                    $form_data['vendor_id'] = $data['vendor_id'];
+                    $form_data['upcountry_data'] = json_encode("") ;
+                    if($result[0]['customer_net_payable']>.0){
+                        $form_data['price'] = "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:red'> To be PAID By Customer </span>";
+                    } else {
+                        $form_data['price'] =  "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:green'> Free for Customer </span>";
+                    }
+                    print_r(json_encode($form_data,true));
+                    break;
+                    
+                case SF_DOES_NOT_EXIST:
+                
                     $data['upcountry_paid_by_customer'] = 0;
                     $form_data['vendor_id'] = "";
                     $form_data['upcountry_data'] = json_encode("") ;
@@ -2455,23 +2467,8 @@ class Partner extends CI_Controller {
                 case UPCOUNTRY_LIMIT_EXCEED:
                     $form_data['vendor_id'] = $data['vendor_id'];
                     
-                    $partner_details = $this->partner_model->get_all_partner($partner_id);
-                    if ($partner_details[0]['is_upcountry'] == 1) {
-                        if($partner_details[0]['upcountry_mid_distance_threshold'] > $data['upcountry_distance']){
-                            $upcountry_price = $partner_details[0]['upcountry_rate'] * $data['upcountry_distance'];
-                            $data['partner_upcountry_rate']  = $partner_details[0]['upcountry_rate'] ;
+                   $upcountry_price = $data['upcountry_distance'] * $data['partner_upcountry_rate'];
 
-                        } else {
-
-                            $data['partner_upcountry_rate']  = $partner_details[0]['upcountry_rate1'];
-                            $upcountry_price = $partner_details[0]['upcountry_rate1'] * $data['upcountry_distance'];
-                        }
-                        $partner_approval = $partner_details[0]['upcountry_approval'];
-                    } else {
-                        $data['partner_upcountry_rate'] = DEFAULT_UPCOUNTRY_RATE;
-                        $upcountry_price = DEFAULT_UPCOUNTRY_RATE * $data['upcountry_distance'];
-                        $partner_approval = 0;
-                    }
                     if($result[0]['is_upcountry'] == 0 ){
                         // For paid Service
                         $data['partner_approval'] = 0;
@@ -2499,7 +2496,7 @@ class Partner extends CI_Controller {
                            $form_data['upcountry_data'] = json_encode($data) ;
                            print_r(json_encode($form_data,true));
                             
-                        } else if($partner_approval == 1 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED){
+                        } else if( $data['partner_upcountry_approval'] == 1 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED){
                             //Upcountry Limit exceed and Partner provide uproval
                             $data['partner_approval'] = 1;
                             $data['upcountry_paid_by_customer'] = 0;
@@ -2508,7 +2505,7 @@ class Partner extends CI_Controller {
                             $form_data['upcountry_data'] = json_encode($data) ;
                             print_r(json_encode($form_data,true));
                             
-                        } else{
+                        } else {
                             // Do not Allow to add booking
                             echo "ERROR";
                         }

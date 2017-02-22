@@ -276,6 +276,7 @@ class Booking extends CI_Controller {
                         case UPCOUNTRY_BOOKING:
                         case UPCOUNTRY_LIMIT_EXCEED:
                         case NOT_UPCOUNTRY_BOOKING:
+                        case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
                             $url = base_url() . "employee/vendor/process_assign_booking_form/";
                             $async_data['service_center'] = array($booking['booking_id'] => $upcountry_data['vendor_id']);
                             $async_data['agent_id'] = _247AROUND_DEFAULT_AGENT;
@@ -1037,7 +1038,7 @@ class Booking extends CI_Controller {
 	
         $where_get_partner = array('bookings_sources.code'=>$partner_code);
         $select = "bookings_sources.partner_id,bookings_sources.price_mapping_id, "
-                . " partners.upcountry_approval, upcountry_mid_distance_threshold, upcountry_rate1, upcountry_rate";
+                . " partners.upcountry_approval, upcountry_mid_distance_threshold, upcountry_rate1, upcountry_rate, partners.is_upcountry";
         $partner_data = $this->partner_model->getpartner_details($select,$where_get_partner);
         $partner_mapping_id = $partner_data[0]['price_mapping_id'];
       
@@ -1056,7 +1057,7 @@ class Booking extends CI_Controller {
         } else {
             $brand_id = "";
         }
-
+       
 	if (!empty($result)) {
      
 	    $html = "<thead><tr><th>Service Category</th><th>Std. Charges</th><th>Partner Discount</th><th>Final Charges</th><th>247around Discount</th><th>Selected Services</th></tr></thead>";
@@ -1082,28 +1083,8 @@ class Booking extends CI_Controller {
 		$i++;
 	    }
 	    $data['price_table'] = $html;
-            $upcountry_data = $this->miscelleneous->check_upcountry_vendor_availability($booking_city, $booking_pincode, $service_id);
-            switch ($upcountry_data['message']){
-                case UPCOUNTRY_BOOKING:
-                case UPCOUNTRY_LIMIT_EXCEED:
-                if(!empty($partner_data[0]['upcountry_mid_distance_threshold'])){
-                    if($partner_data[0]['upcountry_mid_distance_threshold'] > $upcountry_data['upcountry_distance']){
-
-                        $upcountry_data['partner_upcountry_rate']  = $partner_data[0]['upcountry_rate'];
-
-                    } else {
-                    $upcountry_data['partner_upcountry_rate']  = $partner_data[0]['upcountry_rate1'];
-
-                   }
-                   $upcountry_data['partner_upcountry_approval'] = $partner_data[0]['upcountry_approval'];
-
-                } else {
-                    $upcountry_data['partner_upcountry_approval'] = 0;
-                    $upcountry_data['partner_upcountry_rate'] = DEFAULT_UPCOUNTRY_RATE;
-                }
-                break;
-                
-            }
+            $upcountry_data = $this->miscelleneous->check_upcountry_vendor_availability($booking_city, $booking_pincode, $service_id, $partner_data, FALSE);
+            
             
             $data['upcountry_data'] = json_encode($upcountry_data,true);
             print_r(json_encode($data,true));
@@ -1210,10 +1191,6 @@ class Booking extends CI_Controller {
 	$data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
 
 	$data['service_center'] = $this->booking_model->selectservicecentre($booking_id);
-
-        $data['upcountry_details'] = $this->upcountry_model->upcountry_booking_list($data['booking_history'][0]['assigned_vendor_id'], 
-                $booking_id, false,$data['booking_history'][0]['upcountry_paid_by_customer']);
-
         $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id);
 
 

@@ -1269,8 +1269,7 @@ class Service_centers extends CI_Controller {
         $service_center_id = $this->session->userdata('service_center_id');
         
         $where = "spare_parts_details.service_center_id = '".$service_center_id."'  "
-               . " AND spare_parts_details.booking_id = '".$booking_id."' "
-               . " AND booking_details.current_status IN ('Pending', 'Rescheduled') ";
+               . " AND spare_parts_details.booking_id = '".$booking_id."' ";
         $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
         if(!empty($data['spare_parts'])){
         $this->load->view('service_centers/header');

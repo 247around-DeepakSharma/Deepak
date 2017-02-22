@@ -162,35 +162,7 @@
                         </tr>
                     </table>
                 </div>
-                <?php if(!empty($upcountry_details)){ ?>
-                <div class="col-md-12" style="margin-top:20px;" >
-                    <h3 >Upcountry Details</h3>
-                    <table class="table  table-striped table-bordered">
-                        <thead
-                         <tr>
-                            
-                            <th class="text-center">Booking Id</th>
-                            <th class="text-center">Rate</th>
-                            <th class="text-center">Distance</th>
-                            <th class="text-center">Total Payout</th>
-                            
-                         </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="text-center">
-                                <td><?php echo $upcountry_details[0]['booking'];?></td>
-                                <td><?php echo $upcountry_details[0]['partner_upcountry_rate']." PER KM";?></td>
-                                 <td><?php echo $upcountry_details[0]['upcountry_distance']." KM";?></td>
-                                <td><i class="fa fa-inr" aria-hidden="true"></i> <?php echo $upcountry_details[0]['upcountry_price'];?></td>
-                            </tr>
-                        </tbody>
-                         
-                        
-                    </table>
-                    
-                </div>
-                    
-               <?php  } ?>
+
                 <?php if(!empty($unit_details)) { ?>
                 <div class="col-md-12" style="margin-top:20px;" >
                     <h3>Appliance Details</h3>
