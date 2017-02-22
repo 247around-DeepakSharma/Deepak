@@ -122,6 +122,10 @@
                                 <li>
                                     <a href="<?php echo base_url()?>employee/booking/auto_assigned_booking"><i class="fa fa-fw fa-desktop"></i> <strong>Auto Assigned Booking</strong></a>
                                 </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="<?php echo base_url()?>employee/upcountry/get_upcountry_failed_details"><i class="fa fa-fw fa-desktop"></i> <strong>Upcountry Failed Booking</strong></a>
+                                </li>
                                 
                             </ul>
                             <!-- /.dropdown-tasks -->
