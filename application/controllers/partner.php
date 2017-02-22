@@ -150,7 +150,8 @@ class Partner extends CI_Controller {
                         //Search for user
                         //Insert user if phone number doesn't exist
                         $output = $this->user_model->search_user($requestData['mobile']);
-                        $state = $this->vendor_model->get_state_from_india_pincode($requestData['pincode']);
+                        $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($requestData['pincode']));
+	
                         
                         if (empty($output)) {
                             log_message('info', $requestData['mobile'] . ' does not exist');
@@ -169,7 +170,7 @@ class Partner extends CI_Controller {
                             $user['pincode'] = $requestData['pincode'];
                             $user['city'] = $requestData['city'];
 
-                            $user['state'] = $state['state'];
+                            $user['state'] = $distict_details['state'];
 
                             $user_id = $this->user_model->add_user($user);
 
@@ -244,10 +245,7 @@ class Partner extends CI_Controller {
                         
                         // First we send Service id and Brand and get Partner_id from it
                         // Now we send state, partner_id and service_id 
-                         
-                        
-                        
-                        $data = $this->_allot_source_partner_id_for_pincode($service_id,$state['state'],$requestData['brand']);
+                        $data = $this->_allot_source_partner_id_for_pincode($service_id,$distict_details['state'],$requestData['brand']);
                         
                         $booking['partner_id'] = $data['partner_id'];
                         $booking['source'] = $data['source'];
@@ -297,8 +295,6 @@ class Partner extends CI_Controller {
                         $booking['booking_alternate_contact_no'] = (isset($requestData['alternatePhone']) ? $requestData['alternatePhone'] : "");
 
                         $booking['city'] = $requestData['city'];
-
-                       // $state = $this->vendor_model->get_state_from_pincode($requestData['pincode']);
                         $booking['booking_pincode'] = $requestData['pincode'];
 			
                         $booking['booking_address'] = $requestData['address'] . ", " . (isset($requestData['landmark']) ? $requestData['landmark'] : "");
@@ -355,7 +351,9 @@ class Partner extends CI_Controller {
                         $booking['partner_source'] = 'STS';
                         $booking['amount_due'] = '';
                         $booking['booking_remarks'] = '';
-                        $booking['state'] = $state['state'];
+                        $booking['state'] = $distict_details['state'];
+                        $booking['district'] = $distict_details['district'];
+                        $booking['taluk'] = $distict_details['taluk'];
                         $unit_details['booking_status'] = "FollowUp";
                         
                         //check partner status from partner_booking_status_mapping table 
@@ -381,7 +379,7 @@ class Partner extends CI_Controller {
 
                         $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , $booking['query_remarks'], DEFAULT_PARTNER_AGENT, $requestData['partnerName'], $booking['partner_id']);
                         
-                        if (empty($state['state'])) {
+                        if (empty($booking['state'])) {
 			    $to = NITS_ANUJ_EMAIL_ID;
 			    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
 			    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
@@ -1480,7 +1478,8 @@ class Partner extends CI_Controller {
             //Search for user
             //Insert user if phone number doesn't exist
             $output = $this->user_model->search_user($requestData['mobile']);
-            $state = $this->vendor_model->get_state_from_india_pincode($requestData['pincode']);
+            $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($requestData['pincode']));
+	
             $user['name'] = $requestData['name'];
             $user['phone_number'] = $requestData['mobile'];
             $user['alternate_phone_number'] = (isset($requestData['alternate_phone_number']) ? $requestData['alternate_phone_number'] : "");
@@ -1494,7 +1493,7 @@ class Partner extends CI_Controller {
             $user['pincode'] = $requestData['pincode'];
             $user['city'] = $requestData['city'];
                 
-            $user['state'] = $state['state'];
+            $user['state'] = $distict_details['state'];
 
             if (empty($output)) {
                 log_message('info', $requestData['mobile'] . ' does not exist');
@@ -1587,7 +1586,9 @@ class Partner extends CI_Controller {
             $booking['query_remarks'] = "";
             $booking['partner_source'] = $requestData['partner_source'];
             $booking['booking_timeslot'] = "4PM-7PM";
-            $booking['state'] = $state['state'];
+            $booking['state'] = $distict_details['state'];
+            $booking['district'] = $distict_details['district'];
+            $booking['taluk'] = $distict_details['taluk'];
 
             $partner_mapping_id = $partner_data[0]['price_mapping_id'];
             if($partner_data[0]['partner_type'] == OEM){
@@ -1670,7 +1671,7 @@ class Partner extends CI_Controller {
             $this->notify->insert_state_change($booking['booking_id'], _247AROUND_PENDING , _247AROUND_NEW_BOOKING , 
                     $booking['booking_remarks'], $agent_id, $requestData['partnerName'], $booking['partner_id']);
             
-            if (empty($state['state'])) {
+            if (empty($booking['state'])) {
                     $to = NITS_ANUJ_EMAIL_ID;
                     $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
                     $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");

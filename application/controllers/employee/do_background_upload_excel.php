@@ -284,6 +284,7 @@ class Do_background_upload_excel extends CI_Controller {
 	    //Insert user if phone number doesn't exist
 	    $output = $this->user_model->search_user(trim($value['Phone']));
 	    $state = $this->vendor_model->get_state_from_india_pincode($value['Pincode']);
+            $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($value['Pincode']));
 
 	    if (empty($output)) {
 		//User doesn't exist
@@ -293,7 +294,7 @@ class Do_background_upload_excel extends CI_Controller {
 		$user['home_address'] = $value['Customer_Address'];
 		$user['pincode'] = $value['Pincode'];
 		$user['city'] = $value['CITY'];
-		$user['state'] = $state['state'];
+		$user['state'] = $distict_details['state'];
 
 		$user_id = $this->user_model->add_user($user);
 
@@ -316,7 +317,7 @@ class Do_background_upload_excel extends CI_Controller {
             // First we send Service id and Brand and get Partner_id from it
             // Now we send state, partner_id and service_id 
             $value['Brand'] = trim(str_replace("'", "", $value['Brand']));
-            $data = $this->_allot_source_partner_id_for_pincode($value['service_id'], $state['state'], $value['Brand']);
+            $data = $this->_allot_source_partner_id_for_pincode($value['service_id'], $distict_details['state'], $value['Brand']);
 
             $booking['partner_id'] = $data['partner_id'];
             $booking['source'] = $data['source'];
@@ -462,7 +463,9 @@ class Do_background_upload_excel extends CI_Controller {
                 $booking['type'] = "Query";
                 $booking['booking_address'] = $value['Customer_Address'];
                 $booking['city'] = $value['CITY'];
-                $booking['state'] = $state['state'];
+                $booking['state'] = $distict_details['state'];
+                $booking['district'] = $distict_details['district'];
+                $booking['taluk'] = $distict_details['taluk'];
                 $booking['quantity'] = '1';
                 
 
