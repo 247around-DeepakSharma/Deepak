@@ -186,6 +186,15 @@ class Booking extends CI_Controller {
                 log_message('info', __METHOD__ . "Appliance ID" . print_r($appliance_id, true));
                 /* if appliance id exist the initialize appliance id in array and update appliance details other wise it insert appliance details and return appliance id
                  * */
+                $check_product_type = $this->booking_model->get_service_id_by_appliance_details($appliances_details['description']);
+                if(!$check_product_type){
+                    $insert_data =array('service_id' => $appliances_details['service_id'],
+                                 'category' =>$appliances_details['category'],
+                                 'capacity'=>$appliances_details['capacity'],
+                                 'brand'=>$appliances_details['brand'],
+                                 'product_description'=>$appliances_details['description']);
+                    $insert_data_id = $this->booking_model->insert_appliance_details($insert_data);
+                }
 
                 if (isset($appliance_id[$key])) {
 

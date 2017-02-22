@@ -405,7 +405,8 @@ class Miscelleneous {
        } else {
            log_message('info', __FUNCTION__ . " Booking Id Not Exist  " . print_r($booking_id, true));
        }
-    }
+    }    
+    
     
     function send_sms_create_job_card($query) {
         if ($query[0]['request_type'] == HOME_THEATER_REPAIR_SERVICE_TAG || $query[0]['request_type'] == HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) {
