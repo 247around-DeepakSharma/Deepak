@@ -195,37 +195,50 @@ class Partner extends CI_Controller {
                         if(!isset($is_productType_valid['error'])){                         
                         log_message('info', 'Product type: ' . $requestData['product']);
                         $prod = trim($requestData['product']);
-
-                        if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
+                        
+                        //check service_id exist or not
+                        $service_appliance_data = $this->booking_model->get_service_id_by_appliance_details($requestData['productType']);
+                        
+                        if(!empty($service_appliance_data)){
+                            log_message('info', __FUNCTION__ . " Get Service ID  ");
+        
+                            $service_id = $service_appliance_data[0]['service_id'];
+                            $lead_details['service_appliance_data'] = $service_appliance_data[0];
+                            $lead_details['Product'] = $this->booking_model->selectservicebyid($service_id)[0]['services'];
+                        }
+                        else{
+                            if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
                             $lead_details['Product'] = 'Washing Machine';
-                        }
-                        if (stristr($prod, "Television") || stristr($prod, "Monitor")) {
-                            $lead_details['Product'] = 'Television';
-                        }
-                        if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
-                            $lead_details['Product'] = 'Air Conditioner';
-                        }
-                        if (stristr($prod, "Refrigerator")) {
-                            $lead_details['Product'] = 'Refrigerator';
-                        }
-                        if (stristr($prod, "Microwave")) {
-                            $lead_details['Product'] = 'Microwave';
-                        }
-                        if (stristr($prod, "Purifier")) {
-                            $lead_details['Product'] = 'Water Purifier';
-                        }
-                        if (stristr($prod, "Chimney")) {
-                            $lead_details['Product'] = 'Chimney';
+                            }
+                            if (stristr($prod, "Television") || stristr($prod, "Monitor")) {
+                                $lead_details['Product'] = 'Television';
+                            }
+                            if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
+                                $lead_details['Product'] = 'Air Conditioner';
+                            }
+                            if (stristr($prod, "Refrigerator")) {
+                                $lead_details['Product'] = 'Refrigerator';
+                            }
+                            if (stristr($prod, "Microwave")) {
+                                $lead_details['Product'] = 'Microwave';
+                            }
+                            if (stristr($prod, "Purifier")) {
+                                $lead_details['Product'] = 'Water Purifier';
+                            }
+                            if (stristr($prod, "Chimney")) {
+                                $lead_details['Product'] = 'Chimney';
+                            }
+
+                             if (stristr($prod, "Geyser")) {
+                                $lead_details['Product'] = 'Geyser';
+                            }
+
+
+                            log_message('info', 'Product type matched: ' . $lead_details['Product']);
+
+                            $service_id = $this->booking_model->getServiceId($lead_details['Product']);
                         }
                         
-                         if (stristr($prod, "Geyser")) {
-                            $lead_details['Product'] = 'Geyser';
-                        }
-                        
-                        
-                        log_message('info', 'Product type matched: ' . $lead_details['Product']);
-                        
-                        $service_id = $this->booking_model->getServiceId($lead_details['Product']);
                         
                         //Assigning Booking Source and Partner ID for Brand Requested
                         
@@ -254,12 +267,32 @@ class Partner extends CI_Controller {
 
                         } else {
                             //Check for all optional parameters before setting them
-                            $appliance_details['category'] = $unit_details['appliance_category'] = (isset($requestData['category']) ? $requestData['category'] : "");
+                            $appliance_details['category'] = $unit_details['appliance_category'] = isset($lead_details['service_appliance_data']['category'])?$lead_details['service_appliance_data']['category']:isset($requestData['category']) ? $requestData['category']:'';
                        
                         }
                         
+                        $appliance_details['capacity'] = $unit_details['appliance_capacity'] =isset($lead_details['service_appliance_data']['capacity'])?$lead_details['service_appliance_data']['capacity']:isset($requestData['capacity']) ? $requestData['capacity'] : '';
+                        //get partner data to check the price
+                        $partner_data = $this->partner_model->get_partner_code($booking['partner_id']);
+                        $partner_mapping_id = $partner_data[0]['price_mapping_id'];
+                        if($partner_data[0]['partner_type'] == OEM){
+                            $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,'Installation & Demo',$unit_details['appliance_brand']);
+                        } else {
+                            $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,'Installation & Demo',"");
+                        }
+                        $booking['amount_due'] = '0';
+                        $is_price = false;
+                        if(!empty($prices)){
+                            $unit_details['id'] =  $prices[0]['id'];
+                            $unit_details['around_paid_basic_charges'] =  $unit_details['around_net_payable'] = "0.00";
+                            $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
+                            $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
+                            $booking['amount_due'] = $prices[0]['customer_net_payable'];
+                            $is_price = $prices[0]['customer_net_payable'];
+                        }
+                        
                         //$lead_details['SubCategory'] = (isset($requestData['subCategory']) ? $requestData['subCategory'] : "");
-
+                        
                         $booking['booking_primary_contact_no'] = $requestData['mobile'];
                         $booking['booking_alternate_contact_no'] = (isset($requestData['alternatePhone']) ? $requestData['alternatePhone'] : "");
 
@@ -304,7 +337,7 @@ class Partner extends CI_Controller {
                         if ($vendors_count > 0) {
                             $this->send_sms_to_snapdeal_customer($lead_details['Product'],
                             $booking['booking_primary_contact_no'], $user_id,
-                            $booking['booking_id'], $unit_details['appliance_category']);
+                            $booking['booking_id'], $unit_details['appliance_category'],$is_price);
                             
                             $booking['internal_status'] = "Missed_call_not_confirmed";
                         } else { //if ($vendors_count > 0) {
@@ -333,13 +366,18 @@ class Partner extends CI_Controller {
                         }
                         
                         //Insert query
-                        //echo print_r($booking, true) . "<br><br>";
+//                        echo print_r($booking, true) . "<br><br>";
+//                        echo print_r($appliance_details, true) . "<br><br>";exit();
                         $this->booking_model->addbooking($booking);
                         
                         //echo print_r($booking, true) . "<br><br>";
                         $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
-
-                        $this->booking_model->addunitdetails($unit_details);
+                        
+                        if(!empty($prices)){
+                            $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state']);
+                        }else{
+                            $this->booking_model->addunitdetails($unit_details);
+                        }
 
                         $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , $booking['query_remarks'], DEFAULT_PARTNER_AGENT, $requestData['partnerName'], $booking['partner_id']);
                         
@@ -411,15 +449,25 @@ class Partner extends CI_Controller {
      * @param String $user_id
      * @param String $booking_id
      */
-    function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id, $category) {
+    function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id, $category,$price) {
 
         $sms['tag'] = "sd_delivered_missed_call_initial";
 
         //ordering of smsData is important, it should be as per the %s in the SMS
         $sms['smsData']['service'] = $appliance;
         $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
-        $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
-       
+        /* If price exist then send sms according to that otherwise
+         *  send sms by checking function get_product_free_not
+         */
+        if($price){
+            if($price > 0){
+                $sms['smsData']['message'] = 'To be Paid';
+            }else{
+                $sms['smsData']['message'] = 'FREE';
+            }
+        }else{
+            $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
+        }
 	$sms['phone_no'] = $phone_number;
 	$sms['booking_id'] = $booking_id;
 	$sms['type'] = "user";

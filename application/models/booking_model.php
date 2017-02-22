@@ -2265,5 +2265,34 @@ class Booking_model extends CI_Model {
         return $query->result_array();      
     }
     
+    
+    /**
+     *  @desc : This function is used to insert appliance details into appliance_details_by_product_description table
+     *
+     *  @param : Array()
+     *  @return :id
+     */
+    
+    function insert_appliance_details($data){
+        $this->db->insert('appliance_details_by_product_description', $data);
+
+        return $this->db->insert_id();
+    }
+    
+    /**
+     *  @desc : This function is used to insert appliance details into appliance_details_by_product_description table
+     *
+     *  @param : Array()
+     *  @return :id
+     */
+    
+    function get_service_id_by_appliance_details($product_description){
+        $this->db->select('*');
+        $this->db->where('product_description',$product_description);
+        $this->db->from('appliance_details_by_product_description');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    
 
 }

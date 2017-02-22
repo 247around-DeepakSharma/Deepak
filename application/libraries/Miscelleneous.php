@@ -393,6 +393,7 @@ class Miscelleneous {
        } else {
            log_message('info', __FUNCTION__ . " Booking Id Not Exist  " . print_r($booking_id, true));
        }
-    }
+    }    
+    
     
 }

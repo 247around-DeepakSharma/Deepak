@@ -1975,3 +1975,22 @@ ALTER TABLE `booking_details` ADD `is_penalty` INT(2) NULL DEFAULT '0' AFTER `cu
 --sachin 17 feb
 
 ALTER TABLE `partners` ADD `partner_type` VARCHAR(50) NULL DEFAULT NULL AFTER `type`;
+
+
+--sachin 20 feb
+
+CREATE TABLE `247around`.`appliance_details_by_product_description` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `service_id` INT(11) NOT NULL , `category` VARCHAR(50) NOT NULL , `capacity` VARCHAR(50) NOT NULL , `brand` VARCHAR(255) NOT NULL , `product_description` VARCHAR(255) NOT NULL, PRIMARY KEY(`id`),`create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP) ENGINE = InnoDB;
+ALTER TABLE `appliance_details_by_product_description` ADD UNIQUE(`product_description`)
+
+
+UPDATE  `email_template` SET  `template` =  '
+Dear Partner,<br>You have received a new order for brackets.<br><br>Your Order ID is : <b>%s</b> <br> <strong>Order Details:</strong><br><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Greater than 43 Inch Brackets : %s <br> Total Requested : %s<br><br> <strong>Requested From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br> City: %s <br> State: %s <br> Pincode: %s <br> Phone Number: %s, %s<br><br> Please notify when you ship the above order.<br><br> Regards,<br> 247Around Team
+' WHERE  `email_template`.`tag` ='brackets_requested_from_vendor';
+
+UPDATE  `email_template` SET  `template` =  '
+Dear Partner,<br>Your brackets order has been placed sucessfully.<br><br>Your Order ID is: <b>%s</b> <br> <strong>Order Details:</strong><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Greater Than 43 Inch Brackets : %s <br> Total Requested : %s<br><br> We will update you as soon as the brackets are shipped.<br><br>Regards,<br>247Around Team' WHERE  `email_template`.`tag` ='brackets_order_received_from_vendor';
+
+UPDATE  `email_template` SET  `template` =  '
+%s order has been Cancelled sucessfully for the <strong>Order ID : %s </strong><br><br><strong>Reason : </strong> %s <br><br> <strong>Order Details are:</strong><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Greater than 43 Inch Brackets : %s <br> Total Requested : %s<br><br> Thanks Team 247Around' WHERE  `email_template`.`tag` ='cancel_brackets_order_received_from_vendor';
+
+UPDATE  `email_template` SET  `template` = 'Brackets order <strong>%s</strong> has been Cancelled. <br><br><strong>Reason : </strong> %s <br><br> <strong>Order Details:</strong><br><br> 19 to 24 Inch Brackets : %s <br>26to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Greater than 43 Inch Brackets : %s <br> Total Requested : %s<br><br> <strong>Requested From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br>City: %s <br> State: %s <br> Pincode: %s <br> Phone Number: %s, %s<br><br> Please <b>don''''t</b> ship this order.' WHERE  `email_template`.`tag` ='cancel_brackets_requested_from_vendor';
