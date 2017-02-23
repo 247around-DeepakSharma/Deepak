@@ -3833,5 +3833,22 @@ class vendor extends CI_Controller {
            }
        }
     }
+    /**
+     * @desc This method is used to delete sub office details in sub_service_center_details table via ajax call
+     * @param void()
+     * @return string
+     */
+    function delete_sub_service_center_details(){
+       if($this->input->post()){
+           $id = $this->input->post('id');
+           $update_id = $this->upcountry_model->delete_sub_service_center_upcountry_details($id);
+           if($update_id){
+               echo "success";
+           }
+           else{
+               echo "failed";
+           }
+       }
+    }
 
 }

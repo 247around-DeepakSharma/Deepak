@@ -11,13 +11,13 @@
                     <div class="alert alert-success alert-dismissible" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                          <span aria-hidden="true">&times;</span>
-                     </button>Details have been Updated Successfully</div>
+                        </button><span id="show_success_msg"></span></div>
                 </div>
                 <div class="error" style="display:none">
                     <div class="alert alert-danger alert-dismissible" role="alert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                          <span aria-hidden="true">&times;</span>
-                     </button>Error in updating Details</div>
+                     </button><span id="show_error_msg"></span></div>
                 </div>
                <div class="table-responsive table-editable" id="table" >
                   <table class="table table-bordered table-hover table-striped">
@@ -28,7 +28,7 @@
                            <th>City</th>
                            <th>Pincode</th>
                            <th>Upcountry Rate (Per KM)</th>
-                           <th>Action</th>
+                           <th colspan="2">Action</th>
   
                          </tr>
                      </thead>
@@ -43,7 +43,9 @@
                               <td><button class="btn btn-primary" 
                                            onclick="submit_button('<?php echo $value["id"];?>',
                                            '<?php echo $sn_no; ?>','<?php echo $value["service_center_id"];; ?>')">Submit</button></td>
-                               
+                              <td><button class="btn btn-danger" 
+                                           onclick="delete_details('<?php echo $value["id"];?>',
+                                           '<?php echo $sn_no; ?>','<?php echo $value["service_center_id"];; ?>')">Delete</button></td>
                                </tr>
                              
                         <?php $sn_no++; }?>
@@ -83,8 +85,34 @@ table {
             data: {district:district, pincode:pincode,upcountry_rate:upcountry_rate,id:id,service_center_id:service_center_id},
             success: function (data) {
                 if(data === 'success'){
+                     $('#show_success_msg').html('Details has been Updated successfully');
                     $('.success').show().delay(5000).fadeOut();;
                 }else{
+                    $('#show_error_msg').html('Error in updating details');
+                    $('.error').show().delay(5000).fadeOut();;
+                }
+             }
+          });
+          $(event_taget || event_element).parents('tr').hide();
+
+              
+          
+    }
+    function delete_details(id, div_no,service_center_id){
+      
+        var event_taget = event.target;
+        var event_element = event.srcElement;
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/vendor/delete_sub_service_center_details',
+            data: {id:id,service_center_id:service_center_id},
+            success: function (data) {
+                console.log(data);
+                if(data === 'success'){
+                    $('#show_success_msg').html('Details has been deteted successfully');
+                    $('.success').show().delay(5000).fadeOut();;
+                }else{
+                    $('#show_error_msg').html('Error in deleting details');
                     $('.error').show().delay(5000).fadeOut();;
                 }
              }

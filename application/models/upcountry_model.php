@@ -658,6 +658,16 @@ class Upcountry_model extends CI_Model {
         }
         
     }
+    /**
+     * @desc This method is used to delete sub office details in sub_service_center_details table via ajax call
+     * @param void()
+     * @return string
+     */
+    function delete_sub_service_center_upcountry_details($id){
+        $this->db->where('id',$id);
+        $result = $this->db->delete('sub_service_center_details');
+        return $result;
+    }
     
     
 }
