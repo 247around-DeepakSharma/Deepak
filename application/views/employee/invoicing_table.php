@@ -238,7 +238,7 @@
        
        <tbody>
            
-           <?php $count=1; $debit_amount=0; $credit_amount=0 ?>
+           <?php $count=1; $debit_amount=0; $credit_amount=0; $tds_amount=0; ?>
            <?php foreach($bank_statement as $value){?>
            
                <tr id="<?php echo "row".$count;?>">
@@ -247,7 +247,7 @@
                <td><?php echo $value['description']; ?></td>
                <td><?php echo $value['credit_amount']; $credit_amount += intval($value['credit_amount']); ?></td>       
                <td><?php echo $value['debit_amount'];  $debit_amount += intval($value['debit_amount']); ?></td>
-               <td><?php echo $value['tds_amount'];?></td>
+               <td><?php echo $value['tds_amount']; $tds_amount += intval($value['tds_amount']); ?></td>
                <td><?php echo $value['invoice_id']; ?></td>
                <td><?php echo $value['bankname']; ?> / <?php echo $value['transaction_mode']; ?></td>   
                <td>
@@ -266,7 +266,7 @@
              <td></td>
              <td><?php echo $credit_amount;?></td>
              <td><?php echo $debit_amount;?></td>
-             <td></td>
+             <td><?php echo $tds_amount;?></td>
              <td></td>
              <td></td>
        </tbody>
