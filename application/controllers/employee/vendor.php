@@ -3812,5 +3812,26 @@ class vendor extends CI_Controller {
         $data['penality_details'] = $this->penalty_model->get_penalty_on_booking_any($where);
         $this->load->view('employee/get_penality_on_booking_details',array('penality_details' => $data['penality_details'], 'status'=>$status));
     }
+    
+    /**
+     * @desc This method is used to update sub_service_center_details table via ajax call
+     * @param void()
+     * @return string
+     */
+    function update_sub_service_center_details(){
+       if($this->input->post()){
+           $data = array('district'=>$this->input->post('district'),
+                         'pincode'=>$this->input->post('pincode'),
+                         'upcountry_rate'=>$this->input->post('upcountry_rate'));
+           $id = $this->input->post('id');
+           $update_id = $this->upcountry_model->update_sub_service_center_upcountry_details($data,$id);
+           if($update_id){
+               echo "success";
+           }
+           else{
+               echo "failed";
+           }
+       }
+    }
 
 }

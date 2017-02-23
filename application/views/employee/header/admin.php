@@ -126,6 +126,10 @@
                         <li>
                             <a href="<?php echo base_url()?>employee/upcountry/get_waiting_for_approval_upcountry_charges"><i class="fa fa-fw fa-desktop"></i> <strong>Waiting to Approve Upcountry Booking</strong></a>
                         </li>
+                         <li class="divider"></li>
+                        <li>
+                            <a href="<?php echo base_url()?>employee/upcountry/get_upcountry_failed_details"><i class="fa fa-fw fa-desktop"></i> <strong>Upcountry Failed Booking</strong></a>
+                        </li>
                   
                     </ul>
                     <!-- /.dropdown-tasks -->
