@@ -27,7 +27,6 @@
                            <th>State</th>
                            <th>City</th>
                            <th>Pincode</th>
-                           <th>Upcountry Rate</th>
                            <th>Upcountry Rate (Per KM)</th>
                            <th colspan="2">Action</th>
   
@@ -38,9 +37,6 @@
                           <tr>
                               <td><?php echo $sn_no; ?></td>
                               <td><?php echo $value['state']; ?></td>
-                              <td><?php echo $value['district']; ?></td>
-                              <td><?php echo $value['pincode']; ?></td>
-                              <td><?php echo $value['upcountry_rate']." PER KM"; ?></td>
                               <td contenteditable="true" id="<?php echo "district".$sn_no; ?>" ><?php echo $value['district']; ?></td>
                               <td contenteditable="true" id="<?php echo "pincode".$sn_no; ?>" class='allownumericwithdecimal'><?php echo $value['pincode']; ?></td>
                               <td contenteditable="true" id="<?php echo "upcountry_rate".$sn_no; ?>" class='allownumericwithdecimal'><?php echo $value['upcountry_rate']; ?></td>
