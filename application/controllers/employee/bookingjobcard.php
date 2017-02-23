@@ -79,7 +79,7 @@ class bookingjobcard extends CI_Controller {
         $meta =  array();
         $meta['upcountry_charges'] = 0;
         if($booking_details[0]['upcountry_paid_by_customer'] == 1){
-            $meta['upcountry_charges'] = $booking_details[0]['upcountry_distance'] * $booking_details[0]['partner_upcountry_rate'];
+            $meta['upcountry_charges'] = $booking_details[0]['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE;
         }
         $meta['appliance_description'] = $unit_details[0]['appliance_description'];
         $R->load(array(
@@ -188,7 +188,7 @@ class bookingjobcard extends CI_Controller {
         $meta =  array();
         $meta['upcountry_charges'] = 0;
         if($booking_details[0]['upcountry_paid_by_customer'] == 1){
-            $meta['upcountry_charges'] = $booking_details[0]['upcountry_distance'] * $booking_details[0]['partner_upcountry_rate'];
+            $meta['upcountry_charges'] = $booking_details[0]['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE;
         }
         $meta['appliance_description'] = $unit_details[0]['appliance_description'];
         $R->load(array(
@@ -346,15 +346,18 @@ class bookingjobcard extends CI_Controller {
                 $bookingdate = $dd . " " . $mm;
             }
 
-            $smsBody = "Booking - " . $getbooking[0]['name'] . ", " . $getbooking[0]['booking_primary_contact_no'] . ", " . $getbooking[0]['services'] . ", " . $bookingdate ."/" . $getbooking[0]['booking_timeslot'] .  ", " . $getbooking[0]['booking_address'] . ", ". $getbooking[0]['booking_pincode'] . ". 247around";
+            $smsBody = "Booking - " . substr($getbooking[0]['name'], 0, 20) . ", " . $getbooking[0]['booking_primary_contact_no'] 
+                    . ", " . $getbooking[0]['services'] . ", " . $bookingdate ."/" 
+                    . $getbooking[0]['booking_timeslot'] .  ", " . substr($getbooking[0]['booking_address'], 0, 60)
+                    . ", ". $getbooking[0]['booking_pincode'] . ". 247around";
+            
             //Send SMS to vendor
-            $this->notify->sendTransactionalSmsAcl($getbooking[0]['primary_contact_phone_1'], $smsBody);
+            //Send it through Exotel ONLY
+            $this->notify->sendTransactionalSms($getbooking[0]['primary_contact_phone_1'], $smsBody);
             
             //For saving SMS to the database on sucess
-          
             $this->notify->add_sms_sent_details($getbooking[0]['user_id'], 'vendor' , $getbooking[0]['primary_contact_phone_1'],
                     $smsBody, $getbooking[0]['booking_id'],"booking_details_to_sf");
-            
             
 	    //Save email in database
             $details = array("booking_id" => $booking_id, "subject" => $subject,

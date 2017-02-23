@@ -445,10 +445,10 @@ class Booking extends CI_Controller {
 	$booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
 	$booking['booking_pincode'] = $this->input->post('booking_pincode');
 	// select state, taluk, district by pincode
-        $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($booking['booking_pincode']));
+    $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($booking['booking_pincode']));
 	$booking['state'] = $distict_details['state'];
-        $booking['district'] = $distict_details['district'];
-        $booking['taluk'] = $distict_details['taluk'];
+    $booking['district'] = $distict_details['district'];
+    $booking['taluk'] = $distict_details['taluk'];
 	$booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
 	$booking['order_id'] = $this->input->post('order_id');
 //	$booking['potential_value'] = $this->input->post('potential_value');

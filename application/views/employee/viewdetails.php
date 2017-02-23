@@ -215,7 +215,7 @@
                                 <td><?php print_r($unit_detail['around_net_payable']);  ?></td>
                                 <td><?php if($booking_history[0]['upcountry_paid_by_customer'] == 0){ echo "0";} else { echo ($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate']);} ?></td>
                                 <td><?php if($booking_history[0]['upcountry_paid_by_customer'] == 0){ print_r($unit_detail['customer_net_payable']);
-                                } else { print_r($unit_detail['customer_net_payable'] + ($booking_history[0]['upcountry_distance'] * $booking_history[0]['partner_upcountry_rate']));  } ?></td>
+                                } else { print_r($unit_detail['customer_net_payable'] + ($booking_history[0]['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE));  } ?></td>
                                 <?php } else {   ?>
                                 <td><?php  print_r($unit_detail['price_tags']); ?></td>
                                  <td><?php  print_r($unit_detail['customer_total']); ?></td>
@@ -233,7 +233,8 @@
                                             + $unit_detail['customer_paid_parts']);}
                                             else { 
                                                if($key == 0){
-                                                print_r($unit_detail['customer_paid_basic_charges'] + $unit_detail['customer_paid_extra_charges'] + $unit_detail['customer_paid_parts']);
+                                                print_r($unit_detail['customer_paid_basic_charges'] + $unit_detail['customer_paid_extra_charges'] + $unit_detail['customer_paid_parts'] 
+                                                        + $booking_history[0]['customer_paid_upcountry_charges']);
                                                } else {
                                                    print_r($unit_detail['customer_paid_basic_charges'] 
                                             + $unit_detail['customer_paid_extra_charges'] 

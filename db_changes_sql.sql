@@ -1979,8 +1979,16 @@ ALTER TABLE `partners` ADD `partner_type` VARCHAR(50) NULL DEFAULT NULL AFTER `t
 
 --sachin 20 feb
 
-CREATE TABLE `247around`.`appliance_details_by_product_description` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `service_id` INT(11) NOT NULL , `category` VARCHAR(50) NOT NULL , `capacity` VARCHAR(50) NOT NULL , `brand` VARCHAR(255) NOT NULL , `product_description` VARCHAR(255) NOT NULL, PRIMARY KEY(`id`),`create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP) ENGINE = InnoDB;
-ALTER TABLE `appliance_details_by_product_description` ADD UNIQUE(`product_description`)
+CREATE TABLE `appliance_product_description` ( 
+`id` INT(11) NOT NULL AUTO_INCREMENT ,
+`service_id` INT(11) NOT NULL , 
+`category` VARCHAR(50) NOT NULL ,
+`capacity` VARCHAR(50) NOT NULL , 
+`brand` VARCHAR(255) NOT NULL , 
+`product_description` VARCHAR(255) NOT NULL, 
+ PRIMARY KEY(`id`),
+`create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP) ENGINE = InnoDB;
+
 
 
 UPDATE  `email_template` SET  `template` =  '
@@ -2001,3 +2009,34 @@ ALTER TABLE `sc_crimes` ADD `total_pending_booking` INT(10) NULL DEFAULT NULL AF
 ALTER TABLE `partners` ADD `seller_code` VARCHAR(56) NULL DEFAULT NULL AFTER `public_name`;
 ALTER TABLE `booking_details` ADD `district` VARCHAR(128) NULL DEFAULT NULL AFTER `city`, ADD `taluk` VARCHAR(128) NULL DEFAULT NULL AFTER `district`;
 
+
+CREATE TABLE `appliance_product_description` (
+  `id` int(11) NOT NULL,
+  `service_id` int(11) NOT NULL,
+  `category` varchar(50) DEFAULT NULL,
+  `capacity` varchar(50) DEFAULT NULL,
+  `brand` varchar(255) NOT NULL,
+  `product_description` varchar(255) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `appliance_product_description`
+--
+ALTER TABLE `appliance_product_description`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `Product` (`service_id`,`category`,`capacity`,`brand`,`product_description`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `appliance_product_description`
+--
+ALTER TABLE `appliance_product_description`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

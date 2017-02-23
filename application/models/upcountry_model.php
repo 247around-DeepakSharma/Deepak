@@ -601,7 +601,7 @@ class Upcountry_model extends CI_Model {
                 . " CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking_id, "
                 . " round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) AS upcountry_distance, "
                 . " round((partner_upcountry_rate * round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) ),2) AS upcountry_price,"
-                . " COUNT(DISTINCT(bd.booking_id)) AS count_booking, partner_upcountry_rate, upcountry_pincode, services, city, booking_pincode"
+                . " COUNT(DISTINCT(bd.booking_id)) AS count_booking, partner_upcountry_rate, upcountry_pincode, services, taluk as city, booking_pincode"
                 . " FROM `booking_details` AS bd, booking_unit_details AS ud, services "
                 . " WHERE ud.booking_id = bd.booking_id "
                 . " AND bd.partner_id = '$partner_id' "

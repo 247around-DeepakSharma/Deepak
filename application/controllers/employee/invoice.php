@@ -1566,7 +1566,7 @@ class Invoice extends CI_Controller {
             $details['invoice_type'] = $invoice_type;
             $details['invoice_id'] = $invoice_id;
             $details['vendor_partner_id'] = $invoice_details[0]['vendor_partner_id'];
-            $details['date_range'] = str_replace("-", "/", $invoice_details[0]['from_date']) . "-" . str_replace("-", "/", date('Y-m-d', strtotime('+1 day', strtotime($invoice_details[0]['to_date']))));
+            $details['date_range'] = str_replace("-", "/", $invoice_details[0]['from_date']) . "-" . str_replace("-", "/", date('Y-m-d', strtotime($invoice_details[0]['to_date'])));
 
             if ($invoice_details[0]['vendor_partner'] == 'partner') {
 //            if($invoice_type == 'final'){
@@ -2911,8 +2911,10 @@ class Invoice extends CI_Controller {
      */
     function create_invoice_id_to_insert($entity_details, $from_date, $start_name){
         log_message('info', __FUNCTION__ . " Entering....");
-        if ($entity_details[0]['state'] == "DELHI") {
-
+        
+        if ((strcasecmp($entity_details[0]['state'], "DELHI") == 0) || 
+                        (strcasecmp($entity_details[0]['state'], "New Delhi") == 0) ) {
+        
             $invoice_version = "T";
             $invoices['meta']['invoice_type'] = "TAX INVOICE";
             
@@ -3018,5 +3020,23 @@ class Invoice extends CI_Controller {
 
         }
     }
+    
+    function fetch_invoice_id(){
+        $vendor_partner_id = $this->input->post("vendor_partner_id");
+        $partner_type = $this->input->post("partner_type");
+        if ($partner_type == "partner") {
+            $entity_details = $this->partner_model->getpartner($vendor_partner_id);
+        } else if ($partner_type == "vendor") {
+            $entity_details = $this->vendor_model->viewvendor($vendor_partner_id);
+        }
+        $type_code = $this->input->post("type_code");
+        echo $from_date = $this->input->post("from_date");
+//        switch ($type_code){
+//             case 'A':
+//                $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Around");
+//                break;
+//        }
+    }
+    
     
 }

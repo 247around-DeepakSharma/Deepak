@@ -507,9 +507,9 @@ function set_upcountry(){
 
             } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 0) {
                 $('#submitform').attr('disabled', true);
-                alert("This is out station Booking, not allow to submit Booking/Query");
+                alert("This is out station Booking, not allow to submit Booking/Query. Upcountry Distance "+ data1.upcountry_distance + " KM");
             } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 1) {
-                alert("This is out station boking, Waiting for Partner Approval");
+                alert("This is out station boking, Waiting for Partner Approval. Upcountry Distance " +data1.upcountry_distance + " KM");
                 $('#submitform').attr('disabled', false);
             } else {
                 // $("#upcountry_charges").val("0");

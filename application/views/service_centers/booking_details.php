@@ -107,35 +107,7 @@
                        
                     </table>
                 </div>
-                <?php //if(!empty($upcountry_details)){ ?>
-<!--                <div class="col-md-12" style="margin-top:20px;" >
-                    <h1 >Upcountry Details:-</h1>
-                    <table class="table  table-striped table-bordered">
-                        <thead
-                         <tr>
-                            
-                            <th class="text-center">Booking Id</th>
-                            <th class="text-center">Rate</th>
-                            <th class="text-center">Distance</th>
-                            <th class="text-center">Total Payout</th>
-                            
-                         </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="text-center">
-                                <td><?php //echo $upcountry_details[0]['booking'];?></td>
-                                <td><?php //echo $upcountry_details[0]['sf_upcountry_rate']." PER KM";?></td>
-                                 <td><?php //echo $upcountry_details[0]['upcountry_distance']." KM";?></td>
-                                <td><i class="fa fa-inr" aria-hidden="true"></i> <?php //echo $upcountry_details[0]['upcountry_price'];?></td>
-                            </tr>
-                        </tbody>
-                         
-                        
-                    </table>
-                    
-                </div>-->
-                    
-               <?php /// } ?>
+
                 <?php if(!empty($unit_details)) { ?>
                 <div class="col-md-12" style="margin-top:20px;" >
                     <h1 >Appliance Details:-</h1>
@@ -185,7 +157,7 @@
                                 </td>
                                 <?php } ?>
                                 <td><?php if($booking_history[0]['upcountry_paid_by_customer'] == 0){ echo $unit_detail['customer_net_payable'];} 
-                                else {echo ($booking_history[0]['upcountry_distance'] *$booking_history[0]['partner_upcountry_rate']) + $unit_detail['customer_net_payable']; } ?></td>
+                                else {echo ($booking_history[0]['upcountry_distance'] *DEFAULT_UPCOUNTRY_RATE) + $unit_detail['customer_net_payable']; } ?></td>
                                 <?php } else {   ?>
                                 <td><?php  print_r($unit_detail['price_tags']); ?></td>
                                 

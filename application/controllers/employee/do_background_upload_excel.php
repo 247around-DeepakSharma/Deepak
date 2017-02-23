@@ -23,7 +23,7 @@ class Do_background_upload_excel extends CI_Controller {
 	$this->load->helper(array('form', 'url'));
 
 	$this->load->library('asynchronous_lib');
-        $this->load->library('miscelleneous');
+    $this->load->library('miscelleneous');
 	$this->load->library('notify');
 	$this->load->helper(array('form', 'url'));
 	$this->load->helper('download');
@@ -33,7 +33,7 @@ class Do_background_upload_excel extends CI_Controller {
 	$this->load->library('PHPReport');
 	$this->load->library('notify');
 	$this->load->library('partner_utilities');
-        $this->load->library('booking_utilities');
+    $this->load->library('booking_utilities');
 
 	$this->load->model('user_model');
 	$this->load->model('booking_model');
@@ -191,35 +191,11 @@ class Do_background_upload_excel extends CI_Controller {
         
         // For shipped data
         if(!empty($shipped_data)){
-//            $status_data['job_name']= __FUNCTION__;
-//            $status_data['agent_name'] = $this->session->userdata('employee_id');
-//            $status_data['file_link'] = $_FILES['file']['name'];
-//            $status_data['processing_type'] = $file_type;
-//            $scheduler_id = $this->reporting_utils->insert_scheduler_tasks_status($status_data);
-//            
-
             $this->process_upload_sd_file($shipped_data,"shipped", $file_name);
             
         }
         //For delivered data
         if(!empty($delivered_data)){
-//            $status_data['job_name']= __FUNCTION__;
-//            $status_data['agent_name'] = $this->session->userdata('employee_id');
-//            $status_data['file_link'] = $_FILES['file']['name'];
-//            $status_data['processing_type'] = $file_type;
-//            $scheduler_id = $this->reporting_utils->insert_scheduler_tasks_status($status_data);
-            
-            $this->process_upload_sd_file($delivered_data,"delivered", $file_name);
-        }
-        // for both type of file
-        if(!empty($data)){
-            
-//            $status_data['job_name']= __FUNCTION__;
-//            $status_data['agent_name'] = $this->session->userdata('employee_id');
-//            $status_data['file_link'] = $_FILES['file']['name'];
-//            $status_data['processing_type'] = $file_type;
-//            $scheduler_id = $this->reporting_utils->insert_scheduler_tasks_status($status_data);
-            
             $this->process_upload_sd_file($delivered_data,"delivered", $file_name);
         }
         // for both type of file
@@ -283,7 +259,7 @@ class Do_background_upload_excel extends CI_Controller {
             
 	    //Insert user if phone number doesn't exist
 	    $output = $this->user_model->search_user(trim($value['Phone']));
-	    $state = $this->vendor_model->get_state_from_india_pincode($value['Pincode']);
+	    
             $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($value['Pincode']));
 
 	    if (empty($output)) {
@@ -316,6 +292,7 @@ class Do_background_upload_excel extends CI_Controller {
 	    //Assigning Booking Source and Partner ID for Brand Requested
             // First we send Service id and Brand and get Partner_id from it
             // Now we send state, partner_id and service_id 
+            $value['Brand'] = isset($value['service_appliance_data']['brand'])?$value['service_appliance_data']['brand'] :$value['Brand'];
             $value['Brand'] = trim(str_replace("'", "", $value['Brand']));
             $data = $this->_allot_source_partner_id_for_pincode($value['service_id'], $distict_details['state'], $value['Brand']);
 
@@ -446,7 +423,8 @@ class Do_background_upload_excel extends CI_Controller {
                     $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
                     $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
                     $booking['amount_due'] = $prices[0]['customer_net_payable'];
-                    $is_price = $prices[0]['customer_net_payable'];
+                    $is_price['customer_net_payable'] = $prices[0]['customer_net_payable'];
+                    $is_price['is_upcountry'] = $prices[0]['is_upcountry'];
                 }
 
 
@@ -476,7 +454,12 @@ class Do_background_upload_excel extends CI_Controller {
                     $booking['partner_internal_status'] = $partner_status[1];
                 }
 
-
+                //Send SMS to customers regarding delivery confirmation through missed call for delivered file only
+                //Check whether vendor is available or not
+                $is_sms = $this->check_upcountry($booking, $value['appliance'], $is_price, $unit_details['appliance_category'], $file_type, $partner_data);
+                if(!$is_sms){
+                     $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
+                }
                 $booking_details_id = $this->booking_model->addbooking($booking);
 
                 if ($booking_details_id) {
@@ -488,9 +471,9 @@ class Do_background_upload_excel extends CI_Controller {
 
                         //$unit_id = $this->booking_model->addunitdetails($unit_details);
                         if(!empty($prices)){
-                            $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state']);
+                            $unit_id = $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state']);
                         }else{
-                            $this->booking_model->addunitdetails($unit_details);
+                            $unit_id = $this->booking_model->addunitdetails($unit_details);
                         }
                         if ($unit_id) {
                             log_message('info', __METHOD__ . "=> Unit details added: " . $unit_id);
@@ -499,22 +482,6 @@ class Do_background_upload_excel extends CI_Controller {
 
                             $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['query_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
 
-                            //Send SMS to customers regarding delivery confirmation through missed call for delivered file only
-                            //Check whether vendor is available or not
-                            $vendors = $this->vendor_model->check_vendor_availability($booking['booking_pincode'], $booking['service_id']);
-                            $vendors_count = count($vendors);
-
-                            if ($vendors_count > 0) {
-                                $this->send_sms_to_snapdeal_customer($value['appliance'],
-                                        $booking['booking_primary_contact_no'], $user_id,
-                                        $booking['booking_id'], $file_type, $unit_details['appliance_category'],$is_price);
-                            } else { //if ($vendors_count > 0) {
-                                //update booking
-                                $booking_data['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
-                                $this->booking_model->update_booking($booking['booking_id'], $booking_data);
-
-                                log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
-                            }
                             
 			} else {
 			    log_message('info', __FUNCTION__ . ' => ERROR: Booking is not inserted in booking details: ' 
@@ -581,26 +548,42 @@ class Do_background_upload_excel extends CI_Controller {
                             $update_data['booking_date'] = '';
                             $update_data['booking_timeslot'] = '';
                             $update_data['update_date'] = date("Y-m-d H:i:s");
-                            
-                            $vendors = $this->vendor_model->check_vendor_availability($partner_booking['booking_pincode'], $partner_booking['service_id']);
-                            $vendors_count = count($vendors);
+
                             $sms_count = 0;
                             $category = isset($value['service_appliance_data']['category'])?$value['service_appliance_data']['category']:'' ;
-                            if ($vendors_count > 0) {
-                                if($partner_booking['service_id'] == '32'){
-                                    $category = "Geyser-PAID";
-                                } 
-                                $this->send_sms_to_snapdeal_customer($value['appliance'],
-                                            $partner_booking['booking_primary_contact_no'], $partner_booking['user_id'],
-                                            $partner_booking['booking_id'], $file_type, $category,$is_price);
+                            
+                            if ($partner_booking['service_id'] == '32') {
+                                $category = "Geyser-PAID";
+                            } else {
+                                $category = isset($value['service_appliance_data']['category']) ? $value['service_appliance_data']['category'] : '';
+                            }
+                            $capacity = isset($value['service_appliance_data']['capacity'])?$value['service_appliance_data']['capacity'] :'';
+                            $brand = isset($value['service_appliance_data']['brand']) ? $value['service_appliance_data']['brand'] : $value['Brand'];
+                            $partner_data = $this->partner_model->get_partner_code($partner_booking['partner_id']);
+                            $partner_mapping_id = $partner_data[0]['price_mapping_id'];
+                            
+                            if ($partner_data[0]['partner_type'] == OEM) {
+                                $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_mapping_id, 'Installation & Demo', $brand);
+                            } else {
+                                $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_mapping_id, 'Installation & Demo', "");
+                            }
+                            
+                            $is_price = false;
+                            if (!empty($prices)) {
+
+                                $is_price['customer_net_payable'] = $prices[0]['customer_net_payable'];
+                                $is_price['is_upcountry'] = $prices[0]['is_upcountry'];
+                            }
+                            
+                            $is_sms = $this->check_upcountry($partner_booking, $value['appliance'], $is_price, $category, $file_type, $partner_data);
+                            if($is_sms){
                                 $sms_count = 1;
-                                
-                            } else { //if ($vendors_count > 0) {
+                            } else {
                                 $update_data['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
                                 
                                 log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $partner_booking['booking_id']);
                             }
-                            
+
                             $update_data['sms_count'] = $sms_count;
                     
                             $this->booking_model->update_booking($partner_booking['booking_id'], $update_data);
@@ -1089,11 +1072,7 @@ class Do_background_upload_excel extends CI_Controller {
                  *  send sms by checking function get_product_free_not
                  */
                 if($price){
-                    if($price > 0){
-                        $sms['smsData']['message'] = 'To be Paid';
-                    }else{
-                        $sms['smsData']['message'] = 'FREE';
-                    }
+                    $sms['smsData']['message'] = $price;
                 }else{
                     $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
                 }
@@ -1109,11 +1088,9 @@ class Do_background_upload_excel extends CI_Controller {
                  *  send sms by checking function get_product_free_not
                  */
                 if($price){
-                    if($price > 0){
-                        $sms['smsData']['message'] = 'To be Paid';
-                    }else{
-                        $sms['smsData']['message'] = 'FREE';
-                    }
+                    
+                    $sms['smsData']['message'] = $price;
+                   
                 }else{
                     $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
                 }
@@ -1356,6 +1333,57 @@ class Do_background_upload_excel extends CI_Controller {
             
         }
     }
-    
+    /**
+     * @desc: This method is used to send sms on the basis of upcountry charges
+     * @param Array $booking
+     * @param String $appliance
+     * @param Array/boolean $is_price
+     * @param Array $appliance_category
+     * @param String $file_type
+     * @param String $partner_data
+     * @return boolean
+     */
+    function check_upcountry($booking, $appliance, $is_price, $appliance_category, $file_type, $partner_data) {
+        if ($is_price) {
+            log_message('info', __FUNCTION__ . ' Check Upcountry Vendor Availability');
+            $data = $this->check_upcountry_vendor_availability($booking['city'], $booking['booking_pincode'], $booking['service_id'], $partner_data, false);
+            $charges = 0;
+            if ($is_price['is_upcountry'] == 0) {
+                $charges = "Rs. " . (($data['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE) +
+                        $is_price['customer_net_payble']);
+                log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
+            } else {
+                switch ($data['message']) {
+                    case NOT_UPCOUNTRY_BOOKING:
+                    case UPCOUNTRY_BOOKING:
+                    case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
+                        log_message('info', __FUNCTION__ . ' UPCOUNTRY_BOOKING ');
+                        $charges = "Rs. " . $is_price['customer_net_payable'];
+                        log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
+
+                        break;
+
+                    case UPCOUNTRY_LIMIT_EXCEED:
+                        log_message('info', __FUNCTION__ . ' UPCOUNTRY_LIMIT_EXCEED ');
+                        if ($data['partner_upcountry_approval'] == 1) {
+                            $charges = "Rs. " . $is_price['customer_net_payable'];
+                            log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
+                        } else {
+                            log_message('info', __FUNCTION__ . ' Partner does not provide Approval. Not Sent SMS');
+                            return false;
+                        }
+                        break;
+
+                    case SF_DOES_NOT_EXIST:
+                        return FALSE;
+                    //break;
+                }
+            }
+            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $file_type, $appliance_category, $charges);
+        } else {
+            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $file_type, $appliance_category, $is_price);
+            return true;
+        }
+    }
 
 }
