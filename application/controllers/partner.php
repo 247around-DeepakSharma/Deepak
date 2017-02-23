@@ -79,6 +79,7 @@ class Partner extends CI_Controller {
         $this->load->library('email');
         $this->load->library('notify');
         $this->load->library('partner_utilities');
+        $this->load->model('upcountry_model');
         $this->load->library("asynchronous_lib");
         $this->load->library('booking_utilities');
         $this->load->helper(array('form', 'url'));
@@ -1951,7 +1952,7 @@ class Partner extends CI_Controller {
     function check_upcountry($booking, $appliance, $is_price, $appliance_category, $partner_data) {
         if ($is_price) {
             log_message('info', __FUNCTION__ . ' Check Upcountry Vendor Availability');
-            $data = $this->check_upcountry_vendor_availability($booking['city'], $booking['booking_pincode'], $booking['service_id'], $partner_data, false);
+            $data = $this->upcountry_model->check_upcountry_vendor_availability($booking['city'], $booking['booking_pincode'], $booking['service_id'], $partner_data, false);
             $charges = 0;
             if ($is_price['is_upcountry'] == 0) {
                 $charges = "Rs. " . (($data['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE) +
