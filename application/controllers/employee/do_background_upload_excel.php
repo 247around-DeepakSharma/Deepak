@@ -417,7 +417,7 @@ class Do_background_upload_excel extends CI_Controller {
                     $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,'Installation & Demo',"");
                 }
                 $booking['amount_due'] = '0';
-                $is_price = false;
+                $is_price = array();
                 if(!empty($prices)){
                     $unit_details['id'] =  $prices[0]['id'];
                     $unit_details['around_paid_basic_charges'] =  $unit_details['around_net_payable'] = "0.00";
