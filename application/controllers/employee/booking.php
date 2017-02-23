@@ -186,6 +186,15 @@ class Booking extends CI_Controller {
                 log_message('info', __METHOD__ . "Appliance ID" . print_r($appliance_id, true));
                 /* if appliance id exist the initialize appliance id in array and update appliance details other wise it insert appliance details and return appliance id
                  * */
+                $check_product_type = $this->booking_model->get_service_id_by_appliance_details($appliances_details['description']);
+                if(!$check_product_type){
+                    $insert_data =array('service_id' => $appliances_details['service_id'],
+                                 'category' =>$appliances_details['category'],
+                                 'capacity'=>$appliances_details['capacity'],
+                                 'brand'=>$appliances_details['brand'],
+                                 'product_description'=>$appliances_details['description']);
+                    $insert_data_id = $this->booking_model->insert_appliance_details($insert_data);
+                }
 
                 if (isset($appliance_id[$key])) {
 
@@ -267,6 +276,7 @@ class Booking extends CI_Controller {
                         case UPCOUNTRY_BOOKING:
                         case UPCOUNTRY_LIMIT_EXCEED:
                         case NOT_UPCOUNTRY_BOOKING:
+                        case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
                             $url = base_url() . "employee/vendor/process_assign_booking_form/";
                             $async_data['service_center'] = array($booking['booking_id'] => $upcountry_data['vendor_id']);
                             $async_data['agent_id'] = _247AROUND_DEFAULT_AGENT;
@@ -434,9 +444,11 @@ class Booking extends CI_Controller {
 	$booking['partner_source'] = $this->input->post('partner_source');
 	$booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
 	$booking['booking_pincode'] = $this->input->post('booking_pincode');
-	// select state by pincode
-	$state = $this->vendor_model->get_state_from_india_pincode(trim($booking['booking_pincode']));
-	$booking['state'] = $state['state'];
+	// select state, taluk, district by pincode
+    $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($booking['booking_pincode']));
+	$booking['state'] = $distict_details['state'];
+    $booking['district'] = $distict_details['district'];
+    $booking['taluk'] = $distict_details['taluk'];
 	$booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
 	$booking['order_id'] = $this->input->post('order_id');
 //	$booking['potential_value'] = $this->input->post('potential_value');
@@ -1028,10 +1040,12 @@ class Booking extends CI_Controller {
 	
         $where_get_partner = array('bookings_sources.code'=>$partner_code);
         $select = "bookings_sources.partner_id,bookings_sources.price_mapping_id, "
-                . " partners.upcountry_approval, upcountry_mid_distance_threshold, upcountry_rate1, upcountry_rate";
+                . " partners.upcountry_approval, upcountry_mid_distance_threshold,"
+                . " upcountry_min_distance_threshold, upcountry_max_distance_threshold, "
+                . " upcountry_rate1, upcountry_rate, partners.is_upcountry";
         $partner_data = $this->partner_model->getpartner_details($select,$where_get_partner);
         $partner_mapping_id = $partner_data[0]['price_mapping_id'];
-      
+       
         if($partner_type == OEM){
 	   $result = $this->booking_model->getPricesForCategoryCapacity($service_id, $category, $capacity, $partner_mapping_id, $brand);
         } else {
@@ -1047,7 +1061,7 @@ class Booking extends CI_Controller {
         } else {
             $brand_id = "";
         }
-
+       
 	if (!empty($result)) {
      
 	    $html = "<thead><tr><th>Service Category</th><th>Std. Charges</th><th>Partner Discount</th><th>Final Charges</th><th>247around Discount</th><th>Selected Services</th></tr></thead>";
@@ -1073,28 +1087,8 @@ class Booking extends CI_Controller {
 		$i++;
 	    }
 	    $data['price_table'] = $html;
-            $upcountry_data = $this->miscelleneous->check_upcountry_vendor_availability($booking_city, $booking_pincode, $service_id);
-            switch ($upcountry_data['message']){
-                case UPCOUNTRY_BOOKING:
-                case UPCOUNTRY_LIMIT_EXCEED:
-                if(!empty($partner_data[0]['upcountry_mid_distance_threshold'])){
-                    if($partner_data[0]['upcountry_mid_distance_threshold'] > $upcountry_data['upcountry_distance']){
-
-                        $upcountry_data['partner_upcountry_rate']  = $partner_data[0]['upcountry_rate'];
-
-                    } else {
-                    $upcountry_data['partner_upcountry_rate']  = $partner_data[0]['upcountry_rate1'];
-
-                   }
-                   $upcountry_data['partner_upcountry_approval'] = $partner_data[0]['upcountry_approval'];
-
-                } else {
-                    $upcountry_data['partner_upcountry_approval'] = 0;
-                    $upcountry_data['partner_upcountry_rate'] = DEFAULT_UPCOUNTRY_RATE;
-                }
-                break;
-                
-            }
+            $upcountry_data = $this->miscelleneous->check_upcountry_vendor_availability($booking_city, $booking_pincode, $service_id, $partner_data, FALSE);
+            
             
             $data['upcountry_data'] = json_encode($upcountry_data,true);
             print_r(json_encode($data,true));
@@ -1201,10 +1195,6 @@ class Booking extends CI_Controller {
 	$data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
 
 	$data['service_center'] = $this->booking_model->selectservicecentre($booking_id);
-
-        $data['upcountry_details'] = $this->upcountry_model->upcountry_booking_list($data['booking_history'][0]['assigned_vendor_id'], 
-                $booking_id, false,$data['booking_history'][0]['upcountry_paid_by_customer']);
-
         $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id);
 
 

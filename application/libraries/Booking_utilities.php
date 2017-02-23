@@ -54,7 +54,7 @@ class Booking_utilities {
             $meta['upcountry_charges'] = 0;
             
             if ($booking_details[0]['upcountry_paid_by_customer'] == 1) {
-                $meta['upcountry_charges'] = $booking_details[0]['upcountry_distance'] * $booking_details[0]['partner_upcountry_rate'];
+                $meta['upcountry_charges'] = $booking_details[0]['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE;
             }
             $meta['appliance_description'] = $unit_details[0]['appliance_description'];
             $R->load(array(
@@ -210,7 +210,6 @@ class Booking_utilities {
                     . ", ". $getbooking[0]['booking_pincode'] . ". 247around";
             
             //Send SMS to vendor
-            //Send it through Exotel ONLY
             $this->My_CI->notify->sendTransactionalSms($getbooking[0]['primary_contact_phone_1'], $smsBody);
             //Save email in database
             $details = array("booking_id" => $booking_id, "subject" => $subject,

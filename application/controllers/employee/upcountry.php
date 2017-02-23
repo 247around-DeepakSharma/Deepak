@@ -18,6 +18,7 @@ class Upcountry extends CI_Controller {
         $this->load->model('booking_model');
         $this->load->model('vendor_model');
         $this->load->library("miscelleneous");
+        $this->load->library("notify");
 
 	if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
 	    return TRUE;
@@ -90,31 +91,138 @@ class Upcountry extends CI_Controller {
      */
     function get_upcountry_failed_details(){
         $upcountry_details['details'] = $this->upcountry_model->get_upcountry_failed_details();
-        foreach ($upcountry_details['details'] as $key => $value) {
-            $where1 = array('service_center_id' => $value['assigned_vendor_id']);
-            
-            $upcountry_details['details'][$key]['pincode_details'] = $this->upcountry_model->get_sub_service_center_details($where1);
-        }
+        
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/upcountry_failed_details', $upcountry_details);
     }
     /**
-     * @desc: This method update upcountry booking .
+     * @desc: This method update upcountry failed booking .
      * This is called by Ajax 
      */
     function update_failed_upcountry_booking(){
-        $data['sub_vendor_id']= $this->input->post('sc_id');
-        $data['upcountry_pincode'] = $this->input->post('pincode');
-        $data['upcountry_distance'] = $this->input->post('distance');
         $booking_id = $this->input->post('booking_id');
-        $data['sf_upcountry_rate'] = $this->input->post('upcountry_rate');
+        $query1 = $this->booking_model->getbooking_history($booking_id);
         
-        $this->booking_model->update_booking($booking_id,$data);
+        $amount_due = $query1[0]['amount_due'];
+        $upcountry_vendor['upcountry_distance'] = ($this->input->post('distance') * 2);
+        $upcountry_vendor['sf_upcountry_rate'] = $query1[0]['sf_upcountry_rate'];
+        $upcountry_vendor['is_upcountry'] = "1";
+        $upcountry_vendor['sub_vendor_id'] = $query1[0]['sub_vendor_id'];
+        $upcountry_vendor['vendor_id'] = $query1[0]['assigned_vendor_id'];
+        $upcountry_vendor['upcountry_pincode'] = $query1[0]['upcountry_pincode'];
+        $partner_details = $this->partner_model->get_all_partner($query1[0]['partner_id']);
+        
+        $data = $this->upcountry_model->mark_upcountry_vendor($upcountry_vendor, $partner_details);
+        
+        $status  = false;
+        switch ($data['message']){
+            case NOT_UPCOUNTRY_BOOKING:
+                $booking['sub_vendor_id'] = NULL;
+                $booking['is_upcountry'] = 0;
+                $booking['sf_upcountry_rate'] = NULL;
+                $booking['upcountry_distance'] = NULL;
+                $booking['upcountry_pincode'] = NULL;
+                $this->booking_model->update_booking($booking_id, $booking);
+                $status = TRUE;
+                break;
+            
+           case UPCOUNTRY_BOOKING:
+            case UPCOUNTRY_LIMIT_EXCEED:
+                $is_upcountry = $this->upcountry_model->is_upcountry_booking($booking_id);
+                $booking['upcountry_distance'] = $data['upcountry_distance'];
+                $booking['is_upcountry'] = 1;
+                $booking['partner_upcountry_rate'] = $data['partner_upcountry_rate'];
+                if(!empty($is_upcountry)){
+                    if($data['message'] == UPCOUNTRY_BOOKING ){
+                        log_message('info', __METHOD__ . " => Upcountry Booking Free Booking " . $booking_id);
+                        $booking['upcountry_paid_by_customer'] = 0;
+                        $this->booking_model->update_booking($booking_id, $booking);
+                        $status = TRUE;
+                    }else if($data['partner_upcountry_approval'] == 1 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED){
+                       
+                        log_message('info', __METHOD__ . " => Upcountry Waiting for Approval " . $booking_id);
+                        $booking['assigned_vendor_id'] = NULL;
+                        $booking['internal_status'] = UPCOUNTRY_BOOKING_NEED_TO_APPROVAL;
+                        $booking['upcountry_partner_approved'] = '0';
+                        $booking['upcountry_paid_by_customer'] = 0;
+
+                        $this->booking_model->update_booking($booking_id, $booking);
+                        $this->service_centers_model->delete_booking_id($booking_id);
+
+                        $this->notify->insert_state_change($booking_id, "Waiting Partner Approval", 
+                                _247AROUND_PENDING, "Waiting Upcountry to Approval", 
+                                $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
+                        $unit_details = $this->booking_model->get_unit_details(array('booking_id'=> $booking_id));
+
+                        $up_mail_data['name'] = $query1[0]['name'];
+                        $up_mail_data['appliance'] = $query1[0]['services'];
+                        $up_mail_data['booking_address'] = $query1[0]['booking_address'];
+                        $up_mail_data['city'] = $query1[0]['city'];
+                        $up_mail_data['state'] = $query1[0]['state'];
+                        $up_mail_data['booking_pincode'] = $query1[0]['booking_pincode'];
+                        $up_mail_data['booking_id'] = $query1[0]['booking_id'];
+                        $up_mail_data['booking_primary_contact_no'] = $query1[0]['booking_primary_contact_no'];
+                        $up_mail_data['price_tags'] = $unit_details[0]['price_tags'];
+                        $up_mail_data['appliance_brand'] = $unit_details[0]['appliance_brand'];
+                        $up_mail_data['appliance_category'] = $unit_details[0]['appliance_category'];
+                        $up_mail_data['appliance_capacity'] = $unit_details[0]['appliance_capacity'];
+                        $up_mail_data['upcountry_distance'] = $booking[0]['upcountry_distance'];
+
+                        $message1 = $this->load->view('employee/upcountry_approval_template', $up_mail_data, true);
+                        
+                        
+                        if($booking['upcountry_distance'] > 300){
+                            $subject = "Upcountry Distance More Than 300 - Booking ID " . $query1[0]['booking_id'];
+                            $to = NITS_ANUJ_EMAIL_ID;
+                            $cc = "abhaya@247around.com";
+                            
+                        } else {
+                            $subject = "Upcountry Charges Approval Required - Booking ID " . $query1[0]['booking_id'];
+                            $to = $partner_details[0]['upcountry_approval_email'];
+                            $cc = NITS_ANUJ_EMAIL_ID;
+                        }
+
+                        $this->notify->sendEmail("booking@247around.com", $to, $cc, "", $subject, $message1, "");
+
+                        $status = FALSE;
+                        
+                    } else if ($data['partner_upcountry_approval'] == 0 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED) {
+
+                        log_message('info', __METHOD__ . " => Upcountry, partner not provide approval" . $booking_id);
+                        $this->booking_model->update_booking($booking_id, $booking);
+                        $this->process_cancel_form($booking_id, "Pending", UPCOUNTRY_CHARGES_NOT_APPROVED, "", 
+                                $this->session->userdata('id'), 
+                                $this->session->userdata('employee_id'),$query1[0]['partner_id']);
+                        
+                       $to = NITS_ANUJ_EMAIL_ID;
+                       $cc = "abhaya@247around.com";
+                       $message1 = $booking_id ." has auto cancelled because upcountry limit exceed "
+                               . "and partner does not provide upcountry charges approval. Upcountry Distance ".$data['upcountry_distance'];
+                       $this->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Auto Cancel Booking', $message1, "");
+
+                        $status = FALSE;
+                    }
+                   
+                } else {
+                    $booking['upcountry_paid_by_customer'] = 1;
+                    $booking['amount_due'] = $amount_due + ($data['partner_upcountry_rate'] * $data['upcountry_distance']);
+                    
+                    
+                    $this->booking_model->update_booking($booking_id, $booking);
+                    $status = TRUE;
+                }
+                break;
+        }
+
         $this->notify->insert_state_change($booking_id, "Upcountry modified",
-                "Assign" , "Upcountry Sub SF id ".$data['sub_vendor_id'] , 
+                ASSIGNED_VENDOR , "Upcountry details Corrected, Distance ".$upcountry_vendor['upcountry_distance']. " KM", 
                 $this->session->userdata('id'), 
                 $this->session->userdata('employee_id'),
                 _247AROUND);
+        
+        if($status){
+            $this->miscelleneous->send_sms_create_job_card($query1);
+        }
         
     }
     /**

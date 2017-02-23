@@ -59,42 +59,7 @@ class Do_background_process extends CI_Controller {
                 $upcountry_status = $this->miscelleneous->assign_upcountry_booking($booking_id, $agent_id, $agent_name);
                 if ($upcountry_status) {
                     log_message('info', __FUNCTION__ . " => Continue Process".$booking_id);
-                    if($upcountry_status[0]['request_type'] == HOME_THEATER_REPAIR_SERVICE_TAG 
-                            || $upcountry_status[0]['request_type'] == HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY){
-                        $unit_details = $this->booking_model->get_unit_details(array('booking_id'=> $booking_id));
-                        $sms['smsData']['brand_service'] = $unit_details[0]['appliance_brand']." ". $upcountry_status[0]['services'];
-                        $sms['smsData']['sf_phone'] = $upcountry_status[0]['phone_1'].", "
-                                .$upcountry_status[0]['primary_contact_phone_1'].", ".$upcountry_status[0]['owner_phone_1'];
-                        $sms['smsData']['sf_address'] = $upcountry_status[0]['address'];
-                        $sms['tag'] = "home_theater_repair";
-                        $sms['booking_id'] = $booking_id;
-                        $sms['type'] = "user";
-                        $sms['type_id'] = $upcountry_status[0]['user_id'];
-                        $sms['phone_no'] = $upcountry_status[0]['booking_primary_contact_no'];
-                        $this->notify->send_sms($sms);
-
-                    } else {
-                        //Send SMS to customer
-                        $sms['tag'] = "service_centre_assigned";
-                        $sms['phone_no'] = $upcountry_status[0]['booking_primary_contact_no'];
-                        $sms['booking_id'] = $booking_id;
-                        $sms['type'] = "user";
-                        $sms['type_id'] = $upcountry_status[0]['user_id'];
-                        $sms['smsData'] = "";
-
-                        $this->notify->send_sms_acl($sms);
-                    }
-                    
-                    
-                    log_message('info', "Send SMS to customer: " . $booking_id);
-
-                    //Prepare job card
-                    $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
-                    log_message('info', "Async Process to create Job card: " . $booking_id);
-
-                    //Send mail to vendor, no Note to vendor as of now
-                    $message = "";
-                    $this->booking_utilities->lib_send_mail_to_vendor($booking_id, $message);
+                    $this->miscelleneous->send_sms_create_job_card($upcountry_status);
                 }
 
                 log_message('info', "Async Process Exiting for Booking ID: " . $booking_id);

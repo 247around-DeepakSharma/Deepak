@@ -263,6 +263,7 @@
                                                     <tbody>
                                                         <?php if(!empty($prices)) { ?>
                                                         <?php $i=0; $div = 1; $k=0; foreach ( $prices[0] as  $price) { ?>
+                                                        
                                                         <tr>
                                                             <td><?php echo $price['service_category']; ?></td>
                                                             <td><?php echo $price['customer_total']; ?></td>

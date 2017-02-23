@@ -380,9 +380,12 @@ class Invoice extends CI_Controller {
      */
     function create_partner_invoices_detailed($partner_id, $f_date, $t_date, $invoice_type, $invoice_id) {
         log_message('info', __METHOD__ . "=> " . $invoice_type . " Partner Id " . $partner_id);
-        $data = $this->invoices_model->getpartner_invoices($partner_id, $f_date, $t_date);
+        $data1 = $this->invoices_model->getpartner_invoices($partner_id, $f_date, $t_date);
+        $data =  $data1['main_invoice'];
+        $upcountry_invoice = $data1['upcountry_invoice'];
+        
         $file_names = array();
-        $template = 'Partner_invoice_detail_template-v1.xlsx';
+        $template = 'Partner_invoice_detail_template-v2.xlsx';
         //set absolute path to directory with template files
         $templateDir = __DIR__ . "/../excel-templates/";
 
@@ -462,10 +465,71 @@ class Invoice extends CI_Controller {
             $excel_data['total_charges'] = $total_charges;
             $excel_data['period'] = $start_date . " To" . $end_date;
             $excel_data['vendor_num'] = 'Vendor Number: 252752';
-
+            if(!empty($data[0]['seller_code'])){
+                $excel_data['seller_code'] = "Seller Code ".$data[0]['seller_code'];
+            } else {
+                $excel_data['seller_code'] = '';
+            }
+            
+                    
             log_message('info', 'Excel data: ' . print_r($excel_data, true));
 
             $files_name = $this->generate_pdf_with_data($excel_data, $data, $R);
+            $template1 = 'Partner_invoice_detail_template-v2-upcountry.xlsx';
+            
+
+            //set config for report
+            $config1 = array(
+                'template' => $template1,
+                'templateDir' => $templateDir
+            );
+
+            //load template
+            $R1 = new PHPReport($config1);
+            $excel_data['total_upcountry_price'] = 0;
+            $total_upcountry_booking = 0;
+            $total_upcountry_distance = 0;
+            if(!empty($upcountry_invoice)){
+                 $excel_data['total_upcountry_price'] =  $upcountry_invoice[0]['total_upcountry_price'];
+                 $total_upcountry_booking = $upcountry_invoice[0]['total_booking'];
+                 $total_upcountry_distance = $upcountry_invoice[0]['total_distance'];
+                 
+            }
+           
+            
+            $R1->load(array(
+            array(
+                'id' => 'meta',
+                'data' => $excel_data,
+                'format' => array(
+                    'date' => array('datetime' => 'd/M/Y')
+                )
+            ),
+            array(
+                'id' => 'upcountry',
+                'repeat' => true,
+                'data' => $upcountry_invoice,
+            ),
+            
+            
+                )
+        );
+
+        //Get populated XLS with data
+        $output_file_dir = TMP_FOLDER;
+        $output_file = $excel_data['invoice_id'] . "upcountry-detailed";
+        $output_file_excel = $output_file_dir . $output_file . ".xlsx";
+        $res1 = 0;
+        if (file_exists($output_file_excel)) {
+
+            system(" chmod 777 " . $output_file_excel, $res1);
+            unlink($output_file_excel);
+        }
+        //for xlsx: excel, for xls: excel2003
+        $R1->render('excel', $output_file_excel);
+       
+            
+
             log_message('info', __METHOD__ . "=> File created " . $files_name);
             //Send report via email
             $this->email->clear(TRUE);
@@ -477,6 +541,7 @@ class Invoice extends CI_Controller {
             $this->email->to($to);
             $this->email->subject($subject);
             $this->email->attach($files_name . ".xlsx", 'attachment');
+            $this->email->attach($output_file_excel, 'attachment');
             $this->email->attach($files_name . ".pdf", 'attachment');
 
             $mail_ret = $this->email->send();
@@ -512,8 +577,8 @@ class Invoice extends CI_Controller {
                     'invoice_file_excel' => $files_name . '.xlsx',
                     'invoice_detailed_excel' => $invoice_id . '-detailed.xlsx',
                     'invoice_file_pdf' => $files_name . '.pdf',
-                    'from_date' => date("Y-m-d", strtotime($start_date)), //??? Check this next time, format should be YYYY-MM-DD
-                    'to_date' => date("Y-m-d", strtotime($end_date)),
+                    'from_date' => date("Y-m-d", strtotime($f_date)), //??? Check this next time, format should be YYYY-MM-DD
+                    'to_date' => date("Y-m-d", strtotime($t_date)),
                     'num_bookings' => $count,
                     'total_service_charge' => ($excel_data['total_installation_charge'] - $tds),
                     'total_additional_service_charge' => 0.00,
@@ -523,6 +588,9 @@ class Invoice extends CI_Controller {
                     'total_amount_collected' => ($excel_data['total_charges']- $tds),
                     'tds_amount' =>$tds,
                     'tds_rate' =>'2',
+                    'upcountry_booking' => $total_upcountry_booking,
+                    'upcountry_distance' => $total_upcountry_distance,
+                    'upcountry_price' => $excel_data['total_upcountry_price'],
                     'rating' => 5,
                     'around_royalty' => $excel_data['total_charges'],
                     //Amount needs to be collected from Vendor
@@ -549,6 +617,7 @@ class Invoice extends CI_Controller {
      */
     function generate_pdf_with_data($excel_data, $data, $R) {
         log_message('info', __METHOD__);
+      
         $R->load(array(
             array(
                 'id' => 'meta',
@@ -563,6 +632,8 @@ class Invoice extends CI_Controller {
                 'data' => $data,
             //'minRows' => 2,
             ),
+            
+            
                 )
         );
 
@@ -578,6 +649,7 @@ class Invoice extends CI_Controller {
         }
         //for xlsx: excel, for xls: excel2003
         $R->render('excel', $output_file_excel);
+       
         system(" chmod 777 " . $output_file_excel, $res1);
         //convert excel to pdf
         $output_file_pdf = $output_file_dir . $output_file . ".pdf";
@@ -882,7 +954,7 @@ class Invoice extends CI_Controller {
             }
 
             // insert data into vendor invoices snapshot or draft table as per the invoice type
-            $this->insert_cash_invoices_snapshot($invoices, $invoice_id, $details['invoice_type']);
+           // $this->insert_cash_invoices_snapshot($invoices, $invoice_id, $details['invoice_type']);
 
             // Store Cash Invoices details
             $invoice_sc_details[$invoices['booking'][0]['id']]['cash_file_name'] = $output_file_excel;
@@ -1426,9 +1498,9 @@ class Invoice extends CI_Controller {
         $details['vendor_partner'] = $this->input->post('partner_vendor');
         $details['invoice_type'] = $this->input->post('invoice_version');
         $details['vendor_partner_id'] = $this->input->post('partner_vendor_id');
-        $details['invoice_month'] = $this->input->post('invoice_month');
+        $details['date_range'] = $this->input->post('daterange');
         $details['vendor_invoice_type'] = $this->input->post('vendor_invoice_type');
-
+              
         $this->generate_vendor_partner_invoices($details);
         redirect(base_url() . "employee/invoice/get_invoices_form");
     }
@@ -1439,16 +1511,16 @@ class Invoice extends CI_Controller {
      * @param type $vendor_partner
      * @param type $invoice_type
      * @param type $vendor_partner_id
-     * @param type $invoice_month
+     * @param type $date_range
      * @param type $vendor_invoice_type
      */
-    function process_invoices_from_terminal($vendor_partner, $invoice_type, $vendor_partner_id, $invoice_month, $vendor_invoice_type) {
+    function process_invoices_from_terminal($vendor_partner, $invoice_type, $vendor_partner_id, $date_range, $vendor_invoice_type) {
         log_message('info', __FUNCTION__ . " Entering......");
         
         $details['vendor_partner'] = $vendor_partner;
         $details['invoice_type'] = $invoice_type;
         $details['vendor_partner_id'] = $vendor_partner_id;
-        $details['invoice_month'] = $invoice_month;
+        $details['date_range'] = $date_range;
         $details['vendor_invoice_type'] = $vendor_invoice_type;
 
         $this->generate_vendor_partner_invoices($details);
@@ -1461,19 +1533,6 @@ class Invoice extends CI_Controller {
     function generate_vendor_partner_invoices($details) {
         log_message('info', __FUNCTION__ . " Entering......");
         
-        $next_month = "";
-        $year = "";
-
-        if ($details['invoice_month'] == 12) {
-            $next_month = 01;
-            $year = date('Y') -1;
-        } else {
-            $next_month = $details['invoice_month'] + 1;
-            $year = date('Y');
-        }
-
-        $details['date_range'] = $year . "/" . $details['invoice_month'] . "/01-" . date('Y') . "/" . $next_month . "/01";
-        print_r($details);
 
         if ($details['vendor_partner'] === "vendor") {
             echo "Invoice Generating..";
@@ -1507,7 +1566,7 @@ class Invoice extends CI_Controller {
             $details['invoice_type'] = $invoice_type;
             $details['invoice_id'] = $invoice_id;
             $details['vendor_partner_id'] = $invoice_details[0]['vendor_partner_id'];
-            $details['date_range'] = str_replace("-", "/", $invoice_details[0]['from_date']) . "-" . str_replace("-", "/", date('Y-m-d', strtotime('+1 day', strtotime($invoice_details[0]['to_date']))));
+            $details['date_range'] = str_replace("-", "/", $invoice_details[0]['from_date']) . "-" . str_replace("-", "/", date('Y-m-d', strtotime($invoice_details[0]['to_date'])));
 
             if ($invoice_details[0]['vendor_partner'] == 'partner') {
 //            if($invoice_type == 'final'){
@@ -2665,10 +2724,10 @@ class Invoice extends CI_Controller {
                         log_message('info', __FUNCTION__ . " Invoice Id Empty");
                         if ($data['vendor_partner'] == "partner") {
                             $entity_details = $this->partner_model->getpartner($data['vendor_partner_id']);
-                            $data['invoice_id'] = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Around-");
+                            $data['invoice_id'] = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Around");
                         } else if ($data['vendor_partner'] == "vendor") {
 
-                            $data['invoice_id'] = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Around-");
+                            $data['invoice_id'] = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Around");
                         }
                         log_message('info', __FUNCTION__ . " Invoice Id is generated " . $data['invoice_id']);
                     }
@@ -2721,7 +2780,7 @@ class Invoice extends CI_Controller {
                     if (empty($invoice_id)) {
                         log_message('info', __FUNCTION__ . " Invoice Id Empty");
 
-                        $data['invoice_id'] = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Adround-");
+                        $data['invoice_id'] = $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Around");
                         log_message('info', __FUNCTION__ . " Invoice Id is generated " . $data['invoice_id']);
                     }
 
@@ -2852,7 +2911,10 @@ class Invoice extends CI_Controller {
      */
     function create_invoice_id_to_insert($entity_details, $from_date, $start_name){
         log_message('info', __FUNCTION__ . " Entering....");
-        if ($entity_details[0]['state'] == "DELHI") {
+        
+        if ((strcasecmp($entity_details[0]['state'], "DELHI") == 0) || 
+                        (strcasecmp($entity_details[0]['state'], "New Delhi") == 0) ) {
+        
             $invoice_version = "T";
             $invoices['meta']['invoice_type'] = "TAX INVOICE";
             
@@ -2870,7 +2932,7 @@ class Invoice extends CI_Controller {
         }
 
         //Make sure it is unique
-        $invoice_id_tmp = $start_name . "-" . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
+        $invoice_id_tmp = $start_name ."-". $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
         $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
         $invoice_no = $this->invoices_model->get_invoices_details($where);
         log_message('info', __FUNCTION__ . " Exit....");

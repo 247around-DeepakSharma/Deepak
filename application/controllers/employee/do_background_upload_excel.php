@@ -23,6 +23,7 @@ class Do_background_upload_excel extends CI_Controller {
 	$this->load->helper(array('form', 'url'));
 
 	$this->load->library('asynchronous_lib');
+    $this->load->library('miscelleneous');
 	$this->load->library('notify');
 	$this->load->helper(array('form', 'url'));
 	$this->load->helper('download');
@@ -32,7 +33,7 @@ class Do_background_upload_excel extends CI_Controller {
 	$this->load->library('PHPReport');
 	$this->load->library('notify');
 	$this->load->library('partner_utilities');
-        $this->load->library('booking_utilities');
+    $this->load->library('booking_utilities');
 
 	$this->load->model('user_model');
 	$this->load->model('booking_model');
@@ -258,7 +259,8 @@ class Do_background_upload_excel extends CI_Controller {
             
 	    //Insert user if phone number doesn't exist
 	    $output = $this->user_model->search_user(trim($value['Phone']));
-	    $state = $this->vendor_model->get_state_from_india_pincode($value['Pincode']);
+	    
+            $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($value['Pincode']));
 
 	    if (empty($output)) {
 		//User doesn't exist
@@ -268,7 +270,7 @@ class Do_background_upload_excel extends CI_Controller {
 		$user['home_address'] = $value['Customer_Address'];
 		$user['pincode'] = $value['Pincode'];
 		$user['city'] = $value['CITY'];
-		$user['state'] = $state['state'];
+		$user['state'] = $distict_details['state'];
 
 		$user_id = $this->user_model->add_user($user);
 
@@ -290,8 +292,9 @@ class Do_background_upload_excel extends CI_Controller {
 	    //Assigning Booking Source and Partner ID for Brand Requested
             // First we send Service id and Brand and get Partner_id from it
             // Now we send state, partner_id and service_id 
+            $value['Brand'] = isset($value['service_appliance_data']['brand'])?$value['service_appliance_data']['brand'] :$value['Brand'];
             $value['Brand'] = trim(str_replace("'", "", $value['Brand']));
-            $data = $this->_allot_source_partner_id_for_pincode($value['service_id'], $state['state'], $value['Brand']);
+            $data = $this->_allot_source_partner_id_for_pincode($value['service_id'], $distict_details['state'], $value['Brand']);
 
             $booking['partner_id'] = $data['partner_id'];
             $booking['source'] = $data['source'];
@@ -393,10 +396,10 @@ class Do_background_upload_excel extends CI_Controller {
                 if($booking['service_id'] == '32'){
                     $appliance_details['category'] = $unit_details['appliance_category'] = 'Geyser-PAID';
                 } else{
-                    $appliance_details['category'] = $unit_details['appliance_category'] = '';
+                    $appliance_details['category'] = $unit_details['appliance_category'] = isset($value['service_appliance_data']['category'])?$value['service_appliance_data']['category'] :'';
                 }
 
-                $appliance_details['capacity'] = $unit_details['appliance_capacity'] = '';
+                $appliance_details['capacity'] = $unit_details['appliance_capacity'] = isset($value['service_appliance_data']['capacity'])?$value['service_appliance_data']['capacity'] :'';
                 $appliance_details['model_number'] = $unit_details['model_number'] = $value['Model'];
                 $appliance_details['tag'] = $value['Brand'] . " " . $value['Product'];
                 $booking['booking_remarks'] = '';
@@ -404,7 +407,25 @@ class Do_background_upload_excel extends CI_Controller {
                 $appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
                 $appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
                 $appliance_details['last_service_date'] = date('d-m-Y');
-
+                //get partner data to check the price
+                $partner_data = $this->partner_model->get_partner_code($booking['partner_id']);
+                $partner_mapping_id = $partner_data[0]['price_mapping_id'];
+                if($partner_data[0]['partner_type'] == OEM){
+                    $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,'Installation & Demo', $unit_details['appliance_brand']);
+                } else {
+                    $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,'Installation & Demo',"");
+                }
+                $booking['amount_due'] = '0';
+                $is_price = false;
+                if(!empty($prices)){
+                    $unit_details['id'] =  $prices[0]['id'];
+                    $unit_details['around_paid_basic_charges'] =  $unit_details['around_net_payable'] = "0.00";
+                    $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
+                    $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
+                    $booking['amount_due'] = $prices[0]['customer_net_payable'];
+                    $is_price['customer_net_payable'] = $prices[0]['customer_net_payable'];
+                    $is_price['is_upcountry'] = $prices[0]['is_upcountry'];
+                }
 
 
 
@@ -420,7 +441,9 @@ class Do_background_upload_excel extends CI_Controller {
                 $booking['type'] = "Query";
                 $booking['booking_address'] = $value['Customer_Address'];
                 $booking['city'] = $value['CITY'];
-                $booking['state'] = $state['state'];
+                $booking['state'] = $distict_details['state'];
+                $booking['district'] = $distict_details['district'];
+                $booking['taluk'] = $distict_details['taluk'];
                 $booking['quantity'] = '1';
                 
 
@@ -431,7 +454,12 @@ class Do_background_upload_excel extends CI_Controller {
                     $booking['partner_internal_status'] = $partner_status[1];
                 }
 
-
+                //Send SMS to customers regarding delivery confirmation through missed call for delivered file only
+                //Check whether vendor is available or not
+                $is_sms = $this->check_upcountry($booking, $value['appliance'], $is_price, $unit_details['appliance_category'], $file_type, $partner_data);
+                if(!$is_sms){
+                     $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
+                }
                 $booking_details_id = $this->booking_model->addbooking($booking);
 
                 if ($booking_details_id) {
@@ -441,7 +469,12 @@ class Do_background_upload_excel extends CI_Controller {
                     if ($unit_details['appliance_id']) {
                         log_message('info', __METHOD__ . "=> Appliance added: " . $unit_details['appliance_id']);
 
-                        $unit_id = $this->booking_model->addunitdetails($unit_details);
+                        //$unit_id = $this->booking_model->addunitdetails($unit_details);
+                        if(!empty($prices)){
+                            $unit_id = $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state']);
+                        }else{
+                            $unit_id = $this->booking_model->addunitdetails($unit_details);
+                        }
                         if ($unit_id) {
                             log_message('info', __METHOD__ . "=> Unit details added: " . $unit_id);
 
@@ -449,22 +482,6 @@ class Do_background_upload_excel extends CI_Controller {
 
                             $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP, _247AROUND_NEW_QUERY, $booking['query_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), _247AROUND);
 
-                            //Send SMS to customers regarding delivery confirmation through missed call for delivered file only
-                            //Check whether vendor is available or not
-                            $vendors = $this->vendor_model->check_vendor_availability($booking['booking_pincode'], $booking['service_id']);
-                            $vendors_count = count($vendors);
-
-                            if ($vendors_count > 0) {
-                                $this->send_sms_to_snapdeal_customer($value['appliance'],
-                                        $booking['booking_primary_contact_no'], $user_id,
-                                        $booking['booking_id'], $file_type, $unit_details['appliance_category']);
-                            } else { //if ($vendors_count > 0) {
-                                //update booking
-                                $booking_data['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
-                                $this->booking_model->update_booking($booking['booking_id'], $booking_data);
-
-                                log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
-                            }
                             
 			} else {
 			    log_message('info', __FUNCTION__ . ' => ERROR: Booking is not inserted in booking details: ' 
@@ -531,26 +548,42 @@ class Do_background_upload_excel extends CI_Controller {
                             $update_data['booking_date'] = '';
                             $update_data['booking_timeslot'] = '';
                             $update_data['update_date'] = date("Y-m-d H:i:s");
-                            
-                            $vendors = $this->vendor_model->check_vendor_availability($partner_booking['booking_pincode'], $partner_booking['service_id']);
-                            $vendors_count = count($vendors);
+
                             $sms_count = 0;
-                            $category = "";
-                            if ($vendors_count > 0) {
-                                if($partner_booking['service_id'] == '32'){
-                                    $category = "Geyser-PAID";
-                                } 
-                                $this->send_sms_to_snapdeal_customer($value['appliance'],
-                                            $partner_booking['booking_primary_contact_no'], $partner_booking['user_id'],
-                                            $partner_booking['booking_id'], $file_type, $category);
+                            $category = isset($value['service_appliance_data']['category'])?$value['service_appliance_data']['category']:'' ;
+                            
+                            if ($partner_booking['service_id'] == '32') {
+                                $category = "Geyser-PAID";
+                            } else {
+                                $category = isset($value['service_appliance_data']['category']) ? $value['service_appliance_data']['category'] : '';
+                            }
+                            $capacity = isset($value['service_appliance_data']['capacity'])?$value['service_appliance_data']['capacity'] :'';
+                            $brand = isset($value['service_appliance_data']['brand']) ? $value['service_appliance_data']['brand'] : $value['Brand'];
+                            $partner_data = $this->partner_model->get_partner_code($partner_booking['partner_id']);
+                            $partner_mapping_id = $partner_data[0]['price_mapping_id'];
+                            
+                            if ($partner_data[0]['partner_type'] == OEM) {
+                                $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_mapping_id, 'Installation & Demo', $brand);
+                            } else {
+                                $prices = $this->partner_model->getPrices($partner_booking['service_id'], $category, $capacity, $partner_mapping_id, 'Installation & Demo', "");
+                            }
+                            
+                            $is_price = false;
+                            if (!empty($prices)) {
+
+                                $is_price['customer_net_payable'] = $prices[0]['customer_net_payable'];
+                                $is_price['is_upcountry'] = $prices[0]['is_upcountry'];
+                            }
+                            
+                            $is_sms = $this->check_upcountry($partner_booking, $value['appliance'], $is_price, $category, $file_type, $partner_data);
+                            if($is_sms){
                                 $sms_count = 1;
-                                
-                            } else { //if ($vendors_count > 0) {
+                            } else {
                                 $update_data['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
                                 
                                 log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $partner_booking['booking_id']);
                             }
-                            
+
                             $update_data['sms_count'] = $sms_count;
                     
                             $this->booking_model->update_booking($partner_booking['booking_id'], $update_data);
@@ -701,60 +734,73 @@ class Do_background_upload_excel extends CI_Controller {
 	    }
 
 	    $prod = trim($value['Product']);
-
-	    if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
+            
+            //check if service_id already exist or not by using product description
+            $service_appliance_data = $this->booking_model->get_service_id_by_appliance_details($value['Product_Type']);
+            
+            if(!empty($service_appliance_data)){
+                $data['valid_data'][$key]['service_id'] = $service_appliance_data[0]['service_id'];
+                $data['valid_data'][$key]['service_appliance_data'] = $service_appliance_data[0];
+                $data['valid_data'][$key]['appliance'] = $this->booking_model->selectservicebyid($data['valid_data'][$key]['service_id'])[0]['services'];
+            }
+            else{
+                if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
 		$data['valid_data'][$key]['appliance'] = 'Washing Machine';
-	    }
-	    if (stristr($prod, "Television")) {
-		$data['valid_data'][$key]['appliance'] = 'Television';
-	    }
-	    if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
-		$data['valid_data'][$key]['appliance'] = 'Air Conditioner';
-	    }
-	    if (stristr($prod, "Refrigerator")) {
-		$data['valid_data'][$key]['appliance'] = 'Refrigerator';
-	    }
-	    if (stristr($prod, "Microwave")) {
-		$data['valid_data'][$key]['appliance'] = 'Microwave';
-	    }
-	    if (stristr($prod, "Purifier")) {
-		$data['valid_data'][$key]['appliance'] = 'Water Purifier';
-	    }
-	    if (stristr($prod, "Chimney")) {
-		$data['valid_data'][$key]['appliance'] = 'Chimney';
-	    }
-	    if (stristr($prod, "Geyser")) {
-		$data['valid_data'][$key]['appliance'] = 'Geyser';
-	    }
-	    // Block Microvare cooking. If its exist in the Excel file
-	    if (stristr($prod, "microwave cooking")) {
-		$flag = 1;
-		unset($data['valid_data'][$key]);
-		array_push($invalid_data, $value);
-	    }
-	    // Block Tds Meter. If its exist in the Excel file
-	    if (stristr($prod, "Tds Meter")) {
-		$flag = 1;
-		unset($data['valid_data'][$key]);
-		array_push($invalid_data, $value);
-	    }
-	    // Block Accessories. If its exist in the Excel file
-	    if (stristr($prod, "Accessories")) {
-		$flag = 1;
-		unset($data['valid_data'][$key]);
-		array_push($invalid_data, $value);
-	    }
+                }
+                if (stristr($prod, "Television")) {
+                    $data['valid_data'][$key]['appliance'] = 'Television';
+                }
+                if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
+                    $data['valid_data'][$key]['appliance'] = 'Air Conditioner';
+                }
+                if (stristr($prod, "Refrigerator")) {
+                    $data['valid_data'][$key]['appliance'] = 'Refrigerator';
+                }
+                if (stristr($prod, "Microwave")) {
+                    $data['valid_data'][$key]['appliance'] = 'Microwave';
+                }
+                if (stristr($prod, "Purifier")) {
+                    $data['valid_data'][$key]['appliance'] = 'Water Purifier';
+                }
+                if (stristr($prod, "Chimney")) {
+                    $data['valid_data'][$key]['appliance'] = 'Chimney';
+                }
+                if (stristr($prod, "Geyser")) {
+                    $data['valid_data'][$key]['appliance'] = 'Geyser';
+                }
+                // Block Microvare cooking. If its exist in the Excel file
+                if (stristr($prod, "microwave cooking")) {
+                    $flag = 1;
+                    unset($data['valid_data'][$key]);
+                    array_push($invalid_data, $value);
+                }
+                // Block Tds Meter. If its exist in the Excel file
+                if (stristr($prod, "Tds Meter")) {
+                    $flag = 1;
+                    unset($data['valid_data'][$key]);
+                    array_push($invalid_data, $value);
+                }
+                // Block Accessories. If its exist in the Excel file
+                if (stristr($prod, "Accessories")) {
+                    $flag = 1;
+                    unset($data['valid_data'][$key]);
+                    array_push($invalid_data, $value);
+                }
 
-	    if ($flag == 0) {
-		$service_id = $this->booking_model->getServiceId($data['valid_data'][$key]['appliance']);
-		if ($service_id) {
+                if ($flag == 0) {
+                    $service_id = $this->booking_model->getServiceId($data['valid_data'][$key]['appliance']);
+                    if ($service_id) {
 
-		    $data['valid_data'][$key]['service_id'] = $service_id;
-		} else {
-		    unset($data['valid_data'][$key]);
-		    array_push($invalid_data, $value);
-		}
-	    }
+                        $data['valid_data'][$key]['service_id'] = $service_id;
+                    } else {
+                        unset($data['valid_data'][$key]);
+                        array_push($invalid_data, $value);
+                    }
+                }
+                
+            }
+
+	    
 	}
 
 	if (!empty($invalid_data)) {
@@ -1014,7 +1060,7 @@ class Do_background_upload_excel extends CI_Controller {
      * @param string $booking_id
      * @param string $file_type - Deliverd or Shipped
      */
-    function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id, $file_type, $category) {
+    function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id, $file_type, $category,$price) {
         switch ($file_type) {
             case "shipped":
                 $sms['tag'] = "sd_shipped_missed_call_initial";
@@ -1022,8 +1068,14 @@ class Do_background_upload_excel extends CI_Controller {
                 //ordering of smsData is important, it should be as per the %s in the SMS
                 $sms['smsData']['service'] = $appliance;
                 $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
-                $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
-                
+                /* If price exist then send sms according to that otherwise
+                 *  send sms by checking function get_product_free_not
+                 */
+                if($price){
+                    $sms['smsData']['message'] = $price;
+                }else{
+                    $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
+                }
                 break;
 
             case "delivered":
@@ -1032,8 +1084,16 @@ class Do_background_upload_excel extends CI_Controller {
                 //ordering of smsData is important, it should be as per the %s in the SMS
                 $sms['smsData']['service'] = $appliance;
                 $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
-                $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
-
+                /* If price exist then send sms according to that otherwise
+                 *  send sms by checking function get_product_free_not
+                 */
+                if($price){
+                    
+                    $sms['smsData']['message'] = $price;
+                   
+                }else{
+                    $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
+                }
                 break;
 
             default:
@@ -1139,7 +1199,7 @@ class Do_background_upload_excel extends CI_Controller {
 	foreach ($row_data as $value) {
 
             $output = $this->user_model->search_user(trim($value['Phone']));
-            $state = $this->vendor_model->get_state_from_pincode($value['Pincode']);
+            $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($value['Pincode']));
 
             if (empty($output)) {
                 //User doesn't exist
@@ -1150,7 +1210,7 @@ class Do_background_upload_excel extends CI_Controller {
                     $user['home_address'] = $value['Customer_Address'];
                     $user['pincode'] = $value['Pincode'];
                     $user['city'] = $value['CITY'];
-                    $user['state'] = $state['state'];
+                    $user['state'] = $distict_details['state'];
 
                     $user_id = $this->user_model->add_user($user);
                     //echo print_r($user, true), EOL;
@@ -1273,6 +1333,57 @@ class Do_background_upload_excel extends CI_Controller {
             
         }
     }
-    
+    /**
+     * @desc: This method is used to send sms on the basis of upcountry charges
+     * @param Array $booking
+     * @param String $appliance
+     * @param Array/boolean $is_price
+     * @param Array $appliance_category
+     * @param String $file_type
+     * @param String $partner_data
+     * @return boolean
+     */
+    function check_upcountry($booking, $appliance, $is_price, $appliance_category, $file_type, $partner_data) {
+        if ($is_price) {
+            log_message('info', __FUNCTION__ . ' Check Upcountry Vendor Availability');
+            $data = $this->check_upcountry_vendor_availability($booking['city'], $booking['booking_pincode'], $booking['service_id'], $partner_data, false);
+            $charges = 0;
+            if ($is_price['is_upcountry'] == 0) {
+                $charges = "Rs. " . (($data['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE) +
+                        $is_price['customer_net_payble']);
+                log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
+            } else {
+                switch ($data['message']) {
+                    case NOT_UPCOUNTRY_BOOKING:
+                    case UPCOUNTRY_BOOKING:
+                    case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
+                        log_message('info', __FUNCTION__ . ' UPCOUNTRY_BOOKING ');
+                        $charges = "Rs. " . $is_price['customer_net_payable'];
+                        log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
+
+                        break;
+
+                    case UPCOUNTRY_LIMIT_EXCEED:
+                        log_message('info', __FUNCTION__ . ' UPCOUNTRY_LIMIT_EXCEED ');
+                        if ($data['partner_upcountry_approval'] == 1) {
+                            $charges = "Rs. " . $is_price['customer_net_payable'];
+                            log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
+                        } else {
+                            log_message('info', __FUNCTION__ . ' Partner does not provide Approval. Not Sent SMS');
+                            return false;
+                        }
+                        break;
+
+                    case SF_DOES_NOT_EXIST:
+                        return FALSE;
+                    //break;
+                }
+            }
+            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $file_type, $appliance_category, $charges);
+        } else {
+            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $file_type, $appliance_category, $is_price);
+            return true;
+        }
+    }
 
 }

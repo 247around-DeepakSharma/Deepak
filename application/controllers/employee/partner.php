@@ -347,7 +347,7 @@ class Partner extends CI_Controller {
                 // Send the request
                 $response = curl_exec($ch);
                 
-                log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  Booking Inserted Message: " . print_r($response, true));
+                log_message('info', ' Partner ' . $this->session->userdata('partner_name') . "  booking not Inserted error mgs" . print_r($response, true));
                 // Decode the response
                 $responseData = json_decode($response, TRUE);
                 
@@ -1459,15 +1459,17 @@ class Partner extends CI_Controller {
             $user['pincode'] = $post['pincode'];
             $user['home_address'] = $post['address'];
             $user['alternate_phone_number'] = $post['alternate_phone_number'];
-            $state = $this->vendor_model->get_state_from_india_pincode($post['pincode']);
+            $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($post['pincode']));
 
-            $user['state'] = $state['state'];
+            $user['state'] = $distict_details['state'];
             $booking_details['booking_date'] = $post['booking_date'];
             $booking_details['booking_primary_contact_no'] = $post['mobile'];
             $booking_details['booking_alternate_contact_no'] = $post['alternate_phone_number'];
             $booking_details['booking_address'] = $post['address'];
             $booking_details['booking_pincode'] = $post['pincode'];
-            $booking_details['state'] = $state['state'];
+            $booking_details['state'] = $distict_details['state'];
+            $booking_details['district'] = $distict_details['district'];
+            $booking_details['taluk'] = $distict_details['taluk'];
             $booking_details['city'] = $post['city'];
             $booking_details['request_type'] = $post['requestType'];
             $booking_details['booking_landmark'] = $post['landmark'];
@@ -2422,8 +2424,8 @@ class Partner extends CI_Controller {
             $result = $this->partner_model->getPrices($service_id, $category, $capacity, $partner_mapping_id, $service_category,""); 
         }
         if(!empty($result)){
-          
-            $data = $this->miscelleneous->check_upcountry_vendor_availability($city, $pincode,$service_id, $assigned_vendor_id);
+            $partner_details = $this->partner_model->get_all_partner($partner_id);
+            $data = $this->miscelleneous->check_upcountry_vendor_availability($city, $pincode,$service_id, $partner_details, $assigned_vendor_id);
             
             switch ($data['message']){
                 case NOT_UPCOUNTRY_BOOKING:
@@ -2439,8 +2441,20 @@ class Partner extends CI_Controller {
                     print_r(json_encode($form_data,true));
                     break;
                     
-                case SF_DOES_NOT_EXIST:
                 case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
+                    $data['upcountry_paid_by_customer'] = 0;
+                    $form_data['vendor_id'] = $data['vendor_id'];
+                    $form_data['upcountry_data'] = json_encode("") ;
+                    if($result[0]['customer_net_payable']>.0){
+                        $form_data['price'] = "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:red'> To be PAID By Customer </span>";
+                    } else {
+                        $form_data['price'] =  "<br/> Rs. ". $result[0]['customer_net_payable']. "       <span style='color:green'> Free for Customer </span>";
+                    }
+                    print_r(json_encode($form_data,true));
+                    break;
+                    
+                case SF_DOES_NOT_EXIST:
+                
                     $data['upcountry_paid_by_customer'] = 0;
                     $form_data['vendor_id'] = "";
                     $form_data['upcountry_data'] = json_encode("") ;
@@ -2455,23 +2469,8 @@ class Partner extends CI_Controller {
                 case UPCOUNTRY_LIMIT_EXCEED:
                     $form_data['vendor_id'] = $data['vendor_id'];
                     
-                    $partner_details = $this->partner_model->get_all_partner($partner_id);
-                    if ($partner_details[0]['is_upcountry'] == 1) {
-                        if($partner_details[0]['upcountry_mid_distance_threshold'] > $data['upcountry_distance']){
-                            $upcountry_price = $partner_details[0]['upcountry_rate'] * $data['upcountry_distance'];
-                            $data['partner_upcountry_rate']  = $partner_details[0]['upcountry_rate'] ;
+                   $upcountry_price = $data['upcountry_distance'] * $data['partner_upcountry_rate'];
 
-                        } else {
-
-                            $data['partner_upcountry_rate']  = $partner_details[0]['upcountry_rate1'];
-                            $upcountry_price = $partner_details[0]['upcountry_rate1'] * $data['upcountry_distance'];
-                        }
-                        $partner_approval = $partner_details[0]['upcountry_approval'];
-                    } else {
-                        $data['partner_upcountry_rate'] = DEFAULT_UPCOUNTRY_RATE;
-                        $upcountry_price = DEFAULT_UPCOUNTRY_RATE * $data['upcountry_distance'];
-                        $partner_approval = 0;
-                    }
                     if($result[0]['is_upcountry'] == 0 ){
                         // For paid Service
                         $data['partner_approval'] = 0;
@@ -2499,7 +2498,7 @@ class Partner extends CI_Controller {
                            $form_data['upcountry_data'] = json_encode($data) ;
                            print_r(json_encode($form_data,true));
                             
-                        } else if($partner_approval == 1 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED){
+                        } else if( $data['partner_upcountry_approval'] == 1 && $data['message'] == UPCOUNTRY_LIMIT_EXCEED){
                             //Upcountry Limit exceed and Partner provide uproval
                             $data['partner_approval'] = 1;
                             $data['upcountry_paid_by_customer'] = 0;
@@ -2508,7 +2507,7 @@ class Partner extends CI_Controller {
                             $form_data['upcountry_data'] = json_encode($data) ;
                             print_r(json_encode($form_data,true));
                             
-                        } else{
+                        } else {
                             // Do not Allow to add booking
                             echo "ERROR";
                         }

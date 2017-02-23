@@ -1,7 +1,7 @@
 <?php $offset = $this->uri->segment(6); ?>
 
-<script type="text/javascript" src="<?php echo base_url();?>js/jquery-1.3.2.min.js"></script>
-<script type="text/javascript" src="<?php echo base_url();?>js/jquery-ui-1.7.1.custom.min.js"></script>
+<!--<script type="text/javascript" src="<?php echo base_url();?>js/jquery-1.3.2.min.js"></script>-->
+<!--<script type="text/javascript" src="<?php echo base_url();?>js/jquery-ui-1.7.1.custom.min.js"></script>-->
 <script>
     $(function(){
 
@@ -52,13 +52,23 @@
         color: white;
     }
     tr:nth-child(even) {background-color: #f2f2f2}
+    
+    /* generic table styling */
+    table { border-collapse: collapse; }
+    td { padding: 5px; }
+
+    td { border-bottom: 1px solid #ccc; }
+    /* filter-table specific styling */
+    td.alt { background-color: #ffc; background-color: rgba(255, 255, 0, 0.2); }
+    /* special filter field styling for this example */
+    .input-filter-container { position: absolute; top: 7em; right: 1em; border: 2px solid #66f; background-color: #eef; padding: 0.5em; }
 
 
 </style>
 
 <!--Cancel Modal-->
 <div id="penaltycancelmodal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg" >
       <form name="cancellation_form" id="cancellation_form" class="form-horizontal" action="<?php echo base_url() ?>employee/vendor/process_remove_penalty" method="POST">
           
         <div class="modal-content">
@@ -66,10 +76,8 @@
             <h4 class="modal-title" style="text-align: center"><b>Penalty Removal Reason</b></h4>
           </div>
           <div class="modal-body">
-              <span id="error_message" style="display:none;color: red;margin-bottom:10px;"><b>Please enter Reason</b></span>
-              <textarea rows="3" cols="40" name="penalty_remove_reason" value="" placeholder="Enter Penalty removal reason" id="penalty_remove_reason"></textarea>
-              <input type="hidden" name="booking_id" id="booking_id" value="" >
-              <input type="hidden" name="status" id="status" value="" >
+              <span id="error_message" style="display:none;color: red;margin-bottom:10px;"><b>Please Select At Least 1 Booking</b></span>
+              <div id="open_model"></div>
           </div>
           <div class="modal-footer">
              <input type="button" onclick="form_submit()" value="Submit" class="btn btn-info " form="modal-form">
@@ -80,6 +88,7 @@
       </form>
   </div>
 </div>
+<!-- end cancel model -->
 
 
 <div id="page-wrapper" >
@@ -259,7 +268,8 @@
                             . "href='javascript:void(0)' title='Add Penalty'> <i class='fa fa-plus-square' aria-hidden='true'></i></a>";
                              
                             ?>  
-                            <a class='btn btn-sm col-md-4' style='background:#FFEB3B;margin-left:10px' onclick='return assign_id("<?php echo $row->booking_id?>","<?php echo $status?>")' data-toggle='modal' data-target='#penaltycancelmodal' href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>
+                            <!-- <a class='btn btn-sm col-md-4' style='background:#FFEB3B;margin-left:10px' onclick='return assign_id("<?php echo $row->booking_id?>","<?php echo $status?>")' data-toggle='modal' data-target='#penaltycancelmodal' href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a> -->
+                            <a class='btn btn-sm col-md-4' style='background:#FFEB3B;margin-left:10px' onclick='get_penality_details("<?php echo $row->booking_id?>","<?php echo $status?>")'  href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>
                             <?php     
                             }
                             
@@ -307,36 +317,37 @@
             inputSelector: '#input-filter' // use the existing input instead of creating a new one
         });
         });
-    
-    function assign_id(id,status){
-        $('#booking_id').val(id);
-        $('#status').val(status);
-    }
-    
+        
+        
      function form_submit() {
         
-        check = $('textarea#penalty_remove_reason').val();
-        if(!check){
+        var checkbox_val = [];
+        $(':checkbox:checked').each(function(i){
+          checkbox_val[i] = $(this).val();
+        });
+        if(checkbox_val.length === 0){
             $('#error_message').css('display','block');
             return false;
         }else{
             $("#cancellation_form").submit();
         }
     }  
+    
+     function get_penality_details(booking_id,status){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/vendor/get_penility_details_data/' + booking_id+"/"+status,
+            success: function (data) {
+             $("#open_model").html(data);   
+             $('#penaltycancelmodal').modal('toggle');
+
+            }
+          });
+    }
         
         
 </script>
-<style>
-    /* generic table styling */
-    table { border-collapse: collapse; }
-    td { padding: 5px; }
 
-    td { border-bottom: 1px solid #ccc; }
-    /* filter-table specific styling */
-    td.alt { background-color: #ffc; background-color: rgba(255, 255, 0, 0.2); }
-    /* special filter field styling for this example */
-    .input-filter-container { position: absolute; top: 7em; right: 1em; border: 2px solid #66f; background-color: #eef; padding: 0.5em; }
-</style>
 <?php $this->session->unset_userdata('success'); ?>
 <?php $this->session->unset_userdata('error'); ?>
 <?php $this->session->unset_userdata('failed'); ?>

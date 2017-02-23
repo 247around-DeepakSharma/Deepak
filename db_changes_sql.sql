@@ -2044,6 +2044,19 @@ ALTER TABLE `booking_details` ADD `is_penalty` INT(2) NULL DEFAULT '0' AFTER `cu
 
 --sachin 17 feb
 
+UPDATE  `email_template` SET  `template` =  '
+Dear Partner,<br>You have received a new order for brackets.<br><br>Your Order ID is : <b>%s</b> <br> <strong>Order Details:</strong><br><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Greater than 43 Inch Brackets : %s <br> Total Requested : %s<br><br> <strong>Requested From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br> City: %s <br> State: %s <br> Pincode: %s <br> Phone Number: %s, %s<br><br> Please notify when you ship the above order.<br><br> Regards,<br> 247Around Team
+' WHERE  `email_template`.`tag` ='brackets_requested_from_vendor';
+
+UPDATE  `email_template` SET  `template` =  '
+Dear Partner,<br>Your brackets order has been placed sucessfully.<br><br>Your Order ID is: <b>%s</b> <br> <strong>Order Details:</strong><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Greater Than 43 Inch Brackets : %s <br> Total Requested : %s<br><br> We will update you as soon as the brackets are shipped.<br><br>Regards,<br>247Around Team' WHERE  `email_template`.`tag` ='brackets_order_received_from_vendor';
+
+UPDATE  `email_template` SET  `template` =  '
+%s order has been Cancelled sucessfully for the <strong>Order ID : %s </strong><br><br><strong>Reason : </strong> %s <br><br> <strong>Order Details are:</strong><br> 19 to 24 Inch Brackets : %s <br> 26 to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Greater than 43 Inch Brackets : %s <br> Total Requested : %s<br><br> Thanks Team 247Around' WHERE  `email_template`.`tag` ='cancel_brackets_order_received_from_vendor';
+
+UPDATE  `email_template` SET  `template` = 'Brackets order <strong>%s</strong> has been Cancelled. <br><br><strong>Reason : </strong> %s <br><br> <strong>Order Details:</strong><br><br> 19 to 24 Inch Brackets : %s <br>26to 32 Inch Brackets : %s <br> 36 to 42 Inch Brackets : %s <br> Greater than 43 Inch Brackets : %s <br> Total Requested : %s<br><br> <strong>Requested From: </strong><br><br> %s<br> c/o: %s <br> Address: %s <br>City: %s <br> State: %s <br> Pincode: %s <br> Phone Number: %s, %s<br><br> Please <b>don''''t</b> ship this order.' WHERE  `email_template`.`tag` ='cancel_brackets_requested_from_vendor';
+
+
 
 ALTER TABLE `partners` ADD `company_type` VARCHAR(50) NULL DEFAULT NULL AFTER `type`;
 
@@ -2051,3 +2064,38 @@ ALTER TABLE `partners` ADD `partner_type` VARCHAR(50) NULL DEFAULT NULL AFTER `t
 
 -- Abhay 21 FEB
 ALTER TABLE `sc_crimes` ADD `total_pending_booking` INT(10) NULL DEFAULT NULL AFTER `total_missed_target`;
+
+ALTER TABLE `partners` ADD `seller_code` VARCHAR(56) NULL DEFAULT NULL AFTER `public_name`;
+ALTER TABLE `booking_details` ADD `district` VARCHAR(128) NULL DEFAULT NULL AFTER `city`, ADD `taluk` VARCHAR(128) NULL DEFAULT NULL AFTER `district`;
+
+
+CREATE TABLE `appliance_product_description` (
+  `id` int(11) NOT NULL,
+  `service_id` int(11) NOT NULL,
+  `category` varchar(50) DEFAULT NULL,
+  `capacity` varchar(50) DEFAULT NULL,
+  `brand` varchar(255) NOT NULL,
+  `product_description` varchar(255) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `appliance_product_description`
+--
+ALTER TABLE `appliance_product_description`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `Product` (`service_id`,`category`,`capacity`,`brand`,`product_description`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `appliance_product_description`
+--
+ALTER TABLE `appliance_product_description`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;

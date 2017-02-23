@@ -8,21 +8,22 @@
         <div  class = "panel panel-info" style="margin:20px;" >
             <div class="panel-heading" style="font-size:130%;">
                 <?php if(isset($query)){?>
-                <form action="<?php echo base_url(); ?>employee/upcountry/assign_sc_to_upcountry" method="POST" style="margin-bottom:8px;">
+                <form action="<?php echo base_url(); ?>employee/upcountry/assign_sc_to_upcountry" method="POST" style="margin-bottom:8px;" target="_blank">
                     <input type="hidden" value="<?php echo $query[0]['id']; ?>" name="service_center_id" />
                      <input type="hidden" value="<?php echo $query[0]['state']; ?>" name="state" />
                      <input type="submit" value="Add Upcountry" class="btn btn-primary btn-md pull-right"/>
                 </form>
                 <?php }?>
-                <b>
-                    <center><?php
+                <center><b>
+                    <?php
                         if (isset($selected_brands_list)) {
                             echo "Edit Vendor";
                         } else {
                             echo "Add Vendor";
                         }
-                        ?></center>
+                        ?>
                 </b>
+                    </center>
                 <?php  if (isset($selected_brands_list)) { ?>
                
                <?php }?>
@@ -1033,9 +1034,7 @@
                                 <div class="form-group">
                                     <label for="is_bank_details_verified" class="col-md-3">Verified/Not Verified </label>
                                     <div class="col-md-3">
-
                                         <input type="checkbox" value="1" name="is_verified" id="is_bank_details_verified" <?php if(isset($query[0]['is_verified']) && $query[0]['is_verified'] == '1') { ?>checked<?php } ?> <?php if($this->session->userdata('user_group')!= 'admin'){ ?>disabled <?php }?> style="zoom:1.5;">
-
                                     </div>
                                 </div>
                             </div>

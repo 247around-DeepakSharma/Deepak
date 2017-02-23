@@ -651,7 +651,7 @@ class Booking_model extends CI_Model {
                 . "where booking_details.user_id = users.user_id and "
                 . "services.id = booking_details.service_id and "
                 . "current_status IN ('Pending', 'Rescheduled') and "
-                . "assigned_vendor_id is NULL AND upcountry_partner_approved = '1'";
+                . "assigned_vendor_id is NULL AND upcountry_partner_approved = '1' ";
         $query = $this->db->query($sql);
 
         $temp = $query->result_array();
@@ -2263,6 +2263,35 @@ class Booking_model extends CI_Model {
                 . " AND current_status IN ('Pending', 'Rescheduled') AND is_upcountry = '1' AND upcountry_partner_approved = '0' ";
         $query = $this->db->query($sql);
         return $query->result_array();      
+    }
+    
+    
+    /**
+     *  @desc : This function is used to insert appliance details into appliance_details_by_product_description table
+     *
+     *  @param : Array()
+     *  @return :id
+     */
+    
+    function insert_appliance_details($data){
+        $this->db->insert('appliance_details_by_product_description', $data);
+
+        return $this->db->insert_id();
+    }
+    
+    /**
+     *  @desc : This function is used to insert appliance details into appliance_details_by_product_description table
+     *
+     *  @param : Array()
+     *  @return :id
+     */
+    
+    function get_service_id_by_appliance_details($product_description){
+        $this->db->select('*');
+        $this->db->where('product_description',$product_description);
+        $this->db->from('appliance_details_by_product_description');
+        $query = $this->db->get();
+        return $query->result_array();
     }
     
 

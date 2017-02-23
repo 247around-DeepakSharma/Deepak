@@ -40,30 +40,39 @@
                 </div>';
                 }
                 ?>
-            <div class="panel panel-default">
-                <div id="tabs"> 
+           
+            <div id="tabs" style="border:0px solid #fff;"> 
+                <div class="col-md-12" style="    margin-left: -10px;">
                     <ul>
-                        <li><a href="#tabs-1" onclick="load_view('employee/partner/pending_booking/0/1', 'tabs-1')"><span class="panel-title">Pending Bookings</span></a></li>
-                        <li><a href="#tabs-2" onclick="load_view('employee/partner/get_spare_parts_booking0/1', 'tabs-2')"><span class="panel-title">Pending Spares</span></a></li>
-                        <li><a href="#tabs-3" onclick="load_view('employee/partner/get_waiting_defective_parts/0/1', 'tabs-3')"><span class="panel-title">Shipped Spares by SF</span></a></li>
-                        <li><a href="#tabs-4" onclick="load_view('employee/partner/get_waiting_for_approval_upcountry_charges', 'tabs-4')"><span class="panel-title">Waiting Approval Upcountry Charges</span></a></li>
+                        <li><a href="#tabs-1" onclick="load_view('partner/pending_booking/0/1', 'tabs-1')"><span class="panel-title">Pending Bookings</span></a></li>
+                        <li><a href="#tabs-2" onclick="load_view('partner/get_spare_parts_booking/0/1', 'tabs-2')"><span class="panel-title">Pending Spares</span></a></li>
+                        <li><a href="#tabs-3" onclick="load_view('partner/get_waiting_defective_parts/0/1', 'tabs-3')"><span class="panel-title">Shipped Spares by SF</span></a></li>
+                        <li><a href="#tabs-4" onclick="load_view('partner/get_waiting_for_approval_upcountry_charges', 'tabs-4')"><span class="panel-title">Waiting Approval Upcountry Charges</span></a></li>
 
                     </ul>
+                </div>
+                 
 
-                    <div class="panel-body">
+                  
                         <style type="text/css">
 
                             .ui-widget-content a{
                                 color:#ffffff ;
                             }
+                            .ui-tabs .ui-tabs-panel {
+                                padding:0px;
+                            }
                         </style>
-                        <div id="tabs-1" style="margin-left:-2%;font-size:90%"></div>
-                        <div id="tabs-2" style="margin-left:-2%"></div>
-                        <div id="tabs-3" style="margin-left:-2%"></div>
-                        <div id="tabs-4" style="margin-left:-2%"></div>
-                        <center><div id="loading-image"><img src="<?php echo base_url() ?>images/loader.gif" style="margin-left:1%;height:150px;"></center></div>
+                        <div id="loading-image" class="col-md-offset-2" ><img src="<?php echo base_url() ?>images/loader.gif" style="    margin-top: 2%;
+                                                                              height: 79px;;"></div>
+                        <div id="tabs-1" style="font-size:90%"></div>
+                        <div id="tabs-2" ></div>
+                        <div id="tabs-3" ></div>
+                        <div id="tabs-4" ></div>
+                       
+                           
                     </div>
-                </div>
+                
             </div>
         </div>
     </div>

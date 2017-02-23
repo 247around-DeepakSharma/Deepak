@@ -183,9 +183,7 @@ define('NEW_SF_CRM',"New SF CRM");
 //Define Ols CRM Contstant for SF
 define('OLD_SF_CRM',"Old SF CRM");
 //Define Upcountry threshold
-
-//Distance over and above 50km which would be paid by partner (75km one-way paid)
-define('UPCOUNTRY_DISTANCE_THRESHOLD',200);
+define('UPCOUNTRY_DISTANCE_THRESHOLD',500);
 //Define New Partner Lead
 define('_247AROUND_NEW_PARTNER_LEAD','New_Lead');
 //Define Constant for Snapdeal Delivered Excel File Type
