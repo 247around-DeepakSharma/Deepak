@@ -638,5 +638,34 @@ class Upcountry_model extends CI_Model {
         }
     }
     
+    /**
+     * @desc This method is used to update sub_service_center_details table via ajax call
+     * @param array(),string
+     * @return boolean
+     */
+    function update_sub_service_center_upcountry_details($data,$id){
+        
+        $this->db->where('id', $id);
+        $result= $this->db->update('sub_service_center_details',$data);
+        if($result){
+            log_message('info', __METHOD__ . "=> Sub service center Details Updated ". $this->db->last_query());
+            return true;
+        }else{
+            log_message('info', __METHOD__ . "=> Error In Updating Sub service center Details". $this->db->last_query());
+            return false;
+            
+        }
+        
+    }
+    /**
+     * @desc This method is used to delete sub office details in sub_service_center_details table via ajax call
+     * @param void()
+     * @return string
+     */
+    function delete_sub_service_center_upcountry_details($id){
+        $this->db->where('id',$id);
+        $result = $this->db->delete('sub_service_center_details');
+        return $result;
+    }
     
 }
