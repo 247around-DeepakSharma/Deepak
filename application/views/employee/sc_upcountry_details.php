@@ -34,7 +34,7 @@
                      </thead>
                      <tbody>
                          <?php $sn_no =1; foreach ($data as $value) { ?>
-                          <tr>
+                          <tr id="<?php echo "table_tr_". $sn_no;?>">
                               <td><?php echo $sn_no; ?></td>
                               <td><?php echo $value['state']; ?></td>
                               <td contenteditable="true" id="<?php echo "district".$sn_no; ?>" ><?php echo $value['district']; ?></td>

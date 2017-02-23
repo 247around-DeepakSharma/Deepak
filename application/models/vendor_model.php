@@ -433,7 +433,7 @@ class vendor_model extends CI_Model {
 
 
     function get_distict_details_from_india_pincode($pincode) {
-        $this->db->cache_on();
+       // $this->db->cache_on();
         $this->db->distinct();
         // Do not make state capital. It should be 'state'.
         $this->db->select('district, state, taluk');
