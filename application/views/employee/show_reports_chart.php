@@ -1,4 +1,4 @@
-<script src="http://code.highcharts.com/3.0.2/highcharts.js"></script>
+<script src="https://code.highcharts.com/3.0.2/highcharts.js"></script>
 <style type="text/css">
      div.vertical-line{
       width: 1px; 

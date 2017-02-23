@@ -159,7 +159,7 @@
                                         
                                     </div>
                         <div class="col-md-offset-5" style ="margin-top: 40px; margin-bottom: 20px;">
-                            <input type="submit" value="Update Invoice" class="btn btn-md btn-primary" />
+                            <input type="submit" value="<?php if (isset($invoice_details[0]['invoice_id'])) { echo "Update Invoice"; } else { echo "Insert Invoice";}?>" class="btn btn-md btn-primary" />
                         </div>
                     </div>
                 </div>

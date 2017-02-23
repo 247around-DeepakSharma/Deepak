@@ -460,7 +460,8 @@ class Notify {
 		    break;
 
 		case 'Customer not reachable':
-		    $sms['smsData']['name'] = $query1[0]['name'];
+                    //Max name length = 15 to fit in 1 SMS
+		    $sms['smsData']['name'] = substr($query1[0]['name'], 0, 15);
 		    $sms['smsData']['service'] = $query1[0]['services'];
 
 		    if ($is_sd) {

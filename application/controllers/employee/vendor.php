@@ -3724,7 +3724,7 @@ class vendor extends CI_Controller {
                     $subject['penalty_amount'] = isset($penalty['penalty_amount']) ? $penalty['penalty_amount'] : 0;
                     $subject['booking_id'] = $escalation['booking_id'];
                     $subjectBody = vsprintf($template[4], $subject);
-                    //$this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email, '', $subjectBody, $emailBody, "");
+                    $this->notify->sendEmail($from, $to, $template[3] . "," . $rm_official_email, '', $subjectBody, $emailBody, "");
 
                     //Logging
                     log_message('info', " Penalty Report Mail Send successfully" . $emailBody);
