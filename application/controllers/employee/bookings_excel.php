@@ -391,7 +391,7 @@ class bookings_excel extends CI_Controller {
             }
         } else {
             log_message('info', ' No Active Partner has been Found in for Brand ' . $brand . ' and service_id ' . $service_id);
-            //Now assigning this case to SS
+            //Now assigning this case to SP
             $data['partner_id'] = PAYTM;
             $data['source'] = 'SP';
         }
