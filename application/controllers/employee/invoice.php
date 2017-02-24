@@ -2932,7 +2932,7 @@ class Invoice extends CI_Controller {
         }
 
         //Make sure it is unique
-        $invoice_id_tmp = $start_name ."-". $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
+        $invoice_id_tmp = $start_name . $invoice_version . "-" . $financial . "-" . date("M", strtotime($from_date));
         $where = " `invoice_id` LIKE '%$invoice_id_tmp%'";
         $invoice_no = $this->invoices_model->get_invoices_details($where);
         log_message('info', __FUNCTION__ . " Exit....");
