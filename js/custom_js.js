@@ -109,40 +109,41 @@
   }
     
   function getPricesForCategoryCapacity(div_id) {
-    
-    var postData = {};       
+    var postData = {};
     var div_no = div_id.split('_');
-    
-    postData['service_id'] = $("#service_id").val();
-    postData['brand'] = $('#appliance_brand_'+ div_no[2]).val();
-    postData['category'] = $("#appliance_category_"+div_no[2]).val();
-    postData['partner_code'] = $("#source_code option:selected").val();  
-    postData['partner_type'] =  $("#partner_type").val();
-    postData['booking_city'] =  $("#booking_city").val();
-    postData['booking_pincode'] =  $("#booking_pincode").val();
-    postData['clone_number'] = div_no[2];
-    $('#submitform').attr('disabled',true);
+    $("#priceList_" + div_no[2]).html('loading...').delay(1200).queue(function () {
+        postData['service_id'] = $("#service_id").val();
+        postData['brand'] = $('#appliance_brand_' + div_no[2]).val();
+        postData['category'] = $("#appliance_category_" + div_no[2]).val();
+        postData['partner_code'] = $("#source_code option:selected").val();
+        postData['partner_type'] = $("#partner_type").val();
+        postData['booking_city'] = $("#booking_city").val();
+        postData['booking_pincode'] = $("#booking_pincode").val();
+        postData['clone_number'] = div_no[2];
+        $('#submitform').attr('disabled', true);
 
-    if($("#appliance_capacity_"+div_no[2]).val()!=="") {
+        if ($("#appliance_capacity_" + div_no[2]).val() !== "") {
 
-        postData['capacity'] = $("#appliance_capacity_"+div_no[2]).val();
+            postData['capacity'] = $("#appliance_capacity_" + div_no[2]).val();
 
-    } else {
+        } else {
 
-       postData['capacity'] = "";
-    }
-    $("#priceList_"+div_no[2]).html("Loading......"); 
-    sendAjaxRequest(postData, pricesForCategoryCapacityUrl).done(function(data) {
-         console.log(data);
-        var data1 = jQuery.parseJSON(data);
-       
-        $("#priceList_"+div_no[2]).html(data1.price_table);
-        $("#upcountry_data").val(data1.upcountry_data);
-        final_price();
-       
+            postData['capacity'] = "";
+        }
+        //  $("#priceList_" + div_no[2]).html("Loading......");
+        sendAjaxRequest(postData, pricesForCategoryCapacityUrl).done(function (data) {
+            console.log(data);
+            var data1 = jQuery.parseJSON(data);
 
+            $("#priceList_" + div_no[2]).html(data1.price_table);
+            $("#upcountry_data").val(data1.upcountry_data);
+            final_price();
+        });
+
+
+        $(this).dequeue();
     });
-    
+
   }
 
   function final_price(){
