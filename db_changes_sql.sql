@@ -1979,16 +1979,6 @@ ALTER TABLE `partners` ADD `partner_type` VARCHAR(50) NULL DEFAULT NULL AFTER `t
 
 --sachin 20 feb
 
-CREATE TABLE `appliance_product_description` ( 
-`id` INT(11) NOT NULL AUTO_INCREMENT ,
-`service_id` INT(11) NOT NULL , 
-`category` VARCHAR(50) NOT NULL ,
-`capacity` VARCHAR(50) NOT NULL , 
-`brand` VARCHAR(255) NOT NULL , 
-`product_description` VARCHAR(255) NOT NULL, 
- PRIMARY KEY(`id`),
-`create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP) ENGINE = InnoDB;
-
 
 
 UPDATE  `email_template` SET  `template` =  '

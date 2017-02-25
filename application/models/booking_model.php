@@ -2274,7 +2274,7 @@ class Booking_model extends CI_Model {
      */
     
     function insert_appliance_details($data){
-        $this->db->insert('appliance_details_by_product_description', $data);
+        $this->db->insert('appliance_product_description', $data);
 
         return $this->db->insert_id();
     }
@@ -2289,7 +2289,7 @@ class Booking_model extends CI_Model {
     function get_service_id_by_appliance_details($product_description){
         $this->db->select('*');
         $this->db->where('product_description',$product_description);
-        $this->db->from('appliance_details_by_product_description');
+        $this->db->from('appliance_product_description');
         $query = $this->db->get();
         return $query->result_array();
     }

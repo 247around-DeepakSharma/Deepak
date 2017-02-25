@@ -346,6 +346,7 @@ class service_centre_charges extends CI_Controller {
 	$data['partner_net_payable'] = isset($row[24])?$row[24]:'';
 	$data['customer_net_payable'] = isset($row[25])?$row[25]:'';
 	$data['pod'] = isset($row[26])?$row[26]:'';
+        $data['is_upcountry'] = isset($row[27])?$row[27]:'';
         $data['vendor_basic_percentage'] = isset($row[28])?$row[28]:'';
 
             return $data;
