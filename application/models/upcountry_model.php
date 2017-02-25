@@ -100,6 +100,7 @@ class Upcountry_model extends CI_Model {
                         $error['message'] = UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE; 
                         $error['vendor_id'] = $value['vendor_id'];
                         $error['sub_vendor_id'] = $res_sb[0]['id'];
+                        $error['upcountry_pincode'] = $res_sb[0]['pincode'];
                         $error['upcountry_distance'] = 0;
                         $error['sf_upcountry_rate'] = $res_sb[0]['upcountry_rate'];
                        
@@ -588,11 +589,15 @@ class Upcountry_model extends CI_Model {
         return $query->result_array();
     }
     
-    function get_booking($partner_id){
-        $this->db->select('booking_id');
-        $this->db->where('create_date >=','2017-01-01');
-        $this->db->where('partner_id',$partner_id);
-        $query= $this->db->get('booking_details');
+    function get_booking($service_center_id){
+        $this->db->distinct();
+        $this->db->select('bd.booking_id');
+        $this->db->from('booking_details as bd');
+        $this->db->join("booking_unit_details as ud ", "ud.booking_id = bd.booking_id");
+        $this->db->where('closed_date >=','2016-12-01');
+        $this->db->where('booking_status >=','Completed');
+        $this->db->where('assigned_vendor_id',$service_center_id);
+        $query= $this->db->get();
         return $query->result_array();
     }
     
