@@ -990,39 +990,39 @@ class Invoice extends CI_Controller {
     }
 
     /**
-     * @desc: This Method used to insert foc invoice snapshot into vendor invoices snapshot table
+     * @desc: This Method used to update invoice id in unit_details
      * @param $invoices_data Array Misc data about Invoice
      * @param $invoice_id String Invoice ID
      * @param $invoice_type String Invoice Type (draft/final)
      */
-    function insert_foc_invoices_snapshot($invoices_data, $invoice_id, $invoice_type) {
+    function update_invoice_id_in_unit_details($invoices_data, $invoice_id, $invoice_type) {
         log_message('info', __METHOD__ . ': Reset Invoice id ' . " invoice id " . $invoice_id);
         $this->booking_model->update_booking_unit_details_by_any(array('vendor_foc_invoice_id' => $invoice_id), array('vendor_foc_invoice_id' => NULL));
-        $data = array();
+       // $data = array();
         foreach ($invoices_data as $value) {
             if ($invoice_type == "final") {
 
                 log_message('info', __METHOD__ . ': update invoice id in booking unit details ' . $value['unit_id'] . " invoice id " . $invoice_id);
                 $this->booking_model->update_booking_unit_details_by_any(array('id' => $value['unit_id']), array('vendor_foc_invoice_id' => $invoice_id));
             }
-            $data['booking_id'] = $value['booking_id'];
-            $data['invoice_id'] = $invoice_id;
-            $data['vendor_id'] = $invoices_data[0]['id'];
-            $data['type_code'] = "B";
-            $data['city'] = $value['city'];
-            $data['appliance'] = $value['services'];
-            $data['appliance_category'] = $value['appliance_category'];
-            $data['appliance_capacity'] = $value['appliance_capacity'];
-            $data['closed_date'] = $value['closed_booking_date'];
-            $data['service_category'] = $value['price_tags'];
-            $data['service_charge'] = $value['vendor_installation_charge'];
-            $data['service_tax'] = $value['vendor_st'];
-            $data['stand'] = $value['vendor_stand'];
-            $data['vat'] = $value['vendor_vat'];
-            $data['amount_paid'] = $value['amount_paid'];
-            $data['rating'] = $value['rating_stars'];
+//            $data['booking_id'] = $value['booking_id'];
+//            $data['invoice_id'] = $invoice_id;
+//            $data['vendor_id'] = $invoices_data[0]['id'];
+//            $data['type_code'] = "B";
+//            $data['city'] = $value['city'];
+//            $data['appliance'] = $value['services'];
+//            $data['appliance_category'] = $value['appliance_category'];
+//            $data['appliance_capacity'] = $value['appliance_capacity'];
+//            $data['closed_date'] = $value['closed_booking_date'];
+//            $data['service_category'] = $value['price_tags'];
+//            $data['service_charge'] = $value['vendor_installation_charge'];
+//            $data['service_tax'] = $value['vendor_st'];
+//            $data['stand'] = $value['vendor_stand'];
+//            $data['vat'] = $value['vendor_vat'];
+//            $data['amount_paid'] = $value['amount_paid'];
+//            $data['rating'] = $value['rating_stars'];
 
-            $this->invoices_model->insert_invoice_row($data, $invoice_type);
+            //$this->invoices_model->insert_invoice_row($data, $invoice_type);
         }
     }
 
@@ -1419,13 +1419,11 @@ class Invoice extends CI_Controller {
                  * Since this is a type B invoice, it would be stored as a vendor-credit invoice.
                  */
                 $this->update_booking_invoice_mappings_installations($invoices, $invoice_id);
+                $this->update_invoice_id_in_unit_details($invoices, $invoice_id, $details['invoice_type']);
+                
                 
             }
-            
-
-            // insert data into vendor invoices snapshot or draft table as per the invoice type
-            $this->insert_foc_invoices_snapshot($invoices, $invoice_id, $details['invoice_type']);
-                    
+     
             // Store foc invoices
             $invoice_sc_details[$invoices[0]['id']]['foc_invoice_file_name'] = $output_file_excel;
             $invoice_sc_details[$invoices[0]['id']]['foc_amount'] = $t_total;

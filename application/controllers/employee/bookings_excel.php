@@ -392,9 +392,10 @@ class bookings_excel extends CI_Controller {
         } else {
             log_message('info', ' No Active Partner has been Found in for Brand ' . $brand . ' and service_id ' . $service_id);
             //Now assigning this case to SS
-            $data['partner_id'] = SNAPDEAL_ID;
-            $data['source'] = 'SS';
+            $data['partner_id'] = PAYTM;
+            $data['source'] = 'SP';
         }
+        
         return $data;
     }
     

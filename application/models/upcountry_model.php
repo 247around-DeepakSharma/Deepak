@@ -75,10 +75,11 @@ class Upcountry_model extends CI_Model {
                             $res_sb[0]['pincode'], $res_sb[0]['district']);
                         
                         if($is_distance1){
-                            $distance = (round($is_distance1['distance']['value'] / 1000, 2));
-                            $this->insert_distance($booking_pincode, $res_sb[0]['pincode'], $distance);
+                            $distance1 = (round($is_distance1['distance']['value'] / 1000, 2));
+                            $this->insert_distance($booking_pincode, $res_sb[0]['pincode'], $distance1);
                              log_message('info', __FUNCTION__ ." Insert distance & pincode " . $booking_pincode.
-                                     $res_sb[0]['pincode']. $distance);
+                                     $res_sb[0]['pincode']. $distance1);
+                            $distance = $distance1 * 2;
                         }
                     } else {
                         log_message('info', __FUNCTION__ ." Distance exist in table." . $distance);
@@ -100,6 +101,7 @@ class Upcountry_model extends CI_Model {
                         $error['message'] = UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE; 
                         $error['vendor_id'] = $value['vendor_id'];
                         $error['sub_vendor_id'] = $res_sb[0]['id'];
+                        $error['upcountry_pincode'] = $res_sb[0]['pincode'];
                         $error['upcountry_distance'] = 0;
                         $error['sf_upcountry_rate'] = $res_sb[0]['upcountry_rate'];
                        
@@ -154,8 +156,8 @@ class Upcountry_model extends CI_Model {
                 $partner_upcountry_rate = $partner_data[0]['upcountry_rate1'];
             }
             $partner_upcountry_approval = $partner_data[0]['upcountry_approval'];
-            $min_threshold_distance = $partner_data[0]['upcountry_min_distance_threshold'];
-            $max_threshold_distance = $partner_data[0]['upcountry_max_distance_threshold'];
+            $min_threshold_distance = $partner_data[0]['upcountry_min_distance_threshold'] *2;
+            $max_threshold_distance = $partner_data[0]['upcountry_max_distance_threshold'] * 2;
         } else {
             $partner_upcountry_approval = 0;
             $partner_upcountry_rate = DEFAULT_UPCOUNTRY_RATE;
@@ -588,11 +590,18 @@ class Upcountry_model extends CI_Model {
         return $query->result_array();
     }
     
-    function get_booking($partner_id){
-        $this->db->select('booking_id');
-        $this->db->where('create_date >=','2017-01-01');
-        $this->db->where('partner_id',$partner_id);
-        $query= $this->db->get('booking_details');
+    function get_booking(){
+        $this->db->distinct();
+        $this->db->select('bd.booking_id');
+        $this->db->from('booking_details as bd');
+        $this->db->join("booking_unit_details as ud ", "ud.booking_id = bd.booking_id");
+        $this->db->join("service_centres as sc ", "sc.id = bd.assigned_vendor_id");
+        $this->db->where('ud_closed_date >=','2016-12-01');
+        $this->db->where('ud_closed_date <','2017-01-01');
+        $this->db->where('booking_status >=','Completed');
+        $this->db->where('sc.is_upcountry',1);
+       
+        $query= $this->db->get();
         return $query->result_array();
     }
     
