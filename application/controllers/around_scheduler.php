@@ -13,11 +13,14 @@ class Around_scheduler extends CI_Controller {
         $this->load->model('around_scheduler_model');
         $this->load->model('booking_model');
         $this->load->model('vendor_model');
+        $this->load->model('employee_model');
         $this->load->model('reporting_utils');
         $this->load->library('s3');
         $this->load->library('email');
         $this->load->library('notify');
-        $this->load->helper(array('form', 'url'));
+        $this->load->library('PHPReport');
+        $this->load->helper(array('form', 'url','file'));
+        $this->load->dbutil();
     }
 
     /**
@@ -407,6 +410,63 @@ class Around_scheduler extends CI_Controller {
         
         $to = ANUJ_EMAIL_ID;
         $this->notify->sendEmail("booking@247around.com", $to, "", "", $subject, $message, "");
+    }
+    /**
+     * @desc: This function is used to send RM weekly pincode not available booking data via cron
+     * @param:void()
+     * @retun:void()
+     */
+    function send_rm_pincode_not_available_booking(){
+        log_message('info', __FUNCTION__ . ' => Entering ..');
+        
+        $pincode_not_available_bookings = $this->reporting_utils->get_pincode_not_available_bookings();
+        if(!empty($pincode_not_available_bookings)){
+            $newCSVFileName = "Pincode_Not_Available_BookingSummary".date('j-M-Y').".csv";
+            $csv = TMP_FOLDER.$newCSVFileName;
+            $delimiter = ",";
+            $newline = "\r\n";
+            $new_report = $this->dbutil->csv_from_result($pincode_not_available_bookings, $delimiter, $newline);
+            write_file( $csv, $new_report);        
+            log_message('info', __FUNCTION__ . ' => Rendered CSV');
+
+            $rm = $this->employee_model->get_employee_email_by_group('regionalmanager');
+            $rm_email ='';
+            foreach ($rm as $key => $value){
+                $rm_email .=$value['official_email'];
+                $rm_email .=",";
+            }
+            $to = substr($rm_email,0,-1);
+            $message="Please Find the attached CSV File with this mail that contains the data of those bookings which Pincode is not available";
+
+            $this->email->clear(TRUE);
+            $this->email->from('booking@247around.com', '247around Team');
+            $this->email->to("$to");
+            $this->email->cc(ANUJ_EMAIL_ID);
+            $this->email->subject("Pincode not available Booking Data");
+            $this->email->message($message);
+            $this->email->attach($csv, 'attachment');
+
+            if ($this->email->send()) {
+            log_message('info', __METHOD__ . ": Mail sent successfully for PinCode Not Available To RM ");
+            } else {
+            log_message('info', __METHOD__ . ": Mail could not be sent for RM: " . $p['public_name']);
+        }
+            
+        }
+        else{
+            $to = ANUJ_EMAIL_ID;
+            $message="No booking found which pincode is not available";
+
+            $this->email->clear(TRUE);
+            $this->email->from('booking@247around.com', '247around Team');
+            $this->email->to("$to");
+            $this->email->cc(ANUJ_EMAIL_ID);
+            $this->email->subject("Pincode Not Available Booking Data");
+            $this->email->message($message);
+            $this->email->attach($csv, 'attachment');
+            $this->email->send();
+            log_message('info', __METHOD__ . ": No booking found for pincode not available ");
+        }
     }
 
 }

@@ -1708,5 +1708,26 @@ class Reporting_utils extends CI_Model {
         $result = (bool) ($this->db->affected_rows() > 0);
         return $result;
     }
+    
+    function get_pincode_not_available_bookings(){
+        $sql = "SELECT bd.booking_id, services.services,
+                bd.booking_pincode,bd.city, bd.state
+                from booking_details as bd
+                JOIN  `users` ON  `users`.`user_id` =  `bd`.`user_id`
+                JOIN  `services` ON  `services`.`id` =  `bd`.`service_id`
+                WHERE `bd`.booking_id LIKE '%Q-%' AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) >= 0 OR
+                bd.booking_date='') AND `bd`.current_status='FollowUp'
+                AND NOT EXISTS 
+                (SELECT 1
+                FROM (`vendor_pincode_mapping`)
+                JOIN `service_centres` ON `service_centres`.`id` = `vendor_pincode_mapping`.`Vendor_ID`
+                WHERE `vendor_pincode_mapping`.`Appliance_ID` = bd.service_id
+                AND `vendor_pincode_mapping`.`Pincode` = bd.booking_pincode
+                AND `service_centres`.`active` = '1' AND `service_centres`.on_off = '1') 
+                AND bd.booking_pincode!=''
+                AND bd.booking_pincode!=0;";
+        $query = $this->db->query($sql);
+        return $query;
+    }
 
 }

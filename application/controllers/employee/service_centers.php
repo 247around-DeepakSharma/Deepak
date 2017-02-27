@@ -1377,9 +1377,30 @@ class Service_centers extends CI_Controller {
      * @return: void
      * 
      */
-    function show_brackets_list(){
+    function show_brackets_list($page = "",$offset=""){
         $this->checkUserSession();
-        $data['brackets'] = $this->inventory_model->get_unshipped_unreceived_brackets($this->session->userdata('service_center_id'));
+        if ($page == 0) {
+	    $page = 50;
+	}
+	// $offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
+   
+	$config['base_url'] = base_url() . 'employee/service_centers/show_brackets_list/'.$page;
+	$config['total_rows'] = $this->inventory_model->get_total_brackets_given_count($this->session->userdata('service_center_id'));
+	
+	if($offset != "All"){
+		$config['per_page'] = $page;
+	} else {
+		$config['per_page'] = $config['total_rows'];
+	}	
+	
+	$config['uri_segment'] = 5;
+	$config['first_link'] = 'First';
+	$config['last_link'] = 'Last';
+
+	$this->pagination->initialize($config);
+	$data['links'] = $this->pagination->create_links();
+        $data['Count'] = $config['total_rows'];        
+        $data['brackets'] = $this->inventory_model->get_total_brackets_given($config['per_page'], $offset,$this->session->userdata('service_center_id'));
         //Getting name for order received from  to vendor
         foreach($data['brackets'] as $key=>$value){
             $data['order_received_from'][$key] = $this->vendor_model->getVendorContact($value['order_received_from'])[0];
