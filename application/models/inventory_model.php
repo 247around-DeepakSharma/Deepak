@@ -33,17 +33,36 @@ class Inventory_model extends CI_Model {
      * @params:void
      * @return:Array
      */
-    function get_brackets($sf_list = ""){
+    function get_brackets($limit, $start,$sf_list = ""){
         if($sf_list != ""){
             $where = "WHERE order_received_from  IN (".$sf_list.")";
         }else{
             $where = "";
         }
+        $add_limit = "";
+
+        if($start !== "All"){
+            $add_limit = " limit $start, $limit ";
+        }
         $sql = "SELECT * FROM brackets "
+                . $where.""
+                . " ORDER BY order_id Desc $add_limit";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    function get_total_brackets_count($sf_list = ""){
+        if($sf_list != ""){
+            $where = "WHERE order_received_from  IN (".$sf_list.")";
+        }else{
+            $where = "";
+        }
+        $sql = "SELECT count(*) as count FROM brackets "
                 . $where.""
                 . " ORDER BY order_id Desc";
         $query = $this->db->query($sql);
-        return $query->result_array();
+        $count = $query->result_array();
+        return $count[0]['count'];
     }
     
     /**
@@ -51,13 +70,27 @@ class Inventory_model extends CI_Model {
      * @params:void
      * @return:Array
      */
-    function get_unshipped_unreceived_brackets($sf_id){
-        
+    function get_total_brackets_given($limit, $start,$sf_id){
+        if($start !== "All"){
+            $add_limit = " limit $start, $limit ";
+        }
         $this->db->select('*');
-        $this->db->where(array('is_shipped' => 0,'is_received'=> 0, 'order_given_to'=> $sf_id, 'active'=> '1'));
+//        $this->db->where(array('is_shipped' => 0,'is_received'=> 0, 'order_given_to'=> $sf_id, 'active'=> '1'));
+        $this->db->where(array('order_given_to'=> $sf_id, 'active'=> '1'));
         $this->db->order_by('order_id', 'desc');
+        $this->db->limit($limit, $start);
         $query = $this->db->get('brackets');
         return $query->result_array();
+    }
+    
+    function get_total_brackets_given_count($sf_id){
+        $this->db->select('count(*) as count');
+        $this->db->where(array('order_given_to'=> $sf_id, 'active'=> '1'));
+        $this->db->order_by('order_id', 'desc');
+        $query = $this->db->get('brackets');
+        
+        $count = $query->result_array();
+        return $count[0]['count'];
     }
     
     /**

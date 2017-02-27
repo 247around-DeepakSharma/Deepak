@@ -192,7 +192,7 @@ class Inventory extends CI_Controller {
      * @return: void
      * 
      */
-    function show_brackets_list(){
+    function show_brackets_list($page = 0, $offset = '0'){
         $sf_list = "";
         //Getting ID of logged in user
         $id = $this->session->userdata('id');
@@ -201,7 +201,29 @@ class Inventory extends CI_Controller {
             if (!empty($sf_list_array)) {
                 $sf_list = $sf_list_array[0]['service_centres_id'];
             }
-        $data['brackets'] = $this->inventory_model->get_brackets($sf_list);
+        
+        if ($page == 0) {
+	    $page = 50;
+	}
+	// $offset = ($this->uri->segment(5) != '' ? $this->uri->segment(5) : 0);
+   
+	$config['base_url'] = base_url() . 'employee/inventory/show_brackets_list/'.$page;
+	$config['total_rows'] = $this->inventory_model->get_total_brackets_count($sf_list);
+	
+	if($offset != "All"){
+		$config['per_page'] = $page;
+	} else {
+		$config['per_page'] = $config['total_rows'];
+	}	
+	
+	$config['uri_segment'] = 5;
+	$config['first_link'] = 'First';
+	$config['last_link'] = 'Last';
+
+	$this->pagination->initialize($config);
+	$data['links'] = $this->pagination->create_links();
+        $data['Count'] = $config['total_rows'];        
+        $data['brackets'] = $this->inventory_model->get_brackets($config['per_page'], $offset,$sf_list);
         //Getting name for order received from  to vendor
         foreach($data['brackets'] as $key=>$value){
             $data['order_received_from'][$key] = $this->vendor_model->getVendorContact($value['order_received_from'])[0];
