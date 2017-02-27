@@ -13,7 +13,7 @@
 <div id="page-wrapper" >
     <?php  if($this->uri->segment(3) == 'show_brackets_list'){?>
             <div class="pagination">
-                <select id="dynamic_select" class="form_control">
+                <select id="dynamic_select" class="form-control">
                     <option value="<?php echo base_url().'employee/inventory/show_brackets_list'?>" <?php if($this->uri->segment(4) == 50){ echo 'selected';}?>>50</option>
                     <option value="<?php echo base_url().'employee/inventory/show_brackets_list/100/0'?>" <?php if($this->uri->segment(4) == 100){ echo 'selected';}?>>100</option>
                     <option value="<?php echo base_url().'employee/inventory/show_brackets_list/200/0'?>" <?php if($this->uri->segment(4) == 200){ echo 'selected';}?>>200</option>
