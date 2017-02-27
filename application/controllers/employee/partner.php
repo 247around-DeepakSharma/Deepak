@@ -2738,7 +2738,7 @@ class Partner extends CI_Controller {
                     //Uploading images to S3 
                     $bucket = BITBUCKET_DIRECTORY;
                     $directory = "misc-images/" . $fileName;
-                    $this->s3->putObjectFile(TMP_FOLDER.$fileName, $bucket, $directory, S3::ACL_PUBLIC_READ);
+                    $this->s3->putObjectFile(TMP_FOLDER.$file_name, $bucket, $directory, S3::ACL_PUBLIC_READ);
                     $data['partner_id']=$partner_id;
                     $data['partner_logo'] = 'images/'.$file_name;
                     $data['alt_text'] = $partner_name;
@@ -2752,7 +2752,7 @@ class Partner extends CI_Controller {
                     redirect(base_url() . "employee/partner/upload_partner_brand_logo/".$partner_id."/".$partner_name);
                 }
                 else{
-                    $this->session->set_flashdata('failed','Error in Inerting Partner Logo. Please Try Again...');
+                    $this->session->set_flashdata('failed','Error in Inserting Partner Logo. Please Try Again...');
                     redirect(base_url() . "employee/partner/upload_partner_brand_logo/".$partner_id."/".$partner_name);
                 }
         }
