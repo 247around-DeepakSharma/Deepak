@@ -268,7 +268,7 @@ class Do_background_upload_excel extends CI_Controller {
 		$user['phone_number'] = $value['Phone'];
 		$user['user_email'] = (isset($value['Email_ID']) ? $value['Email_ID'] : "");
 		$user['home_address'] = $value['Customer_Address'];
-		$user['pincode'] = $value['Pincode'];
+		$user['pincode'] = trim($value['Pincode']);
 		$user['city'] = $value['CITY'];
 		$user['state'] = $distict_details['state'];
 
@@ -310,7 +310,7 @@ class Do_background_upload_excel extends CI_Controller {
                 //order id not found
 		$appliance_details['user_id'] = $booking['user_id'] = $user_id;
 		$appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $value['service_id'];
-		$booking['booking_pincode'] = $value['Pincode'];
+		$booking['booking_pincode'] = trim($value['Pincode']);
                 $where  = array('service_id' => $value['service_id'],'brand_name' => trim($value['Brand']));
                 $brand_id_array  = $this->booking_model->get_brand($where);
                 // If brand not exist then insert into table

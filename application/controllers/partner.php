@@ -296,7 +296,7 @@ class Partner extends CI_Controller {
                         $booking['booking_alternate_contact_no'] = (isset($requestData['alternatePhone']) ? $requestData['alternatePhone'] : "");
 
                         $booking['city'] = $requestData['city'];
-                        $booking['booking_pincode'] = $requestData['pincode'];
+                        $booking['booking_pincode'] = trim($requestData['pincode']);
 			
                         $booking['booking_address'] = $requestData['address'] . ", " . (isset($requestData['landmark']) ? $requestData['landmark'] : "");
                         $booking['delivery_date'] = $this->getDateTime($requestData['deliveryDate']);

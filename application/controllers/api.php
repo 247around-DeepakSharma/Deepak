@@ -1416,6 +1416,10 @@ class Api extends CI_Controller {
 //                        
 //                    }
                 }
+            }else{
+                /* When No bookings found for the snapdeal customers on missed call then send sms*/
+                $this->send_missed_call_booking_not_found_sms($num);
+                log_message('info', __FUNCTION__ . ' Missed call given by customer from 247AROUND App - Number: ' . $num);
             }
         }
 

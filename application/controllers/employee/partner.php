@@ -2711,8 +2711,9 @@ class Partner extends CI_Controller {
      * @param: void
      * @return:void
      */
-    function upload_partner_brand_logo(){
-        $data['partner'] = $this->partner_model->get_all_partner_source("0");
+    function upload_partner_brand_logo($id="",$name=""){
+        $data['partner'] = array('partner_id' => $id,
+                                 'public_name'=>$name);
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
         $this->load->view('employee/upload_partner_brand_logo',$data);
     }
@@ -2724,38 +2725,35 @@ class Partner extends CI_Controller {
      */
     
     function process_upload_partner_brand_logo(){
-        $partner_name_id = $this->input->post('partner');
-        if(!empty($partner_name_id)){
-            foreach($partner_name_id as $key=>$value){
-                $partners = explode('-', $value);
-                $partner_id = $partners[0];
-                $partner_name= $partners[1];
+        $partner_name = $this->input->post('partner_name');
+        $partner_id= $this->input->post('partner_id');
+        if(!empty($partner_name)&& !empty($partner_id)){
+            foreach($_FILES["partner_brand_logo"]["tmp_name"] as $key=>$tmp_name){
                 
                 $tmpFile = $_FILES['partner_brand_logo']['tmp_name'][$key];
-                $ext = pathinfo($_FILES['partner_brand_logo']['name'][$key], PATHINFO_EXTENSION);
-                $fileName = $partner_name.'.'.$ext;
-                
-                move_uploaded_file($tmpFile, TMP_FOLDER.$fileName);
+                $file_name=$_FILES["partner_brand_logo"]["name"][$key];
+                if(!file_exists(TMP_FOLDER.$file_name))
+                {
+                    move_uploaded_file($tmpFile,TMP_FOLDER.$file_name);
+                    //Uploading images to S3 
+                    $bucket = BITBUCKET_DIRECTORY;
+                    $directory = "misc-images/" . $fileName;
+                    $this->s3->putObjectFile(TMP_FOLDER.$fileName, $bucket, $directory, S3::ACL_PUBLIC_READ);
+                    $data['partner_id']=$partner_id;
+                    $data['partner_logo'] = 'images/'.$file_name;
+                    $data['alt_text'] = $partner_name;
 
-                //Uploading images to S3 
-                $bucket = BITBUCKET_DIRECTORY;
-                $directory = "misc-images/" . $fileName;
-                $this->s3->putObjectFile(TMP_FOLDER.$fileName, $bucket, $directory, S3::ACL_PUBLIC_READ);
-
-                $data['partner_id']=$partner_id;
-                $data['partner_logo'] = 'images/'.$fileName;
-                $data['alt_text'] = $partner_name;
-
-                //insert partner brand logo path into database
-                $res = $this->partner_model->upload_partner_brand_logo($data);
+                    //insert partner brand logo path into database
+                    $res[$key] = $this->partner_model->upload_partner_brand_logo($data);
+                }
             }
             if($res){
                     $this->session->set_flashdata('success','Partner Logo has been inserted successfully');
-                    redirect(base_url() . "employee/partner/upload_partner_brand_logo");
+                    redirect(base_url() . "employee/partner/upload_partner_brand_logo/".$partner_id."/".$partner_name);
                 }
                 else{
                     $this->session->set_flashdata('failed','Error in Inerting Partner Logo. Please Try Again...');
-                    redirect(base_url() . "employee/partner/upload_partner_brand_logo");
+                    redirect(base_url() . "employee/partner/upload_partner_brand_logo/".$partner_id."/".$partner_name);
                 }
         }
         else{
