@@ -170,5 +170,12 @@ class Employee_model extends CI_Model{
           $query = $this->db->get('employee');
           return $query->result_array();
       }
+      
+      function get_employee_email_by_group($groups){
+          $this->db->select('official_email');
+          $this->db->where('groups',$groups);
+          $query = $this->db->get('employee');
+          return $query->result_array();
+      }
 
 }
