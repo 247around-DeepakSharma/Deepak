@@ -1400,7 +1400,7 @@ class Service_centers extends CI_Controller {
 	$this->pagination->initialize($config);
 	$data['links'] = $this->pagination->create_links();
         $data['Count'] = $config['total_rows'];        
-        $data['brackets'] = $this->inventory_model->get_total_brackets_given($page, $offset,$this->session->userdata('service_center_id'));
+        $data['brackets'] = $this->inventory_model->get_total_brackets_given($config['per_page'], $offset,$this->session->userdata('service_center_id'));
         //Getting name for order received from  to vendor
         foreach($data['brackets'] as $key=>$value){
             $data['order_received_from'][$key] = $this->vendor_model->getVendorContact($value['order_received_from'])[0];
