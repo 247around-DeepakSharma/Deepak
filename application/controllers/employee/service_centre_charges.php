@@ -521,7 +521,10 @@ class service_centre_charges extends CI_Controller {
 	if ($return == "true") {
             //Logging
             log_message('info',__FUNCTION__.' Processing of Partner Appliance Excel File started');
-            
+            $flag = "";
+            if($this->input->post('flag')){
+                $flag= $this->input->post('flag');
+            }
             //Making process for file upload
             $tmpFile = $_FILES['file']['tmp_name'];
             $appliance_file = "Partner-Appliance-Details-".date('Y-m-d-H-i-s').'.xlsx';
@@ -529,7 +532,7 @@ class service_centre_charges extends CI_Controller {
 
             
             //Processing File 
-	    $this->upload_excel(TMP_FOLDER . $appliance_file, "appliance");
+	    $this->upload_excel(TMP_FOLDER . $appliance_file, "appliance",$flag);
             
             //Adding Details in File_Uploads table as well
             
@@ -571,8 +574,9 @@ class service_centre_charges extends CI_Controller {
 	$data['partner_id'] = isset($row[0]) && !empty($row[0])?$row[0]:$empty_flag = TRUE;
 	$data['service_id'] = isset($row[1]) && !empty($row[1])?$row[1]:$empty_flag = TRUE;
         //Sanitizing Brand Name
-	$data['brand'] = isset($row[2]) && !empty($row[2])?preg_replace('/[^A-Za-z0-9 ]/', '', $row[2]):$empty_flag = TRUE;
-	$data['category'] = isset($row[3]) && !empty($row[3])?$row[3]:$empty_flag = TRUE;
+	//$data['brand'] = isset($row[2]) && !empty($row[2])?preg_replace('/[^A-Za-z0-9 ]/', '', $row[2]):$empty_flag = TRUE;
+	$data['brand'] = isset($row[2]) && !empty($row[2])?$row[2]:$empty_flag = TRUE;
+        $data['category'] = isset($row[3]) && !empty($row[3])?$row[3]:$empty_flag = TRUE;
 	$data['capacity'] = isset($row[4]) && !empty($row[4])?$row[4]:'';
 	$data['model'] = isset($row[5]) && !empty($row[5])?$row[5]:'';
 	$data['active'] = 1;
