@@ -158,10 +158,10 @@ class service_centre_charges extends CI_Controller {
      *  @param : void
      *  @return : load view of Excel
      */
-    function upload_excel_form($data = '') {
-
+    function upload_excel_form($data = "") {
+        $view['data'] = $data;
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
-	$this->load->view('employee/upload_service_price', $data);
+	$this->load->view('employee/upload_service_price',$view);
     }
 
     /**
@@ -174,6 +174,10 @@ class service_centre_charges extends CI_Controller {
 	if ($return == "true") {
             //Logging
             log_message('info',__FUNCTION__.' Processing of Service Price List Excel File started');
+            $flag = "";
+            if($this->input->post('flag')){
+                $flag= $this->input->post('flag');
+            }
             
             //Making process for file upload
             $tmpFile = $_FILES['file']['tmp_name'];
@@ -181,7 +185,7 @@ class service_centre_charges extends CI_Controller {
             move_uploaded_file($tmpFile, TMP_FOLDER . $price_file);
             
             //Processing File
-	    $this->upload_excel(TMP_FOLDER . $price_file, "price");
+	    $this->upload_excel(TMP_FOLDER . $price_file, "price",$flag);
             
             //Adding Details in File_Uploads table as well
             
@@ -215,7 +219,7 @@ class service_centre_charges extends CI_Controller {
      *  @param : input file and type(price for service price and tax for tax rate)
      *  @return : void
      */
-    function upload_excel($inputFileName, $type) {
+    function upload_excel($inputFileName, $type,$flag) {
 	$reader = ReaderFactory::create(Type::XLSX);
 	$reader->open($inputFileName);
 	$count = 1;
@@ -270,8 +274,8 @@ class service_centre_charges extends CI_Controller {
                 redirect(base_url() . "employee/service_centre_charges/upload_excel_form");
                 exit;
             }
-
-            $this->insert_data_list($type, $rows);
+            $count = 1;
+            $this->insert_data_list($type, $rows,$flag);
 	}
 	$reader->close();
     }
@@ -281,19 +285,19 @@ class service_centre_charges extends CI_Controller {
      *  @param : Excel file type and array(data)
      *  @return : void
      */
-    function insert_data_list($type, $rows) {
+    function insert_data_list($type, $rows,$flag) {
 	$table_name = '';
 	$return = 0;
 	if ($type == "price") {
 	    $table_name = "service_centre_charges";
-	    $return = $this->partner_model->insert_data_in_batch($table_name, $rows);
+	    $return = $this->partner_model->insert_data_in_batch($table_name, $rows, $flag);
 	} else if ($type == "tax") {
 	    $table_name = 'tax_rates_by_states';
 	    $return = $this->partner_model->insert_data_in_batch($table_name, $rows);
 	} else if ($type == "appliance"){
             log_message('info','Inside insert data list');
             $table_name = 'partner_appliance_details';
-	    $return = $this->partner_model->insert_data_in_batch($table_name, $rows);
+	    $return = $this->partner_model->insert_data_in_batch($table_name, $rows ,$flag);
             
         }
 	if ($return == 1) {
@@ -346,6 +350,7 @@ class service_centre_charges extends CI_Controller {
 	$data['partner_net_payable'] = isset($row[24])?$row[24]:'';
 	$data['customer_net_payable'] = isset($row[25])?$row[25]:'';
 	$data['pod'] = isset($row[26])?$row[26]:'';
+        $data['is_upcountry'] = isset($row[27])?$row[27]:'';
         $data['vendor_basic_percentage'] = isset($row[28])?$row[28]:'';
 
             return $data;
