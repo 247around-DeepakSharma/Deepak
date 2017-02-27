@@ -66,6 +66,7 @@
          <th>Amount to be Received</th>
          <th>Pay</th>
           <?php if(isset($service_center)){ ?>
+         <th>Total Defective Spare Parts</th>
          <th>Download Summary</th>
           <?php } ?>
       
@@ -87,6 +88,7 @@
 
         <?php }?></td>
         <?php if(isset($service_center)){ ?>
+        <td><?php echo $value['count_spare_part'];?></td>
         <td ><input type="checkbox" name="<?php echo "amount_service_center[".$value['id']."]";?>" value ="<?php echo abs($value['final_amount']);?>" class="form-control" <?php if($value['is_verified'] ==0){ echo "disabled";}?>> </td>
          <?php } ?>
       </tr>

@@ -1,4 +1,28 @@
+<?php $offset = $this->uri->segment(5); ?>
+<script>
+    $(function(){
+      $('#dynamic_select').bind('change', function () {
+          var url = $(this).val();
+          if (url) {
+              window.location = url;
+          }
+          return false;
+      });
+    });
+</script>
 <div id="page-wrapper" >
+    <?php  if($this->uri->segment(3) == 'show_brackets_list'){?>
+            <div class="pagination">
+                <select id="dynamic_select" class="form_control">
+                    <option value="<?php echo base_url().'employee/inventory/show_brackets_list'?>" <?php if($this->uri->segment(4) == 50){ echo 'selected';}?>>50</option>
+                    <option value="<?php echo base_url().'employee/inventory/show_brackets_list/100/0'?>" <?php if($this->uri->segment(4) == 100){ echo 'selected';}?>>100</option>
+                    <option value="<?php echo base_url().'employee/inventory/show_brackets_list/200/0'?>" <?php if($this->uri->segment(4) == 200){ echo 'selected';}?>>200</option>
+                    <option value="<?php echo base_url().'employee/inventory/show_brackets_list/500/0'?>" <?php if($this->uri->segment(4) == 500){ echo 'selected';}?>>500</option>
+                    <option value="<?php echo base_url().'employee/inventory/show_brackets_list/0/All'?>"<?php if($this->uri->segment(5) == "All"){ echo 'selected';}?> >All</option>
+
+                </select>
+            </div>
+            <?php } ?>
     <div class="panel panel-info" style="margin-top:20px;">
         <div class="panel-heading"><center style="font-size:130%;">Brackets List</center></div>
         <div class="col-md-12">
@@ -152,7 +176,7 @@
                     <?php } ?>
                     </tbody>
             </table>
-
+            <?php if(!empty($links)){ ?><div class="custom_pagination" style="float:left;margin-top: 20px;margin-bottom: 20px;"> <?php if(isset($links)){echo $links;} ?></div> <?php } ?>
         </div>
     </div>
 </div>
