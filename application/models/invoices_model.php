@@ -374,11 +374,14 @@ class invoices_model extends CI_Model {
             $invoice[$i] = $query->result_array();
         }
         $result = array_merge($invoice[0], $invoice[1]);
-        if (count($result) > 0) {
+        $upcountry_data = $this->upcountry_model->upcountry_cash_invoice($vendor_id, $from_date, $to_date);
+        
+        $result1 = array_merge($result, $upcountry_data);
+        if (count($result1) > 0) {
 
             $meta['r_sc'] = $meta['r_asc'] = $meta['r_pc'] = $meta['total_amount_paid'] = $rating = 0;
             $i = 0;
-            foreach ($result as $value) {
+            foreach ($result1 as $value) {
                 $meta['r_sc'] += $value['service_charges'];
                 $meta['r_asc'] += $value['additional_charges'];
                 $meta['r_pc'] += $value['parts_cost'];
@@ -395,7 +398,12 @@ class invoices_model extends CI_Model {
                 $i = 1;
             }
             $meta['t_rating'] = $rating / $i;
-            $data['booking'] = $result;
+            $data['booking'] = $result1;
+            if(!empty($upcountry_data)){
+               
+             $data['upcountry'] = $upcountry_data[0];   
+            }
+            
             $data['meta'] = $meta;
 
             return $data;
@@ -1110,7 +1118,33 @@ class invoices_model extends CI_Model {
             $result[$i] = $query->result_array();
         }
         $data = array_merge($result[0], $result[1]);
+        
+        $meta['total_misc_price'] = 0;
+        // Calculate Upcountry booking details
+        $upcountry_data = $this->upcountry_model->upcountry_cash_invoice($vendor_id, $from_date, $to_date);
+        if(!empty($upcountry_data)){
+           $up_country = array();
 
+           $up_country[0]['installation_charge'] = '';
+           $up_country[0]['additional_charge'] ='';
+           $up_country[0]['qty'] = round($upcountry_data[0]['total_distance'],0)." KM";
+           $up_country[0]['description'] = 'Upcountry Services';
+           $up_country[0]['misc_charge'] =  $upcountry_data[0]['total_upcountry_price'];
+           $up_country[0]['tin'] =  $upcountry_data[0]['tin'];
+           $up_country[0]['service_tax_no'] =  $upcountry_data[0]['service_tax_no'];
+           $up_country[0]['company_name'] =  $upcountry_data[0]['company_name'];
+           $up_country[0]['vendor_address'] =  $upcountry_data[0]['vendor_address'];
+           $up_country[0]['primary_contact_email'] =  $upcountry_data[0]['primary_contact_email'];
+           $up_country[0]['owner_email'] =  $upcountry_data[0]['owner_email'];
+           $up_country[0]['state'] =  $upcountry_data[0]['state'];
+          
+           if(!empty($data)){
+                $data = array_merge($result, $up_country);
+           } else {
+                $data = $up_country;
+           }
+        }
+       
         if (count($data) > 0) {
             $meta['total_charge'] = 0;
 
