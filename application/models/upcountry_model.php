@@ -281,9 +281,9 @@ class Upcountry_model extends CI_Model {
      */
     function upcountry_foc_invoice($vendor_id, $from_date, $to_date){
         $sql = "SELECT CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking,"
-                . " round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) AS upcountry_distance, "
+                . " upcountry_distance, "
                 . " assigned_vendor_id, "
-                . " round((sf_upcountry_rate * round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) ),2) AS upcountry_price,"
+                . " round(sf_upcountry_rate * upcountry_distance ) AS upcountry_price,"
                 . " COUNT(DISTINCT(bd.booking_id)) AS count_booking, sf_upcountry_rate"
                 . " FROM `booking_details` AS bd, booking_unit_details AS ud "
                 . " WHERE ud.booking_id = bd.booking_id "
@@ -312,7 +312,7 @@ class Upcountry_model extends CI_Model {
             $result[0]['total_upcountry_price'] = $total_price;
             $result[0]['total_booking'] = $total_booking;
             $result[0]['total_distance'] = round($total_distance, 0);
-            
+
             return $result;
             
         } else {
@@ -329,24 +329,54 @@ class Upcountry_model extends CI_Model {
      * @return Array
      */
     function upcountry_cash_invoice($vendor_id, $from_date, $to_date){
-        $sql = "SELECT DISTINCT ( bd.booking_id)"
-                . " upcountry_distance, "
+        $sql = "SELECT DISTINCT ( bd.booking_id) As booking_id, "
+                . " upcountry_distance, bd.city, services, "
                 . " assigned_vendor_id, "
-                . " round((customer_paid_upcountry_charges * ".basic_percentage." ),2) AS upcountry_price,"
-                . " COUNT(DISTINCT(bd.booking_id)) AS count_booking "
-                . " FROM `booking_details` AS bd, booking_unit_details AS ud "
+                . " round((customer_paid_upcountry_charges * 0.30 ),2) AS service_charges,"
+                . " ud.appliance_category, ud.appliance_capacity, "
+                . " date_format(bd.closed_date,'%d/%m/%Y') as closed_date,"
+                . " 'Upcountry Services' as price_tags, '' AS around_net_payable, "
+                . " '' AS parts_cost, customer_paid_upcountry_charges as amount_paid, rating_stars, "
+                . " '' AS additional_charges, "
+                . " sc.state, sc.service_tax_no, sc.company_name,
+                    sc.address as vendor_address, sc_code,
+                    sc.primary_contact_email, sc.owner_email,
+                   (case when (sc.tin_no IS NOT NULL )  THEN tin_no ELSE cst_no END) as tin,
+                    sc.beneficiary_name, sc.id, sc.owner_phone_1,
+                    sc.bank_account, 
+                    sc.bank_name,
+		    sc.ifsc_code, sc.address "
+                . " FROM `booking_details` AS bd, booking_unit_details AS ud, service_centres as sc, services "
                 . " WHERE ud.booking_id = bd.booking_id "
                 . " AND bd.assigned_vendor_id = '$vendor_id' "
                 . " AND ud.ud_closed_date >= '$from_date' "
-                . " AND ud.ud_closed_date < '$to_date' "
-                . " AND pay_to_sf = '1' "
+                . " AND ud.ud_closed_date <= '$to_date' "
                 . " AND sub_vendor_id IS NOT NULL "
                 . " AND bd.is_upcountry = '1' "
+                . " AND sc.id = bd.assigned_vendor_id "
                 . " AND current_status = 'Completed' "
-                . " AND bd.upcountry_paid_by_customer = 1 ";
+                . " AND bd.service_id = services.id"
+                . " AND bd.upcountry_paid_by_customer = 1 "
+                . " AND customer_paid_upcountry_charges > 0 ";
         
         $query = $this->db->query($sql);
-        return $query->result_array();
+        if($query->num_rows > 0){
+            $result = $query->result_array();
+            $total_price = 0;
+            $total_distance = 0;
+            foreach ($result as $value) {
+                $total_price += $value['service_charges'];
+                $total_distance += $value['upcountry_distance'];
+            }
+            $result[0]['total_upcountry_price'] = $total_price;
+            $result[0]['total_booking'] = count($result);
+            $result[0]['total_distance'] = round($total_distance, 0);
+           
+            return $result;
+            
+        } else {
+            return array();
+        }
         
     }
             
@@ -367,9 +397,9 @@ class Upcountry_model extends CI_Model {
 
             $sql = "SELECT CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking, ud_closed_date, $select "
                  
-                    . " round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) AS upcountry_distance,"
+                    . " upcountry_distance,"
                     . " CASE WHEN (upcountry_paid_by_customer = 0 OR upcountry_paid_by_customer IS NULL) "
-                    . " THEN ((round((sf_upcountry_rate * round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) ),2)) ) "
+                    . " THEN (sf_upcountry_rate * upcountry_distance  ) "
                     . " ELSE (customer_paid_upcountry_charges * 0.7) END As upcountry_price,"
                     . " COUNT(DISTINCT(bd.booking_id)) AS count_booking, "
                     . " round((sf_upcountry_rate ),2) AS sf_upcountry_rate"
@@ -437,8 +467,8 @@ class Upcountry_model extends CI_Model {
         }
          $sql = "SELECT CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking, "
                  
-                . " round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) AS upcountry_distance,"
-                . " (round(($upcountry_rate * round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) ),2)) AS upcountry_price,"
+                . " upcountry_distance,"
+                . " (round(($upcountry_rate * upcountry_distance ),2)) AS upcountry_price,"
                 . " COUNT(DISTINCT(bd.booking_id)) AS count_booking, "
                 . " $upcountry_rate"
                 . " FROM `booking_details` AS bd, service_centres AS s "
@@ -608,8 +638,8 @@ class Upcountry_model extends CI_Model {
     function upcountry_partner_invoice($partner_id, $from_date, $to_date){
         $sql = "SELECT CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.order_id ) ) , '' ) AS order_id, "
                 . " CONCAT( '', GROUP_CONCAT( DISTINCT ( bd.booking_id ) ) , '' ) AS booking_id, "
-                . " round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) AS upcountry_distance, "
-                . " round((partner_upcountry_rate * round(SUM(upcountry_distance)/COUNT(DISTINCT(bd.booking_id)),2) ),2) AS upcountry_price,"
+                . " upcountry_distance, "
+                . " (partner_upcountry_rate *upcountry_distance ) AS upcountry_price,"
                 . " COUNT(DISTINCT(bd.booking_id)) AS count_booking, partner_upcountry_rate, upcountry_pincode, services, taluk as city, booking_pincode"
                 . " FROM `booking_details` AS bd, booking_unit_details AS ud, services "
                 . " WHERE ud.booking_id = bd.booking_id "
