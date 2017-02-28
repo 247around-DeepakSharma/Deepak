@@ -2110,3 +2110,7 @@ ALTER TABLE `appliance_product_description`
 --
 ALTER TABLE `appliance_product_description`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+
+---- Abhay 28 FEB
+ALTER TABLE `vendor_partner_invoices` ADD `courier_charges` DECIMAL(10,2) NULL DEFAULT '0' AFTER `penalty_amount`;

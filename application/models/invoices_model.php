@@ -379,11 +379,14 @@ class invoices_model extends CI_Model {
             $invoice[$i] = $query->result_array();
         }
         $result = array_merge($invoice[0], $invoice[1]);
-        if (count($result) > 0) {
+        $upcountry_data = $this->upcountry_model->upcountry_cash_invoice($vendor_id, $from_date, $to_date);
+        
+        $result1 = array_merge($result, $upcountry_data);
+        if (count($result1) > 0) {
 
             $meta['r_sc'] = $meta['r_asc'] = $meta['r_pc'] = $meta['total_amount_paid'] = $rating = 0;
             $i = 0;
-            foreach ($result as $value) {
+            foreach ($result1 as $value) {
                 $meta['r_sc'] += $value['service_charges'];
                 $meta['r_asc'] += $value['additional_charges'];
                 $meta['r_pc'] += $value['parts_cost'];
@@ -400,7 +403,12 @@ class invoices_model extends CI_Model {
                 $i = 1;
             }
             $meta['t_rating'] = $rating / $i;
-            $data['booking'] = $result;
+            $data['booking'] = $result1;
+            if(!empty($upcountry_data)){
+               
+             $data['upcountry'] = $upcountry_data[0];   
+            }
+            
             $data['meta'] = $meta;
 
             return $data;
@@ -845,7 +853,7 @@ class invoices_model extends CI_Model {
     function get_vendor_foc_invoice($vendor_id, $from_date, $to_date) {
 
         // $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
-        $sql = "SELECT DISTINCT (`vendor_basic_charges`) AS s_service_charge, '' AS misc_price,'' AS p_rate,'' AS p_part_cost, '' AS p_tax_rate,
+        $sql = "SELECT DISTINCT (`vendor_basic_charges`) AS s_service_charge, sum(`courier_charges_by_sf`) AS misc_price,'' AS p_rate,'' AS p_part_cost, '' AS p_tax_rate,
                CASE 
                
                 WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) != '' THEN 
@@ -870,15 +878,18 @@ class invoices_model extends CI_Model {
                 (case when (sc.tin_no IS NOT NULL )  THEN tin_no ELSE cst_no END) as tin, 
                 sc.primary_contact_email, sc.owner_email, sc.pan_no, contract_file, company_type
 
-                FROM  `booking_unit_details` AS ud, services, booking_details AS bd, service_centres as sc
+                FROM  `booking_unit_details` AS ud 
+                JOIN booking_details as bd on (bd.booking_id = ud.booking_id)
+                JOIN services ON services.id = bd.service_id
+                JOIN service_centres as sc ON sc.id = bd.assigned_vendor_id
+                LEFT JOIN spare_parts_details as sp ON sp.booking_id = bd.booking_id
+                AND sp.status = 'Completed'
                 WHERE  `product_or_services` =  'Service'
                 
                 AND ud.booking_status =  'Completed'
-                AND ud.booking_id = bd.booking_id
                 AND bd.assigned_vendor_id = '$vendor_id'
                 AND ud.ud_closed_date >=  '$from_date'
                 AND ud.ud_closed_date <=  '$to_date'
-                AND ud.service_id = services.id
                 AND sc.id = bd.assigned_vendor_id
                 AND  ud.around_to_vendor > 0  AND ud.vendor_to_around = 0
                 AND pay_to_sf = '1'
@@ -948,13 +959,14 @@ class invoices_model extends CI_Model {
                $up_country[0]['description'] = 'Upcountry Services';
                $up_country[0]['p_rate'] =  $upcountry_data[0]['sf_upcountry_rate'];
                $up_country[0]['misc_price'] =  $upcountry_data[0]['total_upcountry_price'];
-               $meta['total_misc_price'] = $upcountry_data[0]['total_upcountry_price'];
+              
              
                $result = array_merge($result, $up_country);
                
             }
             
             $penalty_data = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date);
+            $penalty_amount = 0;
             if(!empty($penalty_data)){
                 $penalty = array();
                 $penalty[0]['s_total_service_charge'] = '';
@@ -966,8 +978,7 @@ class invoices_model extends CI_Model {
                 $penalty[0]['p_rate'] = $penalty_data[0]['penalty_amount'];
                 $penalty_amount = (array_sum(array_column($penalty_data,'p_amount')));
                 $penalty[0]['misc_price'] =  -$penalty_amount;
-                $meta['total_misc_price'] = $meta['total_misc_price'] - $penalty_amount;
-                
+
                 $result = array_merge($result, $penalty);
             }
             
@@ -977,6 +988,7 @@ class invoices_model extends CI_Model {
             foreach ($result as $value) {
                 $meta['total_part_cost'] += $value['p_part_cost'];
                 $meta['total_service_cost'] += $value['s_total_service_charge'];
+                $meta['total_misc_price'] += $value['misc_price'];
             }
 
             if (is_null($result[0]['tin']) ) {
@@ -1115,7 +1127,33 @@ class invoices_model extends CI_Model {
             $result[$i] = $query->result_array();
         }
         $data = array_merge($result[0], $result[1]);
+        
+        $meta['total_misc_price'] = 0;
+        // Calculate Upcountry booking details
+        $upcountry_data = $this->upcountry_model->upcountry_cash_invoice($vendor_id, $from_date, $to_date);
+        if(!empty($upcountry_data)){
+           $up_country = array();
 
+           $up_country[0]['installation_charge'] = '';
+           $up_country[0]['additional_charge'] ='';
+           $up_country[0]['qty'] = round($upcountry_data[0]['total_distance'],0)." KM";
+           $up_country[0]['description'] = 'Upcountry Services';
+           $up_country[0]['misc_charge'] =  $upcountry_data[0]['total_upcountry_price'];
+           $up_country[0]['tin'] =  $upcountry_data[0]['tin'];
+           $up_country[0]['service_tax_no'] =  $upcountry_data[0]['service_tax_no'];
+           $up_country[0]['company_name'] =  $upcountry_data[0]['company_name'];
+           $up_country[0]['vendor_address'] =  $upcountry_data[0]['vendor_address'];
+           $up_country[0]['primary_contact_email'] =  $upcountry_data[0]['primary_contact_email'];
+           $up_country[0]['owner_email'] =  $upcountry_data[0]['owner_email'];
+           $up_country[0]['state'] =  $upcountry_data[0]['state'];
+          
+           if(!empty($data)){
+                $data = array_merge($result, $up_country);
+           } else {
+                $data = $up_country;
+           }
+        }
+       
         if (count($data) > 0) {
             $meta['total_charge'] = 0;
 
@@ -1165,6 +1203,30 @@ class invoices_model extends CI_Model {
                 AND ud_closed_date < '".date('Y-m-d')."'
                 AND `vendor_cash_invoice_id` IS NULL
                 AND `vendor_foc_invoice_id` IS NULL";
+        
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    /**
+     * @desc This method returns booking id and curier charges for completed booking
+     * @param String $vendor_id
+     * @param String $from_date
+     * @param String $to_date
+     * @return Array
+     */
+    function get_sf_courier_charges($vendor_id, $from_date, $to_date){
+        $sql =" SELECT distinct bd.booking_id, courier_charges_by_sf 
+                FROM  `booking_unit_details` AS ud 
+                JOIN booking_details as bd on (bd.booking_id = ud.booking_id)
+                LEFT JOIN spare_parts_details as sp ON sp.booking_id = ud.booking_id
+                AND status = 'Completed'
+                WHERE 
+                ud.booking_status =  'Completed'
+                AND bd.assigned_vendor_id = '$vendor_id'
+                AND ud.ud_closed_date >=  '$from_date'
+                AND ud.ud_closed_date <=  '$to_date'
+                AND pay_to_sf = '1'
+                AND courier_charges_by_sf > 0 ";
         
         $query = $this->db->query($sql);
         return $query->result_array();

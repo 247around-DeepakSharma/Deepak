@@ -99,6 +99,7 @@
           <td><?php echo -$foc; ?></td>
           <td><?php echo $cash; ?></td>
           <td></td>
+          <td></td>
           <td class="text-center"><input type="submit" class="btn btn-md btn-primary"  value="Download"/></td>
       </tr>
    </tbody>

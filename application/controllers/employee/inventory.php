@@ -817,7 +817,7 @@ class Inventory extends CI_Controller {
         $data['remarks_by_partner'] = $this->input->post('remarks_by_partner');
         $data['courier_name_by_partner'] = $this->input->post('courier_name');
         $data['awb_by_partner'] = $this->input->post('awb');
-        $data['courier_charges_by_sf'] = $this->input->post('courier_charges_by_sf');
+//        $data['courier_charges_by_sf'] = $this->input->post('courier_charges_by_sf');
         $data['shipped_date'] = $this->input->post('shipment_date');
         $data['status'] = $this->input->post('status');
         

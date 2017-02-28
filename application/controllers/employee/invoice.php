@@ -448,10 +448,7 @@ class Invoice extends CI_Controller {
                 $total_stand_charge += round($value['stand'], 2);
                 $total_vat_charge += round($value['vat'], 2);
                 $total_charges = round(($total_installation_charge + $total_service_tax + $total_stand_charge + $total_vat_charge), 0);
-                if ($invoice_type == "final") {
-                    log_message('info', __METHOD__ . "=> Invoice update in booking unit details unit id" . $value['unit_id'] . " Invoice Id" . $invoice_id);
-                    $this->booking_model->update_booking_unit_details_by_any(array('id' => $value['unit_id']), array('partner_invoice_id' => $invoice_id));
-                }
+                
             }
 
             $excel_data['invoice_id'] = $invoice_id;
@@ -599,6 +596,13 @@ class Invoice extends CI_Controller {
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
                 log_message('info', __METHOD__ . "=> Insert Invoices in partner invoice table");
+                
+                foreach ($data as $key => $value1) {
+                  
+                    log_message('info', __METHOD__ . "=> Invoice update in booking unit details unit id" . $value1['unit_id'] . " Invoice Id" . $invoice_id);
+                    $this->booking_model->update_booking_unit_details_by_any(array('id' => $value1['unit_id']), array('partner_invoice_id' => $invoice_id));
+            
+                }
             }
 
             //Delete XLS files now
@@ -710,7 +714,7 @@ class Invoice extends CI_Controller {
         $template = 'Vendor_Settlement_Template-CashDetailed-v3.xlsx';
         // xls file directory
         $templateDir = __DIR__ . "/../excel-templates/";
-
+         
         if (!empty($invoices)) {
             log_message('info', __FUNCTION__ . "=> Data Found for Cash Detailed Invoice");
             echo "Data Found for Cash Detailed Invoice" . PHP_EOL;
@@ -719,7 +723,7 @@ class Invoice extends CI_Controller {
             $unique_booking = array_unique(array_map(function ($k) {
                         return $k['booking_id'];
                     }, $invoices['booking']));
-
+           
             // Count unique booking id
             $count = count($unique_booking);
 
@@ -731,7 +735,7 @@ class Invoice extends CI_Controller {
 
             // set date format like 1st July 2016
             $start_date = date("jS M, Y", strtotime($from_date));
-            $end_date = date("jS M, Y", strtotime('-1 day', strtotime($to_date)));
+            $end_date = date("jS M, Y", strtotime($to_date));
 
             //set config for report
             $config = array(
@@ -838,6 +842,7 @@ class Invoice extends CI_Controller {
 
             //for xlsx: excel, for xls: excel2003
             $R->render('excel', $output_file_excel);
+           
             system(" chmod 777 " . $output_file_excel, $res1);
             
             if ($details['invoice_type'] === "final") {
@@ -909,6 +914,15 @@ class Invoice extends CI_Controller {
                         echo " Cash Detailed Invoices is not uploaded to S3";
                     }
                 }
+                $up_charges = 0;
+                $up_distance = 0;
+                $up_total_booking =0;
+                if(isset($invoices['upcountry'])){
+                    
+                    $up_charges = $invoices['upcountry']['total_upcountry_price'];
+                    $up_distance = $invoices['upcountry']['total_distance'];
+                    $up_total_booking = $invoices['upcountry']['total_booking'];
+                }
 
                 //Save this invoice info in table
                 $invoice_details = array(
@@ -923,13 +937,16 @@ class Invoice extends CI_Controller {
                     'from_date' => date("Y-m-d", strtotime($from_date)),
                     'to_date' => date("Y-m-d", strtotime($to_date)),
                     'num_bookings' => $count,
-                    'total_service_charge' => $excel_data['r_sc'],
+                    'total_service_charge' => $excel_data['r_sc'] - $up_charges,
                     'total_additional_service_charge' => $excel_data['r_asc'],
                     'parts_cost' => $excel_data['r_pc'],
                     'vat' => 0, //No VAT here in Cash invoice
                     'total_amount_collected' => $excel_data['r_total'],
                     'rating' => $excel_data['t_rating'],
                     'around_royalty' => $excel_data['r_total'],
+                    'upcountry_price' =>$up_charges,
+                    'upcountry_distance' => $up_distance,
+                    'upcountry_booking' => $up_total_booking,
                     //Service tax which needs to be paid
                     'service_tax' => $excel_data['r_st'],
                     //Amount needs to be collected from Vendor
@@ -951,10 +968,8 @@ class Invoice extends CI_Controller {
                  * Since this is a type 'Cash' invoice, it would be stored as a vendor-debit invoice.
                  */
                 $this->update_booking_invoice_mappings_repairs($invoices['booking'], $invoice_id);
+                $this->update_invoice_id_in_unit_details($invoices, $invoice_id, $details['invoice_type']);
             }
-
-            // insert data into vendor invoices snapshot or draft table as per the invoice type
-           // $this->insert_cash_invoices_snapshot($invoices, $invoice_id, $details['invoice_type']);
 
             // Store Cash Invoices details
             $invoice_sc_details[$invoices['booking'][0]['id']]['cash_file_name'] = $output_file_excel;
@@ -1043,24 +1058,24 @@ class Invoice extends CI_Controller {
 
                 $this->booking_model->update_booking_unit_details_by_any(array('id' => $value['unit_id']), array('vendor_cash_invoice_id' => $invoice_id));
             }
-            $data['booking_id'] = $value['booking_id'];
-            $data['invoice_id'] = $invoice_id;
-            $data['vendor_id'] = $value['id'];
-            $data['type_code'] = "A";
-            $data['city'] = $value['city'];
-            $data['appliance'] = $value['services'];
-            $data['appliance_category'] = $value['appliance_category'];
-            $data['appliance_capacity'] = $value['appliance_capacity'];
-            $data['closed_date'] = $value['closed_booking_date'];
-            $data['service_category'] = $value['price_tags'];
-            $data['service_charge'] = $value['service_charges'];
-            $data['around_discount'] = $value['around_net_payable'];
-            $data['addtional_service_charge'] = $value['additional_charges'];
-            $data['parts_cost'] = $value['parts_cost'];
-            $data['amount_paid'] = $value['amount_paid'];
-            $data['rating'] = $value['rating_stars'];
-
-            $this->invoices_model->insert_invoice_row($data, $invoice_type);
+//            $data['booking_id'] = $value['booking_id'];
+//            $data['invoice_id'] = $invoice_id;
+//            $data['vendor_id'] = $value['id'];
+//            $data['type_code'] = "A";
+//            $data['city'] = $value['city'];
+//            $data['appliance'] = $value['services'];
+//            $data['appliance_category'] = $value['appliance_category'];
+//            $data['appliance_capacity'] = $value['appliance_capacity'];
+//            $data['closed_date'] = $value['closed_booking_date'];
+//            $data['service_category'] = $value['price_tags'];
+//            $data['service_charge'] = $value['service_charges'];
+//            $data['around_discount'] = $value['around_net_payable'];
+//            $data['addtional_service_charge'] = $value['additional_charges'];
+//            $data['parts_cost'] = $value['parts_cost'];
+//            $data['amount_paid'] = $value['amount_paid'];
+//            $data['rating'] = $value['rating_stars'];
+//
+//            $this->invoices_model->insert_invoice_row($data, $invoice_type);
         }
     }
 
@@ -1090,6 +1105,7 @@ class Invoice extends CI_Controller {
 
         }
         $penalty_data = $this->penalty_model->add_penalty_in_invoice($details['vendor_partner_id'], $from_date, $to_date);
+        $courier_charges =  $this->invoices_model->get_sf_courier_charges($details['vendor_partner_id'], $from_date, $to_date);
         // directory
         $templateDir = __DIR__ . "/../excel-templates/";
         $invoices = $invoices_data['invoice_details'];
@@ -1138,8 +1154,13 @@ class Invoice extends CI_Controller {
                 $total_vat_charge += $invoices[$j]['vendor_vat'];
                 $invoices[$j]['amount_paid'] = round(($invoices[$j]['vendor_installation_charge'] + $invoices[$j]['vendor_st'] + $invoices[$j]['vendor_stand'] + $invoices[$j]['vendor_vat']), 0);
             }
+            $total_courier_charges = 0;
+            if(!empty($courier_charges)){
+                $total_courier_charges = (array_sum(array_column($courier_charges,'courier_charges_by_sf')));
+                
+            }
 
-            $t_total = $total_inst_charge + $total_stand_charge + $total_st_charge + $total_vat_charge;
+            $t_total = $total_inst_charge + $total_stand_charge + $total_st_charge + $total_vat_charge + $total_courier_charges;
             $tds = 0;
             $tds_tax_rate = 0;
             $tds_per_rate = 0;
@@ -1188,7 +1209,7 @@ class Invoice extends CI_Controller {
 
             //set date format like 1st june 2016
             $start_date = date("jS M, Y", strtotime($from_date));
-            $end_date = date("jS M, Y", strtotime('-1 day', strtotime($to_date)));
+            $end_date = date("jS M, Y", strtotime($to_date));
 
             log_message('info', 'Service Centre: ' . $invoices[0]['id'] . ', Count: ' . $count);
 
@@ -1225,6 +1246,7 @@ class Invoice extends CI_Controller {
             $penalty_amount = (array_sum(array_column($penalty_data,'p_amount')));
             $excel_data['total_penalty_amount'] = -$penalty_amount;
             $excel_data['total_upcountry_price'] = round($total_upcountry_price,2);
+            $excel_data['total_courier_charges'] = round($total_courier_charges,2);
             $excel_data['t_vp_w_tds'] = $excel_data['t_vp_w_tds'] + $excel_data['total_upcountry_price'] - $penalty_amount;
             $excel_data['invoice_id'] = $invoice_id;
             $excel_data['vendor_name'] = $invoices[0]['company_name'];
@@ -1276,6 +1298,11 @@ class Invoice extends CI_Controller {
                     'id' => 'penalty',
                     'repeat' => true,
                     'data' => $penalty_data                   
+                ),
+                array(
+                    'id' => 'courier',
+                    'repeat' => true,
+                    'data' => $courier_charges                   
                 ),
               )
             );
@@ -1401,6 +1428,7 @@ class Invoice extends CI_Controller {
                     'upcountry_price' =>$excel_data['total_upcountry_price'],
                     'upcountry_distance' => $upcountry_distance,
                     'penalty_amount' => $penalty_amount,
+                    'courier_charges' => $total_courier_charges,
                     //Add 1 month to end date to calculate due date
                     'due_date' => date("Y-m-d", strtotime($to_date . "+1 month"))
                 );
@@ -2394,8 +2422,9 @@ class Invoice extends CI_Controller {
                 system(" chmod 777 " . $output_file_excel, $res1);
                 unlink($output_file_excel);
             }
-            $R->render('excel', $output_file_excel);
             
+            $R->render('excel', $output_file_excel);
+
             log_message('info', __METHOD__ . ": Excel FIle generated " . $output_file_excel);
             $res2 = 0;
             system(" chmod 777 " . $output_file_excel, $res2);
@@ -2481,9 +2510,8 @@ class Invoice extends CI_Controller {
         $from_date = $custom_date[0];
         $to_date = $custom_date[1];
         $invoice_type = $details['invoice_type'];
-
         $invoices = $this->invoices_model->get_vendor_cash_invoice($vendor_id, $from_date, $to_date);
-
+      
         if (!empty($invoices)) {
             log_message('info', __FUNCTION__ . "=> Data Found for Cash Invoice");
             echo "Data Found for Cash Invoice" . PHP_EOL;

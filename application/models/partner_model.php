@@ -421,13 +421,13 @@ class Partner_model extends CI_Model {
             booking_date As 'Scheduled Appointment Date(DD/MM/YYYY)', 
             booking_timeslot AS 'Scheduled Appointment Time(HH:MM:SS)', 
             partner_internal_status AS 'Final Status'
-            
             FROM  booking_details , booking_unit_details AS ud, services, users
             WHERE booking_details.booking_id = ud.booking_id 
             AND booking_details.service_id = services.id 
             AND booking_details.user_id = users.user_id
-            AND booking_details.partner_id = $partner_id "
-                . " AND booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)");
+            AND booking_details.partner_id = $partner_id
+            AND booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH) 
+            AND booking_details.partner_current_status != 'DUPLICATE_BOOKING'");
 
     } 
     
