@@ -260,17 +260,20 @@ class Partner extends CI_Controller {
                         //Product description
                         $appliance_details['description'] = $unit_details['appliance_description'] = $requestData['productType'];
                         //Insert cateogry for Geyser
-                        if($service_id == '32'){
-                            //Check for all optional parameters before setting them
-                            $unit_details['appliance_category'] = $appliance_details['category'] =  'Geyser-PAID';
-
-                        } else {
-                            //Check for all optional parameters before setting them
-                            $appliance_details['category'] = $unit_details['appliance_category'] = isset($lead_details['service_appliance_data']['category'])?$lead_details['service_appliance_data']['category']:isset($requestData['category']) ? $requestData['category']:'';
+//                        if($service_id == '32'){
+//                            //Check for all optional parameters before setting them
+//                            $unit_details['appliance_category'] = $appliance_details['category'] =  'Geyser-PAID';
+//
+//                        } else {
+                        //Check for all optional parameters before setting them
+                        $appliance_details['category'] = $unit_details['appliance_category'] = 
+                                isset($lead_details['service_appliance_data']['category'])?$lead_details['service_appliance_data']['category']:isset($requestData['category']) ? $requestData['category']:'';
                        
-                        }
+//                        }
                         
-                        $appliance_details['capacity'] = $unit_details['appliance_capacity'] =isset($lead_details['service_appliance_data']['capacity'])?$lead_details['service_appliance_data']['capacity']:isset($requestData['capacity']) ? $requestData['capacity'] : '';
+                        $appliance_details['capacity'] = $unit_details['appliance_capacity'] =
+                                isset($lead_details['service_appliance_data']['capacity'])?$lead_details['service_appliance_data']['capacity']:isset($requestData['capacity']) ? $requestData['capacity'] : '';
+                        
                         //get partner data to check the price
                         $partner_data = $this->partner_model->get_partner_code($booking['partner_id']);
                         $partner_mapping_id = $partner_data[0]['price_mapping_id'];
@@ -332,6 +335,8 @@ class Partner extends CI_Controller {
                         $is_sms = $this->check_upcountry($booking, $lead_details['Product'], $is_price, $unit_details['appliance_category'], $partner_data);
                         if(!$is_sms){
                              $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
+                        } else {
+                            $booking['sms_count'] = 1;
                         }
                             
                         $booking['current_status'] = "FollowUp";
@@ -1990,20 +1995,34 @@ class Partner extends CI_Controller {
                         log_message('info', __FUNCTION__ . ' UPCOUNTRY_LIMIT_EXCEED ');
                         if ($is_price['is_upcountry'] == 0) {
                             log_message('info', __FUNCTION__ . ' Upcountry Not Provide');
-                            $price = (($data['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE) +
-                                    $is_price['customer_net_payable']);
-                            if($price >0){
-                                $charges = "Rs. " . $price;
-                               log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
-                                
+                            
+                            //do not send sms to customer if upcountry distance is > 150 km
+                            if ($data['upcountry_distance'] <= 150) {
+                                $price = (($data['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE) +
+                                        $is_price['customer_net_payable']);
+                                if($price >0){
+                                    $charges = "Rs. " . $price;
+                                   log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
+
+                                } else {
+                                    $charges = "FREE";
+                                }
+                                log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
                             } else {
-                                $charges = "FREE";
+                                // limit exceeded, do not send sms
+                                log_message('info', __FUNCTION__ . ' limit exceeded, do not send sms ');
+                                
+                                //send mail to nitin/anuj
+                                
+                                return false;
                             }
-                            log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
                         }
                         else {
                             // Not send sms, partner provide upcountry charges approval or not
                             log_message('info', __FUNCTION__ . ' Upcountry Limit exceed ');
+                            
+                            //send mail to nitin/anuj if partner does not approve additional upcountry charges
+                            
                             return false;
                         }
                         break;

@@ -276,8 +276,6 @@ class Penalty_model extends CI_Model {
      */
     function update_penalty_on_booking($id,$data){
         $this->db->where('id',$id);
-//        $this->db->where('current_state','Completed');
-//        $this->db->or_where('current_state','Cancelled');
         $this->db->update('penalty_on_booking',$data);
         if($this->db->affected_rows() > 0){
             return TRUE;
