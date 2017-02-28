@@ -44,8 +44,7 @@ if (!defined('BASEPATH'))
 $route['default_controller'] = "form";
 $route['404_override'] = '';
 $route['pass-through'] = 'api/pass_through';
-$route['vendor-extn'] = 'api/vendor_extn';
-$route['get-vendor-phone'] = 'api/getVendorPhoneFromExtn';
+$route['pass-through-ac-service'] = 'api/pass_through_ac_service';
 $route['service_center'] = 'employee/service_centers';
 $route['service_center/pending_booking'] = 'employee/service_centers/pending_booking';
 $route['service_center/pending_booking/(:any)'] = 'employee/service_centers/pending_booking/$1';

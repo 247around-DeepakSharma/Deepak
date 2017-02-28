@@ -244,6 +244,9 @@ define('PARTNERS_MISSED_CALLED_NUMBER','01130017601');
 //Define snapdeal new missed call number
 define('SNAPDEAL_MISSED_CALLED_NUMBER','01139595247');
 
+//Define new missed call number for AC installation
+define('AC_SERVICE_MISSED_CALLED_NUMBER','01139595450');
+
 define('HOME_THEATER_REPAIR_SERVICE_TAG', 'Repair - In Warranty (Service Center Visit)');
 define('HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY', 'Repair - Out Of Warranty (Service Center Visit)');
 
