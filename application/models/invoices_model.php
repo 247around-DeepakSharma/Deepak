@@ -212,6 +212,7 @@ class invoices_model extends CI_Model {
             $data = $this->db->query($sql);
             $result = $data->result_array();
             $bank_transactions = $this->getbank_transaction_summary($vendor_partner, $value['id']);
+            
             $result[0]['vendor_partner'] = $vendor_partner;
 
             if (isset($value['name'])) {
@@ -219,6 +220,10 @@ class invoices_model extends CI_Model {
                 $result[0]['on_off'] = $value['on_off'];
                 $result[0]['active'] = $value['active'];
                 $result[0]['is_verified'] = $value['is_verified'];
+                $where = "service_center_id = '".$value['id']. "' AND approved_defective_parts_by_partner = '0' "
+                    . " AND parts_shipped IS NOT NULL ";
+
+                $result[0]['count_spare_part'] = count($this->partner_model->get_spare_parts_booking($where));
             } else if (isset($value['public_name'])) {
                 $result[0]['name'] = $value['public_name'];
             }

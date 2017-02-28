@@ -28,38 +28,37 @@
                     <div class="clonedInput" id="clonedInput">
                         <table class="table  table-striped table-bordered">
                             <tr>
-                                <th style="width: 40%;">
+                                <th style="width: 30%;">
                                      <div class="form-group">
                                         <label>Choose Files</label>
-                                        <input type="file" class="form-control" name="partner_brand_logo[]" id ="partner_brand_logo_1" required=""/>
+                                        <input type="file" class="form-control" name="partner_brand_logo[]" id ="partner_brand_logo_1" accept="image/*" required="" multiple/>
                                     </div>
                                 </th>
-                                <th>
+                                <th style="width: 30%;">
                                     <div class="form-group">
-                                        <select  class="booking_source form-control"  id="partner_1" name="partner[]" required>
-                                            <option selected="selected" disabled="disabled">Select Partner</option>
-                                            <?php foreach ($partner as $key => $values) { ?>
-                                            <option  value="<?php echo $values['partner_id']."-". $values['source']; ?>">
-                                            <?php echo $values['source']; }    ?>
-                                            </option>
-                                        </select>
+                                        <input class="form-control" type="text" name="partner_name" value="<?php echo $partner['public_name']?>" disabled="">
+                                        <input class="form-control" type="hidden" name="partner_id" value="<?php echo $partner['partner_id']?>">
+                                        <input class="form-control" type="hidden" name="partner_name" value="<?php echo $partner['public_name']?>">
+                                        
                                     </div>
                                 </th>
-                               
-                                <th class="text-center">
+                                <th style="width: 30%;">
+                                    <input type="submit" value="Upload" onclick="return check_validation()" class="btn btn-md btn-primary" />
+                                </th>
+<!--                                <th class="text-center">
                                     <button class="clone btn btn-sm btn-success" id="add_1">Add New Row</button>
                                 </th>
                                 <th class="text-center">
                                     <button class="remove btn btn-sm btn-danger" id="delete_1">Delete Row</button>
-                                </th>
+                                </th>-->
                             </tr>
                         </table>
                     </div>
                     <div class="cloned"></div>
-                    <div class="col-md-12">
+<!--                    <div class="col-md-12">
                         <center><img id="loader_gif" src="" style="display: none;width:40px;"></center>
                         <center><input type="submit" value="Upload" onclick="return check_validation()" class="btn btn-md btn-primary" /></center>
-                    </div>
+                    </div>-->
                 </div>
             </form>
             </div>

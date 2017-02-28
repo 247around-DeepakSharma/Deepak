@@ -635,14 +635,14 @@
                                             if (isset($query[0]['pan_no'])) {
                                                 echo $query[0]['pan_no'];
                                             }
-                                            ?>" style="width:117%">
+                                            ?>" style="width:117%" onchange="return check_length()">
                                         <span class="err1"><?php echo form_error('pan_no'); ?></span>
                                     </div>
                                 </div>
                                 <div class="col-md-3" style="margin-left:40px;">
                                     <div class="form-group">
                                         <!--                                        <label  for="pan_file" class="col-md-4">PAN File :</label>-->
-                                        <input type="file" class="form-control"  name="pan_file" value = "<?php
+                                        <input type="file" class="form-control"  id="pan_file" name="pan_file" value = "<?php
                                             if (isset($query[0]['pan_file'])) {
                                                 echo $query[0]['pan_file'];
                                             }
@@ -1217,6 +1217,16 @@
                    alert('Please add Pan No along with Pan Name');
                    return false;
                }
+               //checking case when pan number is less than 6 and greater than 10 and pan name is enterd
+               else if($('#pan_no').val().length != '10' && $('#name_on_pan').val() != ''){
+                   alert('Please add valid 10 digit pan number');
+                   return false;
+               }
+               //checking case when pan number is less than 6 and greater than 10 and pan name is enterd
+               else if($('#pan_no').val().length == '10' && $('#name_on_pan').val() != '' && !$('#pan_file').val()){
+                   alert('Please upload pan file also');
+                   return false;
+               }
             }
             //Check for CST
             if($('#is_cst_doc').is(":checked")){
@@ -1227,6 +1237,10 @@
             }else{
                 if($('#cst_no').val() == ''){
                    alert('Please Enter CST Number or Tick "Not Available" checkbox');
+                   return false;
+               }
+               else if($('#cst_no').val().length < '6'){
+                   alert('Please Enter Valid CST Number');
                    return false;
                }
             }
@@ -1242,6 +1256,10 @@
                    alert('Please Enter TIN Number or Tick "Not Available" checkbox');
                    return false;
                }
+               else if($('#tin_no').val().length < '6'){
+                   alert('Please Enter Valid TIN Number');
+                   return false;
+               }
             }
             
             //Check for Service Tax no.
@@ -1253,6 +1271,10 @@
             }else{
                 if($('#service_tax_no').val() == ''){
                    alert('Please Enter Service Tax Number or Tick "Not Available" checkbox');
+                   return false;
+               }
+               else if($('#service_tax_no').val().length < '6'){
+                   alert('Please Enter Valid Service Tax Number');
                    return false;
                }
             }
@@ -1384,4 +1406,16 @@
     <?php if((isset($query[0]['is_verified']) && !empty($query[0]['is_verified'])) && $this->session->userdata('user_group') !='admin'){?>
         $('#bank_details').find('input').attr('disabled', 'disabled');
     <?php } ?>
+        
+   $('#pan_no').keypress(function (e) {
+        var regex = new RegExp("^[a-zA-Z0-9]+$");
+        var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);
+        if (regex.test(str)) {
+            return true;
+        }
+
+        e.preventDefault();
+        return false;
+    });  
+    
 </script>

@@ -1235,12 +1235,18 @@ class vendor extends CI_Controller {
             //Logging
             log_message('info', __FUNCTION__ . ' Vendor Pincode File has been uploaded in S3');
 
-            //Processing SQL Queries
-            $sql_commands = array();
-            array_push($sql_commands, "TRUNCATE TABLE vendor_pincode_mapping_temp;");
-
-            $this->vendor_model->execute_query($sql_commands);
-            unset($sql_commands);
+//            $count = system("wc -l ".TMP_FOLDER.$newCSVFileName);
+//            $pre_count = $this->vendor_model->get_total_vendor_pincode_mapping();
+//            //Processing SQL Queries
+              $sql_commands = array();
+//            
+//            if($count > $pre_count){
+//                array_push($sql_commands, "TRUNCATE TABLE vendor_pincode_mapping_temp;");
+//                $this->vendor_model->execute_query($sql_commands);
+//                unset($sql_commands);
+//            }
+           
+             array_push($sql_commands, "TRUNCATE TABLE vendor_pincode_mapping_temp;");
 
             $dbHost=$this->db->hostname;
             $dbUser=$this->db->username;
@@ -1256,6 +1262,9 @@ class vendor extends CI_Controller {
             system("mysql -u $dbUser -h $dbHost --password=$dbPass --local_infile=1 -e \"$sql\" $dbName", $res1);
 
             $sql_commands1 = array();
+//            if($count > $pre_count){
+//                array_push($sql_commands1, "TRUNCATE TABLE vendor_pincode_mapping;");
+//            }
             array_push($sql_commands1, "TRUNCATE TABLE vendor_pincode_mapping;");
             array_push($sql_commands1, "INSERT vendor_pincode_mapping SELECT * FROM vendor_pincode_mapping_temp;");
 
