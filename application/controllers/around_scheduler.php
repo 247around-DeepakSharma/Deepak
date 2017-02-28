@@ -421,7 +421,7 @@ class Around_scheduler extends CI_Controller {
         
         $pincode_not_available_bookings = $this->reporting_utils->get_pincode_not_available_bookings();
         if(!empty($pincode_not_available_bookings)){
-            $newCSVFileName = "Pincode_Not_Available_BookingSummary".date('j-M-Y').".csv";
+            $newCSVFileName = "Pincode_Not_Available_BookingSummary_".date('j-M-Y').".csv";
             $csv = TMP_FOLDER.$newCSVFileName;
             $delimiter = ",";
             $newline = "\r\n";
@@ -436,13 +436,13 @@ class Around_scheduler extends CI_Controller {
                 $rm_email .=",";
             }
             $to = substr($rm_email,0,-1);
-            $message="Please Find the attached CSV File with this mail that contains the data of those bookings which Pincode is not available";
+            $message="Please find attached bookings list where SF is not available in the respective pincode.";
 
             $this->email->clear(TRUE);
             $this->email->from('booking@247around.com', '247around Team');
             $this->email->to("$to");
             $this->email->cc(ANUJ_EMAIL_ID);
-            $this->email->subject("Pincode not available Booking Data");
+            $this->email->subject("SF NOT AVAILABLE IN PINCODES LIST");
             $this->email->message($message);
             $this->email->attach($csv, 'attachment');
 

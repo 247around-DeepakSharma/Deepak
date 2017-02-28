@@ -399,8 +399,6 @@ class Partner_model extends CI_Model {
     //Return all leads shared by Partner in the last 30 days in CSV
     function get_partner_leads_csv_for_summary_email($partner_id)
     {
-
-
         return $query = $this->db->query("SELECT distinct '' AS 'Unique id',
             order_id AS 'Sub Order ID',
             booking_details.create_date AS 'Referred Date and Time', 
@@ -426,9 +424,7 @@ class Partner_model extends CI_Model {
             AND booking_details.service_id = services.id 
             AND booking_details.user_id = users.user_id
             AND booking_details.partner_id = $partner_id
-            AND booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH) 
-            AND booking_details.partner_current_status != 'DUPLICATE_BOOKING'");
-
+            AND booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)");
     } 
     
     //Return all leads shared by Partner in the last 30 days

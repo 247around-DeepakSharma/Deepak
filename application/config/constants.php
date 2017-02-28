@@ -225,6 +225,8 @@ define('IS_DEFAULT_ENGINEER', TRUE);
 define('DEFAULT_ENGINEER', 24700001);
 define("UPCOUNTRY_CHARGES_APPROVED", "Upcountry Charges Approved");
 define("UPCOUNTRY_CHARGES_NOT_APPROVED", "Upcountry Charges Not Approved");
+
+//Customer will pay upcountry charges as per the below rate
 define("DEFAULT_UPCOUNTRY_RATE", 3);
 //Define Incentive Cut
 define('INCENTIVE_CUT',12);

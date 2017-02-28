@@ -1262,7 +1262,7 @@ class Reporting_utils extends CI_Model {
                     $data1['old_crimes'] = 0;
                 }
 
-                // insert or update crimes after 10:15 PM
+                // insert or update crimes when this function is triggered by cron
 
                 if ($is_insert) {
 
