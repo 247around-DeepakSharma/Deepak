@@ -1432,8 +1432,13 @@ class Api extends CI_Controller {
             $cc = NITS_ANUJ_EMAIL_ID;
             $bcc = '';
             $sub = "AC Service Missed Call Received from: " . $num;
+            $body = 'Please schedule AC service for this customer';
                     
-            $this->notify->sendEmail($from, $to, $cc, $bcc, $sub, "", "");
+            $this->notify->sendEmail($from, $to, $cc, $bcc, $sub, $body, "");
+            
+            //Send ACK SMS back to customer
+            //Price needs to be added in the sf charges table
+            
         }
         
     }
