@@ -1381,40 +1381,6 @@ class Api extends CI_Controller {
                             $this->booking_model->update_booking_unit_details($b['booking_id'], $u);
                         }
                     }
-
-//                    else if( $b['current_status'] === "Cancelled" && $b['type'] === 'Booking'){
-//                        $d = array('internal_status' => 'Missed_call_confirmed',
-//                            'booking_date' => '', 'booking_timeslot' => '',
-//                            'current_status' => 'FollowUp',
-//                            'delivery_date' => date('Y-m-d H:i:s'),
-//                            'booking_id' => 'Q-'.$b['booking_id'],
-//                            'assigned_vendor_id' => NULL,
-//                            'query_remarks' => 'Missed call received, Convert to Booking NOW !!!');
-//                        
-//                        $r = $this->booking_model->update_booking($b['booking_id'], $d);
-//                        
-//                        if ($r === FALSE) {
-//                            log_message('info', __METHOD__ . '=> Booking confirmation '
-//                                . 'through missed call failed for Cancelled Booking' . $b['booking_id']);
-//
-//                            //Send email
-//                            $this->notify->sendEmail("booking@247around.com", "anuj@247around.com", "", "", "Query update Failed after Missed Call for Cancelled Booking ID: " . $b['booking_id'], "", "");
-//                        } else {
-//                            log_message('info', __METHOD__ . '=> Booking confirmation '
-//                                . 'through missed call succeeded for Cancelled ' . $b['booking_id']);
-//                            
-//                            $u = array('booking_status'=> '',
-//                            'booking_id' => 'Q-'.$b['booking_id']);
-//                            //Update unit details
-//                            $this->booking_model->update_booking_unit_details($b['booking_id'], $u);
-//                        
-//                            $this->vendor_model->delete_previous_service_center_action($b['booking_id']);
-//                        
-//                            $this->send_missed_call_confirmation_sms($b);
-//
-//                        }
-//                        
-//                    }
                 }
             }
         }
@@ -1422,6 +1388,52 @@ class Api extends CI_Controller {
         $this->output->set_header("HTTP/1.1 200 OK");
     }
 
+    
+    public function pass_through_ac_service() {
+        //log_message('info', "Entering: " . __METHOD__);
+        
+	$activity = array('activity' => 'AC Service Request', 'data' => json_encode($_GET), 'time' => $this->microtime_float());
+        $this->apis->logTable($activity);
+
+        //Refer: http://support.exotel.in/support/solutions/articles/48283-working-with-passthru-applet
+        $callDetails['callSid'] = (isset($_GET['CallSid'])) ? $_GET['CallSid'] : null;
+        $callDetails['from_number'] = (isset($_GET['From'])) ? $_GET['From'] : null;
+        $callDetails['To'] = (isset($_GET['To'])) ? $_GET['To'] : null;
+        $callDetails['Direction'] = (isset($_GET['Direction'])) ? $_GET['Direction'] : null;
+        $callDetails['DialCallDuration'] = (isset($_GET['DialCallDuration'])) ? $_GET['DialCallDuration'] : null;
+        $callDetails['StartTime'] = (isset($_GET['StartTime'])) ? $_GET['StartTime'] : null;
+        $callDetails['EndTime'] = (isset($_GET['EndTime'])) ? $_GET['EndTime'] : null;
+        $callDetails['CallType'] = (isset($_GET['CallType'])) ? $_GET['CallType'] : null;
+        $callDetails['DialWhomNumber'] = (isset($_GET['DialWhomNumber'])) ? $_GET['DialWhomNumber'] : null;
+        $callDetails['digits'] = (isset($_GET['digits'])) ? $_GET['digits'] : null;
+        $callDetails['create_date'] = null;
+
+        //var_dump($apiDetails);
+        //insert in database
+        $this->apis->insertPassthruCall($callDetails);
+
+        //fetches only the 10 digits of the mobile no without the country code
+        $num = substr($callDetails['from_number'], '-10');
+        //var_dump($num);
+
+	//User would give missed call on 011-39595450 to make AC service request
+        //Once missed call is received, send customer details on email to the team
+        //so that the booking can be inserted.
+	if ($callDetails['To'] == AC_SERVICE_MISSED_CALLED_NUMBER) {
+            log_message('info', "AC Service Missed Call Received from: " . $num);
+            
+            //send email
+            $from = "booking@247around.com";
+            $to = "booking@247around.com";
+            $cc = NITS_ANUJ_EMAIL_ID;
+            $bcc = '';
+            $sub = "AC Service Missed Call Received from: " . $num;
+                    
+            $this->notify->sendEmail($from, $to, $cc, $bcc, $sub, "", "");
+        }
+        
+    }
+    
     /**
      * @desc: This is used to send sms when customer gave a missed call and booking is found
      * @param string $booking
