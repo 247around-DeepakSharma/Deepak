@@ -448,10 +448,7 @@ class Invoice extends CI_Controller {
                 $total_stand_charge += round($value['stand'], 2);
                 $total_vat_charge += round($value['vat'], 2);
                 $total_charges = round(($total_installation_charge + $total_service_tax + $total_stand_charge + $total_vat_charge), 0);
-                if ($invoice_type == "final") {
-                    log_message('info', __METHOD__ . "=> Invoice update in booking unit details unit id" . $value['unit_id'] . " Invoice Id" . $invoice_id);
-                    $this->booking_model->update_booking_unit_details_by_any(array('id' => $value['unit_id']), array('partner_invoice_id' => $invoice_id));
-                }
+                
             }
 
             $excel_data['invoice_id'] = $invoice_id;
@@ -599,6 +596,13 @@ class Invoice extends CI_Controller {
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
                 log_message('info', __METHOD__ . "=> Insert Invoices in partner invoice table");
+                
+                foreach ($data as $key => $value1) {
+                  
+                    log_message('info', __METHOD__ . "=> Invoice update in booking unit details unit id" . $value1['unit_id'] . " Invoice Id" . $invoice_id);
+                    $this->booking_model->update_booking_unit_details_by_any(array('id' => $value1['unit_id']), array('partner_invoice_id' => $invoice_id));
+            
+                }
             }
 
             //Delete XLS files now
@@ -1101,6 +1105,7 @@ class Invoice extends CI_Controller {
 
         }
         $penalty_data = $this->penalty_model->add_penalty_in_invoice($details['vendor_partner_id'], $from_date, $to_date);
+        $courier_charges =  $this->invoices_model->get_sf_courier_charges($details['vendor_partner_id'], $from_date, $to_date);
         // directory
         $templateDir = __DIR__ . "/../excel-templates/";
         $invoices = $invoices_data['invoice_details'];
@@ -1149,8 +1154,13 @@ class Invoice extends CI_Controller {
                 $total_vat_charge += $invoices[$j]['vendor_vat'];
                 $invoices[$j]['amount_paid'] = round(($invoices[$j]['vendor_installation_charge'] + $invoices[$j]['vendor_st'] + $invoices[$j]['vendor_stand'] + $invoices[$j]['vendor_vat']), 0);
             }
+            $total_courier_charges = 0;
+            if(!empty($courier_charges)){
+                $total_courier_charges = (array_sum(array_column($courier_charges,'courier_charges_by_sf')));
+                
+            }
 
-            $t_total = $total_inst_charge + $total_stand_charge + $total_st_charge + $total_vat_charge;
+            $t_total = $total_inst_charge + $total_stand_charge + $total_st_charge + $total_vat_charge + $total_courier_charges;
             $tds = 0;
             $tds_tax_rate = 0;
             $tds_per_rate = 0;
@@ -1236,6 +1246,7 @@ class Invoice extends CI_Controller {
             $penalty_amount = (array_sum(array_column($penalty_data,'p_amount')));
             $excel_data['total_penalty_amount'] = -$penalty_amount;
             $excel_data['total_upcountry_price'] = round($total_upcountry_price,2);
+            $excel_data['total_courier_charges'] = round($total_courier_charges,2);
             $excel_data['t_vp_w_tds'] = $excel_data['t_vp_w_tds'] + $excel_data['total_upcountry_price'] - $penalty_amount;
             $excel_data['invoice_id'] = $invoice_id;
             $excel_data['vendor_name'] = $invoices[0]['company_name'];
@@ -1287,6 +1298,11 @@ class Invoice extends CI_Controller {
                     'id' => 'penalty',
                     'repeat' => true,
                     'data' => $penalty_data                   
+                ),
+                array(
+                    'id' => 'courier',
+                    'repeat' => true,
+                    'data' => $courier_charges                   
                 ),
               )
             );
@@ -1412,6 +1428,7 @@ class Invoice extends CI_Controller {
                     'upcountry_price' =>$excel_data['total_upcountry_price'],
                     'upcountry_distance' => $upcountry_distance,
                     'penalty_amount' => $penalty_amount,
+                    'courier_charges' => $total_courier_charges,
                     //Add 1 month to end date to calculate due date
                     'due_date' => date("Y-m-d", strtotime($to_date . "+1 month"))
                 );
@@ -2403,8 +2420,9 @@ class Invoice extends CI_Controller {
                 system(" chmod 777 " . $output_file_excel, $res1);
                 unlink($output_file_excel);
             }
-            $R->render('excel', $output_file_excel);
             
+            $R->render('excel', $output_file_excel);
+
             log_message('info', __METHOD__ . ": Excel FIle generated " . $output_file_excel);
             $res2 = 0;
             system(" chmod 777 " . $output_file_excel, $res2);
@@ -3028,23 +3046,5 @@ class Invoice extends CI_Controller {
 
         }
     }
-    
-    function fetch_invoice_id(){
-        $vendor_partner_id = $this->input->post("vendor_partner_id");
-        $partner_type = $this->input->post("partner_type");
-        if ($partner_type == "partner") {
-            $entity_details = $this->partner_model->getpartner($vendor_partner_id);
-        } else if ($partner_type == "vendor") {
-            $entity_details = $this->vendor_model->viewvendor($vendor_partner_id);
-        }
-        $type_code = $this->input->post("type_code");
-        echo $from_date = $this->input->post("from_date");
-//        switch ($type_code){
-//             case 'A':
-//                $this->create_invoice_id_to_insert($entity_details, $data['from_date'], "Around");
-//                break;
-//        }
-    }
-    
     
 }
