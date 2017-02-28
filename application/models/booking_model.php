@@ -1991,8 +1991,8 @@ class Booking_model extends CI_Model {
                     $query1 = $this->db->query($sql);
                     $data1 = $query1->result_array();
                    
-                    $data[$key]['full_name'] = $data1[0]['full_name'];
-                    $data[$key]['source'] = $data1[0]['source'];
+                    $data[$key]['full_name'] = isset($data1[0]['full_name'])?$data1[0]['full_name']:'';
+                    $data[$key]['source'] = isset($data1[0]['source'])?$data1[0]['source']:'';
                    
                     
                 } else {
