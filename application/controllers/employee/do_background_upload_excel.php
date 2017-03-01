@@ -420,6 +420,7 @@ class Do_background_upload_excel extends CI_Controller {
                 $is_price = array();
                 if(!empty($prices)){
                     $unit_details['id'] =  $prices[0]['id'];
+                    $unit_details['price_tags'] =  "Installation & Demo";
                     $unit_details['around_paid_basic_charges'] =  $unit_details['around_net_payable'] = "0.00";
                     $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
                     $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
