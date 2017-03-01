@@ -245,11 +245,7 @@ class bookings_excel extends CI_Controller {
                 $booking['district'] = $distict_details['district'];
                 $booking['taluk'] = $distict_details['taluk'];
 
-		if (empty($booking['state'])) {
-		    $to = NITS_ANUJ_EMAIL_ID;
-		    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
-		    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
-		}
+		
 
 		$booking['booking_primary_contact_no'] = $rowData[0]['CustomerContactNo'];
 
@@ -287,7 +283,7 @@ class bookings_excel extends CI_Controller {
 		$booking['quantity'] = '1';
 		$appliance_details['category'] = $unit_details['appliance_category'] = isset( $lead_details['service_appliance_data']['category'])? $lead_details['service_appliance_data']['category']:'';
 		$appliance_details['capacity'] = $unit_details['appliance_capacity'] = isset( $lead_details['service_appliance_data']['capacity'])? $lead_details['service_appliance_data']['capacity']:'';
-		$appliance_details['tag'] = $unit_details['brand'] . " " . $unit_details['appliance_description'];
+		$appliance_details['tag'] = $unit_details['appliance_brand'] . " " . $unit_details['appliance_description'];
 		$appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
 		$appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
 		$booking['partner_source'] = "Paytm-delivered-excel";
@@ -349,8 +345,13 @@ class bookings_excel extends CI_Controller {
 		}
 
 		$this->insert_booking_in_partner_leads($booking, $unit_details,$user, $lead_details['Product'] );
-		$this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+		$this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY ,'', $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
 		//Reset
+                if (empty($booking['state'])) {
+		    $to = NITS_ANUJ_EMAIL_ID;
+		    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
+		    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
+		}
 		unset($booking);
                 
                 
@@ -383,11 +384,9 @@ class bookings_excel extends CI_Controller {
     	$partner_booking['Mobile'] =  $booking['booking_primary_contact_no'];
     	$partner_booking['AlternatePhone'] =  $booking['booking_alternate_contact_no'];
     	$partner_booking['Email'] = $user_details['user_email'];
-    	$partner_booking['Landmark'] = $booking['booking_landmark'];
     	$partner_booking['Address'] = $booking['booking_address'];
     	$partner_booking['Pincode'] = $booking['booking_pincode'];
     	$partner_booking['City'] = $booking['city'];
-    	$partner_booking['DeliveryDate'] = $booking['delivery_date'];
     	$partner_booking['RequestType'] = $booking['request_type'];
     	$partner_booking['ScheduledAppointmentDate'] = $booking['booking_date'];
     	$partner_booking['ScheduledAppointmentTime'] = $booking['booking_timeslot'];
