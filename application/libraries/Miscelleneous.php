@@ -607,7 +607,7 @@ class Miscelleneous {
 	$sms['type'] = "user";
 	$sms['type_id'] = $user_id;
 
-	$this->notify->send_sms_acl($sms);
+	$this->My_CI->notify->send_sms_acl($sms);
     }
 
 
