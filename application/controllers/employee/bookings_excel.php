@@ -290,6 +290,30 @@ class bookings_excel extends CI_Controller {
 		$appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
 		$appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
 		$booking['partner_source'] = "Paytm-delivered-excel";
+                
+                //get partner data to check the price
+                $partner_data = $this->partner_model->get_partner_code($booking['partner_id']);
+                $partner_mapping_id = $partner_data[0]['price_mapping_id'];
+                if($partner_data[0]['partner_type'] == OEM){
+                    //if partner type is OEM then sent appliance brand in argument
+                    $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,'Installation & Demo', $unit_details['appliance_brand']);
+                } else {
+                    //if partner type is not OEM then dose not sent appliance brand in argument
+                    $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,'Installation & Demo',"");
+                }
+                $booking['amount_due'] = '0';
+                $is_price = array();
+                if(!empty($prices)){
+                    $unit_details['id'] =  $prices[0]['id'];
+                    $unit_details['price_tags'] =  "Installation & Demo";
+                    $unit_details['around_paid_basic_charges'] =  $unit_details['around_net_payable'] = "0.00";
+                    $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
+                    $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
+                    $booking['amount_due'] = $prices[0]['customer_net_payable'];
+                    $is_price['customer_net_payable'] = $prices[0]['customer_net_payable'];
+                    $is_price['is_upcountry'] = $prices[0]['is_upcountry'];
+                }
+
 
 		$booking['potential_value'] = '';
 		$appliance_details['last_service_date'] = date('d-m-Y');
@@ -327,6 +351,9 @@ class bookings_excel extends CI_Controller {
 		$this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
 		//Reset
 		unset($booking);
+                
+                
+                
 		unset($unit_details);
 		unset($appliance_details);
 	    }

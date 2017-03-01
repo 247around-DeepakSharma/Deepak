@@ -280,8 +280,10 @@ class Partner extends CI_Controller {
                         $partner_data = $this->partner_model->get_partner_code($booking['partner_id']);
                         $partner_mapping_id = $partner_data[0]['price_mapping_id'];
                         if($partner_data[0]['partner_type'] == OEM){
+                            //if partner type is OEM then sent appliance brand in argument
                             $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,'Installation & Demo',$unit_details['appliance_brand']);
                         } else {
+                            //if partner type is not OEM then dose not sent appliance brand in argument
                             $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,'Installation & Demo',"");
                         }
                         $booking['amount_due'] = '0';
