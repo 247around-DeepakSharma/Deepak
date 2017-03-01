@@ -460,6 +460,8 @@ class Do_background_upload_excel extends CI_Controller {
                 $is_sms = $this->check_upcountry($booking, $value['appliance'], $is_price, $unit_details['appliance_category'], $file_type, $partner_data);
                 if(!$is_sms){
                      $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
+                } else {
+                    $booking['sms_count'] = 1;
                 }
                 $booking_details_id = $this->booking_model->addbooking($booking);
 
@@ -551,13 +553,8 @@ class Do_background_upload_excel extends CI_Controller {
                             $update_data['update_date'] = date("Y-m-d H:i:s");
 
                             $sms_count = 0;
-                            $category = isset($value['service_appliance_data']['category'])?$value['service_appliance_data']['category']:'' ;
                             
-                            if ($partner_booking['service_id'] == '32') {
-                                $category = "Geyser-PAID";
-                            } else {
-                                $category = isset($value['service_appliance_data']['category']) ? $value['service_appliance_data']['category'] : '';
-                            }
+                            $category = isset($value['service_appliance_data']['category']) ? $value['service_appliance_data']['category'] : '';
                             $capacity = isset($value['service_appliance_data']['capacity'])?$value['service_appliance_data']['capacity'] :'';
                             $brand = isset($value['service_appliance_data']['brand']) ? $value['service_appliance_data']['brand'] : $value['Brand'];
                             $partner_data = $this->partner_model->get_partner_code($partner_booking['partner_id']);
@@ -1052,65 +1049,6 @@ class Do_background_upload_excel extends CI_Controller {
 	$this->notify->sendEmail($from, $to, $cc, $bcc, $subject, $html, "");
     }
 
-
-
-    /**
-     * @desc: This method is used to send sms to snapdeal shipped customer, whose edd is not tommorrow. It gets appliance free or not from notify.
-     * Make sure array of smsData has index services first then message
-     * @param string $appliance
-     * @param string $phone_number
-     * @param string $user_id
-     * @param string $booking_id
-     * @param string $file_type - Deliverd or Shipped
-     */
-    function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id, $file_type, $category,$price) {
-        switch ($file_type) {
-            case "shipped":
-                $sms['tag'] = "sd_shipped_missed_call_initial";
-
-                //ordering of smsData is important, it should be as per the %s in the SMS
-                $sms['smsData']['service'] = $appliance;
-                $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
-                /* If price exist then send sms according to that otherwise
-                 *  send sms by checking function get_product_free_not
-                 */
-                if(!empty($price)){
-                    $sms['smsData']['message'] = $price;
-                }else{
-                    $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
-                }
-                break;
-
-            case "delivered":
-                $sms['tag'] = "sd_delivered_missed_call_initial";
-
-                //ordering of smsData is important, it should be as per the %s in the SMS
-                $sms['smsData']['service'] = $appliance;
-                $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
-                /* If price exist then send sms according to that otherwise
-                 *  send sms by checking function get_product_free_not
-                 */
-                if(!empty($price)){
-                    
-                    $sms['smsData']['message'] = $price;
-                   
-                }else{
-                    $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
-                }
-                break;
-
-            default:
-                return 0;
-        }
-
-	$sms['phone_no'] = $phone_number;
-	$sms['booking_id'] = $booking_id;
-	$sms['type'] = "user";
-	$sms['type_id'] = $user_id;
-
-	$this->notify->send_sms_acl($sms);
-    }
-
     /**
      * @desc: This method ued to insert data into partner leads table.
      * @param: Array Booking details
@@ -1336,85 +1274,5 @@ class Do_background_upload_excel extends CI_Controller {
             
         }
     }
-    /**
-     * @desc: This method is used to send sms on the basis of upcountry charges
-     * @param Array $booking
-     * @param String $appliance
-     * @param Array/boolean $is_price
-     * @param Array $appliance_category
-     * @param String $file_type
-     * @param String $partner_data
-     * @return boolean
-     */
-    function check_upcountry($booking, $appliance, $is_price, $appliance_category, $file_type, $partner_data) {
-        log_message('info', __FUNCTION__ );
-        if (!empty($is_price)) {
-            log_message('info', __FUNCTION__ . ' Price Exist');
-            $data = $this->miscelleneous->check_upcountry_vendor_availability($booking['city'], $booking['booking_pincode'], $booking['service_id'], $partner_data, false);
-            $charges = 0;
-                log_message('info', __FUNCTION__ . ' Upcountry  Provide');
-                switch ($data['message']) {
-                    case NOT_UPCOUNTRY_BOOKING:
-                    case UPCOUNTRY_BOOKING:
-                    case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
-                        if ($is_price['is_upcountry'] == 0) {
-                            log_message('info', __FUNCTION__ . ' Upcountry Not Provide');
-                            $price = (($data['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE) +
-                                    $is_price['customer_net_payable']);
-                            if($price >0){
-                                $charges = "Rs. " . $price;
-                               log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
-                                
-                            } else {
-                                $charges = "FREE";
-                            }
-                            
-                        } else {
-                            log_message('info', __FUNCTION__ . ' UPCOUNTRY_BOOKING ');
-                            if($is_price['customer_net_payable'] >0){
-                                $charges = "Rs. " . $is_price['customer_net_payable'];
-                            } else {
-                                $charges = "FREE";
-                            }
-                            
-                            log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
-                        }
-                        
-
-                        break;
-
-                    case UPCOUNTRY_LIMIT_EXCEED:
-                        log_message('info', __FUNCTION__ . ' UPCOUNTRY_LIMIT_EXCEED ');
-                        if ($is_price['is_upcountry'] == 0) {
-                            log_message('info', __FUNCTION__ . ' Upcountry Not Provide');
-                            $price = (($data['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE) +
-                                    $is_price['customer_net_payable']);
-                            if($price >0){
-                                $charges = "Rs. " . $price;
-                               log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
-                                
-                            } else {
-                                $charges = "FREE";
-                            }
-                            log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
-                        }
-                        else {
-                            return false;
-                        }
-                        break;
-
-                    case SF_DOES_NOT_EXIST:
-                        log_message('info', __FUNCTION__ . SF_DOES_NOT_EXIST );
-                        return FALSE;
-                    //break;
-                }
-            
-             $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $file_type, $appliance_category, $charges);
-             return true;
-             } else {
-            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $file_type, $appliance_category, "");
-            return true;
-        }
-    }
-
+    
 }
