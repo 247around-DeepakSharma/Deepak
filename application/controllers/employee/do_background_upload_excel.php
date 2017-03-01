@@ -394,11 +394,7 @@ class Do_background_upload_excel extends CI_Controller {
 		$unit_details['booking_id'] = $booking['booking_id'];
 		$unit_details['partner_id'] = $booking['partner_id'];
 		$appliance_details['description'] = $unit_details['appliance_description'] = $value['Product_Type'];
-                if($booking['service_id'] == '32'){
-                    $appliance_details['category'] = $unit_details['appliance_category'] = 'Geyser-PAID';
-                } else{
-                    $appliance_details['category'] = $unit_details['appliance_category'] = isset($value['service_appliance_data']['category'])?$value['service_appliance_data']['category'] :'';
-                }
+                $appliance_details['category'] = $unit_details['appliance_category'] = isset($value['service_appliance_data']['category'])?$value['service_appliance_data']['category'] :'';
 
                 $appliance_details['capacity'] = $unit_details['appliance_capacity'] = isset($value['service_appliance_data']['capacity'])?$value['service_appliance_data']['capacity'] :'';
                 $appliance_details['model_number'] = $unit_details['model_number'] = $value['Model'];
@@ -735,13 +731,13 @@ class Do_background_upload_excel extends CI_Controller {
 	    $prod = trim($value['Product']);
             
             //check if service_id already exist or not by using product description
-            $service_appliance_data = $this->booking_model->get_service_id_by_appliance_details($value['Product_Type']);
+            $service_appliance_data = $this->booking_model->get_service_id_by_appliance_details(trim($value['Product_Type']));
             
             if(!empty($service_appliance_data)){
                 log_message('info', __FUNCTION__ . "=> Dsecription found");
                 $data['valid_data'][$key]['service_id'] = $service_appliance_data[0]['service_id'];
                 $data['valid_data'][$key]['service_appliance_data'] = $service_appliance_data[0];
-                $data['valid_data'][$key]['appliance'] = $this->booking_model->selectservicebyid($data['valid_data'][$key]['service_id'])[0]['services'];
+                $data['valid_data'][$key]['appliance'] = $service_appliance_data[0]['services'];
             }
             else{
                   log_message('info', __FUNCTION__ . "=> Dsecription not found");
