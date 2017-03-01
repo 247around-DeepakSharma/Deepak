@@ -195,33 +195,47 @@ class bookings_excel extends CI_Controller {
 		$appliance_details['model_number'] = $unit_details['model_number'] = "";
 
 		$prod = trim($rowData[0]['ProductCategoryL3']);
+                
+                //check if service_id already exist or not by using product description
+                $service_appliance_data = $this->booking_model->get_service_id_by_appliance_details(trim($rowData[0]['ProductName']));
 
-		if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
+                if(!empty($service_appliance_data)){
+                    log_message('info', __FUNCTION__ . "=> Appliance Dsecription found in table");
+                    $lead_details['service_id'] = $service_appliance_data[0]['service_id'];
+                    $lead_details['service_appliance_data'] = $service_appliance_data[0];
+                    $lead_details['Product'] = $service_appliance_data[0]['services'];
+                }
+                else{
+                    log_message('info', __FUNCTION__ . "=> Appliance Dsecription does not found in table");
+                    if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
 		    $lead_details['Product'] = 'Washing Machine';
-		}
-		if (stristr($prod, "Television")) {
-		    $lead_details['Product'] = 'Television';
-		}
-		if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
-		    $lead_details['Product'] = 'Air Conditioner';
-		}
-		if (stristr($prod, "Refrigerator")) {
-		    $lead_details['Product'] = 'Refrigerator';
-		}
-		if (stristr($prod, "Microwave")) {
-		    $lead_details['Product'] = 'Microwave';
-		}
-		if (stristr($prod, "Purifier")) {
-		    $lead_details['Product'] = 'Water Purifier';
-		}
-		if (stristr($prod, "Chimney")) {
-		    $lead_details['Product'] = 'Chimney';
-		}
-		if (stristr($prod, "Geyser")) {
-		    $lead_details['Product'] = 'Geyser';
-		}
+                    }
+                    if (stristr($prod, "Television")) {
+                        $lead_details['Product'] = 'Television';
+                    }
+                    if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
+                        $lead_details['Product'] = 'Air Conditioner';
+                    }
+                    if (stristr($prod, "Refrigerator")) {
+                        $lead_details['Product'] = 'Refrigerator';
+                    }
+                    if (stristr($prod, "Microwave")) {
+                        $lead_details['Product'] = 'Microwave';
+                    }
+                    if (stristr($prod, "Purifier")) {
+                        $lead_details['Product'] = 'Water Purifier';
+                    }
+                    if (stristr($prod, "Chimney")) {
+                        $lead_details['Product'] = 'Chimney';
+                    }
+                    if (stristr($prod, "Geyser")) {
+                        $lead_details['Product'] = 'Geyser';
+                    }
+                }
 
-		$appliance_details['description'] = $unit_details['appliance_description'] = $rowData[0]['ProductName'];
+		
+
+		$appliance_details['description'] = $unit_details['appliance_description'] = trim($rowData[0]['ProductName']);
 
 		$booking['booking_address'] = $rowData[0]['CustomerAddress1'] . " ," . $rowData[0]['CustomerAddress2'];
 		$booking['booking_pincode'] = $rowData[0]['CustomerPincode'];
@@ -247,7 +261,7 @@ class bookings_excel extends CI_Controller {
 		//Add this as a Query now
 		$booking['booking_id'] = '';
 		$appliance_details['user_id'] = $booking['user_id'] = $user_id;
-		$appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $this->booking_model->getServiceId($lead_details['Product']);
+		$appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = isset($lead_details['service_id'])?$lead_details['service_id']:$this->booking_model->getServiceId($lead_details['Product']);
 		log_message('info', __FUNCTION__ . "=> Service ID: " . $booking['service_id']);
 
 		$booking['booking_alternate_contact_no'] = '';
@@ -270,8 +284,8 @@ class bookings_excel extends CI_Controller {
 
 		$unit_details['partner_id'] = $booking['partner_id'];
 		$booking['quantity'] = '1';
-		$appliance_details['category'] = $unit_details['appliance_category'] = '';
-		$appliance_details['capacity'] = $unit_details['appliance_capacity'] = '';
+		$appliance_details['category'] = $unit_details['appliance_category'] = isset( $lead_details['service_appliance_data']['category'])? $lead_details['service_appliance_data']['category']:'';
+		$appliance_details['capacity'] = $unit_details['appliance_capacity'] = isset( $lead_details['service_appliance_data']['capacity'])? $lead_details['service_appliance_data']['capacity']:'';
 		$appliance_details['tag'] = $unit_details['brand'] . " " . $unit_details['appliance_description'];
 		$appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
 		$appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
@@ -297,6 +311,13 @@ class bookings_excel extends CI_Controller {
 
 		//Insert query
 		//echo print_r($booking, true) . "<br><br>";
+                //check partner status from partner_booking_status_mapping table  
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking['booking_id']);
+                if (!empty($partner_status)) {
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
+                }
+                
 		$return_id = $this->booking_model->addbooking($booking);
 		if (!$return_id) {
 		    log_message('info', __FUNCTION__ . 'Error Paytm booking details not inserted: ' . print_r($booking, true));

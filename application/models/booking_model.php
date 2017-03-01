@@ -2267,7 +2267,7 @@ class Booking_model extends CI_Model {
     
     
     /**
-     *  @desc : This function is used to insert appliance details into appliance_details_by_product_description table
+     *  @desc : This function is used to insert appliance details into appliance_product_description table
      *
      *  @param : Array()
      *  @return :id
@@ -2280,16 +2280,17 @@ class Booking_model extends CI_Model {
     }
     
     /**
-     *  @desc : This function is used to insert appliance details into appliance_details_by_product_description table
+     *  @desc : This function is used to get appliance details data from appliance_product_description table
      *
      *  @param : Array()
      *  @return :id
      */
     
     function get_service_id_by_appliance_details($product_description){
-        $this->db->select('*');
+        $this->db->select('apd.*,services');
+        $this->db->from('appliance_product_description as apd');
+        $this->db->join('services','apd.service_id = services.id');
         $this->db->where('product_description',$product_description);
-        $this->db->from('appliance_product_description');
         $query = $this->db->get();
         return $query->result_array();
     }
