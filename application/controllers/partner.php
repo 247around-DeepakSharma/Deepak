@@ -207,8 +207,6 @@ class Partner extends CI_Controller {
                             $service_id = $service_appliance_data[0]['service_id'];
                             $lead_details['service_appliance_data'] = $service_appliance_data[0];
                             $lead_details['Product'] = $service_appliance_data[0]['services'];
-                            echo "<pre>";
-                                                        print_r($lead_details);exit();
                         }
                         else{
                             if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {

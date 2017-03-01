@@ -26,6 +26,7 @@ class bookings_excel extends CI_Controller {
 	$this->load->library('PHPReport');
 	$this->load->library('notify');
 	$this->load->library('partner_utilities');
+        $this->load->library('booking_utilities');
 
 	$this->load->model('user_model');
 	$this->load->model('booking_model');
@@ -472,7 +473,7 @@ class bookings_excel extends CI_Controller {
         }
 
         //Making process for file upload
-        $delivered_file = "Paytm-Delivered-" . date('Y-m-d-H-i-s') . '-' . $data['tag'] . '.xlsx';
+        $delivered_file = $data['file_name'];
         move_uploaded_file($tmpFile, TMP_FOLDER . $delivered_file);
 
         //Upload files to AWS
