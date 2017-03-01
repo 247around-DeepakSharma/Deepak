@@ -75,25 +75,34 @@ table {
 
         var district = $("#district"+ div_no).text();
         var pincode = $("#pincode"+ div_no).text();
-        var upcountry_rate = $("#upcountry_rate"+ div_no).text();
-      
-        var event_taget = event.target;
-        var event_element = event.srcElement;
-        $.ajax({
-            type: 'POST',
-            url: '<?php echo base_url(); ?>employee/vendor/update_sub_service_center_details',
-            data: {district:district, pincode:pincode,upcountry_rate:upcountry_rate,id:id,service_center_id:service_center_id},
-            success: function (data) {
-                if(data === 'success'){
-                     $('#show_success_msg').html('Details has been Updated successfully');
-                    $('.success').show().delay(5000).fadeOut();;
-                }else{
-                    $('#show_error_msg').html('Error in updating details');
-                    $('.error').show().delay(5000).fadeOut();;
-                }
-             }
-          });
-          $(event_taget || event_element).parents('tr').hide();
+        if(pincode.length !== 6){
+            alert("Please Enter Valid 6 digit Pincode Number");
+            return false;
+        }
+        var upcountry_rate1 = $("#upcountry_rate"+ div_no).text();
+        upcountry_rate = Number(upcountry_rate1);
+        if(upcountry_rate === 2 || upcountry_rate === 3){
+            var event_taget = event.target;
+            var event_element = event.srcElement;
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/vendor/update_sub_service_center_details',
+                data: {district:district, pincode:pincode,upcountry_rate:upcountry_rate,id:id,service_center_id:service_center_id},
+                success: function (data) {
+                    if(data === 'success'){
+                         $('#show_success_msg').html('Details has been Updated successfully');
+                        $('.success').show().delay(5000).fadeOut();;
+                    }else{
+                        $('#show_error_msg').html('Error in updating details');
+                        $('.error').show().delay(5000).fadeOut();;
+                    }
+                 }
+              });
+              $(event_taget || event_element).parents('tr').hide();
+        }else{
+            alert("Please Enter Either 2 or 3 in upcountry rate");
+            return false;
+        }
 
               
           
