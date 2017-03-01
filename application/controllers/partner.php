@@ -338,7 +338,7 @@ class Partner extends CI_Controller {
                         $appliance_details['last_service_date'] = date('Y-m-d');
                         $booking['potential_value'] = '';
                         //Check vendor Availabilty for pincode and service id
-                        $is_sms = $this->miscelleneous->check_upcountry($booking, $lead_details['Product'], $is_price, $unit_details['appliance_category'], $partner_data);
+                        $is_sms = $this->miscelleneous->check_upcountry($booking, $lead_details['Product'], $is_price, $unit_details['appliance_category'],"delivered", $partner_data);
                         if($is_sms){
                             $booking['sms_count'] = 1;
                              

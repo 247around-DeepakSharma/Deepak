@@ -235,7 +235,7 @@ class Miscelleneous {
                        $cc = "abhaya@247around.com";
                        $message1 = $booking_id ." has auto cancelled because upcountry limit exceed "
                                . "and partner does not provide upcountry charges approval. Upcountry Distance ".$data['upcountry_distance'];
-                       $this->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Auto Cancel Booking', $message1, "");
+                       $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Auto Cancel Booking', $message1, "");
                        
                         $return_status = FALSE;
                     }
@@ -551,28 +551,58 @@ class Miscelleneous {
     }
     
     /**
-     * @desc: This method is used to send sms to customer while booking insert from STS
+     * @desc: This method is used to send sms to snapdeal shipped customer, whose edd is not tommorrow. It gets appliance free or not from notify.
+     * Make sure array of smsData has index services first then message
      * @param String $appliance
      * @param String $phone_number
      * @param String $user_id
      * @param String $booking_id
+     * @param String $file_type
+     * @param String $category
+     * @param String $price
+     * @return int
      */
-    function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id, $category,$price) {
+    function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id, $file_type, $category,$price) {
+        switch ($file_type) {
+            case "shipped":
+                $sms['tag'] = "sd_shipped_missed_call_initial";
 
-        $sms['tag'] = "sd_delivered_missed_call_initial";
+                //ordering of smsData is important, it should be as per the %s in the SMS
+                $sms['smsData']['service'] = $appliance;
+                $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
+                /* If price exist then send sms according to that otherwise
+                 *  send sms by checking function get_product_free_not
+                 */
+                if(!empty($price)){
+                    $sms['smsData']['message'] = $price;
+                }else{
+                    $sms['smsData']['message'] = $this->My_CI->notify->get_product_free_not($appliance, $category);
+                }
+                break;
 
-        //ordering of smsData is important, it should be as per the %s in the SMS
-        $sms['smsData']['service'] = $appliance;
-        $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
-        /* If price exist then send sms according to that otherwise
-         *  send sms by checking function get_product_free_not
-         */
-        if (!empty($price)) {
-            $sms['smsData']['message'] = $price;
-        } else {
-            $sms['smsData']['message'] = $this->My_CI->notify->get_product_free_not($appliance, $category);
+            case "delivered":
+                $sms['tag'] = "sd_delivered_missed_call_initial";
+
+                //ordering of smsData is important, it should be as per the %s in the SMS
+                $sms['smsData']['service'] = $appliance;
+                $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
+                /* If price exist then send sms according to that otherwise
+                 *  send sms by checking function get_product_free_not
+                 */
+                if(!empty($price)){
+                    
+                    $sms['smsData']['message'] = $price;
+                   
+                }else{
+                    $sms['smsData']['message'] = $this->My_CI->notify->get_product_free_not($appliance, $category);
+                }
+                break;
+
+            default:
+                return 0;
         }
-        $sms['phone_no'] = $phone_number;
+
+	$sms['phone_no'] = $phone_number;
 	$sms['booking_id'] = $booking_id;
 	$sms['type'] = "user";
 	$sms['type_id'] = $user_id;
