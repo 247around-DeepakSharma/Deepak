@@ -137,19 +137,13 @@ class Penalty_model extends CI_Model {
 	    $data['service_center_id'] = $value['assigned_vendor_id'];
 	    $data['agent_id'] = isset($value['agent_id']) && !empty($value['agent_id'])?$value['agent_id']:NULL;
 	    $data['remarks'] = isset($value['remarks']) && !empty($value['remarks'])?$value['remarks']:NULL;
-	    $data['current_state'] = isset($value['current_state']) && !empty($value['current_state'])?$value['current_state']:NULL;
 	    $data['criteria_id'] = $penalty_details['id'];
 	    $data['penalty_amount'] = $penalty_details['penalty_amount'];
             $data['active'] = 1;
-            if(isset($value['penalty_active'])){
-                $data['active']=1;
-                $where = array('booking_id'=>$data['booking_id'],'current_state' =>$data['current_state'],'service_center_id'=>$data['service_center_id']);
-                $this->update_penalty_any($where,$data);
-            }else{
-                $this->insert_penalty_on_booking($data);
-                if($data['criteria_id']  == '2'){
-                    $this->booking_model->update_booking($data['booking_id'],array('is_penalty'=> '1'));
-                }
+            $this->insert_penalty_on_booking($data);
+            if($data['criteria_id']  == '2')
+            {
+                $this->booking_model->update_booking($data['booking_id'],array('is_penalty'=> '1'));
             }
 	    
             return $data;
