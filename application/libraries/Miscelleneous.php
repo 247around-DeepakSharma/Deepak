@@ -235,7 +235,7 @@ class Miscelleneous {
                        $cc = "abhaya@247around.com";
                        $message1 = $booking_id ." has auto cancelled because upcountry limit exceed "
                                . "and partner does not provide upcountry charges approval. Upcountry Distance ".$data['upcountry_distance'];
-                       $this->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Auto Cancel Booking', $message1, "");
+                       $this->My_CI->notify->sendEmail("booking@247around.com", $to, $cc, "", 'Upcountry Auto Cancel Booking', $message1, "");
                        
                         $return_status = FALSE;
                     }
@@ -576,7 +576,7 @@ class Miscelleneous {
                 if(!empty($price)){
                     $sms['smsData']['message'] = $price;
                 }else{
-                    $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
+                    $sms['smsData']['message'] = $this->My_CI->notify->get_product_free_not($appliance, $category);
                 }
                 break;
 
@@ -594,7 +594,7 @@ class Miscelleneous {
                     $sms['smsData']['message'] = $price;
                    
                 }else{
-                    $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
+                    $sms['smsData']['message'] = $this->My_CI->notify->get_product_free_not($appliance, $category);
                 }
                 break;
 
