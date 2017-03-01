@@ -76,7 +76,7 @@ class Inventory_model extends CI_Model {
         }
         $this->db->select('*');
 //        $this->db->where(array('is_shipped' => 0,'is_received'=> 0, 'order_given_to'=> $sf_id, 'active'=> '1'));
-        $this->db->where(array('order_given_to'=> $sf_id, 'active'=> '1'));
+        $this->db->where(array('order_given_to'=> $sf_id, 'active'=> '1', 'create_date >=' => '2017-1-1'));
         $this->db->order_by('order_id', 'desc');
         $this->db->limit($limit, $start);
         $query = $this->db->get('brackets');
