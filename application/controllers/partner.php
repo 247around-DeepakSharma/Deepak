@@ -267,12 +267,12 @@ class Partner extends CI_Controller {
 //                        } else {
                         //Check for all optional parameters before setting them
                         $appliance_details['category'] = $unit_details['appliance_category'] = 
-                                isset($lead_details['service_appliance_data']['category'])?$lead_details['service_appliance_data']['category']:isset($requestData['category']) ? $requestData['category']:'';
+                                isset($lead_details['service_appliance_data']['category'])?$lead_details['service_appliance_data']['category']:'';
                        
 //                        }
                         
                         $appliance_details['capacity'] = $unit_details['appliance_capacity'] =
-                                isset($lead_details['service_appliance_data']['capacity'])?$lead_details['service_appliance_data']['capacity']:isset($requestData['capacity']) ? $requestData['capacity'] : '';
+                                isset($lead_details['service_appliance_data']['capacity'])?$lead_details['service_appliance_data']['capacity']:'';
                         
                         //get partner data to check the price
                         $partner_data = $this->partner_model->get_partner_code($booking['partner_id']);
@@ -283,8 +283,12 @@ class Partner extends CI_Controller {
                             $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,'Installation & Demo',"");
                         }
                         $booking['amount_due'] = '0';
+                        
+                         //log_message('info', __FUNCTION__ . " => Prices Check ". print_r($prices));
                         $is_price = array();
                         if(!empty($prices)){
+                            log_message('info', __FUNCTION__ . " => Prices Found");
+                            $unit_details['price_tags'] = "Installation & Demo";
                             $unit_details['id'] =  $prices[0]['id'];
                             $unit_details['around_paid_basic_charges'] =  $unit_details['around_net_payable'] = "0.00";
                             $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
