@@ -414,8 +414,8 @@ class Invoice extends CI_Controller {
 
             log_message('info', __FUNCTION__ . '=> Start Date: ' . $data[0]['start_date'] . ', End Date: ' . $data[0]['end_date']);
 
-            $start_date = date("jS M, Y", strtotime($data[0]['start_date']));
-            $end_date = date("jS M, Y", strtotime($data[0]['end_date']));
+            $start_date = date("jS M, Y", strtotime($f_date));
+            $end_date = date("jS M, Y", strtotime($t_date));
 
             foreach ($data as $key => $value) {
                 switch ($value['price_tags']) {
@@ -451,7 +451,7 @@ class Invoice extends CI_Controller {
             }
 
             $excel_data['invoice_id'] = $invoice_id;
-            $excel_data['today'] = date("jS M, Y", strtotime($end_date));
+            $excel_data['today'] = date("jS M, Y");
             $excel_data['company_name'] = $data[0]['company_name'];
             $excel_data['company_address'] = $data[0]['company_address'];
             $excel_data['total_installation_charge'] = $total_installation_charge;
@@ -2187,7 +2187,7 @@ class Invoice extends CI_Controller {
             );
             $invoices['meta']['sd'] = date("jS M, Y", strtotime($from_date));
             $invoices['meta']['ed'] = date('jS M, Y', strtotime($to_date));
-            $invoices['meta']['invoice_date'] = date("jS M, Y", strtotime($to_date));
+            $invoices['meta']['invoice_date'] = date("jS M, Y");
             if ((strcasecmp($invoices['booking'][0]['state'], "DELHI") == 0) || 
                         (strcasecmp($invoices['booking'][0]['state'], "New Delhi") == 0) ) {
                     //If matched return 0;
