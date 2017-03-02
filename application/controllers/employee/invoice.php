@@ -592,6 +592,7 @@ class Invoice extends CI_Controller {
                     'upcountry_distance' => $total_upcountry_distance,
                     'upcountry_price' => $excel_data['total_upcountry_price'],
                     'rating' => 5,
+                    'invoice_date' => date('Y-m-d'),
                     'around_royalty' => $excel_data['total_charges'],
                     //Amount needs to be collected from Vendor
                     'amount_collected_paid' => ($excel_data['total_charges'] -$tds),
@@ -959,6 +960,7 @@ class Invoice extends CI_Controller {
                     'upcountry_booking' => $up_total_booking,
                     //Service tax which needs to be paid
                     'service_tax' => $excel_data['r_st'],
+                    'invoice_date' => date('Y-m-d'),
                     //Amount needs to be collected from Vendor
                     'amount_collected_paid' => $excel_data['r_total'],
                     //Mail has not 
@@ -1439,6 +1441,7 @@ class Invoice extends CI_Controller {
                     'upcountry_distance' => $upcountry_distance,
                     'penalty_amount' => $penalty_amount,
                     'courier_charges' => $total_courier_charges,
+                    'invoice_date' => date('Y-m-d'),
                     //Add 1 month to end date to calculate due date
                     'due_date' => date("Y-m-d", strtotime($to_date . "+1 month"))
                 );
