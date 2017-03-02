@@ -26,6 +26,7 @@ class bookings_excel extends CI_Controller {
 	$this->load->library('PHPReport');
 	$this->load->library('notify');
 	$this->load->library('partner_utilities');
+        $this->load->library('booking_utilities');
 
 	$this->load->model('user_model');
 	$this->load->model('booking_model');
@@ -195,33 +196,47 @@ class bookings_excel extends CI_Controller {
 		$appliance_details['model_number'] = $unit_details['model_number'] = "";
 
 		$prod = trim($rowData[0]['ProductCategoryL3']);
+                
+                //check if service_id already exist or not by using product description
+                $service_appliance_data = $this->booking_model->get_service_id_by_appliance_details(trim($rowData[0]['ProductName']));
 
-		if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
+                if(!empty($service_appliance_data)){
+                    log_message('info', __FUNCTION__ . "=> Appliance Dsecription found in table");
+                    $lead_details['service_id'] = $service_appliance_data[0]['service_id'];
+                    $lead_details['service_appliance_data'] = $service_appliance_data[0];
+                    $lead_details['Product'] = $service_appliance_data[0]['services'];
+                }
+                else{
+                    log_message('info', __FUNCTION__ . "=> Appliance Dsecription does not found in table");
+                    if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
 		    $lead_details['Product'] = 'Washing Machine';
-		}
-		if (stristr($prod, "Television")) {
-		    $lead_details['Product'] = 'Television';
-		}
-		if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
-		    $lead_details['Product'] = 'Air Conditioner';
-		}
-		if (stristr($prod, "Refrigerator")) {
-		    $lead_details['Product'] = 'Refrigerator';
-		}
-		if (stristr($prod, "Microwave")) {
-		    $lead_details['Product'] = 'Microwave';
-		}
-		if (stristr($prod, "Purifier")) {
-		    $lead_details['Product'] = 'Water Purifier';
-		}
-		if (stristr($prod, "Chimney")) {
-		    $lead_details['Product'] = 'Chimney';
-		}
-		if (stristr($prod, "Geyser")) {
-		    $lead_details['Product'] = 'Geyser';
-		}
+                    }
+                    if (stristr($prod, "Television")) {
+                        $lead_details['Product'] = 'Television';
+                    }
+                    if (stristr($prod, "Airconditioner") || stristr($prod, "Air Conditioner")) {
+                        $lead_details['Product'] = 'Air Conditioner';
+                    }
+                    if (stristr($prod, "Refrigerator")) {
+                        $lead_details['Product'] = 'Refrigerator';
+                    }
+                    if (stristr($prod, "Microwave")) {
+                        $lead_details['Product'] = 'Microwave';
+                    }
+                    if (stristr($prod, "Purifier")) {
+                        $lead_details['Product'] = 'Water Purifier';
+                    }
+                    if (stristr($prod, "Chimney")) {
+                        $lead_details['Product'] = 'Chimney';
+                    }
+                    if (stristr($prod, "Geyser")) {
+                        $lead_details['Product'] = 'Geyser';
+                    }
+                }
 
-		$appliance_details['description'] = $unit_details['appliance_description'] = $rowData[0]['ProductName'];
+		
+
+		$appliance_details['description'] = $unit_details['appliance_description'] = trim($rowData[0]['ProductName']);
 
 		$booking['booking_address'] = $rowData[0]['CustomerAddress1'] . " ," . $rowData[0]['CustomerAddress2'];
 		$booking['booking_pincode'] = $rowData[0]['CustomerPincode'];
@@ -230,11 +245,7 @@ class bookings_excel extends CI_Controller {
                 $booking['district'] = $distict_details['district'];
                 $booking['taluk'] = $distict_details['taluk'];
 
-		if (empty($booking['state'])) {
-		    $to = NITS_ANUJ_EMAIL_ID;
-		    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
-		    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
-		}
+		
 
 		$booking['booking_primary_contact_no'] = $rowData[0]['CustomerContactNo'];
 
@@ -247,7 +258,7 @@ class bookings_excel extends CI_Controller {
 		//Add this as a Query now
 		$booking['booking_id'] = '';
 		$appliance_details['user_id'] = $booking['user_id'] = $user_id;
-		$appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = $this->booking_model->getServiceId($lead_details['Product']);
+		$appliance_details['service_id'] = $unit_details['service_id'] = $booking['service_id'] = isset($lead_details['service_id'])?$lead_details['service_id']:$this->booking_model->getServiceId($lead_details['Product']);
 		log_message('info', __FUNCTION__ . "=> Service ID: " . $booking['service_id']);
 
 		$booking['booking_alternate_contact_no'] = '';
@@ -270,22 +281,40 @@ class bookings_excel extends CI_Controller {
 
 		$unit_details['partner_id'] = $booking['partner_id'];
 		$booking['quantity'] = '1';
-		$appliance_details['category'] = $unit_details['appliance_category'] = '';
-		$appliance_details['capacity'] = $unit_details['appliance_capacity'] = '';
-		$appliance_details['tag'] = $unit_details['brand'] . " " . $unit_details['appliance_description'];
+		$appliance_details['category'] = $unit_details['appliance_category'] = isset( $lead_details['service_appliance_data']['category'])? $lead_details['service_appliance_data']['category']:'';
+		$appliance_details['capacity'] = $unit_details['appliance_capacity'] = isset( $lead_details['service_appliance_data']['capacity'])? $lead_details['service_appliance_data']['capacity']:'';
+		$appliance_details['tag'] = $unit_details['appliance_brand'] . " " . $unit_details['appliance_description'];
 		$appliance_details['purchase_month'] = $unit_details['purchase_month'] = date('m');
 		$appliance_details['purchase_year'] = $unit_details['purchase_year'] = date('Y');
 		$booking['partner_source'] = "Paytm-delivered-excel";
+                
+                //get partner data to check the price
+                $partner_data = $this->partner_model->get_partner_code($booking['partner_id']);
+                $partner_mapping_id = $partner_data[0]['price_mapping_id'];
+                if($partner_data[0]['partner_type'] == OEM){
+                    //if partner type is OEM then sent appliance brand in argument
+                    $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,'Installation & Demo', $unit_details['appliance_brand']);
+                } else {
+                    //if partner type is not OEM then dose not sent appliance brand in argument
+                    $prices = $this->partner_model->getPrices($booking['service_id'], $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,'Installation & Demo',"");
+                }
+                $booking['amount_due'] = '0';
+                $is_price = array();
+                if(!empty($prices)){
+                    $unit_details['id'] =  $prices[0]['id'];
+                    $unit_details['price_tags'] =  "Installation & Demo";
+                    $unit_details['around_paid_basic_charges'] =  $unit_details['around_net_payable'] = "0.00";
+                    $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
+                    $unit_details['partner_net_payable'] = $prices[0]['partner_net_payable'];
+                    $booking['amount_due'] = $prices[0]['customer_net_payable'];
+                    $is_price['customer_net_payable'] = $prices[0]['customer_net_payable'];
+                    $is_price['is_upcountry'] = $prices[0]['is_upcountry'];
+                }
+
 
 		$booking['potential_value'] = '';
 		$appliance_details['last_service_date'] = date('d-m-Y');
 
-		$unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
-
-		$return_unit_id = $this->booking_model->addunitdetails($unit_details);
-		if (!$return_unit_id) {
-		    log_message('info', __FUNCTION__ . 'Error Paytm booking unit not inserted: ' . print_r($unit_details, true));
-		}
 
 		$booking['type'] = "Query";
 		$booking['booking_date'] = '';
@@ -297,15 +326,39 @@ class bookings_excel extends CI_Controller {
 
 		//Insert query
 		//echo print_r($booking, true) . "<br><br>";
+                //check partner status from partner_booking_status_mapping table  
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $booking['partner_id'], $booking['booking_id']);
+                if (!empty($partner_status)) {
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
+                }
+                
 		$return_id = $this->booking_model->addbooking($booking);
-		if (!$return_id) {
+		
+                if (!$return_id) {
 		    log_message('info', __FUNCTION__ . 'Error Paytm booking details not inserted: ' . print_r($booking, true));
-		}
+                } else {
+                    $unit_details['appliance_id'] = $this->booking_model->addappliance($appliance_details);
+                    if (!empty($prices)) {
+                        $unit_id = $this->booking_model->insert_data_in_booking_unit_details($unit_details, $booking['state']);
+                    } else {
+                        $unit_id = $this->booking_model->addunitdetails($unit_details);
+                    }
+                    $this->insert_booking_in_partner_leads($booking, $unit_details,$user, $lead_details['Product'] );
+                    $this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY ,'', $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
+                    //Reset
+                    if (empty($booking['state'])) {
+                        $to = NITS_ANUJ_EMAIL_ID;
+                        $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
+                        $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
+                    }
+                }
 
-		$this->insert_booking_in_partner_leads($booking, $unit_details,$user, $lead_details['Product'] );
-		$this->notify->insert_state_change($booking['booking_id'], _247AROUND_FOLLOWUP , _247AROUND_NEW_QUERY , $this->session->userdata('id'), $this->session->userdata('employee_id'),_247AROUND);
-		//Reset
+                
 		unset($booking);
+                
+                
+                
 		unset($unit_details);
 		unset($appliance_details);
 	    }
@@ -334,11 +387,9 @@ class bookings_excel extends CI_Controller {
     	$partner_booking['Mobile'] =  $booking['booking_primary_contact_no'];
     	$partner_booking['AlternatePhone'] =  $booking['booking_alternate_contact_no'];
     	$partner_booking['Email'] = $user_details['user_email'];
-    	$partner_booking['Landmark'] = $booking['booking_landmark'];
     	$partner_booking['Address'] = $booking['booking_address'];
     	$partner_booking['Pincode'] = $booking['booking_pincode'];
     	$partner_booking['City'] = $booking['city'];
-    	$partner_booking['DeliveryDate'] = $booking['delivery_date'];
     	$partner_booking['RequestType'] = $booking['request_type'];
     	$partner_booking['ScheduledAppointmentDate'] = $booking['booking_date'];
     	$partner_booking['ScheduledAppointmentTime'] = $booking['booking_timeslot'];
@@ -424,7 +475,7 @@ class bookings_excel extends CI_Controller {
         }
 
         //Making process for file upload
-        $delivered_file = "Paytm-Delivered-" . date('Y-m-d-H-i-s') . '-' . $data['tag'] . '.xlsx';
+        $delivered_file = $data['file_name'];
         move_uploaded_file($tmpFile, TMP_FOLDER . $delivered_file);
 
         //Upload files to AWS

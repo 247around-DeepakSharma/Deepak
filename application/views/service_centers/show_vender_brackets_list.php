@@ -158,7 +158,7 @@
                             <td style="text-align: center;"><?php 
                                     $old_date = $date;
                                     $old_date_timestamp = strtotime($old_date);
-                                    $new_date = date('j M, Y g:i A', $old_date_timestamp);  
+                                    $new_date = date('j M, Y', $old_date_timestamp);  
                                     echo $new_date;
                             ?></td>
                             <!--<td><?php echo $order_given_to[$key]?></td>-->

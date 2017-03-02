@@ -448,7 +448,6 @@ class Invoice extends CI_Controller {
                 $total_stand_charge += round($value['stand'], 2);
                 $total_vat_charge += round($value['vat'], 2);
                 $total_charges = round(($total_installation_charge + $total_service_tax + $total_stand_charge + $total_vat_charge), 0);
-                
             }
 
             $excel_data['invoice_id'] = $invoice_id;
@@ -472,60 +471,62 @@ class Invoice extends CI_Controller {
             log_message('info', 'Excel data: ' . print_r($excel_data, true));
 
             $files_name = $this->generate_pdf_with_data($excel_data, $data, $R);
-            $template1 = 'Partner_invoice_detail_template-v2-upcountry.xlsx';
-            
+            $output_file_excel = "";
+            if (!empty($upcountry_invoice)) {
+                $template1 = 'Partner_invoice_detail_template-v2-upcountry.xlsx';
 
-            //set config for report
-            $config1 = array(
-                'template' => $template1,
-                'templateDir' => $templateDir
-            );
 
-            //load template
-            $R1 = new PHPReport($config1);
-            $excel_data['total_upcountry_price'] = 0;
-            $total_upcountry_booking = 0;
-            $total_upcountry_distance = 0;
-            if(!empty($upcountry_invoice)){
-                 $excel_data['total_upcountry_price'] =  $upcountry_invoice[0]['total_upcountry_price'];
-                 $total_upcountry_booking = $upcountry_invoice[0]['total_booking'];
-                 $total_upcountry_distance = $upcountry_invoice[0]['total_distance'];
-                 
+                //set config for report
+                $config1 = array(
+                    'template' => $template1,
+                    'templateDir' => $templateDir
+                );
+
+
+                //load template
+                $R1 = new PHPReport($config1);
+                $excel_data['total_upcountry_price'] = 0;
+                $total_upcountry_booking = 0;
+                $total_upcountry_distance = 0;
+                if (!empty($upcountry_invoice)) {
+                    $excel_data['total_upcountry_price'] = $upcountry_invoice[0]['total_upcountry_price'];
+                    $total_upcountry_booking = $upcountry_invoice[0]['total_booking'];
+                    $total_upcountry_distance = $upcountry_invoice[0]['total_distance'];
+                }
+
+
+                $R1->load(array(
+                    array(
+                        'id' => 'meta',
+                        'data' => $excel_data,
+                        'format' => array(
+                            'date' => array('datetime' => 'd/M/Y')
+                        )
+                    ),
+                    array(
+                        'id' => 'upcountry',
+                        'repeat' => true,
+                        'data' => $upcountry_invoice,
+                    ),
+                        )
+                );
+
+                //Get populated XLS with data
+                $output_file_dir = TMP_FOLDER;
+                $output_file = $excel_data['invoice_id'] . "upcountry-detailed";
+                $output_file_excel = $output_file_dir . $output_file . ".xlsx";
+                $res1 = 0;
+                if (file_exists($output_file_excel)) {
+
+                    system(" chmod 777 " . $output_file_excel, $res1);
+                    unlink($output_file_excel);
+                }
+                //for xlsx: excel, for xls: excel2003
+                $R1->render('excel', $output_file_excel);
+                
             }
-           
-            
-            $R1->load(array(
-            array(
-                'id' => 'meta',
-                'data' => $excel_data,
-                'format' => array(
-                    'date' => array('datetime' => 'd/M/Y')
-                )
-            ),
-            array(
-                'id' => 'upcountry',
-                'repeat' => true,
-                'data' => $upcountry_invoice,
-            ),
-            
-            
-                )
-        );
 
-        //Get populated XLS with data
-        $output_file_dir = TMP_FOLDER;
-        $output_file = $excel_data['invoice_id'] . "upcountry-detailed";
-        $output_file_excel = $output_file_dir . $output_file . ".xlsx";
-        $res1 = 0;
-        if (file_exists($output_file_excel)) {
 
-            system(" chmod 777 " . $output_file_excel, $res1);
-            unlink($output_file_excel);
-        }
-        //for xlsx: excel, for xls: excel2003
-        $R1->render('excel', $output_file_excel);
-       
-            
 
             log_message('info', __METHOD__ . "=> File created " . $files_name);
             //Send report via email
@@ -538,11 +539,13 @@ class Invoice extends CI_Controller {
             $this->email->to($to);
             $this->email->subject($subject);
             $this->email->attach($files_name . ".xlsx", 'attachment');
-            $this->email->attach($output_file_excel, 'attachment');
+            if($output_file_excel !=""){
+                $this->email->attach($output_file_excel, 'attachment');
+            }
             $this->email->attach($files_name . ".pdf", 'attachment');
 
             $mail_ret = $this->email->send();
-
+            
             if ($mail_ret) {
                 log_message('info', __METHOD__ . ": Mail sent successfully");
                 echo "Mail sent successfully..............." . PHP_EOL;
@@ -596,12 +599,19 @@ class Invoice extends CI_Controller {
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
                 log_message('info', __METHOD__ . "=> Insert Invoices in partner invoice table");
-                
+
                 foreach ($data as $key => $value1) {
-                  
+
                     log_message('info', __METHOD__ . "=> Invoice update in booking unit details unit id" . $value1['unit_id'] . " Invoice Id" . $invoice_id);
                     $this->booking_model->update_booking_unit_details_by_any(array('id' => $value1['unit_id']), array('partner_invoice_id' => $invoice_id));
-            
+                }
+                
+                if(!empty($upcountry_invoice)){
+                    foreach ($upcountry_invoice as $up_booking_details) {
+                        $this->booking_model->update_booking($up_booking_details['booking_id'], 
+                                array('upcountry_partner_invoice_id' => $invoice_id ) );
+                        
+                    }
                 }
             }
 
@@ -2169,7 +2179,7 @@ class Invoice extends CI_Controller {
         $invoices = $this->invoices_model->generate_partner_invoice($partner_id, $from_date, $to_date);
         if (!empty($invoices)) {
 
-            $template = 'partner_invoice_Main_v2.xlsx';
+            $template = 'partner_invoice_Main_v3.xlsx';
             // directory
             $templateDir = __DIR__ . "/../excel-templates/";
 
@@ -2313,7 +2323,7 @@ class Invoice extends CI_Controller {
                 //Delete JSON files now
                 exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoices['meta']['invoice_id'] . ".txt"));
             }
-            exec("rm -rf " . escapeshellarg($output_file_excel));
+            //exec("rm -rf " . escapeshellarg($output_file_excel));
             log_message('info', __FUNCTION__ . ' return with invoice id' . $invoices['meta']['invoice_id']);
             return $invoices['meta']['invoice_id'];
         } else {

@@ -1235,18 +1235,12 @@ class vendor extends CI_Controller {
             //Logging
             log_message('info', __FUNCTION__ . ' Vendor Pincode File has been uploaded in S3');
 
-//            $count = system("wc -l ".TMP_FOLDER.$newCSVFileName);
-//            $pre_count = $this->vendor_model->get_total_vendor_pincode_mapping();
-//            //Processing SQL Queries
-              $sql_commands = array();
-//            
-//            if($count > $pre_count){
-//                array_push($sql_commands, "TRUNCATE TABLE vendor_pincode_mapping_temp;");
-//                $this->vendor_model->execute_query($sql_commands);
-//                unset($sql_commands);
-//            }
-           
-             array_push($sql_commands, "TRUNCATE TABLE vendor_pincode_mapping_temp;");
+            //Processing SQL Queries
+            
+            $sql_commands = array();
+            array_push($sql_commands, "TRUNCATE TABLE vendor_pincode_mapping_temp;");
+            $this->vendor_model->execute_query($sql_commands);
+            unset($sql_commands);
 
             $dbHost=$this->db->hostname;
             $dbUser=$this->db->username;
@@ -1262,9 +1256,7 @@ class vendor extends CI_Controller {
             system("mysql -u $dbUser -h $dbHost --password=$dbPass --local_infile=1 -e \"$sql\" $dbName", $res1);
 
             $sql_commands1 = array();
-//            if($count > $pre_count){
-//                array_push($sql_commands1, "TRUNCATE TABLE vendor_pincode_mapping;");
-//            }
+            
             array_push($sql_commands1, "TRUNCATE TABLE vendor_pincode_mapping;");
             array_push($sql_commands1, "INSERT vendor_pincode_mapping SELECT * FROM vendor_pincode_mapping_temp;");
 
@@ -3626,7 +3618,6 @@ class vendor extends CI_Controller {
                 //We are making selection on basis of Escalation id choosen for Reason
                 $value['booking_id'] = $escalation['booking_id'];
                 $value['assigned_vendor_id'] = $escalation['vendor_id'];
-                $value['current_state'] = $status;
                 $value['agent_id'] = $this->session->userdata('id');
                 $value['remarks'] = $escalation_reason_final;
                 if($penalty_active == 0 && $penalty_active != Null){
@@ -3648,7 +3639,7 @@ class vendor extends CI_Controller {
                             $this->session->set_userdata('success', 'Penalty added for Rescheduled without Reason - Booking id : '.$escalation['booking_id']);
                         }
                         else{
-                            $this->session->set_userdata('failed', 'Error In adding penality For Rescheduled without Reason - Booking id : '.$escalation['booking_id'].' Please Try Again');
+                            $this->session->set_userdata('failed', 'Error In adding penalty For Rescheduled without Reason - Booking id : '.$escalation['booking_id'].' Please Try Again');
                         }
                         break;
                     case PENALTY_FAKE_CANCEL:
@@ -3665,7 +3656,7 @@ class vendor extends CI_Controller {
                             $this->session->set_userdata('success', 'Penalty added for Fake Cancellation - Booking id : '. $escalation['booking_id']);    
                         }
                         else{
-                            $this->session->set_userdata('failed', 'Error In adding penality For Fake Cancellation - Booking id : '.$escalation['booking_id'].' Please Try Again');
+                            $this->session->set_userdata('failed', 'Error In adding penalty For Fake Cancellation - Booking id : '.$escalation['booking_id'].' Please Try Again');
                         }
                         break;
 
@@ -3683,7 +3674,7 @@ class vendor extends CI_Controller {
                             $this->session->set_userdata('success', 'Penalty added for Fake Completion - Customer want Installation - Booking id : '.$escalation['booking_id']);
                         }
                         else{
-                            $this->session->set_userdata('failed', 'Error In adding penality for Fake Completion   - Customer want Installation - Booking id : '.$escalation['booking_id'].'Please Try Again');
+                            $this->session->set_userdata('failed', 'Error In adding penalty for Fake Completion   - Customer want Installation - Booking id : '.$escalation['booking_id'].'Please Try Again');
                         }
                         break;
                     
@@ -3702,7 +3693,7 @@ class vendor extends CI_Controller {
                             $this->session->set_userdata('success', 'Penalty added for Fake Completion - Customer Not want Installation - Booking id : '.$escalation['booking_id']);
                         }
                         else{
-                            $this->session->set_userdata('failed', 'Error In adding penality for Fake Completion - Customer Not want Installation - Booking id : '.$escalation['booking_id'].' Please Try Again');
+                            $this->session->set_userdata('failed', 'Error In adding penalty for Fake Completion - Customer Not want Installation - Booking id : '.$escalation['booking_id'].' Please Try Again');
                         }
                         break;
                     default:
@@ -3808,18 +3799,18 @@ class vendor extends CI_Controller {
             $this->session->set_userdata('success', 'Penalty removed - Booking id : ' . $booking_id[$key]);
             }   else {
             //Logging
-                log_message('info', __FUNCTION__ . ' Penality already Removed for Booking ID :' . $booking_id[$key]);
-                $this->session->set_userdata('error', 'Penality already Removed for Booking ID : ' . $booking_id[$key]);
+                log_message('info', __FUNCTION__ . ' Penalty already Removed for Booking ID :' . $booking_id[$key]);
+                $this->session->set_userdata('error', 'Penalty already Removed for Booking ID : ' . $booking_id[$key]);
             }
         }
     redirect(base_url() . 'employee/booking/viewclosedbooking/' . $status);
     }
     
-    function get_penility_details_data($booking_id, $status){
+    function get_penalty_details_data($booking_id, $status){
         
         $where  = array('booking_id'=>$booking_id,'active' => 1);
-        $data['penality_details'] = $this->penalty_model->get_penalty_on_booking_any($where);
-        $this->load->view('employee/get_penality_on_booking_details',array('penality_details' => $data['penality_details'], 'status'=>$status));
+        $data['penalty_details'] = $this->penalty_model->get_penalty_on_booking_any($where);
+        $this->load->view('employee/get_penalty_on_booking_details',array('penalty_details' => $data['penalty_details'], 'status'=>$status));
     }
     
     /**

@@ -199,14 +199,14 @@ class Partner extends CI_Controller {
                         $prod = trim($requestData['product']);
                         
                         //check service_id exist or not
-                        $service_appliance_data = $this->booking_model->get_service_id_by_appliance_details($requestData['productType']);
+                        $service_appliance_data = $this->booking_model->get_service_id_by_appliance_details(trim($requestData['productType']));
                         
                         if(!empty($service_appliance_data)){
                             log_message('info', __FUNCTION__ . " Get Service ID  ");
         
                             $service_id = $service_appliance_data[0]['service_id'];
                             $lead_details['service_appliance_data'] = $service_appliance_data[0];
-                            $lead_details['Product'] = $this->booking_model->selectservicebyid($service_id)[0]['services'];
+                            $lead_details['Product'] = $service_appliance_data[0]['services'];
                         }
                         else{
                             if (stristr($prod, "Washing Machine") || stristr($prod, "WashingMachine") || stristr($prod, "Dryer")) {
@@ -267,24 +267,30 @@ class Partner extends CI_Controller {
 //                        } else {
                         //Check for all optional parameters before setting them
                         $appliance_details['category'] = $unit_details['appliance_category'] = 
-                                isset($lead_details['service_appliance_data']['category'])?$lead_details['service_appliance_data']['category']:isset($requestData['category']) ? $requestData['category']:'';
+                                isset($lead_details['service_appliance_data']['category'])?$lead_details['service_appliance_data']['category']:'';
                        
 //                        }
                         
                         $appliance_details['capacity'] = $unit_details['appliance_capacity'] =
-                                isset($lead_details['service_appliance_data']['capacity'])?$lead_details['service_appliance_data']['capacity']:isset($requestData['capacity']) ? $requestData['capacity'] : '';
+                                isset($lead_details['service_appliance_data']['capacity'])?$lead_details['service_appliance_data']['capacity']:'';
                         
                         //get partner data to check the price
                         $partner_data = $this->partner_model->get_partner_code($booking['partner_id']);
                         $partner_mapping_id = $partner_data[0]['price_mapping_id'];
                         if($partner_data[0]['partner_type'] == OEM){
+                            //if partner type is OEM then sent appliance brand in argument
                             $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,'Installation & Demo',$unit_details['appliance_brand']);
                         } else {
+                            //if partner type is not OEM then dose not sent appliance brand in argument
                             $prices = $this->partner_model->getPrices($service_id, $unit_details['appliance_category'], $unit_details['appliance_capacity'], $partner_mapping_id,'Installation & Demo',"");
                         }
                         $booking['amount_due'] = '0';
-                        $is_price = false;
+                        
+                         //log_message('info', __FUNCTION__ . " => Prices Check ". print_r($prices));
+                        $is_price = array();
                         if(!empty($prices)){
+                            log_message('info', __FUNCTION__ . " => Prices Found");
+                            $unit_details['price_tags'] = "Installation & Demo";
                             $unit_details['id'] =  $prices[0]['id'];
                             $unit_details['around_paid_basic_charges'] =  $unit_details['around_net_payable'] = "0.00";
                             $unit_details['partner_paid_basic_charges'] = $prices[0]['partner_net_payable'];
@@ -332,11 +338,12 @@ class Partner extends CI_Controller {
                         $appliance_details['last_service_date'] = date('Y-m-d');
                         $booking['potential_value'] = '';
                         //Check vendor Availabilty for pincode and service id
-                        $is_sms = $this->check_upcountry($booking, $lead_details['Product'], $is_price, $unit_details['appliance_category'], $partner_data);
-                        if(!$is_sms){
-                             $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
-                        } else {
+                        $is_sms = $this->miscelleneous->check_upcountry($booking, $lead_details['Product'], $is_price, $unit_details['appliance_category'],"delivered", $partner_data);
+                        if($is_sms){
                             $booking['sms_count'] = 1;
+                             
+                        } else {
+                            $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
                         }
                             
                         $booking['current_status'] = "FollowUp";
@@ -379,19 +386,7 @@ class Partner extends CI_Controller {
 			    $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
 			    $this->notify->sendEmail("booking@247around.com", $to, "", "", 'Pincode Not Found', $message, "");
 			}
-                        
-//                        //Check vendor Availabilty for pincode and service id
-//                        $vendors = $this->vendor_model->check_vendor_availability($booking['booking_pincode'], $booking['service_id']);
-//                        $vendors_count = count($vendors);
-//
-//                        if ($vendors_count > 0) {
-//                            $this->send_sms_to_snapdeal_customer($lead_details['Product'],
-//                            $booking['booking_primary_contact_no'], $user_id,
-//                            $booking['booking_id'], $unit_details['appliance_category']);
-//                        } else { //if ($vendors_count > 0) {
-//                            log_message('info', __FUNCTION__ . ' =>  SMS not sent because of Vendor Unavailability for Booking ID: ' . $booking['booking_id']);
-//                        }
-//                        
+                                             
                         //Send response
                         $this->jsonResponseString['response'] = array(
                             "orderID" => $booking['order_id'],
@@ -435,36 +430,7 @@ class Partner extends CI_Controller {
             }
         }
     }
-    /**
-     * @desc: This method is used to send sms to customer while booking insert from STS
-     * @param String $appliance
-     * @param String $phone_number
-     * @param String $user_id
-     * @param String $booking_id
-     */
-    function send_sms_to_snapdeal_customer($appliance, $phone_number, $user_id, $booking_id, $category,$price) {
-
-        $sms['tag'] = "sd_delivered_missed_call_initial";
-
-        //ordering of smsData is important, it should be as per the %s in the SMS
-        $sms['smsData']['service'] = $appliance;
-        $sms['smsData']['missed_call_number'] = SNAPDEAL_MISSED_CALLED_NUMBER;
-        /* If price exist then send sms according to that otherwise
-         *  send sms by checking function get_product_free_not
-         */
-        if (!empty($price)) {
-            $sms['smsData']['message'] = $price;
-        } else {
-            $sms['smsData']['message'] = $this->notify->get_product_free_not($appliance, $category);
-        }
-        $sms['phone_no'] = $phone_number;
-	$sms['booking_id'] = $booking_id;
-	$sms['type'] = "user";
-	$sms['type_id'] = $user_id;
-
-	$this->notify->send_sms_acl($sms);
-    }
-
+    
     /**
      * Cancel an existing order
      *
@@ -1943,102 +1909,4 @@ class Partner extends CI_Controller {
 
 	return $unproductive_description;
     }
-    
-    /**
-     * @desc: This method is used to send sms on the basis of upcountry charges
-     * @param Array $booking
-     * @param String $appliance
-     * @param Array/boolean $is_price
-     * @param Array $appliance_category
-     * @param String $file_type
-     * @param String $partner_data
-     * @return boolean
-     */
-    function check_upcountry($booking, $appliance, $is_price, $appliance_category, $file_type, $partner_data) {
-        log_message('info', __FUNCTION__ );
-        if (!empty($is_price)) {
-            log_message('info', __FUNCTION__ . ' Price Exist');
-            $data = $this->miscelleneous->check_upcountry_vendor_availability($booking['city'], $booking['booking_pincode'], $booking['service_id'], $partner_data, false);
-            $charges = 0;
-                log_message('info', __FUNCTION__ . ' Upcountry  Provide');
-                switch ($data['message']) {
-                    case NOT_UPCOUNTRY_BOOKING:
-                    case UPCOUNTRY_BOOKING:
-                    case UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE:
-                        if ($is_price['is_upcountry'] == 0) {
-                            log_message('info', __FUNCTION__ . ' Upcountry Not Provide');
-                            $price = (($data['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE) +
-                                    $is_price['customer_net_payable']);
-                            if($price >0){
-                                $charges = "Rs. " . $price;
-                               log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
-                                
-                            } else {
-                                $charges = "FREE";
-                            }
-                            
-                        } else {
-                            log_message('info', __FUNCTION__ . ' UPCOUNTRY_BOOKING ');
-                            if($is_price['customer_net_payable'] >0){
-                                $charges = "Rs. " . $is_price['customer_net_payable'];
-                            } else {
-                                $charges = "FREE";
-                            }
-                            
-                            log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
-                        }
-                        
-
-                        break;
-
-                    case UPCOUNTRY_LIMIT_EXCEED:
-                        log_message('info', __FUNCTION__ . ' UPCOUNTRY_LIMIT_EXCEED ');
-                        if ($is_price['is_upcountry'] == 0) {
-                            log_message('info', __FUNCTION__ . ' Upcountry Not Provide');
-                            
-                            //do not send sms to customer if upcountry distance is > 150 km
-                            if ($data['upcountry_distance'] <= 150) {
-                                $price = (($data['upcountry_distance'] * DEFAULT_UPCOUNTRY_RATE) +
-                                        $is_price['customer_net_payable']);
-                                if($price >0){
-                                    $charges = "Rs. " . $price;
-                                   log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
-
-                                } else {
-                                    $charges = "FREE";
-                                }
-                                log_message('info', __FUNCTION__ . ' Price Sent to Customer ' . $charges);
-                            } else {
-                                // limit exceeded, do not send sms
-                                log_message('info', __FUNCTION__ . ' limit exceeded, do not send sms ');
-                                
-                                //send mail to nitin/anuj
-                                
-                                return false;
-                            }
-                        }
-                        else {
-                            // Not send sms, partner provide upcountry charges approval or not
-                            log_message('info', __FUNCTION__ . ' Upcountry Limit exceed ');
-                            
-                            //send mail to nitin/anuj if partner does not approve additional upcountry charges
-                            
-                            return false;
-                        }
-                        break;
-
-                    case SF_DOES_NOT_EXIST:
-                        log_message('info', __FUNCTION__ . SF_DOES_NOT_EXIST );
-                        return FALSE;
-                    //break;
-                }
-            
-             $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $file_type, $appliance_category, $charges);
-             return true;
-             } else {
-            $this->send_sms_to_snapdeal_customer($appliance, $booking['booking_primary_contact_no'], $booking['user_id'], $booking['booking_id'], $file_type, $appliance_category, "");
-            return true;
-        }
-    }
-
 }

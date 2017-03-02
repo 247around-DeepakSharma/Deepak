@@ -148,7 +148,7 @@ class Upcountry_model extends CI_Model {
         $up_data = array();
         
         if ($partner_data[0]['is_upcountry'] == 1) {
-            if ($partner_data[0]['upcountry_mid_distance_threshold'] > $upcountry_vendor_details['upcountry_distance']) {
+            if (($partner_data[0]['upcountry_mid_distance_threshold'] * 2) > $upcountry_vendor_details['upcountry_distance']) {
 
                 $partner_upcountry_rate = $partner_data[0]['upcountry_rate'];
             } else {
@@ -648,6 +648,7 @@ class Upcountry_model extends CI_Model {
                 . " AND bd.current_status = 'Completed' "
                 . " AND bd.upcountry_paid_by_customer = 0 "
                 . " AND ud.partner_invoice_id IS NULL "
+                . " AND bd.upcountry_partner_invoice_id IS NULL"
                 . " GROUP BY bd.booking_date, bd.booking_pincode, bd.service_id ";
         
         $query = $this->db->query($sql);

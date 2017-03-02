@@ -16,7 +16,7 @@
                 </thead>
                 <tbody>
                 <tbody>
-                    <?php foreach ($penality_details as $key => $row) { ?>
+                    <?php foreach ($penalty_details as $key => $row) { ?>
                     <tr class="text-center">
                         <td>
                             <?php echo $row['booking_id']; ?>
