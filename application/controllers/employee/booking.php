@@ -433,32 +433,32 @@ class Booking extends CI_Controller {
      * @return Array
      */
     function get_booking_input() {
-	log_message('info', __FUNCTION__);
-	$booking['service_id'] = $this->input->post('service_id');
-	$booking['source'] = $this->input->post('source_code');
-	$booking['type'] = $this->input->post('type');
-	$booking['amount_due'] = $this->input->post('grand_total_price');
-	$booking['booking_address'] = $this->input->post('home_address');
-	$booking['city'] = $this->input->post('city');
-	$booking_date = $this->input->post('booking_date');
-	$booking['partner_source'] = $this->input->post('partner_source');
-	$booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
-	$booking['booking_pincode'] = $this->input->post('booking_pincode');
-	// select state, taluk, district by pincode
-    $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($booking['booking_pincode']));
-	$booking['state'] = $distict_details['state'];
-    $booking['district'] = $distict_details['district'];
-    $booking['taluk'] = $distict_details['taluk'];
-	$booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
-	$booking['order_id'] = $this->input->post('order_id');
+        log_message('info', __FUNCTION__);
+        $booking['service_id'] = $this->input->post('service_id');
+        $booking['source'] = $this->input->post('source_code');
+        $booking['type'] = $this->input->post('type');
+        $booking['amount_due'] = $this->input->post('grand_total_price');
+        $booking['booking_address'] = $this->input->post('home_address');
+        $booking['city'] = $this->input->post('city');
+        $booking_date = $this->input->post('booking_date');
+        $booking['partner_source'] = $this->input->post('partner_source');
+        $booking['booking_date'] = date('d-m-Y', strtotime($booking_date));
+        $booking['booking_pincode'] = trim($this->input->post('booking_pincode'));
+        // select state, taluk, district by pincode
+        $distict_details = $this->vendor_model->get_distict_details_from_india_pincode(trim($booking['booking_pincode']));
+        $booking['state'] = $distict_details['state'];
+        $booking['district'] = $distict_details['district'];
+        $booking['taluk'] = $distict_details['taluk'];
+        $booking['booking_primary_contact_no'] = $this->input->post('booking_primary_contact_no');
+        $booking['order_id'] = $this->input->post('order_id');
 //	$booking['potential_value'] = $this->input->post('potential_value');
-	$booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
-	$booking['booking_timeslot'] = $this->input->post('booking_timeslot');
-	$booking['update_date'] = date("Y-m-d H:i:s");
+        $booking['booking_alternate_contact_no'] = $this->input->post('booking_alternate_contact_no');
+        $booking['booking_timeslot'] = $this->input->post('booking_timeslot');
+        $booking['update_date'] = date("Y-m-d H:i:s");
         $upcountry_data_json = $this->input->post('upcountry_data');
         $upcountry_data = json_decode($upcountry_data_json, TRUE);
 
-        switch ($upcountry_data['message']){
+        switch ($upcountry_data['message']) {
             case UPCOUNTRY_BOOKING:
             case UPCOUNTRY_LIMIT_EXCEED:
                 $booking['is_upcountry'] = 1;
@@ -466,7 +466,7 @@ class Booking extends CI_Controller {
         }
 
 
-	return $booking;
+        return $booking;
     }
 
     /**
