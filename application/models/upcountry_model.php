@@ -652,6 +652,7 @@ class Upcountry_model extends CI_Model {
                 . " AND bd.current_status = 'Completed' "
                 . " AND bd.upcountry_paid_by_customer = 0 "
                 . " AND ud.partner_invoice_id IS NULL "
+                . " AND bd.upcountry_partner_invoice_id IS NULL"
                 . " GROUP BY bd.booking_date, bd.booking_pincode, bd.service_id ";
         
         $query = $this->db->query($sql);
