@@ -1493,7 +1493,7 @@ class Partner extends CI_Controller {
             $booking['booking_primary_contact_no'] = $requestData['mobile'];
             $lead_details['booking_alternate_contact_no'] = (isset($requestData['alternate_phone_number']) ? $requestData['alternate_phone_number'] : "");
             $booking['booking_landmark'] = $requestData['landmark'];
-            $booking['booking_pincode'] = $requestData['pincode'];
+            $booking['booking_pincode'] = trim($requestData['pincode']);
             $booking['city'] = $requestData['city'];
 
             $booking['request_type'] = $requestData['requestType'];
