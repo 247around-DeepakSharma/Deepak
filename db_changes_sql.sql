@@ -2114,3 +2114,7 @@ ALTER TABLE `appliance_product_description`
 
 ---- Abhay 28 FEB
 ALTER TABLE `vendor_partner_invoices` ADD `courier_charges` DECIMAL(10,2) NULL DEFAULT '0' AFTER `penalty_amount`;
+
+
+--Abhay 2 Feb
+ALTER TABLE `booking_details` ADD `upcountry_partner_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `is_penalty`;
