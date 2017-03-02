@@ -460,7 +460,6 @@ class Invoice extends CI_Controller {
             $excel_data['total_vat_charge'] = $total_vat_charge;
             $excel_data['total_charges'] = $total_charges;
             $excel_data['period'] = $start_date . " To" . $end_date;
-            $excel_data['vendor_num'] = 'Vendor Number: 252752';
             if(!empty($data[0]['seller_code'])){
                 $excel_data['seller_code'] = "Seller Code ".$data[0]['seller_code'];
             } else {
