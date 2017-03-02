@@ -22,27 +22,27 @@ class Do_background_upload_excel extends CI_Controller {
 
 	$this->load->helper(array('form', 'url'));
 
-	$this->load->library('asynchronous_lib');
+        $this->load->library('asynchronous_lib');
         $this->load->library('miscelleneous');
-	$this->load->library('notify');
-	$this->load->helper(array('form', 'url'));
-	$this->load->helper('download');
+        $this->load->library('notify');
+        $this->load->helper(array('form', 'url'));
+        $this->load->helper('download');
 
-	$this->load->library('form_validation');
-	$this->load->library('s3');
-	$this->load->library('PHPReport');
-	$this->load->library('notify');
-	$this->load->library('partner_utilities');
-    $this->load->library('booking_utilities');
+        $this->load->library('form_validation');
+        $this->load->library('s3');
+        $this->load->library('PHPReport');
+        $this->load->library('notify');
+        $this->load->library('partner_utilities');
+        $this->load->library('booking_utilities');
 
-	$this->load->model('user_model');
-    $this->load->model('upcountry_model');
-	$this->load->model('booking_model');
-	$this->load->model('partner_model');
-	$this->load->model('vendor_model');
+        $this->load->model('user_model');
+        $this->load->model('upcountry_model');
+        $this->load->model('booking_model');
+        $this->load->model('partner_model');
+        $this->load->model('vendor_model');
         $this->load->model('reporting_utils');
-	$this->load->library('s3');
-	$this->load->library('email');
+        $this->load->library('s3');
+        $this->load->library('email');
     }
 
     /*
@@ -456,7 +456,7 @@ class Do_background_upload_excel extends CI_Controller {
 
                 //Send SMS to customers regarding delivery confirmation through missed call for delivered file only
                 //Check whether vendor is available or not
-                $is_sms = $this->check_upcountry($booking, $value['appliance'], $is_price, $unit_details['appliance_category'], $file_type, $partner_data);
+                $is_sms = $this->miscelleneous->check_upcountry($booking, $value['appliance'], $is_price, $unit_details['appliance_category'], $file_type, $partner_data);
                 if(!$is_sms){
                      $booking['internal_status'] = SF_UNAVAILABLE_SMS_NOT_SENT;
                 } else {
@@ -570,7 +570,7 @@ class Do_background_upload_excel extends CI_Controller {
                                 $is_price['is_upcountry'] = $prices[0]['is_upcountry'];
                             }
                             
-                            $is_sms = $this->check_upcountry($partner_booking, $value['appliance'], $is_price, $category, $file_type, $partner_data);
+                            $is_sms = $this->miscelleneous->check_upcountry($partner_booking, $value['appliance'], $is_price, $category, $file_type, $partner_data);
                             if($is_sms){
                                 $sms_count = 1;
                             } else {
