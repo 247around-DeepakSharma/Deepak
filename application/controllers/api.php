@@ -1435,10 +1435,6 @@ class Api extends CI_Controller {
             $body = 'Please schedule AC service for this customer';
                     
             $this->notify->sendEmail($from, $to, $cc, $bcc, $sub, $body, "");
-            
-            //Send ACK SMS back to customer
-            //Price needs to be added in the sf charges table
-            
         }
         
     }
