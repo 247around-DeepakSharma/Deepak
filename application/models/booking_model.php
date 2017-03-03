@@ -1206,10 +1206,11 @@ class Booking_model extends CI_Model {
     // Need to get brand to send to vendor pincode mapping add form, So we will use join with booking_unit_details
 
     $this->db->select("services.services, users.name as customername,
-            users.phone_number, booking_details.*");
+            users.phone_number, booking_details.*,penalty_on_booking.active as penalty_active");
     $this->db->from('booking_details');
     $this->db->join('users',' users.user_id = booking_details.user_id');
     $this->db->join('services', 'services.id = booking_details.service_id');
+    $this->db->join('penalty_on_booking' , 'penalty_on_booking.booking_id = booking_details.booking_id', 'left');
     if($partner_id !=""){
         $this->db->join('booking_unit_details', 'booking_unit_details.booking_id = booking_details.booking_id');
         $this->db->where('booking_details.partner_id', $partner_id);
