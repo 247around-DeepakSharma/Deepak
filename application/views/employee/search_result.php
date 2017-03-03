@@ -1,5 +1,5 @@
 <?php $offset = $this->uri->segment(4); ?>
-<script type="text/javascript" src="<?php echo base_url();?>js/jquery-1.3.2.min.js"></script>
+<!--<script type="text/javascript" src="<?php echo base_url();?>js/jquery-1.3.2.min.js"></script>-->
 <script type="text/javascript" src="<?php echo base_url();?>js/jquery-ui-1.7.1.custom.min.js"></script>
 <script>
     $(function(){
@@ -138,6 +138,29 @@
     }
     tr:nth-child(even) {background-color: #f2f2f2}
 </style>
+<!--Cancel Modal-->
+<div id="penaltycancelmodal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg" >
+      <form name="cancellation_form" id="cancellation_form" class="form-horizontal" action="<?php echo base_url() ?>employee/vendor/process_remove_penalty" method="POST">
+          
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" style="text-align: center"><b>Penalty Removal Reason</b></h4>
+          </div>
+          <div class="modal-body">
+              <span id="error_message" style="display:none;color: red;margin-bottom:10px;"><b>Please Select At Least 1 Booking</b></span>
+              <div id="open_model"></div>
+          </div>
+          <div class="modal-footer">
+             <input type="button" onclick="form_submit()" value="Submit" class="btn btn-info " form="modal-form">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+          
+      </form>
+  </div>
+</div>
+<!-- end cancel model -->
 <div id="page-wrapper">
     <div class="">
         <div class="row">
@@ -427,6 +450,7 @@
                             <th width="60px;">Open</th>
                             <th width="60px;">View</th>
                             <th width="60px;">Rate</th>
+                            <th width="160px;">Penalty</th>
                         </tr>
                     </thead>
                     <?php foreach($Bookings as $key =>$row){
@@ -480,6 +504,42 @@
                                 }
                                 ?>
                         </td>
+                        <td>
+                               <?php
+                            // Case 0: When No Penalty has been Added for this Booking - Penalty can be Added in this case
+                        if ($row->penalty_active == '' ){
+                            echo "<a class='btn btn-sm col-md-4' style='background:#D81B60' "
+                            . "href=" . base_url() . "employee/vendor/get_escalate_booking_form/$row->booking_id/$row->current_status title='Add Penalty'> <i class='fa fa-plus-square' aria-hidden='true'></i></a>";
+                            
+                             echo "<a class='btn btn-sm  col-md-4' style='background:#FFEB3B;margin-left:10px;cursor:not-allowed;opacity:0.5;' "
+                            . "href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>";
+                            
+                        }else{
+                            
+                            // Case 1:Penalty to be Deducted - Penalty can be Removed Allowed in this case
+                            if($row->penalty_active == 1){
+                                echo "<a style='background:#D81B60;cursor:not-allowed;opacity:0.5;' class='btn btn-sm  col-md-4' "
+                            . "href='javascript:void(0)' title='Add Penalty'> <i class='fa fa-plus-square' aria-hidden='true'></i></a>";
+                             
+                            ?>  
+                            <!-- <a class='btn btn-sm col-md-4' style='background:#FFEB3B;margin-left:10px' onclick='return assign_id("<?php echo $row->booking_id?>","<?php echo $row->current_status?>")' data-toggle='modal' data-target='#penaltycancelmodal' href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a> -->
+                            <a class='btn btn-sm col-md-4' style='background:#FFEB3B;margin-left:10px' onclick='get_penalty_details("<?php echo $row->booking_id?>","<?php echo $row->current_status?>")'  href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>
+                            <?php     
+                            }
+                            
+                            //Case 2: Penalty has been Removed - No Action Permitted 
+                            else if ($row->penalty_active == 0) {
+                                echo "<a class='btn btn-sm col-md-4' style='background:#F44336;cursor:not-allowed;opacity:0.5;'' "
+                            . "href='javascript:void(0)' title='Add Penalty Again'> <i class='fa fa-plus-square' aria-hidden='true'></i></a>";
+                            
+                             echo "<a  class='btn btn-sm col-md-4' style='background:#FFEB3B;margin-left:10px;cursor:not-allowed;opacity:0.5;' "
+                            . "href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>";
+                                
+                            }
+            
+                        }
+                        ?>
+                        </td>
                     </tr>
                     <?php
                         } }?>
@@ -494,16 +554,17 @@
                             <th width="150px;">
                                 <a href="<?php echo base_url();?>employee/booking/view">Booking Id</a>
                             </th>
-                            <th width="125px;">User Name</th>
-                            <th width="125px;">Phone No.</th>
-                            <th width="125px;">Service Name</th>
-                            <th width="170px;">Service Centre</th>
+                            <th width="110px;">User Name</th>
+                            <th width="110px;">Phone No.</th>
+                            <th width="110px;">Service Name</th>
+                            <th width="110px;">Service Centre</th>
                             <th width="150px;">Service Centre City</th>
-                            <th width="125px;">Completion Date</th>
+                            <th width="110px;">Completion Date</th>
                             <th width="60px;">Call</th>
                             <th width="60px;">Complete</th>
                             <th width="60px;">Open</th>
                             <th width="60px;">View</th>
+                            <th width="160px;">Penalty</th>
                         </tr>
                     </thead>
                     <?php foreach($Bookings as $key =>$row){
@@ -550,6 +611,42 @@
                             <?php echo "<a class='btn btn-sm btn-primary' "
                                 . "href=" . base_url() . "employee/booking/viewdetails/$row->booking_id target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
                                 ?>
+                        </td>
+                        <td>
+                            <?php
+                            // Case 0: When No Penalty has been Added for this Booking - Penalty can be Added in this case
+                        if ($row->penalty_active == '' ){
+                            echo "<a class='btn btn-sm col-md-4' style='background:#D81B60' "
+                            . "href=" . base_url() . "employee/vendor/get_escalate_booking_form/$row->booking_id/$row->current_status title='Add Penalty'> <i class='fa fa-plus-square' aria-hidden='true'></i></a>";
+                            
+                             echo "<a class='btn btn-sm  col-md-4' style='background:#FFEB3B;margin-left:10px;cursor:not-allowed;opacity:0.5;' "
+                            . "href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>";
+                            
+                        }else{
+                            
+                            // Case 1:Penalty to be Deducted - Penalty can be Removed Allowed in this case
+                            if($row->penalty_active == 1){
+                                echo "<a style='background:#D81B60;cursor:not-allowed;opacity:0.5;' class='btn btn-sm  col-md-4' "
+                            . "href='javascript:void(0)' title='Add Penalty'> <i class='fa fa-plus-square' aria-hidden='true'></i></a>";
+                             
+                            ?>  
+                            <!-- <a class='btn btn-sm col-md-4' style='background:#FFEB3B;margin-left:10px' onclick='return assign_id("<?php echo $row->booking_id?>","<?php echo $row->current_status?>")' data-toggle='modal' data-target='#penaltycancelmodal' href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a> -->
+                            <a class='btn btn-sm col-md-4' style='background:#FFEB3B;margin-left:10px' onclick='get_penalty_details("<?php echo $row->booking_id?>","<?php echo $row->current_status?>")'  href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>
+                            <?php     
+                            }
+                            
+                            //Case 2: Penalty has been Removed - No Action Permitted 
+                            else if ($row->penalty_active == 0) {
+                                echo "<a class='btn btn-sm col-md-4' style='background:#F44336;cursor:not-allowed;opacity:0.5;'' "
+                            . "href='javascript:void(0)' title='Add Penalty Again'> <i class='fa fa-plus-square' aria-hidden='true'></i></a>";
+                            
+                             echo "<a  class='btn btn-sm col-md-4' style='background:#FFEB3B;margin-left:10px;cursor:not-allowed;opacity:0.5;' "
+                            . "href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>";
+                                
+                            }
+            
+                        }
+                        ?>
                         </td>
                     </tr>
                     <?php
@@ -600,5 +697,31 @@
         });
         
     }
+    
+    function get_penalty_details(booking_id,status){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/vendor/get_penalty_details_data/' + booking_id+"/"+status,
+            success: function (data) {
+             $("#open_model").html(data);   
+             $('#penaltycancelmodal').modal('toggle');
+
+            }
+          });
+    }
+    
+    function form_submit() {
+        
+        var checkbox_val = [];
+        $(':checkbox:checked').each(function(i){
+          checkbox_val[i] = $(this).val();
+        });
+        if(checkbox_val.length === 0){
+            $('#error_message').css('display','block');
+            return false;
+        }else{
+            $("#cancellation_form").submit();
+        }
+    } 
     
 </script>
