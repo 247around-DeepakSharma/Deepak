@@ -470,7 +470,11 @@ class Invoice extends CI_Controller {
             log_message('info', 'Excel data: ' . print_r($excel_data, true));
 
             $files_name = $this->generate_pdf_with_data($excel_data, $data, $R);
+            
             $output_file_excel = "";
+            $total_upcountry_booking = 0;
+            $total_upcountry_distance = 0;
+            $excel_data['total_upcountry_price'] = 0;
             if (!empty($upcountry_invoice)) {
                 $template1 = 'Partner_invoice_detail_template-v2-upcountry.xlsx';
 
@@ -484,14 +488,11 @@ class Invoice extends CI_Controller {
 
                 //load template
                 $R1 = new PHPReport($config1);
-                $excel_data['total_upcountry_price'] = 0;
-                $total_upcountry_booking = 0;
-                $total_upcountry_distance = 0;
-                if (!empty($upcountry_invoice)) {
-                    $excel_data['total_upcountry_price'] = $upcountry_invoice[0]['total_upcountry_price'];
-                    $total_upcountry_booking = $upcountry_invoice[0]['total_booking'];
-                    $total_upcountry_distance = $upcountry_invoice[0]['total_distance'];
-                }
+                
+                $excel_data['total_upcountry_price'] = $upcountry_invoice[0]['total_upcountry_price'];
+                $total_upcountry_booking = $upcountry_invoice[0]['total_booking'];
+                $total_upcountry_distance = $upcountry_invoice[0]['total_distance'];
+                
 
 
                 $R1->load(array(
@@ -541,7 +542,7 @@ class Invoice extends CI_Controller {
             if($output_file_excel !=""){
                 $this->email->attach($output_file_excel, 'attachment');
             }
-            $this->email->attach($files_name . ".pdf", 'attachment');
+           // $this->email->attach($files_name . ".pdf", 'attachment');
 
             $mail_ret = $this->email->send();
             
@@ -554,17 +555,17 @@ class Invoice extends CI_Controller {
             }
 
             array_push($file_names, $files_name . ".xlsx");
-            array_push($file_names, $files_name . ".pdf");
+            //array_push($file_names, $files_name . ".pdf");
 
             if ($invoice_type == "final") {
                 log_message('info', __METHOD__ . "=> Final");
                 $bucket = BITBUCKET_DIRECTORY;
 
                 $directory_xls = "invoices-excel/" . $files_name . ".xlsx";
-                $directory_pdf = "invoices-pdf/" . $files_name . ".pdf";
+                //$directory_pdf = "invoices-pdf/" . $files_name . ".pdf";
 
                 $this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                $this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+                //$this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
                 $tds = ($excel_data['total_installation_charge'] *.02);
               
                 $invoice_details = array(
@@ -575,7 +576,6 @@ class Invoice extends CI_Controller {
                     'vendor_partner_id' => $data[0]['partner_id'],
                     'invoice_file_excel' => $files_name . '.xlsx',
                     'invoice_detailed_excel' => $invoice_id . '-detailed.xlsx',
-                    'invoice_file_pdf' => $files_name . '.pdf',
                     'from_date' => date("Y-m-d", strtotime($f_date)), //??? Check this next time, format should be YYYY-MM-DD
                     'to_date' => date("Y-m-d", strtotime($t_date)),
                     'num_bookings' => $count,
@@ -583,8 +583,8 @@ class Invoice extends CI_Controller {
                     'total_additional_service_charge' => 0.00,
                     'service_tax' => $excel_data['total_service_tax'],
                     'parts_cost' => $excel_data['total_stand_charge'],
-                    'vat' => $excel_data['total_charges'],
-                    'total_amount_collected' => ($excel_data['total_charges']- $tds),
+                    'vat' => $excel_data['total_vat_charge'],
+                    'total_amount_collected' => ($excel_data['total_charges']- $tds + $excel_data['total_upcountry_price']),
                     'tds_amount' =>$tds,
                     'tds_rate' =>'2',
                     'upcountry_booking' => $total_upcountry_booking,
@@ -617,7 +617,7 @@ class Invoice extends CI_Controller {
 
             //Delete XLS files now
             foreach ($file_names as $file_name) {
-                exec("rm -rf " . escapeshellarg($file_name));
+               exec("rm -rf " . escapeshellarg($file_name));
             }
         } else {
             log_message('info', __METHOD__ . "=> Data Not found" . $invoice_type . " Partner Id " . $partner_id);
@@ -666,17 +666,17 @@ class Invoice extends CI_Controller {
        
         system(" chmod 777 " . $output_file_excel, $res1);
         //convert excel to pdf
-        $output_file_pdf = $output_file_dir . $output_file . ".pdf";
+       //$output_file_pdf = $output_file_dir . $output_file . ".pdf";
         //$cmd = "curl -F file=@" . $output_file_excel . " http://do.convertapi.com/Excel2Pdf?apikey=" . CONVERTAPI_KEY . " -o " . $output_file_pdf;
-        putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
+       // putenv('PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/node/bin');
         $tmp_path = TMP_FOLDER;
-        $tmp_output_file = TMP_FOLDER.'output_' . __FUNCTION__ . '.txt';
-        $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
-                '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
-                $output_file_excel . ' 2> ' . $tmp_output_file;
-        $output = '';
-        $result_var = '';
-        exec($cmd, $output, $result_var);
+      //  $tmp_output_file = TMP_FOLDER.'output_' . __FUNCTION__ . '.txt';
+      //  $cmd = 'echo ' . $tmp_path . ' & echo $PATH & UNO_PATH=/usr/lib/libreoffice & ' .
+      //          '/usr/bin/unoconv --format pdf --output ' . $output_file_pdf . ' ' .
+      //         $output_file_excel . ' 2> ' . $tmp_output_file;
+       // $output = '';
+       // $result_var = '';
+       // exec($cmd, $output, $result_var);
         // Dump data in a file as a Json
         $file = fopen(TMP_FOLDER . $output_file . ".txt", "w") or die("Unable to open file!");
         $res = 0;

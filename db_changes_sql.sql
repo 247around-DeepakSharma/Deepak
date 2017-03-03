@@ -2116,5 +2116,13 @@ ALTER TABLE `appliance_product_description`
 ALTER TABLE `vendor_partner_invoices` ADD `courier_charges` DECIMAL(10,2) NULL DEFAULT '0' AFTER `penalty_amount`;
 
 
---Abhay 2 Feb
+--Abhay 2 March
 ALTER TABLE `booking_details` ADD `upcountry_partner_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `is_penalty`;
+
+
+--Abhay 3 March
+ALTER TABLE `vendor_partner_invoices` CHANGE `upcountry_booking` `upcountry_booking` INT(11) NULL DEFAULT '0';
+ALTER TABLE `vendor_partner_invoices` CHANGE `upcountry_rate` `upcountry_rate` DOUBLE(10,2) NULL DEFAULT '0.00', 
+CHANGE `upcountry_distance` `upcountry_distance` DECIMAL(10,2) NULL DEFAULT '0.00', 
+CHANGE `upcountry_price` `upcountry_price` DECIMAL(10,2) NULL DEFAULT '0.00', 
+CHANGE `penalty_bookings_count` `penalty_bookings_count` INT(11) NULL COMMENT 'On how many bookings penalty is imposed?';
