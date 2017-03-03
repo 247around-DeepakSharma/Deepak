@@ -1222,11 +1222,12 @@
                    alert('Please add valid 10 digit pan number');
                    return false;
                }
-               //checking case when pan number is less than 6 and greater than 10 and pan name is enterd
-               else if($('#pan_no').val().length == '10' && $('#name_on_pan').val() != '' && !$('#pan_file').val()){
+               //checking case when pan number 10 and pan name is enterd but panfile is not uploaded
+               <?php if(empty($query[0]['pan_file'])){ ?>
+                           else if($('#pan_no').val().length == '10' && $('#name_on_pan').val() != '' && !$('#pan_file').val()!= ''){
                    alert('Please upload pan file also');
                    return false;
-               }
+               } <?php }?>
             }
             //Check for CST
             if($('#is_cst_doc').is(":checked")){
