@@ -829,7 +829,7 @@ class invoices_model extends CI_Model {
             $meta['company_name'] = $result[0]['company_name'];
             $meta['company_address'] = $result[0]['company_address'];
             if(!empty($result[0]['seller_code'])){
-                $meta['seller_code'] = $result[0]['seller_code'];
+                $meta['seller_code'] = "Seller Code". $result[0]['seller_code'];
             } else {
                 $meta['seller_code'] = "";
             }
