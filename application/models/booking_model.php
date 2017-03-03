@@ -2296,5 +2296,34 @@ class Booking_model extends CI_Model {
         return $query->result_array();
     }
     
+    /**
+     *  @desc : This function is used to get brand name and service id which is not exist in appliance_brand table
+     * when partner_appliance_file is uploaded
+     *  @param : void()
+     *  @return :array()
+     */
+    function get_not_exist_appliance_brand_data(){
+        $sql = 'SELECT DISTINCT ap.brand as brand_name, ap.service_id
+                FROM `partner_appliance_details` AS ap
+                WHERE NOT 
+                EXISTS (
+                SELECT DISTINCT brand_name
+                FROM appliance_brands
+                WHERE LOWER( brand_name ) = LOWER( brand ) 
+                AND ap.service_id = appliance_brands.service_id
+                )';
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    /**
+     *  @desc : This function is used to insert brand name and service id which is not exist in appliance_brand table
+     * when partner_appliance_file is uploaded
+     *  @param : array()
+     *  @return :id
+     */
+    function insert_not_exist_appliance_brand_data($data){
+        return $this->db->insert_batch('appliance_brands',$data);
+    }
 
 }

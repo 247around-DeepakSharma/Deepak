@@ -555,6 +555,14 @@ class service_centre_charges extends CI_Controller {
             //Logging
             log_message('info',__FUNCTION__.' File has been uploaded in S3');
             
+            //check brand_name and service_id is exist in appliance_brand table or not
+            $not_exist_data = $this->booking_model->get_not_exist_appliance_brand_data();
+            if($not_exist_data){
+                $this->booking_model->insert_not_exist_appliance_brand_data($not_exist_data);
+                log_message('info',__FUNCTION__.'Not exist brand name and service id added into the table appliance_brand');
+            }
+            
+            
             $this->redirect_upload_form();
 	} else {
 	    $this->upload_excel_form($return);
