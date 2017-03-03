@@ -134,7 +134,7 @@ class Upcountry_model extends CI_Model {
             } else {
                 log_message('info', __FUNCTION__ ." Got to calculate min disatance" );
                 $get_data = $this->get_minimum_upcountry_price($upcountry_vendor_details, $partner_data);
-                return $this->mark_upcountry_vendor($get_data);
+                return $this->mark_upcountry_vendor($get_data, $partner_data);
             }
         } else if(!empty($error)){
             log_message('info', __FUNCTION__ ." upcountry error ".print_r($error, TRUE) );
