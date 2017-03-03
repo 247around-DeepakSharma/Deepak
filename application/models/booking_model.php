@@ -446,7 +446,7 @@ class Booking_model extends CI_Model {
         $condition ="";
         $service_center_name ="";
         if($join !=""){
-            $service_center_name = ",service_centres.name as vendor_name, service_centres.district,service_centres.address, service_centres.state as sf_state, service_centres.pincode, "
+            $service_center_name = ",service_centres.name as vendor_name, service_centres.district as sc_district,service_centres.address, service_centres.state as sf_state, service_centres.pincode, "
 		. "service_centres.primary_contact_name, service_centres.owner_email,service_centres.owner_name, "
 		. "service_centres.primary_contact_phone_1,service_centres.primary_contact_phone_2, service_centres.primary_contact_email,owner_phone_1, phone_1 ";
 	    $service_centre = ", service_centres ";
