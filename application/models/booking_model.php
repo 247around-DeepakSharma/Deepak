@@ -1206,10 +1206,11 @@ class Booking_model extends CI_Model {
     // Need to get brand to send to vendor pincode mapping add form, So we will use join with booking_unit_details
 
     $this->db->select("services.services, users.name as customername,
-            users.phone_number, booking_details.*");
+            users.phone_number, booking_details.*,penalty_on_booking.active as penalty_active");
     $this->db->from('booking_details');
     $this->db->join('users',' users.user_id = booking_details.user_id');
     $this->db->join('services', 'services.id = booking_details.service_id');
+    $this->db->join('penalty_on_booking' , 'penalty_on_booking.booking_id = booking_details.booking_id', 'left');
     if($partner_id !=""){
         $this->db->join('booking_unit_details', 'booking_unit_details.booking_id = booking_details.booking_id');
         $this->db->where('booking_details.partner_id', $partner_id);
@@ -2295,5 +2296,34 @@ class Booking_model extends CI_Model {
         return $query->result_array();
     }
     
+    /**
+     *  @desc : This function is used to get brand name and service id which is not exist in appliance_brand table
+     * when partner_appliance_file is uploaded
+     *  @param : void()
+     *  @return :array()
+     */
+    function get_not_exist_appliance_brand_data(){
+        $sql = 'SELECT DISTINCT ap.brand as brand_name, ap.service_id
+                FROM `partner_appliance_details` AS ap
+                WHERE NOT 
+                EXISTS (
+                SELECT DISTINCT brand_name
+                FROM appliance_brands
+                WHERE LOWER( brand_name ) = LOWER( brand ) 
+                AND ap.service_id = appliance_brands.service_id
+                )';
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    /**
+     *  @desc : This function is used to insert brand name and service id which is not exist in appliance_brand table
+     * when partner_appliance_file is uploaded
+     *  @param : array()
+     *  @return :id
+     */
+    function insert_not_exist_appliance_brand_data($data){
+        return $this->db->insert_batch('appliance_brands',$data);
+    }
 
 }
