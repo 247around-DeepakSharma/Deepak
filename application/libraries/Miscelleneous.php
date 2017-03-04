@@ -205,7 +205,7 @@ class Miscelleneous {
                         $up_mail_data['appliance_brand'] = $unit_details[0]['appliance_brand'];
                         $up_mail_data['appliance_category'] = $unit_details[0]['appliance_category'];
                         $up_mail_data['appliance_capacity'] = $unit_details[0]['appliance_capacity'];
-                        $up_mail_data['upcountry_distance'] = $booking[0]['upcountry_distance'];
+                        $up_mail_data['upcountry_distance'] = $booking['upcountry_distance'];
 
                         $message1 = $this->My_CI->load->view('employee/upcountry_approval_template', $up_mail_data, true);
                         
