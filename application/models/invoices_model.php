@@ -263,7 +263,7 @@ class invoices_model extends CI_Model {
         //for FOC invoice, around_to_vendor > 0 AND vendor_to_around = 0
         $where = " AND `booking_unit_details`.around_to_vendor > 0  AND `booking_unit_details`.vendor_to_around = 0 ";
 
-        $where .= " AND pay_to_sf = '1'  AND booking_unit_details.ud_closed_date >= '$from_date' AND booking_unit_details.ud_closed_date < '$to_date' ";
+        $where .= " AND pay_to_sf = '1'  AND booking_unit_details.ud_closed_date >= '$from_date' AND booking_unit_details.ud_closed_date <= '$to_date' ";
         $date = "  '$from_date' as start_date,  '" . date('Y-m-d', strtotime($to_date . " - 1 day")) . "'  as end_date,  ";
 
 
@@ -473,7 +473,7 @@ class invoices_model extends CI_Model {
                 . " AND booking_unit_details.partner_id = partners.id "
                 . " AND partner_invoice_id IS NULL "
                 . " AND booking_unit_details.ud_closed_date >= '$from_date'"
-                . " AND booking_unit_details.ud_closed_date < '$to_date'";
+                . " AND booking_unit_details.ud_closed_date <= '$to_date'";
 
 
 
