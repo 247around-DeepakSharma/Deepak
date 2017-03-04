@@ -422,10 +422,10 @@ class invoices_model extends CI_Model {
      * @param: partner id and date range
      * @return: Array()
      */
-    function getpartner_invoices($partner_id, $from_date_tmp, $to_date) {
+    function getpartner_invoices($partner_id, $from_date_tmp, $to_date_tmp) {
         log_message('info', __FUNCTION__);
         $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
-
+        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
 
         $sql1 = "SELECT booking_unit_details.id AS unit_id,`booking_details`.service_id, `booking_details`.booking_id, "
                 . " `booking_details`.reference_date,  "
@@ -473,7 +473,7 @@ class invoices_model extends CI_Model {
                 . " AND booking_unit_details.partner_id = partners.id "
                 . " AND partner_invoice_id IS NULL "
                 . " AND booking_unit_details.ud_closed_date >= '$from_date'"
-                . " AND booking_unit_details.ud_closed_date <= '$to_date'";
+                . " AND booking_unit_details.ud_closed_date < '$to_date'";
 
 
 
@@ -694,8 +694,9 @@ class invoices_model extends CI_Model {
      * @param String $to_date
      * @return Array
      */
-    function generate_partner_invoice($partner_id, $from_date_tmp, $to_date) {
+    function generate_partner_invoice($partner_id, $from_date_tmp, $to_date_tmp) {
         $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
+        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         // For Product
         $sql = "SELECT DISTINCT (`partner_net_payable`) AS p_rate, '' AS upcountry_charges,  '' AS s_service_charge, '' AS s_total_service_charge,
                 5.00 AS p_tax_rate, 
@@ -736,7 +737,7 @@ class invoices_model extends CI_Model {
                 AND ud.partner_id =  '$partner_id'
                 AND ud.booking_status =  'Completed'
                 AND ud.ud_closed_date >=  '$from_date'
-                AND ud.ud_closed_date <=  '$to_date'
+                AND ud.ud_closed_date < '$to_date'
                 AND ud.service_id = services.id
                 AND partners.id = ud.partner_id
                 AND partner_invoice_id IS NULL
@@ -782,7 +783,7 @@ class invoices_model extends CI_Model {
                 AND ud.partner_id =  '$partner_id'
                 AND ud.booking_status =  'Completed'
                 AND ud.ud_closed_date >=  '$from_date'
-                AND ud.ud_closed_date <=  '$to_date'
+                AND ud.ud_closed_date <  '$to_date'
                 AND ud.service_id = services.id
                 AND partners.id = ud.partner_id
                 AND partner_invoice_id IS NULL
@@ -850,9 +851,9 @@ class invoices_model extends CI_Model {
      * @param String $to_date
      * @return boolean
      */
-    function get_vendor_foc_invoice($vendor_id, $from_date, $to_date) {
+    function get_vendor_foc_invoice($vendor_id, $from_date, $to_date_tmp) {
 
-        // $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
+        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         $sql = "SELECT DISTINCT (`vendor_basic_charges`) AS s_service_charge, sum(`courier_charges_by_sf`) AS misc_price,'' AS p_rate,'' AS p_part_cost, '' AS p_tax_rate,
                CASE 
                
@@ -889,7 +890,7 @@ class invoices_model extends CI_Model {
                 AND ud.booking_status =  'Completed'
                 AND bd.assigned_vendor_id = '$vendor_id'
                 AND ud.ud_closed_date >=  '$from_date'
-                AND ud.ud_closed_date <=  '$to_date'
+                AND ud.ud_closed_date <  '$to_date'
                 AND sc.id = bd.assigned_vendor_id
                 AND  ud.around_to_vendor > 0  AND ud.vendor_to_around = 0
                 AND pay_to_sf = '1'
@@ -931,7 +932,7 @@ class invoices_model extends CI_Model {
                 AND ud.booking_id = bd.booking_id
                 AND bd.assigned_vendor_id = '$vendor_id'
                 AND ud.ud_closed_date >=  '$from_date'
-                AND ud.ud_closed_date <=  '$to_date'
+                AND ud.ud_closed_date <  '$to_date'
                 AND ud.service_id = services.id
                 AND sc.id = bd.assigned_vendor_id
                 AND  ud.around_to_vendor > 0  AND ud.vendor_to_around = 0 
@@ -1067,7 +1068,8 @@ class invoices_model extends CI_Model {
      * @param String $to_date
      * @return boolean
      */
-    function get_vendor_cash_invoice($vendor_id, $from_date, $to_date) {
+    function get_vendor_cash_invoice($vendor_id, $from_date, $to_date_tmp) {
+        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         for ($i = 0; $i < 2; $i++) {
             if ($i == 0) {
                 $select = "(`around_comm_basic_charges` + `around_st_or_vat_basic_charges`) *COUNT( ud.`appliance_capacity` )  AS installation_charge, ";
