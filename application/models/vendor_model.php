@@ -521,10 +521,12 @@ class vendor_model extends CI_Model {
      *  @param : $district
      *  @return : array of pincodes
      */
-    function getPincode_from_india_pincode($district) {
+    function getPincode_from_india_pincode($district="") {
         $this->db->distinct();
         $this->db->select('pincode');
-        $this->db->where('LOWER(district)', strtolower($district));
+        if($district != ""){
+            $this->db->where('LOWER(district)', strtolower($district));
+        }
         $this->db->order_by('pincode');
         $query = $this->db->get('india_pincode');
 
