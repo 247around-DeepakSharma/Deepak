@@ -513,7 +513,7 @@ class Invoice extends CI_Controller {
 
                 //Get populated XLS with data
                 $output_file_dir = TMP_FOLDER;
-                $output_file = $excel_data['invoice_id'] . "upcountry-detailed";
+                $output_file = $excel_data['invoice_id'] . "-upcountry-detailed";
                 $output_file_excel = $output_file_dir . $output_file . ".xlsx";
                 $res1 = 0;
                 if (file_exists($output_file_excel)) {
@@ -561,11 +561,15 @@ class Invoice extends CI_Controller {
                 log_message('info', __METHOD__ . "=> Final");
                 $bucket = BITBUCKET_DIRECTORY;
 
-                $directory_xls = "invoices-excel/" . $files_name . ".xlsx";
-                //$directory_pdf = "invoices-pdf/" . $files_name . ".pdf";
+                $directory_xls = "invoices-excel/" . $invoice_id . ".xlsx";
+                $directory_detailed = "invoices-excel/" . $invoice_id . "-detailed.xlsx";
 
-                $this->s3->putObjectFile($files_name . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                //$this->s3->putObjectFile($files_name . ".pdf", $bucket, $directory_pdf, S3::ACL_PUBLIC_READ);
+                $this->s3->putObjectFile(TMP_FOLDER.$invoice_id . "-detailed.xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $this->s3->putObjectFile(TMP_FOLDER.$invoice_id . ".xlsx", $bucket, $directory_detailed, S3::ACL_PUBLIC_READ);
+                if($output_file_excel !=""){
+                    $directory_upcountry_xls = "invoices-excel/" . $invoice_id . "-upcountry-detailed.xlsx";
+                    $this->s3->putObjectFile($output_file_excel, $bucket, $directory_upcountry_xls, S3::ACL_PUBLIC_READ);
+                }
                 $tds = ($excel_data['total_installation_charge'] *.02);
               
                 $invoice_details = array(
@@ -574,7 +578,7 @@ class Invoice extends CI_Controller {
                     'type' => 'Cash',
                     'vendor_partner' => 'partner',
                     'vendor_partner_id' => $data[0]['partner_id'],
-                    'invoice_file_excel' => $files_name . '.xlsx',
+                    'invoice_file_excel' => $invoice_id . '.xlsx',
                     'invoice_detailed_excel' => $invoice_id . '-detailed.xlsx',
                     'from_date' => date("Y-m-d", strtotime($f_date)), //??? Check this next time, format should be YYYY-MM-DD
                     'to_date' => date("Y-m-d", strtotime($t_date)),
@@ -617,7 +621,7 @@ class Invoice extends CI_Controller {
 
             //Delete XLS files now
             foreach ($file_names as $file_name) {
-               exec("rm -rf " . escapeshellarg($file_name));
+               //exec("rm -rf " . escapeshellarg($file_name));
             }
         } else {
             log_message('info', __METHOD__ . "=> Data Not found" . $invoice_type . " Partner Id " . $partner_id);
