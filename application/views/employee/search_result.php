@@ -285,7 +285,8 @@
                     <?php if($offset == 0){ $offset = 1;}else { $offset = $offset+1; }  ?>
                     <?php foreach($Bookings as $key =>$row){ if($row->current_status == "Pending" || $row->current_status == "Rescheduled"){ ?>
                     <tr id="row_color<?php echo $count;?>">
-                        <td><input type="hidden" class="mail_to_vendor<?php echo $count;?>" id="mail_to_vendor<?php echo $count;?>" value="<?php echo $row->mail_to_vendor;?>"></td>
+                      
+                        <td><input type="hidden" class="mail_to_vendor<?php echo $count;?>" id="mail_to_vendor<?php echo $count;?>" value="<?php echo $row->mail_to_vendor;?>"><?php if($row->is_upcountry == 1) { ?>.<i style="color:red; font-size:20px;" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
                         
                         <td>
                             <?php

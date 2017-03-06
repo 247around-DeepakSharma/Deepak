@@ -205,7 +205,7 @@ class Miscelleneous {
                         $up_mail_data['appliance_brand'] = $unit_details[0]['appliance_brand'];
                         $up_mail_data['appliance_category'] = $unit_details[0]['appliance_category'];
                         $up_mail_data['appliance_capacity'] = $unit_details[0]['appliance_capacity'];
-                        $up_mail_data['upcountry_distance'] = $booking[0]['upcountry_distance'];
+                        $up_mail_data['upcountry_distance'] = $booking['upcountry_distance'];
 
                         $message1 = $this->My_CI->load->view('employee/upcountry_approval_template', $up_mail_data, true);
                         
@@ -438,6 +438,7 @@ class Miscelleneous {
 
         //Prepare job card
         $this->My_CI->booking_utilities->lib_prepare_job_card_using_booking_id($query[0]['booking_id']);
+        $this->MY_CI->booking_utilities->lib_send_mail_to_vendor($query[0]['booking_id'], "");
         log_message('info', "Async Process to create Job card: " . $query[0]['booking_id']);
 
     }

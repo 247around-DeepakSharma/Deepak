@@ -110,7 +110,7 @@ class Service_centers_model extends CI_Model {
 
                         SELECT SUM(vendor_basic_charges + vendor_st_or_vat_basic_charges)
                         FROM booking_unit_details AS u
-                        WHERE u.booking_id = bd.booking_id
+                        WHERE u.booking_id = bd.booking_id AND pay_to_sf = '1'
 
                         )
                         ELSE  
@@ -119,7 +119,7 @@ class Service_centers_model extends CI_Model {
                         SELECT CASE WHEN partner_net_payable > 0 THEN SUM(vendor_basic_charges) 
                         ELSE SUM(vendor_basic_charges + vendor_st_or_vat_basic_charges) END
                         FROM booking_unit_details AS u1
-                        WHERE u1.booking_id = bd.booking_id
+                        WHERE u1.booking_id = bd.booking_id AND pay_to_sf = '1'
                             )
 
                         END AS earn_sc,
