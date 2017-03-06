@@ -466,7 +466,7 @@ class invoices_model extends CI_Model {
               From booking_details, booking_unit_details, services, partners
                   WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id 
                   AND `services`.id = `booking_details`.service_id  
-                  AND current_status = 'Completed' 
+                  AND booking_status = 'Completed' 
                   AND booking_details.partner_id = '" . $partner_id
                 . "' AND booking_unit_details.booking_status = 'Completed' "
                 . " AND booking_unit_details.partner_net_payable > 0 "
