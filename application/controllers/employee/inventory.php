@@ -1013,7 +1013,6 @@ class Inventory extends CI_Controller {
         
 	$config['total_rows'] = $total_rows[0]['count'];
         $data['spare_parts'] = $this->booking_model->get_spare_parts_booking($config['total_rows'], $offset);
-        echo $this->db->last_query();
         $this->load->view('employee/sparepart_on_tab' , $data);
     }
 
