@@ -48,7 +48,7 @@ class Booking_utilities {
         //log_message('info', "PHP report");
         $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id);
         if (!empty($booking_details)) {
-            $unit_where = array('booking_id' => $booking_id);
+            $unit_where = array('booking_id' => $booking_id, 'pay_to_sf' => '1');
             $unit_details = $this->My_CI->booking_model->get_unit_details($unit_where);
             $meta = array();
             $meta['upcountry_charges'] = 0;

@@ -148,7 +148,7 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
         $booking_id =base64_decode(urldecode($code));
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
-        $unit_where = array('booking_id'=>$booking_id);
+        $unit_where = array('booking_id'=>$booking_id, 'pay_to_sf' => '1');
         $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
         // This is commented because we are not showing in booking details
 //        $data['upcountry_details'] = $this->upcountry_model->upcountry_booking_list(
