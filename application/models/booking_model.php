@@ -1204,7 +1204,7 @@ class Booking_model extends CI_Model {
 
     function search_bookings($where, $partner_id = "") {
     // Need to get brand to send to vendor pincode mapping add form, So we will use join with booking_unit_details
-
+    $this->db->distinct();
     $this->db->select("services.services, users.name as customername,
             users.phone_number, booking_details.*,penalty_on_booking.active as penalty_active");
     $this->db->from('booking_details');

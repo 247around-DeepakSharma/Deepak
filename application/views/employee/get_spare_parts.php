@@ -4,57 +4,43 @@
        <div class="col-md-12">
            <div class="panel panel-default">
             <div class="panel-heading">
-               <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Pending Bookings </h2>
+               <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> Spare Parts Booking </h2>
             </div>
             <div class="panel-body">
-               <div class="table-responsive">
-                  <table class="table table-bordered table-hover table-striped">
-                     <thead>
-                         <tr>
-                             <th class="text-center">S No.</th>
-                           <th class="text-center">Booking ID</th>
-                           <th class="text-center">User</th>
-                           <th class="text-center">Mobile</th>
-                           <th class="text-center">Service Center</th>
-                           <th class="text-center">Partner</th>
-                           <th class="text-center">Parts Requested</th>
-                           <th class="text-center">Parts Shipped</th>
-                           <th class="text-center">Status</th>
-                           <th class="text-center">Defective Parts Rejection Reason</th>
-                           <th class="text-center">Booking Status</th>
-                           <th class="text-center">Update</th>
-                             
-                         </tr>
-                     </thead>
-                     <tbody>
-                         <?php foreach ($spare_parts as $value) { ?>
-                          <tr>
-                              <td class="text-center"><?php echo $sn_no; ?></td>
-                              <td class="text-center"><a 
-			     href="<?php echo base_url(); ?>employee/booking/viewdetails/<?php echo $value['booking_id']; ?>" target='_blank' title='view'><?php echo $value['booking_id'];?></a>
-			    </td>
-                              <td class="text-center"><?php echo $value['name'];?></td>
-                              <td class="text-center"><?php echo $value['booking_primary_contact_no'];?></td>
-                              <td class="text-center"><?php echo $value['sc_name'];?></td>
-                              <td class="text-center"><?php echo $value['source'];?></td>
-                              <td class="text-center"><?php echo $value['parts_requested'];?></td>
-                              <td class="text-center"><?php echo $value['parts_shipped'];?></td>
-                              <td class="text-center"><?php echo $value['status'];?></td> 
-                              <td class="text-center"><?php echo $value['remarks_defective_part_by_partner'];?></td> 
-                              <td class="text-center"><?php echo $value['current_status'];?></td> 
-                              
-                              <td class="text-center"><a href="<?php echo base_url(); ?>employee/inventory/update_spare_parts/<?php echo $value['booking_id'];?>" class="btn btn-sm btn-primary" ><i class="fa fa-edit"></i></a></td>
-                         </tr>
-                             
-                        <?php $sn_no++; }?>
-                        
-                     </tbody>
-                  </table>
-               </div>
+                <div role="tabpanel"> 
+                    <div class="col-md-10">
+                        <ul class="nav nav-tabs" role="tablist" >
+                            <li role="presentation" class="active"><a href="#spare_parts_requested" aria-controls="spare_parts_requested" role="tab" data-toggle="tab">Spare Parts Requested</a></li>
+                            <li role="presentation"><a href="#shipped" aria-controls="shipped" role="tab" data-toggle="tab">Shipped</a></li>
+                            <li role="presentation"><a href="#delivered" aria-controls="delivered" role="tab" data-toggle="tab">Delivered</a></li>
+                            <li role="presentation"><a href="#defective_part_pending" aria-controls="defective_part_pending" role="tab" data-toggle="tab">Defective Part Pending</a></li>
+                            <li role="presentation"><a href="#defective_part_shipped_by_SF" aria-controls="defective_part_shipped_by_SF" role="tab" data-toggle="tab">Defective Part Shipped By SF</a></li>
+                            
+                        </ul>
+                    </div>
+                    <div class="tab-content" id="tab-content">
+                        <center style="margin-top:30px;"> <img style="width: 60px;" src="<?php echo base_url(); ?>images/loader.gif" /> </center>
+                    </div>
+                </div>    
             </div>
            </div>
            
        </div>
    </div>
-     <div class="custom_pagination" style="margin-left: 16px;" > <?php if(isset($links)){ echo $links;} ?></div>
+<!--     <div class="custom_pagination" style="margin-left: 16px;" > <?php if(isset($links)){ echo $links;} ?></div>-->    
 </div>
+<script>
+    $(document).ready(function() {
+        spare_booking_on_tab();
+    });
+    
+    function spare_booking_on_tab(){
+        $.ajax({
+         type: 'POST',
+         url: '<?php echo base_url(); ?>employee/inventory/spare_part_booking_on_tab',
+         success: function (data) {
+          $("#tab-content").html(data);   
+         }
+       });
+    }
+</script>
