@@ -1184,6 +1184,7 @@ class Reporting_utils extends CI_Model {
                 . " active = '1' AND is_update = '1' $where ORDER BY name ";
         $query = $this->db->query($sql);
         $sc = $query->result_array();
+        
 
         $data = array();
         foreach ($sc as $value) {
@@ -1192,13 +1193,13 @@ class Reporting_utils extends CI_Model {
             
             $total_bookings = 0;
             //  Count,  booking is not assigned
-            $sql1 = "SELECT count(booking_id) as unassigned_engineer FROM booking_details as BD "
-                    . " WHERE BD.current_status = 'Pending' AND assigned_engineer_id IS  NULL "
-                    . " AND assigned_vendor_id = '$value[id]' AND "
-                    . " DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= -1";
-            $query1 = $this->db->query($sql1);
-            $result1 = $query1->result_array();
-            // Count, Booking is not updated
+//            $sql1 = "SELECT count(booking_id) as unassigned_engineer FROM booking_details as BD "
+//                    . " WHERE BD.current_status = 'Pending' AND assigned_engineer_id IS  NULL "
+//                    . " AND assigned_vendor_id = '$value[id]' AND "
+//                    . " DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= -1";
+//            $query1 = $this->db->query($sql1);
+//            $result1 = $query1->result_array();
+             //Count, Booking is not updated
             $sql2 = "SELECT count(distinct(BD.booking_id)) as not_update FROM booking_details as BD, 
                       service_center_booking_action as sc 
                       WHERE BD.Current_status IN ('Pending', 'Rescheduled') 
@@ -1209,7 +1210,7 @@ class Reporting_utils extends CI_Model {
                       AND NOT EXISTS (SELECT booking_id FROM booking_state_change WHERE booking_id =BD.booking_id 
                       AND service_center_id = '" . $value['id'] . "' 
                       AND DATEDIFF(CURRENT_TIMESTAMP , create_date) = 1) 
-                      AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= 0";
+                      AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= 1";
             $query2 = $this->db->query($sql2);
             $result2 = $query2->result_array();
             
@@ -1217,7 +1218,7 @@ class Reporting_utils extends CI_Model {
             $sql3 = "SELECT count(distinct(BD.booking_id)) as total_bookings FROM booking_details as BD,
                       service_center_booking_action AS sb
                       WHERE BD.Current_status IN ('Pending', 'Rescheduled') 
-                      AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= 0
+                      AND DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(BD.booking_date, '%d-%m-%Y')) >= 1
                       AND assigned_vendor_id = '" . $value['id']."' "
                     . " AND BD.booking_id = sb.booking_id AND sb.current_status = 'Pending' ";
                           
@@ -1241,17 +1242,10 @@ class Reporting_utils extends CI_Model {
             
             if (!empty($result2)) {
 
-                if (!empty($result1)) {
-                    $un_assigned = $result1[0]['unassigned_engineer'];
-                }
-
-                if (!empty($result2)) {
-                    $not_update = $result2[0]['not_update'];
-                }
+                $un_assigned = 0;
+                $not_update = $result2[0]['not_update'];
+                $total_bookings = $result3[0]['total_bookings'];
                 
-                if (!empty($result3)) {
-                    $total_bookings = $result3[0]['total_bookings'];
-                }
 
                 $where = array('service_center_id' => $value['id']);
                 // Get Old Crimes
@@ -1263,8 +1257,7 @@ class Reporting_utils extends CI_Model {
                 }
 
                 // insert or update crimes when this function is triggered by cron
-
-                if ($is_insert) {
+                if ($is_insert && $where != "") {
 
                     $sc_crimes['service_center_id'] = $value['id'];
                     $sc_crimes['engineer_not_assigned'] = $un_assigned;
@@ -1272,7 +1265,7 @@ class Reporting_utils extends CI_Model {
                     $sc_crimes['total_pending_booking'] = $total_bookings;
                     $sc_crimes['total_missed_target'] = ($un_assigned + $not_update );
                     $sc_crimes['update_date'] = date('Y-m-d H:i:s');
-
+                    
                     $this->store_old_sc_crimes($sc_crimes);
                 }
 
