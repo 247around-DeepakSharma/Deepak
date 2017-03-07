@@ -36,8 +36,23 @@
                                 } ?>">
                                 <label for="booking_pincode" class="col-md-4">Pincode *</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($user[0]['pincode'])){echo $user[0]['pincode'];} ?>" placeholder="Enter Area Pin" >
-                                    <?php echo form_error('booking_pincode'); ?>
+                                    <!-- <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($user[0]['pincode'])){echo $user[0]['pincode'];} ?>" placeholder="Enter Area Pin" > -->
+                                    <select type="text"  class="form-control"  id="booking_pincode" name="booking_pincode" required>
+                                            <option selected="selected" disabled="disabled">Select Pincode</option>
+                                            <?php
+
+                                                 $flag = 0;
+                                                foreach ($pincode as $key => $value) {
+
+                                                    ?>
+                                            <option <?php if($value['pincode'] == $user[0]['pincode']){ echo "Selected"; $flag = 1; }?>><?php echo $value['pincode']; ?></option>
+                                            <?php  }
+                                                ?>
+                                            <?php if($flag == 0){ ?>
+                                            <option selected="selected" ><?php echo $user[0]['pincode']; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                        <?php echo form_error('booking_pincode'); ?>
                                 </div>
                             </div>
                                 <div class="form-group ">
@@ -363,6 +378,9 @@
     $(".booking_source").select2();
     $("#service_id").select2();
     $("#booking_city").select2({
+         tags: true
+    });
+    $("#booking_pincode").select2({
          tags: true
     });
     $("#partner_source").select2();
