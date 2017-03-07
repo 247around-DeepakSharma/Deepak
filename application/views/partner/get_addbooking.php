@@ -416,6 +416,8 @@
     //This funciton is used to get Distinct Brands for selected service for Logged Partner
     function get_brands(){
         service_id =  $("#service_name").find(':selected').attr('data-id');
+        partner_price_mapping_id = '<?php echo $partner_price_mapping_id;?>';
+        partner_type = '<?php echo $partner_type;?>';
         $("#total_price").html("<br/>Rs.");
         
          $.ajax({
@@ -424,7 +426,9 @@
                             $('#brand_loading').css("display", "inherit");
                         },
                         url: '<?php echo base_url(); ?>employee/partner/get_brands_from_service',
-                        data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, brand:'<?php echo set_value('appliance_brand');?>'},
+                        data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, 
+                    brand:'<?php echo set_value('appliance_brand');?>', partner_price_mapping_id:partner_price_mapping_id,
+                        partner_type:partner_type},
                         success: function (data) {
                                
                                 //First Resetting Options values present if any
@@ -442,6 +446,8 @@
     function get_category(){
         service_id =  $("#service_name").find(':selected').attr('data-id');
         brand =  $("#appliance_brand_1").val();
+        partner_price_mapping_id = '<?php echo $partner_price_mapping_id;?>';
+        partner_type = '<?php echo $partner_type;?>';
         $("#total_price").html("<br/>Rs.");
         $.ajax({
                         type: 'POST',
@@ -449,9 +455,11 @@
                             $('#category_loading').css("display", "inherit");
                         },
                         url: '<?php echo base_url(); ?>employee/partner/get_category_from_service',
-                        data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, brand: brand},
+                        data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, 
+                    brand: brand, partner_price_mapping_id:partner_price_mapping_id,
+                        partner_type:partner_type},
                         success: function (data) {
-                               
+                              
                                 //First Resetting Options values present if any
                                 $("#appliance_category_1 option[value !='option1']").remove();
                                 $('#appliance_category_1').append(data).change();
@@ -469,6 +477,8 @@
         service_id =  $("#service_name").find(':selected').attr('data-id');
         brand = $("#appliance_brand_1").find(':selected').val();
         category = $("#appliance_category_1").find(':selected').val();
+        partner_price_mapping_id = '<?php echo $partner_price_mapping_id;?>';
+        partner_type = '<?php echo $partner_type;?>';
         $("#total_price").html("<br/>Rs.");
         $.ajax({
             type: 'POST',
@@ -476,7 +486,9 @@
                 $('#capacity_loading').css("display", "inherit");
             },
             url: '<?php echo base_url(); ?>employee/partner/get_capacity_for_partner',
-            data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, brand: brand,category:category},
+            data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, 
+        brand: brand,category:category, partner_price_mapping_id:partner_price_mapping_id,
+                        partner_type:partner_type},
             
             success: function (data) {
 
@@ -498,6 +510,8 @@
         brand = $("#appliance_brand_1").find(':selected').val();
         category = $("#appliance_category_1").find(':selected').val();
         capacity = $("#appliance_capacity_1").val();
+        partner_price_mapping_id = '<?php echo $partner_price_mapping_id;?>';
+        partner_type = '<?php echo $partner_type;?>';
         if(capacity === null && capacity === ""){
             capacity = '';
         }
@@ -505,7 +519,9 @@
         $.ajax({
                         type: 'POST',
                         url: '<?php echo base_url(); ?>employee/partner/get_model_for_partner',
-                        data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, brand: brand,category:category,capacity:capacity},
+                        data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, 
+                        brand: brand,category:category,capacity:capacity,partner_price_mapping_id:partner_price_mapping_id,
+                        partner_type:partner_type},
                        
                         success: function (data) {
                                 if(data === "Data Not Found"){
@@ -540,6 +556,8 @@
         postData['service_category'] = $("#price_tag").val();
         postData['pincode'] = $("#booking_pincode").val();
         postData['city'] = $("#booking_city").val();
+        postData['partner_price_mapping_id'] = '<?php echo $partner_price_mapping_id;?>';
+        postData['partner_type'] = '<?php echo $partner_type;?>';
         $("#total_price").html("<br/>Rs.");
         if( postData['service_category'] !== null && postData['brand'] !== null 
                 && postData['category'] !== null && postData['pincode'].length === 6 && postData['city'] !== null){
@@ -554,7 +572,7 @@
                 url: '<?php echo base_url(); ?>employee/partner/get_price_for_partner',
                 data: postData,
                 success: function (data) {
-                    console.log(data);
+                    //console.log(data);
                      if(data === "ERROR"){
                          // $("#total_price").text("Price is not defined" );
                           alert("Outstation Bookings Are Not Allowed, Please Contact 247around Team.");
@@ -585,6 +603,8 @@
         postData['brand'] = $('#appliance_brand_1').val();
         postData['category'] = $("#appliance_category_1").val();
         capacity = $("#appliance_capacity_1").val();
+        postData['partner_price_mapping_id'] = '<?php echo $partner_price_mapping_id;?>';
+        postData['partner_type'] = '<?php echo $partner_type;?>';
         $("#total_price").html("<br/>Rs.");
         if(capacity === null && capacity === ""){
             postData['capacity'] = "";

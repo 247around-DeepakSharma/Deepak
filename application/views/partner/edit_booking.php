@@ -59,7 +59,7 @@
                                     <select type="text" class="form-control"  id="service_name" name="service_id"   required onchange="return get_brands(), get_category(), get_capacity(), getservice_category()">
                                         <option selected disabled>Select Appliance</option>
                                         <?php foreach ($appliances as $values) { ?>
-                                        <option <?php if(count($appliances) ==1){echo "selected";} ?> data-id="<?php echo $values->id;?>" value=<?= $values->id; ?>>
+                                        <option <?php if(count($appliances) ==1){echo "selected";} ?>  data-id="<?php echo $values->id;?>" value=<?= $values->id; ?> <?php if($booking_history[0]['service_id'] == $values->id){ echo "selected";} ?>>
                                             <?php echo $values->services; }    ?>
                                         </option>
                                     </select>
@@ -69,8 +69,8 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 <?php if( form_error('appliance_brand') ) { echo 'has-error';} ?>">
-                                    <label for="appliance_brand">Brand *  <span id="error_brand" style="color: red;"></label>
-                                    <p style="color:grey;display:none" id="brand_loading">Loading ...</p>
+                                    <label for="appliance_brand">Brand *  <span id="error_brand" style="color: red;"><span style="color:grey;display:none" id="brand_loading">Loading ...</span></label>
+                                    
                                     <select type="text" class="form-control appliance_brand"    name="appliance_brand" id="appliance_brand_1" required onchange="return get_category(), getservice_category()">
                                         <option selected disabled value="option1">Select Brand</option>
                                     </select>
@@ -79,8 +79,8 @@
                             </div>
                             <div class="col-md-4 col-md-12">
                                 <div class="form-group col-md-12 <?php if( form_error('appliance_category') ) { echo 'has-error';} ?>">
-                                    <label for="appliance_category">Category * <span id="error_category" style="color: red;"></label>
-                                    <p style="color:grey;display:none" id="category_loading">Loading ...</p>
+                                    <label for="appliance_category">Category * <span id="error_category" style="color: red;"> <span style="color:grey;display:none" id="category_loading">Loading ...</span></label>
+                                   
                                     <select type="text" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category"   required onchange="return get_capacity(), getservice_category()">
                                         <option selected disabled value="option1">Select Appliance Category</option>
                                     </select>
@@ -89,8 +89,8 @@
                             </div>
                             <div class="col-md-4 col-md-12">
                                 <div class="form-group col-md-12 <?php if( form_error('appliance_capacity') ) { echo 'has-error';} ?>">
-                                    <label for="appliance_capacity">Capacity  <span id="error_capacity" style="color: red;"></label>
-                                    <p style="color:grey;display:none" id="capacity_loading">Loading ...</p>
+                                    <label for="appliance_capacity">Capacity  <span id="error_capacity" style="color: red;"> <span style="color:grey;display:none" id="capacity_loading">Loading ...</span></label>
+                                   
                                     <select type="text" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" onchange="return get_models(), getservice_category()">
                                         <option selected disabled value="option1">Select Appliance Capacity</option>
                                     </select>
@@ -415,15 +415,19 @@
     //This funciton is used to get Distinct Brands for selected service for Logged Partner
     function get_brands(){
         service_id =  $("#service_name").find(':selected').attr('data-id');
+        partner_price_mapping_id = '<?php echo $partner_price_mapping_id;?>';
+        partner_type = '<?php echo $partner_type;?>';
         $("#total_price").html("<br/>Rs.");
         
          $.ajax({
                         type: 'POST',
                         beforeSend: function(){
-                            $('#brand_loading').css("display", "block");
+                            $('#brand_loading').css("display", "-webkit-inline-box");
                         },
                         url: '<?php echo base_url(); ?>employee/partner/get_brands_from_service',
-                        data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, brand:'<?php echo $unit_details[0]['appliance_brand']; ?>'},
+                        data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, 
+                    brand:'<?php echo $unit_details[0]['appliance_brand']; ?>', partner_price_mapping_id:partner_price_mapping_id,
+                        partner_type:partner_type},
                         success: function (data) {
                                
                                 //First Resetting Options values present if any
@@ -441,14 +445,18 @@
     function get_category(brand){
         service_id =  $("#service_name").find(':selected').attr('data-id');
         brand =  $("#appliance_brand_1").val();
+        partner_price_mapping_id = '<?php echo $partner_price_mapping_id;?>';
+        partner_type = '<?php echo $partner_type;?>';
         $("#total_price").html("<br/>Rs.");
         $.ajax({
                         type: 'POST',
                         beforeSend: function(){
-                            $('#category_loading').css("display", "block");
+                            $('#category_loading').css("display", "-webkit-inline-box");
                         },
                         url: '<?php echo base_url(); ?>employee/partner/get_category_from_service',
-                        data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, brand: brand, category:'<?php echo $unit_details[0]['appliance_category']; ?>'},
+                        data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, 
+                    brand: brand, category:'<?php echo $unit_details[0]['appliance_category']; ?>',  partner_price_mapping_id:partner_price_mapping_id,
+                        partner_type:partner_type},
                         success: function (data) {
                                
                                 //First Resetting Options values present if any
@@ -468,14 +476,18 @@
         service_id =  $("#service_name").find(':selected').attr('data-id');
         brand = $("#appliance_brand_1").find(':selected').val();
         category = $("#appliance_category_1").find(':selected').val();
+        partner_price_mapping_id = '<?php echo $partner_price_mapping_id;?>';
+        partner_type = '<?php echo $partner_type;?>';
         $("#total_price").html("<br/>Rs.");
         $.ajax({
             type: 'POST',
             beforeSend: function(){
-                $('#capacity_loading').css("display", "block");
+                $('#capacity_loading').css("display", "-webkit-inline-box");
             },
             url: '<?php echo base_url(); ?>employee/partner/get_capacity_for_partner',
-            data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, brand: brand,category:category, capacity:'<?php echo $unit_details[0]['appliance_capacity']; ?>'},
+            data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, 
+        brand: brand,category:category, capacity:'<?php echo $unit_details[0]['appliance_capacity']; ?>', partner_price_mapping_id:partner_price_mapping_id,
+                        partner_type:partner_type},
             
             success: function (data) {
 
@@ -495,6 +507,8 @@
         service_id =  $("#service_name").find(':selected').attr('data-id');
         brand = $("#appliance_brand_1").find(':selected').val();
         category = $("#appliance_category_1").find(':selected').val();
+        partner_price_mapping_id = '<?php echo $partner_price_mapping_id;?>';
+        partner_type = '<?php echo $partner_type;?>';
         capacity = $("#appliance_capacity_1").val();
         if(capacity === null && capacity === ""){
             capacity = '';
@@ -503,7 +517,10 @@
         $.ajax({
                         type: 'POST',
                         url: '<?php echo base_url(); ?>employee/partner/get_model_for_partner',
-                        data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, brand: brand,category:category,capacity:capacity, model:'<?php echo $unit_details[0]['model_number']; ?>'},
+                        data: {service_id: service_id,partner_id:<?php echo $this->session->userdata('partner_id')?>, 
+                    brand: brand,category:category,capacity:capacity, 
+                    model:'<?php echo $unit_details[0]['model_number']; ?>', partner_price_mapping_id:partner_price_mapping_id,
+                        partner_type:partner_type},
                        
                         success: function (data) {
                          
@@ -539,6 +556,8 @@
         postData['pincode'] = $("#booking_pincode").val();
         postData['city'] = $("#booking_city").val();
         postData['assigned_vendor_id'] = '<?php echo $booking_history[0]['assigned_vendor_id'];?>';
+        postData['partner_price_mapping_id'] = '<?php echo $partner_price_mapping_id;?>';
+        postData['partner_type'] = '<?php echo $partner_type;?>';
         $("#total_price").html("<br/>Rs.");
         if( postData['service_category'] !== null && postData['brand'] !== null 
                 && postData['category'] !== null && postData['pincode'].length === 6 && postData['city'] !== null){
@@ -584,6 +603,8 @@
         postData['category'] = $("#appliance_category_1").val();
         capacity = $("#appliance_capacity_1").val();
         $("#total_price").html("<br/>Rs.");
+        postData['partner_price_mapping_id'] = '<?php echo $partner_price_mapping_id;?>';
+        postData['partner_type'] = '<?php echo $partner_type;?>';
         if(capacity === null && capacity === ""){
             postData['capacity'] = "";
             
