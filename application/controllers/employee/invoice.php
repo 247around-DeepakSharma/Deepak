@@ -564,8 +564,8 @@ class Invoice extends CI_Controller {
                 $directory_xls = "invoices-excel/" . $invoice_id . ".xlsx";
                 $directory_detailed = "invoices-excel/" . $invoice_id . "-detailed.xlsx";
 
-                $this->s3->putObjectFile(TMP_FOLDER.$invoice_id . "-detailed.xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                $this->s3->putObjectFile(TMP_FOLDER.$invoice_id . ".xlsx", $bucket, $directory_detailed, S3::ACL_PUBLIC_READ);
+                $this->s3->putObjectFile(TMP_FOLDER.$invoice_id . "-detailed.xlsx", $bucket, $directory_detailed, S3::ACL_PUBLIC_READ);
+                $this->s3->putObjectFile(TMP_FOLDER.$invoice_id . ".xlsx", $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                 if($output_file_excel !=""){
                     $directory_upcountry_xls = "invoices-excel/" . $invoice_id . "-upcountry-detailed.xlsx";
                     $this->s3->putObjectFile($output_file_excel, $bucket, $directory_upcountry_xls, S3::ACL_PUBLIC_READ);
