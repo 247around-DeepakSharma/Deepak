@@ -197,6 +197,13 @@
      var type = $('input[name=type]:checked', '#booking_form').val(); 
      var source_code = $("#source_code option:selected").val();
      
+     if(pincode.length !== 6){
+        
+         alert("Please Select 6 Digit Valid Pincode Number");
+        
+         return false;
+      }
+      
      if(source_code === "Select Booking Source"){
         
          alert("Please Select Booking Source");

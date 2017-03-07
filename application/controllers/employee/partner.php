@@ -38,7 +38,8 @@ class Partner extends CI_Controller {
      * @return: void
      */
     function index() {
-       $this->load->view('partner/partner_login');
+       $data['partner_logo'] = $this->booking_model->get_partner_logo();
+       $this->load->view('partner/partner_login',$data);
 
     }
 
