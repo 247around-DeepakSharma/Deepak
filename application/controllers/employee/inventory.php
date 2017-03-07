@@ -762,24 +762,26 @@ class Inventory extends CI_Controller {
     function get_spare_parts(){
         log_message('info', __FUNCTION__. "Entering... ");
         $this->checkUserSession();
-	$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
-       
-	$config['base_url'] = base_url() . 'employee/inventory/get_spare_parts/';
-        $total_rows =  $this->booking_model->get_spare_parts_booking(0, "All");
-        
-	$config['total_rows'] = $total_rows[0]['count'];
-
-	$config['per_page'] = 50;
-	
-	$config['uri_segment'] = 4;
-	$config['first_link'] = 'First';
-	$config['last_link'] = 'Last';
-
-	$this->pagination->initialize($config);
-	$data['links'] = $this->pagination->create_links();
-	$data['spare_parts'] = $this->booking_model->get_spare_parts_booking($config['per_page'], $offset);
+//	$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
+//       
+//	$config['base_url'] = base_url() . 'employee/inventory/get_spare_parts/';
+//        $total_rows =  $this->booking_model->get_spare_parts_booking(0, "All");
+//        
+//	$config['total_rows'] = $total_rows[0]['count'];
+//
+//	$config['per_page'] = 50;
+//	
+//	$config['uri_segment'] = 4;
+//	$config['first_link'] = 'First';
+//	$config['last_link'] = 'Last';
+//
+//	$this->pagination->initialize($config);
+//	$data['links'] = $this->pagination->create_links();
+//	$data['spare_parts'] = $this->booking_model->get_spare_parts_booking($config['per_page'], $offset);
+//        echo "<pre>";
+//        print_r($data);exit();
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
-        $this->load->view('employee/get_spare_parts', $data);
+        $this->load->view('employee/get_spare_parts');
     }
     /**
      * @desc: load to Spare parts booking by Admin Panel
@@ -1002,6 +1004,16 @@ class Inventory extends CI_Controller {
         }
 
         redirect(base_url() . 'employee/inventory/show_brackets_list');
+    }
+    
+    function spare_part_booking_on_tab(){
+        log_message('info', __FUNCTION__. "Entering... ");
+	$offset = ($this->uri->segment(4) != '' ? $this->uri->segment(4) : 0);
+        $total_rows =  $this->booking_model->get_spare_parts_booking(0, "All");
+        
+	$config['total_rows'] = $total_rows[0]['count'];
+        $data['spare_parts'] = $this->booking_model->get_spare_parts_booking($config['total_rows'], $offset);
+        $this->load->view('employee/sparepart_on_tab' , $data);
     }
 
 }

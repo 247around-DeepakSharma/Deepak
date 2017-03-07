@@ -53,7 +53,7 @@ class Reporting_utils extends CI_Model {
                 JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
                 JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
                 LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-                LEFT JOIN  `booking_unit_details` ON  `booking_unit_details`.`service_id` = `booking_details`.`service_id`
+                LEFT JOIN  `booking_unit_details` ON  `booking_unit_details`.`booking_id` = `booking_details`.`booking_id`
                 WHERE ".$where."
         ORDER BY booking_age DESC"
     );
