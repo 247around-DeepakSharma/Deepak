@@ -307,8 +307,19 @@ class Partner extends CI_Controller {
             $phone_number = $this->input->post('phone_number');
             $data['user'] = $this->user_model->search_user($phone_number);
            // $data['city'] = $this->vendor_model->getDistrict();
-           
-            $data['appliances'] = $this->partner_model->get_partner_specific_services($this->session->userdata('partner_id'));
+            $partner_id = $this->session->userdata('partner_id');
+            $partner_data = $this->partner_model->get_partner_code($partner_id);
+            $partner_type = $partner_data[0]['partner_type']; 
+            $data['partner_type'] = $partner_type;
+            $data['partner_price_mapping_id'] = $partner_data[0]['price_mapping_id']; 
+            if($partner_type == OEM){
+                
+                $data['appliances'] = $this->partner_model->get_partner_specific_services($this->session->userdata('partner_id'));
+                
+            } else {
+                $data['appliances'] = $services = $this->booking_model->selectservice();
+            }
+            
             $data['phone_number'] = $phone_number;
             $this->load->view('partner/header');
             $this->load->view('partner/get_addbooking', $data);
@@ -1427,7 +1438,19 @@ class Partner extends CI_Controller {
         $booking_history = $this->booking_model->getbooking_history($booking_id);
         if(!empty($booking_history)){
             $data['booking_history'] = $booking_history;
-            $data['appliances'] = $this->partner_model->get_partner_specific_services($this->session->userdata('partner_id'));
+            $partner_id = $this->session->userdata('partner_id');
+            $partner_data = $this->partner_model->get_partner_code($partner_id);
+            $partner_type = $partner_data[0]['partner_type']; 
+            $data['partner_type'] = $partner_type;
+            $data['partner_price_mapping_id'] = $partner_data[0]['price_mapping_id']; 
+            if($partner_type == OEM){
+                
+                $data['appliances'] = $this->partner_model->get_partner_specific_services($partner_id);
+                
+            } else {
+                $data['appliances'] = $services = $this->booking_model->selectservice();
+            }
+            
             $unit_where = array('booking_id'=>$booking_id);
             $data['unit_details'] = $this->booking_model->get_unit_details($unit_where);
             $this->load->view('partner/header');
@@ -2019,18 +2042,25 @@ class Partner extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('service_id');
         $appliace_brand = $this->input->post('brand');
-
-        //Getting Unique values of Brands for Particular Partner and service id
-        $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id);
-        $data = $this->partner_model->get_partner_specific_details($where, "brand", "brand");
+        $partner_data = $this->partner_model->get_partner_code($partner_id);
+        $partner_type = $partner_data[0]['partner_type']; 
+        if($partner_type == OEM){
+            //Getting Unique values of Brands for Particular Partner and service id
+            $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id);
+            $data = $this->partner_model->get_partner_specific_details($where, "brand  As brand_name", "brand");
+        } else {
+            $data = $this->booking_model->getBrandForService($service_id);
+        }
+       
         $option = "";
         foreach($data as $value){
             $option .="<option ";
-            if($appliace_brand == $value['brand']){
+            if($appliace_brand == $value['brand_name']){
                 $option .= " selected ";
             }
-            $option .=" value='".$value['brand']."'>".$value['brand']."</option>";
+            $option .=" value='".$value['brand_name']."'>".$value['brand_name']."</option>";
         }
+        
         echo $option;
         
     }
@@ -2047,10 +2077,17 @@ class Partner extends CI_Controller {
         $service_id = $this->input->post('service_id');
         $category = $this->input->post('category');
         $brand = $this->input->post('brand');
-        //Getting Unique values of Category for Particular Partner ,service id and brand
-        $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id,'brand'=>$brand);
-       
-        $data = $this->partner_model->get_partner_specific_details($where, "category", "category");
+        $partner_type = $this->input->post('partner_type');
+        $partner_price_mapping_id = $this->input->post('partner_price_mapping_id');
+        if($partner_type == OEM){
+            //Getting Unique values of Category for Particular Partner ,service id and brand
+            $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id,'brand'=>$brand);
+
+            $data = $this->partner_model->get_partner_specific_details($where, "category", "category");
+        } else {
+             $data = $this->booking_model->getCategoryForService($service_id, $partner_price_mapping_id, "");
+        }
+        
         $option = "";
         foreach($data as $value){
             $option .="<option ";
@@ -2078,10 +2115,18 @@ class Partner extends CI_Controller {
         $brand = $this->input->post('brand');
         $category = $this->input->post('category');
         $appliance_capacity = $this->input->post('capacity');
-        //Getting Unique values of Category for Particular Partner ,service id and brand
-        $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id,'brand'=>$brand,'category'=>$category);
-        $select = "capacity";
-        $data = $this->partner_model->get_partner_specific_details($where, $select, "capacity");
+        $partner_type = $this->input->post('partner_type');
+        $partner_price_mapping_id = $this->input->post('partner_price_mapping_id');
+        if($partner_type == OEM){
+             //Getting Unique values of Category for Particular Partner ,service id and brand
+            $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id,'brand'=>$brand,'category'=>$category);
+            $select = "capacity";
+            $data = $this->partner_model->get_partner_specific_details($where, $select, "capacity");
+            
+        } else {
+             $data = $this->booking_model->getCapacityForCategory($service_id, $category, "", $partner_price_mapping_id);
+        }
+       
         $capacity = "";
         foreach($data as $value){
             
@@ -2111,10 +2156,17 @@ class Partner extends CI_Controller {
         $category = $this->input->post('category');
         $capacity = $this->input->post('capacity');
         $model_number = $this->input->post('model');
-        //Getting Unique values of Model for Particular Partner ,service id and brand
-        $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id,'brand'=>$brand,'category'=>$category,'capacity'=>$capacity);
+        $partner_type = $this->input->post('partner_type');
+        if($partner_type == OEM){
+            //Getting Unique values of Model for Particular Partner ,service id and brand
+            $where = array('partner_id'=>$partner_id, 'service_id'=>$service_id,'brand'=>$brand,'category'=>$category,'capacity'=>$capacity);
+
+            $data = $this->partner_model->get_partner_specific_details($where, "model", "model");
+            
+        } else {
+            $data[0]['model'] = "";
+        }
         
-        $data = $this->partner_model->get_partner_specific_details($where, "model", "model");
        
         if(!empty($data[0]['model'])){
             $model = "";
@@ -2369,10 +2421,10 @@ class Partner extends CI_Controller {
         $category = $this->input->post('category');
         $price_tags = $this->input->post('price_tags');
         $capacity = $this->input->post('capacity');
-        $partner_id = $this->session->userdata('partner_id');
-        $partner_data = $this->partner_model->get_partner_code($partner_id);
-        $partner_mapping_id = $partner_data[0]['price_mapping_id']; 
-        $partner_type = $partner_data[0]['partner_type']; 
+       
+        $partner_mapping_id = $this->input->post('partner_price_mapping_id');
+        $partner_type = $this->input->post('partner_type');
+
         $result = array();
         if($partner_type == OEM){
             $result = $this->partner_model->get_service_category($service_id, $category, $capacity, $partner_mapping_id,"",$brand);
@@ -2413,9 +2465,8 @@ class Partner extends CI_Controller {
         $pincode = $this->input->post('pincode');
         $service_category = $this->input->post('service_category');
         $partner_id = $this->session->userdata('partner_id');
-        $partner_data = $this->partner_model->get_partner_code($partner_id);
-        $partner_mapping_id = $partner_data[0]['price_mapping_id']; 
-        $partner_type = $partner_data[0]['partner_type']; 
+        $partner_mapping_id = $this->input->post('partner_price_mapping_id');
+        $partner_type = $this->input->post('partner_type');
         $assigned_vendor_id = $this->input->post("assigned_vendor_id");
         $result = array();
         if($partner_type == OEM){
