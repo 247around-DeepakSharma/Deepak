@@ -418,6 +418,7 @@ class Invoice extends CI_Controller {
             $end_date = date("jS M, Y", strtotime($t_date));
 
             foreach ($data as $key => $value) {
+                /*
                 switch ($value['price_tags']) {
                     case 'Wall Mount Stand':
                         $data[$key]['remarks'] = "Stand Delivered";
@@ -439,7 +440,10 @@ class Invoice extends CI_Controller {
                         $data[$key]['remarks'] = "Installation Completed";
                         break;
                 }
+                 * 
+                 */
 
+                $data[$key]['remarks'] = $value['price_tags'];
                 $data[$key]['closed_date'] = date("jS M, Y", strtotime($value['closed_date']));
                 $data[$key]['reference_date'] = date("jS M, Y", strtotime($value['reference_date']));
 
