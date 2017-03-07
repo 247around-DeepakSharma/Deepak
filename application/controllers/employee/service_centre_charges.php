@@ -276,6 +276,10 @@ class service_centre_charges extends CI_Controller {
             }
             $count = 1;
             $this->insert_data_list($type, $rows,$flag);
+            if($flag){
+                unset($rows);
+                $rows = array();
+            }
 	}
 	$reader->close();
     }
