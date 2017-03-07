@@ -267,7 +267,7 @@
      }
       
      
-    if(source_code === "SS" || source_code  === 'SP' || source_code === "SZ"){
+    if(source_code  !== "SA" || source_code  !== 'SC' || source_code !== "SW" || source_code !== "SO" ){
 
         var order_id = $('#order_id').val();
         
