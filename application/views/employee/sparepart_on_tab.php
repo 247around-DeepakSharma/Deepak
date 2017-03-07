@@ -17,14 +17,12 @@
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
-                                        <th class="text-center" data-orderable="false">Status</th>
-                                        <th class="text-center" data-orderable="false">Defective Parts Rejection Reason</th>
                                         <th class="text-center" data-orderable="false">Booking Status</th>
                                         <th class="text-center" data-orderable="false">Update</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($spare_parts as $value) { $sn_no='1'; 
+                                    <?php $sn_no='1'; foreach ($spare_parts as $value) {  
                                         if($value['status'] == 'Spare Parts Requested'){
                                     ?>
                                     <tr>
@@ -38,8 +36,6 @@
                                         <td class="text-center"><?php echo $value['source'];?></td>
                                         <td class="text-center"><?php echo $value['parts_requested'];?></td>
                                         <td class="text-center"><?php echo $value['parts_shipped'];?></td>
-                                        <td class="text-center"><?php echo $value['status'];?></td> 
-                                        <td class="text-center"><?php echo $value['remarks_defective_part_by_partner'];?></td> 
                                         <td class="text-center"><?php echo $value['current_status'];?></td> 
 
                                         <td class="text-center"><a href="<?php echo base_url(); ?>employee/inventory/update_spare_parts/<?php echo $value['booking_id'];?>" class="btn btn-sm btn-primary" ><i class="fa fa-edit"></i></a></td>
@@ -76,14 +72,13 @@
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
-                                        <th class="text-center" data-orderable="false">Status</th>
+										<th class="text-center" data-orderable="false">Defective Parts</th>
                                         <th class="text-center" data-orderable="false">Defective Parts Rejection Reason</th>
                                         <th class="text-center" data-orderable="false">Booking Status</th>
-                                        <th class="text-center" data-orderable="false">Update</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($spare_parts as $value) { $sn_no='1'; 
+                                    <?php $sn_no='1'; foreach ($spare_parts as $value) { 
                                         if($value['status'] == 'Defective Part Shipped By SF'){
                                     ?>
                                     <tr>
@@ -97,11 +92,9 @@
                                         <td class="text-center"><?php echo $value['source'];?></td>
                                         <td class="text-center"><?php echo $value['parts_requested'];?></td>
                                         <td class="text-center"><?php echo $value['parts_shipped'];?></td>
-                                        <td class="text-center"><?php echo $value['status'];?></td> 
+										<td class="text-center"><?php echo $value['defective_part_shipped'];?></td>
                                         <td class="text-center"><?php echo $value['remarks_defective_part_by_partner'];?></td> 
                                         <td class="text-center"><?php echo $value['current_status'];?></td> 
-
-                                        <td class="text-center"><a href="<?php echo base_url(); ?>employee/inventory/update_spare_parts/<?php echo $value['booking_id'];?>" class="btn btn-sm btn-primary" ><i class="fa fa-edit"></i></a></td>
                                    </tr>
                              
                                     <?php $sn_no++; }}?>
@@ -134,14 +127,12 @@
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
-                                        <th class="text-center" data-orderable="false">Status</th>
                                         <th class="text-center" data-orderable="false">Defective Parts Rejection Reason</th>
                                         <th class="text-center" data-orderable="false">Booking Status</th>
-                                        <th class="text-center" data-orderable="false">Update</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                   <?php foreach ($spare_parts as $value) { $sn_no='1'; 
+                                   <?php $sn_no='1';  foreach ($spare_parts as $value) { 
                                         if($value['status'] == 'Defective Part Pending'){
                                     ?>
                                     <tr>
@@ -155,11 +146,8 @@
                                         <td class="text-center"><?php echo $value['source'];?></td>
                                         <td class="text-center"><?php echo $value['parts_requested'];?></td>
                                         <td class="text-center"><?php echo $value['parts_shipped'];?></td>
-                                        <td class="text-center"><?php echo $value['status'];?></td> 
                                         <td class="text-center"><?php echo $value['remarks_defective_part_by_partner'];?></td> 
                                         <td class="text-center"><?php echo $value['current_status'];?></td> 
-
-                                        <td class="text-center"><a href="<?php echo base_url(); ?>employee/inventory/update_spare_parts/<?php echo $value['booking_id'];?>" class="btn btn-sm btn-primary" ><i class="fa fa-edit"></i></a></td>
                                    </tr>
                              
                                     <?php $sn_no++; }}?>
@@ -173,7 +161,7 @@
         </div>
     </div>
 </div>
-<div role="tabpanel" class="tab-pane" id="Shipped">
+<div role="tabpanel" class="tab-pane" id="shipped">
     <div class="container-fluid">
         <div class="row" >
             <div class="col-md-12">
@@ -192,14 +180,12 @@
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
-                                        <th class="text-center" data-orderable="false">Status</th>
-                                        <th class="text-center" data-orderable="false">Defective Parts Rejection Reason</th>
                                         <th class="text-center" data-orderable="false">Booking Status</th>
                                         <th class="text-center" data-orderable="false">Update</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($spare_parts as $value) { $sn_no='1'; 
+                                    <?php $sn_no='1'; foreach ($spare_parts as $value) {  
                                         if($value['status'] == 'Shipped'){
                                     ?>
                                     
@@ -213,9 +199,7 @@
                                         <td class="text-center"><?php echo $value['sc_name'];?></td>
                                         <td class="text-center"><?php echo $value['source'];?></td>
                                         <td class="text-center"><?php echo $value['parts_requested'];?></td>
-                                        <td class="text-center"><?php echo $value['parts_shipped'];?></td>
-                                        <td class="text-center"><?php echo $value['status'];?></td> 
-                                        <td class="text-center"><?php echo $value['remarks_defective_part_by_partner'];?></td> 
+                                        <td class="text-center"><?php echo $value['parts_shipped'];?></td>  
                                         <td class="text-center"><?php echo $value['current_status'];?></td> 
 
                                         <td class="text-center"><a href="<?php echo base_url(); ?>employee/inventory/update_spare_parts/<?php echo $value['booking_id'];?>" class="btn btn-sm btn-primary" ><i class="fa fa-edit"></i></a></td>
@@ -251,14 +235,11 @@
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
-                                        <th class="text-center" data-orderable="false">Status</th>
-                                        <th class="text-center" data-orderable="false">Defective Parts Rejection Reason</th>
                                         <th class="text-center" data-orderable="false">Booking Status</th>
-                                        <th class="text-center" data-orderable="false">Update</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($spare_parts as $value) { $sn_no='1'; 
+                                    <?php $sn_no='1'; foreach ($spare_parts as $value) { 
                                         if($value['status'] == 'Delivered'){
                                     ?>
                                     
@@ -273,11 +254,7 @@
                                         <td class="text-center"><?php echo $value['source'];?></td>
                                         <td class="text-center"><?php echo $value['parts_requested'];?></td>
                                         <td class="text-center"><?php echo $value['parts_shipped'];?></td>
-                                        <td class="text-center"><?php echo $value['status'];?></td> 
-                                        <td class="text-center"><?php echo $value['remarks_defective_part_by_partner'];?></td> 
                                         <td class="text-center"><?php echo $value['current_status'];?></td> 
-
-                                        <td class="text-center"><a href="<?php echo base_url(); ?>employee/inventory/update_spare_parts/<?php echo $value['booking_id'];?>" class="btn btn-sm btn-primary" ><i class="fa fa-edit"></i></a></td>
                                    </tr>
                              
                                         <?php $sn_no++; }}?>
