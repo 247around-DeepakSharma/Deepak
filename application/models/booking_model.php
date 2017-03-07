@@ -2325,5 +2325,17 @@ class Booking_model extends CI_Model {
     function insert_not_exist_appliance_brand_data($data){
         return $this->db->insert_batch('appliance_brands',$data);
     }
+    
+    /**
+     *  @desc : This function is used to get partner brand logo
+     *  @param : void()
+     *  @return :array()
+     */
+    function get_partner_logo(){
+        $this->db->select('partner_logo, alt_text');
+        $this->db->where('partner_logo !=' , 'Null');
+        $query = $this->db->get('partner_brand_logo');
+        return $query->result_array();
+    }
 
 }

@@ -8,12 +8,12 @@
             </div>
             <div class="panel-body">
                 <div role="tabpanel"> 
-                    <div class="col-md-10">
+                    <div class="col-md-12">
                         <ul class="nav nav-tabs" role="tablist" >
                             <li role="presentation" class="active"><a href="#spare_parts_requested" aria-controls="spare_parts_requested" role="tab" data-toggle="tab">Spare Parts Requested</a></li>
-                            <li role="presentation"><a href="#shipped" aria-controls="shipped" role="tab" data-toggle="tab">Shipped</a></li>
-                            <li role="presentation"><a href="#delivered" aria-controls="delivered" role="tab" data-toggle="tab">Delivered</a></li>
-                            <li role="presentation"><a href="#defective_part_pending" aria-controls="defective_part_pending" role="tab" data-toggle="tab">Defective Part Pending</a></li>
+                            <li role="presentation"><a href="#shipped" aria-controls="shipped" role="tab" data-toggle="tab">Spare Parts Shipped By Partner</a></li>
+                            <li role="presentation"><a href="#delivered" aria-controls="delivered" role="tab" data-toggle="tab">Spare Parts Received By SF</a></li>
+                            <li role="presentation"><a href="#defective_part_pending" aria-controls="defective_part_pending" role="tab" data-toggle="tab">Defective Part Pending By SF</a></li>
                             <li role="presentation"><a href="#defective_part_shipped_by_SF" aria-controls="defective_part_shipped_by_SF" role="tab" data-toggle="tab">Defective Part Shipped By SF</a></li>
                             
                         </ul>
