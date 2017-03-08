@@ -456,7 +456,7 @@
 
                 <?php } ?>
             </div>
-            <div class="col-md-12"id="booking_history" style="margin-top:20px;"></div>
+            <div class="col-md-12" id="booking_history" style="margin-top:20px;"></div>
         </div>
     </div>
 </div>
