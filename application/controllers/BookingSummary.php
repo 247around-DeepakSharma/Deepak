@@ -1072,7 +1072,7 @@ EOD;
                         $where = "AND service_centres.id IN (" . $sf_list . ")";
                     }
 
-                    $data['data'] = $this->reporting_utils->get_sc_crimes($where, 1);
+                    $data['data'] = $this->reporting_utils->get_sc_crimes($where, 1, $value['groups']);
                     if (!empty($data['data'])) {
                         //Loading view
                         $view = $this->load->view('employee/get_crimes', $data, TRUE);
