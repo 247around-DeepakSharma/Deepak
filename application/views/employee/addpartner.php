@@ -15,17 +15,18 @@
                         <div class="row">
                             <?php if(isset($query[0]['id'])){?>
                             <div class="col-md-6">
-                                <div class="dropdown" style="margin-right: 40px;">
+                                <a class="btn btn-primary" href="<?php echo base_url();?>employee/partner/upload_partner_brand_logo/<?php echo $query[0]['id']?>/<?php echo $query[0]['public_name']?>" style="margin-right:15px;">Upload Partner Brand Logo</a>
+<!--                                <div class="dropdown" style="margin-right: 40px;">
                                     <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">More Action
                                     <span class="caret"></span></button>
                                     <ul class="dropdown-menu" style="left:-25px;">
-                                      <li><a href="<?php echo base_url();?>employee/partner/upload_partner_brand_logo/<?php echo $query[0]['id']?>/<?php echo $query[0]['public_name']?>">Upload Partner Brand Logo</a></li>
+                                      <li><a href="<?php //echo base_url();?>employee/partner/upload_partner_brand_logo/<?php //echo $query[0]['id']?>/<?php //echo $query[0]['public_name']?>">Upload Partner Brand Logo</a></li>
                                       <li class="divider"></li>
-                                      <li><a href="<?php echo base_url();?>/employee/service_centre_charges/upload_excel_form/price_excel">Upload Partner Price Excel</a></li>
+                                      <li><a href="<?php //echo base_url();?>/employee/service_centre_charges/upload_excel_form/price_excel">Upload Partner Price Excel</a></li>
                                       <li class="divider"></li>
-                                      <li><a href="<?php echo base_url();?>/employee/service_centre_charges/upload_excel_form/appliance_excel">Upload Partner Appliance Excel</a></li>
+                                      <li><a href="<?php //echo base_url();?>/employee/service_centre_charges/upload_excel_form/appliance_excel">Upload Partner Appliance Excel</a></li>
                                     </ul>
-                                </div>
+                                </div>-->
                             </div>
                             <div class="col-md-6">
                                 <a href="<?php echo base_url()?>employee/partner/get_partner_login_details_form/<?php echo $query[0]['id']?>" class="btn btn-primary"><b>MANAGE LOGIN</b></a>
