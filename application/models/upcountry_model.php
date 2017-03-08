@@ -145,7 +145,7 @@ class Upcountry_model extends CI_Model {
     
     function mark_upcountry_vendor($upcountry_vendor_details, $partner_data) {
          log_message('info', __FUNCTION__ );
-       
+        
         $up_data = array();
         
         if ($partner_data[0]['is_upcountry'] == 1) {
@@ -164,16 +164,17 @@ class Upcountry_model extends CI_Model {
             $min_threshold_distance = UPCOUNTRY_MIN_DISTANCE;
             $max_threshold_distance = UPCOUNTRY_DISTANCE_THRESHOLD;
         }
+        $upcountry_distance = $upcountry_vendor_details['upcountry_distance'] - $min_threshold_distance;
 
-        if ($upcountry_vendor_details['upcountry_distance'] < ($min_threshold_distance)) {
+        if ($upcountry_distance <= ($min_threshold_distance)) {
            
             log_message('info', __FUNCTION__ ." Not Upcountry Booking ". print_r($upcountry_vendor_details, true) );
             $up_data['vendor_id'] = $upcountry_vendor_details['vendor_id'];
             $up_data['message'] = NOT_UPCOUNTRY_BOOKING;
 
             
-        } else if ($upcountry_vendor_details['upcountry_distance'] > ($min_threshold_distance)
-                && $upcountry_vendor_details['upcountry_distance'] < $max_threshold_distance) {
+        } else if ($upcountry_distance > ($min_threshold_distance)
+                && $upcountry_distance < $max_threshold_distance) {
 
             $up_data = array('upcountry_pincode' => $upcountry_vendor_details['upcountry_pincode'],
                 'upcountry_distance' => ($upcountry_vendor_details['upcountry_distance'] - $min_threshold_distance),
@@ -187,7 +188,7 @@ class Upcountry_model extends CI_Model {
             $up_data['message'] = UPCOUNTRY_BOOKING;
             log_message('info', __FUNCTION__ ." Upcountry Booking ". print_r($up_data, true) );
            
-        } else if($upcountry_vendor_details['upcountry_distance'] > $max_threshold_distance) {
+        } else if($upcountry_distance > $max_threshold_distance) {
            
             $up_data = array('upcountry_pincode' => $upcountry_vendor_details['upcountry_pincode'],
                 'upcountry_distance' => ($upcountry_vendor_details['upcountry_distance'] - $min_threshold_distance),
