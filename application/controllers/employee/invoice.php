@@ -457,7 +457,8 @@ class Invoice extends CI_Controller {
             $excel_data['invoice_id'] = $invoice_id;
             $excel_data['today'] = date("jS M, Y");
             $excel_data['company_name'] = $data[0]['company_name'];
-            $excel_data['company_address'] = $data[0]['company_address'];
+            $excel_data['company_address'] = $data[0]['company_address'].", ".
+                    $data[0]['district']. ", Pincode - ". $data[0]['pincode']. ", ".$data[0]['state'];
             $excel_data['total_installation_charge'] = $total_installation_charge;
             $excel_data['total_service_tax'] = $total_service_tax;
             $excel_data['total_stand_charge'] = $total_stand_charge;
@@ -469,7 +470,6 @@ class Invoice extends CI_Controller {
             } else {
                 $excel_data['seller_code'] = '';
             }
-            
                     
             log_message('info', 'Excel data: ' . print_r($excel_data, true));
 
@@ -537,8 +537,13 @@ class Invoice extends CI_Controller {
             $this->email->clear(TRUE);
             $this->email->from('billing@247around.com', '247around Team');
             $to = ANUJ_EMAIL_ID;
-            $subject = "DRAFT Partner INVOICE Detailed- 247around - " . $data[0]['company_name'] .
-                    " Invoice for period: " . $start_date . " to " . $end_date;
+            if($invoice_type == "final"){
+                $subject = "FINAL Partner INVOICE Detailed- 247around - " . $data[0]['company_name'] .
+                    " Invoice for period: " . $f_date . " to " . $t_date;
+            } else {
+                $subject = "DRAFT Partner INVOICE Detailed- 247around - " . $data[0]['company_name'] .
+                    " Invoice for period: " . $f_date . " to " . $t_date;
+            }
 
             $this->email->to($to);
             $this->email->subject($subject);
@@ -546,7 +551,7 @@ class Invoice extends CI_Controller {
             if($output_file_excel !=""){
                 $this->email->attach($output_file_excel, 'attachment');
             }
-           // $this->email->attach($files_name . ".pdf", 'attachment');
+            $this->email->attach(TMP_FOLDER .$invoice_id. ".xls", 'attachment');
 
             $mail_ret = $this->email->send();
             
@@ -574,7 +579,7 @@ class Invoice extends CI_Controller {
                     $directory_upcountry_xls = "invoices-excel/" . $invoice_id . "-upcountry-detailed.xlsx";
                     $this->s3->putObjectFile($output_file_excel, $bucket, $directory_upcountry_xls, S3::ACL_PUBLIC_READ);
                 }
-                $tds = ($excel_data['total_installation_charge'] *.02);
+                $tds = 0;
               
                 $invoice_details = array(
                     'invoice_id' => $invoice_id,
@@ -601,6 +606,7 @@ class Invoice extends CI_Controller {
                     'rating' => 5,
                     'invoice_date' => date('Y-m-d'),
                     'around_royalty' => $excel_data['total_charges'],
+                    'due_date' => date("Y-m-d", strtotime($t_date . "+1 month")),
                     //Amount needs to be collected from Vendor
                     'amount_collected_paid' => ($excel_data['total_charges'] -$tds),
                 );
@@ -2256,24 +2262,24 @@ class Invoice extends CI_Controller {
             log_message('info', __FUNCTION__ . ' File created ' . $output_file_excel);
             system(" chmod 777 " . $output_file_excel, $res1);
             
-            $this->email->clear(TRUE);
-            $this->email->from('billing@247around.com', '247around Team');
-            $to = ANUJ_EMAIL_ID;
-            $subject = "DRAFT INVOICE (SUMMARY) - 247around - " . $invoices['meta']['company_name'];
-
-            $this->email->to($to);
-            $this->email->subject($subject);
-            $this->email->attach($output_file_excel, 'attachment');
-
-            $mail_ret = $this->email->send();
-
-            if ($mail_ret) {
-                log_message('info', __METHOD__ . ": Mail sent successfully");
-                echo "Mail sent successfully..............." . PHP_EOL;
-            } else {
-                log_message('info', __METHOD__ . ": Mail could not be sent");
-                echo "Mail could not be sent..............." . PHP_EOL;
-            }
+//            $this->email->clear(TRUE);
+//            $this->email->from('billing@247around.com', '247around Team');
+//            $to = ANUJ_EMAIL_ID;
+//            $subject = "DRAFT INVOICE (SUMMARY) - 247around - " . $invoices['meta']['company_name'];
+//
+//            $this->email->to($to);
+//            $this->email->subject($subject);
+//            $this->email->attach($output_file_excel, 'attachment');
+//
+//            $mail_ret = $this->email->send();
+//
+//            if ($mail_ret) {
+//                log_message('info', __METHOD__ . ": Mail sent successfully");
+//                echo "Mail sent successfully..............." . PHP_EOL;
+//            } else {
+//                log_message('info', __METHOD__ . ": Mail could not be sent");
+//                echo "Mail could not be sent..............." . PHP_EOL;
+//            }
 
             
             if ($invoice_type == "final") {
