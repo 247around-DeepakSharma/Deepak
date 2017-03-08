@@ -600,10 +600,10 @@ class Upcountry_model extends CI_Model {
      * @return Array
      */
     function get_waiting_for_approval_upcountry_charges($partner_id){
-        
+        $this->db->distinct();
         $this->db->select('bd.booking_id,request_type,name,booking_primary_contact_no,services,'
                 . ' appliance_brand,appliance_category, appliance_capacity, '
-                . ' booking_address,bd.city, bd.booking_pincode, bd.state, bd.upcountry_distance');
+                . ' booking_address,bd.city, bd.booking_pincode, bd.state, bd.upcountry_distance, bd.partner_upcountry_rate');
         $this->db->from('booking_details As bd');
         $this->db->where_in('current_status',array(_247AROUND_PENDING,_247AROUND_RESCHEDULED));
         $this->db->where('upcountry_partner_approved','0');

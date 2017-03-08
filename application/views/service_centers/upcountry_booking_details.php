@@ -16,7 +16,7 @@
                 </thead>
                 <tbody>
                 <tbody>
-                    <?php foreach ($data as $key => $row) { ?>
+                    <?php if($data) {foreach ($data as $key => $row) { ?>
                     <tr class="text-center">
                         <td>
                             <?php echo $row['booking']; ?>
@@ -31,7 +31,7 @@
                             <i class="fa fa-inr" aria-hidden="true"></i> <?php echo $row['upcountry_price']; ?>
                         </td>
                     </tr>
-                    <?php } ?>
+                    <?php }} ?>
                 </tbody>
             </table>
         </div>

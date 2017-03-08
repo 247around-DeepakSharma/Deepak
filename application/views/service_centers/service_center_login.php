@@ -20,7 +20,7 @@
         <script src="<?php echo base_url() ?>js/bootstrap.js"></script>
         <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
         <link href="<?php echo base_url() ?>font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-        <link href=".css/sb-admin.css" rel="stylesheet">
+        <link href="<?php echo base_url() ?>css/sb-admin.css" rel="stylesheet">
         <style>
             body{
                 text-align:center;
