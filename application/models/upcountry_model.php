@@ -75,10 +75,11 @@ class Upcountry_model extends CI_Model {
                             $res_sb[0]['pincode'], $res_sb[0]['district']);
                         
                         if($is_distance1){
-                            $distance = (round($is_distance1['distance']['value'] / 1000, 2));
-                            $this->insert_distance($booking_pincode, $res_sb[0]['pincode'], $distance);
+                            $distance1 = (round($is_distance1['distance']['value'] / 1000, 2));
+                            $this->insert_distance($booking_pincode, $res_sb[0]['pincode'], $distance1);
                              log_message('info', __FUNCTION__ ." Insert distance & pincode " . $booking_pincode.
-                                     $res_sb[0]['pincode']. $distance);
+                                     $res_sb[0]['pincode']. $distance1);
+                            $distance = $distance1 * 2;
                         }
                     } else {
                         log_message('info', __FUNCTION__ ." Distance exist in table." . $distance);
@@ -155,8 +156,8 @@ class Upcountry_model extends CI_Model {
                 $partner_upcountry_rate = $partner_data[0]['upcountry_rate1'];
             }
             $partner_upcountry_approval = $partner_data[0]['upcountry_approval'];
-            $min_threshold_distance = $partner_data[0]['upcountry_min_distance_threshold'];
-            $max_threshold_distance = $partner_data[0]['upcountry_max_distance_threshold'];
+            $min_threshold_distance = $partner_data[0]['upcountry_min_distance_threshold'] *2;
+            $max_threshold_distance = $partner_data[0]['upcountry_max_distance_threshold'] * 2;
         } else {
             $partner_upcountry_approval = 0;
             $partner_upcountry_rate = DEFAULT_UPCOUNTRY_RATE;
@@ -345,7 +346,7 @@ class Upcountry_model extends CI_Model {
                     sc.beneficiary_name, sc.id, sc.owner_phone_1,
                     sc.bank_account, 
                     sc.bank_name,
-		    sc.ifsc_code, sc.address "
+            sc.ifsc_code, sc.address "
                 . " FROM `booking_details` AS bd, booking_unit_details AS ud, service_centres as sc, services "
                 . " WHERE ud.booking_id = bd.booking_id "
                 . " AND bd.assigned_vendor_id = '$vendor_id' "
@@ -387,11 +388,11 @@ class Upcountry_model extends CI_Model {
                 $select = " date('Y-m-01')  as month, ";
             } else if ($i == 1) {
                 $where = "  AND  ud_closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
-			    AND ud_closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
+                AND ud_closed_date < DATE_FORMAT(NOW() ,'%Y-%m-01')  ";
                 $select =" DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') as month, ";
             } else if ($i == 2) {
                 $where = "  AND  ud_closed_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
-			    AND ud_closed_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')";
+                AND ud_closed_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')";
                 $select = "DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01') as month, ";
             }
 
@@ -620,14 +621,17 @@ class Upcountry_model extends CI_Model {
         return $query->result_array();
     }
     
-    function get_booking($service_center_id){
+    function get_booking(){
         $this->db->distinct();
         $this->db->select('bd.booking_id');
         $this->db->from('booking_details as bd');
         $this->db->join("booking_unit_details as ud ", "ud.booking_id = bd.booking_id");
-        $this->db->where('closed_date >=','2016-12-01');
+        $this->db->join("service_centres as sc ", "sc.id = bd.assigned_vendor_id");
+        $this->db->where('ud_closed_date >=','2016-12-01');
+        $this->db->where('ud_closed_date <','2017-01-01');
         $this->db->where('booking_status >=','Completed');
-        $this->db->where('assigned_vendor_id',$service_center_id);
+        $this->db->where('sc.is_upcountry',1);
+       
         $query= $this->db->get();
         return $query->result_array();
     }
@@ -675,6 +679,7 @@ class Upcountry_model extends CI_Model {
         }
     }
     
+    
     /**
      * @desc This method is used to update sub_service_center_details table via ajax call
      * @param array(),string
@@ -704,5 +709,6 @@ class Upcountry_model extends CI_Model {
         $result = $this->db->delete('sub_service_center_details');
         return $result;
     }
+    
     
 }
