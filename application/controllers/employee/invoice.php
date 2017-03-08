@@ -464,9 +464,9 @@ class Invoice extends CI_Controller {
             $excel_data['total_stand_charge'] = $total_stand_charge;
             $excel_data['total_vat_charge'] = $total_vat_charge;
             $excel_data['total_charges'] = $total_charges;
-            $excel_data['period'] = $start_date . " To" . $end_date;
+            $excel_data['period'] = $start_date . " To " . $end_date;
             if(!empty($data[0]['seller_code'])){
-                $excel_data['seller_code'] = "Seller Code ".$data[0]['seller_code'];
+                $excel_data['seller_code'] = "Seller Code: ".$data[0]['seller_code'];
             } else {
                 $excel_data['seller_code'] = '';
             }
@@ -551,7 +551,7 @@ class Invoice extends CI_Controller {
             if($output_file_excel !=""){
                 $this->email->attach($output_file_excel, 'attachment');
             }
-            $this->email->attach(TMP_FOLDER .$invoice_id. ".xls", 'attachment');
+            $this->email->attach(TMP_FOLDER .$invoice_id. ".xlsx", 'attachment');
 
             $mail_ret = $this->email->send();
             
@@ -599,7 +599,7 @@ class Invoice extends CI_Controller {
                     'vat' => $excel_data['total_vat_charge'],
                     'total_amount_collected' => ($excel_data['total_charges']- $tds + $excel_data['total_upcountry_price']),
                     'tds_amount' =>$tds,
-                    'tds_rate' =>'2',
+                    'tds_rate' =>'0',
                     'upcountry_booking' => $total_upcountry_booking,
                     'upcountry_distance' => $total_upcountry_distance,
                     'upcountry_price' => $excel_data['total_upcountry_price'],
