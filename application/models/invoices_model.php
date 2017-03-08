@@ -432,9 +432,10 @@ class invoices_model extends CI_Model {
                 . " `booking_details`.partner_id, `booking_details`.source,"
                 . " `booking_details`.city, `booking_unit_details`.ud_closed_date as closed_date, "
                 . "  price_tags, `partners`.company_name,partners.seller_code, "
-                . " `partners`.company_address, "
-                . " `booking_unit_details`.appliance_capacity, "
-                . " `services`.services, "
+                . " `partners`.address as company_address, "
+                . " `booking_unit_details`.appliance_capacity, partners.state, partners.district, partners.pincode,"
+                . "  booking_details.booking_primary_contact_no,  "
+                . " `services`.services, users.name, "
                 . " '$from_date' as start_date,  "
                 . " '$to_date'  as end_date,
 
@@ -463,10 +464,11 @@ class invoices_model extends CI_Model {
                THEN (ROUND(partner_net_payable * 0.05,2) ) 
                ELSE 0 END) as vat
 
-              From booking_details, booking_unit_details, services, partners
+              From booking_details, booking_unit_details, services, partners, users
                   WHERE `booking_details`.booking_id = `booking_unit_details`.booking_id 
                   AND `services`.id = `booking_details`.service_id  
                   AND booking_status = 'Completed' 
+                  AND users.user_id = booking_details.user_id
                   AND booking_details.partner_id = '" . $partner_id
                 . "' AND booking_unit_details.booking_status = 'Completed' "
                 . " AND booking_unit_details.partner_net_payable > 0 "
@@ -479,7 +481,6 @@ class invoices_model extends CI_Model {
 
         $query1 = $this->db->query($sql1);
         $result1['main_invoice'] = $query1->result_array();
-        
         $result1['upcountry_invoice'] = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date);
 
         return $result1;
@@ -728,7 +729,7 @@ class invoices_model extends CI_Model {
                 COUNT( ud.`appliance_capacity` ) AS qty, 
                 (partner_net_payable * COUNT( ud.`appliance_capacity` )) AS p_part_cost,
                 `partners`.company_name,
-                `partners`.company_address,
+                `partners`.address as company_address, partners.pincode, partners.district,
                 `partners`.state,
                 `partners`.seller_code
                 FROM  `booking_unit_details` AS ud, services, partners
@@ -774,7 +775,7 @@ class invoices_model extends CI_Model {
                 COUNT( ud.`appliance_capacity` ) AS qty, 
                 (partner_net_payable * COUNT( ud.`appliance_capacity` )) AS  s_total_service_charge,
                 `partners`.company_name,
-                `partners`.company_address,
+                `partners`.address as company_address, partners.pincode, partners.district,
                 `partners`.state,
                 `partners`.seller_code
                 FROM  `booking_unit_details` AS ud, services, partners
@@ -828,7 +829,8 @@ class invoices_model extends CI_Model {
 
 
             $meta['company_name'] = $result[0]['company_name'];
-            $meta['company_address'] = $result[0]['company_address'];
+            $meta['company_address'] = $result[0]['company_address'].", ".
+                    $result[0]['district']. ", Pincode - ". $result[0]['pincode']. ", ".$result[0]['state'];
             if(!empty($result[0]['seller_code'])){
                 $meta['seller_code'] = "Seller Code". $result[0]['seller_code'];
             } else {
