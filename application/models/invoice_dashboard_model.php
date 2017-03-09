@@ -11,8 +11,10 @@ class Invoice_dashboard_model extends CI_Model {
     /**
      * @desc This is used to get count completed  line item
      */
-    function get_count_unit_details($from_date,$to_date){
-        log_message("info", $from_date." ".$to_date);
+    function get_count_unit_details($from_date_tmp,$to_date_tmp){
+        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
+        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
+        
         $sql = "SELECT booking_unit_details.partner_id, source, COUNT( booking_unit_details.id ) AS total_unit
                 FROM  `booking_unit_details` , bookings_sources
                 WHERE booking_status =  'Completed'
@@ -31,7 +33,9 @@ class Invoice_dashboard_model extends CI_Model {
      * @desc  get count by appliance and price tag
      * @param String $partner_id
      */
-    function get_count_services($partner_id, $from_date, $to_date){
+    function get_count_services($partner_id, $from_date_tmp, $to_date_tmp){
+        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
+        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         $sql = "SELECT ud.service_id, COUNT( ud.id ) AS total_unit,
                 CASE 
                
@@ -73,7 +77,9 @@ class Invoice_dashboard_model extends CI_Model {
      * @desc: Duplicate entry in unit details
      * @param String $partner_id
      */
-    function check_duplicate_completed_booking($partner_id,$from_date, $to_date){
+    function check_duplicate_completed_booking($partner_id,$from_date_tmp, $to_date_tmp){
+        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
+        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         $sql ="SELECT DISTINCT (
                 b1.`booking_id`
                 ), b1.`price_tags` 
@@ -107,10 +113,13 @@ class Invoice_dashboard_model extends CI_Model {
      * @desc: Wall Mount stand added but installation not added
      * @param String $partner_id
      */
-    function installation_not_added($partner_id,$from_date, $to_date){
+    function installation_not_added($partner_id,$from_date_tmp, $to_date_tmp){
+        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
+        $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         $sql = "SELECT booking_id FROM `booking_unit_details`"
                 . " WHERE booking_status = 'Completed' "
-                . " AND ud_closed_date >= '2017-02-01' AND price_tags = 'Wall Mount Stand' "
+                . " AND ud_closed_date >= '$from_date' AND price_tags = 'Wall Mount Stand' "
+                . " AND ud_closed_date < '$to_date' "
                 . " AND service_id ='46' "
                 . " AND booking_id NOT IN (SELECT booking_id FROM `booking_unit_details` "
                 . " WHERE booking_status = 'Completed' "
