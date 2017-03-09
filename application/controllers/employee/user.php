@@ -170,6 +170,7 @@ class User extends CI_Controller {
     function loadViews($output) {
 
         $results['user'] = $output;
+        $results['pincode'] = $this->vendor_model->getPincode_from_india_pincode();
         //gets all states while adding user as users can be of any state
         $results['state'] = $this->vendor_model->getall_state();
         $this->load->view('employee/header/'.$this->session->userdata('user_group'));
