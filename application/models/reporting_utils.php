@@ -1722,5 +1722,32 @@ class Reporting_utils extends CI_Model {
         $query = $this->db->query($sql);
         return $query;
     }
+    
+    /**
+     * @Desc: This function is used to get Partner completed bookings reports
+     * @params: string
+     * @return: array()
+     * 
+     */
+    function get_partners_booking_report_chart_data($flag=""){
+        if($flag == "cuurent_month"){
+            $where ="MONTH(bd.create_date) = MONTH(CURDATE()) and 
+                      YEAR(bd.create_date) = YEAR(CURDATE())";
+        }else if($flag == "last_month"){
+            $where ="MONTH(bd.create_date) = MONTH(CURRENT_DATE - INTERVAL 1 MONTH) and 
+                      YEAR(bd.create_date) = YEAR(CURRENT_DATE - INTERVAL 1 MONTH)";
+        }else{
+            $where = "";
+        }
+        $this->db->distinct();
+        $this->db->select('bd.partner_id,p.public_name,count(*) as completed');
+        $this->db->from('booking_details as bd');
+        $this->db->join('partners as p','bd.partner_id=p.id','left');
+        $this->db->where('bd.current_status','completed');
+        $this->db->where($where);
+        $this->db->group_by('partner_id');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 
 }
