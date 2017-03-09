@@ -116,20 +116,22 @@ class Invoice_dashboard_model extends CI_Model {
     function installation_not_added($partner_id,$from_date_tmp, $to_date_tmp){
         $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
-        $sql = "SELECT booking_id FROM `booking_unit_details`"
-                . " WHERE booking_status = 'Completed' "
-                . " AND ud_closed_date >= '$from_date' AND price_tags = 'Wall Mount Stand' "
-                . " AND ud_closed_date < '$to_date' "
-                . " AND service_id ='46' "
-                . " AND booking_id NOT IN (SELECT booking_id FROM `booking_unit_details` "
-                . " WHERE booking_status = 'Completed' "
+        $sql = "SELECT booking_id FROM `booking_unit_details` as ud  "
+                . " WHERE booking_status = 'Completed'  "
                 . " AND ud_closed_date >= '$from_date' "
-                . " AND ud_closed_date < '$to_date' "
+                . " AND price_tags = 'Wall Mount Stand'  "
+                . " AND ud_closed_date < '$to_date'  "
+                . " AND service_id ='46' "
                 . " AND partner_id = '$partner_id' "
-                . " AND price_tags = 'Installation & Demo' "
-                . " AND service_id ='46')";
+                . " AND NOT EXISTS (SELECT booking_id FROM `booking_unit_details`  "
+                . " WHERE booking_status = 'Completed'  "
+                . " AND ud_closed_date >= '$from_date'  "
+                . " AND ud_closed_date < '$to_date'  "
+                . " AND partner_id = '$partner_id'  "
+                . " AND price_tags = 'Installation & Demo'  AND service_id ='46'  )";
         
         $query = $this->db->query($sql);
+        log_message('info', $this->db->last_query());
         return $query->result_array();
     }
 }
