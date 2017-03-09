@@ -124,7 +124,13 @@
                  <div class="form-group <?php if( form_error('pincode') ) { echo 'has-error';} ?>">
                   <label for="pincode" class="col-md-2">Pincode</span></label>
                       <div class="col-md-6">
-                        <input type="text" class="form-control"  id="pincode" name="pincode" value = "<?php echo set_value('pincode');  ?>" placeholder="Please enter user's pincode." >
+<!--                        <input type="text" class="form-control"  id="pincode" name="pincode" value = "<?php //echo set_value('pincode');  ?>" placeholder="Please enter user's pincode." >-->
+                        <select  class="form-control"  id="pincode" name="pincode" required>
+                            <option selected="selected" disabled="disabled">Select Pincode</option>
+                            <?php foreach ($pincode as $value) { ?>
+                                <option value="<?php echo $value['pincode']; ?>" ><?php echo $value['pincode']; ?></option>
+                            <?php  } ?>
+                        </select>
                         <?php echo form_error('pincode'); ?>
                       </div>  
                  </div>
@@ -145,6 +151,9 @@
 
 <script type="text/javascript">
   $('#state').select2();
+  $("#pincode").select2({
+         tags: true
+    });
   $("#city").select2({
          tags: true
     });
