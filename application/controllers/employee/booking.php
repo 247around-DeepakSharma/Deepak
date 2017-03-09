@@ -1197,6 +1197,11 @@ class Booking extends CI_Controller {
 
 	$data['service_center'] = $this->booking_model->selectservicecentre($booking_id);
         $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id);
+        
+        $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id);
+        if(!is_null($data['booking_history'][0]['sub_vendor_id'])){
+            $data['dhq'] = $this->upcountry_model->get_sub_service_center_details(array('id' =>$data['booking_history'][0]['sub_vendor_id']));
+        }
 
 
 	$this->load->view('employee/header/'.$this->session->userdata('user_group'));
