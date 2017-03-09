@@ -39,7 +39,22 @@
                                     } ?>">
                                     <label for="booking_pincode" class="col-md-4">Pincode *</label>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php if(isset($booking_history[0]['booking_pincode'])){echo $booking_history[0]['booking_pincode'];} ?>" placeholder="Enter Area Pin" >
+<!--                                        <input type="text" class="form-control" id="booking_pincode" name="booking_pincode" value = "<?php //if(isset($booking_history[0]['booking_pincode'])){echo $booking_history[0]['booking_pincode'];} ?>" placeholder="Enter Area Pin" >-->
+                                            <select   class="form-control"  id="booking_pincode" name="booking_pincode" required>
+                                                <option selected="selected" disabled="disabled">Select Pincode</option>
+                                                <?php
+
+                                                     $flag = 0;
+                                                    foreach ($pincode as $key => $value) {
+
+                                                        ?>
+                                                <option <?php if($value['pincode'] == $booking_history[0]['pincode']){ echo "Selected"; $flag = 1; }?>><?php echo $value['pincode']; ?></option>
+                                                <?php  }
+                                                    ?>
+                                                <?php if($flag == 0){ ?>
+                                                <option selected="selected" ><?php echo $booking_history[0]['pincode']; ?></option>
+                                                <?php } ?>
+                                            </select>
                                     </div>
                                 </div>
                                 <div class="form-group ">
@@ -142,7 +157,7 @@
                         </div>
                     </div>
                     <!-- row End  -->
-                    <input type="hidden" name="appliance_id[]" value="<?php echo $unit_details[0]['appliance_id']; ?>"/>
+                    <input type="hidden" name="appliance_id[]" value="<?php if(isset($unit_details[0]['appliance_id'])){echo $unit_details[0]['appliance_id'];} ?>"/>
                     <div class="clonedInput panel panel-info " id="clonedInput1">
                         <!--  <i class="fa fa-plus addsection pull-right fa-3x" aria-hidden="true" style ="margin-top:15px; margin-bottom: 15px; margin-right:40px; "></i>
                             <i class="fa fa-times pull-right deletesection  fa-3x"  style ="margin-top:15px; margin-bottom: 15px; margin-right:20px; " aria-hidden="true"></i>-->
@@ -648,6 +663,9 @@
 
     $(".booking_source").select2();
     $("#service_id").select2();
+    $("#booking_pincode").select2({
+         tags: true
+    });
     $("#booking_city").select2({
          tags: true
     });

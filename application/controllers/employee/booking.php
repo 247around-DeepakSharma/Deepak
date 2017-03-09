@@ -1362,6 +1362,7 @@ class Booking extends CI_Controller {
         } else {
             $booking['services'] =  $this->booking_model->selectservice();
         }
+        $booking['pincode'] = $this->vendor_model->getPincode_from_india_pincode();
 	$booking['capacity'] = array();
         $booking['category'] = array();
         $booking['brand'] = array();
