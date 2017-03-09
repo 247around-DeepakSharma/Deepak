@@ -13,7 +13,7 @@ class Login extends CI_Controller {
         parent::__Construct();
         $this->load->model('employeelogin');
         $this->load->model('employee_model');
-        
+        $this->load->model('booking_model');
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
         $this->load->library("session");
@@ -76,7 +76,8 @@ class Login extends CI_Controller {
                 $this->loadView($output);
             }
         } else {
-            $this->load->view('employee/login');
+            $data['partner_logo'] = $this->booking_model->get_partner_logo();
+            $this->load->view('employee/login',$data);
         }
     }
 
