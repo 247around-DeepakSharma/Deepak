@@ -293,8 +293,9 @@
                         <li>
                             <a href="<?php echo base_url() ?>employee/invoice/show_all_transactions/vendor"><i class="fa fa-fw fa-desktop "></i> <strong> Service Center Transactions</strong></a>
                         </li>
+                         <li class="divider"></li>
                         <li>
-                            <a href="<?php echo base_url() ?>employee/employee/invoiceDashboard"><i class="fa fa-fw fa-desktop "></i> <strong> Invoice Check</strong></a>
+                            <a href="<?php echo base_url() ?>employee/invoiceDashboard"><i class="fa fa-fw fa-desktop "></i> <strong> Invoice Check</strong></a>
                         </li>
                     </ul>
                     <!-- /.dropdown-user -->
