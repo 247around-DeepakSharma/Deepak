@@ -1492,5 +1492,32 @@ EOD;
         $this->load->view('employee/header/' . $this->session->userdata('user_group'));
         $this->load->view('employee/show_service_center_report', $data);
     }
+    
+    /**
+     * @Desc: This function is used to show Partner completed bookings
+     * @params: void()
+     * @return: void()
+     * 
+     */
+    function partners_booking_report_chart(){
+        $flag = "cuurent_month";
+        $data['data']= $this->reporting_utils->get_partners_booking_report_chart_data($flag);
+        $this->load->view('employee/header/' . $this->session->userdata('user_group'));
+        $this->load->view('employee/show_partners_booking_report_chart',$data);
+    }
+    
+    /**
+     * @Desc: This function is used to show Partner completed bookings on ajax call 
+     * on the basis of selected range
+     * @params: void()
+     * @return: view
+     * 
+     */
+    function get_partners_booking_report_chart(){
+        $flag = $this->input->post('flag');
+        $data['data']= $this->reporting_utils->get_partners_booking_report_chart_data($flag);
+        $data['ajax_call']=true;
+        echo $this->load->view('employee/show_partners_booking_report_chart', $data,true);
+    }
 
 }
