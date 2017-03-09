@@ -695,9 +695,10 @@ class invoices_model extends CI_Model {
      * @param String $to_date
      * @return Array
      */
-    function generate_partner_invoice($partner_id, $from_date_tmp, $to_date_tmp) {
+    function generate_partner_invoice($partner_id, $from_date_tmp, $to_date_tmp, $upcountry_flag = true) {
         $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
+        log_message("info", $from_date. "- ". $to_date);
         // For Product
         $sql = "SELECT DISTINCT (`partner_net_payable`) AS p_rate, '' AS upcountry_charges,  '' AS s_service_charge, '' AS s_total_service_charge,
                 5.00 AS p_tax_rate, 
@@ -795,23 +796,25 @@ class invoices_model extends CI_Model {
         $result = array_merge($service, $product);
            
         if (!empty($result)) {
-            $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date);
-            
-            $meta['total_upcountry_charges'] = 0;
-            if(!empty($upcountry_data)){
-               $up_country = array();
-               $up_country[0]['s_total_service_charge'] = '';
-               $up_country[0]['p_tax_rate'] ='';
-               $up_country[0]['p_part_cost'] =  '';
-               $up_country[0]['s_service_charge'] = '';
-               $up_country[0]['qty'] = $upcountry_data[0]['total_booking'];
-               $up_country[0]['description'] = 'Upcountry Services';
-               $up_country[0]['p_rate'] =  $upcountry_data[0]['partner_upcountry_rate'];
-               $up_country[0]['upcountry_charges'] =  $upcountry_data[0]['total_upcountry_price'];
-               $meta['total_upcountry_charges'] = $upcountry_data[0]['total_upcountry_price'];
-             
-               $result = array_merge($result, $up_country);
-            
+             $meta['total_upcountry_charges'] = 0;
+            if ($upcountry_flag) {
+                $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date);
+
+               
+                if (!empty($upcountry_data)) {
+                    $up_country = array();
+                    $up_country[0]['s_total_service_charge'] = '';
+                    $up_country[0]['p_tax_rate'] = '';
+                    $up_country[0]['p_part_cost'] = '';
+                    $up_country[0]['s_service_charge'] = '';
+                    $up_country[0]['qty'] = $upcountry_data[0]['total_booking'];
+                    $up_country[0]['description'] = 'Upcountry Services';
+                    $up_country[0]['p_rate'] = $upcountry_data[0]['partner_upcountry_rate'];
+                    $up_country[0]['upcountry_charges'] = $upcountry_data[0]['total_upcountry_price'];
+                    $meta['total_upcountry_charges'] = $upcountry_data[0]['total_upcountry_price'];
+
+                    $result = array_merge($result, $up_country);
+                }
             }
             $meta['total_part_cost'] = 0;
             $meta['total_service_cost'] = 0;
@@ -830,7 +833,7 @@ class invoices_model extends CI_Model {
 
             $meta['company_name'] = $result[0]['company_name'];
             $meta['company_address'] = $result[0]['company_address'].", ".
-                    $result[0]['district']. ", Pincode - ". $result[0]['pincode']. ", ".$result[0]['state'];
+                    $result[0]['district']. ", Pincode -". $result[0]['pincode']. ", ".$result[0]['state'];
             if(!empty($result[0]['seller_code'])){
                 $meta['seller_code'] = "Seller Code: ". $result[0]['seller_code'];
             } else {

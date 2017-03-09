@@ -26,13 +26,13 @@ class InvoiceDashboard extends CI_Controller {
         $this->load->model("partner_model");
         $this->load->model("upcountry_model");
 
-//
-//        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
-//            return TRUE;
-//        } else {
-//            echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
-//            redirect(base_url() . "employee/login");
-//        }
+
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+            return TRUE;
+        } else {
+            echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
+            redirect(base_url() . "employee/login");
+        }
     }
     /**
      * @desc: this is used to load invoice dashboard view
