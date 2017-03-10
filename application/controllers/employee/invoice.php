@@ -1969,6 +1969,7 @@ class Invoice extends CI_Controller {
                         'rating' => 0,
                         'around_royalty' => $invoice[0]['total'],
                         'amount_collected_paid' => $invoice[0]['total'],
+                        'invoice_date' => date('Y-m-d'),
                         'tds_amount' => 0.0,
                         'amount_paid' => 0.0,
                         'settle_amount' => 0,
