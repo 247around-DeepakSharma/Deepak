@@ -23,7 +23,7 @@ class Invoice_dashboard_model extends CI_Model {
                 AND partner_invoice_id IS NULL 
                 AND partner_net_payable > 0
                 AND booking_unit_details.partner_id = bookings_sources.partner_id
-                GROUP BY booking_unit_details.partner_id
+                GROUP BY booking_unit_details.partner_id ORDER BY source
                 ";
         
         $query = $this->db->query($sql);

@@ -1006,6 +1006,9 @@ class vendor extends CI_Controller {
                 'sub_vendor_id'=> NULL,
                 'sf_upcountry_rate'=> NULL,
                 'partner_upcountry_rate'=> NULL,
+                'is_penalty' => 0,
+                'upcountry_partner_approved' => 1,
+                'upcountry_paid_by_customer' =>0,
                 'upcountry_distance'=> NULL);
             
             $this->booking_model->update_booking($booking_id, $assigned_data);

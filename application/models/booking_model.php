@@ -1746,17 +1746,13 @@ class Booking_model extends CI_Model {
 
         if($data['booking_status'] == "Completed"){
             // get booking unit data on the basis of id
-            $this->db->select('booking_id, around_net_payable,booking_status, partner_net_payable, '
-                    . 'tax_rate, price_tags, partner_paid_basic_charges, around_paid_basic_charges, product_or_services, vendor_basic_percentage');
+            $this->db->select('booking_id, around_net_payable,booking_status, '
+                    . ' partner_net_payable as partner_paid_basic_charges, partner_net_payable, '
+                    . ' tax_rate, price_tags, around_paid_basic_charges, product_or_services, vendor_basic_percentage');
             $this->db->where('id', $data['id']);
             $query = $this->db->get('booking_unit_details');
             $unit_details = $query->result_array();
             
-            if($unit_details[0]['booking_status'] == "Completed"){
-                
-                $unit_details[0]['partner_paid_basic_charges'] = $unit_details[0]['partner_net_payable'];  
-            } 
-
             $this->update_price_in_unit_details($data, $unit_details);
 
         } else if($data['booking_status'] == "Cancelled") {
