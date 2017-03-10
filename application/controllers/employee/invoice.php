@@ -1849,8 +1849,7 @@ class Invoice extends CI_Controller {
         $invoice = $this->inventory_model->get_vendor_bracket_invoices($vendor_id, $from_date, $to_date1);
 
         if (!empty($invoice)) {
-
-            $invoice[0]['period'] = date("jS M, Y", strtotime($from_date)) . " To " . date('jS M, Y');
+            $invoice[0]['period'] = date("jS M, Y", strtotime($from_date)) . " To " . date('jS M, Y', strtotime($to_date));
             $invoice[0]['today'] = date("jS M, Y");
             if (isset($details['invoice_id'])) {
                 log_message('info', __METHOD__ . ": Invoice Id re- geneterated " . $details['invoice_id']);
